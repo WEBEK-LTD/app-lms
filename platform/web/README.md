@@ -111,7 +111,7 @@ plus a check that the committed migrations match the schema.
 | `YALLAPP_DATA` | no | `mysql` (default) or `memory` (local and tests only). |
 | `DATABASE_URL` | yes | `mysql://USER:PASSWORD@host.webek.org:3306/DATABASE` |
 | `DATABASE_SSL` | no | `required` (default). `disabled` is refused on Netlify. |
-| `DATABASE_CA` | no | PEM of the CA when the server certificate isn't publicly trusted (`\n` allowed for newlines). |
+| `DATABASE_CA` | no | The CA of the database server: `host.webek.org` for the bundled one (`src/lib/db/known-cas.json`), or a PEM (`\n` allowed for newlines). |
 | `SESSION_SECRET` | yes | 32+ random characters. Encrypts session cookies. |
 | `SIGNING_SECRET` | yes | 32+ random characters. Signs download links. |
 | `ENCRYPTION_KEY` | yes | 32 bytes, as 64 hex characters (`openssl rand -hex 32`). Encrypts license keys and store API keys. Never change it without re-encrypting. |
@@ -133,7 +133,8 @@ Generate secrets with `openssl rand -base64 48` (session, signing) and
 2. **Remote MySQL:** add `%` as an access host (Netlify has no fixed outbound
    IP). The dedicated user, the password and TLS are what protect it.
 3. Make sure the server accepts TLS (`SHOW VARIABLES LIKE 'have_ssl'` is `YES`).
-   If its certificate isn't from a public CA, put the CA in `DATABASE_CA`.
+   host.webek.org uses its own CA (bundled in `src/lib/db/known-cas.json`):
+   set `DATABASE_CA=host.webek.org`.
 4. From your computer, apply the migrations:
 
    ```sh
@@ -152,7 +153,7 @@ Generate secrets with `openssl rand -base64 48` (session, signing) and
 |---|---|
 | Base directory | `platform/web` |
 | Package directory | (empty) |
-| Build command | `npm run build` (also in `netlify.toml`) |
+| Build command | `npm run build` (also in `netlify.toml`; production deploys run `npm run db:migrate` first) |
 | Publish directory | `.next` (also in `netlify.toml`) |
 | Node.js | 22 (`NODE_VERSION` in `netlify.toml`) |
 | Runtime | Next.js, through `@netlify/plugin-nextjs` (pinned in `package.json`, declared in `netlify.toml`) |

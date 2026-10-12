@@ -1,4 +1,5 @@
 import "server-only";
+import knownCas from "./db/known-cas.json";
 
 /**
  * Server environment. Every value is read lazily so tests can change
@@ -153,12 +154,27 @@ export function databaseConfig(): DatabaseConfig {
   if (ssl === "disabled" && isNetlify()) {
     throw new Error("DATABASE_SSL=disabled is not allowed on Netlify. The database connection must use TLS.");
   }
-  const ca = read("DATABASE_CA");
   return {
     url: required("DATABASE_URL"),
     ssl,
-    ca: ca ? ca.replace(/\\n/g, "\n") : undefined,
+    ca: resolveDatabaseCa(read("DATABASE_CA")),
   };
+}
+
+/**
+ * DATABASE_CA holds either a PEM certificate (`\n` allowed for newlines) or the
+ * name of a server whose public CA ships with the app (src/lib/db/known-cas.json),
+ * such as "host.webek.org".
+ */
+export function resolveDatabaseCa(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  const known = (knownCas as Record<string, string>)[trimmed];
+  if (known && !trimmed.startsWith("_")) return known;
+  if (!trimmed.includes("-----BEGIN CERTIFICATE-----")) {
+    throw new Error(`DATABASE_CA must be a PEM certificate or one of: ${Object.keys(knownCas).filter((k) => !k.startsWith("_")).join(", ")}.`);
+  }
+  return trimmed.replace(/\\n/g, "\n");
 }
 
 /** Password used to seed super admins in memory mode only (local runs and tests). */
