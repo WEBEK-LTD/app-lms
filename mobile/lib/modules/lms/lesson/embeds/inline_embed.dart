@@ -136,7 +136,8 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
       builder: (context, constraints) {
         final size = computeEmbedSize(
           embed: _embed,
-          contentWidth: constraints.maxWidth,
+          // The frame's 1 px border sits inside the content width.
+          contentWidth: constraints.maxWidth - 2,
           viewportHeight: viewport,
           mode: widget.heightMode ?? config.content.embedHeight,
           measuredHeight: _measured,
@@ -170,6 +171,7 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
               );
         return Semantics(
           container: true,
+          explicitChildNodes: true,
           label: 'Embedded content from $host',
           child: Container(
             key: ValueKey('embed-${_embed.placeholder}'),

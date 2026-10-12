@@ -295,9 +295,11 @@ class HttpYallappApi implements YallappApi {
   Future<CheckoutLink> createCheckoutLink(int courseId) {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
-      throw const ApiException(
-        code: ApiException.purchaseNotAllowed,
-        message: "This course isn't available on your account yet.",
+      return Future.error(
+        const ApiException(
+          code: ApiException.purchaseNotAllowed,
+          message: "This course isn't available on your account yet.",
+        ),
       );
     }
     return _send(

@@ -99,13 +99,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _secure = false;
   bool? _completedOverride;
   bool _completing = false;
+  late final ScreenSecurity _security = ref.read(screenSecurityProvider);
 
   @override
   void initState() {
     super.initState();
     final rules = ref.read(appConfigProvider).content;
     if (rules.blockScreenCapture) {
-      final security = ref.read(screenSecurityProvider);
+      final security = _security;
       _secure = true;
       unawaited(security.setSecure(true));
       _captureSub = security.captureChanges().listen((captured) {
@@ -117,7 +118,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   @override
   void dispose() {
     _captureSub?.cancel();
-    if (_secure) unawaited(ref.read(screenSecurityProvider).setSecure(false));
+    if (_secure) unawaited(_security.setSecure(false));
     super.dispose();
   }
 
@@ -297,7 +298,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       subtitle: subtitle,
       counter: position.index != null && position.total != null
           ? 'Lesson ${position.index} of ${position.total}'
-          : lesson.title,
+          : 'Lesson',
     );
 
     if (lesson.renderMode == RenderMode.webview && lesson.webviewUrl != null) {
