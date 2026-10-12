@@ -44,8 +44,9 @@ fi
 
 BUNDLE_ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["ios_bundle_id"])' "$WORK/config.json")
 
-# Generates the iOS project settings and installs pods, without building.
-(cd "$MOBILE" && flutter build ios --release --config-only)
+# Generates the iOS project settings and installs packages, without building. Signing
+# happens later in fastlane, so Flutter must not look for a certificate here.
+(cd "$MOBILE" && flutter build ios --release --config-only --no-codesign)
 
 mkdir -p "$WORK/ipa"
 (cd "$ROOT/build" && bundle exec fastlane ios build_ipa \
