@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Account pending activation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F4EFE6; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-direction: column">
+  <header style="max-width: 1160px; width: 100%; margin: 0 auto; padding: 22px 24px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+    <a href="SaasLanding.dc.html" style="display: flex"><img src="/_blob/723a8dbc6f14db5f606ea5ba6fcc6883" alt="Yallapp home" style="height: 30px; width: auto; display: block"></a>
+    <span style="font-size: 14px; color: #5E5B70">[you@academy.com] · <a href="SaasSignIn.dc.html" style="font-weight: 600">Sign out</a></span>
+  </header>
+
+  <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 24px 56px">
+    <section style="width: 100%; max-width: 560px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 20px; padding: 40px 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+      <span style="width: 64px; height: 64px; border-radius: 32px; background: #FFEDE4; color: #C2410C; display: flex; align-items: center; justify-content: center">
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 32px; flex: none">hourglass_top</span>
+      </span>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px">Your account is waiting for activation</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #4A4760">Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key.</p>
+      </div>
+
+      <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+        <li style="display: flex; align-items: center; gap: 12px"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none; color: #1C7C4A; font-variation-settings: 'FILL' 1">check_circle</span>Account created</li>
+        <li style="display: flex; align-items: center; gap: 12px; font-weight: 700"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none; color: #C2410C">pending</span>Plan confirmation</li>
+        <li style="display: flex; align-items: center; gap: 12px; color: #5E5B70"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">radio_button_unchecked</span>Account activated</li>
+      </ol>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <a href="https://wa.me/905446731942" style="flex: 1 1 220px; height: 50px; border-radius: 10px; background: #0E0D24; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px">
+          <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">chat</span>
+          Message us on WhatsApp
+        </a>
+        <a href="SaasAppType.dc.html" style="flex: 1 1 160px; height: 50px; border-radius: 10px; border: 1px solid #CFC7B8; color: #0E0D24; text-decoration: none; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center">Check again</a>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #5E5B70">We'll also email you at [you@academy.com] when your account is active.</p>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

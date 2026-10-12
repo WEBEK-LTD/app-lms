@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
       - name: Lint docs/api/openapi.yaml
-        run: npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml
+        run: npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml
 
   plugin-syntax:
     name: Plugin syntax (PHP ${{ matrix.php }})

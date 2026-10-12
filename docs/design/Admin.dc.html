@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Yallapp settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#C2410C}a:hover{color:#9A3412}
+.in{height:40px;box-sizing:border-box;border:1px solid #CFC7B8;border-radius:8px;background:#FFFFFF;padding:0 12px;font-family:inherit;font-size:14px;color:#0E0D24;width:100%;min-width:0}
+.in:focus{outline:2px solid #0E0D24;outline-offset:0;border-color:#0E0D24}
+.sw{appearance:none;-webkit-appearance:none;width:42px;height:24px;border-radius:12px;background:#CBC3B4;position:relative;margin:0;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:9px;background:#FFFFFF}
+.sw:checked{background:#0E0D24}
+.sw:checked::after{left:21px}
+.sw:disabled{opacity:.45;cursor:not-allowed}
+.sw:focus-visible{outline:2px solid #0E0D24;outline-offset:2px}
+.ck{width:18px;height:18px;margin:0;accent-color:#0E0D24;flex:none}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F4EFE6; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-wrap: wrap; align-items: stretch">
+  <nav aria-label="Admin menu" style="flex: 1 1 200px; max-width: 100%; background: #1F2328; color: #D5D8DC; padding: 20px 0; display: flex; flex-direction: column; gap: 2px; font-size: 14px">
+    <span style="padding: 0 20px 16px; font-size: 13px; color: #9A96A6">WordPress admin</span>
+    <a href="#dashboard" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Dashboard</a>
+    <a href="#posts" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Posts</a>
+    <a href="#tutor" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Tutor LMS</a>
+    <a href="#woo" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">WooCommerce</a>
+    <a href="#digits" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Digits</a>
+    <a href="#app" aria-current="page" style="padding: 10px 20px; color: #FFFFFF; text-decoration: none; background: #C2410C; font-weight: 600">Yallapp</a>
+    <a href="#users" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Users</a>
+    <a href="#settings" style="padding: 10px 20px; color: #D5D8DC; text-decoration: none">Settings</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 48px; box-sizing: border-box">
+    <div style="max-width: 1080px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">Yallapp</h1>
+          <span style="font-size: 14px; color: #5E5B70">These settings apply to the app instantly, with no app store update needed.</span>
+        </div>
+        <button type="button" style="height: 42px; padding: 0 22px; border-radius: 8px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 600">Save changes</button>
+      </div>
+
+      <section aria-labelledby="h-license" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+          <h2 id="h-license" style="margin: 0; font-size: 17px; font-weight: 700">License</h2>
+          <span style="height: 28px; padding: 0 12px; border-radius: 14px; background: #E3F2EA; color: #1C7C4A; font-size: 13px; font-weight: 700; display: flex; align-items: center">Active</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+          <label style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">License key<input class="in" type="text" value="XXXX-XXXX-XXXX-XXXX"></label>
+          <button type="button" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid #CFC7B8; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 14px; font-weight: 600">Deactivate on this site</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; font-size: 14px">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #5E5B70">Plan</span><span style="font-weight: 700">[Plan name]</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #5E5B70">Licensed domain</span><span style="font-weight: 700">[client-site.com]</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #5E5B70">Renews on</span><span style="font-weight: 700">[Date]</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #5E5B70">Plugin updates</span><span style="font-weight: 700">[Version] · Up to date</span></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-status"style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="h-status" style="margin: 0; font-size: 17px; font-weight: 700">Compatibility status</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+          <div style="border: 1px solid #E4DDD0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; color: #5E5B70">LMS plugin (detected)</span>
+            <span style="font-size: 15px; font-weight: 700">[Tutor LMS / LearnDash / LearnPress / …] [Version]</span>
+            <span style="font-size: 12px; font-weight: 600; color: #1C7C4A">Compatible</span>
+          </div>
+          <div style="border: 1px solid #E4DDD0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; color: #5E5B70">Premium add-ons</span>
+            <span style="font-size: 15px; font-weight: 700">[Active / Not installed]</span>
+            <span style="font-size: 12px; color: #5E5B70">Premium features appear when active</span>
+          </div>
+          <div style="border: 1px solid #E4DDD0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; color: #5E5B70">Digits</span>
+            <span style="font-size: 15px; font-weight: 700">[Version]</span>
+            <span style="font-size: 12px; font-weight: 600; color: #1C7C4A">Compatible · Gateway: waabek</span>
+          </div>
+          <div style="border: 1px solid #E4DDD0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13px; color: #5E5B70">WooCommerce</span>
+            <span style="font-size: 15px; font-weight: 700">[Version]</span>
+            <span style="font-size: 12px; font-weight: 600; color: #1C7C4A">Linked to [LMS plugin]</span>
+          </div>
+        </div>
+      </section>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; align-items: start">
+
+        <section aria-labelledby="h-general" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-general" style="margin: 0; font-size: 17px; font-weight: 700">General</h2>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Enable the app API</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">App name<input class="in" type="text" placeholder="[Platform name]"></label>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <div style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">
+              <span>Logo</span>
+              <button type="button" style="height: 40px; border-radius: 8px; border: 1px dashed #9A96A6; background: #FAF7F1; font-family: inherit; font-size: 14px; color: #0E0D24">Upload image</button>
+            </div>
+            <label style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Primary color<input class="in" type="color" value="#0E0D24" style="padding: 4px"></label>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Support WhatsApp number<input class="in" type="tel" placeholder="+20 1X XXXX XXXX"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Terms &amp; Conditions page<select class="in"><option>[Select a page]</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Privacy Policy page<select class="in"><option>[Select a page]</option></select></label>
+        </section>
+
+        <section aria-labelledby="h-auth" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-auth" style="margin: 0; font-size: 17px; font-weight: 700">Sign-in (Digits)</h2>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Allow new accounts to sign up from the app</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">Required at sign-up</legend>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px">
+              <label style="display: flex; align-items: center; gap: 8px"><input class="ck" type="checkbox" checked>Name</label>
+              <label style="display: flex; align-items: center; gap: 8px"><input class="ck" type="checkbox">Email</label>
+              <label style="display: flex; align-items: center; gap: 8px"><input class="ck" type="checkbox">City</label>
+            </div>
+          </fieldset>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Wait before resending code<select class="in"><option>30 seconds</option><option selected>60 seconds</option><option>120 seconds</option></select></label>
+            <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Max code requests per hour<input class="in" type="number" value="5"></label>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Keep students signed in for<select class="in"><option>7 days</option><option selected>30 days</option><option>90 days</option></select></label>
+            <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Devices per account<input class="in" type="number" value="2"></label>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 10px; background: #FAF7F1; border: 1px solid #E4DDD0">
+            <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600"><span style="flex: 1">Store review access</span><input class="sw" type="checkbox" role="switch" checked></label>
+            <span style="font-size: 12px; line-height: 1.5; color: #5E5B70">Apple and Google reviewers need to sign in. This number skips the SMS and accepts the fixed code. Keep it on while your app is in review.</span>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap">
+              <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Test number<input class="in" type="tel" placeholder="+90 5XX XXX XX XX"></label>
+              <label style="flex: 1 1 140px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Fixed code<input class="in" type="text" inputmode="numeric" placeholder="6 digits"></label>
+            </div>
+          </div>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">When a student reaches the device limit</legend>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="devlimit" checked>Block the new device until an admin unlinks one</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="devlimit">Sign out the oldest device automatically</label>
+          </fieldset>
+        </section>
+
+        <section aria-labelledby="h-pay" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-pay" style="margin: 0; font-size: 17px; font-weight: 700">Purchases</h2>
+          <span style="font-size: 13px; color: #5E5B70; margin-top: -8px">Checkout detected: [WooCommerce / the LMS's built-in checkout]</span>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">"Enroll now" button on Android</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">"Enroll now" button on iOS</span><input class="sw" type="checkbox" role="switch" disabled></label>
+            <span style="font-size: 12px; color: #5E5B70">Disabled due to Apple's digital content policy. iOS is view-only.</span>
+          </div>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Free courses: enroll directly in the app (Android &amp; iOS)</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">Where checkout opens</legend>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="checkout" checked>Inside the app, with the student signed in automatically</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="checkout">In the phone's browser</label>
+          </fieldset>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Hide site header &amp; footer on in-app checkout</span><input class="sw" type="checkbox" role="switch" checked></label>
+        </section>
+
+        <section aria-labelledby="h-video" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-video" style="margin: 0; font-size: 17px; font-weight: 700">Video &amp; content protection</h2>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Block screenshots &amp; screen recording</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Video watermark</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Watermark content<select class="in"><option selected>Phone number</option><option>Student name</option><option>Name &amp; phone number</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Temporary video link expires after<select class="in"><option>30 minutes</option><option selected>2 hours</option><option>6 hours</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Required watch time before "Mark as complete"<select class="in"><option>No requirement</option><option selected>80%</option><option>100%</option></select></label>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Allow offline downloads</span><input class="sw" type="checkbox" role="switch"></label>
+            <span style="font-size: 12px; color: #5E5B70">Phase 2. Files are stored encrypted inside the app.</span>
+          </div>
+        </section>
+
+        <section aria-labelledby="h-content" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-content" style="margin: 0; font-size: 17px; font-weight: 700">Lesson content (HTML &amp; code)</h2>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">How lesson content is displayed</legend>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="render" checked>Auto: native for simple content, web view for complex content</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="render">Always native</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="radio" name="render">Always web view (exactly like the website)</label>
+          </fieldset>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Load the site's theme styles in web view</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Allow scripts inside lesson content</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Syntax highlighting &amp; copy button for code blocks</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Full-screen button on embedded apps (iframes)</span><input class="sw" type="checkbox" role="switch" checked></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Embedded app height on phones<select class="in"><option selected>Auto: match the embedded content (recommended)</option><option>Fit the screen</option><option>Keep the height set in the lesson</option></select></label>
+          <span style="font-size: 12px; color: #5E5B70">Each lesson can override this from its edit screen in Tutor.</span>
+        </section>
+
+        <section aria-labelledby="h-home"style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-home" style="margin: 0; font-size: 17px; font-weight: 700">App home screen</h2>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">Sections shown (drag to reorder)</legend>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #E4DDD0; border-radius: 8px; padding: 10px 12px"><input class="ck" type="checkbox" checked><span style="flex: 1">Promo banner</span><span aria-hidden="true" style="color: #9A96A6">⋮⋮</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #E4DDD0; border-radius: 8px; padding: 10px 12px"><input class="ck" type="checkbox" checked><span style="flex: 1">Continue learning</span><span aria-hidden="true" style="color: #9A96A6">⋮⋮</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #E4DDD0; border-radius: 8px; padding: 10px 12px"><input class="ck" type="checkbox" checked><span style="flex: 1">Categories</span><span aria-hidden="true" style="color: #9A96A6">⋮⋮</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #E4DDD0; border-radius: 8px; padding: 10px 12px"><input class="ck" type="checkbox" checked><span style="flex: 1">Featured courses (hand-picked)</span><span aria-hidden="true" style="color: #9A96A6">⋮⋮</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; border: 1px solid #E4DDD0; border-radius: 8px; padding: 10px 12px"><input class="ck" type="checkbox"><span style="flex: 1">Latest courses</span><span aria-hidden="true" style="color: #9A96A6">⋮⋮</span></label>
+          </fieldset>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Featured courses<input class="in" type="text" placeholder="Search and pick courses"></label>
+        </section>
+
+        <section aria-labelledby="h-push" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-push" style="margin: 0; font-size: 17px; font-weight: 700">Notifications (Firebase)</h2>
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">
+            <span>Firebase service account file</span>
+            <button type="button" style="height: 40px; border-radius: 8px; border: 1px dashed #9A96A6; background: #FAF7F1; font-family: inherit; font-size: 14px; color: #0E0D24">Upload JSON file</button>
+          </div>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">Send a notification automatically when</legend>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="checkbox" checked>A new lesson is added to an enrolled course</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="checkbox" checked>An instructor posts an announcement</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="checkbox" checked>An enrollment is confirmed after payment</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px"><input class="ck" type="checkbox">An instructor answers a student's question</label>
+          </fieldset>
+          <button type="button" style="height: 40px; align-self: flex-start; padding: 0 16px; border-radius: 8px; border: 1px solid #0E0D24; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 14px; font-weight: 600">Send a manual notification</button>
+        </section>
+
+        <section aria-labelledby="h-update" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px">
+          <h2 id="h-update" style="margin: 0; font-size: 17px; font-weight: 700">Updates &amp; maintenance</h2>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Minimum allowed version (force update)<input class="in" type="text" placeholder="1.0.0"></label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="flex: 1">Maintenance mode (the app shows a message only)</span><input class="sw" type="checkbox" role="switch"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Maintenance message<textarea class="in" rows="3" style="height: auto; padding: 10px 12px; resize: vertical" placeholder="We're making some updates and will be back soon."></textarea></label>
+        </section>
+
+        <section aria-labelledby="h-devices" style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="h-devices" style="margin: 0; font-size: 17px; font-weight: 700">Student devices</h2>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Search by mobile number<input class="in" type="search" placeholder="+20 1X XXXX XXXX"></label>
+          <div style="border: 1px solid #E4DDD0; border-radius: 10px; overflow: hidden; font-size: 14px">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #EDE7DC">
+              <span style="flex: 1">[Device name] · Android</span>
+              <span style="font-size: 12px; color: #5E5B70">Last sign-in: [Date]</span>
+              <button type="button" style="height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #B3261E; background: #FFFFFF; color: #B3261E; font-family: inherit; font-size: 13px">Unlink</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 14px">
+              <span style="flex: 1">[Device name] · iOS</span>
+              <span style="font-size: 12px; color: #5E5B70">Last sign-in: [Date]</span>
+              <button type="button" style="height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #B3261E; background: #FFFFFF; color: #B3261E; font-family: inherit; font-size: 13px">Unlink</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

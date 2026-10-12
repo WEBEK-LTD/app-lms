@@ -22,7 +22,7 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 ## Checks before pushing
 
 ```sh
-npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml
+npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml
 cd wp-plugin/yallapp && composer install && composer lint
 find wp-plugin -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -r -n1 php -l
 ```

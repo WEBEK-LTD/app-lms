@@ -1,0 +1,189 @@
+openapi: 3.1.0
+info:
+  title: Yallapp platform API (license and updates)
+  version: 1.0.0
+  summary: What the Yallapp WordPress plugin calls on yallapp.com.tr.
+  description: |
+    Served by the Yallapp platform on Netlify. The plugin is the only client.
+
+    - The plugin checks its license on activation, then every 12 hours.
+    - If the platform can't be reached, the plugin keeps its last known status
+      for a 72-hour grace period before treating the license as inactive.
+    - Only the site URL, plugin version, WordPress version and LMS are sent.
+      No student data ever reaches the platform.
+  license:
+    name: Proprietary, WEBEK LTD
+    url: https://yallapp.com.tr
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://yallapp.com.tr/api/v1
+security: []
+tags:
+  - name: Licenses
+    description: Activate, check and deactivate a site's license.
+  - name: Updates
+    description: Plugin update information for the WordPress updater.
+
+paths:
+  /licenses/activate:
+    post:
+      tags: [Licenses]
+      operationId: activateLicense
+      summary: Activate a license on a site
+      description: Binds the license to one site URL. A license can be active on one site at a time.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SiteInfo' }
+      responses:
+        '200':
+          description: Activated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LicenseStatus' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /licenses/check:
+    post:
+      tags: [Licenses]
+      operationId: checkLicense
+      summary: Check a license
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SiteInfo' }
+      responses:
+        '200':
+          description: Current status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LicenseStatus' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /licenses/deactivate:
+    post:
+      tags: [Licenses]
+      operationId: deactivateLicense
+      summary: Release a license from a site
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [license_key, site_url]
+              properties:
+                license_key: { type: string }
+                site_url: { type: string, format: uri }
+      responses:
+        '204': { description: Released }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /plugin/update:
+    get:
+      tags: [Updates]
+      operationId: getPluginUpdate
+      summary: Get the latest plugin version
+      description: Returns 204 when the site already has the latest version or the license is not active.
+      parameters:
+        - name: license_key
+          in: query
+          required: true
+          schema: { type: string }
+        - name: site_url
+          in: query
+          required: true
+          schema: { type: string, format: uri }
+        - name: version
+          in: query
+          required: true
+          description: The installed plugin version.
+          schema: { type: string, example: 0.1.0 }
+      responses:
+        '200':
+          description: A newer version is available
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PluginRelease' }
+        '204': { description: 'Up to date, or license not active' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+components:
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Unknown license key.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: The license is active on another site.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Too many requests.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          examples: [invalid_request, license_not_found, license_in_use, rate_limited]
+        message: { type: string }
+
+    SiteInfo:
+      type: object
+      required: [license_key, site_url, plugin_version]
+      properties:
+        license_key: { type: string, example: YALL-7K2D-9QWE-4MNB }
+        site_url: { type: string, format: uri, example: 'https://your-academy.com' }
+        plugin_version: { type: string, example: 0.1.0 }
+        wp_version: { type: string, example: 7.1.3 }
+        lms: { type: string, example: tutor }
+
+    LicenseStatus:
+      type: object
+      required: [status, checked_at]
+      properties:
+        status:
+          type: string
+          enum: [active, expired, suspended, invalid]
+        plan: { type: [string, 'null'], enum: [starter, pro, null] }
+        features:
+          type: array
+          description: Plan features the plugin may enable.
+          items: { type: string, enum: [push, offline_downloads, auto_publish] }
+        expires_at: { type: [string, 'null'], format: date-time }
+        checked_at: { type: string, format: date-time }
+        message: { type: [string, 'null'], description: Shown to the site admin. }
+
+    PluginRelease:
+      type: object
+      required: [version, download_url, requires, requires_php, tested]
+      properties:
+        version: { type: string, example: 0.2.0 }
+        download_url: { type: string, format: uri, description: Signed and expiring. }
+        requires: { type: string, description: Minimum WordPress version., example: '6.0' }
+        requires_php: { type: string, example: '7.4' }
+        tested: { type: string, example: 7.1.3 }
+        changelog_html: { type: string }

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home template Bold</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4EFE6; font-family: 'Outfit', sans-serif; color: #0E0D24; display: flex; flex-direction: column; overflow: hidden">
+  <div style="flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 22px">
+    <div style="background: #0E0D24; color: #FFFFFF; padding: 40px 20px 26px; border-radius: 0 0 28px 28px; display: flex; flex-direction: column; gap: 18px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <div style="display: flex; flex-direction: column">
+          <span style="font-size: 14px; color: #C9C6DC">Welcome back,</span>
+          <span style="font-size: 24px; font-weight: 800">[Student name]</span>
+        </div>
+        <button type="button" aria-label="Notifications" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #24223F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; padding: 0">
+          <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">notifications</span>
+        </button>
+      </div>
+      <a href="Courses.dc.html" style="height: 50px; border-radius: 25px; background: #FFFFFF; display: flex; align-items: center; gap: 10px; padding: 0 18px; color: #5E5B70; text-decoration: none; font-size: 15px">
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">search</span>
+        What do you want to learn?
+      </a>
+    </div>
+
+    <div style="padding: 0 20px; display: flex; flex-direction: column; gap: 22px">
+      <div style="height: 150px; border-radius: 22px; background: #F2E3C9; color: #8A5A12; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; box-sizing: border-box; gap: 4px">
+        <span style="font-size: 12px; font-weight: 600">[Promo banner image]</span>
+        <span style="font-size: 20px; font-weight: 800; color: #0E0D24">New: UI Design Fundamentals</span>
+      </div>
+
+      <a href="Lesson.dc.html" style="background: #FFFFFF; border-radius: 22px; padding: 14px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: #0E0D24; box-shadow: 0 1px 0 #E4DDD0">
+        <div style="width: 56px; height: 56px; flex: none; border-radius: 28px; border: 5px solid #FFEDE4; border-top-color: #FF5A1F; border-right-color: #FF5A1F; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800">60%</div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; color: #5E5B70">Continue</span>
+          <span style="font-size: 16px; font-weight: 700">Python Programming Basics</span>
+        </div>
+        <span style="width: 40px; height: 40px; flex: none; border-radius: 20px; background: #0E0D24; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; flex: none; font-variation-settings: 'FILL' 1">play_arrow</span></span>
+      </a>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800">Popular now</h2>
+          <a href="Courses.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">See all</a>
+        </div>
+        <a href="CourseDetail.dc.html" style="border-radius: 22px; overflow: hidden; background: #FFFFFF; text-decoration: none; color: #0E0D24; display: flex; flex-direction: column">
+          <div style="height: 150px; background: #D7EBE2; color: #1D6B48; font-size: 12px; display: flex; align-items: center; justify-content: center">[Course image]</div>
+          <div style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <span style="font-size: 17px; font-weight: 700">Business English for Beginners</span>
+              <span style="font-size: 13px; color: #5E5B70">[Instructor name] · 18 lessons</span>
+            </div>
+            <span style="font-size: 15px; font-weight: 800; color: #1C7C4A">Free</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <nav aria-label="Main navigation" style="flex: none; height: 80px; box-sizing: border-box; background: #FFFFFF; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 12px 14px 16px; gap: 6px">
+    <a href="HomeBold.dc.html" aria-current="page" style="border-radius: 18px; background: #0E0D24; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; color: #FFFFFF; font-size: 13px; font-weight: 700">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">home</span>
+      Home
+    </a>
+    <a href="Courses.dc.html" aria-label="Courses" style="display: flex; align-items: center; justify-content: center; color: #5E5B70">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 24px; flex: none">menu_book</span>
+    </a>
+    <a href="MyCourses.dc.html" aria-label="My Courses" style="display: flex; align-items: center; justify-content: center; color: #5E5B70">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 24px; flex: none">play_circle</span>
+    </a>
+    <a href="Profile.dc.html" aria-label="Account" style="display: flex; align-items: center; justify-content: center; color: #5E5B70">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 24px; flex: none">person</span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
