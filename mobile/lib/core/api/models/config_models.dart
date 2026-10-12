@@ -1,0 +1,279 @@
+import 'catalog_models.dart';
+import 'json.dart';
+import 'learning_models.dart';
+
+/// `GET /config`: branding, detected features and app rules.
+class AppConfig {
+  const AppConfig({
+    required this.site,
+    required this.branding,
+    required this.features,
+    required this.auth,
+    required this.purchases,
+    required this.content,
+    required this.app,
+  });
+
+  factory AppConfig.fromJson(Json json) => AppConfig(
+    site: SiteInfo.fromJson(asJson(json['site'], 'site')),
+    branding: RemoteBranding.fromJson(asJson(json['branding'], 'branding')),
+    features: SiteFeatures.fromJson(asJson(json['features'], 'features')),
+    auth: AuthRules.fromJson(asJson(json['auth'], 'auth')),
+    purchases: PurchaseRules.fromJson(asJson(json['purchases'], 'purchases')),
+    content: ContentRules.fromJson(asJson(json['content'], 'content')),
+    app: AppRules.fromJson(asJson(json['app'], 'app')),
+  );
+
+  final SiteInfo site;
+  final RemoteBranding branding;
+  final SiteFeatures features;
+  final AuthRules auth;
+  final PurchaseRules purchases;
+  final ContentRules content;
+  final AppRules app;
+}
+
+class SiteInfo {
+  const SiteInfo({
+    required this.name,
+    required this.url,
+    this.termsUrl,
+    this.privacyUrl,
+    this.supportWhatsapp,
+  });
+
+  factory SiteInfo.fromJson(Json json) => SiteInfo(
+    name: reqString(json, 'name'),
+    url: reqString(json, 'url'),
+    termsUrl: optString(json, 'terms_url'),
+    privacyUrl: optString(json, 'privacy_url'),
+    supportWhatsapp: optString(json, 'support_whatsapp'),
+  );
+
+  final String name;
+  final String url;
+  final String? termsUrl;
+  final String? privacyUrl;
+  final String? supportWhatsapp;
+}
+
+class RemoteBranding {
+  const RemoteBranding({required this.primaryColor, this.logoUrl});
+
+  factory RemoteBranding.fromJson(Json json) => RemoteBranding(
+    primaryColor: reqString(json, 'primary_color'),
+    logoUrl: optString(json, 'logo_url'),
+  );
+
+  final String primaryColor;
+  final String? logoUrl;
+}
+
+enum LmsKind {
+  tutor,
+  learndash,
+  learnpress,
+  lifterlms,
+  masterstudy,
+  sensei,
+  masteriyo,
+  unknown,
+}
+
+class SiteFeatures {
+  const SiteFeatures({
+    required this.lms,
+    required this.lmsVersion,
+    required this.pro,
+    required this.certificates,
+    required this.quizzes,
+    required this.wishlist,
+    required this.reviews,
+    required this.qna,
+    required this.push,
+  });
+
+  factory SiteFeatures.fromJson(Json json) => SiteFeatures(
+    lms: enumFrom(LmsKind.values, json['lms'], LmsKind.unknown),
+    lmsVersion: reqString(json, 'lms_version'),
+    pro: reqBool(json, 'pro'),
+    certificates: reqBool(json, 'certificates'),
+    quizzes: reqBool(json, 'quizzes'),
+    wishlist: reqBool(json, 'wishlist'),
+    reviews: reqBool(json, 'reviews'),
+    qna: reqBool(json, 'qna'),
+    push: reqBool(json, 'push'),
+  );
+
+  final LmsKind lms;
+  final String lmsVersion;
+  final bool pro;
+  final bool certificates;
+  final bool quizzes;
+  final bool wishlist;
+  final bool reviews;
+  final bool qna;
+  final bool push;
+}
+
+enum SignupField { name, email, city }
+
+class AuthRules {
+  const AuthRules({
+    required this.signupAllowed,
+    required this.signupFields,
+    required this.defaultCountryCode,
+  });
+
+  factory AuthRules.fromJson(Json json) => AuthRules(
+    signupAllowed: reqBool(json, 'signup_allowed'),
+    signupFields: parseSignupFields(json, 'signup_fields'),
+    defaultCountryCode: reqString(json, 'default_country_code'),
+  );
+
+  final bool signupAllowed;
+  final List<SignupField> signupFields;
+  final String defaultCountryCode;
+}
+
+List<SignupField> parseSignupFields(Json json, String key) => [
+  for (final wire in stringList(json, key))
+    for (final field in SignupField.values)
+      if (field.name == wire) field,
+];
+
+enum CheckoutOpensIn { inApp, browser }
+
+class PurchaseRules {
+  const PurchaseRules({
+    required this.enrollButton,
+    required this.freeEnrollment,
+    this.checkoutOpensIn,
+  });
+
+  factory PurchaseRules.fromJson(Json json) => PurchaseRules(
+    enrollButton: reqBool(json, 'enroll_button'),
+    freeEnrollment: reqBool(json, 'free_enrollment'),
+    checkoutOpensIn: json['checkout_opens_in'] == null
+        ? null
+        : enumFromSnake(
+            CheckoutOpensIn.values,
+            json['checkout_opens_in'],
+            CheckoutOpensIn.inApp,
+          ),
+  );
+
+  final bool enrollButton;
+  final bool freeEnrollment;
+  final CheckoutOpensIn? checkoutOpensIn;
+}
+
+enum WatermarkMode { off, phone, name, nameAndPhone }
+
+enum EmbedHeightMode { auto, fitScreen, asSet }
+
+class ContentRules {
+  const ContentRules({
+    required this.blockScreenCapture,
+    required this.watermark,
+    required this.embedFullscreenButton,
+    required this.embedHeight,
+    this.codeHighlighting = true,
+    this.requiredWatchPercent,
+  });
+
+  factory ContentRules.fromJson(Json json) => ContentRules(
+    blockScreenCapture: reqBool(json, 'block_screen_capture'),
+    watermark: enumFromSnake(
+      WatermarkMode.values,
+      json['watermark'],
+      WatermarkMode.off,
+    ),
+    embedFullscreenButton: reqBool(json, 'embed_fullscreen_button'),
+    embedHeight: enumFromSnake(
+      EmbedHeightMode.values,
+      json['embed_height'],
+      EmbedHeightMode.auto,
+    ),
+    codeHighlighting: boolOr(json, 'code_highlighting', true),
+    requiredWatchPercent: optInt(json, 'required_watch_percent'),
+  );
+
+  final bool blockScreenCapture;
+  final WatermarkMode watermark;
+  final bool embedFullscreenButton;
+  final EmbedHeightMode embedHeight;
+  final bool codeHighlighting;
+  final int? requiredWatchPercent;
+}
+
+class AppRules {
+  const AppRules({
+    required this.updateRequired,
+    required this.maintenance,
+    this.maintenanceMessage,
+  });
+
+  factory AppRules.fromJson(Json json) => AppRules(
+    updateRequired: reqBool(json, 'update_required'),
+    maintenance: reqBool(json, 'maintenance'),
+    maintenanceMessage: optString(json, 'maintenance_message'),
+  );
+
+  final bool updateRequired;
+  final bool maintenance;
+  final String? maintenanceMessage;
+}
+
+enum HomeSectionType {
+  banner,
+  continueLearning,
+  categories,
+  featuredCourses,
+  latestCourses,
+  unknown,
+}
+
+/// One block of `GET /home`, in the order chosen in the plugin settings.
+class HomeSection {
+  const HomeSection({
+    required this.type,
+    this.title,
+    this.banner,
+    this.course,
+    this.categories = const [],
+    this.courses = const [],
+  });
+
+  factory HomeSection.fromJson(Json json) => HomeSection(
+    type: enumFromSnake(
+      HomeSectionType.values,
+      json['type'],
+      HomeSectionType.unknown,
+    ),
+    title: optString(json, 'title'),
+    banner: optObject(json, 'banner', HomeBanner.fromJson),
+    course: optObject(json, 'course', MyCourse.fromJson),
+    categories: listOf(json, 'categories', Category.fromJson),
+    courses: listOf(json, 'courses', CourseSummary.fromJson),
+  );
+
+  final HomeSectionType type;
+  final String? title;
+  final HomeBanner? banner;
+  final MyCourse? course;
+  final List<Category> categories;
+  final List<CourseSummary> courses;
+}
+
+class HomeBanner {
+  const HomeBanner({this.imageUrl, this.linkCourseId});
+
+  factory HomeBanner.fromJson(Json json) => HomeBanner(
+    imageUrl: optString(json, 'image_url'),
+    linkCourseId: optInt(json, 'link_course_id'),
+  );
+
+  final String? imageUrl;
+  final int? linkCourseId;
+}

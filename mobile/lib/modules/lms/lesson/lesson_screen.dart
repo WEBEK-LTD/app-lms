@@ -1,0 +1,767 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/api/api_exception.dart';
+import '../../../core/api/models/models.dart';
+import '../../../core/auth/auth_controller.dart';
+import '../../../core/gate/app_gate.dart';
+import '../../../core/providers.dart';
+import '../../../core/routing/paths.dart';
+import '../../../core/services/external_links.dart';
+import '../../../core/services/screen_security.dart';
+import '../../../core/storage/local_settings.dart';
+import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/palette.dart';
+import '../../../core/web/web_view.dart';
+import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/common.dart';
+import '../data/lms_providers.dart';
+import '../navigation.dart';
+import 'content/html_content.dart';
+import 'embeds/inline_embed.dart';
+import 'video/lesson_video_player.dart';
+import 'video/watermark.dart';
+
+/// Where a lesson sits in its course.
+class LessonPosition {
+  const LessonPosition({
+    this.index,
+    this.total,
+    this.topic,
+    this.previous,
+    this.next,
+    this.siblings = const [],
+  });
+
+  /// Works out the position from the curriculum, falling back to the
+  /// lesson's own previous and next IDs.
+  factory LessonPosition.of(Lesson lesson, List<Topic>? topics) {
+    CurriculumItem lessonItem(int id) => CurriculumItem(
+      id: id,
+      type: CurriculumItemType.lesson,
+      title: '',
+      locked: false,
+      completed: false,
+    );
+    final fallback = LessonPosition(
+      previous: lesson.previousId == null
+          ? null
+          : lessonItem(lesson.previousId!),
+      next: lesson.nextId == null ? null : lessonItem(lesson.nextId!),
+    );
+    if (topics == null) return fallback;
+    final flat = [for (final t in topics) ...t.items];
+    final i = flat.indexWhere(
+      (item) => item.type == CurriculumItemType.lesson && item.id == lesson.id,
+    );
+    if (i < 0) return fallback;
+    final topic = topics.firstWhere(
+      (t) => t.items.any((it) => identical(it, flat[i])),
+    );
+    final lessons = flat
+        .where((it) => it.type == CurriculumItemType.lesson)
+        .toList();
+    return LessonPosition(
+      index: lessons.indexWhere((it) => it.id == lesson.id) + 1,
+      total: lessons.length,
+      topic: topic,
+      previous: i > 0 ? flat[i - 1] : null,
+      next: i < flat.length - 1 ? flat[i + 1] : null,
+      siblings: topic.items,
+    );
+  }
+
+  final int? index;
+  final int? total;
+  final Topic? topic;
+  final CurriculumItem? previous;
+  final CurriculumItem? next;
+  final List<CurriculumItem> siblings;
+}
+
+/// A lesson: video (design: Lesson), HTML with code and embeds (designs:
+/// TextLesson, EmbedLesson) or a web view.
+class LessonScreen extends ConsumerStatefulWidget {
+  const LessonScreen({super.key, required this.lessonId});
+
+  final int lessonId;
+
+  @override
+  ConsumerState<LessonScreen> createState() => _LessonScreenState();
+}
+
+class _LessonScreenState extends ConsumerState<LessonScreen> {
+  StreamSubscription<bool>? _captureSub;
+  bool _captured = false;
+  bool _secure = false;
+  bool? _completedOverride;
+  bool _completing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final rules = ref.read(appConfigProvider).content;
+    if (rules.blockScreenCapture) {
+      final security = ref.read(screenSecurityProvider);
+      _secure = true;
+      unawaited(security.setSecure(true));
+      _captureSub = security.captureChanges().listen((captured) {
+        if (mounted) setState(() => _captured = captured);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _captureSub?.cancel();
+    if (_secure) unawaited(ref.read(screenSecurityProvider).setSecure(false));
+    super.dispose();
+  }
+
+  Future<Video?> _reloadVideo() async {
+    try {
+      // Fetched directly: refreshing the provider would rebuild the player.
+      final lesson = await ref
+          .read(yallappApiProvider)
+          .getLesson(widget.lessonId);
+      return lesson.video;
+    } on Object {
+      return null;
+    }
+  }
+
+  void _saveProgress(int position, double percent) {
+    if (!ref.read(authControllerProvider).isSignedIn) return;
+    unawaited(
+      ref
+          .read(yallappApiProvider)
+          .saveLessonProgress(
+            widget.lessonId,
+            positionSeconds: position,
+            watchedPercent: percent,
+          )
+          .catchError((Object _) {}),
+    );
+  }
+
+  Future<void> _complete(Lesson lesson) async {
+    if (_completing) return;
+    setState(() => _completing = true);
+    try {
+      final progress = await ref
+          .read(yallappApiProvider)
+          .completeLesson(lesson.id);
+      if (!mounted) return;
+      setState(() => _completedOverride = true);
+      invalidateCourse(ref, lesson.courseId);
+      showMessage(
+        context,
+        progress.courseCompleted
+            ? 'Course complete. Well done!'
+            : 'Lesson complete · ${progress.percent}% of the course done',
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      if (e.code == ApiException.watchRequirementNotMet) {
+        final percent = ref
+            .read(appConfigProvider)
+            .content
+            .requiredWatchPercent;
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Keep watching'),
+            content: Text(
+              percent == null
+                  ? 'Watch more of the video before marking this lesson complete.'
+                  : 'Watch at least $percent% of the video before marking this lesson complete.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        showMessage(context, e.message);
+      }
+    } finally {
+      if (mounted) setState(() => _completing = false);
+    }
+  }
+
+  void _go(CurriculumItem? item, int courseId) {
+    if (item == null) return;
+    openCurriculumItem(context, item, courseId: courseId, replace: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lessonAsync = ref.watch(lessonProvider(widget.lessonId));
+    return switch (lessonAsync) {
+      AsyncData(:final value) => _build(context, value),
+      AsyncError(:final error) => Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: AppBackButton(),
+              ),
+              Expanded(child: _lessonError(error)),
+            ],
+          ),
+        ),
+      ),
+      _ => const Scaffold(body: LoadingView(label: 'Loading lesson')),
+    };
+  }
+
+  Widget _lessonError(Object error) {
+    if (error is ApiException &&
+        (error.statusCode == 403 || error.isUnauthorized)) {
+      final signedIn = ref.read(authControllerProvider).isSignedIn;
+      return MessageView(
+        icon: AppIcons.lock,
+        title: 'This lesson is locked',
+        message: signedIn
+            ? 'Enroll in the course to open this lesson.'
+            : 'Sign in to open this lesson.',
+        actionLabel: signedIn ? null : 'Sign in',
+        onAction: signedIn
+            ? null
+            : () => context.push(
+                Uri(
+                  path: Paths.signIn,
+                  queryParameters: {'from': Paths.lesson(widget.lessonId)},
+                ).toString(),
+              ),
+      );
+    }
+    return ErrorView(
+      error: error,
+      onRetry: () => ref.invalidate(lessonProvider(widget.lessonId)),
+    );
+  }
+
+  Widget _build(BuildContext context, Lesson lesson) {
+    final topics = ref.watch(curriculumProvider(lesson.courseId)).value;
+    final course = ref.watch(courseDetailProvider(lesson.courseId)).value;
+    final position = LessonPosition.of(lesson, topics);
+    final completed = _completedOverride ?? lesson.completed;
+    final footer = _LessonFooter(
+      completed: completed,
+      completing: _completing,
+      signedIn: ref.watch(authControllerProvider).isSignedIn,
+      onPrevious: position.previous == null
+          ? null
+          : () => _go(position.previous, lesson.courseId),
+      onNext: position.next == null
+          ? null
+          : () => _go(position.next, lesson.courseId),
+      onComplete: () => _complete(lesson),
+      onSignIn: () => context.push(
+        Uri(
+          path: Paths.signIn,
+          queryParameters: {'from': Paths.lesson(lesson.id)},
+        ).toString(),
+      ),
+    );
+    final subtitle = [?course?.title, ?position.topic?.title].join(' · ');
+
+    if (lesson.video != null) {
+      return _VideoLesson(
+        lesson: lesson,
+        subtitle: subtitle,
+        position: position,
+        footer: footer,
+        captured: _captured,
+        reloadVideo: _reloadVideo,
+        onProgress: _saveProgress,
+        onEnded: () {
+          final next = position.next;
+          if (next != null && ref.read(localSettingsProvider).autoplayNext) {
+            _go(next, lesson.courseId);
+          }
+        },
+      );
+    }
+
+    final header = _LessonHeader(
+      subtitle: subtitle,
+      counter: position.index != null && position.total != null
+          ? 'Lesson ${position.index} of ${position.total}'
+          : lesson.title,
+    );
+
+    if (lesson.renderMode == RenderMode.webview && lesson.webviewUrl != null) {
+      return Scaffold(
+        backgroundColor: context.palette.surface,
+        body: Column(
+          children: [
+            header,
+            Expanded(
+              child: ref.watch(webViewBuilderProvider)(
+                WebViewRequest(
+                  url: Uri.parse(lesson.webviewUrl!),
+                  debugLabel: 'lesson',
+                ),
+              ),
+            ),
+            footer,
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: context.palette.surface,
+      body: LessonChrome(
+        height: 170,
+        child: Column(
+          children: [
+            header,
+            Expanded(
+              child: ListView(
+                key: const ValueKey('lesson-article'),
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      lesson.title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  if ((lesson.html ?? '').trim().isNotEmpty ||
+                      lesson.embeds.isNotEmpty)
+                    HtmlContent(
+                      html: lesson.html ?? '',
+                      embeds: lesson.embeds,
+                      title: lesson.title,
+                      embedHeight: lesson.embedHeight,
+                    ),
+                  if (lesson.attachments.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const SectionHeader(title: 'Attachments', size: 17),
+                    const SizedBox(height: 8),
+                    _Attachments(attachments: lesson.attachments),
+                  ],
+                ],
+              ),
+            ),
+            footer,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LessonHeader extends StatelessWidget {
+  const _LessonHeader({required this.subtitle, required this.counter});
+
+  final String subtitle;
+  final String counter;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.surface,
+        border: Border(bottom: BorderSide(color: p.divider)),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: Row(
+            children: [
+              AppBackButton(onPressed: () => Navigator.of(context).maybePop()),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: p.textSecondary),
+                      ),
+                    Text(
+                      counter,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: p.text,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LessonFooter extends StatelessWidget {
+  const _LessonFooter({
+    required this.completed,
+    required this.completing,
+    required this.signedIn,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onComplete,
+    required this.onSignIn,
+  });
+
+  final bool completed;
+  final bool completing;
+  final bool signedIn;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+  final VoidCallback onComplete;
+  final VoidCallback onSignIn;
+
+  @override
+  Widget build(BuildContext context) => BottomActionBar(
+    child: Row(
+      children: [
+        StepIconButton(
+          icon: AppIcons.back,
+          label: 'Previous lesson',
+          onPressed: onPrevious,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: !signedIn
+              ? PrimaryButton(
+                  label: 'Sign in to track progress',
+                  height: 54,
+                  onPressed: onSignIn,
+                )
+              : PrimaryButton(
+                  label: completed ? 'Completed' : 'Mark as complete',
+                  icon: completed ? AppIcons.checkCircle : AppIcons.check,
+                  height: 54,
+                  loading: completing,
+                  onPressed: completed ? null : onComplete,
+                ),
+        ),
+        const SizedBox(width: 10),
+        StepIconButton(
+          icon: AppIcons.forward,
+          label: 'Next lesson',
+          onPressed: onNext,
+        ),
+      ],
+    ),
+  );
+}
+
+class _VideoLesson extends ConsumerStatefulWidget {
+  const _VideoLesson({
+    required this.lesson,
+    required this.subtitle,
+    required this.position,
+    required this.footer,
+    required this.captured,
+    required this.reloadVideo,
+    required this.onProgress,
+    required this.onEnded,
+  });
+
+  final Lesson lesson;
+  final String subtitle;
+  final LessonPosition position;
+  final Widget footer;
+  final bool captured;
+  final Future<Video?> Function() reloadVideo;
+  final void Function(int, double) onProgress;
+  final VoidCallback onEnded;
+
+  @override
+  ConsumerState<_VideoLesson> createState() => _VideoLessonState();
+}
+
+class _VideoLessonState extends ConsumerState<_VideoLesson> {
+  int _tab = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final lesson = widget.lesson;
+    final config = ref.watch(appConfigProvider);
+    final user = ref.watch(authControllerProvider).user;
+    final hasNotes = (lesson.html ?? '').trim().isNotEmpty;
+    final tabs = [if (hasNotes) 'Notes', 'Lessons', 'Attachments'];
+    final current = tabs[_tab.clamp(0, tabs.length - 1)];
+
+    return Scaffold(
+      body: Column(
+        children: [
+          ColoredBox(
+            color: BrandColors.midnight,
+            child: SafeArea(
+              bottom: false,
+              child: LessonVideoPlayer(
+                key: ValueKey('video-${lesson.id}'),
+                video: lesson.video!,
+                startSeconds: lesson.positionSeconds,
+                reloadVideo: widget.reloadVideo,
+                watermark: watermarkText(config.content.watermark, user),
+                captured: widget.captured,
+                onProgress: widget.onProgress,
+                onEnded: widget.onEnded,
+                overlay: AppBackButton(
+                  onDark: true,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              children: [
+                if (widget.subtitle.isNotEmpty)
+                  Text(
+                    widget.subtitle,
+                    style: TextStyle(fontSize: 12, color: p.textSecondary),
+                  ),
+                const SizedBox(height: 4),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    lesson.title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SegmentedTabs(
+                  labels: tabs,
+                  selected: _tab.clamp(0, tabs.length - 1),
+                  onChanged: (i) => setState(() => _tab = i),
+                ),
+                const SizedBox(height: 14),
+                switch (current) {
+                  'Notes' => HtmlContent(
+                    html: lesson.html!,
+                    embeds: lesson.embeds,
+                    title: lesson.title,
+                    embedHeight: lesson.embedHeight,
+                  ),
+                  'Attachments' =>
+                    lesson.attachments.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              'This lesson has no attachments.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                          )
+                        : _Attachments(attachments: lesson.attachments),
+                  _ => _TopicItems(
+                    items: widget.position.siblings,
+                    currentId: lesson.id,
+                    courseId: lesson.courseId,
+                  ),
+                },
+              ],
+            ),
+          ),
+          widget.footer,
+        ],
+      ),
+    );
+  }
+}
+
+class _TopicItems extends StatelessWidget {
+  const _TopicItems({
+    required this.items,
+    required this.currentId,
+    required this.courseId,
+  });
+
+  final List<CurriculumItem> items;
+  final int currentId;
+  final int courseId;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    if (items.isEmpty) return const SizedBox.shrink();
+    return AppCard(
+      child: Column(
+        children: [
+          for (final (i, item) in items.indexed) ...[
+            if (i > 0) Divider(height: 1, color: p.divider),
+            _TopicItemRow(
+              item: item,
+              current:
+                  item.type == CurriculumItemType.lesson &&
+                  item.id == currentId,
+              onTap: () => openCurriculumItem(
+                context,
+                item,
+                courseId: courseId,
+                replace: true,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TopicItemRow extends StatelessWidget {
+  const _TopicItemRow({
+    required this.item,
+    required this.current,
+    required this.onTap,
+  });
+
+  final CurriculumItem item;
+  final bool current;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final Widget marker;
+    if (item.completed) {
+      marker = Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(color: p.success, shape: BoxShape.circle),
+        child: const AppIcon(AppIcons.check, size: 14, color: Colors.white),
+      );
+    } else if (current) {
+      marker = Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: p.text, width: 2),
+        ),
+        alignment: Alignment.center,
+        child: Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: p.text, shape: BoxShape.circle),
+        ),
+      );
+    } else if (item.locked) {
+      marker = AppIcon(AppIcons.lock, size: 22, color: p.textSecondary);
+    } else {
+      marker = Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: p.inputBorder, width: 2),
+        ),
+      );
+    }
+    final trailing =
+        item.type == CurriculumItemType.quiz && item.questionCount != null
+        ? plural(item.questionCount!, 'question')
+        : (item.durationMinutes != null
+              ? formatMinutes(item.durationMinutes!)
+              : null);
+    return Semantics(
+      selected: current,
+      button: !current,
+      label: [
+        item.title,
+        if (item.completed) 'completed',
+        if (item.locked) 'locked',
+        if (current) 'playing now',
+      ].join(', '),
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: current ? null : onTap,
+        child: Container(
+          color: current ? p.accentSoft : null,
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              marker,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: current ? FontWeight.w700 : FontWeight.w400,
+                    color: item.completed && !current
+                        ? p.textSecondary
+                        : p.text,
+                  ),
+                ),
+              ),
+              if (trailing != null)
+                Text(
+                  trailing,
+                  style: TextStyle(fontSize: 12, color: p.textSecondary),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Attachments extends StatelessWidget {
+  const _Attachments({required this.attachments});
+
+  final List<Attachment> attachments;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    child: Column(
+      children: [
+        for (final (i, a) in attachments.indexed) ...[
+          if (i > 0) Divider(height: 1, color: context.palette.divider),
+          SettingsTile(
+            icon: AppIcons.attachment,
+            title: a.name,
+            value: a.sizeBytes == null ? null : _size(a.sizeBytes!),
+            trailing: AppIcon(
+              AppIcons.download,
+              size: 20,
+              color: context.palette.textSecondary,
+            ),
+            onTap: () => openExternal(a.url),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+String _size(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(0)} KB';
+  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+}

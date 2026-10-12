@@ -1,0 +1,249 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:flutter/material.dart';
+
+import '../config/build_config_data.dart';
+import 'palette.dart';
+
+/// The template's default font, used when a build config has none.
+String defaultFontFor(AppTemplate template) => switch (template) {
+  AppTemplate.classic => 'Bricolage Grotesque',
+  AppTemplate.bold => 'Outfit',
+  AppTemplate.minimal => 'Manrope',
+};
+
+const bundledFonts = {
+  'Bricolage Grotesque',
+  'Plus Jakarta Sans',
+  'Outfit',
+  'Manrope',
+  'DM Sans',
+  'Lexend',
+};
+
+/// Monospace font for code (bundled, SIL OFL).
+const codeFontFamily = 'JetBrains Mono';
+
+/// Picks the build config's font when it is bundled, else the template's.
+String resolveFont(String? font, AppTemplate template) =>
+    (font != null && bundledFonts.contains(font))
+    ? font
+    : defaultFontFor(template);
+
+/// Corner radii per template: Bold is rounder.
+class AppShapes extends ThemeExtension<AppShapes> {
+  const AppShapes({
+    required this.card,
+    required this.button,
+    required this.chip,
+  });
+
+  factory AppShapes.forTemplate(AppTemplate template) => switch (template) {
+    AppTemplate.bold => const AppShapes(card: 22, button: 16, chip: 20),
+    AppTemplate.minimal => const AppShapes(card: 14, button: 12, chip: 18),
+    AppTemplate.classic => const AppShapes(card: 16, button: 14, chip: 19),
+  };
+
+  final double card;
+  final double button;
+  final double chip;
+
+  @override
+  AppShapes copyWith({double? card, double? button, double? chip}) => AppShapes(
+    card: card ?? this.card,
+    button: button ?? this.button,
+    chip: chip ?? this.chip,
+  );
+
+  @override
+  AppShapes lerp(ThemeExtension<AppShapes>? other, double t) => this;
+}
+
+extension AppShapesContext on BuildContext {
+  AppShapes get shapes => Theme.of(this).extension<AppShapes>()!;
+}
+
+ThemeData buildAppTheme({
+  required Color primary,
+  required Brightness brightness,
+  required AppTemplate template,
+  required String fontFamily,
+}) {
+  final p = AppPalette.build(
+    primary: primary,
+    brightness: brightness,
+    template: template,
+  );
+  final shapes = AppShapes.forTemplate(template);
+  final scheme = ColorScheme(
+    brightness: brightness,
+    primary: p.primary,
+    onPrimary: p.onPrimary,
+    secondary: p.accent,
+    onSecondary: BrandColors.midnight,
+    tertiary: p.link,
+    onTertiary: BrandColors.white,
+    error: p.danger,
+    onError: p.isDark ? BrandColors.midnight : BrandColors.white,
+    surface: p.surface,
+    onSurface: p.text,
+    onSurfaceVariant: p.textSecondary,
+    surfaceContainerLowest: p.background,
+    surfaceContainerLow: p.surfaceMuted,
+    surfaceContainer: p.surface,
+    surfaceContainerHigh: p.surface,
+    surfaceContainerHighest: p.segment,
+    outline: p.inputBorder,
+    outlineVariant: p.border,
+  );
+
+  TextStyle s(double size, FontWeight weight, {double? height, Color? color}) =>
+      TextStyle(
+        fontFamily: fontFamily,
+        fontSize: size,
+        fontWeight: weight,
+        height: height,
+        color: color ?? p.text,
+      );
+
+  final text = TextTheme(
+    displaySmall: s(30, FontWeight.w700, height: 1.25),
+    headlineMedium: s(28, FontWeight.w700, height: 1.25),
+    headlineSmall: s(24, FontWeight.w700, height: 1.25),
+    titleLarge: s(22, FontWeight.w700, height: 1.3),
+    titleMedium: s(18, FontWeight.w700, height: 1.3),
+    titleSmall: s(15, FontWeight.w700, height: 1.4),
+    bodyLarge: s(16, FontWeight.w400, height: 1.6, color: p.textSecondary),
+    bodyMedium: s(15, FontWeight.w400, height: 1.5),
+    bodySmall: s(13, FontWeight.w400, height: 1.5, color: p.textSecondary),
+    labelLarge: s(17, FontWeight.w600),
+    labelMedium: s(14, FontWeight.w600),
+    labelSmall: s(12, FontWeight.w400, color: p.textSecondary),
+  );
+
+  final buttonShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(shapes.button),
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    colorScheme: scheme,
+    fontFamily: fontFamily,
+    textTheme: text,
+    scaffoldBackgroundColor: p.background,
+    canvasColor: p.background,
+    dividerColor: p.divider,
+    splashFactory: InkRipple.splashFactory,
+    materialTapTargetSize: MaterialTapTargetSize.padded,
+    visualDensity: VisualDensity.standard,
+    extensions: [p, shapes],
+    appBarTheme: AppBarTheme(
+      backgroundColor: p.background,
+      foregroundColor: p.text,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleTextStyle: text.titleLarge,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: p.primary,
+        foregroundColor: p.onPrimary,
+        disabledBackgroundColor: p.primary.withValues(alpha: 0.4),
+        disabledForegroundColor: p.onPrimary.withValues(alpha: 0.8),
+        minimumSize: const Size.fromHeight(56),
+        shape: buttonShape,
+        textStyle: text.labelLarge,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: p.text,
+        backgroundColor: p.surface,
+        minimumSize: const Size(48, 48),
+        side: BorderSide(color: p.border),
+        shape: buttonShape,
+        textStyle: text.labelMedium,
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: p.link,
+        minimumSize: const Size(48, 44),
+        textStyle: text.labelMedium,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: p.surface,
+      hintStyle: TextStyle(color: p.textTertiary),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: p.inputBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: p.inputBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: p.text, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: p.danger),
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? p.onPrimary
+            : p.textTertiary,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) =>
+            states.contains(WidgetState.selected) ? p.primary : p.segment,
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: p.isDark ? BrandColors.ivory : BrandColors.midnight,
+      contentTextStyle: TextStyle(
+        fontFamily: fontFamily,
+        color: p.isDark ? BrandColors.midnight : BrandColors.white,
+        fontSize: 15,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: p.surface,
+      titleTextStyle: text.titleMedium,
+      contentTextStyle: text.bodyMedium?.copyWith(color: p.textSecondary),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: p.surface,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: p.isDark ? p.text : p.primary,
+      linearTrackColor: p.segment,
+    ),
+    radioTheme: RadioThemeData(fillColor: WidgetStatePropertyAll(p.text)),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected) ? p.primary : null,
+      ),
+      checkColor: WidgetStatePropertyAll(p.onPrimary),
+    ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+  );
+}
