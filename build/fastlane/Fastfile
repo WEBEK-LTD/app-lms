@@ -1,0 +1,144 @@
+# Store work for the Yallapp build pipeline (build/README.md).
+# Called by build/scripts/android.sh and build/scripts/ios.sh, never by hand.
+
+require "base64"
+require "json"
+require "securerandom"
+
+default_platform(:ios)
+
+# Uploads an App Bundle to the internal testing track. Google Play only accepts
+# draft releases until the app's first release is published in Play Console.
+platform :android do
+  lane :upload_play do |options|
+    upload = lambda do |status|
+      upload_to_play_store(
+        package_name: options[:package],
+        json_key: options[:json_key],
+        aab: options[:aab],
+        track: "internal",
+        release_status: status,
+        skip_upload_apk: true,
+        skip_upload_metadata: true,
+        skip_upload_changelogs: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+      )
+    end
+    begin
+      upload.call("completed")
+    rescue => error
+      raise unless error.message.include?("draft")
+      UI.important("The app is still a draft in Play Console; uploading a draft release.")
+      upload.call("draft")
+    end
+  end
+end
+
+platform :ios do
+  # Signs and exports the IPA.
+  #
+  # options: secrets and config (paths to the build's JSON files), mobile (path to mobile/),
+  #          out (output folder), signing_out (where to write signing keys created here)
+  lane :build_ipa do |options|
+    secrets = JSON.parse(File.read(options[:secrets]))
+    config = JSON.parse(File.read(options[:config]))
+    asc = secrets.fetch("app_store_connect")
+    api_key = app_store_connect_api_key(
+      key_id: asc.fetch("key_id"),
+      issuer_id: asc.fetch("issuer_id"),
+      key_content: asc.fetch("private_key"),
+      duration: 1200,
+      in_house: false,
+    )
+    bundle_id = config.fetch("ios_bundle_id")
+    push = !(config["firebase"] || {})["ios_config_url"].to_s.empty?
+
+    # The App ID, with push notifications when the app has Firebase.
+    bundle = Spaceship::ConnectAPI::BundleId.find(bundle_id) ||
+             Spaceship::ConnectAPI::BundleId.create(name: config.fetch("app_name")[0, 60], identifier: bundle_id, platform: "IOS")
+    if push && bundle.get_capabilities.none? { |c| c.capability_type == "PUSH_NOTIFICATIONS" }
+      bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS)
+    end
+
+    keychain = "yallapp-build.keychain"
+    keychain_password = SecureRandom.hex(24)
+    create_keychain(name: keychain, password: keychain_password, default_keychain: true, unlock: true, timeout: 3600, lock_when_sleeps: false)
+
+    # Distribution certificate: reuse the saved one, or create it once and save it, so
+    # the client's Apple account doesn't fill up with certificates.
+    saved = secrets["ios_distribution"]
+    if saved
+      p12 = File.join(options[:out], "distribution.p12")
+      File.binwrite(p12, Base64.decode64(saved.fetch("p12_base64")))
+      import_certificate(certificate_path: p12, certificate_password: saved.fetch("password"), keychain_name: keychain, keychain_password: keychain_password)
+      File.delete(p12)
+      cert_id = saved["certificate_id"]
+    else
+      get_certificates(api_key: api_key, development: false, keychain_path: "~/Library/Keychains/#{keychain}-db", keychain_password: keychain_password, output_path: options[:out])
+      cert_id = lane_context[SharedValues::CERT_CERTIFICATE_ID]
+      password = SecureRandom.hex(24)
+      p12 = File.join(options[:out], "distribution.p12")
+      sh("security", "export", "-k", "#{Dir.home}/Library/Keychains/#{keychain}-db", "-t", "identities", "-f", "pkcs12", "-P", password, "-o", p12)
+      File.write(options[:signing_out], JSON.generate(
+        "ios_distribution" => { "p12_base64" => Base64.strict_encode64(File.binread(p12)), "password" => password, "certificate_id" => cert_id.to_s },
+      ))
+      File.delete(p12)
+    end
+
+    get_provisioning_profile(api_key: api_key, app_identifier: bundle_id, cert_id: cert_id, force: true, output_path: options[:out], filename: "distribution.mobileprovision")
+    profile_name = lane_context[SharedValues::SIGH_NAME]
+    profile = FastlaneCore::ProvisioningProfile.parse(File.join(options[:out], "distribution.mobileprovision"))
+    team_id = profile["TeamIdentifier"].first
+
+    ios_dir = File.join(options[:mobile], "ios")
+    entitlements = nil
+    if push
+      entitlements = "Runner/Runner.entitlements"
+      File.write(File.join(ios_dir, entitlements), <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists/PLIST-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+        	<key>aps-environment</key>
+        	<string>production</string>
+        </dict>
+        </plist>
+      PLIST
+    end
+
+    update_code_signing_settings(
+      path: File.join(ios_dir, "Runner.xcodeproj"),
+      use_automatic_signing: false,
+      targets: ["Runner"],
+      build_configurations: ["Release"],
+      team_id: team_id,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+    )
+
+    build_app(
+      workspace: File.join(ios_dir, "Runner.xcworkspace"),
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_team_id: team_id,
+      export_options: { provisioningProfiles: { bundle_id => profile_name }, signingStyle: "manual" },
+      output_directory: options[:out],
+      output_name: "app",
+      xcargs: entitlements ? "CODE_SIGN_ENTITLEMENTS=#{entitlements}" : nil,
+      clean: true,
+      skip_profile_detection: true,
+    )
+  ensure
+    delete_keychain(name: keychain) if keychain && File.exist?(File.expand_path("~/Library/Keychains/#{keychain}-db"))
+  end
+
+  # Uploads to TestFlight. The app must already exist in App Store Connect.
+  lane :upload_testflight do |options|
+    secrets = JSON.parse(File.read(options[:secrets]))
+    asc = secrets.fetch("app_store_connect")
+    api_key = app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200)
+    upload_to_testflight(api_key: api_key, ipa: options[:ipa], skip_waiting_for_build_processing: true)
+  end
+end

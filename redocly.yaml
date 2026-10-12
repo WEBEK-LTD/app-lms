@@ -1,0 +1,8 @@
+extends:
+  - recommended
+
+rules:
+  # Public endpoints opt out of auth with `security: []` or allow both with `[{}, bearerAuth]`.
+  security-defined: error
+  operation-4xx-response: error
+  no-unused-components: error

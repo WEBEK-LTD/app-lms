@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Super admin clients</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#C2410C}a:hover{color:#9A3412}
+.in{height:42px;box-sizing:border-box;border:1px solid #CFC7B8;border-radius:10px;background:#FFFFFF;padding:0 12px;font-family:inherit;font-size:14px;color:#0E0D24;width:100%;min-width:0}
+.in:focus{outline:2px solid #0E0D24;outline-offset:0;border-color:#0E0D24}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F4EFE6; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-wrap: wrap; align-items: stretch">
+  <nav aria-label="Super admin" style="flex: 1 1 220px; max-width: 100%; background: #0E0D24; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 8px 20px">
+      <img src="/_blob/b0a08c193ac912cc3ad3448fda3a5e7d" alt="Yallapp" style="height: 26px; width: auto; display: block">
+      <span style="font-size: 12px; color: #9A96A6">Super admin</span>
+    </div>
+    <a href="SaasAdmin.dc.html" aria-current="page" style="height: 42px; padding: 0 12px; border-radius: 10px; background: #24223F; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center">Clients</a>
+    <a href="#builds" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #C9C6DC; text-decoration: none; font-size: 15px; display: flex; align-items: center">Build queue</a>
+    <a href="#versions" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #C9C6DC; text-decoration: none; font-size: 15px; display: flex; align-items: center">App &amp; plugin versions</a>
+    <a href="#plans" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #C9C6DC; text-decoration: none; font-size: 15px; display: flex; align-items: center">Plans</a>
+    <a href="#settings" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #C9C6DC; text-decoration: none; font-size: 15px; display: flex; align-items: center">Settings</a>
+  </nav>
+
+  <main style="flex: 999 1 640px; min-width: 0; padding: 32px 36px 48px; box-sizing: border-box">
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800">Clients</h1>
+        <button type="button" style="height: 44px; padding: 0 18px; border-radius: 10px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700">Add client</button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <button type="button" style="height: 36px; padding: 0 14px; border-radius: 18px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 600">All</button>
+        <button type="button" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #E4DDD0; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 14px">Pending activation</button>
+        <button type="button" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #E4DDD0; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 14px">Active</button>
+        <button type="button" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #E4DDD0; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 14px">Expired</button>
+        <label style="flex: 1 1 240px; max-width: 320px; margin-left: auto"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search clients</span><input class="in" type="search" placeholder="Search by name, phone or website"></label>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <section aria-label="Client list" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 16px; overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px">
+            <thead>
+              <tr style="text-align: left; color: #5E5B70; background: #FAF7F1">
+                <th scope="col" style="padding: 12px 16px; font-weight: 600">Client</th>
+                <th scope="col" style="padding: 12px 16px; font-weight: 600">Website</th>
+                <th scope="col" style="padding: 12px 16px; font-weight: 600">Plan</th>
+                <th scope="col" style="padding: 12px 16px; font-weight: 600">Status</th>
+                <th scope="col" style="padding: 12px 16px; font-weight: 600">Latest build</th>
+                <th scope="col" style="padding: 12px 16px; font-weight: 600"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top: 1px solid #EDE7DC; background: #FFF6F0">
+                <td style="padding: 14px 16px"><div style="display: flex; flex-direction: column"><span style="font-weight: 700">[Client name]</span><span style="font-size: 12px; color: #5E5B70">[Phone]</span></div></td>
+                <td style="padding: 14px 16px">[client-site.com]</td>
+                <td style="padding: 14px 16px; color: #5E5B70">Not set</td>
+                <td style="padding: 14px 16px"><span style="padding: 4px 10px; border-radius: 12px; background: #FBEDE0; color: #9A4F0B; font-size: 12px; font-weight: 700; white-space: nowrap">Pending activation</span></td>
+                <td style="padding: 14px 16px; color: #5E5B70">None</td>
+                <td style="padding: 14px 16px"><button type="button" style="height: 34px; padding: 0 14px; border-radius: 8px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 13px; font-weight: 700">Activate</button></td>
+              </tr>
+              <tr style="border-top: 1px solid #EDE7DC">
+                <td style="padding: 14px 16px"><div style="display: flex; flex-direction: column"><span style="font-weight: 700">[Client name]</span><span style="font-size: 12px; color: #5E5B70">[Phone]</span></div></td>
+                <td style="padding: 14px 16px">[client-site.com]</td>
+                <td style="padding: 14px 16px">[Pro]</td>
+                <td style="padding: 14px 16px"><span style="padding: 4px 10px; border-radius: 12px; background: #E3F2EA; color: #1C7C4A; font-size: 12px; font-weight: 700">Active</span></td>
+                <td style="padding: 14px 16px"><span style="color: #1C7C4A; font-weight: 600">Ready</span> · [x.y.z]</td>
+                <td style="padding: 14px 16px"><button type="button" style="height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #CFC7B8; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 13px; font-weight: 600">Manage</button></td>
+              </tr>
+              <tr style="border-top: 1px solid #EDE7DC">
+                <td style="padding: 14px 16px"><div style="display: flex; flex-direction: column"><span style="font-weight: 700">[Client name]</span><span style="font-size: 12px; color: #5E5B70">[Phone]</span></div></td>
+                <td style="padding: 14px 16px">[client-site.com]</td>
+                <td style="padding: 14px 16px">[Starter]</td>
+                <td style="padding: 14px 16px"><span style="padding: 4px 10px; border-radius: 12px; background: #E3F2EA; color: #1C7C4A; font-size: 12px; font-weight: 700">Active</span></td>
+                <td style="padding: 14px 16px"><span style="color: #9A4F0B; font-weight: 600">Building</span></td>
+                <td style="padding: 14px 16px"><button type="button" style="height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #CFC7B8; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 13px; font-weight: 600">Manage</button></td>
+              </tr>
+              <tr style="border-top: 1px solid #EDE7DC">
+                <td style="padding: 14px 16px"><div style="display: flex; flex-direction: column"><span style="font-weight: 700">[Client name]</span><span style="font-size: 12px; color: #5E5B70">[Phone]</span></div></td>
+                <td style="padding: 14px 16px">[client-site.com]</td>
+                <td style="padding: 14px 16px">[Starter]</td>
+                <td style="padding: 14px 16px"><span style="padding: 4px 10px; border-radius: 12px; background: #FBE4E2; color: #B3261E; font-size: 12px; font-weight: 700">Expired</span></td>
+                <td style="padding: 14px 16px"><span style="color: #1C7C4A; font-weight: 600">Ready</span> · [x.y.z]</td>
+                <td style="padding: 14px 16px"><button type="button" style="height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #CFC7B8; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 13px; font-weight: 600">Renew</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <aside aria-labelledby="h-activate" style="flex: 1 1 280px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 id="h-activate" style="margin: 0; font-size: 17px; font-weight: 700">Activate [Client name]</h2>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Plan<select class="in"><option>[Starter]</option><option selected>[Pro]</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Active until<input class="in" type="date"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Payment note<input class="in" type="text" placeholder="e.g. paid via bank transfer"></label>
+          <button type="button" style="height: 44px; border-radius: 10px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700">Activate &amp; send license</button>
+          <span style="font-size: 12px; line-height: 1.5; color: #5E5B70">The client gets their license key and access to the setup wizard.</span>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

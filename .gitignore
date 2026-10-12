@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment and secrets: never commit these
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Build output
+/mobile/**/build/
+.dart_tool/
+.next/
+.netlify/
+dist/
+coverage/
+__pycache__/
+.bundle/
+.phpunit.result.cache
+
+# Claude Code agent worktrees
+.claude/worktrees/
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+build/files-host/config.php
+dist/

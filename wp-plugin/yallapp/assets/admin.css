@@ -1,0 +1,152 @@
+/* Yallapp settings screen. Brand: Midnight #0E0D24, Ivory #F4EFE6, Ember #FF5A1F (accents only). */
+.yallapp {
+	--ya-ink: #0e0d24;
+	--ya-paper: #fff;
+	--ya-soft: #f4efe6;
+	--ya-line: #e4ddd0;
+	--ya-muted: #5b5a6e;
+	--ya-ember: #ff5a1f;
+	--ya-ember-text: #c2410c;
+	--ya-ok: #15803d;
+	max-width: 880px;
+	color: var(--ya-ink);
+}
+.yallapp .ya-head h1 { font-size: 28px; font-weight: 700; margin: 8px 0 4px; }
+.yallapp .ya-head p { color: var(--ya-muted); margin: 0 0 16px; }
+.yallapp .ya-card {
+	background: var(--ya-paper);
+	border: 1px solid var(--ya-line);
+	border-radius: 14px;
+	padding: 20px 24px;
+	margin: 0 0 16px;
+}
+.yallapp .ya-card h2 {
+	font-size: 16px;
+	margin: 0 0 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.yallapp .ya-row {
+	display: grid;
+	grid-template-columns: minmax(180px, 280px) 1fr;
+	gap: 8px 24px;
+	align-items: center;
+	padding: 12px 0;
+	border-top: 1px solid var(--ya-soft);
+	margin: 0;
+}
+.yallapp .ya-card h2 + .ya-row { border-top: 0; }
+.yallapp .ya-label { font-weight: 600; display: flex; flex-direction: column; gap: 2px; padding: 0; }
+.yallapp .ya-help { color: var(--ya-muted); font-weight: 400; font-size: 12px; }
+.yallapp .ya-toggle input[type="checkbox"] {
+	appearance: none;
+	width: 40px;
+	height: 22px;
+	border-radius: 11px;
+	background: #cfc8bb;
+	border: 0;
+	position: relative;
+	cursor: pointer;
+	justify-self: start;
+	margin: 0;
+	box-shadow: none;
+}
+.yallapp .ya-toggle input[type="checkbox"]::before {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	transition: transform 0.15s ease;
+	margin: 0;
+}
+.yallapp .ya-toggle input[type="checkbox"]:checked { background: var(--ya-ink); }
+.yallapp .ya-toggle input[type="checkbox"]:checked::before { transform: translateX(18px); content: ""; }
+.yallapp .ya-toggle input[type="checkbox"]:focus-visible { outline: 2px solid var(--ya-ember); outline-offset: 2px; }
+.yallapp .ya-choices { display: flex; flex-direction: column; gap: 6px; }
+.yallapp .ya-choices-inline { flex-direction: row; gap: 16px; }
+.yallapp .ya-sub {
+	border: 1px solid var(--ya-line);
+	border-radius: 10px;
+	padding: 4px 16px 8px;
+	margin: 12px 0;
+	background: #fcfaf6;
+}
+.yallapp .ya-sub legend { font-weight: 600; padding: 0 6px; }
+.yallapp .ya-pill {
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 600;
+	border-radius: 999px;
+	padding: 2px 10px;
+	justify-self: start;
+}
+.yallapp .ya-pill-ok { background: #dcfce7; color: var(--ya-ok); }
+.yallapp .ya-pill-warn { background: #ffedd5; color: var(--ya-ember-text); }
+.yallapp .ya-status { margin: 0; }
+.yallapp .ya-status li {
+	display: grid;
+	grid-template-columns: minmax(180px, 280px) 1fr auto;
+	gap: 16px;
+	align-items: center;
+	padding: 10px 0;
+	border-top: 1px solid var(--ya-soft);
+	margin: 0;
+}
+.yallapp .ya-status li:first-child { border-top: 0; }
+.yallapp .ya-facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 12px 24px;
+	margin: 0 0 12px;
+}
+.yallapp .ya-facts dt { color: var(--ya-muted); font-size: 12px; }
+.yallapp .ya-facts dd { margin: 2px 0 0; font-weight: 600; }
+.yallapp .ya-inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.yallapp .ya-inline .ya-field { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.yallapp .ya-inline .ya-help, .yallapp .ya-inline .ya-facts { flex-basis: 100%; }
+.yallapp .ya-actions { display: flex; gap: 16px; align-items: center; flex-basis: 100%; }
+.yallapp .ya-danger { color: #b42318 !important; }
+.yallapp .ya-disabled { opacity: 0.6; }
+.yallapp .ya-sortable { margin: 0; max-width: 360px; }
+.yallapp .ya-sortable li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	margin: 0 0 6px;
+	border: 1px solid var(--ya-line);
+	border-radius: 8px;
+	background: #fff;
+	cursor: grab;
+}
+.yallapp .ya-grip { color: var(--ya-muted); letter-spacing: -2px; }
+.yallapp .ya-multi { min-width: 320px; }
+.yallapp .ya-image { display: flex; align-items: center; gap: 12px; }
+.yallapp .ya-image img { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; border: 1px solid var(--ya-line); background: var(--ya-soft); }
+.yallapp .ya-savebar {
+	position: sticky;
+	bottom: 0;
+	padding: 12px 0;
+	background: linear-gradient(transparent, #f0f0f1 30%);
+	margin-bottom: 16px;
+}
+.yallapp .button-primary { background: var(--ya-ink); border-color: var(--ya-ink); }
+.yallapp .button-primary:hover, .yallapp .button-primary:focus { background: #23214a; border-color: #23214a; }
+.yallapp .ya-devices { margin: 0; }
+.yallapp .ya-devices li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 0;
+	border-top: 1px solid var(--ya-soft);
+	margin: 0;
+}
+@media (max-width: 782px) {
+	.yallapp .ya-row, .yallapp .ya-status li { grid-template-columns: 1fr; }
+	.yallapp .ya-choices-inline { flex-direction: column; }
+}

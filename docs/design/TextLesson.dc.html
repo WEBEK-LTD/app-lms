@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Text lesson</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-direction: column; overflow: hidden">
+  <div style="flex: none; padding: 24px 20px 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #EDE7DC">
+    <a href="Lesson.dc.html" aria-label="Back" style="width: 44px; height: 44px; flex: none; border-radius: 12px; background: #F4EFE6; border: 1px solid #E4DDD0; color: #0E0D24; display: flex; align-items: center; justify-content: center">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">chevron_left</span>
+    </a>
+    <div style="display: flex; flex-direction: column; min-width: 0">
+      <span style="font-size: 12px; color: #5E5B70">Python Programming Basics · Module 2</span>
+      <span style="font-size: 15px; font-weight: 700">Lesson 8 of 20</span>
+    </div>
+  </div>
+
+  <article style="flex: 1; min-height: 0; overflow: hidden; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+    <h1 style="margin: 0; font-size: 22px; font-weight: 700; line-height: 1.3">Writing your first function</h1>
+    <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #24223A">A function is a reusable block of code. You define it once with <code style="font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #EFE9DE; padding: 2px 6px; border-radius: 4px">def</code>, then call it whenever you need it.</p>
+
+    <figure style="margin: 0; border-radius: 12px; overflow: hidden; background: #0E0D24">
+      <figcaption style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #161B22; color: #8B949E; font-size: 12px">
+        <span>python</span>
+        <button type="button" style="height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid #30363D; background: transparent; color: #C9D1D9; font-family: inherit; font-size: 12px; display: flex; align-items: center; gap: 6px">
+          <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 14px; flex: none">content_copy</span>
+          Copy
+        </button>
+      </figcaption>
+      <pre style="margin: 0; padding: 14px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; color: #C9D1D9"><span style="color: #FF7B72">def</span> <span style="color: #D2A8FF">greet</span>(name):
+    <span style="color: #8B949E">"""Return a greeting."""</span>
+    <span style="color: #FF7B72">return</span> <span style="color: #A5D6FF">f"Hello, {name}!"</span>
+
+<span style="color: #79C0FF">print</span>(greet(<span style="color: #A5D6FF">"Sara"</span>))</pre>
+    </figure>
+
+    <h2 style="margin: 4px 0 0; font-size: 17px; font-weight: 700">Key points</h2>
+    <ul style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.7; color: #24223A">
+      <li>Names should describe what the function does.</li>
+      <li>Use <code style="font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #EFE9DE; padding: 2px 6px; border-radius: 4px">return</code> to send a value back.</li>
+    </ul>
+
+    <div style="border: 1px dashed #CBC3B4; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; background: #FAF7F1">
+      <div style="width: 40px; height: 40px; flex: none; border-radius: 10px; background: #FFEDE4; color: #0E0D24; display: flex; align-items: center; justify-content: center">
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">code</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 14px; font-weight: 600">[Embedded content from the lesson]</span>
+        <span style="font-size: 12px; color: #5E5B70">iframes, custom scripts and page-builder blocks show here in a secure web view</span>
+      </div>
+    </div>
+  </article>
+
+  <div style="flex: none; background: #FFFFFF; border-top: 1px solid #E4DDD0; padding: 12px 20px 20px; display: flex; gap: 10px">
+    <a href="Lesson.dc.html" aria-label="Previous lesson" style="width: 54px; height: 54px; flex: none; border-radius: 14px; background: #F4EFE6; border: 1px solid #E4DDD0; color: #0E0D24; display: flex; align-items: center; justify-content: center">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">chevron_left</span>
+    </a>
+    <button type="button" style="flex: 1; height: 54px; border-radius: 14px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">check</span>
+      Mark as complete
+    </button>
+    <a href="Quiz.dc.html" aria-label="Next lesson" style="width: 54px; height: 54px; flex: none; border-radius: 14px; background: #F4EFE6; border: 1px solid #E4DDD0; color: #0E0D24; display: flex; align-items: center; justify-content: center">
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">chevron_right</span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

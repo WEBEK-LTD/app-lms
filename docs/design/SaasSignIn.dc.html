@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in to Yallapp</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#C2410C}a:hover{color:#9A3412}
+.in{height:48px;box-sizing:border-box;border:1px solid #CFC7B8;border-radius:10px;background:#FFFFFF;padding:0 14px;font-family:inherit;font-size:15px;color:#0E0D24;width:100%;min-width:0}
+.in:focus{outline:2px solid #0E0D24;outline-offset:0;border-color:#0E0D24}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F4EFE6; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-direction: column">
+  <header style="max-width: 1160px; width: 100%; margin: 0 auto; padding: 22px 24px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+    <a href="SaasLanding.dc.html" style="display: flex"><img src="/_blob/723a8dbc6f14db5f606ea5ba6fcc6883" alt="Yallapp home" style="height: 30px; width: auto; display: block"></a>
+    <a href="SaasLanding.dc.html" style="font-size: 15px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; color: #34314A"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 20px; flex: none">arrow_back</span>Back to home</a>
+  </header>
+
+  <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 24px 56px">
+    <form style="width: 100%; max-width: 440px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 20px; padding: 36px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.5px">Sign in</h1>
+        <p style="margin: 0; font-size: 15px; color: #5E5B70">Manage your apps, builds and license.</p>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Email<input class="in" type="email" autocomplete="email" placeholder="you@academy.com"></label>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <label for="pw" style="font-size: 14px; font-weight: 600">Password</label>
+          <a href="#forgot" style="font-size: 14px; font-weight: 600; text-decoration: none">Forgot password?</a>
+        </div>
+        <div style="position: relative">
+          <input id="pw" class="in" type="password" autocomplete="current-password" style="padding-right: 48px">
+          <button type="button" aria-label="Show password" style="position: absolute; top: 2px; right: 2px; width: 44px; height: 44px; border: none; background: transparent; color: #5E5B70; display: flex; align-items: center; justify-content: center; padding: 0">
+            <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 22px; flex: none">visibility</span>
+          </button>
+        </div>
+      </div>
+      <a href="SaasBuilds.dc.html" style="height: 50px; border-radius: 10px; background: #0E0D24; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">Sign in</a>
+      <p style="margin: 0; font-size: 15px; text-align: center; color: #5E5B70">New to Yallapp? <a href="SaasSignUp.dc.html" style="font-weight: 700">Create an account</a></p>
+    </form>
+  </main>
+
+  <footer style="max-width: 1160px; width: 100%; margin: 0 auto; padding: 20px 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; font-size: 14px; color: #5E5B70">
+    <span>© 2026 WEBEK LTD</span>
+    <span style="display: flex; gap: 20px"><a href="SaasTerms.dc.html" style="color: #5E5B70">Terms</a><a href="SaasPrivacy.dc.html" style="color: #5E5B70">Privacy</a><a href="https://wa.me/905446731942" style="color: #5E5B70">Support</a></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

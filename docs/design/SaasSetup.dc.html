@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App setup wizard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#C2410C}a:hover{color:#9A3412}
+.in{height:44px;box-sizing:border-box;border:1px solid #CFC7B8;border-radius:10px;background:#FFFFFF;padding:0 12px;font-family:inherit;font-size:15px;color:#0E0D24;width:100%;min-width:0}
+.in:focus{outline:2px solid #0E0D24;outline-offset:0;border-color:#0E0D24}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F4EFE6; font-family: 'Bricolage Grotesque', sans-serif; color: #0E0D24; display: flex; flex-wrap: wrap; align-items: stretch">
+  <nav aria-label="Dashboard" style="flex: 1 1 220px; max-width: 100%; background: #FFFFFF; border-right: 1px solid #E4DDD0; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <img src="/_blob/723a8dbc6f14db5f606ea5ba6fcc6883" alt="Yallapp" style="height: 30px; width: auto; display: block">
+    </div>
+    <a href="SaasBuilds.dc.html" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #34314A; text-decoration: none; font-size: 15px; display: flex; align-items: center">Overview</a>
+    <a href="SaasSetup.dc.html" aria-current="page" style="height: 42px; padding: 0 12px; border-radius: 10px; background: #FFEDE4; color: #0E0D24; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center">App setup</a>
+    <a href="SaasBuilds.dc.html" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #34314A; text-decoration: none; font-size: 15px; display: flex; align-items: center">Builds &amp; downloads</a>
+    <a href="#license" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #34314A; text-decoration: none; font-size: 15px; display: flex; align-items: center">License &amp; plugin</a>
+    <a href="https://wa.me/905446731942" style="height: 42px; padding: 0 12px; border-radius: 10px; color: #34314A; text-decoration: none; font-size: 15px; display: flex; align-items: center">Support</a>
+  </nav>
+
+  <main style="flex: 999 1 640px; min-width: 0; padding: 32px 36px 48px; box-sizing: border-box">
+    <div style="max-width: 1000px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800">App setup</h1>
+        <span style="font-size: 15px; color: #5E5B70">Plan: [Pro] · Your first build starts when all steps are complete.</span>
+      </div>
+
+      <ol aria-label="Setup steps" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px">
+        <li style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 12px 14px">
+          <span style="width: 28px; height: 28px; flex: none; border-radius: 14px; background: #1C7C4A; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 14px; flex: none">check</span></span>
+          <span style="font-size: 14px; font-weight: 600">App type</span>
+        </li>
+        <li style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 12px 14px">
+          <span style="width: 28px; height: 28px; flex: none; border-radius: 14px; background: #1C7C4A; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 14px; flex: none">check</span></span>
+          <span style="font-size: 14px; font-weight: 600">Website</span>
+        </li>
+        <li aria-current="step" style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 2px solid #0E0D24; border-radius: 12px; padding: 11px 13px">
+          <span style="width: 28px; height: 28px; flex: none; border-radius: 14px; background: #0E0D24; color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span>
+          <span style="font-size: 14px; font-weight: 700; color: #0E0D24">Branding</span>
+        </li>
+        <li style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 12px 14px">
+          <span style="width: 28px; height: 28px; flex: none; border-radius: 14px; background: #E9E2D5; color: #5E5B70; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span>
+          <span style="font-size: 14px; color: #5E5B70">Store listing</span>
+        </li>
+        <li style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 12px; padding: 12px 14px">
+          <span style="width: 28px; height: 28px; flex: none; border-radius: 14px; background: #E9E2D5; color: #5E5B70; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">4</span>
+          <span style="font-size: 14px; color: #5E5B70">Publishing</span>
+        </li>
+      </ol>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <section aria-labelledby="h-brand" style="flex: 1 1 440px; min-width: 0; background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+          <h2 id="h-brand" style="margin: 0; font-size: 19px; font-weight: 700">Branding</h2>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">App name<input class="in" type="text" placeholder="[Academy name]"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Name under the app icon<input class="in" type="text" placeholder="Up to 12 characters"></label>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap">
+            <div style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">
+              <span>App icon</span>
+              <button type="button" style="height: 96px; border-radius: 12px; border: 1px dashed #9A96A6; background: #FAF7F1; font-family: inherit; font-size: 14px; color: #0E0D24; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px">Upload PNG<span style="font-size: 12px; font-weight: 400; color: #5E5B70">1024 × 1024, no transparency</span></button>
+            </div>
+            <div style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">
+              <span>Logo</span>
+              <button type="button" style="height: 96px; border-radius: 12px; border: 1px dashed #9A96A6; background: #FAF7F1; font-family: inherit; font-size: 14px; color: #0E0D24; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px">Upload PNG or SVG<span style="font-size: 12px; font-weight: 400; color: #5E5B70">Shown on the sign-in screen</span></button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap">
+            <label style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Primary color<input class="in" type="color" value="#0E0D24" style="padding: 4px"></label>
+            <label style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Splash screen background<input class="in" type="color" value="#FFFFFF" style="padding: 4px"></label>
+          </div>
+          <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+            <legend style="font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 8px">Template</legend>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+              <label style="display: flex; flex-direction: column; gap: 8px; cursor: pointer">
+                <div style="height: 150px; border-radius: 12px; border: 2px solid #0E0D24; background: #F4EFE6; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+                  <span style="height: 10px; width: 50%; border-radius: 3px; background: #0E0D24"></span>
+                  <span style="height: 34px; border-radius: 6px; background: #0E0D24"></span>
+                  <span style="display: flex; gap: 4px"><span style="flex: 1; height: 50px; border-radius: 6px; background: #F2E3C9"></span><span style="flex: 1; height: 50px; border-radius: 6px; background: #D7EBE2"></span></span>
+                </div>
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700"><input type="radio" name="tpl" checked style="width: 18px; height: 18px; margin: 0; accent-color: #0E0D24">Classic</span>
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 8px; cursor: pointer">
+                <div style="height: 150px; border-radius: 12px; border: 1px solid #E4DDD0; background: #F4EFE6; overflow: hidden; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box">
+                  <span style="height: 40px; background: #0E0D24; border-radius: 0 0 10px 10px"></span>
+                  <span style="height: 32px; margin: 0 10px; border-radius: 8px; background: #F2E3C9"></span>
+                  <span style="height: 50px; margin: 0 10px; border-radius: 8px; background: #D7EBE2"></span>
+                </div>
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><input type="radio" name="tpl" style="width: 18px; height: 18px; margin: 0; accent-color: #0E0D24">Bold</span>
+              </label>
+              <label style="display: flex; flex-direction: column; gap: 8px; cursor: pointer">
+                <div style="height: 150px; border-radius: 12px; border: 1px solid #E4DDD0; background: #FFFFFF; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px">
+                  <span style="height: 12px; width: 40%; border-radius: 3px; background: #0E0D24"></span>
+                  <span style="height: 22px; border-radius: 6px; background: #F4EFE6"></span>
+                  <span style="height: 1px; background: #E4DDD0"></span>
+                  <span style="display: flex; gap: 6px; align-items: center"><span style="width: 18px; height: 18px; border-radius: 4px; background: #F2E3C9"></span><span style="flex: 1; height: 6px; border-radius: 3px; background: #CFC7B8"></span></span>
+                  <span style="display: flex; gap: 6px; align-items: center"><span style="width: 18px; height: 18px; border-radius: 4px; background: #D7EBE2"></span><span style="flex: 1; height: 6px; border-radius: 3px; background: #CFC7B8"></span></span>
+                </div>
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600"><input type="radio" name="tpl" style="width: 18px; height: 18px; margin: 0; accent-color: #0E0D24">Minimal</span>
+              </label>
+            </div>
+          </fieldset>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Font
+            <select class="in"><option selected>Bricolage Grotesque</option><option>Plus Jakarta Sans</option><option>Outfit</option><option>Manrope</option><option>DM Sans</option><option>Lexend</option></select>
+          </label>
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding-top: 6px">
+            <button type="button" style="height: 46px; padding: 0 20px; border-radius: 10px; border: 1px solid #CFC7B8; background: #FFFFFF; color: #0E0D24; font-family: inherit; font-size: 15px; font-weight: 600">Back</button>
+            <button type="button" style="height: 46px; padding: 0 22px; border-radius: 10px; border: none; background: #0E0D24; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700">Save &amp; continue</button>
+          </div>
+        </section>
+
+        <aside aria-label="Live preview" style="flex: 0 1 300px; display: flex; flex-direction: column; align-items: center; gap: 12px">
+          <span style="font-size: 13px; font-weight: 600; color: #5E5B70">Live preview</span>
+          <div style="width: 250px; height: 500px; border-radius: 36px; background: #0E0D24; padding: 10px; box-sizing: border-box">
+            <div style="width: 100%; height: 100%; border-radius: 28px; background: #F4EFE6; display: flex; flex-direction: column; gap: 16px; padding: 40px 18px 18px; box-sizing: border-box">
+              <span style="width: 44px; height: 44px; border-radius: 12px; background: #0E0D24; color: #FFFFFF; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">[Logo]</span>
+              <span style="font-size: 20px; font-weight: 800; margin-top: 16px">Welcome</span>
+              <span style="font-size: 11px; line-height: 1.5; color: #5E5B70; margin-top: -8px">Sign in with your mobile number and we'll send you a verification code.</span>
+              <span style="height: 40px; border-radius: 10px; border: 1.5px solid #0E0D24; background: #FFFFFF"></span>
+              <span style="height: 40px; border-radius: 10px; background: #0E0D24; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">Send code</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <section aria-labelledby="h-next" style="display: flex; flex-direction: column; gap: 12px">
+        <h2 id="h-next" style="margin: 0; font-size: 16px; font-weight: 700; color: #5E5B70">Coming up</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+          <div style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 15px; font-weight: 700">3 · Store listing</span>
+            <span style="font-size: 14px; line-height: 1.6; color: #4A4760">Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, screenshots (generated for you or uploaded).</span>
+          </div>
+          <div style="background: #FFFFFF; border: 1px solid #E4DDD0; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 15px; font-weight: 700">4 · Publishing</span>
+            <span style="font-size: 14px; line-height: 1.6; color: #4A4760">Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: skip this step and publish with our guides.</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

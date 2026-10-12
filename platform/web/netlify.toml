@@ -1,0 +1,21 @@
+# Netlify reads this file from the site's base directory: platform/web.
+# Settings that can't live here (base directory, environment variables,
+# functions region) are listed in README.md.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Next.js runtime (OpenNext adapter), pinned through package.json.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Production deploys apply new database migrations first (scripts/migrate.mjs,
+# safe to run again), so a deploy never runs code ahead of its tables. Deploy
+# previews and branch deploys never touch the database.
+[context.production]
+  command = "npm run db:migrate && npm run build"

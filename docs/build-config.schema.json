@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yallapp.com.tr/schemas/build-config.json",
+  "title": "Yallapp app build config",
+  "description": "Everything needed to build one client's app. The platform writes it from the setup wizard; the build pipeline and the Flutter app read it. Secrets (signing keys, store API keys) are never part of this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "app_type",
+    "app_name",
+    "short_name",
+    "site_url",
+    "android_package",
+    "ios_bundle_id",
+    "version_name",
+    "version_code",
+    "branding"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "client_id": { "type": "string", "description": "The platform's client ID, for logs." },
+    "app_type": { "enum": ["lms"], "description": "Which module the build includes. 'store' and 'booking' come later." },
+    "app_name": { "type": "string", "minLength": 1, "maxLength": 30 },
+    "short_name": { "type": "string", "minLength": 1, "maxLength": 12, "description": "Shown under the app icon." },
+    "site_url": { "type": "string", "format": "uri", "pattern": "^https://", "description": "The client's WordPress site. The app calls <site_url>/wp-json/yallapp/v1." },
+    "android_package": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$", "examples": ["com.youracademy.app"] },
+    "ios_bundle_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9-]*(\\.[A-Za-z][A-Za-z0-9-]*)+$", "examples": ["com.youracademy.app"] },
+    "version_name": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "examples": ["1.0.0"] },
+    "version_code": { "type": "integer", "minimum": 1 },
+    "branding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_color", "splash_color", "template", "font"],
+      "properties": {
+        "primary_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "default": "#0E0D24" },
+        "splash_color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "default": "#F4EFE6" },
+        "template": { "enum": ["classic", "bold", "minimal"], "default": "classic" },
+        "font": { "enum": ["Bricolage Grotesque", "Plus Jakarta Sans", "Outfit", "Manrope", "DM Sans", "Lexend"], "default": "Bricolage Grotesque" },
+        "icon_url": { "type": "string", "format": "uri", "description": "1024 x 1024 PNG, no transparency." },
+        "logo_url": { "type": "string", "format": "uri", "description": "PNG or SVG shown on the sign-in screen." }
+      }
+    },
+    "firebase": {
+      "type": "object",
+      "description": "Optional. Push notifications are off when missing.",
+      "additionalProperties": false,
+      "properties": {
+        "android_config_url": { "type": "string", "format": "uri", "description": "google-services.json" },
+        "ios_config_url": { "type": "string", "format": "uri", "description": "GoogleService-Info.plist" }
+      }
+    }
+  }
+}
