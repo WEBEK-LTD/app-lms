@@ -72,6 +72,34 @@ export function buildPipelineToken(): string | undefined {
   return read("BUILD_PIPELINE_TOKEN");
 }
 
+/**
+ * Where the build pipeline stores app files (files.yallapp.com.tr). Only the
+ * origin is used: links on this origin are signed before they're shown.
+ */
+export function filesBaseUrl(): string {
+  const raw = read("FILES_BASE_URL") ?? "https://files.yallapp.com.tr";
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("FILES_BASE_URL must be a full address, e.g. https://files.yallapp.com.tr.");
+  }
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && !isNetlify())) {
+    throw new Error("FILES_BASE_URL must use https.");
+  }
+  return url.origin;
+}
+
+/**
+ * Shared with the PHP download script on files.yallapp.com.tr, which checks
+ * the `sig` of every link. Unset: download links are shown as not configured.
+ */
+export function filesSigningSecret(): string | undefined {
+  const secret = read("FILES_SIGNING_SECRET");
+  if (secret && secret.length < 32) throw new Error("FILES_SIGNING_SECRET must be at least 32 characters.");
+  return secret;
+}
+
 export function superAdminEmails(): string[] {
   return (read("SUPER_ADMIN_EMAILS") ?? "")
     .split(/[,\s]+/)

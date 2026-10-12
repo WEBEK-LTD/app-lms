@@ -17,7 +17,7 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 | Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license` |
 | Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
-| Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
+| Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
 | Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/health` |
 
 ### How it fits together
@@ -56,7 +56,19 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   "Available after your first build".
 - **Secrets clients give us** (Google Play service account JSON, App Store
   Connect .p8) are encrypted with `ENCRYPTION_KEY` and never sent back to the
-  browser.
+  browser. Starter clients can add the App Store Connect key too, only to sign
+  the iOS app. The pipeline reads them, decrypted, from
+  `GET /builds/{id}/secrets` while a build is `building`.
+- **Signing keys** the pipeline creates (Android upload key, iOS distribution
+  certificate) come back through `PUT /builds/{id}/signing` and are stored
+  encrypted with the app. A saved key is never replaced (`409 key_exists`):
+  a new Android upload key would lock the client out of updating their app on
+  Google Play.
+- **Download links:** build files live on `files.yallapp.com.tr`. Links on
+  `FILES_BASE_URL` are signed when the page renders, never stored:
+  `?expires=<unix seconds, now + 15 min>&sig=<hex HMAC-SHA256 of "<path>?expires=<expires>"
+  with FILES_SIGNING_SECRET>`. The PHP script there checks it with `hash_hmac`
+  and `hash_equals` (see `src/lib/files.ts`).
 - **Files:** icons, logos and plugin zips go to Netlify Blobs (store
   `yallapp-files`), or `.data/blobs` locally.
 - **Icons:** Material Symbols Rounded, self-hosted as a small subset in
@@ -105,12 +117,14 @@ plus a check that the committed migrations match the schema.
 | `ENCRYPTION_KEY` | yes | 32 bytes, as 64 hex characters (`openssl rand -hex 32`). Encrypts license keys and store API keys. Never change it without re-encrypting. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
+| `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
+| `FILES_SIGNING_SECRET` | for Phase 5 | 32+ random characters, the same value as on `files.yallapp.com.tr`. Signs build file download links. Without it they show "Downloads aren't configured yet". |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). |
 | `YALLAPP_SEED_ADMIN_PASSWORD` | no | Memory mode only: password for the super admins at start-up. |
 | `YALLAPP_BLOBS`, `YALLAPP_BLOBS_DIR` | no | `netlify` or `fs`; defaults to Netlify Blobs on Netlify and `.data/blobs` elsewhere. |
 
 Generate secrets with `openssl rand -base64 48` (session, signing) and
-`openssl rand -hex 32` (encryption key, pipeline token).
+`openssl rand -hex 32` (encryption key, pipeline token, files signing secret).
 
 ## Database on host.webek.org (cPanel)
 
@@ -163,3 +177,5 @@ release under **App & plugin versions**.
   to 5 MB, logos to 2 MB and plugin zips to 5.5 MB.
 - The plugin update API returns download links valid for 24 hours (WordPress
   can download an update hours after checking); dashboard links last 10 minutes.
+- Build file links (files.yallapp.com.tr) last 15 minutes; reload the page for
+  fresh ones.
