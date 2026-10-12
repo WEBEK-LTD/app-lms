@@ -70,12 +70,16 @@ Each step closes once it runs on Netlify against the MySQL database (0.3, 0.4).
 
 ## Phase 5: App builds (`build/`)
 
+The pipeline (`.github/workflows/build-apps.yml`), the platform's signing and
+download endpoints and the files host are built and tested piece by piece.
+The first real build needs the setup in `build/README.md`, then a test client.
+
 | | Step | Done when |
 |---|---|---|
-| [ ] | 5.1 Android build per client: APK, AAB, encrypted signing key | |
-| [ ] | 5.2 iOS build on macOS CI with App Store Connect | |
-| [ ] | 5.3 Automatic store upload for the Pro plan | |
-| [ ] | 5.4 File storage on `files.yallapp.com.tr` and downloads in the dashboard | A test client enters details and receives the apps |
+| [~] | 5.1 Android build per client: APK, AAB, encrypted signing key | |
+| [~] | 5.2 iOS build on macOS CI with App Store Connect | |
+| [~] | 5.3 Automatic store upload for the Pro plan | |
+| [~] | 5.4 File storage on `files.yallapp.com.tr` and downloads in the dashboard | A test client enters details and receives the apps |
 
 ## Phase 6: Launch
 

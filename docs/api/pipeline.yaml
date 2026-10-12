@@ -150,7 +150,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/KeyExists' }
+        '409': { $ref: '#/components/responses/SigningConflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
 components:
@@ -194,8 +194,10 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
-    KeyExists:
-      description: A key of this kind is already saved for the app and can't be replaced.
+    SigningConflict:
+      description: >-
+        `build_not_building` when the build isn't `building`, or `key_exists` when a key
+        of this kind is already saved for the app and can't be replaced.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -308,7 +310,7 @@ components:
       additionalProperties: false
       required: [keystore_base64, store_password, key_alias, key_password]
       properties:
-        keystore_base64: { type: string, maxLength: 20000, description: The PKCS12 keystore file. }
+        keystore_base64: { type: string, minLength: 4, maxLength: 20000, pattern: '^[A-Za-z0-9+/]+={0,2}$', description: The PKCS12 keystore file. }
         store_password: { type: string, minLength: 16, maxLength: 128 }
         key_alias: { type: string, pattern: '^[A-Za-z0-9_-]{1,64}$' }
         key_password: { type: string, minLength: 16, maxLength: 128 }
@@ -318,7 +320,7 @@ components:
       additionalProperties: false
       required: [p12_base64, password]
       properties:
-        p12_base64: { type: string, maxLength: 20000, description: Apple Distribution certificate with its private key. }
+        p12_base64: { type: string, minLength: 4, maxLength: 20000, pattern: '^[A-Za-z0-9+/]+={0,2}$', description: Apple Distribution certificate with its private key. }
         password: { type: string, minLength: 16, maxLength: 128 }
         certificate_id: { type: string, maxLength: 64, description: The certificate's ID in App Store Connect. }
 

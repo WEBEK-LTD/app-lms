@@ -12,7 +12,7 @@ const password = z.string().min(16).max(128);
 
 export const androidUploadKeySchema = z
   .object({
-    keystore_base64: z.string().max(20_000),
+    keystore_base64: z.string().min(4).max(20_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
     store_password: password,
     key_alias: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
     key_password: password,
@@ -21,7 +21,7 @@ export const androidUploadKeySchema = z
 
 export const iosDistributionSchema = z
   .object({
-    p12_base64: z.string().max(20_000),
+    p12_base64: z.string().min(4).max(20_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
     password,
     certificate_id: z.string().max(64).optional(),
   })

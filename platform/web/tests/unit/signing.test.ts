@@ -159,6 +159,9 @@ describe("PUT /api/v1/builds/{id}/signing", () => {
     ["a bad key alias", { android_upload_key: { ...androidKey, key_alias: "upload key" } }],
     ["a missing key password", { android_upload_key: { ...androidKey, key_password: undefined } }],
     ["a long keystore", { android_upload_key: { ...androidKey, keystore_base64: "A".repeat(20_001) } }],
+    ["an empty keystore", { android_upload_key: { ...androidKey, keystore_base64: "" } }],
+    ["a keystore that isn't base64", { android_upload_key: { ...androidKey, keystore_base64: "not base64!" } }],
+    ["an empty certificate", { ios_distribution: { ...iosKey, p12_base64: "" } }],
     ["a short p12 password", { ios_distribution: { ...iosKey, password: "short" } }],
     ["a long certificate ID", { ios_distribution: { ...iosKey, certificate_id: "x".repeat(65) } }],
   ])("refuses %s with 400 invalid_request", async (_, body) => {
