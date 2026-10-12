@@ -1,0 +1,28 @@
+import { getBlobStore } from "@/lib/blobs";
+import { getStore } from "@/lib/data";
+import { errorResponse } from "@/lib/http";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Public, unguessable URLs for app icons and logos. They end up in the public
+ * app stores anyway, and the build pipeline downloads them from here.
+ * SVGs are sandboxed so a script inside one can't run on yallapp.com.tr.
+ */
+export async function GET(_request: Request, { params }: RouteContext<"/api/v1/assets/[id]">): Promise<Response> {
+  const { id } = await params;
+  if (!UUID.test(id)) return errorResponse(404, "not_found", "Not found.");
+  const asset = await (await getStore()).getAsset(id);
+  if (!asset) return errorResponse(404, "not_found", "Not found.");
+  const file = await getBlobStore().get(asset.blobKey);
+  if (!file) return errorResponse(404, "not_found", "Not found.");
+  return new Response(new Uint8Array(file.data), {
+    headers: {
+      "content-type": asset.contentType,
+      "content-length": String(file.data.length),
+      "cache-control": "public, max-age=31536000, immutable",
+      "content-security-policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
+      "x-content-type-options": "nosniff",
+    },
+  });
+}

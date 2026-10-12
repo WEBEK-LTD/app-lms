@@ -1,0 +1,15 @@
+# Netlify reads this file from the site's base directory: platform/web.
+# Settings that can't live here (base directory, environment variables,
+# functions region) are listed in README.md.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Next.js runtime (OpenNext adapter), pinned through package.json.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
