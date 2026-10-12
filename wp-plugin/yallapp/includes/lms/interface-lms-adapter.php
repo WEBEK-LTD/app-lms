@@ -247,4 +247,108 @@ interface Lms_Adapter {
 	 * @return int[]
 	 */
 	public function student_ids( $course_id );
+
+	/**
+	 * Courses a user is enrolled in.
+	 *
+	 * @param int $user_id User ID.
+	 * @return int[]
+	 */
+	public function enrolled_course_ids( $user_id );
+
+	/**
+	 * Whether the site sells courses, so students have orders.
+	 *
+	 * @return bool
+	 */
+	public function sells_courses();
+
+	/**
+	 * The user's orders, newest first.
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $page     Page.
+	 * @param int $per_page Page size.
+	 * @return array{items: array[], total: int} Order shapes.
+	 */
+	public function orders( $user_id, $page, $per_page );
+
+	/**
+	 * Approved reviews of a course, newest first, and the rating summary.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   Current user, or 0 (marks their own review as `mine`).
+	 * @param int $page      Page.
+	 * @param int $per_page  Page size.
+	 * @return array{items: array[], total: int, summary: array} Review shapes and a RatingSummary shape.
+	 */
+	public function reviews( $course_id, $user_id, $page, $per_page );
+
+	/**
+	 * The user's own review of a course, approved or not.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return array|null Review shape.
+	 */
+	public function my_review( $course_id, $user_id );
+
+	/**
+	 * Writes or edits the user's review. The caller checks enrollment.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param int    $user_id   User ID.
+	 * @param int    $rating    1 to 5.
+	 * @param string $text      Review text, may be empty.
+	 * @return array|WP_Error Review shape.
+	 */
+	public function save_review( $course_id, $user_id, $rating, $text );
+
+	/**
+	 * Whether students can ask questions in this course (the site setting and the course's own).
+	 *
+	 * @param int $course_id Course ID.
+	 * @return bool
+	 */
+	public function qna_enabled( $course_id );
+
+	/**
+	 * A course's questions, newest first, without answers.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   Current user.
+	 * @param int $page      Page.
+	 * @param int $per_page  Page size.
+	 * @return array{items: array[], total: int} CourseQuestion shapes.
+	 */
+	public function questions( $course_id, $user_id, $page, $per_page );
+
+	/**
+	 * A question with its answers, oldest answer first.
+	 *
+	 * @param int $question_id Question ID.
+	 * @param int $user_id     Current user.
+	 * @return array|null CourseQuestionThread shape, with course_id.
+	 */
+	public function question( $question_id, $user_id );
+
+	/**
+	 * Asks a question. The caller checks access.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param int    $user_id   User ID.
+	 * @param string $text      Question.
+	 * @return array|WP_Error CourseQuestion shape.
+	 */
+	public function ask( $course_id, $user_id, $text );
+
+	/**
+	 * Replies to a question. The caller checks access.
+	 *
+	 * @param int    $question_id Question ID.
+	 * @param int    $user_id     User ID.
+	 * @param string $text        Reply.
+	 * @return array|WP_Error QuestionAnswer shape.
+	 */
+	public function answer( $question_id, $user_id, $text );
 }

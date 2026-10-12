@@ -95,6 +95,7 @@ class App_Controller extends Controller {
 					'reviews'      => ! empty( $features['reviews'] ),
 					'qna'          => ! empty( $features['qna'] ),
 					'push'         => $this->plugin->push()->is_configured(),
+					'orders'       => $lms ? $lms->sells_courses() : false,
 				),
 				'auth'      => array(
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),

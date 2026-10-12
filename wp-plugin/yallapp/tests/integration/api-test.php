@@ -282,6 +282,94 @@ check( 'quiz passed with correct answers', 'passed' === ( $r['json']['status'] ?
 $r = call( 'GET', '/me/quiz-attempts', null, $token );
 check( 'attempt history', 200 === $r['status'] && $r['json']['total'] >= 1, $r['raw'] );
 
+echo "Notifications\n";
+/**
+ * Runs PHP in the dev site and returns what it echoes.
+ */
+function wp_eval( $php ) {
+	return trim( (string) wp_cli( 'eval ' . escapeshellarg( $php ) ) );
+}
+$me_id = (int) ( call( 'GET', '/me', null, $token )['json']['id'] ?? 0 );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'enrollment notification in the inbox', 200 === $r['status'] && 'enrolled' === ( $r['json']['items'][0]['type'] ?? '' ) && $seed['python'] === ( $r['json']['items'][0]['course_id'] ?? 0 ), $r['raw'] );
+$topic = (int) wp_eval( 'echo wp_get_post_parent_id( ' . (int) $seed['lesson_html'] . ' );' );
+$new_lesson = (int) wp_eval( 'echo wp_insert_post( array( "post_type" => tutor()->lesson_post_type, "post_status" => "publish", "post_title" => "Loops", "post_parent" => ' . $topic . ' ) );' );
+wp_eval( 'Yallapp\Plugin::instance()->push()->announce( "Exam on Friday", "Bring a pencil.", 0 );' );
+wp_eval( 'Yallapp\Plugin::instance()->push()->announce( "Design only", "Not for Python students.", ' . (int) $seed['design'] . ' );' );
+$r = call( 'GET', '/me/notifications', null, $token );
+$types = array_map( function ( $n ) { return $n['type']; }, $r['json']['items'] ?? array() );
+check( 'inbox has announcement, new lesson and enrollment, newest first', array( 'announcement', 'new_lesson', 'enrolled' ) === $types, $r['raw'] );
+check( 'new lesson notification opens the lesson', $new_lesson === ( $r['json']['items'][1]['lesson_id'] ?? 0 ), $r['json']['items'] ?? null );
+check( 'all unread', 3 === ( $r['json']['unread_count'] ?? -1 ) && false === ( $r['json']['items'][0]['read'] ?? null ), $r['json'] );
+$r = call( 'GET', '/me/notifications?per_page=1', null, $token );
+check( 'inbox pages', 3 === ( $r['json']['total'] ?? 0 ) && 3 === ( $r['json']['total_pages'] ?? 0 ) && 1 === count( $r['json']['items'] ?? array() ), $r['raw'] );
+$r = call( 'POST', '/me/notifications/read', array(), $token );
+check( 'mark read 204', 204 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'all read after marking', 0 === ( $r['json']['unread_count'] ?? -1 ) && true === ( $r['json']['items'][2]['read'] ?? null ), $r['json'] );
+$r = call( 'GET', '/me/notifications' );
+check( 'inbox needs sign-in', 401 === $r['status'], $r['raw'] );
+
+echo "Orders\n";
+$r = call( 'GET', '/me/orders', null, $token );
+check( 'no orders without a checkout', 200 === $r['status'] && 0 === $r['json']['total'], $r['raw'] );
+wp_eval( 'tutor_utils()->update_option( "monetize_by", "tutor" );' );
+$order = (int) wp_eval(
+	'global $wpdb; $now = gmdate( "Y-m-d H:i:s" );'
+	. ' $wpdb->insert( $wpdb->prefix . "tutor_orders", array( "user_id" => ' . $me_id . ', "order_type" => "single_order", "order_status" => "completed", "payment_status" => "paid", "subtotal_price" => 450, "pre_tax_price" => 450, "total_price" => 450, "net_payment" => 450, "created_at_gmt" => $now, "created_by" => ' . $me_id . ', "updated_by" => ' . $me_id . ' ) );'
+	. ' $id = $wpdb->insert_id; $wpdb->insert( $wpdb->prefix . "tutor_order_items", array( "order_id" => $id, "item_id" => ' . (int) $seed['design'] . ', "regular_price" => 450 ) ); echo $id;'
+);
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config says the site sells courses', true === ( $r['json']['features']['orders'] ?? null ), $r['json']['features'] ?? null );
+$r = call( 'GET', '/me/orders', null, $token );
+$o = $r['json']['items'][0] ?? array();
+check( 'order listed', 200 === $r['status'] && 1 === $r['json']['total'] && $order === ( $o['id'] ?? 0 ), $r['raw'] );
+check( 'order shape', 'completed' === ( $o['status'] ?? '' ) && '' !== ( $o['status_label'] ?? '' ) && false !== strpos( (string) ( $o['total'] ?? '' ), '450' ) && false === strpos( (string) ( $o['total'] ?? '' ), '<' ), $o );
+check( 'order item links the course', $seed['design'] === ( $o['items'][0]['course_id'] ?? 0 ), $o );
+wp_eval( 'tutor_utils()->update_option( "monetize_by", "free" );' );
+
+echo "Reviews\n";
+$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews', null, $token );
+check( 'no reviews yet, can review', 200 === $r['status'] && 0 === $r['json']['total'] && true === $r['json']['can_review'] && null === $r['json']['mine'], $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 4, 'text' => "Clear lessons.\nGood pace." ), $token );
+check( 'review saved', 200 === $r['status'] && 4 === ( $r['json']['rating'] ?? 0 ) && true === $r['json']['mine'] && "Clear lessons.\nGood pace." === $r['json']['text'], $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 5, 'text' => 'Even better.' ), $token );
+check( 'review edited', 200 === $r['status'] && 5 === ( $r['json']['rating'] ?? 0 ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews' );
+check( 'one review, summary counts it', 1 === $r['json']['total'] && 5.0 === (float) $r['json']['summary']['rating'] && 1 === $r['json']['summary']['counts']['5'] && 0 === $r['json']['summary']['counts']['4'], $r['raw'] );
+check( 'signed out: no review form', false === $r['json']['can_review'] && null === $r['json']['mine'] && false === $r['json']['items'][0]['mine'], $r['json'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android' );
+check( 'course rating updated', 5.0 === (float) ( $r['json']['rating'] ?? 0 ) && 1 === ( $r['json']['rating_count'] ?? 0 ), $r['json'] );
+$r = call( 'PUT', '/courses/' . $seed['design'] . '/reviews/mine', array( 'rating' => 5 ), $token );
+check( 'review needs enrollment', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 9 ), $token );
+check( 'rating out of range 400', 400 === $r['status'], $r['raw'] );
+
+echo "Questions\n";
+$r = call( 'GET', '/courses/' . $seed['python'] . '/questions', null, $token );
+check( 'q&a off for the course 403', 403 === $r['status'] && 'feature_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_eval( 'update_post_meta( ' . (int) $seed['python'] . ', "_tutor_enable_qa", "yes" );' );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'course says q&a is on', true === ( $r['json']['qna'] ?? null ), $r['json'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/questions', array( 'text' => 'What does <b>range</b> return?' ), $token );
+$question = $r['json']['id'] ?? 0;
+check( 'question asked 201', 201 === $r['status'] && $question && 'What does range return?' === $r['json']['text'] && true === $r['json']['mine'] && 0 === $r['json']['answer_count'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/questions', null, $token );
+check( 'question listed', 200 === $r['status'] && 1 === $r['json']['total'] && $question === ( $r['json']['items'][0]['id'] ?? 0 ), $r['raw'] );
+$r = call( 'POST', '/questions/' . $question . '/answers', array( 'text' => 'Also: is it a list?' ), $token );
+check( 'reply 201', 201 === $r['status'] && true === ( $r['json']['mine'] ?? null ) && false === $r['json']['author']['instructor'], $r['raw'] );
+wp_eval( 'wp_set_current_user( ' . (int) $seed['instructor'] . ' ); Yallapp\Plugin::instance()->lms()->answer( ' . (int) $question . ', ' . (int) $seed['instructor'] . ', "It returns a range object." );' );
+$r = call( 'GET', '/questions/' . $question, null, $token );
+check( 'thread with answers in order', 200 === $r['status'] && 2 === count( $r['json']['answers'] ?? array() ) && true === ( $r['json']['answers'][1]['author']['instructor'] ?? null ) && 2 === $r['json']['answer_count'], $r['raw'] );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'instructor answer notifies the asker', 'qna_answer' === ( $r['json']['items'][0]['type'] ?? '' ) && $question === ( $r['json']['items'][0]['question_id'] ?? 0 ) && 1 === $r['json']['unread_count'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['design'] . '/questions', null, $token );
+check( 'questions need enrollment', in_array( $r['json']['code'] ?? '', array( 'not_enrolled', 'feature_disabled' ), true ) && 403 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/questions', array( 'text' => '   ' ), $token );
+check( 'empty question 400', 400 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/questions/999999', null, $token );
+check( 'missing question 404', 404 === $r['status'], $r['raw'] );
+
 echo "Settings\n";
 function set_settings( array $values ) {
 	wp_cli( 'eval ' . escapeshellarg( 'Yallapp\Plugin::instance()->settings()->update( json_decode( ' . var_export( json_encode( $values ), true ) . ', true ) );' ) );

@@ -69,6 +69,7 @@ class Plugin {
 		( new Rest\Gatekeeper( $this ) )->register();
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
+		add_action( 'yallapp_daily', array( $this->inbox(), 'purge_old' ) );
 		if ( is_admin() ) {
 			( new Admin\Settings_Page( $this ) )->register();
 			( new Admin\Lesson_Meta_Box() )->register();
@@ -88,6 +89,8 @@ class Plugin {
 		( new Rest\Catalog_Controller( $this ) )->register_routes();
 		( new Rest\Learning_Controller( $this ) )->register_routes();
 		( new Rest\Quiz_Controller( $this ) )->register_routes();
+		( new Rest\Notifications_Controller( $this ) )->register_routes();
+		( new Rest\Community_Controller( $this ) )->register_routes();
 	}
 
 	/**
@@ -269,6 +272,20 @@ class Plugin {
 			'push',
 			function () {
 				return new Push\Push_Service( $this );
+			}
+		);
+	}
+
+	/**
+	 * Notifications inbox.
+	 *
+	 * @return Push\Inbox
+	 */
+	public function inbox() {
+		return $this->service(
+			'inbox',
+			static function () {
+				return new Push\Inbox();
 			}
 		);
 	}

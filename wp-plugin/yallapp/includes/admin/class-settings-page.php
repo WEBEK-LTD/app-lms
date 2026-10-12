@@ -207,40 +207,26 @@ class Settings_Page {
 	}
 
 	/**
-	 * Queues a manual notification.
+	 * Sends a manual notification: to the students' inbox, and by push when Firebase is set up.
 	 *
 	 * @return void
 	 */
 	public function manual_push() {
 		$this->guard();
 		check_admin_referer( 'yallapp_push' );
-		$push = $this->plugin->push();
-		if ( ! $push->is_configured() ) {
-			$this->redirect( 'error', __( 'Upload your Firebase service account file first.', 'yallapp' ) );
-		}
 		$title     = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$body      = isset( $_POST['body'] ) ? sanitize_textarea_field( wp_unslash( $_POST['body'] ) ) : '';
 		$course_id = isset( $_POST['course_id'] ) ? absint( $_POST['course_id'] ) : 0;
 		if ( '' === $title || '' === $body ) {
 			$this->redirect( 'error', __( 'Enter a title and a message.', 'yallapp' ) );
 		}
-		$lms   = $this->plugin->lms();
-		$users = $course_id && $lms ? $lms->student_ids( $course_id ) : $this->plugin->devices()->push_user_ids();
-		$data  = array( 'type' => 'announcement' );
-		if ( $course_id ) {
-			$data['course_id'] = (string) $course_id;
+		$push = $this->plugin->push();
+		$sent = $push->announce( $title, $body, $course_id );
+		if ( ! $push->is_configured() ) {
+			$this->redirect( 'success', __( 'Saved to your students\' notifications in the app. Upload your Firebase service account file to also send it as a push notification.', 'yallapp' ) );
 		}
-		$push->queue(
-			$users,
-			'announcements',
-			array(
-				'title' => $title,
-				'body'  => $body,
-			),
-			$data
-		);
 		/* translators: %d: number of students. */
-		$this->redirect( 'success', sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', count( $users ), 'yallapp' ), count( $users ) ) );
+		$this->redirect( 'success', sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', $sent, 'yallapp' ), $sent ) );
 	}
 
 	/**
@@ -623,6 +609,7 @@ class Settings_Page {
 		$this->toggle( 'notify_new_lesson', __( 'A new lesson is added to an enrolled course', 'yallapp' ) );
 		$this->toggle( 'notify_announcement', __( 'An instructor posts an announcement', 'yallapp' ) );
 		$this->toggle( 'notify_enrollment', __( 'An enrollment is confirmed after payment', 'yallapp' ) );
+		$this->toggle( 'notify_qna_answer', __( 'An instructor answers a student\'s question', 'yallapp' ) );
 		echo '</fieldset>';
 		$this->close();
 	}
@@ -649,9 +636,7 @@ class Settings_Page {
 	private function manual_push_card() {
 		$this->open( __( 'Send a manual notification', 'yallapp' ) );
 		if ( ! $this->plugin->push()->is_configured() ) {
-			echo '<p class="ya-help">' . esc_html__( 'Upload your Firebase service account file in Notifications to send messages.', 'yallapp' ) . '</p>';
-			$this->close();
-			return;
+			echo '<p class="ya-help">' . esc_html__( 'Messages appear in the app\'s notifications. Upload your Firebase service account file in Notifications to also send them as push notifications.', 'yallapp' ) . '</p>';
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo '<input type="hidden" name="action" value="yallapp_push">';

@@ -42,7 +42,11 @@ tags:
   - name: Quizzes
     description: Quiz questions, attempts and results.
   - name: Commerce
-    description: Free enrollment and checkout hand-off.
+    description: Free enrollment, checkout hand-off and the student's orders.
+  - name: Notifications
+    description: The notifications inbox.
+  - name: Community
+    description: Course reviews and questions and answers.
 
 paths:
   /config:
@@ -352,6 +356,221 @@ paths:
         '204': { description: Saved }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/notifications:
+    get:
+      tags: [Notifications]
+      operationId: listNotifications
+      summary: List the student's notifications
+      description: |
+        Every notification the site sent to the student, newest first, whether
+        or not push reached a device: to everyone, to the students of a course
+        they're enrolled in, or to them alone. Kept for 90 days.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, unread_count]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Notification' }
+                      unread_count: { type: integer, description: "Unread notifications in total, for the badge." }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/notifications/read:
+    post:
+      tags: [Notifications]
+      operationId: markNotificationsRead
+      summary: Mark every notification as read
+      responses:
+        '204': { description: Marked as read }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/orders:
+    get:
+      tags: [Commerce]
+      operationId: listOrders
+      summary: List the student's orders
+      description: |
+        Orders from the site's checkout (the LMS's own or WooCommerce), newest
+        first. Empty when the site doesn't sell courses (`features.orders`).
+        The iOS app doesn't show orders, as it doesn't sell courses.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Order' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /courses/{course_id}/reviews:
+    get:
+      tags: [Community]
+      operationId: listReviews
+      summary: List a course's reviews
+      description: Approved reviews, newest first, with the rating summary. Signed-in students also get their own review, approved or not.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, summary, can_review]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Review' }
+                      summary: { $ref: '#/components/schemas/RatingSummary' }
+                      mine:
+                        oneOf:
+                          - $ref: '#/components/schemas/Review'
+                          - type: 'null'
+                      can_review: { type: boolean, description: "Whether the signed-in student may write or edit a review: enrolled, and reviews are on." }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{course_id}/reviews/mine:
+    put:
+      tags: [Community]
+      operationId: saveMyReview
+      summary: Write or edit the student's review
+      description: One review per student and course. Enrolled students only. The site may hold it for approval (`status`).
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewInput' }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{course_id}/questions:
+    get:
+      tags: [Community]
+      operationId: listQuestions
+      summary: List a course's questions
+      description: Questions students asked in the course, newest first, without their answers. Enrolled students only.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Questions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/CourseQuestion' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Community]
+      operationId: askQuestion
+      summary: Ask a question
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TextInput' }
+      responses:
+        '201':
+          description: Asked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourseQuestion' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /questions/{question_id}:
+    get:
+      tags: [Community]
+      operationId: getQuestion
+      summary: Get a question with its answers
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      responses:
+        '200':
+          description: Question and answers, oldest answer first
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourseQuestionThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /questions/{question_id}/answers:
+    post:
+      tags: [Community]
+      operationId: answerQuestion
+      summary: Reply to a question
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TextInput' }
+      responses:
+        '201':
+          description: Reply
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuestionAnswer' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /categories:
     get:
@@ -740,6 +959,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    QuestionId:
+      name: question_id
+      in: path
+      required: true
+      schema: { type: integer }
 
   responses:
     BadRequest:
@@ -797,6 +1021,7 @@ components:
             - rate_limited
             - device_limit_reached
             - not_enrolled
+            - feature_disabled
             - signup_disabled
             - purchase_not_allowed
             - watch_requirement_not_met
@@ -849,6 +1074,7 @@ components:
             reviews: { type: boolean }
             qna: { type: boolean }
             push: { type: boolean }
+            orders: { type: boolean, description: "Whether the site sells courses, so students have orders. Missing on older plugins means false." }
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
@@ -1018,6 +1244,7 @@ components:
             duration_minutes: { type: [integer, 'null'] }
             level: { type: [string, 'null'], example: Beginner }
             has_certificate: { type: boolean }
+            qna: { type: boolean, description: "Whether students can ask questions in this course: features.qna and the course's own setting. Missing on older plugins means features.qna." }
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
@@ -1227,3 +1454,118 @@ components:
         course_title: { type: string }
         url: { type: string, format: uri }
         issued_at: { type: [string, 'null'], format: date-time }
+
+    Notification:
+      type: object
+      required: [id, title, body, type, created_at, read]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer] }
+        course_id: { type: [integer, 'null'] }
+        lesson_id: { type: [integer, 'null'] }
+        question_id: { type: [integer, 'null'], description: "For qna_answer, the question that was answered." }
+        created_at: { type: string, format: date-time }
+        read: { type: boolean }
+
+    Order:
+      type: object
+      required: [id, number, status, status_label, total, created_at, items]
+      properties:
+        id: { type: integer }
+        number: { type: string, description: "The order number the site shows, e.g. on receipts.", example: '1042' }
+        status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
+        status_label: { type: string, description: The site's own wording for the status., example: Completed }
+        total: { type: string, description: Formatted with the site's currency., example: ₺450.00 }
+        created_at: { type: string, format: date-time }
+        items:
+          type: array
+          items:
+            type: object
+            required: [name]
+            properties:
+              name: { type: string }
+              course_id: { type: [integer, 'null'], description: "The course this item gives access to, when there is one." }
+
+    Person:
+      type: object
+      required: [name, instructor]
+      properties:
+        name: { type: string }
+        avatar_url: { type: [string, 'null'], format: uri }
+        instructor: { type: boolean, description: Whether they teach the course. }
+
+    RatingSummary:
+      type: object
+      required: [rating, rating_count, counts]
+      properties:
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5 }
+        rating_count: { type: integer }
+        counts:
+          type: object
+          description: Approved reviews per star, "1" to "5".
+          required: ['1', '2', '3', '4', '5']
+          properties:
+            '1': { type: integer }
+            '2': { type: integer }
+            '3': { type: integer }
+            '4': { type: integer }
+            '5': { type: integer }
+
+    Review:
+      type: object
+      required: [id, rating, text, author, created_at, status, mine]
+      properties:
+        id: { type: integer }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string }
+        author: { $ref: '#/components/schemas/Person' }
+        created_at: { type: string, format: date-time }
+        status: { type: string, enum: [approved, pending] }
+        mine: { type: boolean }
+
+    ReviewInput:
+      type: object
+      required: [rating]
+      properties:
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string, maxLength: 2000 }
+
+    TextInput:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 2000 }
+
+    CourseQuestion:
+      type: object
+      required: [id, text, author, created_at, answer_count, mine]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        text: { type: string }
+        author: { $ref: '#/components/schemas/Person' }
+        created_at: { type: string, format: date-time }
+        answer_count: { type: integer }
+        mine: { type: boolean }
+
+    QuestionAnswer:
+      type: object
+      required: [id, text, author, created_at, mine]
+      properties:
+        id: { type: integer }
+        text: { type: string }
+        author: { $ref: '#/components/schemas/Person' }
+        created_at: { type: string, format: date-time }
+        mine: { type: boolean }
+
+    CourseQuestionThread:
+      allOf:
+        - $ref: '#/components/schemas/CourseQuestion'
+        - type: object
+          required: [answers]
+          properties:
+            answers:
+              type: array
+              items: { $ref: '#/components/schemas/QuestionAnswer' }

@@ -78,7 +78,7 @@ class Settings {
 			'notify_new_lesson'          => true,
 			'notify_announcement'        => true,
 			'notify_enrollment'          => true,
-			'notify_qna_answer'          => false,
+			'notify_qna_answer'          => true,
 			// Updates and maintenance.
 			'min_app_version'            => '',
 			'maintenance'                => false,

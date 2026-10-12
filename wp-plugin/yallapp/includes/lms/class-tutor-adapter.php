@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
 use WP_Error;
 use WP_Post;
 use WP_Query;
+use Yallapp\Commerce\Money;
+use Yallapp\Commerce\Woo_Orders;
 
 /**
  * Tutor LMS 2.0.6 and later, Free and Pro. Uses tutor_utils(), which keeps moved
@@ -202,6 +204,7 @@ class Tutor_Adapter implements Lms_Adapter {
 				'has_certificate'  => $this->features()['certificates'] && 'none' !== get_post_meta( $post->ID, 'tutor_course_certificate_template', true ),
 				'categories'       => is_array( $terms ) ? array_map( array( $this, 'category_shape' ), $terms ) : array(),
 				'has_checkout'     => ! $this->is_free( $post->ID ),
+				'qna'              => $this->qna_enabled( $post->ID ),
 			)
 		);
 	}
@@ -513,7 +516,7 @@ class Tutor_Adapter implements Lms_Adapter {
 			'id'                 => (int) $quiz->ID,
 			'course_id'          => (int) $this->course_of( $quiz->ID ),
 			'title'              => (string) $quiz->post_title,
-			'question_count'     => count( $this->questions( $quiz->ID ) ),
+			'question_count'     => count( $this->quiz_questions( $quiz->ID ) ),
 			'time_limit_seconds' => $this->time_limit( $quiz->ID ),
 			'pass_percent'       => (int) tutor_utils()->get_quiz_option( $quiz->ID, 'passing_grade', 0 ),
 			'attempts_allowed'   => $this->attempts_allowed( $quiz->ID ),
@@ -548,7 +551,7 @@ class Tutor_Adapter implements Lms_Adapter {
 			return new WP_Error( 'attempts_exhausted', __( 'You have used all attempts for this quiz.', 'yallapp' ), array( 'status' => 409 ) );
 		}
 
-		$questions = $this->questions( $quiz->ID );
+		$questions = $this->quiz_questions( $quiz->ID );
 		$native    = $this->native_quizzes_supported();
 		foreach ( $questions as $question ) {
 			if ( ! in_array( $question->question_type, self::NATIVE_QUESTION_TYPES, true ) ) {
@@ -613,7 +616,7 @@ class Tutor_Adapter implements Lms_Adapter {
 
 		$question_ids = get_transient( 'yallapp_attempt_' . $attempt_id );
 		if ( ! is_array( $question_ids ) ) {
-			$question_ids = wp_list_pluck( $this->questions( $quiz_id ), 'question_id' );
+			$question_ids = wp_list_pluck( $this->quiz_questions( $quiz_id ), 'question_id' );
 		}
 		$question_ids = array_map( 'intval', $question_ids );
 		$given        = array();
@@ -626,7 +629,7 @@ class Tutor_Adapter implements Lms_Adapter {
 			if ( ! $options ) {
 				continue;
 			}
-			$question              = $this->question( $question_id );
+			$question              = $this->quiz_question( $question_id );
 			$given[ $question_id ] = ( $question && 'multiple_choice' === $question->question_type ) ? $options : (string) $options[0];
 		}
 		// Tutor ends the attempt only when at least one answer is present; unanswered questions score zero.
@@ -749,6 +752,493 @@ class Tutor_Adapter implements Lms_Adapter {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Tutor stores enrollments as posts; a direct query avoids loading them all.
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE post_type = %s AND post_parent = %d AND post_status = %s", 'tutor_enrolled', $course_id, 'completed' ) );
 		return array_map( 'intval', (array) $ids );
+	}
+
+	/**
+	 * Courses a user is enrolled in.
+	 *
+	 * @param int $user_id User ID.
+	 * @return int[]
+	 */
+	public function enrolled_course_ids( $user_id ) {
+		return $user_id ? array_map( 'intval', (array) tutor_utils()->get_enrolled_courses_ids_by_user( $user_id ) ) : array();
+	}
+
+	/**
+	 * Whether courses are sold, with Tutor's own checkout or WooCommerce.
+	 *
+	 * @return bool
+	 */
+	public function sells_courses() {
+		$monetize_by = tutor_utils()->get_option( 'monetize_by' );
+		return 'tutor' === $monetize_by || ( 'wc' === $monetize_by && Woo_Orders::available() );
+	}
+
+	/**
+	 * Orders, newest first.
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $page     Page.
+	 * @param int $per_page Page size.
+	 * @return array{items: array[], total: int}
+	 */
+	public function orders( $user_id, $page, $per_page ) {
+		$monetize_by = tutor_utils()->get_option( 'monetize_by' );
+		if ( 'wc' === $monetize_by ) {
+			return Woo_Orders::for_user(
+				$user_id,
+				$page,
+				$per_page,
+				static function ( $product_id ) {
+					$row = tutor_utils()->product_belongs_with_course( (int) $product_id );
+					return $row ? (int) $row->post_id : 0;
+				}
+			);
+		}
+		if ( 'tutor' === $monetize_by ) {
+			return $this->native_orders( $user_id, $page, $per_page );
+		}
+		return array(
+			'items' => array(),
+			'total' => 0,
+		);
+	}
+
+	/**
+	 * Orders from Tutor's own checkout (Tutor 3 and later).
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $page     Page.
+	 * @param int $per_page Page size.
+	 * @return array{items: array[], total: int}
+	 */
+	private function native_orders( $user_id, $page, $per_page ) {
+		global $wpdb;
+		$orders = $wpdb->prefix . 'tutor_orders';
+		$lines  = $wpdb->prefix . 'tutor_order_items';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Tutor's order tables; names are built from the prefix.
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders ) ) !== $orders ) {
+			return array(
+				'items' => array(),
+				'total' => 0,
+			);
+		}
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE user_id = %d AND order_status <> 'trash'", $user_id ) );
+		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT id, order_status, payment_status, total_price, created_at_gmt FROM {$orders} WHERE user_id = %d AND order_status <> 'trash' ORDER BY id DESC LIMIT %d OFFSET %d", $user_id, $per_page, max( 0, ( $page - 1 ) * $per_page ) ) );
+		$items = array();
+		foreach ( (array) $rows as $row ) {
+			$course_lines = $wpdb->get_results( $wpdb->prepare( "SELECT oi.item_id, p.post_title, p.post_type FROM {$lines} oi LEFT JOIN {$wpdb->posts} p ON p.ID = oi.item_id WHERE oi.order_id = %d", $row->id ) );
+			// phpcs:enable
+			$status  = $this->native_order_status( (string) $row->order_status, (string) $row->payment_status );
+			$items[] = array(
+				'id'           => (int) $row->id,
+				'number'       => (string) $row->id,
+				'status'       => $status,
+				'status_label' => $this->native_order_status_label( (string) $row->order_status, (string) $row->payment_status ),
+				'total'        => Money::plain( function_exists( 'tutor_get_formatted_price' ) ? tutor_get_formatted_price( $row->total_price ) : (string) $row->total_price ),
+				'created_at'   => mysql2date( 'Y-m-d\TH:i:s\Z', $row->created_at_gmt, false ),
+				'items'        => array_map(
+					function ( $line ) {
+						return array(
+							'name'      => (string) $line->post_title,
+							'course_id' => tutor()->course_post_type === $line->post_type ? (int) $line->item_id : null,
+						);
+					},
+					(array) $course_lines
+				),
+			);
+		}
+		return array(
+			'items' => $items,
+			'total' => $total,
+		);
+	}
+
+	/**
+	 * API status of a Tutor order: refunds and failed payments win over the order status.
+	 *
+	 * @param string $order_status   Tutor order status.
+	 * @param string $payment_status Tutor payment status.
+	 * @return string
+	 */
+	private function native_order_status( $order_status, $payment_status ) {
+		if ( 'refunded' === $payment_status ) {
+			return 'refunded';
+		}
+		if ( 'failed' === $payment_status ) {
+			return 'failed';
+		}
+		$map = array(
+			'completed'  => 'completed',
+			'cancelled'  => 'cancelled',
+			'pending'    => 'pending',
+			'incomplete' => 'pending',
+		);
+		return $map[ $order_status ] ?? 'pending';
+	}
+
+	/**
+	 * Tutor's own wording for an order's status.
+	 *
+	 * @param string $order_status   Tutor order status.
+	 * @param string $payment_status Tutor payment status.
+	 * @return string
+	 */
+	private function native_order_status_label( $order_status, $payment_status ) {
+		if ( class_exists( '\Tutor\Models\OrderModel' ) ) {
+			if ( in_array( $payment_status, array( 'refunded', 'failed' ), true ) ) {
+				$labels = \Tutor\Models\OrderModel::get_payment_status();
+				return (string) ( $labels[ $payment_status ] ?? ucfirst( $payment_status ) );
+			}
+			$labels = \Tutor\Models\OrderModel::get_order_status();
+			return (string) ( $labels[ $order_status ] ?? ucfirst( $order_status ) );
+		}
+		return ucfirst( in_array( $payment_status, array( 'refunded', 'failed' ), true ) ? $payment_status : $order_status );
+	}
+
+	/**
+	 * Approved reviews, newest first.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   Current user.
+	 * @param int $page      Page.
+	 * @param int $per_page  Page size.
+	 * @return array{items: array[], total: int, summary: array}
+	 */
+	public function reviews( $course_id, $user_id, $page, $per_page ) {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Tutor stores reviews as comments with its own approval values, which WP_Comment_Query can't filter.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_post_ID = %d AND comment_type = 'tutor_course_rating' AND comment_approved = 'approved'", $course_id ) );
+		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_post_ID = %d AND comment_type = 'tutor_course_rating' AND comment_approved = 'approved' ORDER BY comment_ID DESC LIMIT %d OFFSET %d", $course_id, $per_page, max( 0, ( $page - 1 ) * $per_page ) ) );
+		// phpcs:enable
+		$rating = tutor_utils()->get_course_rating( $course_id );
+		$counts = array();
+		foreach ( array( 1, 2, 3, 4, 5 ) as $star ) {
+			$counts[ (string) $star ] = (int) ( ( (array) ( $rating->count_by_value ?? array() ) )[ $star ] ?? 0 );
+		}
+		$count = (int) ( $rating->rating_count ?? 0 );
+		return array(
+			'items'   => array_map(
+				function ( $row ) use ( $user_id ) {
+					return $this->review_shape( $row, $user_id );
+				},
+				(array) $rows
+			),
+			'total'   => $total,
+			'summary' => array(
+				'rating'       => $count ? round( (float) $rating->rating_avg, 1 ) : null,
+				'rating_count' => $count,
+				'counts'       => $counts,
+			),
+		);
+	}
+
+	/**
+	 * The user's review, approved or held for moderation.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return array|null
+	 */
+	public function my_review( $course_id, $user_id ) {
+		$row = $user_id ? $this->review_row( $course_id, $user_id ) : null;
+		return $row ? $this->review_shape( $row, $user_id ) : null;
+	}
+
+	/**
+	 * Writes or edits a review with Tutor's own code, so moderation, emails and its dashboard work as on the website.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param int    $user_id   User ID.
+	 * @param int    $rating    1 to 5.
+	 * @param string $text      Review text.
+	 * @return array|WP_Error
+	 */
+	public function save_review( $course_id, $user_id, $rating, $text ) {
+		if ( ! $this->features()['reviews'] ) {
+			return new WP_Error( 'feature_disabled', __( 'Reviews are turned off on this site.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		if ( ! class_exists( '\TUTOR\Ajax' ) || ! method_exists( '\TUTOR\Ajax', 'add_or_update_review' ) ) {
+			return new WP_Error( 'feature_disabled', __( 'Reviews need a newer version of Tutor LMS.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		$existing = $this->review_row( $course_id, $user_id );
+		( new \TUTOR\Ajax( false ) )->add_or_update_review( $user_id, $course_id, max( 1, min( 5, (int) $rating ) ), (string) $text, $existing ? (int) $existing->comment_ID : 0 );
+		clean_comment_cache( $existing ? (int) $existing->comment_ID : array() );
+		$review = $this->my_review( $course_id, $user_id );
+		return $review ? $review : new WP_Error( 'review_failed', __( 'Your review could not be saved. Please try again.', 'yallapp' ), array( 'status' => 500 ) );
+	}
+
+	/**
+	 * The user's review comment.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return object|null
+	 */
+	private function review_row( $course_id, $user_id ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Tutor's review comments, see reviews().
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_post_ID = %d AND user_id = %d AND comment_type = 'tutor_course_rating' ORDER BY comment_ID DESC LIMIT 1", $course_id, $user_id ) );
+		return $row ? $row : null;
+	}
+
+	/**
+	 * Review shape.
+	 *
+	 * @param object $row     Comment row.
+	 * @param int    $user_id Current user.
+	 * @return array
+	 */
+	private function review_shape( $row, $user_id ) {
+		return array(
+			'id'         => (int) $row->comment_ID,
+			'rating'     => max( 1, min( 5, (int) get_comment_meta( (int) $row->comment_ID, 'tutor_rating', true ) ) ),
+			'text'       => self::plain_text( (string) $row->comment_content ),
+			'author'     => $this->person( (int) $row->user_id, (int) $row->comment_post_ID ),
+			'created_at' => mysql2date( 'Y-m-d\TH:i:s\Z', $row->comment_date_gmt, false ),
+			'status'     => 'approved' === $row->comment_approved ? 'approved' : 'pending',
+			'mine'       => $user_id > 0 && (int) $row->user_id === (int) $user_id,
+		);
+	}
+
+	/**
+	 * Whether Q&A is on for the site and, on Tutor 4, for this course.
+	 *
+	 * @param int $course_id Course ID.
+	 * @return bool
+	 */
+	public function qna_enabled( $course_id ) {
+		if ( ! $this->features()['qna'] ) {
+			return false;
+		}
+		if ( class_exists( '\TUTOR\Q_And_A' ) && method_exists( '\TUTOR\Q_And_A', 'is_enabled_for_course' ) ) {
+			return (bool) \TUTOR\Q_And_A::is_enabled_for_course( $course_id );
+		}
+		return true;
+	}
+
+	/**
+	 * Questions, newest first.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   Current user.
+	 * @param int $page      Page.
+	 * @param int $per_page  Page size.
+	 * @return array{items: array[], total: int}
+	 */
+	public function questions( $course_id, $user_id, $page, $per_page ) {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Tutor's Q&A comments use their own approval values.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE comment_post_ID = %d AND comment_type = 'tutor_q_and_a' AND comment_parent = 0 AND comment_approved = 'approved'", $course_id ) );
+		$rows  = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT q.*, (SELECT COUNT(*) FROM {$wpdb->comments} a WHERE a.comment_parent = q.comment_ID AND a.comment_type = 'tutor_q_and_a') AS answer_count
+				FROM {$wpdb->comments} q
+				WHERE q.comment_post_ID = %d AND q.comment_type = 'tutor_q_and_a' AND q.comment_parent = 0 AND q.comment_approved = 'approved'
+				ORDER BY q.comment_ID DESC LIMIT %d OFFSET %d",
+				$course_id,
+				$per_page,
+				max( 0, ( $page - 1 ) * $per_page )
+			)
+		);
+		// phpcs:enable
+		return array(
+			'items' => array_map(
+				function ( $row ) use ( $user_id ) {
+					return $this->course_question_shape( $row, $user_id );
+				},
+				(array) $rows
+			),
+			'total' => $total,
+		);
+	}
+
+	/**
+	 * A question and its answers.
+	 *
+	 * @param int $question_id Question ID.
+	 * @param int $user_id     Current user.
+	 * @return array|null
+	 */
+	public function question( $question_id, $user_id ) {
+		global $wpdb;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- See questions().
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_ID = %d AND comment_type = 'tutor_q_and_a' AND comment_parent = 0 AND comment_approved = 'approved'", $question_id ) );
+		if ( ! $row ) {
+			return null;
+		}
+		$answers = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->comments} WHERE comment_parent = %d AND comment_type = 'tutor_q_and_a' ORDER BY comment_ID ASC", $question_id ) );
+		// phpcs:enable
+		$row->answer_count = count( (array) $answers );
+		$thread            = $this->course_question_shape( $row, $user_id );
+		$thread['answers'] = array_map(
+			function ( $answer ) use ( $user_id ) {
+				return $this->answer_shape( $answer, $user_id );
+			},
+			(array) $answers
+		);
+		return $thread;
+	}
+
+	/**
+	 * Asks a question.
+	 *
+	 * @param int    $course_id Course ID.
+	 * @param int    $user_id   User ID.
+	 * @param string $text      Question.
+	 * @return array|WP_Error
+	 */
+	public function ask( $course_id, $user_id, $text ) {
+		$id = $this->insert_qna( $course_id, 0, $user_id, $text );
+		if ( ! $id ) {
+			return new WP_Error( 'qna_failed', __( 'Your question could not be sent. Please try again.', 'yallapp' ), array( 'status' => 500 ) );
+		}
+		$question = $this->question( $id, $user_id );
+		unset( $question['answers'] );
+		return $question;
+	}
+
+	/**
+	 * Replies to a question.
+	 *
+	 * @param int    $question_id Question ID.
+	 * @param int    $user_id     User ID.
+	 * @param string $text        Reply.
+	 * @return array|WP_Error
+	 */
+	public function answer( $question_id, $user_id, $text ) {
+		$question = get_comment( $question_id );
+		if ( ! $question || 'tutor_q_and_a' !== $question->comment_type ) {
+			return new WP_Error( 'not_found', __( 'This question no longer exists.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		$id  = $this->insert_qna( (int) $question->comment_post_ID, (int) $question_id, $user_id, $text );
+		$row = $id ? get_comment( $id ) : null;
+		if ( ! $row ) {
+			return new WP_Error( 'qna_failed', __( 'Your reply could not be sent. Please try again.', 'yallapp' ), array( 'status' => 500 ) );
+		}
+		return $this->answer_shape( $row, $user_id );
+	}
+
+	/**
+	 * Saves a question or reply the way Tutor's own Q&A form does (Q_And_A::inset_qna),
+	 * including its filter, unread flags and actions, so instructors see it in Tutor and get its emails.
+	 *
+	 * @param int    $course_id   Course ID.
+	 * @param int    $question_id Question replied to, or 0 for a new question.
+	 * @param int    $user_id     Author.
+	 * @param string $text        Text.
+	 * @return int The new comment's ID.
+	 */
+	private function insert_qna( $course_id, $question_id, $user_id, $text ) {
+		global $wpdb;
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return 0;
+		}
+		$date = gmdate( 'Y-m-d H:i:s', function_exists( 'tutor_time' ) ? tutor_time() : current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- Same local time Tutor stores.
+		$data = array(
+			'comment_post_ID'  => (int) $course_id,
+			'comment_author'   => $user->user_login,
+			'comment_date'     => $date,
+			'comment_date_gmt' => get_gmt_from_date( $date ),
+			'comment_content'  => (string) $text,
+			'comment_approved' => 'approved',
+			'comment_agent'    => 'TutorLMSPlugin',
+			'comment_type'     => 'tutor_q_and_a',
+			'comment_parent'   => (int) $question_id,
+			'user_id'          => (int) $user_id,
+		);
+		$data = apply_filters( 'tutor_qna_insert_data', $data ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Tutor inserts Q&A the same way, with its own approval value.
+		if ( ! $wpdb->insert( $wpdb->comments, $data ) ) {
+			return 0;
+		}
+		$id    = (int) $wpdb->insert_id;
+		$root  = $question_id ? (int) $question_id : $id;
+		$asker = (int) get_comment( $root )->user_id;
+		// Unread for the other side, as Tutor marks it.
+		update_comment_meta( $root, 'tutor_qna_read' . ( $asker === (int) $user_id ? '' : '_' . $asker ), 0 );
+		do_action( 'tutor_after_asked_question', $data ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+		if ( $question_id && $this->teaches( $user_id, $course_id ) ) {
+			do_action( 'tutor_after_answer_to_question', $id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+		}
+		return $id;
+	}
+
+	/**
+	 * CourseQuestion shape.
+	 *
+	 * @param object $row     Comment row with answer_count.
+	 * @param int    $user_id Current user.
+	 * @return array
+	 */
+	private function course_question_shape( $row, $user_id ) {
+		return array(
+			'id'           => (int) $row->comment_ID,
+			'course_id'    => (int) $row->comment_post_ID,
+			'text'         => self::plain_text( (string) $row->comment_content ),
+			'author'       => $this->person( (int) $row->user_id, (int) $row->comment_post_ID ),
+			'created_at'   => mysql2date( 'Y-m-d\TH:i:s\Z', $row->comment_date_gmt, false ),
+			'answer_count' => (int) ( $row->answer_count ?? 0 ),
+			'mine'         => (int) $row->user_id === (int) $user_id,
+		);
+	}
+
+	/**
+	 * QuestionAnswer shape.
+	 *
+	 * @param object $row     Comment row.
+	 * @param int    $user_id Current user.
+	 * @return array
+	 */
+	private function answer_shape( $row, $user_id ) {
+		return array(
+			'id'         => (int) $row->comment_ID,
+			'text'       => self::plain_text( (string) $row->comment_content ),
+			'author'     => $this->person( (int) $row->user_id, (int) $row->comment_post_ID ),
+			'created_at' => mysql2date( 'Y-m-d\TH:i:s\Z', $row->comment_date_gmt, false ),
+			'mine'       => (int) $row->user_id === (int) $user_id,
+		);
+	}
+
+	/**
+	 * Person shape: a reviewer, asker or replier.
+	 *
+	 * @param int $user_id   User.
+	 * @param int $course_id Course, to tell whether they teach it.
+	 * @return array
+	 */
+	private function person( $user_id, $course_id ) {
+		$user = get_userdata( $user_id );
+		return array(
+			'name'       => $user ? (string) $user->display_name : __( 'Former student', 'yallapp' ),
+			'avatar_url' => $user ? \Yallapp\Otp\Sign_In::avatar_url( $user_id ) : null,
+			'instructor' => $user && $this->teaches( $user_id, $course_id ),
+		);
+	}
+
+	/**
+	 * Whether a user teaches a course: its author, one of its Tutor instructors, or an administrator.
+	 *
+	 * @param int $user_id   User.
+	 * @param int $course_id Course.
+	 * @return bool
+	 */
+	private function teaches( $user_id, $course_id ) {
+		return user_can( $user_id, 'manage_options' )
+			|| (int) get_post_field( 'post_author', $course_id ) === (int) $user_id
+			|| (bool) tutor_utils()->is_instructor_of_this_course( $user_id, $course_id );
+	}
+
+	/**
+	 * Text from comment HTML, keeping line breaks.
+	 *
+	 * @param string $html Comment content.
+	 * @return string
+	 */
+	private static function plain_text( $html ) {
+		$text = preg_replace( '#<br\s*/?>|</p>\s*<p[^>]*>#i', "\n", $html );
+		return trim( html_entity_decode( wp_strip_all_tags( (string) $text ), ENT_QUOTES, 'UTF-8' ) );
 	}
 
 	/**
@@ -901,7 +1391,7 @@ class Tutor_Adapter implements Lms_Adapter {
 			$shape['duration_minutes'] = ( $video && $video['duration_seconds'] ) ? (int) ceil( $video['duration_seconds'] / 60 ) : null;
 			$shape['completed']        = $user_id > 0 && (bool) tutor_utils()->is_completed_lesson( $item->ID, $user_id );
 		} elseif ( 'quiz' === $type ) {
-			$shape['question_count'] = count( $this->questions( $item->ID ) );
+			$shape['question_count'] = count( $this->quiz_questions( $item->ID ) );
 			$shape['completed']      = $user_id > 0 && (bool) array_filter(
 				$this->user_attempts( $item->ID, $user_id ),
 				static function ( $a ) {
@@ -1035,7 +1525,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @param int $quiz_id Quiz ID.
 	 * @return object[]
 	 */
-	private function questions( $quiz_id ) {
+	private function quiz_questions( $quiz_id ) {
 		global $wpdb;
 		$order = tutor_utils()->get_quiz_option( $quiz_id, 'questions_order', 'rand' );
 		$sql   = array(
@@ -1057,7 +1547,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @param int $question_id Question ID.
 	 * @return object|null
 	 */
-	private function question( $question_id ) {
+	private function quiz_question( $question_id ) {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Tutor's table.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tutor_quiz_questions WHERE question_id = %d", $question_id ) );
