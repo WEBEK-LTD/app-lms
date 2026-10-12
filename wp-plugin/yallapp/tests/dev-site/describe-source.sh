@@ -16,7 +16,7 @@ echo "== files"
 find . -name '*.php' -not -path '*/vendor/*' -not -path '*/node_modules/*' | sort | sed 's#^\./##'
 echo "== methods"
 PATTERN=$(IFS='|'; echo "${*:-.}")
-find . -name '*.php' -not -path '*/vendor/*' -not -path '*/node_modules/*' | sort | grep -E "$PATTERN" | while read -r file; do
+{ find . -name '*.php' -not -path '*/vendor/*' -not -path '*/node_modules/*' | sort | grep -E "$PATTERN" || true; } | while read -r file; do
 	lines=$(grep -nE '^\s*(abstract |final )?(class|interface|trait) [A-Za-z_]|^\s*(public )?(static )?function [a-zA-Z_]+\(|^\s*namespace ' "$file" | grep -vE 'private |protected ' || true)
 	if [ -n "$lines" ]; then
 		echo "-- ${file#./}"
@@ -24,7 +24,7 @@ find . -name '*.php' -not -path '*/vendor/*' -not -path '*/node_modules/*' | sor
 	fi
 done
 if [ -n "${SHOW:-}" ]; then
-	grep -rlE --include='*.php' --exclude-dir=vendor --exclude-dir=node_modules "$SHOW" . | sort | while read -r file; do
+	{ grep -rlE --include='*.php' --exclude-dir=vendor --exclude-dir=node_modules "$SHOW" . || true; } | sort | while read -r file; do
 		echo "== show ${file#./}"
 		cat -n "$file"
 	done
