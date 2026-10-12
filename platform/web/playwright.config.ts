@@ -17,7 +17,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
+  // The client journey is serial and the memory store keeps state, so a retry would start from a used state.
+  retries: 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   timeout: 60_000,
   use: {

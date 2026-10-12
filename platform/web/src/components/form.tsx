@@ -121,6 +121,8 @@ export function SubmitButton({
   className = "",
   name,
   value,
+  disabled = false,
+  describedBy,
 }: {
   children: ReactNode;
   pendingText?: string;
@@ -128,10 +130,19 @@ export function SubmitButton({
   className?: string;
   name?: string;
   value?: string;
+  disabled?: boolean;
+  describedBy?: string;
 }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" name={name} value={value} disabled={pending} aria-disabled={pending} className={`${btn[variant]} ${className}`}>
+    <button
+      type="submit"
+      name={name}
+      value={value}
+      disabled={pending || disabled}
+      aria-describedby={describedBy}
+      className={`${btn[variant]} ${className}`}
+    >
       {pending ? (
         <>
           <Icon name="progress_activity" size={20} className="animate-spin" />

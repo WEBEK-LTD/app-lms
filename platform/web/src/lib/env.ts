@@ -22,7 +22,13 @@ function required(name: string): string {
 }
 
 export function isNetlify(): boolean {
-  return process.env.NETLIFY === "true" || Boolean(process.env.NETLIFY_BLOBS_CONTEXT) || Boolean(process.env.SITE_ID && process.env.DEPLOY_ID);
+  return (
+    process.env.NETLIFY === "true" ||
+    Boolean(process.env.NETLIFY_BLOBS_CONTEXT) ||
+    Boolean(process.env.SITE_ID && process.env.DEPLOY_ID) ||
+    // Netlify functions run on AWS Lambda.
+    Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME)
+  );
 }
 
 export function dataMode(): DataMode {

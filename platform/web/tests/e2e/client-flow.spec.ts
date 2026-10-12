@@ -180,8 +180,9 @@ test("the pipeline reads the config and the client starts a new build", async ({
   await page.getByRole("button", { name: "Start new build" }).click();
   await expect(page.getByText("Build #2 is queued.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Build #2 · App version 1.0.1" })).toBeVisible();
-  await page.getByRole("button", { name: "Start new build" }).click();
-  await expect(page.getByText("A build is already in progress.")).toBeVisible();
+  // One build at a time: the button waits for the running build.
+  await expect(page.getByRole("button", { name: "Start new build" })).toBeDisabled();
+  await expect(page.getByText("A build is in progress.")).toBeVisible();
 });
 
 test("the plugin activates and checks the license through the API", async ({ request, page }) => {
@@ -213,4 +214,37 @@ test("the plugin activates and checks the license through the API", async ({ req
   const release = await request.post("/api/v1/licenses/deactivate", { data: { license_key: licenseKey, site_url: client.site } });
   expect(release.status()).toBe(204);
   expect((await request.post("/api/v1/licenses/activate", { data: { ...site, site_url: "https://someone-else.test" } })).status()).toBe(200);
+});
+
+test("a published plugin release reaches the site through the update API", async ({ page, request }) => {
+  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await page.goto("/admin/releases");
+  const zip = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.alloc(64)]);
+  await page.getByLabel("Plugin .zip").setInputFiles({ name: "yallapp.zip", mimeType: "application/zip", buffer: zip });
+  await page.getByLabel("Version", { exact: true }).fill("0.2.0");
+  await page.getByLabel("Tested up to").fill("6.8");
+  await page.getByLabel("Changelog").fill("- Faster lessons\n- Fixes");
+  await page.getByLabel(/Publish now/).check();
+  await page.getByRole("button", { name: "Upload release" }).click();
+  await expect(page.getByText("Version 0.2.0 uploaded and published.")).toBeVisible();
+
+  // The license is bound to someone-else.test after the previous test.
+  const query = (version: string) =>
+    `/api/v1/plugin/update?${new URLSearchParams({ license_key: licenseKey, site_url: "https://someone-else.test", version })}`;
+  const update = await request.get(query("0.1.0"));
+  expect(update.status()).toBe(200);
+  const body = await update.json();
+  expect(body).toMatchObject({
+    version: "0.2.0",
+    requires: "6.0",
+    requires_php: "7.4",
+    tested: "6.8",
+    changelog_html: "<ul><li>Faster lessons</li><li>Fixes</li></ul>",
+  });
+  const path = body.download_url.replace(E2E.baseURL, "");
+  const download = await request.get(path);
+  expect(download.status()).toBe(200);
+  expect(download.headers()["content-type"]).toBe("application/zip");
+  expect((await request.get(path.replace(/sig=[^&]+/, "sig=forged"))).status()).toBe(403);
+  expect((await request.get(query("0.2.0"))).status()).toBe(204);
 });

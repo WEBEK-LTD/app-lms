@@ -26,7 +26,7 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
             aria-describedby={error ? "f-versionName-error" : undefined}
           />
         </div>
-        <SubmitButton className="h-[46px]" pendingText="Starting…">
+        <SubmitButton className="h-[46px]" pendingText="Starting…" disabled={Boolean(disabledReason)} describedBy={disabledReason ? "start-build-hint" : undefined}>
           Start new build
         </SubmitButton>
       </div>
@@ -35,7 +35,9 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
           {error}
         </span>
       ) : null}
-      {disabledReason && !state.message ? <span className="max-w-[360px] text-[13px] text-muted sm:text-right">{disabledReason}</span> : null}
+      {disabledReason ? <span id="start-build-hint" className="max-w-[360px] text-[13px] text-muted sm:text-right">
+          {disabledReason}
+        </span> : null}
       <div className="sm:max-w-[420px]">
         <FormMessage message={state.message} ok={state.ok} />
       </div>

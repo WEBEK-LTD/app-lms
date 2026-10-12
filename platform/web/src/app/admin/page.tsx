@@ -126,7 +126,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
       ) : null}
 
       <div className="flex flex-wrap items-start gap-5">
-        <section aria-label="Client list" className="min-w-0 flex-[999_1_560px] overflow-x-auto rounded-2xl border border-line bg-white">
+        <section aria-label="Client list" className="relative min-w-0 flex-[999_1_560px] overflow-x-auto rounded-2xl border border-line bg-white">
           {rows.length === 0 ? (
             <p className="m-0 p-6 text-[15px] text-muted">{q ? `No clients match “${q}”.` : "No clients here yet."}</p>
           ) : (

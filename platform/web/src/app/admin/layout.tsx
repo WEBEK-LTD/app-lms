@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
       <nav aria-label="Super admin" className="on-dark flex w-full flex-col gap-3 bg-midnight px-3.5 py-4 md:w-[240px] md:flex-none md:gap-1 md:py-[22px]">
-        <div className="flex flex-col gap-0.5 px-2 md:pb-5">
+        <div className="flex flex-col items-start gap-0.5 px-2 md:pb-5">
           <Logo height={26} reversed />
           <span className="text-xs text-night-muted">Super admin</span>
         </div>
