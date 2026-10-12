@@ -14,7 +14,25 @@ export default async function PendingPage() {
   if (!user) redirect("/sign-in");
   if (isSuperAdmin(user)) redirect("/admin");
   const context = await getClientContext();
-  if (!context) redirect("/sign-in");
+  if (!context) {
+    // A user without a client profile (for example a former super admin): nowhere else to send them.
+    return (
+      <AuthShell footer={false}>
+        <main className="flex flex-1 items-center justify-center px-4 pt-6 pb-14 sm:px-6">
+          <section className="flex w-full max-w-[560px] flex-col gap-5 rounded-[20px] border border-line bg-white px-5 py-10 sm:px-9">
+            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">This account has no client profile</h1>
+            <p className="m-0 text-base leading-relaxed text-ink-4">Message us on WhatsApp and we&apos;ll sort it out.</p>
+            <div className="flex flex-wrap gap-3">
+              <a href={WHATSAPP_URL} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
+                Message us on WhatsApp
+              </a>
+              <SignOutButton className={`${btn.secondary} h-[50px] w-full cursor-pointer`} />
+            </div>
+          </section>
+        </main>
+      </AuthShell>
+    );
+  }
   if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/dashboard/app-type");
 
   const suspended = context.client.status === "suspended";

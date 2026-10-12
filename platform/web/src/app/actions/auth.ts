@@ -86,7 +86,10 @@ export async function forgotPasswordAction(_: FormState, formData: FormData): Pr
   const request = await createPasswordReset(store, parsed.data.email, now, { adminEmails: superAdminEmails() });
   if (request) {
     const link = `${appUrl()}/reset-password?token=${encodeURIComponent(request.token)}`;
-    await sendMail(resetPasswordMail(request.user.email, request.user.name, link, request.isNewAccount));
+    // Answer the same way even if sending fails, so the page doesn't reveal which emails have accounts.
+    await sendMail(resetPasswordMail(request.user.email, request.user.name, link, request.isNewAccount)).catch((error: unknown) =>
+      console.error("[mail] reset email failed", error),
+    );
   }
   return sent;
 }

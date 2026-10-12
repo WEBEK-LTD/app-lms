@@ -130,7 +130,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           <DownloadRow
             title="WordPress plugin (.zip)"
             text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
-            href={release ? "/api/dashboard/plugin" : null}
+            href={release && state === "active" ? "/api/dashboard/plugin" : null}
           />
           <DownloadRow title="Store assets (.zip)" text="Icons in every size, feature graphic and screenshots" href={artifactUrl("store_assets")} last />
         </ul>
