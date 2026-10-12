@@ -28,6 +28,8 @@ security:
 tags:
   - name: Builds
     description: Queued builds, their config, and status reports.
+  - name: Signing
+    description: Signing keys kept between builds, and the client's store keys.
 
 paths:
   /builds/queue:
@@ -103,6 +105,54 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /builds/{id}/secrets:
+    get:
+      tags: [Signing]
+      operationId: getBuildSecrets
+      summary: Get the signing and store keys for a build
+      description: |
+        Only while the build is `building`. Signing keys the pipeline created on
+        an earlier build, and the store keys the client uploaded in the dashboard
+        (decrypted). `null` when there is none. Store keys are returned on every
+        plan: on Starter the App Store Connect key only signs the iOS app.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      responses:
+        '200':
+          description: The build's keys
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BuildSecrets' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/NotBuilding' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /builds/{id}/signing:
+    put:
+      tags: [Signing]
+      operationId: saveSigningKeys
+      summary: Save signing keys created by the pipeline
+      description: |
+        Only while the build is `building`. The platform encrypts each key and
+        keeps it with the client's app for every later build. A key that is
+        already saved is never replaced: changing the Android upload key would
+        stop the client from updating their app on Google Play.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SigningKeys' }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/KeyExists' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -139,6 +189,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    NotBuilding:
+      description: The build isn't `building`, so its keys aren't available.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    KeyExists:
+      description: A key of this kind is already saved for the app and can't be replaced.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     TooManyRequests:
       description: Too many requests.
       content:
@@ -152,7 +212,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, unauthorized, build_not_found, build_finished, rate_limited]
+          examples: [invalid_request, unauthorized, build_not_found, build_finished, build_not_building, key_exists, rate_limited]
         message: { type: string }
 
     BuildStatus:
@@ -186,7 +246,10 @@ components:
           type: string
           format: uri
           pattern: '^https://'
-          description: Where the client downloads the file, for example on files.yallapp.com.tr.
+          description: >-
+            Where the file is stored, on files.yallapp.com.tr. The platform adds
+            `expires` and `sig` (HMAC-SHA256 with FILES_SIGNING_SECRET) when it shows
+            the link to the client; files.yallapp.com.tr refuses unsigned or expired links.
           example: https://files.yallapp.com.tr/builds/1f0c/app-release.apk
         size: { type: integer, minimum: 0, description: Bytes. }
         sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
@@ -239,3 +302,59 @@ components:
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         finished_at: { type: [string, 'null'], format: date-time }
+
+    AndroidUploadKey:
+      type: object
+      additionalProperties: false
+      required: [keystore_base64, store_password, key_alias, key_password]
+      properties:
+        keystore_base64: { type: string, maxLength: 20000, description: The PKCS12 keystore file. }
+        store_password: { type: string, minLength: 16, maxLength: 128 }
+        key_alias: { type: string, pattern: '^[A-Za-z0-9_-]{1,64}$' }
+        key_password: { type: string, minLength: 16, maxLength: 128 }
+
+    IosDistribution:
+      type: object
+      additionalProperties: false
+      required: [p12_base64, password]
+      properties:
+        p12_base64: { type: string, maxLength: 20000, description: Apple Distribution certificate with its private key. }
+        password: { type: string, minLength: 16, maxLength: 128 }
+        certificate_id: { type: string, maxLength: 64, description: The certificate's ID in App Store Connect. }
+
+    SigningKeys:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        android_upload_key: { $ref: '#/components/schemas/AndroidUploadKey' }
+        ios_distribution: { $ref: '#/components/schemas/IosDistribution' }
+
+    BuildSecrets:
+      type: object
+      required: [android_upload_key, ios_distribution, google_play, app_store_connect]
+      properties:
+        android_upload_key:
+          oneOf:
+            - { $ref: '#/components/schemas/AndroidUploadKey' }
+            - { type: 'null' }
+        ios_distribution:
+          oneOf:
+            - { $ref: '#/components/schemas/IosDistribution' }
+            - { type: 'null' }
+        google_play:
+          oneOf:
+            - type: object
+              required: [service_account_json]
+              properties:
+                service_account_json: { type: string }
+            - { type: 'null' }
+        app_store_connect:
+          oneOf:
+            - type: object
+              required: [issuer_id, key_id, private_key]
+              properties:
+                issuer_id: { type: string }
+                key_id: { type: string }
+                private_key: { type: string, description: The .p8 file. }
+            - { type: 'null' }
