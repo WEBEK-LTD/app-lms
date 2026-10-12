@@ -1,0 +1,76 @@
+name: Platform
+
+on:
+  push:
+    paths:
+      - 'platform/web/**'
+      - 'docs/api/pipeline.yaml'
+      - 'docs/build-config.schema.json'
+      - '.github/workflows/platform.yml'
+  pull_request:
+    paths:
+      - 'platform/web/**'
+      - 'docs/api/pipeline.yaml'
+      - 'docs/build-config.schema.json'
+      - '.github/workflows/platform.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline-contract:
+    name: Pipeline API contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lint docs/api/pipeline.yaml
+        run: npx --yes @redocly/cli@2.54.2 lint docs/api/pipeline.yaml
+
+  web:
+    name: Lint, types, tests, build, e2e
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: platform/web
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: platform/web/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Migrations match the schema
+        run: |
+          npx drizzle-kit generate --name ci-check
+          git status --porcelain drizzle
+          test -z "$(git status --porcelain drizzle)"
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: platform/web/playwright-report
+          retention-days: 7
