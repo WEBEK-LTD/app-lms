@@ -26,10 +26,16 @@ foreach ( $tables as $table ) {
 	}
 	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$table`" );
 	echo "$table ($count rows): " . implode( ', ', $parts ) . "\n";
+	// Settings tables hold the plugin's options: print them too.
+	if ( preg_match( '/settings$/', $table ) ) {
+		foreach ( (array) $wpdb->get_results( "SELECT * FROM `$table` LIMIT 200", ARRAY_A ) as $row ) {
+			echo '    ' . substr( json_encode( $row ), 0, 300 ) . "\n";
+		}
+	}
 }
 
 $options = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_name", $wpdb->esc_like( $prefix ) . '%' ), ARRAY_A );
 echo '== ' . count( $options ) . " options\n";
 foreach ( $options as $option ) {
-	echo $option['option_name'] . ' = ' . substr( (string) $option['option_value'], 0, 400 ) . "\n";
+	echo $option['option_name'] . ' = ' . substr( (string) $option['option_value'], 0, 6000 ) . "\n";
 }

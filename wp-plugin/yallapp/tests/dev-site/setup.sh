@@ -124,6 +124,9 @@ if [ "$APP" = store ]; then
 fi
 if [ "$APP" = bookings ]; then
 	cp -r "$CACHE/$BOOKING_SLUG-$BOOKING_VERSION" "$SITE_DIR/wp-content/plugins/$BOOKING_SLUG"
+	# MySQL functions booking plugins use that SQLite lacks.
+	mkdir -p "$SITE_DIR/wp-content/mu-plugins"
+	cp "$HERE/sqlite-functions.php" "$SITE_DIR/wp-content/mu-plugins/"
 fi
 ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
 

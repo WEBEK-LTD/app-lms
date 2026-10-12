@@ -211,17 +211,17 @@ jobs:
             slug: ameliabooking
             prefix: amelia
             code: 'NO_METHOD_INDEX$'
-            show: 'class (CommandHandler|DateTimeService|AppointmentRepository|CustomerBookingRepository|UserApplicationService|CustomerApplicationService|UserService|Controller)[^A-Za-z]|function getAppointmentData'
+            show: 'class (CommandHandler|DateTimeService|UserService)( |$|\{)'
           - booking: bookingpress
             slug: bookingpress-appointment-booking
             prefix: bookingpress
             code: 'core/classes|bookingpress-appointment-booking\.php'
-            show: 'Plugin Name: BookingPress'
+            show: 'class (bookingpress_appointment_bookings|BookingPress|BookingPress_Core|bookingpress_email_notifications)( |$|\{)'
           - booking: latepoint
             slug: latepoint
             prefix: latepoint
             code: 'NO_METHOD_INDEX$'
-            show: 'class (OsResourceHelper|OsOrdersController|OsCustomerCabinetController|OsCartsHelper|OsPaymentsHelper|OsBookingHelper|OsStepsHelper|OsCustomerHelper|OsOrdersHelper)[^A-Za-z]'
+            show: 'class (OsServiceModel|OsAgentModel|OsBookingModel|OsCustomerModel|OsSettingsHelper|OsMoneyHelper|OsOrderModel|OsOrderItemModel|OsServiceCategoryModel|OsLocationHelper|OsCustomerHelper|OsCustomerCabinetController)( |$|\{)'
     defaults:
       run:
         working-directory: wp-plugin/yallapp
