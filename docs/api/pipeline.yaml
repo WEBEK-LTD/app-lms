@@ -1,0 +1,241 @@
+openapi: 3.1.0
+info:
+  title: Yallapp platform API (build pipeline)
+  version: 1.0.0
+  summary: What the build pipeline calls on yallapp.com.tr.
+  description: |
+    Served by the Yallapp platform on Netlify. The build pipeline (GitHub
+    Actions, Phase 5) is the only client.
+
+    - Every request needs `Authorization: Bearer <BUILD_PIPELINE_TOKEN>`.
+    - A client starts a build in the dashboard. The platform stores a snapshot
+      of the build config at that moment and queues the build.
+    - The pipeline takes queued builds from `GET /builds/queue`, downloads each
+      build config, and reports progress with `POST /builds/{id}/status` until
+      the build is `ready` or `failed`. Finished builds can't change.
+    - The build config never contains secrets. Signing keys and store API keys
+      are handed over separately.
+  license:
+    name: Proprietary, WEBEK LTD
+    url: https://yallapp.com.tr
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://yallapp.com.tr/api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Builds
+    description: Queued builds, their config, and status reports.
+
+paths:
+  /builds/queue:
+    get:
+      tags: [Builds]
+      operationId: listQueuedBuilds
+      summary: List queued builds
+      description: Builds waiting for the pipeline, oldest first.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: How many builds to return (1 to 100).
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Queued builds
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [builds]
+                properties:
+                  builds:
+                    type: array
+                    items: { $ref: '#/components/schemas/Build' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /builds/{id}/config:
+    get:
+      tags: [Builds]
+      operationId: getBuildConfig
+      summary: Get a build's config
+      description: The snapshot taken when the build was queued. It validates against docs/build-config.schema.json.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      responses:
+        '200':
+          description: The build config
+          content:
+            application/json:
+              schema: { $ref: '../build-config.schema.json' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /builds/{id}/status:
+    post:
+      tags: [Builds]
+      operationId: reportBuildStatus
+      summary: Report a build's progress
+      description: |
+        Send only what changed. Stages not mentioned keep their status.
+        Moving to `building` records the start time; `ready` or `failed`
+        records the finish time, emails the client and closes the build.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StatusReport' }
+      responses:
+        '200':
+          description: The updated build
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Build' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: The BUILD_PIPELINE_TOKEN set in the platform's environment.
+
+  parameters:
+    BuildId:
+      name: id
+      in: path
+      required: true
+      description: The build ID.
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: The bearer token is missing or wrong.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Unknown build.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: The build is already finished (ready or failed).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Too many requests.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          examples: [invalid_request, unauthorized, build_not_found, build_finished, rate_limited]
+        message: { type: string }
+
+    BuildStatus:
+      type: string
+      enum: [queued, building, ready, failed]
+
+    StageStatus:
+      type: string
+      enum: [pending, running, done, failed, skipped]
+
+    Stages:
+      type: object
+      description: Upload stages are `skipped` on the Starter plan and when the client has no key for that store.
+      additionalProperties: false
+      properties:
+        queued: { $ref: '#/components/schemas/StageStatus' }
+        android: { $ref: '#/components/schemas/StageStatus' }
+        ios: { $ref: '#/components/schemas/StageStatus' }
+        upload_play: { $ref: '#/components/schemas/StageStatus' }
+        upload_testflight: { $ref: '#/components/schemas/StageStatus' }
+
+    Artifact:
+      type: object
+      additionalProperties: false
+      required: [kind, url]
+      properties:
+        kind:
+          type: string
+          enum: [apk, aab, ipa, keystore, store_assets]
+        url:
+          type: string
+          format: uri
+          pattern: '^https://'
+          description: Where the client downloads the file, for example on files.yallapp.com.tr.
+          example: https://files.yallapp.com.tr/builds/1f0c/app-release.apk
+        size: { type: integer, minimum: 0, description: Bytes. }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+
+    StatusReport:
+      type: object
+      additionalProperties: false
+      properties:
+        status: { $ref: '#/components/schemas/BuildStatus' }
+        stages: { $ref: '#/components/schemas/Stages' }
+        message:
+          type: [string, 'null']
+          maxLength: 2000
+          description: Shown to the client, for example why a build failed.
+        log_url:
+          type: [string, 'null']
+          format: uri
+          pattern: '^https://'
+          description: Link to the CI run.
+        artifacts:
+          type: array
+          maxItems: 20
+          description: Replaces the build's artifact list.
+          items: { $ref: '#/components/schemas/Artifact' }
+      example:
+        status: ready
+        stages: { android: done, ios: done, upload_play: done, upload_testflight: done }
+        artifacts:
+          - kind: apk
+            url: https://files.yallapp.com.tr/builds/1f0c/app-release.apk
+            size: 24117248
+
+    Build:
+      type: object
+      required: [id, client_id, number, version_name, version_code, status, auto_publish, stages, artifacts, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        client_id: { type: string, format: uuid }
+        number: { type: integer, minimum: 1, description: Per-client build number shown in the dashboard. }
+        version_name: { type: string, example: 1.0.1 }
+        version_code: { type: integer, minimum: 1 }
+        status: { $ref: '#/components/schemas/BuildStatus' }
+        auto_publish: { type: boolean, description: True on the Pro plan. The pipeline uploads to the stores. }
+        stages: { $ref: '#/components/schemas/Stages' }
+        artifacts:
+          type: array
+          items: { $ref: '#/components/schemas/Artifact' }
+        message: { type: [string, 'null'] }
+        log_url: { type: [string, 'null'], format: uri }
+        created_at: { type: string, format: date-time }
+        started_at: { type: [string, 'null'], format: date-time }
+        finished_at: { type: [string, 'null'], format: date-time }
