@@ -1,0 +1,182 @@
+name: Build client apps
+
+# Builds the apps clients queue in their Yallapp dashboard (build/README.md).
+# Polls the platform every 10 minutes; "Run workflow" checks the queue at once.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-apps-queue
+  cancel-in-progress: false
+
+env:
+  PLATFORM_API_URL: ${{ vars.PLATFORM_API_URL }}
+  BUILD_PIPELINE_TOKEN: ${{ secrets.BUILD_PIPELINE_TOKEN }}
+
+jobs:
+  queue:
+    name: Take queued builds
+    runs-on: ubuntu-24.04
+    if: vars.PLATFORM_API_URL != ''
+    outputs:
+      builds: ${{ steps.take.outputs.builds }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: build/scripts
+      - id: take
+        name: Claim queued builds
+        run: |
+          builds=$(python3 build/scripts/platform.py queue)
+          log_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          for id in $(echo "$builds" | python3 -c 'import json,sys; print(" ".join(b["id"] for b in json.load(sys.stdin)))'); do
+            python3 build/scripts/platform.py claim "$id" "$log_url"
+          done
+          echo "builds=$builds" >> "$GITHUB_OUTPUT"
+          echo "Builds: $builds"
+
+  android:
+    name: Android ${{ matrix.build.id }}
+    needs: queue
+    if: needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        build: ${{ fromJSON(needs.queue.outputs.builds) }}
+    env:
+      AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
+      FILES_FTP_URL: ${{ secrets.FILES_FTP_URL }}
+      FILES_FTP_USER: ${{ secrets.FILES_FTP_USER }}
+      FILES_FTP_PASSWORD: ${{ secrets.FILES_FTP_PASSWORD }}
+      FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow==12.0.0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: build
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.5
+          cache: true
+      - name: Install packages
+        working-directory: mobile
+        run: flutter pub get --enforce-lockfile
+      - name: Build, sign and upload
+        run: build/scripts/android.sh "${{ matrix.build.id }}" "$RUNNER_TEMP/result"
+      - name: Keep the result for the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.build.id }}-android
+          path: ${{ runner.temp }}/result/result.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+  ios:
+    name: iOS ${{ matrix.build.id }}
+    needs: queue
+    if: needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
+    runs-on: macos-15
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        build: ${{ fromJSON(needs.queue.outputs.builds) }}
+    env:
+      AUTO_PUBLISH: ${{ matrix.build.auto_publish }}
+      FILES_FTP_URL: ${{ secrets.FILES_FTP_URL }}
+      FILES_FTP_USER: ${{ secrets.FILES_FTP_USER }}
+      FILES_FTP_PASSWORD: ${{ secrets.FILES_FTP_PASSWORD }}
+      FILES_BASE_URL: ${{ vars.FILES_BASE_URL }}
+      FASTLANE_SKIP_UPDATE_CHECK: '1'
+      FASTLANE_HIDE_CHANGELOG: '1'
+      FASTLANE_OPT_OUT_USAGE: '1'
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+      # Without an App Store Connect key there is no iOS app; skip the macOS setup.
+      - id: check
+        name: Check for an App Store Connect key
+        run: |
+          has=$(python3 build/scripts/platform.py has_ios "${{ matrix.build.id }}")
+          echo "ios=$has" >> "$GITHUB_OUTPUT"
+          if [ "$has" != "yes" ]; then
+            mkdir -p "$RUNNER_TEMP/result"
+            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"Add your App Store Connect key in Publishing to get the iOS app as well."}' > "$RUNNER_TEMP/result/result.json"
+            python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
+          fi
+      - if: steps.check.outputs.ios == 'yes'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - if: steps.check.outputs.ios == 'yes'
+        run: pip install pillow==12.0.0
+      - if: steps.check.outputs.ios == 'yes'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: build
+      - if: steps.check.outputs.ios == 'yes'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.5
+          cache: true
+      - if: steps.check.outputs.ios == 'yes'
+        name: Install packages
+        working-directory: mobile
+        run: flutter pub get --enforce-lockfile
+      - if: steps.check.outputs.ios == 'yes'
+        name: Build, sign and upload
+        run: build/scripts/ios.sh "${{ matrix.build.id }}" "$RUNNER_TEMP/result"
+      - name: Keep the result for the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.build.id }}-ios
+          path: ${{ runner.temp }}/result/result.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+  report:
+    name: Report ${{ matrix.build.id }}
+    needs: [queue, android, ios]
+    if: always() && needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build: ${{ fromJSON(needs.queue.outputs.builds) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: build/scripts
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: result-${{ matrix.build.id }}-*
+          path: results
+      - name: Send the final status
+        run: python3 build/scripts/report.py "${{ matrix.build.id }}" results

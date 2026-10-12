@@ -22,6 +22,8 @@ GoogleService-Info.plist
 .netlify/
 dist/
 coverage/
+__pycache__/
+.bundle/
 .phpunit.result.cache
 
 # Claude Code agent worktrees
@@ -33,3 +35,4 @@ coverage/
 *.swp
 .DS_Store
 Thumbs.db
+build/files-host/config.php

@@ -100,3 +100,31 @@ jobs:
           key: yallapp-dev-wp7.1.3-tutor4.1.1-sqlite3.1.0-cli2.12.0
       - name: Build the dev site and run the API checks
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
+
+  build-pipeline:
+    name: Build pipeline scripts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow==12.0.0
+      - name: Unit tests
+        run: python -m unittest discover build/tests -v
+      - name: Shell scripts
+        run: shellcheck build/scripts/*.sh wp-plugin/yallapp/tests/integration/run.sh
+      - name: Files host
+        run: php -l build/files-host/index.php
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: build
+      - name: Fastfile loads
+        working-directory: build
+        env:
+          FASTLANE_SKIP_UPDATE_CHECK: '1'
+          FASTLANE_OPT_OUT_USAGE: '1'
+          LC_ALL: C.UTF-8
+        run: bundle exec fastlane lanes

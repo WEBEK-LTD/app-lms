@@ -12,6 +12,13 @@ val yallapp = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
+// Release signing, written by the build pipeline from the client's upload key
+// (build/README.md). Never committed: see .gitignore.
+val signing = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
 android {
     namespace = yallapp.getProperty("namespace", "com.yallapp.app")
     compileSdk = flutter.compileSdkVersion
@@ -32,11 +39,22 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (signing.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = file(signing.getProperty("storeFile"))
+                storePassword = signing.getProperty("storePassword")
+                keyAlias = signing.getProperty("keyAlias")
+                keyPassword = signing.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Release signing is added by the build pipeline (Phase 5). Never
-            // commit keystores or key.properties.
-            signingConfig = signingConfigs.getByName("debug")
+            // Without key.properties (local runs, CI checks) release builds use
+            // the debug key; such builds can't be uploaded to Google Play.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
 }

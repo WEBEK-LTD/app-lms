@@ -1,0 +1,6 @@
+# files.yallapp.com.tr: every request goes through index.php, which checks the signature.
+Options -Indexes
+RewriteEngine On
+RewriteRule ^config(\.sample)?\.php$ - [F,L]
+RewriteCond %{REQUEST_URI} !^/index\.php$
+RewriteRule ^ index.php [L,QSA]
