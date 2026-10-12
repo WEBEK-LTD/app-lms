@@ -31,7 +31,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
   const next = GUIDES[index + 1];
 
   return (
-    <DocLayout groups={NAV} current={`/guides/${guide.slug}`}>
+    <DocLayout groups={NAV} current={`/guides/${guide.slug}`} site="guides">
       <div className="flex flex-col gap-5">
         <span className="text-sm text-muted">Guides › {guide.section}</span>
         <DocTitle>{guide.title}</DocTitle>

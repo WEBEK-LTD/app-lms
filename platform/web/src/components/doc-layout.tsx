@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { SiteFooter, SiteHeader } from "./site-chrome";
+import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
 
 export interface DocNavGroup {
   title: string;
@@ -9,10 +9,21 @@ export interface DocNavGroup {
 }
 
 /** Two-column layout for guides and legal pages: section nav and an article card. */
-export function DocLayout({ groups, current, children }: { groups: DocNavGroup[]; current: string; children: ReactNode }) {
+export function DocLayout({
+  groups,
+  current,
+  site,
+  children,
+}: {
+  groups: DocNavGroup[];
+  current: string;
+  /** The header link to mark, e.g. "guides". */
+  site?: SitePage;
+  children: ReactNode;
+}) {
   return (
     <div className="bg-ivory">
-      <SiteHeader />
+      <SiteHeader current={site} />
       <main className="mx-auto flex max-w-[1160px] flex-wrap items-start gap-10 px-4 pt-12 pb-20 sm:px-6">
         <div className="flex flex-[1_1_220px] flex-col gap-[22px] text-[15px]">
           {groups.map((group) => (
