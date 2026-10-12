@@ -16,6 +16,8 @@ import type {
   DataStore,
   LicensePatch,
   ReleasePatch,
+  SigningKeyColumn,
+  SigningKeysPatch,
   UserPatch,
 } from "./store";
 import { DuplicateEmailError } from "./store";
@@ -320,6 +322,19 @@ export class MysqlStore implements DataStore {
 
   async updateApp(id: string, patch: AppPatch, now: Date): Promise<void> {
     await this.run((db) => db.update(schema.apps).set({ ...patch, updatedAt: now }).where(eq(schema.apps.id, id)));
+  }
+
+  async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
+    const columns = Object.keys(keys) as SigningKeyColumn[];
+    if (columns.length === 0) return false;
+    // `... is null` on every column in the same statement: a key that is already saved is never replaced.
+    const [result] = await this.run((db) =>
+      db
+        .update(schema.apps)
+        .set({ ...keys, updatedAt: now })
+        .where(and(eq(schema.apps.id, appId), ...columns.map((column) => isNull(schema.apps[column])))),
+    );
+    return result.affectedRows === 1;
   }
 
   async createBuild(input: Omit<Build, "number" | "versionCode">): Promise<Build> {

@@ -33,7 +33,10 @@ export type ClaimResult = { ok: true; activation: Activation } | { ok: false; ex
 export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt">>;
 export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4">>;
-export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt">>;
+export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
+/** Signing keys created by the build pipeline. Written only through `saveSigningKeys`, which never replaces one. */
+export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
+export type SigningKeysPatch = Partial<Record<SigningKeyColumn, string>>;
 export type BuildPatch = Partial<
   Pick<Build, "status" | "stages" | "artifacts" | "message" | "logUrl" | "startedAt" | "finishedAt">
 >;
@@ -78,6 +81,11 @@ export interface DataStore {
   getAppByClientId(clientId: string): Promise<App | null>;
   getAppById(id: string): Promise<App | null>;
   updateApp(id: string, patch: AppPatch, now: Date): Promise<void>;
+  /**
+   * Saves pipeline-created signing keys only if none of the given kinds is
+   * saved yet, atomically. Returns false (and saves nothing) otherwise.
+   */
+  saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean>;
 
   // Builds
   /** Assigns the next per-client build number and version code. */
