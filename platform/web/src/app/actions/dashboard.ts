@@ -151,10 +151,12 @@ async function readAppStoreKey(
   const errors: Record<string, string> = {};
   const patch: AppPatch = {};
   if (!issuerId && !keyId && p8 === null) return { patch, errors, values };
-  const parsed = appStoreKeySchema.safeParse({
+  // Without a new file, the saved key stays and only the IDs are checked.
+  const schema = p8 === null && app.ascPrivateKeyEncrypted ? appStoreKeySchema.omit({ privateKey: true }) : appStoreKeySchema;
+  const parsed = schema.safeParse({
     issuerId: issuerId || app.ascIssuerId || "",
     keyId: keyId || app.ascKeyId || "",
-    privateKey: p8 ?? (app.ascPrivateKeyEncrypted ? "-----BEGIN PRIVATE KEY-----kept-----END PRIVATE KEY-----" : ""),
+    privateKey: p8 ?? "",
   });
   if (!parsed.success) {
     const fields = fieldErrors(parsed.error);

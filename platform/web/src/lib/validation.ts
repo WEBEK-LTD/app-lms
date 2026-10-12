@@ -1,3 +1,4 @@
+import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { APP_FONTS, APP_TEMPLATES, RULES } from "./build-config/types";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth/password-rules";
@@ -134,11 +135,19 @@ export const appStoreKeySchema = z.object({
   privateKey: z
     .string()
     .max(10_000, "This file is too large for a .p8 key.")
-    .refine(
-      (value) => /-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(value),
-      "This isn't an App Store Connect .p8 key.",
-    ),
+    .refine(isAppStoreConnectKey, "This isn't an App Store Connect .p8 key. Download it again from App Store Connect › Users and Access › Integrations."),
 });
+
+/** App Store Connect keys are P-256 elliptic-curve private keys in PEM. */
+function isAppStoreConnectKey(value: string): boolean {
+  if (!/-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(value)) return false;
+  try {
+    const key = createPrivateKey(value);
+    return key.asymmetricKeyType === "ec" && key.asymmetricKeyDetails?.namedCurve === "prime256v1";
+  } catch {
+    return false;
+  }
+}
 
 export const startBuildSchema = z.object({
   versionName: z.string().trim().regex(VERSION_PATTERN, "Use a version like 1.0.0."),

@@ -1,3 +1,4 @@
+import { generateKeyPairSync } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
@@ -17,7 +18,7 @@ const client = {
   password: "another-strong-password-1",
 };
 const pipeline = { authorization: `Bearer ${E2E.pipelineToken}` };
-const p8 = "-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AwEHBHkwdwIBAQQg\n-----END PRIVATE KEY-----\n";
+const p8 = String(generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }));
 
 async function signIn(page: Page, email: string, password: string) {
   await page.goto("/sign-in");

@@ -1,3 +1,4 @@
+import { generateKeyPairSync } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -146,14 +147,14 @@ describe("setup wizard", () => {
     expect(parsed.success && parsed.data.clientEmail).toBe("ci@project.iam.gserviceaccount.com");
     expect(googlePlayKeySchema.safeParse("{}").success).toBe(false);
     expect(googlePlayKeySchema.safeParse("not json").success).toBe(false);
-    expect(
-      appStoreKeySchema.safeParse({
-        issuerId: "69a6de7e-1234-47e3-e053-5b8c7c11a4d1",
-        keyId: "2X9R4HXF34",
-        privateKey: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----",
-      }).success,
-    ).toBe(true);
-    expect(appStoreKeySchema.safeParse({ issuerId: "nope", keyId: "2X9R4HXF34", privateKey: "x" }).success).toBe(false);
+    const appStore = { issuerId: "69a6de7e-1234-47e3-e053-5b8c7c11a4d1", keyId: "2X9R4HXF34" };
+    const pem = (key: ReturnType<typeof generateKeyPairSync>["privateKey"]) => String(key.export({ type: "pkcs8", format: "pem" }));
+    const p8 = pem(generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: p8 }).success).toBe(true);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----" }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: pem(generateKeyPairSync("ec", { namedCurve: "secp384r1" }).privateKey) }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: pem(generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey) }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ issuerId: "nope", keyId: "2X9R4HXF34", privateKey: p8 }).success).toBe(false);
   });
 });
 
