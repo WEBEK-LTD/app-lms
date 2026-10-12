@@ -201,27 +201,31 @@ jobs:
         run: tail -n 80 "$RUNNER_TEMP/site/wp-content/debug.log" || true
 
   booking-describe:
-    name: Describe booking plugin (${{ matrix.booking }})
+    name: Describe booking plugin (${{ matrix.part }})
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - booking: amelia
+          - part: amelia slots
+            booking: amelia
             slug: ameliabooking
-            prefix: amelia
-            code: 'NO_METHOD_INDEX$'
-            show: 'class (CommandHandler|DateTimeService|UserService)( |$|\{)'
-          - booking: bookingpress
-            slug: bookingpress-appointment-booking
-            prefix: bookingpress
-            code: 'core/classes|bookingpress-appointment-booking\.php'
-            show: 'class (bookingpress_appointment_bookings|BookingPress|BookingPress_Core|bookingpress_email_notifications)( |$|\{)'
-          - booking: latepoint
+            methods: '::(getSlotsEntities|getFilteredSlotsEntities|getSlotsSettings)$'
+            grep: 'hasLicenseAccess|Licence::'
+          - part: latepoint helpers
+            booking: latepoint
             slug: latepoint
-            prefix: latepoint
-            code: 'NO_METHOD_INDEX$'
-            show: 'class (OsServiceModel|OsAgentModel|OsBookingModel|OsCustomerModel|OsSettingsHelper|OsMoneyHelper|OsOrderModel|OsOrderItemModel|OsServiceCategoryModel|OsLocationHelper|OsCustomerHelper|OsCustomerCabinetController)( |$|\{)'
+            list: '^Os(Booking|Orders|Customer|Settings|Agent|Service|Time|Money)Helper::'
+            methods: '^(OsSettingsHelper::(get_settings_value|get_earliest_possible_booking_restriction|get_latest_possible_booking_restriction)|OsMoneyHelper::(format_price|.*currency.*|.*symbol.*)|OsCustomerHelper::.*cancel.*|OsBookingHelper::(is_booking_request_available|get_default_booking_status|change_booking_status|get_statuses_list)|OsTimeHelper::(get_wp_timezone.*|now_datetime_object|get_timezone.*)|OsImageHelper::get_image_url_by_id)$'
+          - part: bookingpress index
+            booking: bookingpress
+            slug: bookingpress-appointment-booking
+            list: '^(bookingpress_appointment_bookings|BookingPress_Core|bookingpress_customers|bookingpress_global_options)::'
+            methods: '::(bookingpress_get_service_available_time|bookingpress_get_default_timeslot_data|bookingpress_get_settings|bookingpress_price_formatter_with_currency_symbol|bookingpress_check_cancel_appointment_permission_func|bookingpress_create_customer)$'
+          - part: bookingpress booking
+            booking: bookingpress
+            slug: bookingpress-appointment-booking
+            methods: '^bookingpress_appointment_bookings::.*(timeslot|book_appointment|cancel_appointment|my_appointment|customer_appointment|confirm_booking).*$'
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -238,19 +242,17 @@ jobs:
           APP: bookings
           BOOKING: ${{ matrix.booking }}
           SEED: '0'
-        run: tests/dev-site/setup.sh "$RUNNER_TEMP/site" || echo "SETUP FAILED"
-      - name: Plugins and PHP log
-        run: |
-          php ~/.cache/yallapp-dev/wp-cli-2.12.0.phar --path="$RUNNER_TEMP/site" --allow-root plugin list || true
-          php ~/.cache/yallapp-dev/wp-cli-2.12.0.phar --path="$RUNNER_TEMP/site" --allow-root plugin activate ${{ matrix.slug }} || true
-          tail -n 60 "$RUNNER_TEMP/site/wp-content/debug.log" || true
-          ls -la ~/.cache/yallapp-dev/ "$RUNNER_TEMP/site/wp-content/plugins/" "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}" || true
-      - name: Tables and options
-        run: php ~/.cache/yallapp-dev/wp-cli-2.12.0.phar --path="$RUNNER_TEMP/site" --allow-root eval-file tests/dev-site/describe-plugin.php ${{ matrix.prefix }} || true
+        run: tests/dev-site/setup.sh "$RUNNER_TEMP/site" > /dev/null || echo "SETUP FAILED"
       - name: Source
         env:
-          SHOW: ${{ matrix.show }}
-        run: tests/dev-site/describe-source.sh "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}" '${{ matrix.code }}'
+          DIR: ${{ runner.temp }}/site/wp-content/plugins/${{ matrix.slug }}
+          LIST: ${{ matrix.list }}
+          METHODS: ${{ matrix.methods }}
+          GREP: ${{ matrix.grep }}
+        run: |
+          if [ -n "$LIST" ]; then echo "== list"; php tests/dev-site/describe-methods.php "$DIR" "$LIST" --list; fi
+          if [ -n "$GREP" ]; then echo "== grep"; grep -rnE --include='*.php' --exclude-dir=vendor "$GREP" "$DIR" | sed "s#^$DIR/##" | cut -c1-300 | head -n 200 || true; fi
+          php tests/dev-site/describe-methods.php "$DIR" "$METHODS"
 
   build-pipeline:
     name: Build pipeline scripts
