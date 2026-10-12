@@ -62,6 +62,7 @@ class TestApp {
     this.signedIn = false,
     this.guest = false,
     this.framingAllowed = true,
+    this.preferences = const {},
   }) : api = api ?? FakeApi();
 
   final FakeApi api;
@@ -70,6 +71,9 @@ class TestApp {
   final bool signedIn;
   final bool guest;
   final bool framingAllowed;
+
+  /// Extra SharedPreferences values (for example 'settings.theme_mode').
+  final Map<String, Object> preferences;
   final webViews = WebViewLog();
   final security = FakeScreenSecurity();
   late final MemoryTokenStore tokens;
@@ -78,6 +82,7 @@ class TestApp {
   Future<void> pump(WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({
       if (guest) 'settings.guest_mode': true,
+      ...preferences,
     });
     final prefs = await SharedPreferences.getInstance();
     tokens = MemoryTokenStore(

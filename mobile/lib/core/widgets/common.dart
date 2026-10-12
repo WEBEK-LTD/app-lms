@@ -381,9 +381,13 @@ class SettingsTile extends StatelessWidget {
     this.trailing,
     this.destructive = false,
     this.chevron = true,
+    this.subtitle,
   });
 
   final String title;
+
+  /// A second line under the title (for example "Last used 12 Oct 2026").
+  final String? subtitle;
   final IconData? icon;
   final String? value;
   final VoidCallback? onTap;
@@ -408,21 +412,40 @@ class SettingsTile extends StatelessWidget {
                 const SizedBox(width: 12),
               ],
               Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: color,
-                    fontWeight: destructive ? FontWeight.w600 : FontWeight.w400,
-                  ),
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: color,
+                        fontWeight: destructive
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: TextStyle(fontSize: 13, color: p.textSecondary),
+                      ),
+                  ],
                 ),
               ),
               if (value != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Text(
-                    value!,
-                    style: TextStyle(fontSize: 14, color: p.textSecondary),
+                Flexible(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Text(
+                      value!,
+                      textAlign: TextAlign.end,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14, color: p.textSecondary),
+                    ),
                   ),
                 ),
               ?trailing,

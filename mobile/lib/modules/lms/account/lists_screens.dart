@@ -80,7 +80,7 @@ class DevicesScreen extends ConsumerWidget {
                           ? AppIcons.phoneIphone
                           : AppIcons.phoneAndroid,
                       title: d.current ? '${d.name} (this device)' : d.name,
-                      value: 'Last used ${_date(d.lastSeenAt)}',
+                      subtitle: 'Last used ${_date(d.lastSeenAt)}',
                       chevron: false,
                       trailing: d.current
                           ? null

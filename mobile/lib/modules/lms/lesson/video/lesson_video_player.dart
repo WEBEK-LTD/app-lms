@@ -282,25 +282,37 @@ class _VideoMessage extends StatelessWidget {
     child: Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIcon(icon, size: 28, color: BrandColors.ivory),
-            const SizedBox(height: 10),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: BrandColors.ivory, fontSize: 14),
+        // Scales down rather than overflowing the 16:9 frame (large text).
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 320),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIcon(icon, size: 28, color: BrandColors.ivory),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: BrandColors.ivory,
+                    fontSize: 14,
+                  ),
+                ),
+                if (actionLabel != null) ...[
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: onAction,
+                    style: TextButton.styleFrom(
+                      foregroundColor: BrandColors.ivory,
+                    ),
+                    child: Text(actionLabel!),
+                  ),
+                ],
+              ],
             ),
-            if (actionLabel != null) ...[
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: onAction,
-                style: TextButton.styleFrom(foregroundColor: BrandColors.ivory),
-                child: Text(actionLabel!),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     ),

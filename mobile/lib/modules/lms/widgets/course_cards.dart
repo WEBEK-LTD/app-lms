@@ -461,8 +461,12 @@ class ContinueCardClassic extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '${progress.completedItems} of ${progress.totalItems} lessons',
+                      Flexible(
+                        child: Text(
+                          '${progress.completedItems} of ${progress.totalItems} lessons',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       Text('${progress.percent}%'),
                     ],
