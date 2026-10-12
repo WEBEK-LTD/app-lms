@@ -8,7 +8,7 @@
 #        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo
 #        APP=store: a shop with WooCommerce and no LMS (seed-store.php)
 #        APP=bookings: a booking plugin and no LMS (seed-bookings-<BOOKING>.php);
-#        BOOKING: amelia (default), bookly, latepoint. SEED=0 skips seeding.
+#        BOOKING: amelia (default), bookingpress, latepoint. SEED=0 skips seeding.
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
@@ -28,10 +28,10 @@ WOOCOMMERCE_VERSION=${WOOCOMMERCE_VERSION:-11.2.0}
 # Booking plugins: wordpress.org slug and pinned version ("latest" for the newest).
 case "$BOOKING" in
 	amelia) BOOKING_SLUG=ameliabooking BOOKING_VERSION=${AMELIA_VERSION:-latest} ;;
-	bookly) BOOKING_SLUG=bookly-responsive-appointment-booking-tool BOOKING_VERSION=${BOOKLY_VERSION:-latest} ;;
+	bookingpress) BOOKING_SLUG=bookingpress-appointment-booking BOOKING_VERSION=${BOOKINGPRESS_VERSION:-latest} ;;
 	latepoint) BOOKING_SLUG=latepoint BOOKING_VERSION=${LATEPOINT_VERSION:-latest} ;;
 	*)
-		echo "Unknown BOOKING '$BOOKING': use amelia, bookly or latepoint." >&2
+		echo "Unknown BOOKING '$BOOKING': use amelia, bookingpress or latepoint." >&2
 		exit 2
 		;;
 esac

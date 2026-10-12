@@ -183,15 +183,18 @@ jobs:
           - booking: amelia
             slug: ameliabooking
             prefix: amelia
-            show: 'Plugin Name: Amelia|class (GetTimeSlotsCommandHandler|AddBookingCommandHandler|CancelBookingCommandHandler|TimeSlotService|DateTimeService|Container) |new (GetTimeSlotsCommand|AddBookingCommand|CancelBookingCommand)\(|ContainerConfig/container'
-          - booking: bookly
-            slug: bookly-responsive-appointment-booking-tool
-            prefix: bookly
-            show: 'Plugin Name: Bookly|extends Lib.Base.Entity|extends Base.Entity|class (Finder|UserBookingData|ChainItem|CartItem|Config|Cart|Plugin) '
+            code: 'NO_METHOD_INDEX$'
+            show: 'class (CommandHandler|DateTimeService|AppointmentRepository|CustomerBookingRepository|UserApplicationService|CustomerApplicationService|UserService|Controller)[^A-Za-z]|function getAppointmentData'
+          - booking: bookingpress
+            slug: bookingpress-appointment-booking
+            prefix: bookingpress
+            code: 'core/classes|bookingpress-appointment-booking\.php'
+            show: 'Plugin Name: BookingPress'
           - booking: latepoint
             slug: latepoint
             prefix: latepoint
-            show: 'class (OsResourceHelper|BookingRequest|BookingResource|BookingSlot|TimePeriod|Filter|OsOrderIntentModel|OsCustomerCabinetController|OsStepsHelper|OsModel) |function (convert_to_order|get_quick_availability_days)\('
+            code: 'NO_METHOD_INDEX$'
+            show: 'class (OsResourceHelper|OsOrdersController|OsCustomerCabinetController|OsCartsHelper|OsPaymentsHelper|OsBookingHelper|OsStepsHelper|OsCustomerHelper|OsOrdersHelper)[^A-Za-z]'
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -220,7 +223,7 @@ jobs:
       - name: Source
         env:
           SHOW: ${{ matrix.show }}
-        run: tests/dev-site/describe-source.sh "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}" 'NO_METHOD_INDEX$'
+        run: tests/dev-site/describe-source.sh "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}" '${{ matrix.code }}'
 
   build-pipeline:
     name: Build pipeline scripts
