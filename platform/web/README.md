@@ -115,6 +115,7 @@ plus a check that the committed migrations match the schema.
 | `SESSION_SECRET` | yes | 32+ random characters. Encrypts session cookies. |
 | `SIGNING_SECRET` | yes | 32+ random characters. Signs download links. |
 | `ENCRYPTION_KEY` | yes | 32 bytes, as 64 hex characters (`openssl rand -hex 32`). Encrypts license keys and store API keys. Never change it without re-encrypting. |
+| `TRUSTED_PROXY_SECRET` | with the proxy | 32+ characters, shared with `deploy/apache-proxy.conf` on host.webek.org. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
@@ -171,6 +172,28 @@ under Domain management, with Netlify's certificate.
 **After the first deploy:** open `/forgot-password`, enter a super admin email,
 and use the emailed link to set the password. Then upload the first plugin
 release under **App & plugin versions**.
+
+### yallapp.com.tr through host.webek.org
+
+netlify.app is blocked in some countries, Egypt among them. So the domain doesn't
+point at Netlify: it points at host.webek.org, whose Apache fetches every page
+from `https://yallapp.netlify.app` (`deploy/apache-proxy.conf`). Visitors only
+ever see host.webek.org.
+
+- **DNS** (cPanel › Zone Editor): `yallapp.com.tr` and `www` stay on the
+  server's IP. Don't add the domain in Netlify.
+- **Netlify:** set `APP_URL=https://yallapp.com.tr` and `TRUSTED_PROXY_SECRET`
+  (32+ characters). Without the secret, every visitor would share the proxy's
+  IP and rate limits would hit everyone at once.
+- **Apache:** copy `deploy/apache-proxy.conf` to
+  `/etc/apache2/conf.d/userdata/ssl/2_4/CPANEL_USER/yallapp.com.tr/` and put
+  the same secret in it. Copy `deploy/apache-https-redirect.conf` to
+  `/etc/apache2/conf.d/userdata/std/2_4/CPANEL_USER/yallapp.com.tr/`. Then run
+  `/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd`.
+- **TLS:** AutoSSL issues the certificate for yallapp.com.tr on host.webek.org;
+  `/.well-known/` is not proxied so renewals keep working.
+- **Forms:** `next.config.ts` allows server actions from yallapp.com.tr, because
+  the browser's origin differs from the host Netlify sees.
 
 ### Limits to know
 

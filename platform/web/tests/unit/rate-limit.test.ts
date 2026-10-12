@@ -37,4 +37,19 @@ describe("rate limiting", () => {
     expect(ipFromHeaders(new Headers({ "x-forwarded-for": "1.1.1.1, 10.0.0.1" }))).toBe("1.1.1.1");
     expect(ipFromHeaders(new Headers())).toBe("unknown");
   });
+
+  it("trusts the client IP from our proxy only with the shared secret", () => {
+    const secret = "s".repeat(40);
+    const fromProxy = new Headers({
+      "x-nf-client-connection-ip": "95.217.96.219",
+      "x-yallapp-proxy-secret": secret,
+      "x-yallapp-client-ip": "41.33.1.2",
+    });
+    expect(ipFromHeaders(fromProxy, secret)).toBe("41.33.1.2");
+    expect(ipFromHeaders(fromProxy, undefined)).toBe("95.217.96.219");
+    const forged = new Headers({ "x-nf-client-connection-ip": "9.9.9.9", "x-yallapp-proxy-secret": "wrong", "x-yallapp-client-ip": "1.2.3.4" });
+    expect(ipFromHeaders(forged, secret)).toBe("9.9.9.9");
+    const junk = new Headers({ "x-nf-client-connection-ip": "9.9.9.9", "x-yallapp-proxy-secret": secret, "x-yallapp-client-ip": "<script>" });
+    expect(ipFromHeaders(junk, secret)).toBe("9.9.9.9");
+  });
 });

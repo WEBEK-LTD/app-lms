@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     // Builds are fast enough without it, and no secret is ever written to disk.
     turbopackFileSystemCacheForBuild: false,
     serverActions: {
+      // yallapp.com.tr is served through a reverse proxy on host.webek.org, so the
+      // browser's origin differs from the host Netlify sees (deploy/apache-proxy.conf).
+      allowedOrigins: ["yallapp.com.tr", "www.yallapp.com.tr"],
       // Plugin release uploads go through a server action. Netlify functions accept up to 6 MB.
       bodySizeLimit: "6mb",
     },

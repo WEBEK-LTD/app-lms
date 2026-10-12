@@ -101,6 +101,17 @@ export function filesSigningSecret(): string | undefined {
   return secret;
 }
 
+/**
+ * Shared with the reverse proxy on host.webek.org that serves yallapp.com.tr
+ * (deploy/apache-proxy.conf). Requests carrying it may name the visitor's IP in
+ * X-Yallapp-Client-Ip; without it every visitor would share the proxy's IP.
+ */
+export function trustedProxySecret(): string | undefined {
+  const secret = read("TRUSTED_PROXY_SECRET");
+  if (secret && secret.length < 32) throw new Error("TRUSTED_PROXY_SECRET must be at least 32 characters.");
+  return secret;
+}
+
 export function superAdminEmails(): string[] {
   return (read("SUPER_ADMIN_EMAILS") ?? "")
     .split(/[,\s]+/)

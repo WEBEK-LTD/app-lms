@@ -1,7 +1,19 @@
 import { safeEqual } from "./crypto/tokens";
+import { trustedProxySecret } from "./env";
 
-/** Client IP as seen by Netlify, or the first X-Forwarded-For hop. */
-export function ipFromHeaders(list: Headers): string {
+const IP = /^[0-9a-f.:]{2,45}$/i;
+
+/**
+ * The visitor's IP. Behind our own reverse proxy (yallapp.com.tr on host.webek.org),
+ * that's the X-Yallapp-Client-Ip it sends with the shared secret; otherwise the IP
+ * Netlify saw, or the first X-Forwarded-For hop.
+ */
+export function ipFromHeaders(list: Headers, proxySecret: string | undefined = trustedProxySecret()): string {
+  if (proxySecret) {
+    const sent = list.get("x-yallapp-proxy-secret");
+    const ip = list.get("x-yallapp-client-ip")?.trim();
+    if (sent && ip && IP.test(ip) && safeEqual(sent, proxySecret)) return ip;
+  }
   return (
     list.get("x-nf-client-connection-ip") ??
     list.get("x-forwarded-for")?.split(",")[0]?.trim() ??
