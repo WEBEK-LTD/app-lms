@@ -164,7 +164,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Which LMS plugins are supported?",
-        a: "Tutor LMS is supported today, in its free and pro editions. LearnDash, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS and Masteriyo are on the way. The plugin detects what's installed and adapts.",
+        a: "Tutor LMS (free and pro), LearnPress and LifterLMS are supported today. LearnDash, MasterStudy LMS, Sensei LMS and Masteriyo are on the way. The plugin detects what's installed and adapts.",
       },
       {
         q: "Do I have to move my courses anywhere?",
