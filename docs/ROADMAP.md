@@ -42,14 +42,18 @@ Each step closes once its "done when" check passes on the staging site (0.5).
 
 ## Phase 3: Flutter app (`mobile/`)
 
+Built with 143 tests (models against the contract, token refresh, iframe sizing on
+several screens, purchase rules, every screen in all templates). The first APK is
+built by `.github/workflows/mobile.yml`; each step closes on a phone against staging.
+
 | | Step | Done when |
 |---|---|---|
-| [ ] | 3.1 Core: white-label config, templates, theme, API client, secure storage | |
-| [ ] | 3.2 Sign in and verification code | Sign in on a phone |
-| [ ] | 3.3 Home (three templates), courses, course detail, my courses | |
-| [ ] | 3.4 Video player with screen-capture blocking and watermark | |
-| [ ] | 3.5 HTML and iframe rendering, with automated checks on several screen sizes | No iframe renders at the wrong size |
-| [ ] | 3.6 Quizzes, account, settings, push notifications | APK works on your phone against staging |
+| [~] | 3.1 Core: white-label config, templates, theme, API client, secure storage | |
+| [~] | 3.2 Sign in and verification code | Sign in on a phone |
+| [~] | 3.3 Home (three templates), courses, course detail, my courses | |
+| [~] | 3.4 Video player with screen-capture blocking and watermark | |
+| [~] | 3.5 HTML and iframe rendering, with automated checks on several screen sizes | No iframe renders at the wrong size |
+| [~] | 3.6 Quizzes, account, settings, push notifications | APK works on your phone against staging |
 
 ## Phase 4: Yallapp platform (`platform/web/`, Netlify)
 

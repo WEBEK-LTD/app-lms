@@ -1061,7 +1061,12 @@ components:
         course_id: { type: integer }
         title: { type: string }
         render_mode: { type: string, enum: [native, webview] }
-        html: { type: [string, 'null'], description: Rendered and cleaned content for native mode. }
+        html:
+          type: [string, 'null']
+          description: >-
+            Rendered and cleaned content for native mode. Each iframe is replaced by exactly
+            `<div data-yallapp-embed="yallapp-embed-N"></div>`, where the attribute value is the
+            `placeholder` of the matching item in `embeds`.
         webview_url: { type: [string, 'null'], format: uri, description: 'Signed, expiring URL for web view mode.' }
         embeds:
           type: array
@@ -1076,8 +1081,8 @@ components:
           items: { $ref: '#/components/schemas/Attachment' }
         completed: { type: boolean }
         position_seconds: { type: integer }
-        previous_id: { type: [integer, 'null'] }
-        next_id: { type: [integer, 'null'] }
+        previous_id: { type: [integer, 'null'], description: The previous lesson in the course. Quizzes and other items are skipped. }
+        next_id: { type: [integer, 'null'], description: The next lesson in the course. Quizzes and other items are skipped. }
 
     Embed:
       type: object
