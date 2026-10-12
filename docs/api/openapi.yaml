@@ -1,0 +1,1220 @@
+openapi: 3.1.0
+info:
+  title: Yallapp plugin API
+  version: 1.0.0
+  summary: The REST API the Yallapp WordPress plugin exposes to the Yallapp app.
+  description: |
+    Served by the Yallapp plugin on each client's WordPress site under
+    `/wp-json/yallapp/v1`. The app talks only to the client's own site.
+
+    Conventions:
+    - JSON everywhere. Dates are ISO 8601 in UTC.
+    - Authenticated calls send `Authorization: Bearer <access_token>`.
+    - Errors use the `Error` shape with a stable machine-readable `code`.
+    - Lists are paginated with `page` and `per_page` and return `Page` metadata.
+    - Every response carries `X-Yallapp-Plugin-Version`.
+  license:
+    name: Proprietary, WEBEK LTD
+    url: https://yallapp.com.tr
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://{site}/wp-json/yallapp/v1
+    description: A client's WordPress site
+    variables:
+      site:
+        default: your-academy.com
+        description: The client's WordPress host name.
+security:
+  - bearerAuth: []
+tags:
+  - name: App
+    description: App configuration and the home screen.
+  - name: Auth
+    description: Sign-in with a one-time code, tokens and sign-up.
+  - name: Account
+    description: The signed-in student's profile, devices and push token.
+  - name: Catalog
+    description: Categories, courses and course details.
+  - name: Learning
+    description: Enrolled courses, lessons and progress.
+  - name: Quizzes
+    description: Quiz questions, attempts and results.
+  - name: Commerce
+    description: Free enrollment and checkout hand-off.
+
+paths:
+  /config:
+    get:
+      tags: [App]
+      operationId: getConfig
+      summary: Get app configuration
+      description: Branding, detected features and app rules set in the plugin settings. Called on every app start.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+        - name: app_version
+          in: query
+          required: true
+          description: The app's version, used for the forced-update check.
+          schema: { type: string, example: 1.0.0 }
+      responses:
+        '200':
+          description: Configuration
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Config' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /home:
+    get:
+      tags: [App]
+      operationId: getHome
+      summary: Get home screen sections
+      description: Sections in the order chosen in the plugin settings. Signed-out users get the public sections only.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Home sections
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sections]
+                properties:
+                  sections:
+                    type: array
+                    items: { $ref: '#/components/schemas/HomeSection' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /auth/otp/request:
+    post:
+      tags: [Auth]
+      operationId: requestOtp
+      summary: Send a sign-in code
+      description: Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [country_code, phone]
+              properties:
+                country_code: { type: string, example: '+90' }
+                phone: { type: string, description: National number without the country code., example: '5321234567' }
+      responses:
+        '200':
+          description: Code sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [request_id, code_length, resend_after_seconds, expires_in_seconds]
+                properties:
+                  request_id: { type: string }
+                  code_length: { type: integer, example: 6 }
+                  resend_after_seconds: { type: integer, example: 60 }
+                  expires_in_seconds: { type: integer, example: 300 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/ProviderError' }
+
+  /auth/otp/verify:
+    post:
+      tags: [Auth]
+      operationId: verifyOtp
+      summary: Verify a sign-in code
+      description: |
+        Returns tokens for an existing account. For a phone number with no account,
+        returns a one-time `signup_token` to use with `POST /auth/register`
+        (only when sign-up from the app is allowed).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, code, device]
+              properties:
+                request_id: { type: string }
+                code: { type: string, example: '481902' }
+                device: { $ref: '#/components/schemas/DeviceInput' }
+      responses:
+        '200':
+          description: Verified
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Session'
+                  - $ref: '#/components/schemas/SignupRequired'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Create an account after verification
+      description: Fields required here follow the "Required at sign-up" plugin setting.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [signup_token, name, device]
+              properties:
+                signup_token: { type: string }
+                name: { type: string, example: Sara Yilmaz }
+                email: { type: string, format: email }
+                city: { type: string }
+                device: { $ref: '#/components/schemas/DeviceInput' }
+      responses:
+        '201':
+          description: Account created and signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshTokens
+      summary: Refresh tokens
+      description: Exchanges a refresh token for new tokens. The old refresh token stops working (rotation).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: New tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tokens' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: Sign out this device
+      responses:
+        '204': { description: Signed out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/checkout-link:
+    post:
+      tags: [Commerce]
+      operationId: createCheckoutLink
+      summary: Get a one-time signed-in checkout link
+      description: |
+        Android only, and only when the "Enroll now on Android" setting is on.
+        The link signs the student in on the website and opens the checkout for
+        the course. It works once and expires after 5 minutes.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [course_id]
+              properties:
+                course_id: { type: integer }
+      responses:
+        '200':
+          description: Checkout link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in: { type: string, enum: [in_app, browser] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me:
+    get:
+      tags: [Account]
+      operationId: getMe
+      summary: Get the signed-in student
+      responses:
+        '200':
+          description: Student
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [Account]
+      operationId: updateMe
+      summary: Update profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                city: { type: string }
+      responses:
+        '200':
+          description: Updated student
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [Account]
+      operationId: deleteMe
+      summary: Delete account
+      description: Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device.
+      responses:
+        '204': { description: Account deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/devices:
+    get:
+      tags: [Account]
+      operationId: listDevices
+      summary: List signed-in devices
+      responses:
+        '200':
+          description: Devices
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, limit]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Device' }
+                  limit: { type: integer, description: Devices allowed per account., example: 2 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/devices/{device_id}:
+    delete:
+      tags: [Account]
+      operationId: removeDevice
+      summary: Sign out a device
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Device removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/push-token:
+    put:
+      tags: [Account]
+      operationId: setPushToken
+      summary: Register this device for push notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string, description: Firebase Cloud Messaging token. }
+                preferences: { $ref: '#/components/schemas/NotificationPreferences' }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /categories:
+    get:
+      tags: [Catalog]
+      operationId: listCategories
+      summary: List course categories
+      security: []
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Category' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /courses:
+    get:
+      tags: [Catalog]
+      operationId: listCourses
+      summary: List courses
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: integer }
+        - name: price
+          in: query
+          schema: { type: string, enum: [all, free, paid], default: all }
+        - name: orderby
+          in: query
+          schema: { type: string, enum: [newest, popular, title], default: newest }
+      responses:
+        '200':
+          description: Courses
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/CourseSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /courses/{course_id}:
+    get:
+      tags: [Catalog]
+      operationId: getCourse
+      summary: Get a course
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: Course detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourseDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{course_id}/curriculum:
+    get:
+      tags: [Catalog]
+      operationId: getCurriculum
+      summary: Get a course's topics and items
+      description: Items the student can't open are returned with `locked` set and no content.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Curriculum
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [topics]
+                properties:
+                  topics:
+                    type: array
+                    items: { $ref: '#/components/schemas/Topic' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{course_id}/enroll:
+    post:
+      tags: [Commerce]
+      operationId: enrollFree
+      summary: Enroll in a free course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Enrolled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Enrollment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/courses:
+    get:
+      tags: [Learning]
+      operationId: listMyCourses
+      summary: List the student's courses
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [in_progress, completed], default: in_progress }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Enrolled courses
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/MyCourse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/wishlist:
+    get:
+      tags: [Learning]
+      operationId: listWishlist
+      summary: List wishlisted courses
+      responses:
+        '200':
+          description: Wishlist
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/CourseSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/wishlist/{course_id}:
+    put:
+      tags: [Learning]
+      operationId: addToWishlist
+      summary: Add a course to the wishlist
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '204': { description: Added }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Learning]
+      operationId: removeFromWishlist
+      summary: Remove a course from the wishlist
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /lessons/{lesson_id}:
+    get:
+      tags: [Learning]
+      operationId: getLesson
+      summary: Get a lesson
+      description: Free-preview lessons are public; everything else requires enrollment.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: Lesson
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lesson' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /lessons/{lesson_id}/progress:
+    put:
+      tags: [Learning]
+      operationId: saveLessonProgress
+      summary: Save video position
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [position_seconds, watched_percent]
+              properties:
+                position_seconds: { type: integer, minimum: 0 }
+                watched_percent: { type: number, minimum: 0, maximum: 100 }
+      responses:
+        '204': { description: Saved }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /lessons/{lesson_id}/complete:
+    post:
+      tags: [Learning]
+      operationId: completeLesson
+      summary: Mark a lesson as complete
+      description: Fails with `watch_requirement_not_met` when the site requires a share of the video to be watched first.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: Course progress after completing the lesson
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Progress' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /quizzes/{quiz_id}:
+    get:
+      tags: [Quizzes]
+      operationId: getQuiz
+      summary: Get quiz details and the student's attempts
+      parameters:
+        - $ref: '#/components/parameters/QuizId'
+      responses:
+        '200':
+          description: Quiz
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quiz' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /quizzes/{quiz_id}/attempts:
+    post:
+      tags: [Quizzes]
+      operationId: startAttempt
+      summary: Start an attempt
+      description: Returns the questions. Questions of a type the app can't show natively are returned with `render_mode` `webview` and a signed `webview_url`.
+      parameters:
+        - $ref: '#/components/parameters/QuizId'
+      responses:
+        '201':
+          description: Attempt started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Attempt' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /quizzes/{quiz_id}/attempts/{attempt_id}/submit:
+    post:
+      tags: [Quizzes]
+      operationId: submitAttempt
+      summary: Submit answers
+      parameters:
+        - $ref: '#/components/parameters/QuizId'
+        - name: attempt_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answers]
+              properties:
+                answers:
+                  type: array
+                  items: { $ref: '#/components/schemas/AnswerInput' }
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AttemptResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/quiz-attempts:
+    get:
+      tags: [Quizzes]
+      operationId: listMyAttempts
+      summary: List the student's quiz results
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/AttemptResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/certificates:
+    get:
+      tags: [Learning]
+      operationId: listCertificates
+      summary: List the student's certificates
+      description: Empty when the LMS has no certificate feature active.
+      responses:
+        '200':
+          description: Certificates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Certificate' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Platform:
+      name: platform
+      in: query
+      required: true
+      description: The app's platform. Purchase rules depend on it.
+      schema: { type: string, enum: [android, ios] }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    CourseId:
+      name: course_id
+      in: path
+      required: true
+      schema: { type: integer }
+    LessonId:
+      name: lesson_id
+      in: path
+      required: true
+      schema: { type: integer }
+    QuizId:
+      name: quiz_id
+      in: path
+      required: true
+      schema: { type: integer }
+
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing, expired or revoked token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Not allowed, for example not enrolled, device limit reached or purchase not allowed on this platform.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: The action conflicts with the current state.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Rate limit reached. `retry_after_seconds` says when to try again.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ProviderError:
+      description: The OTP provider or gateway failed.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unavailable:
+      description: The site is in maintenance mode or the license is inactive.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable code.
+          examples:
+            - invalid_code
+            - code_expired
+            - rate_limited
+            - device_limit_reached
+            - not_enrolled
+            - signup_disabled
+            - purchase_not_allowed
+            - watch_requirement_not_met
+            - maintenance
+            - license_inactive
+            - update_required
+        message: { type: string, description: A message safe to show to the student. }
+        retry_after_seconds: { type: integer }
+        details: { type: object, additionalProperties: true }
+
+    Page:
+      type: object
+      required: [page, per_page, total, total_pages]
+      properties:
+        page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+
+    Config:
+      type: object
+      required: [site, branding, features, auth, purchases, content, app]
+      properties:
+        site:
+          type: object
+          required: [name, url]
+          properties:
+            name: { type: string }
+            url: { type: string, format: uri }
+            terms_url: { type: [string, 'null'], format: uri }
+            privacy_url: { type: [string, 'null'], format: uri }
+            support_whatsapp: { type: [string, 'null'] }
+        branding:
+          type: object
+          required: [primary_color]
+          properties:
+            logo_url: { type: [string, 'null'], format: uri }
+            primary_color: { type: string, example: '#0E0D24' }
+        features:
+          type: object
+          description: What the site supports, detected by the plugin.
+          required: [lms, lms_version, pro, certificates, quizzes, wishlist, reviews, qna, push]
+          properties:
+            lms: { type: string, enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo] }
+            lms_version: { type: string }
+            pro: { type: boolean }
+            certificates: { type: boolean }
+            quizzes: { type: boolean }
+            wishlist: { type: boolean }
+            reviews: { type: boolean }
+            qna: { type: boolean }
+            push: { type: boolean }
+        auth:
+          type: object
+          required: [signup_allowed, signup_fields, default_country_code]
+          properties:
+            signup_allowed: { type: boolean }
+            signup_fields:
+              type: array
+              items: { type: string, enum: [name, email, city] }
+            default_country_code: { type: string, example: '+90' }
+        purchases:
+          type: object
+          required: [enroll_button, free_enrollment]
+          properties:
+            enroll_button: { type: boolean, description: Whether paid courses show "Enroll now" on this platform. Always false on iOS. }
+            free_enrollment: { type: boolean }
+            checkout_opens_in: { type: string, enum: [in_app, browser] }
+        content:
+          type: object
+          required: [block_screen_capture, watermark, embed_fullscreen_button, embed_height]
+          properties:
+            block_screen_capture: { type: boolean }
+            watermark: { type: string, enum: [off, phone, name, name_and_phone] }
+            embed_fullscreen_button: { type: boolean }
+            embed_height: { type: string, enum: [auto, fit_screen, as_set] }
+            code_highlighting: { type: boolean }
+            required_watch_percent: { type: integer, minimum: 0, maximum: 100 }
+        app:
+          type: object
+          required: [update_required, maintenance]
+          properties:
+            update_required: { type: boolean }
+            maintenance: { type: boolean }
+            maintenance_message: { type: [string, 'null'] }
+
+    HomeSection:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [banner, continue_learning, categories, featured_courses, latest_courses] }
+        title: { type: [string, 'null'] }
+        banner:
+          type: object
+          properties:
+            image_url: { type: string, format: uri }
+            link_course_id: { type: [integer, 'null'] }
+        course: { $ref: '#/components/schemas/MyCourse' }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+        courses:
+          type: array
+          items: { $ref: '#/components/schemas/CourseSummary' }
+
+    Tokens:
+      type: object
+      required: [access_token, refresh_token, expires_in]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, description: Access token lifetime in seconds., example: 900 }
+
+    Session:
+      allOf:
+        - $ref: '#/components/schemas/Tokens'
+        - type: object
+          required: [user]
+          properties:
+            user: { $ref: '#/components/schemas/User' }
+
+    SignupRequired:
+      type: object
+      required: [signup_required, signup_token, fields]
+      properties:
+        signup_required: { type: boolean, const: true }
+        signup_token: { type: string }
+        fields:
+          type: array
+          items: { type: string, enum: [name, email, city] }
+
+    User:
+      type: object
+      required: [id, name, phone]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        phone: { type: string, example: '+905321234567' }
+        email: { type: [string, 'null'], format: email }
+        city: { type: [string, 'null'] }
+        avatar_url: { type: [string, 'null'], format: uri }
+
+    DeviceInput:
+      type: object
+      required: [id, platform, name]
+      properties:
+        id: { type: string, description: A stable ID the app generates once per install. }
+        platform: { type: string, enum: [android, ios] }
+        name: { type: string, example: Pixel 8 }
+        app_version: { type: string }
+
+    Device:
+      type: object
+      required: [id, platform, name, last_seen_at, current]
+      properties:
+        id: { type: string }
+        platform: { type: string, enum: [android, ios] }
+        name: { type: string }
+        last_seen_at: { type: string, format: date-time }
+        current: { type: boolean }
+
+    NotificationPreferences:
+      type: object
+      properties:
+        new_lessons: { type: boolean }
+        announcements: { type: boolean }
+        daily_reminder: { type: boolean }
+
+    Category:
+      type: object
+      required: [id, name, count]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        count: { type: integer }
+
+    Instructor:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        avatar_url: { type: [string, 'null'], format: uri }
+        bio: { type: [string, 'null'] }
+
+    Price:
+      type: object
+      required: [is_free]
+      properties:
+        is_free: { type: boolean }
+        amount: { type: [string, 'null'], description: Decimal string in the site's currency., example: '450.00' }
+        sale_amount: { type: [string, 'null'] }
+        currency: { type: [string, 'null'], example: TRY }
+        formatted: { type: [string, 'null'], example: ₺450 }
+
+    CourseSummary:
+      type: object
+      required: [id, title, price, lesson_count, enrolled]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        instructor: { $ref: '#/components/schemas/Instructor' }
+        price: { $ref: '#/components/schemas/Price' }
+        lesson_count: { type: integer }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5 }
+        rating_count: { type: integer }
+        enrolled: { type: boolean }
+        wishlisted: { type: boolean }
+
+    CourseDetail:
+      allOf:
+        - $ref: '#/components/schemas/CourseSummary'
+        - type: object
+          required: [description_html, purchase]
+          properties:
+            description_html: { type: string }
+            intro_video: { $ref: '#/components/schemas/Video' }
+            duration_minutes: { type: [integer, 'null'] }
+            level: { type: [string, 'null'], example: Beginner }
+            has_certificate: { type: boolean }
+            categories:
+              type: array
+              items: { $ref: '#/components/schemas/Category' }
+            purchase:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  description: What the course page's main button does on this platform.
+                  enum: [continue, enroll_free, checkout, none]
+
+    Topic:
+      type: object
+      required: [id, title, items]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CurriculumItem' }
+
+    CurriculumItem:
+      type: object
+      required: [id, type, title, locked, completed]
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [lesson, quiz, assignment, live] }
+        title: { type: string }
+        duration_minutes: { type: [integer, 'null'] }
+        question_count: { type: [integer, 'null'] }
+        preview: { type: boolean, description: Free preview available without enrollment. }
+        locked: { type: boolean }
+        completed: { type: boolean }
+
+    Lesson:
+      type: object
+      required: [id, course_id, title, render_mode, completed]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        title: { type: string }
+        render_mode: { type: string, enum: [native, webview] }
+        html: { type: [string, 'null'], description: Rendered and cleaned content for native mode. }
+        webview_url: { type: [string, 'null'], format: uri, description: 'Signed, expiring URL for web view mode.' }
+        embeds:
+          type: array
+          items: { $ref: '#/components/schemas/Embed' }
+        video: { $ref: '#/components/schemas/Video' }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/Attachment' }
+        completed: { type: boolean }
+        position_seconds: { type: integer }
+        previous_id: { type: [integer, 'null'] }
+        next_id: { type: [integer, 'null'] }
+
+    Embed:
+      type: object
+      description: An iframe found in the lesson. The `html` field references it by `placeholder`.
+      required: [placeholder, src, provider]
+      properties:
+        placeholder: { type: string, example: yallapp-embed-1 }
+        src: { type: string, format: uri }
+        provider: { type: string, enum: [youtube, vimeo, same_site, other] }
+        width: { type: [string, 'null'], description: 'As set in the lesson, for example "100%" or "640".', example: 100% }
+        height: { type: [string, 'null'], example: '900' }
+        aspect_ratio: { type: [number, 'null'], description: 'Width divided by height, when known.', example: 1.7778 }
+        allow_fullscreen: { type: boolean }
+
+    Video:
+      type: object
+      required: [source]
+      properties:
+        source: { type: string, enum: [upload, youtube, vimeo, external, embed] }
+        url: { type: [string, 'null'], format: uri, description: Signed and expiring for uploaded videos. }
+        expires_at: { type: [string, 'null'], format: date-time }
+        embed_html: { type: [string, 'null'] }
+        duration_seconds: { type: [integer, 'null'] }
+        poster_url: { type: [string, 'null'], format: uri }
+
+    Attachment:
+      type: object
+      required: [name, url]
+      properties:
+        name: { type: string }
+        url: { type: string, format: uri }
+        size_bytes: { type: [integer, 'null'] }
+        mime_type: { type: [string, 'null'] }
+
+    Progress:
+      type: object
+      required: [course_id, completed_items, total_items, percent]
+      properties:
+        course_id: { type: integer }
+        completed_items: { type: integer }
+        total_items: { type: integer }
+        percent: { type: integer, minimum: 0, maximum: 100 }
+        course_completed: { type: boolean }
+
+    MyCourse:
+      type: object
+      required: [course, progress]
+      properties:
+        course: { $ref: '#/components/schemas/CourseSummary' }
+        progress: { $ref: '#/components/schemas/Progress' }
+        next_item: { $ref: '#/components/schemas/CurriculumItem' }
+        certificate_url: { type: [string, 'null'], format: uri }
+
+    Enrollment:
+      type: object
+      required: [course_id, enrolled_at]
+      properties:
+        course_id: { type: integer }
+        enrolled_at: { type: string, format: date-time }
+
+    Quiz:
+      type: object
+      required: [id, course_id, title, question_count, attempts_allowed, attempts_used]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        title: { type: string }
+        question_count: { type: integer }
+        time_limit_seconds: { type: [integer, 'null'] }
+        pass_percent: { type: [integer, 'null'] }
+        attempts_allowed: { type: [integer, 'null'], description: Null means unlimited. }
+        attempts_used: { type: integer }
+        last_result: { $ref: '#/components/schemas/AttemptResult' }
+
+    Attempt:
+      type: object
+      required: [id, quiz_id, started_at, questions]
+      properties:
+        id: { type: integer }
+        quiz_id: { type: integer }
+        started_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        questions:
+          type: array
+          items: { $ref: '#/components/schemas/Question' }
+
+    Question:
+      type: object
+      required: [id, type, title, render_mode]
+      properties:
+        id: { type: integer }
+        type:
+          type: string
+          enum: [single_choice, multiple_choice, true_false, short_answer, open_ended, fill_in_blank, ordering, matching, image_answer, other]
+        title: { type: string }
+        description_html: { type: [string, 'null'] }
+        render_mode: { type: string, enum: [native, webview] }
+        webview_url: { type: [string, 'null'], format: uri }
+        options:
+          type: array
+          items:
+            type: object
+            required: [id, label]
+            properties:
+              id: { type: string }
+              label: { type: string }
+              image_url: { type: [string, 'null'], format: uri }
+        points: { type: [number, 'null'] }
+
+    AnswerInput:
+      type: object
+      required: [question_id]
+      properties:
+        question_id: { type: integer }
+        option_ids:
+          type: array
+          items: { type: string }
+        text: { type: string }
+        order:
+          type: array
+          items: { type: string }
+        pairs:
+          type: object
+          additionalProperties: { type: string }
+
+    AttemptResult:
+      type: object
+      required: [attempt_id, quiz_id, status]
+      properties:
+        attempt_id: { type: integer }
+        quiz_id: { type: integer }
+        quiz_title: { type: string }
+        status: { type: string, enum: [passed, failed, pending_review] }
+        score_percent: { type: [number, 'null'] }
+        finished_at: { type: [string, 'null'], format: date-time }
+
+    Certificate:
+      type: object
+      required: [course_id, course_title, url]
+      properties:
+        course_id: { type: integer }
+        course_title: { type: string }
+        url: { type: string, format: uri }
+        issued_at: { type: [string, 'null'], format: date-time }

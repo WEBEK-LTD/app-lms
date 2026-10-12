@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-contract:
+    name: API contract
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lint docs/api/openapi.yaml
+        run: npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml
+
+  plugin-syntax:
+    name: Plugin syntax (PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: none
+      - name: php -l on every plugin file
+        run: find wp-plugin -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -r -n1 php -l
+
+  plugin-standards:
+    name: Plugin coding standards
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+      - name: Install
+        run: composer install --no-interaction --no-progress
+      - name: WordPress coding standards and PHP 7.4 compatibility
+        run: composer lint
