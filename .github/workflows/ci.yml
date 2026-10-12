@@ -129,7 +129,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lms: [learnpress, lifterlms, masterstudy, sensei]
+        lms: [learnpress, lifterlms, masterstudy, masteriyo, sensei]
     defaults:
       run:
         working-directory: wp-plugin/yallapp

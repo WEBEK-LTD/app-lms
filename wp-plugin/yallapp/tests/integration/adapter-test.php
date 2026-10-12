@@ -12,7 +12,8 @@
  * - qna:   whether students can ask questions in "Python Programming Basics";
  * - free_orders: whether the LMS records a free enrollment as an order (LearnPress does);
  * - certificate: whether completing "Python Programming Basics" awards a certificate;
- * - reviews_moderated: whether reviews wait for approval (the test approves by publishing the review post).
+ * - reviews_moderated: whether reviews wait for approval (the test approves by publishing the review post);
+ * - lesson_preview: whether the LMS has free preview lessons ("What is UI design?" is one).
  * Everything else follows from the features GET /config reports.
  *
  * @package Yallapp
@@ -37,6 +38,7 @@ $expect = array_merge(
 		'free_orders'       => false,
 		'certificate'       => false,
 		'reviews_moderated' => false,
+		'lesson_preview'    => true,
 	),
 	(array) ( $seed['expect'] ?? array() )
 );
@@ -198,7 +200,11 @@ $r = call( 'GET', '/courses/999999?platform=android' );
 check( 'missing course 404', 404 === $r['status'], $r['raw'] );
 
 $items = curriculum_items( $seed['design'], $token );
-check( 'preview lesson unlocked', isset( $items[ $seed['design_preview'] ] ) && false === $items[ $seed['design_preview'] ]['locked'] && true === $items[ $seed['design_preview'] ]['preview'], $items );
+if ( $expect['lesson_preview'] ) {
+	check( 'preview lesson unlocked', isset( $items[ $seed['design_preview'] ] ) && false === $items[ $seed['design_preview'] ]['locked'] && true === $items[ $seed['design_preview'] ]['preview'], $items );
+} else {
+	check( 'no preview lessons: locked', isset( $items[ $seed['design_preview'] ] ) && true === $items[ $seed['design_preview'] ]['locked'] && false === $items[ $seed['design_preview'] ]['preview'], $items );
+}
 check( 'other lesson locked', isset( $items[ $seed['design_locked'] ] ) && true === $items[ $seed['design_locked'] ]['locked'], $items );
 $items = curriculum_items( $seed['python'], $token );
 $order = array( $seed['lesson_video'], $seed['lesson_html'], $seed['lesson_script'] );
@@ -213,7 +219,11 @@ echo "Learning\n";
 $r = call( 'GET', '/lessons/' . $seed['lesson_html'], null, $token );
 check( 'lesson before enrolling 403', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
 $r = call( 'GET', '/lessons/' . $seed['design_preview'] );
-check( 'preview lesson opens signed out', 200 === $r['status'] && $seed['design'] === ( $r['json']['course_id'] ?? 0 ), $r['raw'] );
+if ( $expect['lesson_preview'] ) {
+	check( 'preview lesson opens signed out', 200 === $r['status'] && $seed['design'] === ( $r['json']['course_id'] ?? 0 ), $r['raw'] );
+} else {
+	check( 'no preview lessons: signed out 401', 401 === $r['status'], $r['raw'] );
+}
 $r = call( 'GET', '/lessons/' . $seed['design_locked'] );
 check( 'locked lesson signed out 401', 401 === $r['status'], $r['raw'] );
 $r = call( 'GET', '/lessons/' . $seed['design_locked'], null, $token );

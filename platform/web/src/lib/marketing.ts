@@ -5,7 +5,6 @@ import type { IconName } from "@/components/icon-names";
 export const WORKS_WITH = [
   "WordPress",
   "Tutor LMS",
-  "LearnDash",
   "LearnPress",
   "LifterLMS",
   "MasterStudy",
@@ -164,7 +163,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Which LMS plugins are supported?",
-        a: "Tutor LMS (free and pro), LearnPress, LifterLMS, MasterStudy LMS and Sensei LMS are supported today. LearnDash and Masteriyo are on the way. The plugin detects what's installed and adapts.",
+        a: "Tutor LMS (free and pro), LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS and Masteriyo are supported today. LearnDash is on the way. The plugin detects what's installed and adapts.",
       },
       {
         q: "Do I have to move my courses anywhere?",

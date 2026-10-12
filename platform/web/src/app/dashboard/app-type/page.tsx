@@ -50,7 +50,7 @@ export default async function AppTypePage() {
           </span>
           <span className="text-[15px] leading-relaxed text-ink-4">Courses, lessons, quizzes and certificates.</span>
           <span className="text-[13px] leading-normal text-muted">
-            Works with: Tutor LMS, LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo · Digits
+            Works with: Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo · Digits
           </span>
         </label>
 
