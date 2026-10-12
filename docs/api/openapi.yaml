@@ -52,6 +52,13 @@ tags:
       WooCommerce products, the cart and the checkout hand-off, for Store apps.
       The cart lives in the app; the order is placed on the site's own
       checkout, opened with a one-time link that fills the WooCommerce cart.
+  - name: Bookings
+    description: |
+      Services, staff, free times and appointments, for Bookings apps. The
+      plugin reads them from the site's booking plugin (Amelia, Bookly or
+      LatePoint); the booking plugin's own rules decide the free times and
+      whether a new appointment is approved or waits for the business.
+      Appointments are paid at the business.
 
 paths:
   /config:
@@ -1142,6 +1149,233 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /bookings/home:
+    get:
+      tags: [Bookings]
+      operationId: getBookingsHome
+      summary: Get the bookings home screen sections
+      description: Sections in the order chosen in the plugin settings. Only sections with content are returned.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Home sections
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sections]
+                properties:
+                  sections:
+                    type: array
+                    items: { $ref: '#/components/schemas/BookingsHomeSection' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/categories:
+    get:
+      tags: [Bookings]
+      operationId: listServiceCategories
+      summary: List service categories
+      description: Categories with services customers can book, in the booking plugin's order.
+      security: []
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ServiceCategory' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/services:
+    get:
+      tags: [Bookings]
+      operationId: listServices
+      summary: List services
+      description: Services customers can book online, in the booking plugin's order.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Services
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ServiceSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/services/{service_id}:
+    get:
+      tags: [Bookings]
+      operationId: getService
+      summary: Get a service and the staff who provide it
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ServiceId'
+      responses:
+        '200':
+          description: Service detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ServiceDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/availability:
+    get:
+      tags: [Bookings]
+      operationId: getAvailability
+      summary: Free times for a service
+      description: |
+        Free start times from `from` for `days` days, by the business's local
+        date, as the booking plugin computes them (working hours, days off,
+        breaks, existing appointments, buffers and how far ahead customers
+        may book). Without `staff`, a time is free when any staff member who
+        provides the service is free; `staff_ids` says who.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: service
+          in: query
+          required: true
+          schema: { type: integer }
+        - name: staff
+          in: query
+          description: A staff member, or none for anyone.
+          schema: { type: integer }
+        - name: from
+          in: query
+          required: true
+          description: The first day, in the business's time zone.
+          schema: { type: string, format: date, example: '2026-10-14' }
+        - name: days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 31, default: 7 }
+      responses:
+        '200':
+          description: Free times by day
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Availability' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/appointments:
+    post:
+      tags: [Bookings]
+      operationId: bookAppointment
+      summary: Book an appointment
+      description: |
+        Books a free time for the signed-in customer, through the booking
+        plugin, so its emails, calendar sync and approval rules apply. The
+        appointment is `approved` or `pending` as the plugin decides.
+
+        Fails with `slot_taken` (409) when the time is no longer free and with
+        `invalid_request` (400) for a service, staff member or time that can't
+        be booked.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AppointmentInput' }
+      responses:
+        '201':
+          description: The appointment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Appointment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/appointments:
+    get:
+      tags: [Bookings]
+      operationId: listMyAppointments
+      summary: List the customer's appointments
+      description: Upcoming ones soonest first, past ones (and cancelled ones) newest first.
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [upcoming, past], default: upcoming }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Appointments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Appointment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/appointments/{appointment_id}:
+    get:
+      tags: [Bookings]
+      operationId: getMyAppointment
+      summary: Get one of the customer's appointments
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: The appointment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Appointment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/appointments/{appointment_id}/cancel:
+    post:
+      tags: [Bookings]
+      operationId: cancelMyAppointment
+      summary: Cancel one of the customer's appointments
+      description: Fails with `too_late` (409) when it starts sooner than `bookings.cancel_before_minutes` allows, or when the business doesn't let customers cancel.
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      responses:
+        '200':
+          description: The cancelled appointment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Appointment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1186,6 +1420,16 @@ components:
       schema: { type: integer }
     ProductId:
       name: product_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ServiceId:
+      name: service_id
+      in: path
+      required: true
+      schema: { type: integer }
+    AppointmentId:
+      name: appointment_id
       in: path
       required: true
       schema: { type: integer }
@@ -1330,6 +1574,7 @@ components:
             code_highlighting: { type: boolean }
             required_watch_percent: { type: integer, minimum: 0, maximum: 100 }
         store: { $ref: '#/components/schemas/StoreConfig' }
+        bookings: { $ref: '#/components/schemas/BookingsConfig' }
         app:
           type: object
           required: [update_required, maintenance]
@@ -1997,3 +2242,159 @@ components:
         subtotal: { type: string, description: "Formatted, before shipping, taxes and coupons.", example: ₺900.00 }
         subtotal_amount: { type: string, example: '900.00' }
         currency: { type: string, example: TRY }
+
+    BookingsConfig:
+      type: object
+      description: Present when a supported booking plugin is active. Settings for Bookings apps.
+      required: [plugin, plugin_version, timezone, currency, staff_choice, notes, max_days_ahead, min_minutes_ahead, cancel_before_minutes]
+      properties:
+        plugin: { type: string, enum: [amelia, bookly, latepoint] }
+        plugin_version: { type: string }
+        timezone: { type: string, description: The business's IANA time zone., example: Europe/Istanbul }
+        currency: { type: string, example: TRY }
+        staff_choice: { type: boolean, description: Whether customers pick a staff member or the plugin assigns one. }
+        notes: { type: boolean, description: Whether customers can leave a note with the booking. }
+        max_days_ahead: { type: integer, minimum: 1, description: How far ahead customers can book. }
+        min_minutes_ahead: { type: integer, minimum: 0, description: How soon before a time it can still be booked. }
+        cancel_before_minutes:
+          type: [integer, 'null']
+          minimum: 0
+          description: Customers can cancel up to this many minutes before the start; null when they can't cancel in the app.
+
+    BookingsHomeSection:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [banner, categories, services, staff, next_appointment] }
+        title: { type: [string, 'null'] }
+        banner:
+          type: object
+          required: [image_url]
+          properties:
+            image_url: { type: string, format: uri }
+            link_service_id: { type: [integer, 'null'] }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/ServiceCategory' }
+        services:
+          type: array
+          items: { $ref: '#/components/schemas/ServiceSummary' }
+        staff:
+          type: array
+          items: { $ref: '#/components/schemas/StaffMember' }
+        appointment:
+          description: The signed-in customer's next appointment (`next_appointment` sections).
+          $ref: '#/components/schemas/Appointment'
+
+    ServiceCategory:
+      type: object
+      required: [id, name, count]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        count: { type: integer, description: Services customers can book. }
+        image_url: { type: [string, 'null'], format: uri }
+
+    BookingPrice:
+      type: object
+      required: [amount, currency, formatted, free]
+      properties:
+        amount: { type: string, example: '450.00' }
+        currency: { type: string, example: TRY }
+        formatted: { type: string, example: ₺450.00 }
+        free: { type: boolean }
+
+    ServiceSummary:
+      type: object
+      required: [id, name, duration_minutes, price]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        duration_minutes: { type: integer, minimum: 1 }
+        price: { $ref: '#/components/schemas/BookingPrice' }
+        category_id: { type: [integer, 'null'] }
+        color: { type: [string, 'null'], description: The colour the business gave the service., example: '#1D6B48' }
+
+    ServiceDetail:
+      allOf:
+        - $ref: '#/components/schemas/ServiceSummary'
+        - type: object
+          required: [description_html, staff]
+          properties:
+            description_html: { type: string }
+            staff:
+              type: array
+              description: Staff members who provide it, with their own price when it differs.
+              items: { $ref: '#/components/schemas/StaffMember' }
+
+    StaffMember:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        title: { type: [string, 'null'], description: "A short description, for example their role." }
+        price: { description: "Their price for the service, when it differs from the service's.", oneOf: [{ $ref: '#/components/schemas/BookingPrice' }, { type: 'null' }] }
+
+    Availability:
+      type: object
+      required: [timezone, days]
+      properties:
+        timezone: { type: string, example: Europe/Istanbul }
+        days:
+          type: array
+          description: Every day in the range, also days without free times.
+          items:
+            type: object
+            required: [date, slots]
+            properties:
+              date: { type: string, format: date, description: In the business's time zone. }
+              slots:
+                type: array
+                items: { $ref: '#/components/schemas/TimeSlot' }
+
+    TimeSlot:
+      type: object
+      required: [start, end, local_time, staff_ids]
+      properties:
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time }
+        local_time: { type: string, pattern: '^[0-2][0-9]:[0-5][0-9]$', description: The start in the business's time zone., example: '14:30' }
+        staff_ids:
+          type: array
+          items: { type: integer }
+
+    AppointmentInput:
+      type: object
+      required: [service_id, start]
+      properties:
+        service_id: { type: integer }
+        staff_id: { type: [integer, 'null'], description: Null lets the booking plugin pick someone free. }
+        start: { type: string, format: date-time, description: "A `start` from `/bookings/availability`." }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+
+    Appointment:
+      type: object
+      required: [id, status, status_label, service, start, end, local_date, local_time, price, can_cancel]
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [approved, pending, cancelled, rejected, no_show, completed] }
+        status_label: { type: string, example: Approved }
+        service:
+          type: object
+          required: [id, name]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            image_url: { type: [string, 'null'], format: uri }
+        staff: { oneOf: [{ $ref: '#/components/schemas/StaffMember' }, { type: 'null' }] }
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time }
+        local_date: { type: string, format: date, description: In the business's time zone. }
+        local_time: { type: string, example: '14:30' }
+        price: { $ref: '#/components/schemas/BookingPrice' }
+        notes: { type: [string, 'null'] }
+        location: { type: [string, 'null'], description: "Where it takes place, when the plugin knows." }
+        can_cancel: { type: boolean, description: Whether the customer can cancel it in the app now. }

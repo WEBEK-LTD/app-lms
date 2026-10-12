@@ -105,6 +105,21 @@ products only on Android.
 | [x] | 7.1 Store API: products, categories, reviews, cart pricing, checkout hand-off that fills the WooCommerce cart, delivery date and gift message, store orders | End-to-end checks pass on WooCommerce |
 | [~] | 7.2 Store app module: home, catalog, product, cart, checkout, orders | Screen checks pass (done); APK works against a test shop (needs a Store build, 7.3) |
 | [~] | 7.3 Store in the dashboard and build pipeline | A test client picks Store and receives the apps (dashboard and pipeline accept Store; waiting on a real Store build) |
-| [ ] | 7.4 Bookings API on a booking plugin | End-to-end checks pass |
+| [~] | 7.4 Bookings API: contract, then adapters for Amelia (Lite), Bookly and LatePoint | End-to-end checks pass on each plugin |
 | [ ] | 7.5 Bookings app module | Screen checks pass |
 | [ ] | 7.6 Bookings in the dashboard and build pipeline | A test client picks Bookings and receives the apps |
+
+## Phase 8: Websites without WordPress
+
+The app only talks to the API in `docs/api/openapi.yaml`. The Yallapp plugin
+is one way to serve it; these steps add others, so a client with any website,
+or none, can have an app.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 8.1 API address in the build config (`api_base_url`, default `<site_url>/wp-json/yallapp/v1`), "Custom API" on the dashboard's Website step with a live check of the client's API against the contract, and a developer guide | A build points at a non-WordPress API that passes the check |
+| [ ] | 8.2 WordPress set up for the client: a "We set it up for you" request on the Website step (WordPress on a subdomain with the plugin, WooCommerce or an LMS, and their content imported), handled by the WEBEK team | A client can request it and the team sees the request |
+| [ ] | 8.3 Hosted API on yallapp.com.tr for connected platforms: config, phone sign-in with our own SMS/WhatsApp sender, tokens, devices, push, notifications | The app signs in against the hosted API |
+| [ ] | 8.4 Shopify connector (Store apps): products, collections, cart pricing, checkout, orders through the Shopify APIs | Checks pass against a Shopify development store |
+| [ ] | 8.5 More connectors as clients ask: ikas, Ticimax, IdeaSoft (stores), Teachable, Thinkific (courses), SimplyBook (bookings) | Each passes its checks |
+| [ ] | 8.6 No website at all: products or courses managed in the Yallapp dashboard and served by the hosted API, with online payments | A client without a website publishes an app |

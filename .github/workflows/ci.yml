@@ -173,6 +173,51 @@ jobs:
           APP: store
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
 
+  booking-describe:
+    name: Describe booking plugin (${{ matrix.booking }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - booking: amelia
+            slug: ameliabooking
+            prefix: amelia
+            code: 'Domain/Entity/(Bookable|Booking|User|Schedule)|Domain/Services/(TimeSlot|Reservation|Booking|Entity)|Application/Services/(TimeSlot|Reservation|Booking|Bookable|User|Settings)|Application/Commands/Booking/Appointment/(AddBooking|CancelBooking)|Infrastructure/Container\.php|Infrastructure/Repository/(Booking|Bookable|User|Schedule)|Domain/Factory/Booking'
+          - booking: bookly
+            slug: bookly-responsive-appointment-booking-tool
+            prefix: bookly
+            code: 'lib/(entities|slots)/|lib/Config\.php|lib/utils/(DateTime|Price|Common)\.php|lib/(UserBookingData|CartItem|ChainItem)\.php|frontend/modules/booking/'
+          - booking: latepoint
+            slug: latepoint
+            prefix: latepoint
+            code: 'lib/models/(booking|service|agent|customer|order|location|work_period|off_period|service_category|cart)|lib/helpers/(booking|timeline|availability|time|work_periods|money|settings|service|agent|customer|order|cart|time_period|booking_request)'
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - name: Build a site with the booking plugin
+        env:
+          APP: bookings
+          BOOKING: ${{ matrix.booking }}
+          SEED: '0'
+        run: tests/dev-site/setup.sh "$RUNNER_TEMP/site"
+      - name: Version
+        run: |
+          grep -m1 -i 'Version:' "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}/"*.php || true
+          curl -s "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=${{ matrix.slug }}&request%5Bfields%5D%5Bversions%5D=0" | php -r '$i = json_decode(stream_get_contents(STDIN), true); echo $i["version"] ?? "?", " active_installs=", $i["active_installs"] ?? "?", " requires=", $i["requires"] ?? "?", " requires_php=", $i["requires_php"] ?? "?", PHP_EOL;'
+      - name: Tables and options
+        run: php ~/.cache/yallapp-dev/wp-cli-2.12.0.phar --path="$RUNNER_TEMP/site" --allow-root eval-file tests/dev-site/describe-plugin.php ${{ matrix.prefix }}
+      - name: Code index
+        run: tests/dev-site/describe-source.sh "$RUNNER_TEMP/site/wp-content/plugins/${{ matrix.slug }}" '${{ matrix.code }}'
+
   build-pipeline:
     name: Build pipeline scripts
     runs-on: ubuntu-24.04

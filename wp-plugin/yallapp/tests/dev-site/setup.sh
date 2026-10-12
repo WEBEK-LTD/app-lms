@@ -4,23 +4,37 @@
 # plugin, then seeds sample courses or products. WordPress, SQLite and Tutor LMS
 # come from GitHub; the other plugins are the pinned releases from wordpress.org.
 #
-# Usage: [LMS=<id>] [APP=store] tests/dev-site/setup.sh <site-dir>
+# Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/dev-site/setup.sh <site-dir>
 #        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo
 #        APP=store: a shop with WooCommerce and no LMS (seed-store.php)
+#        APP=bookings: a booking plugin and no LMS (seed-bookings-<BOOKING>.php);
+#        BOOKING: amelia (default), bookly, latepoint. SEED=0 skips seeding.
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
 SITE_DIR=${1:?usage: setup.sh <site-dir>}
 APP=${APP:-lms}
 LMS=${LMS:-tutor}
-if [ "$APP" = store ]; then
+if [ "$APP" = store ] || [ "$APP" = bookings ]; then
 	LMS=none
 fi
+BOOKING=${BOOKING:-amelia}
+SEED=${SEED:-1}
 WP_VERSION=${WP_VERSION:-7.1.3}
 TUTOR_VERSION=${TUTOR_VERSION:-4.1.1}
 SQLITE_VERSION=${SQLITE_VERSION:-v3.1.0}
 WP_CLI_VERSION=${WP_CLI_VERSION:-2.12.0}
 WOOCOMMERCE_VERSION=${WOOCOMMERCE_VERSION:-11.2.0}
+# Booking plugins: wordpress.org slug and pinned version ("latest" for the newest).
+case "$BOOKING" in
+	amelia) BOOKING_SLUG=ameliabooking BOOKING_VERSION=${AMELIA_VERSION:-latest} ;;
+	bookly) BOOKING_SLUG=bookly-responsive-appointment-booking-tool BOOKING_VERSION=${BOOKLY_VERSION:-latest} ;;
+	latepoint) BOOKING_SLUG=latepoint BOOKING_VERSION=${LATEPOINT_VERSION:-latest} ;;
+	*)
+		echo "Unknown BOOKING '$BOOKING': use amelia, bookly or latepoint." >&2
+		exit 2
+		;;
+esac
 PORT=${PORT:-8089}
 
 # wordpress.org slug and pinned version of each LMS other than Tutor.
@@ -62,7 +76,11 @@ fi
 # A plugin's release zip as wordpress.org serves it, unpacked once into the cache.
 from_wordpress_org() { # slug version
 	if [ ! -d "$CACHE/$1-$2" ]; then
-		curl -fsSL -o "$CACHE/$1.$2.zip" "https://downloads.wordpress.org/plugin/$1.$2.zip"
+		if [ "$2" = latest ]; then
+			curl -fsSL -o "$CACHE/$1.$2.zip" "https://downloads.wordpress.org/plugin/$1.zip"
+		else
+			curl -fsSL -o "$CACHE/$1.$2.zip" "https://downloads.wordpress.org/plugin/$1.$2.zip"
+		fi
 		rm -rf "$CACHE/$1-unzip"
 		unzip -q "$CACHE/$1.$2.zip" -d "$CACHE/$1-unzip"
 		mv "$CACHE/$1-unzip/$1" "$CACHE/$1-$2"
@@ -76,6 +94,9 @@ if [ "$LMS" != tutor ] && [ "$LMS" != none ]; then
 fi
 if [ "$APP" = store ]; then
 	from_wordpress_org woocommerce "$WOOCOMMERCE_VERSION"
+fi
+if [ "$APP" = bookings ]; then
+	from_wordpress_org "$BOOKING_SLUG" "$BOOKING_VERSION"
 fi
 WP_CLI="$CACHE/wp-cli-$WP_CLI_VERSION.phar"
 if [ ! -f "$WP_CLI" ]; then
@@ -100,6 +121,9 @@ if [ "$LMS" != none ]; then
 fi
 if [ "$APP" = store ]; then
 	cp -r "$CACHE/woocommerce-$WOOCOMMERCE_VERSION" "$SITE_DIR/wp-content/plugins/woocommerce"
+fi
+if [ "$APP" = bookings ]; then
+	cp -r "$CACHE/$BOOKING_SLUG-$BOOKING_VERSION" "$SITE_DIR/wp-content/plugins/$BOOKING_SLUG"
 fi
 ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
 
@@ -148,6 +172,9 @@ fi
 if [ "$APP" = store ]; then
 	wp plugin activate woocommerce --quiet
 fi
+if [ "$APP" = bookings ]; then
+	wp plugin activate "$BOOKING_SLUG" --quiet
+fi
 if [ "$LMS" = masterstudy ]; then
 	# MasterStudy loads its table definitions only in wp-admin, so activating it from
 	# WP-CLI creates none of them; run the same functions its activation runs.
@@ -156,7 +183,11 @@ if [ "$LMS" = masterstudy ]; then
 		foreach ( array( "stm_lms_user_answers", "stm_lms_user_cart", "stm_lms_user_chat", "stm_lms_user_conversation", "stm_lms_user_courses", "stm_lms_user_lessons", "stm_lms_user_quizzes", "stm_lms_user_quizzes_times", "stm_lms_user_searches", "stm_lms_curriculum_sections", "stm_lms_curriculum_materials", "stm_lms_order_items" ) as $create ) { $create(); }'
 fi
 wp plugin activate yallapp --quiet
-if [ "$APP" = store ]; then
+if [ "$SEED" = 0 ]; then
+	:
+elif [ "$APP" = bookings ]; then
+	wp eval-file "$HERE/seed-bookings-$BOOKING.php"
+elif [ "$APP" = store ]; then
 	wp eval-file "$HERE/seed-store.php"
 elif [ "$LMS" = tutor ]; then
 	wp eval-file "$HERE/seed.php"
