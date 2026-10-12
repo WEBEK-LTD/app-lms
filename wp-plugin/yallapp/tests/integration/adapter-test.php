@@ -11,7 +11,8 @@
  * - paid:  whether "UI Design Fundamentals" is sold by the site (checkout on Android);
  * - qna:   whether students can ask questions in "Python Programming Basics";
  * - free_orders: whether the LMS records a free enrollment as an order (LearnPress does);
- * - certificate: whether completing "Python Programming Basics" awards a certificate.
+ * - certificate: whether completing "Python Programming Basics" awards a certificate;
+ * - reviews_moderated: whether reviews wait for approval (the test approves by publishing the review post).
  * Everything else follows from the features GET /config reports.
  *
  * @package Yallapp
@@ -30,11 +31,12 @@ if ( ! is_array( $seed ) || '' === $lms_id ) {
 }
 $expect = array_merge(
 	array(
-		'video'       => null,
-		'paid'        => true,
-		'qna'         => false,
-		'free_orders' => false,
-		'certificate' => false,
+		'video'             => null,
+		'paid'              => true,
+		'qna'               => false,
+		'free_orders'       => false,
+		'certificate'       => false,
+		'reviews_moderated' => false,
 	),
 	(array) ( $seed['expect'] ?? array() )
 );
@@ -378,11 +380,17 @@ check( 'mark read', 204 === $r['status'] && 0 === ( $l['json']['unread_count'] ?
 echo "Reviews\n";
 if ( ! empty( $features['reviews'] ) ) {
 	$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews', null, $token );
-	check( 'no reviews yet, can review', 200 === $r['status'] && 0 === ( $r['json']['total'] ?? -1 ) && true === ( $r['json']['can_review'] ?? null ) && null === ( $r['json']['mine'] ?? 0 ), $r['raw'] );
+	check( 'no reviews yet, can review', 200 === $r['status'] && 0 === ( $r['json']['total'] ?? -1 ) && true === ( $r['json']['can_review'] ?? null ) && array_key_exists( 'mine', (array) $r['json'] ) && null === $r['json']['mine'], $r['raw'] );
 	$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 4, 'text' => "Clear lessons.\nGood pace." ), $token );
 	check( 'review saved', 200 === $r['status'] && 4 === ( $r['json']['rating'] ?? 0 ) && true === ( $r['json']['mine'] ?? null ) && "Clear lessons.\nGood pace." === ( $r['json']['text'] ?? '' ), $r['raw'] );
 	$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 5, 'text' => 'Even better.' ), $token );
 	check( 'review edited', 200 === $r['status'] && 5 === ( $r['json']['rating'] ?? 0 ) && 'Even better.' === ( $r['json']['text'] ?? '' ), $r['raw'] );
+	if ( $expect['reviews_moderated'] ) {
+		check( 'review waits for approval', 'pending' === ( $r['json']['status'] ?? '' ), $r['raw'] );
+		$l = call( 'GET', '/courses/' . $seed['python'] . '/reviews' );
+		check( 'pending review not listed', 200 === $l['status'] && 0 === ( $l['json']['total'] ?? -1 ), $l['raw'] );
+		wp_eval( 'wp_update_post( array( "ID" => ' . (int) ( $r['json']['id'] ?? 0 ) . ', "post_status" => "publish" ) );' );
+	}
 	$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews' );
 	check( 'one review, summary counts it', 1 === ( $r['json']['total'] ?? 0 ) && 5.0 === (float) ( $r['json']['summary']['rating'] ?? 0 ) && 1 === ( $r['json']['summary']['counts']['5'] ?? 0 ) && 0 === ( $r['json']['summary']['counts']['4'] ?? -1 ), $r['raw'] );
 	check( 'review author', 'Deniz Kaya' === ( $r['json']['items'][0]['author']['name'] ?? '' ) && false === ( $r['json']['items'][0]['author']['instructor'] ?? null ) && false === ( $r['json']['items'][0]['mine'] ?? null ), $r['json'] );

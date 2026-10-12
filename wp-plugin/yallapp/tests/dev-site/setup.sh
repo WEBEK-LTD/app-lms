@@ -124,6 +124,13 @@ if [ "$LMS" = masterstudy ]; then
 	wp role create stm_lms_instructor Instructor --quiet
 fi
 wp plugin activate "$LMS_DIR" --quiet
+if [ "$LMS" = masterstudy ]; then
+	# MasterStudy loads its table definitions only in wp-admin, so activating it from
+	# WP-CLI creates none of them; run the same functions its activation runs.
+	# shellcheck disable=SC2016 # PHP code: its $ variables are PHP's.
+	wp eval 'foreach ( glob( STM_LMS_LIBRARY . "/db/tables/*.table.php" ) as $file ) { require_once $file; }
+		foreach ( array( "stm_lms_user_answers", "stm_lms_user_cart", "stm_lms_user_chat", "stm_lms_user_conversation", "stm_lms_user_courses", "stm_lms_user_lessons", "stm_lms_user_quizzes", "stm_lms_user_quizzes_times", "stm_lms_user_searches", "stm_lms_curriculum_sections", "stm_lms_curriculum_materials", "stm_lms_order_items" ) as $create ) { $create(); }'
+fi
 wp plugin activate yallapp --quiet
 if [ "$LMS" = tutor ]; then
 	wp eval-file "$HERE/seed.php"

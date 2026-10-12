@@ -20,9 +20,10 @@ defined( 'ABSPATH' ) || exit;
  * | Tutor LMS   | 2.0.6   | 4.1.1  |
  * | LearnPress  | 4.2.7.6 | 4.4.8  |
  * | LifterLMS   | 7.0.0   | 10.3.2 |
+ * | MasterStudy | 3.0.0   | 3.4.9  |
  * | Sensei LMS  | 4.0.0   | 4.26.4 |
  *
- * MasterStudy, Masteriyo and LearnDash are detected, and get an
+ * Masteriyo and LearnDash are detected, and get an
  * adapter only once one exists (Plugin::LMS_ADAPTERS checks the class).
  */
 class Detector {
