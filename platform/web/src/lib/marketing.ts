@@ -75,6 +75,7 @@ export const FEATURES: Feature[] = [
       "Quizzes graded by your LMS, with timers and attempt limits",
       "Continue learning from the exact second a student stopped",
       "Certificates from your LMS's premium add-on",
+      "Course reviews and ratings, and questions answered by your instructors",
       "Wishlist and My courses",
     ],
   },
@@ -83,8 +84,9 @@ export const FEATURES: Feature[] = [
     title: "Push notifications",
     text: "New lessons, announcements and enrollment confirmations reach students instantly.",
     details: [
-      "Sent automatically when you publish a lesson or an announcement",
+      "Sent automatically when you publish a lesson or an announcement, or answer a question",
       "Manual messages to everyone or to one course's students",
+      "A notifications inbox in the app, so nothing is missed",
       "Students choose which notifications they receive",
     ],
   },
@@ -95,6 +97,7 @@ export const FEATURES: Feature[] = [
     details: [
       "Your existing WooCommerce or LMS checkout, opened with the student signed in",
       "Free courses: enroll in one tap on Android and iOS",
+      "Students see their orders in the Android app",
       "No purchase buttons on iOS, so your app passes App Store review",
     ],
   },
