@@ -1,7 +1,8 @@
 name: Build client apps
 
 # Builds the apps clients queue in their Yallapp dashboard (build/README.md).
-# Polls the platform every 10 minutes; "Run workflow" checks the queue at once.
+# Polls the platform every 10 minutes; the platform also starts it as soon as a
+# build is queued (GITHUB_DISPATCH_TOKEN), and "Run workflow" checks the queue at once.
 
 on:
   schedule:

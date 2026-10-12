@@ -118,6 +118,8 @@ plus a check that the committed migrations match the schema.
 | `TRUSTED_PROXY_SECRET` | with the proxy | 32+ characters, shared with `deploy/apache-proxy.conf` on host.webek.org. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
+| `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's 10-minute schedule. |
+| `GITHUB_REPOSITORY` | no | Default `WEBEK-LTD/app-lms`. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
 | `FILES_SIGNING_SECRET` | for Phase 5 | 32+ random characters, the same value as on `files.yallapp.com.tr`. Signs build file download links. Without it they show "Downloads aren't configured yet". |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). |

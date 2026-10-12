@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
+import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { getClientContext, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
@@ -53,7 +54,10 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
         new Date(),
         assetUrl,
       );
-      if (result.ok) redirect("/dashboard/builds?started=1");
+      if (result.ok) {
+        await startPipeline();
+        redirect("/dashboard/builds?started=1");
+      }
     }
     if (step === "publishing") redirect("/dashboard/builds");
   }
@@ -294,6 +298,7 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
       values,
     };
   }
+  await startPipeline();
   revalidatePath("/dashboard", "layout");
   return { ok: true, message: `Build #${result.build.number} is queued.`, values: { versionName: bumpPatch(result.build.versionName) } };
 }

@@ -8,8 +8,9 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
 
 1. The client finishes the setup wizard or clicks "Start new build". The
    platform saves a snapshot of the build config and queues the build.
-2. Every 10 minutes the workflow takes up to 5 queued builds and marks them
-   `building`, with a link to the run.
+2. The platform starts the workflow at once (with `GITHUB_DISPATCH_TOKEN`), and
+   its schedule checks again every 10 minutes. Each run takes up to 5 queued
+   builds and marks them `building`, with a link to the run.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and
      writes the client's launcher icons (`scripts/make_icons.py`).
@@ -82,6 +83,10 @@ Set these alongside the platform's other variables (`platform/web/README.md`):
 - `FILES_BASE_URL`
 - `FILES_SIGNING_SECRET`
 - `BUILD_PIPELINE_TOKEN`
+- `GITHUB_DISPATCH_TOKEN` (optional): starts builds at once instead of on the
+  next 10-minute schedule. Create it in GitHub › Settings › Developer settings ›
+  Fine-grained tokens: repository `WEBEK-LTD/app-lms` only, permission
+  **Actions: Read and write**, nothing else.
 
 ## What clients do once
 

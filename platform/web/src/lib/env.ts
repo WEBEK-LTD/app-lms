@@ -112,6 +112,23 @@ export function trustedProxySecret(): string | undefined {
   return secret;
 }
 
+export interface GithubDispatch {
+  token: string;
+  repository: string;
+}
+
+/**
+ * Lets the platform start the build workflow as soon as a build is queued,
+ * instead of waiting for its 10-minute schedule. Unset: only the schedule runs.
+ */
+export function githubDispatch(): GithubDispatch | undefined {
+  const token = read("GITHUB_DISPATCH_TOKEN");
+  if (!token) return undefined;
+  const repository = read("GITHUB_REPOSITORY") ?? "WEBEK-LTD/app-lms";
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error("GITHUB_REPOSITORY must look like OWNER/REPO.");
+  return { token, repository };
+}
+
 export function superAdminEmails(): string[] {
   return (read("SUPER_ADMIN_EMAILS") ?? "")
     .split(/[,\s]+/)
