@@ -3,4 +3,6 @@ Options -Indexes
 RewriteEngine On
 RewriteRule ^config(\.sample)?\.php$ - [F,L]
 RewriteCond %{REQUEST_URI} !^/index\.php$
+# AutoSSL validates the certificate through /.well-known.
+RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteRule ^ index.php [L,QSA]

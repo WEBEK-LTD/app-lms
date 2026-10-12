@@ -40,8 +40,9 @@ Download links are signed by the platform when it shows them and expire after
    document root, for example `/home/USER/files.yallapp.com.tr`.
 2. Create a storage folder **outside** `public_html` and the document root,
    for example `/home/USER/yallapp-files`.
-3. **FTP Accounts:** create an account whose directory is that storage folder
-   only, for example `pipeline@yallapp.com.tr`.
+3. **FTP:** enable Pure-FTPd (WHM › FTP Server Selection) with TLS required. Create
+   the account with UAPI so its home is the storage folder, not a folder in public_html:
+   `uapi --user=CPANEL_USER Ftp add_ftp user=pipeline domain=yallapp.com.tr pass=... homedir=yallapp-files quota=0`
 4. Upload `files-host/index.php` and `files-host/.htaccess` to the document
    root.
 5. Copy `config.sample.php` to `config.php` there. Fill in:
@@ -66,7 +67,7 @@ In **Settings › Secrets and variables › Actions**, add these.
 | Name | Value |
 |---|---|
 | `BUILD_PIPELINE_TOKEN` | The same value as in Netlify |
-| `FILES_FTP_URL` | `ftps://host.webek.org/`, with explicit FTPS on port 21 |
+| `FILES_FTP_URL` | `ftp://host.webek.org/` (port 21; the upload requires TLS, so nothing travels unencrypted) |
 | `FILES_FTP_USER` | The FTP account from step 1 |
 | `FILES_FTP_PASSWORD` | Its password |
 

@@ -3,7 +3,8 @@
 # their Artifact list (docs/api/pipeline.yaml) as JSON.
 #
 # Usage: build/scripts/upload.sh <build-id> <kind> <file> [<kind> <file> ...]
-# Needs: FILES_FTP_URL      ftps://host.webek.org/  (the FTP account's root is the storage folder)
+# Needs: FILES_FTP_URL      ftp://host.webek.org/  (explicit TLS on port 21, enforced by --ssl-reqd;
+#                           the FTP account's root is the storage folder)
 #        FILES_FTP_USER, FILES_FTP_PASSWORD
 #        FILES_BASE_URL     https://files.yallapp.com.tr
 set -euo pipefail
