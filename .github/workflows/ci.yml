@@ -58,6 +58,28 @@ jobs:
       - name: WordPress coding standards and PHP 7.4 compatibility
         run: composer lint
 
+  plugin-package:
+    name: Plugin zip
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the installable zip
+        id: zip
+        run: echo "path=$(bin/build-zip.sh "$RUNNER_TEMP/dist")" >> "$GITHUB_OUTPUT"
+      - name: Only runtime files are packaged
+        run: |
+          unzip -Z1 "${{ steps.zip.outputs.path }}" > files.txt
+          grep -qx "yallapp/yallapp.php" files.txt
+          ! grep -E "^yallapp/(tests|vendor|bin)/|composer|phpcs|phpunit" files.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-plugin
+          path: ${{ steps.zip.outputs.path }}
+          if-no-files-found: error
+
   plugin-unit:
     name: Plugin unit tests (PHP ${{ matrix.php }})
     runs-on: ubuntu-24.04
