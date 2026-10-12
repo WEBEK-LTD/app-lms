@@ -246,7 +246,9 @@ void main() {
     });
 
     test('video lesson and signed URL expiry', () {
-      final l = Lesson.fromJson(videoLessonJson());
+      final l = Lesson.fromJson(
+        videoLessonJson(expiresAt: '2026-10-12T10:00:00Z'),
+      );
       final v = l.video!;
       expect(v.source, VideoSource.upload);
       expect(v.playsNatively, isTrue);
@@ -293,7 +295,7 @@ void main() {
     });
 
     test('attempt questions: native and web view', () {
-      final a = Attempt.fromJson(attemptJson());
+      final a = Attempt.fromJson(attemptJson(endsAt: '2026-10-12T09:10:00Z'));
       expect(a.endsAt, DateTime.utc(2026, 10, 12, 9, 10));
       expect(a.questions.first.type, QuestionType.singleChoice);
       expect(a.questions.first.isNative, isTrue);

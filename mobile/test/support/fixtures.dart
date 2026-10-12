@@ -259,7 +259,11 @@ Map<String, dynamic> textLessonJson({String? embedHeight}) => {
   'next_id': 109,
 };
 
-Map<String, dynamic> videoLessonJson() => {
+/// A time relative to now, so timers and expiring links in fixtures never run out.
+String fromNow(Duration offset) =>
+    DateTime.now().toUtc().add(offset).toIso8601String();
+
+Map<String, dynamic> videoLessonJson({String? expiresAt}) => {
   'id': 107,
   'course_id': 1,
   'title': 'Lesson 7: Functions & Variables',
@@ -270,7 +274,7 @@ Map<String, dynamic> videoLessonJson() => {
   'video': {
     'source': 'upload',
     'url': 'https://your-academy.com/video.mp4?sig=abc',
-    'expires_at': '2026-10-12T10:00:00Z',
+    'expires_at': expiresAt ?? fromNow(const Duration(hours: 2)),
     'embed_html': null,
     'duration_seconds': 750,
     'poster_url': null,
@@ -301,11 +305,11 @@ Map<String, dynamic> quizJson() => {
   },
 };
 
-Map<String, dynamic> attemptJson() => {
+Map<String, dynamic> attemptJson({String? endsAt}) => {
   'id': 31,
   'quiz_id': 201,
-  'started_at': '2026-10-12T09:00:00Z',
-  'ends_at': '2026-10-12T09:10:00Z',
+  'started_at': fromNow(Duration.zero),
+  'ends_at': endsAt ?? fromNow(const Duration(minutes: 10)),
   'questions': [
     {
       'id': 1,
