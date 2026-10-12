@@ -1066,6 +1066,10 @@ components:
         embeds:
           type: array
           items: { $ref: '#/components/schemas/Embed' }
+        embed_height:
+          type: [string, 'null']
+          enum: [auto, fit_screen, as_set, null]
+          description: This lesson's override of `content.embed_height` from /config. Null uses the site setting.
         video: { $ref: '#/components/schemas/Video' }
         attachments:
           type: array

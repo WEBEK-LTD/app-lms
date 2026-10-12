@@ -7,18 +7,23 @@
         "php": ">=7.4"
     },
     "require-dev": {
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "^3.13",
-        "wp-coding-standards/wpcs": "^3.1",
-        "phpcompatibility/phpcompatibility-wp": "^2.1"
+        "wp-coding-standards/wpcs": "^3.1"
     },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": false
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "7.4.33"
+        }
     },
     "scripts": {
         "lint": "phpcs",
-        "lint:fix": "phpcbf"
+        "lint:fix": "phpcbf",
+        "test": "phpunit"
     }
 }

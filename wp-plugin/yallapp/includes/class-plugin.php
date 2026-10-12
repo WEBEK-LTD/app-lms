@@ -1,0 +1,303 @@
+<?php
+/**
+ * Plugin bootstrap and service container.
+ *
+ * @package Yallapp
+ */
+
+namespace Yallapp;
+
+defined( 'ABSPATH' ) || exit;
+
+use Yallapp\Auth\Devices;
+use Yallapp\Auth\Request_Auth;
+use Yallapp\Auth\Tokens;
+use Yallapp\Content\Lesson_Renderer;
+use Yallapp\Content\Magic_Links;
+use Yallapp\Content\Media;
+use Yallapp\Lms\Lms_Adapter;
+use Yallapp\Lms\Tutor_Adapter;
+use Yallapp\Otp\Dev_Adapter;
+use Yallapp\Otp\Digits_Adapter;
+use Yallapp\Otp\Otp_Adapter;
+use Yallapp\Otp\Sign_In;
+
+/**
+ * Creates the plugin's services once and wires them into WordPress.
+ */
+class Plugin {
+
+	const REST_NAMESPACE = 'yallapp/v1';
+
+	/**
+	 * The instance.
+	 *
+	 * @var Plugin|null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Services, created on first use.
+	 *
+	 * @var array<string, object>
+	 */
+	private $services = array();
+
+	/**
+	 * The instance.
+	 *
+	 * @return Plugin
+	 */
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Hooks everything into WordPress.
+	 *
+	 * @return void
+	 */
+	public function boot() {
+		Installer::maybe_upgrade();
+		$this->request_auth()->register();
+		$this->magic_links()->register();
+		$this->push()->register();
+		$this->license()->register();
+		( new Rest\Gatekeeper( $this ) )->register();
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
+		if ( is_admin() ) {
+			( new Admin\Settings_Page( $this ) )->register();
+			( new Admin\Lesson_Meta_Box() )->register();
+		}
+	}
+
+	/**
+	 * Registers REST routes.
+	 *
+	 * @return void
+	 */
+	public function register_routes() {
+		$this->media()->register_routes();
+		( new Rest\App_Controller( $this ) )->register_routes();
+		( new Rest\Auth_Controller( $this ) )->register_routes();
+		( new Rest\Account_Controller( $this ) )->register_routes();
+		( new Rest\Catalog_Controller( $this ) )->register_routes();
+		( new Rest\Learning_Controller( $this ) )->register_routes();
+		( new Rest\Quiz_Controller( $this ) )->register_routes();
+	}
+
+	/**
+	 * Settings.
+	 *
+	 * @return Settings
+	 */
+	public function settings() {
+		return $this->service(
+			'settings',
+			static function () {
+				return new Settings();
+			}
+		);
+	}
+
+	/**
+	 * Plugin detection.
+	 *
+	 * @return Detector
+	 */
+	public function detector() {
+		return $this->service(
+			'detector',
+			static function () {
+				return new Detector();
+			}
+		);
+	}
+
+	/**
+	 * The LMS adapter for this site, or null when no supported LMS is active.
+	 *
+	 * @return Lms_Adapter|null
+	 */
+	public function lms() {
+		if ( ! array_key_exists( 'lms', $this->services ) ) {
+			$lms     = $this->detector()->lms();
+			$adapter = null;
+			if ( $lms && $lms['supported'] && 'tutor' === $lms['id'] ) {
+				$adapter = new Tutor_Adapter();
+			}
+			/**
+			 * Filters the LMS adapter, so other LMS integrations can plug in.
+			 *
+			 * @param Lms_Adapter|null $adapter Adapter.
+			 * @param array|null       $lms     Detected LMS.
+			 */
+			$this->services['lms'] = apply_filters( 'yallapp_lms_adapter', $adapter, $lms );
+		}
+		return $this->services['lms'];
+	}
+
+	/**
+	 * The one-time code provider.
+	 *
+	 * @return Otp_Adapter
+	 */
+	public function otp() {
+		return $this->service(
+			'otp',
+			static function () {
+				$adapter = Dev_Adapter::allowed() ? new Dev_Adapter() : new Digits_Adapter();
+				/**
+				 * Filters the one-time code provider.
+				 *
+				 * @param Otp_Adapter $adapter Adapter.
+				 */
+				return apply_filters( 'yallapp_otp_adapter', $adapter );
+			}
+		);
+	}
+
+	/**
+	 * Devices.
+	 *
+	 * @return Devices
+	 */
+	public function devices() {
+		return $this->service(
+			'devices',
+			function () {
+				return new Devices( $this->settings() );
+			}
+		);
+	}
+
+	/**
+	 * Tokens.
+	 *
+	 * @return Tokens
+	 */
+	public function tokens() {
+		return $this->service(
+			'tokens',
+			function () {
+				return new Tokens( $this->settings(), $this->devices() );
+			}
+		);
+	}
+
+	/**
+	 * Bearer-token authentication.
+	 *
+	 * @return Request_Auth
+	 */
+	public function request_auth() {
+		return $this->service(
+			'request_auth',
+			function () {
+				return new Request_Auth( $this->tokens() );
+			}
+		);
+	}
+
+	/**
+	 * Sign-in flow.
+	 *
+	 * @return Sign_In
+	 */
+	public function sign_in() {
+		return $this->service(
+			'sign_in',
+			function () {
+				return new Sign_In( $this->settings(), $this->otp(), $this->devices(), $this->tokens() );
+			}
+		);
+	}
+
+	/**
+	 * Signed video links.
+	 *
+	 * @return Media
+	 */
+	public function media() {
+		return $this->service(
+			'media',
+			function () {
+				return new Media( $this->settings() );
+			}
+		);
+	}
+
+	/**
+	 * Lesson renderer.
+	 *
+	 * @return Lesson_Renderer
+	 */
+	public function lesson_renderer() {
+		return $this->service(
+			'lesson_renderer',
+			function () {
+				return new Lesson_Renderer( $this->settings(), $this->media() );
+			}
+		);
+	}
+
+	/**
+	 * One-time sign-in links.
+	 *
+	 * @return Magic_Links
+	 */
+	public function magic_links() {
+		return $this->service(
+			'magic_links',
+			static function () {
+				return new Magic_Links();
+			}
+		);
+	}
+
+	/**
+	 * Push notifications.
+	 *
+	 * @return Push\Push_Service
+	 */
+	public function push() {
+		return $this->service(
+			'push',
+			function () {
+				return new Push\Push_Service( $this );
+			}
+		);
+	}
+
+	/**
+	 * License client.
+	 *
+	 * @return License\License_Client
+	 */
+	public function license() {
+		return $this->service(
+			'license',
+			function () {
+				return new License\License_Client( $this->settings(), $this->detector() );
+			}
+		);
+	}
+
+	/**
+	 * Creates a service once.
+	 *
+	 * @param string   $name    Service name.
+	 * @param callable $factory Factory.
+	 * @return mixed
+	 */
+	private function service( $name, callable $factory ) {
+		if ( ! isset( $this->services[ $name ] ) ) {
+			$this->services[ $name ] = $factory();
+		}
+		return $this->services[ $name ];
+	}
+}

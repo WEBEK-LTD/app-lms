@@ -40,4 +40,6 @@ npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml
 cd wp-plugin/yallapp
 composer install
 composer lint
+composer test                 # unit tests
+tests/integration/run.sh      # builds WordPress + Tutor LMS on SQLite and runs the API checks
 ```

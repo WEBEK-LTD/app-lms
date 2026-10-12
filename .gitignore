@@ -22,6 +22,10 @@ GoogleService-Info.plist
 .netlify/
 dist/
 coverage/
+.phpunit.result.cache
+
+# Claude Code agent worktrees
+.claude/worktrees/
 
 # Editors and OS
 .idea/

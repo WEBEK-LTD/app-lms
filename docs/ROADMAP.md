@@ -20,21 +20,25 @@ Status: `[x]` done · `[~]` in progress · `[ ]` not started
 
 | | Step | Done when |
 |---|---|---|
-| [~] | 1.1 Repository layout, README, brand files, editor settings | Layout on the branch |
-| [~] | 1.2 Architecture, brand rules and the plugin API contract (`docs/api/openapi.yaml`) | Contract approved |
-| [~] | 1.3 CI: API contract lint, PHP syntax on 7.4 and 8.3, WordPress coding standards | CI green |
+| [x] | 1.1 Repository layout, README, brand files, editor settings | Layout on the branch |
+| [x] | 1.2 Architecture, brand rules and the plugin API contract (`docs/api/openapi.yaml`) | Contract approved |
+| [x] | 1.3 CI: API contract lint, PHP syntax on 7.4 and 8.3, WordPress coding standards | CI green |
 
 ## Phase 2: WordPress plugin (`wp-plugin/yallapp`)
 
+Every step below is built and passes the end-to-end checks on the dev site
+(WordPress 7.1 + Tutor LMS 4.1.1, `tests/integration/run.sh`, run in CI).
+Each step closes once its "done when" check passes on the staging site (0.5).
+
 | | Step | Done when |
 |---|---|---|
-| [ ] | 2.1 Plugin bootstrap, settings page (Yallapp brand), detection of LMS, Digits and WooCommerce | Installs on staging without errors |
-| [ ] | 2.2 Auth: Digits OTP request and verify, JWT access and refresh tokens, devices, sign-up, store review access | You sign in with your number and the code arrives through waabek |
-| [ ] | 2.3 Tutor LMS adapter: config, categories, courses, course detail, curriculum, my courses | Data matches the website |
-| [ ] | 2.4 Lesson content: rendered HTML, clean-up, iframe size metadata, video with signed links | Every sample lesson comes back correctly |
-| [ ] | 2.5 Progress, quizzes and certificates (when Tutor Pro is active) | Progress shows on the website |
-| [ ] | 2.6 Checkout hand-off with one-time sign-in, free enrollment | A test purchase enrolls the student |
-| [ ] | 2.7 Push notification hooks, license client (inactive until Phase 4) | Unit tests pass |
+| [~] | 2.1 Plugin bootstrap, settings page (Yallapp brand), detection of LMS, Digits and WooCommerce | Installs on staging without errors |
+| [~] | 2.2 Auth: Digits OTP request and verify, JWT access and refresh tokens, devices, sign-up, store review access | You sign in with your number and the code arrives through waabek |
+| [~] | 2.3 Tutor LMS adapter: config, categories, courses, course detail, curriculum, my courses | Data matches the website |
+| [~] | 2.4 Lesson content: rendered HTML, clean-up, iframe size metadata, video with signed links | Every sample lesson comes back correctly |
+| [~] | 2.5 Progress, quizzes and certificates (when Tutor Pro is active) | Progress shows on the website |
+| [~] | 2.6 Checkout hand-off with one-time sign-in, free enrollment | A test purchase enrolls the student |
+| [~] | 2.7 Push notification hooks, license client (inactive until Phase 4) | Unit tests pass |
 
 ## Phase 3: Flutter app (`mobile/`)
 

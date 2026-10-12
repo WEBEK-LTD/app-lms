@@ -4,6 +4,8 @@
 
 	<file>.</file>
 	<exclude-pattern>/vendor/*</exclude-pattern>
+	<!-- Dev-site and integration tooling; not shipped in the plugin zip. -->
+	<exclude-pattern>/tests/*</exclude-pattern>
 
 	<arg name="extensions" value="php"/>
 	<arg name="colors"/>

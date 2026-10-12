@@ -19,7 +19,23 @@ your Yallapp apps through a secure REST API (`/wp-json/yallapp/v1`).
 Works with Tutor LMS (Free and Pro) and Digits for one-time-code sign-in.
 Support for more LMS plugins is on the way.
 
+= What the app gets =
+
+* Sign-in with a one-time code through Digits, sign-up, device limits and store review access.
+* Courses, categories, course details, curriculum with locked and preview lessons, my courses and wishlist.
+* Lessons rendered exactly as on the website, with iframe sizes kept, or opened in a signed-in web view.
+* Uploaded videos through signed, expiring links with seeking support.
+* Progress, lesson completion with an optional watch requirement, quizzes graded by Tutor LMS, certificates.
+* Android checkout through the website with the student signed in automatically. iOS is view-only.
+* Push notifications through Firebase for new lessons, announcements and enrollments.
+
+= Privacy =
+
+The plugin sends no student data to Yallapp. License checks send only the site URL,
+plugin version, WordPress version and LMS name to yallapp.com.tr. Push notifications
+go through your own Firebase project.
+
 == Changelog ==
 
 = 0.1.0 =
-* Plugin bootstrap.
+* First release: app API, settings page, Tutor LMS and Digits support, push notifications.
