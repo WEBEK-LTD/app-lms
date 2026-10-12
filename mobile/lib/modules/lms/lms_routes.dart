@@ -11,12 +11,14 @@ import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/common.dart';
 import 'account/edit_profile_screen.dart';
 import 'account/lists_screens.dart';
+import 'account/notifications_screen.dart';
 import 'account/profile_screen.dart';
 import 'account/settings_screen.dart';
 import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
 import 'auth/signup_screen.dart';
 import 'courses/course_detail_screen.dart';
+import 'courses/course_questions.dart';
 import 'courses/courses_screen.dart';
 import 'home/home_screen.dart';
 import 'lesson/embeds/embed_fullscreen_screen.dart';
@@ -161,6 +163,12 @@ List<RouteBase> lmsRoutes() => [
                 pageBuilder: (context, state) =>
                     _page(state, const QuizResultsScreen()),
               ),
+              GoRoute(
+                path: 'orders',
+                parentNavigatorKey: _rootKey,
+                pageBuilder: (context, state) =>
+                    _page(state, const OrdersScreen()),
+              ),
             ],
           ),
         ],
@@ -197,6 +205,20 @@ List<RouteBase> lmsRoutes() => [
         state,
         id == null ? const LmsNotFoundScreen() : QuizScreen(quizId: id),
         fullscreen: true,
+      );
+    },
+  ),
+  GoRoute(
+    path: Paths.notifications,
+    pageBuilder: (context, state) => _page(state, const NotificationsScreen()),
+  ),
+  GoRoute(
+    path: '/question/:id',
+    pageBuilder: (context, state) {
+      final id = _intParam(state, 'id');
+      return _page(
+        state,
+        id == null ? const LmsNotFoundScreen() : QuestionScreen(questionId: id),
       );
     },
   ),

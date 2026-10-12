@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -114,3 +115,146 @@ void invalidateCourse(WidgetRef ref, int courseId) {
     ..invalidate(myCoursesProvider)
     ..invalidate(homeSectionsProvider);
 }
+
+/// The student's notifications, newest first.
+class NotificationsController extends PagedController<InboxNotification> {
+  @override
+  Future<Paged<InboxNotification>> fetch(int page) => ref
+      .read(yallappApiProvider)
+      .listNotifications(page: page)
+      .then((result) => result.page);
+}
+
+final notificationsProvider =
+    NotifierProvider.autoDispose<
+      NotificationsController,
+      PagedState<InboxNotification>
+    >(NotificationsController.new);
+
+/// Unread notifications for the bell's badge. 0 when signed out or offline:
+/// the badge is a hint, never an error.
+final unreadNotificationsProvider = FutureProvider.autoDispose<int>((
+  ref,
+) async {
+  if (!ref.watch(_signedInProvider)) return 0;
+  try {
+    final result = await ref
+        .read(yallappApiProvider)
+        .listNotifications(perPage: 1);
+    return result.unreadCount;
+  } on ApiException {
+    return 0;
+  }
+});
+
+class OrdersController extends PagedController<Order> {
+  @override
+  Future<Paged<Order>> fetch(int page) =>
+      ref.read(yallappApiProvider).listOrders(page: page);
+}
+
+final ordersProvider =
+    NotifierProvider.autoDispose<OrdersController, PagedState<Order>>(
+      OrdersController.new,
+    );
+
+/// A course's reviews: the rating summary and the student's own review come
+/// with the first page; later pages add reviews.
+class CourseReviewsState {
+  const CourseReviewsState({
+    this.head,
+    this.items = const [],
+    this.page = 0,
+    this.totalPages = 1,
+    this.loading = false,
+    this.error,
+  });
+
+  final ReviewPage? head;
+  final List<Review> items;
+  final int page;
+  final int totalPages;
+  final bool loading;
+  final Object? error;
+
+  bool get hasMore => page < totalPages;
+}
+
+class CourseReviewsController extends Notifier<CourseReviewsState> {
+  CourseReviewsController(this.courseId);
+
+  final int courseId;
+
+  @override
+  CourseReviewsState build() {
+    ref.watch(_signedInProvider);
+    Future.microtask(refresh);
+    return const CourseReviewsState(loading: true);
+  }
+
+  Future<void> refresh() async {
+    state = const CourseReviewsState(loading: true);
+    await _load(1);
+  }
+
+  Future<void> loadMore() async {
+    if (state.loading || !state.hasMore) return;
+    state = CourseReviewsState(
+      head: state.head,
+      items: state.items,
+      page: state.page,
+      totalPages: state.totalPages,
+      loading: true,
+    );
+    await _load(state.page + 1);
+  }
+
+  Future<void> _load(int page) async {
+    try {
+      final result = await ref
+          .read(yallappApiProvider)
+          .listReviews(courseId, page: page);
+      if (!ref.mounted) return;
+      state = CourseReviewsState(
+        head: page == 1 ? result : state.head,
+        items: [if (page > 1) ...state.items, ...result.page.items],
+        page: result.page.meta.page,
+        totalPages: result.page.meta.totalPages,
+      );
+    } on Object catch (e) {
+      if (!ref.mounted) return;
+      state = CourseReviewsState(
+        head: state.head,
+        items: state.items,
+        page: state.page,
+        totalPages: state.totalPages,
+        error: e,
+      );
+    }
+  }
+}
+
+final courseReviewsProvider = NotifierProvider.autoDispose
+    .family<CourseReviewsController, CourseReviewsState, int>(
+      CourseReviewsController.new,
+    );
+
+class CourseQuestionsController extends PagedController<CourseQuestion> {
+  CourseQuestionsController(this.courseId);
+
+  final int courseId;
+
+  @override
+  Future<Paged<CourseQuestion>> fetch(int page) =>
+      ref.read(yallappApiProvider).listQuestions(courseId, page: page);
+}
+
+final courseQuestionsProvider = NotifierProvider.autoDispose
+    .family<CourseQuestionsController, PagedState<CourseQuestion>, int>(
+      CourseQuestionsController.new,
+    );
+
+final questionThreadProvider = FutureProvider.autoDispose
+    .family<QuestionThread, int>(
+      (ref, id) => ref.watch(yallappApiProvider).getQuestion(id),
+    );

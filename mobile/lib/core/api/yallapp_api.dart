@@ -153,6 +153,17 @@ abstract class YallappApi {
   );
   Future<Paged<AttemptResult>> listMyAttempts({int page = 1});
   Future<List<Certificate>> listCertificates();
+
+  Future<NotificationPage> listNotifications({int page = 1, int perPage = 20});
+  Future<void> markNotificationsRead();
+  Future<Paged<Order>> listOrders({int page = 1});
+
+  Future<ReviewPage> listReviews(int courseId, {int page = 1});
+  Future<Review> saveMyReview(int courseId, {required int rating, String text});
+  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1});
+  Future<CourseQuestion> askQuestion(int courseId, String text);
+  Future<QuestionThread> getQuestion(int questionId);
+  Future<QuestionAnswer> answerQuestion(int questionId, String text);
 }
 
 /// [YallappApi] over HTTP.
@@ -491,5 +502,80 @@ class HttpYallappApi implements YallappApi {
     '/me/certificates',
     _required,
     (json) => reqListOf(json, 'items', Certificate.fromJson),
+  );
+
+  @override
+  Future<NotificationPage> listNotifications({
+    int page = 1,
+    int perPage = 20,
+  }) => _get(
+    '/me/notifications',
+    _required,
+    NotificationPage.fromJson,
+    query: {'page': page, 'per_page': perPage},
+  );
+
+  @override
+  Future<void> markNotificationsRead() =>
+      _send('POST', '/me/notifications/read', _required, _ignore);
+
+  @override
+  Future<Paged<Order>> listOrders({int page = 1}) => _get(
+    '/me/orders',
+    _required,
+    (json) => Paged.fromJson(json, Order.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<ReviewPage> listReviews(int courseId, {int page = 1}) => _get(
+    '/courses/$courseId/reviews',
+    _optional,
+    ReviewPage.fromJson,
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Review> saveMyReview(
+    int courseId, {
+    required int rating,
+    String text = '',
+  }) => _send(
+    'PUT',
+    '/courses/$courseId/reviews/mine',
+    _required,
+    (data) => Review.fromJson(asJson(data)),
+    body: {'rating': rating.clamp(1, 5), 'text': text.trim()},
+  );
+
+  @override
+  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1}) =>
+      _get(
+        '/courses/$courseId/questions',
+        _required,
+        (json) => Paged.fromJson(json, CourseQuestion.fromJson),
+        query: {'page': page, 'per_page': 20},
+      );
+
+  @override
+  Future<CourseQuestion> askQuestion(int courseId, String text) => _send(
+    'POST',
+    '/courses/$courseId/questions',
+    _required,
+    (data) => CourseQuestion.fromJson(asJson(data)),
+    body: {'text': text.trim()},
+  );
+
+  @override
+  Future<QuestionThread> getQuestion(int questionId) =>
+      _get('/questions/$questionId', _required, QuestionThread.fromJson);
+
+  @override
+  Future<QuestionAnswer> answerQuestion(int questionId, String text) => _send(
+    'POST',
+    '/questions/$questionId/answers',
+    _required,
+    (data) => QuestionAnswer.fromJson(asJson(data)),
+    body: {'text': text.trim()},
   );
 }

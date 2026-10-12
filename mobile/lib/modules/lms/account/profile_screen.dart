@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
@@ -31,6 +33,10 @@ class ProfileScreen extends ConsumerWidget {
     final config = ref.watch(appConfigProvider);
     final user = ref.watch(authControllerProvider).user;
     final support = config.site.supportWhatsapp;
+    // The iOS app doesn't sell courses, so it doesn't show orders either.
+    final showOrders =
+        config.features.orders &&
+        ref.watch(appEnvironmentProvider).platform == DevicePlatform.android;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -112,9 +118,16 @@ class ProfileScreen extends ConsumerWidget {
                     title: 'Wishlist',
                     onTap: () => context.go(Paths.myCoursesTab('wishlist')),
                   ),
+                if (showOrders)
+                  SettingsTile(
+                    icon: AppIcons.orders,
+                    title: 'My orders',
+                    onTap: () => context.push(Paths.orders),
+                  ),
                 if (!config.features.certificates &&
                     !config.features.quizzes &&
-                    !config.features.wishlist)
+                    !config.features.wishlist &&
+                    !showOrders)
                   SettingsTile(
                     icon: AppIcons.myCourses,
                     title: 'My Courses',
@@ -126,6 +139,11 @@ class ProfileScreen extends ConsumerWidget {
             SettingsGroup(
               title: 'Account & app',
               children: [
+                SettingsTile(
+                  icon: AppIcons.notifications,
+                  title: 'Notifications',
+                  onTap: () => context.push(Paths.notifications),
+                ),
                 SettingsTile(
                   icon: AppIcons.settings,
                   title: 'Settings',

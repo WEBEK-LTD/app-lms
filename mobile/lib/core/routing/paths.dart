@@ -14,6 +14,8 @@ abstract final class Paths {
   static const devices = '/account/settings/devices';
   static const certificates = '/account/certificates';
   static const quizResults = '/account/quiz-results';
+  static const orders = '/account/orders';
+  static const notifications = '/notifications';
 
   static const embed = '/embed';
   static const web = '/web';
@@ -21,6 +23,7 @@ abstract final class Paths {
   static String course(int id) => '/course/$id';
   static String lesson(int id) => '/lesson/$id';
   static String quiz(int id) => '/quiz/$id';
+  static String question(int id) => '/question/$id';
 
   static String coursesFiltered({int? category, String? search}) {
     final query = <String, String>{
@@ -39,6 +42,8 @@ abstract final class Paths {
   static bool requiresAuth(String location) =>
       location.startsWith(myCourses) ||
       location.startsWith(account) ||
+      location.startsWith(notifications) ||
+      location.startsWith('/question/') ||
       location.startsWith('/quiz/');
 
   static bool isSignIn(String location) => location.startsWith(signIn);

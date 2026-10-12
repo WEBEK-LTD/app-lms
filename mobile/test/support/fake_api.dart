@@ -259,4 +259,95 @@ class FakeApi implements YallappApi {
   @override
   Future<List<Certificate>> listCertificates() =>
       _answer('listCertificates', () => <Certificate>[]);
+
+  List<Map<String, dynamic>> notifications = [
+    notificationJson(),
+    notificationJson(id: 2, type: 'qna_answer', courseId: 42, questionId: 3),
+  ];
+
+  @override
+  Future<NotificationPage> listNotifications({
+    int page = 1,
+    int perPage = 20,
+  }) => _answer(
+    'listNotifications',
+    () => NotificationPage.fromJson({
+      ...pageJson(notifications),
+      'unread_count': notifications.where((n) => n['read'] != true).length,
+    }),
+  );
+
+  @override
+  Future<void> markNotificationsRead() => _answer('markNotificationsRead', () {
+    notifications = [
+      for (final n in notifications) {...n, 'read': true},
+    ];
+  });
+
+  @override
+  Future<Paged<Order>> listOrders({int page = 1}) => _answer(
+    'listOrders',
+    () => Paged.fromJson(pageJson([orderJson()]), Order.fromJson),
+  );
+
+  Map<String, dynamic> reviews = reviewPageJson();
+
+  @override
+  Future<ReviewPage> listReviews(int courseId, {int page = 1}) =>
+      _answer('listReviews', () => ReviewPage.fromJson(reviews));
+
+  ({int rating, String text})? savedReview;
+
+  @override
+  Future<Review> saveMyReview(
+    int courseId, {
+    required int rating,
+    String text = '',
+  }) => _answer('saveMyReview', () {
+    savedReview = (rating: rating, text: text);
+    final review = reviewJson(id: 9, rating: rating, mine: true);
+    reviews = {...reviews, 'mine': review};
+    return Review.fromJson(review);
+  });
+
+  List<Map<String, dynamic>> questions = [questionJson()];
+
+  @override
+  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1}) =>
+      _answer(
+        'listQuestions',
+        () => Paged.fromJson(pageJson(questions), CourseQuestion.fromJson),
+      );
+
+  String? lastQuestion;
+
+  @override
+  Future<CourseQuestion> askQuestion(int courseId, String text) =>
+      _answer('askQuestion', () {
+        lastQuestion = text;
+        final question = {...questionJson(id: 5, answers: 0), 'text': text};
+        questions = [question, ...questions];
+        return CourseQuestion.fromJson(question);
+      });
+
+  @override
+  Future<QuestionThread> getQuestion(int questionId) => _answer(
+    'getQuestion',
+    () => QuestionThread.fromJson(questionThreadJson()),
+  );
+
+  String? lastAnswer;
+
+  @override
+  Future<QuestionAnswer> answerQuestion(int questionId, String text) =>
+      _answer('answerQuestion', () {
+        lastAnswer = text;
+        return QuestionAnswer.fromJson({
+          'id': 6,
+          'text': text,
+          'author': personJson(),
+          'created_at': '2026-10-03T12:00:00Z',
+          'mine': true,
+        });
+      });
 }

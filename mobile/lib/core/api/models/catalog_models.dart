@@ -173,6 +173,7 @@ class CourseDetail extends CourseSummary {
     this.level,
     this.hasCertificate = false,
     this.categories = const [],
+    this.qna,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -195,6 +196,7 @@ class CourseDetail extends CourseSummary {
       level: optString(json, 'level'),
       hasCertificate: boolOr(json, 'has_certificate', false),
       categories: listOf(json, 'categories', Category.fromJson),
+      qna: json['qna'] is bool ? json['qna'] as bool : null,
       purchaseAction: purchaseActionFromWire(purchase['action']),
     );
   }
@@ -206,6 +208,10 @@ class CourseDetail extends CourseSummary {
   final bool hasCertificate;
   final List<Category> categories;
   final PurchaseAction purchaseAction;
+
+  /// Whether the course has Q&A on. Null from older plugins, which only
+  /// report the site-wide `features.qna`.
+  final bool? qna;
 }
 
 enum VideoSource { upload, youtube, vimeo, external, embed }

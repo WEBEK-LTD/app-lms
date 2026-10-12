@@ -130,6 +130,18 @@ void main() {
       pushTargetLocation({'type': 'announcement', 'course_id': '9'}),
       '/course/9',
     );
+    expect(
+      pushTargetLocation({
+        'type': 'qna_answer',
+        'course_id': '9',
+        'question_id': '31',
+      }),
+      '/question/31',
+    );
+    expect(
+      pushTargetLocation({'type': 'qna_answer', 'course_id': '9'}),
+      '/course/9',
+    );
     expect(pushTargetLocation({'type': 'announcement'}), '/home');
     expect(pushTargetLocation({'type': 'mystery'}), '/home');
     expect(pushTargetLocation({}), '/home');

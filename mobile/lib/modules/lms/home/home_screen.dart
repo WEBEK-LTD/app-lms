@@ -9,7 +9,6 @@ import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
-import '../../../core/services/push_registration.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
@@ -110,14 +109,14 @@ class _NotificationsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final signedIn = ref.watch(authControllerProvider).isSignedIn;
-    if (!signedIn || !ref.watch(pushEnabledProvider)) {
-      return const SizedBox.shrink();
-    }
+    if (!signedIn) return const SizedBox.shrink();
+    final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     final p = context.palette;
     return SquareIconButton(
       icon: AppIcons.notifications,
-      label: 'Notification settings',
-      onPressed: () => context.push(Paths.settings),
+      label: unread > 0 ? 'Notifications, $unread unread' : 'Notifications',
+      badge: unread > 0,
+      onPressed: () => context.push(Paths.notifications),
       background: switch (style) {
         _ButtonStyle.classic => p.surface,
         _ButtonStyle.onPrimary => p.primarySoft,

@@ -10,6 +10,8 @@ Map<String, dynamic> configJson({
   bool maintenance = false,
   bool signupAllowed = true,
   bool wishlist = true,
+  bool qna = false,
+  bool orders = false,
 }) => {
   'site': {
     'name': 'Your Academy',
@@ -27,8 +29,9 @@ Map<String, dynamic> configJson({
     'quizzes': true,
     'wishlist': wishlist,
     'reviews': true,
-    'qna': false,
+    'qna': qna,
     'push': true,
+    'orders': orders,
   },
   'auth': {
     'signup_allowed': signupAllowed,
@@ -343,4 +346,92 @@ Map<String, dynamic> pageJson(List<Map<String, dynamic>> items) => {
   'total': items.length,
   'total_pages': 1,
   'items': items,
+};
+
+Map<String, dynamic> personJson({
+  String name = 'Deniz Kaya',
+  bool instructor = false,
+}) => {'name': name, 'avatar_url': null, 'instructor': instructor};
+
+Map<String, dynamic> notificationJson({
+  int id = 1,
+  String type = 'announcement',
+  int? courseId,
+  int? lessonId,
+  int? questionId,
+  bool read = false,
+}) => {
+  'id': id,
+  'title': 'Exam on Friday',
+  'body': 'Bring a pencil.',
+  'type': type,
+  'course_id': courseId,
+  'lesson_id': lessonId,
+  'question_id': questionId,
+  'created_at': '2026-10-12T09:00:00Z',
+  'read': read,
+};
+
+Map<String, dynamic> orderJson() => {
+  'id': 1042,
+  'number': '1042',
+  'status': 'on_hold',
+  'status_label': 'On hold',
+  'total': '₺450.00',
+  'created_at': '2026-10-01T10:00:00Z',
+  'items': [
+    {'name': 'UI Design', 'course_id': 42},
+  ],
+};
+
+Map<String, dynamic> reviewJson({
+  int id = 7,
+  int rating = 5,
+  bool mine = false,
+  String status = 'approved',
+}) => {
+  'id': id,
+  'rating': rating,
+  'text': 'Clear lessons and a good pace.',
+  'author': personJson(name: mine ? 'Deniz Kaya' : 'Ayse Demir'),
+  'created_at': '2026-10-02T10:00:00Z',
+  'status': status,
+  'mine': mine,
+};
+
+Map<String, dynamic> reviewPageJson({
+  bool canReview = true,
+  Map<String, dynamic>? mine,
+}) => {
+  ...pageJson([reviewJson(), reviewJson(id: 8, rating: 4)]),
+  'summary': {
+    'rating': 4.5,
+    'rating_count': 2,
+    'counts': {'1': 0, '2': 0, '3': 0, '4': 1, '5': 1},
+  },
+  'mine': mine,
+  'can_review': canReview,
+};
+
+Map<String, dynamic> questionJson({int id = 3, int answers = 1}) => {
+  'id': id,
+  'course_id': 42,
+  'text': 'What does range return?',
+  'author': personJson(),
+  'created_at': '2026-10-03T10:00:00Z',
+  'answer_count': answers,
+  'mine': true,
+};
+
+Map<String, dynamic> questionThreadJson() => {
+  ...questionJson(),
+  'answers': [
+    {
+      'id': 4,
+      'text': 'It returns a range object.',
+      'author': personJson(name: 'Ayse Demir', instructor: true),
+      'created_at': '2026-10-03T11:00:00Z',
+      'mine': false,
+    },
+  ],
 };

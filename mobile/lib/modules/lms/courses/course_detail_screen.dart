@@ -1,3 +1,6 @@
+import 'course_questions.dart';
+import 'course_reviews.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -192,10 +195,14 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       enrolled: course.enrolled,
     );
     final wishlisted = _wishlisted ?? course.wishlisted;
+    // Q&A is for enrolled students, when the site and the course have it on.
+    final showQna =
+        config.features.qna && (course.qna ?? true) && course.enrolled;
     final tabs = [
       'Overview',
       'Curriculum',
       if (config.features.reviews) 'Reviews',
+      if (showQna) 'Q&A',
     ];
     final tab = _tab.clamp(0, tabs.length - 1);
 
@@ -206,6 +213,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
             child: RefreshIndicator(
               onRefresh: () async {
                 invalidateCourse(ref, course.id);
+                ref
+                  ..invalidate(courseReviewsProvider(course.id))
+                  ..invalidate(courseQuestionsProvider(course.id));
                 await ref.read(courseDetailProvider(course.id).future);
               },
               child: ListView(
@@ -283,7 +293,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                         const SizedBox(height: 16),
                         switch (tabs[tab]) {
                           'Overview' => _Overview(course: course),
-                          'Reviews' => _ReviewsSummary(course: course),
+                          'Reviews' => CourseReviewsTab(courseId: course.id),
+                          'Q&A' => CourseQuestionsTab(courseId: course.id),
                           _ => _Curriculum(topics: topics, courseId: course.id),
                         },
                       ],
@@ -396,65 +407,6 @@ class _Overview extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _ReviewsSummary extends StatelessWidget {
-  const _ReviewsSummary({required this.course});
-
-  final CourseDetail course;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    final rating = course.rating;
-    if (rating == null || course.ratingCount == 0) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          'No reviews yet.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: p.textSecondary),
-        ),
-      );
-    }
-    return AppCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Text(
-            rating.toStringAsFixed(1),
-            style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w700,
-              color: p.text,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  for (var i = 1; i <= 5; i++)
-                    AppIcon(
-                      AppIcons.star,
-                      size: 18,
-                      color: p.star,
-                      filled: rating >= i - 0.25,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                plural(course.ratingCount, 'rating'),
-                style: TextStyle(fontSize: 13, color: p.textSecondary),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

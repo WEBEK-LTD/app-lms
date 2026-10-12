@@ -91,6 +91,7 @@ class SiteFeatures {
     required this.reviews,
     required this.qna,
     required this.push,
+    this.orders = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -103,6 +104,7 @@ class SiteFeatures {
     reviews: reqBool(json, 'reviews'),
     qna: reqBool(json, 'qna'),
     push: reqBool(json, 'push'),
+    orders: boolOr(json, 'orders', false),
   );
 
   final LmsKind lms;
@@ -114,6 +116,10 @@ class SiteFeatures {
   final bool reviews;
   final bool qna;
   final bool push;
+
+  /// Whether the site sells courses, so students have orders. Older plugins
+  /// don't send it.
+  final bool orders;
 }
 
 enum SignupField { name, email, city }

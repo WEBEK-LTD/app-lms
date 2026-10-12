@@ -83,6 +83,9 @@ void main() {
         ('/course/1', 'UI Design Fundamentals'),
         ('/quiz/201', 'Start a new attempt'),
         ('/lesson/107', 'Lesson 7: Functions & Variables'),
+        ('/notifications', 'Exam on Friday'),
+        ('/account/orders', 'Order #1042'),
+        ('/question/3', 'It returns a range object.'),
       ]) {
         router.push(location);
         await TestApp.settle(tester);
