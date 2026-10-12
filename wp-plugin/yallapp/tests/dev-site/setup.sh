@@ -1,25 +1,31 @@
 #!/usr/bin/env bash
 # Builds a disposable WordPress site for the plugin's integration tests:
-# WordPress + SQLite (no MySQL server needed) + an LMS + this plugin, then
-# seeds sample courses. WordPress, SQLite and Tutor LMS come from GitHub; the
-# other LMS plugins are the pinned releases from wordpress.org.
+# WordPress + SQLite (no MySQL server needed) + an LMS or WooCommerce + this
+# plugin, then seeds sample courses or products. WordPress, SQLite and Tutor LMS
+# come from GitHub; the other plugins are the pinned releases from wordpress.org.
 #
-# Usage: [LMS=<id>] tests/dev-site/setup.sh <site-dir>
+# Usage: [LMS=<id>] [APP=store] tests/dev-site/setup.sh <site-dir>
 #        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo
+#        APP=store: a shop with WooCommerce and no LMS (seed-store.php)
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
 SITE_DIR=${1:?usage: setup.sh <site-dir>}
+APP=${APP:-lms}
 LMS=${LMS:-tutor}
+if [ "$APP" = store ]; then
+	LMS=none
+fi
 WP_VERSION=${WP_VERSION:-7.1.3}
 TUTOR_VERSION=${TUTOR_VERSION:-4.1.1}
 SQLITE_VERSION=${SQLITE_VERSION:-v3.1.0}
 WP_CLI_VERSION=${WP_CLI_VERSION:-2.12.0}
+WOOCOMMERCE_VERSION=${WOOCOMMERCE_VERSION:-11.2.0}
 PORT=${PORT:-8089}
 
 # wordpress.org slug and pinned version of each LMS other than Tutor.
 case "$LMS" in
-	tutor) ;;
+	tutor | none) ;;
 	learnpress) LMS_SLUG=learnpress LMS_VERSION=${LEARNPRESS_VERSION:-4.4.8} ;;
 	lifterlms) LMS_SLUG=lifterlms LMS_VERSION=${LIFTERLMS_VERSION:-10.3.2} ;;
 	masterstudy) LMS_SLUG=masterstudy-lms-learning-management-system LMS_VERSION=${MASTERSTUDY_VERSION:-3.4.9} ;;
@@ -51,17 +57,25 @@ if [ "$LMS" = tutor ]; then
 	fi
 	LMS_SRC="$CACHE/tutor-$TUTOR_VERSION"
 	LMS_DIR=tutor
-else
-	# The release zip as wordpress.org serves it, unpacked once into the cache.
+fi
+
+# A plugin's release zip as wordpress.org serves it, unpacked once into the cache.
+from_wordpress_org() { # slug version
+	if [ ! -d "$CACHE/$1-$2" ]; then
+		curl -fsSL -o "$CACHE/$1.$2.zip" "https://downloads.wordpress.org/plugin/$1.$2.zip"
+		rm -rf "$CACHE/$1-unzip"
+		unzip -q "$CACHE/$1.$2.zip" -d "$CACHE/$1-unzip"
+		mv "$CACHE/$1-unzip/$1" "$CACHE/$1-$2"
+		rm -rf "$CACHE/$1-unzip" "$CACHE/$1.$2.zip"
+	fi
+}
+if [ "$LMS" != tutor ] && [ "$LMS" != none ]; then
+	from_wordpress_org "$LMS_SLUG" "$LMS_VERSION"
 	LMS_SRC="$CACHE/$LMS_SLUG-$LMS_VERSION"
 	LMS_DIR=$LMS_SLUG
-	if [ ! -d "$LMS_SRC" ]; then
-		curl -fsSL -o "$CACHE/$LMS_SLUG.$LMS_VERSION.zip" "https://downloads.wordpress.org/plugin/$LMS_SLUG.$LMS_VERSION.zip"
-		rm -rf "$CACHE/$LMS_SLUG-unzip"
-		unzip -q "$CACHE/$LMS_SLUG.$LMS_VERSION.zip" -d "$CACHE/$LMS_SLUG-unzip"
-		mv "$CACHE/$LMS_SLUG-unzip/$LMS_SLUG" "$LMS_SRC"
-		rm -rf "$CACHE/$LMS_SLUG-unzip" "$CACHE/$LMS_SLUG.$LMS_VERSION.zip"
-	fi
+fi
+if [ "$APP" = store ]; then
+	from_wordpress_org woocommerce "$WOOCOMMERCE_VERSION"
 fi
 WP_CLI="$CACHE/wp-cli-$WP_CLI_VERSION.phar"
 if [ ! -f "$WP_CLI" ]; then
@@ -80,8 +94,13 @@ sed -e "s#{SQLITE_IMPLEMENTATION_FOLDER_PATH}#$SITE_DIR/wp-content/plugins/sqlit
 	-e "s#{SQLITE_PLUGIN}#sqlite-database-integration/load.php#" \
 	"$SQLITE_SRC/db.copy" > "$SITE_DIR/wp-content/db.php"
 
-cp -r "$LMS_SRC" "$SITE_DIR/wp-content/plugins/$LMS_DIR"
-rm -rf "$SITE_DIR/wp-content/plugins/$LMS_DIR/.git" "$SITE_DIR/wp-content/plugins/$LMS_DIR/node_modules"
+if [ "$LMS" != none ]; then
+	cp -r "$LMS_SRC" "$SITE_DIR/wp-content/plugins/$LMS_DIR"
+	rm -rf "$SITE_DIR/wp-content/plugins/$LMS_DIR/.git" "$SITE_DIR/wp-content/plugins/$LMS_DIR/node_modules"
+fi
+if [ "$APP" = store ]; then
+	cp -r "$CACHE/woocommerce-$WOOCOMMERCE_VERSION" "$SITE_DIR/wp-content/plugins/woocommerce"
+fi
 ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
 
 cat > "$SITE_DIR/wp-config.php" <<PHP
@@ -123,7 +142,12 @@ if [ "$LMS" = masterstudy ]; then
 	# first upgrade (on init) already needs it.
 	wp role create stm_lms_instructor Instructor --quiet
 fi
-wp plugin activate "$LMS_DIR" --quiet
+if [ "$LMS" != none ]; then
+	wp plugin activate "$LMS_DIR" --quiet
+fi
+if [ "$APP" = store ]; then
+	wp plugin activate woocommerce --quiet
+fi
 if [ "$LMS" = masterstudy ]; then
 	# MasterStudy loads its table definitions only in wp-admin, so activating it from
 	# WP-CLI creates none of them; run the same functions its activation runs.
@@ -132,7 +156,9 @@ if [ "$LMS" = masterstudy ]; then
 		foreach ( array( "stm_lms_user_answers", "stm_lms_user_cart", "stm_lms_user_chat", "stm_lms_user_conversation", "stm_lms_user_courses", "stm_lms_user_lessons", "stm_lms_user_quizzes", "stm_lms_user_quizzes_times", "stm_lms_user_searches", "stm_lms_curriculum_sections", "stm_lms_curriculum_materials", "stm_lms_order_items" ) as $create ) { $create(); }'
 fi
 wp plugin activate yallapp --quiet
-if [ "$LMS" = tutor ]; then
+if [ "$APP" = store ]; then
+	wp eval-file "$HERE/seed-store.php"
+elif [ "$LMS" = tutor ]; then
 	wp eval-file "$HERE/seed.php"
 else
 	wp eval-file "$HERE/seed-$LMS.php"

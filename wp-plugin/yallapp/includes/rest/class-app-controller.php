@@ -86,7 +86,7 @@ class App_Controller extends Controller {
 					'primary_color' => (string) $settings->get( 'primary_color' ),
 				),
 				'features'  => array(
-					'lms'          => $lms ? $lms->id() : 'tutor',
+					'lms'          => $lms ? $lms->id() : null,
 					'lms_version'  => $lms ? $lms->version() : '',
 					'pro'          => $lms ? $lms->is_pro() : false,
 					'certificates' => ! empty( $features['certificates'] ),
@@ -95,8 +95,9 @@ class App_Controller extends Controller {
 					'reviews'      => ! empty( $features['reviews'] ),
 					'qna'          => ! empty( $features['qna'] ),
 					'push'         => $this->plugin->push()->is_configured(),
-					'orders'       => $lms ? $lms->sells_courses() : false,
+					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
+				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
 				'auth'      => array(
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),

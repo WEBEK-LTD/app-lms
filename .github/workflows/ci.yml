@@ -150,6 +150,29 @@ jobs:
           LMS: ${{ matrix.lms }}
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
 
+  store-integration:
+    name: Plugin end-to-end (WooCommerce store)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-store-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+      - name: Build a WooCommerce shop and run the store checks
+        env:
+          APP: store
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+
   build-pipeline:
     name: Build pipeline scripts
     runs-on: ubuntu-24.04

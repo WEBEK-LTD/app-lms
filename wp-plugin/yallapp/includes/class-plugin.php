@@ -79,6 +79,7 @@ class Plugin {
 		$this->magic_links()->register();
 		$this->push()->register();
 		$this->license()->register();
+		$this->store_checkout()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
@@ -104,6 +105,7 @@ class Plugin {
 		( new Rest\Quiz_Controller( $this ) )->register_routes();
 		( new Rest\Notifications_Controller( $this ) )->register_routes();
 		( new Rest\Community_Controller( $this ) )->register_routes();
+		( new Rest\Store_Controller( $this ) )->register_routes();
 	}
 
 	/**
@@ -300,6 +302,20 @@ class Plugin {
 			'inbox',
 			static function () {
 				return new Push\Inbox();
+			}
+		);
+	}
+
+	/**
+	 * The store's cart and checkout hand-off.
+	 *
+	 * @return Store\Checkout
+	 */
+	public function store_checkout() {
+		return $this->service(
+			'store_checkout',
+			function () {
+				return new Store\Checkout( $this->settings() );
 			}
 		);
 	}

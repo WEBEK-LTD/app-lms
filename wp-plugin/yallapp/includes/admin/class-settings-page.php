@@ -140,12 +140,20 @@ class Settings_Page {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data" class="ya-form">';
 		echo '<input type="hidden" name="action" value="yallapp_save">';
 		wp_nonce_field( 'yallapp_save' );
+		$detector = $this->plugin->detector();
+		$shop     = $detector->woocommerce()['active'];
+		$academy  = null !== $detector->lms() || ! $shop;
 		$this->general_card();
 		$this->sign_in_card();
 		$this->purchases_card();
-		$this->video_card();
-		$this->content_card();
-		$this->home_card();
+		if ( $academy ) {
+			$this->video_card();
+			$this->content_card();
+			$this->home_card();
+		}
+		if ( $shop ) {
+			$this->store_card();
+		}
 		$this->notifications_card();
 		$this->updates_card();
 		echo '<div class="ya-savebar"><button type="submit" class="button button-primary button-hero">' . esc_html__( 'Save changes', 'yallapp' ) . '</button></div>';
@@ -357,6 +365,8 @@ class Settings_Page {
 		if ( $lms ) {
 			$this->status_row( __( 'LMS plugin (detected)', 'yallapp' ), $lms['name'] . ' ' . $lms['version'], $lms['supported'], $lms['supported'] ? __( 'Compatible', 'yallapp' ) : __( 'Support is coming soon', 'yallapp' ) );
 			$this->status_row( __( 'Premium add-ons', 'yallapp' ), $lms['pro'] ? __( 'Active', 'yallapp' ) : __( 'Not installed', 'yallapp' ), true, __( 'Premium features appear when active', 'yallapp' ) );
+		} elseif ( $woo['active'] ) {
+			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), true, __( 'Not needed for a Store app', 'yallapp' ) );
 		} else {
 			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), false, __( 'Install and activate Tutor LMS', 'yallapp' ) );
 		}
@@ -372,7 +382,7 @@ class Settings_Page {
 			__( 'WooCommerce', 'yallapp' ),
 			$woo['active'] ? $woo['version'] : __( 'Not found', 'yallapp' ),
 			true,
-			$woo['active'] && $checkout ? __( 'Linked to your LMS checkout', 'yallapp' ) : __( 'Optional', 'yallapp' )
+			$woo['active'] && $checkout ? __( 'Linked to your LMS checkout', 'yallapp' ) : ( $woo['active'] && ! $lms ? __( 'Used by your Store app', 'yallapp' ) : __( 'Optional', 'yallapp' ) )
 		);
 		echo '</ul>';
 		$this->close();
@@ -588,6 +598,88 @@ class Settings_Page {
 		}
 		echo '</select><br><span class="ya-help">' . esc_html__( 'Hold Ctrl or Cmd to pick more than one.', 'yallapp' ) . '</span></span></label>';
 		$this->close();
+	}
+
+	/**
+	 * Store card: home screen sections and delivery options for Store apps.
+	 *
+	 * @return void
+	 */
+	private function store_card() {
+		$labels  = array(
+			'banner'            => __( 'Promo banner', 'yallapp' ),
+			'categories'        => __( 'Categories', 'yallapp' ),
+			'featured_products' => __( 'Featured products', 'yallapp' ),
+			'sale_products'     => __( 'On sale', 'yallapp' ),
+			'new_products'      => __( 'New arrivals', 'yallapp' ),
+			'best_sellers'      => __( 'Best sellers', 'yallapp' ),
+		);
+		$enabled = (array) $this->values['store_home_sections'];
+		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
+		$this->open( __( 'Store app', 'yallapp' ) );
+		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Home sections shown (drag to reorder)', 'yallapp' ) . '</span>';
+		echo '<input type="hidden" name="yallapp[store_home_sections][]" value="">';
+		echo '<ul class="ya-sortable">';
+		foreach ( $order as $section ) {
+			if ( ! isset( $labels[ $section ] ) ) {
+				continue;
+			}
+			printf(
+				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[store_home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				esc_attr( $section ),
+				checked( in_array( $section, $enabled, true ), true, false ),
+				esc_html( $labels[ $section ] )
+			);
+		}
+		echo '</ul><span class="ya-help">' . esc_html__( 'Featured products are the ones starred in WooCommerce.', 'yallapp' ) . '</span></div>';
+		$this->image( 'store_banner_image_id', __( 'Promo banner image', 'yallapp' ) );
+		$this->select( 'store_banner_product_id', __( 'Banner opens product', 'yallapp' ), array( 0 => __( 'None', 'yallapp' ) ) + $this->product_options() );
+		$categories = array( 0 => __( 'None', 'yallapp' ) );
+		foreach ( ( new \Yallapp\Store\Catalog() )->categories() as $category ) {
+			$categories[ $category['id'] ] = $category['name'];
+		}
+		$this->select( 'store_banner_category_id', __( 'Or opens category', 'yallapp' ), $categories );
+		$this->toggle( 'store_delivery_date', __( 'Ask for a delivery date in the cart', 'yallapp' ), __( 'Saved on the order and shown in the order screen and emails. Useful for flower and gift shops.', 'yallapp' ) );
+		$this->toggle( 'store_delivery_date_required', __( 'The delivery date is required', 'yallapp' ) );
+		$this->number( 'store_delivery_min_days', __( 'Earliest delivery (days from today)', 'yallapp' ), 0, 60 );
+		$this->number( 'store_delivery_max_days', __( 'Latest delivery (days from today)', 'yallapp' ), 0, 365 );
+		$this->checks(
+			'store_closed_weekdays',
+			__( 'No deliveries on', 'yallapp' ),
+			array(
+				'1' => __( 'Monday', 'yallapp' ),
+				'2' => __( 'Tuesday', 'yallapp' ),
+				'3' => __( 'Wednesday', 'yallapp' ),
+				'4' => __( 'Thursday', 'yallapp' ),
+				'5' => __( 'Friday', 'yallapp' ),
+				'6' => __( 'Saturday', 'yallapp' ),
+				'0' => __( 'Sunday', 'yallapp' ),
+			)
+		);
+		$this->toggle( 'store_gift_message', __( 'Let customers add a gift message', 'yallapp' ) );
+		$this->number( 'store_gift_message_max', __( 'Gift message length (characters)', 'yallapp' ), 1, 500 );
+		$this->close();
+	}
+
+	/**
+	 * Published products for pickers.
+	 *
+	 * @return array<int, string>
+	 */
+	private function product_options() {
+		$list = array();
+		foreach ( get_posts(
+			array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => 200, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Admin picker.
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			)
+		) as $post ) {
+			$list[ (int) $post->ID ] = get_the_title( $post );
+		}
+		return $list;
 	}
 
 	/**

@@ -109,6 +109,9 @@ abstract class Controller {
 		if ( isset( $data['retry_after_seconds'] ) ) {
 			$extra['retry_after_seconds'] = (int) $data['retry_after_seconds'];
 		}
+		if ( isset( $data['details'] ) && is_array( $data['details'] ) ) {
+			$extra['details'] = $data['details'];
+		}
 		return self::error( (string) $error->get_error_code(), $error->get_error_message(), (int) ( $data['status'] ?? 400 ), $extra );
 	}
 

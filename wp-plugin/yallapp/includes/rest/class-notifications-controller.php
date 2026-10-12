@@ -91,13 +91,25 @@ class Notifications_Controller extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function orders( WP_REST_Request $request ) {
-		$lms    = $this->plugin->lms();
-		$result = $lms && $lms->sells_courses()
-			? $lms->orders( get_current_user_id(), (int) $request['page'], (int) $request['per_page'] )
-			: array(
+		$lms = $this->plugin->lms();
+		if ( $lms && $lms->sells_courses() ) {
+			$result = $lms->orders( get_current_user_id(), (int) $request['page'], (int) $request['per_page'] );
+		} elseif ( ! $lms ) {
+			// A Store app: the customer's WooCommerce orders.
+			$result = \Yallapp\Commerce\Woo_Orders::for_user(
+				get_current_user_id(),
+				(int) $request['page'],
+				(int) $request['per_page'],
+				static function () {
+					return 0;
+				}
+			);
+		} else {
+			$result = array(
 				'items' => array(),
 				'total' => 0,
 			);
+		}
 		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $result['items'] ) ) );
 	}
 

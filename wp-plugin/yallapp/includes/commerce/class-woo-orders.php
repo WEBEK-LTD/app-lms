@@ -86,10 +86,20 @@ class Woo_Orders {
 		$created = $order->get_date_created();
 		$lines   = array();
 		foreach ( $order->get_items() as $item ) {
-			$course  = $item instanceof \WC_Order_Item_Product ? (int) call_user_func( $course_of_item, (int) $item->get_product_id() ) : 0;
+			$product_id = $item instanceof \WC_Order_Item_Product ? (int) $item->get_product_id() : 0;
+			$course     = $product_id ? (int) call_user_func( $course_of_item, $product_id ) : 0;
+			$product    = $item instanceof \WC_Order_Item_Product ? $item->get_product() : null;
+			$image_id   = $product ? (int) $product->get_image_id() : 0;
+			if ( ! $image_id && $product && $product->get_parent_id() ) {
+				$image_id = (int) get_post_thumbnail_id( $product->get_parent_id() );
+			}
+			$image   = $image_id ? wp_get_attachment_image_url( $image_id, 'woocommerce_thumbnail' ) : false;
 			$lines[] = array(
-				'name'      => (string) $item->get_name(),
-				'course_id' => $course ? $course : null,
+				'name'       => (string) $item->get_name(),
+				'course_id'  => $course ? $course : null,
+				'product_id' => $product_id ? $product_id : null,
+				'quantity'   => max( 1, (int) $item->get_quantity() ),
+				'image_url'  => $image ? $image : null,
 			);
 		}
 		return array(

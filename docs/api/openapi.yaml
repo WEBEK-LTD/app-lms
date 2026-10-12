@@ -47,6 +47,11 @@ tags:
     description: The notifications inbox.
   - name: Community
     description: Course reviews and questions and answers.
+  - name: Store
+    description: |
+      WooCommerce products, the cart and the checkout hand-off, for Store apps.
+      The cart lives in the app; the order is placed on the site's own
+      checkout, opened with a one-time link that fills the WooCommerce cart.
 
 paths:
   /config:
@@ -402,8 +407,9 @@ paths:
       summary: List the student's orders
       description: |
         Orders from the site's checkout (the LMS's own or WooCommerce), newest
-        first. Empty when the site doesn't sell courses (`features.orders`).
-        The iOS app doesn't show orders, as it doesn't sell courses.
+        first. Empty when the site doesn't sell (`features.orders`). The
+        Academy app on iOS doesn't show orders, as it doesn't sell courses;
+        Store apps show them on both platforms.
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -927,6 +933,215 @@ paths:
                     items: { $ref: '#/components/schemas/Certificate' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /store/home:
+    get:
+      tags: [Store]
+      operationId: getStoreHome
+      summary: Get the store home screen sections
+      description: Sections in the order chosen in the plugin settings. Only sections with content are returned.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Home sections
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sections]
+                properties:
+                  sections:
+                    type: array
+                    items: { $ref: '#/components/schemas/StoreHomeSection' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/categories:
+    get:
+      tags: [Store]
+      operationId: listProductCategories
+      summary: List product categories
+      description: Categories with products, in the site's own order. `parent_id` builds the tree.
+      security: []
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductCategory' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/products:
+    get:
+      tags: [Store]
+      operationId: listProducts
+      summary: List products
+      description: Published products the shop shows (catalog visibility "shop" or "shop and search"; "search" when `search` is given).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          description: A category ID. Products in its subcategories are included.
+          schema: { type: integer }
+        - name: on_sale
+          in: query
+          schema: { type: boolean, default: false }
+        - name: featured
+          in: query
+          schema: { type: boolean, default: false }
+        - name: ids
+          in: query
+          description: Comma-separated product IDs, returned in that order.
+          schema: { type: string, example: '12,40,7' }
+        - name: orderby
+          in: query
+          schema: { type: string, enum: [newest, popular, rating, price_asc, price_desc, title], default: newest }
+      responses:
+        '200':
+          description: Products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ProductSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/products/{product_id}:
+    get:
+      tags: [Store]
+      operationId: getProduct
+      summary: Get a product
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/products/{product_id}/reviews:
+    get:
+      tags: [Store]
+      operationId: listProductReviews
+      summary: List a product's reviews
+      description: Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, summary]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Review' }
+                      summary: { $ref: '#/components/schemas/RatingSummary' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /store/cart:
+    post:
+      tags: [Store]
+      operationId: quoteCart
+      summary: Price the app's cart
+      description: |
+        Checks the app's cart against the shop: current prices, stock and
+        quantity limits. Nothing is saved. Shipping, taxes and coupons are
+        added on the site's checkout.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartInput' }
+      responses:
+        '200':
+          description: The priced cart
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/checkout-link:
+    post:
+      tags: [Store]
+      operationId: createStoreCheckoutLink
+      summary: Get a one-time checkout link for the cart
+      description: |
+        The link fills the site's WooCommerce cart with these lines, keeps the
+        delivery date and gift message for the order, signs the customer in
+        when they are signed in to the app, and opens the checkout. It works
+        once and expires after 5 minutes. Signed-out customers get a link only
+        when the shop allows guest checkout (`store.guest_checkout`).
+
+        Fails with `cart_changed` (409) when a line is no longer available,
+        and with `purchase_not_allowed` (403) for digital products on iOS.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CartInput'
+                - type: object
+                  properties:
+                    delivery_date: { type: [string, 'null'], format: date, description: "Required when `store.delivery_date.required` is true." }
+                    gift_message: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: Checkout link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in: { type: string, enum: [in_app, browser] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -966,6 +1181,11 @@ components:
       schema: { type: integer }
     QuestionId:
       name: question_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ProductId:
+      name: product_id
       in: path
       required: true
       schema: { type: integer }
@@ -1070,7 +1290,10 @@ components:
           description: What the site supports, detected by the plugin.
           required: [lms, lms_version, pro, certificates, quizzes, wishlist, reviews, qna, push]
           properties:
-            lms: { type: string, enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo] }
+            lms:
+              type: [string, 'null']
+              enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo, null]
+              description: The detected LMS, or null on a site without one (a Store or Bookings app).
             lms_version: { type: string }
             pro: { type: boolean }
             certificates: { type: boolean }
@@ -1079,7 +1302,7 @@ components:
             reviews: { type: boolean }
             qna: { type: boolean }
             push: { type: boolean }
-            orders: { type: boolean, description: "Whether the site sells courses, so students have orders. Missing on older plugins means false." }
+            orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
@@ -1106,6 +1329,7 @@ components:
             embed_height: { type: string, enum: [auto, fit_screen, as_set] }
             code_highlighting: { type: boolean }
             required_watch_percent: { type: integer, minimum: 0, maximum: 100 }
+        store: { $ref: '#/components/schemas/StoreConfig' }
         app:
           type: object
           required: [update_required, maintenance]
@@ -1492,6 +1716,9 @@ components:
             properties:
               name: { type: string }
               course_id: { type: [integer, 'null'], description: "The course this item gives access to, when there is one." }
+              product_id: { type: [integer, 'null'], description: "The WooCommerce product, for store orders." }
+              quantity: { type: integer, minimum: 1 }
+              image_url: { type: [string, 'null'], format: uri }
 
     Person:
       type: object
@@ -1574,3 +1801,198 @@ components:
             answers:
               type: array
               items: { $ref: '#/components/schemas/QuestionAnswer' }
+
+    StoreConfig:
+      type: object
+      description: Present when WooCommerce is active. Settings for Store apps.
+      required: [currency, guest_checkout, checkout_opens_in, reviews, delivery_date, gift_message]
+      properties:
+        currency: { type: string, example: TRY }
+        guest_checkout: { type: boolean, description: Whether the shop allows checkout without an account. }
+        checkout_opens_in: { type: string, enum: [in_app, browser] }
+        reviews: { type: boolean, description: Whether product reviews are on. }
+        delivery_date:
+          type: object
+          description: The delivery date the customer picks in the app (for example a flower shop).
+          required: [enabled, required, min_days, max_days, closed_weekdays]
+          properties:
+            enabled: { type: boolean }
+            required: { type: boolean }
+            min_days: { type: integer, minimum: 0, description: "Days from today, in the site's time zone." }
+            max_days: { type: integer, minimum: 0 }
+            closed_weekdays:
+              type: array
+              description: Weekdays without deliveries, 0 = Sunday.
+              items: { type: integer, minimum: 0, maximum: 6 }
+        gift_message:
+          type: object
+          required: [enabled, max_length]
+          properties:
+            enabled: { type: boolean }
+            max_length: { type: integer, minimum: 1, maximum: 500 }
+
+    StoreHomeSection:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [banner, categories, featured_products, sale_products, new_products, best_sellers] }
+        title: { type: [string, 'null'] }
+        banner:
+          type: object
+          required: [image_url]
+          properties:
+            image_url: { type: string, format: uri }
+            link_product_id: { type: [integer, 'null'] }
+            link_category_id: { type: [integer, 'null'] }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/ProductCategory' }
+        products:
+          type: array
+          items: { $ref: '#/components/schemas/ProductSummary' }
+
+    ProductCategory:
+      type: object
+      required: [id, name, count]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        count: { type: integer }
+        parent_id: { type: [integer, 'null'] }
+        image_url: { type: [string, 'null'], format: uri }
+
+    ProductPrice:
+      type: object
+      required: [amount, currency, formatted, on_sale, range]
+      properties:
+        amount: { type: string, description: The price a customer pays now (the lowest one for a range)., example: '450.00' }
+        regular_amount: { type: [string, 'null'], description: The price before the sale. }
+        currency: { type: string, example: TRY }
+        formatted: { type: string, description: "As the shop shows it, including ranges.", example: ₺400 – ₺550 }
+        on_sale: { type: boolean }
+        range: { type: boolean, description: Whether variations have different prices. }
+
+    ProductSummary:
+      type: object
+      required: [id, name, type, price, stock_status, purchasable, digital]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string, enum: [simple, variable, grouped, external, other] }
+        image_url: { type: [string, 'null'], format: uri }
+        price: { $ref: '#/components/schemas/ProductPrice' }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5 }
+        rating_count: { type: integer }
+        stock_status: { type: string, enum: [in_stock, out_of_stock, on_backorder] }
+        purchasable: { type: boolean, description: "Whether it can go in the app's cart: a purchasable simple or variable product." }
+        digital: { type: boolean, description: "Virtual or downloadable. iOS apps don't sell digital products." }
+
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProductSummary'
+        - type: object
+          required: [description_html, images, attributes, variations, categories, related, permalink]
+          properties:
+            description_html: { type: string }
+            short_description_html: { type: [string, 'null'] }
+            images:
+              type: array
+              items:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+                  alt: { type: [string, 'null'] }
+            sku: { type: [string, 'null'] }
+            max_quantity: { type: [integer, 'null'], description: Most a customer can buy at once (stock or the shop's limit); null when unlimited. }
+            attributes:
+              type: array
+              description: Attributes shown on the product. Those with `variation` true are chosen before adding a variable product to the cart.
+              items:
+                type: object
+                required: [slug, name, options, variation]
+                properties:
+                  slug: { type: string, example: pa_size }
+                  name: { type: string, example: Size }
+                  variation: { type: boolean }
+                  options:
+                    type: array
+                    items:
+                      type: object
+                      required: [value, label]
+                      properties:
+                        value: { type: string, example: large }
+                        label: { type: string, example: Large }
+            variations:
+              type: array
+              items: { $ref: '#/components/schemas/ProductVariation' }
+            categories:
+              type: array
+              items: { $ref: '#/components/schemas/ProductCategory' }
+            related:
+              type: array
+              items: { $ref: '#/components/schemas/ProductSummary' }
+            external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
+            permalink: { type: string, format: uri }
+
+    ProductVariation:
+      type: object
+      required: [id, attributes, price, stock_status, purchasable]
+      properties:
+        id: { type: integer }
+        attributes:
+          type: object
+          description: Attribute slug to option value. An empty value means any option.
+          additionalProperties: { type: string }
+          example: { pa_size: large }
+        price: { $ref: '#/components/schemas/ProductPrice' }
+        image_url: { type: [string, 'null'], format: uri }
+        stock_status: { type: string, enum: [in_stock, out_of_stock, on_backorder] }
+        max_quantity: { type: [integer, 'null'] }
+        purchasable: { type: boolean }
+
+    CartInput:
+      type: object
+      required: [lines]
+      properties:
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: object
+            required: [product_id, quantity]
+            properties:
+              product_id: { type: integer }
+              variation_id: { type: [integer, 'null'] }
+              quantity: { type: integer, minimum: 1, maximum: 9999 }
+              attributes:
+                type: object
+                description: Chosen options for attributes the variation leaves as "any".
+                additionalProperties: { type: string }
+
+    Cart:
+      type: object
+      required: [lines, item_count, subtotal, subtotal_amount, currency]
+      properties:
+        lines:
+          type: array
+          items:
+            type: object
+            required: [product_id, quantity, name, unit_price, line_total, available]
+            properties:
+              product_id: { type: integer }
+              variation_id: { type: [integer, 'null'] }
+              quantity: { type: integer, description: "The quantity priced, capped at `max_quantity`." }
+              name: { type: string, example: Red roses - Large }
+              image_url: { type: [string, 'null'], format: uri }
+              unit_price: { type: string, example: ₺450.00 }
+              line_total: { type: string, example: ₺900.00 }
+              available: { type: boolean }
+              problem: { type: [string, 'null'], description: "Why the line can't be bought as it is, for the customer.", example: Only 2 left in stock. }
+              max_quantity: { type: [integer, 'null'] }
+              digital: { type: boolean }
+        item_count: { type: integer }
+        subtotal: { type: string, description: "Formatted, before shipping, taxes and coupons.", example: ₺900.00 }
+        subtotal_amount: { type: string, example: '900.00' }
+        currency: { type: string, example: TRY }

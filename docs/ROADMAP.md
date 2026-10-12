@@ -95,4 +95,16 @@ LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei and Masteriyo.
 
 ## Phase 7: More app types
 
-Store (WooCommerce) and Bookings modules.
+Store (WooCommerce) and Bookings modules, built on the same app, plugin and
+build pipeline. A Store app keeps its cart in the app and hands it to the
+site's own WooCommerce checkout; physical goods can be sold on iOS too, digital
+products only on Android.
+
+| | Step | Done when |
+|---|---|---|
+| [~] | 7.1 Store API: products, categories, reviews, cart pricing, checkout hand-off that fills the WooCommerce cart, delivery date and gift message, store orders | End-to-end checks pass on WooCommerce |
+| [ ] | 7.2 Store app module: home, catalog, product, cart, checkout, orders | Screen checks pass; APK works against a test shop |
+| [ ] | 7.3 Store in the dashboard and build pipeline | A test client picks Store and receives the apps |
+| [ ] | 7.4 Bookings API on a booking plugin | End-to-end checks pass |
+| [ ] | 7.5 Bookings app module | Screen checks pass |
+| [ ] | 7.6 Bookings in the dashboard and build pipeline | A test client picks Bookings and receives the apps |
