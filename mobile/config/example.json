@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "client_id": "example",
+  "app_type": "lms",
+  "app_name": "Your Academy",
+  "short_name": "Academy",
+  "site_url": "https://your-academy.com",
+  "android_package": "com.youracademy.app",
+  "ios_bundle_id": "com.youracademy.app",
+  "version_name": "1.0.0",
+  "version_code": 1,
+  "branding": {
+    "primary_color": "#0E0D24",
+    "splash_color": "#F4EFE6",
+    "template": "classic",
+    "font": "Bricolage Grotesque"
+  }
+}
