@@ -12,8 +12,8 @@ Status: `[x]` done · `[~]` in progress · `[ ]` not started
 |---|---|---|---|
 | [x] | 0.1 Designs with the Yallapp brand and Google Material Symbols | Claude | Approved on the design canvas |
 | [x] | 0.2 Domain `yallapp.com.tr` | WEBEK | Registered |
-| [ ] | 0.3 cPanel on `host.webek.org`: MySQL database and user, Remote MySQL, SSL | WEBEK | Database reachable over SSL with a dedicated user |
-| [ ] | 0.4 Netlify site connected to this repository and the domain | WEBEK | A test deploy is live on `yallapp.com.tr` |
+| [x] | 0.3 cPanel on `host.webek.org`: MySQL database and user, Remote MySQL, SSL | WEBEK | Database reachable over SSL with a dedicated user |
+| [x] | 0.4 Netlify site connected to this repository and the domain | WEBEK | A test deploy is live on `yallapp.com.tr` |
 | [ ] | 0.5 Staging WordPress site: Tutor LMS, Digits (waabek gateway), WooCommerce, sample lessons (HTML, iframe, video) | WEBEK | URL and a test admin account shared privately |
 
 ## Phase 1: Repository foundation
@@ -62,10 +62,10 @@ Each step closes once it runs on Netlify against the MySQL database (0.3, 0.4).
 
 | | Step | Done when |
 |---|---|---|
-| [~] | 4.1 Database schema and secure connection from Netlify to MySQL on `host.webek.org` | |
-| [~] | 4.2 Website: landing, guides, legal pages | Live on `yallapp.com.tr` |
-| [~] | 4.3 Client accounts, dashboard, setup wizard | |
-| [~] | 4.4 Super admin: activation and plans | |
+| [x] | 4.1 Database schema and secure connection from Netlify to MySQL on `host.webek.org` | |
+| [x] | 4.2 Website: landing, guides, legal pages | Live on `yallapp.com.tr` |
+| [x] | 4.3 Client accounts, dashboard, setup wizard | |
+| [x] | 4.4 Super admin: activation and plans | |
 | [~] | 4.5 License and plugin update API; switch on the plugin license client | A test client goes from sign-up to activation |
 
 ## Phase 5: App builds (`build/`)
@@ -76,7 +76,7 @@ The first real build needs the setup in `build/README.md`, then a test client.
 
 | | Step | Done when |
 |---|---|---|
-| [~] | 5.1 Android build per client: APK, AAB, encrypted signing key | |
+| [x] | 5.1 Android build per client: APK, AAB, encrypted signing key | |
 | [~] | 5.2 iOS build on macOS CI with App Store Connect | |
 | [~] | 5.3 Automatic store upload for the Pro plan | |
 | [~] | 5.4 File storage on `files.yallapp.com.tr` and downloads in the dashboard | A test client enters details and receives the apps |
