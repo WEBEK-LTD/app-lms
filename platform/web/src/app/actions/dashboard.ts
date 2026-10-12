@@ -6,9 +6,11 @@ import { isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/s
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { getClientContext, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
+import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
+import type { AppPatch } from "@/lib/data/store";
 import type { App, AssetKind } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
@@ -134,57 +136,73 @@ async function fileText(value: FormDataEntryValue | null, maxBytes: number): Pro
 }
 
 /**
+ * Reads the App Store Connect key fields. Empty fields keep what was saved
+ * before; nothing is returned when none were filled in.
+ */
+async function readAppStoreKey(
+  formData: FormData,
+  app: App,
+  key: Buffer,
+): Promise<{ patch: AppPatch; errors: Record<string, string>; values: Record<string, string> }> {
+  const issuerId = String(formData.get("ascIssuerId") ?? "").trim();
+  const keyId = String(formData.get("ascKeyId") ?? "").trim().toUpperCase();
+  const p8 = await fileText(formData.get("ascPrivateKeyFile"), 10_000);
+  const values = { ascIssuerId: issuerId, ascKeyId: keyId };
+  const errors: Record<string, string> = {};
+  const patch: AppPatch = {};
+  if (!issuerId && !keyId && p8 === null) return { patch, errors, values };
+  const parsed = appStoreKeySchema.safeParse({
+    issuerId: issuerId || app.ascIssuerId || "",
+    keyId: keyId || app.ascKeyId || "",
+    privateKey: p8 ?? (app.ascPrivateKeyEncrypted ? "-----BEGIN PRIVATE KEY-----kept-----END PRIVATE KEY-----" : ""),
+  });
+  if (!parsed.success) {
+    const fields = fieldErrors(parsed.error);
+    if (fields.issuerId) errors.ascIssuerId = fields.issuerId;
+    if (fields.keyId) errors.ascKeyId = fields.keyId;
+    if (fields.privateKey) errors.ascPrivateKeyFile = p8 === null ? "Upload your .p8 key file." : fields.privateKey;
+  } else {
+    patch.ascIssuerId = parsed.data.issuerId.toLowerCase();
+    patch.ascKeyId = parsed.data.keyId;
+    if (p8 !== null) patch.ascPrivateKeyEncrypted = encrypt(p8, key, keyContext.appStore(app.id));
+  }
+  return { patch, errors, values };
+}
+
+/**
  * Pro: stores the Google Play service account JSON and the App Store Connect
- * key, encrypted. Fields left empty keep what was saved before. Starter: marks
- * the step done (they publish themselves with the guides).
+ * key, encrypted, and needs at least one of them. Starter: the App Store
+ * Connect key is optional and only signs the iOS app (they publish
+ * themselves with the guides); the Google Play key is Pro only. Fields left
+ * empty keep what was saved before.
  */
 export async function savePublishingAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireApp();
   const store = await getStore();
   const now = new Date();
   const app = context.app;
+  const key = encryptionKey();
+  const appStore = await readAppStoreKey(formData, app, key);
+  const errors: Record<string, string> = { ...appStore.errors };
+  const patch: AppPatch = { ...appStore.patch };
+  const values = appStore.values;
+
   if (context.license?.plan !== "pro") {
-    await store.updateApp(app.id, { publishingDoneAt: now }, now);
+    if (Object.keys(errors).length > 0) return { errors, values };
+    await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
     return afterStep(context, "publishing");
   }
-
-  const errors: Record<string, string> = {};
-  const patch: Partial<App> = {};
-  const key = encryptionKey();
 
   const playJson = (await fileText(formData.get("googlePlayFile"), 20_000)) ?? null;
   if (playJson !== null) {
     const parsed = googlePlayKeySchema.safeParse(playJson);
     if (!parsed.success) errors.googlePlayFile = parsed.error.issues[0]?.message ?? "This file can't be used.";
     else {
-      patch.googlePlayKeyEncrypted = encrypt(parsed.data.json, key, `app:${app.id}:google-play`);
+      patch.googlePlayKeyEncrypted = encrypt(parsed.data.json, key, keyContext.googlePlay(app.id));
       patch.googlePlayClientEmail = parsed.data.clientEmail;
     }
   }
 
-  const issuerId = String(formData.get("ascIssuerId") ?? "").trim();
-  const keyId = String(formData.get("ascKeyId") ?? "").trim().toUpperCase();
-  const p8 = await fileText(formData.get("ascPrivateKeyFile"), 10_000);
-  const touchedAppStore = Boolean(issuerId || keyId || p8 !== null);
-  if (touchedAppStore) {
-    const parsed = appStoreKeySchema.safeParse({
-      issuerId: issuerId || app.ascIssuerId || "",
-      keyId: keyId || app.ascKeyId || "",
-      privateKey: p8 ?? (app.ascPrivateKeyEncrypted ? "-----BEGIN PRIVATE KEY-----kept-----END PRIVATE KEY-----" : ""),
-    });
-    if (!parsed.success) {
-      const fields = fieldErrors(parsed.error);
-      if (fields.issuerId) errors.ascIssuerId = fields.issuerId;
-      if (fields.keyId) errors.ascKeyId = fields.keyId;
-      if (fields.privateKey) errors.ascPrivateKeyFile = p8 === null ? "Upload your .p8 key file." : fields.privateKey;
-    } else {
-      patch.ascIssuerId = parsed.data.issuerId.toLowerCase();
-      patch.ascKeyId = parsed.data.keyId;
-      if (p8 !== null) patch.ascPrivateKeyEncrypted = encrypt(p8, key, `app:${app.id}:app-store`);
-    }
-  }
-
-  const values = { ascIssuerId: issuerId, ascKeyId: keyId };
   if (Object.keys(errors).length > 0) return { errors, values };
   const hasPlay = Boolean(patch.googlePlayKeyEncrypted ?? app.googlePlayKeyEncrypted);
   const hasAppStore = Boolean((patch.ascPrivateKeyEncrypted ?? app.ascPrivateKeyEncrypted) && (patch.ascKeyId ?? app.ascKeyId));
