@@ -90,7 +90,7 @@ LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei and Masteriyo.
 |---|---|---|
 | [~] | 6.1 LearnPress adapter | End-to-end checks pass on LearnPress 4.4.8 (done); a client site runs on it |
 | [~] | 6.2 LifterLMS adapter | End-to-end checks pass on LifterLMS 10.3.2 (done); a client site runs on it |
-| [ ] | 6.3 Sensei LMS, MasterStudy LMS and Masteriyo adapters | End-to-end checks pass on each |
+| [~] | 6.3 Sensei LMS, MasterStudy LMS and Masteriyo adapters | End-to-end checks pass on each (Sensei LMS 4.26.4 done) |
 | [ ] | 6.4 LearnDash adapter | Checked against a real LearnDash site (it isn't on wordpress.org) |
 
 ## Phase 7: More app types
