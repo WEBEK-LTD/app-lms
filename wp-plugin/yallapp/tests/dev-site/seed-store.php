@@ -45,6 +45,8 @@ foreach ( array(
 ) as $slug => $name ) {
 	$term           = wp_insert_term( $name, 'pa_size', array( 'slug' => $slug ) );
 	$sizes[ $slug ] = (int) $term['term_id'];
+	// The shop's own order for the sizes (WooCommerce's drag-and-drop term order).
+	update_term_meta( $sizes[ $slug ], 'order', count( $sizes ) );
 }
 
 /**

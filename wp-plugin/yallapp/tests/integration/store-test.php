@@ -160,7 +160,7 @@ foreach ( $r['json']['items'] ?? array() as $category ) {
 	$names[ $category['name'] ] = $category;
 }
 check( 'categories without Uncategorized', 200 === $r['status'] && same_set( array( 'Flowers', 'Roses', 'Gifts' ), array_keys( $names ) ), $r['raw'] );
-check( 'subcategory parent', $seed['flowers'] === ( $names['Roses']['parent_id'] ?? 0 ) && null === ( $names['Flowers']['parent_id'] ?? 0 ), $names );
+check( 'subcategory parent', $seed['flowers'] === ( $names['Roses']['parent_id'] ?? 0 ) && array_key_exists( 'parent_id', $names['Flowers'] ?? array() ) && null === $names['Flowers']['parent_id'], $names );
 
 $visible = array( $seed['roses'], $seed['ribbon'], $seed['sunflowers'], $seed['chocolates'], $seed['gift_card'], $seed['vase'] );
 $r       = call( 'GET', '/store/products?per_page=50' );
@@ -206,14 +206,16 @@ $roses = $r['json'] ?? array();
 check( 'product detail', 200 === $r['status'] && 'Red Roses Bouquet' === ( $roses['name'] ?? '' ) && false !== strpos( (string) ( $roses['description_html'] ?? '' ), 'hand-tied' ) && false !== strpos( (string) ( $roses['short_description_html'] ?? '' ), 'best-loved' ), $r['raw'] );
 check( 'product categories', array( 'Roses' ) === array_map( function ( $c ) { return $c['name']; }, $roses['categories'] ?? array() ), $roses['categories'] ?? null );
 $size = $roses['attributes'][0] ?? array();
-check( 'size attribute', 'pa_size' === ( $size['slug'] ?? '' ) && 'Size' === ( $size['name'] ?? '' ) && true === ( $size['variation'] ?? null ) && array( 'small', 'medium', 'large' ) === array_map( function ( $o ) { return $o['value']; }, $size['options'] ?? array() ) && 'Large' === ( $size['options'][2]['label'] ?? '' ), $size );
+check( 'size attribute in the shop\'s order', 'pa_size' === ( $size['slug'] ?? '' ) && 'Size' === ( $size['name'] ?? '' ) && true === ( $size['variation'] ?? null ) && array( 'small', 'medium', 'large' ) === array_map( function ( $o ) { return $o['value']; }, $size['options'] ?? array() ) && 'Large' === ( $size['options'][2]['label'] ?? '' ), $size );
 $variations = array();
 foreach ( $roses['variations'] ?? array() as $variation ) {
 	$variations[ $variation['id'] ] = $variation;
 }
 check( 'three variations', 3 === count( $variations ) && array( 'pa_size' => 'medium' ) === ( $variations[ $seed['roses_medium'] ]['attributes'] ?? null ), $roses['variations'] ?? null );
 check( 'variation sale price', '400.00' === ( $variations[ $seed['roses_medium'] ]['price']['amount'] ?? '' ) && '450.00' === ( $variations[ $seed['roses_medium'] ]['price']['regular_amount'] ?? '' ), $variations[ $seed['roses_medium'] ] ?? null );
-check( 'variation stock limit', 2 === ( $variations[ $seed['roses_large'] ]['max_quantity'] ?? 0 ) && null === ( $variations[ $seed['roses_small'] ]['max_quantity'] ?? 0 ), $variations );
+check( 'variation stock limit', 2 === ( $variations[ $seed['roses_large'] ]['max_quantity'] ?? 0 ) && array_key_exists( 'max_quantity', $variations[ $seed['roses_small'] ] ?? array() ) && null === $variations[ $seed['roses_small'] ]['max_quantity'], $variations );
+check( 'sale price text without screen reader text', '₺400.00' === ( $variations[ $seed['roses_medium'] ]['price']['formatted'] ?? '' ) && '₺450.00' === ( $variations[ $seed['roses_medium'] ]['price']['regular_formatted'] ?? '' ), $variations[ $seed['roses_medium'] ]['price'] ?? null );
+check( 'range text', false !== strpos( (string) ( $roses['price']['formatted'] ?? '' ), '300' ) && false !== strpos( (string) ( $roses['price']['formatted'] ?? '' ), '600' ) && false === stripos( (string) ( $roses['price']['formatted'] ?? '' ), 'price' ) && null === ( $roses['price']['regular_formatted'] ?? null ), $roses['price'] ?? null );
 $r      = call( 'GET', '/store/products/' . $seed['ribbon'] );
 $ribbon = $r['json'] ?? array();
 check( 'any-colour variation', array( 'color' => '' ) === ( $ribbon['variations'][0]['attributes'] ?? null ) && array( 'Red', 'White', 'Gold' ) === array_map( function ( $o ) { return $o['value']; }, $ribbon['attributes'][0]['options'] ?? array() ), $r['raw'] );
@@ -253,7 +255,7 @@ $lines = array(
 $r    = call( 'POST', '/store/cart?platform=android', array( 'lines' => $lines ) );
 $cart = $r['json']['lines'] ?? array();
 check( 'cart 200', 200 === $r['status'] && 7 === count( $cart ), $r['raw'] );
-check( 'variation line priced', true === ( $cart[0]['available'] ?? null ) && false !== strpos( (string) ( $cart[0]['unit_price'] ?? '' ), '400' ) && false !== strpos( (string) ( $cart[0]['line_total'] ?? '' ), '800' ) && null === ( $cart[0]['problem'] ?? 'x' ), $cart[0] ?? null );
+check( 'variation line priced', true === ( $cart[0]['available'] ?? null ) && false !== strpos( (string) ( $cart[0]['unit_price'] ?? '' ), '400' ) && false !== strpos( (string) ( $cart[0]['line_total'] ?? '' ), '800' ) && array_key_exists( 'problem', $cart[0] ?? array() ) && null === $cart[0]['problem'], $cart[0] ?? null );
 check( 'quantity capped at the stock', 5 === ( $cart[1]['quantity'] ?? 0 ) && true === ( $cart[1]['available'] ?? null ) && 'Only 5 left in stock.' === ( $cart[1]['problem'] ?? '' ) && 5 === ( $cart[1]['max_quantity'] ?? 0 ), $cart[1] ?? null );
 check( 'chosen colour in the name', true === ( $cart[2]['available'] ?? null ) && false !== strpos( (string) ( $cart[2]['name'] ?? '' ), 'Gold' ), $cart[2] ?? null );
 check( 'out of stock line', false === ( $cart[3]['available'] ?? null ) && 'This product is out of stock.' === ( $cart[3]['problem'] ?? '' ), $cart[3] ?? null );
@@ -353,12 +355,12 @@ $meta = json_decode(
 	),
 	true
 );
-check( 'order keeps the delivery date and gift message', $day === ( $meta['date'] ?? '' ) && 'With love' === ( $meta['gift'] ?? '' ) && null === ( $meta['left'] ?? 'x' ), $meta );
+check( 'order keeps the delivery date and gift message', $day === ( $meta['date'] ?? '' ) && 'With love' === ( $meta['gift'] ?? '' ) && array_key_exists( 'left', (array) $meta ) && null === $meta['left'], $meta );
 check( 'order emails show them', array( 'yallapp_delivery_date', 'yallapp_gift_message' ) === ( $meta['email'] ?? null ), $meta );
 $r     = call( 'GET', '/me/orders', null, $token );
 $order = $r['json']['items'][0] ?? array();
 check( 'store orders', 200 === $r['status'] && 1 === ( $r['json']['total'] ?? 0 ) && 'completed' === ( $order['status'] ?? '' ) && false !== strpos( (string) ( $order['total'] ?? '' ), '300' ), $r['raw'] );
-check( 'order item shape', $seed['chocolates'] === ( $order['items'][0]['product_id'] ?? 0 ) && 2 === ( $order['items'][0]['quantity'] ?? 0 ) && null === ( $order['items'][0]['course_id'] ?? 'x' ), $order );
+check( 'order item shape', $seed['chocolates'] === ( $order['items'][0]['product_id'] ?? 0 ) && 2 === ( $order['items'][0]['quantity'] ?? 0 ) && array_key_exists( 'course_id', $order['items'][0] ?? array() ) && null === $order['items'][0]['course_id'], $order );
 
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

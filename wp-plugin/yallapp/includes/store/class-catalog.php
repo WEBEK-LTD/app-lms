@@ -281,14 +281,17 @@ class Catalog {
 			$regular = (float) wc_get_price_to_display( $product, array( 'price' => $product->get_regular_price() ) );
 		}
 		$on_sale = $product->is_on_sale();
-		$text    = Money::plain( (string) $product->get_price_html() );
+		$sale    = $on_sale && $regular > $current;
+		// A range as the shop shows it; otherwise the price paid now, with the regular one apart.
+		$text = $range ? Money::plain( (string) $product->get_price_html() ) : '';
 		return array(
-			'amount'         => number_format( $current, $decimals, '.', '' ),
-			'regular_amount' => $on_sale && $regular > $current ? number_format( $regular, $decimals, '.', '' ) : null,
-			'currency'       => (string) get_woocommerce_currency(),
-			'formatted'      => '' !== $text ? $text : Money::plain( wc_price( $current ) ),
-			'on_sale'        => $on_sale,
-			'range'          => $range,
+			'amount'            => number_format( $current, $decimals, '.', '' ),
+			'regular_amount'    => $sale ? number_format( $regular, $decimals, '.', '' ) : null,
+			'regular_formatted' => $sale && ! $range ? Money::plain( wc_price( $regular ) ) : null,
+			'currency'          => (string) get_woocommerce_currency(),
+			'formatted'         => '' !== $text ? $text : Money::plain( wc_price( $current ) ),
+			'on_sale'           => $on_sale,
+			'range'             => $range,
 		);
 	}
 

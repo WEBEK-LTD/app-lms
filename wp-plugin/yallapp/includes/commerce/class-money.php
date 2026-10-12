@@ -21,6 +21,8 @@ class Money {
 	 * @return string
 	 */
 	public static function plain( $html ) {
+		// WooCommerce adds text for screen readers ("Original price was: ...") to sale prices.
+		$html = preg_replace( '#<span[^>]*class="[^"]*screen-reader-text[^"]*"[^>]*>.*?</span>#is', '', (string) $html );
 		$text = html_entity_decode( wp_strip_all_tags( (string) $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		return trim( (string) preg_replace( '/\s+/u', ' ', str_replace( "\xc2\xa0", ' ', $text ) ) );
 	}

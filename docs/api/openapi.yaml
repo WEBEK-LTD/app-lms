@@ -1867,6 +1867,7 @@ components:
       properties:
         amount: { type: string, description: The price a customer pays now (the lowest one for a range)., example: '450.00' }
         regular_amount: { type: [string, 'null'], description: The price before the sale. }
+        regular_formatted: { type: [string, 'null'], description: "The price before the sale, formatted (not for ranges).", example: ₺450.00 }
         currency: { type: string, example: TRY }
         formatted: { type: string, description: "As the shop shows it, including ranges.", example: ₺400 – ₺550 }
         on_sale: { type: boolean }
