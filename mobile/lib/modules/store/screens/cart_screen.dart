@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -23,39 +24,6 @@ import '../widgets/product_widgets.dart';
 bool isOrderReceived(Uri url) =>
     url.pathSegments.contains('order-received') ||
     url.queryParameters.containsKey('order-received');
-
-/// `yyyy-MM-dd`, as the plugin expects delivery dates.
-String isoDate(DateTime day) =>
-    '${day.year.toString().padLeft(4, '0')}-'
-    '${day.month.toString().padLeft(2, '0')}-'
-    '${day.day.toString().padLeft(2, '0')}';
-
-const _weekdays = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-];
-const _months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-String dayLabel(DateTime day) =>
-    '${_weekdays[day.weekday - 1]}, ${day.day} ${_months[day.month - 1]}';
 
 /// The Cart tab: lines priced by the shop, the delivery date and gift
 /// message, and the checkout on the website.

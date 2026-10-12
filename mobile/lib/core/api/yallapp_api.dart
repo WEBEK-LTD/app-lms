@@ -68,6 +68,8 @@ class CourseQuery {
       Object.hash(page, perPage, search, category, price, orderBy);
 }
 
+enum AppointmentsFilter { upcoming, past }
+
 enum ProductOrder { newest, popular, rating, priceAsc, priceDesc, title }
 
 class ProductQuery {
@@ -251,6 +253,38 @@ abstract class YallappApi {
     String? deliveryDate,
     String? giftMessage,
   });
+
+  Future<List<BookingsHomeSection>> getBookingsHome();
+  Future<List<ServiceCategory>> listServiceCategories();
+  Future<Paged<ServiceSummary>> listServices({
+    int page = 1,
+    String? search,
+    int? category,
+  });
+  Future<ServiceDetail> getService(int serviceId);
+
+  /// Free times from [from] (the business's local date) for [days] days.
+  Future<Availability> getAvailability(
+    int serviceId, {
+    required String from,
+    int? staffId,
+    int days = 7,
+  });
+
+  /// Books a `start` from [getAvailability]. Throws `slot_taken` (409) when
+  /// someone else got it first.
+  Future<Appointment> bookAppointment({
+    required int serviceId,
+    required DateTime start,
+    int? staffId,
+    String? notes,
+  });
+  Future<Paged<Appointment>> listMyAppointments({
+    AppointmentsFilter filter = AppointmentsFilter.upcoming,
+    int page = 1,
+  });
+  Future<Appointment> getMyAppointment(int appointmentId);
+  Future<Appointment> cancelMyAppointment(int appointmentId);
 }
 
 /// [YallappApi] over HTTP.
@@ -729,5 +763,101 @@ class HttpYallappApi implements YallappApi {
         'gift_message': giftMessage.trim(),
     },
     query: {'platform': platform.name},
+  );
+
+  @override
+  Future<List<BookingsHomeSection>> getBookingsHome() => _get(
+    '/bookings/home',
+    _optional,
+    (json) => reqListOf(json, 'sections', BookingsHomeSection.fromJson),
+  );
+
+  @override
+  Future<List<ServiceCategory>> listServiceCategories() => _get(
+    '/bookings/categories',
+    _public,
+    (json) => reqListOf(json, 'items', ServiceCategory.fromJson),
+  );
+
+  @override
+  Future<Paged<ServiceSummary>> listServices({
+    int page = 1,
+    String? search,
+    int? category,
+  }) => _get(
+    '/bookings/services',
+    _public,
+    (json) => Paged.fromJson(json, ServiceSummary.fromJson),
+    query: {
+      'page': page,
+      'per_page': 50,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      'category': ?category,
+    },
+  );
+
+  @override
+  Future<ServiceDetail> getService(int serviceId) =>
+      _get('/bookings/services/$serviceId', _public, ServiceDetail.fromJson);
+
+  @override
+  Future<Availability> getAvailability(
+    int serviceId, {
+    required String from,
+    int? staffId,
+    int days = 7,
+  }) => _get(
+    '/bookings/availability',
+    _optional,
+    Availability.fromJson,
+    query: {
+      'service': serviceId,
+      'staff': ?staffId,
+      'from': from,
+      'days': days,
+    },
+  );
+
+  @override
+  Future<Appointment> bookAppointment({
+    required int serviceId,
+    required DateTime start,
+    int? staffId,
+    String? notes,
+  }) => _send(
+    'POST',
+    '/bookings/appointments',
+    _required,
+    (data) => Appointment.fromJson(asJson(data)),
+    body: {
+      'service_id': serviceId,
+      'staff_id': staffId,
+      'start': start.toUtc().toIso8601String(),
+      if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<Appointment>> listMyAppointments({
+    AppointmentsFilter filter = AppointmentsFilter.upcoming,
+    int page = 1,
+  }) => _get(
+    '/me/appointments',
+    _required,
+    (json) => Paged.fromJson(json, Appointment.fromJson),
+    query: {'status': filter.name, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Appointment> getMyAppointment(int appointmentId) =>
+      _get('/me/appointments/$appointmentId', _required, Appointment.fromJson);
+
+  @override
+  Future<Appointment> cancelMyAppointment(int appointmentId) => _send(
+    'POST',
+    '/me/appointments/$appointmentId/cancel',
+    _required,
+    (data) => Appointment.fromJson(asJson(data)),
   );
 }

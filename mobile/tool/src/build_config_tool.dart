@@ -58,7 +58,7 @@ const fonts = [
 const templates = ['classic', 'bold', 'minimal'];
 
 /// App types with a module in this app. Bookings comes later.
-const appTypes = ['lms', 'store'];
+const appTypes = ['lms', 'store', 'booking'];
 
 final _androidPackage = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _iosBundleId = RegExp(

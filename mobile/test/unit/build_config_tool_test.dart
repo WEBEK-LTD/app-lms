@@ -59,8 +59,8 @@ void main() {
       isTrue,
     );
     expect(
-      validateBuildConfig(example()..['app_type'] = 'booking').errors.join(),
-      contains('"app_type" must be one of lms, store.'),
+      validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
+      contains('"app_type" must be one of lms, store, booking.'),
     );
     expect(
       renderDartConfig(example()..['app_type'] = 'store'),

@@ -25,15 +25,13 @@ const TYPES: { value: AppType; name: string; icon: IconName; tile: string; text:
     text: "Products, cart, checkout and orders. Delivery date and gift messages for flower shops.",
     requires: "Works with: WooCommerce · Digits",
   },
-];
-
-const SOON: { name: string; icon: IconName; tile: string; text: string; requires: string }[] = [
   {
+    value: "booking",
     name: "Bookings",
     icon: "calendar_month",
     tile: "bg-tile-2 text-[#1D6B48]",
-    text: "Services, staff, available times and reminders.",
-    requires: "Requires: a booking plugin · Digits",
+    text: "Services, staff, free times and appointments, booked through your booking plugin.",
+    requires: "Works with: Amelia, BookingPress, LatePoint · Digits",
   },
 ];
 
@@ -73,19 +71,6 @@ export default async function AppTypePage() {
           </label>
         ))}
 
-        {SOON.map((type) => (
-          <div key={type.name} aria-disabled="true" className="flex cursor-not-allowed flex-col gap-3.5 rounded-[20px] border border-line bg-white p-[26px]">
-            <div className="flex items-center justify-between">
-              <span className={`flex h-[52px] w-[52px] items-center justify-center rounded-[14px] ${type.tile}`}>
-                <Icon name={type.icon} size={26} />
-              </span>
-              <span className="rounded-xl bg-line-soft px-2.5 py-1 text-xs font-bold text-muted">Coming soon</span>
-            </div>
-            <span className="text-xl font-extrabold">{type.name}</span>
-            <span className="text-[15px] leading-relaxed text-ink-4">{type.text}</span>
-            <span className="text-[13px] text-muted">{type.requires}</span>
-          </div>
-        ))}
       </fieldset>
 
       <div className="flex justify-end">

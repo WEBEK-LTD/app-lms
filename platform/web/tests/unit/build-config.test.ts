@@ -2,7 +2,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildConfigFor, isAppType, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
+import { APP_TYPE_NAMES, buildConfigFor, isAppType, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { BuildConfig } from "@/lib/build-config/types";
 import type { App } from "@/lib/data/types";
@@ -80,7 +80,7 @@ describe("build config schema", () => {
     ["icon url", (c) => ({ ...c, branding: { ...c.branding, icon_url: "not a url" } })],
     ["extra property", (c) => ({ ...c, google_play_key: "secret" })],
     ["schema version", (c) => ({ ...c, schema_version: 2 })],
-    ["app type", (c) => ({ ...c, app_type: "booking" })],
+    ["app type", (c) => ({ ...c, app_type: "salon" })],
   ])("rejects %s", (_name, change) => {
     const result = validateBuildConfig(change(validConfig()));
     expect(result.ok).toBe(false);
@@ -94,7 +94,16 @@ describe("build config schema", () => {
     expect(newApp("c1", null, NOW, "store").appType).toBe("store");
     expect(newApp("c1", null, NOW).appType).toBe("lms");
     expect(isAppType("store")).toBe(true);
-    expect(isAppType("booking")).toBe(false);
+    expect(isAppType("salon")).toBe(false);
+  });
+
+  it("builds Bookings apps", () => {
+    const app = { ...completeApp("c1"), appType: "booking" as const };
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.app_type).toBe("booking");
+    expect(validateBuildConfig(config).ok).toBe(true);
+    expect(isAppType("booking")).toBe(true);
+    expect(APP_TYPE_NAMES.booking).toBe("Bookings");
   });
 
   it("builds the config from wizard data without secrets", async () => {

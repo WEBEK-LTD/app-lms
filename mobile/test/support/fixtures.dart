@@ -14,6 +14,9 @@ Map<String, dynamic> configJson({
   bool orders = false,
   String? lms = 'tutor',
   bool store = false,
+  bool bookings = false,
+  bool staffChoice = true,
+  int? cancelBeforeMinutes = 60,
 }) => {
   'site': {
     'name': 'Your Academy',
@@ -59,6 +62,11 @@ Map<String, dynamic> configJson({
     'maintenance_message': maintenance ? 'Back at 10:00.' : null,
   },
   if (store) 'store': storeConfigJson(),
+  if (bookings)
+    'bookings': bookingsConfigJson(
+      staffChoice: staffChoice,
+      cancelBeforeMinutes: cancelBeforeMinutes,
+    ),
 };
 
 Map<String, dynamic> userJson() => {
@@ -614,4 +622,172 @@ Map<String, dynamic> cartQuoteJson({bool problem = false}) => {
   'subtotal': '₺400.00',
   'subtotal_amount': '400.00',
   'currency': 'TRY',
+};
+
+Map<String, dynamic> bookingsConfigJson({
+  bool staffChoice = true,
+  int? cancelBeforeMinutes = 60,
+}) => {
+  'plugin': 'amelia',
+  'plugin_version': '1.2.30',
+  'timezone': 'Europe/Istanbul',
+  'currency': 'TRY',
+  'staff_choice': staffChoice,
+  'notes': true,
+  'max_days_ahead': 60,
+  'min_minutes_ahead': 0,
+  'cancel_before_minutes': cancelBeforeMinutes,
+};
+
+Map<String, dynamic> bookingPriceJson(String amount) => {
+  'amount': amount,
+  'currency': 'TRY',
+  'formatted': '₺$amount',
+  'free': amount == '0.00',
+};
+
+Map<String, dynamic> staffJson({
+  int id = 1,
+  String name = 'Ayşe Kaya',
+  String? price,
+}) => {
+  'id': id,
+  'name': name,
+  'image_url': null,
+  'title': 'Senior stylist',
+  'price': price == null ? null : bookingPriceJson(price),
+};
+
+Map<String, dynamic> serviceSummaryJson({
+  int id = 1,
+  String name = 'Haircut',
+  int minutes = 30,
+  String price = '300.00',
+}) => {
+  'id': id,
+  'name': name,
+  'image_url': null,
+  'duration_minutes': minutes,
+  'price': bookingPriceJson(price),
+  'category_id': 1,
+  'color': '#1D6B48',
+};
+
+Map<String, dynamic> serviceDetailJson({List<Map<String, dynamic>>? staff}) => {
+  ...serviceSummaryJson(),
+  'description_html': '<p>Haircut with our team.</p>',
+  'staff':
+      staff ??
+      [staffJson(), staffJson(id: 2, name: 'Mehmet Demir', price: '350.00')],
+};
+
+/// Seven days from [from]: closed on Sundays, otherwise free at 09:00, 09:30
+/// and 10:00 Istanbul time (UTC+3).
+Map<String, dynamic> availabilityJson(String from, {bool empty = false}) {
+  final first = DateTime.utc(
+    int.parse(from.substring(0, 4)),
+    int.parse(from.substring(5, 7)),
+    int.parse(from.substring(8, 10)),
+  );
+  String two(int v) => v.toString().padLeft(2, '0');
+  return {
+    'timezone': 'Europe/Istanbul',
+    'days': [
+      for (var i = 0; i < 7; i++)
+        () {
+          final day = first.add(Duration(days: i));
+          final date = '${day.year}-${two(day.month)}-${two(day.day)}';
+          return {
+            'date': date,
+            'slots': empty || day.weekday == DateTime.sunday
+                ? []
+                : [
+                    for (final t in ['09:00', '09:30', '10:00'])
+                      () {
+                        final h = int.parse(t.substring(0, 2)) - 3;
+                        final m = int.parse(t.substring(3));
+                        final start = DateTime.utc(
+                          day.year,
+                          day.month,
+                          day.day,
+                          h,
+                          m,
+                        );
+                        return {
+                          'start': start.toIso8601String(),
+                          'end': start
+                              .add(const Duration(minutes: 30))
+                              .toIso8601String(),
+                          'local_time': t,
+                          'staff_ids': [1, 2],
+                        };
+                      }(),
+                  ],
+          };
+        }(),
+    ],
+  };
+}
+
+Map<String, dynamic> appointmentJson({
+  int id = 7,
+  String status = 'approved',
+  bool canCancel = true,
+  String localDate = '2026-10-19',
+  String localTime = '10:00',
+}) => {
+  'id': id,
+  'status': status,
+  'status_label': status == 'approved'
+      ? 'Approved'
+      : status == 'cancelled'
+      ? 'Cancelled'
+      : 'Pending',
+  'service': {'id': 1, 'name': 'Haircut', 'image_url': null},
+  'staff': staffJson(),
+  'start': '2026-10-19T07:00:00Z',
+  'end': '2026-10-19T07:30:00Z',
+  'local_date': localDate,
+  'local_time': localTime,
+  'price': bookingPriceJson('300.00'),
+  'notes': null,
+  'location': null,
+  'can_cancel': canCancel,
+};
+
+Map<String, dynamic> bookingsHomeJson() => {
+  'sections': [
+    {
+      'type': 'next_appointment',
+      'title': null,
+      'appointment': appointmentJson(),
+    },
+    {
+      'type': 'categories',
+      'title': null,
+      'categories': [
+        {'id': 1, 'name': 'Hair', 'count': 2, 'image_url': null},
+        {'id': 2, 'name': 'Spa', 'count': 1, 'image_url': null},
+      ],
+    },
+    {
+      'type': 'services',
+      'title': 'Popular',
+      'services': [
+        serviceSummaryJson(),
+        serviceSummaryJson(
+          id: 3,
+          name: 'Massage',
+          minutes: 60,
+          price: '600.00',
+        ),
+      ],
+    },
+    {
+      'type': 'staff',
+      'title': null,
+      'staff': [staffJson(), staffJson(id: 2, name: 'Mehmet Demir')],
+    },
+    {'type': 'loyalty_card', 'title': 'From a newer plugin'},
+  ],
 };

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../modules/bookings/bookings_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
@@ -69,6 +70,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: switch (ref.read(appEnvironmentProvider).build.appType) {
       AppType.lms => lmsRoutes(),
       AppType.store => storeRoutes(),
+      AppType.booking => bookingsRoutes(),
     },
     errorBuilder: (context, state) => const NotFoundScreen(),
   );

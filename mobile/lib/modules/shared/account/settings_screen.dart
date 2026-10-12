@@ -104,7 +104,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
 
-    final store = env.build.appType == AppType.store;
+    final lms = env.build.appType == AppType.lms;
 
     return AccountScaffold(
       title: 'Settings',
@@ -148,7 +148,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          if (!store) ...[
+          if (lms) ...[
             const SizedBox(height: 16),
             SettingsGroup(
               title: 'Video',
@@ -188,7 +188,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ],
-          if (pushEnabled && store) ...[
+          if (pushEnabled && !lms) ...[
             const SizedBox(height: 16),
             SettingsGroup(
               title: 'Notifications',
@@ -202,7 +202,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ],
-          if (pushEnabled && !store) ...[
+          if (pushEnabled && lms) ...[
             const SizedBox(height: 16),
             SettingsGroup(
               title: 'Notifications',

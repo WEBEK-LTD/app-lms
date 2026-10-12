@@ -5,8 +5,9 @@ library;
 
 enum AppTemplate { classic, bold, minimal }
 
-/// Which module the app is: an Academy (`lms`) or a Store. One app type per build.
-enum AppType { lms, store }
+/// Which module the app is: an Academy (`lms`), a Store or Bookings. One app
+/// type per build.
+enum AppType { lms, store, booking }
 
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.

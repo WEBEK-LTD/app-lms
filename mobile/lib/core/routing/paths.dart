@@ -13,6 +13,10 @@ abstract final class Paths {
   static const shop = '/shop';
   static const cart = '/cart';
 
+  // Bookings apps.
+  static const services = '/services';
+  static const appointments = '/appointments';
+
   static const editProfile = '/account/edit';
   static const settings = '/account/settings';
   static const devices = '/account/settings/devices';
@@ -30,6 +34,15 @@ abstract final class Paths {
   static String question(int id) => '/question/$id';
   static String product(int id) => '/product/$id';
   static String productReviews(int id) => '/product/$id/reviews';
+  static String service(int id) => '/service/$id';
+  static String appointment(int id) => '/appointment/$id';
+
+  static String servicesFiltered({int? category}) => Uri(
+    path: services,
+    queryParameters: category == null ? null : {'category': '$category'},
+  ).toString();
+
+  static String appointmentsTab(String tab) => '$appointments?tab=$tab';
 
   static String shopFiltered({int? category, bool onSale = false}) {
     final query = <String, String>{
@@ -60,6 +73,7 @@ abstract final class Paths {
       location.startsWith(myCourses) ||
       location.startsWith(account) ||
       location.startsWith(notifications) ||
+      location.startsWith('/appointment') ||
       location.startsWith('/question/') ||
       location.startsWith('/quiz/');
 

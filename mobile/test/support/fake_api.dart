@@ -423,4 +423,124 @@ class FakeApi implements YallappApi {
       }),
     );
   }
+
+  @override
+  Future<List<BookingsHomeSection>> getBookingsHome() => _answer(
+    'getBookingsHome',
+    () => [
+      for (final s in bookingsHomeJson()['sections'] as List)
+        BookingsHomeSection.fromJson(s as Map<String, dynamic>),
+    ],
+  );
+
+  @override
+  Future<List<ServiceCategory>> listServiceCategories() => _answer(
+    'listServiceCategories',
+    () => [
+      ServiceCategory.fromJson({'id': 1, 'name': 'Hair', 'count': 2}),
+      ServiceCategory.fromJson({'id': 2, 'name': 'Spa', 'count': 1}),
+    ],
+  );
+
+  ({String? search, int? category})? lastServicesQuery;
+
+  @override
+  Future<Paged<ServiceSummary>> listServices({
+    int page = 1,
+    String? search,
+    int? category,
+  }) {
+    lastServicesQuery = (search: search, category: category);
+    return _answer(
+      'listServices',
+      () => Paged.fromJson(
+        pageJson([
+          serviceSummaryJson(),
+          serviceSummaryJson(
+            id: 3,
+            name: 'Massage',
+            minutes: 60,
+            price: '600.00',
+          ),
+        ]),
+        ServiceSummary.fromJson,
+      ),
+    );
+  }
+
+  Map<String, dynamic> service = serviceDetailJson();
+
+  @override
+  Future<ServiceDetail> getService(int serviceId) =>
+      _answer('getService', () => ServiceDetail.fromJson(service));
+
+  bool noFreeTimes = false;
+  ({int service, int? staff, String from})? lastAvailability;
+
+  @override
+  Future<Availability> getAvailability(
+    int serviceId, {
+    required String from,
+    int? staffId,
+    int days = 7,
+  }) {
+    lastAvailability = (service: serviceId, staff: staffId, from: from);
+    return _answer(
+      'getAvailability',
+      () => Availability.fromJson(availabilityJson(from, empty: noFreeTimes)),
+    );
+  }
+
+  ({int service, DateTime start, int? staff, String? notes})? lastBooking;
+
+  @override
+  Future<Appointment> bookAppointment({
+    required int serviceId,
+    required DateTime start,
+    int? staffId,
+    String? notes,
+  }) {
+    lastBooking = (
+      service: serviceId,
+      start: start,
+      staff: staffId,
+      notes: notes,
+    );
+    return _answer(
+      'bookAppointment',
+      () => Appointment.fromJson(appointmentJson()),
+    );
+  }
+
+  List<Map<String, dynamic>> upcoming = [appointmentJson()];
+
+  @override
+  Future<Paged<Appointment>> listMyAppointments({
+    AppointmentsFilter filter = AppointmentsFilter.upcoming,
+    int page = 1,
+  }) => _answer(
+    'listMyAppointments',
+    () => Paged.fromJson(
+      pageJson(
+        filter == AppointmentsFilter.upcoming
+            ? upcoming
+            : [appointmentJson(id: 5, status: 'cancelled', canCancel: false)],
+      ),
+      Appointment.fromJson,
+    ),
+  );
+
+  Map<String, dynamic> appointment = appointmentJson();
+
+  @override
+  Future<Appointment> getMyAppointment(int appointmentId) =>
+      _answer('getMyAppointment', () => Appointment.fromJson(appointment));
+
+  @override
+  Future<Appointment> cancelMyAppointment(int appointmentId) =>
+      _answer('cancelMyAppointment', () {
+        appointment = appointmentJson(status: 'cancelled', canCancel: false);
+        upcoming = [];
+        return Appointment.fromJson(appointment);
+      });
 }

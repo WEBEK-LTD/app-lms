@@ -87,3 +87,20 @@ jobs:
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Apply the example config as a Bookings app
+        run: |
+          jq '.app_type = "booking"' config/example.json > "$RUNNER_TEMP/booking.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/booking.json"
+          grep -q 'appType: AppType.booking' lib/generated/build_config.g.dart
+
+      - name: Build Bookings debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Bookings debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-booking-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

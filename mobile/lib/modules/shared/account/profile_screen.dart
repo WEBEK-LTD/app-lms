@@ -36,11 +36,13 @@ class ProfileScreen extends ConsumerWidget {
     final support = config.site.supportWhatsapp;
     final env = ref.watch(appEnvironmentProvider);
     final store = env.build.appType == AppType.store;
+    final lms = env.build.appType == AppType.lms;
     // The iOS Academy app doesn't sell courses, so it doesn't show orders
-    // either. Store apps sell physical goods on both platforms.
+    // either. Store apps sell physical goods on both platforms. Bookings
+    // apps have appointments instead.
     final showOrders =
         config.features.orders &&
-        (store || env.platform == DevicePlatform.android);
+        (store || (lms && env.platform == DevicePlatform.android));
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -114,7 +116,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
             ],
-            if (!store) ...[
+            if (lms) ...[
               SettingsGroup(
                 title: 'Learning',
                 children: [

@@ -2,6 +2,7 @@
 library;
 
 export 'auth_models.dart';
+export 'bookings_models.dart';
 export 'catalog_models.dart';
 export 'community_models.dart';
 export 'config_models.dart';

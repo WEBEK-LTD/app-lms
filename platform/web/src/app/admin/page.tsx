@@ -11,7 +11,7 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
 import { revealLicenseKey } from "@/lib/admin/clients";
-import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
+import { APP_TYPE_NAMES, SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { ClientFilter, ClientRow } from "@/lib/data/store";
@@ -140,7 +140,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
                 </Link>
                 <span>{client.whatsapp}</span>
                 <span className="text-muted">{app.siteUrl ? hostOf(app.siteUrl) : hostOf(client.siteUrl)}</span>
-                <span className="text-muted">{app.appType === "store" ? "Store" : "Academy"}</span>
+                <span className="text-muted">{APP_TYPE_NAMES[app.appType]}</span>
                 <span className="text-muted">Asked {formatDate(app.setupRequestedAt)}</span>
                 {app.setupNote ? <span className="basis-full text-ink-4">{app.setupNote}</span> : null}
               </li>

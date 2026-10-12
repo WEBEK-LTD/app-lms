@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
-import { isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
+import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { getClientContext, type ClientContext } from "@/lib/auth/session";
@@ -125,7 +125,7 @@ async function notifySetupRequest(context: ClientContext, siteUrl: string, note:
     `Website: ${siteUrl}`,
     `WhatsApp: ${context.client.whatsapp}`,
     `Email: ${context.user.email}`,
-    `App type: ${context.app?.appType === "store" ? "Store" : "Academy"}`,
+    `App type: ${APP_TYPE_NAMES[context.app?.appType ?? "lms"]}`,
     note ? `Note: ${note}` : "",
     "",
     "Requests are listed on the super admin Clients page.",

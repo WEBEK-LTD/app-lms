@@ -98,7 +98,18 @@ async function getJson(fetcher: Fetch, url: string, init?: RequestInit): Promise
   return { status: response.status, body };
 }
 
-const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home" };
+const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home", booking: "/bookings/home" };
+
+/** What /config must have for each app type. */
+const TYPE_CHECK: Record<AppType, { label: string; fix: string; ok: (config: Record<string, unknown>) => boolean }> = {
+  lms: {
+    label: "Config names the LMS",
+    fix: "Set `features.lms`.",
+    ok: (c) => isObject(c.features) && typeof c.features.lms === "string",
+  },
+  store: { label: "Config has the store settings", fix: "Add `store` to /config.", ok: (c) => isObject(c.store) },
+  booking: { label: "Config has the bookings settings", fix: "Add `bookings` to /config.", ok: (c) => isObject(c.bookings) },
+};
 
 export async function checkApi(
   baseUrl: string,
@@ -151,14 +162,9 @@ export async function checkApi(
   });
 
   const body = isObject(config.body) ? config.body : {};
-  const typeOk =
-    appType === "store" ? isObject(body.store) : isObject(body.features) && typeof body.features.lms === "string";
-  checks.push({
-    id: "app_type",
-    label: appType === "store" ? "Config has the store settings" : "Config names the LMS",
-    ok: typeOk,
-    detail: typeOk ? undefined : appType === "store" ? "Add `store` to /config." : "Set `features.lms`.",
-  });
+  const rule = TYPE_CHECK[appType];
+  const typeOk = rule.ok(body);
+  checks.push({ id: "app_type", label: rule.label, ok: typeOk, detail: typeOk ? undefined : rule.fix });
 
   try {
     const home = await getJson(fetcher, `${base}${HOME_PATH[appType]}`);

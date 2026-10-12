@@ -20,7 +20,7 @@
   "properties": {
     "schema_version": { "const": 1 },
     "client_id": { "type": "string", "description": "The platform's client ID, for logs." },
-    "app_type": { "enum": ["lms", "store"], "description": "Which module the build includes: 'lms' (Academy) or 'store' (WooCommerce). 'booking' comes later." },
+    "app_type": { "enum": ["lms", "store", "booking"], "description": "Which module the build includes: 'lms' (Academy), 'store' (WooCommerce) or 'booking' (Amelia, BookingPress or LatePoint)." },
     "app_name": { "type": "string", "minLength": 1, "maxLength": 30 },
     "short_name": { "type": "string", "minLength": 1, "maxLength": 12, "description": "Shown under the app icon." },
     "site_url": { "type": "string", "format": "uri", "pattern": "^https://", "description": "The client's WordPress site. The app calls <site_url>/wp-json/yallapp/v1." },

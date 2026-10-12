@@ -54,6 +54,20 @@ describe("API check", () => {
     expect(api.calls).toEqual(["GET /config", "GET /store/home", "POST /auth/otp/request"]);
   });
 
+  it("checks a Bookings API's settings and home", async () => {
+    const api = fakeApi({
+      "GET /config": [200, config({ store: { currency: "TRY" } })],
+      "GET /bookings/home": [200, { sections: [] }],
+      "POST /auth/otp/request": [400, { code: "invalid_request", message: "Enter your phone number." }],
+    });
+    const result = await checkApi("https://api.shop.test/v1", "booking", api);
+    const type = result.checks.find((c) => c.id === "app_type")!;
+    expect(type.ok).toBe(false);
+    expect(type.detail).toBe("Add `bookings` to /config.");
+    expect(result.checks.find((c) => c.id === "home")!.ok).toBe(true);
+    expect(api.calls).toContain("GET /bookings/home");
+  });
+
   it("lists what's missing", async () => {
     const api = fakeApi({
       "GET /config": [200, { site: { name: "Ada" } }],

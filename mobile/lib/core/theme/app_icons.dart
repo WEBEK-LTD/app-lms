@@ -75,6 +75,11 @@ abstract final class AppIcons {
   static const gift = Symbols.redeem_rounded;
   static const sort = Symbols.sort_rounded;
   static const sale = Symbols.sell_rounded;
+  static const book = Symbols.event_available_rounded;
+  static const appointments = Symbols.event_note_rounded;
+  static const staff = Symbols.groups_rounded;
+  static const location = Symbols.location_on_rounded;
+  static const notes = Symbols.notes_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

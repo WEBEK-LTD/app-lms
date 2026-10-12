@@ -72,8 +72,8 @@ export interface StoreListing {
   iphoneScreenshots?: string[];
 }
 
-/** "lms" is an Academy app, "store" a WooCommerce Store app. */
-export type AppType = "lms" | "store";
+/** "lms" is an Academy app, "store" a WooCommerce Store app, "booking" a Bookings app. */
+export type AppType = "lms" | "store" | "booking";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's

@@ -21,7 +21,10 @@ export function isSetupStep(value: unknown): value is SetupStep {
   return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
 }
 
-export const APP_TYPES: readonly AppType[] = ["lms", "store"];
+export const APP_TYPES: readonly AppType[] = ["lms", "store", "booking"];
+
+/** What clients call each app type. */
+export const APP_TYPE_NAMES: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings" };
 
 export function isAppType(value: unknown): value is AppType {
   return typeof value === "string" && (APP_TYPES as readonly string[]).includes(value);

@@ -1,3 +1,4 @@
+import 'bookings_models.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
@@ -14,6 +15,7 @@ class AppConfig {
     required this.content,
     required this.app,
     this.store,
+    this.bookings,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -25,6 +27,7 @@ class AppConfig {
     content: ContentRules.fromJson(asJson(json['content'], 'content')),
     app: AppRules.fromJson(asJson(json['app'], 'app')),
     store: optObject(json, 'store', StoreConfig.fromJson),
+    bookings: optObject(json, 'bookings', BookingsConfig.fromJson),
   );
 
   final SiteInfo site;
@@ -37,6 +40,9 @@ class AppConfig {
 
   /// The shop's settings, when WooCommerce is active (Store apps).
   final StoreConfig? store;
+
+  /// The booking plugin's rules, when one is active (Bookings apps).
+  final BookingsConfig? bookings;
 }
 
 class SiteInfo {

@@ -104,10 +104,11 @@ mobile/
   modules/shared/  sign-in, account, settings, orders, notifications
   modules/lms/     Academy screens
   modules/store/   Store screens (WooCommerce): home, shop, product, cart
-  modules/booking/ later
+  modules/bookings/ Bookings screens (Amelia, BookingPress, LatePoint): home,
+                   services, a service's free times, appointments
 ```
 
-- The build config's `app_type` (`lms` or `store`) picks the module's routes
+- The build config's `app_type` (`lms`, `store` or `booking`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
@@ -121,6 +122,11 @@ mobile/
   Checkout opens a one-time link that fills the WooCommerce cart and signs the
   customer in (guests when the shop allows it). Physical goods sell on both
   platforms; iOS never offers digital products.
+- Bookings apps show free times in the business's time zone, as the booking
+  plugin computes them, and book through `POST /bookings/appointments`, which
+  runs the plugin's own booking so its emails, approvals and calendar sync
+  apply. Payment, when there is one, happens at the business; the app never
+  takes payment for an appointment.
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number.
 
