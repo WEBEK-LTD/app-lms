@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -33,10 +34,13 @@ class ProfileScreen extends ConsumerWidget {
     final config = ref.watch(appConfigProvider);
     final user = ref.watch(authControllerProvider).user;
     final support = config.site.supportWhatsapp;
-    // The iOS app doesn't sell courses, so it doesn't show orders either.
+    final env = ref.watch(appEnvironmentProvider);
+    final store = env.build.appType == AppType.store;
+    // The iOS Academy app doesn't sell courses, so it doesn't show orders
+    // either. Store apps sell physical goods on both platforms.
     final showOrders =
         config.features.orders &&
-        ref.watch(appEnvironmentProvider).platform == DevicePlatform.android;
+        (store || env.platform == DevicePlatform.android);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -97,45 +101,60 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 18),
-            SettingsGroup(
-              title: 'Learning',
-              children: [
-                if (config.features.certificates)
-                  SettingsTile(
-                    icon: AppIcons.certificate,
-                    title: 'My certificates',
-                    onTap: () => context.push(Paths.certificates),
-                  ),
-                if (config.features.quizzes)
-                  SettingsTile(
-                    icon: AppIcons.quizResults,
-                    title: 'Quiz results',
-                    onTap: () => context.push(Paths.quizResults),
-                  ),
-                if (config.features.wishlist)
-                  SettingsTile(
-                    icon: AppIcons.favorite,
-                    title: 'Wishlist',
-                    onTap: () => context.go(Paths.myCoursesTab('wishlist')),
-                  ),
-                if (showOrders)
+            if (store && showOrders) ...[
+              SettingsGroup(
+                title: 'Shopping',
+                children: [
                   SettingsTile(
                     icon: AppIcons.orders,
                     title: 'My orders',
                     onTap: () => context.push(Paths.orders),
                   ),
-                if (!config.features.certificates &&
-                    !config.features.quizzes &&
-                    !config.features.wishlist &&
-                    !showOrders)
-                  SettingsTile(
-                    icon: AppIcons.myCourses,
-                    title: 'My Courses',
-                    onTap: () => context.go(Paths.myCourses),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 18),
+                ],
+              ),
+              const SizedBox(height: 18),
+            ],
+            if (!store) ...[
+              SettingsGroup(
+                title: 'Learning',
+                children: [
+                  if (config.features.certificates)
+                    SettingsTile(
+                      icon: AppIcons.certificate,
+                      title: 'My certificates',
+                      onTap: () => context.push(Paths.certificates),
+                    ),
+                  if (config.features.quizzes)
+                    SettingsTile(
+                      icon: AppIcons.quizResults,
+                      title: 'Quiz results',
+                      onTap: () => context.push(Paths.quizResults),
+                    ),
+                  if (config.features.wishlist)
+                    SettingsTile(
+                      icon: AppIcons.favorite,
+                      title: 'Wishlist',
+                      onTap: () => context.go(Paths.myCoursesTab('wishlist')),
+                    ),
+                  if (showOrders)
+                    SettingsTile(
+                      icon: AppIcons.orders,
+                      title: 'My orders',
+                      onTap: () => context.push(Paths.orders),
+                    ),
+                  if (!config.features.certificates &&
+                      !config.features.quizzes &&
+                      !config.features.wishlist &&
+                      !showOrders)
+                    SettingsTile(
+                      icon: AppIcons.myCourses,
+                      title: 'My Courses',
+                      onTap: () => context.go(Paths.myCourses),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 18),
+            ],
             SettingsGroup(
               title: 'Account & app',
               children: [

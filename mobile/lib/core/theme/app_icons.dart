@@ -68,6 +68,13 @@ abstract final class AppIcons {
   static const flag = Symbols.flag_rounded;
   static const timer = Symbols.timer_rounded;
   static const cart = Symbols.shopping_cart_rounded;
+  static const shop = Symbols.storefront_rounded;
+  static const add = Symbols.add_rounded;
+  static const remove = Symbols.remove_rounded;
+  static const calendar = Symbols.calendar_month_rounded;
+  static const gift = Symbols.redeem_rounded;
+  static const sort = Symbols.sort_rounded;
+  static const sale = Symbols.sell_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

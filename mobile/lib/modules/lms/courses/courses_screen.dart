@@ -10,7 +10,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
-import '../data/paged_controller.dart';
+import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
 

@@ -56,6 +56,9 @@ const fonts = [
 
 const templates = ['classic', 'bold', 'minimal'];
 
+/// App types with a module in this app. Bookings comes later.
+const appTypes = ['lms', 'store'];
+
 final _androidPackage = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _iosBundleId = RegExp(
   r'^[A-Za-z][A-Za-z0-9-]*(\.[A-Za-z][A-Za-z0-9-]*)+$',
@@ -146,8 +149,8 @@ ValidationResult validateBuildConfig(Object? decoded) {
   if (c.containsKey('schema_version') && c['schema_version'] != 1) {
     errors.add('"schema_version" must be 1.');
   }
-  if (c.containsKey('app_type') && c['app_type'] != 'lms') {
-    errors.add('"app_type" must be "lms".');
+  if (c.containsKey('app_type') && !appTypes.contains(c['app_type'])) {
+    errors.add('"app_type" must be one of ${appTypes.join(', ')}.');
   }
   _string(c, 'client_id', errors);
   _string(c, 'app_name', errors, min: 1, max: 30);
@@ -399,6 +402,7 @@ String renderDartConfig(
 import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
+  appType: AppType.${c['app_type']},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},

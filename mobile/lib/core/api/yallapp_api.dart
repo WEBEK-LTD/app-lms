@@ -68,6 +68,74 @@ class CourseQuery {
       Object.hash(page, perPage, search, category, price, orderBy);
 }
 
+enum ProductOrder { newest, popular, rating, priceAsc, priceDesc, title }
+
+class ProductQuery {
+  const ProductQuery({
+    this.page = 1,
+    this.perPage = 20,
+    this.search,
+    this.category,
+    this.onSale = false,
+    this.featured = false,
+    this.orderBy = ProductOrder.newest,
+  });
+
+  final int page;
+  final int perPage;
+  final String? search;
+  final int? category;
+  final bool onSale;
+  final bool featured;
+  final ProductOrder orderBy;
+
+  ProductQuery copyWith({
+    int? page,
+    String? search,
+    int? category,
+    bool clearCategory = false,
+    bool? onSale,
+    ProductOrder? orderBy,
+  }) => ProductQuery(
+    page: page ?? this.page,
+    perPage: perPage,
+    search: search ?? this.search,
+    category: clearCategory ? null : (category ?? this.category),
+    onSale: onSale ?? this.onSale,
+    featured: featured,
+    orderBy: orderBy ?? this.orderBy,
+  );
+
+  Map<String, dynamic> toQuery() => {
+    'page': page,
+    'per_page': perPage,
+    if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
+    if (category != null) 'category': category,
+    if (onSale) 'on_sale': true,
+    if (featured) 'featured': true,
+    'orderby': switch (orderBy) {
+      ProductOrder.priceAsc => 'price_asc',
+      ProductOrder.priceDesc => 'price_desc',
+      _ => orderBy.name,
+    },
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is ProductQuery &&
+      other.page == page &&
+      other.perPage == perPage &&
+      other.search == search &&
+      other.category == category &&
+      other.onSale == onSale &&
+      other.featured == featured &&
+      other.orderBy == orderBy;
+
+  @override
+  int get hashCode =>
+      Object.hash(page, perPage, search, category, onSale, featured, orderBy);
+}
+
 class RegisterInput {
   const RegisterInput({
     required this.signupToken,
@@ -164,6 +232,24 @@ abstract class YallappApi {
   Future<CourseQuestion> askQuestion(int courseId, String text);
   Future<QuestionThread> getQuestion(int questionId);
   Future<QuestionAnswer> answerQuestion(int questionId, String text);
+
+  Future<List<StoreHomeSection>> getStoreHome();
+  Future<List<ProductCategory>> listProductCategories();
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query);
+  Future<ProductDetail> getProduct(int productId);
+  Future<ReviewPage> listProductReviews(int productId, {int page = 1});
+
+  /// Prices the app's cart as the shop sees it now.
+  Future<CartQuote> quoteCart(List<CartLineInput> lines);
+
+  /// A one-time link that fills the shop's cart and opens its checkout.
+  /// Signed-in customers are signed in on the site; guests only when the
+  /// shop allows guest checkout.
+  Future<CheckoutLink> createStoreCheckoutLink(
+    List<CartLineInput> lines, {
+    String? deliveryDate,
+    String? giftMessage,
+  });
 }
 
 /// [YallappApi] over HTTP.
@@ -577,5 +663,70 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => QuestionAnswer.fromJson(asJson(data)),
     body: {'text': text.trim()},
+  );
+
+  @override
+  Future<List<StoreHomeSection>> getStoreHome() => _get(
+    '/store/home',
+    _public,
+    (json) => reqListOf(json, 'sections', StoreHomeSection.fromJson),
+  );
+
+  @override
+  Future<List<ProductCategory>> listProductCategories() => _get(
+    '/store/categories',
+    _public,
+    (json) => reqListOf(json, 'items', ProductCategory.fromJson),
+  );
+
+  @override
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query) => _get(
+    '/store/products',
+    _public,
+    (json) => Paged.fromJson(json, ProductSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<ProductDetail> getProduct(int productId) =>
+      _get('/store/products/$productId', _public, ProductDetail.fromJson);
+
+  @override
+  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) => _get(
+    '/store/products/$productId/reviews',
+    _optional,
+    ReviewPage.fromJson,
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<CartQuote> quoteCart(List<CartLineInput> lines) => _send(
+    'POST',
+    '/store/cart',
+    _optional,
+    (data) => CartQuote.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<CheckoutLink> createStoreCheckoutLink(
+    List<CartLineInput> lines, {
+    String? deliveryDate,
+    String? giftMessage,
+  }) => _send(
+    'POST',
+    '/store/checkout-link',
+    _optional,
+    (data) => CheckoutLink.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+      'delivery_date': ?deliveryDate,
+      if (giftMessage != null && giftMessage.trim().isNotEmpty)
+        'gift_message': giftMessage.trim(),
+    },
+    query: {'platform': platform.name},
   );
 }

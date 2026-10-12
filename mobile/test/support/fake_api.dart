@@ -350,4 +350,77 @@ class FakeApi implements YallappApi {
           'mine': true,
         });
       });
+
+  @override
+  Future<List<StoreHomeSection>> getStoreHome() => _answer(
+    'getStoreHome',
+    () => [
+      for (final s in storeHomeJson()['sections'] as List)
+        StoreHomeSection.fromJson(s as Map<String, dynamic>),
+    ],
+  );
+
+  @override
+  Future<List<ProductCategory>> listProductCategories() => _answer(
+    'listProductCategories',
+    () => [
+      ProductCategory.fromJson(productCategoryJson()),
+      ProductCategory.fromJson(productCategoryJson(id: 6, name: 'Gifts')),
+    ],
+  );
+
+  ProductQuery? lastProductQuery;
+
+  @override
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query) {
+    lastProductQuery = query;
+    return _answer(
+      'listProducts',
+      () => Paged.fromJson(
+        pageJson([
+          productSummaryJson(),
+          productSummaryJson(id: 22, name: 'Chocolate Box'),
+        ]),
+        ProductSummary.fromJson,
+      ),
+    );
+  }
+
+  Map<String, dynamic> product = productDetailJson();
+
+  @override
+  Future<ProductDetail> getProduct(int productId) =>
+      _answer('getProduct', () => ProductDetail.fromJson(product));
+
+  @override
+  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) =>
+      _answer('listProductReviews', () => ReviewPage.fromJson(reviews));
+
+  Map<String, dynamic> cartQuote = cartQuoteJson();
+  List<CartLineInput>? lastCartLines;
+
+  @override
+  Future<CartQuote> quoteCart(List<CartLineInput> lines) {
+    lastCartLines = lines;
+    return _answer('quoteCart', () => CartQuote.fromJson(cartQuote));
+  }
+
+  ({String? deliveryDate, String? giftMessage})? lastStoreCheckout;
+
+  @override
+  Future<CheckoutLink> createStoreCheckoutLink(
+    List<CartLineInput> lines, {
+    String? deliveryDate,
+    String? giftMessage,
+  }) {
+    lastStoreCheckout = (deliveryDate: deliveryDate, giftMessage: giftMessage);
+    return _answer(
+      'createStoreCheckoutLink',
+      () => CheckoutLink.fromJson({
+        'url': 'https://your-shop.com/?yallapp_link=abc',
+        'expires_at': '2030-01-01T00:00:00Z',
+        'open_in': 'in_app',
+      }),
+    );
+  }
 }

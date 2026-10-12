@@ -1,6 +1,7 @@
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'store_models.dart';
 
 /// `GET /config`: branding, detected features and app rules.
 class AppConfig {
@@ -12,6 +13,7 @@ class AppConfig {
     required this.purchases,
     required this.content,
     required this.app,
+    this.store,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -22,6 +24,7 @@ class AppConfig {
     purchases: PurchaseRules.fromJson(asJson(json['purchases'], 'purchases')),
     content: ContentRules.fromJson(asJson(json['content'], 'content')),
     app: AppRules.fromJson(asJson(json['app'], 'app')),
+    store: optObject(json, 'store', StoreConfig.fromJson),
   );
 
   final SiteInfo site;
@@ -31,6 +34,9 @@ class AppConfig {
   final PurchaseRules purchases;
   final ContentRules content;
   final AppRules app;
+
+  /// The shop's settings, when WooCommerce is active (Store apps).
+  final StoreConfig? store;
 }
 
 class SiteInfo {
@@ -95,7 +101,9 @@ class SiteFeatures {
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
-    lms: enumFrom(LmsKind.values, json['lms'], LmsKind.unknown),
+    lms: json['lms'] == null
+        ? null
+        : enumFrom(LmsKind.values, json['lms'], LmsKind.unknown),
     lmsVersion: reqString(json, 'lms_version'),
     pro: reqBool(json, 'pro'),
     certificates: reqBool(json, 'certificates'),
@@ -107,7 +115,8 @@ class SiteFeatures {
     orders: boolOr(json, 'orders', false),
   );
 
-  final LmsKind lms;
+  /// Null on a site without an LMS (a Store app).
+  final LmsKind? lms;
   final String lmsVersion;
   final bool pro;
   final bool certificates;
@@ -117,8 +126,8 @@ class SiteFeatures {
   final bool qna;
   final bool push;
 
-  /// Whether the site sells courses, so students have orders. Older plugins
-  /// don't send it.
+  /// Whether the site sells (courses or products), so customers have orders.
+  /// Older plugins don't send it.
   final bool orders;
 }
 

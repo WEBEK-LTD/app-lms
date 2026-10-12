@@ -5,7 +5,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/providers.dart';
-import 'paged_controller.dart';
+import '../../../core/data/paged_controller.dart';
 
 /// Signed-in state, so lists reload when the student signs in or out.
 final _signedInProvider = Provider<bool>(

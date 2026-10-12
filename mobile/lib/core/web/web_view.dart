@@ -21,6 +21,7 @@ class WebViewRequest {
     this.onHeight,
     this.onMainFrameError,
     this.onPageFinished,
+    this.onUrlChange,
     this.openLinksOutside = false,
     this.transparent = false,
     this.scrollable = true,
@@ -40,6 +41,10 @@ class WebViewRequest {
   final ValueChanged<double>? onHeight;
   final VoidCallback? onMainFrameError;
   final VoidCallback? onPageFinished;
+
+  /// Every page the web view moves to (for example the order received page
+  /// after a checkout).
+  final ValueChanged<Uri>? onUrlChange;
 
   /// Top-level navigations away from the loaded page open in the browser.
   final bool openLinksOutside;
@@ -89,6 +94,10 @@ class _PlatformWebViewState extends State<PlatformWebView> {
         NavigationDelegate(
           onNavigationRequest: _onNavigation,
           onPageFinished: (_) => widget.request.onPageFinished?.call(),
+          onUrlChange: (change) {
+            final uri = Uri.tryParse(change.url ?? '');
+            if (uri != null) widget.request.onUrlChange?.call(uri);
+          },
           onWebResourceError: (error) {
             if (error.isForMainFrame ?? true) {
               widget.request.onMainFrameError?.call();

@@ -76,15 +76,27 @@ enum OrderStatus {
 }
 
 class OrderLine {
-  const OrderLine({required this.name, this.courseId});
+  const OrderLine({
+    required this.name,
+    this.courseId,
+    this.productId,
+    this.quantity = 1,
+    this.imageUrl,
+  });
 
   factory OrderLine.fromJson(Json json) => OrderLine(
     name: reqString(json, 'name'),
     courseId: optInt(json, 'course_id'),
+    productId: optInt(json, 'product_id'),
+    quantity: intOr(json, 'quantity', 1),
+    imageUrl: optString(json, 'image_url'),
   );
 
   final String name;
   final int? courseId;
+  final int? productId;
+  final int quantity;
+  final String? imageUrl;
 }
 
 /// An order from the site's checkout (`GET /me/orders`).

@@ -53,8 +53,24 @@ void main() {
     expect(validateBuildConfig(c).isValid, isFalse);
   });
 
+  test('app types: Academy and Store', () {
+    expect(
+      validateBuildConfig(example()..['app_type'] = 'store').isValid,
+      isTrue,
+    );
+    expect(
+      validateBuildConfig(example()..['app_type'] = 'booking').errors.join(),
+      contains('"app_type" must be one of lms, store.'),
+    );
+    expect(
+      renderDartConfig(example()..['app_type'] = 'store'),
+      contains('appType: AppType.store,'),
+    );
+  });
+
   test('renders the Dart constants', () {
     final dart = renderDartConfig(example());
+    expect(dart, contains('appType: AppType.lms,'));
     expect(dart, contains("siteUrl: 'https://your-academy.com',"));
     expect(dart, contains('primaryColor: 0xFF0E0D24,'));
     expect(dart, contains('template: AppTemplate.classic,'));

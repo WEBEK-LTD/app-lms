@@ -5,6 +5,9 @@ library;
 
 enum AppTemplate { classic, bold, minimal }
 
+/// Which module the app is: an Academy (`lms`) or a Store. One app type per build.
+enum AppType { lms, store }
+
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
 class FirebaseOptionsData {
@@ -27,6 +30,7 @@ class FirebaseOptionsData {
 
 class BuildConfigData {
   const BuildConfigData({
+    this.appType = AppType.lms,
     required this.appName,
     required this.shortName,
     required this.siteUrl,
@@ -45,6 +49,7 @@ class BuildConfigData {
     this.firebaseIos,
   });
 
+  final AppType appType;
   final String appName;
   final String shortName;
 
@@ -68,23 +73,27 @@ class BuildConfigData {
   final FirebaseOptionsData? firebaseAndroid;
   final FirebaseOptionsData? firebaseIos;
 
-  BuildConfigData copyWith({String? siteUrl, AppTemplate? template}) =>
-      BuildConfigData(
-        appName: appName,
-        shortName: shortName,
-        siteUrl: siteUrl ?? this.siteUrl,
-        androidPackage: androidPackage,
-        iosBundleId: iosBundleId,
-        versionName: versionName,
-        versionCode: versionCode,
-        primaryColor: primaryColor,
-        splashColor: splashColor,
-        template: template ?? this.template,
-        font: font,
-        clientId: clientId,
-        iconUrl: iconUrl,
-        logoUrl: logoUrl,
-        firebaseAndroid: firebaseAndroid,
-        firebaseIos: firebaseIos,
-      );
+  BuildConfigData copyWith({
+    String? siteUrl,
+    AppTemplate? template,
+    AppType? appType,
+  }) => BuildConfigData(
+    appType: appType ?? this.appType,
+    appName: appName,
+    shortName: shortName,
+    siteUrl: siteUrl ?? this.siteUrl,
+    androidPackage: androidPackage,
+    iosBundleId: iosBundleId,
+    versionName: versionName,
+    versionCode: versionCode,
+    primaryColor: primaryColor,
+    splashColor: splashColor,
+    template: template ?? this.template,
+    font: font,
+    clientId: clientId,
+    iconUrl: iconUrl,
+    logoUrl: logoUrl,
+    firebaseAndroid: firebaseAndroid,
+    firebaseIos: firebaseIos,
+  );
 }

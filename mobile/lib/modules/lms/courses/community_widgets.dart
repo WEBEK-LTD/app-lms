@@ -5,7 +5,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
-import '../account/notifications_screen.dart' show timeAgo;
+import '../../shared/account/notifications_screen.dart' show timeAgo;
 
 /// Who wrote a review, question or reply, with an "Instructor" tag.
 class PersonLine extends StatelessWidget {

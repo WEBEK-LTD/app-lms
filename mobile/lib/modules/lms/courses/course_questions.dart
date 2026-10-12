@@ -10,7 +10,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
-import '../account/account_scaffold.dart';
+import '../../shared/account/account_scaffold.dart';
 import '../data/lms_providers.dart';
 import 'community_widgets.dart';
 

@@ -83,7 +83,7 @@ class CourseReviewsTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Summary(summary: head.summary),
+        RatingSummaryCard(summary: head.summary),
         if (head.canReview) ...[
           const SizedBox(height: 12),
           if (mine == null)
@@ -93,7 +93,7 @@ class CourseReviewsTab extends ConsumerWidget {
               height: 50,
             )
           else
-            _ReviewCard(review: mine, onEdit: () => _write(context, ref, mine)),
+            ReviewCard(review: mine, onEdit: () => _write(context, ref, mine)),
         ],
         const SizedBox(height: 12),
         if (others.isEmpty && head.summary.ratingCount == 0)
@@ -108,7 +108,7 @@ class CourseReviewsTab extends ConsumerWidget {
             ),
           ),
         for (final review in others) ...[
-          _ReviewCard(review: review),
+          ReviewCard(review: review),
           const SizedBox(height: 10),
         ],
         if (state.hasMore)
@@ -123,8 +123,8 @@ class CourseReviewsTab extends ConsumerWidget {
   }
 }
 
-class _Summary extends StatelessWidget {
-  const _Summary({required this.summary});
+class RatingSummaryCard extends StatelessWidget {
+  const RatingSummaryCard({super.key, required this.summary});
 
   final RatingSummary summary;
 
@@ -216,8 +216,8 @@ class _Bar extends StatelessWidget {
   }
 }
 
-class _ReviewCard extends StatelessWidget {
-  const _ReviewCard({required this.review, this.onEdit});
+class ReviewCard extends StatelessWidget {
+  const ReviewCard({super.key, required this.review, this.onEdit});
 
   final Review review;
   final VoidCallback? onEdit;

@@ -47,3 +47,58 @@ CourseCta resolveCourseCta({
 /// Only Android may ever request `/auth/checkout-link` or open a checkout.
 bool canOpenCheckout(DevicePlatform platform) =>
     platform == DevicePlatform.android;
+
+/// What the product page's main button does (Store apps).
+enum ProductCta {
+  /// "Add to cart".
+  addToCart,
+
+  /// A variable product before every option is chosen.
+  chooseOptions,
+
+  /// The chosen options don't make a product the shop sells.
+  unavailableOption,
+
+  outOfStock,
+
+  /// Not sold in this app: digital goods on iOS (Apple's rule), and product
+  /// types the app's cart doesn't handle (grouped, external).
+  notInApp,
+}
+
+/// Decides the product page's main action. The server checks the same rules
+/// when pricing the cart; the app checks first so iOS never offers digital
+/// goods.
+ProductCta resolveProductCta({
+  required ProductSummary product,
+  required DevicePlatform platform,
+  bool choicesComplete = true,
+  ProductVariation? variation,
+}) {
+  if (product.digital && platform == DevicePlatform.ios) {
+    return ProductCta.notInApp;
+  }
+  switch (product.type) {
+    case ProductType.simple:
+      if (product.stockStatus == StockStatus.outOfStock) {
+        return ProductCta.outOfStock;
+      }
+      return product.purchasable ? ProductCta.addToCart : ProductCta.notInApp;
+    case ProductType.variable:
+      if (product.stockStatus == StockStatus.outOfStock) {
+        return ProductCta.outOfStock;
+      }
+      if (!choicesComplete) return ProductCta.chooseOptions;
+      if (variation == null) return ProductCta.unavailableOption;
+      if (variation.stockStatus == StockStatus.outOfStock) {
+        return ProductCta.outOfStock;
+      }
+      return variation.purchasable
+          ? ProductCta.addToCart
+          : ProductCta.unavailableOption;
+    case ProductType.grouped:
+    case ProductType.external:
+    case ProductType.other:
+      return ProductCta.notInApp;
+  }
+}

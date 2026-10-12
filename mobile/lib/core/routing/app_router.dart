@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../modules/lms/lms_routes.dart';
+import '../../modules/shared/shared_routes.dart';
+import '../../modules/store/store_routes.dart';
+import '../config/build_config_data.dart';
+import '../providers.dart';
 import '../auth/auth_controller.dart';
 import '../storage/local_settings.dart';
 import 'paths.dart';
@@ -62,8 +66,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       auth: ref.read(authControllerProvider),
       guestMode: ref.read(localSettingsProvider).guestMode,
     ),
-    routes: lmsRoutes(),
-    errorBuilder: (context, state) => const LmsNotFoundScreen(),
+    routes: switch (ref.read(appEnvironmentProvider).build.appType) {
+      AppType.lms => lmsRoutes(),
+      AppType.store => storeRoutes(),
+    },
+    errorBuilder: (context, state) => const NotFoundScreen(),
   );
   ref.onDispose(() {
     router.dispose();

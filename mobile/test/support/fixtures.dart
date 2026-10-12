@@ -12,6 +12,8 @@ Map<String, dynamic> configJson({
   bool wishlist = true,
   bool qna = false,
   bool orders = false,
+  String? lms = 'tutor',
+  bool store = false,
 }) => {
   'site': {
     'name': 'Your Academy',
@@ -22,7 +24,7 @@ Map<String, dynamic> configJson({
   },
   'branding': {'logo_url': null, 'primary_color': '#0E0D24'},
   'features': {
-    'lms': 'tutor',
+    'lms': lms,
     'lms_version': '3.8.0',
     'pro': true,
     'certificates': true,
@@ -56,6 +58,7 @@ Map<String, dynamic> configJson({
     'maintenance': maintenance,
     'maintenance_message': maintenance ? 'Back at 10:00.' : null,
   },
+  if (store) 'store': storeConfigJson(),
 };
 
 Map<String, dynamic> userJson() => {
@@ -434,4 +437,181 @@ Map<String, dynamic> questionThreadJson() => {
       'mine': false,
     },
   ],
+};
+
+Map<String, dynamic> storeConfigJson({
+  bool guestCheckout = true,
+  bool deliveryDate = true,
+  bool giftMessage = true,
+}) => {
+  'currency': 'TRY',
+  'guest_checkout': guestCheckout,
+  'checkout_opens_in': 'in_app',
+  'reviews': true,
+  'delivery_date': {
+    'enabled': deliveryDate,
+    'required': deliveryDate,
+    'min_days': 1,
+    'max_days': 14,
+    'closed_weekdays': [0],
+  },
+  'gift_message': {'enabled': giftMessage, 'max_length': 100},
+};
+
+Map<String, dynamic> priceJson(
+  String amount, {
+  String? regular,
+  bool range = false,
+  String? formatted,
+}) => {
+  'amount': amount,
+  'regular_amount': regular,
+  'regular_formatted': regular == null ? null : '₺$regular',
+  'currency': 'TRY',
+  'formatted': formatted ?? '₺$amount',
+  'on_sale': regular != null,
+  'range': range,
+};
+
+Map<String, dynamic> productSummaryJson({
+  int id = 21,
+  String name = 'Sunflower Basket',
+  String type = 'simple',
+  bool digital = false,
+  String stock = 'in_stock',
+  bool purchasable = true,
+  Map<String, dynamic>? price,
+}) => {
+  'id': id,
+  'name': name,
+  'type': type,
+  'image_url': null,
+  'price': price ?? priceJson('200.00', regular: '250.00'),
+  'rating': 4.5,
+  'rating_count': 2,
+  'stock_status': stock,
+  'purchasable': purchasable,
+  'digital': digital,
+};
+
+Map<String, dynamic> productDetailJson({
+  bool digital = false,
+  String stock = 'in_stock',
+}) => {
+  ...productSummaryJson(digital: digital, stock: stock),
+  'description_html': '<p>A basket of sunflowers.</p>',
+  'short_description_html': null,
+  'images': <Object>[],
+  'sku': null,
+  'max_quantity': 5,
+  'attributes': <Object>[],
+  'variations': <Object>[],
+  'categories': [productCategoryJson()],
+  'related': [productSummaryJson(id: 22, name: 'Chocolate Box')],
+  'external_url': null,
+  'permalink': 'https://your-shop.com/product/sunflower-basket',
+};
+
+Map<String, dynamic> variableProductJson() => {
+  ...productSummaryJson(
+    id: 20,
+    name: 'Red Roses Bouquet',
+    type: 'variable',
+    price: priceJson('300.00', range: true, formatted: '₺300.00 – ₺600.00'),
+  ),
+  'description_html': '<p>Fresh red roses.</p>',
+  'short_description_html': null,
+  'images': <Object>[],
+  'sku': null,
+  'max_quantity': null,
+  'attributes': [
+    {
+      'slug': 'pa_size',
+      'name': 'Size',
+      'variation': true,
+      'options': [
+        {'value': 'small', 'label': 'Small'},
+        {'value': 'large', 'label': 'Large'},
+      ],
+    },
+  ],
+  'variations': [
+    {
+      'id': 201,
+      'attributes': {'pa_size': 'small'},
+      'price': priceJson('300.00'),
+      'image_url': null,
+      'stock_status': 'in_stock',
+      'max_quantity': null,
+      'purchasable': true,
+    },
+    {
+      'id': 203,
+      'attributes': {'pa_size': 'large'},
+      'price': priceJson('600.00'),
+      'image_url': null,
+      'stock_status': 'in_stock',
+      'max_quantity': 2,
+      'purchasable': true,
+    },
+  ],
+  'categories': <Object>[],
+  'related': <Object>[],
+  'external_url': null,
+  'permalink': 'https://your-shop.com/product/red-roses',
+};
+
+Map<String, dynamic> productCategoryJson({
+  int id = 5,
+  String name = 'Flowers',
+}) => {
+  'id': id,
+  'name': name,
+  'count': 3,
+  'parent_id': null,
+  'image_url': null,
+};
+
+Map<String, dynamic> storeHomeJson() => {
+  'sections': [
+    {
+      'type': 'categories',
+      'title': 'Categories',
+      'categories': [
+        productCategoryJson(),
+        productCategoryJson(id: 6, name: 'Gifts'),
+      ],
+    },
+    {
+      'type': 'featured_products',
+      'title': 'Featured',
+      'products': [
+        productSummaryJson(),
+        productSummaryJson(id: 22, name: 'Chocolate Box'),
+      ],
+    },
+    {'type': 'something_new', 'title': 'Later'},
+  ],
+};
+
+Map<String, dynamic> cartQuoteJson({bool problem = false}) => {
+  'lines': [
+    {
+      'product_id': 21,
+      'variation_id': null,
+      'quantity': 2,
+      'name': 'Sunflower Basket',
+      'image_url': null,
+      'unit_price': '₺200.00',
+      'line_total': '₺400.00',
+      'available': !problem,
+      'problem': problem ? 'Only 1 left in stock.' : null,
+      'max_quantity': 5,
+      'digital': false,
+    },
+  ],
+  'item_count': 2,
+  'subtotal': '₺400.00',
+  'subtotal_amount': '400.00',
+  'currency': 'TRY',
 };

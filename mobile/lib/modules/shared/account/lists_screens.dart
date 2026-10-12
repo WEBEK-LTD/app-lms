@@ -8,8 +8,8 @@ import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
-import '../data/lms_providers.dart';
-import '../quiz/quiz_screen.dart';
+import '../../lms/data/lms_providers.dart';
+import '../../lms/quiz/quiz_screen.dart';
 import 'account_scaffold.dart';
 
 String _date(DateTime d) {

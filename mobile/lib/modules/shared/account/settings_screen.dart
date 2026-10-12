@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/build_config_data.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/push_registration.dart';
@@ -12,7 +13,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
-import '../data/lms_providers.dart';
+import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
 
 /// Appearance, video defaults, notifications and security (design:
@@ -103,6 +104,8 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
 
+    final store = env.build.appType == AppType.store;
+
     return AccountScaffold(
       title: 'Settings',
       child: Column(
@@ -145,45 +148,61 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SettingsGroup(
-            title: 'Video',
-            children: [
-              SettingsTile(
-                icon: AppIcons.quality,
-                title: 'Default quality',
-                value: settings.videoQuality.label,
-                onTap: () => _pick<VideoQuality>(
-                  context,
+          if (!store) ...[
+            const SizedBox(height: 16),
+            SettingsGroup(
+              title: 'Video',
+              children: [
+                SettingsTile(
+                  icon: AppIcons.quality,
                   title: 'Default quality',
-                  values: VideoQuality.values,
-                  current: settings.videoQuality,
-                  label: (q) => q.label,
-                  onPicked: controller.setVideoQuality,
+                  value: settings.videoQuality.label,
+                  onTap: () => _pick<VideoQuality>(
+                    context,
+                    title: 'Default quality',
+                    values: VideoQuality.values,
+                    current: settings.videoQuality,
+                    label: (q) => q.label,
+                    onPicked: controller.setVideoQuality,
+                  ),
                 ),
-              ),
-              SettingsTile(
-                icon: AppIcons.speed,
-                title: 'Playback speed',
-                value: speedLabel(settings.playbackSpeed),
-                onTap: () => _pick<double>(
-                  context,
+                SettingsTile(
+                  icon: AppIcons.speed,
                   title: 'Playback speed',
-                  values: playbackSpeeds,
-                  current: settings.playbackSpeed,
-                  label: speedLabel,
-                  onPicked: controller.setPlaybackSpeed,
+                  value: speedLabel(settings.playbackSpeed),
+                  onTap: () => _pick<double>(
+                    context,
+                    title: 'Playback speed',
+                    values: playbackSpeeds,
+                    current: settings.playbackSpeed,
+                    label: speedLabel,
+                    onPicked: controller.setPlaybackSpeed,
+                  ),
                 ),
-              ),
-              toggle(
-                'Autoplay next lesson',
-                settings.autoplayNext,
-                controller.setAutoplayNext,
-                icon: AppIcons.autoplay,
-              ),
-            ],
-          ),
-          if (pushEnabled) ...[
+                toggle(
+                  'Autoplay next lesson',
+                  settings.autoplayNext,
+                  controller.setAutoplayNext,
+                  icon: AppIcons.autoplay,
+                ),
+              ],
+            ),
+          ],
+          if (pushEnabled && store) ...[
+            const SizedBox(height: 16),
+            SettingsGroup(
+              title: 'Notifications',
+              children: [
+                toggle(
+                  'News and offers',
+                  n.announcements,
+                  (v) =>
+                      controller.setNotifications(n.copyWith(announcements: v)),
+                ),
+              ],
+            ),
+          ],
+          if (pushEnabled && !store) ...[
             const SizedBox(height: 16),
             SettingsGroup(
               title: 'Notifications',

@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
+import '../../../core/config/build_config_data.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/push_service.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
-import '../data/lms_providers.dart';
+import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
 
 /// "5 min ago", "3 h ago", "Yesterday", then the date.
@@ -216,6 +217,8 @@ class OrdersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(ordersProvider);
     final notifier = ref.read(ordersProvider.notifier);
+    final store =
+        ref.watch(appEnvironmentProvider).build.appType == AppType.store;
     final Widget body;
     if (state.isInitialLoading) {
       body = const LoadingView();
@@ -225,7 +228,7 @@ class OrdersScreen extends ConsumerWidget {
       body = const MessageView(
         icon: AppIcons.orders,
         title: 'No orders yet',
-        message: 'Courses you buy on the website show up here.',
+        message: 'Your purchases show up here.',
       );
     } else {
       body = RefreshIndicator(
@@ -239,7 +242,8 @@ class OrdersScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
             itemCount: state.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (_, i) => _OrderCard(order: state.items[i]),
+            itemBuilder: (_, i) =>
+                _OrderCard(order: state.items[i], linkProducts: store),
           ),
         ),
       );
@@ -249,9 +253,12 @@ class OrdersScreen extends ConsumerWidget {
 }
 
 class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({required this.order, required this.linkProducts});
 
   final Order order;
+
+  /// Store apps open the product; Academy apps open the course.
+  final bool linkProducts;
 
   @override
   Widget build(BuildContext context) {
@@ -312,14 +319,25 @@ class _OrderCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: InkWell(
-                onTap: line.courseId == null
-                    ? null
-                    : () => context.push(Paths.course(line.courseId!)),
+                onTap: switch ((line.courseId, line.productId)) {
+                  (final int course, _) => () => context.push(
+                    Paths.course(course),
+                  ),
+                  (_, final int product) when linkProducts =>
+                    () => context.push(Paths.product(product)),
+                  _ => null,
+                },
                 child: Text(
-                  line.name,
+                  line.quantity > 1
+                      ? '${line.name} × ${line.quantity}'
+                      : line.name,
                   style: TextStyle(
                     fontSize: 14,
-                    color: line.courseId == null ? p.text : p.link,
+                    color:
+                        line.courseId != null ||
+                            (linkProducts && line.productId != null)
+                        ? p.link
+                        : p.text,
                   ),
                 ),
               ),

@@ -77,6 +77,7 @@ class ApiException implements Exception {
   static const deviceLimitReached = 'device_limit_reached';
   static const notEnrolled = 'not_enrolled';
   static const purchaseNotAllowed = 'purchase_not_allowed';
+  static const cartChanged = 'cart_changed';
 
   final String code;
   final String message;

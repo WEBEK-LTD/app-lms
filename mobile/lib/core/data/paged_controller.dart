@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/api/models/models.dart';
+import '../api/models/models.dart';
 
 /// A list that loads page by page.
 class PagedState<T> {
