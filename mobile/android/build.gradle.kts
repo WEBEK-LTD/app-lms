@@ -1,3 +1,16 @@
+// The Google Services plugin is on the classpath for every build but only
+// applied by app/build.gradle.kts when the client's google-services.json is
+// present (push notifications on).
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.google.gms:google-services:4.4.2")
+    }
+}
+
 allprojects {
     repositories {
         google()
