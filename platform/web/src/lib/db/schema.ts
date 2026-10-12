@@ -1,4 +1,4 @@
-import type { AssetKind } from "../data/types";
+import type { AppType, AssetKind } from "../data/types";
 import {
   bigint,
   boolean,
@@ -100,7 +100,7 @@ export const apps = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
-    appType: varchar("app_type", { length: 16 }).notNull().$type<"lms">(),
+    appType: varchar("app_type", { length: 16 }).notNull().$type<AppType>(),
     siteUrl: varchar("site_url", { length: 255 }),
     appName: varchar("app_name", { length: 60 }),
     shortName: varchar("short_name", { length: 24 }),

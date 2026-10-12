@@ -1,6 +1,6 @@
 import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { App, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
+import type { App, AppType, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import type { Plan } from "../plans";
@@ -21,11 +21,17 @@ export function isSetupStep(value: unknown): value is SetupStep {
   return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
 }
 
-export function newApp(clientId: string, siteUrl: string | null, now: Date): App {
+export const APP_TYPES: readonly AppType[] = ["lms", "store"];
+
+export function isAppType(value: unknown): value is AppType {
+  return typeof value === "string" && (APP_TYPES as readonly string[]).includes(value);
+}
+
+export function newApp(clientId: string, siteUrl: string | null, now: Date, appType: AppType = "lms"): App {
   return {
     id: newId(),
     clientId,
-    appType: "lms",
+    appType,
     siteUrl,
     appName: null,
     shortName: null,

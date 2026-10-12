@@ -101,10 +101,14 @@ refuse to be framed show an "Open" card that opens them full screen.
 ```
 mobile/
   core/            shared: config, theme, templates, auth, API client, storage
+  modules/shared/  sign-in, account, settings, orders, notifications
   modules/lms/     Academy screens
-  modules/store/   later
+  modules/store/   Store screens (WooCommerce): home, shop, product, cart
   modules/booking/ later
 ```
+
+- The build config's `app_type` (`lms` or `store`) picks the module's routes
+  and bottom navigation; everything in `core/` and `modules/shared/` is common.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.
@@ -113,6 +117,10 @@ mobile/
 - Purchases: Android opens the site's checkout with a one-time sign-in link.
   iOS shows no purchase buttons for paid courses (Apple's digital content rule);
   free enrollment works on both.
+- Store apps keep the cart on the device and price it with `POST /store/cart`.
+  Checkout opens a one-time link that fills the WooCommerce cart and signs the
+  customer in (guests when the shop allows it). Physical goods sell on both
+  platforms; iOS never offers digital products.
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number.
 

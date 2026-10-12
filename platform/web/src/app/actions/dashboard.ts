@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
+import { isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { getClientContext, type ClientContext } from "@/lib/auth/session";
@@ -76,10 +76,15 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
 
 export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   const context = await requireActiveClient();
-  if (formData.get("appType") !== "lms") redirect("/dashboard/app-type");
+  const appType = formData.get("appType");
+  if (!isAppType(appType)) redirect("/dashboard/app-type");
+  const store = await getStore();
+  const now = new Date();
   if (!context.app) {
-    const store = await getStore();
-    await store.createApp(newApp(context.client.id, context.client.siteUrl, new Date()));
+    await store.createApp(newApp(context.client.id, context.client.siteUrl, now, appType));
+  } else if (context.app.appType !== appType) {
+    // The next build includes the new module.
+    await store.updateApp(context.app.id, { appType, appTypeDoneAt: now }, now);
   }
   redirect(stepUrl("website"));
 }

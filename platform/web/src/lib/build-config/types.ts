@@ -15,7 +15,7 @@ export const APP_TEMPLATES = ["classic", "bold", "minimal"] as const;
 export interface BuildConfig {
   schema_version: 1;
   client_id?: string;
-  app_type: "lms";
+  app_type: "lms" | "store";
   app_name: string;
   short_name: string;
   site_url: string;

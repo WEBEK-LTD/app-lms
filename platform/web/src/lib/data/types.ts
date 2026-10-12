@@ -72,10 +72,13 @@ export interface StoreListing {
   iphoneScreenshots?: string[];
 }
 
+/** "lms" is an Academy app, "store" a WooCommerce Store app. */
+export type AppType = "lms" | "store";
+
 export interface App {
   id: string;
   clientId: string;
-  appType: "lms";
+  appType: AppType;
   siteUrl: string | null;
   appName: string | null;
   shortName: string | null;

@@ -60,7 +60,10 @@ test("a Starter client signs up and is activated", async ({ page }) => {
 
 test("the App Store Connect key is optional on Starter and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
-  await page.getByRole("button", { name: "Continue with Academy" }).click();
+  // This client builds a Store app.
+  await page.getByText("Store", { exact: true }).click();
+  await expect(page.getByRole("radio", { name: "Store" })).toBeChecked();
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Save & continue" }).click();
 
   await page.getByLabel("App name").fill("Grace Academy");
@@ -139,6 +142,7 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
 
   // The pipeline gets the Firebase files in the config, and the screenshots for the store assets.
   const config = await (await request.get(`/api/v1/builds/${build.id}/config`, { headers: pipeline })).json();
+  expect(config.app_type).toBe("store");
   expect(Object.keys(config.firebase).sort()).toEqual(["android_config_url", "ios_config_url"]);
   const firebaseFile = await request.get(config.firebase.android_config_url.replace(/^https?:\/\/[^/]+/, ""));
   expect(JSON.parse(await firebaseFile.text()).project_info.project_id).toBe("grace-academy");
