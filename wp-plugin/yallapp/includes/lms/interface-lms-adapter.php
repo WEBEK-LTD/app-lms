@@ -46,6 +46,17 @@ interface Lms_Adapter {
 	public function features();
 
 	/**
+	 * Connects the LMS's own events to the plugin's notifications, so they fire whether the
+	 * student acts on the website or in the app. Called once when the plugin boots.
+	 *
+	 * @param callable $on_enrolled Called with (course ID, user ID) after a student is enrolled.
+	 * @param callable $on_answered Called with (question ID, asker's user ID, course ID, replier's user ID)
+	 *                              after someone who teaches the course replies to a question.
+	 * @return void
+	 */
+	public function listen( callable $on_enrolled, callable $on_answered );
+
+	/**
 	 * Post types holding lessons and quizzes, used to resolve courses from content.
 	 *
 	 * @return array{course: string, lesson: string, quiz: string, announcement: string}

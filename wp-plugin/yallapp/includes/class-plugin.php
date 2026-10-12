@@ -30,6 +30,19 @@ class Plugin {
 	const REST_NAMESPACE = 'yallapp/v1';
 
 	/**
+	 * Adapter class for each LMS the detector reports.
+	 */
+	const LMS_ADAPTERS = array(
+		'tutor'       => Tutor_Adapter::class,
+		'learndash'   => Lms\LearnDash_Adapter::class,
+		'learnpress'  => Lms\LearnPress_Adapter::class,
+		'lifterlms'   => Lms\LifterLMS_Adapter::class,
+		'masterstudy' => Lms\MasterStudy_Adapter::class,
+		'sensei'      => Lms\Sensei_Adapter::class,
+		'masteriyo'   => Lms\Masteriyo_Adapter::class,
+	);
+
+	/**
 	 * The instance.
 	 *
 	 * @var Plugin|null
@@ -130,8 +143,9 @@ class Plugin {
 		if ( ! array_key_exists( 'lms', $this->services ) ) {
 			$lms     = $this->detector()->lms();
 			$adapter = null;
-			if ( $lms && $lms['supported'] && 'tutor' === $lms['id'] ) {
-				$adapter = new Tutor_Adapter();
+			if ( $lms && $lms['supported'] && isset( self::LMS_ADAPTERS[ $lms['id'] ] ) && class_exists( self::LMS_ADAPTERS[ $lms['id'] ] ) ) {
+				$class   = self::LMS_ADAPTERS[ $lms['id'] ];
+				$adapter = new $class();
 			}
 			/**
 			 * Filters the LMS adapter, so other LMS integrations can plug in.

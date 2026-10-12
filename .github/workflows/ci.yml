@@ -123,6 +123,33 @@ jobs:
       - name: Build the dev site and run the API checks
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
 
+  adapter-integration:
+    name: Plugin end-to-end (${{ matrix.lms }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        lms: [learnpress, lifterlms]
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-${{ matrix.lms }}-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+      - name: Build the dev site with ${{ matrix.lms }} and run the API checks
+        env:
+          LMS: ${{ matrix.lms }}
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+
   build-pipeline:
     name: Build pipeline scripts
     runs-on: ubuntu-24.04

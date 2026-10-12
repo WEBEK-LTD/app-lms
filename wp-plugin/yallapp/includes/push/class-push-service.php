@@ -48,9 +48,11 @@ class Push_Service {
 	 */
 	public function register() {
 		add_action( 'transition_post_status', array( $this, 'on_status_change' ), 10, 3 );
-		add_action( 'tutor_after_enrolled', array( $this, 'on_enrolled' ), 10, 2 );
-		add_action( 'tutor_after_answer_to_question', array( $this, 'on_answered' ) );
 		add_action( self::SEND_HOOK, array( $this, 'send_batch' ), 10, 4 );
+		$lms = $this->plugin->lms();
+		if ( $lms ) {
+			$lms->listen( array( $this, 'on_enrolled' ), array( $this, 'on_answered' ) );
+		}
 	}
 
 	/**
@@ -142,31 +144,32 @@ class Push_Service {
 
 	/**
 	 * Tells a student an instructor answered their question, on the website or in the app.
+	 * The LMS adapter calls it from its own Q&A hook.
 	 *
-	 * @param int $answer_id Reply comment ID.
+	 * @param int $question_id Question ID.
+	 * @param int $asker_id    Student who asked.
+	 * @param int $course_id   Course.
+	 * @param int $replier_id  Who replied.
 	 * @return void
 	 */
-	public function on_answered( $answer_id ) {
-		$answer   = get_comment( $answer_id );
-		$question = $answer && $answer->comment_parent ? get_comment( $answer->comment_parent ) : null;
-		if ( ! $question || ! $this->plugin->settings()->get( 'notify_qna_answer' ) || (int) $question->user_id === (int) $answer->user_id ) {
+	public function on_answered( $question_id, $asker_id, $course_id, $replier_id ) {
+		if ( ! $asker_id || (int) $asker_id === (int) $replier_id || ! $this->plugin->settings()->get( 'notify_qna_answer' ) ) {
 			return;
 		}
-		$course_id    = (int) $question->comment_post_ID;
 		$notification = array(
 			'title' => __( 'Your question was answered', 'yallapp' ),
 			'body'  => wp_strip_all_tags( get_the_title( $course_id ) ),
 		);
-		$this->plugin->inbox()->add( 'qna_answer', Inbox::AUDIENCE_USER, (int) $question->user_id, $notification['title'], $notification['body'], $course_id, 0, (int) $question->comment_ID );
+		$this->plugin->inbox()->add( 'qna_answer', Inbox::AUDIENCE_USER, (int) $asker_id, $notification['title'], $notification['body'], (int) $course_id, 0, (int) $question_id );
 		if ( $this->is_configured() ) {
 			$this->queue(
-				array( (int) $question->user_id ),
+				array( (int) $asker_id ),
 				'',
 				$notification,
 				array(
 					'type'        => 'qna_answer',
 					'course_id'   => (string) $course_id,
-					'question_id' => (string) $question->comment_ID,
+					'question_id' => (string) $question_id,
 				)
 			);
 		}

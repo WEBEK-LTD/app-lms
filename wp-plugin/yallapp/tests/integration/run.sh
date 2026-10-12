@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Builds the dev site, serves it, and runs the end-to-end API checks.
 #
-# Usage: tests/integration/run.sh [site-dir]
+# Usage: [LMS=<id>] tests/integration/run.sh [site-dir]
+#        Without LMS: Tutor LMS and its full suite (api-test.php).
+#        LMS=learnpress|lifterlms|masterstudy|sensei|masteriyo: that LMS and adapter-test.php.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -9,8 +11,9 @@ SITE_DIR=${1:-$(mktemp -d)/site}
 PORT=${PORT:-8089}
 WP_CLI_VERSION=${WP_CLI_VERSION:-2.12.0}
 CACHE=${YALLAPP_CACHE_DIR:-$HOME/.cache/yallapp-dev}
+LMS=${LMS:-}
 
-PORT=$PORT "$HERE/../dev-site/setup.sh" "$SITE_DIR"
+LMS=${LMS:-tutor} PORT=$PORT "$HERE/../dev-site/setup.sh" "$SITE_DIR"
 SITE_DIR=$(cd "$SITE_DIR" && pwd)
 
 PORT=$PORT "$HERE/../dev-site/serve.sh" "$SITE_DIR" > "$SITE_DIR/server.log" 2>&1 &
@@ -24,7 +27,11 @@ done
 export WP_CLI="php $CACHE/wp-cli-$WP_CLI_VERSION.phar --path=$SITE_DIR --allow-root"
 SEED_IDS=$($WP_CLI option get yallapp_seed_ids --format=json)
 export SEED_IDS
-php "$HERE/api-test.php" "http://127.0.0.1:$PORT"
+if [ -z "$LMS" ] || [ "$LMS" = tutor ]; then
+	php "$HERE/api-test.php" "http://127.0.0.1:$PORT"
+else
+	LMS=$LMS php "$HERE/adapter-test.php" "http://127.0.0.1:$PORT"
+fi
 
 if grep -q 'plugins/yallapp' "$SITE_DIR/wp-content/debug.log" 2>/dev/null; then
 	echo "PHP notices from the plugin:"

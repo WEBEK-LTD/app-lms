@@ -66,6 +66,27 @@ class Tutor_Adapter implements Lms_Adapter {
 	}
 
 	/**
+	 * Connects Tutor's enrollment and Q&A hooks.
+	 *
+	 * @param callable $on_enrolled Called with (course ID, user ID).
+	 * @param callable $on_answered Called with (question ID, asker ID, course ID, replier ID).
+	 * @return void
+	 */
+	public function listen( callable $on_enrolled, callable $on_answered ) {
+		add_action( 'tutor_after_enrolled', $on_enrolled, 10, 2 ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+		add_action(
+			'tutor_after_answer_to_question', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Tutor LMS hook.
+			static function ( $answer_id ) use ( $on_answered ) {
+				$answer   = get_comment( $answer_id );
+				$question = $answer && $answer->comment_parent ? get_comment( $answer->comment_parent ) : null;
+				if ( $question ) {
+					call_user_func( $on_answered, (int) $question->comment_ID, (int) $question->user_id, (int) $question->comment_post_ID, (int) $answer->user_id );
+				}
+			}
+		);
+	}
+
+	/**
 	 * Post types.
 	 *
 	 * @return array{course: string, lesson: string, quiz: string, announcement: string}

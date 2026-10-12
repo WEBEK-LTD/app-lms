@@ -1,18 +1,35 @@
 #!/usr/bin/env bash
 # Builds a disposable WordPress site for the plugin's integration tests:
-# WordPress + SQLite (no MySQL server needed) + Tutor LMS + this plugin,
-# then seeds sample courses. Every source comes from GitHub or Packagist.
+# WordPress + SQLite (no MySQL server needed) + an LMS + this plugin, then
+# seeds sample courses. WordPress, SQLite and Tutor LMS come from GitHub; the
+# other LMS plugins are the pinned releases from wordpress.org.
 #
-# Usage: tests/dev-site/setup.sh <site-dir>
+# Usage: [LMS=<id>] tests/dev-site/setup.sh <site-dir>
+#        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
 SITE_DIR=${1:?usage: setup.sh <site-dir>}
+LMS=${LMS:-tutor}
 WP_VERSION=${WP_VERSION:-7.1.3}
 TUTOR_VERSION=${TUTOR_VERSION:-4.1.1}
 SQLITE_VERSION=${SQLITE_VERSION:-v3.1.0}
 WP_CLI_VERSION=${WP_CLI_VERSION:-2.12.0}
 PORT=${PORT:-8089}
+
+# wordpress.org slug and pinned version of each LMS other than Tutor.
+case "$LMS" in
+	tutor) ;;
+	learnpress) LMS_SLUG=learnpress LMS_VERSION=${LEARNPRESS_VERSION:-4.4.8} ;;
+	lifterlms) LMS_SLUG=lifterlms LMS_VERSION=${LIFTERLMS_VERSION:-10.3.2} ;;
+	masterstudy) LMS_SLUG=masterstudy-lms-learning-management-system LMS_VERSION=${MASTERSTUDY_VERSION:-3.4.9} ;;
+	sensei) LMS_SLUG=sensei-lms LMS_VERSION=${SENSEI_VERSION:-4.26.4} ;;
+	masteriyo) LMS_SLUG=learning-management-system LMS_VERSION=${MASTERIYO_VERSION:-1.13.4} ;;
+	*)
+		echo "Unknown LMS '$LMS': use tutor, learnpress, lifterlms, masterstudy, sensei or masteriyo." >&2
+		exit 2
+		;;
+esac
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 PLUGIN_DIR=$(cd "$HERE/../.." && pwd)
@@ -27,9 +44,24 @@ clone() { # repo tag dest
 
 clone https://github.com/WordPress/WordPress.git "$WP_VERSION" "$CACHE/wordpress-$WP_VERSION"
 clone https://github.com/WordPress/sqlite-database-integration.git "$SQLITE_VERSION" "$CACHE/sqlite-$SQLITE_VERSION"
-clone https://github.com/themeum/tutor.git "v$TUTOR_VERSION" "$CACHE/tutor-$TUTOR_VERSION"
-if [ ! -d "$CACHE/tutor-$TUTOR_VERSION/vendor" ]; then
-	(cd "$CACHE/tutor-$TUTOR_VERSION" && COMPOSER_ALLOW_SUPERUSER=1 composer install -q --no-dev --no-interaction --prefer-dist --no-scripts)
+if [ "$LMS" = tutor ]; then
+	clone https://github.com/themeum/tutor.git "v$TUTOR_VERSION" "$CACHE/tutor-$TUTOR_VERSION"
+	if [ ! -d "$CACHE/tutor-$TUTOR_VERSION/vendor" ]; then
+		(cd "$CACHE/tutor-$TUTOR_VERSION" && COMPOSER_ALLOW_SUPERUSER=1 composer install -q --no-dev --no-interaction --prefer-dist --no-scripts)
+	fi
+	LMS_SRC="$CACHE/tutor-$TUTOR_VERSION"
+	LMS_DIR=tutor
+else
+	# The release zip as wordpress.org serves it, unpacked once into the cache.
+	LMS_SRC="$CACHE/$LMS_SLUG-$LMS_VERSION"
+	LMS_DIR=$LMS_SLUG
+	if [ ! -d "$LMS_SRC" ]; then
+		curl -fsSL -o "$CACHE/$LMS_SLUG.$LMS_VERSION.zip" "https://downloads.wordpress.org/plugin/$LMS_SLUG.$LMS_VERSION.zip"
+		rm -rf "$CACHE/$LMS_SLUG-unzip"
+		unzip -q "$CACHE/$LMS_SLUG.$LMS_VERSION.zip" -d "$CACHE/$LMS_SLUG-unzip"
+		mv "$CACHE/$LMS_SLUG-unzip/$LMS_SLUG" "$LMS_SRC"
+		rm -rf "$CACHE/$LMS_SLUG-unzip" "$CACHE/$LMS_SLUG.$LMS_VERSION.zip"
+	fi
 fi
 WP_CLI="$CACHE/wp-cli-$WP_CLI_VERSION.phar"
 if [ ! -f "$WP_CLI" ]; then
@@ -48,8 +80,8 @@ sed -e "s#{SQLITE_IMPLEMENTATION_FOLDER_PATH}#$SITE_DIR/wp-content/plugins/sqlit
 	-e "s#{SQLITE_PLUGIN}#sqlite-database-integration/load.php#" \
 	"$SQLITE_SRC/db.copy" > "$SITE_DIR/wp-content/db.php"
 
-cp -r "$CACHE/tutor-$TUTOR_VERSION" "$SITE_DIR/wp-content/plugins/tutor"
-rm -rf "$SITE_DIR/wp-content/plugins/tutor/.git" "$SITE_DIR/wp-content/plugins/tutor/node_modules"
+cp -r "$LMS_SRC" "$SITE_DIR/wp-content/plugins/$LMS_DIR"
+rm -rf "$SITE_DIR/wp-content/plugins/$LMS_DIR/.git" "$SITE_DIR/wp-content/plugins/$LMS_DIR/node_modules"
 ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
 
 cat > "$SITE_DIR/wp-config.php" <<PHP
@@ -86,7 +118,16 @@ wp() { php "$WP_CLI" --path="$SITE_DIR" --allow-root "$@"; }
 wp core install --url="http://127.0.0.1:$PORT" --title="Yallapp Dev Academy" \
 	--admin_user=admin --admin_password=admin --admin_email=admin@example.org --skip-email --quiet
 wp rewrite structure '/%postname%/' --quiet
-wp plugin activate tutor --quiet
+if [ "$LMS" = masterstudy ]; then
+	# MasterStudy creates this role on admin_init, which WP-CLI never runs, but its
+	# first upgrade (on init) already needs it.
+	wp role create stm_lms_instructor Instructor --quiet
+fi
+wp plugin activate "$LMS_DIR" --quiet
 wp plugin activate yallapp --quiet
-wp eval-file "$HERE/seed.php"
+if [ "$LMS" = tutor ]; then
+	wp eval-file "$HERE/seed.php"
+else
+	wp eval-file "$HERE/seed-$LMS.php"
+fi
 echo "Site ready in $SITE_DIR"

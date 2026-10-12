@@ -718,6 +718,7 @@ paths:
       tags: [Learning]
       operationId: listWishlist
       summary: List wishlisted courses
+      description: Empty when the LMS has no wishlist (`features.wishlist` is false).
       responses:
         '200':
           description: Wishlist
@@ -737,21 +738,25 @@ paths:
       tags: [Learning]
       operationId: addToWishlist
       summary: Add a course to the wishlist
+      description: Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).
       parameters:
         - $ref: '#/components/parameters/CourseId'
       responses:
         '204': { description: Added }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
     delete:
       tags: [Learning]
       operationId: removeFromWishlist
       summary: Remove a course from the wishlist
+      description: Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).
       parameters:
         - $ref: '#/components/parameters/CourseId'
       responses:
         '204': { description: Removed }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
 
   /lessons/{lesson_id}:
     get:
