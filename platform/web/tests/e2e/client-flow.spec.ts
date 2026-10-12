@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
@@ -175,7 +176,14 @@ test("the pipeline reads the config and the client starts a new build", async ({
 
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/builds");
-  await expect(page.getByRole("link", { name: "Download Android APK" })).toHaveAttribute("href", "https://files.yallapp.com.tr/test/app.apk");
+  // Links to files.yallapp.com.tr are signed for 15 minutes: hex HMAC-SHA256 of "<path>?expires=<expires>".
+  const href = (await page.getByRole("link", { name: "Download Android APK" }).getAttribute("href")) ?? "";
+  const match = /^https:\/\/files\.yallapp\.com\.tr\/test\/app\.apk\?expires=(\d+)&sig=([0-9a-f]{64})$/.exec(href);
+  expect(match, href).toBeTruthy();
+  const expires = Number(match![1]);
+  expect(Math.abs(expires - (Math.floor(Date.now() / 1000) + 15 * 60))).toBeLessThan(120);
+  expect(match![2]).toBe(createHmac("sha256", E2E.filesSigningSecret).update(`/test/app.apk?expires=${expires}`).digest("hex"));
+  await expect(page.getByRole("button", { name: "Download Android upload key (keep it safe)" })).toBeDisabled();
   await expect(page.getByRole("textbox", { name: "App version" })).toHaveValue("1.0.1");
   await page.getByRole("button", { name: "Start new build" }).click();
   await expect(page.getByText("Build #2 is queued.")).toBeVisible();
@@ -183,6 +191,32 @@ test("the pipeline reads the config and the client starts a new build", async ({
   // One build at a time: the button waits for the running build.
   await expect(page.getByRole("button", { name: "Start new build" })).toBeDisabled();
   await expect(page.getByText("A build is in progress.")).toBeVisible();
+});
+
+test("the pipeline gets the store keys and saves the signing keys of a running build", async ({ request }) => {
+  const queue = await (await request.get("/api/v1/builds/queue", { headers: pipeline })).json();
+  const build = queue.builds.find((b: { version_name: string }) => b.version_name === "1.0.1");
+  expect(build).toBeTruthy();
+
+  expect((await request.get(`/api/v1/builds/${build.id}/secrets`)).status()).toBe(401);
+  const queued = await request.get(`/api/v1/builds/${build.id}/secrets`, { headers: pipeline });
+  expect(queued.status()).toBe(409);
+  expect(await queued.json()).toMatchObject({ code: "build_not_building" });
+
+  await request.post(`/api/v1/builds/${build.id}/status`, { headers: pipeline, data: { status: "building", stages: { android: "running" } } });
+  const secrets = await (await request.get(`/api/v1/builds/${build.id}/secrets`, { headers: pipeline })).json();
+  expect(secrets).toMatchObject({ android_upload_key: null, ios_distribution: null, app_store_connect: null });
+  expect(JSON.parse(secrets.google_play.service_account_json)).toMatchObject({ client_email: "publisher@ada-academy.iam.gserviceaccount.com" });
+
+  const uploadKey = { keystore_base64: "MIIKBgIBAzCCCb8GCSqGSIb3", store_password: "e2e-store-password-0123", key_alias: "upload", key_password: "e2e-key-password-01234" };
+  const save = (key: typeof uploadKey) => request.put(`/api/v1/builds/${build.id}/signing`, { headers: pipeline, data: { android_upload_key: key } });
+  expect((await save(uploadKey)).status()).toBe(204);
+  const again = await save({ ...uploadKey, key_alias: "replacement" });
+  expect(again.status()).toBe(409);
+  expect(await again.json()).toMatchObject({ code: "key_exists" });
+  expect((await (await request.get(`/api/v1/builds/${build.id}/secrets`, { headers: pipeline })).json()).android_upload_key).toEqual(uploadKey);
+
+  await request.post(`/api/v1/builds/${build.id}/status`, { headers: pipeline, data: { status: "failed", message: "Test run" } });
 });
 
 test("the plugin activates and checks the license through the API", async ({ request, page }) => {

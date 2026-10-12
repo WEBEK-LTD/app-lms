@@ -18,7 +18,7 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
   listing:
     "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL. Screenshots are generated for you with your store assets.",
   publishing:
-    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: skip this step and publish with our guides.",
+    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides.",
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {

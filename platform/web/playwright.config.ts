@@ -10,6 +10,7 @@ export const E2E = {
   adminEmail: "admin@yallapp.test",
   adminPassword: "admin-password-for-e2e",
   pipelineToken: "pipeline-token-for-e2e-0123456789",
+  filesSigningSecret: "e2e-files-signing-secret-0123456789abcdef",
 };
 
 export default defineConfig({
@@ -45,6 +46,7 @@ export default defineConfig({
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",
       ENCRYPTION_KEY: "1".repeat(64),
       BUILD_PIPELINE_TOKEN: E2E.pipelineToken,
+      FILES_SIGNING_SECRET: E2E.filesSigningSecret,
     },
   },
 });

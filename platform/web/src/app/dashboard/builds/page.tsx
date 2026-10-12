@@ -7,6 +7,7 @@ import { isSetupComplete, nextStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { ArtifactKind, Build } from "@/lib/data/types";
+import { ARTIFACT_LABEL, fileLink } from "@/lib/files";
 import { latestRelease } from "@/lib/license/service";
 import { planName } from "@/lib/plans";
 import { bumpPatch } from "@/lib/semver";
@@ -14,14 +15,28 @@ import { StartBuildForm } from "./start-build";
 
 export const metadata: Metadata = { title: "Builds & downloads" };
 
-const FILES: { kind: ArtifactKind; title: string; text: string; highlight?: boolean }[] = [
-  { kind: "apk", title: "Android APK", text: "Install directly on a phone to test" },
-  { kind: "aab", title: "Android App Bundle (.aab)", text: "The file you upload to Google Play" },
-  { kind: "ipa", title: "iOS build (.ipa)", text: "Pro: uploaded to TestFlight for you" },
-  { kind: "keystore", title: "Android signing key (.jks + passwords)", text: "Keep this safe. Every future update needs the same key.", highlight: true },
+const FILES: { kind: ArtifactKind; text: string; highlight?: boolean }[] = [
+  { kind: "apk", text: "Install directly on a phone to test" },
+  { kind: "aab", text: "The file you upload to Google Play" },
+  { kind: "ipa", text: "Pro: uploaded to TestFlight for you" },
+  { kind: "keystore", text: "The keystore and its passwords. Every future update on Google Play needs this same key.", highlight: true },
 ];
 
-function DownloadRow({ title, text, href, highlight, last }: { title: string; text: string; href: string | null; highlight?: boolean; last?: boolean }) {
+function DownloadRow({
+  title,
+  text,
+  href,
+  unavailable = "Available after your first build",
+  highlight,
+  last,
+}: {
+  title: string;
+  text: string;
+  href: string | null;
+  unavailable?: string;
+  highlight?: boolean;
+  last?: boolean;
+}) {
   return (
     <li className={`flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-4 sm:px-6 ${last ? "" : "border-b border-line-soft"} ${highlight ? "bg-cream" : ""}`}>
       <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-0.5">
@@ -38,7 +53,7 @@ function DownloadRow({ title, text, href, highlight, last }: { title: string; te
             Download<span className="sr-only"> {title}</span>
           </button>
           <span id={`na-${title.replace(/\W+/g, "-")}`} className="text-xs text-muted">
-            Available after your first build
+            {unavailable}
           </span>
         </span>
       )}
@@ -55,7 +70,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const lastReady: Build | null = builds.find((b) => b.status === "ready") ?? null;
   const release = latestRelease(await store.listReleases());
   const plan = license?.plan ?? null;
-  const artifactUrl = (kind: ArtifactKind) => lastReady?.artifacts.find((a) => a.kind === kind)?.url ?? null;
+  // Signed when the page renders (links to files.yallapp.com.tr expire after 15 minutes); never stored.
+  const now = new Date();
+  const fileRow = (kind: ArtifactKind) => {
+    const url = lastReady?.artifacts.find((a) => a.kind === kind)?.url;
+    if (!url) return { href: null };
+    const link = fileLink(url, now);
+    return link.disabledReason === null ? { href: link.href } : { href: null, unavailable: link.disabledReason };
+  };
 
   const setupDone = isSetupComplete(app, plan);
   const disabledReason =
@@ -125,14 +147,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </h2>
         <ul className="m-0 list-none p-0">
           {FILES.map((file) => (
-            <DownloadRow key={file.kind} title={file.title} text={file.text} highlight={file.highlight} href={artifactUrl(file.kind)} />
+            <DownloadRow key={file.kind} title={ARTIFACT_LABEL[file.kind]} text={file.text} highlight={file.highlight} {...fileRow(file.kind)} />
           ))}
           <DownloadRow
             title="WordPress plugin (.zip)"
             text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
             href={release && state === "active" ? "/api/dashboard/plugin" : null}
           />
-          <DownloadRow title="Store assets (.zip)" text="Icons in every size, feature graphic and screenshots" href={artifactUrl("store_assets")} last />
+          <DownloadRow title={ARTIFACT_LABEL.store_assets} text="Icons in every size, feature graphic and screenshots" {...fileRow("store_assets")} last />
         </ul>
       </section>
 

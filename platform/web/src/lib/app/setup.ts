@@ -47,6 +47,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date): App
     ascIssuerId: null,
     ascKeyId: null,
     ascPrivateKeyEncrypted: null,
+    androidUploadKeyEncrypted: null,
+    iosDistributionEncrypted: null,
     appTypeDoneAt: now,
     websiteDoneAt: null,
     brandingDoneAt: null,

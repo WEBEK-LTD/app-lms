@@ -120,6 +120,8 @@ export const apps = mysqlTable(
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),
     ascKeyId: varchar("asc_key_id", { length: 32 }),
     ascPrivateKeyEncrypted: text("asc_private_key_encrypted"),
+    androidUploadKeyEncrypted: text("android_upload_key_encrypted"),
+    iosDistributionEncrypted: text("ios_distribution_encrypted"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),

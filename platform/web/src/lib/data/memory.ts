@@ -10,6 +10,8 @@ import type {
   DataStore,
   LicensePatch,
   ReleasePatch,
+  SigningKeyColumn,
+  SigningKeysPatch,
   UserPatch,
 } from "./store";
 import { DuplicateEmailError } from "./store";
@@ -245,6 +247,14 @@ export class MemoryStore implements DataStore {
   async updateApp(id: string, patch: AppPatch, now: Date): Promise<void> {
     const app = this.apps.get(id);
     if (app) this.apps.set(id, clone({ ...app, ...patch, updatedAt: now }));
+  }
+
+  async saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean> {
+    const app = this.apps.get(appId);
+    const columns = Object.keys(keys) as SigningKeyColumn[];
+    if (!app || columns.length === 0 || columns.some((column) => app[column] !== null)) return false;
+    this.apps.set(appId, clone({ ...app, ...keys, updatedAt: now }));
+    return true;
   }
 
   async createBuild(input: Omit<Build, "number" | "versionCode">): Promise<Build> {

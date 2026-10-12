@@ -545,21 +545,71 @@ function SavedKey({ title, detail, store }: { title: string; detail: string; sto
   );
 }
 
+type SavedAppStoreKey = { issuerId: string | null; keyId: string | null } | null;
+
+/** App Store Connect API key fields. Pro needs this or the Google Play key; on Starter it's optional and only signs the iOS app. */
+function AppStoreKeyFields({ state, saved, optional = false }: { state: FormState; saved: SavedAppStoreKey; optional?: boolean }) {
+  return (
+    <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+      <legend className="px-1 text-[15px] font-bold">
+        App Store Connect API key
+        {optional ? <span className="font-normal text-muted"> (optional)</span> : null}
+      </legend>
+      {optional ? (
+        <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+          <Icon name="phone_iphone" size={20} className="text-muted" />
+          <span>Needed to sign your iOS app. Without it you get the Android app only.</span>
+        </p>
+      ) : null}
+      {saved ? <SavedKey title="API key" detail={`Key ID ${saved.keyId ?? ""}`} store="app-store" /> : null}
+      <div className="flex flex-wrap gap-3.5">
+        <Field
+          className="flex-[1_1_220px]"
+          label="Issuer ID"
+          name="ascIssuerId"
+          defaultValue={v(state, "ascIssuerId", "")}
+          placeholder={saved?.issuerId ?? "69a6de7e-…"}
+          autoComplete="off"
+          error={state.errors?.ascIssuerId}
+          small
+        />
+        <Field
+          className="flex-[1_1_160px]"
+          label="Key ID"
+          name="ascKeyId"
+          defaultValue={v(state, "ascKeyId", "")}
+          placeholder={saved?.keyId ?? "2X9R4HXF34"}
+          autoComplete="off"
+          error={state.errors?.ascKeyId}
+          small
+        />
+      </div>
+      <FileInput
+        name="ascPrivateKeyFile"
+        label={saved ? "Replace the private key (.p8)" : "Private key (.p8)"}
+        accept=".p8"
+        hint="From App Store Connect › Users and Access › Integrations › App Store Connect API. Use the App Manager role."
+        error={state.errors?.ascPrivateKeyFile}
+      />
+    </fieldset>
+  );
+}
+
 export function PublishingStep({
   plan,
   saved,
 }: {
   plan: "starter" | "pro" | null;
-  saved: { play: { clientEmail: string | null } | null; appStore: { issuerId: string | null; keyId: string | null } | null };
+  saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey };
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
 
   if (plan !== "pro") {
     return (
-      <form action={action} className="flex flex-wrap items-start gap-6">
+      <form action={action} noValidate className="flex flex-wrap items-start gap-6">
         <StepCard title="Publishing" id="h-publishing">
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            On the Starter plan, you publish the apps under your own Google Play and App Store accounts. You get the files, the signing key and the store assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
+            On the Starter plan, you publish the apps under your own Google Play and App Store accounts. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             <li>
@@ -569,7 +619,11 @@ export function PublishingStep({
               <Link href="/guides/app-store">Publish on the App Store</Link>
             </li>
           </ul>
-          <p className="m-0 text-sm text-muted">Want us to publish for you? Ask us about the Pro plan on WhatsApp.</p>
+          <FormMessage message={state.message} />
+          <AppStoreKeyFields state={state} saved={saved.appStore} optional />
+          <p className="m-0 text-sm text-muted">
+            The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Ask us about the Pro plan on WhatsApp.
+          </p>
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
               Back
@@ -601,41 +655,7 @@ export function PublishingStep({
           />
         </fieldset>
 
-        <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
-          <legend className="px-1 text-[15px] font-bold">App Store Connect API key</legend>
-          {saved.appStore ? (
-            <SavedKey title="API key" detail={`Key ID ${saved.appStore.keyId ?? ""}`} store="app-store" />
-          ) : null}
-          <div className="flex flex-wrap gap-3.5">
-            <Field
-              className="flex-[1_1_220px]"
-              label="Issuer ID"
-              name="ascIssuerId"
-              defaultValue={v(state, "ascIssuerId", "")}
-              placeholder={saved.appStore?.issuerId ?? "69a6de7e-…"}
-              autoComplete="off"
-              error={state.errors?.ascIssuerId}
-              small
-            />
-            <Field
-              className="flex-[1_1_160px]"
-              label="Key ID"
-              name="ascKeyId"
-              defaultValue={v(state, "ascKeyId", "")}
-              placeholder={saved.appStore?.keyId ?? "2X9R4HXF34"}
-              autoComplete="off"
-              error={state.errors?.ascKeyId}
-              small
-            />
-          </div>
-          <FileInput
-            name="ascPrivateKeyFile"
-            label={saved.appStore ? "Replace the private key (.p8)" : "Private key (.p8)"}
-            accept=".p8"
-            hint="From App Store Connect › Users and Access › Integrations › App Store Connect API. Use the App Manager role."
-            error={state.errors?.ascPrivateKeyFile}
-          />
-        </fieldset>
+        <AppStoreKeyFields state={state} saved={saved.appStore} />
 
         <div className="flex justify-between gap-3 pt-1.5">
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>

@@ -96,6 +96,13 @@ export interface App {
   ascKeyId: string | null;
   /** Encrypted App Store Connect .p8 key. Never leaves the server. */
   ascPrivateKeyEncrypted: string | null;
+  /**
+   * Encrypted JSON of the Android upload key the build pipeline created
+   * (AndroidUploadKey in docs/api/pipeline.yaml). Set once, never replaced.
+   */
+  androidUploadKeyEncrypted: string | null;
+  /** Encrypted JSON of the iOS distribution certificate (IosDistribution in docs/api/pipeline.yaml). Set once, never replaced. */
+  iosDistributionEncrypted: string | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;

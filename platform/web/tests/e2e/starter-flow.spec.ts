@@ -1,0 +1,132 @@
+import { expect, test, type Page } from "@playwright/test";
+import { E2E } from "../../playwright.config";
+import { solidPng } from "./png";
+
+/**
+ * Starter plan: the App Store Connect key is optional in the publishing step
+ * (it only signs the iOS app), the Google Play key isn't offered, and the
+ * pipeline still receives the key.
+ */
+test.describe.configure({ mode: "serial" });
+
+const suffix = Date.now().toString(36);
+const client = {
+  name: "Grace Hopper",
+  email: `grace-${suffix}@academy.test`,
+  site: `https://grace-${suffix}.academy.test`,
+  password: "another-strong-password-1",
+};
+const pipeline = { authorization: `Bearer ${E2E.pipelineToken}` };
+const p8 = "-----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AwEHBHkwdwIBAQQg\n-----END PRIVATE KEY-----\n";
+
+async function signIn(page: Page, email: string, password: string) {
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForURL((url) => url.pathname !== "/sign-in");
+}
+
+test("a Starter client signs up and is activated", async ({ page }) => {
+  await page.goto("/sign-up");
+  await page.getByLabel("Full name").fill(client.name);
+  await page.getByLabel("Email").fill(client.email);
+  await page.getByLabel("WhatsApp number").fill("+90 544 000 00 01");
+  await page.getByLabel("Your WordPress website").fill(client.site);
+  await page.getByLabel("Password", { exact: true }).fill(client.password);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page).toHaveURL(/\/pending$/);
+
+  await page.context().clearCookies();
+  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await page.getByRole("searchbox", { name: "Search clients" }).fill(client.email);
+  await page.getByRole("button", { name: "Search" }).click();
+  await page.getByRole("link", { name: `Activate ${client.name}` }).click();
+  const panel = page.getByRole("complementary");
+  await panel.getByLabel("Plan").selectOption("starter");
+  await panel.getByLabel("Active until").fill(new Date(Date.now() + 365 * 86_400_000).toISOString().slice(0, 10));
+  await panel.getByRole("button", { name: "Activate & send license" }).click();
+  await expect(page.getByRole("status")).toContainText("Activated");
+});
+
+test("the App Store Connect key is optional on Starter and reaches the pipeline", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.getByRole("button", { name: "Continue with Academy" }).click();
+  await page.getByRole("button", { name: "Save & continue" }).click();
+
+  await page.getByLabel("App name").fill("Grace Academy");
+  await page.getByLabel("Name under the app icon").fill("Grace");
+  await page.locator("#upload-icon").setInputFiles({ name: "icon.png", mimeType: "image/png", buffer: solidPng(1024, 1024, [14, 13, 36]) });
+  await expect(page.getByText("Replace file")).toBeVisible();
+  await page.getByRole("button", { name: "Save & continue" }).click();
+
+  await page.getByLabel("Android package name").fill("com.graceacademy.app");
+  await page.getByLabel("iOS bundle ID").fill("com.graceacademy.app");
+  await page.getByLabel("Store title").fill("Grace Academy");
+  await page.getByLabel("Short description").fill("Learn with Grace on your phone.");
+  await page.getByLabel("Full description").fill("Grace Academy brings every course, lesson and quiz to your phone, synced with our website.");
+  await page.getByLabel("Support email").fill("help@academy.test");
+  await page.getByLabel("Privacy policy URL").fill("https://academy.test/privacy");
+  await page.getByRole("button", { name: "Save & continue" }).click();
+
+  // Publishing (Starter)
+  await expect(page.getByRole("heading", { name: "Publishing" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "App Store Connect API key (optional)" })).toBeVisible();
+  await expect(page.getByText("Needed to sign your iOS app. Without it you get the Android app only.")).toBeVisible();
+  await expect(page.getByText("Service account key (JSON)")).toHaveCount(0);
+
+  // Same validation as on Pro.
+  await page.getByLabel("Key ID").fill("short");
+  await page.getByRole("button", { name: "Finish setup" }).click();
+  await expect(page.getByText("The Key ID is 10 letters and numbers.")).toBeVisible();
+
+  await page.getByLabel("Issuer ID").fill("69a6de7e-1234-4bcd-8ef0-123456789abc");
+  await page.getByLabel("Key ID").fill("2X9R4HXF34");
+  await page.getByLabel("Private key (.p8)").setInputFiles({ name: "AuthKey_2X9R4HXF34.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
+  await page.getByRole("button", { name: "Finish setup" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/builds\?started=1$/);
+
+  await page.goto("/dashboard/setup?step=publishing");
+  await expect(page.getByText("Key ID 2X9R4HXF34")).toBeVisible();
+  expect(await page.content()).not.toContain("BEGIN PRIVATE KEY");
+
+  const queue = await (await request.get("/api/v1/builds/queue", { headers: pipeline })).json();
+  const build = queue.builds.find((b: { version_name: string; auto_publish: boolean }) => b.version_name === "1.0.0" && !b.auto_publish);
+  expect(build).toBeTruthy();
+  await request.post(`/api/v1/builds/${build.id}/status`, { headers: pipeline, data: { status: "building" } });
+  const secrets = await (await request.get(`/api/v1/builds/${build.id}/secrets`, { headers: pipeline })).json();
+  expect(secrets).toEqual({
+    android_upload_key: null,
+    ios_distribution: null,
+    google_play: null,
+    app_store_connect: { issuer_id: "69a6de7e-1234-4bcd-8ef0-123456789abc", key_id: "2X9R4HXF34", private_key: p8.trim() },
+  });
+
+  await request.post(`/api/v1/builds/${build.id}/status`, {
+    headers: pipeline,
+    data: {
+      status: "ready",
+      artifacts: [
+        { kind: "apk", url: "https://files.yallapp.com.tr/grace/app.apk" },
+        { kind: "keystore", url: "https://files.yallapp.com.tr/grace/upload-key.zip" },
+      ],
+    },
+  });
+  await page.goto("/dashboard/builds");
+  await expect(page.getByRole("link", { name: "Download Android upload key (keep it safe)" })).toHaveAttribute(
+    "href",
+    /^https:\/\/files\.yallapp\.com\.tr\/grace\/upload-key\.zip\?expires=\d+&sig=[0-9a-f]{64}$/,
+  );
+});
+
+test("the super admin sees signed file links in the build queue", async ({ page }) => {
+  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await page.goto("/admin/builds?status=ready");
+  const row = page.getByRole("row").filter({ hasText: client.name });
+  await expect(row.getByRole("link", { name: "Android APK" })).toHaveAttribute(
+    "href",
+    /^https:\/\/files\.yallapp\.com\.tr\/grace\/app\.apk\?expires=\d+&sig=[0-9a-f]{64}$/,
+  );
+  await expect(row.getByRole("link", { name: "Android upload key (keep it safe)" })).toBeVisible();
+});

@@ -5,6 +5,7 @@ import { formatDateTime } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { BuildStatus } from "@/lib/data/types";
+import { artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
 
 export const metadata: Metadata = { title: "Build queue" };
 
@@ -29,6 +30,8 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
       return { build, name: user?.name ?? "Unknown client" };
     }),
   );
+  // Download links are signed for this render only (15 minutes) and never stored.
+  const now = new Date();
 
   return (
     <>
@@ -56,7 +59,7 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
         {rows.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No builds here.</p>
         ) : (
-          <table className="w-full min-w-[720px] border-collapse text-sm">
+          <table className="w-full min-w-[880px] border-collapse text-sm">
             <thead>
               <tr className="bg-sand text-left text-muted">
                 <th scope="col" className="px-4 py-3 font-semibold">Client</th>
@@ -64,6 +67,7 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
                 <th scope="col" className="px-4 py-3 font-semibold">Version</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Queued</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Status</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Files</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Build ID</th>
               </tr>
             </thead>
@@ -82,6 +86,9 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
                     <BuildBadge status={build.status} />
                     {build.message ? <span className="mt-1 block text-xs text-muted">{build.message}</span> : null}
                   </td>
+                  <td className="px-4 py-3">
+                    <BuildFiles links={artifactLinks(build.artifacts, now)} />
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs break-all">{build.id}</td>
                 </tr>
               ))}
@@ -90,5 +97,22 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
         )}
       </section>
     </>
+  );
+}
+
+function BuildFiles({ links }: { links: ReturnType<typeof artifactLinks> }) {
+  if (links.length === 0) return <span className="text-muted">None yet</span>;
+  const disabled = links.some((link) => link.href === null);
+  return (
+    <div className="flex flex-col gap-1">
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+        {links.map((link, i) => (
+          <li key={`${link.kind}-${i}`}>
+            {link.href ? <a href={link.href}>{link.label}</a> : <span className="text-muted">{link.label}</span>}
+          </li>
+        ))}
+      </ul>
+      {disabled ? <span className="text-xs text-muted">{FILES_NOT_CONFIGURED}</span> : null}
+    </div>
   );
 }
