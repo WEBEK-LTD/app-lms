@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
@@ -13,7 +14,9 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import type { App, AssetKind } from "@/lib/data/types";
-import { encryptionKey } from "@/lib/env";
+import { encryptionKey, superAdminEmails } from "@/lib/env";
+import { sendMail } from "@/lib/mail";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
 import {
@@ -96,8 +99,55 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const store = await getStore();
   const now = new Date();
-  await store.updateApp(context.app.id, { siteUrl: parsed.data.siteUrl, websiteDoneAt: now }, now);
+  const data = parsed.data;
+  const patch: AppPatch = { siteUrl: data.siteUrl, backend: data.backend, websiteDoneAt: now };
+  if (data.backend === "custom_api") patch.apiBaseUrl = data.apiBaseUrl.replace(/\/+$/, "");
+  if (data.backend === "setup_requested") {
+    patch.setupNote = data.setupNote || null;
+    if (context.app.backend !== "setup_requested") {
+      patch.setupRequestedAt = now;
+      await notifySetupRequest(context, data.siteUrl, data.setupNote);
+    }
+  }
+  await store.updateApp(context.app.id, patch, now);
+  if (data.backend === "setup_requested") {
+    revalidatePath("/dashboard", "layout");
+    return { message: "Thanks! Our team will message you on WhatsApp to set up your WordPress site." };
+  }
   return afterStep(context, "website");
+}
+
+/** Tells the team a client wants their WordPress site set up for them. */
+async function notifySetupRequest(context: ClientContext, siteUrl: string, note: string): Promise<void> {
+  const admins = superAdminEmails();
+  const text = [
+    `${context.user.name} asked us to set up WordPress for their app.`,
+    `Website: ${siteUrl}`,
+    `WhatsApp: ${context.client.whatsapp}`,
+    `Email: ${context.user.email}`,
+    `App type: ${context.app?.appType === "store" ? "Store" : "Academy"}`,
+    note ? `Note: ${note}` : "",
+    "",
+    "Requests are listed on the super admin Clients page.",
+  ]
+    .filter((line, i, all) => line !== "" || i === all.length - 2)
+    .join("\n");
+  await Promise.all(admins.map((to) => sendMail({ to, subject: "WordPress set-up request", text })));
+}
+
+export interface ApiCheckState {
+  result: ApiCheckResult | null;
+  error?: string;
+}
+
+/** Runs the API check against the address in the Website form, without saving it. */
+export async function checkApiAction(_: ApiCheckState, formData: FormData): Promise<ApiCheckState> {
+  const context = await requireApp();
+  const limited = await hitRateLimit(await getStore(), RATE_LIMITS.apiCheck, context.client.id);
+  if (!limited.allowed) return { result: null, error: "Too many checks. Try again in a few minutes." };
+  const address = String(formData.get("apiBaseUrl") ?? "").trim();
+  if (!address) return { result: null, error: "Enter your API's address first." };
+  return { result: await checkApi(address, context.app.appType) };
 }
 
 export async function saveBrandingAction(_: FormState, formData: FormData): Promise<FormState> {

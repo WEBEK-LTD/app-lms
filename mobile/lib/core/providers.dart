@@ -25,7 +25,7 @@ class ApiBundle {
 /// Builds the HTTP API and the token manager that refreshes through it.
 final apiBundleProvider = Provider<ApiBundle>((ref) {
   final env = ref.watch(appEnvironmentProvider);
-  final baseUrl = apiBaseUrl(env.siteUrl);
+  final baseUrl = apiUrlOf(env.build);
   final refreshDio = Dio(
     BaseOptions(
       baseUrl: baseUrl,

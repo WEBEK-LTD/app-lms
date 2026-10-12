@@ -8,6 +8,7 @@ const buildConfig = BuildConfigData(
   appName: 'Your Academy',
   shortName: 'Academy',
   siteUrl: 'https://your-academy.com',
+  apiBaseUrl: null,
   androidPackage: 'com.youracademy.app',
   iosBundleId: 'com.youracademy.app',
   versionName: '1.0.0',

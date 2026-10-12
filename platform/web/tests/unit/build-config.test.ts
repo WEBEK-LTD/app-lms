@@ -119,8 +119,8 @@ describe("setup wizard", () => {
   });
 
   it("validates each step with the schema's rules", () => {
-    expect(websiteSchema.safeParse({ siteUrl: "http://academy.test" }).success).toBe(false);
-    expect(websiteSchema.safeParse({ siteUrl: "academy.test" }).success).toBe(true);
+    expect(websiteSchema.safeParse({ backend: "wordpress", siteUrl: "http://academy.test" }).success).toBe(false);
+    expect(websiteSchema.safeParse({ backend: "wordpress", siteUrl: "academy.test" }).success).toBe(true);
 
     const branding = {
       appName: "Ada Academy",

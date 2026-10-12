@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { Notice } from "@/components/ui";
+import { Notice, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -13,7 +13,7 @@ import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps"
 export const metadata: Metadata = { title: "App setup" };
 
 const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
-  website: "Your WordPress site address and the plugin connection.",
+  website: "Where your app gets its content: your WordPress site and the plugin, your own API, or a WordPress site we set up for you.",
   branding: "App name, name under the icon, icon, logo, colors, template and font.",
   listing:
     "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
@@ -102,6 +102,10 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}
+          backend={app.backend}
+          apiBaseUrl={app.apiBaseUrl ?? ""}
+          setupNote={app.setupNote ?? ""}
+          setupRequestedAt={app.setupRequestedAt ? formatDate(app.setupRequestedAt) : null}
         />
       ) : null}
       {step === "branding" ? (

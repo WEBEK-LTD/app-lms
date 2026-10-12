@@ -16,6 +16,7 @@ import type {
   DataStore,
   LicensePatch,
   ReleasePatch,
+  SetupRequestRow,
   SigningKeyColumn,
   SigningKeysPatch,
   UserPatch,
@@ -157,6 +158,20 @@ export class MysqlStore implements DataStore {
 
   async updateClient(id: string, patch: ClientPatch, now: Date): Promise<void> {
     await this.run((db) => db.update(schema.clients).set({ ...patch, updatedAt: now }).where(eq(schema.clients.id, id)));
+  }
+
+  async listSetupRequests(): Promise<SetupRequestRow[]> {
+    const rows = await this.run((db) =>
+      db
+        .select({ client: schema.clients, user: schema.users, app: schema.apps })
+        .from(schema.apps)
+        .innerJoin(schema.clients, eq(schema.clients.id, schema.apps.clientId))
+        .innerJoin(schema.users, eq(schema.users.id, schema.clients.userId))
+        .where(eq(schema.apps.backend, "setup_requested"))
+        .orderBy(asc(schema.apps.setupRequestedAt))
+        .limit(200),
+    );
+    return rows;
   }
 
   async listClients(input: { filter: ClientFilter; query?: string; now: Date }): Promise<ClientRow[]> {

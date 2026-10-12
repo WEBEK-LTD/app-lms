@@ -160,7 +160,8 @@ class RegisterInput {
   };
 }
 
-/// Every call the app makes to `<site_url>/wp-json/yallapp/v1`.
+/// Every call the app makes to the Yallapp API (`docs/api/openapi.yaml`),
+/// served by the WordPress plugin or by a custom or hosted API.
 ///
 /// Implementations throw [ApiException] on failure.
 abstract class YallappApi {

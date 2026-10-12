@@ -33,6 +33,10 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     clientId,
     appType,
     siteUrl,
+    backend: "wordpress",
+    apiBaseUrl: null,
+    setupRequestedAt: null,
+    setupNote: null,
     appName: null,
     shortName: null,
     iconAssetId: null,
@@ -82,11 +86,22 @@ export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep
   const keys = hasStoreKeys(app);
   return {
     "app-type": Boolean(app.appTypeDoneAt),
-    website: Boolean(app.websiteDoneAt && app.siteUrl),
+    website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
     publishing: Boolean(app.publishingDoneAt) && (plan !== "pro" || keys.play || keys.appStore),
   };
+}
+
+/**
+ * The Website step is done when the app has somewhere to get its content:
+ * a WordPress site, or a custom API. A WordPress set-up our team hasn't
+ * finished yet keeps it open, so no build starts against a missing site.
+ */
+export function websiteReady(app: App): boolean {
+  if (!app.websiteDoneAt || !app.siteUrl) return false;
+  if (app.backend === "custom_api") return Boolean(app.apiBaseUrl);
+  return app.backend === "wordpress";
 }
 
 export function isSetupComplete(app: App | null, plan: Plan | null): boolean {
@@ -134,6 +149,7 @@ export function buildConfigFor(
     schema_version: 1,
     client_id: client.id,
     app_type: app.appType,
+    ...(app.backend === "custom_api" && app.apiBaseUrl ? { api_base_url: app.apiBaseUrl } : {}),
     app_name: app.appName ?? "",
     short_name: app.shortName ?? "",
     site_url: app.siteUrl ?? "",

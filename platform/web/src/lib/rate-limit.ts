@@ -35,6 +35,7 @@ export async function hitRateLimit(
 }
 
 export const RATE_LIMITS = {
+  apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
   signInIp: { name: "sign-in:ip", limit: 30, windowSeconds: 15 * 60 },
   signInEmail: { name: "sign-in:email", limit: 8, windowSeconds: 15 * 60 },
   signUpIp: { name: "sign-up:ip", limit: 10, windowSeconds: 60 * 60 },

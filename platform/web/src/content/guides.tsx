@@ -60,6 +60,66 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
+    slug: "custom-api",
+    section: "Getting started",
+    title: "Connect your own API",
+    description: "For developers: serve the Yallapp API from a website that doesn't run WordPress.",
+    intro: (
+      <p>
+        Your app talks to one API, described in the <a href="/developers/openapi.yaml">Yallapp API contract</a> (OpenAPI 3.1). On WordPress the Yallapp
+        plugin serves it. If your website runs on something else, your developer can serve the same endpoints, and the app works with them unchanged.
+      </p>
+    ),
+    before: [
+      "A developer who can add endpoints to your website or backend",
+      "An https address for the API, for example https://api.your-site.com/yallapp/v1",
+      <>An active Yallapp account, with your app type chosen on {dashboardLink("App setup", "/dashboard/app-type")}</>,
+    ],
+    steps: [
+      {
+        title: "Read the contract",
+        body: (
+          <p>
+            Download <a href="/developers/openapi.yaml">openapi.yaml</a> and open it in any OpenAPI viewer. Every path, field and error code the app uses is there.
+            JSON everywhere, dates in ISO 8601 UTC, errors as <code>{"{ code, message }"}</code> with a stable <code>code</code>, lists paged with{" "}
+            <code>page</code> and <code>per_page</code>.
+          </p>
+        ),
+      },
+      {
+        title: "Start with what every app needs",
+        body: (
+          <p>
+            <code>GET /config</code>, the sign-in endpoints (<code>/auth/otp/request</code>, <code>/auth/otp/verify</code>, <code>/auth/register</code>,{" "}
+            <code>/auth/refresh</code>, <code>/auth/logout</code>), and the account endpoints under <code>/me</code>. Signed-in calls send{" "}
+            <code>Authorization: Bearer &lt;access_token&gt;</code>; you send the one-time code by SMS or WhatsApp from your own system.
+          </p>
+        ),
+      },
+      {
+        title: "Add your app type's endpoints",
+        body: (
+          <p>
+            Academy apps use the Catalog, Learning and Quizzes endpoints, starting with <code>GET /home</code>. Store apps use the Store endpoints, starting with{" "}
+            <code>GET /store/home</code>, and need <code>store</code> in <code>/config</code>. Features you don&apos;t support can be turned off in{" "}
+            <code>/config</code>, and the app hides them.
+          </p>
+        ),
+      },
+      {
+        title: "Check it from your dashboard",
+        body: (
+          <p>
+            On the {dashboardLink("Website step", "/dashboard/setup?step=website")}, choose <b>My own API</b>, enter its address and select <b>Run the check</b>.
+            We call it the way the app does and list anything missing. When the check passes, save the step and continue the setup.
+          </p>
+        ),
+        notice: <>Your API must be reachable on the public internet over https. Private and local addresses are refused.</>,
+      },
+    ],
+    outro: <p>Your next build talks to your API. If you change the address later, the next build uses the new one.</p>,
+  },
+  {
     slug: "activate-license",
     section: "Getting started",
     title: "Activate your license",

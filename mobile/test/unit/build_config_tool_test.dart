@@ -68,6 +68,26 @@ void main() {
     );
   });
 
+  test('an API address for sites without WordPress', () {
+    expect(
+      validateBuildConfig(
+        example()..['api_base_url'] = 'https://api.shop.test/yallapp/v1/',
+      ).isValid,
+      isTrue,
+    );
+    expect(
+      validateBuildConfig(example()..['api_base_url'] = 'http://api.shop.test')
+          .errors
+          .join(),
+      contains('"api_base_url" must be an https:// URL'),
+    );
+    final dart = renderDartConfig(
+      example()..['api_base_url'] = 'https://api.shop.test/yallapp/v1/',
+    );
+    expect(dart, contains("apiBaseUrl: 'https://api.shop.test/yallapp/v1',"));
+    expect(renderDartConfig(example()), contains('apiBaseUrl: null,'));
+  });
+
   test('renders the Dart constants', () {
     final dart = renderDartConfig(example());
     expect(dart, contains('appType: AppType.lms,'));
@@ -153,5 +173,44 @@ void main() {
   test('site URL helpers', () {
     expect(normalizeSiteUrl('https://a.test///'), 'https://a.test');
     expect(apiBaseUrl('https://a.test/'), 'https://a.test/wp-json/yallapp/v1');
+    const build = BuildConfigData(
+      appName: 'A',
+      shortName: 'A',
+      siteUrl: 'https://a.test',
+      androidPackage: 'com.a.app',
+      iosBundleId: 'com.a.app',
+      versionName: '1.0.0',
+      versionCode: 1,
+      primaryColor: 0xFF000000,
+      splashColor: 0xFFFFFFFF,
+      template: AppTemplate.classic,
+      font: 'Outfit',
+    );
+    expect(apiUrlOf(build), 'https://a.test/wp-json/yallapp/v1');
+    expect(
+      apiUrlOf(
+        const BuildConfigData(
+          appName: 'A',
+          shortName: 'A',
+          siteUrl: 'https://a.test',
+          apiBaseUrl: 'https://api.a.test/v1/',
+          androidPackage: 'com.a.app',
+          iosBundleId: 'com.a.app',
+          versionName: '1.0.0',
+          versionCode: 1,
+          primaryColor: 0xFF000000,
+          splashColor: 0xFFFFFFFF,
+          template: AppTemplate.classic,
+          font: 'Outfit',
+        ),
+      ),
+      'https://api.a.test/v1',
+    );
+    expect(
+      apiUrlOf(
+        build.copyWith(siteUrl: 'https://b.test', clearApiBaseUrl: true),
+      ),
+      'https://b.test/wp-json/yallapp/v1',
+    );
   });
 }

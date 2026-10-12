@@ -21,6 +21,13 @@ export interface ClientRow {
   latestBuild: Build | null;
 }
 
+/** A client who asked the team to set up WordPress for their app. */
+export interface SetupRequestRow {
+  client: Client;
+  user: User;
+  app: App;
+}
+
 export class DuplicateEmailError extends Error {
   constructor() {
     super("An account with this email already exists.");
@@ -61,6 +68,8 @@ export interface DataStore {
   updateClient(id: string, patch: ClientPatch, now: Date): Promise<void>;
   listClients(input: { filter: ClientFilter; query?: string; now: Date }): Promise<ClientRow[]>;
   countClients(now: Date): Promise<Record<ClientFilter, number>>;
+  /** Open WordPress set-up requests, oldest first. */
+  listSetupRequests(): Promise<SetupRequestRow[]>;
 
   // Licenses
   createLicense(license: License): Promise<void>;

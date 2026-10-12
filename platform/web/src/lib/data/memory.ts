@@ -10,6 +10,7 @@ import type {
   DataStore,
   LicensePatch,
   ReleasePatch,
+  SetupRequestRow,
   SigningKeyColumn,
   SigningKeysPatch,
   UserPatch,
@@ -146,6 +147,17 @@ export class MemoryStore implements DataStore {
       rows.push(row);
     }
     return rows.sort((a, b) => b.client.createdAt.getTime() - a.client.createdAt.getTime());
+  }
+
+  async listSetupRequests(): Promise<SetupRequestRow[]> {
+    const rows: SetupRequestRow[] = [];
+    for (const app of this.apps.values()) {
+      if (app.backend !== "setup_requested") continue;
+      const client = this.clients.get(app.clientId);
+      const user = client ? this.users.get(client.userId) : undefined;
+      if (client && user) rows.push({ client: clone(client), user: clone(user), app: clone(app) });
+    }
+    return rows.sort((a, b) => (a.app.setupRequestedAt?.getTime() ?? 0) - (b.app.setupRequestedAt?.getTime() ?? 0));
   }
 
   async countClients(now: Date): Promise<Record<ClientFilter, number>> {

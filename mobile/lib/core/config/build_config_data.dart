@@ -42,6 +42,7 @@ class BuildConfigData {
     required this.splashColor,
     required this.template,
     required this.font,
+    this.apiBaseUrl,
     this.clientId,
     this.iconUrl,
     this.logoUrl,
@@ -53,8 +54,12 @@ class BuildConfigData {
   final String appName;
   final String shortName;
 
-  /// The client's WordPress site, without a trailing slash.
+  /// The client's website, without a trailing slash.
   final String siteUrl;
+
+  /// Where the Yallapp API is when it isn't the WordPress plugin's
+  /// `<site_url>/wp-json/yallapp/v1`: a custom API or the hosted one.
+  final String? apiBaseUrl;
   final String androidPackage;
   final String iosBundleId;
   final String versionName;
@@ -75,6 +80,7 @@ class BuildConfigData {
 
   BuildConfigData copyWith({
     String? siteUrl,
+    bool clearApiBaseUrl = false,
     AppTemplate? template,
     AppType? appType,
   }) => BuildConfigData(
@@ -82,6 +88,7 @@ class BuildConfigData {
     appName: appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,
+    apiBaseUrl: clearApiBaseUrl ? null : apiBaseUrl,
     androidPackage: androidPackage,
     iosBundleId: iosBundleId,
     versionName: versionName,

@@ -13,6 +13,7 @@ const _topLevelKeys = {
   'app_name',
   'short_name',
   'site_url',
+  'api_base_url',
   'android_package',
   'ios_bundle_id',
   'version_name',
@@ -166,6 +167,21 @@ ValidationResult validateBuildConfig(Object? decoded) {
         uri.hasFragment) {
       errors.add(
         '"site_url" must be an https:// URL without query or fragment.',
+      );
+    }
+  }
+
+  if (c.containsKey('api_base_url')) {
+    final api = _string(c, 'api_base_url', errors);
+    final uri = api == null ? null : Uri.tryParse(api);
+    if (api != null &&
+        (!api.startsWith('https://') ||
+            uri == null ||
+            uri.host.isEmpty ||
+            uri.hasQuery ||
+            uri.hasFragment)) {
+      errors.add(
+        '"api_base_url" must be an https:// URL without query or fragment.',
       );
     }
   }
@@ -406,6 +422,7 @@ const buildConfig = BuildConfigData(
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},
+  apiBaseUrl: ${_dartString(c['api_base_url'] == null ? null : _trimSlash(c['api_base_url'] as String))},
   androidPackage: ${_dartString(c['android_package'] as String)},
   iosBundleId: ${_dartString(c['ios_bundle_id'] as String)},
   versionName: ${_dartString(c['version_name'] as String)},

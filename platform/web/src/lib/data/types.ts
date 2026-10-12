@@ -75,11 +75,24 @@ export interface StoreListing {
 /** "lms" is an Academy app, "store" a WooCommerce Store app. */
 export type AppType = "lms" | "store";
 
+/**
+ * Where the app's content comes from: the Yallapp plugin on the client's
+ * WordPress site, the client's own API (docs/api/openapi.yaml), or a
+ * WordPress site our team sets up for them (requested, not ready yet).
+ */
+export type AppBackend = "wordpress" | "custom_api" | "setup_requested";
+
 export interface App {
   id: string;
   clientId: string;
   appType: AppType;
   siteUrl: string | null;
+  backend: AppBackend;
+  /** The client's own API base URL (backend "custom_api"). */
+  apiBaseUrl: string | null;
+  /** When the client asked our team to set up WordPress, and what they told us. */
+  setupRequestedAt: Date | null;
+  setupNote: string | null;
   appName: string | null;
   shortName: string | null;
   iconAssetId: string | null;

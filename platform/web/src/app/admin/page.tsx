@@ -73,7 +73,11 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
 
   const store = await getStore();
   const now = new Date();
-  const [rows, counts] = await Promise.all([store.listClients({ filter, query: q, now }), store.countClients(now)]);
+  const [rows, counts, setupRequests] = await Promise.all([
+    store.listClients({ filter, query: q, now }),
+    store.countClients(now),
+    store.listSetupRequests(),
+  ]);
   let selected: ClientRow | null = rows.find((row) => row.client.id === selectedId) ?? null;
   if (!selected && selectedId) {
     const all = await store.listClients({ filter: "all", now });
@@ -118,6 +122,32 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
           </button>
         </form>
       </div>
+
+      {setupRequests.length ? (
+        <section aria-labelledby="h-setup-requests" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+          <h2 id="h-setup-requests" className="m-0 text-[17px] font-bold">
+            WordPress set-up requests <span className="font-normal text-muted">{setupRequests.length}</span>
+          </h2>
+          <p className="m-0 text-sm text-muted">
+            These clients asked us to set up WordPress for their app. Message them on WhatsApp; when their site is ready, they choose
+            &ldquo;My WordPress site&rdquo; on their Website step.
+          </p>
+          <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+            {setupRequests.map(({ client, user, app }) => (
+              <li key={app.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-line pt-2.5 text-sm">
+                <Link href={query({ client: client.id })} className="font-semibold">
+                  {user.name}
+                </Link>
+                <span>{client.whatsapp}</span>
+                <span className="text-muted">{app.siteUrl ? hostOf(app.siteUrl) : hostOf(client.siteUrl)}</span>
+                <span className="text-muted">{app.appType === "store" ? "Store" : "Academy"}</span>
+                <span className="text-muted">Asked {formatDate(app.setupRequestedAt)}</span>
+                {app.setupNote ? <span className="basis-full text-ink-4">{app.setupNote}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {done ? (
         <Notice tone="success" icon="check_circle" role="status">

@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
 import {
+  checkApiAction,
   removeStoreKeyAction,
   saveBrandingAction,
   saveListingAction,
@@ -45,57 +46,180 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
+type Backend = "wordpress" | "custom_api" | "setup_requested";
+
+const BACKENDS: { id: Backend; title: string; text: string }[] = [
+  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
+  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
+  { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
+];
+
 export function WebsiteStep({
   siteUrl,
   plugin,
   activatedSite,
   pluginVersion,
+  backend,
+  apiBaseUrl,
+  setupNote,
+  setupRequestedAt,
 }: {
   siteUrl: string;
   plugin: "none" | "connected" | "other";
   activatedSite: string | null;
   pluginVersion: string | null;
+  backend: Backend;
+  apiBaseUrl: string;
+  setupNote: string;
+  setupRequestedAt: string | null;
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
+  const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
+  const [choice, setChoice] = useState<Backend>((state.values?.backend as Backend | undefined) ?? backend);
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       <StepCard title="Website" id="h-website">
         <FormMessage message={state.message} />
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
+          {BACKENDS.map((b) => (
+            <label
+              key={b.id}
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
+            >
+              <input
+                type="radio"
+                name="backend"
+                value={b.id}
+                checked={choice === b.id}
+                onChange={() => setChoice(b.id)}
+                className="mt-1 h-4 w-4 accent-midnight"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{b.title}</span>
+                <span className="text-sm text-ink-4">{b.text}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
         <Field
-          label="Your WordPress website"
+          label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
           name="siteUrl"
           type="url"
           required
           defaultValue={v(state, "siteUrl", siteUrl)}
           placeholder="https://your-academy.com"
-          hint="The app connects to this address. It must use https."
+          hint={
+            choice === "setup_requested"
+              ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
+              : "Links in your app open this address. It must use https."
+          }
           error={state.errors?.siteUrl}
         />
-        <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
-          <span className="text-sm font-semibold">Plugin connection</span>
-          {plugin === "connected" ? (
-            <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
-              <Icon name="check_circle" size={20} filled />
-              Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
-            </span>
-          ) : plugin === "other" ? (
-            <span className="flex items-start gap-2 text-[15px] text-warn">
-              <Icon name="warning" size={20} />
-              <span>
-                Your license is active on <b>{activatedSite}</b>, which isn&apos;t this address. Check the address, or release the license on the{" "}
-                <Link href="/dashboard/license">License &amp; plugin</Link> page.
+        {choice === "wordpress" ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
+            <span className="text-sm font-semibold">Plugin connection</span>
+            {plugin === "connected" ? (
+              <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
+                <Icon name="check_circle" size={20} filled />
+                Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
               </span>
-            </span>
-          ) : (
-            <span className="flex items-start gap-2 text-[15px] text-ink-4">
-              <Icon name="link_off" size={20} className="text-muted" />
-              <span>
-                Not connected yet. <Link href="/guides/install-plugin">Install the plugin</Link> and paste your license key from{" "}
-                <Link href="/dashboard/license">License &amp; plugin</Link>. You can continue the setup in the meantime.
+            ) : plugin === "other" ? (
+              <span className="flex items-start gap-2 text-[15px] text-warn">
+                <Icon name="warning" size={20} />
+                <span>
+                  Your license is active on <b>{activatedSite}</b>, which isn&apos;t this address. Check the address, or release the license on the{" "}
+                  <Link href="/dashboard/license">License &amp; plugin</Link> page.
+                </span>
               </span>
-            </span>
-          )}
-        </div>
+            ) : (
+              <span className="flex items-start gap-2 text-[15px] text-ink-4">
+                <Icon name="link_off" size={20} className="text-muted" />
+                <span>
+                  Not connected yet. <Link href="/guides/install-plugin">Install the plugin</Link> and paste your license key from{" "}
+                  <Link href="/dashboard/license">License &amp; plugin</Link>. You can continue the setup in the meantime.
+                </span>
+              </span>
+            )}
+          </div>
+        ) : null}
+        {choice === "custom_api" ? (
+          <>
+            <Field
+              label="Your API address"
+              name="apiBaseUrl"
+              type="url"
+              required
+              defaultValue={v(state, "apiBaseUrl", apiBaseUrl)}
+              placeholder="https://api.your-site.com/yallapp/v1"
+              hint={
+                <>
+                  The app calls the endpoints in our <Link href="/guides/custom-api">developer guide</Link> under this address.
+                </>
+              }
+              error={state.errors?.apiBaseUrl}
+            />
+            <div className="flex flex-col gap-3 rounded-xl border border-line bg-sand p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="text-sm font-semibold">Check your API</span>
+                <button type="submit" formAction={checkAction} formNoValidate className={`${btn.secondary} h-10`} disabled={checking}>
+                  {checking ? "Checking…" : "Run the check"}
+                </button>
+              </div>
+              {check.error ? <span className="text-sm text-danger">{check.error}</span> : null}
+              {check.result ? (
+                <ul aria-live="polite" className="m-0 flex list-none flex-col gap-1.5 p-0">
+                  {check.result.checks.map((c) => (
+                    <li key={c.id} className="flex items-start gap-2 text-sm">
+                      <Icon
+                        name={c.ok ? "check_circle" : "cancel"}
+                        size={18}
+                        filled
+                        className={c.ok ? "text-success" : "text-danger"}
+                      />
+                      <span>
+                        <span className="font-semibold">{c.label}</span>
+                        {c.detail ? <span className="text-ink-4"> · {c.detail}</span> : null}
+                        <span className="sr-only">{c.ok ? " (passed)" : " (failed)"}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="text-sm text-ink-4">We call your API the way the app does and show what&apos;s missing.</span>
+              )}
+            </div>
+          </>
+        ) : null}
+        {choice === "setup_requested" ? (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-setupNote" className="text-sm font-semibold">
+                Anything we should know? (optional)
+              </label>
+              <textarea
+                id="f-setupNote"
+                name="setupNote"
+                rows={4}
+                maxLength={1000}
+                defaultValue={v(state, "setupNote", setupNote)}
+                placeholder="Your current website platform, how many products or courses you have, where your content is today…"
+                className="input"
+                aria-invalid={state.errors?.setupNote ? true : undefined}
+                aria-describedby={state.errors?.setupNote ? "f-setupNote-error" : undefined}
+              />
+              <FieldError id="f-setupNote-error" error={state.errors?.setupNote} />
+            </div>
+            <div className="flex items-start gap-2 rounded-xl border border-line bg-sand p-4 text-sm text-ink-4">
+              <Icon name="chat" size={20} className="text-muted" />
+              <span>
+                {setupRequestedAt
+                  ? `You asked us on ${setupRequestedAt}. Our team will message you on WhatsApp. When your WordPress site is ready, choose "My WordPress site" here.`
+                  : "Our team messages you on WhatsApp with the price and the next steps. Your first build starts once your WordPress site is ready."}
+              </span>
+            </div>
+          </>
+        ) : null}
         <StepActions back="/dashboard/app-type" />
       </StepCard>
     </form>

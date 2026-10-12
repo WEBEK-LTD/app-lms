@@ -16,6 +16,8 @@ export interface BuildConfig {
   schema_version: 1;
   client_id?: string;
   app_type: "lms" | "store";
+  /** Only for apps whose content isn't served by the WordPress plugin. */
+  api_base_url?: string;
   app_name: string;
   short_name: string;
   site_url: string;

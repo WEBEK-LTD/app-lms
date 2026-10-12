@@ -25,7 +25,7 @@ Options authOptions(AuthMode mode, [Options? options]) => (options ?? Options())
 /// (`maintenance`, `license_inactive`, `update_required`).
 typedef GateErrorCallback = void Function(ApiException error);
 
-/// Builds the Dio instance for `<site_url>/wp-json/yallapp/v1`.
+/// Builds the Dio instance for the Yallapp API (see `apiUrlOf`).
 Dio createHttpClient({
   required String baseUrl,
   required TokenManager tokens,

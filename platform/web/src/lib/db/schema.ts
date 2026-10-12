@@ -1,4 +1,4 @@
-import type { AppType, AssetKind } from "../data/types";
+import type { AppBackend, AppType, AssetKind } from "../data/types";
 import {
   bigint,
   boolean,
@@ -102,6 +102,10 @@ export const apps = mysqlTable(
       .references(() => clients.id, { onDelete: "cascade" }),
     appType: varchar("app_type", { length: 16 }).notNull().$type<AppType>(),
     siteUrl: varchar("site_url", { length: 255 }),
+    backend: varchar("backend", { length: 20 }).notNull().default("wordpress").$type<AppBackend>(),
+    apiBaseUrl: varchar("api_base_url", { length: 2048 }),
+    setupRequestedAt: time("setup_requested_at"),
+    setupNote: text("setup_note"),
     appName: varchar("app_name", { length: 60 }),
     shortName: varchar("short_name", { length: 24 }),
     iconAssetId: id("icon_asset_id"),

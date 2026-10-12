@@ -64,6 +64,18 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
   await page.getByText("Store", { exact: true }).click();
   await expect(page.getByRole("radio", { name: "Store" })).toBeChecked();
   await page.getByRole("button", { name: "Continue" }).click();
+
+  // Asking our team to set up WordPress keeps the step open until the site is ready.
+  await page.getByRole("radio", { name: /I don't have WordPress/ }).check();
+  await page.getByLabel("Anything we should know? (optional)").fill("Our shop runs on Shopify today.");
+  await page.getByRole("button", { name: "Save & continue" }).click();
+  await expect(page.getByText("Thanks! Our team will message you on WhatsApp")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("radio", { name: /I don't have WordPress/ })).toBeChecked();
+  await expect(page.getByText(/You asked us on/)).toBeVisible();
+
+  // Their WordPress site is ready.
+  await page.getByRole("radio", { name: /My WordPress site/ }).check();
   await page.getByRole("button", { name: "Save & continue" }).click();
 
   await page.getByLabel("App name").fill("Grace Academy");

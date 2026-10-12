@@ -68,7 +68,21 @@ export const resetSchema = z
   })
   .refine((value) => value.password === value.confirm, { message: "The passwords don't match.", path: ["confirm"] });
 
-export const websiteSchema = z.object({ siteUrl: httpsSiteUrl });
+const apiBaseUrl = z
+  .string()
+  .trim()
+  .max(2048, "This address is too long.")
+  .refine((value) => RULES.httpsUrl.test(value) && !/[?#]/.test(value), "Enter your API's https address, without ? or #.");
+
+export const websiteSchema = z.discriminatedUnion("backend", [
+  z.object({ backend: z.literal("wordpress"), siteUrl: httpsSiteUrl }),
+  z.object({ backend: z.literal("custom_api"), siteUrl: httpsSiteUrl, apiBaseUrl }),
+  z.object({
+    backend: z.literal("setup_requested"),
+    siteUrl: httpsSiteUrl,
+    setupNote: z.string().trim().max(1000, "Use at most 1000 characters.").optional().default(""),
+  }),
+]);
 
 const color = z.string().trim().regex(RULES.color, "Use a hex color like #0E0D24.");
 
