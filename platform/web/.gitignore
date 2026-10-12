@@ -1,0 +1,8 @@
+# Local data for YALLAPP_DATA=memory and the filesystem blob fallback
+.data/
+# Playwright
+playwright-report/
+test-results/
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

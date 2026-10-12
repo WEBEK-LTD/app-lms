@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* Yallapp brand tokens (docs/BRAND.md) and the neutrals used in the designs. */
+@theme {
+  --color-midnight: #0e0d24;
+  --color-ivory: #f4efe6;
+  --color-ember: #ff5a1f;
+  --color-accent: #c2410c;
+  --color-accent-hover: #9a3412;
+
+  --color-ink-2: #24223a;
+  --color-ink-3: #34314a;
+  --color-ink-4: #4a4760;
+  --color-muted: #5e5b70;
+  --color-faint: #8c889a;
+
+  --color-line: #e4ddd0;
+  --color-line-soft: #ede7dc;
+  --color-line-strong: #cfc7b8;
+  --color-line-button: #d9d1c3;
+  --color-sand: #faf7f1;
+  --color-peach: #ffede4;
+  --color-peach-soft: #fff6f0;
+  --color-cream: #fff8ef;
+  --color-step: #e9e2d5;
+
+  --color-success: #1c7c4a;
+  --color-success-bg: #e3f2ea;
+  --color-warn: #9a4f0b;
+  --color-warn-bg: #fbede0;
+  --color-danger: #b3261e;
+  --color-danger-bg: #fbe4e2;
+
+  --color-night-2: #24223f;
+  --color-night-3: #34314f;
+  --color-night-line: #2e2c4a;
+  --color-night-text: #c9c6dc;
+  --color-night-muted: #9a96a6;
+
+  --color-tile-1: #f2e3c9;
+  --color-tile-2: #d7ebe2;
+  --color-tile-3: #e6e3ef;
+  --color-tile-4: #eedde8;
+
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ivory);
+    color: var(--color-midnight);
+    font-family: var(--font-sans);
+  }
+  a {
+    color: var(--color-accent);
+  }
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-midnight);
+    outline-offset: 2px;
+  }
+  .on-dark :focus-visible {
+    outline-color: var(--color-ivory);
+  }
+  details summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+/* Google Material Symbols (Rounded), self-hosted subset. */
+.material-symbols-rounded {
+  font-family: var(--font-icons);
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  user-select: none;
+}
+.material-symbols-rounded.filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* Form inputs from the designs. */
+@layer components {
+  .input {
+    height: 48px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 10px;
+    background: #fff;
+    padding: 0 14px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-midnight);
+    width: 100%;
+    min-width: 0;
+  }
+  .input-sm {
+    height: 44px;
+    padding: 0 12px;
+  }
+  .input:focus {
+    outline: 2px solid var(--color-midnight);
+    outline-offset: 0;
+    border-color: var(--color-midnight);
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-danger);
+  }
+  textarea.input {
+    height: auto;
+    min-height: 120px;
+    padding: 12px 14px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  select.input {
+    appearance: auto;
+  }
+  input[type="color"].input {
+    padding: 4px;
+    cursor: pointer;
+  }
+}
