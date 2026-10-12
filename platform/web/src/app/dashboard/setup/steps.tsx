@@ -402,8 +402,127 @@ export function BrandingStep({
   );
 }
 
+type UploadedFile = { id: string; url: string };
+
+/** Store screenshots: uploaded one by one (each request stays small), kept in upload order. */
+function ScreenshotGallery({
+  kind,
+  field,
+  label,
+  hint,
+  max,
+  initial,
+  error,
+  saved,
+}: {
+  kind: "play_screenshot" | "ios_screenshot";
+  field: string;
+  label: string;
+  hint: string;
+  max: number;
+  initial: UploadedFile[];
+  error?: string;
+  /** The form state of the last save: its error is hidden once the list changes, until the next save. */
+  saved: FormState;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  const [files, setFilesState] = useState(initial);
+  const [uploadError, setMessage] = useState<string | undefined>();
+  const [changedAfter, setChangedAfter] = useState<FormState | null>(null);
+  const message = uploadError ?? (changedAfter === saved ? undefined : error);
+  const setFiles: typeof setFilesState = (next) => {
+    setFilesState(next);
+    setChangedAfter(saved);
+  };
+  const [pending, start] = useTransition();
+  const inputId = `upload-${kind}`;
+
+  function upload(selected: File[]) {
+    start(async () => {
+      let added: UploadedFile[] = [];
+      for (const file of selected.slice(0, Math.max(0, max - files.length))) {
+        const data = new FormData();
+        data.set("kind", kind);
+        data.set("file", file);
+        const result = await uploadAssetAction(data);
+        if (result.ok && result.id && result.url) {
+          added = [...added, { id: result.id, url: result.url }];
+        } else {
+          setMessage(`${file.name}: ${result.error ?? "The upload failed. Try again."}`);
+          break;
+        }
+      }
+      if (added.length > 0) {
+        setFiles((current) => [...current, ...added].slice(0, max));
+        if (added.length === selected.length) setMessage(undefined);
+      }
+      if (selected.length > max - files.length) setMessage(`You can add up to ${max} screenshots.`);
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span id={`${inputId}-label`} className="text-sm font-semibold">
+        {label} <span className="font-normal text-muted">(optional)</span>
+      </span>
+      {files.map((file) => (
+        <input key={file.id} type="hidden" name={field} value={file.id} />
+      ))}
+      <input
+        ref={input}
+        id={inputId}
+        type="file"
+        multiple
+        accept="image/png,image/jpeg"
+        className="sr-only"
+        aria-labelledby={`${inputId}-label`}
+        aria-describedby={`${inputId}-hint${message ? ` ${inputId}-error` : ""}`}
+        onChange={(event) => {
+          const selected = Array.from(event.target.files ?? []);
+          if (selected.length > 0) upload(selected);
+          event.target.value = "";
+        }}
+      />
+      <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0" aria-label={`${label}: ${files.length} of ${max}`}>
+        {files.map((file, index) => (
+          <li key={file.id} className="relative">
+            <img src={file.url} alt={`Screenshot ${index + 1}`} className="h-36 w-auto max-w-[110px] rounded-lg border border-line bg-white object-cover" />
+            <button
+              type="button"
+              onClick={() => setFiles((current) => current.filter((f) => f.id !== file.id))}
+              aria-label={`Remove screenshot ${index + 1}`}
+              className="absolute -top-2 -right-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight"
+            >
+              <Icon name="close" size={16} />
+            </button>
+          </li>
+        ))}
+        {files.length < max ? (
+          <li>
+            <button
+              type="button"
+              onClick={() => input.current?.click()}
+              disabled={pending}
+              aria-describedby={`${inputId}-label`}
+              className="flex h-36 w-[110px] flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#9A96A6] bg-sand px-2 text-center text-xs font-semibold text-midnight hover:border-midnight"
+            >
+              {pending ? <Icon name="progress_activity" size={20} className="animate-spin" /> : <Icon name="add" size={20} />}
+              {pending ? "Uploading…" : "Add screenshots"}
+            </button>
+          </li>
+        ) : null}
+      </ul>
+      <span id={`${inputId}-hint`} className="text-xs text-muted">
+        {hint}
+      </span>
+      <FieldError id={`${inputId}-error`} error={message} />
+    </div>
+  );
+}
+
 export function ListingStep({
   values,
+  screenshots,
 }: {
   values: {
     androidPackage: string;
@@ -414,6 +533,7 @@ export function ListingStep({
     supportEmail: string;
     privacyUrl: string;
   };
+  screenshots: { phone: UploadedFile[]; iphone: UploadedFile[] };
 }) {
   const [state, action] = useActionState(saveListingAction, initialFormState);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
@@ -499,6 +619,32 @@ export function ListingStep({
             small
           />
         </div>
+        <fieldset className="m-0 flex flex-col gap-4 rounded-xl border border-line p-4">
+          <legend className="px-1 text-[15px] font-bold">Screenshots</legend>
+          <p className="m-0 text-sm leading-relaxed text-ink-4">
+            Screenshots of your app for the store pages. They go into your store assets with your icons and feature graphic. You can add them later and start a new build.
+          </p>
+          <ScreenshotGallery
+            kind="play_screenshot"
+            field="playScreenshotIds"
+            label="Google Play phone screenshots"
+            hint="2 to 8 PNG or JPEG files, no transparency. Each side 320 to 3840 pixels, the long side at most twice the short side, for example 1080 × 1920."
+            max={8}
+            initial={screenshots.phone}
+            error={state.errors?.playScreenshotIds}
+            saved={state}
+          />
+          <ScreenshotGallery
+            kind="ios_screenshot"
+            field="iosScreenshotIds"
+            label="iPhone screenshots"
+            hint="Up to 10 PNG or JPEG files, no transparency, at 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels (6.9-inch display). Don't show prices or buy buttons."
+            max={10}
+            initial={screenshots.iphone}
+            error={state.errors?.iosScreenshotIds}
+            saved={state}
+          />
+        </fieldset>
         <StepActions back="/dashboard/setup?step=branding" />
       </StepCard>
     </form>
@@ -529,7 +675,7 @@ function FileInput({ name, label, accept, hint, error }: { name: string; label: 
   );
 }
 
-function SavedKey({ title, detail, store }: { title: string; detail: string; store: "google-play" | "app-store" }) {
+function SavedKey({ title, detail, store }: { title: string; detail: string; store: "google-play" | "app-store" | "firebase-android" | "firebase-ios" }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
       <span className="flex min-w-0 items-center gap-2 text-[15px]">
@@ -595,12 +741,48 @@ function AppStoreKeyFields({ state, saved, optional = false }: { state: FormStat
   );
 }
 
+type SavedFirebase = { android: boolean; ios: boolean };
+
+/** Firebase config files. Optional on every plan: without them the app works, but without push notifications. */
+function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFirebase }) {
+  return (
+    <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+      <legend className="px-1 text-[15px] font-bold">
+        Push notifications <span className="font-normal text-muted">(optional)</span>
+      </legend>
+      <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+        <Icon name="notifications" size={20} className="text-muted" />
+        <span>
+          Notifications are sent through your own Firebase project. Add your apps in Firebase with the package name and bundle ID from the previous step, then upload their config files.{" "}
+          <Link href="/guides/push-notifications">How to set up Firebase</Link>
+        </span>
+      </p>
+      {saved.android ? <SavedKey title="google-services.json" detail="Android" store="firebase-android" /> : null}
+      <FileInput
+        name="firebaseAndroidFile"
+        label={saved.android ? "Replace google-services.json" : "google-services.json (Android)"}
+        accept="application/json,.json"
+        hint="Firebase › Project settings › Your apps › Android app."
+        error={state.errors?.firebaseAndroidFile}
+      />
+      {saved.ios ? <SavedKey title="GoogleService-Info.plist" detail="iOS" store="firebase-ios" /> : null}
+      <FileInput
+        name="firebaseIosFile"
+        label={saved.ios ? "Replace GoogleService-Info.plist" : "GoogleService-Info.plist (iOS)"}
+        accept=".plist,application/xml,text/xml"
+        hint="Firebase › Project settings › Your apps › iOS app. iPhone notifications also need your APNs key in Firebase."
+        error={state.errors?.firebaseIosFile}
+      />
+    </fieldset>
+  );
+}
+
 export function PublishingStep({
   plan,
   saved,
 }: {
   plan: "starter" | "pro" | null;
-  saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey };
+  saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
 
@@ -624,6 +806,7 @@ export function PublishingStep({
           <p className="m-0 text-sm text-muted">
             The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Ask us about the Pro plan on WhatsApp.
           </p>
+          <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
               Back
@@ -656,6 +839,8 @@ export function PublishingStep({
         </fieldset>
 
         <AppStoreKeyFields state={state} saved={saved.appStore} />
+
+        <FirebaseFields state={state} saved={saved.firebase} />
 
         <div className="flex justify-between gap-3 pt-1.5">
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>

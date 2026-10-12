@@ -154,7 +154,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
             href={release && state === "active" ? "/api/dashboard/plugin" : null}
           />
-          <DownloadRow title={ARTIFACT_LABEL.store_assets} text="Icons in every size, feature graphic and screenshots" {...fileRow("store_assets")} last />
+          <DownloadRow title={ARTIFACT_LABEL.store_assets} text="Store icons, feature graphic, your screenshots and listing text" {...fileRow("store_assets")} last />
         </ul>
       </section>
 

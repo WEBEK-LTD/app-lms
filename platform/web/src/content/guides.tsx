@@ -134,10 +134,18 @@ export const GUIDES: Guide[] = [
         ),
       },
       {
-        title: "Send us the two files",
+        title: "Upload the two files",
         body: (
           <p>
-            Email google-services.json and GoogleService-Info.plist to <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a> from your account email. We add them to your app, and notifications work from your next build.
+            In your dashboard, open <b>App setup › Publishing</b> and upload google-services.json and GoogleService-Info.plist under <b>Push notifications</b>. We check that each file matches your package name or bundle ID. Notifications work from your next build.
+          </p>
+        ),
+      },
+      {
+        title: "Let your website send notifications",
+        body: (
+          <p>
+            In Firebase, open <b>Project settings › Service accounts</b> and choose <b>Generate new private key</b>. In WordPress, open <b>Yallapp</b> and upload that file under <b>Notifications (Firebase)</b>. It’s stored encrypted on your website and used only to send your notifications.
           </p>
         ),
       },

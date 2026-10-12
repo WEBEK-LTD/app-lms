@@ -16,9 +16,9 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
   website: "Your WordPress site address and the plugin connection.",
   branding: "App name, name under the icon, icon, logo, colors, template and font.",
   listing:
-    "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL. Screenshots are generated for you with your store assets.",
+    "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
   publishing:
-    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides.",
+    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications.",
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
@@ -129,6 +129,10 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             supportEmail: app.supportEmail ?? "",
             privacyUrl: app.privacyUrl ?? "",
           }}
+          screenshots={{
+            phone: app.phoneScreenshotIds.map((id) => ({ id, url: `/api/v1/assets/${id}` })),
+            iphone: app.iphoneScreenshotIds.map((id) => ({ id, url: `/api/v1/assets/${id}` })),
+          }}
         />
       ) : null}
       {step === "publishing" ? (
@@ -137,6 +141,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           saved={{
             play: hasStoreKeys(app).play ? { clientEmail: app.googlePlayClientEmail } : null,
             appStore: hasStoreKeys(app).appStore ? { issuerId: app.ascIssuerId, keyId: app.ascKeyId } : null,
+            firebase: { android: Boolean(app.firebaseAndroidAssetId), ios: Boolean(app.firebaseIosAssetId) },
           }}
         />
       ) : null}

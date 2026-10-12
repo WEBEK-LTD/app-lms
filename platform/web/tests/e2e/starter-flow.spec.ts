@@ -18,6 +18,13 @@ const client = {
   password: "another-strong-password-1",
 };
 const pipeline = { authorization: `Bearer ${E2E.pipelineToken}` };
+const googleServices = (packageName: string) =>
+  JSON.stringify({
+    project_info: { project_number: "123456789012", project_id: "grace-academy" },
+    client: [{ client_info: { mobilesdk_app_id: "1:123456789012:android:abc", android_client_info: { package_name: packageName } }, api_key: [{ current_key: "AIzaSyTest" }] }],
+  });
+const serviceInfo = (bundleId: string) =>
+  `<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>API_KEY</key><string>AIzaSyTest</string><key>GCM_SENDER_ID</key><string>123456789012</string><key>BUNDLE_ID</key><string>${bundleId}</string><key>PROJECT_ID</key><string>grace-academy</string><key>GOOGLE_APP_ID</key><string>1:123456789012:ios:abc</string></dict></plist>`;
 const p8 = String(generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey.export({ type: "pkcs8", format: "pem" }));
 
 async function signIn(page: Page, email: string, password: string) {
@@ -69,6 +76,20 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
   await page.getByLabel("Full description").fill("Grace Academy brings every course, lesson and quiz to your phone, synced with our website.");
   await page.getByLabel("Support email").fill("help@academy.test");
   await page.getByLabel("Privacy policy URL").fill("https://academy.test/privacy");
+
+  // Screenshots: checked on upload, and Google Play needs at least two.
+  const phoneShot = (name: string) => ({ name, mimeType: "image/png", buffer: solidPng(1080, 1920, [244, 239, 230]) });
+  await page.locator("#upload-ios_screenshot").setInputFiles(phoneShot("wrong-size.png"));
+  await expect(page.getByText("wrong-size.png: iPhone screenshots must be 1320 × 2868")).toBeVisible();
+  await page.locator("#upload-play_screenshot").setInputFiles(phoneShot("home.png"));
+  await expect(page.getByRole("img", { name: "Screenshot 1" })).toHaveCount(1);
+  await page.getByRole("button", { name: "Save & continue" }).click();
+  await expect(page.getByText("Google Play needs at least 2 screenshots.")).toBeVisible();
+  await page.locator("#upload-play_screenshot").setInputFiles([phoneShot("course.png"), phoneShot("lesson.png")]);
+  await expect(page.getByRole("img", { name: "Screenshot 3" })).toBeVisible();
+  await page.getByRole("button", { name: "Remove screenshot 1" }).first().click();
+  await page.locator("#upload-ios_screenshot").setInputFiles({ name: "iphone.png", mimeType: "image/png", buffer: solidPng(1290, 2796, [14, 13, 36]) });
+  await expect(page.getByRole("list", { name: "iPhone screenshots: 1 of 10" })).toBeVisible();
   await page.getByRole("button", { name: "Save & continue" }).click();
 
   // Publishing (Starter)
@@ -85,11 +106,23 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
   await page.getByLabel("Issuer ID").fill("69a6de7e-1234-4bcd-8ef0-123456789abc");
   await page.getByLabel("Key ID").fill("2X9R4HXF34");
   await page.getByLabel("Private key (.p8)").setInputFiles({ name: "AuthKey_2X9R4HXF34.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
+
+  // Firebase files must match the package name and bundle ID.
+  await page.getByLabel("google-services.json (Android)").setInputFiles({ name: "google-services.json", mimeType: "application/json", buffer: Buffer.from(googleServices("com.other.app")) });
+  await page.getByRole("button", { name: "Finish setup" }).click();
+  await expect(page.getByText("This file has no Android app for com.graceacademy.app.")).toBeVisible();
+  await page.getByLabel("Issuer ID").fill("69a6de7e-1234-4bcd-8ef0-123456789abc");
+  await page.getByLabel("Key ID").fill("2X9R4HXF34");
+  await page.getByLabel("Private key (.p8)").setInputFiles({ name: "AuthKey_2X9R4HXF34.p8", mimeType: "application/octet-stream", buffer: Buffer.from(p8) });
+  await page.getByLabel("google-services.json (Android)").setInputFiles({ name: "google-services.json", mimeType: "application/json", buffer: Buffer.from(googleServices("com.graceacademy.app")) });
+  await page.getByLabel("GoogleService-Info.plist (iOS)").setInputFiles({ name: "GoogleService-Info.plist", mimeType: "application/xml", buffer: Buffer.from(serviceInfo("com.graceacademy.app")) });
   await page.getByRole("button", { name: "Finish setup" }).click();
   await expect(page).toHaveURL(/\/dashboard\/builds\?started=1$/);
 
   await page.goto("/dashboard/setup?step=publishing");
   await expect(page.getByText("Key ID 2X9R4HXF34")).toBeVisible();
+  await expect(page.getByText("google-services.json saved")).toBeVisible();
+  await expect(page.getByText("GoogleService-Info.plist saved")).toBeVisible();
   expect(await page.content()).not.toContain("BEGIN PRIVATE KEY");
 
   const queue = await (await request.get("/api/v1/builds/queue", { headers: pipeline })).json();
@@ -103,6 +136,16 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
     google_play: null,
     app_store_connect: { issuer_id: "69a6de7e-1234-4bcd-8ef0-123456789abc", key_id: "2X9R4HXF34", private_key: p8.trim() },
   });
+
+  // The pipeline gets the Firebase files in the config, and the screenshots for the store assets.
+  const config = await (await request.get(`/api/v1/builds/${build.id}/config`, { headers: pipeline })).json();
+  expect(Object.keys(config.firebase).sort()).toEqual(["android_config_url", "ios_config_url"]);
+  const firebaseFile = await request.get(config.firebase.android_config_url.replace(/^https?:\/\/[^/]+/, ""));
+  expect(JSON.parse(await firebaseFile.text()).project_info.project_id).toBe("grace-academy");
+  const listing = await (await request.get(`/api/v1/builds/${build.id}/store`, { headers: pipeline })).json();
+  expect(listing).toMatchObject({ store_title: "Grace Academy", support_email: "help@academy.test" });
+  expect(listing.phone_screenshots).toHaveLength(2);
+  expect(listing.iphone_screenshots).toHaveLength(1);
 
   await request.post(`/api/v1/builds/${build.id}/status`, {
     headers: pipeline,

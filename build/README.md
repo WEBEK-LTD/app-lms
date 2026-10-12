@@ -18,7 +18,8 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
      platform before building. Every later build reuses that key, and the
      platform never replaces a saved key.
    - Builds the APK and App Bundle and uploads them, plus the upload key
-     (zip), to `files.yallapp.com.tr`.
+     (zip) and the store assets (zip: store icons, a feature graphic, the
+     client's screenshots and the listing texts), to `files.yallapp.com.tr`.
    - **Pro:** uploads the App Bundle to the Google Play internal track.
 4. **iOS** (macOS), per build, only when the client added an App Store Connect
    key:
@@ -107,6 +108,7 @@ Set these alongside the platform's other variables (`platform/web/README.md`):
 | `scripts/upload.sh` | Uploads files over FTPS and prints their artifact list |
 | `scripts/report.py` | Sends the final status |
 | `scripts/make_icons.py` | Writes launcher icons from the client's 1024 px icon |
+| `scripts/store_assets.py` | Packs the store assets zip: icons, feature graphic, screenshots, listing |
 | `fastlane/Fastfile` | iOS signing, Google Play and TestFlight uploads (fastlane 2.240.1, `Gemfile.lock`) |
 | `files-host/` | The download gate on `files.yallapp.com.tr` |
 | `tests/` | Unit tests: `python3 -m unittest discover build/tests` |

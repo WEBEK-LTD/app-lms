@@ -1,3 +1,4 @@
+import type { AssetKind } from "../data/types";
 import {
   bigint,
   boolean,
@@ -10,9 +11,10 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
 
 /**
- * MySQL schema (MySQL 5.7+ and MariaDB 10.3+, the usual cPanel servers).
+ * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
  * JSON is stored as LONGTEXT and parsed in code, because MariaDB's JSON type
  * is an alias that mysql2 returns as a string. Times are UTC with milliseconds.
  */
@@ -115,6 +117,10 @@ export const apps = mysqlTable(
     fullDescription: text("full_description"),
     supportEmail: varchar("support_email", { length: 191 }),
     privacyUrl: varchar("privacy_url", { length: 2048 }),
+    phoneScreenshotIds: jsonText<string[]>("phone_screenshot_ids").notNull().default(sql`('[]')`),
+    iphoneScreenshotIds: jsonText<string[]>("iphone_screenshot_ids").notNull().default(sql`('[]')`),
+    firebaseAndroidAssetId: id("firebase_android_asset_id"),
+    firebaseIosAssetId: id("firebase_ios_asset_id"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),
@@ -190,7 +196,7 @@ export const assets = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
-    kind: varchar("kind", { length: 16 }).notNull().$type<"icon" | "logo">(),
+    kind: varchar("kind", { length: 16 }).notNull().$type<AssetKind>(),
     blobKey: varchar("blob_key", { length: 255 }).notNull(),
     contentType: varchar("content_type", { length: 64 }).notNull(),
     size: int("size").notNull(),

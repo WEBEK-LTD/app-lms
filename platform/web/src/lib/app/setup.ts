@@ -42,6 +42,10 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date): App
     fullDescription: null,
     supportEmail: null,
     privacyUrl: null,
+    phoneScreenshotIds: [],
+    iphoneScreenshotIds: [],
+    firebaseAndroidAssetId: null,
+    firebaseIosAssetId: null,
     googlePlayKeyEncrypted: null,
     googlePlayClientEmail: null,
     ascIssuerId: null,
@@ -89,7 +93,7 @@ export function nextStep(app: App | null, plan: Plan | null): SetupStep | null {
   return SETUP_STEPS.find((step) => !status[step]) ?? null;
 }
 
-export function storeListingOf(app: App): StoreListing | null {
+export function storeListingOf(app: App, assetUrl: (assetId: string) => string): StoreListing | null {
   if (!app.storeTitle || !app.shortDescription || !app.fullDescription || !app.supportEmail || !app.privacyUrl) return null;
   return {
     storeTitle: app.storeTitle,
@@ -97,6 +101,8 @@ export function storeListingOf(app: App): StoreListing | null {
     fullDescription: app.fullDescription,
     supportEmail: app.supportEmail,
     privacyUrl: app.privacyUrl,
+    phoneScreenshots: app.phoneScreenshotIds.map(assetUrl),
+    iphoneScreenshots: app.iphoneScreenshotIds.map(assetUrl),
   };
 }
 
@@ -115,6 +121,9 @@ export function buildConfigFor(
   };
   if (app.iconAssetId) branding.icon_url = assetUrl(app.iconAssetId);
   if (app.logoAssetId) branding.logo_url = assetUrl(app.logoAssetId);
+  const firebase: NonNullable<BuildConfig["firebase"]> = {};
+  if (app.firebaseAndroidAssetId) firebase.android_config_url = assetUrl(app.firebaseAndroidAssetId);
+  if (app.firebaseIosAssetId) firebase.ios_config_url = assetUrl(app.firebaseIosAssetId);
   return {
     schema_version: 1,
     client_id: client.id,
@@ -127,6 +136,7 @@ export function buildConfigFor(
     version_name: version.name,
     version_code: version.code,
     branding,
+    ...(Object.keys(firebase).length > 0 ? { firebase } : {}),
   };
 }
 
@@ -166,7 +176,7 @@ export async function queueBuild(
   const config = buildConfigFor(app, client, { name: input.versionName, code: 1 }, assetUrl);
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };
-  const listing = storeListingOf(app);
+  const listing = storeListingOf(app, assetUrl);
   if (!listing) return { ok: false, reason: "setup_incomplete" };
 
   const autoPublish = license.plan === "pro";

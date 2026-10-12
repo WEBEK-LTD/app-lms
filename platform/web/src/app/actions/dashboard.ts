@@ -16,6 +16,15 @@ import type { App, AssetKind } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
+import {
+  checkGoogleServiceInfoPlist,
+  checkGoogleServicesJson,
+  checkScreenshot,
+  FIREBASE_MAX_BYTES,
+  SCREENSHOT_LIMITS,
+  SCREENSHOT_MAX_BYTES,
+  type ScreenshotKind,
+} from "@/lib/store-files";
 import { bumpPatch } from "@/lib/semver";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 
@@ -128,9 +137,75 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   const parsed = listingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const store = await getStore();
+  const screenshots = await readScreenshotIds(formData, context.client.id);
+  if (!screenshots.ok) return { errors: screenshots.errors, values };
   const now = new Date();
-  await store.updateApp(context.app.id, { ...parsed.data, listingDoneAt: now }, now);
+  const patch: AppPatch = { ...parsed.data, ...screenshots.patch, listingDoneAt: now };
+  // A Firebase file is made for one package name or bundle ID.
+  if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
+  if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
+  await store.updateApp(context.app.id, patch, now);
   return afterStep(context, "listing");
+}
+
+const SCREENSHOT_ASSET: Record<ScreenshotKind, { kind: AssetKind; field: "playScreenshotIds" | "iosScreenshotIds"; store: string }> = {
+  phone: { kind: "play_screenshot", field: "playScreenshotIds", store: "Google Play" },
+  iphone: { kind: "ios_screenshot", field: "iosScreenshotIds", store: "the App Store" },
+};
+
+/** The screenshots kept in the form, in order. Each must be this client's upload of the right kind. */
+async function readScreenshotIds(
+  formData: FormData,
+  clientId: string,
+): Promise<{ ok: true; patch: Pick<AppPatch, "phoneScreenshotIds" | "iphoneScreenshotIds"> } | { ok: false; errors: Record<string, string> }> {
+  const store = await getStore();
+  const errors: Record<string, string> = {};
+  const lists: Record<ScreenshotKind, string[]> = { phone: [], iphone: [] };
+  for (const kind of ["phone", "iphone"] as const) {
+    const { kind: assetKind, field, store: storeName } = SCREENSHOT_ASSET[kind];
+    const ids = [...new Set(formData.getAll(field).map(String).filter(Boolean))];
+    const { min, max } = SCREENSHOT_LIMITS[kind];
+    if (ids.length > max) errors[field] = `${storeName} takes up to ${max} screenshots.`;
+    else if (ids.length > 0 && ids.length < min) errors[field] = `${storeName} needs at least ${min} screenshots.`;
+    for (const id of ids) {
+      const asset = await store.getAsset(id);
+      if (!asset || asset.clientId !== clientId || asset.kind !== assetKind) {
+        errors[field] = "A screenshot couldn't be found. Upload it again.";
+        break;
+      }
+    }
+    lists[kind] = ids;
+  }
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  return { ok: true, patch: { phoneScreenshotIds: lists.phone, iphoneScreenshotIds: lists.iphone } };
+}
+
+async function saveAsset(clientId: string, kind: AssetKind, data: Buffer, contentType: string, extension: string): Promise<string> {
+  const id = newId();
+  const blobKey = `assets/${clientId}/${id}.${extension}`;
+  await getBlobStore().put(blobKey, data, contentType);
+  const store = await getStore();
+  await store.createAsset({ id, clientId, kind, blobKey, contentType, size: data.length, createdAt: new Date() });
+  return id;
+}
+
+/** Firebase config files for push notifications. Optional, on every plan. */
+async function readFirebaseFiles(formData: FormData, app: App, clientId: string): Promise<{ patch: AppPatch; errors: Record<string, string> }> {
+  const patch: AppPatch = {};
+  const errors: Record<string, string> = {};
+  const android = await fileText(formData.get("firebaseAndroidFile"), FIREBASE_MAX_BYTES);
+  if (android !== null) {
+    const error = android === "" ? "This file is too large for google-services.json." : checkGoogleServicesJson(android, app.androidPackage ?? "");
+    if (error) errors.firebaseAndroidFile = error;
+    else patch.firebaseAndroidAssetId = await saveAsset(clientId, "firebase_android", Buffer.from(android), "application/json", "json");
+  }
+  const ios = await fileText(formData.get("firebaseIosFile"), FIREBASE_MAX_BYTES);
+  if (ios !== null) {
+    const error = ios === "" ? "This file is too large for GoogleService-Info.plist." : checkGoogleServiceInfoPlist(ios, app.iosBundleId ?? "");
+    if (error) errors.firebaseIosFile = error;
+    else patch.firebaseIosAssetId = await saveAsset(clientId, "firebase_ios", Buffer.from(ios), "application/xml", "plist");
+  }
+  return { patch, errors };
 }
 
 async function fileText(value: FormDataEntryValue | null, maxBytes: number): Promise<string | null> {
@@ -189,8 +264,9 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const app = context.app;
   const key = encryptionKey();
   const appStore = await readAppStoreKey(formData, app, key);
-  const errors: Record<string, string> = { ...appStore.errors };
-  const patch: AppPatch = { ...appStore.patch };
+  const firebase = await readFirebaseFiles(formData, app, context.client.id);
+  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors };
+  const patch: AppPatch = { ...appStore.patch, ...firebase.patch };
   const values = appStore.values;
 
   if (context.license?.plan !== "pro") {
@@ -227,6 +303,10 @@ export async function removeStoreKeyAction(formData: FormData): Promise<void> {
     await store.updateApp(context.app.id, { googlePlayKeyEncrypted: null, googlePlayClientEmail: null }, now);
   } else if (formData.get("store") === "app-store") {
     await store.updateApp(context.app.id, { ascPrivateKeyEncrypted: null, ascIssuerId: null, ascKeyId: null }, now);
+  } else if (formData.get("store") === "firebase-android") {
+    await store.updateApp(context.app.id, { firebaseAndroidAssetId: null }, now);
+  } else if (formData.get("store") === "firebase-ios") {
+    await store.updateApp(context.app.id, { firebaseIosAssetId: null }, now);
   }
   revalidatePath("/dashboard", "layout");
   redirect(stepUrl("publishing"));
@@ -239,13 +319,24 @@ export interface UploadResult {
   error?: string;
 }
 
-/** Uploads an app icon (PNG, 1024 × 1024, no transparency) or a logo (PNG or SVG). */
+/**
+ * Uploads an app icon (PNG, 1024 × 1024, no transparency), a logo (PNG or SVG)
+ * or a store screenshot (PNG or JPEG, sizes the store accepts).
+ */
 export async function uploadAssetAction(formData: FormData): Promise<UploadResult> {
   const context = await requireActiveClient();
   const kind = formData.get("kind") as AssetKind | null;
   const file = formData.get("file");
-  if ((kind !== "icon" && kind !== "logo") || !file || typeof file === "string" || file.size === 0) {
+  if (!kind || !["icon", "logo", "play_screenshot", "ios_screenshot"].includes(kind) || !file || typeof file === "string" || file.size === 0) {
     return { ok: false, error: "Choose a file to upload." };
+  }
+  if (kind === "play_screenshot" || kind === "ios_screenshot") {
+    if (file.size > SCREENSHOT_MAX_BYTES) return { ok: false, error: `The file is too large. The limit is ${SCREENSHOT_MAX_BYTES / 1024 / 1024} MB.` };
+    const data = Buffer.from(await file.arrayBuffer());
+    const checked = checkScreenshot(data, kind === "play_screenshot" ? "phone" : "iphone");
+    if (!checked.ok) return { ok: false, error: checked.error };
+    const id = await saveAsset(context.client.id, kind, data, checked.contentType, checked.contentType === "image/png" ? "png" : "jpg");
+    return { ok: true, id, url: `/api/v1/assets/${id}` };
   }
   const max = kind === "icon" ? ICON_MAX_BYTES : LOGO_MAX_BYTES;
   if (file.size > max) return { ok: false, error: `The file is too large. The limit is ${max / 1024 / 1024} MB.` };
@@ -264,11 +355,7 @@ export async function uploadAssetAction(formData: FormData): Promise<UploadResul
   } else {
     return { ok: false, error: "The logo must be a PNG or SVG file." };
   }
-  const id = newId();
-  const blobKey = `assets/${context.client.id}/${id}.${contentType === "image/png" ? "png" : "svg"}`;
-  await getBlobStore().put(blobKey, data, contentType);
-  const store = await getStore();
-  await store.createAsset({ id, clientId: context.client.id, kind, blobKey, contentType, size: data.length, createdAt: new Date() });
+  const id = await saveAsset(context.client.id, kind, data, contentType, contentType === "image/png" ? "png" : "svg");
   return { ok: true, id, url: `/api/v1/assets/${id}` };
 }
 

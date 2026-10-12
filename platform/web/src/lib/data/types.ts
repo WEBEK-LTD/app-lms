@@ -7,7 +7,7 @@ export type BuildStatus = "queued" | "building" | "ready" | "failed";
 export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight";
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo";
+export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -67,6 +67,9 @@ export interface StoreListing {
   fullDescription: string;
   supportEmail: string;
   privacyUrl: string;
+  /** Asset URLs, in store order. Missing on builds queued before screenshots existed. */
+  phoneScreenshots?: string[];
+  iphoneScreenshots?: string[];
 }
 
 export interface App {
@@ -89,6 +92,12 @@ export interface App {
   fullDescription: string | null;
   supportEmail: string | null;
   privacyUrl: string | null;
+  /** Store screenshots (asset IDs, in order): Google Play phone screenshots and iPhone 6.9" screenshots. */
+  phoneScreenshotIds: string[];
+  iphoneScreenshotIds: string[];
+  /** Firebase config files (assets): google-services.json and GoogleService-Info.plist. Push is off without them. */
+  firebaseAndroidAssetId: string | null;
+  firebaseIosAssetId: string | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
