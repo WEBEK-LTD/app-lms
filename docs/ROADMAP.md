@@ -53,13 +53,16 @@ Each step closes once its "done when" check passes on the staging site (0.5).
 
 ## Phase 4: Yallapp platform (`platform/web/`, Netlify)
 
+Built and tested with the in-memory data store (unit and browser tests in CI).
+Each step closes once it runs on Netlify against the MySQL database (0.3, 0.4).
+
 | | Step | Done when |
 |---|---|---|
-| [ ] | 4.1 Database schema and secure connection from Netlify to MySQL on `host.webek.org` | |
-| [ ] | 4.2 Website: landing, guides, legal pages | Live on `yallapp.com.tr` |
-| [ ] | 4.3 Client accounts, dashboard, setup wizard | |
-| [ ] | 4.4 Super admin: activation and plans | |
-| [ ] | 4.5 License and plugin update API; switch on the plugin license client | A test client goes from sign-up to activation |
+| [~] | 4.1 Database schema and secure connection from Netlify to MySQL on `host.webek.org` | |
+| [~] | 4.2 Website: landing, guides, legal pages | Live on `yallapp.com.tr` |
+| [~] | 4.3 Client accounts, dashboard, setup wizard | |
+| [~] | 4.4 Super admin: activation and plans | |
+| [~] | 4.5 License and plugin update API; switch on the plugin license client | A test client goes from sign-up to activation |
 
 ## Phase 5: App builds (`build/`)
 

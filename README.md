@@ -34,7 +34,7 @@ same checks locally before pushing:
 
 ```sh
 # API contract
-npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml
+npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml
 
 # WordPress plugin
 cd wp-plugin/yallapp
@@ -42,4 +42,10 @@ composer install
 composer lint
 composer test                 # unit tests
 tests/integration/run.sh      # builds WordPress + Tutor LMS on SQLite and runs the API checks
+
+# Platform (yallapp.com.tr)
+cd platform/web
+npm ci
+npm run lint && npm run typecheck && npm test && npm run build
+npm run test:e2e
 ```
