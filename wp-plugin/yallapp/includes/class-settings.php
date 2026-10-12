@@ -85,6 +85,11 @@ class Settings {
 			'store_closed_weekdays'        => array(),
 			'store_gift_message'           => false,
 			'store_gift_message_max'       => 200,
+			// Bookings home screen and rules (Bookings apps).
+			'bookings_home_sections'       => array( 'banner', 'next_appointment', 'categories', 'services', 'staff' ),
+			'bookings_banner_image_id'     => 0,
+			'bookings_banner_service_id'   => 0,
+			'bookings_cancel'              => true,
 			// Notifications.
 			'firebase_service_account'     => '',
 			'notify_new_lesson'            => true,
@@ -107,15 +112,16 @@ class Settings {
 	 */
 	public static function choices() {
 		return array(
-			'device_limit_action'   => array( 'block', 'replace_oldest' ),
-			'checkout_opens_in'     => array( 'in_app', 'browser' ),
-			'watermark'             => array( 'off', 'phone', 'name', 'name_and_phone' ),
-			'render_mode'           => array( 'auto', 'native', 'webview' ),
-			'embed_height'          => array( 'auto', 'fit_screen', 'as_set' ),
-			'signup_fields'         => array( 'name', 'email', 'city' ),
-			'home_sections'         => array( 'banner', 'continue_learning', 'categories', 'featured_courses', 'latest_courses' ),
-			'store_home_sections'   => array( 'banner', 'categories', 'featured_products', 'sale_products', 'new_products', 'best_sellers' ),
-			'store_closed_weekdays' => array( '0', '1', '2', '3', '4', '5', '6' ),
+			'device_limit_action'    => array( 'block', 'replace_oldest' ),
+			'checkout_opens_in'      => array( 'in_app', 'browser' ),
+			'watermark'              => array( 'off', 'phone', 'name', 'name_and_phone' ),
+			'render_mode'            => array( 'auto', 'native', 'webview' ),
+			'embed_height'           => array( 'auto', 'fit_screen', 'as_set' ),
+			'signup_fields'          => array( 'name', 'email', 'city' ),
+			'home_sections'          => array( 'banner', 'continue_learning', 'categories', 'featured_courses', 'latest_courses' ),
+			'store_home_sections'    => array( 'banner', 'categories', 'featured_products', 'sale_products', 'new_products', 'best_sellers' ),
+			'store_closed_weekdays'  => array( '0', '1', '2', '3', '4', '5', '6' ),
+			'bookings_home_sections' => array( 'banner', 'next_appointment', 'categories', 'services', 'staff' ),
 		);
 	}
 

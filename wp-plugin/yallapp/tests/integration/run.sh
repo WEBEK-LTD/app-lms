@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Builds the dev site, serves it, and runs the end-to-end API checks.
 #
-# Usage: [LMS=<id>] [APP=store] tests/integration/run.sh [site-dir]
+# Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/integration/run.sh [site-dir]
 #        Without LMS: Tutor LMS and its full suite (api-test.php).
 #        LMS=learnpress|lifterlms|masterstudy|sensei|masteriyo: that LMS and adapter-test.php.
 #        APP=store: WooCommerce without an LMS and store-test.php.
+#        APP=bookings BOOKING=amelia|bookingpress|latepoint: that booking plugin and bookings-test.php.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -29,7 +30,9 @@ done
 export WP_CLI="php $CACHE/wp-cli-$WP_CLI_VERSION.phar --path=$SITE_DIR --allow-root"
 SEED_IDS=$($WP_CLI option get yallapp_seed_ids --format=json)
 export SEED_IDS
-if [ "$APP" = store ]; then
+if [ "$APP" = bookings ]; then
+	BOOKING=${BOOKING:-amelia} php "$HERE/bookings-test.php" "http://127.0.0.1:$PORT"
+elif [ "$APP" = store ]; then
 	php "$HERE/store-test.php" "http://127.0.0.1:$PORT"
 elif [ -z "$LMS" ] || [ "$LMS" = tutor ]; then
 	php "$HERE/api-test.php" "http://127.0.0.1:$PORT"

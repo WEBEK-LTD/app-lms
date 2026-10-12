@@ -43,6 +43,13 @@ class Plugin {
 	);
 
 	/**
+	 * Adapter class for each booking plugin the detector reports.
+	 */
+	const BOOKING_ADAPTERS = array(
+		'amelia' => Bookings\Amelia_Adapter::class,
+	);
+
+	/**
 	 * The instance.
 	 *
 	 * @var Plugin|null
@@ -106,6 +113,7 @@ class Plugin {
 		( new Rest\Notifications_Controller( $this ) )->register_routes();
 		( new Rest\Community_Controller( $this ) )->register_routes();
 		( new Rest\Store_Controller( $this ) )->register_routes();
+		( new Rest\Bookings_Controller( $this ) )->register_routes();
 	}
 
 	/**
@@ -158,6 +166,30 @@ class Plugin {
 			$this->services['lms'] = apply_filters( 'yallapp_lms_adapter', $adapter, $lms );
 		}
 		return $this->services['lms'];
+	}
+
+	/**
+	 * The booking plugin adapter, or null when the site has no supported booking plugin.
+	 *
+	 * @return Bookings\Booking_Adapter|null
+	 */
+	public function bookings() {
+		if ( ! array_key_exists( 'bookings', $this->services ) ) {
+			$booking = $this->detector()->booking();
+			$adapter = null;
+			if ( $booking && $booking['supported'] && isset( self::BOOKING_ADAPTERS[ $booking['id'] ] ) && class_exists( self::BOOKING_ADAPTERS[ $booking['id'] ] ) ) {
+				$class   = self::BOOKING_ADAPTERS[ $booking['id'] ];
+				$adapter = new $class();
+			}
+			/**
+			 * Filters the booking adapter, so other booking plugins can plug in.
+			 *
+			 * @param Bookings\Booking_Adapter|null $adapter Adapter.
+			 * @param array|null                    $booking Detected booking plugin.
+			 */
+			$this->services['bookings'] = apply_filters( 'yallapp_booking_adapter', $adapter, $booking );
+		}
+		return $this->services['bookings'];
 	}
 
 	/**

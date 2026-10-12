@@ -90,6 +90,38 @@ class Detector {
 	}
 
 	/**
+	 * Booking plugins: a class that shows it's loaded and its adapter relies on, the
+	 * constant or option holding its version, its name, and the oldest version the
+	 * adapter supports.
+	 */
+	const BOOKINGS = array(
+		'amelia'       => array( 'AmeliaBooking\\Application\\Controller\\Booking\\Appointment\\AddBookingController', 'AMELIA_VERSION', 'Amelia', '2.0.0' ),
+		'latepoint'    => array( 'OsBookingModel', 'latepoint_plugin_version', 'LatePoint', '5.0.0' ),
+		'bookingpress' => array( 'BookingPress_Core', 'bookingpress_version', 'BookingPress', '1.1.0' ),
+	);
+
+	/**
+	 * The active booking plugin, or null.
+	 *
+	 * @return array{id: string, name: string, version: string, supported: bool}|null
+	 */
+	public function booking() {
+		foreach ( self::BOOKINGS as $id => $info ) {
+			if ( ! class_exists( $info[0] ) ) {
+				continue;
+			}
+			$version = defined( $info[1] ) ? (string) constant( $info[1] ) : (string) get_option( $info[1], '' );
+			return array(
+				'id'        => $id,
+				'name'      => $info[2],
+				'version'   => $version,
+				'supported' => '' !== $version && version_compare( $version, $info[3], '>=' ),
+			);
+		}
+		return null;
+	}
+
+	/**
 	 * Digits status.
 	 *
 	 * @return array{active: bool, version: string, api: bool}

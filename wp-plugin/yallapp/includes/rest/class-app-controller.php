@@ -98,6 +98,7 @@ class App_Controller extends Controller {
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
+				'bookings'  => Bookings_Controller::config( $this->plugin->bookings() ),
 				'auth'      => array(
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),
