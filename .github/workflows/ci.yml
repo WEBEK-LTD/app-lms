@@ -20,7 +20,6 @@ jobs:
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     outputs:
       plugin: ${{ steps.files.outputs.plugin }}
-      describe: ${{ steps.files.outputs.describe }}
       pipeline: ${{ steps.files.outputs.pipeline }}
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +44,6 @@ jobs:
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
             if match '^(wp-plugin/|\.github/workflows/ci\.yml$)'; then echo plugin=true; else echo plugin=false; fi
-            if match '^(wp-plugin/yallapp/tests/dev-site/describe-methods\.php|\.github/workflows/ci\.yml)$'; then echo describe=true; else echo describe=false; fi
             if match '^(build/|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
           } >> "$GITHUB_OUTPUT"
 
@@ -232,7 +230,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        booking: [amelia, latepoint]
+        booking: [amelia, bookingpress, latepoint]
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -252,61 +250,6 @@ jobs:
       - name: PHP log
         if: failure()
         run: tail -n 80 "$RUNNER_TEMP/site/wp-content/debug.log" || true
-
-  booking-describe:
-    name: Describe booking plugin (${{ matrix.part }})
-    needs: changes
-    if: needs.changes.outputs.describe == 'true'
-    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - part: bookingpress save
-            booking: bookingpress
-            slug: bookingpress-appointment-booking
-            list: ''
-            grep: ''
-            around: ''
-            methods: '::(bookingpress_save_appointment_booking_func|bookingpress_confirm_booking|bookingpress_is_appointment_booked|bookinpgress_retrieve_default_workhours|bookingpress_global_options|bookingpress_get_currency_symbol|bookingpress_get_currency_code|bookingpress_retrieve_off_days|bookingpress_get_default_dayoff_dates)$'
-    defaults:
-      run:
-        working-directory: wp-plugin/yallapp
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          coverage: none
-          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
-          tools: composer:v2
-      - name: Build a site with the booking plugin
-        env:
-          APP: bookings
-          BOOKING: ${{ matrix.booking }}
-          SEED: '0'
-        run: tests/dev-site/setup.sh "$RUNNER_TEMP/site" > /dev/null || echo "SETUP FAILED"
-      - name: Source
-        env:
-          DIR: ${{ runner.temp }}/site/wp-content/plugins/${{ matrix.slug }}
-          LIST: ${{ matrix.list }}
-          METHODS: ${{ matrix.methods }}
-          GREP: ${{ matrix.grep }}
-          AROUND: ${{ matrix.around }}
-        run: |
-          if [ -n "$LIST" ]; then echo "== list"; php tests/dev-site/describe-methods.php "$DIR" "$LIST" --list; fi
-          for range in $AROUND; do
-            IFS=: read -r file from to <<<"$range"
-            echo "== $file:$from-$to"
-            if [ ! -f "$DIR/$file" ]; then
-              echo "(no such file; files nearby:)"
-              find "$DIR/$(dirname "$file")/.." -name '*.php' 2>/dev/null | sed "s#^$DIR/##" | head -n 60
-              continue
-            fi
-            sed -n "${from},${to}p" "$DIR/$file" | cat -n | sed "s/^ *\([0-9]*\)/$((from - 1))+\1/"
-          done
-          if [ -n "$GREP" ]; then echo "== grep"; grep -rnE --include='*.php' --exclude-dir=vendor "$GREP" "$DIR" | sed "s#^$DIR/##" | cut -c1-300 | head -n 200 || true; fi
-          php tests/dev-site/describe-methods.php "$DIR" "$METHODS"
 
   build-pipeline:
     name: Build pipeline scripts
