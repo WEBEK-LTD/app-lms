@@ -9,6 +9,7 @@ import '../../../core/routing/paths.dart';
 import '../../../core/services/push_registration.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_look.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
@@ -86,6 +87,7 @@ class SettingsScreen extends ConsumerWidget {
     final pushEnabled = ref.watch(pushEnabledProvider);
     final devices = ref.watch(devicesProvider).value;
     final env = ref.watch(appEnvironmentProvider);
+    final look = ref.watch(appLookProvider);
     final n = settings.notifications;
 
     Widget toggle(
@@ -108,44 +110,50 @@ class SettingsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SettingsGroup(
-            title: 'Display',
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        AppIcon(AppIcons.appearance, color: p.text),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Appearance',
-                          style: TextStyle(fontSize: 15, color: p.text),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    SegmentedTabs(
-                      radio: true,
-                      height: 40,
-                      labels: const ['System', 'Light', 'Dark'],
-                      selected: switch (settings.themeMode) {
-                        ThemeMode.system => 0,
-                        ThemeMode.light => 1,
-                        ThemeMode.dark => 2,
-                      },
-                      onChanged: (i) => controller.setThemeMode(
-                        [ThemeMode.system, ThemeMode.light, ThemeMode.dark][i],
+          if (look.userCanChangeMode) ...[
+            SettingsGroup(
+              title: 'Display',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          AppIcon(AppIcons.appearance, color: p.text),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Appearance',
+                            style: TextStyle(fontSize: 15, color: p.text),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      SegmentedTabs(
+                        radio: true,
+                        height: 40,
+                        labels: const ['System', 'Light', 'Dark'],
+                        selected: switch (look.themeModeFor(settings)) {
+                          ThemeMode.system => 0,
+                          ThemeMode.light => 1,
+                          ThemeMode.dark => 2,
+                        },
+                        onChanged: (i) => controller.setThemeMode(
+                          [
+                            ThemeMode.system,
+                            ThemeMode.light,
+                            ThemeMode.dark,
+                          ][i],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
           SettingsGroup(
             title: 'Video',
             children: [

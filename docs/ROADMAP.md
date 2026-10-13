@@ -42,7 +42,7 @@ Each step closes once its "done when" check passes on the staging site (0.5).
 
 ## Phase 3: Flutter app (`mobile/`)
 
-Built with 143 tests (models against the contract, token refresh, iframe sizing on
+Built with 172 tests (models against the contract, token refresh, iframe sizing on
 several screens, purchase rules, every screen in all templates). The first APK is
 built by `.github/workflows/mobile.yml`; each step closes on a phone against staging.
 
@@ -99,8 +99,8 @@ looks and hosted apps"). Started ahead of Phases 6 and 7 at WEBEK's request.
 
 | | Step | Done when |
 |---|---|---|
-| [~] | 8.1 Plan and API contract: `Config.appearance`, `/pages`, page blocks, the hosted server | Contract approved |
-| [ ] | 8.2 App: looks from `/config` (templates, light, dark and system mode, font, corners, cards) | Changing the look in the API changes the app without a new build |
+| [x] | 8.1 Plan and API contract: `Config.appearance`, `/pages`, page blocks, the hosted server | Contract approved |
+| [~] | 8.2 App: looks from `/config` (templates, light, dark and system mode, font, corners, cards) | Changing the look in the API changes the app without a new build |
 | [ ] | 8.3 App: bottom tabs and pages from `/pages`, one renderer for every block in every template, fallback to `/home` | Every block renders in all templates on several screen sizes |
 | [ ] | 8.4 Dashboard: page and look editor with drag-and-drop ordering, preview, drafts and publish | A client builds and publishes a page |
 | [ ] | 8.5 Plugin: fetch the published layout from the platform and serve `/pages` with the site's courses, products and posts | A page published in the dashboard shows in a WordPress client's app |

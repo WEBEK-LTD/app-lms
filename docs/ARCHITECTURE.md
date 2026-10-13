@@ -109,7 +109,7 @@ mobile/
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.
-- Runtime config comes from `GET /config`: colors, home sections, features,
+- Runtime config comes from `GET /config`: colors, the look (`appearance`), home sections, features,
   checkout rules, minimum version, maintenance mode.
 - Purchases: Android opens the site's checkout with a one-time sign-in link.
   iOS shows no purchase buttons for paid courses (Apple's digital content rule);

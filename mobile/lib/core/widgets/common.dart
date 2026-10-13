@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
 import '../theme/app_icons.dart';
+import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import 'buttons.dart';
 
@@ -316,10 +317,8 @@ class AppCard extends StatelessWidget {
     final content = Padding(padding: padding, child: child);
     final card = Material(
       color: color ?? p.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(r),
-        side: BorderSide(color: p.border),
-      ),
+      shape: context.cardShape(r, outlined: true),
+      elevation: context.cardElevation,
       clipBehavior: Clip.antiAlias,
       child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );

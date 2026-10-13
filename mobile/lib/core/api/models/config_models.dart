@@ -1,3 +1,4 @@
+import '../../config/build_config_data.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
@@ -12,6 +13,7 @@ class AppConfig {
     required this.purchases,
     required this.content,
     required this.app,
+    this.appearance,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -22,6 +24,7 @@ class AppConfig {
     purchases: PurchaseRules.fromJson(asJson(json['purchases'], 'purchases')),
     content: ContentRules.fromJson(asJson(json['content'], 'content')),
     app: AppRules.fromJson(asJson(json['app'], 'app')),
+    appearance: optObject(json, 'appearance', Appearance.fromJson),
   );
 
   final SiteInfo site;
@@ -31,6 +34,9 @@ class AppConfig {
   final PurchaseRules purchases;
   final ContentRules content;
   final AppRules app;
+
+  /// The look set in the client dashboard; `null` keeps the build's look.
+  final Appearance? appearance;
 }
 
 class SiteInfo {
@@ -223,6 +229,45 @@ class AppRules {
   final bool updateRequired;
   final bool maintenance;
   final String? maintenanceMessage;
+}
+
+enum AppearanceMode { system, light, dark }
+
+enum CornerStyle { sharp, soft, round }
+
+enum CardStyle { flat, outlined, elevated }
+
+/// `Config.appearance`. Every value is optional here: a missing or unknown
+/// value means "use the build's default", so newer dashboards never break
+/// older apps.
+class Appearance {
+  const Appearance({
+    this.template,
+    this.themeMode,
+    this.userCanChangeMode = true,
+    this.secondaryColor,
+    this.font,
+    this.corners,
+    this.cards,
+  });
+
+  factory Appearance.fromJson(Json json) => Appearance(
+    template: enumOrNull(AppTemplate.values, json['template']),
+    themeMode: enumOrNull(AppearanceMode.values, json['theme_mode']),
+    userCanChangeMode: boolOr(json, 'user_can_change_mode', true),
+    secondaryColor: optString(json, 'secondary_color'),
+    font: optString(json, 'font'),
+    corners: enumOrNull(CornerStyle.values, json['corners']),
+    cards: enumOrNull(CardStyle.values, json['cards']),
+  );
+
+  final AppTemplate? template;
+  final AppearanceMode? themeMode;
+  final bool userCanChangeMode;
+  final String? secondaryColor;
+  final String? font;
+  final CornerStyle? corners;
+  final CardStyle? cards;
 }
 
 enum HomeSectionType {

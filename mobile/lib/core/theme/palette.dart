@@ -52,6 +52,20 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required Color primary,
     required Brightness brightness,
     AppTemplate template = AppTemplate.classic,
+    Color? secondary,
+  }) {
+    final palette = AppPalette._base(
+      primary: primary,
+      brightness: brightness,
+      template: template,
+    );
+    return secondary == null ? palette : palette._withAccent(secondary);
+  }
+
+  factory AppPalette._base({
+    required Color primary,
+    required Brightness brightness,
+    required AppTemplate template,
   }) {
     final dark = brightness == Brightness.dark;
     final primaryIsDark = primary.computeLuminance() < 0.2;
@@ -148,6 +162,46 @@ class AppPalette extends ThemeExtension<AppPalette> {
     );
   }
 
+  /// Uses the client's secondary color instead of Ember for accents, with
+  /// accent text darkened or lightened until it reads on the background.
+  AppPalette _withAccent(Color secondary) {
+    final soft = Color.alphaBlend(
+      secondary.withValues(alpha: isDark ? 0.22 : 0.14),
+      surface,
+    );
+    return AppPalette(
+      brightness: brightness,
+      primary: primary,
+      onPrimary: onPrimary,
+      primarySoft: primarySoft,
+      onPrimarySoft: onPrimarySoft,
+      onPrimaryMuted: onPrimaryMuted,
+      primaryTrack: primaryTrack,
+      background: background,
+      surface: surface,
+      surfaceMuted: surfaceMuted,
+      segment: segment,
+      border: border,
+      divider: divider,
+      inputBorder: inputBorder,
+      text: text,
+      textBody: textBody,
+      textSecondary: textSecondary,
+      textTertiary: textTertiary,
+      accent: secondary,
+      accentSoft: soft,
+      link: readableOn(secondary, background),
+      success: success,
+      successSoft: successSoft,
+      danger: danger,
+      star: star,
+      timerSoft: timerSoft,
+      onTimerSoft: onTimerSoft,
+      inlineCode: inlineCode,
+      placeholders: placeholders,
+    );
+  }
+
   final Brightness brightness;
 
   /// Primary buttons, the continue card, active tabs.
@@ -234,6 +288,32 @@ class AppPalette extends ThemeExtension<AppPalette> {
       placeholders: t < 0.5 ? placeholders : other.placeholders,
     );
   }
+}
+
+/// WCAG contrast ratio between two colors (1 to 21).
+double contrastRatio(Color a, Color b) {
+  final la = a.computeLuminance();
+  final lb = b.computeLuminance();
+  final hi = la > lb ? la : lb;
+  final lo = la > lb ? lb : la;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/// [color], moved towards black or white until it has at least 4.5:1
+/// contrast on [background], for text.
+Color readableOn(Color color, Color background) {
+  final target = background.computeLuminance() > 0.5
+      ? const Color(0xFF000000)
+      : const Color(0xFFFFFFFF);
+  var result = color;
+  for (
+    var t = 0.1;
+    contrastRatio(result, background) < 4.5 && t <= 1;
+    t += 0.1
+  ) {
+    result = Color.lerp(color, target, t)!;
+  }
+  return result;
 }
 
 /// Parses "#RRGGBB" into an opaque color.
