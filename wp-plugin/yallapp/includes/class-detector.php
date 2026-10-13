@@ -23,9 +23,10 @@ defined( 'ABSPATH' ) || exit;
  * | MasterStudy | 3.0.0   | 3.4.9  |
  * | Sensei LMS  | 4.0.0   | 4.26.4 |
  * | Masteriyo   | 1.6.0   | 1.13.4 |
+ * | LearnDash   | 4.0.0   | 5.2.0  |
  *
- * LearnDash is detected, and gets an adapter only once one exists
- * (Plugin::LMS_ADAPTERS checks the class).
+ * LearnDash isn't on wordpress.org, so its checks run only on a local copy
+ * (tests/dev-site/setup.sh with LMS=learndash and LEARNDASH_DIR), not in CI.
  */
 class Detector {
 

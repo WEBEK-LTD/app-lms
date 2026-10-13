@@ -5,7 +5,9 @@
 # come from GitHub; the other plugins are the pinned releases from wordpress.org.
 #
 # Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/dev-site/setup.sh <site-dir>
-#        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo
+#        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo,
+#        or learndash with LEARNDASH_DIR=<an unpacked sfwd-lms folder>: LearnDash is a paid
+#        plugin that isn't on wordpress.org, so it is never downloaded (and not run in CI).
 #        APP=store: a shop with WooCommerce and no LMS (seed-store.php)
 #        APP=bookings: a booking plugin and no LMS (seed-bookings-<BOOKING>.php);
 #        BOOKING: amelia (default), bookingpress, latepoint. SEED=0 skips seeding.
@@ -45,8 +47,14 @@ case "$LMS" in
 	masterstudy) LMS_SLUG=masterstudy-lms-learning-management-system LMS_VERSION=${MASTERSTUDY_VERSION:-3.4.9} ;;
 	sensei) LMS_SLUG=sensei-lms LMS_VERSION=${SENSEI_VERSION:-4.26.4} ;;
 	masteriyo) LMS_SLUG=learning-management-system LMS_VERSION=${MASTERIYO_VERSION:-1.13.4} ;;
+	learndash)
+		if [ ! -f "${LEARNDASH_DIR:-}/sfwd_lms.php" ]; then
+			echo "LMS=learndash needs LEARNDASH_DIR set to an unpacked LearnDash (the sfwd-lms folder)." >&2
+			exit 2
+		fi
+		;;
 	*)
-		echo "Unknown LMS '$LMS': use tutor, learnpress, lifterlms, masterstudy, sensei or masteriyo." >&2
+		echo "Unknown LMS '$LMS': use tutor, learnpress, lifterlms, masterstudy, sensei, masteriyo or learndash." >&2
 		exit 2
 		;;
 esac
@@ -87,7 +95,10 @@ from_wordpress_org() { # slug version
 		rm -rf "$CACHE/$1-unzip" "$CACHE/$1.$2.zip"
 	fi
 }
-if [ "$LMS" != tutor ] && [ "$LMS" != none ]; then
+if [ "$LMS" = learndash ]; then
+	LMS_SRC=$(cd "$LEARNDASH_DIR" && pwd)
+	LMS_DIR=sfwd-lms
+elif [ "$LMS" != tutor ] && [ "$LMS" != none ]; then
 	from_wordpress_org "$LMS_SLUG" "$LMS_VERSION"
 	LMS_SRC="$CACHE/$LMS_SLUG-$LMS_VERSION"
 	LMS_DIR=$LMS_SLUG
@@ -184,6 +195,12 @@ if [ "$LMS" = masterstudy ]; then
 	# shellcheck disable=SC2016 # PHP code: its $ variables are PHP's.
 	wp eval 'foreach ( glob( STM_LMS_LIBRARY . "/db/tables/*.table.php" ) as $file ) { require_once $file; }
 		foreach ( array( "stm_lms_user_answers", "stm_lms_user_cart", "stm_lms_user_chat", "stm_lms_user_conversation", "stm_lms_user_courses", "stm_lms_user_lessons", "stm_lms_user_quizzes", "stm_lms_user_quizzes_times", "stm_lms_user_searches", "stm_lms_curriculum_sections", "stm_lms_curriculum_materials", "stm_lms_order_items" ) as $create ) { $create(); }'
+fi
+if [ "$LMS" = learndash ]; then
+	# LearnDash creates its activity tables from wp-admin, which WP-CLI never loads. (Its
+	# WpProQuiz question table can't be created on SQLite: a column is named "online".)
+	wp eval 'if ( ! class_exists( "Learndash_Admin_Data_Upgrades" ) ) { require_once LEARNDASH_LMS_PLUGIN_DIR . "includes/admin/class-learndash-admin-data-upgrades.php"; }
+		Learndash_Admin_Data_Upgrades::get_instance( "Learndash_Admin_Data_Upgrades_User_Activity_DB_Table" )->upgrade_db_tables();'
 fi
 wp plugin activate yallapp --quiet
 if [ "$SEED" = 0 ]; then

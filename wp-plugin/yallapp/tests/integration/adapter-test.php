@@ -13,7 +13,10 @@
  * - free_orders: whether the LMS records a free enrollment as an order (LearnPress does);
  * - certificate: whether completing "Python Programming Basics" awards a certificate;
  * - reviews_moderated: whether reviews wait for approval (the test approves by publishing the review post);
- * - lesson_preview: whether the LMS has free preview lessons ("What is UI design?" is one).
+ * - lesson_preview: whether the LMS has free preview lessons ("What is UI design?" is one);
+ * - quiz_on_website: whether the quiz is taken on the LMS's own quiz page (LearnDash). An attempt is then
+ *   one web view question, and SEED_IDS' `website_quiz` is PHP (with %1$d for the user ID) that records
+ *   the student finishing the quiz there.
  * Everything else follows from the features GET /config reports.
  *
  * @package Yallapp
@@ -39,6 +42,7 @@ $expect = array_merge(
 		'certificate'       => false,
 		'reviews_moderated' => false,
 		'lesson_preview'    => true,
+		'quiz_on_website'   => false,
 	),
 	(array) ( $seed['expect'] ?? array() )
 );
@@ -318,7 +322,30 @@ if ( ! empty( $features['wishlist'] ) ) {
 }
 
 echo "Quiz\n";
-if ( ! empty( $features['quizzes'] ) && ! empty( $seed['quiz'] ) ) {
+if ( ! empty( $features['quizzes'] ) && ! empty( $seed['quiz'] ) && $expect['quiz_on_website'] ) {
+	$r = call( 'GET', '/quizzes/' . $seed['quiz'], null, $token );
+	check( 'quiz details', 200 === $r['status'] && 60 === (int) ( $r['json']['pass_percent'] ?? 0 ) && 3 === ( $r['json']['question_count'] ?? 0 ) && $seed['python'] === ( $r['json']['course_id'] ?? 0 ) && 0 === ( $r['json']['attempts_used'] ?? -1 ), $r['raw'] );
+	$r       = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts', array(), $token );
+	$attempt = $r['json'] ?? array();
+	$page    = $attempt['questions'][0] ?? array();
+	check( 'attempt is the quiz page in a web view', 201 === $r['status'] && 1 === count( $attempt['questions'] ?? array() ) && 'webview' === ( $page['render_mode'] ?? '' ) && false !== strpos( (string) ( $page['webview_url'] ?? '' ), 'yallapp_link=' ), $r['raw'] );
+	$r = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts/' . ( $attempt['id'] ?? 0 ) . '/submit', array( 'answers' => array() ), $token );
+	check( 'submit before finishing 409', 409 === $r['status'] && 'quiz_not_finished' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+	wp_eval( sprintf( $seed['website_quiz'], $me_id ) );
+	$r = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts/' . ( $attempt['id'] ?? 0 ) . '/submit', array( 'answers' => array() ), $token );
+	check( 'result from the quiz page', 200 === $r['status'] && 'passed' === ( $r['json']['status'] ?? '' ) && $seed['quiz'] === ( $r['json']['quiz_id'] ?? 0 ) && ( $attempt['id'] ?? 0 ) === ( $r['json']['attempt_id'] ?? -1 ), $r['raw'] );
+	$r = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts/' . ( $attempt['id'] ?? 0 ) . '/submit', array( 'answers' => array() ), $token );
+	check( 'submitting twice 409', 409 === $r['status'], $r['raw'] );
+	$r = call( 'GET', '/quizzes/' . $seed['quiz'], null, $token );
+	check( 'quiz counts attempts', 1 === ( $r['json']['attempts_used'] ?? 0 ) && 'passed' === ( $r['json']['last_result']['status'] ?? '' ), $r['raw'] );
+	$r = call( 'GET', '/me/quiz-attempts', null, $token );
+	check( 'attempt history', 200 === $r['status'] && 1 === ( $r['json']['total'] ?? 0 ) && $seed['quiz'] === ( $r['json']['items'][0]['quiz_id'] ?? 0 ) && 'Module 1 quiz' === ( $r['json']['items'][0]['quiz_title'] ?? '' ), $r['raw'] );
+	$items = curriculum_items( $seed['python'], $token );
+	check( 'quiz completed in curriculum', true === ( $items[ $seed['quiz'] ]['completed'] ?? null ), $items );
+	$other = sign_up( 'Not Enrolled' );
+	$r     = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts', array(), $other['json']['access_token'] ?? '' );
+	check( 'quiz needs enrollment', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+} elseif ( ! empty( $features['quizzes'] ) && ! empty( $seed['quiz'] ) ) {
 	$r = call( 'GET', '/quizzes/' . $seed['quiz'], null, $token );
 	check( 'quiz details', 200 === $r['status'] && 60 === (int) ( $r['json']['pass_percent'] ?? 0 ) && 3 === ( $r['json']['question_count'] ?? 0 ) && $seed['python'] === ( $r['json']['course_id'] ?? 0 ) && 0 === ( $r['json']['attempts_used'] ?? -1 ), $r['raw'] );
 	$r = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts', array(), $token );
@@ -444,7 +471,7 @@ echo "Course completion\n";
 foreach ( array( $seed['lesson_video'], $seed['lesson_script'] ) as $lesson ) {
 	call( 'POST', '/lessons/' . $lesson . '/complete', array(), $token );
 }
-if ( ! empty( $features['quizzes'] ) && ! empty( $seed['quiz'] ) ) {
+if ( ! empty( $features['quizzes'] ) && ! empty( $seed['quiz'] ) && ! $expect['quiz_on_website'] ) {
 	$r = call( 'POST', '/quizzes/' . $seed['quiz'] . '/attempts', array(), $token );
 	$a = $r['json'] ?? array();
 	$answers = array();

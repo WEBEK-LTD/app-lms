@@ -4,6 +4,8 @@
 # Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/integration/run.sh [site-dir]
 #        Without LMS: Tutor LMS and its full suite (api-test.php).
 #        LMS=learnpress|lifterlms|masterstudy|sensei|masteriyo: that LMS and adapter-test.php.
+#        LMS=learndash LEARNDASH_DIR=<unpacked sfwd-lms>: a local LearnDash copy (not on
+#        wordpress.org, so not in CI) and adapter-test.php.
 #        APP=store: WooCommerce without an LMS and store-test.php.
 #        APP=bookings BOOKING=amelia|bookingpress|latepoint: that booking plugin and bookings-test.php.
 set -euo pipefail
