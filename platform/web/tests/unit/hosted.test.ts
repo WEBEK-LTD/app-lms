@@ -6,6 +6,7 @@ import { LogSender, webhookSender, whatsappSender } from "@/lib/hosted/otp-sende
 import { parseAnyPhone, parsePhone } from "@/lib/hosted/phone";
 import { parseServiceAccount } from "@/lib/hosted/push";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
+import { hostedSettingsValues, parseHostedSettingsForm } from "@/lib/hosted/settings-form";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
@@ -329,5 +330,53 @@ describe("code senders", () => {
     expect(parseServiceAccount(JSON.stringify({ project_id: "p", client_email: "e", private_key: "-----BEGIN PRIVATE KEY-----\nx" }))).toMatchObject({ project_id: "p" });
     expect(parseServiceAccount("{}")).toBeNull();
     expect(parseServiceAccount("not json")).toBeNull();
+  });
+});
+
+describe("App sign-in form", () => {
+  const base = {
+    signupAllowed: "on",
+    askEmail: "",
+    askCity: "on",
+    defaultCountryCode: "90",
+    deviceLimit: "3",
+    supportWhatsapp: "0532 123 45 67",
+    termsUrl: "https://shop.test/terms",
+    reviewPhone: "555 000 00 01",
+    reviewCode: "246810",
+  };
+
+  it("turns the form into hosted settings", () => {
+    const parsed = parseHostedSettingsForm(base);
+    expect(parsed).toEqual({
+      ok: true,
+      value: {
+        signupAllowed: true,
+        signupFields: ["city"],
+        defaultCountryCode: "+90",
+        deviceLimit: 3,
+        supportWhatsapp: "+905321234567",
+        termsUrl: "https://shop.test/terms",
+        reviewPhone: "+905550000001",
+        reviewCode: "246810",
+      },
+    });
+    if (parsed.ok) expect(parseHostedSettingsForm(hostedSettingsValues(parsed.value))).toEqual(parsed);
+  });
+
+  it("refuses bad values", () => {
+    const parsed = parseHostedSettingsForm({
+      ...base,
+      defaultCountryCode: "0",
+      deviceLimit: "11",
+      termsUrl: "http://shop.test/terms",
+      reviewCode: "12",
+    });
+    expect(parsed.ok).toBe(false);
+    if (!parsed.ok) expect(Object.keys(parsed.errors).sort()).toEqual(["defaultCountryCode", "deviceLimit", "reviewCode", "termsUrl"]);
+    const noPhone = parseHostedSettingsForm({ ...base, reviewPhone: "" });
+    expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number reviewers sign in with, or clear the code.");
+    const off = parseHostedSettingsForm({ ...base, reviewPhone: "", reviewCode: "", supportWhatsapp: "", termsUrl: "", signupAllowed: "" });
+    expect(off.ok && off.value).toMatchObject({ signupAllowed: false, reviewPhone: null, reviewCode: null, supportWhatsapp: null, termsUrl: null });
   });
 });

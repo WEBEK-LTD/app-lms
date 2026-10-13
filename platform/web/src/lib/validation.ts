@@ -203,6 +203,10 @@ export const addClientSchema = z.object({
   siteUrl,
 });
 
+export const clientDetailsSchema = addClientSchema.omit({ email: true }).extend({
+  clientId: z.string().regex(/^[0-9a-f-]{36}$/i),
+});
+
 export const releaseSchema = z.object({
   version: z.string().trim().regex(VERSION_PATTERN, "Use a version like 0.2.0."),
   requiresWp: z.string().trim().regex(/^\d+\.\d+(\.\d+)?$/, "Use a version like 6.0."),

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  manageClientAction,
   regenerateKeyAction,
   reinstateClientAction,
   releaseClientSiteAction,
@@ -20,7 +21,7 @@ import type { AppBackend } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
-import { ActivateForm, AddClientForm } from "./forms";
+import { ActivateForm, AddClientForm, ClientDetailsForm } from "./forms";
 import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Clients" };
@@ -281,6 +282,17 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
         </h2>
         <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
       </div>
+      <form action={manageClientAction} className="flex flex-col gap-1.5">
+        <input type="hidden" name="clientId" value={client.id} />
+        <SubmitButton className="h-11">
+          <Icon name="key" size={20} />
+          Manage their app
+        </SubmitButton>
+        <span className="text-xs leading-normal text-muted">
+          Opens {user.name}&apos;s dashboard: app type, website, branding, store listing, publishing, products, payments, app sign-in and
+          notifications.
+        </span>
+      </form>
       <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
         <dt className="text-muted">Email</dt>
         <dd className="m-0 break-all">
@@ -333,9 +345,17 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
             plan={license?.plan ?? "pro"}
             activeUntil={isoDate(nextYear)}
             pending={state === "pending"}
+            planNames={{ starter: plans.starter.name, pro: plans.pro.name }}
           />
         </div>
       ) : null}
+
+      <details className="border-t border-line-soft pt-3.5">
+        <summary className="cursor-pointer text-sm font-semibold">Edit details</summary>
+        <div className="pt-3">
+          <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} />
+        </div>
+      </details>
 
       {client.paymentNote ? (
         <div className="flex flex-col gap-1 border-t border-line-soft pt-3.5">

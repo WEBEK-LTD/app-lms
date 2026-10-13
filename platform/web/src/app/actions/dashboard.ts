@@ -6,7 +6,7 @@ import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
-import { getClientContext, type ClientContext } from "@/lib/auth/session";
+import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
@@ -37,7 +37,7 @@ import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, 
 async function requireActiveClient(): Promise<ClientContext> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
-  if (context.client.status !== "active") redirect("/pending");
+  if (!mayUseDashboard(context)) redirect("/pending");
   return context;
 }
 

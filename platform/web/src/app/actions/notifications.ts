@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, type ClientContext } from "@/lib/auth/session";
+import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { encrypt } from "@/lib/crypto/encryption";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
@@ -22,7 +22,7 @@ import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 async function requireHostedApp(): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
-  if (context.client.status !== "active") redirect("/pending");
+  if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.backend !== "hosted") redirect("/dashboard");
   return context as ClientContext & { app: App };
 }

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, type ClientContext } from "@/lib/auth/session";
+import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { catalogSettings, encryptPaymentKeys } from "@/lib/catalog/settings";
@@ -20,7 +20,7 @@ const PRODUCT_IMAGES_MAX = 6;
 async function requireCatalogApp(): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
-  if (context.client.status !== "active") redirect("/pending");
+  if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "catalog") redirect("/dashboard");
   return context as ClientContext & { app: App };
 }

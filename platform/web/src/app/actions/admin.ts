@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, suspendClient } from "@/lib/admin/clients";
 import { registerClient } from "@/lib/auth/accounts";
 import { createPasswordReset } from "@/lib/auth/reset";
-import { requireAdmin } from "@/lib/auth/session";
+import { getClientContext, requireAdmin, startManaging, stopManaging } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -16,7 +16,7 @@ import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { activationMail, renewalMail, resetPasswordMail, sendMail } from "@/lib/mail";
 import { getPlans } from "@/lib/settings/platform";
 import { formatDate } from "@/components/ui";
-import { activateSchema, addClientSchema, releaseSchema } from "@/lib/validation";
+import { activateSchema, addClientSchema, clientDetailsSchema, releaseSchema } from "@/lib/validation";
 
 const PLUGIN_MAX_BYTES = 5.5 * 1024 * 1024;
 
@@ -92,6 +92,39 @@ export async function setHostedApiAction(formData: FormData): Promise<void> {
   }
   revalidatePath("/admin");
   redirect(clientUrl(id, formData.get("hosted") === "1" ? "&done=hosted" : "&done=unhosted"));
+}
+
+/** Name, WhatsApp number and website of a client. Their sign-in email stays as it is. */
+export async function saveClientDetailsAction(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const values = formValues(formData);
+  const parsed = clientDetailsSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
+  const store = await getStore();
+  const client = await store.getClientById(parsed.data.clientId);
+  if (!client) return { message: "This client no longer exists." };
+  const now = new Date();
+  await store.updateUser(client.userId, { name: parsed.data.name }, now);
+  await store.updateClient(client.id, { whatsapp: parsed.data.whatsapp, siteUrl: parsed.data.siteUrl }, now);
+  revalidatePath("/admin");
+  return { ok: true, message: "Details saved.", values };
+}
+
+/** Opens the client's own dashboard, where our team changes anything the client can. */
+export async function manageClientAction(formData: FormData): Promise<void> {
+  const id = await clientIdFrom(formData);
+  const store = await getStore();
+  if (!(await store.getClientById(id))) redirect("/admin");
+  await startManaging(id);
+  redirect((await store.getAppByClientId(id)) ? "/dashboard" : "/dashboard/app-type");
+}
+
+/** Back from a client's dashboard to their row in the admin. */
+export async function stopManagingAction(): Promise<void> {
+  await requireAdmin();
+  const context = await getClientContext();
+  await stopManaging();
+  redirect(context ? clientUrl(context.client.id) : "/admin");
 }
 
 export async function regenerateKeyAction(formData: FormData): Promise<void> {

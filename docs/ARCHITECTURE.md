@@ -188,6 +188,21 @@ mobile/
   defaults in `src/lib/plans.ts`. The pricing and home pages render on
   request so they always show the current plans.
 
+- Managing a client: "Manage their app" on the admin's client panel opens
+  that client's own dashboard for the super admin (an `httpOnly` cookie with
+  the client ID, read only for super admins, 8 hours, cleared on sign-out).
+  Every dashboard page and action then works on that client, also before
+  activation or while suspended, under a bar naming the client with a way
+  back to the admin. The team can also edit a client's name, WhatsApp
+  number and website on the panel.
+
+- App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
+  dashboard's App sign-in page sets whether new customers can sign up and
+  what they are asked, the default country code, devices per customer, the
+  support WhatsApp number, the terms page, and the app store review number
+  with its fixed code. The hosted API reads them on each request, so no
+  new build is needed.
+
 ## Build pipeline
 
 - GitHub Actions builds Android on Linux and iOS on macOS runners.
