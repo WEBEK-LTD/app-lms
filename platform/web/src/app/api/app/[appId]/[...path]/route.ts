@@ -65,9 +65,10 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
         },
       }),
     },
-    { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null },
+    { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null, headers: request.headers },
   );
-  return result.status === 204 ? noContent() : json(result.body, result.status);
+  if (result.status === 304) return new Response(null, { status: 304, headers: { "cache-control": "no-store", ...result.headers } });
+  return result.status === 204 ? noContent() : json(result.body, result.status, result.headers);
 }
 
 export const GET = handle;

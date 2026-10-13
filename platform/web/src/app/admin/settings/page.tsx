@@ -9,6 +9,9 @@ import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpC
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
 import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
+import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
+import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
+import { AppDefaultsForm } from "./app-defaults-form";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -67,6 +70,7 @@ export default async function SettingsPage() {
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;
   const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
+  const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
   const data = dataMode();
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
@@ -183,6 +187,28 @@ export default async function SettingsPage() {
           <p className="m-0 text-sm text-muted">Now: off. Shops can only use their own iyzico account.</p>
         )}
         <MarketplaceForm commission={marketplace ? String(marketplace.value.commissionPercent) : ""} />
+      </Section>
+
+      <Section
+        id="h-app-defaults"
+        title="Defaults for new apps"
+        text="The look and languages a new app starts with. Clients change them on their Pages & look page; apps that already have pages keep theirs."
+      >
+        {appDefaults ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              Set here by {appDefaults.updatedBy}, {formatDateTime(appDefaults.updatedAt)}.
+            </p>
+            <form action={resetAppDefaultsAction}>
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Use the built-in defaults
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: the built-in defaults.</p>
+        )}
+        <AppDefaultsForm current={appDefaults?.value ?? BUILT_IN_APP_DEFAULTS} />
       </Section>
 
       <Section id="h-server" title="Server" text="These come from the Netlify environment variables. Change them in Netlify and redeploy.">

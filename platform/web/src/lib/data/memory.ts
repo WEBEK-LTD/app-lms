@@ -1,5 +1,6 @@
 import { accountState } from "../license/status";
 import { newId } from "../crypto/tokens";
+import type { AppLayoutRecord } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -842,5 +843,17 @@ export class MemoryStore implements DataStore {
   async setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void> {
     if (value === null) this.platformSettings.delete(key);
     else this.platformSettings.set(key, clone({ key, value, updatedAt: now, updatedBy }) as PlatformSetting);
+  }
+
+  // 10.4 Pages, looks and languages
+  private appLayouts = new Map<string, AppLayoutRecord>();
+
+  async getAppLayout(appId: string): Promise<AppLayoutRecord | null> {
+    const layout = this.appLayouts.get(appId);
+    return layout ? clone(layout) : null;
+  }
+
+  async saveAppLayout(layout: AppLayoutRecord): Promise<void> {
+    this.appLayouts.set(layout.appId, clone(layout));
   }
 }

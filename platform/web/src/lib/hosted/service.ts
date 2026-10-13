@@ -12,6 +12,8 @@ import {
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import { ConnectorError, type Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
+import { handlePages } from "./pages";
+import { lookAndLanguages } from "../pages/layout";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 
@@ -40,6 +42,8 @@ export const HOSTED_LIMITS = {
 export interface HostedResult {
   status: number;
   body?: unknown;
+  /** Extra response headers, e.g. ETag and Vary on /pages. */
+  headers?: Record<string, string>;
 }
 
 export interface HostedContext {
@@ -70,6 +74,8 @@ export interface HostedRequest {
   body: unknown;
   /** The bearer token, if any. */
   token: string | null;
+  /** The request headers (Accept-Language, If-None-Match). */
+  headers?: Headers;
 }
 
 interface Session {
@@ -122,6 +128,9 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
   }
 
   const session = await authenticate(ctx, req.token);
+  // 10.6 Pages
+  const page = await handlePages(ctx, req, session?.user ?? null);
+  if (page) return page;
   if (req.path[0] === "me" || route === "POST /auth/logout") {
     if (!session) return unauthorized();
     if (req.path[1] === "devices" && req.path.length === 3 && req.method === "DELETE") {
@@ -214,6 +223,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
+    // 10.6 Looks and languages
+    ...(await lookAndLanguages(ctx.store, app)),
   });
 }
 

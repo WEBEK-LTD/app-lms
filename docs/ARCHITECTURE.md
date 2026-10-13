@@ -288,22 +288,28 @@ without a new build. The app renders whatever the API sends.
   `GET /pages/{slug}` returns one page as a list of blocks: banner, text
   (HTML), image, video, button, a list of items, categories, search,
   continue learning, embed and spacer. Blocks stack vertically; there is no
-  free positioning. The server resolves lists (courses, products, posts,
-  listings) into one `Item` card shape, so the app has one renderer for all
+  free positioning. The server resolves lists (courses, products, services,
+  posts, listings) into one `Item` card shape, so the app has one renderer for all
   of them. The app skips block types and actions it does not know, so old
   apps keep working when new ones are added.
 - **Built-in screens stay native.** Course detail, lessons, quizzes, search
   with filters, favorites, messages and the account are screens, not
   blocks. Tabs, buttons and cards open them with a `screen` action.
-- **Fallback.** When `/pages` returns 404 (no pages published, or an older
-  plugin), the app uses its built-in tabs and the `/home` sections.
+- **Fallback.** When nothing is published, the server builds default pages
+  and tabs for the app type from the site's content. When `/pages` returns
+  404 (an older plugin), the app uses its built-in tabs and the `/home`
+  sections.
 - **Where pages are edited.** One editor, in the client dashboard, for both
-  kinds of client. The platform keeps the published layout; a WordPress
-  client's plugin fetches it from the platform (cached, refreshed with the
-  layout version) and serves `/pages` with its own data filled in.
+  kinds of client. The platform keeps a draft (saved as the client edits)
+  and the published layout, which gets a new version on every publish; a
+  WordPress client's plugin fetches the published one from the platform
+  (cached, refreshed with the layout version) and serves `/pages` with its
+  own data filled in. A new app's first draft is a home page and tabs for its
+  type, with the look and languages the team set as defaults in the admin.
 - **Hosted apps.** Apps on the hosted API (Phase 8) get their pages and look
   from the platform directly, filled from their dashboard content or their
-  connected platform.
+  connected platform (the connector's own list endpoints). Before the first
+  publish they get the default pages for their type.
 - **Languages.** Every text in the apps is English by default. A client can
   turn on more languages (Arabic shows right to left); students pick one in
   the app's settings, and page texts can carry a translation per language,

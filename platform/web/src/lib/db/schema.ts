@@ -16,6 +16,7 @@ import type {
   BookingStatus,
   PushPreferences,
 } from "../data/types";
+import type { Layout, LayoutContent } from "../pages/types";
 import {
   bigint,
   boolean,
@@ -515,3 +516,18 @@ export const lessonProgress = mysqlTable(
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
 );
+
+// 10.4 Pages, looks and languages
+
+/** An app's pages, tabs, look and languages: the dashboard's draft and the published copy (AppLayoutRecord). */
+export const appLayouts = mysqlTable("app_layouts", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  draft: jsonText<LayoutContent>("draft").notNull(),
+  draftUpdatedAt: time("draft_updated_at").notNull(),
+  published: jsonText<Layout>("published"),
+  publishedAt: time("published_at"),
+  publishedBy: varchar("published_by", { length: 191 }),
+  publishCount: int("publish_count").notNull().default(0),
+});

@@ -1,6 +1,7 @@
 import type {
   Activation,
   App,
+  AppLayoutRecord,
   Asset,
   Build,
   BuildStatus,
@@ -271,4 +272,9 @@ export interface DataStore {
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
+
+  // 10.4 Pages, looks and languages
+  getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
+  /** Creates or replaces the app's layout. */
+  saveAppLayout(layout: AppLayoutRecord): Promise<void>;
 }
