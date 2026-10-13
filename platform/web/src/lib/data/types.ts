@@ -424,3 +424,43 @@ export interface CatalogOrder {
 }
 
 export type CatalogOrderPatch = Partial<Pick<CatalogOrder, "status" | "customer" | "updatedAt">>;
+
+// Platform settings the team edits in the admin (secrets encrypted with context `platform:<key>`).
+
+export type OtpSetting =
+  | { kind: "whatsapp"; accessTokenEncrypted: string; phoneNumberId: string; template: string; language: string }
+  | { kind: "webhook"; url: string; secretEncrypted: string }
+  /** No codes are sent: sign-in on the hosted API fails with provider_error. */
+  | { kind: "off" };
+
+export interface SmtpSetting {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string | null;
+  passEncrypted: string | null;
+  from: string;
+}
+
+/** Yallapp's own iyzico merchant account (plan payments and the marketplace). */
+export interface YallappIyzicoSetting {
+  apiKeyEncrypted: string;
+  secretKeyEncrypted: string;
+  sandbox: boolean;
+}
+
+export interface PlatformSettingValues {
+  otp: OtpSetting;
+  smtp: SmtpSetting;
+  iyzico: YallappIyzicoSetting;
+}
+
+export type PlatformSettingKey = keyof PlatformSettingValues;
+
+export interface PlatformSetting<K extends PlatformSettingKey = PlatformSettingKey> {
+  key: K;
+  value: PlatformSettingValues[K];
+  updatedAt: Date;
+  /** Email of the admin who saved it. */
+  updatedBy: string;
+}

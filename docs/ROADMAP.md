@@ -123,3 +123,18 @@ or none, can have an app.
 | [~] | 8.4 Shopify connector (Store apps): products, collections, cart pricing, checkout, orders through the Shopify APIs | Checks pass against a Shopify development store (connector, Website step and checks against a fake shop done; order history needs the Customer Account API; waiting on a development store) |
 | [ ] | 8.5 More connectors as clients ask: ikas, Ticimax, IdeaSoft (stores), Teachable, Thinkific (courses), SimplyBook (bookings) | Each passes its checks |
 | [~] | 8.6 No website at all: products or courses managed in the Yallapp dashboard and served by the hosted API, with online payments | A client without a website publishes an app (Store apps done: products, categories, shipping, iyzico payment page, orders, checked end to end against a fake iyzico; waiting on an iyzico sandbox account and a Store build; courses and bookings without a website next) |
+
+## Phase 9: Everything from the admin
+
+The WEBEK team runs Yallapp from the super admin pages, without editing code
+or Netlify variables: platform settings, plans and prices, every client's
+settings, and payments, both clients paying Yallapp and shops selling through
+Yallapp's own iyzico account.
+
+| | Step | Done when |
+|---|---|---|
+| [~] | 9.1 Platform settings in the admin: sign-in code sender (WhatsApp Cloud API or our gateway), email (SMTP) with a test email, and Yallapp's iyzico account; secrets stored encrypted, Netlify variables kept as the fallback | The team changes the code sender and email from the admin and they take effect |
+| [ ] | 9.2 Plans and prices edited in the admin: names, prices, periods, features, shown on the pricing page and used by licenses | A price change shows on the pricing page |
+| [ ] | 9.3 Every client's settings in the admin: app type and backend, hosted sign-in rules, store review number, shop settings and payment keys | The team changes a client's app without the client |
+| [ ] | 9.4 Clients pay their plan by card (Yallapp's iyzico), and the license is activated or extended | A test client pays and is activated |
+| [ ] | 9.5 Shops without a website can sell through Yallapp's iyzico account (marketplace, a commission set in the admin) instead of their own | A test order pays the shop its share |

@@ -36,6 +36,9 @@ import type {
   CatalogOrderStatus,
   CatalogProduct,
   CatalogProductInput,
+  PlatformSetting,
+  PlatformSettingKey,
+  PlatformSettingValues,
   Client,
   HostedChallenge,
   HostedDevice,
@@ -904,6 +907,25 @@ export class MysqlStore implements DataStore {
       this.run((db) => db.select({ n: count() }).from(schema.catalogOrders).where(where)),
     ]);
     return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  // Platform settings
+
+  async listPlatformSettings(): Promise<PlatformSetting[]> {
+    return (await this.run((db) => db.select().from(schema.platformSettings))) as PlatformSetting[];
+  }
+
+  async setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void> {
+    if (value === null) {
+      await this.run((db) => db.delete(schema.platformSettings).where(eq(schema.platformSettings.key, key)));
+      return;
+    }
+    await this.run((db) =>
+      db
+        .insert(schema.platformSettings)
+        .values({ key, value, updatedAt: now, updatedBy })
+        .onDuplicateKeyUpdate({ set: { value, updatedAt: now, updatedBy } }),
+    );
   }
 
   async hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number> {

@@ -1,6 +1,7 @@
 import { assetUrl } from "@/lib/assets";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, otpSenderConfig, signingSecret } from "@/lib/env";
+import { appUrl, encryptionKey, signingSecret } from "@/lib/env";
+import { resolvedOtpSenderConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
 import { connectorFor } from "@/lib/hosted/connectors";
 import { serviceAccountOf } from "@/lib/hosted/notify";
@@ -44,7 +45,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       now,
       ip: ipFromHeaders(request.headers),
       secret: hmacSha256(signingSecret(), "hosted-api"),
-      sender: otpSenderFrom(otpSenderConfig()),
+      sender: otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
       push: serviceAccountOf(app, encryptionKey()) !== null,
       assetUrl: assetUrl,
       platformUrl: appUrl(),

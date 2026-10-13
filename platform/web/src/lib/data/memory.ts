@@ -33,6 +33,9 @@ import type {
   CatalogOrderStatus,
   CatalogProduct,
   CatalogProductInput,
+  PlatformSetting,
+  PlatformSettingKey,
+  PlatformSettingValues,
   HostedRefreshToken,
   HostedUser,
   HostedUserPatch,
@@ -71,6 +74,7 @@ export class MemoryStore implements DataStore {
   private catalogProducts = new Map<number, CatalogProduct>();
   private catalogOrders = new Map<number, CatalogOrder>();
   private nextCatalogId = 1;
+  private platformSettings = new Map<PlatformSettingKey, PlatformSetting>();
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -700,5 +704,16 @@ export class MemoryStore implements DataStore {
       )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  // Platform settings
+
+  async listPlatformSettings(): Promise<PlatformSetting[]> {
+    return [...this.platformSettings.values()].map(clone);
+  }
+
+  async setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void> {
+    if (value === null) this.platformSettings.delete(key);
+    else this.platformSettings.set(key, clone({ key, value, updatedAt: now, updatedBy }) as PlatformSetting);
   }
 }

@@ -9,6 +9,7 @@ import type {
   CatalogSettings,
   ConnectorConfig,
   HostedSettings,
+  PlatformSettingKey,
   PushPreferences,
 } from "../data/types";
 import {
@@ -410,3 +411,11 @@ export const catalogOrders = mysqlTable(
     index("catalog_orders_user_idx").on(t.appId, t.userId),
   ],
 );
+
+/** Settings the team edits in the admin; secrets inside `value` are encrypted. */
+export const platformSettings = mysqlTable("platform_settings", {
+  key: varchar("setting_key", { length: 32 }).primaryKey().$type<PlatformSettingKey>(),
+  value: jsonText<unknown>("value").notNull(),
+  updatedAt: time("updated_at").notNull(),
+  updatedBy: varchar("updated_by", { length: 191 }).notNull(),
+});

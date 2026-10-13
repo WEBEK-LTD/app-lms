@@ -1,5 +1,7 @@
 import "server-only";
-import { isProduction, smtpConfig } from "./env";
+import { getStore } from "./data";
+import { encryptionKey, isProduction } from "./env";
+import { resolvedSmtpConfig } from "./settings/platform";
 
 export interface Mail {
   to: string;
@@ -13,7 +15,7 @@ export interface Mail {
  * with a warning that doesn't include the content (it may hold a reset link).
  */
 export async function sendMail(mail: Mail): Promise<void> {
-  const config = smtpConfig();
+  const config = await resolvedSmtpConfig(await getStore(), encryptionKey());
   if (!config) {
     if (!isProduction() || process.env.YALLAPP_DATA === "memory") {
       console.info(`[mail] To: ${mail.to}\n[mail] Subject: ${mail.subject}\n${mail.text}\n`);

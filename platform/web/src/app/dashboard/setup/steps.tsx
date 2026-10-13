@@ -121,6 +121,8 @@ export function WebsiteStep({
   const [choice, setChoice] = useState<Backend>((state.values?.backend as Backend | undefined) ?? backend);
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      {/* Sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="backend" value={choice} />
       <StepCard title="Website" id="h-website">
         <FormMessage message={state.message} />
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
@@ -132,7 +134,7 @@ export function WebsiteStep({
             >
               <input
                 type="radio"
-                name="backend"
+                name="backendChoice"
                 value={b.id}
                 checked={choice === b.id}
                 onChange={() => setChoice(b.id)}
@@ -461,6 +463,8 @@ export function BrandingStep({
 
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      {/* Sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="template" value={template} />
       <StepCard title="Branding" id="h-brand">
         <FormMessage message={state.message} />
         <Field
@@ -542,7 +546,7 @@ export function BrandingStep({
                 <span className={`flex items-center gap-2 text-sm ${template === t.id ? "font-bold" : "font-semibold"}`}>
                   <input
                     type="radio"
-                    name="template"
+                    name="templateChoice"
                     value={t.id}
                     checked={template === t.id}
                     onChange={() => setTemplate(t.id)}

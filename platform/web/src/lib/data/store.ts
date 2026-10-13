@@ -18,6 +18,9 @@ import type {
   HostedUser,
   HostedUserPatch,
   License,
+  PlatformSetting,
+  PlatformSettingKey,
+  PlatformSettingValues,
   PluginRelease,
   ResetToken,
   User,
@@ -184,6 +187,11 @@ export interface DataStore {
   /** Everyone's notifications of an app, newest first, for the dashboard. */
   listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
   countHostedUsers(appId: string): Promise<number>;
+
+  // Platform settings (admin)
+  listPlatformSettings(): Promise<PlatformSetting[]>;
+  /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
+  setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;
 
   // Catalog (apps without a website)
   listCatalogCategories(appId: string): Promise<CatalogCategory[]>;

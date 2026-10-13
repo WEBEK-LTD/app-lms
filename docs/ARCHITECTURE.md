@@ -177,6 +177,13 @@ mobile/
   sees the order on the Orders page. Each product also has a public page
   (`/shop/<app>/<product>`) to share.
 
+- Platform settings (`platform_settings`): the team sets the sign-in code
+  sender, the email server and Yallapp's own iyzico account on the admin's
+  Settings page. A saved setting replaces the matching Netlify variables
+  (removing it brings them back); secrets inside are encrypted with the
+  context `platform:<key>` and never shown again. Each server instance
+  caches the settings for 30 seconds.
+
 ## Build pipeline
 
 - GitHub Actions builds Android on Linux and iOS on macOS runners.

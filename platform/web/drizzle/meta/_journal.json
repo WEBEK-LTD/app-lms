@@ -50,6 +50,13 @@
       "when": 1791888891382,
       "tag": "0006_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1791890667791,
+      "tag": "0007_platform_settings",
+      "breakpoints": true
     }
   ]
 }
