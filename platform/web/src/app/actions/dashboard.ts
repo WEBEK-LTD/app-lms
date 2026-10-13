@@ -13,7 +13,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
@@ -90,7 +90,7 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   } else if (context.app.appType !== appType) {
     // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
     const kind = context.app.connector?.kind;
-    const fits = !kind || (kind === "bookings" ? appType === "booking" : appType === "store");
+    const fits = !kind || (kind === "bookings" ? appType === "booking" : kind === "courses" ? appType === "lms" : appType === "store");
     await store.updateApp(
       context.app.id,
       fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
@@ -108,6 +108,22 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
+  if (data.backend === "catalog" && context.app.appType === "lms") {
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "courses" },
+        courseSetup: context.app.courseSetup ?? DEFAULT_COURSE_SETUP,
+        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
   if (data.backend === "catalog" && context.app.appType === "booking") {
     await store.updateApp(
       context.app.id,
@@ -125,7 +141,7 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   }
   if (data.backend === "catalog") {
     if (context.app.appType !== "store") {
-      return { errors: { backend: "Without a website, apps can sell products (Store) or take bookings (Bookings). Choose one of them as your app type first." }, values };
+      return { errors: { backend: "Choose your app type first." }, values };
     }
     await store.updateApp(
       context.app.id,

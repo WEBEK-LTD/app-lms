@@ -30,7 +30,7 @@ function StatusButton({ order, status, label }: { order: CatalogOrder; status: C
 /** Paid orders from the app, for apps without a website. */
 export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const { app } = await requireClient();
-  if (!app || app.connector?.kind !== "catalog") {
+  if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses")) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className="m-0 text-[28px] font-extrabold">Orders</h1>

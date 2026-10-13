@@ -208,7 +208,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       signup_fields: signupFields(settings),
       default_country_code: settings.defaultCountryCode,
     },
-    purchases: { enroll_button: false, free_enrollment: false },
+    // Paid courses never show "Enroll now" on iOS.
+    purchases: { ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }), ...(platform === "ios" ? { enroll_button: false } : {}) },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...(extra.store ? { store: extra.store } : {}),

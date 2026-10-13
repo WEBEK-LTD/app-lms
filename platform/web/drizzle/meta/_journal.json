@@ -78,6 +78,13 @@
       "when": 1791905444765,
       "tag": "0010_booking_appointments",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1791906150780,
+      "tag": "0011_courses",
+      "breakpoints": true
     }
   ]
 }

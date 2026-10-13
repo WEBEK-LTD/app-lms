@@ -92,7 +92,9 @@ export type ConnectorConfig =
   /** No website: the products the client adds in the dashboard (catalog_* tables). */
   | { kind: "catalog" }
   /** No website: services, staff and hours set in the dashboard (`bookingSetup`), appointments in booking_appointments. */
-  | { kind: "bookings" };
+  | { kind: "bookings" }
+  /** No website: courses set in the dashboard (`courseSetup`), enrolments and progress in course_enrollments and lesson_progress. */
+  | { kind: "courses" };
 
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {
@@ -162,6 +164,8 @@ export interface App {
   catalogSettings: CatalogSettings | null;
   /** Services, staff and rules when bookings are managed in the dashboard (connector "bookings"). */
   bookingSetup: BookingSetup | null;
+  /** Courses when they're managed in the dashboard (connector "courses"). */
+  courseSetup: CourseSetup | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
@@ -640,3 +644,67 @@ export interface BookingAppointment {
 }
 
 export type BookingAppointmentPatch = Partial<Pick<BookingAppointment, "status" | "updatedAt">>;
+
+// Courses managed in the dashboard (connector "courses").
+
+export interface CourseLesson {
+  id: number;
+  title: string;
+  /** A YouTube, Vimeo or direct video address; null for a text lesson. */
+  videoUrl: string | null;
+  /** Plain text shown under the video, or the whole lesson. */
+  text: string;
+  durationMinutes: number | null;
+  /** Open to everyone, before enrolling. */
+  preview: boolean;
+}
+
+export interface CourseTopic {
+  id: number;
+  title: string;
+  lessons: CourseLesson[];
+}
+
+export interface Course {
+  id: number;
+  title: string;
+  description: string;
+  imageAssetId: string | null;
+  /** 0 for a free course. Paid courses are bought on Android only, on the payment page. */
+  priceCents: number;
+  categoryIds: number[];
+  instructorName: string | null;
+  level: string | null;
+  topics: CourseTopic[];
+  active: boolean;
+  createdAt: string;
+}
+
+export interface CourseSetup {
+  currency: CatalogCurrency;
+  categories: { id: number; name: string }[];
+  courses: Course[];
+  /** The next ID for a category, course, topic or lesson. */
+  nextId: number;
+}
+
+export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };
+
+export interface CourseEnrollment {
+  appId: string;
+  userId: number;
+  courseId: number;
+  /** How they got in: a free course, a payment (order number), or our client adding them. */
+  source: "free" | "paid" | "manual";
+  enrolledAt: Date;
+}
+
+export interface LessonProgress {
+  appId: string;
+  userId: number;
+  courseId: number;
+  lessonId: number;
+  positionSeconds: number;
+  completedAt: Date | null;
+  updatedAt: Date;
+}

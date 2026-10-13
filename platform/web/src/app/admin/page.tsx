@@ -329,7 +329,9 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
             <dd className="m-0">
               {app.connector?.kind === "shopify"
                 ? `Their Shopify store (${app.connector.shopDomain})`
-                : app.connector?.kind === "bookings"
+                : app.connector?.kind === "courses"
+                  ? "No website: courses in the dashboard"
+                  : app.connector?.kind === "bookings"
                   ? "No website: services and hours in the dashboard"
                   : app.connector?.kind === "catalog"
                   ? `No website: products in the dashboard${app.catalogSettings?.payment?.provider === "yallapp" ? ", sells through Yallapp" : ""}`

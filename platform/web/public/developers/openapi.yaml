@@ -1551,8 +1551,8 @@ components:
           properties:
             lms:
               type: [string, 'null']
-              enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo, null]
-              description: The detected LMS, or null on a site without one (a Store or Bookings app).
+              enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo, yallapp, null]
+              description: The detected LMS, `yallapp` for courses managed in the Yallapp dashboard (hosted API), or null on a site without one (a Store or Bookings app).
             lms_version: { type: string }
             pro: { type: boolean }
             certificates: { type: boolean }

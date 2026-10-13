@@ -12,6 +12,7 @@ import type {
   PlatformSettingKey,
   PlanPaymentStatus,
   BookingSetup,
+  CourseSetup,
   BookingStatus,
   PushPreferences,
 } from "../data/types";
@@ -24,6 +25,7 @@ import {
   index,
   int,
   mysqlTable,
+  primaryKey,
   text,
   uniqueIndex,
   varchar,
@@ -146,6 +148,7 @@ export const apps = mysqlTable(
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
     catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
     bookingSetup: jsonText<BookingSetup>("booking_setup"),
+    courseSetup: jsonText<CourseSetup>("course_setup"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
@@ -476,4 +479,39 @@ export const bookingAppointments = mysqlTable(
     index("booking_appointments_app_start_idx").on(t.appId, t.startAt),
     index("booking_appointments_user_idx").on(t.appId, t.userId, t.startAt),
   ],
+);
+
+/** Students of courses managed in the dashboard. */
+export const courseEnrollments = mysqlTable(
+  "course_enrollments",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    source: varchar("source", { length: 16 }).notNull().$type<"free" | "paid" | "manual">(),
+    enrolledAt: time("enrolled_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId)],
+);
+
+export const lessonProgress = mysqlTable(
+  "lesson_progress",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    lessonId: int("lesson_id").notNull(),
+    positionSeconds: int("position_seconds").notNull(),
+    completedAt: time("completed_at"),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
 );

@@ -65,6 +65,7 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     hostedSettings: null,
     catalogSettings: null,
     bookingSetup: null,
+    courseSetup: null,
     firebaseServiceAccountEncrypted: null,
     googlePlayKeyEncrypted: null,
     googlePlayClientEmail: null,

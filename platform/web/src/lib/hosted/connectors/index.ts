@@ -4,6 +4,7 @@ import type { App, ConnectorConfig } from "../../data/types";
 import type { BookingAppointment } from "../../data/types";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
+import { CoursesConnector } from "./courses";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
 
@@ -37,6 +38,7 @@ export function connectorFor(
 ): Connector | null {
   if (app.connector?.kind === "catalog") return new CatalogConnector({ ...deps, app });
   if (app.connector?.kind === "bookings") return new BookingsConnector({ ...deps, app });
+  if (app.connector?.kind === "courses") return new CoursesConnector({ ...deps, app });
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);
     return token ? new ShopifyConnector({ shopDomain: app.connector.shopDomain, storefrontToken: token }, fetcher) : null;

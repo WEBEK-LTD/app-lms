@@ -41,6 +41,8 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  CourseEnrollment,
+  LessonProgress,
   PlatformSettingKey,
   PlatformSettingValues,
   Client,
@@ -995,6 +997,55 @@ export class MysqlStore implements DataStore {
       this.run((db) => db.select({ n: count() }).from(t).where(where)),
     ]);
     return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
+    const [result] = await this.run((db) => db.insert(schema.courseEnrollments).ignore().values(input));
+    return result.affectedRows === 1;
+  }
+
+  async listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]> {
+    const t = schema.courseEnrollments;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, input.appId),
+            input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+            input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined,
+          ),
+        )
+        .orderBy(desc(t.enrolledAt)),
+    );
+  }
+
+  async saveLessonProgress(input: LessonProgress): Promise<void> {
+    const t = schema.lessonProgress;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(input)
+        .onDuplicateKeyUpdate({
+          set: {
+            positionSeconds: input.positionSeconds,
+            updatedAt: input.updatedAt,
+            // A completed lesson stays completed.
+            completedAt: sql`coalesce(${t.completedAt}, values(${t.completedAt}))`,
+          },
+        }),
+    );
+  }
+
+  async listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]> {
+    const t = schema.lessonProgress;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined)),
+    );
   }
 
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {

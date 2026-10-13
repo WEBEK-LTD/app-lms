@@ -61,7 +61,7 @@ const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[]
     id: "catalog",
     title: "I don't have a website",
     text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
-    appTypes: ["store", "booking"],
+    appTypes: ["store", "booking", "lms"],
   },
   { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
   { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
@@ -134,7 +134,9 @@ export function WebsiteStep({
             .map((b) =>
               b.id === "catalog" && appType === "booking"
                 ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
-                : b,
+                : b.id === "catalog" && appType === "lms"
+                  ? { ...b, text: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android." }
+                  : b,
             )
             .map((b) => (
             <label
@@ -158,7 +160,12 @@ export function WebsiteStep({
         </fieldset>
         {choice === "catalog" ? (
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
-            {appType === "booking" ? (
+            {appType === "lms" ? (
+              <>
+                After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with
+                a code we send to their phone.
+              </>
+            ) : appType === "booking" ? (
               <>
                 After this step, add your services, your team and their hours on the <b>Services &amp; team</b> page. Your customers sign in to
                 the app with a code we send to their phone.

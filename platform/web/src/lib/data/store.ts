@@ -12,6 +12,8 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  CourseEnrollment,
+  LessonProgress,
   CatalogProduct,
   CatalogProductInput,
   Client,
@@ -216,6 +218,12 @@ export interface DataStore {
     offset: number;
     limit: number;
   }): Promise<{ items: BookingAppointment[]; total: number }>;
+  /** Enrols once; false when they already were. */
+  enrollInCourse(input: CourseEnrollment): Promise<boolean>;
+  listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]>;
+  /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */
+  saveLessonProgress(input: LessonProgress): Promise<void>;
+  listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;

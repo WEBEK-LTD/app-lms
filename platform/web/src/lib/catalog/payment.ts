@@ -176,3 +176,13 @@ export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl:
     ].join("\n"),
   };
 }
+
+/** A paid course order enrols its student in its courses (apps whose courses are managed in the dashboard). */
+export async function enrollPaidCourses(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<void> {
+  if (app.connector?.kind !== "courses" || order.userId === null) return;
+  for (const line of order.lines) {
+    await store.enrollInCourse({ appId: app.id, userId: order.userId, courseId: line.productId, source: "paid", enrolledAt: now });
+  }
+  // Nothing to deliver: the order is done once the student is in.
+  await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
+}

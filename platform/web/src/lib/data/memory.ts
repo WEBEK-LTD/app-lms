@@ -48,6 +48,8 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  CourseEnrollment,
+  LessonProgress,
 } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -83,6 +85,8 @@ export class MemoryStore implements DataStore {
   private planPayments = new Map<string, PlanPayment>();
   private bookingAppointments = new Map<number, BookingAppointment>();
   private nextBookingId = 1;
+  private courseEnrollments: CourseEnrollment[] = [];
+  private lessonProgress = new Map<string, LessonProgress>();
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -767,6 +771,31 @@ export class MemoryStore implements DataStore {
       })
       .sort((a, b) => (input.scope?.kind === "past" ? b.startAt.getTime() - a.startAt.getTime() : a.startAt.getTime() - b.startAt.getTime()) || a.id - b.id);
     return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
+    if (this.courseEnrollments.some((e) => e.appId === input.appId && e.userId === input.userId && e.courseId === input.courseId)) return false;
+    this.courseEnrollments.push(clone(input));
+    return true;
+  }
+
+  async listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]> {
+    return this.courseEnrollments
+      .filter((e) => e.appId === input.appId && (input.userId === undefined || e.userId === input.userId) && (input.courseId === undefined || e.courseId === input.courseId))
+      .sort((a, b) => b.enrolledAt.getTime() - a.enrolledAt.getTime())
+      .map(clone);
+  }
+
+  async saveLessonProgress(input: LessonProgress): Promise<void> {
+    const key = `${input.appId}:${input.userId}:${input.lessonId}`;
+    const saved = this.lessonProgress.get(key);
+    this.lessonProgress.set(key, clone({ ...input, completedAt: saved?.completedAt ?? input.completedAt }));
+  }
+
+  async listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]> {
+    return [...this.lessonProgress.values()]
+      .filter((p) => p.appId === input.appId && p.userId === input.userId && (input.courseId === undefined || p.courseId === input.courseId))
+      .map(clone);
   }
 
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {

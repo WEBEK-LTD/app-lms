@@ -9,6 +9,7 @@ import { parseSubMerchantForm } from "@/lib/catalog/marketplace";
 import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder, catalogSettings, encryptPaymentKeys, marketplaceTerms } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
+import { imageType } from "@/lib/images";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
@@ -18,12 +19,16 @@ import { checkIyzicoKeys, createSubMerchant, IyzicoError } from "@/lib/payments/
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
 
-/** An active client whose app sells from the dashboard catalog, or a redirect. */
-async function requireCatalogApp(): Promise<ClientContext & { app: App }> {
+/**
+ * An active client whose app sells from the dashboard (products, or with
+ * `courses` also paid courses: card payments and orders), or a redirect.
+ */
+async function requireCatalogApp(options: { courses?: boolean } = {}): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
-  if (!context.app || context.app.connector?.kind !== "catalog") redirect("/dashboard");
+  const kind = context.app?.connector?.kind;
+  if (!context.app || !(kind === "catalog" || (options.courses && kind === "courses"))) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -31,6 +36,7 @@ const str = (formData: FormData, name: string) => String(formData.get(name) ?? "
 
 function refresh() {
   revalidatePath("/dashboard/catalog", "layout");
+  revalidatePath("/dashboard/courses", "layout");
   revalidatePath("/dashboard/orders");
 }
 
@@ -65,11 +71,6 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
 
 // Products
 
-function imageType(data: Buffer): { contentType: string; extension: string } | null {
-  if (data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return { contentType: "image/png", extension: "png" };
-  if (data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) return { contentType: "image/jpeg", extension: "jpg" };
-  return null;
-}
 
 export async function saveProductAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp();
@@ -193,7 +194,7 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
 }
 
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   const apiKey = str(formData, "apiKey");
   const secretKey = str(formData, "secretKey");
   const sandbox = formData.get("sandbox") === "on";
@@ -225,7 +226,7 @@ const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone
 
 /** The shop sells through Yallapp's account: iyzico registers it as a sub-merchant that gets each sale minus the commission. */
 export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   const values: Record<string, string> = {};
   for (const name of SUB_MERCHANT_FIELDS) values[name] = str(formData, name);
   const store = await getStore();
@@ -268,7 +269,7 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
   refresh();
 }
@@ -282,7 +283,7 @@ const NEXT_STATUSES: Partial<Record<CatalogOrderStatus, CatalogOrderStatus[]>> =
 };
 
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
-  const { app } = await requireCatalogApp();
+  const { app } = await requireCatalogApp({ courses: true });
   const store = await getStore();
   const id = Number(formData.get("id"));
   const status = String(formData.get("status")) as CatalogOrderStatus;

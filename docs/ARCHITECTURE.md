@@ -212,6 +212,21 @@ mobile/
   on the Appointments page (approve or reject, cancel, done, no-show) and
   gets an email for each new one. Payment is at the appointment.
 
+- Courses without a website (connector `courses`): an Academy app whose
+  client picks "I don't have a website" gets its courses (title,
+  description, cover image, price, instructor, level, categories, sections
+  with lessons: a YouTube, Vimeo or video file address and/or text, a
+  length and a free-preview flag) from the dashboard's Courses pages, kept
+  with the app (`apps.course_setup`). The hosted API answers the LMS
+  endpoints from them (`features.lms` is `yallapp`; no quizzes,
+  certificates, wishlist, reviews or Q&A). Free courses are enrolled in
+  from the app. Paid courses are bought on Android only (iOS shows no
+  purchase button): `/auth/checkout-link` opens the payment page with the
+  same card payments as shops (own iyzico account or Yallapp's), and the
+  paid order enrols the student. The client can also add a student by the
+  phone number they sign in with. Enrolments and lesson progress are in
+  `course_enrollments` and `lesson_progress`.
+
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the
   waiting page and active or expired clients on License & plugin. The client
