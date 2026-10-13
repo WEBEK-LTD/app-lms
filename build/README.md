@@ -124,11 +124,12 @@ GitHub's paid minutes; iOS still needs GitHub's macOS runners.
 `runner/install.sh` sets runners up on an AlmaLinux 9 x86_64 server, with or
 without cPanel and CloudLinux:
 
-- Each runner is a rootless Podman container, close to GitHub's
-  `ubuntu-24.04` runners, run by a system service (`yallapp-runner-N`) as a
-  `ghrunner` system user (home in `/var/lib/ghrunner`), outside cPanel's
-  accounts. It does not need the user's own systemd, which CloudLinux masks.
-  Jobs use sudo only inside their container.
+- Each runner is a Podman container, close to GitHub's `ubuntu-24.04`
+  runners, run by a system service (`yallapp-runner-N`), outside cPanel's
+  accounts. Jobs run as an ordinary user inside their container, with sudo
+  there only. The containers run under root's Podman rather than rootless:
+  CloudLinux turns user namespaces off for everyone, and turning them on
+  would widen what every hosting account can reach.
 - Each runner runs one job at a time and is capped (default 2 CPU cores and
   4 GB of memory) so the sites on the server keep their share.
 

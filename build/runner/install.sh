@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # Installs Yallapp's GitHub Actions runners on an AlmaLinux 9 server, with or
-# without cPanel and CloudLinux. Each runner is a rootless Podman container
-# run by a system service (yallapp-runner-N) as the "ghrunner" user, capped in
-# CPU and memory so the sites on the server keep their share. Nothing is
-# added to cPanel accounts.
+# without cPanel and CloudLinux. Each runner is a Podman container run by a
+# system service (yallapp-runner-N) and capped in CPU and memory, so the sites
+# on the server keep their share. Nothing is added to cPanel accounts.
+#
+# The containers run under root's Podman: CloudLinux turns user namespaces
+# off for everyone (user.max_user_namespaces = 0), which rootless containers
+# need, and turning them on would widen what every hosting account can reach.
+# Jobs run as an ordinary user inside their container, with sudo there only.
 #
 # A single file, so it can be pasted on the server. Run as root (WHM >
 # Server Configuration > Terminal works):
@@ -18,8 +22,9 @@ RUNNERS="${RUNNERS:-2}"
 CPUS="${CPUS:-2}"
 MEMORY="${MEMORY:-4g}"
 RUNNER_URL="${RUNNER_URL:-https://github.com/WEBEK-LTD/app-lms}"
-USER_NAME=ghrunner
-RUN_DIR="/run/$USER_NAME"
+DATA_DIR=/var/lib/yallapp-runner
+IMAGE_DIR="$DATA_DIR/image"
+ENV_FILE="$DATA_DIR/runner.env"
 
 fail() {
 	echo "$1" >&2
@@ -31,8 +36,6 @@ fail() {
 case "$RUNNERS" in '' | *[!0-9]* | 0) fail "RUNNERS must be a number from 1." ;; esac
 case "$CPUS" in '' | *[!0-9]* | 0) fail "CPUS must be a whole number from 1." ;; esac
 case "$MEMORY" in [0-9]*[gGmM]) ;; *) fail "MEMORY must look like 4g or 4096m." ;; esac
-[ "$(sysctl -n user.max_user_namespaces)" -gt 0 ] ||
-	fail "User namespaces are off (user.max_user_namespaces = 0); rootless containers need them."
 
 # The token first, so nobody has to wait for the build to give it.
 if [ -z "${RUNNER_TOKEN:-}" ]; then
@@ -42,45 +45,26 @@ fi
 
 dnf install -y podman
 
-if ! id "$USER_NAME" >/dev/null 2>&1; then
-	# Outside /home, so cPanel's account tools and scans leave it alone.
-	useradd --home-dir "/var/lib/$USER_NAME" --create-home --shell /sbin/nologin "$USER_NAME"
-fi
-if ! grep -q "^$USER_NAME:" /etc/subuid; then
-	usermod --add-subuids 524288-589823 --add-subgids 524288-589823 "$USER_NAME"
-fi
-home="$(getent passwd "$USER_NAME" | cut -d: -f6)"
-if command -v cagefsctl >/dev/null 2>&1; then
-	cagefsctl --disable "$USER_NAME" >/dev/null 2>&1 || true
+# Undoes earlier versions of this script, which ran rootless containers as a
+# "ghrunner" user.
+for file in /etc/systemd/system/yallapp-runner-*.service; do
+	[ -e "$file" ] || continue
+	if grep -q '^User=ghrunner$' "$file"; then
+		systemctl disable --now "$(basename "$file")" || true
+		rm -f "$file"
+	fi
+done
+rm -f /etc/systemd/system/user@.service.d/yallapp-delegate.conf /etc/tmpfiles.d/yallapp-runner.conf
+if id ghrunner >/dev/null 2>&1 && [ "$(getent passwd ghrunner | cut -d: -f6)" = /var/lib/ghrunner ]; then
+	loginctl disable-linger ghrunner 2>/dev/null || true
+	userdel --remove ghrunner 2>/dev/null || true
 fi
 
-# Undoes an earlier version of this script that used the user's own systemd.
-rm -f /etc/systemd/system/user@.service.d/yallapp-delegate.conf
-rm -f "$home"/.config/containers/systemd/yallapp-runner-*.container
-loginctl disable-linger "$USER_NAME" 2>/dev/null || true
-
-# Podman's runtime folder, and settings for running outside a login session.
-printf 'd %s 0700 %s %s -\n' "$RUN_DIR" "$USER_NAME" "$USER_NAME" >/etc/tmpfiles.d/yallapp-runner.conf
-systemd-tmpfiles --create /etc/tmpfiles.d/yallapp-runner.conf
-install -d -o "$USER_NAME" -g "$USER_NAME" -m 0700 "$home/.config" "$home/.config/containers"
-printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' >"$home/.config/containers/containers.conf"
-chown "$USER_NAME:$USER_NAME" "$home/.config/containers/containers.conf"
-
-# Runs a command as the runners' user through systemd, outside PAM, so no
-# login limits apply.
-as_user() {
-	systemd-run --quiet --wait --pipe --collect \
-		--uid="$USER_NAME" --gid="$USER_NAME" \
-		--working-directory="$home" \
-		--property=Delegate=yes \
-		--setenv=HOME="$home" --setenv=XDG_RUNTIME_DIR="$RUN_DIR" \
-		"$@"
-}
+install -d -m 0700 "$DATA_DIR" "$IMAGE_DIR"
 
 # The image, close to GitHub's ubuntu-24.04 runners so the workflows run
 # unchanged.
-install -d -o "$USER_NAME" -g "$USER_NAME" "$home/image"
-cat >"$home/image/Dockerfile" <<'DOCKERFILE'
+cat >"$IMAGE_DIR/Dockerfile" <<'DOCKERFILE'
 FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -127,7 +111,7 @@ RUN chmod 0755 /usr/local/bin/entrypoint.sh
 USER runner
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 DOCKERFILE
-cat >"$home/image/entrypoint.sh" <<'ENTRYPOINT'
+cat >"$IMAGE_DIR/entrypoint.sh" <<'ENTRYPOINT'
 #!/usr/bin/env bash
 # Registers the runner on its first start (the registration lives in the
 # runner's volume), then waits for jobs.
@@ -150,19 +134,16 @@ fi
 
 exec ./run.sh
 ENTRYPOINT
-chown "$USER_NAME:$USER_NAME" "$home/image/Dockerfile" "$home/image/entrypoint.sh"
-as_user /usr/bin/podman build --pull=newer -t localhost/yallapp-runner "$home/image"
+podman build --pull=newer -t localhost/yallapp-runner "$IMAGE_DIR"
 
-# The registration token, readable only by the runners' user.
-env_file="$home/.config/yallapp-runner.env"
+# The registration token, readable only by root.
 if [ -n "$RUNNER_TOKEN" ]; then
 	(
 		umask 077
-		printf 'RUNNER_TOKEN=%s\nRUNNER_URL=%s\n' "$RUNNER_TOKEN" "$RUNNER_URL" >"$env_file"
+		printf 'RUNNER_TOKEN=%s\nRUNNER_URL=%s\n' "$RUNNER_TOKEN" "$RUNNER_URL" >"$ENV_FILE"
 	)
-	chown "$USER_NAME:$USER_NAME" "$env_file"
 fi
-[ -f "$env_file" ] || fail "No registration token given."
+[ -f "$ENV_FILE" ] || fail "No registration token given."
 
 # One system service per runner.
 for file in /etc/systemd/system/yallapp-runner-*.service; do
@@ -175,7 +156,6 @@ for file in /etc/systemd/system/yallapp-runner-*.service; do
 	fi
 done
 host="$(hostname -s)"
-memory_max="$(printf '%s' "$MEMORY" | tr 'gm' 'GM')"
 for n in $(seq 1 "$RUNNERS"); do
 	cat >"/etc/systemd/system/yallapp-runner-$n.service" <<UNIT
 [Unit]
@@ -184,15 +164,8 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-User=$USER_NAME
-Group=$USER_NAME
-WorkingDirectory=$home
-Environment=HOME=$home XDG_RUNTIME_DIR=$RUN_DIR
-Delegate=yes
-CPUQuota=$((CPUS * 100))%
-MemoryMax=$memory_max
 ExecStartPre=-/usr/bin/podman rm --force --ignore yallapp-runner-$n
-ExecStart=/usr/bin/podman run --rm --name yallapp-runner-$n --hostname $host-runner-$n --init --shm-size=2g --env-file $env_file --env RUNNER_NAME=$host-runner-$n --volume yallapp-runner-$n-home:/home/runner --volume yallapp-runner-$n-tools:/opt/hostedtoolcache localhost/yallapp-runner
+ExecStart=/usr/bin/podman run --rm --name yallapp-runner-$n --hostname $host-runner-$n --init --shm-size=2g --cpus=$CPUS --memory=$MEMORY --pids-limit=8192 --env-file $ENV_FILE --env RUNNER_NAME=$host-runner-$n --volume yallapp-runner-$n-home:/home/runner --volume yallapp-runner-$n-tools:/opt/hostedtoolcache localhost/yallapp-runner
 ExecStop=/usr/bin/podman stop --ignore --time 30 yallapp-runner-$n
 Restart=always
 RestartSec=30
