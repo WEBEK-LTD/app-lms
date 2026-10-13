@@ -89,3 +89,21 @@ LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei and Masteriyo.
 ## Phase 7: More app types
 
 Store (WooCommerce) and Bookings modules.
+
+## Phase 8: Pages, looks and hosted apps
+
+Clients edit their app's pages and look from the dashboard, like a site
+builder, and clients without WordPress get an app hosted on Yallapp's
+servers at an extra server cost. Planned in `docs/ARCHITECTURE.md` ("Pages,
+looks and hosted apps"). Started ahead of Phases 6 and 7 at WEBEK's request.
+
+| | Step | Done when |
+|---|---|---|
+| [~] | 8.1 Plan and API contract: `Config.appearance`, `/pages`, page blocks, the hosted server | Contract approved |
+| [ ] | 8.2 App: looks from `/config` (templates, light, dark and system mode, font, corners, cards) | Changing the look in the API changes the app without a new build |
+| [ ] | 8.3 App: bottom tabs and pages from `/pages`, one renderer for every block in every template, fallback to `/home` | Every block renders in all templates on several screen sizes |
+| [ ] | 8.4 Dashboard: page and look editor with drag-and-drop ordering, preview, drafts and publish | A client builds and publishes a page |
+| [ ] | 8.5 Plugin: fetch the published layout from the platform and serve `/pages` with the site's courses, products and posts | A page published in the dashboard shows in a WordPress client's app |
+| [ ] | 8.6 Hosted apps: the platform serves the app API per client, item and image storage, server cost in plans | A hosted test app shows pages and items without WordPress |
+| [ ] | 8.7 Hosted sign-in: one-time code without Digits, user accounts per client | Sign in to a hosted test app |
+| [ ] | 8.8 First hosted module: property listings with search, filters, favorites and messages to the office | The real estate design runs as a hosted app |
