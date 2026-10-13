@@ -5,7 +5,8 @@
  *
  * yallapp_seed_ids keys: haircut, colouring (Ayşe charges her own price), massage,
  * hidden (not shown to customers), hair, spa (categories), ayse, mehmet (staff, both
- * working Monday to Saturday 09:00 to 17:00).
+ * working Monday to Saturday 09:00 to 17:00), one_staff (true on Amelia Lite, which
+ * schedules only its first employee, Ayşe).
  *
  * @package Yallapp
  */
@@ -140,6 +141,8 @@ update_option(
 		'spa'       => $spa,
 		'ayse'      => $ayse,
 		'mehmet'    => $mehmet,
+		'one_staff' => class_exists( '\\AmeliaBooking\\Infrastructure\\Licence\\Licence' )
+			&& ! \AmeliaBooking\Infrastructure\Licence\Licence::hasLicenseAccess( \AmeliaBooking\Infrastructure\Licence\LicenceConstants::STARTER ),
 	)
 );
 

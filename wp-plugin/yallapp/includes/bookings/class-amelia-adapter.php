@@ -31,6 +31,13 @@ class Amelia_Adapter extends Base_Adapter {
 	private $settings = null;
 
 	/**
+	 * On Amelia Lite, the one employee it schedules; 0 when every employee can be booked.
+	 *
+	 * @var int|null
+	 */
+	private $only_provider = null;
+
+	/**
 	 * Machine name.
 	 *
 	 * @return string
@@ -77,6 +84,48 @@ class Amelia_Adapter extends Base_Adapter {
 	}
 
 	/**
+	 * Amelia Lite schedules only its first employee (the lowest ID not disabled), whatever
+	 * the request asks for, so the app offers only that employee there.
+	 *
+	 * @return int Employee ID, or 0 when every employee can be booked.
+	 */
+	private function only_provider() {
+		if ( null !== $this->only_provider ) {
+			return $this->only_provider;
+		}
+		$this->only_provider = 0;
+		$licence             = '\\AmeliaBooking\\Infrastructure\\Licence\\Licence';
+		$constants           = '\\AmeliaBooking\\Infrastructure\\Licence\\LicenceConstants';
+		if ( ! class_exists( $licence ) || ! defined( $constants . '::STARTER' ) || ! method_exists( $licence, 'hasLicenseAccess' ) ) {
+			return 0;
+		}
+		try {
+			$lite = ! $licence::hasLicenseAccess( constant( $constants . '::STARTER' ) );
+		} catch ( Throwable $e ) {
+			$lite = false;
+		}
+		if ( $lite ) {
+			global $wpdb;
+			$users = self::table( 'users' );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own table; the same query as Amelia's.
+			$this->only_provider = (int) $wpdb->get_var( "SELECT id FROM {$users} WHERE type = 'provider' AND status NOT LIKE 'disabled' ORDER BY id ASC LIMIT 1" );
+			// No employee at all: nothing can be booked, which an impossible ID keeps true.
+			$this->only_provider = $this->only_provider ? $this->only_provider : -1;
+		}
+		return $this->only_provider;
+	}
+
+	/**
+	 * SQL limiting employees (alias u) to the ones that can be booked.
+	 *
+	 * @return string
+	 */
+	private function bookable_provider_sql() {
+		$only = $this->only_provider();
+		return "u.type = 'provider' AND u.status = 'visible'" . ( $only ? ' AND u.id = ' . (int) $only : '' );
+	}
+
+	/**
 	 * The plugin's booking rules.
 	 *
 	 * @return array
@@ -85,7 +134,7 @@ class Amelia_Adapter extends Base_Adapter {
 		$cancel = (int) $this->setting( 'general', 'minimumTimeRequirementPriorToCanceling', 0 );
 		return array(
 			'currency'              => (string) $this->setting( 'payments', 'currency', 'USD' ),
-			'staff_choice'          => true,
+			'staff_choice'          => 0 === $this->only_provider(),
 			'notes'                 => false,
 			'max_days_ahead'        => (int) $this->setting( 'general', 'numberOfDaysAvailableForBooking', 365 ),
 			'min_minutes_ahead'     => (int) floor( (int) $this->setting( 'general', 'minimumTimeRequirementPriorToBooking', 0 ) / 60 ),
@@ -149,8 +198,9 @@ class Amelia_Adapter extends Base_Adapter {
 		global $wpdb;
 		$categories = self::table( 'categories' );
 		$services   = self::table( 'services' );
+		$provided   = $this->provided_sql();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
-		$rows = $wpdb->get_results( "SELECT c.id, c.name, c.pictureFullPath AS image, COUNT(s.id) AS services FROM {$categories} c INNER JOIN {$services} s ON s.categoryId = c.id AND s.status = 'visible' AND s.`show` = 1 WHERE c.status = 'visible' GROUP BY c.id, c.name, c.pictureFullPath, c.position ORDER BY c.position ASC, c.id ASC", ARRAY_A );
+		$rows = $wpdb->get_results( "SELECT c.id, c.name, c.pictureFullPath AS image, COUNT(s.id) AS services FROM {$categories} c INNER JOIN {$services} s ON s.categoryId = c.id AND s.status = 'visible' AND s.`show` = 1 AND {$provided} WHERE c.status = 'visible' GROUP BY c.id, c.name, c.pictureFullPath, c.position ORDER BY c.position ASC, c.id ASC", ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $row ) {
 			$out[] = array(
@@ -161,6 +211,15 @@ class Amelia_Adapter extends Base_Adapter {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * SQL for "someone who can be booked provides service s".
+	 *
+	 * @return string
+	 */
+	private function provided_sql() {
+		return 'EXISTS (SELECT 1 FROM ' . self::table( 'providers_to_services' ) . ' ps INNER JOIN ' . self::table( 'users' ) . ' u ON u.id = ps.userId AND ' . $this->bookable_provider_sql() . ' WHERE ps.serviceId = s.id)';
 	}
 
 	/**
@@ -184,10 +243,9 @@ class Amelia_Adapter extends Base_Adapter {
 		}
 		$per_page = max( 1, (int) $args['per_page'] );
 		$offset   = ( max( 1, (int) $args['page'] ) - 1 ) * $per_page;
-		// Only services someone provides can be booked.
-		$where .= ' AND EXISTS (SELECT 1 FROM ' . self::table( 'providers_to_services' ) . ' ps INNER JOIN ' . self::table( 'users' ) . " u ON u.id = ps.userId AND u.type = 'provider' AND u.status = 'visible' WHERE ps.serviceId = s.id)";
-		$count  = "SELECT COUNT(*) FROM {$services} s WHERE {$where}";
-		$select = "SELECT s.* FROM {$services} s WHERE {$where} ORDER BY s.position ASC, s.id ASC LIMIT %d OFFSET %d";
+		$where   .= ' AND ' . $this->provided_sql();
+		$count    = "SELECT COUNT(*) FROM {$services} s WHERE {$where}";
+		$select   = "SELECT s.* FROM {$services} s WHERE {$where} ORDER BY s.position ASC, s.id ASC LIMIT %d OFFSET %d";
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Amelia's own tables; values are placeholders.
 		$total = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count, $params ) ) : $wpdb->get_var( $count ) );
 		$rows  = $wpdb->get_results( $wpdb->prepare( $select, array_merge( $params, array( $per_page, $offset ) ) ), ARRAY_A );
@@ -258,12 +316,13 @@ class Amelia_Adapter extends Base_Adapter {
 		$users    = self::table( 'users' );
 		$links    = self::table( 'providers_to_services' );
 		$services = self::table( 'services' );
+		$bookable = $this->bookable_provider_sql();
 		if ( $service_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
-			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT u.*, ps.price AS own_price, s.price AS service_price FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId WHERE ps.serviceId = %d AND u.type = 'provider' AND u.status = 'visible' ORDER BY u.firstName ASC, u.id ASC", (int) $service_id ), ARRAY_A );
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT u.*, ps.price AS own_price, s.price AS service_price FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId WHERE ps.serviceId = %d AND {$bookable} ORDER BY u.firstName ASC, u.id ASC", (int) $service_id ), ARRAY_A );
 		} else {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Amelia's own tables.
-			$rows = $wpdb->get_results( "SELECT DISTINCT u.* FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId AND s.status = 'visible' AND s.`show` = 1 WHERE u.type = 'provider' AND u.status = 'visible' ORDER BY u.firstName ASC, u.id ASC", ARRAY_A );
+			$rows = $wpdb->get_results( "SELECT DISTINCT u.* FROM {$users} u INNER JOIN {$links} ps ON ps.userId = u.id INNER JOIN {$services} s ON s.id = ps.serviceId AND s.status = 'visible' AND s.`show` = 1 WHERE {$bookable} ORDER BY u.firstName ASC, u.id ASC", ARRAY_A );
 		}
 		$out = array();
 		foreach ( (array) $rows as $row ) {

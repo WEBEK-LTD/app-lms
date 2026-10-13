@@ -4,6 +4,8 @@
  * tests/dev-site/seed-bookings-<plugin>.php: a salon with Haircut (30 min, ₺300) and
  * Hair colouring (90 min, ₺900; Ayşe charges ₺950) in Hair, Massage (60 min, ₺600) in
  * Spa, a hidden service, and Ayşe and Mehmet working Monday to Saturday 09:00-17:00.
+ * Only Mehmet does massages. When the plugin books one employee only (Amelia Lite,
+ * SEED_IDS one_staff), Mehmet and the massage aren't offered and the checks expect that.
  *
  * Usage: BOOKING=amelia WP_CLI='wp --path=<site>' SEED_IDS='{...}' php bookings-test.php http://127.0.0.1:8089
  * The site must define YALLAPP_DEV_OTP so the code 123456 works.
@@ -16,6 +18,7 @@
 $base    = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' ) . '/wp-json/yallapp/v1';
 $seed    = json_decode( (string) getenv( 'SEED_IDS' ), true );
 $booking = (string) getenv( 'BOOKING' );
+$one     = ! empty( $seed['one_staff'] );
 $fails   = 0;
 $count   = 0;
 if ( ! is_array( $seed ) ) {
@@ -100,29 +103,33 @@ check( 'bookings config present', is_array( $b ), $config['raw'] );
 check( 'plugin is ' . $booking, ( $b['plugin'] ?? '' ) === $booking, $b );
 check( 'business time zone', ( $b['timezone'] ?? '' ) === 'Europe/Istanbul', $b );
 check( 'currency', ( $b['currency'] ?? '' ) === 'TRY', $b );
+check( 'staff choice', ( $b['staff_choice'] ?? null ) === ! $one, $b );
 check( 'cancel rule', array_key_exists( 'cancel_before_minutes', (array) $b ) && 60 === ( $b['cancel_before_minutes'] ?? null ), $b );
 check( 'no LMS', array_key_exists( 'lms', $config['json']['features'] ?? array() ) && null === $config['json']['features']['lms'], $config['json']['features'] ?? null );
 
 echo "Services\n";
 $cats = call( 'GET', '/bookings/categories' );
-check( 'categories', names( $cats['json']['items'] ?? array() ) === array( 'Hair', 'Spa' ), $cats['raw'] );
-check( 'category counts skip hidden services', array_column( $cats['json']['items'] ?? array(), 'count' ) === array( 2, 1 ), $cats['raw'] );
+check( 'categories', names( $cats['json']['items'] ?? array() ) === ( $one ? array( 'Hair' ) : array( 'Hair', 'Spa' ) ), $cats['raw'] );
+check( 'category counts skip hidden services', array_column( $cats['json']['items'] ?? array(), 'count' ) === ( $one ? array( 2 ) : array( 2, 1 ) ), $cats['raw'] );
 $all = call( 'GET', '/bookings/services' );
-check( 'services in order, hidden left out', names( $all['json']['items'] ?? array() ) === array( 'Haircut', 'Hair colouring', 'Massage' ), $all['raw'] );
-check( 'page meta', 3 === ( $all['json']['total'] ?? 0 ) && 1 === ( $all['json']['total_pages'] ?? 0 ), $all['raw'] );
+check( 'services in order, hidden left out', names( $all['json']['items'] ?? array() ) === ( $one ? array( 'Haircut', 'Hair colouring' ) : array( 'Haircut', 'Hair colouring', 'Massage' ) ), $all['raw'] );
+check( 'page meta', ( $one ? 2 : 3 ) === ( $all['json']['total'] ?? 0 ) && 1 === ( $all['json']['total_pages'] ?? 0 ), $all['raw'] );
 $haircut = $all['json']['items'][0] ?? array();
 check( 'duration', 30 === ( $haircut['duration_minutes'] ?? 0 ), $haircut );
 check( 'price', '300.00' === ( $haircut['price']['amount'] ?? '' ) && 'TRY' === ( $haircut['price']['currency'] ?? '' ) && false !== strpos( (string) ( $haircut['price']['formatted'] ?? '' ), '300' ), $haircut );
 $search = call( 'GET', '/bookings/services?search=hair' );
 check( 'search', names( $search['json']['items'] ?? array() ) === array( 'Haircut', 'Hair colouring' ), $search['raw'] );
 $spa = call( 'GET', '/bookings/services?category=' . $seed['spa'] );
-check( 'category filter', names( $spa['json']['items'] ?? array() ) === array( 'Massage' ), $spa['raw'] );
+check( 'category filter', names( $spa['json']['items'] ?? array() ) === ( $one ? array() : array( 'Massage' ) ), $spa['raw'] );
 $detail = call( 'GET', '/bookings/services/' . $seed['haircut'] );
 check( 'service detail', 200 === $detail['status'] && false !== strpos( (string) ( $detail['json']['description_html'] ?? '' ), 'Haircut' ), $detail['raw'] );
-check( 'service staff', names( $detail['json']['staff'] ?? array() ) === array( 'Ayşe Kaya', 'Mehmet Demir' ), $detail['raw'] );
+check( 'service staff', names( $detail['json']['staff'] ?? array() ) === ( $one ? array( 'Ayşe Kaya' ) : array( 'Ayşe Kaya', 'Mehmet Demir' ) ), $detail['raw'] );
 $colour = call( 'GET', '/bookings/services/' . $seed['colouring'] );
 check( 'own staff price', '950.00' === ( $colour['json']['staff'][0]['price']['amount'] ?? '' ), $colour['raw'] );
 check( 'hidden service is 404', 404 === call( 'GET', '/bookings/services/' . $seed['hidden'] )['status'] );
+if ( $one ) {
+	check( 'a service only others provide is 404', 404 === call( 'GET', '/bookings/services/' . $seed['massage'] )['status'] );
+}
 
 echo "Free times\n";
 $week = call( 'GET', '/bookings/availability?service=' . $seed['haircut'] . '&from=' . $date . '&days=7' );
@@ -133,11 +140,11 @@ check( 'Monday opens at 09:00', ( $monday_slots[0]['local_time'] ?? '' ) === '09
 check( 'UTC start (Istanbul is UTC+3)', ( $monday_slots[0]['start'] ?? '' ) === $date . 'T06:00:00Z', $monday_slots[0] ?? null );
 check( 'end after the service', ( $monday_slots[0]['end'] ?? '' ) === $date . 'T06:30:00Z', $monday_slots[0] ?? null );
 check( 'last start leaves time for the service', '16:30' === ( end( $monday_slots )['local_time'] ?? '' ), end( $monday_slots ) );
-check( 'both stylists free', array( (int) $seed['ayse'], (int) $seed['mehmet'] ) === array_map( 'intval', ( function ( $ids ) { sort( $ids ); return $ids; } )( $monday_slots[0]['staff_ids'] ?? array() ) ), $monday_slots[0] ?? null );
+check( $one ? 'only the bookable stylist' : 'both stylists free', ( $one ? array( (int) $seed['ayse'] ) : array( (int) $seed['ayse'], (int) $seed['mehmet'] ) ) === array_map( 'intval', ( function ( $ids ) { sort( $ids ); return $ids; } )( $monday_slots[0]['staff_ids'] ?? array() ) ), $monday_slots[0] ?? null );
 check( 'closed on Sunday', array() === ( $days[6]['slots'] ?? null ) && $days[6]['date'] === $sunday, $days[6] ?? null );
 $ayse_only = call( 'GET', '/bookings/availability?service=' . $seed['haircut'] . '&staff=' . $seed['ayse'] . '&from=' . $date . '&days=1' );
 check( 'one stylist', array( (int) $seed['ayse'] ) === ( $ayse_only['json']['days'][0]['slots'][0]['staff_ids'] ?? null ), $ayse_only['raw'] );
-check( 'staff who don\'t provide it', 400 === call( 'GET', '/bookings/availability?service=' . $seed['massage'] . '&staff=' . $seed['ayse'] . '&from=' . $date )['status'] );
+check( 'staff who don\'t provide it', 400 === call( 'GET', '/bookings/availability?service=' . $seed['colouring'] . '&staff=' . $seed['mehmet'] . '&from=' . $date )['status'] );
 
 echo "Booking\n";
 $start = $date . 'T07:00:00Z'; // 10:00 in Istanbul.
@@ -168,15 +175,20 @@ check( 'the same time again is slot_taken', 409 === $again['status'] && 'slot_ta
 $after = call( 'GET', '/bookings/availability?service=' . $seed['haircut'] . '&staff=' . $seed['ayse'] . '&from=' . $date . '&days=1' );
 check( 'the time is no longer free for her', ! in_array( '10:00', array_column( $after['json']['days'][0]['slots'] ?? array(), 'local_time' ), true ), $after['raw'] );
 $still = call( 'GET', '/bookings/availability?service=' . $seed['haircut'] . '&staff=' . $seed['mehmet'] . '&from=' . $date . '&days=1' );
-check( 'but still free for him', in_array( '10:00', array_column( $still['json']['days'][0]['slots'] ?? array(), 'local_time' ), true ), $still['raw'] );
+if ( $one ) {
+	check( 'the other stylist can\'t be booked', 400 === $still['status'], $still['raw'] );
+} else {
+	check( 'but still free for him', in_array( '10:00', array_column( $still['json']['days'][0]['slots'] ?? array(), 'local_time' ), true ), $still['raw'] );
+}
 $sunday_try = call( 'POST', '/bookings/appointments?platform=android', array( 'service_id' => $seed['haircut'], 'start' => $sunday . 'T07:00:00Z' ), $token );
 check( 'a closed day is slot_taken', 409 === $sunday_try['status'], $sunday_try['raw'] );
-$anyone = call( 'POST', '/bookings/appointments?platform=android', array( 'service_id' => $seed['massage'], 'start' => $date . 'T11:00:00Z' ), $token );
-check( 'anyone free: the plugin picks', 201 === $anyone['status'] && 'Mehmet Demir' === ( $anyone['json']['staff']['name'] ?? '' ), $anyone['raw'] );
+$second = $one ? 'Haircut' : 'Massage';
+$anyone = call( 'POST', '/bookings/appointments?platform=android', array( 'service_id' => $seed[ $one ? 'haircut' : 'massage' ], 'start' => $date . 'T11:00:00Z' ), $token );
+check( 'anyone free: the plugin picks', 201 === $anyone['status'] && ( $one ? 'Ayşe Kaya' : 'Mehmet Demir' ) === ( $anyone['json']['staff']['name'] ?? '' ), $anyone['raw'] );
 
 echo "My appointments\n";
 $upcoming = call( 'GET', '/me/appointments', null, $token );
-check( 'upcoming, soonest first', array( 'Haircut', 'Massage' ) === array_column( array_column( $upcoming['json']['items'] ?? array(), 'service' ), 'name' ), $upcoming['raw'] );
+check( 'upcoming, soonest first', array( 'Haircut', $second ) === array_column( array_column( $upcoming['json']['items'] ?? array(), 'service' ), 'name' ), $upcoming['raw'] );
 $one = call( 'GET', '/me/appointments/' . ( $a['id'] ?? 0 ), null, $token );
 check( 'one appointment', 200 === $one['status'] && ( $one['json']['id'] ?? 0 ) === ( $a['id'] ?? -1 ), $one['raw'] );
 $other = sign_up( '5551230002', 'Can Yıldız' );
