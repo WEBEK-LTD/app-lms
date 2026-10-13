@@ -9,6 +9,9 @@ import type {
   CatalogOrderPatch,
   CatalogOrderStatus,
   PlanPayment,
+  BookingAppointment,
+  BookingAppointmentPatch,
+  BookingStatus,
   CatalogProduct,
   CatalogProductInput,
   Client,
@@ -190,6 +193,29 @@ export interface DataStore {
   countHostedUsers(appId: string): Promise<number>;
 
   // Platform settings (admin)
+  /**
+   * Books a time for a staff member: null when an active appointment of
+   * theirs overlaps it (checked and written as one step, so two customers
+   * can't take the same time).
+   */
+  createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null>;
+  getBookingAppointment(appId: string, id: number): Promise<BookingAppointment | null>;
+  updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void>;
+  /**
+   * An app's appointments. `scope` upcoming: active ones from `now`, soonest
+   * first; past: the rest, newest first. Without scope, every status in the
+   * window [startFrom, startBefore), soonest first.
+   */
+  listBookingAppointments(input: {
+    appId: string;
+    userId?: number;
+    scope?: { kind: "upcoming" | "past"; now: Date };
+    statuses?: BookingStatus[];
+    startFrom?: Date;
+    startBefore?: Date;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: BookingAppointment[]; total: number }>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;

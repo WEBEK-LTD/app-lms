@@ -14,7 +14,7 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 |---|---|
 | Website | `/`, `/guides/*`, `/terms`, `/privacy`, `/refund`, 404 |
 | Accounts | `/sign-up`, `/sign-in`, `/forgot-password`, `/reset-password`, `/pending` (also pay by card) |
-| Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders` |
+| Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments` |
 | Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |

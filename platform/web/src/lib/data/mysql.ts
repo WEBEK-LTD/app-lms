@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, like, lte, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, like, lt, lte, not, or, sql } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
@@ -38,6 +38,9 @@ import type {
   CatalogProductInput,
   PlatformSetting,
   PlanPayment,
+  BookingAppointment,
+  BookingAppointmentPatch,
+  BookingStatus,
   PlatformSettingKey,
   PlatformSettingValues,
   Client,
@@ -55,6 +58,7 @@ import type {
   StoreListing,
   User,
 } from "./types";
+import { ACTIVE_BOOKING_STATUSES } from "./types";
 
 type Db = MySql2Database<typeof schema>;
 
@@ -911,6 +915,87 @@ export class MysqlStore implements DataStore {
   }
 
   // Platform settings
+
+  async createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null> {
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // One booking at a time per app: the app's row is the lock.
+        await tx.select({ id: schema.apps.id }).from(schema.apps).where(eq(schema.apps.id, input.appId)).for("update");
+        const [clash] = await tx
+          .select({ id: schema.bookingAppointments.id })
+          .from(schema.bookingAppointments)
+          .where(
+            and(
+              eq(schema.bookingAppointments.appId, input.appId),
+              eq(schema.bookingAppointments.staffId, input.staffId),
+              inArray(schema.bookingAppointments.status, ACTIVE_BOOKING_STATUSES),
+              lt(schema.bookingAppointments.startAt, input.endAt),
+              gt(schema.bookingAppointments.endAt, input.startAt),
+            ),
+          )
+          .limit(1);
+        if (clash) return null;
+        const [result] = await tx.insert(schema.bookingAppointments).values(input);
+        return { ...input, id: Number(result.insertId) };
+      }),
+    );
+  }
+
+  async getBookingAppointment(appId: string, id: number): Promise<BookingAppointment | null> {
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(schema.bookingAppointments)
+        .where(and(eq(schema.bookingAppointments.appId, appId), eq(schema.bookingAppointments.id, id)))
+        .limit(1),
+    );
+    return row ?? null;
+  }
+
+  async updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.bookingAppointments)
+        .set(patch)
+        .where(and(eq(schema.bookingAppointments.appId, appId), eq(schema.bookingAppointments.id, id))),
+    );
+  }
+
+  async listBookingAppointments(input: {
+    appId: string;
+    userId?: number;
+    scope?: { kind: "upcoming" | "past"; now: Date };
+    statuses?: BookingStatus[];
+    startFrom?: Date;
+    startBefore?: Date;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: BookingAppointment[]; total: number }> {
+    const t = schema.bookingAppointments;
+    const upcoming = input.scope ? and(inArray(t.status, ACTIVE_BOOKING_STATUSES), gte(t.startAt, input.scope.now)) : undefined;
+    const where = and(
+      eq(t.appId, input.appId),
+      input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+      input.statuses ? inArray(t.status, input.statuses) : undefined,
+      input.startFrom ? gte(t.startAt, input.startFrom) : undefined,
+      input.startBefore ? lt(t.startAt, input.startBefore) : undefined,
+      input.scope ? (input.scope.kind === "upcoming" ? upcoming : not(upcoming!)) : undefined,
+    );
+    const past = input.scope?.kind === "past";
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(past ? desc(t.startAt) : asc(t.startAt), asc(t.id))
+          .limit(input.limit)
+          .offset(input.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
 
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
     return this.run((db) =>

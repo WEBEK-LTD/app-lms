@@ -90,7 +90,9 @@ export type AppBackend = "wordpress" | "custom_api" | "setup_requested" | "hoste
 export type ConnectorConfig =
   | { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string }
   /** No website: the products the client adds in the dashboard (catalog_* tables). */
-  | { kind: "catalog" };
+  | { kind: "catalog" }
+  /** No website: services, staff and hours set in the dashboard (`bookingSetup`), appointments in booking_appointments. */
+  | { kind: "bookings" };
 
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {
@@ -158,6 +160,8 @@ export interface App {
   firebaseServiceAccountEncrypted: string | null;
   /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
   catalogSettings: CatalogSettings | null;
+  /** Services, staff and rules when bookings are managed in the dashboard (connector "bookings"). */
+  bookingSetup: BookingSetup | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
@@ -530,3 +534,109 @@ export interface PlanPayment {
   createdAt: Date;
   paidAt: Date | null;
 }
+
+// Bookings managed in the dashboard (connector "bookings").
+
+export interface BookingRules {
+  /** The business's IANA time zone. */
+  timezone: string;
+  currency: CatalogCurrency;
+  maxDaysAhead: number;
+  minMinutesAhead: number;
+  /** Customers can cancel up to this many minutes before; null: not in the app. */
+  cancelBeforeMinutes: number | null;
+  /** Free times start every this many minutes. */
+  slotStepMinutes: number;
+  /** Customers can leave a note. */
+  notes: boolean;
+  /** New appointments are approved at once; otherwise they wait for the business. */
+  autoApprove: boolean;
+}
+
+export interface BookingCategory {
+  id: number;
+  name: string;
+}
+
+export interface BookingService {
+  id: number;
+  categoryId: number | null;
+  name: string;
+  description: string;
+  durationMinutes: number;
+  priceCents: number;
+  imageAssetId: string | null;
+  color: string | null;
+  active: boolean;
+}
+
+/** Opening hours of one day, like { start: "09:00", end: "17:00" }. */
+export interface TimeRange {
+  start: string;
+  end: string;
+}
+
+export interface BookingStaff {
+  id: number;
+  name: string;
+  title: string | null;
+  imageAssetId: string | null;
+  serviceIds: number[];
+  /** Working hours per weekday, Sunday first (7 entries). */
+  hours: TimeRange[][];
+  /** Days off, as local dates (YYYY-MM-DD). */
+  daysOff: string[];
+  active: boolean;
+}
+
+/** Everything the business sets up in the dashboard, kept with the app (small, edited by one person). */
+export interface BookingSetup {
+  rules: BookingRules;
+  categories: BookingCategory[];
+  services: BookingService[];
+  staff: BookingStaff[];
+  /** The next ID for a category, service or staff member. */
+  nextId: number;
+}
+
+export const DEFAULT_BOOKING_RULES: BookingRules = {
+  timezone: "Europe/Istanbul",
+  currency: "TRY",
+  maxDaysAhead: 60,
+  minMinutesAhead: 60,
+  cancelBeforeMinutes: 24 * 60,
+  slotStepMinutes: 30,
+  notes: true,
+  autoApprove: true,
+};
+
+export const DEFAULT_BOOKING_SETUP: BookingSetup = { rules: DEFAULT_BOOKING_RULES, categories: [], services: [], staff: [], nextId: 1 };
+
+export type BookingStatus = "approved" | "pending" | "cancelled" | "rejected" | "no_show" | "completed";
+
+/** Appointments that hold their time. */
+export const ACTIVE_BOOKING_STATUSES: BookingStatus[] = ["approved", "pending"];
+
+export interface BookingAppointment {
+  id: number;
+  appId: string;
+  /** The app customer who booked; null once their account is gone. */
+  userId: number | null;
+  serviceId: number;
+  staffId: number;
+  /** Names when booked, so the history survives edits. */
+  serviceName: string;
+  staffName: string;
+  customerName: string;
+  customerPhone: string;
+  startAt: Date;
+  endAt: Date;
+  status: BookingStatus;
+  priceCents: number;
+  currency: CatalogCurrency;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type BookingAppointmentPatch = Partial<Pick<BookingAppointment, "status" | "updatedAt">>;

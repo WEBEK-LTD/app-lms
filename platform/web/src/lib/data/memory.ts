@@ -17,6 +17,7 @@ import type {
   UserPatch,
 } from "./store";
 import { DuplicateEmailError } from "./store";
+import { ACTIVE_BOOKING_STATUSES } from "./types";
 import type {
   Activation,
   App,
@@ -44,6 +45,9 @@ import type {
   ResetToken,
   User,
   PlanPayment,
+  BookingAppointment,
+  BookingAppointmentPatch,
+  BookingStatus,
 } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -77,6 +81,8 @@ export class MemoryStore implements DataStore {
   private nextCatalogId = 1;
   private platformSettings = new Map<PlatformSettingKey, PlatformSetting>();
   private planPayments = new Map<string, PlanPayment>();
+  private bookingAppointments = new Map<number, BookingAppointment>();
+  private nextBookingId = 1;
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -709,6 +715,59 @@ export class MemoryStore implements DataStore {
   }
 
   // Platform settings
+
+  async createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null> {
+    for (const other of this.bookingAppointments.values()) {
+      if (
+        other.appId === input.appId &&
+        other.staffId === input.staffId &&
+        ACTIVE_BOOKING_STATUSES.includes(other.status) &&
+        other.startAt < input.endAt &&
+        input.startAt < other.endAt
+      ) {
+        return null;
+      }
+    }
+    const appointment: BookingAppointment = { ...clone(input), id: this.nextBookingId++ };
+    this.bookingAppointments.set(appointment.id, clone(appointment));
+    return appointment;
+  }
+
+  async getBookingAppointment(appId: string, id: number): Promise<BookingAppointment | null> {
+    const appointment = this.bookingAppointments.get(id);
+    return appointment && appointment.appId === appId ? clone(appointment) : null;
+  }
+
+  async updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void> {
+    const appointment = this.bookingAppointments.get(id);
+    if (appointment && appointment.appId === appId) this.bookingAppointments.set(id, clone({ ...appointment, ...patch }));
+  }
+
+  async listBookingAppointments(input: {
+    appId: string;
+    userId?: number;
+    scope?: { kind: "upcoming" | "past"; now: Date };
+    statuses?: BookingStatus[];
+    startFrom?: Date;
+    startBefore?: Date;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: BookingAppointment[]; total: number }> {
+    const active = (a: BookingAppointment) => ACTIVE_BOOKING_STATUSES.includes(a.status);
+    const all = [...this.bookingAppointments.values()]
+      .filter((a) => a.appId === input.appId)
+      .filter((a) => input.userId === undefined || a.userId === input.userId)
+      .filter((a) => !input.statuses || input.statuses.includes(a.status))
+      .filter((a) => !input.startFrom || a.startAt >= input.startFrom)
+      .filter((a) => !input.startBefore || a.startAt < input.startBefore)
+      .filter((a) => {
+        if (!input.scope) return true;
+        const upcoming = active(a) && a.startAt >= input.scope.now;
+        return input.scope.kind === "upcoming" ? upcoming : !upcoming;
+      })
+      .sort((a, b) => (input.scope?.kind === "past" ? b.startAt.getTime() - a.startAt.getTime() : a.startAt.getTime() - b.startAt.getTime()) || a.id - b.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
 
   async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
     return [...this.catalogOrders.values()]

@@ -198,6 +198,20 @@ mobile/
   back to the admin. The team can also edit a client's name, WhatsApp
   number and website on the panel.
 
+- Bookings without a website (connector `bookings`): a Bookings app whose
+  client picks "I don't have a website" gets its services, categories,
+  team (services each person provides, working hours per weekday, days off)
+  and booking rules (time zone, currency, how often times start, how soon
+  and how far ahead, cancelling, notes, approval) from the dashboard's
+  Services & team page, kept with the app (`apps.booking_setup`). The hosted
+  API answers the plugin's bookings endpoints from them (`bookings.plugin`
+  is `yallapp`): free times are each person's hours minus their active
+  appointments, and a booking is written only if it still doesn't overlap
+  one of theirs (checked and written in one transaction, locking the app's
+  row). Appointments are in `booking_appointments`; the business sees them
+  on the Appointments page (approve or reject, cancel, done, no-show) and
+  gets an email for each new one. Payment is at the appointment.
+
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the
   waiting page and active or expired clients on License & plugin. The client

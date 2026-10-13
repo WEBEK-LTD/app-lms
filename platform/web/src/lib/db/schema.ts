@@ -11,6 +11,8 @@ import type {
   HostedSettings,
   PlatformSettingKey,
   PlanPaymentStatus,
+  BookingSetup,
+  BookingStatus,
   PushPreferences,
 } from "../data/types";
 import {
@@ -143,6 +145,7 @@ export const apps = mysqlTable(
     connector: jsonText<ConnectorConfig>("connector"),
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
     catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
+    bookingSetup: jsonText<BookingSetup>("booking_setup"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
@@ -443,4 +446,34 @@ export const planPayments = mysqlTable(
     paidAt: time("paid_at"),
   },
   (t) => [uniqueIndex("plan_payments_token_unique").on(t.tokenHash), index("plan_payments_client_idx").on(t.clientId, t.createdAt)],
+);
+
+/** Appointments of apps whose bookings are managed in the dashboard. */
+export const bookingAppointments = mysqlTable(
+  "booking_appointments",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    serviceId: int("service_id").notNull(),
+    staffId: int("staff_id").notNull(),
+    serviceName: varchar("service_name", { length: 120 }).notNull(),
+    staffName: varchar("staff_name", { length: 120 }).notNull(),
+    customerName: varchar("customer_name", { length: 120 }).notNull(),
+    customerPhone: varchar("customer_phone", { length: 24 }).notNull(),
+    startAt: time("start_at").notNull(),
+    endAt: time("end_at").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<BookingStatus>(),
+    priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    notes: text("notes"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("booking_appointments_app_start_idx").on(t.appId, t.startAt),
+    index("booking_appointments_user_idx").on(t.appId, t.userId, t.startAt),
+  ],
 );

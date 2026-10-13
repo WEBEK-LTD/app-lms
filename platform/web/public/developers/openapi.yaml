@@ -2260,10 +2260,10 @@ components:
 
     BookingsConfig:
       type: object
-      description: Present when a supported booking plugin is active. Settings for Bookings apps.
+      description: Present when a supported booking plugin is active, or when the business manages its bookings in the Yallapp dashboard. Settings for Bookings apps.
       required: [plugin, plugin_version, timezone, currency, staff_choice, notes, max_days_ahead, min_minutes_ahead, cancel_before_minutes]
       properties:
-        plugin: { type: string, enum: [amelia, bookingpress, latepoint] }
+        plugin: { type: string, enum: [amelia, bookingpress, latepoint, yallapp], description: "The booking plugin, or `yallapp` for bookings managed in the Yallapp dashboard (hosted API)." }
         plugin_version: { type: string }
         timezone: { type: string, description: The business's IANA time zone., example: Europe/Istanbul }
         currency: { type: string, example: TRY }

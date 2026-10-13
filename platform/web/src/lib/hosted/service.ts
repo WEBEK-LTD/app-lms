@@ -212,6 +212,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...(extra.store ? { store: extra.store } : {}),
+    ...(extra.bookings ? { bookings: extra.bookings } : {}),
   });
 }
 

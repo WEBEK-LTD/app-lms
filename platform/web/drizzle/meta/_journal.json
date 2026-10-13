@@ -71,6 +71,13 @@
       "when": 1791904514098,
       "tag": "0009_marketplace",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1791905444765,
+      "tag": "0010_booking_appointments",
+      "breakpoints": true
     }
   ]
 }

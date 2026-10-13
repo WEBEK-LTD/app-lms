@@ -49,19 +49,19 @@ const v = (state: FormState, key: string, fallback: string) => state.values?.[ke
 
 type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog";
 
-const BACKENDS: { id: Backend; title: string; text: string; storeOnly?: boolean }[] = [
+const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[] }[] = [
   { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
   {
     id: "shopify",
     title: "My Shopify store",
     text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
-    storeOnly: true,
+    appTypes: ["store"],
   },
   {
     id: "catalog",
     title: "I don't have a website",
     text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
-    storeOnly: true,
+    appTypes: ["store", "booking"],
   },
   { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
   { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
@@ -103,7 +103,10 @@ export function WebsiteStep({
   appType,
   shopDomain,
   shopifyConnected,
+  hostedApiUrl,
 }: {
+  /** The app's address on the hosted API, once it runs there. */
+  hostedApiUrl: string | null;
   siteUrl: string;
   plugin: "none" | "connected" | "other";
   activatedSite: string | null;
@@ -127,7 +130,13 @@ export function WebsiteStep({
         <FormMessage message={state.message} />
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
-          {BACKENDS.filter((b) => !b.storeOnly || appType === "store").map((b) => (
+          {BACKENDS.filter((b) => !b.appTypes || b.appTypes.includes(appType))
+            .map((b) =>
+              b.id === "catalog" && appType === "booking"
+                ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
+                : b,
+            )
+            .map((b) => (
             <label
               key={b.id}
               className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
@@ -149,8 +158,22 @@ export function WebsiteStep({
         </fieldset>
         {choice === "catalog" ? (
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
-            After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app with a
-            code we send to their phone.
+            {appType === "booking" ? (
+              <>
+                After this step, add your services, your team and their hours on the <b>Services &amp; team</b> page. Your customers sign in to
+                the app with a code we send to their phone.
+              </>
+            ) : (
+              <>
+                After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app
+                with a code we send to their phone.
+              </>
+            )}
+            {hostedApiUrl && backend === "catalog" ? (
+              <span className="mt-2 block text-sm">
+                Your app&apos;s API address: <code className="break-all">{hostedApiUrl}</code>
+              </span>
+            ) : null}
           </p>
         ) : (
           <Field

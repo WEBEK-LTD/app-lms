@@ -13,7 +13,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_CATALOG_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
@@ -88,8 +88,14 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   if (!context.app) {
     await store.createApp(newApp(context.client.id, context.client.siteUrl, now, appType));
   } else if (context.app.appType !== appType) {
-    // The next build includes the new module.
-    await store.updateApp(context.app.id, { appType, appTypeDoneAt: now }, now);
+    // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
+    const kind = context.app.connector?.kind;
+    const fits = !kind || (kind === "bookings" ? appType === "booking" : appType === "store");
+    await store.updateApp(
+      context.app.id,
+      fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
+      now,
+    );
   }
   redirect(stepUrl("website"));
 }
@@ -102,9 +108,24 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
+  if (data.backend === "catalog" && context.app.appType === "booking") {
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "bookings" },
+        bookingSetup: context.app.bookingSetup ?? DEFAULT_BOOKING_SETUP,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
   if (data.backend === "catalog") {
     if (context.app.appType !== "store") {
-      return { errors: { backend: "Selling without a website works with Store apps. Choose Store as your app type first." }, values };
+      return { errors: { backend: "Without a website, apps can sell products (Store) or take bookings (Bookings). Choose one of them as your app type first." }, values };
     }
     await store.updateApp(
       context.app.id,

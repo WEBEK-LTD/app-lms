@@ -9,6 +9,10 @@ import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
 import { accountState } from "@/lib/license/status";
+import { newAppointmentMail } from "@/lib/bookings/mail";
+import { bookingSetup } from "@/lib/bookings/setup";
+import type { BookingAppointment } from "@/lib/data/types";
+import { sendMail } from "@/lib/mail";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -49,7 +53,17 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       push: serviceAccountOf(app, encryptionKey()) !== null,
       assetUrl: assetUrl,
       platformUrl: appUrl(),
-      connector: connectorFor(app, encryptionKey(), { store, assetUrl, platformUrl: appUrl() }),
+      connector: connectorFor(app, encryptionKey(), {
+        store,
+        assetUrl,
+        platformUrl: appUrl(),
+        onBooked: async (appointment: BookingAppointment) => {
+          const owner = client ? await store.getUserById(client.userId) : null;
+          if (!owner) return;
+          const mail = newAppointmentMail(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
+          await sendMail({ to: owner.email, ...mail });
+        },
+      }),
     },
     { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null },
   );
