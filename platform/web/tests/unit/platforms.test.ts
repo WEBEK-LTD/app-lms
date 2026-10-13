@@ -38,12 +38,12 @@ describe("platform connectors", () => {
   it("store secrets encrypted and give every value back", async () => {
     const { client } = await setupClient();
     const app = { ...newApp(client.id, null, NOW, "store"), backend: "hosted" as const };
-    const connector = platformConnectorConfig(app.id, TEST_PLATFORM, { store: "rose", apiKey: "secret-key", refreshToken: "r1" }, KEY);
+    const connector = platformConnectorConfig(app.id, TEST_PLATFORM, { store: "rose", apiKey: "secret-key", refreshToken: "refresh-token-1" }, KEY);
     expect(connector).toMatchObject({ kind: "platform", platform: "ikas", settings: { store: "rose" } });
     const raw = JSON.stringify(connector);
     expect(raw).not.toContain("secret-key");
-    expect(raw).not.toContain("r1");
-    expect(platformValues({ ...app, connector }, KEY)).toEqual({ store: "rose", apiKey: "secret-key", refreshToken: "r1" });
+    expect(raw).not.toContain("refresh-token-1");
+    expect(platformValues({ ...app, connector }, KEY)).toEqual({ store: "rose", apiKey: "secret-key", refreshToken: "refresh-token-1" });
     expect(platformValues({ ...app, connector }, Buffer.alloc(32, 9))).toBeNull();
   });
 
