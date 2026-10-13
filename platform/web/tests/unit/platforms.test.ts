@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
+import type { ConnectorConfig } from "@/lib/data/types";
 import { connectorFor } from "@/lib/hosted/connectors";
 import {
   platformConnector,
@@ -62,6 +63,6 @@ describe("platform connectors", () => {
     await lastDeps!.saveSecrets({ refreshToken: "r2" });
     const saved = await store.getAppById(app.id);
     expect(platformValues(saved!, KEY)).toEqual({ store: "rose", apiKey: "k", refreshToken: "r2" });
-    expect(platformConnector({ ...app, connector: { ...app.connector, platform: "unknown" } }, KEY, { store })).toBeNull();
+    expect(platformConnector({ ...app, connector: { ...(app.connector as Extract<ConnectorConfig, { kind: "platform" }>), platform: "unknown" } }, KEY, { store })).toBeNull();
   });
 });
