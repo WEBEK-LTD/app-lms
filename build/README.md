@@ -116,3 +116,19 @@ Set these alongside the platform's other variables (`platform/web/README.md`):
 Secrets never reach the logs. Passwords are masked, and keys from the
 platform are only written to a private temporary folder that is deleted when
 the job ends.
+
+## Own runner on our server
+
+`runner/` holds a Docker image of a GitHub Actions runner, close to GitHub's
+`ubuntu-24.04` runners, so the Linux jobs can run on our own server instead of
+GitHub's paid minutes (iOS still needs macOS). On the server, with Docker
+installed (x64, about 2 CPU cores and 4 GB of memory per runner):
+
+```sh
+cd build/runner
+cp .env.example .env   # set RUNNER_TOKEN: Settings > Actions > Runners > New self-hosted runner
+docker compose up -d --build
+```
+
+The runners register with the label `yallapp` on their first start and keep
+their registration in their volumes. The workflows do not use them yet.
