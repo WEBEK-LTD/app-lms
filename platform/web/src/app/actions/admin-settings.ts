@@ -7,7 +7,9 @@ import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
+import { parsePrice } from "@/lib/catalog/money";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
+import { PLAN_FEATURES, type PlanFeature, type PlanSetting } from "@/lib/plans";
 import { clearPlatformSettingsCache, encryptSetting, platformSetting } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
@@ -136,4 +138,59 @@ export async function saveIyzicoSettingAction(_: FormState, formData: FormData):
     admin.email,
   );
   return { ok: true, message: accepted ? "iyzico account saved." : "Saved. iyzico couldn't be reached to check the keys." };
+}
+
+const PLAN_IDS = ["starter", "pro"] as const;
+
+export async function savePlanAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin();
+  const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
+  if (!PLAN_IDS.includes(plan)) return { message: "Unknown plan." };
+  const values: Record<string, string> = {};
+  for (const name of ["name", "tagline", "highlights", "price", "cardPrice", "currency", "months"]) values[name] = str(formData, name);
+  const features = formData.getAll("features").map(String);
+  values.features = features.join(",");
+  const errors: Record<string, string> = {};
+  if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
+  if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
+  const highlights = values.highlights!.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (highlights.length === 0 || highlights.length > 10 || highlights.some((h) => h.length > 80)) {
+    errors.highlights = "Write 1 to 10 lines, each up to 80 characters.";
+  }
+  if (!values.price || values.price.length > 30) errors.price = "Enter what the pricing page shows without a card price, like On request.";
+  const priceCents = values.cardPrice ? parsePrice(values.cardPrice) : null;
+  if (values.cardPrice && (priceCents === null || priceCents === 0)) errors.cardPrice = "Enter a price, like 4800, or leave it empty.";
+  if (!["TRY", "USD", "EUR"].includes(values.currency!)) errors.currency = "Choose a currency.";
+  if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
+  const known = new Set(PLAN_FEATURES.map((f) => f.id));
+  if (Object.keys(errors).length) return { errors, values };
+  const store = await getStore();
+  const saved = (await platformSetting(store, "plans"))?.value ?? {};
+  const setting: PlanSetting = {
+    name: values.name!,
+    tagline: values.tagline!,
+    highlights,
+    price: values.price!,
+    priceCents,
+    currency: values.currency as PlanSetting["currency"],
+    billingMonths: values.months === "1" ? 1 : 12,
+    features: features.filter((f): f is PlanFeature => known.has(f as PlanFeature)),
+  };
+  await save("plans", { ...saved, [plan]: setting }, admin.email);
+  revalidatePath("/admin/plans");
+  revalidatePath("/pricing");
+  revalidatePath("/");
+  return { ok: true, message: `${setting.name} saved. The pricing page shows it now.` };
+}
+
+export async function resetPlanAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
+  if (!PLAN_IDS.includes(plan)) return;
+  const store = await getStore();
+  const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans"))?.value ?? {};
+  void _removed;
+  await save("plans", Object.keys(rest).length ? rest : null, admin.email);
+  revalidatePath("/admin/plans");
+  revalidatePath("/pricing");
 }

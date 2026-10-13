@@ -14,7 +14,7 @@ import { DuplicateEmailError } from "@/lib/data/store";
 import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { activationMail, renewalMail, resetPasswordMail, sendMail } from "@/lib/mail";
-import { PLAN_INFO } from "@/lib/plans";
+import { getPlans } from "@/lib/settings/platform";
 import { formatDate } from "@/components/ui";
 import { activateSchema, addClientSchema, releaseSchema } from "@/lib/validation";
 
@@ -44,7 +44,7 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
     now,
   );
   if (user) {
-    const planLabel = PLAN_INFO[parsed.data.plan].name;
+    const planLabel = (await getPlans(store))[parsed.data.plan].name;
     const until = formatDate(activeUntil);
     const dashboard = `${appUrl()}/dashboard`;
     await sendMail(

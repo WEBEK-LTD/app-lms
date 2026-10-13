@@ -21,6 +21,7 @@ import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
 import { ActivateForm, AddClientForm } from "./forms";
+import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Clients" };
 
@@ -83,6 +84,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
   const done = typeof params.done === "string" ? DONE[params.done] : undefined;
 
   const store = await getStore();
+  const plans = await getPlans(store);
   const now = new Date();
   const [rows, counts, setupRequests] = await Promise.all([
     store.listClients({ filter, query: q, now }),
@@ -197,7 +199,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin">)
                         </div>
                       </td>
                       <td className="px-4 py-3.5 break-all">{hostOf(row.client.siteUrl)}</td>
-                      <td className={`px-4 py-3.5 ${row.license ? "" : "text-muted"}`}>{planName(row.license?.plan)}</td>
+                      <td className={`px-4 py-3.5 ${row.license ? "" : "text-muted"}`}>{planName(row.license?.plan, plans)}</td>
                       <td className="px-4 py-3.5">
                         <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
                       </td>
@@ -261,6 +263,7 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
   const { client, user, license, activation } = row;
   const state = accountState(client, license, now);
   const store = await getStore();
+  const plans = await getPlans(store);
   const app = await store.getAppByClientId(client.id);
   const steps = stepStatus(app, license?.plan ?? null);
   const stepsDone = SETUP_STEPS.filter((s) => steps[s]).length;
@@ -295,7 +298,7 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
           <>
             <dt className="text-muted">Plan</dt>
             <dd className="m-0">
-              {planName(license.plan)} until {formatDate(license.expiresAt)}
+              {planName(license.plan, plans)} until {formatDate(license.expiresAt)}
             </dd>
             <dt className="text-muted">License</dt>
             <dd className="m-0 font-mono text-[13px] break-all">{key}</dd>

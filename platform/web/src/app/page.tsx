@@ -4,7 +4,11 @@ import { WHATSAPP_URL } from "@/components/brand";
 import { ContactBand, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { FEATURES, STEPS, WORKS_WITH } from "@/lib/marketing";
-import { PLAN_INFO } from "@/lib/plans";
+import { getStore } from "@/lib/data";
+import { getPlans } from "@/lib/settings/platform";
+
+/** Plans and prices come from the admin. */
+export const dynamic = "force-dynamic";
 
 function PhoneMock() {
   return (
@@ -30,8 +34,9 @@ function PhoneMock() {
   );
 }
 
-export default function LandingPage() {
-  const plans = [PLAN_INFO.starter, PLAN_INFO.pro];
+export default async function LandingPage() {
+  const all = await getPlans(await getStore());
+  const plans = [all.starter, all.pro];
   return (
     <div className="bg-white">
       <SiteHeader current="home" />

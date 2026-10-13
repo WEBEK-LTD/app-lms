@@ -11,6 +11,7 @@ import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { planName } from "@/lib/plans";
 import { BrandingStep, HostedWebsiteStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
+import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "App setup" };
 
@@ -33,6 +34,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const complete = Object.values(status).every(Boolean);
 
   const store = await getStore();
+  const plans = await getPlans(store);
   const activation = license ? await store.getActivation(license.id) : null;
   const icon = app.iconAssetId ? await store.getAsset(app.iconAssetId) : null;
   const logo = app.logoAssetId ? await store.getAsset(app.logoAssetId) : null;
@@ -52,7 +54,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">App setup</h1>
         <span className="text-[15px] text-muted">
-          Plan: {planName(plan)} ·{" "}
+          Plan: {planName(plan, plans)} ·{" "}
           {complete
             ? builds.length
               ? "Setup is complete. Changes apply to your next build."

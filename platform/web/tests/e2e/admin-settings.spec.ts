@@ -4,18 +4,28 @@ import { E2E } from "../../playwright.config";
 /** Platform settings the team edits in the admin (roadmap 9.1). */
 test.describe.configure({ mode: "serial" });
 
-async function signInAsAdmin(page: Page) {
-  await page.context().clearCookies();
+let page: Page;
+
+// One sign-in for the whole file: sign-ins are rate limited per email.
+test.beforeAll(async ({ browser }) => {
+  page = await browser.newPage();
   await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(E2E.adminEmail);
+  await page.getByLabel("Email").fill(E2E.settingsAdminEmail);
   await page.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname.startsWith("/admin"));
+});
+
+test.afterAll(async () => {
+  await page.close();
+});
+
+async function openSettings() {
   await page.goto("/admin/settings");
 }
 
-test("the team sets the sign-in code sender and goes back to the variables", async ({ page }) => {
-  await signInAsAdmin(page);
+test("the team sets the sign-in code sender and goes back to the variables", async () => {
+  await openSettings();
   const otp = page.getByRole("region", { name: "Sign-in codes" });
   await expect(otp).toContainText("Now: Netlify variables (webhook)");
   await otp.getByLabel("Our gateway").check();
@@ -30,7 +40,7 @@ test("the team sets the sign-in code sender and goes back to the variables", asy
   await otp.getByRole("button", { name: "Save" }).click();
   await expect(otp.getByText("Sign-in codes setting saved.")).toBeVisible();
   await page.reload();
-  await expect(otp).toContainText(`Set here by ${E2E.adminEmail}`);
+  await expect(otp).toContainText(`Set here by ${E2E.settingsAdminEmail}`);
   await expect(otp.getByLabel("Gateway address")).toHaveValue("https://sms.yallapp.test/otp");
   await expect(otp.getByLabel("Signing secret")).toHaveValue("");
   await expect(page.locator("body")).not.toContainText("gateway-secret-0123456789");
@@ -39,12 +49,12 @@ test("the team sets the sign-in code sender and goes back to the variables", asy
   await expect(otp).toContainText("Now: Netlify variables (webhook)");
 });
 
-test("the team sets the email server and sends a test email", async ({ page }) => {
-  await signInAsAdmin(page);
+test("the team sets the email server and sends a test email", async () => {
+  await openSettings();
   const email = page.getByRole("region", { name: "Email" });
   await expect(email).toContainText("Now: Not set: emails are not sent");
   await email.getByRole("button", { name: "Send a test email to me" }).click();
-  await expect(email.getByText(`Test email sent to ${E2E.adminEmail}`)).toBeVisible();
+  await expect(email.getByText(`Test email sent to ${E2E.settingsAdminEmail}`)).toBeVisible();
 
   await email.getByLabel("Mail server").fill("mail.yallapp.test");
   await email.getByLabel("Port", { exact: true }).fill("587");
@@ -58,8 +68,8 @@ test("the team sets the email server and sends a test email", async ({ page }) =
   await expect(email).toContainText("Now: Not set: emails are not sent");
 });
 
-test("the team adds Yallapp's iyzico account", async ({ page }) => {
-  await signInAsAdmin(page);
+test("the team adds Yallapp's iyzico account", async () => {
+  await openSettings();
   const iyzico = page.getByRole("region", { name: "Yallapp's iyzico account" });
   await expect(iyzico).toContainText("Now: not set.");
   await iyzico.getByLabel("API key").fill("sandbox-yallapp-api");
@@ -70,4 +80,24 @@ test("the team adds Yallapp's iyzico account", async ({ page }) => {
   await expect(iyzico).toContainText("Sandbox keys saved by");
   await iyzico.getByRole("button", { name: "Remove keys" }).click();
   await expect(iyzico).toContainText("Now: not set.");
+});
+
+test("the team changes a plan's price and the pricing page shows it", async () => {
+  await openSettings();
+  await page.goto("/admin/plans");
+  const pro = page.getByRole("region", { name: "Pro" });
+  await pro.getByLabel("Card price").fill("4800");
+  await pro.getByLabel("Billed").selectOption("12");
+  await pro.getByLabel("Tagline").fill("We publish the apps for you, every time");
+  await pro.getByRole("button", { name: "Save plan" }).click();
+  await expect(pro.getByText("Pro saved.")).toBeVisible();
+
+  await page.goto("/pricing");
+  await expect(page.getByText("₺4,800.00")).toBeVisible();
+  await expect(page.getByText("We publish the apps for you, every time")).toBeVisible();
+
+  await page.goto("/admin/plans");
+  await page.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
+  await page.goto("/pricing");
+  await expect(page.getByText("₺4,800.00")).toHaveCount(0);
 });

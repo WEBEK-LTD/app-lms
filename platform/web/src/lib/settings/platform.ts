@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { PlatformSetting, PlatformSettingKey, PlatformSettingValues } from "../data/types";
 import { otpSenderConfig, smtpConfig, type OtpSenderConfig, type SmtpConfig } from "../env";
 import type { IyzicoKeys } from "../payments/iyzico";
+import { plansWith, type Plan, type PlanInfo } from "../plans";
 
 /**
  * Settings the team edits in the admin. Each one, when saved, replaces the
@@ -82,6 +83,11 @@ export async function yallappIyzicoKeys(store: DataStore, encryptionKey: Buffer)
     secretKey: decryptSetting("iyzico", saved.value.secretKeyEncrypted, encryptionKey),
     sandbox: saved.value.sandbox,
   };
+}
+
+/** The plans as the team set them in the admin. */
+export async function getPlans(store: DataStore): Promise<Record<Plan, PlanInfo>> {
+  return plansWith((await platformSetting(store, "plans"))?.value);
 }
 
 export type { PlatformSettingValues };

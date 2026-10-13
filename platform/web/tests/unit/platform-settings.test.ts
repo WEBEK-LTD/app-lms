@@ -89,3 +89,26 @@ describe("platform settings", () => {
     expect((await platformSettings(store, 32_000)).has("otp")).toBe(true);
   });
 });
+
+describe("plans from the admin", () => {
+  it("keeps the defaults until the team edits a plan", async () => {
+    const { PLAN_INFO, plansWith, planPrice } = await import("@/lib/plans");
+    expect(plansWith(null)).toEqual(PLAN_INFO);
+    const plans = plansWith({
+      pro: {
+        name: "Premium",
+        tagline: "Everything, published for you",
+        highlights: ["Automatic publishing"],
+        price: "On request",
+        priceCents: 480000,
+        currency: "TRY",
+        billingMonths: 12,
+        features: ["push", "auto_publish"],
+      },
+    });
+    expect(plans.starter).toEqual(PLAN_INFO.starter);
+    expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish"], period: "year" });
+    expect(planPrice(plans.pro)).toEqual({ price: "₺4,800.00", period: "year" });
+    expect(planPrice(plans.starter)).toEqual({ price: "On request", period: null });
+  });
+});

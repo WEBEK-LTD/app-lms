@@ -10,6 +10,7 @@ import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, daysUntil } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
+import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -27,6 +28,7 @@ export default async function OverviewPage() {
   const { user, client, app, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
+  const plans = await getPlans(store);
   const [latest] = await store.listBuildsByClient(client.id, 1);
   const activation = license ? await store.getActivation(license.id) : null;
   const plan = license?.plan ?? null;
@@ -40,7 +42,7 @@ export default async function OverviewPage() {
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Hello, {user.name.split(" ")[0]}</h1>
         <span className="text-[15px] text-muted">
-          {app.appName ?? "Your app"} · Plan: {planName(plan)}
+          {app.appName ?? "Your app"} · Plan: {planName(plan, plans)}
         </span>
       </div>
 
@@ -102,7 +104,7 @@ export default async function OverviewPage() {
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan)} <Badge tone={state === "active" ? "success" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+            {planName(plan, plans)} <Badge tone={state === "active" ? "success" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
           </span>
           <span className="flex items-center gap-1.5 text-sm text-muted">
             <Icon name={activation ? "link" : "link_off"} size={18} />

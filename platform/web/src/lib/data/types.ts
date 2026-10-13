@@ -1,4 +1,4 @@
-import type { Plan } from "../plans";
+import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
 
 export type ClientStatus = "pending" | "active" | "suspended";
@@ -453,6 +453,8 @@ export interface PlatformSettingValues {
   otp: OtpSetting;
   smtp: SmtpSetting;
   iyzico: YallappIyzicoSetting;
+  /** The team's edits to the plans; plans without one keep the defaults in code. */
+  plans: Partial<Record<Plan, PlanSetting>>;
 }
 
 export type PlatformSettingKey = keyof PlatformSettingValues;

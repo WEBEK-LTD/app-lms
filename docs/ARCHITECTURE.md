@@ -182,7 +182,11 @@ mobile/
   Settings page. A saved setting replaces the matching Netlify variables
   (removing it brings them back); secrets inside are encrypted with the
   context `platform:<key>` and never shown again. Each server instance
-  caches the settings for 30 seconds.
+  caches the settings for 30 seconds. The plans (names, what's included,
+  price text or card price, monthly or yearly, license features) are edited
+  on the admin's Plans page the same way; plans without edits keep the
+  defaults in `src/lib/plans.ts`. The pricing and home pages render on
+  request so they always show the current plans.
 
 ## Build pipeline
 

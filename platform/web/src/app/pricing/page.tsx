@@ -3,7 +3,12 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { WHATSAPP_URL } from "@/components/brand";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
-import { PLAN_INFO } from "@/lib/plans";
+import { planPrice } from "@/lib/plans";
+import { getStore } from "@/lib/data";
+import { getPlans } from "@/lib/settings/platform";
+
+/** Plans and prices come from the admin. */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -34,8 +39,9 @@ function Mark({ on, label }: { on: boolean; label: string }) {
   );
 }
 
-export default function PricingPage() {
-  const plans = [PLAN_INFO.starter, PLAN_INFO.pro];
+export default async function PricingPage() {
+  const all = await getPlans(await getStore());
+  const plans = [all.starter, all.pro];
   return (
     <MarketingPage
       current="pricing"
@@ -57,8 +63,8 @@ export default function PricingPage() {
                   <span className="text-sm text-muted">{plan.tagline}</span>
                 </div>
                 <span className="text-[34px] font-extrabold">
-                  {plan.price}
-                  {plan.period ? <span className="text-[15px] font-medium text-muted"> / {plan.period}</span> : null}
+                  {planPrice(plan).price}
+                  {planPrice(plan).period ? <span className="text-[15px] font-medium text-muted"> / {planPrice(plan).period}</span> : null}
                 </span>
                 <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px]">
                   {plan.highlights.map((item) => (

@@ -13,6 +13,7 @@ import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
+import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "License & plugin" };
 
@@ -29,6 +30,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const { license, state } = await requireClient();
   const { released } = await searchParams;
   const store = await getStore();
+  const plans = await getPlans(store);
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;
@@ -67,7 +69,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </div>
         ) : null}
         <dl className="m-0">
-          <Row label="Plan">{planName(license?.plan)}</Row>
+          <Row label="Plan">{planName(license?.plan, plans)}</Row>
           <Row label="Active until">{formatDate(license?.expiresAt)}</Row>
           <Row label="Activated on">
             {activation ? (
