@@ -319,12 +319,16 @@ without a new build. The app renders whatever the API sends.
   404 (an older plugin), the app uses its built-in tabs and the `/home`
   sections.
 - **Where pages are edited.** One editor, in the client dashboard, for both
-  kinds of client. The platform keeps the published layout; a WordPress
-  client's plugin fetches it from the platform (cached, refreshed with the
-  layout version) and serves `/pages` with its own data filled in.
+  kinds of client. The platform keeps a draft (saved as the client edits)
+  and the published layout, which gets a new version on every publish; a
+  WordPress client's plugin fetches the published one from the platform
+  (cached, refreshed with the layout version) and serves `/pages` with its
+  own data filled in. A new app's first draft is a home page and tabs for its
+  type, with the look and languages the team set as defaults in the admin.
 - **Hosted apps.** Apps on the hosted API (Phase 8) get their pages and look
   from the platform directly, filled from their dashboard content or their
-  connected platform.
+  connected platform (the connector's own list endpoints). Before the first
+  publish they get the default pages for their type.
 - **Languages.** Every text in the apps is English by default. A client can
   turn on more languages (Arabic shows right to left); students pick one in
   the app's settings, and page texts can carry a translation per language,

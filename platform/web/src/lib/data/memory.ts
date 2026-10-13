@@ -1,5 +1,6 @@
 import { accountState } from "../license/status";
 import { newId } from "../crypto/tokens";
+import type { AppLayoutRecord } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -992,5 +993,17 @@ export class MemoryStore implements DataStore {
       if (message.appId === appId && message.from === "user" && !message.readAt) unread.add(message.inquiryId);
     }
     return unread.size;
+  }
+
+  // 10.4 Pages, looks and languages
+  private appLayouts = new Map<string, AppLayoutRecord>();
+
+  async getAppLayout(appId: string): Promise<AppLayoutRecord | null> {
+    const layout = this.appLayouts.get(appId);
+    return layout ? clone(layout) : null;
+  }
+
+  async saveAppLayout(layout: AppLayoutRecord): Promise<void> {
+    this.appLayouts.set(layout.appId, clone(layout));
   }
 }

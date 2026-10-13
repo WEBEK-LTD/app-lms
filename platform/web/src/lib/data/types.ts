@@ -1,5 +1,6 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
+import type { AppDefaultsSetting, Layout, LayoutContent } from "../pages/types";
 
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
@@ -505,6 +506,9 @@ export interface PlatformSettingValues {
   marketplace: MarketplaceSetting;
   /** How clients reach Yallapp, shown across the website and the dashboard. */
   contact: ContactSetting;
+  // 11.9 Defaults for new apps
+  /** The look and languages new apps start with. */
+  appDefaults: AppDefaultsSetting;
 }
 
 export interface ContactSetting {
@@ -820,4 +824,23 @@ export interface ListingInquiryRow extends ListingInquiry {
   unreadByUser: number;
   /** User messages the office hasn't seen. */
   unreadByOffice: number;
+}
+
+// 10.4 Pages, looks and languages
+
+/**
+ * An app's pages, tabs, look and languages: the draft the client edits in the
+ * dashboard and the copy apps get, from their last publish.
+ */
+export interface AppLayoutRecord {
+  appId: string;
+  draft: LayoutContent;
+  draftUpdatedAt: Date;
+  /** Null until the first publish. */
+  published: Layout | null;
+  publishedAt: Date | null;
+  /** Email of whoever published last. */
+  publishedBy: string | null;
+  /** How many times the layout was published; part of the version. */
+  publishCount: number;
 }

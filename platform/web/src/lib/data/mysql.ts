@@ -6,6 +6,7 @@ import { newId } from "../crypto/tokens";
 import { accountState } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
+import type { AppLayoutRecord } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -1300,6 +1301,19 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.from, "user"), isNull(t.readAt))),
     );
     return Number(rows[0]?.n ?? 0);
+  }
+
+  // 10.4 Pages, looks and languages
+
+  async getAppLayout(appId: string): Promise<AppLayoutRecord | null> {
+    const rows = await this.run((db) => db.select().from(schema.appLayouts).where(eq(schema.appLayouts.appId, appId)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async saveAppLayout(layout: AppLayoutRecord): Promise<void> {
+    const { appId: _key, ...set } = layout;
+    void _key;
+    await this.run((db) => db.insert(schema.appLayouts).values(layout).onDuplicateKeyUpdate({ set }));
   }
 }
 

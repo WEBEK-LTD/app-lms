@@ -1,6 +1,7 @@
 import type {
   Activation,
   App,
+  AppLayoutRecord,
   Asset,
   Build,
   BuildStatus,
@@ -309,4 +310,9 @@ export interface DataStore {
   }): Promise<{ items: ListingInquiryRow[]; total: number }>;
   /** Conversations with user messages the office hasn't read. */
   countUnreadListingInquiries(appId: string): Promise<number>;
+
+  // 10.4 Pages, looks and languages
+  getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
+  /** Creates or replaces the app's layout. */
+  saveAppLayout(layout: AppLayoutRecord): Promise<void>;
 }

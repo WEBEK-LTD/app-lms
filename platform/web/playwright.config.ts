@@ -12,6 +12,8 @@ export const E2E = {
   settingsAdminEmail: "settings-admin@yallapp.test",
   /** Super admin of tests/e2e/listings-hosted.spec.ts (10.7). */
   listingsAdminEmail: "listings-admin@yallapp.test",
+  /** Super admin of tests/e2e/pages.spec.ts (10.4 and 11.9). */
+  pagesAdminEmail: "pages-admin@yallapp.test",
   adminPassword: "admin-password-for-e2e",
   pipelineToken: "pipeline-token-for-e2e-0123456789",
   filesSigningSecret: "e2e-files-signing-secret-0123456789abcdef",
@@ -49,7 +51,7 @@ export default defineConfig({
       YALLAPP_DATA: "memory",
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",

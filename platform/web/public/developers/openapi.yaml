@@ -2885,6 +2885,7 @@ components:
         - type: object
           required: [image_url]
           properties:
+            type: { const: banner }
             image_url: { type: string, format: uri }
             heading: { type: [string, 'null'] }
             subheading: { type: [string, 'null'] }
@@ -2896,6 +2897,7 @@ components:
         - type: object
           required: [html]
           properties:
+            type: { const: text }
             html: { type: string, description: Cleaned by the server with the same rules as lesson HTML. }
 
     ImageBlock:
@@ -2904,6 +2906,7 @@ components:
         - type: object
           required: [image_url]
           properties:
+            type: { const: image }
             image_url: { type: string, format: uri }
             aspect_ratio: { type: [number, 'null'], description: Width divided by height., example: 1.78 }
             action: { $ref: '#/components/schemas/Action' }
@@ -2914,6 +2917,7 @@ components:
         - type: object
           required: [url]
           properties:
+            type: { const: video }
             url: { type: string, format: uri, description: 'An MP4 link, or a YouTube or Vimeo page.' }
             poster_url: { type: [string, 'null'], format: uri }
 
@@ -2923,6 +2927,7 @@ components:
         - type: object
           required: [label, style, action]
           properties:
+            type: { const: button }
             label: { type: string }
             icon: { type: [string, 'null'], description: A Google Material Symbols (Rounded) name. }
             style: { type: string, enum: [filled, outlined, text] }
@@ -2934,6 +2939,7 @@ components:
         - type: object
           required: [source, layout, items]
           properties:
+            type: { const: items }
             source: { $ref: '#/components/schemas/ItemSource' }
             layout: { type: string, enum: [carousel, grid, list] }
             see_all: { $ref: '#/components/schemas/Action' }
@@ -2948,6 +2954,7 @@ components:
         - type: object
           required: [source, categories]
           properties:
+            type: { const: categories }
             source: { $ref: '#/components/schemas/ItemSource' }
             style: { type: string, enum: [chips, tiles], default: chips }
             categories:
@@ -2960,6 +2967,7 @@ components:
         - type: object
           required: [source, placeholder]
           properties:
+            type: { const: search }
             source: { $ref: '#/components/schemas/ItemSource' }
             placeholder: { type: string, example: Search properties }
 
@@ -2970,6 +2978,7 @@ components:
           description: Only sent to signed-in students with a course in progress.
           required: [course]
           properties:
+            type: { const: continue_learning }
             course: { $ref: '#/components/schemas/MyCourse' }
 
     EmbedBlock:
@@ -2978,6 +2987,7 @@ components:
         - type: object
           required: [url]
           properties:
+            type: { const: embed }
             url: { type: string, format: uri }
             height: { type: [integer, 'null'], description: Height in logical pixels when the page cannot be measured. }
 
@@ -2987,6 +2997,7 @@ components:
         - type: object
           required: [size]
           properties:
+            type: { const: spacer }
             size: { type: string, enum: [small, medium, large] }
 
     Languages:
