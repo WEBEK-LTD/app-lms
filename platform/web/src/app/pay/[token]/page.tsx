@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/catalog/money";
-import { orderNumber, payLinkExpired, paymentKeys } from "@/lib/catalog/settings";
+import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
@@ -34,7 +34,7 @@ export default async function PayPage({
   if (order.status === "processing" || order.status === "completed") redirect(`/pay/${token}/order-received`);
   if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
   if (payLinkExpired(order, new Date())) return note("Link expired", "This payment link has expired. Go back to the app and check out again.");
-  if (!paymentKeys(app, encryptionKey())) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
+  if (!(await checkoutAccount(store, app, encryptionKey()))) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
   const color = app.primaryColor;

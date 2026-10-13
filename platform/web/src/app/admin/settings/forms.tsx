@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveIyzicoSettingAction, saveOtpSettingAction, saveSmtpSettingAction, sendTestEmailAction } from "@/app/actions/admin-settings";
+import { saveIyzicoSettingAction, saveMarketplaceAction, saveOtpSettingAction, saveSmtpSettingAction, sendTestEmailAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -147,6 +147,28 @@ export function IyzicoSettingForm({ sandbox }: { sandbox: boolean }) {
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Checking…">
           Save keys
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+export function MarketplaceForm({ commission }: { commission: string }) {
+  const [state, action] = useActionState(saveMarketplaceAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field
+        label="Commission (%)"
+        name="commission"
+        inputMode="decimal"
+        defaultValue={state.values?.commission ?? commission}
+        hint="Yallapp's share of each product sale; shipping goes to the shop in full."
+        error={state.errors?.commission}
+      />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save commission
         </SubmitButton>
       </div>
     </form>

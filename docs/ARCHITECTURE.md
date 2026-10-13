@@ -210,6 +210,21 @@ mobile/
   from the database, never from the 30-second settings cache, so a callback
   never misses keys saved a moment earlier.
 
+- Selling through Yallapp (iyzico marketplace): with Yallapp's iyzico
+  account and a commission set in the admin (Settings, "Shops selling
+  through Yallapp"; iyzico's marketplace must be on for the account), a
+  shop without its own iyzico account gives the details iyzico needs (who
+  gets paid, ID or tax details, IBAN) on its Products page. iyzico registers
+  it as a sub-merchant (`/onboarding/submerchant`) and the shop's payment
+  setting keeps only the sub-merchant key, the payee name and the IBAN's
+  last 4 digits. Each basket item then names the shop and its share (the
+  price minus the commission; shipping goes to the shop in full), and the
+  order records the commission and iyzico's item transactions. iyzico pays
+  the shop once its items are approved (`/payment/iyzipos/item/approve`):
+  when the shop marks the order completed, or from the admin's Payments
+  page. The callback and the approval follow the account an order started
+  with, even if the shop switched since.
+
 - App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
   dashboard's App sign-in page sets whether new customers can sign up and
   what they are asked, the default country code, devices per customer, the

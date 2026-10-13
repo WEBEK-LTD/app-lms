@@ -190,6 +190,8 @@ export interface DataStore {
   countHostedUsers(appId: string): Promise<number>;
 
   // Platform settings (admin)
+  /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
+  listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;
   getPlanPaymentByToken(tokenHash: string): Promise<PlanPayment | null>;
   /** Pending to paid, once: false when it was no longer pending. */

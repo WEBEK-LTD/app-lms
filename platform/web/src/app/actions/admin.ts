@@ -11,7 +11,9 @@ import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
-import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
+import { appUrl, encryptionKey, iyzicoApiUrl, superAdminEmails } from "@/lib/env";
+import { approvePayout } from "@/lib/catalog/payment";
+import { accountForOrder } from "@/lib/catalog/settings";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { activationMail, renewalMail, resetPasswordMail, sendMail } from "@/lib/mail";
 import { getPlans } from "@/lib/settings/platform";
@@ -225,4 +227,21 @@ export async function deleteReleaseAction(formData: FormData): Promise<void> {
   }
   revalidatePath("/admin/releases");
   redirect("/admin/releases");
+}
+
+/** Releases a marketplace order's share to the shop (when the shop didn't complete the order). */
+export async function releasePayoutAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const store = await getStore();
+  const appId = String(formData.get("appId") ?? "");
+  const orderId = Number(formData.get("orderId"));
+  const app = /^[0-9a-f-]{36}$/i.test(appId) ? await store.getAppById(appId) : null;
+  const order = app && Number.isSafeInteger(orderId) ? await store.getCatalogOrder(app.id, orderId) : null;
+  let done = "payout-failed";
+  if (app && order && order.paidAt && order.commissionCents !== null) {
+    const account = await accountForOrder(store, app, order, encryptionKey());
+    if (account && (await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now: new Date(), order }))) done = "payout-released";
+  }
+  revalidatePath("/admin/payments");
+  redirect(`/admin/payments?done=${done}`);
 }

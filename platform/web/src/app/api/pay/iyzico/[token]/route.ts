@@ -1,5 +1,5 @@
 import { completePayment, newOrderMail } from "@/lib/catalog/payment";
-import { paymentKeys } from "@/lib/catalog/settings";
+import { accountForOrder } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
@@ -18,9 +18,9 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
   if (!order) return Response.redirect(`${appUrl()}/pay/${encodeURIComponent(token)}`, 303);
   const app = await store.getAppById(order.appId);
-  const keys = app ? paymentKeys(app, encryptionKey()) : null;
-  if (!app || !keys || typeof iyzicoToken !== "string" || iyzicoToken === "") return back("?payment=failed");
-  const outcome = await completePayment({ store, app, keys, baseUrl: iyzicoApiUrl(), now: new Date(), order, iyzicoToken });
+  const account = app ? await accountForOrder(store, app, order, encryptionKey()) : null;
+  if (!app || !account || typeof iyzicoToken !== "string" || iyzicoToken === "") return back("?payment=failed");
+  const outcome = await completePayment({ store, app, account, baseUrl: iyzicoApiUrl(), now: new Date(), order, iyzicoToken });
   if (outcome === "paid") {
     const client = await store.getClientById(app.clientId);
     const owner = client ? await store.getUserById(client.userId) : null;

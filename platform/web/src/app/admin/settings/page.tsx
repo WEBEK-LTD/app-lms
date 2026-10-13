@@ -7,7 +7,7 @@ import { getStore } from "@/lib/data";
 import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
-import { IyzicoSettingForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
+import { IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -64,6 +64,7 @@ export default async function SettingsPage() {
   const otp = settings.get("otp") as PlatformSetting<"otp"> | undefined;
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;
+  const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const data = dataMode();
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
@@ -137,6 +138,30 @@ export default async function SettingsPage() {
           <p className="m-0 text-sm text-muted">Now: not set.</p>
         )}
         <IyzicoSettingForm sandbox={iyzico?.value.sandbox ?? true} />
+      </Section>
+
+      <Section
+        id="h-marketplace"
+        title="Shops selling through Yallapp"
+        text="Shops without their own iyzico account can sell through Yallapp's: iyzico registers each one as a sub-merchant (iyzico's marketplace must be on for Yallapp's account) and pays it each sale minus this commission once the order is completed."
+      >
+        {marketplace ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              On at {marketplace.value.commissionPercent}%{iyzico ? "" : ", but it needs Yallapp's iyzico account above"}. Set by {marketplace.updatedBy},{" "}
+              {formatDateTime(marketplace.updatedAt)}.
+            </p>
+            <form action={resetPlatformSettingAction}>
+              <input type="hidden" name="key" value="marketplace" />
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Turn off
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: off. Shops can only use their own iyzico account.</p>
+        )}
+        <MarketplaceForm commission={marketplace ? String(marketplace.value.commissionPercent) : ""} />
       </Section>
 
       <Section id="h-server" title="Server" text="These come from the Netlify environment variables. Change them in Netlify and redeploy.">

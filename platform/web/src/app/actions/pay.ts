@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { readCustomer, startPayment } from "@/lib/catalog/payment";
-import { payLinkExpired, paymentKeys } from "@/lib/catalog/settings";
+import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
@@ -21,8 +21,8 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   if (order.status !== "pending") redirect(`/pay/${token}`);
   if (payLinkExpired(order, now)) return { message: "This payment link has expired. Go back to the app and check out again." };
   const app = await store.getAppById(order.appId);
-  const keys = app ? paymentKeys(app, encryptionKey()) : null;
-  if (!app || !keys) return { message: "This shop can't take payments right now. Please try again later.", values };
+  const account = app ? await checkoutAccount(store, app, encryptionKey()) : null;
+  if (!app || !account) return { message: "This shop can't take payments right now. Please try again later.", values };
   const checked = readCustomer(app, values);
   if (!checked.ok) return { errors: checked.errors, values };
   let pageUrl: string;
@@ -30,7 +30,7 @@ export async function payAction(token: string, _: FormState, formData: FormData)
     pageUrl = await startPayment({
       store,
       app,
-      keys,
+      account,
       baseUrl: iyzicoApiUrl(),
       now,
       order,

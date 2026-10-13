@@ -7,10 +7,12 @@ import { Badge, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
-import { catalogSettings } from "@/lib/catalog/settings";
+import { SUB_MERCHANT_TYPES } from "@/lib/catalog/marketplace";
+import { catalogSettings, marketplaceTerms } from "@/lib/catalog/settings";
+import { encryptionKey } from "@/lib/env";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
-import { AddCategoryForm, PaymentKeysForm, ShopSettingsForm } from "./forms";
+import { AddCategoryForm, MarketplaceForm, PaymentKeysForm, ShopSettingsForm } from "./forms";
 
 export const metadata: Metadata = { title: "Products" };
 
@@ -32,6 +34,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const store = await getStore();
   const [products, categories] = await Promise.all([store.listCatalogProducts(app.id), store.listCatalogCategories(app.id)]);
   const settings = catalogSettings(app);
+  const terms = await marketplaceTerms(store, encryptionKey());
   const money = (cents: number) => formatCents(cents, settings.currency);
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
 
@@ -57,7 +60,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         <p className="m-0 flex items-start gap-2 rounded-xl bg-warn-bg px-4 py-3 text-[15px] text-warn">
           <Icon name="warning" size={20} />
           <span>
-            Your app can&apos;t take orders until you add your iyzico keys in <a href="#h-payments">Card payments</a> below.
+            Your app can&apos;t take orders until you set up <a href="#h-payments">Card payments</a> below.
           </span>
         </p>
       ) : null}
@@ -145,24 +148,53 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         <h2 id="h-payments" className="m-0 text-[19px] font-bold">
           Card payments
         </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Customers pay by card on a secure iyzico page, and the money goes to your own iyzico merchant account. Find your keys in the iyzico
-          merchant panel, under Settings. They stay encrypted on our servers.
-        </p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Customers pay by card on a secure iyzico page.</p>
         {settings.payment ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
               <Icon name="check_circle" size={20} filled />
-              On · {settings.payment.sandbox ? "sandbox (test payments)" : "live"}
+              {settings.payment.provider === "yallapp"
+                ? `On · through Yallapp, paid to ${settings.payment.payeeName} (IBAN ending ${settings.payment.ibanLast4})`
+                : "On · your iyzico account"}
+              {settings.payment.sandbox ? " · sandbox (test payments)" : ""}
             </p>
             <form action={removePaymentKeysAction}>
               <SubmitButton variant="secondary" className="h-10">
-                Remove keys
+                {settings.payment.provider === "yallapp" ? "Stop selling through Yallapp" : "Remove keys"}
               </SubmitButton>
             </form>
           </div>
         ) : null}
-        <PaymentKeysForm sandbox={settings.payment?.sandbox ?? false} />
+        {settings.payment?.provider === "yallapp" && terms ? (
+          <p className="m-0 text-sm text-muted">
+            Yallapp keeps {terms.commissionPercent}% of each sale (shipping excluded). iyzico pays your share to your IBAN after you mark the order
+            completed.
+          </p>
+        ) : null}
+        {settings.payment?.provider !== "yallapp" && terms ? (
+          <details className="rounded-xl border border-line p-4" open={!settings.payment}>
+            <summary className="cursor-pointer text-[15px] font-bold">No iyzico account? Sell through Yallapp</summary>
+            <div className="flex flex-col gap-4 pt-3">
+              <p className="m-0 text-sm leading-relaxed text-ink-4">
+                Customers pay into Yallapp&apos;s iyzico account, and iyzico pays you each sale minus Yallapp&apos;s {terms.commissionPercent}%
+                commission (shipping is all yours), after you mark the order completed. iyzico needs these details to pay you.
+              </p>
+              <MarketplaceForm types={SUB_MERCHANT_TYPES} />
+            </div>
+          </details>
+        ) : null}
+        {settings.payment?.provider !== "yallapp" ? (
+          <details className="rounded-xl border border-line p-4" open={!terms || settings.payment?.provider === "iyzico"}>
+            <summary className="cursor-pointer text-[15px] font-bold">Use your own iyzico account</summary>
+            <div className="flex flex-col gap-4 pt-3">
+              <p className="m-0 text-sm leading-relaxed text-ink-4">
+                The money goes straight to your iyzico merchant account. Find your keys in the iyzico merchant panel, under Settings. They stay
+                encrypted on our servers.
+              </p>
+              <PaymentKeysForm sandbox={settings.payment?.sandbox ?? false} />
+            </div>
+          </details>
+        ) : null}
       </section>
     </div>
   );

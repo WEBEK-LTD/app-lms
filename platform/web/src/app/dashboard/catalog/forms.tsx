@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-import { addCategoryAction, savePaymentKeysAction, saveProductAction, saveShopSettingsAction } from "@/app/actions/catalog";
+import { useActionState, useState } from "react";
+import { addCategoryAction, joinMarketplaceAction, savePaymentKeysAction, saveProductAction, saveShopSettingsAction } from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -240,6 +240,57 @@ export function PaymentKeysForm({ sandbox }: { sandbox: boolean }) {
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Checking…">
           Save keys
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** Selling through Yallapp's iyzico account: the details iyzico needs to pay the shop. */
+export function MarketplaceForm({ types }: { types: { id: string; label: string }[] }) {
+  const [state, action] = useActionState(joinMarketplaceAction, initialFormState);
+  const v = state.values ?? {};
+  const e = state.errors ?? {};
+  const [type, setType] = useState(v.type || "PERSONAL");
+  const company = type !== "PERSONAL";
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      {/* The choice is sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="type" value={type} />
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1.5 text-sm font-semibold">Who gets paid</legend>
+        {types.map((t) => (
+          <label key={t.id} className="flex cursor-pointer items-center gap-3 text-[15px]">
+            <input type="radio" name="typeChoice" value={t.id} checked={type === t.id} onChange={() => setType(t.id)} className="h-4 w-4 accent-midnight" />
+            {t.label}
+          </label>
+        ))}
+        <FieldError id="f-type-error" error={e.type} />
+      </fieldset>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Shop name" name="payeeName" defaultValue={v.payeeName} error={e.payeeName} small />
+        <Field label="Your full name" name="contactName" autoComplete="name" defaultValue={v.contactName} error={e.contactName} small />
+        <Field label="Email" name="email" type="email" autoComplete="email" defaultValue={v.email} error={e.email} small />
+        <Field label="Mobile number" name="phone" type="tel" autoComplete="tel" defaultValue={v.phone} error={e.phone} small />
+      </div>
+      <Field label="Address" name="address" autoComplete="street-address" defaultValue={v.address} error={e.address} small />
+      <Field label="IBAN" name="iban" autoComplete="off" placeholder="TR" defaultValue={v.iban} hint="Where iyzico pays your share. It must be in the payee's name." error={e.iban} small />
+      {type !== "LIMITED_OR_JOINT_STOCK_COMPANY" ? (
+        <Field label="T.C. ID number" name="identityNumber" inputMode="numeric" autoComplete="off" defaultValue={v.identityNumber} error={e.identityNumber} small />
+      ) : null}
+      {company ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Legal name" name="legalCompanyTitle" defaultValue={v.legalCompanyTitle} error={e.legalCompanyTitle} small />
+          <Field label="Tax office" name="taxOffice" defaultValue={v.taxOffice} error={e.taxOffice} small />
+          {type === "LIMITED_OR_JOINT_STOCK_COMPANY" ? (
+            <Field label="Tax number" name="taxNumber" inputMode="numeric" defaultValue={v.taxNumber} error={e.taxNumber} small />
+          ) : null}
+        </div>
+      ) : null}
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Registering with iyzico…">
+          Sell through Yallapp
         </SubmitButton>
       </div>
     </form>

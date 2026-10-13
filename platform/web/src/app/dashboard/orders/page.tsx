@@ -72,6 +72,17 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 ))}
                 {order.shippingCents > 0 ? <li className="text-muted">Shipping {formatCents(order.shippingCents, order.currency)}</li> : null}
               </ul>
+              {order.commissionCents !== null ? (
+                <p className="m-0 text-sm text-ink-4">
+                  Sold through Yallapp: commission {formatCents(order.commissionCents, order.currency)}, your share{" "}
+                  <strong>{formatCents(order.totalCents - order.commissionCents, order.currency)}</strong>.{" "}
+                  {order.payoutApprovedAt
+                    ? `Released for payout on ${formatDateTime(order.payoutApprovedAt)}; iyzico pays it to your IBAN.`
+                    : order.status === "processing"
+                      ? "iyzico pays it to your IBAN after you mark the order completed."
+                      : "Not released yet; message us on WhatsApp if it's late."}
+                </p>
+              ) : null}
               {order.customer ? (
                 <div className="flex flex-col gap-0.5 rounded-xl bg-sand p-3.5 text-[15px]">
                   <span className="font-semibold">{order.customer.name}</span>

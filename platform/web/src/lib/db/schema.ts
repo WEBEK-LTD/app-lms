@@ -405,6 +405,9 @@ export const catalogOrders = mysqlTable(
     createdAt: time("created_at").notNull(),
     paidAt: time("paid_at"),
     updatedAt: time("updated_at").notNull(),
+    commissionCents: bigint("commission_cents", { mode: "number", unsigned: true }),
+    itemTransactionIds: jsonText<string[]>("item_transaction_ids"),
+    payoutApprovedAt: time("payout_approved_at"),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

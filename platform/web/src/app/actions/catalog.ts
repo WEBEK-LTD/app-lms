@@ -5,13 +5,15 @@ import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
-import { catalogSettings, encryptPaymentKeys } from "@/lib/catalog/settings";
+import { parseSubMerchantForm } from "@/lib/catalog/marketplace";
+import { approvePayout } from "@/lib/catalog/payment";
+import { accountForOrder, catalogSettings, encryptPaymentKeys, marketplaceTerms } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { checkIyzicoKeys } from "@/lib/payments/iyzico";
+import { checkIyzicoKeys, createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -219,6 +221,52 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
   };
 }
 
+const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone", "address", "iban", "identityNumber", "taxOffice", "legalCompanyTitle", "taxNumber"];
+
+/** The shop sells through Yallapp's account: iyzico registers it as a sub-merchant that gets each sale minus the commission. */
+export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const values: Record<string, string> = {};
+  for (const name of SUB_MERCHANT_FIELDS) values[name] = str(formData, name);
+  const store = await getStore();
+  const terms = await marketplaceTerms(store, encryptionKey());
+  if (!terms) return { message: "Selling through Yallapp isn't available right now. Add your own iyzico keys instead.", values };
+  const parsed = parseSubMerchantForm(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  let subMerchantKey: string;
+  try {
+    subMerchantKey = await createSubMerchant(
+      terms.keys,
+      { ...parsed.details, conversationId: `shop-${app.id}`, subMerchantExternalId: app.id, currency: catalogSettings(app).currency },
+      { baseUrl: iyzicoApiUrl() },
+    );
+  } catch (e) {
+    if (e instanceof IyzicoError) return { message: `iyzico didn't accept these details: ${e.message}`, values };
+    throw e;
+  }
+  const now = new Date();
+  await store.updateApp(
+    app.id,
+    {
+      catalogSettings: {
+        ...catalogSettings(app),
+        payment: {
+          provider: "yallapp",
+          subMerchantKey,
+          subMerchantType: parsed.details.subMerchantType,
+          payeeName: parsed.details.name,
+          ibanLast4: parsed.details.iban.slice(-4),
+          sandbox: terms.keys.sandbox,
+          joinedAt: now.toISOString(),
+        },
+      },
+    },
+    now,
+  );
+  refresh();
+  return { ok: true, message: `Done. Your app takes payments now; iyzico pays your share to the IBAN ending ${parsed.details.iban.slice(-4)}.` };
+}
+
 export async function removePaymentKeysAction(): Promise<void> {
   const { app } = await requireCatalogApp();
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
@@ -240,7 +288,13 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const status = String(formData.get("status")) as CatalogOrderStatus;
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
   if (order && NEXT_STATUSES[order.status]?.includes(status)) {
-    await store.updateCatalogOrder(app.id, order.id, { status, updatedAt: new Date() });
+    const now = new Date();
+    await store.updateCatalogOrder(app.id, order.id, { status, updatedAt: now });
+    // A completed marketplace order releases the shop's share; our team can also do it from the admin.
+    if (status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
+      const account = await accountForOrder(store, app, order, encryptionKey());
+      if (account) await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now, order });
+    }
   }
   refresh();
 }

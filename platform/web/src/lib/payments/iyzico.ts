@@ -1,9 +1,11 @@
 import { createHmac, randomBytes } from "node:crypto";
 
 /**
- * iyzico's hosted checkout form, with the client's own merchant keys: the
- * customer pays on iyzico's page and the money goes to the client's account.
- * Requests are signed with iyzico's IYZWSv2 scheme.
+ * iyzico's hosted checkout form: the customer pays on iyzico's page, into
+ * the merchant account of the keys used (a shop's own, or Yallapp's). With
+ * Yallapp's account a shop can be a sub-merchant (iyzico marketplace): each
+ * basket item names the shop and its share, and iyzico pays the shop once
+ * the item is approved. Requests are signed with iyzico's IYZWSv2 scheme.
  */
 
 export interface IyzicoKeys {
@@ -92,7 +94,16 @@ export interface CheckoutFormRequest {
   };
   billingAddress: IyzicoAddress;
   shippingAddress?: IyzicoAddress;
-  basketItems: { id: string; name: string; category1: string; itemType: "PHYSICAL" | "VIRTUAL"; price: string }[];
+  basketItems: {
+    id: string;
+    name: string;
+    category1: string;
+    itemType: "PHYSICAL" | "VIRTUAL";
+    price: string;
+    /** Marketplace: the shop selling this item, and what it gets of `price`. */
+    subMerchantKey?: string;
+    subMerchantPrice?: string;
+  }[];
 }
 
 /** Starts a payment; returns the page to send the customer to. */
@@ -119,6 +130,8 @@ export interface CheckoutFormResult {
   paidCents: number;
   basketId: string | null;
   message: string | null;
+  /** iyzico's transaction per basket item (marketplace payouts are approved per item). */
+  transactionIds: string[];
 }
 
 /** The outcome of a payment, asked from iyzico with the token its callback brings. */
@@ -135,7 +148,57 @@ export async function retrieveCheckoutForm(
     paidCents: Math.round(Number(result.paidPrice ?? 0) * 100),
     basketId: typeof result.basketId === "string" ? result.basketId : null,
     message: typeof result.errorMessage === "string" ? result.errorMessage : null,
+    transactionIds: Array.isArray(result.itemTransactions)
+      ? (result.itemTransactions as { paymentTransactionId?: unknown }[])
+          .map((t) => (typeof t.paymentTransactionId === "string" || typeof t.paymentTransactionId === "number" ? String(t.paymentTransactionId) : ""))
+          .filter(Boolean)
+      : [],
   };
+}
+
+export interface SubMerchantInput {
+  conversationId: string;
+  /** Our own ID for the shop. */
+  subMerchantExternalId: string;
+  subMerchantType: "PERSONAL" | "PRIVATE_COMPANY" | "LIMITED_OR_JOINT_STOCK_COMPANY";
+  /** The shop's name as iyzico shows it. */
+  name: string;
+  contactName: string;
+  contactSurname: string;
+  email: string;
+  gsmNumber: string;
+  address: string;
+  iban: string;
+  /** Turkish ID number: people and sole proprietors. */
+  identityNumber?: string;
+  /** Companies. */
+  taxOffice?: string;
+  taxNumber?: string;
+  legalCompanyTitle?: string;
+  currency: string;
+}
+
+/** Registers a shop as a sub-merchant of this (Yallapp's) account; returns its key. */
+export async function createSubMerchant(
+  keys: IyzicoKeys,
+  input: SubMerchantInput,
+  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
+): Promise<string> {
+  const result = await post(keys, "/onboarding/submerchant", { locale: "en", ...input }, options);
+  if (result.status !== "success" || typeof result.subMerchantKey !== "string") {
+    throw new IyzicoError(result.errorMessage ?? "iyzico couldn't register the shop.");
+  }
+  return result.subMerchantKey;
+}
+
+/** Releases a marketplace item's share to its sub-merchant. */
+export async function approvePaymentItem(
+  keys: IyzicoKeys,
+  input: { conversationId: string; paymentTransactionId: string },
+  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
+): Promise<void> {
+  const result = await post(keys, "/payment/iyzipos/item/approve", { locale: "en", ...input }, options);
+  if (result.status !== "success") throw new IyzicoError(result.errorMessage ?? "iyzico couldn't approve the payout.");
 }
 
 /**

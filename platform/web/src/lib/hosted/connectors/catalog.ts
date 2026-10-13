@@ -359,6 +359,9 @@ export class CatalogConnector implements Connector {
       createdAt: request.now,
       paidAt: null,
       updatedAt: request.now,
+      commissionCents: null,
+      itemTransactionIds: null,
+      payoutApprovedAt: null,
     });
     return {
       status: 200,

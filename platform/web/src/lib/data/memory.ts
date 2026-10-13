@@ -710,6 +710,14 @@ export class MemoryStore implements DataStore {
 
   // Platform settings
 
+  async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
+    return [...this.catalogOrders.values()]
+      .filter((o) => o.commissionCents !== null && o.paidAt !== null)
+      .sort((a, b) => b.paidAt!.getTime() - a.paidAt!.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
   async createPlanPayment(payment: PlanPayment): Promise<void> {
     this.planPayments.set(payment.id, clone(payment));
   }

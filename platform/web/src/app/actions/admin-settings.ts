@@ -25,7 +25,7 @@ async function save<K extends PlatformSettingKey>(key: K, value: PlatformSetting
 export async function resetPlatformSettingAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
   const key = String(formData.get("key")) as PlatformSettingKey;
-  if (key === "otp" || key === "smtp" || key === "iyzico") await save(key, null, admin.email);
+  if (key === "otp" || key === "smtp" || key === "iyzico" || key === "marketplace") await save(key, null, admin.email);
 }
 
 export async function saveOtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -193,4 +193,16 @@ export async function resetPlanAction(formData: FormData): Promise<void> {
   await save("plans", Object.keys(rest).length ? rest : null, admin.email);
   revalidatePath("/admin/plans");
   revalidatePath("/pricing");
+}
+
+/** Shops without their own iyzico account sell through Yallapp's, for this commission. */
+export async function saveMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin();
+  const raw = str(formData, "commission").replace(",", ".");
+  const percent = Number(raw);
+  if (!/^\d{1,2}(\.\d{1,2})?$/.test(raw) || percent > 50) {
+    return { errors: { commission: "Enter a percent from 0 to 50, like 8 or 7.5." }, values: { commission: raw } };
+  }
+  await save("marketplace", { commissionPercent: percent }, admin.email);
+  return { ok: true, message: `Shops can sell through Yallapp for a ${percent}% commission.`, values: { commission: raw } };
 }

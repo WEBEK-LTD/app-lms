@@ -96,7 +96,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
 
   await page.getByRole("link", { name: "Products", exact: true }).click();
-  await expect(page.getByText("can't take orders until you add your iyzico keys")).toBeVisible();
+  await expect(page.getByText("can't take orders until you set up")).toBeVisible();
   await page.getByLabel("New category").fill("Bouquets");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByLabel("Category name")).toHaveValue("Bouquets");
@@ -110,7 +110,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByText("Sandbox keys").click();
   await page.getByRole("button", { name: "Save keys" }).click();
   await expect(page.getByText("iyzico keys saved.")).toBeVisible();
-  await expect(page.getByText("On · sandbox (test payments)")).toBeVisible();
+  await expect(page.getByText("On · your iyzico account · sandbox (test payments)")).toBeVisible();
 
   await page.getByRole("link", { name: "Add product" }).click();
   await page.getByLabel("Name", { exact: true }).fill("Tulip Bouquet");

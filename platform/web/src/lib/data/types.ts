@@ -329,14 +329,35 @@ export interface CatalogSettings {
   shippingCents: number;
   /** Orders at or above this subtotal ship free; null means never. */
   freeShippingOverCents: number | null;
-  /** Card payments through the client's own iyzico merchant account. */
-  payment: {
-    provider: "iyzico";
-    /** Encrypted with context `app:payment:<app id>`. */
-    apiKeyEncrypted: string;
-    secretKeyEncrypted: string;
-    sandbox: boolean;
-  } | null;
+  /**
+   * Card payments: through the client's own iyzico merchant account, or
+   * through Yallapp's (marketplace: the shop is an iyzico sub-merchant and
+   * gets each sale minus Yallapp's commission).
+   */
+  payment: OwnIyzicoPayment | MarketplacePayment | null;
+}
+
+export interface OwnIyzicoPayment {
+  provider: "iyzico";
+  /** Encrypted with context `app:payment:<app id>`. */
+  apiKeyEncrypted: string;
+  secretKeyEncrypted: string;
+  sandbox: boolean;
+}
+
+export type SubMerchantType = "PERSONAL" | "PRIVATE_COMPANY" | "LIMITED_OR_JOINT_STOCK_COMPANY";
+
+export interface MarketplacePayment {
+  provider: "yallapp";
+  /** iyzico's key for the shop as a sub-merchant of Yallapp's account. */
+  subMerchantKey: string;
+  subMerchantType: SubMerchantType;
+  /** Who gets paid, as shown to the shop and the team. */
+  payeeName: string;
+  ibanLast4: string;
+  /** Whether the sub-merchant was made with Yallapp's sandbox keys. */
+  sandbox: boolean;
+  joinedAt: string;
 }
 
 export const DEFAULT_CATALOG_SETTINGS: CatalogSettings = {
@@ -421,9 +442,17 @@ export interface CatalogOrder {
   createdAt: Date;
   paidAt: Date | null;
   updatedAt: Date;
+  /** Yallapp's commission when the shop sells through Yallapp's account; null with the shop's own account. */
+  commissionCents: number | null;
+  /** iyzico's transaction per basket item, approved to release the shop's share; null for none. */
+  itemTransactionIds: string[] | null;
+  /** When the shop's share was approved for payout. */
+  payoutApprovedAt: Date | null;
 }
 
-export type CatalogOrderPatch = Partial<Pick<CatalogOrder, "status" | "customer" | "updatedAt">>;
+export type CatalogOrderPatch = Partial<
+  Pick<CatalogOrder, "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt">
+>;
 
 // Platform settings the team edits in the admin (secrets encrypted with context `platform:<key>`).
 
@@ -455,6 +484,13 @@ export interface PlatformSettingValues {
   iyzico: YallappIyzicoSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
+  /** Shops selling through Yallapp's iyzico account; off until set. */
+  marketplace: MarketplaceSetting;
+}
+
+export interface MarketplaceSetting {
+  /** Yallapp's share of each sale, in percent (0 to 50). */
+  commissionPercent: number;
 }
 
 export type PlatformSettingKey = keyof PlatformSettingValues;

@@ -912,6 +912,17 @@ export class MysqlStore implements DataStore {
 
   // Platform settings
 
+  async listMarketplaceOrders(limit: number): Promise<CatalogOrder[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogOrders)
+        .where(and(isNotNull(schema.catalogOrders.commissionCents), isNotNull(schema.catalogOrders.paidAt)))
+        .orderBy(desc(schema.catalogOrders.paidAt))
+        .limit(limit),
+    );
+  }
+
   async createPlanPayment(payment: PlanPayment): Promise<void> {
     await this.run((db) => db.insert(schema.planPayments).values(payment));
   }

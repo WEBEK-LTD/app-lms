@@ -330,7 +330,7 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
               {app.connector?.kind === "shopify"
                 ? `Their Shopify store (${app.connector.shopDomain})`
                 : app.connector?.kind === "catalog"
-                  ? "No website: products in the dashboard"
+                  ? `No website: products in the dashboard${app.catalogSettings?.payment?.provider === "yallapp" ? ", sells through Yallapp" : ""}`
                   : BACKEND_NAMES[app.backend]}
             </dd>
           </>
