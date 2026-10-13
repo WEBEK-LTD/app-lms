@@ -93,15 +93,18 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
     // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
     const kind = context.app.connector?.kind;
     const connector = context.app.connector;
+    // Real estate apps only run with listings managed in Yallapp.
     const fits =
-      !kind ||
-      (connector?.kind === "platform"
-        ? platformDefinition(connector.platform)?.appType === appType
-        : kind === "bookings"
-          ? appType === "booking"
-          : kind === "courses"
-            ? appType === "lms"
-            : appType === "store");
+      appType === "real_estate"
+        ? kind === "listings"
+        : !kind ||
+          (connector?.kind === "platform"
+            ? platformDefinition(connector.platform)?.appType === appType
+            : kind === "bookings"
+              ? appType === "booking"
+              : kind === "courses"
+                ? appType === "lms"
+                : kind !== "listings" && appType === "store");
     await store.updateApp(
       context.app.id,
       fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
@@ -119,6 +122,13 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
+  if (context.app.appType === "real_estate") {
+    // Real estate apps have no website: listings are managed in the dashboard and served by the hosted API.
+    if (data.backend !== "catalog") return { errors: { backend: "Real estate apps run on Yallapp. Choose Listings managed in Yallapp." }, values };
+    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", connector: { kind: "listings" }, websiteDoneAt: now }, now);
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
   if (data.backend === "catalog" && context.app.appType === "lms") {
     await store.updateApp(
       context.app.id,

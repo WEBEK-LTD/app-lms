@@ -23,10 +23,10 @@ export function isSetupStep(value: unknown): value is SetupStep {
   return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
 }
 
-export const APP_TYPES: readonly AppType[] = ["lms", "store", "booking"];
+export const APP_TYPES: readonly AppType[] = ["lms", "store", "booking", "real_estate"];
 
 /** What clients call each app type. */
-export const APP_TYPE_NAMES: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings" };
+export const APP_TYPE_NAMES: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings", real_estate: "Real estate" };
 
 export function isAppType(value: unknown): value is AppType {
   return typeof value === "string" && (APP_TYPES as readonly string[]).includes(value);
@@ -112,6 +112,8 @@ export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep
 export function websiteReady(app: App): boolean {
   // The hosted API needs no website: our team switches the app to it.
   if (app.backend === "hosted") return true;
+  // Real estate apps only run on the hosted API.
+  if (app.appType === "real_estate") return false;
   if (!app.websiteDoneAt || !app.siteUrl) return false;
   if (app.backend === "custom_api") return Boolean(app.apiBaseUrl);
   return app.backend === "wordpress";

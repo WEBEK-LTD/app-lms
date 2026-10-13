@@ -31,6 +31,8 @@ import type {
   ResetToken,
   User,
 } from "./types";
+// 10.7 Listings
+import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
 
@@ -271,4 +273,40 @@ export interface DataStore {
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
+
+  // 10.7 Listings (Real estate apps)
+  /** Every listing of the app, any status, newest first. */
+  listListings(appId: string): Promise<Listing[]>;
+  getListing(appId: string, id: number): Promise<Listing | null>;
+  createListing(input: ListingInput, now: Date): Promise<Listing>;
+  updateListing(appId: string, id: number, patch: Partial<ListingInput>, now: Date): Promise<void>;
+  /** The office's settings; null until saved (the defaults apply). */
+  getListingSettings(appId: string): Promise<ListingSettings | null>;
+  saveListingSettings(appId: string, settings: ListingSettings, now: Date): Promise<void>;
+  /** Adds once; adding again keeps the first date. */
+  addListingFavorite(favorite: ListingFavorite): Promise<void>;
+  removeListingFavorite(appId: string, userId: number, listingId: number): Promise<void>;
+  /** A user's favorites, newest first. */
+  listListingFavorites(appId: string, userId: number): Promise<ListingFavorite[]>;
+  createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry>;
+  getListingInquiry(appId: string, id: number): Promise<ListingInquiry | null>;
+  /** The user's open conversation about the listing, if any. */
+  findOpenListingInquiry(appId: string, userId: number, listingId: number): Promise<ListingInquiry | null>;
+  updateListingInquiry(appId: string, id: number, patch: Partial<Pick<ListingInquiry, "status" | "updatedAt">>): Promise<void>;
+  /** Adds a message and moves the conversation's `updatedAt` to it. */
+  addListingInquiryMessage(input: Omit<ListingInquiryMessage, "id" | "readAt">): Promise<ListingInquiryMessage>;
+  /** A conversation's messages, oldest first. */
+  listListingInquiryMessages(appId: string, inquiryId: number): Promise<ListingInquiryMessage[]>;
+  /** Marks the messages `from` one side as read by the other. */
+  markListingInquiryRead(appId: string, inquiryId: number, from: "user" | "office", now: Date): Promise<void>;
+  /** Conversations, latest message first: one user's, or the whole office's. */
+  listListingInquiries(input: {
+    appId: string;
+    userId?: number;
+    status?: ListingInquiryStatus;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: ListingInquiryRow[]; total: number }>;
+  /** Conversations with user messages the office hasn't read. */
+  countUnreadListingInquiries(appId: string): Promise<number>;
 }

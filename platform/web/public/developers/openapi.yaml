@@ -1669,6 +1669,7 @@ paths:
       tags: [Listings]
       operationId: replyToInquiry
       summary: Reply in a conversation
+      description: Writing again reopens a conversation the office closed. Refused with 403 while the office has messages turned off.
       parameters:
         - $ref: '#/components/parameters/InquiryId'
       requestBody:
@@ -1688,6 +1689,7 @@ paths:
               schema: { $ref: '#/components/schemas/Inquiry' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 

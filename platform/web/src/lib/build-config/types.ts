@@ -15,7 +15,7 @@ export const APP_TEMPLATES = ["classic", "bold", "minimal"] as const;
 export interface BuildConfig {
   schema_version: 1;
   client_id?: string;
-  app_type: "lms" | "store" | "booking";
+  app_type: "lms" | "store" | "booking" | "real_estate";
   /** Only for apps whose content isn't served by the WordPress plugin. */
   api_base_url?: string;
   app_name: string;

@@ -103,7 +103,7 @@ export const GUIDES: Guide[] = [
             Academy apps use the Catalog, Learning and Quizzes endpoints, starting with <code>GET /home</code>. Store apps use the Store endpoints, starting with{" "}
             <code>GET /store/home</code>, and need <code>store</code> in <code>/config</code>. Bookings apps use the Bookings endpoints, starting with{" "}
             <code>GET /bookings/home</code>, and need <code>bookings</code> in <code>/config</code>. Features you don&apos;t support can be turned off in{" "}
-            <code>/config</code>, and the app hides them.
+            <code>/config</code>, and the app hides them. Real estate apps run on Yallapp only, with the listings you add in the dashboard.
           </p>
         ),
       },

@@ -33,6 +33,14 @@ const TYPES: { value: AppType; name: string; icon: IconName; tile: string; text:
     text: "Services, staff, free times and appointments, booked through your booking plugin.",
     requires: "Works with: Amelia, BookingPress, LatePoint · Digits",
   },
+  {
+    value: "real_estate",
+    name: "Real estate",
+    icon: "apartment",
+    tile: "bg-tile-3 text-[#3F3A6B]",
+    text: "Property listings with search and filters, favorites and messages to your office.",
+    requires: "No website needed: you add your listings here in the dashboard",
+  },
 ];
 
 export default async function AppTypePage() {
@@ -43,7 +51,7 @@ export default async function AppTypePage() {
       <div className="flex max-w-[620px] flex-col gap-2">
         <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">What kind of app do you want?</h1>
         <p className="m-0 text-[17px] leading-relaxed text-ink-4">
-          Pick the type that matches your WordPress site. You can change it later; your next build follows it.
+          Pick the type that matches your business. You can change it later; your next build follows it.
         </p>
       </div>
 

@@ -61,6 +61,8 @@ import type {
   User,
 } from "./types";
 import { ACTIVE_BOOKING_STATUSES } from "./types";
+// 10.7 Listings
+import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 type Db = MySql2Database<typeof schema>;
 
@@ -1134,6 +1136,170 @@ export class MysqlStore implements DataStore {
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
     return rows[0]?.hits ?? 1;
+  }
+
+  // 10.7 Listings
+
+  async listListings(appId: string): Promise<Listing[]> {
+    const t = schema.listings;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)));
+  }
+
+  async getListing(appId: string, id: number): Promise<Listing | null> {
+    const t = schema.listings;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createListing(input: ListingInput, now: Date): Promise<Listing> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.listings).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateListing(appId: string, id: number, patch: Partial<ListingInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...rest } = patch;
+    void _ignored;
+    const t = schema.listings;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async getListingSettings(appId: string): Promise<ListingSettings | null> {
+    const t = schema.listingSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveListingSettings(appId: string, settings: ListingSettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.listingSettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
+  }
+
+  async addListingFavorite(favorite: ListingFavorite): Promise<void> {
+    await this.run((db) => db.insert(schema.listingFavorites).ignore().values(favorite));
+  }
+
+  async removeListingFavorite(appId: string, userId: number, listingId: number): Promise<void> {
+    const t = schema.listingFavorites;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.listingId, listingId))));
+  }
+
+  async listListingFavorites(appId: string, userId: number): Promise<ListingFavorite[]> {
+    const t = schema.listingFavorites;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.userId, userId)))
+        .orderBy(desc(t.createdAt), desc(t.listingId)),
+    );
+  }
+
+  async createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry> {
+    const [result] = await this.run((db) => db.insert(schema.listingInquiries).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getListingInquiry(appId: string, id: number): Promise<ListingInquiry | null> {
+    const t = schema.listingInquiries;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findOpenListingInquiry(appId: string, userId: number, listingId: number): Promise<ListingInquiry | null> {
+    const t = schema.listingInquiries;
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.listingId, listingId), eq(t.status, "open")))
+        .orderBy(desc(t.id))
+        .limit(1),
+    );
+    return row ?? null;
+  }
+
+  async updateListingInquiry(appId: string, id: number, patch: Partial<Pick<ListingInquiry, "status" | "updatedAt">>): Promise<void> {
+    const t = schema.listingInquiries;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async addListingInquiryMessage(input: Omit<ListingInquiryMessage, "id" | "readAt">): Promise<ListingInquiryMessage> {
+    const values = { ...input, readAt: null };
+    const [result] = await this.run((db) => db.insert(schema.listingInquiryMessages).values(values));
+    const t = schema.listingInquiries;
+    await this.run((db) => db.update(t).set({ updatedAt: input.createdAt }).where(and(eq(t.appId, input.appId), eq(t.id, input.inquiryId))));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async listListingInquiryMessages(appId: string, inquiryId: number): Promise<ListingInquiryMessage[]> {
+    const t = schema.listingInquiryMessages;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.inquiryId, inquiryId)))
+        .orderBy(asc(t.createdAt), asc(t.id)),
+    );
+  }
+
+  async markListingInquiryRead(appId: string, inquiryId: number, from: "user" | "office", now: Date): Promise<void> {
+    const t = schema.listingInquiryMessages;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ readAt: now })
+        .where(and(eq(t.appId, appId), eq(t.inquiryId, inquiryId), eq(t.from, from), isNull(t.readAt))),
+    );
+  }
+
+  async listListingInquiries(input: {
+    appId: string;
+    userId?: number;
+    status?: ListingInquiryStatus;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: ListingInquiryRow[]; total: number }> {
+    const t = schema.listingInquiries;
+    const where = and(
+      eq(t.appId, input.appId),
+      input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+      input.status ? eq(t.status, input.status) : undefined,
+    );
+    const [inquiries, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.updatedAt), desc(t.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    const m = schema.listingInquiryMessages;
+    const ids = inquiries.map((i) => i.id);
+    const messages = ids.length
+      ? await this.run((db) => db.select().from(m).where(and(eq(m.appId, input.appId), inArray(m.inquiryId, ids))).orderBy(asc(m.createdAt), asc(m.id)))
+      : [];
+    const items = inquiries.map((inquiry): ListingInquiryRow => {
+      const own = messages.filter((message) => message.inquiryId === inquiry.id);
+      return {
+        ...inquiry,
+        lastMessage: own[own.length - 1] ?? null,
+        unreadByUser: own.filter((message) => message.from === "office" && !message.readAt).length,
+        unreadByOffice: own.filter((message) => message.from === "user" && !message.readAt).length,
+      };
+    });
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async countUnreadListingInquiries(appId: string): Promise<number> {
+    const t = schema.listingInquiryMessages;
+    const rows = await this.run((db) =>
+      db
+        .select({ n: sql<number>`count(distinct ${t.inquiryId})` })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.from, "user"), isNull(t.readAt))),
+    );
+    return Number(rows[0]?.n ?? 0);
   }
 }
 

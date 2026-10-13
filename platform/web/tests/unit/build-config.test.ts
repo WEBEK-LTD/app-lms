@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { APP_TYPE_NAMES, buildConfigFor, isAppType, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { BuildConfig } from "@/lib/build-config/types";
@@ -104,6 +104,22 @@ describe("build config schema", () => {
     expect(validateBuildConfig(config).ok).toBe(true);
     expect(isAppType("booking")).toBe(true);
     expect(APP_TYPE_NAMES.booking).toBe("Bookings");
+  });
+
+  it("builds Real estate apps, on the hosted API only", () => {
+    const wordpress = { ...completeApp("c1"), appType: "real_estate" as const };
+    // A Real estate app has no WordPress side: the Website step stays open until it runs on the hosted API.
+    expect(stepStatus(wordpress, "starter").website).toBe(false);
+    vi.stubEnv("APP_URL", "https://yallapp.com.tr");
+    const app = { ...wordpress, backend: "hosted" as const, siteUrl: null, connector: { kind: "listings" as const } };
+    expect(isSetupComplete(app, "starter")).toBe(true);
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.app_type).toBe("real_estate");
+    expect(config).toMatchObject({ api_base_url: `https://yallapp.com.tr/api/app/${app.id}`, site_url: "https://yallapp.com.tr" });
+    expect(validateBuildConfig(config).ok).toBe(true);
+    vi.unstubAllEnvs();
+    expect(isAppType("real_estate")).toBe(true);
+    expect(APP_TYPE_NAMES.real_estate).toBe("Real estate");
   });
 
   it("builds the config from wizard data without secrets", async () => {

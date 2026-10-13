@@ -31,6 +31,9 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
+// 10.7 Listings
+import { double } from "drizzle-orm/mysql-core";
+import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStatus } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -514,4 +517,112 @@ export const lessonProgress = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
+);
+
+// 10.7 Listings: property listings of Real estate apps, managed in the dashboard.
+
+export const listings = mysqlTable(
+  "listings",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    reference: varchar("reference", { length: 40 }),
+    title: varchar("title", { length: 150 }).notNull(),
+    description: text("description").notNull(),
+    purpose: varchar("purpose", { length: 8 }).notNull().$type<ListingPurpose>(),
+    type: varchar("type", { length: 24 }).notNull(),
+    priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    pricePeriod: varchar("price_period", { length: 8 }).$type<"month" | "year">(),
+    negotiable: boolean("negotiable").notNull(),
+    city: varchar("city", { length: 80 }).notNull(),
+    district: varchar("district", { length: 80 }),
+    address: varchar("address", { length: 200 }),
+    latitude: double("latitude"),
+    longitude: double("longitude"),
+    area: double("area"),
+    bedrooms: int("bedrooms"),
+    bathrooms: int("bathrooms"),
+    floor: int("floor"),
+    yearBuilt: int("year_built"),
+    furnished: boolean("furnished"),
+    features: jsonText<string[]>("features").notNull(),
+    imageAssetIds: jsonText<string[]>("image_asset_ids").notNull(),
+    videoUrl: varchar("video_url", { length: 500 }),
+    featured: boolean("featured").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<ListingStatus>(),
+    publishedAt: time("published_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("listings_app_idx").on(t.appId, t.status, t.createdAt)],
+);
+
+/** The office's settings (Config.listings), one row per app. */
+export const listingSettings = mysqlTable("listing_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<ListingSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const listingFavorites = mysqlTable(
+  "listing_favorites",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    listingId: bigint("listing_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.listingId] }), index("listing_favorites_user_idx").on(t.appId, t.userId, t.createdAt)],
+);
+
+export const listingInquiries = mysqlTable(
+  "listing_inquiries",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    listingId: bigint("listing_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 8 }).notNull().$type<ListingInquiryStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("listing_inquiries_app_idx").on(t.appId, t.updatedAt),
+    index("listing_inquiries_user_idx").on(t.appId, t.userId, t.updatedAt),
+  ],
+);
+
+export const listingInquiryMessages = mysqlTable(
+  "listing_inquiry_messages",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    inquiryId: bigint("inquiry_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => listingInquiries.id, { onDelete: "cascade" }),
+    from: varchar("sender", { length: 8 }).notNull().$type<"user" | "office">(),
+    text: text("text").notNull(),
+    readAt: time("read_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("listing_inquiry_messages_inquiry_idx").on(t.inquiryId, t.createdAt)],
 );
