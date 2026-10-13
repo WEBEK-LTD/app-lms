@@ -42,7 +42,7 @@ Each step closes once its "done when" check passes on the staging site (0.5).
 
 ## Phase 3: Flutter app (`mobile/`)
 
-Built with 143 tests (models against the contract, token refresh, iframe sizing on
+Built with 264 tests (models against the contract, token refresh, iframe sizing on
 several screens, purchase rules, every screen in all templates). The first APK is
 built by `.github/workflows/mobile.yml`; each step closes on a phone against staging.
 
@@ -138,3 +138,37 @@ Yallapp's own iyzico account.
 | [x] | 9.3 Every client's settings in the admin: app type and backend, hosted sign-in rules, store review number, shop settings and payment keys | The team changes a client's app without the client |
 | [x] | 9.4 Clients pay their plan by card (Yallapp's iyzico), and the license is activated or extended | A test client pays and is activated |
 | [x] | 9.5 Shops without a website can sell through Yallapp's iyzico account (marketplace, a commission set in the admin) instead of their own | A test order pays the shop its share |
+
+## Phase 10: Pages, looks and languages
+
+Clients edit their app's pages, look and languages from the dashboard, like
+a site builder, without a new build. The app renders whatever the API sends.
+Planned in `docs/ARCHITECTURE.md` ("Pages, looks and languages"). The hosted
+apps and their sign-in this needs for clients without WordPress are Phase 8.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 10.1 Plan and API contract: `Config.appearance`, `/pages`, page blocks | Contract approved |
+| [~] | 10.2 App: looks from `/config` (templates, light, dark and system mode, font, corners, cards) | Changing the look in the API changes the app without a new build |
+| [ ] | 10.3 App: bottom tabs and pages from `/pages`, one renderer for every block in every template, fallback to `/home` | Every block renders in all templates on several screen sizes |
+| [ ] | 10.4 Dashboard: page and look editor with drag-and-drop ordering, preview, drafts and publish | A client builds and publishes a page |
+| [ ] | 10.5 Plugin: fetch the published layout from the platform and serve `/pages` with the site's courses, products and posts | A page published in the dashboard shows in a WordPress client's app |
+| [ ] | 10.6 Hosted API: serve `/pages` and the look for apps on the hosted API, with their dashboard content or connected platform | A page published in the dashboard shows in a hosted app |
+| [ ] | 10.7 Real estate apps: listings managed in the dashboard, search, filters, favorites and messages to the office | A real estate test app runs on the hosted API |
+| [ ] | 10.8 Languages: English by default, more languages the client turns on (right-to-left for Arabic), translated page content | A test app switches between English and Arabic |
+
+## Phase 11: The admin runs everything
+
+The WEBEK team controls every part of Yallapp from the super admin pages.
+
+| | Step | Done when |
+|---|---|---|
+| [ ] | 11.1 Overview: clients, revenue, builds and apps at a glance | The numbers match the data |
+| [ ] | 11.2 One page per client: plan and extension, app, connection, builds, app users, notifications | The team handles a client from one page |
+| [ ] | 11.3 Website content edited in the admin: home page texts, guides and legal pages | A text change shows on yallapp.com.tr |
+| [ ] | 11.4 Email templates edited in the admin | A changed template is what clients receive |
+| [ ] | 11.5 Switches: app types, platforms and features on or off, per plan | A switched-off platform disappears from the Website step |
+| [ ] | 11.6 Coupons and discounts on plans | A coupon lowers a card payment |
+| [ ] | 11.7 Admin team with roles, and a log of every change | A support admin can't change prices; the log shows who changed what |
+| [ ] | 11.8 Announcements to clients, in the dashboard and by email | Clients see an announcement |
+| [ ] | 11.9 Defaults for new apps: template, look and languages | A new client starts with the defaults |

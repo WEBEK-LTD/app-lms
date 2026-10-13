@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/providers.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
+import '../../core/theme/app_look.dart';
 import '../../core/web/web_page_screen.dart';
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/common.dart';
@@ -127,7 +127,7 @@ class MainShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final template = ref.watch(appEnvironmentProvider).build.template;
+    final template = ref.watch(appLookProvider).template;
     return Scaffold(
       body: shell,
       bottomNavigationBar: AppNavBar(

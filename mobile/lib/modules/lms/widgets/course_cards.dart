@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 
@@ -222,7 +223,8 @@ class CourseFeatureCard extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: p.surface,
-        borderRadius: BorderRadius.circular(22),
+        shape: context.cardShape(22),
+        elevation: context.cardElevation,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -389,7 +391,8 @@ class ContinueCardClassic extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: p.primary,
-        borderRadius: BorderRadius.circular(18),
+        shape: context.cardShape(18),
+        elevation: context.cardElevation,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -502,7 +505,8 @@ class ContinueCardBold extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: p.surface,
-        borderRadius: BorderRadius.circular(22),
+        shape: context.cardShape(22),
+        elevation: context.cardElevation,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -605,7 +609,8 @@ class ContinueCardMinimal extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: p.surfaceMuted,
-        borderRadius: BorderRadius.circular(14),
+        shape: context.cardShape(14),
+        elevation: context.cardElevation,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,

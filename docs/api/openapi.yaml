@@ -41,6 +41,8 @@ security:
 tags:
   - name: App
     description: App configuration and the home screen.
+  - name: Pages
+    description: Pages and bottom tabs built in the client dashboard.
   - name: Auth
     description: Sign-in with a one-time code, tokens and sign-up.
   - name: Account
@@ -115,6 +117,59 @@ paths:
                     items: { $ref: '#/components/schemas/HomeSection' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '503': { $ref: '#/components/responses/Unavailable' }
+
+  /pages:
+    get:
+      tags: [Pages]
+      operationId: getPages
+      summary: Get the bottom tabs and the list of pages
+      description: |
+        The navigation and pages the client published in the dashboard.
+        Returns 404 when the client has not published any pages; the app
+        then uses its built-in tabs and `/home`.
+
+        Send `If-None-Match` with the last `version` to get 304 when
+        nothing changed.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: Navigation and pages
+          headers:
+            ETag:
+              description: The published version, the same as `version`.
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Navigation' }
+        '304':
+          description: Not modified since the version in `If-None-Match`.
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /pages/{slug}:
+    get:
+      tags: [Pages]
+      operationId: getPage
+      summary: Get one page with its blocks
+      description: |
+        Blocks in the order set in the dashboard, with lists (courses,
+        products, posts, listings) already resolved. Blocks meant only for
+        signed-in or signed-out users are filtered here. On iOS, blocks and
+        items never carry purchase actions for paid content.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PageSlug'
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: The page
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppPage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /auth/otp/request:
     post:
@@ -1468,6 +1523,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    PageSlug:
+      name: slug
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[a-z0-9-]{1,64}$', example: home }
 
   responses:
     BadRequest:
@@ -1617,6 +1677,7 @@ components:
             update_required: { type: boolean }
             maintenance: { type: boolean }
             maintenance_message: { type: [string, 'null'] }
+        appearance: { $ref: '#/components/schemas/Appearance' }
 
     HomeSection:
       type: object
@@ -2433,3 +2494,256 @@ components:
         notes: { type: [string, 'null'] }
         location: { type: [string, 'null'], description: "Where it takes place, when the plugin knows." }
         can_cancel: { type: boolean, description: Whether the customer can cancel it in the app now. }
+
+    Appearance:
+      type: object
+      description: |
+        The look chosen in the client dashboard. Applied at app start without
+        a new build. When it is missing, the app uses the build config's
+        template and font. Unknown values fall back to the build's defaults.
+      required: [template, theme_mode, user_can_change_mode, font, corners, cards]
+      properties:
+        template: { type: string, enum: [classic, bold, minimal] }
+        theme_mode:
+          type: string
+          enum: [system, light, dark]
+          description: The mode the app opens in.
+        user_can_change_mode: { type: boolean, description: Shows the light and dark switch in Settings. }
+        secondary_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', example: '#E8B04B' }
+        font: { type: string, enum: [Bricolage Grotesque, Plus Jakarta Sans, Outfit, Manrope, DM Sans, Lexend] }
+        corners: { type: string, enum: [sharp, soft, round] }
+        cards: { type: string, enum: [flat, outlined, elevated] }
+
+    Navigation:
+      type: object
+      required: [version, tabs, pages]
+      properties:
+        version: { type: string, description: Changes on every publish., example: '2026-10-13T18:00:00Z.4' }
+        tabs:
+          type: array
+          minItems: 2
+          maxItems: 5
+          description: The bottom tabs, left to right.
+          items: { $ref: '#/components/schemas/NavTab' }
+        pages:
+          type: array
+          items: { $ref: '#/components/schemas/PageSummary' }
+
+    NavTab:
+      type: object
+      required: [id, label, icon, target]
+      properties:
+        id: { type: string }
+        label: { type: string, example: Home }
+        icon: { type: string, description: A Google Material Symbols (Rounded) name., example: home }
+        target: { $ref: '#/components/schemas/Action' }
+
+    PageSummary:
+      type: object
+      required: [slug, title, updated_at]
+      properties:
+        slug: { type: string, example: home }
+        title: { type: string, example: Home }
+        updated_at: { type: string, format: date-time }
+
+    AppPage:
+      allOf:
+        - $ref: '#/components/schemas/PageSummary'
+        - type: object
+          required: [blocks]
+          properties:
+            show_title: { type: boolean, default: true }
+            blocks:
+              type: array
+              items: { $ref: '#/components/schemas/Block' }
+
+    Action:
+      type: object
+      description: What happens on tap. The app ignores actions it does not know.
+      required: [type]
+      properties:
+        type: { type: string, enum: [page, screen, course, item, url] }
+        page_slug: { type: [string, 'null'], description: For `page`. }
+        screen:
+          type: [string, 'null']
+          description: For `screen`, a built-in screen.
+          enum: [courses, my_courses, search, favorites, messages, account, settings, null]
+        course_id: { type: [integer, 'null'], description: For `course`. }
+        item: { $ref: '#/components/schemas/ItemRef' }
+        url: { type: [string, 'null'], format: uri, description: For `url`. }
+        open_in: { type: string, enum: [in_app, browser], default: in_app }
+
+    ItemRef:
+      type: [object, 'null']
+      description: For `item`, an entry from a list source.
+      required: [source, id]
+      properties:
+        source: { $ref: '#/components/schemas/ItemSource' }
+        id: { type: string }
+
+    ItemSource:
+      type: string
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `listings` is hosted only.
+      enum: [courses, products, posts, listings]
+
+    Item:
+      type: object
+      description: One card in a list block, the same shape for every source.
+      required: [source, id, title]
+      properties:
+        source: { $ref: '#/components/schemas/ItemSource' }
+        id: { type: string }
+        title: { type: string }
+        subtitle: { type: [string, 'null'], example: 'Maadi · 185 m²' }
+        image_url: { type: [string, 'null'], format: uri }
+        price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
+        badge: { type: [string, 'null'], example: Negotiable }
+        favorited: { type: boolean }
+        action: { $ref: '#/components/schemas/Action' }
+
+    Block:
+      oneOf:
+        - $ref: '#/components/schemas/BannerBlock'
+        - $ref: '#/components/schemas/TextBlock'
+        - $ref: '#/components/schemas/ImageBlock'
+        - $ref: '#/components/schemas/VideoBlock'
+        - $ref: '#/components/schemas/ButtonBlock'
+        - $ref: '#/components/schemas/ItemsBlock'
+        - $ref: '#/components/schemas/CategoriesBlock'
+        - $ref: '#/components/schemas/SearchBlock'
+        - $ref: '#/components/schemas/ContinueLearningBlock'
+        - $ref: '#/components/schemas/EmbedBlock'
+        - $ref: '#/components/schemas/SpacerBlock'
+      discriminator:
+        propertyName: type
+        mapping:
+          banner: '#/components/schemas/BannerBlock'
+          text: '#/components/schemas/TextBlock'
+          image: '#/components/schemas/ImageBlock'
+          video: '#/components/schemas/VideoBlock'
+          button: '#/components/schemas/ButtonBlock'
+          items: '#/components/schemas/ItemsBlock'
+          categories: '#/components/schemas/CategoriesBlock'
+          search: '#/components/schemas/SearchBlock'
+          continue_learning: '#/components/schemas/ContinueLearningBlock'
+          embed: '#/components/schemas/EmbedBlock'
+          spacer: '#/components/schemas/SpacerBlock'
+      description: One block on a page. The app skips block types it does not know, so older apps keep working when new types are added.
+
+    BlockBase:
+      type: object
+      required: [id, type]
+      properties:
+        id: { type: string }
+        type: { type: string }
+        title: { type: [string, 'null'] }
+
+    BannerBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [image_url]
+          properties:
+            image_url: { type: string, format: uri }
+            heading: { type: [string, 'null'] }
+            subheading: { type: [string, 'null'] }
+            action: { $ref: '#/components/schemas/Action' }
+
+    TextBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [html]
+          properties:
+            html: { type: string, description: Cleaned by the server with the same rules as lesson HTML. }
+
+    ImageBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [image_url]
+          properties:
+            image_url: { type: string, format: uri }
+            aspect_ratio: { type: [number, 'null'], description: Width divided by height., example: 1.78 }
+            action: { $ref: '#/components/schemas/Action' }
+
+    VideoBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [url]
+          properties:
+            url: { type: string, format: uri, description: 'An MP4 link, or a YouTube or Vimeo page.' }
+            poster_url: { type: [string, 'null'], format: uri }
+
+    ButtonBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [label, style, action]
+          properties:
+            label: { type: string }
+            icon: { type: [string, 'null'], description: A Google Material Symbols (Rounded) name. }
+            style: { type: string, enum: [filled, outlined, text] }
+            action: { $ref: '#/components/schemas/Action' }
+
+    ItemsBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [source, layout, items]
+          properties:
+            source: { $ref: '#/components/schemas/ItemSource' }
+            layout: { type: string, enum: [carousel, grid, list] }
+            see_all: { $ref: '#/components/schemas/Action' }
+            items:
+              type: array
+              maxItems: 30
+              items: { $ref: '#/components/schemas/Item' }
+
+    CategoriesBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [source, categories]
+          properties:
+            source: { $ref: '#/components/schemas/ItemSource' }
+            style: { type: string, enum: [chips, tiles], default: chips }
+            categories:
+              type: array
+              items: { $ref: '#/components/schemas/Category' }
+
+    SearchBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [source, placeholder]
+          properties:
+            source: { $ref: '#/components/schemas/ItemSource' }
+            placeholder: { type: string, example: Search properties }
+
+    ContinueLearningBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Only sent to signed-in students with a course in progress.
+          required: [course]
+          properties:
+            course: { $ref: '#/components/schemas/MyCourse' }
+
+    EmbedBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [url]
+          properties:
+            url: { type: string, format: uri }
+            height: { type: [integer, 'null'], description: Height in logical pixels when the page cannot be measured. }
+
+    SpacerBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          required: [size]
+          properties:
+            size: { type: string, enum: [small, medium, large] }

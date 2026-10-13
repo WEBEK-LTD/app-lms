@@ -17,6 +17,7 @@ Map<String, dynamic> configJson({
   bool bookings = false,
   bool staffChoice = true,
   int? cancelBeforeMinutes = 60,
+  Map<String, dynamic>? appearance,
 }) => {
   'site': {
     'name': 'Your Academy',
@@ -67,6 +68,26 @@ Map<String, dynamic> configJson({
       staffChoice: staffChoice,
       cancelBeforeMinutes: cancelBeforeMinutes,
     ),
+  'appearance': ?appearance,
+};
+
+/// `Config.appearance` as the dashboard sends it.
+Map<String, dynamic> appearanceJson({
+  String template = 'bold',
+  String themeMode = 'dark',
+  bool userCanChangeMode = true,
+  String? secondaryColor = '#1F8A70',
+  String font = 'Lexend',
+  String corners = 'round',
+  String cards = 'outlined',
+}) => {
+  'template': template,
+  'theme_mode': themeMode,
+  'user_can_change_mode': userCanChangeMode,
+  'secondary_color': secondaryColor,
+  'font': font,
+  'corners': corners,
+  'cards': cards,
 };
 
 Map<String, dynamic> userJson() => {

@@ -28,6 +28,7 @@ String speedLabel(double speed) {
 class LocalSettings {
   const LocalSettings({
     this.themeMode = ThemeMode.system,
+    this.themeModeChosen = false,
     this.videoQuality = VideoQuality.auto,
     this.playbackSpeed = 1.0,
     this.autoplayNext = true,
@@ -36,6 +37,9 @@ class LocalSettings {
   });
 
   final ThemeMode themeMode;
+
+  /// The student picked [themeMode]; until then the client's default applies.
+  final bool themeModeChosen;
   final VideoQuality videoQuality;
   final double playbackSpeed;
   final bool autoplayNext;
@@ -46,6 +50,7 @@ class LocalSettings {
 
   LocalSettings copyWith({
     ThemeMode? themeMode,
+    bool? themeModeChosen,
     VideoQuality? videoQuality,
     double? playbackSpeed,
     bool? autoplayNext,
@@ -53,6 +58,7 @@ class LocalSettings {
     bool? guestMode,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
+    themeModeChosen: themeModeChosen ?? this.themeModeChosen,
     videoQuality: videoQuality ?? this.videoQuality,
     playbackSpeed: playbackSpeed ?? this.playbackSpeed,
     autoplayNext: autoplayNext ?? this.autoplayNext,
@@ -91,6 +97,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
     final speed = p.getDouble(_speed) ?? 1.0;
     return LocalSettings(
       themeMode: pick(ThemeMode.values, p.getString(_theme), ThemeMode.system),
+      themeModeChosen: p.getString(_theme) != null,
       videoQuality: pick(
         VideoQuality.values,
         p.getString(_quality),
@@ -109,7 +116,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
 
   void setThemeMode(ThemeMode mode) {
     _prefs.setString(_theme, mode.name);
-    state = state.copyWith(themeMode: mode);
+    state = state.copyWith(themeMode: mode, themeModeChosen: true);
   }
 
   void setVideoQuality(VideoQuality quality) {

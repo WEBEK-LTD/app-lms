@@ -7,9 +7,10 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
-import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_look.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
@@ -28,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = template ?? ref.watch(appEnvironmentProvider).build.template;
+    final t = template ?? ref.watch(appLookProvider).template;
     final sections = ref.watch(homeSectionsProvider);
     Future<void> refresh() => ref.refresh(homeSectionsProvider.future);
 
@@ -149,7 +150,7 @@ class _SearchBar extends StatelessWidget {
         shape: pill
             ? const StadiumBorder()
             : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(context.shapes.r(14)),
                 side: BorderSide(color: p.border),
               ),
         clipBehavior: Clip.antiAlias,
@@ -201,7 +202,7 @@ class _BannerCard extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: p.placeholderFor(0),
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(context.shapes.r(radius)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: tappable ? () => _openBanner(context, banner) : null,

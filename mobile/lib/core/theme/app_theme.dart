@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
+import '../api/models/config_models.dart' show CardStyle, CornerStyle;
 import '../config/build_config_data.dart';
 import 'palette.dart';
 
@@ -29,29 +30,66 @@ String resolveFont(String? font, AppTemplate template) =>
     ? font
     : defaultFontFor(template);
 
-/// Corner radii per template: Bold is rounder.
+/// Corner radii per template (Bold is rounder), and the client's corner and
+/// card style from `Config.appearance`.
 class AppShapes extends ThemeExtension<AppShapes> {
   const AppShapes({
     required this.card,
     required this.button,
     required this.chip,
+    this.corners,
+    this.cards,
   });
 
-  factory AppShapes.forTemplate(AppTemplate template) => switch (template) {
-    AppTemplate.bold => const AppShapes(card: 22, button: 16, chip: 20),
-    AppTemplate.minimal => const AppShapes(card: 14, button: 12, chip: 18),
-    AppTemplate.classic => const AppShapes(card: 16, button: 14, chip: 19),
-  };
+  factory AppShapes.forTemplate(
+    AppTemplate template, {
+    CornerStyle? corners,
+    CardStyle? cards,
+  }) {
+    final designed = switch (template) {
+      AppTemplate.bold => const AppShapes(card: 22, button: 16, chip: 20),
+      AppTemplate.minimal => const AppShapes(card: 14, button: 12, chip: 18),
+      AppTemplate.classic => const AppShapes(card: 16, button: 14, chip: 19),
+    };
+    final shapes = AppShapes(
+      card: designed.card,
+      button: designed.button,
+      chip: designed.chip,
+      corners: corners,
+      cards: cards,
+    );
+    return shapes.copyWith(
+      card: shapes.r(designed.card),
+      // Round buttons are pills (56 high).
+      button: corners == CornerStyle.round ? 28 : shapes.r(designed.button),
+      chip: shapes.r(designed.chip),
+    );
+  }
 
   final double card;
   final double button;
   final double chip;
+
+  /// `null` keeps every component's designed radius.
+  final CornerStyle? corners;
+
+  /// `null` keeps every card's designed style.
+  final CardStyle? cards;
+
+  /// A radius from the designs, adjusted to the client's corner style.
+  double r(double designed) => switch (corners) {
+    CornerStyle.sharp => designed < 4 ? designed : 4,
+    CornerStyle.round => (designed * 1.4).roundToDouble(),
+    CornerStyle.soft || null => designed,
+  };
 
   @override
   AppShapes copyWith({double? card, double? button, double? chip}) => AppShapes(
     card: card ?? this.card,
     button: button ?? this.button,
     chip: chip ?? this.chip,
+    corners: corners,
+    cards: cards,
   );
 
   @override
@@ -60,6 +98,22 @@ class AppShapes extends ThemeExtension<AppShapes> {
 
 extension AppShapesContext on BuildContext {
   AppShapes get shapes => Theme.of(this).extension<AppShapes>()!;
+
+  /// A card's outline: [radius] from the designs, and a border when the
+  /// design has one ([outlined]) unless the client picked a card style.
+  ShapeBorder cardShape(double radius, {bool outlined = false}) {
+    final s = shapes;
+    final style = s.cards ?? (outlined ? CardStyle.outlined : CardStyle.flat);
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(s.r(radius)),
+      side: style == CardStyle.outlined
+          ? BorderSide(color: palette.border)
+          : BorderSide.none,
+    );
+  }
+
+  /// Shadow depth for cards: only the elevated style has one.
+  double get cardElevation => shapes.cards == CardStyle.elevated ? 3 : 0;
 }
 
 ThemeData buildAppTheme({
@@ -67,19 +121,29 @@ ThemeData buildAppTheme({
   required Brightness brightness,
   required AppTemplate template,
   required String fontFamily,
+  Color? secondary,
+  CornerStyle? corners,
+  CardStyle? cards,
 }) {
   final p = AppPalette.build(
     primary: primary,
+    secondary: secondary,
     brightness: brightness,
     template: template,
   );
-  final shapes = AppShapes.forTemplate(template);
+  final shapes = AppShapes.forTemplate(
+    template,
+    corners: corners,
+    cards: cards,
+  );
   final scheme = ColorScheme(
     brightness: brightness,
     primary: p.primary,
     onPrimary: p.onPrimary,
     secondary: p.accent,
-    onSecondary: BrandColors.midnight,
+    onSecondary: p.accent.computeLuminance() > 0.45
+        ? BrandColors.midnight
+        : BrandColors.white,
     tertiary: p.link,
     onTertiary: BrandColors.white,
     error: p.danger,
@@ -179,19 +243,19 @@ ThemeData buildAppTheme({
       hintStyle: TextStyle(color: p.textTertiary),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(shapes.r(14)),
         borderSide: BorderSide(color: p.inputBorder),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(shapes.r(14)),
         borderSide: BorderSide(color: p.inputBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(shapes.r(14)),
         borderSide: BorderSide(color: p.text, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(shapes.r(14)),
         borderSide: BorderSide(color: p.danger),
       ),
     ),
@@ -214,7 +278,9 @@ ThemeData buildAppTheme({
         color: p.isDark ? BrandColors.midnight : BrandColors.white,
         fontSize: 15,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(shapes.r(12)),
+      ),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: p.surface,
@@ -224,8 +290,8 @@ ThemeData buildAppTheme({
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: p.surface,
       showDragHandle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(shapes.r(20))),
       ),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(

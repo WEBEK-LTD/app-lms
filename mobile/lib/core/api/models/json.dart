@@ -140,3 +140,12 @@ T enumFromSnake<T extends Enum>(List<T> values, Object? wire, T fallback) {
   }
   return fallback;
 }
+
+/// Like [enumFrom], but `null` for a missing or unknown value.
+T? enumOrNull<T extends Enum>(List<T> values, Object? wire) {
+  if (wire is! String) return null;
+  for (final value in values) {
+    if (value.name == wire) return value;
+  }
+  return null;
+}
