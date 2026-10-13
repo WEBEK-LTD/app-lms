@@ -46,6 +46,7 @@ class AppConfig {
 
   /// The booking plugin's rules, when one is active (Bookings apps).
   final BookingsConfig? bookings;
+
   /// The look set in the client dashboard; `null` keeps the build's look.
   final Appearance? appearance;
 }
