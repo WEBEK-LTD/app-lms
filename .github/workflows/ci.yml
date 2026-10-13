@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # "Run workflow" runs every check, whatever changed.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,7 +33,8 @@ jobs:
           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           # Pull requests check only what their latest push changed, to save
-          # Actions minutes; main, new pull requests and force pushes check all.
+          # Actions minutes; main, manual runs, new pull requests and force
+          # pushes check all.
           if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BEFORE" ] \
             && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git cat-file -e "$HEAD^{commit}" 2>/dev/null; then
             files="$(git diff --name-only "$BEFORE" "$HEAD")"
