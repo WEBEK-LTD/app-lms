@@ -512,7 +512,7 @@ export class TeachableConnector implements PlatformConnector {
       }
     } catch (e) {
       if (e instanceof ConnectorError) {
-        return error(503, "school_unavailable", "The school can't be reached right now. Please try again in a moment.");
+        return error(503, "lms_unavailable", "The school can't be reached right now. Please try again in a moment.");
       }
       throw e;
     }

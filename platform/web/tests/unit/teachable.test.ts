@@ -590,7 +590,7 @@ describe("Teachable on the hosted API", () => {
     server.state.down = true;
     const courses = await send("GET", "/courses");
     // Unlike Store and Bookings routes, the contract lists no 503 for course routes, so the shape is checked here.
-    expect(courses).toEqual({ status: 503, body: { code: "school_unavailable", message: expect.stringMatching(/school can't be reached/) } });
+    expect(courses).toEqual({ status: 503, body: { code: "lms_unavailable", message: expect.stringMatching(/school can't be reached/) } });
     // The config doesn't need the school.
     expect((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).status).toBe(200);
     server.state.down = false;

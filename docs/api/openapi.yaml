@@ -114,6 +114,7 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/HomeSection' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /auth/otp/request:
     post:
@@ -280,6 +281,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me:
     get:
@@ -615,6 +617,7 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/Category' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /courses:
     get:
@@ -652,6 +655,7 @@ paths:
                         type: array
                         items: { $ref: '#/components/schemas/CourseSummary' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /courses/{course_id}:
     get:
@@ -669,6 +673,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/CourseDetail' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /courses/{course_id}/curriculum:
     get:
@@ -692,6 +697,7 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/Topic' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /courses/{course_id}/enroll:
     post:
@@ -709,6 +715,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me/courses:
     get:
@@ -736,6 +743,7 @@ paths:
                         type: array
                         items: { $ref: '#/components/schemas/MyCourse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me/wishlist:
     get:
@@ -756,6 +764,7 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/CourseSummary' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me/wishlist/{course_id}:
     put:
@@ -770,6 +779,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
     delete:
       tags: [Learning]
       operationId: removeFromWishlist
@@ -781,6 +791,7 @@ paths:
         '204': { description: Removed }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /lessons/{lesson_id}:
     get:
@@ -799,6 +810,7 @@ paths:
               schema: { $ref: '#/components/schemas/Lesson' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /lessons/{lesson_id}/progress:
     put:
@@ -821,6 +833,7 @@ paths:
         '204': { description: Saved }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /lessons/{lesson_id}/complete:
     post:
@@ -839,6 +852,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /quizzes/{quiz_id}:
     get:
@@ -950,6 +964,7 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/Certificate' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /store/home:
     get:
@@ -1486,7 +1501,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     Unavailable:
-      description: The site is in maintenance mode or the license is inactive.
+      description: The site is in maintenance mode, the license is inactive, or the platform behind the hosted API (a shop, school or booking account) can't be reached.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
