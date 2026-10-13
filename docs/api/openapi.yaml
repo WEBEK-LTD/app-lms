@@ -448,6 +448,7 @@ paths:
                         type: array
                         items: { $ref: '#/components/schemas/Order' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /courses/{course_id}/reviews:
     get:
@@ -1139,14 +1140,16 @@ paths:
         lines, keeps the delivery date and gift message for the order, signs
         the customer in when they are signed in to the app, and opens the
         checkout; it works once. On the hosted API it opens the shop's
-        checkout (Shopify's, or our payment page for shops without a website).
-        The link expires at `expires_at`. Signed-out customers get a link only
+        checkout (Shopify's or another connected platform's, or our payment
+        page for shops without a website). The link expires at `expires_at`. Signed-out customers get a link only
         when the shop allows guest checkout (`store.guest_checkout`). The
         checkout's last page has `order-received` or `thank_you` in its
         address, so the app knows the order was placed.
 
         Fails with `cart_changed` (409) when a line is no longer available,
-        and with `purchase_not_allowed` (403) for digital products on iOS.
+        with `one_product_at_a_time` (409) when the shop's checkout can only
+        take one product from the app (show the message), and with
+        `purchase_not_allowed` (403) for digital products on iOS.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/Platform'
@@ -1387,6 +1390,7 @@ paths:
               schema: { $ref: '#/components/schemas/Appointment' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me/appointments/{appointment_id}/cancel:
     post:
@@ -1405,6 +1409,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
 components:
   securitySchemes:

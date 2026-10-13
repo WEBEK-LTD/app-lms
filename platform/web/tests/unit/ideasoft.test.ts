@@ -496,7 +496,7 @@ describe("IdeaSoft connector", () => {
       query: { platform: "android" },
       body: { lines: [{ product_id: 102, quantity: 1 }, { product_id: 101, variation_id: 1001, quantity: 1 }] },
     });
-    expect(several).toMatchObject({ status: 409, body: { code: "checkout_unavailable" } });
+    expect(several).toMatchObject({ status: 409, body: { code: "one_product_at_a_time" } });
   });
 
   it("lists the orders shipped to the customer's verified phone", async () => {

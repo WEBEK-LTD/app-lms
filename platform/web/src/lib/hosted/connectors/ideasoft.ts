@@ -1186,7 +1186,7 @@ export class IdeasoftConnector implements PlatformConnector {
     }
     return error(
       409,
-      "checkout_unavailable",
+      "one_product_at_a_time",
       "This shop can't take a cart with several products from the app yet. Please buy one product at a time, or order on the shop's website.",
     );
   }

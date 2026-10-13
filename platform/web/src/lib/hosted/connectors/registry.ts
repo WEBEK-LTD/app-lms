@@ -4,3 +4,5 @@ import "./ideasoft";
 import "./ikas";
 import "./teachable";
 import "./thinkific";
+import "./simplybook";
+import "./ticimax";
