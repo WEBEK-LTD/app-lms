@@ -2,6 +2,7 @@ name: Platform
 
 on:
   push:
+    branches: [main]
     paths:
       - 'platform/web/**'
       - 'docs/api/pipeline.yaml'
@@ -24,7 +25,7 @@ concurrency:
 jobs:
   pipeline-contract:
     name: Pipeline API contract
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,7 +36,7 @@ jobs:
 
   web:
     name: Lint, types, tests, build, e2e
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: platform/web

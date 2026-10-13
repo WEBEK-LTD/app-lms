@@ -2,6 +2,7 @@ name: Mobile
 
 on:
   push:
+    branches: [main]
     paths:
       - 'mobile/**'
       - '.github/workflows/mobile.yml'
@@ -20,7 +21,7 @@ concurrency:
 jobs:
   app:
     name: Flutter app
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
     defaults:
       run:
@@ -32,6 +33,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Android SDK (own runners)
+        if: runner.environment == 'self-hosted'
+        uses: android-actions/setup-android@v3
 
       - uses: subosito/flutter-action@v2
         with:

@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
@@ -14,7 +15,7 @@ concurrency:
 jobs:
   api-contract:
     name: API contract
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,7 +26,7 @@ jobs:
 
   plugin-syntax:
     name: Plugin syntax (PHP ${{ matrix.php }})
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +43,7 @@ jobs:
 
   plugin-standards:
     name: Plugin coding standards
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -60,7 +61,7 @@ jobs:
 
   plugin-package:
     name: Plugin zip
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -82,7 +83,7 @@ jobs:
 
   plugin-unit:
     name: Plugin unit tests (PHP ${{ matrix.php }})
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -104,7 +105,7 @@ jobs:
 
   plugin-integration:
     name: Plugin end-to-end (WordPress + Tutor LMS)
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -125,7 +126,7 @@ jobs:
 
   adapter-integration:
     name: Plugin end-to-end (${{ matrix.lms }})
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -152,7 +153,7 @@ jobs:
 
   store-integration:
     name: Plugin end-to-end (WooCommerce store)
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -175,7 +176,7 @@ jobs:
 
   bookings-integration:
     name: Plugin end-to-end (bookings on ${{ matrix.booking }})
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -202,7 +203,7 @@ jobs:
 
   booking-describe:
     name: Describe booking plugin (${{ matrix.part }})
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -256,7 +257,7 @@ jobs:
 
   build-pipeline:
     name: Build pipeline scripts
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -266,7 +267,7 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover build/tests -v
       - name: Shell scripts
-        run: shellcheck build/scripts/*.sh wp-plugin/yallapp/tests/integration/run.sh
+        run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh
       - name: Files host
         run: php -l build/files-host/index.php
       - uses: ruby/setup-ruby@v1

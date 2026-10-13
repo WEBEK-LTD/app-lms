@@ -119,16 +119,32 @@ the job ends.
 
 ## Own runner on our server
 
-`runner/` holds a Docker image of a GitHub Actions runner, close to GitHub's
-`ubuntu-24.04` runners, so the Linux jobs can run on our own server instead of
-GitHub's paid minutes (iOS still needs macOS). On the server, with Docker
-installed (x64, about 2 CPU cores and 4 GB of memory per runner):
+The Linux jobs (CI and Android builds) can run on our own server instead of
+GitHub's paid minutes; iOS still needs GitHub's macOS runners.
+`runner/install.sh` sets runners up on an AlmaLinux 9 x86_64 server, with or
+without cPanel:
+
+- Each runner is a rootless Podman container, close to GitHub's
+  `ubuntu-24.04` runners, that systemd keeps running under a `ghrunner`
+  system user (home in `/var/lib/ghrunner`), outside cPanel's accounts. Jobs
+  use sudo only inside their container.
+- Each runner runs one job at a time and is capped (default 2 CPU cores and
+  4 GB of memory) so the sites on the server keep their share.
+
+The script is one file, so it can be pasted on the server. As root (SSH, or
+WHM > Server Configuration > Terminal), save it as `/root/yallapp-runner.sh`
+and run:
 
 ```sh
-cd build/runner
-cp .env.example .env   # set RUNNER_TOKEN: Settings > Actions > Runners > New self-hosted runner
-docker compose up -d --build
+RUNNERS=2 CPUS=2 MEMORY=4g bash /root/yallapp-runner.sh
 ```
 
-The runners register with the label `yallapp` on their first start and keep
-their registration in their volumes. The workflows do not use them yet.
+It asks for a registration token from the repository's Settings > Actions >
+Runners > New self-hosted runner (it lasts an hour and is only needed while
+runners register). Then set the repository variable `LINUX_RUNNER` to
+`yallapp` (Settings > Secrets and variables > Actions > Variables): every
+Linux job moves to our runners. Delete the variable to go back to GitHub's
+runners.
+
+Running the script again rebuilds the image and restarts the runners. Logs:
+`journalctl --user-unit yallapp-runner-1 -f`.
