@@ -8,6 +8,7 @@ import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
+import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
 import { PLAN_FEATURES, type PlanFeature, type PlanSetting } from "@/lib/plans";
 import { clearPlatformSettingsCache, encryptSetting, platformSetting } from "@/lib/settings/platform";
@@ -26,6 +27,10 @@ export async function resetPlatformSettingAction(formData: FormData): Promise<vo
   const admin = await requireAdmin();
   const key = String(formData.get("key")) as PlatformSettingKey;
   if (key === "otp" || key === "smtp" || key === "iyzico" || key === "marketplace") await save(key, null, admin.email);
+  if (key === "contact") {
+    await save(key, null, admin.email);
+    revalidatePath("/", "layout");
+  }
 }
 
 export async function saveOtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -205,4 +210,18 @@ export async function saveMarketplaceAction(_: FormState, formData: FormData): P
   }
   await save("marketplace", { commissionPercent: percent }, admin.email);
   return { ok: true, message: `Shops can sell through Yallapp for a ${percent}% commission.`, values: { commission: raw } };
+}
+
+/** Yallapp's WhatsApp number and email, shown across the website, the dashboard and emails. */
+export async function saveContactAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin();
+  const values = { whatsapp: str(formData, "whatsapp"), email: str(formData, "email") };
+  const errors: Record<string, string> = {};
+  if (!parseAnyPhone(values.whatsapp, "+90") || !values.whatsapp.startsWith("+")) errors.whatsapp = "Enter the number with its country code, like +90 544 673 19 42.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.email.length > 191) errors.email = "Enter an email address.";
+  if (Object.keys(errors).length) return { errors, values };
+  await save("contact", values, admin.email);
+  // Every page shows them, including the ones built ahead of time.
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Contact details saved. The website and the dashboard show them now.", values };
 }

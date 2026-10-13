@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { DocLayout, DocTitle, LEGAL_NAV, LastUpdated } from "@/components/doc-layout";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Refund policy" };
 
-export default function RefundPage() {
+export default async function RefundPage() {
+  const contact = await getContact();
   return (
     <DocLayout groups={LEGAL_NAV} current="/refund">
       <DocTitle>Refund policy</DocTitle>
@@ -33,7 +35,7 @@ export default function RefundPage() {
 
       <h2>7. How to ask for a refund</h2>
       <p>
-        Message us on WhatsApp at <a href="https://wa.me/905446731942">+90 544 673 19 42</a> or email <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a> from your account email. Once we approve a refund, we send it to your original payment method. Depending on your bank, it takes 5 to 14 business days to reach you.
+        Message us on WhatsApp at <a href={contact.whatsappUrl}>{contact.whatsappDisplay}</a> or email <a href={`mailto:${contact.email}`}>{contact.email}</a> from your account email. Once we approve a refund, we send it to your original payment method. Depending on your bank, it takes 5 to 14 business days to reach you.
       </p>
 
       <h2>8. Your legal rights</h2>

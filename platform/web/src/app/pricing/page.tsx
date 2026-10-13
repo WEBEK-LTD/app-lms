@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { WHATSAPP_URL } from "@/components/brand";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
 import { planPrice } from "@/lib/plans";
 import { getStore } from "@/lib/data";
 import { getPlans } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 /** Plans and prices come from the admin. */
 export const dynamic = "force-dynamic";
@@ -40,6 +40,7 @@ function Mark({ on, label }: { on: boolean; label: string }) {
 }
 
 export default async function PricingPage() {
+  const contact = await getContact();
   const all = await getPlans(await getStore());
   const plans = [all.starter, all.pro];
   return (
@@ -75,7 +76,7 @@ export default async function PricingPage() {
                   ))}
                 </ul>
                 <a
-                  href={WHATSAPP_URL}
+                  href={contact.whatsappUrl}
                   className={`mt-auto flex h-[50px] items-center justify-center rounded-xl text-base font-bold no-underline ${
                     featured
                       ? "bg-midnight text-white hover:bg-ink-3 hover:text-white"

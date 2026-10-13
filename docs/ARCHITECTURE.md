@@ -177,9 +177,11 @@ mobile/
   sees the order on the Orders page. Each product also has a public page
   (`/shop/<app>/<product>`) to share.
 
-- Platform settings (`platform_settings`): the team sets the sign-in code
-  sender, the email server and Yallapp's own iyzico account on the admin's
-  Settings page. A saved setting replaces the matching Netlify variables
+- Platform settings (`platform_settings`): the team sets Yallapp's contact
+  details (WhatsApp number and email, shown on every page, in the dashboard
+  and in email signatures; saving rebuilds the pages made ahead of time),
+  the sign-in code sender, the email server, Yallapp's own iyzico account
+  and the marketplace commission on the admin's Settings page. A saved setting replaces the matching Netlify variables
   (removing it brings them back); secrets inside are encrypted with the
   context `platform:<key>` and never shown again. Each server instance
   caches the settings for 30 seconds. The plans (names, what's included,

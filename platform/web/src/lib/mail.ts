@@ -1,7 +1,8 @@
 import "server-only";
 import { getStore } from "./data";
 import { encryptionKey, isProduction } from "./env";
-import { resolvedSmtpConfig } from "./settings/platform";
+import { DEFAULT_CONTACT } from "./contact";
+import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
 
 export interface Mail {
   to: string;
@@ -14,8 +15,11 @@ export interface Mail {
  * printed to the server log in development only; in production it's dropped
  * with a warning that doesn't include the content (it may hold a reset link).
  */
-export async function sendMail(mail: Mail): Promise<void> {
-  const config = await resolvedSmtpConfig(await getStore(), encryptionKey());
+export async function sendMail(input: Mail): Promise<void> {
+  const store = await getStore();
+  const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
+  const mail = { ...input, text: input.text.replaceAll(WHATSAPP_PLACEHOLDER, contact.whatsapp) };
+  const config = await resolvedSmtpConfig(store, encryptionKey());
   if (!config) {
     if (!isProduction() || process.env.YALLAPP_DATA === "memory") {
       console.info(`[mail] To: ${mail.to}\n[mail] Subject: ${mail.subject}\n${mail.text}\n`);
@@ -35,7 +39,9 @@ export async function sendMail(mail: Mail): Promise<void> {
   await transport.sendMail({ from: config.from, to: mail.to, subject: mail.subject, text: mail.text });
 }
 
-const SIGNATURE = "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp +90 544 673 19 42\nYallapp is a trading name of WEBEK LTD, registered in England and Wales, company no. 16326894.";
+/** Replaced by sendMail with the WhatsApp number set in the admin. */
+const WHATSAPP_PLACEHOLDER = "{{yallapp-whatsapp}}";
+const SIGNATURE = `\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp ${WHATSAPP_PLACEHOLDER}\nYallapp is a trading name of WEBEK LTD, registered in England and Wales, company no. 16326894.`;
 
 export function resetPasswordMail(to: string, name: string, link: string, isNewAccount: boolean): Mail {
   return {

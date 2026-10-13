@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { releaseSiteAction } from "@/app/actions/dashboard";
-import { WHATSAPP_URL } from "@/components/brand";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
@@ -16,6 +15,7 @@ import { planName } from "@/lib/plans";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "License & plugin" };
 
@@ -29,6 +29,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
+  const contact = await getContact();
   const { license, state } = await requireClient();
   const { released, payment } = await searchParams;
   const store = await getStore();
@@ -64,7 +65,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         <Notice tone="warn" icon="warning">
           Your plan ended on {formatDate(license?.expiresAt)}. The plugin reports the license as expired, and your apps stop loading content.{" "}
           {payable.length ? "Renew it by card below, or " : ""}
-          <a href={WHATSAPP_URL}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to renew.
+          <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to renew.
         </Notice>
       ) : null}
 

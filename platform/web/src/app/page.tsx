@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { WHATSAPP_URL } from "@/components/brand";
 import { ContactBand, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { FEATURES, STEPS, WORKS_WITH } from "@/lib/marketing";
 import { getStore } from "@/lib/data";
 import { getPlans } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 /** Plans and prices come from the admin. */
 export const dynamic = "force-dynamic";
@@ -35,6 +35,7 @@ function PhoneMock() {
 }
 
 export default async function LandingPage() {
+  const contact = await getContact();
   const all = await getPlans(await getStore());
   const plans = [all.starter, all.pro];
   return (
@@ -54,7 +55,7 @@ export default async function LandingPage() {
                 Turn your WordPress site into branded Android and iOS apps. Students sign in with Digits OTP, watch protected lessons and track their progress, all synced with your website.
               </p>
               <div className="flex flex-wrap gap-3">
-                <a href={WHATSAPP_URL} className="flex h-[52px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white">
+                <a href={contact.whatsappUrl} className="flex h-[52px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white">
                   <Icon name="chat" size={20} />
                   Get started on WhatsApp
                 </a>

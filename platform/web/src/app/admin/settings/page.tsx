@@ -7,7 +7,8 @@ import { getStore } from "@/lib/data";
 import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
-import { IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
+import { DEFAULT_CONTACT } from "@/lib/contact";
+import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -65,6 +66,7 @@ export default async function SettingsPage() {
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;
   const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
+  const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const data = dataMode();
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
@@ -84,6 +86,25 @@ export default async function SettingsPage() {
           Settings saved here replace the Netlify variables and apply within 30 seconds. Secrets are stored encrypted and never shown again.
         </span>
       </div>
+
+      <Section id="h-contact" title="Contact details" text="How clients reach Yallapp: shown on every page of the website, in the dashboard and in emails.">
+        {contact ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              Set here by {contact.updatedBy}, {formatDateTime(contact.updatedAt)}.
+            </p>
+            <form action={resetPlatformSettingAction}>
+              <input type="hidden" name="key" value="contact" />
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Use the defaults
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: the defaults.</p>
+        )}
+        <ContactForm whatsapp={contact?.value.whatsapp ?? DEFAULT_CONTACT.whatsapp} email={contact?.value.email ?? DEFAULT_CONTACT.email} />
+      </Section>
 
       <Section id="h-otp" title="Sign-in codes" text="How apps on the hosted API send customers their 6-digit sign-in codes.">
         <Source setting={otp} settingKey="otp" fallback={envOtp} />

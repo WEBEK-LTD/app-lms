@@ -101,3 +101,28 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   await page.goto("/pricing");
   await expect(page.getByText("₺4,800.00")).toHaveCount(0);
 });
+
+test("the team changes the contact details shown everywhere", async () => {
+  await openSettings();
+  const contact = page.getByRole("region", { name: "Contact details" });
+  await expect(contact).toContainText("Now: the defaults.");
+  await contact.getByLabel("WhatsApp number").fill("0544");
+  await contact.getByRole("button", { name: "Save" }).click();
+  await expect(contact.getByText("Enter the number with its country code")).toBeVisible();
+  await contact.getByLabel("WhatsApp number").fill("+90 555 111 22 33");
+  await contact.getByLabel("Email").fill("hello@yallapp.test");
+  await contact.getByRole("button", { name: "Save" }).click();
+  await expect(contact.getByText("Contact details saved.")).toBeVisible();
+
+  for (const path of ["/contact", "/terms"]) {
+    await page.goto(path);
+    await expect(page.getByRole("link", { name: "+90 555 111 22 33" }).first()).toHaveAttribute("href", "https://wa.me/905551112233");
+    await expect(page.getByRole("link", { name: "hello@yallapp.test" }).first()).toBeVisible();
+  }
+
+  await openSettings();
+  await contact.getByRole("button", { name: "Use the defaults" }).click();
+  await expect(contact).toContainText("Now: the defaults.");
+  await page.goto("/contact");
+  await expect(page.getByRole("link", { name: "+90 544 673 19 42" }).first()).toBeVisible();
+});

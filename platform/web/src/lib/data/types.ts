@@ -486,6 +486,14 @@ export interface PlatformSettingValues {
   plans: Partial<Record<Plan, PlanSetting>>;
   /** Shops selling through Yallapp's iyzico account; off until set. */
   marketplace: MarketplaceSetting;
+  /** How clients reach Yallapp, shown across the website and the dashboard. */
+  contact: ContactSetting;
+}
+
+export interface ContactSetting {
+  /** As shown, like +90 544 673 19 42. */
+  whatsapp: string;
+  email: string;
 }
 
 export interface MarketplaceSetting {

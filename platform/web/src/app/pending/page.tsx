@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth-shell";
-import { WHATSAPP_URL } from "@/components/brand";
 import { Icon } from "@/components/icon";
 import { SignOutButton } from "@/components/sign-out";
 import { btn } from "@/components/ui";
@@ -12,10 +11,12 @@ import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Account pending activation", robots: { index: false } };
 
 export default async function PendingPage({ searchParams }: PageProps<"/pending">) {
+  const contact = await getContact();
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
   if (isSuperAdmin(user)) redirect("/admin");
@@ -29,7 +30,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
             <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">This account has no client profile</h1>
             <p className="m-0 text-base leading-relaxed text-ink-4">Message us on WhatsApp and we&apos;ll sort it out.</p>
             <div className="flex flex-wrap gap-3">
-              <a href={WHATSAPP_URL} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
+              <a href={contact.whatsappUrl} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
                 Message us on WhatsApp
               </a>
               <SignOutButton className={`${btn.secondary} h-[50px] w-full cursor-pointer`} />
@@ -45,7 +46,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   const { payment } = await searchParams;
   const store = await getStore();
   const payable = !suspended && (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(await getPlans(store)) : [];
-  const whatsapp = `${WHATSAPP_URL}?text=${encodeURIComponent(
+  const whatsapp = `${contact.whatsappUrl}?text=${encodeURIComponent(
     suspended
       ? `Hello, my Yallapp account (${user.email}) is suspended. Can you help?`
       : `Hello, I created a Yallapp account with ${user.email} and I'd like to confirm my plan.`,

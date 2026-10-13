@@ -1,9 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- SVG logos are tiny and need no optimisation. */
 import Link from "next/link";
 
-export const WHATSAPP_URL = "https://wa.me/905446731942";
-export const WHATSAPP_DISPLAY = "+90 544 673 19 42";
-export const CONTACT_EMAIL = "info@yallapp.com.tr";
 export const LEGAL_LINE =
   "© 2026 WEBEK LTD · Registered in England and Wales, company no. 16326894 · 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ";
 

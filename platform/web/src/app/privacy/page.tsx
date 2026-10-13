@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { DocLayout, DocTitle, LEGAL_NAV, LastUpdated } from "@/components/doc-layout";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Privacy policy" };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const contact = await getContact();
   return (
     <DocLayout groups={LEGAL_NAV} current="/privacy">
       <DocTitle>Privacy policy</DocTitle>
@@ -11,7 +13,7 @@ export default function PrivacyPage() {
 
       <h2>1. Who we are</h2>
       <p>
-        Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. WEBEK LTD is the data controller for the personal data described here. We follow the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. When we process data of people in Türkiye or the European Union, we also follow the Turkish Personal Data Protection Law No. 6698 (KVKK) and the EU General Data Protection Regulation (GDPR). Contact: <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a>.
+        Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. WEBEK LTD is the data controller for the personal data described here. We follow the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. When we process data of people in Türkiye or the European Union, we also follow the Turkish Personal Data Protection Law No. 6698 (KVKK) and the EU General Data Protection Regulation (GDPR). Contact: <a href={`mailto:${contact.email}`}>{contact.email}</a>.
       </p>
 
       <h2>2. Data we collect from our clients</h2>
@@ -66,7 +68,7 @@ export default function PrivacyPage() {
 
       <h2>9. Your rights</h2>
       <p>
-        Under the UK GDPR, you can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. KVKK (Article 11) and the EU GDPR give you similar rights, including the right to know who your data was shared with. We reply within one month. Email <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a>. You can also complain to the UK Information Commissioner’s Office (ico.org.uk), the Turkish Personal Data Protection Authority (kvkk.gov.tr), or the data protection authority in your EU country.
+        Under the UK GDPR, you can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. KVKK (Article 11) and the EU GDPR give you similar rights, including the right to know who your data was shared with. We reply within one month. Email <a href={`mailto:${contact.email}`}>{contact.email}</a>. You can also complain to the UK Information Commissioner’s Office (ico.org.uk), the Turkish Personal Data Protection Authority (kvkk.gov.tr), or the data protection authority in your EU country.
       </p>
 
       <h2>10. Cookies</h2>
@@ -74,7 +76,7 @@ export default function PrivacyPage() {
 
       <h2>11. Changes and contact</h2>
       <p>
-        We will post changes here and email you about important ones. Questions: <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a> or WhatsApp <a href="https://wa.me/905446731942">+90 544 673 19 42</a>.
+        We will post changes here and email you about important ones. Questions: <a href={`mailto:${contact.email}`}>{contact.email}</a> or WhatsApp <a href={contact.whatsappUrl}>{contact.whatsappDisplay}</a>.
       </p>
     </DocLayout>
   );

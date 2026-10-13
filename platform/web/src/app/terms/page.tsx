@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DocLayout, DocTitle, LEGAL_NAV, LastUpdated } from "@/components/doc-layout";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Terms of service" };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const contact = await getContact();
   return (
     <DocLayout groups={LEGAL_NAV} current="/terms">
       <DocTitle>Terms of service</DocTitle>
@@ -62,7 +64,7 @@ export default function TermsPage() {
 
       <h2>11. Availability and support</h2>
       <p>
-        We work to keep Yallapp available but can’t promise uninterrupted service. We announce planned maintenance in advance where possible. Support is available on WhatsApp at <a href="https://wa.me/905446731942">+90 544 673 19 42</a> and by email at <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a>.
+        We work to keep Yallapp available but can’t promise uninterrupted service. We announce planned maintenance in advance where possible. Support is available on WhatsApp at <a href={contact.whatsappUrl}>{contact.whatsappDisplay}</a> and by email at <a href={`mailto:${contact.email}`}>{contact.email}</a>.
       </p>
 
       <h2>12. Ending your account</h2>
@@ -90,7 +92,7 @@ export default function TermsPage() {
 
       <h2>17. Contact</h2>
       <p>
-        WEBEK LTD, 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. Email: <a href="mailto:info@yallapp.com.tr">info@yallapp.com.tr</a> · WhatsApp: <a href="https://wa.me/905446731942">+90 544 673 19 42</a>
+        WEBEK LTD, 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. Email: <a href={`mailto:${contact.email}`}>{contact.email}</a> · WhatsApp: <a href={contact.whatsappUrl}>{contact.whatsappDisplay}</a>
       </p>
     </DocLayout>
   );

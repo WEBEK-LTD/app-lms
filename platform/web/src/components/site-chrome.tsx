@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "./icon";
-import { LEGAL_LINE, Logo, LogoLink, WHATSAPP_DISPLAY, WHATSAPP_URL } from "./brand";
+import { getContact } from "@/lib/contact";
+import { LEGAL_LINE, Logo, LogoLink } from "./brand";
 
 export type SitePage = "home" | "features" | "how" | "pricing" | "faq" | "guides" | "contact";
 
@@ -15,7 +16,8 @@ export const SITE_PAGES: { id: SitePage; href: string; label: string }[] = [
 ];
 
 /** Header of the public website. Every link is its own page; `current` marks where the visitor is. */
-export function SiteHeader({ current, white = true }: { current?: SitePage; white?: boolean }) {
+export async function SiteHeader({ current, white = true }: { current?: SitePage; white?: boolean }) {
+  const contact = await getContact();
   return (
     <header className={`border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
       <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-8 gap-y-3 px-4 py-[18px] sm:px-6">
@@ -24,7 +26,7 @@ export function SiteHeader({ current, white = true }: { current?: SitePage; whit
           <Link href="/sign-in" className="flex h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline sm:px-4">
             Sign in
           </Link>
-          <a href={WHATSAPP_URL} className="flex h-[42px] items-center rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white">
+          <a href={contact.whatsappUrl} className="flex h-[42px] items-center rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white">
             Contact us
           </a>
         </div>
@@ -58,7 +60,8 @@ function FooterHeading({ children }: { children: string }) {
 const footerLink = "text-ivory no-underline hover:text-white hover:underline";
 
 /** The dark footer. `full` (marketing pages) adds the WhatsApp button and a contact column. */
-export function SiteFooter({ full = false }: { full?: boolean }) {
+export async function SiteFooter({ full = false }: { full?: boolean }) {
+  const contact = await getContact();
   return (
     <footer className="on-dark bg-midnight text-night-text">
       <div className={`mx-auto flex max-w-[1160px] flex-col px-4 sm:px-6 ${full ? "gap-12 pt-16 pb-8" : "gap-10 pt-14 pb-8"}`}>
@@ -72,7 +75,7 @@ export function SiteFooter({ full = false }: { full?: boolean }) {
             </p>
             {full ? (
               <a
-                href={WHATSAPP_URL}
+                href={contact.whatsappUrl}
                 className="flex h-[46px] items-center gap-2 self-start rounded-[10px] bg-ivory px-[18px] text-[15px] font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
               >
                 <Icon name="chat" size={20} />
@@ -104,9 +107,9 @@ export function SiteFooter({ full = false }: { full?: boolean }) {
           {full ? (
             <div className="flex flex-[1_1_180px] flex-col gap-3 text-[15px]">
               <FooterHeading>CONTACT</FooterHeading>
-              <a href={WHATSAPP_URL} className={`${footerLink} flex items-center gap-2`}>
+              <a href={contact.whatsappUrl} className={`${footerLink} flex items-center gap-2`}>
                 <Icon name="call" size={18} />
-                {WHATSAPP_DISPLAY}
+                {contact.whatsappDisplay}
               </a>
               <a href="https://yallapp.com.tr" className={`${footerLink} flex items-center gap-2`}>
                 <Icon name="language" size={18} />
@@ -120,8 +123,8 @@ export function SiteFooter({ full = false }: { full?: boolean }) {
           {full ? (
             <span>WordPress is a trademark of the WordPress Foundation. Yallapp is not affiliated with the LMS plugins it supports.</span>
           ) : (
-            <a href={WHATSAPP_URL} className="text-night-text no-underline hover:text-white hover:underline">
-              WhatsApp: {WHATSAPP_DISPLAY} · yallapp.com.tr
+            <a href={contact.whatsappUrl} className="text-night-text no-underline hover:text-white hover:underline">
+              WhatsApp: {contact.whatsappDisplay} · yallapp.com.tr
             </a>
           )}
         </div>
@@ -131,14 +134,15 @@ export function SiteFooter({ full = false }: { full?: boolean }) {
 }
 
 /** Small footer for sign-in and account pages. */
-export function MiniFooter() {
+export async function MiniFooter() {
+  const contact = await getContact();
   return (
     <footer className="mx-auto flex w-full max-w-[1160px] flex-wrap justify-between gap-x-6 gap-y-3 px-4 py-5 text-sm text-muted sm:px-6">
       <span>© 2026 WEBEK LTD · Registered in England and Wales, company no. 16326894</span>
       <span className="flex gap-5">
         <Link href="/terms" className="text-muted">Terms</Link>
         <Link href="/privacy" className="text-muted">Privacy</Link>
-        <a href={WHATSAPP_URL} className="text-muted">Support</a>
+        <a href={contact.whatsappUrl} className="text-muted">Support</a>
       </span>
     </footer>
   );

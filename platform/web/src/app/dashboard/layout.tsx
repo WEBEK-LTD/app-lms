@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Logo, WHATSAPP_URL } from "@/components/brand";
+import { Logo } from "@/components/brand";
 import { stopManagingAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { SideNavLinks } from "@/components/side-nav";
 import { SignOutButton } from "@/components/sign-out";
 import { requireClient } from "@/lib/auth/session";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const contact = await getContact();
   const { user, staff, app } = await requireClient();
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
@@ -38,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 ]
               : []),
             { href: "/dashboard/license", label: "License & plugin" },
-            { href: WHATSAPP_URL, label: "Support", external: true },
+            { href: contact.whatsappUrl, label: "Support", external: true },
           ]}
         />
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line-soft px-2 pt-3 text-sm text-muted md:mt-auto">

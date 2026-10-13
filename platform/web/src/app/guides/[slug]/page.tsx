@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { WHATSAPP_URL } from "@/components/brand";
 import { DocLayout, DocTitle, type DocNavGroup } from "@/components/doc-layout";
 import { Icon } from "@/components/icon";
 import { GUIDES, GUIDE_SECTIONS, guideBySlug } from "@/content/guides";
+import { getContact } from "@/lib/contact";
 
-export const dynamicParams = false;
+// Unknown guides get notFound() below. (dynamicParams = false would 404 every guide once
+// the contact details change and the pages are rebuilt.)
 
 export function generateStaticParams() {
   return GUIDES.map((guide) => ({ slug: guide.slug }));
@@ -24,6 +25,7 @@ const NAV: DocNavGroup[] = GUIDE_SECTIONS.map((section) => ({
 }));
 
 export default async function GuidePage({ params }: PageProps<"/guides/[slug]">) {
+  const contact = await getContact();
   const { slug } = await params;
   const guide = guideBySlug(slug);
   if (!guide) notFound();
@@ -69,7 +71,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
         {guide.outro}
 
         <div className="flex flex-wrap justify-between gap-3 border-t border-line-soft pt-5">
-          <a href={WHATSAPP_URL} className="flex items-center gap-1.5 font-semibold no-underline">
+          <a href={contact.whatsappUrl} className="flex items-center gap-1.5 font-semibold no-underline">
             <Icon name="chat" size={20} />
             Need help? Message us
           </a>

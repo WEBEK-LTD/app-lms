@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveIyzicoSettingAction, saveMarketplaceAction, saveOtpSettingAction, saveSmtpSettingAction, sendTestEmailAction } from "@/app/actions/admin-settings";
+import { saveContactAction, saveIyzicoSettingAction, saveMarketplaceAction, saveOtpSettingAction, saveSmtpSettingAction, sendTestEmailAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -169,6 +169,25 @@ export function MarketplaceForm({ commission }: { commission: string }) {
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save commission
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+export function ContactForm({ whatsapp, email }: { whatsapp: string; email: string }) {
+  const [state, action] = useActionState(saveContactAction, initialFormState);
+  const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="WhatsApp number" name="whatsapp" type="tel" defaultValue={v("whatsapp", whatsapp)} hint="As it should look, with the country code." error={state.errors?.whatsapp} />
+        <Field label="Email" name="email" type="email" defaultValue={v("email", email)} error={state.errors?.email} />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save
         </SubmitButton>
       </div>
     </form>
