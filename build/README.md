@@ -9,7 +9,7 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
 1. The client finishes the setup wizard or clicks "Start new build". The
    platform saves a snapshot of the build config and queues the build.
 2. The platform starts the workflow at once (with `GITHUB_DISPATCH_TOKEN`), and
-   its schedule checks again every 10 minutes. Each run takes up to 5 queued
+   its schedule checks again every hour. Each run takes up to 5 queued
    builds and marks them `building`, with a link to the run.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and

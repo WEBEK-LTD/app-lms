@@ -13,6 +13,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changed files
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      plugin: ${{ steps.files.outputs.plugin }}
+      describe: ${{ steps.files.outputs.describe }}
+      pipeline: ${{ steps.files.outputs.pipeline }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: files
+        name: Files this push changed
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Pull requests check only what their latest push changed, to save
+          # Actions minutes; main, new pull requests and force pushes check all.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BEFORE" ] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git cat-file -e "$HEAD^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only "$BEFORE" "$HEAD")"
+          else
+            files=all
+          fi
+          printf '%s\n' "$files"
+          match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
+          {
+            if match '^(wp-plugin/|\.github/workflows/ci\.yml$)'; then echo plugin=true; else echo plugin=false; fi
+            if match '^(wp-plugin/yallapp/tests/dev-site/describe-methods\.php|\.github/workflows/ci\.yml)$'; then echo describe=true; else echo describe=false; fi
+            if match '^(build/|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
+          } >> "$GITHUB_OUTPUT"
+
   api-contract:
     name: API contract
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
@@ -26,6 +59,8 @@ jobs:
 
   plugin-syntax:
     name: Plugin syntax (PHP ${{ matrix.php }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -43,6 +78,8 @@ jobs:
 
   plugin-standards:
     name: Plugin coding standards
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
@@ -61,6 +98,8 @@ jobs:
 
   plugin-package:
     name: Plugin zip
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
@@ -83,6 +122,8 @@ jobs:
 
   plugin-unit:
     name: Plugin unit tests (PHP ${{ matrix.php }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -105,6 +146,8 @@ jobs:
 
   plugin-integration:
     name: Plugin end-to-end (WordPress + Tutor LMS)
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
@@ -126,6 +169,8 @@ jobs:
 
   adapter-integration:
     name: Plugin end-to-end (${{ matrix.lms }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -153,6 +198,8 @@ jobs:
 
   store-integration:
     name: Plugin end-to-end (WooCommerce store)
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
@@ -176,6 +223,8 @@ jobs:
 
   bookings-integration:
     name: Plugin end-to-end (bookings on ${{ matrix.booking }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -203,6 +252,8 @@ jobs:
 
   booking-describe:
     name: Describe booking plugin (${{ matrix.part }})
+    needs: changes
+    if: needs.changes.outputs.describe == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
@@ -257,6 +308,8 @@ jobs:
 
   build-pipeline:
     name: Build pipeline scripts
+    needs: changes
+    if: needs.changes.outputs.pipeline == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4

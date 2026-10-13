@@ -5,7 +5,7 @@ const WORKFLOW = "build-apps.yml";
 
 /**
  * Starts the build workflow now (build/README.md). Best effort: if GitHub
- * can't be reached, the workflow's schedule picks the build up within 10 minutes.
+ * can't be reached, the workflow's schedule picks the build up within the hour.
  */
 export async function startPipeline(): Promise<boolean> {
   try {

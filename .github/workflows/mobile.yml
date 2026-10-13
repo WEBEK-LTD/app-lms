@@ -19,8 +19,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changed files
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      app: ${{ steps.files.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: files
+        name: Files this push changed
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Pull requests check only what their latest push changed, to save
+          # Actions minutes; main, new pull requests and force pushes check all.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BEFORE" ] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git cat-file -e "$HEAD^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only "$BEFORE" "$HEAD")"
+          else
+            files=all
+          fi
+          printf '%s\n' "$files"
+          match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
+          {
+            if match '^(mobile/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
+          } >> "$GITHUB_OUTPUT"
+
   app:
     name: Flutter app
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
     defaults:
