@@ -267,6 +267,7 @@ jobs:
             slug: ameliabooking
             methods: '::(getSlotsEntities|getFilteredSlotsEntities|getSlotsSettings)$'
             grep: 'hasLicenseAccess|Licence::'
+            around: 'src/Infrastructure/Repository/User/ProviderRepository.php:1960:2060 src/Domain/Services/User/ProviderService.php:440:530'
           - part: latepoint helpers
             booking: latepoint
             slug: latepoint
@@ -304,8 +305,14 @@ jobs:
           LIST: ${{ matrix.list }}
           METHODS: ${{ matrix.methods }}
           GREP: ${{ matrix.grep }}
+          AROUND: ${{ matrix.around }}
         run: |
           if [ -n "$LIST" ]; then echo "== list"; php tests/dev-site/describe-methods.php "$DIR" "$LIST" --list; fi
+          for range in $AROUND; do
+            IFS=: read -r file from to <<<"$range"
+            echo "== $file:$from-$to"
+            sed -n "${from},${to}p" "$DIR/$file" | cat -n | sed "s/^ *\([0-9]*\)/$((from - 1))+\1/"
+          done
           if [ -n "$GREP" ]; then echo "== grep"; grep -rnE --include='*.php' --exclude-dir=vendor "$GREP" "$DIR" | sed "s#^$DIR/##" | cut -c1-300 | head -n 200 || true; fi
           php tests/dev-site/describe-methods.php "$DIR" "$METHODS"
 
