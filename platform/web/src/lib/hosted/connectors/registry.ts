@@ -2,3 +2,4 @@
 export { platformDefinitions, platformDefinition } from "./platforms";
 import "./ideasoft";
 import "./ikas";
+import "./teachable";
