@@ -20,9 +20,12 @@ import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
 
-/// The shop's order received page, reached at the end of the checkout.
+/// The shop's order received page, reached at the end of the checkout:
+/// WooCommerce's and the hosted payment page's `order-received`, Shopify's
+/// `thank_you`.
 bool isOrderReceived(Uri url) =>
     url.pathSegments.contains('order-received') ||
+    url.pathSegments.contains('thank_you') ||
     url.queryParameters.containsKey('order-received');
 
 /// The Cart tab: lines priced by the shop, the delivery date and gift

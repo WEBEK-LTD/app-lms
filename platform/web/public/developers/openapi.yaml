@@ -423,8 +423,9 @@ paths:
       operationId: listOrders
       summary: List the student's orders
       description: |
-        Orders from the site's checkout (the LMS's own or WooCommerce), newest
-        first. Empty when the site doesn't sell (`features.orders`). The
+        Orders from the site's checkout (the LMS's own or WooCommerce, or the
+        hosted API's payment page for shops without a website), newest first.
+        Empty when the site doesn't sell (`features.orders`). The
         Academy app on iOS doesn't show orders, as it doesn't sell courses;
         Store apps show them on both platforms.
       parameters:
@@ -1119,11 +1120,15 @@ paths:
       operationId: createStoreCheckoutLink
       summary: Get a one-time checkout link for the cart
       description: |
-        The link fills the site's WooCommerce cart with these lines, keeps the
-        delivery date and gift message for the order, signs the customer in
-        when they are signed in to the app, and opens the checkout. It works
-        once and expires after 5 minutes. Signed-out customers get a link only
-        when the shop allows guest checkout (`store.guest_checkout`).
+        On WordPress, the link fills the site's WooCommerce cart with these
+        lines, keeps the delivery date and gift message for the order, signs
+        the customer in when they are signed in to the app, and opens the
+        checkout; it works once. On the hosted API it opens the shop's
+        checkout (Shopify's, or our payment page for shops without a website).
+        The link expires at `expires_at`. Signed-out customers get a link only
+        when the shop allows guest checkout (`store.guest_checkout`). The
+        checkout's last page has `order-received` or `thank_you` in its
+        address, so the app knows the order was placed.
 
         Fails with `cart_changed` (409) when a line is no longer available,
         and with `purchase_not_allowed` (403) for digital products on iOS.

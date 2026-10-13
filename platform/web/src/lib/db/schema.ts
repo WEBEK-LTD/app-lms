@@ -1,4 +1,16 @@
-import type { AppBackend, AppType, AssetKind, ConnectorConfig, HostedSettings, PushPreferences } from "../data/types";
+import type {
+  AppBackend,
+  AppType,
+  AssetKind,
+  CatalogCurrency,
+  CatalogCustomer,
+  CatalogOrderLine,
+  CatalogOrderStatus,
+  CatalogSettings,
+  ConnectorConfig,
+  HostedSettings,
+  PushPreferences,
+} from "../data/types";
 import {
   bigint,
   boolean,
@@ -128,6 +140,7 @@ export const apps = mysqlTable(
     firebaseIosAssetId: id("firebase_ios_asset_id"),
     connector: jsonText<ConnectorConfig>("connector"),
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
+    catalogSettings: jsonText<CatalogSettings>("catalog_settings"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
@@ -327,4 +340,73 @@ export const hostedNotifications = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
+);
+
+// Catalog: products managed in the dashboard for apps without a website.
+
+export const catalogCategories = mysqlTable(
+  "catalog_categories",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("catalog_categories_app_idx").on(t.appId)],
+);
+
+export const catalogProducts = mysqlTable(
+  "catalog_products",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 120 }).notNull(),
+    description: text("description").notNull(),
+    priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
+    salePriceCents: bigint("sale_price_cents", { mode: "number", unsigned: true }),
+    categoryIds: jsonText<number[]>("category_ids").notNull(),
+    imageAssetIds: jsonText<string[]>("image_asset_ids").notNull(),
+    stock: int("stock"),
+    digital: boolean("digital").notNull(),
+    featured: boolean("featured").notNull(),
+    active: boolean("active").notNull(),
+    sku: varchar("sku", { length: 64 }),
+    salesCount: int("sales_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("catalog_products_app_idx").on(t.appId, t.createdAt)],
+);
+
+export const catalogOrders = mysqlTable(
+  "catalog_orders",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    status: varchar("status", { length: 16 }).notNull().$type<CatalogOrderStatus>(),
+    lines: jsonText<CatalogOrderLine[]>("lines").notNull(),
+    subtotalCents: bigint("subtotal_cents", { mode: "number", unsigned: true }).notNull(),
+    shippingCents: bigint("shipping_cents", { mode: "number", unsigned: true }).notNull(),
+    totalCents: bigint("total_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    customer: jsonText<CatalogCustomer>("customer"),
+    paymentId: varchar("payment_id", { length: 64 }),
+    createdAt: time("created_at").notNull(),
+    paidAt: time("paid_at"),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
+    index("catalog_orders_app_idx").on(t.appId, t.createdAt),
+    index("catalog_orders_user_idx").on(t.appId, t.userId),
+  ],
 );

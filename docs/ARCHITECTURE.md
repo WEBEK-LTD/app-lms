@@ -162,6 +162,20 @@ mobile/
   iOS, carts with digital products (no shipping) are refused. Prices use
   the shop's money format. Shop details and collections are cached for
   five minutes. Reviews and order history are off for Shopify apps.
+- No website (Store apps): the client picks "I don't have a website" on the
+  Website step and manages products (price, sale price, stock, photos,
+  categories, digital or physical), shipping and their iyzico keys on the
+  dashboard's Products page (`catalog_*` tables, keys stored encrypted).
+  The hosted API serves them through the catalog connector. Checkout
+  creates a pending order and opens our payment page (`/pay/<token>`, in
+  the client's branding), which collects the customer's details and sends
+  them to iyzico's hosted card page with the client's own merchant keys.
+  iyzico posts back to `/api/pay/iyzico/<token>`; the order is marked paid
+  (and stock taken) only after iyzico confirms the payment for that basket
+  and amount. The customer lands on `/pay/<token>/order-received`, which
+  the app recognises as the end of checkout; the client gets an email and
+  sees the order on the Orders page. Each product also has a public page
+  (`/shop/<app>/<product>`) to share.
 
 ## Build pipeline
 

@@ -43,6 +43,13 @@
       "when": 1791877389099,
       "tag": "0005_app_connector",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1791888891382,
+      "tag": "0006_catalog",
+      "breakpoints": true
     }
   ]
 }

@@ -7,7 +7,7 @@ export type BuildStatus = "queued" | "building" | "ready" | "failed";
 export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight";
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios";
+export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios" | "product_image";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -87,7 +87,10 @@ export type AppBackend = "wordpress" | "custom_api" | "setup_requested" | "hoste
  * The platform that serves a hosted-API app's content. The access token is
  * stored encrypted (context `app:connector:<app id>`).
  */
-export type ConnectorConfig = { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string };
+export type ConnectorConfig =
+  | { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string }
+  /** No website: the products the client adds in the dashboard (catalog_* tables). */
+  | { kind: "catalog" };
 
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {
@@ -153,6 +156,8 @@ export interface App {
   hostedSettings: HostedSettings | null;
   /** Encrypted Firebase service account JSON, for push from the hosted API. Never leaves the server. */
   firebaseServiceAccountEncrypted: string | null;
+  /** Shop settings when the products are managed in the dashboard (connector "catalog"). */
+  catalogSettings: CatalogSettings | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
@@ -313,3 +318,109 @@ export interface HostedNotification {
   body: string;
   createdAt: Date;
 }
+
+// Catalog: products managed in the dashboard for apps without a website.
+
+export type CatalogCurrency = "TRY" | "USD" | "EUR";
+
+export interface CatalogSettings {
+  currency: CatalogCurrency;
+  /** Flat shipping for orders with physical products. */
+  shippingCents: number;
+  /** Orders at or above this subtotal ship free; null means never. */
+  freeShippingOverCents: number | null;
+  /** Card payments through the client's own iyzico merchant account. */
+  payment: {
+    provider: "iyzico";
+    /** Encrypted with context `app:payment:<app id>`. */
+    apiKeyEncrypted: string;
+    secretKeyEncrypted: string;
+    sandbox: boolean;
+  } | null;
+}
+
+export const DEFAULT_CATALOG_SETTINGS: CatalogSettings = {
+  currency: "TRY",
+  shippingCents: 0,
+  freeShippingOverCents: null,
+  payment: null,
+};
+
+export interface CatalogCategory {
+  id: number;
+  appId: string;
+  name: string;
+  position: number;
+  createdAt: Date;
+}
+
+export interface CatalogProduct {
+  id: number;
+  appId: string;
+  name: string;
+  /** Plain text; paragraphs separated by blank lines. */
+  description: string;
+  priceCents: number;
+  /** Lower price while on sale; null when not on sale. */
+  salePriceCents: number | null;
+  categoryIds: number[];
+  imageAssetIds: string[];
+  /** Units in stock; null means not tracked. */
+  stock: number | null;
+  /** Nothing to ship (and not sold in the iPhone app). */
+  digital: boolean;
+  featured: boolean;
+  /** Hidden from the app when false. */
+  active: boolean;
+  sku: string | null;
+  salesCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type CatalogProductInput = Omit<CatalogProduct, "id" | "salesCount" | "createdAt" | "updatedAt">;
+
+export type CatalogOrderStatus = "pending" | "processing" | "completed" | "cancelled" | "failed" | "refunded";
+
+export interface CatalogOrderLine {
+  productId: number;
+  name: string;
+  quantity: number;
+  unitCents: number;
+  imageAssetId: string | null;
+  digital: boolean;
+}
+
+export interface CatalogCustomer {
+  name: string;
+  phone: string;
+  email: string;
+  city: string;
+  address: string;
+}
+
+/**
+ * An order from the app. It starts "pending" when the app asks for a checkout
+ * link; the payment page fills in the customer and turns it "processing" once
+ * the card payment succeeds.
+ */
+export interface CatalogOrder {
+  id: number;
+  appId: string;
+  /** Hash of the token in the payment page link. */
+  tokenHash: string;
+  userId: number | null;
+  status: CatalogOrderStatus;
+  lines: CatalogOrderLine[];
+  subtotalCents: number;
+  shippingCents: number;
+  totalCents: number;
+  currency: CatalogCurrency;
+  customer: CatalogCustomer | null;
+  paymentId: string | null;
+  createdAt: Date;
+  paidAt: Date | null;
+  updatedAt: Date;
+}
+
+export type CatalogOrderPatch = Partial<Pick<CatalogOrder, "status" | "customer" | "updatedAt">>;

@@ -48,7 +48,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       push: serviceAccountOf(app, encryptionKey()) !== null,
       assetUrl: assetUrl,
       platformUrl: appUrl(),
-      connector: connectorFor(app, encryptionKey()),
+      connector: connectorFor(app, encryptionKey(), { store, assetUrl, platformUrl: appUrl() }),
     },
     { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null },
   );

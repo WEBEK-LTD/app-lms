@@ -63,6 +63,7 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     firebaseIosAssetId: null,
     connector: null,
     hostedSettings: null,
+    catalogSettings: null,
     firebaseServiceAccountEncrypted: null,
     googlePlayKeyEncrypted: null,
     googlePlayClientEmail: null,
@@ -163,7 +164,8 @@ export function buildConfigFor(
     ...(app.backend === "hosted" ? { api_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
     app_name: app.appName ?? "",
     short_name: app.shortName ?? "",
-    site_url: app.siteUrl ?? "",
+    // Apps without a website link to the platform.
+    site_url: app.siteUrl ?? (app.backend === "hosted" ? appUrl() : ""),
     android_package: app.androidPackage ?? "",
     ios_bundle_id: app.iosBundleId ?? "",
     version_name: version.name,

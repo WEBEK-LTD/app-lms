@@ -27,6 +27,12 @@ import type {
   HostedChallenge,
   HostedDevice,
   HostedNotification,
+  CatalogCategory,
+  CatalogOrder,
+  CatalogOrderPatch,
+  CatalogOrderStatus,
+  CatalogProduct,
+  CatalogProductInput,
   HostedRefreshToken,
   HostedUser,
   HostedUserPatch,
@@ -61,6 +67,10 @@ export class MemoryStore implements DataStore {
   private hostedNotifications = new Map<number, HostedNotification>();
   private nextHostedUserId = 1;
   private nextHostedNotificationId = 1;
+  private catalogCategories = new Map<number, CatalogCategory>();
+  private catalogProducts = new Map<number, CatalogProduct>();
+  private catalogOrders = new Map<number, CatalogOrder>();
+  private nextCatalogId = 1;
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -441,6 +451,10 @@ export class MemoryStore implements DataStore {
     for (const [key, n] of this.hostedNotifications) {
       if (n.userId === id) this.hostedNotifications.delete(key);
     }
+    // Orders stay with the shop; they no longer belong to an account.
+    for (const order of this.catalogOrders.values()) {
+      if (order.appId === appId && order.userId === id) order.userId = null;
+    }
   }
 
   async createHostedDevice(device: HostedDevice): Promise<void> {
@@ -573,5 +587,118 @@ export class MemoryStore implements DataStore {
 
   async countHostedUsers(appId: string): Promise<number> {
     return [...this.hostedUsers.values()].filter((u) => u.appId === appId).length;
+  }
+
+  // Catalog
+
+  async listCatalogCategories(appId: string): Promise<CatalogCategory[]> {
+    return [...this.catalogCategories.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory> {
+    const position = Math.max(0, ...[...this.catalogCategories.values()].filter((c) => c.appId === input.appId).map((c) => c.position + 1));
+    const category: CatalogCategory = { id: this.nextCatalogId++, appId: input.appId, name: input.name, position, createdAt: input.now };
+    this.catalogCategories.set(category.id, clone(category));
+    return category;
+  }
+
+  async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
+    const category = this.catalogCategories.get(id);
+    if (category && category.appId === appId) category.name = name;
+  }
+
+  async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {
+    const category = this.catalogCategories.get(id);
+    if (!category || category.appId !== appId) return;
+    this.catalogCategories.delete(id);
+    for (const product of this.catalogProducts.values()) {
+      if (product.appId === appId && product.categoryIds.includes(id)) {
+        product.categoryIds = product.categoryIds.filter((c) => c !== id);
+        product.updatedAt = now;
+      }
+    }
+  }
+
+  async listCatalogProducts(appId: string): Promise<CatalogProduct[]> {
+    return [...this.catalogProducts.values()]
+      .filter((p) => p.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getCatalogProduct(appId: string, id: number): Promise<CatalogProduct | null> {
+    const product = this.catalogProducts.get(id);
+    return product && product.appId === appId ? clone(product) : null;
+  }
+
+  async createCatalogProduct(input: CatalogProductInput, now: Date): Promise<CatalogProduct> {
+    const product: CatalogProduct = { ...clone(input), id: this.nextCatalogId++, salesCount: 0, createdAt: now, updatedAt: now };
+    this.catalogProducts.set(product.id, clone(product));
+    return product;
+  }
+
+  async updateCatalogProduct(appId: string, id: number, input: Partial<CatalogProductInput>, now: Date): Promise<void> {
+    const product = this.catalogProducts.get(id);
+    if (product && product.appId === appId) this.catalogProducts.set(id, clone({ ...product, ...input, appId, id, updatedAt: now }));
+  }
+
+  async deleteCatalogProduct(appId: string, id: number): Promise<void> {
+    const product = this.catalogProducts.get(id);
+    if (product && product.appId === appId) this.catalogProducts.delete(id);
+  }
+
+  async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {
+    const order: CatalogOrder = { ...clone(input), id: this.nextCatalogId++ };
+    this.catalogOrders.set(order.id, clone(order));
+    return order;
+  }
+
+  async getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null> {
+    const order = this.catalogOrders.get(id);
+    return order && order.appId === appId ? clone(order) : null;
+  }
+
+  async getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null> {
+    for (const order of this.catalogOrders.values()) if (order.tokenHash === tokenHash) return clone(order);
+    return null;
+  }
+
+  async updateCatalogOrder(appId: string, id: number, patch: CatalogOrderPatch): Promise<void> {
+    const order = this.catalogOrders.get(id);
+    if (order && order.appId === appId) this.catalogOrders.set(id, clone({ ...order, ...patch }));
+  }
+
+  async payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean> {
+    const order = this.catalogOrders.get(id);
+    if (!order || order.appId !== appId || order.status !== "pending") return false;
+    Object.assign(order, { status: "processing", paymentId, paidAt: now, updatedAt: now });
+    for (const line of order.lines) {
+      const product = this.catalogProducts.get(line.productId);
+      if (!product || product.appId !== appId) continue;
+      product.salesCount += line.quantity;
+      if (product.stock !== null) product.stock = Math.max(0, product.stock - line.quantity);
+    }
+    return true;
+  }
+
+  async listCatalogOrders(input: {
+    appId: string;
+    userId?: number;
+    statuses?: CatalogOrderStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CatalogOrder[]; total: number }> {
+    const all = [...this.catalogOrders.values()]
+      .filter(
+        (o) =>
+          o.appId === input.appId &&
+          (input.userId === undefined || o.userId === input.userId) &&
+          (!input.statuses || input.statuses.includes(o.status)),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
   }
 }

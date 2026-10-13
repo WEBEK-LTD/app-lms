@@ -4,6 +4,12 @@ import type {
   Asset,
   Build,
   BuildStatus,
+  CatalogCategory,
+  CatalogOrder,
+  CatalogOrderPatch,
+  CatalogOrderStatus,
+  CatalogProduct,
+  CatalogProductInput,
   Client,
   HostedChallenge,
   HostedDevice,
@@ -178,6 +184,36 @@ export interface DataStore {
   /** Everyone's notifications of an app, newest first, for the dashboard. */
   listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
   countHostedUsers(appId: string): Promise<number>;
+
+  // Catalog (apps without a website)
+  listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
+  createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory>;
+  renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** Also removes the category from its products. */
+  deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void>;
+  /** Every product of the app, newest first. */
+  listCatalogProducts(appId: string): Promise<CatalogProduct[]>;
+  getCatalogProduct(appId: string, id: number): Promise<CatalogProduct | null>;
+  createCatalogProduct(input: CatalogProductInput, now: Date): Promise<CatalogProduct>;
+  updateCatalogProduct(appId: string, id: number, input: Partial<CatalogProductInput>, now: Date): Promise<void>;
+  deleteCatalogProduct(appId: string, id: number): Promise<void>;
+  createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
+  getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
+  getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;
+  updateCatalogOrder(appId: string, id: number, patch: CatalogOrderPatch): Promise<void>;
+  /**
+   * Marks a pending order paid ("processing") and takes its quantities from
+   * stock, once: false when the order wasn't pending.
+   */
+  payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean>;
+  /** Newest first; `statuses` limits the list (the app shows paid orders only). */
+  listCatalogOrders(input: {
+    appId: string;
+    userId?: number;
+    statuses?: CatalogOrderStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CatalogOrder[]; total: number }>;
 
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */

@@ -18,7 +18,7 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 | Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
-| Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step). |
+| Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step), or sell without a website: products on `/dashboard/catalog`, orders on `/dashboard/orders`, payment page `/pay/<token>` with the client's iyzico keys, iyzico callback `/api/pay/iyzico/<token>`, product pages `/shop/<app>/<product>`. |
 | Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/health` |
 
 ### How it fits together
@@ -126,6 +126,7 @@ plus a check that the committed migrations match the schema.
 | `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | with `whatsapp` | WhatsApp Cloud API credentials of our business number. |
 | `WHATSAPP_OTP_TEMPLATE`, `WHATSAPP_OTP_LANGUAGE` | no | The approved authentication template (default `yallapp_code`, `en`), with the code in the body and a copy-code button. |
 | `OTP_WEBHOOK_URL`, `OTP_WEBHOOK_SECRET` | with `webhook` | Our code gateway (for example an SMS provider behind our own endpoint). The body is JSON `{phone, code, app_name, expires_in_seconds}`, signed in `X-Yallapp-Signature: sha256=<base64url HMAC-SHA256 of the body>`. |
+| `IYZICO_API_URL` | tests only | A fake iyzico for end-to-end tests. Leave unset: payments go to iyzico's live or sandbox API, as each client chooses. Refused on Netlify. |
 | `FILES_SIGNING_SECRET` | for Phase 5 | 32+ random characters, the same value as on `files.yallapp.com.tr`. Signs build file download links. Without it they show "Downloads aren't configured yet". |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). |
 | `YALLAPP_SEED_ADMIN_PASSWORD` | no | Memory mode only: password for the super admins at start-up. |

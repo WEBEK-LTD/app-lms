@@ -13,7 +13,7 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import type { App, AssetKind, ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_CATALOG_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
@@ -102,6 +102,24 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
+  if (data.backend === "catalog") {
+    if (context.app.appType !== "store") {
+      return { errors: { backend: "Selling without a website works with Store apps. Choose Store as your app type first." }, values };
+    }
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "catalog" },
+        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
   if (data.backend === "shopify") {
     const result = await connectShopify(context.app, data);
     if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken"]) };

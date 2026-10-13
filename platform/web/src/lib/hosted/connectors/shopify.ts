@@ -1,3 +1,4 @@
+import { cartLines, error, intParam, type CartLineInput } from "./common";
 import { ConnectorError, type Connector, type ConnectorRequest, type ConnectorResult } from "./types";
 
 /**
@@ -351,36 +352,6 @@ function sortFor(orderby: OrderBy, inCollection: boolean, search: boolean): { so
       if (search) return { sortKey: "RELEVANCE", reverse: false };
       return { sortKey: inCollection ? "CREATED" : "CREATED_AT", reverse: true };
   }
-}
-
-function intParam(query: URLSearchParams, name: string, fallback: number, max: number): number {
-  const value = Number.parseInt(query.get(name) ?? "", 10);
-  return Number.isFinite(value) && value >= 1 ? Math.min(value, max) : fallback;
-}
-
-const error = (status: number, code: string, message: string): ConnectorResult => ({ status, body: { code, message } });
-
-interface CartLineInput {
-  product_id: number;
-  variation_id: number | null;
-  quantity: number;
-}
-
-function cartLines(body: unknown): CartLineInput[] | null {
-  const lines = (body as { lines?: unknown })?.lines;
-  if (!Array.isArray(lines) || lines.length === 0 || lines.length > 100) return null;
-  const out: CartLineInput[] = [];
-  for (const raw of lines) {
-    const line = raw as Record<string, unknown>;
-    const productId = Number(line?.product_id);
-    const variationId = line?.variation_id === null || line?.variation_id === undefined ? null : Number(line.variation_id);
-    const quantity = Number(line?.quantity);
-    if (!Number.isSafeInteger(productId) || productId < 1) return null;
-    if (variationId !== null && (!Number.isSafeInteger(variationId) || variationId < 1)) return null;
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 9999) return null;
-    out.push({ product_id: productId, variation_id: variationId, quantity });
-  }
-  return out;
 }
 
 const cache = new Map<string, { at: number; value: unknown }>();

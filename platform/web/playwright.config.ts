@@ -14,6 +14,8 @@ export const E2E = {
   /** The hosted API sends sign-in codes here; tests/e2e/hosted-api.spec.ts listens. */
   otpWebhookPort: Number(process.env.E2E_OTP_PORT ?? 3299),
   otpWebhookSecret: "e2e-otp-webhook-secret",
+  /** A fake iyzico for the payment page; tests/e2e/catalog.spec.ts runs it. */
+  iyzicoPort: Number(process.env.E2E_IYZICO_PORT ?? 3298),
 };
 
 export default defineConfig({
@@ -53,6 +55,7 @@ export default defineConfig({
       OTP_SENDER: "webhook",
       OTP_WEBHOOK_URL: `http://localhost:${E2E.otpWebhookPort}/otp`,
       OTP_WEBHOOK_SECRET: E2E.otpWebhookSecret,
+      IYZICO_API_URL: `http://localhost:${E2E.iyzicoPort}`,
     },
   },
 });

@@ -200,6 +200,13 @@ export function otpSenderConfig(): OtpSenderConfig | null {
   return null;
 }
 
+/** iyzico's address for local tests (a fake server); unset uses iyzico's live or sandbox API. */
+export function iyzicoApiUrl(): string | null {
+  const url = read("IYZICO_API_URL");
+  if (url && isNetlify()) throw new Error("IYZICO_API_URL is for local tests only.");
+  return url ?? null;
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";

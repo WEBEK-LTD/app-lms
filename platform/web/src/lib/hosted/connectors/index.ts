@@ -1,5 +1,7 @@
 import { decrypt, encrypt } from "../../crypto/encryption";
+import type { DataStore } from "../../data/store";
 import type { App, ConnectorConfig } from "../../data/types";
+import { CatalogConnector } from "./catalog";
 import { ShopifyConnector } from "./shopify";
 import type { Connector } from "./types";
 
@@ -20,7 +22,13 @@ export function shopifyToken(app: App, key: Buffer): string | null {
 }
 
 /** The connector that serves the app's content, or null when none is connected. */
-export function connectorFor(app: App, key: Buffer, fetcher: typeof fetch = fetch): Connector | null {
+export function connectorFor(
+  app: App,
+  key: Buffer,
+  deps: { store: DataStore; assetUrl: (assetId: string) => string; platformUrl: string },
+  fetcher: typeof fetch = fetch,
+): Connector | null {
+  if (app.connector?.kind === "catalog") return new CatalogConnector({ ...deps, app });
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);
     return token ? new ShopifyConnector({ shopDomain: app.connector.shopDomain, storefrontToken: token }, fetcher) : null;

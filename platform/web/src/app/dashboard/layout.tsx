@@ -22,6 +22,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
             { href: "/dashboard", label: "Overview", exact: true },
             { href: "/dashboard/setup", label: "App setup", prefix: "/dashboard/app-type" },
             { href: "/dashboard/builds", label: "Builds & downloads" },
+            ...(app?.connector?.kind === "catalog"
+              ? [
+                  { href: "/dashboard/catalog", label: "Products" },
+                  { href: "/dashboard/orders", label: "Orders" },
+                ]
+              : []),
             ...(app?.backend === "hosted" ? [{ href: "/dashboard/notifications", label: "App notifications" }] : []),
             { href: "/dashboard/license", label: "License & plugin" },
             { href: WHATSAPP_URL, label: "Support", external: true },

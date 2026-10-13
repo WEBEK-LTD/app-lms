@@ -309,7 +309,11 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
           <>
             <dt className="text-muted">Content from</dt>
             <dd className="m-0">
-              {app.connector?.kind === "shopify" ? `Their Shopify store (${app.connector.shopDomain})` : BACKEND_NAMES[app.backend]}
+              {app.connector?.kind === "shopify"
+                ? `Their Shopify store (${app.connector.shopDomain})`
+                : app.connector?.kind === "catalog"
+                  ? "No website: products in the dashboard"
+                  : BACKEND_NAMES[app.backend]}
             </dd>
           </>
         ) : null}

@@ -30,6 +30,12 @@ import type {
   Asset,
   Build,
   BuildStatus,
+  CatalogCategory,
+  CatalogOrder,
+  CatalogOrderPatch,
+  CatalogOrderStatus,
+  CatalogProduct,
+  CatalogProductInput,
   Client,
   HostedChallenge,
   HostedDevice,
@@ -726,6 +732,178 @@ export class MysqlStore implements DataStore {
       db.select({ n: count() }).from(schema.hostedUsers).where(eq(schema.hostedUsers.appId, appId)),
     );
     return rows[0]?.n ?? 0;
+  }
+
+  // Catalog
+
+  async listCatalogCategories(appId: string): Promise<CatalogCategory[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogCategories)
+        .where(eq(schema.catalogCategories.appId, appId))
+        .orderBy(asc(schema.catalogCategories.position), asc(schema.catalogCategories.id)),
+    );
+  }
+
+  async createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory> {
+    const rows = await this.run((db) =>
+      db
+        .select({ next: sql<number | null>`max(${schema.catalogCategories.position}) + 1` })
+        .from(schema.catalogCategories)
+        .where(eq(schema.catalogCategories.appId, input.appId)),
+    );
+    const values = { appId: input.appId, name: input.name, position: Number(rows[0]?.next ?? 0), createdAt: input.now };
+    const [result] = await this.run((db) => db.insert(schema.catalogCategories).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async renameCatalogCategory(appId: string, id: number, name: string): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogCategories)
+        .set({ name })
+        .where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+  }
+
+  async deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void> {
+    await this.run((db) =>
+      db.delete(schema.catalogCategories).where(and(eq(schema.catalogCategories.appId, appId), eq(schema.catalogCategories.id, id))),
+    );
+    for (const product of await this.listCatalogProducts(appId)) {
+      if (product.categoryIds.includes(id)) {
+        await this.updateCatalogProduct(appId, product.id, { categoryIds: product.categoryIds.filter((c) => c !== id) }, now);
+      }
+    }
+  }
+
+  async listCatalogProducts(appId: string): Promise<CatalogProduct[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogProducts)
+        .where(eq(schema.catalogProducts.appId, appId))
+        .orderBy(desc(schema.catalogProducts.createdAt), desc(schema.catalogProducts.id)),
+    );
+  }
+
+  async getCatalogProduct(appId: string, id: number): Promise<CatalogProduct | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogProducts)
+        .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, id)))
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async createCatalogProduct(input: CatalogProductInput, now: Date): Promise<CatalogProduct> {
+    const values = { ...input, salesCount: 0, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.catalogProducts).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateCatalogProduct(appId: string, id: number, input: Partial<CatalogProductInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...patch } = input;
+    void _ignored;
+    await this.run((db) =>
+      db
+        .update(schema.catalogProducts)
+        .set({ ...patch, updatedAt: now })
+        .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, id))),
+    );
+  }
+
+  async deleteCatalogProduct(appId: string, id: number): Promise<void> {
+    await this.run((db) =>
+      db.delete(schema.catalogProducts).where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, id))),
+    );
+  }
+
+  async createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder> {
+    const [result] = await this.run((db) => db.insert(schema.catalogOrders).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogOrders)
+        .where(and(eq(schema.catalogOrders.appId, appId), eq(schema.catalogOrders.id, id)))
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null> {
+    const rows = await this.run((db) =>
+      db.select().from(schema.catalogOrders).where(eq(schema.catalogOrders.tokenHash, tokenHash)).limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async updateCatalogOrder(appId: string, id: number, patch: CatalogOrderPatch): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.catalogOrders)
+        .set(patch)
+        .where(and(eq(schema.catalogOrders.appId, appId), eq(schema.catalogOrders.id, id))),
+    );
+  }
+
+  async payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean> {
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [result] = await tx
+          .update(schema.catalogOrders)
+          .set({ status: "processing", paymentId, paidAt: now, updatedAt: now })
+          .where(
+            and(eq(schema.catalogOrders.appId, appId), eq(schema.catalogOrders.id, id), eq(schema.catalogOrders.status, "pending")),
+          );
+        if (result.affectedRows !== 1) return false;
+        const [order] = await tx.select().from(schema.catalogOrders).where(eq(schema.catalogOrders.id, id)).limit(1);
+        for (const line of order?.lines ?? []) {
+          await tx
+            .update(schema.catalogProducts)
+            .set({
+              salesCount: sql`${schema.catalogProducts.salesCount} + ${line.quantity}`,
+              stock: sql`case when ${schema.catalogProducts.stock} is null then null else greatest(${schema.catalogProducts.stock} - ${line.quantity}, 0) end`,
+            })
+            .where(and(eq(schema.catalogProducts.appId, appId), eq(schema.catalogProducts.id, line.productId)));
+        }
+        return true;
+      }),
+    );
+  }
+
+  async listCatalogOrders(input: {
+    appId: string;
+    userId?: number;
+    statuses?: CatalogOrderStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CatalogOrder[]; total: number }> {
+    const where = and(
+      eq(schema.catalogOrders.appId, input.appId),
+      input.userId !== undefined ? eq(schema.catalogOrders.userId, input.userId) : undefined,
+      input.statuses ? inArray(schema.catalogOrders.status, input.statuses) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(schema.catalogOrders)
+          .where(where)
+          .orderBy(desc(schema.catalogOrders.createdAt), desc(schema.catalogOrders.id))
+          .limit(input.limit)
+          .offset(input.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(schema.catalogOrders).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
   }
 
   async hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number> {

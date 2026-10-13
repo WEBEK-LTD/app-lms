@@ -107,7 +107,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}
-          backend={app.backend === "hosted" ? "shopify" : app.backend}
+          backend={app.backend === "hosted" ? (app.connector?.kind === "catalog" ? "catalog" : "shopify") : app.backend}
           appType={app.appType}
           shopDomain={app.connector?.kind === "shopify" ? app.connector.shopDomain : ""}
           shopifyConnected={app.connector?.kind === "shopify"}

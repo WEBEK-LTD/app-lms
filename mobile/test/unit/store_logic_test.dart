@@ -151,6 +151,18 @@ void main() {
         isTrue,
       );
       expect(
+        isOrderReceived(
+          Uri.parse('https://yallapp.com.tr/pay/abc123/order-received'),
+        ),
+        isTrue,
+      );
+      expect(
+        isOrderReceived(
+          Uri.parse('https://shop.myshopify.com/checkouts/cn/abc/thank_you'),
+        ),
+        isTrue,
+      );
+      expect(
         isOrderReceived(Uri.parse('https://shop.test/checkout/')),
         isFalse,
       );

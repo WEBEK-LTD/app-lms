@@ -47,7 +47,7 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
-type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify";
+type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog";
 
 const BACKENDS: { id: Backend; title: string; text: string; storeOnly?: boolean }[] = [
   { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
@@ -55,6 +55,12 @@ const BACKENDS: { id: Backend; title: string; text: string; storeOnly?: boolean 
     id: "shopify",
     title: "My Shopify store",
     text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
+    storeOnly: true,
+  },
+  {
+    id: "catalog",
+    title: "I don't have a website",
+    text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
     storeOnly: true,
   },
   { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
@@ -139,20 +145,28 @@ export function WebsiteStep({
             </label>
           ))}
         </fieldset>
-        <Field
-          label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
-          name="siteUrl"
-          type="url"
-          required
-          defaultValue={v(state, "siteUrl", siteUrl)}
-          placeholder="https://your-academy.com"
-          hint={
-            choice === "setup_requested"
-              ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
-              : "Links in your app open this address. It must use https."
-          }
-          error={state.errors?.siteUrl}
-        />
+        {choice === "catalog" ? (
+          <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
+            After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app with a
+            code we send to their phone.
+          </p>
+        ) : (
+          <Field
+            label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
+            name="siteUrl"
+            type="url"
+            required
+            defaultValue={v(state, "siteUrl", siteUrl)}
+            placeholder="https://your-academy.com"
+            hint={
+              choice === "setup_requested"
+                ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
+                : "Links in your app open this address. It must use https."
+            }
+            error={state.errors?.siteUrl}
+          />
+        )}
+        {choice === "catalog" && state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
         {choice === "wordpress" ? (
           <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
             <span className="text-sm font-semibold">Plugin connection</span>

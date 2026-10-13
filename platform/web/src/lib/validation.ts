@@ -93,6 +93,7 @@ export const websiteSchema = z.discriminatedUnion("backend", [
     // Empty keeps the saved token.
     storefrontToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
   }),
+  z.object({ backend: z.literal("catalog") }),
   z.object({
     backend: z.literal("setup_requested"),
     siteUrl: httpsSiteUrl,

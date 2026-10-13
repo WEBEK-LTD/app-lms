@@ -5,7 +5,7 @@ import { errorResponse } from "@/lib/http";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Public, unguessable URLs for app icons, logos, store screenshots and Firebase
+ * Public, unguessable URLs for app icons, logos, store screenshots, product photos and Firebase
  * config files. They all end up in the public app stores or inside the app
  * anyway (Firebase files hold client identifiers, not secrets), and the build
  * pipeline downloads them from here.
