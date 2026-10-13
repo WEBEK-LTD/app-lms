@@ -196,7 +196,8 @@ check( 'someone else\'s is 404', 404 === call( 'GET', '/me/appointments/' . ( $a
 check( 'someone else can\'t cancel it', 404 === call( 'POST', '/me/appointments/' . ( $a['id'] ?? 0 ) . '/cancel', null, $other )['status'] );
 $home = call( 'GET', '/bookings/home', null, $token );
 $types = array_column( $home['json']['sections'] ?? array(), 'type' );
-check( 'home sections', array( 'next_appointment', 'categories', 'services', 'staff' ) === $types, $home['raw'] );
+// The team section needs at least two people.
+check( 'home sections', ( $one ? array( 'next_appointment', 'categories', 'services' ) : array( 'next_appointment', 'categories', 'services', 'staff' ) ) === $types, $home['raw'] );
 check( 'next appointment on home', 'Haircut' === ( $home['json']['sections'][0]['appointment']['service']['name'] ?? '' ), $home['raw'] );
 
 echo "Cancelling\n";
