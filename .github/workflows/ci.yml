@@ -232,7 +232,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        booking: [amelia]
+        booking: [amelia, latepoint]
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -262,18 +262,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - part: latepoint abilities calendar
-            booking: latepoint
-            slug: latepoint
-            list: ''
-            grep: "define\\( *'LATEPOINT_(BOOKING_STATUS|ANY_|ITEM_VARIANT|DATETIME_DB|VALUE_O|AGENT_STATUS|SERVICE_STATUS|SERVICE_VISIBILITY|LOCATION_STATUS|STATUS_)|register_ability|latepoint/[a-z-]+'"
-            around: 'lib/abilities/calendar/get-available-slots.php:1:400 lib/abilities/calendar/check-slot-availability.php:1:300'
-            methods: '^$'
-          - part: latepoint abilities bookings
-            booking: latepoint
-            slug: latepoint
-            around: 'lib/abilities/bookings/create-booking.php:1:500 lib/abilities/bookings/cancel-booking.php:1:250 lib/abilities/customers/connect-customer-to-wp-user.php:1:200'
-            methods: '^$'
           - part: bookingpress save
             booking: bookingpress
             slug: bookingpress-appointment-booking

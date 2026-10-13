@@ -46,7 +46,8 @@ class Plugin {
 	 * Adapter class for each booking plugin the detector reports.
 	 */
 	const BOOKING_ADAPTERS = array(
-		'amelia' => Bookings\Amelia_Adapter::class,
+		'amelia'    => Bookings\Amelia_Adapter::class,
+		'latepoint' => Bookings\LatePoint_Adapter::class,
 	);
 
 	/**
