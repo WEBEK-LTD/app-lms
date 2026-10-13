@@ -466,3 +466,23 @@ export interface PlatformSetting<K extends PlatformSettingKey = PlatformSettingK
   /** Email of the admin who saved it. */
   updatedBy: string;
 }
+
+export type PlanPaymentStatus = "pending" | "paid" | "failed";
+
+/** A client paying their Yallapp plan by card, with Yallapp's own iyzico account. */
+export interface PlanPayment {
+  id: string;
+  clientId: string;
+  plan: Plan;
+  /** How long the payment extends the license. */
+  months: 1 | 12;
+  amountCents: number;
+  currency: CatalogCurrency;
+  status: PlanPaymentStatus;
+  /** SHA-256 of the token in the callback address. */
+  tokenHash: string;
+  /** iyzico's payment ID once paid. */
+  paymentId: string | null;
+  createdAt: Date;
+  paidAt: Date | null;
+}

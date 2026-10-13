@@ -10,6 +10,7 @@ import type {
   ConnectorConfig,
   HostedSettings,
   PlatformSettingKey,
+  PlanPaymentStatus,
   PushPreferences,
 } from "../data/types";
 import {
@@ -419,3 +420,24 @@ export const platformSettings = mysqlTable("platform_settings", {
   updatedAt: time("updated_at").notNull(),
   updatedBy: varchar("updated_by", { length: 191 }).notNull(),
 });
+
+/** Clients paying their plan by card (Yallapp's iyzico account). */
+export const planPayments = mysqlTable(
+  "plan_payments",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    plan: varchar("plan", { length: 16 }).notNull().$type<"starter" | "pro">(),
+    months: int("months").notNull().$type<1 | 12>(),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    status: varchar("status", { length: 16 }).notNull().$type<PlanPaymentStatus>(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    paymentId: varchar("payment_id", { length: 64 }),
+    createdAt: time("created_at").notNull(),
+    paidAt: time("paid_at"),
+  },
+  (t) => [uniqueIndex("plan_payments_token_unique").on(t.tokenHash), index("plan_payments_client_idx").on(t.clientId, t.createdAt)],
+);

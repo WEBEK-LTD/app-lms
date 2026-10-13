@@ -24,16 +24,29 @@ export function decryptSetting(key: PlatformSettingKey, value: string, encryptio
   return decrypt(value, encryptionKey, settingContext(key));
 }
 
-/** The saved settings, cached for 30 seconds per server instance. */
-export async function platformSettings(store: DataStore, now = Date.now()): Promise<Map<PlatformSettingKey, PlatformSetting>> {
-  if (cache && now - cache.at < CACHE_MS) return cache.settings;
+/**
+ * The saved settings, cached for 30 seconds per server instance (each
+ * instance, and each server bundle, has its own copy). `fresh` reads the
+ * database, for the admin page and for payments, where a stale copy could
+ * miss keys saved a moment ago.
+ */
+export async function platformSettings(
+  store: DataStore,
+  options: { now?: number; fresh?: boolean } = {},
+): Promise<Map<PlatformSettingKey, PlatformSetting>> {
+  const now = options.now ?? Date.now();
+  if (!options.fresh && cache && now - cache.at < CACHE_MS) return cache.settings;
   const settings = new Map((await store.listPlatformSettings()).map((s) => [s.key, s]));
   cache = { at: now, settings };
   return settings;
 }
 
-export async function platformSetting<K extends PlatformSettingKey>(store: DataStore, key: K): Promise<PlatformSetting<K> | null> {
-  return ((await platformSettings(store)).get(key) as PlatformSetting<K> | undefined) ?? null;
+export async function platformSetting<K extends PlatformSettingKey>(
+  store: DataStore,
+  key: K,
+  options: { fresh?: boolean } = {},
+): Promise<PlatformSetting<K> | null> {
+  return ((await platformSettings(store, options)).get(key) as PlatformSetting<K> | undefined) ?? null;
 }
 
 /** After a save: this instance reads the new values at once. */
@@ -76,7 +89,8 @@ export async function resolvedSmtpConfig(store: DataStore, encryptionKey: Buffer
 
 /** Yallapp's own iyzico account, or null until the team adds it. */
 export async function yallappIyzicoKeys(store: DataStore, encryptionKey: Buffer): Promise<IyzicoKeys | null> {
-  const saved = await platformSetting(store, "iyzico");
+  // Always read from the database: a payment must never miss keys saved a moment ago.
+  const saved = await platformSetting(store, "iyzico", { fresh: true });
   if (!saved) return null;
   return {
     apiKey: decryptSetting("iyzico", saved.value.apiKeyEncrypted, encryptionKey),

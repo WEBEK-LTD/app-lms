@@ -5,11 +5,17 @@ import { WHATSAPP_URL } from "@/components/brand";
 import { Icon } from "@/components/icon";
 import { SignOutButton } from "@/components/sign-out";
 import { btn } from "@/components/ui";
+import { PlanPaymentForm } from "@/components/plan-payment-form";
+import { Notice } from "@/components/ui";
 import { getClientContext, getCurrentUser, isSuperAdmin } from "@/lib/auth/session";
+import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { getStore } from "@/lib/data";
+import { encryptionKey } from "@/lib/env";
+import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Account pending activation", robots: { index: false } };
 
-export default async function PendingPage() {
+export default async function PendingPage({ searchParams }: PageProps<"/pending">) {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
   if (isSuperAdmin(user)) redirect("/admin");
@@ -36,6 +42,9 @@ export default async function PendingPage() {
   if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/dashboard/app-type");
 
   const suspended = context.client.status === "suspended";
+  const { payment } = await searchParams;
+  const store = await getStore();
+  const payable = !suspended && (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(await getPlans(store)) : [];
   const whatsapp = `${WHATSAPP_URL}?text=${encodeURIComponent(
     suspended
       ? `Hello, my Yallapp account (${user.email}) is suspended. Can you help?`
@@ -64,7 +73,9 @@ export default async function PendingPage() {
             <p className="m-0 text-base leading-relaxed text-ink-4">
               {suspended
                 ? "Your apps and the plugin connection are paused. Message us on WhatsApp and we'll help you sort it out."
-                : "Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key."}
+                : payable.length
+                  ? "Pay your plan by card to start right away, or message us on WhatsApp to confirm it. Once it's confirmed, your account is active and we email your license key."
+                  : "Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key."}
             </p>
           </div>
 
@@ -84,6 +95,18 @@ export default async function PendingPage() {
               </li>
             </ol>
           )}
+
+          {payment === "failed" ? (
+            <Notice tone="danger" icon="error" role="alert">
+              The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
+            </Notice>
+          ) : null}
+          {payable.length ? (
+            <div className="flex flex-col gap-3 border-t border-line-soft pt-5">
+              <h2 className="m-0 text-[19px] font-bold">Pay by card</h2>
+              <PlanPaymentForm plans={payable} current={null} cta="Pay and activate" />
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap gap-3">
             <a href={whatsapp} className={`${btn.primary} h-[50px] flex-[1_1_220px] text-base`}>

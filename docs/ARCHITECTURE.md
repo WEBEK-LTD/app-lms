@@ -196,6 +196,20 @@ mobile/
   back to the admin. The team can also edit a client's name, WhatsApp
   number and website on the panel.
 
+- Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
+  and a plan has a card price, pending clients see "Pay by card" on the
+  waiting page and active or expired clients on License & plugin. The client
+  picks a plan and gives a billing city and address; iyzico's page takes the
+  card into Yallapp's merchant account. iyzico calls back to
+  `/api/pay/plan/<token>`; only iyzico's own answer for that payment's
+  basket and amount marks it paid (once), and then the client is activated
+  or their license is extended by the plan's period from its current end
+  date (or from today when it ended), keeping the same key. The client gets
+  the activation or renewal email; the team sees payments on the admin's
+  Payments page and on the client's panel. The iyzico keys are always read
+  from the database, never from the 30-second settings cache, so a callback
+  never misses keys saved a moment earlier.
+
 - App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
   dashboard's App sign-in page sets whether new customers can sign up and
   what they are asked, the default country code, devices per customer, the

@@ -37,6 +37,7 @@ import type {
   CatalogProduct,
   CatalogProductInput,
   PlatformSetting,
+  PlanPayment,
   PlatformSettingKey,
   PlatformSettingValues,
   Client,
@@ -910,6 +911,45 @@ export class MysqlStore implements DataStore {
   }
 
   // Platform settings
+
+  async createPlanPayment(payment: PlanPayment): Promise<void> {
+    await this.run((db) => db.insert(schema.planPayments).values(payment));
+  }
+
+  async getPlanPaymentByToken(tokenHash: string): Promise<PlanPayment | null> {
+    const [row] = await this.run((db) => db.select().from(schema.planPayments).where(eq(schema.planPayments.tokenHash, tokenHash)).limit(1));
+    return (row as PlanPayment | undefined) ?? null;
+  }
+
+  async payPlanPayment(id: string, paymentId: string, now: Date): Promise<boolean> {
+    const [result] = await this.run((db) =>
+      db
+        .update(schema.planPayments)
+        .set({ status: "paid", paymentId, paidAt: now })
+        .where(and(eq(schema.planPayments.id, id), eq(schema.planPayments.status, "pending"))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async failPlanPayment(id: string): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.planPayments)
+        .set({ status: "failed" })
+        .where(and(eq(schema.planPayments.id, id), eq(schema.planPayments.status, "pending"))),
+    );
+  }
+
+  async listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]> {
+    return (await this.run((db) =>
+      db
+        .select()
+        .from(schema.planPayments)
+        .where(input.clientId ? eq(schema.planPayments.clientId, input.clientId) : undefined)
+        .orderBy(desc(schema.planPayments.createdAt))
+        .limit(input.limit),
+    )) as PlanPayment[];
+  }
 
   async listPlatformSettings(): Promise<PlatformSetting[]> {
     return (await this.run((db) => db.select().from(schema.platformSettings))) as PlatformSetting[];

@@ -31,7 +31,7 @@ export async function resetPlatformSettingAction(formData: FormData): Promise<vo
 export async function saveOtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin();
   const store = await getStore();
-  const saved = (await platformSetting(store, "otp"))?.value ?? null;
+  const saved = (await platformSetting(store, "otp", { fresh: true }))?.value ?? null;
   const kind = str(formData, "kind");
   const values: Record<string, string> = { kind };
   for (const name of ["phoneNumberId", "template", "language", "url"]) values[name] = str(formData, name);
@@ -80,7 +80,7 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
 export async function saveSmtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin();
   const store = await getStore();
-  const saved = (await platformSetting(store, "smtp"))?.value ?? null;
+  const saved = (await platformSetting(store, "smtp", { fresh: true }))?.value ?? null;
   const values: Record<string, string> = {};
   for (const name of ["host", "port", "user", "from"]) values[name] = str(formData, name);
   values.secure = formData.get("secure") === "on" ? "on" : "";
@@ -165,7 +165,7 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   const known = new Set(PLAN_FEATURES.map((f) => f.id));
   if (Object.keys(errors).length) return { errors, values };
   const store = await getStore();
-  const saved = (await platformSetting(store, "plans"))?.value ?? {};
+  const saved = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
   const setting: PlanSetting = {
     name: values.name!,
     tagline: values.tagline!,
@@ -188,7 +188,7 @@ export async function resetPlanAction(formData: FormData): Promise<void> {
   const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
   if (!PLAN_IDS.includes(plan)) return;
   const store = await getStore();
-  const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans"))?.value ?? {};
+  const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
   void _removed;
   await save("plans", Object.keys(rest).length ? rest : null, admin.email);
   revalidatePath("/admin/plans");

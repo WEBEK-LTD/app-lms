@@ -57,6 +57,13 @@
       "when": 1791890667791,
       "tag": "0007_platform_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1791903700870,
+      "tag": "0008_plan_payments",
+      "breakpoints": true
     }
   ]
 }

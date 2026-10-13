@@ -43,6 +43,7 @@ import type {
   PluginRelease,
   ResetToken,
   User,
+  PlanPayment,
 } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -75,6 +76,7 @@ export class MemoryStore implements DataStore {
   private catalogOrders = new Map<number, CatalogOrder>();
   private nextCatalogId = 1;
   private platformSettings = new Map<PlatformSettingKey, PlatformSetting>();
+  private planPayments = new Map<string, PlanPayment>();
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -707,6 +709,35 @@ export class MemoryStore implements DataStore {
   }
 
   // Platform settings
+
+  async createPlanPayment(payment: PlanPayment): Promise<void> {
+    this.planPayments.set(payment.id, clone(payment));
+  }
+
+  async getPlanPaymentByToken(tokenHash: string): Promise<PlanPayment | null> {
+    for (const payment of this.planPayments.values()) if (payment.tokenHash === tokenHash) return clone(payment);
+    return null;
+  }
+
+  async payPlanPayment(id: string, paymentId: string, now: Date): Promise<boolean> {
+    const payment = this.planPayments.get(id);
+    if (!payment || payment.status !== "pending") return false;
+    this.planPayments.set(id, { ...payment, status: "paid", paymentId, paidAt: now });
+    return true;
+  }
+
+  async failPlanPayment(id: string): Promise<void> {
+    const payment = this.planPayments.get(id);
+    if (payment?.status === "pending") this.planPayments.set(id, { ...payment, status: "failed" });
+  }
+
+  async listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]> {
+    return [...this.planPayments.values()]
+      .filter((p) => !input.clientId || p.clientId === input.clientId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, input.limit)
+      .map(clone);
+  }
 
   async listPlatformSettings(): Promise<PlatformSetting[]> {
     return [...this.platformSettings.values()].map(clone);

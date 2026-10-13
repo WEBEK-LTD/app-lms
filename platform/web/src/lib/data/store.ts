@@ -8,6 +8,7 @@ import type {
   CatalogOrder,
   CatalogOrderPatch,
   CatalogOrderStatus,
+  PlanPayment,
   CatalogProduct,
   CatalogProductInput,
   Client,
@@ -189,6 +190,14 @@ export interface DataStore {
   countHostedUsers(appId: string): Promise<number>;
 
   // Platform settings (admin)
+  createPlanPayment(payment: PlanPayment): Promise<void>;
+  getPlanPaymentByToken(tokenHash: string): Promise<PlanPayment | null>;
+  /** Pending to paid, once: false when it was no longer pending. */
+  payPlanPayment(id: string, paymentId: string, now: Date): Promise<boolean>;
+  /** Pending to failed. */
+  failPlanPayment(id: string): Promise<void>;
+  /** Newest first; one client's, or everyone's. */
+  listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]>;
   listPlatformSettings(): Promise<PlatformSetting[]>;
   /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
   setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;

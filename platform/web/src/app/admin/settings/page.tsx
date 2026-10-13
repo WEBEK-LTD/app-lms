@@ -60,7 +60,7 @@ function Section({ id, title, text, children }: { id: string; title: string; tex
  */
 export default async function SettingsPage() {
   await requireAdmin();
-  const settings = await platformSettings(await getStore(), 0);
+  const settings = await platformSettings(await getStore(), { fresh: true });
   const otp = settings.get("otp") as PlatformSetting<"otp"> | undefined;
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;

@@ -23,6 +23,8 @@ import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/lice
 import { planName } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "./forms";
 import { getPlans } from "@/lib/settings/platform";
+import { PAYMENT_STATUS, PAYMENT_TONE } from "./payments/labels";
+import { formatCents } from "@/lib/catalog/money";
 
 export const metadata: Metadata = { title: "Clients" };
 
@@ -266,6 +268,7 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
   const store = await getStore();
   const plans = await getPlans(store);
   const app = await store.getAppByClientId(client.id);
+  const payments = await store.listPlanPayments({ clientId: client.id, limit: 5 });
   const steps = stepStatus(app, license?.plan ?? null);
   const stepsDone = SETUP_STEPS.filter((s) => steps[s]).length;
   const base = license && license.expiresAt > now ? license.expiresAt : now;
@@ -356,6 +359,22 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
           <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} />
         </div>
       </details>
+
+      {payments.length ? (
+        <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3.5">
+          <span className="text-sm font-semibold">Card payments</span>
+          <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[13px]">
+            {payments.map((p) => (
+              <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
+                <span>
+                  {formatCents(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {formatDateTime(p.paidAt ?? p.createdAt)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {client.paymentNote ? (
         <div className="flex flex-col gap-1 border-t border-line-soft pt-3.5">

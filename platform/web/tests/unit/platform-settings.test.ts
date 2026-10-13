@@ -83,10 +83,10 @@ describe("platform settings", () => {
   });
 
   it("caches for 30 seconds per server", async () => {
-    await platformSettings(store, 1_000);
+    await platformSettings(store, { now: 1_000 });
     await store.setPlatformSetting("otp", { kind: "off" }, "admin@yallapp.test", NOW);
-    expect((await platformSettings(store, 20_000)).has("otp")).toBe(false);
-    expect((await platformSettings(store, 32_000)).has("otp")).toBe(true);
+    expect((await platformSettings(store, { now: 20_000 })).has("otp")).toBe(false);
+    expect((await platformSettings(store, { now: 32_000 })).has("otp")).toBe(true);
   });
 });
 
