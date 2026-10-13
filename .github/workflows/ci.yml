@@ -265,6 +265,9 @@ jobs:
           - part: bookingpress save
             booking: bookingpress
             slug: bookingpress-appointment-booking
+            list: ''
+            grep: ''
+            around: ''
             methods: '::(bookingpress_save_appointment_booking_func|bookingpress_confirm_booking|bookingpress_is_appointment_booked|bookinpgress_retrieve_default_workhours|bookingpress_global_options|bookingpress_get_currency_symbol|bookingpress_get_currency_code|bookingpress_retrieve_off_days|bookingpress_get_default_dayoff_dates)$'
     defaults:
       run:
