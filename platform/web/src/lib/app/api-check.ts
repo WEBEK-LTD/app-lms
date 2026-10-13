@@ -98,7 +98,7 @@ async function getJson(fetcher: Fetch, url: string, init?: RequestInit): Promise
   return { status: response.status, body };
 }
 
-const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home", booking: "/bookings/home" };
+const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home", booking: "/bookings/home", real_estate: "/listings" };
 
 /** What /config must have for each app type. */
 const TYPE_CHECK: Record<AppType, { label: string; fix: string; ok: (config: Record<string, unknown>) => boolean }> = {
@@ -109,6 +109,7 @@ const TYPE_CHECK: Record<AppType, { label: string; fix: string; ok: (config: Rec
   },
   store: { label: "Config has the store settings", fix: "Add `store` to /config.", ok: (c) => isObject(c.store) },
   booking: { label: "Config has the bookings settings", fix: "Add `bookings` to /config.", ok: (c) => isObject(c.bookings) },
+  real_estate: { label: "Config has the office settings", fix: "Add `listings` to /config.", ok: (c) => isObject(c.listings) },
 };
 
 export async function checkApi(

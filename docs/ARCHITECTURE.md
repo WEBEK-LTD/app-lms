@@ -109,7 +109,7 @@ mobile/
                    services, a service's free times, appointments
 ```
 
-- The build config's `app_type` (`lms`, `store` or `booking`) picks the module's routes
+- The build config's `app_type` (`lms`, `store`, `booking` or `real_estate`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
@@ -238,6 +238,25 @@ mobile/
   paid order enrols the student. The client can also add a student by the
   phone number they sign in with. Enrolments and lesson progress are in
   `course_enrollments` and `lesson_progress`.
+
+- Real estate apps (connector `listings`, 10.7): the app type `real_estate`
+  has no WordPress side. On the Website step the only choice is "Listings
+  managed in Yallapp", which moves the app to the hosted API. The office adds
+  its properties on the dashboard's Listings page (`listings`: purpose, one of
+  a fixed list of property types, price and currency, rent per month or year,
+  place and map position, area, rooms, features, ordered photos, a video
+  link; draft, published or archived; featured) and sets its contact details,
+  currency, area unit and whether people can message it (`listing_settings`,
+  sent as `Config.listings`). The hosted API serves the Listings endpoints:
+  search with filters, sort and pages over published listings only, details
+  with similar listings, favorites (`listing_favorites`) and conversations
+  with the office (`listing_inquiries`, `listing_inquiry_messages`, rate
+  limited, refused while messages are off). Descriptions are cleaned to a few
+  formatting tags whenever they're served. The office gets an email for each
+  message and answers on the Inquiries page; a reply lands in the user's
+  notifications inbox and is pushed to their phones. Texts are served as the
+  office wrote them. Page list blocks get listing cards from
+  `lib/hosted/listings/page-items.ts`.
 
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the

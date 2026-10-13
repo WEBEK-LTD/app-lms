@@ -72,8 +72,8 @@ export interface StoreListing {
   iphoneScreenshots?: string[];
 }
 
-/** "lms" is an Academy app, "store" a WooCommerce Store app, "booking" a Bookings app. */
-export type AppType = "lms" | "store" | "booking";
+/** "lms" is an Academy app, "store" a WooCommerce Store app, "booking" a Bookings app, "real_estate" a Real estate app (hosted API only). */
+export type AppType = "lms" | "store" | "booking" | "real_estate";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
@@ -96,6 +96,8 @@ export type ConnectorConfig =
   | { kind: "bookings" }
   /** No website: courses set in the dashboard (`courseSetup`), enrolments and progress in course_enrollments and lesson_progress. */
   | { kind: "courses" }
+  /** Real estate: listings, the office settings, favorites and inquiries in the listing_* tables. */
+  | { kind: "listings" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Teachable,
    * Thinkific, SimplyBook): `settings` holds the values that aren't secret,
@@ -714,4 +716,108 @@ export interface LessonProgress {
   positionSeconds: number;
   completedAt: Date | null;
   updatedAt: Date;
+}
+
+// 10.7 Listings: property listings managed in the dashboard (connector "listings", Real estate apps).
+
+export type ListingPurpose = "sale" | "rent";
+export type ListingStatus = "draft" | "published" | "archived";
+export type ListingAreaUnit = "m2" | "ft2";
+
+export interface Listing {
+  id: number;
+  appId: string;
+  /** The office's own code, like NH-1042. */
+  reference: string | null;
+  title: string;
+  /** As the office wrote it: plain text or simple HTML, cleaned whenever it's served (lib/listings/html.ts). */
+  description: string;
+  purpose: ListingPurpose;
+  /** A property type key (lib/listings/types.ts), like "apartment". */
+  type: string;
+  priceCents: number;
+  /** ISO 4217, like EGP. */
+  currency: string;
+  /** For rent: per month or per year; null for sale. */
+  pricePeriod: "month" | "year" | null;
+  negotiable: boolean;
+  city: string;
+  district: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  /** In the office's area unit. */
+  area: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  floor: number | null;
+  yearBuilt: number | null;
+  furnished: boolean | null;
+  /** Amenities, like "Elevator" or "Garden". */
+  features: string[];
+  /** Photos (asset IDs), in the order the app shows them. */
+  imageAssetIds: string[];
+  videoUrl: string | null;
+  featured: boolean;
+  /** Only published listings are in the app. */
+  status: ListingStatus;
+  /** When it was first published: the app's "newest" order. */
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ListingInput = Omit<Listing, "id" | "createdAt" | "updatedAt">;
+
+/** The office's settings, sent to the app as `Config.listings`. */
+export interface ListingSettings {
+  currency: string;
+  areaUnit: ListingAreaUnit;
+  contactName: string;
+  contactPhone: string | null;
+  contactWhatsapp: string | null;
+  contactEmail: string | null;
+  /** Whether app users can message the office. */
+  messages: boolean;
+}
+
+export interface ListingFavorite {
+  appId: string;
+  userId: number;
+  listingId: number;
+  createdAt: Date;
+}
+
+export type ListingInquiryStatus = "open" | "closed";
+
+/** A conversation between an app user and the office about one listing. */
+export interface ListingInquiry {
+  id: number;
+  appId: string;
+  listingId: number;
+  userId: number;
+  status: ListingInquiryStatus;
+  createdAt: Date;
+  /** The latest message or status change. */
+  updatedAt: Date;
+}
+
+export interface ListingInquiryMessage {
+  id: number;
+  appId: string;
+  inquiryId: number;
+  from: "user" | "office";
+  text: string;
+  /** When the other side saw it. */
+  readAt: Date | null;
+  createdAt: Date;
+}
+
+/** A conversation as lists show it: the latest message and what each side hasn't read. */
+export interface ListingInquiryRow extends ListingInquiry {
+  lastMessage: ListingInquiryMessage | null;
+  /** Office messages the user hasn't seen. */
+  unreadByUser: number;
+  /** User messages the office hasn't seen. */
+  unreadByOffice: number;
 }

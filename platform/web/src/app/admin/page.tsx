@@ -334,6 +334,8 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
                   ? `Their ${platformDefinition(app.connector.platform)?.name ?? app.connector.platform} account${
                       Object.values(app.connector.settings).find(Boolean) ? ` (${Object.values(app.connector.settings).find(Boolean)})` : ""
                     }`
+                : app.connector?.kind === "listings"
+                  ? "Real estate: listings in the dashboard"
                 : app.connector?.kind === "courses"
                   ? "No website: courses in the dashboard"
                   : app.connector?.kind === "bookings"

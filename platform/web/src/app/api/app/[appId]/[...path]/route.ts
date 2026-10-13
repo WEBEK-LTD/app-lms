@@ -13,6 +13,7 @@ import { newAppointmentMail } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
 import type { BookingAppointment } from "@/lib/data/types";
 import { sendMail } from "@/lib/mail";
+import { newInquiryMail } from "@/lib/listings/notify";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -62,6 +63,12 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
           if (!owner) return;
           const mail = newAppointmentMail(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
           await sendMail({ to: owner.email, ...mail });
+        },
+        onInquiry: async ({ inquiry, listing, user, text }) => {
+          const owner = client ? await store.getUserById(client.userId) : null;
+          if (!owner) return;
+          const url = `${appUrl()}/dashboard/inquiries/${inquiry.id}`;
+          await sendMail({ to: owner.email, ...newInquiryMail({ listing, user, text, appName: app.appName ?? "your app", url }) });
         },
       }),
     },

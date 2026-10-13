@@ -23,7 +23,14 @@ export interface ConnectorRequest {
  */
 export interface Connector {
   /** Added to GET /config, for example `store` and `features.orders`. */
-  config(): Promise<{ store?: unknown; bookings?: unknown; features?: Record<string, unknown>; purchases?: { enroll_button: boolean; free_enrollment: boolean } }>;
+  config(): Promise<{
+    store?: unknown;
+    bookings?: unknown;
+    /** Config.listings (10.7). */
+    listings?: unknown;
+    features?: Record<string, unknown>;
+    purchases?: { enroll_button: boolean; free_enrollment: boolean };
+  }>;
   /** The response for a content endpoint, or null when it isn't one of this connector's. */
   handle(request: ConnectorRequest): Promise<ConnectorResult | null>;
 }

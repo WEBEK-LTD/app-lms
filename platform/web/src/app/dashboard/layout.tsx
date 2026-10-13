@@ -45,6 +45,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   { href: "/dashboard/appointments", label: "Appointments" },
                 ]
               : []),
+            ...(app?.connector?.kind === "listings"
+              ? [
+                  { href: "/dashboard/listings", label: "Listings" },
+                  { href: "/dashboard/inquiries", label: "Inquiries" },
+                ]
+              : []),
             ...(app?.backend === "hosted"
               ? [
                   { href: "/dashboard/notifications", label: "App notifications" },

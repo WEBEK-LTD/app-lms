@@ -214,6 +214,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
+    ...(extra.listings ? { listings: extra.listings } : {}),
   });
 }
 

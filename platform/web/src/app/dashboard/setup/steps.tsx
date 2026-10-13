@@ -61,10 +61,11 @@ const PLATFORM_CHOICE: Record<AppType, { title: string; text: string }> = {
   store: { title: "Another store platform", text: "Your products and checkout come from ikas, Ticimax or IdeaSoft. Customers sign in to the app with a code we send." },
   lms: { title: "My Teachable or Thinkific school", text: "Your courses and lessons come from your online school. Students sign in to the app with a code we send." },
   booking: { title: "My SimplyBook.me account", text: "Your services, team and free times come from SimplyBook.me. Customers sign in to the app with a code we send." },
+  real_estate: { title: "Another platform", text: "Your listings come from another platform." },
 };
 
 const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[] }[] = [
-  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
+  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here.", appTypes: ["lms", "store", "booking"] },
   {
     id: "shopify",
     title: "My Shopify store",
@@ -76,10 +77,15 @@ const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[]
     id: "catalog",
     title: "I don't have a website",
     text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
-    appTypes: ["store", "booking", "lms"],
+    appTypes: ["store", "booking", "lms", "real_estate"],
   },
-  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
-  { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
+  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself.", appTypes: ["lms", "store", "booking"] },
+  {
+    id: "setup_requested",
+    title: "I don't have WordPress",
+    text: "Our team sets up WordPress for you and moves your content over.",
+    appTypes: ["lms", "store", "booking"],
+  },
 ];
 
 /** The platform to connect and the keys it needs. */
@@ -206,7 +212,8 @@ export function WebsiteStep({
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
-  const [choice, setChoice] = useState<Backend>((state.values?.backend as Backend | undefined) ?? backend);
+  // Real estate apps have one choice: listings managed in Yallapp.
+  const [choice, setChoice] = useState<Backend>((state.values?.backend as Backend | undefined) ?? (appType === "real_estate" ? "catalog" : backend));
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
@@ -219,6 +226,12 @@ export function WebsiteStep({
             .map((b) =>
               b.id === "catalog" && appType === "booking"
                 ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
+                : b.id === "catalog" && appType === "real_estate"
+                  ? {
+                      ...b,
+                      title: "Listings managed in Yallapp",
+                      text: "Add your properties here in the dashboard. People search them in the app, save favorites and message your office.",
+                    }
                 : b.id === "catalog" && appType === "lms"
                   ? { ...b, text: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android." }
                   : b.id === "platform"
@@ -252,6 +265,11 @@ export function WebsiteStep({
               <>
                 After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with
                 a code we send to their phone.
+              </>
+            ) : appType === "real_estate" ? (
+              <>
+                After this step, set up your office and add your properties on the <b>Listings</b> page, and answer people&apos;s messages on
+                the <b>Inquiries</b> page. People sign in to the app with a code we send to their phone.
               </>
             ) : appType === "booking" ? (
               <>

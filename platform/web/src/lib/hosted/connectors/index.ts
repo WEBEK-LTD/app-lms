@@ -5,6 +5,7 @@ import type { BookingAppointment } from "../../data/types";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
 import { CoursesConnector } from "./courses";
+import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
 import { ShopifyConnector } from "./shopify";
@@ -56,12 +57,14 @@ export function connectorFor(
     assetUrl: (assetId: string) => string;
     platformUrl: string;
     onBooked?: (appointment: BookingAppointment) => Promise<void>;
+    onInquiry?: ListingsDeps["onInquiry"];
   },
   fetcher: typeof fetch = fetch,
 ): Connector | null {
   if (app.connector?.kind === "catalog") return new CatalogConnector({ ...deps, app });
   if (app.connector?.kind === "bookings") return new BookingsConnector({ ...deps, app });
   if (app.connector?.kind === "courses") return new CoursesConnector({ ...deps, app });
+  if (app.connector?.kind === "listings") return new ListingsConnector({ ...deps, app });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);
