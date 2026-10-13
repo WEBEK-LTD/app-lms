@@ -122,12 +122,13 @@ the job ends.
 The Linux jobs (CI and Android builds) can run on our own server instead of
 GitHub's paid minutes; iOS still needs GitHub's macOS runners.
 `runner/install.sh` sets runners up on an AlmaLinux 9 x86_64 server, with or
-without cPanel:
+without cPanel and CloudLinux:
 
 - Each runner is a rootless Podman container, close to GitHub's
-  `ubuntu-24.04` runners, that systemd keeps running under a `ghrunner`
-  system user (home in `/var/lib/ghrunner`), outside cPanel's accounts. Jobs
-  use sudo only inside their container.
+  `ubuntu-24.04` runners, run by a system service (`yallapp-runner-N`) as a
+  `ghrunner` system user (home in `/var/lib/ghrunner`), outside cPanel's
+  accounts. It does not need the user's own systemd, which CloudLinux masks.
+  Jobs use sudo only inside their container.
 - Each runner runs one job at a time and is capped (default 2 CPU cores and
   4 GB of memory) so the sites on the server keep their share.
 
@@ -146,5 +147,6 @@ runners register). Then set the repository variable `LINUX_RUNNER` to
 Linux job moves to our runners. Delete the variable to go back to GitHub's
 runners.
 
-Running the script again rebuilds the image and restarts the runners. Logs:
-`journalctl --user-unit yallapp-runner-1 -f`.
+Running the script again rebuilds the image and restarts the runners (press
+Enter at the token question to keep the saved one). Status and logs:
+`systemctl status yallapp-runner-1`, `journalctl -u yallapp-runner-1 -f`.
