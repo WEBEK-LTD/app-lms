@@ -3002,7 +3002,7 @@ components:
 
     LanguageCode:
       type: string
-      enum: [en, ar, tr, fr, de, es]
+      enum: [en, ar, tr]
 
     ListingsConfig:
       type: object
