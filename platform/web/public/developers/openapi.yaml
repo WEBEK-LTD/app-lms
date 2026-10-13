@@ -1551,8 +1551,8 @@ components:
           properties:
             lms:
               type: [string, 'null']
-              enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo, yallapp, null]
-              description: The detected LMS, `yallapp` for courses managed in the Yallapp dashboard (hosted API), or null on a site without one (a Store or Bookings app).
+              enum: [tutor, learndash, learnpress, lifterlms, masterstudy, sensei, masteriyo, yallapp, teachable, thinkific, null]
+              description: The detected LMS, `yallapp` for courses managed in the Yallapp dashboard (hosted API), `teachable` or `thinkific` for a school connected to the hosted API, or null on a site without one (a Store or Bookings app).
             lms_version: { type: string }
             pro: { type: boolean }
             certificates: { type: boolean }
@@ -2263,7 +2263,7 @@ components:
       description: Present when a supported booking plugin is active, or when the business manages its bookings in the Yallapp dashboard. Settings for Bookings apps.
       required: [plugin, plugin_version, timezone, currency, staff_choice, notes, max_days_ahead, min_minutes_ahead, cancel_before_minutes]
       properties:
-        plugin: { type: string, enum: [amelia, bookingpress, latepoint, yallapp], description: "The booking plugin, or `yallapp` for bookings managed in the Yallapp dashboard (hosted API)." }
+        plugin: { type: string, enum: [amelia, bookingpress, latepoint, yallapp, simplybook], description: "The booking plugin, `yallapp` for bookings managed in the Yallapp dashboard (hosted API), or `simplybook` for a SimplyBook.me account connected to the hosted API." }
         plugin_version: { type: string }
         timezone: { type: string, description: The business's IANA time zone., example: Europe/Istanbul }
         currency: { type: string, example: TRY }

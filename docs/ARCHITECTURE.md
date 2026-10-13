@@ -161,7 +161,18 @@ mobile/
   customer's phone and email and opens its checkout page in the app; on
   iOS, carts with digital products (no shipping) are refused. Prices use
   the shop's money format. Shop details and collections are cached for
-  five minutes. Reviews and order history are off for Shopify apps.
+  five minutes. Reviews are off for Shopify apps. Order history needs an
+  optional Admin API token (read_orders, read_customers) on the Website
+  step: the customer's orders are those of the Shopify customer with
+  exactly the phone number they signed in with.
+- Other platforms (8.5): ikas, Ticimax and IdeaSoft (Store), Teachable and
+  Thinkific (Academy) and SimplyBook.me (Bookings) are connectors that
+  register themselves with their fields in
+  `platform/web/src/lib/hosted/connectors/platforms.ts`. The Website step
+  shows one more choice per app type with the platform's fields; the keys
+  are checked with the platform before they're saved (values that aren't
+  secret as they are, secrets encrypted together, renewed OAuth tokens
+  saved back).
 - No website (Store apps): the client picks "I don't have a website" on the
   Website step and manages products (price, sale price, stock, photos,
   categories, digital or physical), shipping and their iyzico keys on the
