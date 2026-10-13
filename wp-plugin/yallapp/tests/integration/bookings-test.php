@@ -183,7 +183,7 @@ check( 'booked', 201 === $booked['status'], $booked['raw'] );
 check( 'approved', 'approved' === ( $a['status'] ?? '' ), $a );
 check( 'local time', '10:00' === ( $a['local_time'] ?? '' ) && $date === ( $a['local_date'] ?? '' ), $a );
 check( 'UTC times', $start === ( $a['start'] ?? '' ) && $date . 'T07:30:00Z' === ( $a['end'] ?? '' ), $a );
-check( 'service and staff', 'Haircut' === ( $a['service']['name'] ?? '' ) && ( $none ? null === ( $a['staff'] ?? 'missing' ) : 'Ayşe Kaya' === ( $a['staff']['name'] ?? '' ) ), $a );
+check( 'service and staff', 'Haircut' === ( $a['service']['name'] ?? '' ) && ( $none ? array_key_exists( 'staff', $a ) && null === $a['staff'] : 'Ayşe Kaya' === ( $a['staff']['name'] ?? '' ) ), $a );
 check( 'price', '300.00' === ( $a['price']['amount'] ?? '' ), $a );
 check( 'can cancel', true === ( $a['can_cancel'] ?? null ), $a );
 $again = call( 'POST', '/bookings/appointments?platform=android', array_filter( array( 'service_id' => $seed['haircut'], 'staff_id' => $none ? null : $seed['ayse'], 'start' => $start ) ), $token );
@@ -202,7 +202,7 @@ $sunday_try = call( 'POST', '/bookings/appointments?platform=android', array( 's
 check( 'a closed day is slot_taken', 409 === $sunday_try['status'], $sunday_try['raw'] );
 $second = $one ? 'Haircut' : 'Massage';
 $anyone = call( 'POST', '/bookings/appointments?platform=android', array( 'service_id' => $seed[ $one ? 'haircut' : 'massage' ], 'start' => $date . 'T11:00:00Z' ), $token );
-check( 'anyone free: the plugin picks', 201 === $anyone['status'] && ( $none ? null === ( $anyone['json']['staff'] ?? 'missing' ) : ( $one ? 'Ayşe Kaya' : 'Mehmet Demir' ) === ( $anyone['json']['staff']['name'] ?? '' ) ), $anyone['raw'] );
+check( 'anyone free: the plugin picks', 201 === $anyone['status'] && ( $none ? array_key_exists( 'staff', (array) ( $anyone['json'] ?? array() ) ) && null === $anyone['json']['staff'] : ( $one ? 'Ayşe Kaya' : 'Mehmet Demir' ) === ( $anyone['json']['staff']['name'] ?? '' ) ), $anyone['raw'] );
 
 echo "My appointments\n";
 $upcoming = call( 'GET', '/me/appointments', null, $token );
