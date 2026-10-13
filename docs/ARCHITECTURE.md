@@ -142,6 +142,16 @@ mobile/
     never reached.
 - Secrets that clients give us (store API keys, signing keys) are encrypted
   with a key that never leaves the server environment.
+- Hosted API (`/api/app/{app_id}`), for apps without WordPress: it serves the
+  app contract's configuration, sign-in, account, devices, push token and
+  notifications endpoints from our own database, behaving like the plugin
+  (6-digit codes, 5 attempts, 15-minute access tokens, rotating 30-day
+  refresh tokens, a device limit). Codes go out through our WhatsApp Cloud
+  API number or a signed webhook to our gateway. Clients send notifications
+  from the dashboard; push uses the client's Firebase service account,
+  stored encrypted. Content endpoints come from connectors (Shopify and
+  others, 8.4 and 8.5) or the dashboard catalog (8.6); until then they
+  answer `not_found`. Our team switches an app to it from the admin page.
 
 ## Build pipeline
 

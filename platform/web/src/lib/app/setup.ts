@@ -5,6 +5,8 @@ import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import type { Plan } from "../plans";
 import { compareVersions } from "../semver";
+import { appUrl } from "../env";
+import { hostedApiUrl } from "../hosted/urls";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -59,6 +61,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     iphoneScreenshotIds: [],
     firebaseAndroidAssetId: null,
     firebaseIosAssetId: null,
+    hostedSettings: null,
+    firebaseServiceAccountEncrypted: null,
     googlePlayKeyEncrypted: null,
     googlePlayClientEmail: null,
     ascIssuerId: null,
@@ -98,10 +102,12 @@ export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep
 
 /**
  * The Website step is done when the app has somewhere to get its content:
- * a WordPress site, or a custom API. A WordPress set-up our team hasn't
+ * a WordPress site, a custom API or the hosted API. A WordPress set-up our team hasn't
  * finished yet keeps it open, so no build starts against a missing site.
  */
 export function websiteReady(app: App): boolean {
+  // The hosted API needs no website: our team switches the app to it.
+  if (app.backend === "hosted") return true;
   if (!app.websiteDoneAt || !app.siteUrl) return false;
   if (app.backend === "custom_api") return Boolean(app.apiBaseUrl);
   return app.backend === "wordpress";
@@ -153,6 +159,7 @@ export function buildConfigFor(
     client_id: client.id,
     app_type: app.appType,
     ...(app.backend === "custom_api" && app.apiBaseUrl ? { api_base_url: app.apiBaseUrl } : {}),
+    ...(app.backend === "hosted" ? { api_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
     app_name: app.appName ?? "",
     short_name: app.shortName ?? "",
     site_url: app.siteUrl ?? "",

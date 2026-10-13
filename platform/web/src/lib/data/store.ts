@@ -5,6 +5,12 @@ import type {
   Build,
   BuildStatus,
   Client,
+  HostedChallenge,
+  HostedDevice,
+  HostedNotification,
+  HostedRefreshToken,
+  HostedUser,
+  HostedUserPatch,
   License,
   PluginRelease,
   ResetToken,
@@ -34,6 +40,9 @@ export class DuplicateEmailError extends Error {
     this.name = "DuplicateEmailError";
   }
 }
+
+/** A device of a hosted-API customer: what the API may change. */
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushPreferences" | "lastSeenAt">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -121,6 +130,54 @@ export interface DataStore {
   getResetToken(tokenHash: string): Promise<ResetToken | null>;
   /** Marks the token used; returns false if it was already used (single use, atomic). */
   consumeResetToken(tokenHash: string, now: Date): Promise<boolean>;
+
+  // Hosted API: an app's customers (always scoped by app)
+  /** Returns null when the app already has a customer with this phone number. */
+  createHostedUser(input: { appId: string; phone: string; name: string; email: string | null; city: string | null; now: Date }): Promise<HostedUser | null>;
+  getHostedUser(appId: string, id: number): Promise<HostedUser | null>;
+  getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null>;
+  updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void>;
+  /** Deletes the customer with their devices, sign-ins and notifications. */
+  deleteHostedUser(appId: string, id: number): Promise<void>;
+
+  createHostedDevice(device: HostedDevice): Promise<void>;
+  getHostedDevice(appId: string, id: string): Promise<HostedDevice | null>;
+  findHostedDevice(appId: string, userId: number, deviceId: string): Promise<HostedDevice | null>;
+  /** A customer's devices, most recently seen first. */
+  listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]>;
+  updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void>;
+  /** Signs the device out: deletes it and its refresh tokens. */
+  deleteHostedDevice(appId: string, id: string): Promise<void>;
+  /** Devices with a push token: every customer's, or only these customers'. */
+  listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]>;
+  /** Forgets a push token Firebase reported as no longer valid. */
+  clearHostedPushToken(appId: string, token: string): Promise<void>;
+
+  createHostedRefreshToken(token: HostedRefreshToken): Promise<void>;
+  /** Deletes and returns the token (single use, atomic); null when it was already used or never existed. */
+  takeHostedRefreshToken(tokenHash: string): Promise<HostedRefreshToken | null>;
+
+  createHostedChallenge(challenge: HostedChallenge): Promise<void>;
+  getHostedChallenge(tokenHash: string): Promise<HostedChallenge | null>;
+  /** Counts one more wrong or right attempt; returns the attempts so far. */
+  addHostedChallengeAttempt(tokenHash: string): Promise<number>;
+  deleteHostedChallenge(tokenHash: string): Promise<void>;
+  /** Drops expired challenges and refresh tokens. */
+  purgeHostedExpired(now: Date): Promise<void>;
+
+  createHostedNotification(input: Omit<HostedNotification, "id">): Promise<HostedNotification>;
+  /** The customer's notifications (their own and everyone's) since `since`, newest first. */
+  listHostedNotifications(input: {
+    appId: string;
+    userId: number;
+    since: Date;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: HostedNotification[]; total: number }>;
+  countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number>;
+  /** Everyone's notifications of an app, newest first, for the dashboard. */
+  listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
+  countHostedUsers(appId: string): Promise<number>;
 
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */

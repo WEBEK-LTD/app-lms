@@ -44,4 +44,5 @@ export const RATE_LIMITS = {
   licenseIp: { name: "license:ip", limit: 30, windowSeconds: 60 },
   updateIp: { name: "update:ip", limit: 60, windowSeconds: 60 },
   pipelineIp: { name: "pipeline:ip", limit: 600, windowSeconds: 60 },
+  hostedNotify: { name: "hosted-notify:app", limit: 10, windowSeconds: 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

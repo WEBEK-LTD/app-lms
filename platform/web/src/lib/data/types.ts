@@ -77,10 +77,37 @@ export type AppType = "lms" | "store" | "booking";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
- * WordPress site, the client's own API (docs/api/openapi.yaml), or a
- * WordPress site our team sets up for them (requested, not ready yet).
+ * WordPress site, the client's own API (docs/api/openapi.yaml), a WordPress
+ * site our team sets up for them (requested, not ready yet), or our hosted
+ * API (`/api/app/{id}`), which signs customers in itself.
  */
-export type AppBackend = "wordpress" | "custom_api" | "setup_requested";
+export type AppBackend = "wordpress" | "custom_api" | "setup_requested" | "hosted";
+
+/** Sign-in and account rules of the hosted API, set per app. */
+export interface HostedSettings {
+  /** Asked at sign-up besides the name. */
+  signupFields: ("email" | "city")[];
+  signupAllowed: boolean;
+  defaultCountryCode: string;
+  /** Devices per customer; 0 for no limit. */
+  deviceLimit: number;
+  supportWhatsapp: string | null;
+  termsUrl: string | null;
+  /** App store review access: this number signs in with `reviewCode`, no message sent. */
+  reviewPhone: string | null;
+  reviewCode: string | null;
+}
+
+export const DEFAULT_HOSTED_SETTINGS: HostedSettings = {
+  signupFields: [],
+  signupAllowed: true,
+  defaultCountryCode: "+90",
+  deviceLimit: 2,
+  supportWhatsapp: null,
+  termsUrl: null,
+  reviewPhone: null,
+  reviewCode: null,
+};
 
 export interface App {
   id: string;
@@ -114,6 +141,10 @@ export interface App {
   /** Firebase config files (assets): google-services.json and GoogleService-Info.plist. Push is off without them. */
   firebaseAndroidAssetId: string | null;
   firebaseIosAssetId: string | null;
+  /** Hosted API rules (backend "hosted"); null means the defaults. */
+  hostedSettings: HostedSettings | null;
+  /** Encrypted Firebase service account JSON, for push from the hosted API. Never leaves the server. */
+  firebaseServiceAccountEncrypted: string | null;
   /** Encrypted Google Play service account JSON. Never leaves the server. */
   googlePlayKeyEncrypted: string | null;
   googlePlayClientEmail: string | null;
@@ -194,5 +225,83 @@ export interface ResetToken {
   userId: string;
   expiresAt: Date;
   usedAt: Date | null;
+  createdAt: Date;
+}
+
+/** A customer of a hosted-API app, signed in with their phone number. */
+export interface HostedUser {
+  id: number;
+  appId: string;
+  /** E.164, for example +905321234567. */
+  phone: string;
+  name: string;
+  email: string | null;
+  city: string | null;
+  /** Notifications created up to then count as read. */
+  notificationsReadAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type HostedUserPatch = Partial<Pick<HostedUser, "name" | "email" | "city" | "notificationsReadAt">>;
+
+export interface PushPreferences {
+  announcements?: boolean;
+  new_lessons?: boolean;
+  daily_reminder?: boolean;
+}
+
+/** A signed-in device of a hosted-API customer. */
+export interface HostedDevice {
+  /** Our row ID; the access token carries it. */
+  id: string;
+  appId: string;
+  userId: number;
+  /** The ID the app generated for this install. */
+  deviceId: string;
+  platform: "android" | "ios";
+  name: string;
+  appVersion: string;
+  pushToken: string | null;
+  pushPreferences: PushPreferences | null;
+  createdAt: Date;
+  lastSeenAt: Date;
+}
+
+/** A refresh token (stored hashed). Single use: rotating deletes it. */
+export interface HostedRefreshToken {
+  tokenHash: string;
+  appId: string;
+  userId: number;
+  deviceRowId: string;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/**
+ * A pending sign-in: "otp" waits for the code sent to `phone`; "signup" lets
+ * a verified number create an account. Looked up by the hash of its token.
+ */
+export interface HostedChallenge {
+  tokenHash: string;
+  appId: string;
+  kind: "otp" | "signup";
+  phone: string;
+  /** HMAC of the code ("otp" only). */
+  codeHash: string | null;
+  attempts: number;
+  /** App store review number: the review code works, no message was sent. */
+  review: boolean;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/** A notification in customers' inboxes: to one customer, or to everyone when `userId` is null. */
+export interface HostedNotification {
+  id: number;
+  appId: string;
+  userId: number | null;
+  title: string;
+  body: string;
   createdAt: Date;
 }

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, like, lte, or, sql } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
@@ -14,6 +14,7 @@ import type {
   ClientPatch,
   ClientRow,
   DataStore,
+  HostedDevicePatch,
   LicensePatch,
   ReleasePatch,
   SetupRequestRow,
@@ -30,6 +31,12 @@ import type {
   Build,
   BuildStatus,
   Client,
+  HostedChallenge,
+  HostedDevice,
+  HostedNotification,
+  HostedRefreshToken,
+  HostedUser,
+  HostedUserPatch,
   License,
   PluginRelease,
   ResetToken,
@@ -460,6 +467,265 @@ export class MysqlStore implements DataStore {
         .where(and(eq(schema.resetTokens.tokenHash, tokenHash), isNull(schema.resetTokens.usedAt))),
     );
     return result.affectedRows === 1;
+  }
+
+  async createHostedUser(input: {
+    appId: string;
+    phone: string;
+    name: string;
+    email: string | null;
+    city: string | null;
+    now: Date;
+  }): Promise<HostedUser | null> {
+    const row = {
+      appId: input.appId,
+      phone: input.phone,
+      name: input.name,
+      email: input.email,
+      city: input.city,
+      notificationsReadAt: null,
+      createdAt: input.now,
+      updatedAt: input.now,
+    };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.hostedUsers).values(row));
+      return { id: Number(result.insertId), ...row };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async getHostedUser(appId: string, id: number): Promise<HostedUser | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedUsers)
+        .where(and(eq(schema.hostedUsers.appId, appId), eq(schema.hostedUsers.id, id)))
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedUsers)
+        .where(and(eq(schema.hostedUsers.appId, appId), eq(schema.hostedUsers.phone, phone)))
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.hostedUsers)
+        .set({ ...patch, updatedAt: now })
+        .where(and(eq(schema.hostedUsers.appId, appId), eq(schema.hostedUsers.id, id))),
+    );
+  }
+
+  async deleteHostedUser(appId: string, id: number): Promise<void> {
+    // Devices, refresh tokens and the customer's own notifications cascade.
+    await this.run((db) =>
+      db.delete(schema.hostedUsers).where(and(eq(schema.hostedUsers.appId, appId), eq(schema.hostedUsers.id, id))),
+    );
+  }
+
+  async createHostedDevice(device: HostedDevice): Promise<void> {
+    await this.run((db) => db.insert(schema.hostedDevices).values(device));
+  }
+
+  async getHostedDevice(appId: string, id: string): Promise<HostedDevice | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedDevices)
+        .where(and(eq(schema.hostedDevices.appId, appId), eq(schema.hostedDevices.id, id)))
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async findHostedDevice(appId: string, userId: number, deviceId: string): Promise<HostedDevice | null> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedDevices)
+        .where(
+          and(
+            eq(schema.hostedDevices.appId, appId),
+            eq(schema.hostedDevices.userId, userId),
+            eq(schema.hostedDevices.deviceId, deviceId),
+          ),
+        )
+        .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedDevices)
+        .where(and(eq(schema.hostedDevices.appId, appId), eq(schema.hostedDevices.userId, userId)))
+        .orderBy(desc(schema.hostedDevices.lastSeenAt)),
+    );
+  }
+
+  async updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.hostedDevices)
+        .set(patch)
+        .where(and(eq(schema.hostedDevices.appId, appId), eq(schema.hostedDevices.id, id))),
+    );
+  }
+
+  async deleteHostedDevice(appId: string, id: string): Promise<void> {
+    // Its refresh tokens cascade.
+    await this.run((db) =>
+      db.delete(schema.hostedDevices).where(and(eq(schema.hostedDevices.appId, appId), eq(schema.hostedDevices.id, id))),
+    );
+  }
+
+  async listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]> {
+    if (userIds !== null && userIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedDevices)
+        .where(
+          and(
+            eq(schema.hostedDevices.appId, appId),
+            isNotNull(schema.hostedDevices.pushToken),
+            userIds === null ? undefined : inArray(schema.hostedDevices.userId, userIds),
+          ),
+        ),
+    );
+  }
+
+  async clearHostedPushToken(appId: string, token: string): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.hostedDevices)
+        .set({ pushToken: null })
+        .where(and(eq(schema.hostedDevices.appId, appId), eq(schema.hostedDevices.pushToken, token))),
+    );
+  }
+
+  async createHostedRefreshToken(token: HostedRefreshToken): Promise<void> {
+    await this.run((db) => db.insert(schema.hostedRefreshTokens).values(token));
+  }
+
+  async takeHostedRefreshToken(tokenHash: string): Promise<HostedRefreshToken | null> {
+    const rows = await this.run((db) =>
+      db.select().from(schema.hostedRefreshTokens).where(eq(schema.hostedRefreshTokens.tokenHash, tokenHash)).limit(1),
+    );
+    const token = rows[0];
+    if (!token) return null;
+    // Whoever deletes the row owns the token: a replay racing this one gets nothing.
+    const [result] = await this.run((db) =>
+      db.delete(schema.hostedRefreshTokens).where(eq(schema.hostedRefreshTokens.tokenHash, tokenHash)),
+    );
+    return result.affectedRows === 1 ? token : null;
+  }
+
+  async createHostedChallenge(challenge: HostedChallenge): Promise<void> {
+    await this.run((db) => db.insert(schema.hostedChallenges).values(challenge));
+  }
+
+  async getHostedChallenge(tokenHash: string): Promise<HostedChallenge | null> {
+    const rows = await this.run((db) =>
+      db.select().from(schema.hostedChallenges).where(eq(schema.hostedChallenges.tokenHash, tokenHash)).limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async addHostedChallengeAttempt(tokenHash: string): Promise<number> {
+    await this.run((db) =>
+      db
+        .update(schema.hostedChallenges)
+        .set({ attempts: sql`${schema.hostedChallenges.attempts} + 1` })
+        .where(eq(schema.hostedChallenges.tokenHash, tokenHash)),
+    );
+    const challenge = await this.getHostedChallenge(tokenHash);
+    return challenge ? challenge.attempts : Number.MAX_SAFE_INTEGER;
+  }
+
+  async deleteHostedChallenge(tokenHash: string): Promise<void> {
+    await this.run((db) => db.delete(schema.hostedChallenges).where(eq(schema.hostedChallenges.tokenHash, tokenHash)));
+  }
+
+  async purgeHostedExpired(now: Date): Promise<void> {
+    await this.run((db) => db.delete(schema.hostedChallenges).where(lte(schema.hostedChallenges.expiresAt, now)));
+    await this.run((db) => db.delete(schema.hostedRefreshTokens).where(lte(schema.hostedRefreshTokens.expiresAt, now)));
+  }
+
+  async createHostedNotification(input: Omit<HostedNotification, "id">): Promise<HostedNotification> {
+    const [result] = await this.run((db) => db.insert(schema.hostedNotifications).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  private hostedInboxWhere(appId: string, userId: number) {
+    return and(
+      eq(schema.hostedNotifications.appId, appId),
+      or(isNull(schema.hostedNotifications.userId), eq(schema.hostedNotifications.userId, userId)),
+    );
+  }
+
+  async listHostedNotifications(input: {
+    appId: string;
+    userId: number;
+    since: Date;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: HostedNotification[]; total: number }> {
+    const where = and(this.hostedInboxWhere(input.appId, input.userId), gte(schema.hostedNotifications.createdAt, input.since));
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(schema.hostedNotifications)
+          .where(where)
+          .orderBy(desc(schema.hostedNotifications.createdAt), desc(schema.hostedNotifications.id))
+          .limit(input.perPage)
+          .offset((input.page - 1) * input.perPage),
+      ),
+      this.run((db) => db.select({ n: count() }).from(schema.hostedNotifications).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number> {
+    const rows = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(schema.hostedNotifications)
+        .where(and(this.hostedInboxWhere(input.appId, input.userId), gt(schema.hostedNotifications.createdAt, input.after))),
+    );
+    return rows[0]?.n ?? 0;
+  }
+
+  async listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.hostedNotifications)
+        .where(and(eq(schema.hostedNotifications.appId, appId), isNull(schema.hostedNotifications.userId)))
+        .orderBy(desc(schema.hostedNotifications.createdAt), desc(schema.hostedNotifications.id))
+        .limit(limit),
+    );
+  }
+
+  async countHostedUsers(appId: string): Promise<number> {
+    const rows = await this.run((db) =>
+      db.select({ n: count() }).from(schema.hostedUsers).where(eq(schema.hostedUsers.appId, appId)),
+    );
+    return rows[0]?.n ?? 0;
   }
 
   async hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number> {

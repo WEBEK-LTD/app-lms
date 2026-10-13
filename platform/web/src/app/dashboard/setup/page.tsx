@@ -6,9 +6,11 @@ import { Notice, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { appUrl } from "@/lib/env";
+import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { planName } from "@/lib/plans";
-import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
+import { BrandingStep, HostedWebsiteStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
 
 export const metadata: Metadata = { title: "App setup" };
 
@@ -96,7 +98,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         })}
       </ol>
 
-      {step === "website" ? (
+      {step === "website" && app.backend === "hosted" ? <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} /> : null}
+      {step === "website" && app.backend !== "hosted" ? (
         <WebsiteStep
           siteUrl={app.siteUrl ?? client.siteUrl}
           plugin={pluginState}

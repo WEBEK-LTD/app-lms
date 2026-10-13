@@ -5,7 +5,11 @@ info:
   summary: The REST API the Yallapp WordPress plugin exposes to the Yallapp app.
   description: |
     Served by the Yallapp plugin on each client's WordPress site under
-    `/wp-json/yallapp/v1`. The app talks only to the client's own site.
+    `/wp-json/yallapp/v1`, by a client's own API, or by the Yallapp hosted
+    API at `https://yallapp.com.tr/api/app/{app_id}` for clients without
+    WordPress. The hosted API serves the configuration, sign-in, account,
+    devices, push token and notifications endpoints; content endpoints come
+    from the platform connected to the app and answer `not_found` until one is.
 
     Conventions:
     - JSON everywhere. Dates are ISO 8601 in UTC.
@@ -26,6 +30,12 @@ servers:
       site:
         default: your-academy.com
         description: The client's WordPress host name.
+  - url: https://yallapp.com.tr/api/app/{app_id}
+    description: The Yallapp hosted API, for apps without WordPress
+    variables:
+      app_id:
+        default: 00000000-0000-0000-0000-000000000000
+        description: The app's ID on the Yallapp platform.
 security:
   - bearerAuth: []
 tags:

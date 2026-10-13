@@ -8,6 +8,7 @@ import type {
   ClientPatch,
   ClientRow,
   DataStore,
+  HostedDevicePatch,
   LicensePatch,
   ReleasePatch,
   SetupRequestRow,
@@ -23,6 +24,12 @@ import type {
   Build,
   BuildStatus,
   Client,
+  HostedChallenge,
+  HostedDevice,
+  HostedNotification,
+  HostedRefreshToken,
+  HostedUser,
+  HostedUserPatch,
   License,
   PluginRelease,
   ResetToken,
@@ -47,6 +54,13 @@ export class MemoryStore implements DataStore {
   private assets = new Map<string, Asset>();
   private resetTokens = new Map<string, ResetToken>();
   private rateLimits = new Map<string, { windowStart: number; hits: number }>();
+  private hostedUsers = new Map<number, HostedUser>();
+  private hostedDevices = new Map<string, HostedDevice>();
+  private hostedTokens = new Map<string, HostedRefreshToken>();
+  private hostedChallenges = new Map<string, HostedChallenge>();
+  private hostedNotifications = new Map<number, HostedNotification>();
+  private nextHostedUserId = 1;
+  private nextHostedNotificationId = 1;
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -374,5 +388,190 @@ export class MemoryStore implements DataStore {
     }
     entry.hits += 1;
     return entry.hits;
+  }
+
+  async createHostedUser(input: {
+    appId: string;
+    phone: string;
+    name: string;
+    email: string | null;
+    city: string | null;
+    now: Date;
+  }): Promise<HostedUser | null> {
+    if (await this.getHostedUserByPhone(input.appId, input.phone)) return null;
+    const user: HostedUser = {
+      id: this.nextHostedUserId++,
+      appId: input.appId,
+      phone: input.phone,
+      name: input.name,
+      email: input.email,
+      city: input.city,
+      notificationsReadAt: null,
+      createdAt: input.now,
+      updatedAt: input.now,
+    };
+    this.hostedUsers.set(user.id, clone(user));
+    return clone(user);
+  }
+
+  async getHostedUser(appId: string, id: number): Promise<HostedUser | null> {
+    const user = this.hostedUsers.get(id);
+    return user && user.appId === appId ? clone(user) : null;
+  }
+
+  async getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null> {
+    for (const user of this.hostedUsers.values()) {
+      if (user.appId === appId && user.phone === phone) return clone(user);
+    }
+    return null;
+  }
+
+  async updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void> {
+    const user = this.hostedUsers.get(id);
+    if (user && user.appId === appId) this.hostedUsers.set(id, clone({ ...user, ...patch, updatedAt: now }));
+  }
+
+  async deleteHostedUser(appId: string, id: number): Promise<void> {
+    const user = this.hostedUsers.get(id);
+    if (!user || user.appId !== appId) return;
+    this.hostedUsers.delete(id);
+    for (const device of [...this.hostedDevices.values()]) {
+      if (device.userId === id) await this.deleteHostedDevice(appId, device.id);
+    }
+    for (const [key, n] of this.hostedNotifications) {
+      if (n.userId === id) this.hostedNotifications.delete(key);
+    }
+  }
+
+  async createHostedDevice(device: HostedDevice): Promise<void> {
+    this.hostedDevices.set(device.id, clone(device));
+  }
+
+  async getHostedDevice(appId: string, id: string): Promise<HostedDevice | null> {
+    const device = this.hostedDevices.get(id);
+    return device && device.appId === appId ? clone(device) : null;
+  }
+
+  async findHostedDevice(appId: string, userId: number, deviceId: string): Promise<HostedDevice | null> {
+    for (const device of this.hostedDevices.values()) {
+      if (device.appId === appId && device.userId === userId && device.deviceId === deviceId) return clone(device);
+    }
+    return null;
+  }
+
+  async listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]> {
+    return [...this.hostedDevices.values()]
+      .filter((d) => d.appId === appId && d.userId === userId)
+      .sort((a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime())
+      .map(clone);
+  }
+
+  async updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void> {
+    const device = this.hostedDevices.get(id);
+    if (device && device.appId === appId) this.hostedDevices.set(id, clone({ ...device, ...patch }));
+  }
+
+  async deleteHostedDevice(appId: string, id: string): Promise<void> {
+    const device = this.hostedDevices.get(id);
+    if (!device || device.appId !== appId) return;
+    this.hostedDevices.delete(id);
+    for (const [hash, token] of this.hostedTokens) {
+      if (token.deviceRowId === id) this.hostedTokens.delete(hash);
+    }
+  }
+
+  async listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]> {
+    return [...this.hostedDevices.values()]
+      .filter((d) => d.appId === appId && d.pushToken && (userIds === null || userIds.includes(d.userId)))
+      .map(clone);
+  }
+
+  async clearHostedPushToken(appId: string, token: string): Promise<void> {
+    for (const device of this.hostedDevices.values()) {
+      if (device.appId === appId && device.pushToken === token) device.pushToken = null;
+    }
+  }
+
+  async createHostedRefreshToken(token: HostedRefreshToken): Promise<void> {
+    this.hostedTokens.set(token.tokenHash, clone(token));
+  }
+
+  async takeHostedRefreshToken(tokenHash: string): Promise<HostedRefreshToken | null> {
+    const token = this.hostedTokens.get(tokenHash);
+    if (!token) return null;
+    this.hostedTokens.delete(tokenHash);
+    return clone(token);
+  }
+
+  async createHostedChallenge(challenge: HostedChallenge): Promise<void> {
+    this.hostedChallenges.set(challenge.tokenHash, clone(challenge));
+  }
+
+  async getHostedChallenge(tokenHash: string): Promise<HostedChallenge | null> {
+    const challenge = this.hostedChallenges.get(tokenHash);
+    return challenge ? clone(challenge) : null;
+  }
+
+  async addHostedChallengeAttempt(tokenHash: string): Promise<number> {
+    const challenge = this.hostedChallenges.get(tokenHash);
+    if (!challenge) return Number.MAX_SAFE_INTEGER;
+    challenge.attempts += 1;
+    return challenge.attempts;
+  }
+
+  async deleteHostedChallenge(tokenHash: string): Promise<void> {
+    this.hostedChallenges.delete(tokenHash);
+  }
+
+  async purgeHostedExpired(now: Date): Promise<void> {
+    for (const [hash, c] of this.hostedChallenges) {
+      if (c.expiresAt.getTime() <= now.getTime()) this.hostedChallenges.delete(hash);
+    }
+    for (const [hash, t] of this.hostedTokens) {
+      if (t.expiresAt.getTime() <= now.getTime()) this.hostedTokens.delete(hash);
+    }
+  }
+
+  async createHostedNotification(input: Omit<HostedNotification, "id">): Promise<HostedNotification> {
+    const notification: HostedNotification = { ...input, id: this.nextHostedNotificationId++ };
+    this.hostedNotifications.set(notification.id, clone(notification));
+    return clone(notification);
+  }
+
+  private hostedInbox(appId: string, userId: number, after: Date): HostedNotification[] {
+    return [...this.hostedNotifications.values()]
+      .filter(
+        (n) =>
+          n.appId === appId && (n.userId === null || n.userId === userId) && n.createdAt.getTime() > after.getTime(),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+  }
+
+  async listHostedNotifications(input: {
+    appId: string;
+    userId: number;
+    since: Date;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: HostedNotification[]; total: number }> {
+    const all = this.hostedInbox(input.appId, input.userId, new Date(input.since.getTime() - 1));
+    const start = (input.page - 1) * input.perPage;
+    return { items: all.slice(start, start + input.perPage).map(clone), total: all.length };
+  }
+
+  async countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number> {
+    return this.hostedInbox(input.appId, input.userId, input.after).length;
+  }
+
+  async listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]> {
+    return [...this.hostedNotifications.values()]
+      .filter((n) => n.appId === appId && n.userId === null)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async countHostedUsers(appId: string): Promise<number> {
+    return [...this.hostedUsers.values()].filter((u) => u.appId === appId).length;
   }
 }

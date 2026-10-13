@@ -4,6 +4,7 @@ import {
   regenerateKeyAction,
   reinstateClientAction,
   releaseClientSiteAction,
+  setHostedApiAction,
   suspendClientAction,
 } from "@/app/actions/admin";
 import { BuildStatusText } from "@/components/build-status";
@@ -15,6 +16,7 @@ import { APP_TYPE_NAMES, SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { ClientFilter, ClientRow } from "@/lib/data/store";
+import type { AppBackend } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
@@ -37,6 +39,15 @@ const DONE: Record<string, string> = {
   regenerated: "New license key created. The old key no longer works.",
   released: "The license was released from its website.",
   added: "Client added. They were emailed a link to set their password.",
+  hosted: "The app now uses the hosted API. Its next build signs customers in through Yallapp.",
+  unhosted: "The app no longer uses the hosted API. The client chooses a website on their Website step.",
+};
+
+const BACKEND_NAMES: Record<AppBackend, string> = {
+  wordpress: "Their WordPress site",
+  custom_api: "Their own API",
+  setup_requested: "Asked us to set up WordPress",
+  hosted: "Yallapp hosted API",
 };
 
 function stateTone(state: AccountState) {
@@ -294,6 +305,12 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
             </dd>
           </>
         ) : null}
+        {app ? (
+          <>
+            <dt className="text-muted">Content from</dt>
+            <dd className="m-0">{BACKEND_NAMES[app.backend]}</dd>
+          </>
+        ) : null}
         <dt className="text-muted">App setup</dt>
         <dd className="m-0">
           {stepsDone} of {SETUP_STEPS.length} steps
@@ -333,6 +350,15 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
                 <SubmitButton variant="danger" className="h-9 px-3 text-sm">Suspend</SubmitButton>
               </form>
             )}
+            {app ? (
+              <form action={setHostedApiAction}>
+                <input type="hidden" name="clientId" value={client.id} />
+                <input type="hidden" name="hosted" value={app.backend === "hosted" ? "0" : "1"} />
+                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                  {app.backend === "hosted" ? "Stop the hosted API" : "Use the hosted API"}
+                </SubmitButton>
+              </form>
+            ) : null}
             {activation ? (
               <form action={releaseClientSiteAction}>
                 <input type="hidden" name="clientId" value={client.id} />

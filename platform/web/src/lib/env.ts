@@ -168,6 +168,38 @@ export function smtpConfig(): SmtpConfig | null {
   };
 }
 
+/**
+ * How the hosted API sends sign-in codes:
+ * - "whatsapp": WhatsApp Cloud API with an approved authentication template.
+ * - "webhook": POSTs the code to a URL of ours (for example an SMS gateway),
+ *   signed with HMAC-SHA256 of the body.
+ * - "log": keeps codes in memory; local runs and tests only.
+ * Null when nothing is configured: requests fail with `provider_error`.
+ */
+export type OtpSenderConfig =
+  | { kind: "whatsapp"; accessToken: string; phoneNumberId: string; template: string; language: string }
+  | { kind: "webhook"; url: string; secret: string }
+  | { kind: "log" };
+
+export function otpSenderConfig(): OtpSenderConfig | null {
+  const kind = read("OTP_SENDER") ?? (dataMode() === "memory" ? "log" : undefined);
+  if (kind === "whatsapp") {
+    return {
+      kind,
+      accessToken: required("WHATSAPP_ACCESS_TOKEN"),
+      phoneNumberId: required("WHATSAPP_PHONE_NUMBER_ID"),
+      template: read("WHATSAPP_OTP_TEMPLATE") ?? "yallapp_code",
+      language: read("WHATSAPP_OTP_LANGUAGE") ?? "en",
+    };
+  }
+  if (kind === "webhook") return { kind, url: required("OTP_WEBHOOK_URL"), secret: required("OTP_WEBHOOK_SECRET") };
+  if (kind === "log") {
+    if (isNetlify()) throw new Error("OTP_SENDER=log is for local development and tests only.");
+    return { kind };
+  }
+  return null;
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";

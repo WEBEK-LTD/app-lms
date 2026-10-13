@@ -1,7 +1,8 @@
-import type { AppBackend, AppType, AssetKind } from "../data/types";
+import type { AppBackend, AppType, AssetKind, HostedSettings, PushPreferences } from "../data/types";
 import {
   bigint,
   boolean,
+  serial,
   customType,
   datetime,
   index,
@@ -125,6 +126,8 @@ export const apps = mysqlTable(
     iphoneScreenshotIds: jsonText<string[]>("iphone_screenshot_ids").notNull().default(sql`('[]')`),
     firebaseAndroidAssetId: id("firebase_android_asset_id"),
     firebaseIosAssetId: id("firebase_ios_asset_id"),
+    hostedSettings: jsonText<HostedSettings>("hosted_settings"),
+    firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),
     googlePlayClientEmail: varchar("google_play_client_email", { length: 191 }),
     ascIssuerId: varchar("asc_issuer_id", { length: 64 }),
@@ -229,3 +232,98 @@ export const rateLimits = mysqlTable("rate_limits", {
   hits: int("hits").notNull(),
   updatedAt: time("updated_at").notNull(),
 });
+
+// Hosted API (apps with backend "hosted"): the apps' customers, their devices
+// and sign-ins, and the notifications sent to them.
+
+export const hostedUsers = mysqlTable(
+  "hosted_users",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    phone: varchar("phone", { length: 20 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    email: varchar("email", { length: 191 }),
+    city: varchar("city", { length: 120 }),
+    notificationsReadAt: time("notifications_read_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone)],
+);
+
+export const hostedDevices = mysqlTable(
+  "hosted_devices",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    deviceId: varchar("device_id", { length: 64 }).notNull(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<"android" | "ios">(),
+    name: varchar("name", { length: 100 }).notNull(),
+    appVersion: varchar("app_version", { length: 20 }).notNull(),
+    pushToken: varchar("push_token", { length: 512 }),
+    pushPreferences: jsonText<PushPreferences>("push_preferences"),
+    createdAt: time("created_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+  },
+  (t) => [uniqueIndex("hosted_devices_unique").on(t.userId, t.deviceId), index("hosted_devices_app_idx").on(t.appId)],
+);
+
+export const hostedRefreshTokens = mysqlTable(
+  "hosted_refresh_tokens",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    deviceRowId: id("device_row_id")
+      .notNull()
+      .references(() => hostedDevices.id, { onDelete: "cascade" }),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("hosted_refresh_tokens_device_idx").on(t.deviceRowId)],
+);
+
+export const hostedChallenges = mysqlTable(
+  "hosted_challenges",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"otp" | "signup">(),
+    phone: varchar("phone", { length: 20 }).notNull(),
+    codeHash: varchar("code_hash", { length: 64 }),
+    attempts: int("attempts").notNull(),
+    review: boolean("review").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("hosted_challenges_expires_idx").on(t.expiresAt)],
+);
+
+export const hostedNotifications = mysqlTable(
+  "hosted_notifications",
+  {
+    id: serial("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    body: text("body").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
+);

@@ -54,6 +54,30 @@ const BACKENDS: { id: Backend; title: string; text: string }[] = [
   { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
 ];
 
+/** The Website step of an app on the hosted API: nothing to fill in. */
+export function HostedWebsiteStep({ apiUrl }: { apiUrl: string }) {
+  return (
+    <div className="flex flex-wrap items-start gap-6">
+      <StepCard title="Website" id="h-website">
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+          Your app runs on the Yallapp hosted API, so it doesn&apos;t need a website. Your customers sign in with a code we send to their
+          phone, and you send them notifications from <Link href="/dashboard/notifications">App notifications</Link>.
+        </p>
+        <div className="flex flex-col gap-1 rounded-xl border border-line bg-sand p-4">
+          <span className="text-sm font-semibold">Your app&apos;s API address</span>
+          <code className="text-[13px] break-all">{apiUrl}</code>
+        </div>
+        <p className="m-0 text-sm text-muted">Our team set this up for you. Message us on WhatsApp to change it.</p>
+        <div className="flex justify-end pt-1.5">
+          <Link href="/dashboard/setup?step=branding" className={`${btn.primary} h-[46px]`}>
+            Continue
+          </Link>
+        </div>
+      </StepCard>
+    </div>
+  );
+}
+
 export function WebsiteStep({
   siteUrl,
   plugin,

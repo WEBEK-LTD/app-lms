@@ -11,6 +11,9 @@ export const E2E = {
   adminPassword: "admin-password-for-e2e",
   pipelineToken: "pipeline-token-for-e2e-0123456789",
   filesSigningSecret: "e2e-files-signing-secret-0123456789abcdef",
+  /** The hosted API sends sign-in codes here; tests/e2e/hosted-api.spec.ts listens. */
+  otpWebhookPort: Number(process.env.E2E_OTP_PORT ?? 3299),
+  otpWebhookSecret: "e2e-otp-webhook-secret",
 };
 
 export default defineConfig({
@@ -47,6 +50,9 @@ export default defineConfig({
       ENCRYPTION_KEY: "1".repeat(64),
       BUILD_PIPELINE_TOKEN: E2E.pipelineToken,
       FILES_SIGNING_SECRET: E2E.filesSigningSecret,
+      OTP_SENDER: "webhook",
+      OTP_WEBHOOK_URL: `http://localhost:${E2E.otpWebhookPort}/otp`,
+      OTP_WEBHOOK_SECRET: E2E.otpWebhookSecret,
     },
   },
 });

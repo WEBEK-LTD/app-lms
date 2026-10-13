@@ -78,6 +78,22 @@ export async function reinstateClientAction(formData: FormData): Promise<void> {
   redirect(clientUrl(id, "&done=reinstated"));
 }
 
+/** Our team moves an app to the hosted API (no website needed), or back to the Website step. */
+export async function setHostedApiAction(formData: FormData): Promise<void> {
+  const id = await clientIdFrom(formData);
+  const store = await getStore();
+  const app = await store.getAppByClientId(id);
+  if (!app) redirect(clientUrl(id, ""));
+  const now = new Date();
+  if (formData.get("hosted") === "1") {
+    await store.updateApp(app.id, { backend: "hosted", websiteDoneAt: now }, now);
+  } else if (app.backend === "hosted") {
+    await store.updateApp(app.id, { backend: "wordpress", websiteDoneAt: null }, now);
+  }
+  revalidatePath("/admin");
+  redirect(clientUrl(id, formData.get("hosted") === "1" ? "&done=hosted" : "&done=unhosted"));
+}
+
 export async function regenerateKeyAction(formData: FormData): Promise<void> {
   const id = await clientIdFrom(formData);
   await regenerateLicenseKey(await getStore(), id, encryptionKey(), new Date());

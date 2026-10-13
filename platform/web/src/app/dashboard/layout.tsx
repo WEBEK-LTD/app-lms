@@ -7,7 +7,7 @@ import { requireClient } from "@/lib/auth/session";
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = await requireClient();
+  const { user, app } = await requireClient();
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
       <nav
@@ -22,6 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             { href: "/dashboard", label: "Overview", exact: true },
             { href: "/dashboard/setup", label: "App setup", prefix: "/dashboard/app-type" },
             { href: "/dashboard/builds", label: "Builds & downloads" },
+            ...(app?.backend === "hosted" ? [{ href: "/dashboard/notifications", label: "App notifications" }] : []),
             { href: "/dashboard/license", label: "License & plugin" },
             { href: WHATSAPP_URL, label: "Support", external: true },
           ]}
