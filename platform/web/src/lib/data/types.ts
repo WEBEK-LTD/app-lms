@@ -83,6 +83,12 @@ export type AppType = "lms" | "store" | "booking";
  */
 export type AppBackend = "wordpress" | "custom_api" | "setup_requested" | "hosted";
 
+/**
+ * The platform that serves a hosted-API app's content. The access token is
+ * stored encrypted (context `app:connector:<app id>`).
+ */
+export type ConnectorConfig = { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string };
+
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {
   /** Asked at sign-up besides the name. */
@@ -141,6 +147,8 @@ export interface App {
   /** Firebase config files (assets): google-services.json and GoogleService-Info.plist. Push is off without them. */
   firebaseAndroidAssetId: string | null;
   firebaseIosAssetId: string | null;
+  /** Where a hosted-API app's content comes from; null until one is connected. */
+  connector: ConnectorConfig | null;
   /** Hosted API rules (backend "hosted"); null means the defaults. */
   hostedSettings: HostedSettings | null;
   /** Encrypted Firebase service account JSON, for push from the hosted API. Never leaves the server. */

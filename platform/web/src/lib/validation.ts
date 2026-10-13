@@ -3,6 +3,7 @@ import { z } from "zod";
 import { APP_FONTS, APP_TEMPLATES, RULES } from "./build-config/types";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth/password-rules";
 import { isHttpUrl } from "./license/site-url";
+import { normalizeShopDomain } from "./hosted/connectors/shopify";
 import { PLANS } from "./plans";
 import { VERSION_PATTERN } from "./semver";
 
@@ -77,6 +78,21 @@ const apiBaseUrl = z
 export const websiteSchema = z.discriminatedUnion("backend", [
   z.object({ backend: z.literal("wordpress"), siteUrl: httpsSiteUrl }),
   z.object({ backend: z.literal("custom_api"), siteUrl: httpsSiteUrl, apiBaseUrl }),
+  z.object({
+    backend: z.literal("shopify"),
+    siteUrl: httpsSiteUrl,
+    shopDomain: z
+      .string()
+      .trim()
+      .max(255)
+      .transform((value, ctx) => {
+        const domain = normalizeShopDomain(value);
+        if (!domain) ctx.addIssue({ code: "custom", message: "Enter your shop's address, like your-shop.myshopify.com." });
+        return domain ?? "";
+      }),
+    // Empty keeps the saved token.
+    storefrontToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
+  }),
   z.object({
     backend: z.literal("setup_requested"),
     siteUrl: httpsSiteUrl,

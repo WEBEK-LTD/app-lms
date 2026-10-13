@@ -36,6 +36,13 @@
       "when": 1791861191922,
       "tag": "0004_hosted_api",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1791877389099,
+      "tag": "0005_app_connector",
+      "breakpoints": true
     }
   ]
 }

@@ -98,14 +98,19 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         })}
       </ol>
 
-      {step === "website" && app.backend === "hosted" ? <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} /> : null}
-      {step === "website" && app.backend !== "hosted" ? (
+      {step === "website" && app.backend === "hosted" && !app.connector ? (
+        <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} />
+      ) : null}
+      {step === "website" && (app.backend !== "hosted" || app.connector) ? (
         <WebsiteStep
           siteUrl={app.siteUrl ?? client.siteUrl}
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}
-          backend={app.backend}
+          backend={app.backend === "hosted" ? "shopify" : app.backend}
+          appType={app.appType}
+          shopDomain={app.connector?.kind === "shopify" ? app.connector.shopDomain : ""}
+          shopifyConnected={app.connector?.kind === "shopify"}
           apiBaseUrl={app.apiBaseUrl ?? ""}
           setupNote={app.setupNote ?? ""}
           setupRequestedAt={app.setupRequestedAt ? formatDate(app.setupRequestedAt) : null}

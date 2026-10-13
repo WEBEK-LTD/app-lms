@@ -13,8 +13,10 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import type { App, AssetKind } from "@/lib/data/types";
+import type { App, AssetKind, ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
+import { shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
+import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
 import { sendMail } from "@/lib/mail";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
@@ -100,7 +102,17 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
-  const patch: AppPatch = { siteUrl: data.siteUrl, backend: data.backend, websiteDoneAt: now };
+  if (data.backend === "shopify") {
+    const result = await connectShopify(context.app, data);
+    if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken"]) };
+    await store.updateApp(
+      context.app.id,
+      { siteUrl: data.siteUrl, backend: "hosted", connector: result.connector, websiteDoneAt: now },
+      now,
+    );
+    return afterStep(context, "website");
+  }
+  const patch: AppPatch = { siteUrl: data.siteUrl, backend: data.backend, connector: null, websiteDoneAt: now };
   if (data.backend === "custom_api") patch.apiBaseUrl = data.apiBaseUrl.replace(/\/+$/, "");
   if (data.backend === "setup_requested") {
     patch.setupNote = data.setupNote || null;
@@ -115,6 +127,31 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
     return { message: "Thanks! Our team will message you on WhatsApp to set up your WordPress site." };
   }
   return afterStep(context, "website");
+}
+
+/**
+ * Checks the shop with its Storefront access token (or the one saved before
+ * for the same shop) and returns the connector to save.
+ */
+async function connectShopify(
+  app: App,
+  data: { shopDomain: string; storefrontToken: string },
+): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string> }> {
+  if (app.appType !== "store") return { errors: { backend: "Shopify works with Store apps. Choose Store as your app type first." } };
+  const key = encryptionKey();
+  const saved = app.connector?.kind === "shopify" && app.connector.shopDomain === data.shopDomain ? shopifyToken(app, key) : null;
+  const token = data.storefrontToken || saved;
+  if (!token) return { errors: { storefrontToken: "Paste your Storefront API access token." } };
+  try {
+    await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token }).check();
+  } catch {
+    return {
+      errors: {
+        storefrontToken: "Shopify didn't accept this shop address and token. Check both, and that the token has the Storefront API permissions.",
+      },
+    };
+  }
+  return { connector: shopifyConnectorConfig(app.id, data.shopDomain, token, key) };
 }
 
 /** Tells the team a client wants their WordPress site set up for them. */

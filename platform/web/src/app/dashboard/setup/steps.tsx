@@ -16,6 +16,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
+import type { AppType } from "@/lib/data/types";
 import { initialFormState, type FormState } from "@/lib/forms";
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
@@ -46,10 +47,16 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
-type Backend = "wordpress" | "custom_api" | "setup_requested";
+type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify";
 
-const BACKENDS: { id: Backend; title: string; text: string }[] = [
+const BACKENDS: { id: Backend; title: string; text: string; storeOnly?: boolean }[] = [
   { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
+  {
+    id: "shopify",
+    title: "My Shopify store",
+    text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
+    storeOnly: true,
+  },
   { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
   { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
 ];
@@ -87,6 +94,9 @@ export function WebsiteStep({
   apiBaseUrl,
   setupNote,
   setupRequestedAt,
+  appType,
+  shopDomain,
+  shopifyConnected,
 }: {
   siteUrl: string;
   plugin: "none" | "connected" | "other";
@@ -96,6 +106,9 @@ export function WebsiteStep({
   apiBaseUrl: string;
   setupNote: string;
   setupRequestedAt: string | null;
+  appType: AppType;
+  shopDomain: string;
+  shopifyConnected: boolean;
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
@@ -106,7 +119,7 @@ export function WebsiteStep({
         <FormMessage message={state.message} />
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
-          {BACKENDS.map((b) => (
+          {BACKENDS.filter((b) => !b.storeOnly || appType === "store").map((b) => (
             <label
               key={b.id}
               className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
@@ -166,6 +179,30 @@ export function WebsiteStep({
               </span>
             )}
           </div>
+        ) : null}
+        {choice === "shopify" ? (
+          <>
+            <Field
+              label="Your Shopify address"
+              name="shopDomain"
+              required
+              defaultValue={v(state, "shopDomain", shopDomain)}
+              placeholder="your-shop.myshopify.com"
+              hint="The myshopify.com address, also when your shop uses its own domain."
+              error={state.errors?.shopDomain}
+            />
+            <Field
+              label="Storefront API access token"
+              name="storefrontToken"
+              type="password"
+              autoComplete="off"
+              required={!shopifyConnected}
+              placeholder={shopifyConnected ? "Saved. Paste a new one to replace it." : ""}
+              hint="In Shopify: Settings, Apps and sales channels, Develop apps, create an app, turn on Storefront API access with product, collection and checkout permissions, then install it and copy the Storefront API access token."
+              error={state.errors?.storefrontToken}
+            />
+            {state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
+          </>
         ) : null}
         {choice === "custom_api" ? (
           <>

@@ -61,6 +61,7 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     iphoneScreenshotIds: [],
     firebaseAndroidAssetId: null,
     firebaseIosAssetId: null,
+    connector: null,
     hostedSettings: null,
     firebaseServiceAccountEncrypted: null,
     googlePlayKeyEncrypted: null,

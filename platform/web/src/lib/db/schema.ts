@@ -1,4 +1,4 @@
-import type { AppBackend, AppType, AssetKind, HostedSettings, PushPreferences } from "../data/types";
+import type { AppBackend, AppType, AssetKind, ConnectorConfig, HostedSettings, PushPreferences } from "../data/types";
 import {
   bigint,
   boolean,
@@ -126,6 +126,7 @@ export const apps = mysqlTable(
     iphoneScreenshotIds: jsonText<string[]>("iphone_screenshot_ids").notNull().default(sql`('[]')`),
     firebaseAndroidAssetId: id("firebase_android_asset_id"),
     firebaseIosAssetId: id("firebase_ios_asset_id"),
+    connector: jsonText<ConnectorConfig>("connector"),
     hostedSettings: jsonText<HostedSettings>("hosted_settings"),
     firebaseServiceAccountEncrypted: text("firebase_service_account_encrypted"),
     googlePlayKeyEncrypted: text("google_play_key_encrypted"),

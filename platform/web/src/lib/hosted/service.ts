@@ -10,6 +10,7 @@ import {
   type HostedUser,
 } from "../data/types";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
+import { ConnectorError, type Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
@@ -57,6 +58,8 @@ export interface HostedContext {
   assetUrl: (assetId: string) => string;
   /** Used when the app has no website of its own. */
   platformUrl: string;
+  /** Serves the content endpoints (Shopify for Store apps); null until one is connected. */
+  connector?: Connector | null;
 }
 
 export interface HostedRequest {
@@ -146,17 +149,35 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
         return noContent;
     }
   }
+  if (ctx.connector) {
+    const result = await ctx.connector.handle({
+      method: req.method,
+      path: req.path,
+      query: req.query,
+      body: req.body,
+      user: session?.user ?? null,
+      now: ctx.now,
+    });
+    if (result) return result;
+  }
   return notFound();
 }
 
 // Configuration
 
-function config(ctx: HostedContext, req: HostedRequest): HostedResult {
+async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return badRequest("Unknown platform.");
   if (!req.query.get("app_version")) return badRequest("The app version is missing.");
   const { app } = ctx;
   const settings = hostedSettings(app);
+  let extra: Awaited<ReturnType<Connector["config"]>> = {};
+  try {
+    extra = ctx.connector ? await ctx.connector.config() : {};
+  } catch (e) {
+    if (!(e instanceof ConnectorError)) throw e;
+    return error(503, "shop_unavailable", "The shop can't be reached right now. Please try again in a moment.");
+  }
   return ok({
     site: {
       name: app.appName ?? "App",
@@ -180,6 +201,7 @@ function config(ctx: HostedContext, req: HostedRequest): HostedResult {
       qna: false,
       push: ctx.push,
       orders: false,
+      ...extra.features,
     },
     auth: {
       signup_allowed: settings.signupAllowed,
@@ -189,6 +211,7 @@ function config(ctx: HostedContext, req: HostedRequest): HostedResult {
     purchases: { enroll_button: false, free_enrollment: false },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
+    ...(extra.store ? { store: extra.store } : {}),
   });
 }
 

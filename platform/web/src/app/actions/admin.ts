@@ -88,7 +88,7 @@ export async function setHostedApiAction(formData: FormData): Promise<void> {
   if (formData.get("hosted") === "1") {
     await store.updateApp(app.id, { backend: "hosted", websiteDoneAt: now }, now);
   } else if (app.backend === "hosted") {
-    await store.updateApp(app.id, { backend: "wordpress", websiteDoneAt: null }, now);
+    await store.updateApp(app.id, { backend: "wordpress", connector: null, websiteDoneAt: null }, now);
   }
   revalidatePath("/admin");
   redirect(clientUrl(id, formData.get("hosted") === "1" ? "&done=hosted" : "&done=unhosted"));

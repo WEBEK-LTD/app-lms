@@ -2,6 +2,7 @@ import { assetUrl } from "@/lib/assets";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, otpSenderConfig, signingSecret } from "@/lib/env";
 import { hmacSha256 } from "@/lib/crypto/tokens";
+import { connectorFor } from "@/lib/hosted/connectors";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
@@ -47,6 +48,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       push: serviceAccountOf(app, encryptionKey()) !== null,
       assetUrl: assetUrl,
       platformUrl: appUrl(),
+      connector: connectorFor(app, encryptionKey()),
     },
     { method: request.method, path, query: url.searchParams, body, token: bearer?.[1]?.trim() ?? null },
   );

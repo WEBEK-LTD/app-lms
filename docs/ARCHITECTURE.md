@@ -150,8 +150,18 @@ mobile/
   API number or a signed webhook to our gateway. Clients send notifications
   from the dashboard; push uses the client's Firebase service account,
   stored encrypted. Content endpoints come from connectors (Shopify and
-  others, 8.4 and 8.5) or the dashboard catalog (8.6); until then they
+  others, 8.4 and 8.5) or the dashboard catalog (8.6); without one they
   answer `not_found`. Our team switches an app to it from the admin page.
+- Shopify connector (Store apps): the client enters their `myshopify.com`
+  address and a Storefront API token on the Website step; the token is
+  checked against the shop, stored encrypted and the app moves to the
+  hosted API. Products, collections (categories, "frontpage" as featured),
+  cart pricing and checkout come from the Storefront API (GraphQL,
+  version pinned in code). Checkout creates a Shopify cart with the
+  customer's phone and email and opens its checkout page in the app; on
+  iOS, carts with digital products (no shipping) are refused. Prices use
+  the shop's money format. Shop details and collections are cached for
+  five minutes. Reviews and order history are off for Shopify apps.
 
 ## Build pipeline
 
