@@ -135,8 +135,10 @@ paths:
       summary: Get the bottom tabs and the list of pages
       description: |
         The navigation and pages the client published in the dashboard.
-        Returns 404 when the client has not published any pages; the app
-        then uses its built-in tabs and `/home`.
+        When nothing is published yet, the server sends default pages and
+        tabs for the app type, built from the site's content, so the answer
+        is always a full navigation. Servers without pages (older plugins)
+        return 404; the app then uses its built-in tabs and `/home`.
 
         Send `If-None-Match` with the last `version` to get 304 when
         nothing changed.
@@ -165,7 +167,7 @@ paths:
       summary: Get one page with its blocks
       description: |
         Blocks in the order set in the dashboard, with lists (courses,
-        products, posts, listings) already resolved. Blocks meant only for
+        products, services, posts, listings) already resolved. Blocks meant only for
         signed-in or signed-out users are filtered here. On iOS, blocks and
         items never carry purchase actions for paid content.
       security: [{}, { bearerAuth: [] }]
@@ -2804,7 +2806,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -2820,8 +2822,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `listings` is hosted only.
-      enum: [courses, products, posts, listings]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only.
+      enum: [courses, products, services, posts, listings]
 
     Item:
       type: object
