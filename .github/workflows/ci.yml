@@ -262,26 +262,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - part: amelia slots
-            booking: amelia
-            slug: ameliabooking
-            methods: '::(getSlotsEntities|getFilteredSlotsEntities|getSlotsSettings)$'
-            grep: 'hasLicenseAccess|Licence::'
-            around: 'src/Infrastructure/Repository/User/ProviderRepository.php:1960:2060 src/Domain/Services/User/ProviderService.php:440:530'
-          - part: latepoint helpers
+          - part: latepoint abilities calendar
             booking: latepoint
             slug: latepoint
-            list: '^Os(Booking|Orders|Customer|Settings|Agent|Service|Time|Money)Helper::'
-            methods: '^(OsSettingsHelper::(get_settings_value|get_earliest_possible_booking_restriction|get_latest_possible_booking_restriction)|OsMoneyHelper::(format_price|.*currency.*|.*symbol.*)|OsCustomerHelper::.*cancel.*|OsBookingHelper::(is_booking_request_available|get_default_booking_status|change_booking_status|get_statuses_list)|OsTimeHelper::(get_wp_timezone.*|now_datetime_object|get_timezone.*)|OsImageHelper::get_image_url_by_id)$'
-          - part: bookingpress index
+            list: ''
+            grep: "define\\( *'LATEPOINT_(BOOKING_STATUS|ANY_|ITEM_VARIANT|DATETIME_DB|VALUE_O|AGENT_STATUS|SERVICE_STATUS|SERVICE_VISIBILITY|LOCATION_STATUS|STATUS_)|register_ability|latepoint/[a-z-]+'"
+            around: 'lib/abilities/calendar/get-available-slots.php:1:400 lib/abilities/calendar/check-slot-availability.php:1:300'
+            methods: '^$'
+          - part: latepoint abilities bookings
+            booking: latepoint
+            slug: latepoint
+            around: 'lib/abilities/bookings/create-booking.php:1:500 lib/abilities/bookings/cancel-booking.php:1:250 lib/abilities/customers/connect-customer-to-wp-user.php:1:200'
+            methods: '^$'
+          - part: bookingpress save
             booking: bookingpress
             slug: bookingpress-appointment-booking
-            list: '^(bookingpress_appointment_bookings|BookingPress_Core|bookingpress_customers|bookingpress_global_options)::'
-            methods: '::(bookingpress_get_service_available_time|bookingpress_get_default_timeslot_data|bookingpress_get_settings|bookingpress_price_formatter_with_currency_symbol|bookingpress_check_cancel_appointment_permission_func|bookingpress_create_customer)$'
-          - part: bookingpress booking
-            booking: bookingpress
-            slug: bookingpress-appointment-booking
-            methods: '^bookingpress_appointment_bookings::.*(timeslot|book_appointment|cancel_appointment|my_appointment|customer_appointment|confirm_booking).*$'
+            methods: '::(bookingpress_save_appointment_booking_func|bookingpress_confirm_booking|bookingpress_is_appointment_booked|bookinpgress_retrieve_default_workhours|bookingpress_global_options|bookingpress_get_currency_symbol|bookingpress_get_currency_code|bookingpress_retrieve_off_days|bookingpress_get_default_dayoff_dates)$'
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -311,6 +307,11 @@ jobs:
           for range in $AROUND; do
             IFS=: read -r file from to <<<"$range"
             echo "== $file:$from-$to"
+            if [ ! -f "$DIR/$file" ]; then
+              echo "(no such file; files nearby:)"
+              find "$DIR/$(dirname "$file")/.." -name '*.php' 2>/dev/null | sed "s#^$DIR/##" | head -n 60
+              continue
+            fi
             sed -n "${from},${to}p" "$DIR/$file" | cat -n | sed "s/^ *\([0-9]*\)/$((from - 1))+\1/"
           done
           if [ -n "$GREP" ]; then echo "== grep"; grep -rnE --include='*.php' --exclude-dir=vendor "$GREP" "$DIR" | sed "s#^$DIR/##" | cut -c1-300 | head -n 200 || true; fi
