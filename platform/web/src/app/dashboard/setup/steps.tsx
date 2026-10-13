@@ -47,7 +47,21 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
-type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog";
+type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
+
+/** A platform connected with keys, as the Website step shows it. */
+export interface PlatformOption {
+  id: string;
+  name: string;
+  summary: string;
+  fields: { name: string; label: string; hint: string; secret: boolean; placeholder?: string; optional?: boolean }[];
+}
+
+const PLATFORM_CHOICE: Record<AppType, { title: string; text: string }> = {
+  store: { title: "Another store platform", text: "Your products and checkout come from ikas, Ticimax or IdeaSoft. Customers sign in to the app with a code we send." },
+  lms: { title: "My Teachable or Thinkific school", text: "Your courses and lessons come from your online school. Students sign in to the app with a code we send." },
+  booking: { title: "My SimplyBook.me account", text: "Your services, team and free times come from SimplyBook.me. Customers sign in to the app with a code we send." },
+};
 
 const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[] }[] = [
   { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
@@ -57,6 +71,7 @@ const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[]
     text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
     appTypes: ["store"],
   },
+  { id: "platform", title: "", text: "", appTypes: ["store", "lms", "booking"] },
   {
     id: "catalog",
     title: "I don't have a website",
@@ -66,6 +81,67 @@ const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[]
   { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
   { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
 ];
+
+/** The platform to connect and the keys it needs. */
+function PlatformFields({
+  platforms,
+  saved,
+  state,
+}: {
+  platforms: PlatformOption[];
+  saved: { platform: string; settings: Record<string, string>; secrets: string[] } | null;
+  state: FormState;
+}) {
+  const [selected, setSelected] = useState<string>(state.values?.platform ?? saved?.platform ?? platforms[0]?.id ?? "");
+  const platform = platforms.find((p) => p.id === selected) ?? platforms[0];
+  if (!platform) return null;
+  const same = saved?.platform === platform.id;
+  return (
+    <div className="flex flex-col gap-4">
+      <input type="hidden" name="platform" value={platform.id} />
+      {platforms.length > 1 ? (
+        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
+          <legend className="mb-2 text-sm font-semibold">Platform</legend>
+          {platforms.map((p) => (
+            <label
+              key={p.id}
+              className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-2.5 text-[15px] font-semibold has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:px-[13px] has-[:checked]:py-[9px]"
+            >
+              <input
+                type="radio"
+                name="platformChoice"
+                value={p.id}
+                checked={platform.id === p.id}
+                onChange={() => setSelected(p.id)}
+                className="h-4 w-4 accent-midnight"
+              />
+              {p.name}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      <p className="m-0 text-sm text-ink-4">{platform.summary}</p>
+      {platform.fields.map((field) => {
+        const kept = same && field.secret && saved.secrets.includes(field.name);
+        return (
+          <Field
+            key={`${platform.id}-${field.name}`}
+            label={field.optional ? `${field.label} (optional)` : field.label}
+            name={`p_${field.name}`}
+            type={field.secret ? "password" : "text"}
+            autoComplete="off"
+            required={!field.optional && !kept}
+            defaultValue={field.secret ? "" : v(state, `p_${field.name}`, same ? (saved.settings[field.name] ?? "") : "")}
+            placeholder={kept ? "Saved. Paste a new one to replace it." : field.placeholder}
+            hint={field.hint}
+            error={state.errors?.[`p_${field.name}`]}
+          />
+        );
+      })}
+      {state.errors?.platform ? <FieldError id="f-platform-error" error={state.errors.platform} /> : null}
+    </div>
+  );
+}
 
 /** The Website step of an app on the hosted API: nothing to fill in. */
 export function HostedWebsiteStep({ apiUrl }: { apiUrl: string }) {
@@ -103,8 +179,15 @@ export function WebsiteStep({
   appType,
   shopDomain,
   shopifyConnected,
+  shopifyAdmin,
   hostedApiUrl,
+  platforms,
+  platformSaved,
 }: {
+  /** The platforms this app type can connect. */
+  platforms: PlatformOption[];
+  /** The connected platform: its values that aren't secret, and which secrets are saved. */
+  platformSaved: { platform: string; settings: Record<string, string>; secrets: string[] } | null;
   /** The app's address on the hosted API, once it runs there. */
   hostedApiUrl: string | null;
   siteUrl: string;
@@ -118,6 +201,8 @@ export function WebsiteStep({
   appType: AppType;
   shopDomain: string;
   shopifyConnected: boolean;
+  /** Whether an Admin API token (order history) is saved. */
+  shopifyAdmin: boolean;
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
@@ -136,8 +221,11 @@ export function WebsiteStep({
                 ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
                 : b.id === "catalog" && appType === "lms"
                   ? { ...b, text: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android." }
-                  : b,
+                  : b.id === "platform"
+                    ? { ...b, ...PLATFORM_CHOICE[appType] }
+                    : b,
             )
+            .filter((b) => b.id !== "platform" || platforms.length > 0)
             .map((b) => (
             <label
               key={b.id}
@@ -182,6 +270,8 @@ export function WebsiteStep({
               </span>
             ) : null}
           </p>
+        ) : choice === "platform" ? (
+          <PlatformFields platforms={platforms} saved={platformSaved} state={state} />
         ) : (
           <Field
             label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
@@ -247,6 +337,21 @@ export function WebsiteStep({
               hint="In Shopify: Settings, Apps and sales channels, Develop apps, create an app, turn on Storefront API access with product, collection and checkout permissions, then install it and copy the Storefront API access token."
               error={state.errors?.storefrontToken}
             />
+            <Field
+              label="Admin API access token (optional)"
+              name="adminToken"
+              type="password"
+              autoComplete="off"
+              placeholder={shopifyAdmin ? "Saved. Paste a new one to replace it." : ""}
+              hint="Shows customers their orders in the app. In the same Shopify app, turn on Admin API access with the read_orders and read_customers permissions, then copy the Admin API access token. Orders are matched to the phone number customers sign in with."
+              error={state.errors?.adminToken}
+            />
+            {shopifyAdmin ? (
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="removeAdminToken" className="h-4 w-4 accent-midnight" />
+                Remove the Admin API token (the app stops showing orders)
+              </label>
+            ) : null}
             {state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
           </>
         ) : null}

@@ -15,7 +15,9 @@ import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
-import { shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
+import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
+import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
+import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
 import { sendMail } from "@/lib/mail";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -90,7 +92,16 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   } else if (context.app.appType !== appType) {
     // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
     const kind = context.app.connector?.kind;
-    const fits = !kind || (kind === "bookings" ? appType === "booking" : kind === "courses" ? appType === "lms" : appType === "store");
+    const connector = context.app.connector;
+    const fits =
+      !kind ||
+      (connector?.kind === "platform"
+        ? platformDefinition(connector.platform)?.appType === appType
+        : kind === "bookings"
+          ? appType === "booking"
+          : kind === "courses"
+            ? appType === "lms"
+            : appType === "store");
     await store.updateApp(
       context.app.id,
       fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
@@ -159,12 +170,19 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   }
   if (data.backend === "shopify") {
     const result = await connectShopify(context.app, data);
-    if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken"]) };
+    if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken", "adminToken"]) };
     await store.updateApp(
       context.app.id,
       { siteUrl: data.siteUrl, backend: "hosted", connector: result.connector, websiteDoneAt: now },
       now,
     );
+    return afterStep(context, "website");
+  }
+  if (data.backend === "platform") {
+    const result = await connectPlatform(context.app, data.platform, formData);
+    if ("errors" in result) return { errors: result.errors, values: result.values };
+    await store.updateApp(context.app.id, { backend: "hosted", connector: result.connector, websiteDoneAt: now }, now);
+    revalidatePath("/dashboard", "layout");
     return afterStep(context, "website");
   }
   const patch: AppPatch = { siteUrl: data.siteUrl, backend: data.backend, connector: null, websiteDoneAt: now };
@@ -190,12 +208,14 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
  */
 async function connectShopify(
   app: App,
-  data: { shopDomain: string; storefrontToken: string },
+  data: { shopDomain: string; storefrontToken: string; adminToken: string; removeAdminToken?: "on" },
 ): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string> }> {
   if (app.appType !== "store") return { errors: { backend: "Shopify works with Store apps. Choose Store as your app type first." } };
   const key = encryptionKey();
-  const saved = app.connector?.kind === "shopify" && app.connector.shopDomain === data.shopDomain ? shopifyToken(app, key) : null;
+  const sameShop = app.connector?.kind === "shopify" && app.connector.shopDomain === data.shopDomain;
+  const saved = sameShop ? shopifyToken(app, key) : null;
   const token = data.storefrontToken || saved;
+  const adminToken = data.removeAdminToken ? null : data.adminToken || (sameShop ? shopifyAdminToken(app, key) : null);
   if (!token) return { errors: { storefrontToken: "Paste your Storefront API access token." } };
   try {
     await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token }).check();
@@ -206,7 +226,75 @@ async function connectShopify(
       },
     };
   }
-  return { connector: shopifyConnectorConfig(app.id, data.shopDomain, token, key) };
+  if (adminToken) {
+    try {
+      await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token, adminToken }).checkAdmin();
+    } catch {
+      return {
+        errors: {
+          adminToken: "Shopify didn't accept this Admin API token. Check that it's for this shop and has the read_orders and read_customers permissions.",
+        },
+      };
+    }
+  }
+  return { connector: shopifyConnectorConfig(app.id, data.shopDomain, token, key, adminToken) };
+}
+
+/**
+ * Checks the keys of a platform (fields p_<name>; an empty secret keeps the
+ * saved one) by asking the platform, and returns the connector to save.
+ */
+async function connectPlatform(
+  app: App,
+  platformId: string,
+  formData: FormData,
+): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string>; values: Record<string, string> }> {
+  const definition = platformDefinition(platformId);
+  const secrets = definition?.fields.filter((f) => f.secret).map((f) => `p_${f.name}`) ?? [];
+  const values = formValues(formData, secrets);
+  if (!definition || definition.appType !== app.appType) {
+    return { errors: { platform: "This platform doesn't work with this app type. Choose another one, or change the app type." }, values };
+  }
+  const key = encryptionKey();
+  const saved = app.connector?.kind === "platform" && app.connector.platform === definition.id ? (platformValues(app, key) ?? {}) : {};
+  const typed: Record<string, string> = {};
+  const errors: Record<string, string> = {};
+  for (const field of definition.fields) {
+    const raw = formData.get(`p_${field.name}`);
+    let value = typeof raw === "string" ? raw.trim() : "";
+    if (value.length > 2000) errors[`p_${field.name}`] = "This is too long.";
+    if (!value && field.secret) value = saved[field.name] ?? "";
+    if (!value && !field.optional) errors[`p_${field.name}`] = `Enter your ${field.label.charAt(0).toLowerCase()}${field.label.slice(1)}.`;
+    typed[field.name] = value;
+  }
+  if (Object.keys(errors).length > 0) return { errors, values };
+  const normalized = definition.normalize(typed);
+  if ("errors" in normalized) {
+    return { errors: Object.fromEntries(Object.entries(normalized.errors).map(([name, message]) => [`p_${name}`, message])), values };
+  }
+  // Values the platform keeps besides its fields (OAuth tokens) stay while the account is the same.
+  const sameAccount = definition.fields.filter((f) => !f.secret).every((f) => (saved[f.name] ?? "") === normalized.values[f.name]);
+  const kept = sameAccount ? Object.fromEntries(Object.entries(saved).filter(([name]) => !definition.fields.some((f) => f.name === name))) : {};
+  const all = { ...kept, ...normalized.values };
+  let renewed: Record<string, string> = {};
+  try {
+    await definition
+      .create(all, {
+        appId: app.id,
+        store: await getStore(),
+        fetcher: fetch,
+        saveSecrets: async (secrets) => {
+          renewed = { ...renewed, ...secrets };
+        },
+      })
+      .check();
+  } catch {
+    return {
+      errors: { platform: `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.` },
+      values,
+    };
+  }
+  return { connector: platformConnectorConfig(app.id, definition, { ...all, ...renewed }, key) };
 }
 
 /** Tells the team a client wants their WordPress site set up for them. */

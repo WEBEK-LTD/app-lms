@@ -6,7 +6,9 @@ import { Notice, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import { appUrl } from "@/lib/env";
+import { appUrl, encryptionKey } from "@/lib/env";
+import { platformValues } from "@/lib/hosted/connectors/platforms";
+import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { planName } from "@/lib/plans";
@@ -109,10 +111,28 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}
-          backend={app.backend === "hosted" ? (app.connector?.kind === "shopify" ? "shopify" : "catalog") : app.backend}
+          backend={
+            app.backend === "hosted" ? (app.connector?.kind === "shopify" ? "shopify" : app.connector?.kind === "platform" ? "platform" : "catalog") : app.backend
+          }
+          platforms={platformDefinitions()
+            .filter((p) => p.appType === app.appType)
+            .map((p) => ({ id: p.id, name: p.name, summary: p.summary, fields: p.fields }))}
+          platformSaved={
+            app.connector?.kind === "platform"
+              ? {
+                  platform: app.connector.platform,
+                  settings: app.connector.settings,
+                  // Which secrets are saved (never their values).
+                  secrets: Object.entries(platformValues(app, encryptionKey()) ?? {})
+                    .filter(([name, value]) => value !== "" && !(name in (app.connector as { settings: Record<string, string> }).settings))
+                    .map(([name]) => name),
+                }
+              : null
+          }
           appType={app.appType}
           shopDomain={app.connector?.kind === "shopify" ? app.connector.shopDomain : ""}
           shopifyConnected={app.connector?.kind === "shopify"}
+          shopifyAdmin={app.connector?.kind === "shopify" && Boolean(app.connector.adminTokenEncrypted)}
           hostedApiUrl={app.backend === "hosted" ? hostedApiUrl(appUrl(), app.id) : null}
           apiBaseUrl={app.apiBaseUrl ?? ""}
           setupNote={app.setupNote ?? ""}

@@ -92,8 +92,13 @@ export const websiteSchema = z.discriminatedUnion("backend", [
       }),
     // Empty keeps the saved token.
     storefrontToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
+    // Optional, for order history; empty keeps the saved one.
+    adminToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
+    removeAdminToken: z.literal("on").optional(),
   }),
   z.object({ backend: z.literal("catalog") }),
+  // The platform's own fields (p_<name>) are checked against its definition.
+  z.object({ backend: z.literal("platform"), platform: z.string().trim().min(1, "Choose a platform.").max(40) }),
   z.object({
     backend: z.literal("setup_requested"),
     siteUrl: httpsSiteUrl,

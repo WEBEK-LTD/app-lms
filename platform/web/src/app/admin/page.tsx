@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import Link from "next/link";
 import {
   manageClientAction,
@@ -329,6 +330,10 @@ async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
             <dd className="m-0">
               {app.connector?.kind === "shopify"
                 ? `Their Shopify store (${app.connector.shopDomain})`
+                : app.connector?.kind === "platform"
+                  ? `Their ${platformDefinition(app.connector.platform)?.name ?? app.connector.platform} account${
+                      Object.values(app.connector.settings).find(Boolean) ? ` (${Object.values(app.connector.settings).find(Boolean)})` : ""
+                    }`
                 : app.connector?.kind === "courses"
                   ? "No website: courses in the dashboard"
                   : app.connector?.kind === "bookings"

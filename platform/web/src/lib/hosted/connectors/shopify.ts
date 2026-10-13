@@ -6,8 +6,10 @@ import { ConnectorError, type Connector, type ConnectorRequest, type ConnectorRe
  * Storefront API (GraphQL), with the shop's public Storefront access token.
  * Products, variants and collections keep Shopify's numeric IDs (the tail of
  * their GIDs), so the app's integer IDs map back without a lookup table.
- * Orders and reviews aren't available through the Storefront API: the
- * connector reports `features.orders` and `store.reviews` as false.
+ * Reviews aren't available through the Storefront API (`store.reviews` is
+ * false). Order history needs the optional Admin API token (read_orders and
+ * read_customers): the customer's orders are those of the Shopify customer
+ * with the phone number they signed in with, which the hosted API verified.
  */
 
 export const SHOPIFY_API_VERSION = "2025-07";
@@ -23,6 +25,8 @@ export interface ShopifySettings {
   /** "your-shop.myshopify.com". */
   shopDomain: string;
   storefrontToken: string;
+  /** Optional Admin API access token, for order history. */
+  adminToken?: string | null;
 }
 
 /** "your-shop.myshopify.com" from what a client typed ("https://your-shop.myshopify.com/admin", "your-shop"). */
@@ -48,6 +52,33 @@ export class ShopifyClient {
           "content-type": "application/json",
           "x-shopify-storefront-access-token": this.settings.storefrontToken,
         },
+        body: JSON.stringify({ query, variables }),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch {
+      throw new ConnectorError("Shopify didn't answer.");
+    }
+    if (!response.ok) throw new ConnectorError(`Shopify answered HTTP ${response.status}.`);
+    const body = (await response.json().catch(() => ({}))) as { data?: T; errors?: { message?: string }[] };
+    if (body.errors?.length || !body.data) throw new ConnectorError(body.errors?.[0]?.message ?? "Shopify sent no data.");
+    return body.data;
+  }
+}
+
+/** The Admin API (GraphQL), with the shop's Admin API access token. */
+export class ShopifyAdminClient {
+  constructor(
+    private readonly shopDomain: string,
+    private readonly token: string,
+    private readonly fetcher: Fetch = fetch,
+  ) {}
+
+  async query<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
+    let response: Response;
+    try {
+      response = await this.fetcher(`https://${this.shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-shopify-access-token": this.token },
         body: JSON.stringify({ query, variables }),
         signal: AbortSignal.timeout(10_000),
       });
@@ -130,6 +161,50 @@ const QUERIES = {
     cartCreate(input: $input) { cart { checkoutUrl } userErrors { message } }
   }`,
 };
+
+const ADMIN_QUERIES = {
+  shop: `query { shop { name } }`,
+  customers: `query($query: String!) { customers(first: 10, query: $query) { nodes { id phone } } }`,
+  orders: `query($query: String!, $first: Int!, $after: String) {
+    orders(first: $first, after: $after, query: $query, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        id name createdAt cancelledAt displayFinancialStatus displayFulfillmentStatus
+        currentTotalPriceSet { shopMoney { amount currencyCode } }
+        lineItems(first: 50) { nodes { name quantity image { url } product { id } } }
+      }
+      pageInfo { hasNextPage endCursor }
+    }
+  }`,
+};
+
+interface AdminOrder {
+  id: string;
+  name: string;
+  createdAt: string;
+  cancelledAt: string | null;
+  displayFinancialStatus: string | null;
+  displayFulfillmentStatus: string;
+  currentTotalPriceSet: { shopMoney: Money };
+  lineItems: { nodes: { name: string; quantity: number; image: { url: string } | null; product: { id: string } | null }[] };
+}
+
+const ORDER_LABELS: Record<string, string> = {
+  pending: "Awaiting payment",
+  processing: "Processing",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  refunded: "Refunded",
+};
+
+/** The contract's order status from Shopify's payment and fulfilment statuses. */
+export function orderStatus(order: Pick<AdminOrder, "cancelledAt" | "displayFinancialStatus" | "displayFulfillmentStatus">): string {
+  if (order.cancelledAt || order.displayFinancialStatus === "VOIDED") return "cancelled";
+  if (order.displayFinancialStatus === "REFUNDED") return "refunded";
+  if (order.displayFinancialStatus === "PENDING" || order.displayFinancialStatus === "AUTHORIZED" || order.displayFinancialStatus === "EXPIRED") {
+    return "pending";
+  }
+  return order.displayFulfillmentStatus === "FULFILLED" ? "completed" : "processing";
+}
 
 interface Money {
   amount: string;
@@ -358,6 +433,7 @@ const cache = new Map<string, { at: number; value: unknown }>();
 
 export class ShopifyConnector implements Connector {
   private readonly client: ShopifyClient;
+  private readonly admin: ShopifyAdminClient | null;
 
   constructor(
     private readonly settings: ShopifySettings,
@@ -365,6 +441,7 @@ export class ShopifyConnector implements Connector {
     private readonly cacheKey = settings.shopDomain,
   ) {
     this.client = new ShopifyClient(settings, fetcher);
+    this.admin = settings.adminToken ? new ShopifyAdminClient(settings.shopDomain, settings.adminToken, fetcher) : null;
   }
 
   private async cached<T>(name: string, load: () => Promise<T>): Promise<T> {
@@ -389,6 +466,11 @@ export class ShopifyConnector implements Connector {
     return (await this.client.query<{ shop: Shop }>(QUERIES.shop)).shop.name;
   }
 
+  /** Checks the Admin API token, when there is one. */
+  async checkAdmin(): Promise<void> {
+    if (this.admin) await this.admin.query(ADMIN_QUERIES.shop);
+  }
+
   async config() {
     const shop = await this.shop();
     return {
@@ -400,7 +482,7 @@ export class ShopifyConnector implements Connector {
         delivery_date: { enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] },
         gift_message: { enabled: false, max_length: 200 },
       },
-      features: { orders: false },
+      features: { orders: this.admin !== null },
     };
   }
 
@@ -418,6 +500,8 @@ export class ShopifyConnector implements Connector {
           return await this.quote(request);
         case "POST /store/checkout-link":
           return await this.checkoutLink(request);
+        case "GET /me/orders":
+          return this.admin ? await this.orders(request, this.admin) : null;
       }
       if (request.method === "GET" && request.path[0] === "store" && request.path[1] === "products" && request.path[2]) {
         const id = Number(request.path[2]);
@@ -576,6 +660,65 @@ export class ShopifyConnector implements Connector {
     });
     if (!data.product) return error(404, "not_found", "Product not found.");
     return { status: 200, body: map.detail(data.product, data.productRecommendations ?? []) };
+  }
+
+  // Orders
+
+  private async orders(request: ConnectorRequest, admin: ShopifyAdminClient): Promise<ConnectorResult> {
+    if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
+    const page = intParam(request.query, "page", 1, 10_000);
+    const perPage = intParam(request.query, "per_page", 20, 50);
+    const empty = { status: 200, body: { page, per_page: perPage, total: 0, total_pages: 1, items: [] } };
+    const phone = request.user.phone;
+    // Shopify matches phone searches loosely: keep the customers whose number is exactly this one.
+    const found = await admin.query<{ customers: { nodes: { id: string; phone: string | null }[] } }>(ADMIN_QUERIES.customers, {
+      query: `phone:${JSON.stringify(phone)}`,
+    });
+    const ids = found.customers.nodes.filter((c) => c.phone === phone).map((c) => numericId(c.id));
+    if (ids.length === 0) return empty;
+    const query = ids.map((id) => `customer_id:${id}`).join(" OR ");
+    const result = await this.page(
+      async (first, after) => {
+        const data = await admin.query<{ orders: { nodes: AdminOrder[]; pageInfo: ProductPage["pageInfo"] } }>(ADMIN_QUERIES.orders, {
+          query,
+          first,
+          after,
+        });
+        return data.orders as unknown as ProductPage;
+      },
+      page,
+      perPage,
+    );
+    const map = await this.mapper();
+    const items = (result.items as unknown as AdminOrder[]).map((order) => {
+      const status = orderStatus(order);
+      return {
+        id: numericId(order.id),
+        number: order.name.replace(/^#/, ""),
+        status,
+        status_label: ORDER_LABELS[status]!,
+        total: map.money(order.currentTotalPriceSet.shopMoney.amount),
+        created_at: new Date(order.createdAt).toISOString(),
+        items: order.lineItems.nodes.map((line) => ({
+          name: line.name,
+          course_id: null,
+          product_id: line.product ? numericId(line.product.id) : null,
+          quantity: Math.max(1, line.quantity),
+          image_url: line.image?.url ?? null,
+        })),
+      };
+    });
+    const seen = (page - 1) * perPage + items.length;
+    return {
+      status: 200,
+      body: {
+        page,
+        per_page: perPage,
+        total: seen + (result.hasNext ? 1 : 0),
+        total_pages: result.hasNext ? page + 1 : page,
+        items,
+      },
+    };
   }
 
   // Cart and checkout

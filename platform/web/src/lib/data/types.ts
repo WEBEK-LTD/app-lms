@@ -88,13 +88,20 @@ export type AppBackend = "wordpress" | "custom_api" | "setup_requested" | "hoste
  * stored encrypted (context `app:connector:<app id>`).
  */
 export type ConnectorConfig =
-  | { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string }
+  /** Shopify: the Storefront API token, and optionally an Admin API token (read_orders, read_customers) for order history. */
+  | { kind: "shopify"; shopDomain: string; storefrontTokenEncrypted: string; adminTokenEncrypted?: string | null }
   /** No website: the products the client adds in the dashboard (catalog_* tables). */
   | { kind: "catalog" }
   /** No website: services, staff and hours set in the dashboard (`bookingSetup`), appointments in booking_appointments. */
   | { kind: "bookings" }
   /** No website: courses set in the dashboard (`courseSetup`), enrolments and progress in course_enrollments and lesson_progress. */
-  | { kind: "courses" };
+  | { kind: "courses" }
+  /**
+   * A platform connected with keys (ikas, Ticimax, IdeaSoft, Teachable,
+   * Thinkific, SimplyBook): `settings` holds the values that aren't secret,
+   * `secretsEncrypted` the rest as encrypted JSON (lib/hosted/connectors/platforms.ts).
+   */
+  | { kind: "platform"; platform: string; settings: Record<string, string>; secretsEncrypted: string };
 
 /** Sign-in and account rules of the hosted API, set per app. */
 export interface HostedSettings {

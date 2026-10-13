@@ -3,6 +3,7 @@ import {
   clearShopifyCache,
   formatMoney,
   normalizeShopDomain,
+  orderStatus,
   SHOPIFY_API_VERSION,
   ShopifyConnector,
 } from "@/lib/hosted/connectors/shopify";
@@ -107,6 +108,7 @@ interface Call {
 function fakeShop(options: { down?: boolean } = {}) {
   const calls: Call[] = [];
   const fetcher = (async (url: string, init: RequestInit) => {
+    if (url.includes("/admin/api/")) return admin(url, init, calls);
     expect(url).toBe(`https://rose.myshopify.com/api/${SHOPIFY_API_VERSION}/graphql.json`);
     expect(new Headers(init.headers).get("x-shopify-storefront-access-token")).toBe("storefront-token");
     if (options.down) return new Response("", { status: 503 });
@@ -160,6 +162,71 @@ function fakeShop(options: { down?: boolean } = {}) {
     return Response.json({ data });
   }) as unknown as typeof fetch;
   return { fetcher, calls };
+}
+
+// Orders of two customers; Sara's phone also loosely matches another customer's.
+const ORDERS = [
+  {
+    id: "gid://shopify/Order/5003",
+    customer: 1,
+    name: "#1003",
+    createdAt: "2026-10-12T09:00:00Z",
+    cancelledAt: null,
+    displayFinancialStatus: "PAID",
+    displayFulfillmentStatus: "UNFULFILLED",
+    currentTotalPriceSet: { shopMoney: money("950.0") },
+    lineItems: { nodes: [{ name: "Red Roses - Large", quantity: 1, image: { url: "https://cdn.shopify.com/roses.jpg" }, product: { id: "gid://shopify/Product/101" } }] },
+  },
+  {
+    id: "gid://shopify/Order/5002",
+    customer: 2,
+    name: "#1002",
+    createdAt: "2026-10-11T09:00:00Z",
+    cancelledAt: null,
+    displayFinancialStatus: "PAID",
+    displayFulfillmentStatus: "FULFILLED",
+    currentTotalPriceSet: { shopMoney: money("100.0") },
+    lineItems: { nodes: [{ name: "Gift Card", quantity: 1, image: null, product: null }] },
+  },
+  {
+    id: "gid://shopify/Order/5001",
+    customer: 1,
+    name: "#1001",
+    createdAt: "2026-10-01T09:00:00Z",
+    cancelledAt: "2026-10-02T09:00:00Z",
+    displayFinancialStatus: "VOIDED",
+    displayFulfillmentStatus: "UNFULFILLED",
+    currentTotalPriceSet: { shopMoney: money("400.0") },
+    lineItems: { nodes: [{ name: "Red Roses - Small", quantity: 2, image: null, product: { id: "gid://shopify/Product/101" } }] },
+  },
+];
+
+function admin(url: string, init: RequestInit, calls: Call[]): Response {
+  expect(url).toBe(`https://rose.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/graphql.json`);
+  if (new Headers(init.headers).get("x-shopify-access-token") !== "admin-token") return new Response("", { status: 401 });
+  const { query, variables } = JSON.parse(String(init.body)) as Call;
+  calls.push({ query, variables });
+  const v = variables as { query: string; first: number; after: string | null };
+  if (query.includes("shop {")) return Response.json({ data: { shop: { name: "Rose Shop" } } });
+  if (query.includes("customers(")) {
+    expect(v.query).toBe('phone:"+905321234567"');
+    return Response.json({
+      data: {
+        customers: {
+          nodes: [
+            { id: "gid://shopify/Customer/1", phone: "+905321234567" },
+            { id: "gid://shopify/Customer/3", phone: "+9053212345670" },
+          ],
+        },
+      },
+    });
+  }
+  if (query.includes("orders(")) {
+    const ids = [...v.query.matchAll(/customer_id:(\d+)/g)].map((m) => Number(m[1]));
+    const list = ORDERS.filter((o) => ids.includes(o.customer));
+    return Response.json({ data: { orders: page(list, v.first, v.after) } });
+  }
+  throw new Error(`Unexpected admin query: ${query}`);
 }
 
 const NOW = new Date("2026-10-13T10:00:00Z");
@@ -342,12 +409,61 @@ describe("Shopify connector", () => {
     expectContract("GET", "/store/products", result!);
   });
 
+  it("lists the signed-in customer's orders with the Admin API token", async () => {
+    const withAdmin = new ShopifyConnector(
+      { shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token", adminToken: "admin-token" },
+      shop.fetcher,
+    );
+    expect(await withAdmin.config()).toMatchObject({ features: { orders: true } });
+    await withAdmin.checkAdmin();
+    const request = (query: Record<string, string>, user: HostedUser | null): ConnectorRequest => ({
+      method: "GET",
+      path: ["me", "orders"],
+      query: new URLSearchParams(query),
+      body: undefined,
+      user,
+      now: NOW,
+    });
+    const first = await withAdmin.handle(request({ per_page: "1" }, customer));
+    expectContract("GET", "/me/orders", first!);
+    expect(first!.body).toMatchObject({
+      page: 1,
+      total_pages: 2,
+      items: [
+        {
+          id: 5003,
+          number: "1003",
+          status: "processing",
+          status_label: "Processing",
+          total: "950,00 TL",
+          items: [{ name: "Red Roses - Large", product_id: 101, quantity: 1, image_url: "https://cdn.shopify.com/roses.jpg" }],
+        },
+      ],
+    });
+    const second = await withAdmin.handle(request({ per_page: "1", page: "2" }, customer));
+    expect(second!.body).toMatchObject({ page: 2, total_pages: 2, total: 2, items: [{ number: "1001", status: "cancelled" }] });
+    expect((await withAdmin.handle(request({}, null)))!.status).toBe(401);
+
+    const wrong = new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token", adminToken: "nope" }, shop.fetcher);
+    await expect(wrong.checkAdmin()).rejects.toThrow();
+  });
+
   it("leaves other endpoints to the hosted API", async () => {
     expect(await connector.handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams(), body: undefined, user: null, now: NOW })).toBeNull();
   });
 });
 
 describe("Shopify helpers", () => {
+  it("map order statuses", () => {
+    const order = (financial: string | null, fulfillment: string, cancelled: string | null = null) =>
+      orderStatus({ displayFinancialStatus: financial, displayFulfillmentStatus: fulfillment, cancelledAt: cancelled });
+    expect(order("PAID", "FULFILLED")).toBe("completed");
+    expect(order("PARTIALLY_REFUNDED", "UNFULFILLED")).toBe("processing");
+    expect(order("PENDING", "UNFULFILLED")).toBe("pending");
+    expect(order("REFUNDED", "FULFILLED")).toBe("refunded");
+    expect(order("PAID", "UNFULFILLED", "2026-10-01T00:00:00Z")).toBe("cancelled");
+  });
+
   it("normalize shop addresses", () => {
     expect(normalizeShopDomain("https://Rose.myshopify.com/admin")).toBe("rose.myshopify.com");
     expect(normalizeShopDomain("rose")).toBe("rose.myshopify.com");
