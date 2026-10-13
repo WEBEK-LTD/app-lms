@@ -20,10 +20,10 @@ if ( ! is_array( $seed ) ) {
 	exit( 2 );
 }
 
-function call( $method, $path, $body = null, $token = null ) {
+function call( $method, $path, $body = null, $token = null, array $headers = array() ) {
 	global $base;
 	$ch = curl_init( 0 === strpos( $path, 'http' ) ? $path : $base . $path );
-	$h  = array( 'Accept: application/json' );
+	$h  = array_merge( array( 'Accept: application/json' ), $headers );
 	if ( null !== $body ) {
 		$h[] = 'Content-Type: application/json';
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
@@ -37,16 +37,20 @@ function call( $method, $path, $body = null, $token = null ) {
 			CURLOPT_CUSTOMREQUEST  => $method,
 			CURLOPT_HTTPHEADER     => $h,
 			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,
 			CURLOPT_TIMEOUT        => 60,
 		)
 	);
 	$raw    = (string) curl_exec( $ch );
 	$status = (int) curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+	$size   = (int) curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
 	curl_close( $ch );
+	$text = substr( $raw, $size );
 	return array(
-		'status' => $status,
-		'raw'    => $raw,
-		'json'   => json_decode( $raw, true ),
+		'status'  => $status,
+		'headers' => strtolower( substr( $raw, 0, $size ) ),
+		'raw'     => $text,
+		'json'    => json_decode( $text, true ),
 	);
 }
 
@@ -241,6 +245,87 @@ foreach ( $r['json']['sections'] ?? array() as $section ) {
 check( 'home sections in the default order', 200 === $r['status'] && array( 'categories', 'featured_products', 'sale_products', 'new_products' ) === array_keys( $types ), array_keys( $types ) );
 check( 'home categories are top-level', same_set( array( 'Flowers', 'Gifts' ), array_map( function ( $c ) { return $c['name']; }, $types['categories']['categories'] ?? array() ) ), $types['categories'] ?? null );
 check( 'home featured', same_set( array( $seed['roses'], $seed['chocolates'] ), ids( $types['featured_products']['products'] ?? array() ) ), $types['featured_products'] ?? null );
+
+echo "Pages\n";
+require_once __DIR__ . '/pages-helpers.php';
+$r = call( 'GET', '/pages?platform=android' );
+check_navigation_shape( 'default pages: navigation shape', $r['json'] );
+check( 'default pages: shop tabs', array( 'home', 'shop', 'cart', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && 'search' === ( $r['json']['tabs'][1]['target']['screen'] ?? '' ) && 'cart' === ( $r['json']['tabs'][2]['target']['screen'] ?? '' ), $r['json']['tabs'] ?? null );
+$r    = call( 'GET', '/pages/home?platform=android' );
+$home = $r['json'];
+check( 'default home follows the store home settings', array( 'search', 'categories', 'featured-products', 'new-products' ) === page_block_ids( $home ), page_block_ids( $home ) );
+check( 'default home: product search', 'products' === ( page_block( $home, 'search' )['source'] ?? '' ), page_block( $home, 'search' ) );
+check( 'default home: top-level product categories', same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $home, 'categories' )['categories'] ?? array(), 'name' ) ) && array( 'id', 'name', 'count' ) === array_keys( page_block( $home, 'categories' )['categories'][0] ?? array() ), page_block( $home, 'categories' ) );
+check( 'default home: featured products', same_set( array( (string) $seed['roses'], (string) $seed['chocolates'] ), block_item_ids( page_block( $home, 'featured-products' ) ) ), page_block( $home, 'featured-products' ) );
+check_item_shapes( 'default home: item shapes', $home );
+$items = array();
+foreach ( page_block( $home, 'new-products' )['items'] ?? array() as $item ) {
+	$items[ $item['id'] ] = $item;
+}
+$sunflowers = $items[ (string) $seed['sunflowers'] ] ?? array();
+check( 'product item: price label, sale badge, opens the product', false !== strpos( (string) ( $sunflowers['price_label'] ?? '' ), '200' ) && 'Sale' === ( $sunflowers['badge'] ?? '' ) && array( 'type' => 'item', 'item' => array( 'source' => 'products', 'id' => (string) $seed['sunflowers'] ) ) === ( $sunflowers['action'] ?? null ) && ! array_key_exists( 'favorited', $sunflowers ), $sunflowers );
+check( 'product item: out of stock badge', 'Out of stock' === ( $items[ (string) $seed['vase'] ]['badge'] ?? '' ), $items[ (string) $seed['vase'] ] ?? null );
+check( 'hidden products never listed', ! isset( $items[ (string) $seed['hidden'] ] ), array_keys( $items ) );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: English only, no look without a layout', array( 'default' => 'en', 'available' => array( 'en' ) ) === ( $r['json']['languages'] ?? null ) && ! array_key_exists( 'appearance', $r['json'] ?? array() ), $r['json'] );
+
+$checkout = wp_eval( 'echo wc_get_checkout_url();' );
+$cart     = wp_eval( 'echo wc_get_cart_url();' );
+$layout   = array(
+	'version'    => '2026-10-13T18:00:00Z.7',
+	'appearance' => array( 'template' => 'minimal', 'theme_mode' => 'system', 'user_can_change_mode' => false, 'secondary_color' => null, 'font' => 'Manrope', 'corners' => 'soft', 'cards' => 'outlined' ),
+	'languages'  => array( 'default' => 'en', 'available' => array( 'en', 'ar', 'xx' ) ),
+	'tabs'       => array(
+		array( 'id' => 'home', 'label' => 'Home', 'icon' => 'home', 'target' => array( 'type' => 'page', 'page_slug' => 'home' ) ),
+		array( 'id' => 'shop', 'label' => 'Shop', 'icon' => 'storefront', 'target' => array( 'type' => 'screen', 'screen' => 'search' ), 'translations' => array( 'ar' => array( 'label' => 'المتجر' ) ) ),
+	),
+	'pages'      => array(
+		array(
+			'slug'       => 'home',
+			'title'      => 'Home',
+			'show_title' => false,
+			'updated_at' => '2026-10-13T18:00:00Z',
+			'blocks'     => array(
+				array( 'id' => 'hero', 'type' => 'banner', 'visibility' => 'everyone', 'image_url' => 'https://example.org/hero.jpg', 'heading' => 'Fresh flowers', 'action' => array( 'type' => 'url', 'url' => $cart ), 'translations' => array( 'ar' => array( 'heading' => 'زهور طازجة' ) ) ),
+				array( 'id' => 'picked', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'grid', 'query' => array( 'ids' => array( (string) $seed['vase'], (string) $seed['hidden'], (string) $seed['sunflowers'] ), 'featured' => true, 'limit' => 10 ) ),
+				array( 'id' => 'cheapest', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'list', 'query' => array( 'sort' => 'price_asc', 'limit' => 3 ) ),
+				array( 'id' => 'dearest', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'list', 'query' => array( 'sort' => 'price_desc', 'limit' => 3 ) ),
+				array( 'id' => 'gifts', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'carousel', 'query' => array( 'category_id' => (string) $seed['gifts'], 'limit' => 10 ) ),
+				array( 'id' => 'featured', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'carousel', 'query' => array( 'featured' => true, 'limit' => 10 ) ),
+				array( 'id' => 'cats', 'type' => 'categories', 'visibility' => 'everyone', 'source' => 'products', 'style' => 'tiles' ),
+				array( 'id' => 'checkout', 'type' => 'button', 'visibility' => 'everyone', 'label' => 'Checkout', 'style' => 'filled', 'action' => array( 'type' => 'url', 'url' => $checkout, 'open_in' => 'browser' ) ),
+				array( 'id' => 'courses', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+				array( 'id' => 'course-cats', 'type' => 'categories', 'visibility' => 'everyone', 'source' => 'courses' ),
+				array( 'id' => 'continue', 'type' => 'continue_learning', 'visibility' => 'everyone' ),
+				array( 'id' => 'services', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'services', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+				array( 'id' => 'service-cats', 'type' => 'categories', 'visibility' => 'everyone', 'source' => 'services' ),
+				array( 'id' => 'course-button', 'type' => 'button', 'visibility' => 'everyone', 'label' => 'Courses', 'style' => 'text', 'action' => array( 'type' => 'course', 'course_id' => 5 ) ),
+			),
+		),
+	),
+);
+store_layout( $layout );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: published look', 'minimal' === ( $r['json']['appearance']['template'] ?? '' ) && null === $r['json']['appearance']['secondary_color'] && false === $r['json']['appearance']['user_can_change_mode'], $r['json']['appearance'] ?? null );
+check( 'config: unknown language codes left out', array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ) === ( $r['json']['languages'] ?? null ), $r['json']['languages'] ?? null );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: ar' ) );
+check( 'arabic tab with English fallback', array( 'Home', 'المتجر' ) === array_column( $r['json']['tabs'] ?? array(), 'label' ), $r['json']['tabs'] ?? null );
+$r    = call( 'GET', '/pages/home?platform=android', null, null, array( 'Accept-Language: ar' ) );
+$page = $r['json'];
+check( 'arabic banner heading', 'زهور طازجة' === ( page_block( $page, 'hero' )['heading'] ?? '' ), page_block( $page, 'hero' ) );
+check( 'android: links to the cart and checkout kept', $cart === ( page_block( $page, 'hero' )['action']['url'] ?? '' ) && 'browser' === ( page_block( $page, 'checkout' )['action']['open_in'] ?? '' ), $page );
+check( 'course and service blocks dropped without an LMS or booking plugin', array( 'hero', 'picked', 'cheapest', 'dearest', 'gifts', 'featured', 'cats', 'checkout' ) === page_block_ids( $page ), page_block_ids( $page ) );
+check_item_shapes( 'published home: item shapes', $page );
+check( 'hand-picked products in order, hidden left out', array( (string) $seed['vase'], (string) $seed['sunflowers'] ) === block_item_ids( page_block( $page, 'picked' ) ), page_block( $page, 'picked' ) );
+check( 'sorted by price, cheapest first', ids( call( 'GET', '/store/products?orderby=price_asc&per_page=3' )['json']['items'] ?? array() ) === array_map( 'intval', block_item_ids( page_block( $page, 'cheapest' ) ) ), page_block( $page, 'cheapest' ) );
+check( 'sorted by price, dearest first', ids( call( 'GET', '/store/products?orderby=price_desc&per_page=3' )['json']['items'] ?? array() ) === array_map( 'intval', block_item_ids( page_block( $page, 'dearest' ) ) ), page_block( $page, 'dearest' ) );
+check( 'category filter', same_set( ids( call( 'GET', '/store/products?category=' . $seed['gifts'] )['json']['items'] ?? array() ), array_map( 'intval', block_item_ids( page_block( $page, 'gifts' ) ) ) ), page_block( $page, 'gifts' ) );
+check( 'featured filter', same_set( array( (string) $seed['roses'], (string) $seed['chocolates'] ), block_item_ids( page_block( $page, 'featured' ) ) ), page_block( $page, 'featured' ) );
+check( 'product categories block', 'tiles' === ( page_block( $page, 'cats' )['style'] ?? '' ) && same_set( array( 'Flowers', 'Gifts' ), array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) ), page_block( $page, 'cats' ) );
+$r    = call( 'GET', '/pages/home?platform=ios' );
+$page = $r['json'];
+check( 'ios: no links to the cart or checkout', null === page_block( $page, 'checkout' ) && null !== page_block( $page, 'hero' ) && ! isset( page_block( $page, 'hero' )['action'] ), page_block_ids( $page ) );
+forget_layout();
 
 echo "Cart\n";
 $lines = array(

@@ -219,6 +219,48 @@ check( 'curriculum in course order', $order === array_keys( $items ), array_keys
 check( 'curriculum types', 'lesson' === ( $items[ $seed['lesson_html'] ]['type'] ?? '' ) && ( empty( $seed['quiz'] ) || ( 'quiz' === $items[ $seed['quiz'] ]['type'] && 3 === $items[ $seed['quiz'] ]['question_count'] ) ), $items );
 check( 'curriculum locked before enrolling', true === ( $items[ $seed['lesson_html'] ]['locked'] ?? null ), $items );
 
+echo "Pages\n";
+require_once __DIR__ . '/pages-helpers.php';
+$r = call( 'GET', '/pages?platform=android' );
+check_navigation_shape( 'default pages: navigation shape', $r['json'] );
+check( 'default pages: academy tabs', array( 'home', 'courses', 'my-courses', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['json']['tabs'] ?? null );
+$r    = call( 'GET', '/pages/home?platform=android' );
+$home = $r['json'];
+check( 'default home: categories and courses', in_array( 'Languages', array_column( page_block( $home, 'categories' )['categories'] ?? array(), 'name' ), true ) && 3 === count( page_block( $home, 'latest-courses' )['items'] ?? array() ), page_block_ids( $home ) );
+check_item_shapes( 'default home: item shapes', $home );
+store_layout(
+	array(
+		'version'    => 'adapter.1',
+		'appearance' => array(),
+		'languages'  => array( 'default' => 'en', 'available' => array( 'en' ) ),
+		'tabs'       => array(
+			array( 'id' => 'home', 'label' => 'Home', 'icon' => 'home', 'target' => array( 'type' => 'page', 'page_slug' => 'home' ) ),
+			array( 'id' => 'account', 'label' => 'Account', 'icon' => 'person', 'target' => array( 'type' => 'screen', 'screen' => 'account' ) ),
+		),
+		'pages'      => array(
+			array(
+				'slug'       => 'home',
+				'title'      => 'Home',
+				'show_title' => false,
+				'updated_at' => '2026-10-13T18:00:00Z',
+				'blocks'     => array(
+					array( 'id' => 'picked', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'grid', 'query' => array( 'ids' => array( (string) $seed['design'], (string) $seed['python'] ), 'limit' => 5 ) ),
+					array( 'id' => 'languages', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'list', 'query' => array( 'category_id' => (string) $languages, 'limit' => 5 ) ),
+					array( 'id' => 'continue', 'type' => 'continue_learning', 'visibility' => 'everyone' ),
+				),
+			),
+		),
+	)
+);
+$r    = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: an incomplete look is left out', ! array_key_exists( 'appearance', $r['json'] ?? array() ), $r['json'] );
+$r    = call( 'GET', '/pages/home?platform=android' );
+$page = $r['json'];
+check( 'hand-picked courses in their order', array( (string) $seed['design'], (string) $seed['python'] ) === block_item_ids( page_block( $page, 'picked' ) ), page_block( $page, 'picked' ) );
+check( 'category filter on a page', array( (string) $seed['english'] ) === block_item_ids( page_block( $page, 'languages' ) ), page_block( $page, 'languages' ) );
+check( 'continue learning dropped signed out', array( 'picked', 'languages' ) === page_block_ids( $page ), page_block_ids( $page ) );
+forget_layout();
+
 echo "Learning\n";
 $r = call( 'GET', '/lessons/' . $seed['lesson_html'], null, $token );
 check( 'lesson before enrolling 403', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );

@@ -88,6 +88,7 @@ class Plugin {
 		$this->magic_links()->register();
 		$this->push()->register();
 		$this->license()->register();
+		$this->layout_client()->register();
 		$this->store_checkout()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -107,6 +108,7 @@ class Plugin {
 	public function register_routes() {
 		$this->media()->register_routes();
 		( new Rest\App_Controller( $this ) )->register_routes();
+		( new Rest\Pages_Controller( $this ) )->register_routes();
 		( new Rest\Auth_Controller( $this ) )->register_routes();
 		( new Rest\Account_Controller( $this ) )->register_routes();
 		( new Rest\Catalog_Controller( $this ) )->register_routes();
@@ -364,6 +366,34 @@ class Plugin {
 			'license',
 			function () {
 				return new License\License_Client( $this->settings(), $this->detector() );
+			}
+		);
+	}
+
+	/**
+	 * The app layout from the platform.
+	 *
+	 * @return Pages\Layout_Client
+	 */
+	public function layout_client() {
+		return $this->service(
+			'layout_client',
+			function () {
+				return new Pages\Layout_Client( $this->settings(), $this->license() );
+			}
+		);
+	}
+
+	/**
+	 * The app's pages, tabs, look and languages.
+	 *
+	 * @return Pages\Pages
+	 */
+	public function pages() {
+		return $this->service(
+			'pages',
+			function () {
+				return new Pages\Pages( $this );
 			}
 		);
 	}

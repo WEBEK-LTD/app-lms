@@ -122,7 +122,22 @@ class App_Controller extends Controller {
 					'maintenance'         => null !== $blocked,
 					'maintenance_message' => $blocked ? $blocked['message'] : null,
 				),
-			)
+			) + $this->look()
+		);
+	}
+
+	/**
+	 * Config.appearance and Config.languages. Without a published look, appearance is left
+	 * out and the app keeps its build's template and font.
+	 *
+	 * @return array
+	 */
+	private function look() {
+		$pages      = $this->plugin->pages();
+		$appearance = $pages->appearance();
+		return array_merge(
+			$appearance ? array( 'appearance' => $appearance ) : array(),
+			array( 'languages' => $pages->languages() )
 		);
 	}
 

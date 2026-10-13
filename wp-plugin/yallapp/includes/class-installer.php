@@ -38,6 +38,7 @@ class Installer {
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'yallapp_daily' );
 		wp_clear_scheduled_hook( 'yallapp_license_check' );
+		wp_clear_scheduled_hook( 'yallapp_layout_refresh' );
 		wp_unschedule_hook( 'yallapp_push_send' );
 	}
 

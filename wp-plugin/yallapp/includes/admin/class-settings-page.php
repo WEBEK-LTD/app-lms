@@ -55,6 +55,7 @@ class Settings_Page {
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		add_action( 'admin_post_yallapp_save', array( $this, 'save' ) );
 		add_action( 'admin_post_yallapp_license', array( $this, 'license' ) );
+		add_action( 'admin_post_yallapp_layout', array( $this, 'layout' ) );
 		add_action( 'admin_post_yallapp_push', array( $this, 'manual_push' ) );
 		add_action( 'admin_post_yallapp_unlink', array( $this, 'unlink' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( YALLAPP_FILE ), array( $this, 'action_links' ) );
@@ -135,6 +136,7 @@ class Settings_Page {
 		echo '<header class="ya-head"><div><h1>' . esc_html__( 'Yallapp', 'yallapp' ) . '</h1><p>' . esc_html__( 'These settings apply to the app instantly, with no app store update needed.', 'yallapp' ) . '</p></div></header>';
 		$this->notice();
 		$this->license_card();
+		$this->layout_card();
 		$this->compatibility_card();
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data" class="ya-form">';
@@ -212,6 +214,26 @@ class Settings_Page {
 			$this->redirect( 'error', $result->get_error_message() );
 		}
 		$this->redirect( 'active' === $result['status'] ? 'success' : 'error', 'active' === $result['status'] ? __( 'Your license is active.', 'yallapp' ) : ( $result['message'] ? $result['message'] : __( 'This license is not active.', 'yallapp' ) ) );
+	}
+
+	/**
+	 * Fetches the app layout from the platform now.
+	 *
+	 * @return void
+	 */
+	public function layout() {
+		$this->guard();
+		check_admin_referer( 'yallapp_layout' );
+		$result   = $this->plugin->layout_client()->refresh();
+		$messages = array(
+			'updated'   => __( 'The app layout was updated. The app shows it on its next launch.', 'yallapp' ),
+			'unchanged' => __( 'The app layout is up to date.', 'yallapp' ),
+			'cleared'   => __( 'No pages are published in your Yallapp dashboard yet, so the app shows the default pages.', 'yallapp' ),
+		);
+		if ( is_wp_error( $result ) ) {
+			$this->redirect( 'error', $result->get_error_message() );
+		}
+		$this->redirect( 'success', $messages[ $result ] );
 	}
 
 	/**
@@ -346,6 +368,34 @@ class Settings_Page {
 		if ( ! $client::enforced() ) {
 			echo '<p class="ya-help">' . esc_html__( 'Test mode: the app works on this site without an active license.', 'yallapp' ) . '</p>';
 		}
+		echo '</form>';
+		$this->close();
+	}
+
+	/**
+	 * App layout card: the pages and look published in the Yallapp dashboard.
+	 *
+	 * @return void
+	 */
+	private function layout_card() {
+		$state     = $this->plugin->layout_client()->state();
+		$published = null !== $state['layout'];
+		$format    = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		$this->open( __( 'App pages and look', 'yallapp' ), '<span class="ya-pill ya-pill-' . ( $published ? 'ok' : 'warn' ) . '">' . esc_html( $published ? __( 'Published', 'yallapp' ) : __( 'Default pages', 'yallapp' ) ) . '</span>' );
+		echo '<p class="ya-help">' . esc_html__( 'Build your app\'s pages, tabs, look and languages in your Yallapp dashboard. This site fetches them every 15 minutes and fills them with its own content.', 'yallapp' ) . '</p>';
+		echo '<dl class="ya-facts">';
+		$this->fact( __( 'Layout version', 'yallapp' ), $published ? (string) $state['layout']['version'] : __( 'None published yet', 'yallapp' ) );
+		$this->fact( __( 'Last fetched', 'yallapp' ), $state['fetched_at'] ? (string) wp_date( $format, $state['fetched_at'] ) : '—' );
+		echo '</dl>';
+		if ( '' === (string) $this->values['license_key'] ) {
+			echo '<p class="ya-help">' . esc_html__( 'Activate your license to use the pages you publish in your Yallapp dashboard. Until then the app shows the default pages.', 'yallapp' ) . '</p>';
+		} elseif ( $state['error'] ) {
+			echo '<p class="ya-help">' . esc_html( $state['error'] ) . '</p>';
+		}
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ya-inline">';
+		echo '<input type="hidden" name="action" value="yallapp_layout">';
+		wp_nonce_field( 'yallapp_layout' );
+		echo '<div class="ya-actions"><button class="button"' . disabled( '' === (string) $this->values['license_key'], true, false ) . '>' . esc_html__( 'Refresh app layout', 'yallapp' ) . '</button></div>';
 		echo '</form>';
 		$this->close();
 	}

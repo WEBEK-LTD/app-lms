@@ -110,6 +110,63 @@ check( 'staff choice', ( $b['staff_choice'] ?? null ) === ( ! $one && ! $none ),
 check( 'cancel rule', array_key_exists( 'cancel_before_minutes', (array) $b ) && 60 === ( $b['cancel_before_minutes'] ?? null ), $b );
 check( 'no LMS', array_key_exists( 'lms', $config['json']['features'] ?? array() ) && null === $config['json']['features']['lms'], $config['json']['features'] ?? null );
 
+echo "Pages\n";
+require_once __DIR__ . '/pages-helpers.php';
+check( 'config: English only, no look without a layout', array( 'default' => 'en', 'available' => array( 'en' ) ) === ( $config['json']['languages'] ?? null ) && ! array_key_exists( 'appearance', $config['json'] ?? array() ), $config['json'] );
+$r = call( 'GET', '/pages?platform=android' );
+check_navigation_shape( 'default pages: navigation shape', $r['json'] );
+check( 'default pages: bookings tabs', array( 'home', 'book', 'appointments', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && array( 'page', 'services', 'appointments', 'account' ) === array_map( function ( $t ) { return $t['target']['screen'] ?? $t['target']['type']; }, $r['json']['tabs'] ?? array() ), $r['json']['tabs'] ?? null );
+$r    = call( 'GET', '/pages/home?platform=android' );
+$home = $r['json'];
+$list = page_block( $home, 'services' );
+check( 'default home: services, then posts', 200 === $r['status'] && array( 'services' ) === array_values( array_diff( page_block_ids( $home ), array( 'banner', 'latest-posts' ) ) ) && array( 'type' => 'screen', 'screen' => 'services' ) === ( $list['see_all'] ?? null ), page_block_ids( $home ) );
+check( 'default home: services in order, hidden left out', ( $one ? array( 'Haircut', 'Hair colouring' ) : array( 'Haircut', 'Hair colouring', 'Massage' ) ) === array_column( $list['items'] ?? array(), 'title' ), $list );
+check_item_shapes( 'default home: item shapes', $home );
+$haircut = $list['items'][0] ?? array();
+check( 'service item: duration, price, opens the service', '30 min' === ( $haircut['subtitle'] ?? '' ) && false !== strpos( (string) ( $haircut['price_label'] ?? '' ), '300' ) && array( 'type' => 'item', 'item' => array( 'source' => 'services', 'id' => (string) $seed['haircut'] ) ) === ( $haircut['action'] ?? null ), $haircut );
+check( 'service item: hours and minutes', '1 h 30 min' === ( $list['items'][1]['subtitle'] ?? '' ), $list['items'][1] ?? null );
+
+store_layout(
+	array(
+		'version'    => 'bookings.1',
+		'appearance' => array(),
+		'languages'  => array( 'default' => 'en', 'available' => array( 'en' ) ),
+		'tabs'       => array(
+			array( 'id' => 'home', 'label' => 'Home', 'icon' => 'home', 'target' => array( 'type' => 'page', 'page_slug' => 'home' ) ),
+			array( 'id' => 'book', 'label' => 'Book', 'icon' => 'event_available', 'target' => array( 'type' => 'screen', 'screen' => 'services' ) ),
+			array( 'id' => 'cart', 'label' => 'Cart', 'icon' => 'shopping_cart', 'target' => array( 'type' => 'screen', 'screen' => 'cart' ) ),
+		),
+		'pages'      => array(
+			array(
+				'slug'       => 'home',
+				'title'      => 'Home',
+				'show_title' => false,
+				'updated_at' => '2026-10-13T18:00:00Z',
+				'blocks'     => array(
+					array( 'id' => 'picked', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'services', 'layout' => 'grid', 'query' => array( 'ids' => array( (string) $seed['colouring'], (string) $seed['hidden'], (string) $seed['haircut'] ), 'limit' => 5 ) ),
+					array( 'id' => 'hair', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'services', 'layout' => 'list', 'query' => array( 'category_id' => (string) $seed['hair'], 'limit' => 5 ) ),
+					array( 'id' => 'dearest', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'services', 'layout' => 'list', 'query' => array( 'sort' => 'price_desc', 'limit' => 1 ) ),
+					array( 'id' => 'cats', 'type' => 'categories', 'visibility' => 'everyone', 'source' => 'services', 'style' => 'chips' ),
+					array( 'id' => 'find', 'type' => 'search', 'visibility' => 'everyone', 'source' => 'services', 'placeholder' => 'Find a service' ),
+					array( 'id' => 'courses', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+					array( 'id' => 'products', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+					array( 'id' => 'continue', 'type' => 'continue_learning', 'visibility' => 'everyone' ),
+				),
+			),
+		),
+	)
+);
+$r = call( 'GET', '/pages?platform=android' );
+check( 'published tabs: services and cart screens', array( 'home', 'book', 'cart' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['json']['tabs'] ?? null );
+$r    = call( 'GET', '/pages/home?platform=android' );
+$page = $r['json'];
+check( 'course and product blocks dropped without an LMS or shop', array( 'picked', 'hair', 'dearest', 'cats', 'find' ) === page_block_ids( $page ), page_block_ids( $page ) );
+check( 'hand-picked services in order, hidden left out', array( (string) $seed['colouring'], (string) $seed['haircut'] ) === block_item_ids( page_block( $page, 'picked' ) ), page_block( $page, 'picked' ) );
+check( 'services category filter', array( 'Haircut', 'Hair colouring' ) === array_column( page_block( $page, 'hair' )['items'] ?? array(), 'title' ), page_block( $page, 'hair' ) );
+check( 'services sorted by price', array( 'Hair colouring' ) === array_column( page_block( $page, 'dearest' )['items'] ?? array(), 'title' ), page_block( $page, 'dearest' ) );
+check( 'service categories', ( $one ? array( 'Hair' ) : array( 'Hair', 'Spa' ) ) === array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) && array( 'id', 'name', 'count' ) === array_keys( page_block( $page, 'cats' )['categories'][0] ?? array() ), page_block( $page, 'cats' ) );
+forget_layout();
+
 echo "Services\n";
 $cats = call( 'GET', '/bookings/categories' );
 check( 'categories', names( $cats['json']['items'] ?? array() ) === ( $one ? array( 'Hair' ) : array( 'Hair', 'Spa' ) ), $cats['raw'] );
