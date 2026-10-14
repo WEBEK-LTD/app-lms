@@ -447,5 +447,15 @@ $order = $r['json']['items'][0] ?? array();
 check( 'store orders', 200 === $r['status'] && 1 === ( $r['json']['total'] ?? 0 ) && 'completed' === ( $order['status'] ?? '' ) && false !== strpos( (string) ( $order['total'] ?? '' ), '300' ), $r['raw'] );
 check( 'order item shape', $seed['chocolates'] === ( $order['items'][0]['product_id'] ?? 0 ) && 2 === ( $order['items'][0]['quantity'] ?? 0 ) && array_key_exists( 'course_id', $order['items'][0] ?? array() ) && null === $order['items'][0]['course_id'], $order );
 
+// 26 Following an order: its step from the WooCommerce status, one order by ID, only the customer's own.
+check( 'a completed order is completed for following it', 'completed' === ( $order['fulfilment_status'] ?? '' ), $order );
+wp_eval( '$o = wc_get_order( ' . (int) ( $order['id'] ?? 0 ) . ' ); $o->set_status( "processing" ); $o->save();' );
+$r = call( 'GET', '/me/orders/' . (int) ( $order['id'] ?? 0 ), null, $token );
+check( 'one order by ID, processing is preparing', 200 === $r['status'] && ( $order['id'] ?? 0 ) === ( $r['json']['id'] ?? -1 ) && 'preparing' === ( $r['json']['fulfilment_status'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/me/orders/' . ( (int) ( $order['id'] ?? 0 ) + 9999 ), null, $token );
+check( 'an unknown order is not found', 404 === $r['status'] && 'not_found' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/me/orders/' . (int) ( $order['id'] ?? 0 ), null, null );
+check( 'orders need a session', 401 === $r['status'], $r['raw'] );
+
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

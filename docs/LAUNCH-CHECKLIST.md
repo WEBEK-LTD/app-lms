@@ -165,6 +165,18 @@ Nothing to set on Netlify: the preview is served from the site's own files
       changelog from `wp-plugin/yallapp/readme.txt`. WordPress news sites need
       it for their articles and "Notify app users about new posts".
 
+## 7c. Restaurants and cafés (Phase 26)
+
+- [ ] **Release plugin 0.3.7** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`. WordPress restaurants
+      need it for their order's steps in the app (`fulfilment_status`) and
+      `GET /me/orders/{id}`.
+- [ ] **Admin › Demo apps › Refresh all demo apps** to add Defne Café, then
+      start its build and pick it for `/demo/download/restaurant`.
+- [ ] On a hosted test café: add a dish with options, set **Pickup and
+      delivery**, order from a phone (iyzico sandbox) and move the order on
+      the **Kitchen** page; each step should reach the phone as a push.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

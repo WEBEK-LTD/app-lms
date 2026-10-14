@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.6
+Stable tag: 0.3.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,9 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.7 =
+* Restaurant and café apps follow their orders: each WooCommerce order tells the app where it is (processing is "Preparing", completed and cancelled are themselves), and the app opens one order with `GET /me/orders/{id}`. The customer only ever sees their own orders.
 
 = 0.3.6 =
 * News & blog apps: your published posts are the app's articles, with their featured image, categories and author, on a home screen with the top stories (your sticky posts), the latest posts and a row per category, plus search. Private and password-protected posts never show. Articles look the way lessons do: pictures, YouTube and Vimeo videos and embeds are sized for the phone.

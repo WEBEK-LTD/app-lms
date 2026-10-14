@@ -29,6 +29,31 @@ class Woo_Orders {
 	);
 
 	/**
+	 * 26 WooCommerce statuses to the app's fulfilment steps, where one fits:
+	 * an order being worked on is "preparing", on hold is "received".
+	 * Unpaid orders have no step.
+	 */
+	const FULFILMENT = array(
+		'on-hold'    => 'received',
+		'processing' => 'preparing',
+		'completed'  => 'completed',
+		'cancelled'  => 'cancelled',
+		'refunded'   => 'cancelled',
+		'failed'     => 'cancelled',
+	);
+
+	/**
+	 * The app's fulfilment step for a WooCommerce status (without the wc- prefix), or null.
+	 *
+	 * @param string $status WooCommerce status.
+	 * @return string|null
+	 */
+	public static function fulfilment_status( $status ) {
+		$status = (string) preg_replace( '/^wc-/', '', (string) $status );
+		return self::FULFILMENT[ $status ] ?? null;
+	}
+
+	/**
 	 * Whether WooCommerce is active.
 	 *
 	 * @return bool
@@ -44,9 +69,10 @@ class Woo_Orders {
 	 * @param int      $page           Page.
 	 * @param int      $per_page       Page size.
 	 * @param callable $course_of_item Returns the course ID a product gives access to, or 0.
+	 * @param bool     $follow         26 Store apps: add each order's fulfilment step.
 	 * @return array{items: array[], total: int} Order shapes.
 	 */
-	public static function for_user( $user_id, $page, $per_page, callable $course_of_item ) {
+	public static function for_user( $user_id, $page, $per_page, callable $course_of_item, $follow = false ) {
 		if ( ! self::available() || ! $user_id ) {
 			return array(
 				'items' => array(),
@@ -66,7 +92,7 @@ class Woo_Orders {
 		);
 		$items  = array();
 		foreach ( (array) $result->orders as $order ) {
-			$items[] = self::shape( $order, $course_of_item );
+			$items[] = self::shape( $order, $course_of_item, $follow );
 		}
 		return array(
 			'items' => $items,
@@ -75,13 +101,33 @@ class Woo_Orders {
 	}
 
 	/**
+	 * 26 One of a customer's orders, or null when it isn't theirs (or doesn't exist).
+	 *
+	 * @param int      $user_id        Customer.
+	 * @param int      $order_id       Order.
+	 * @param callable $course_of_item Returns the course ID a product gives access to, or 0.
+	 * @return array|null Order shape.
+	 */
+	public static function for_order( $user_id, $order_id, callable $course_of_item ) {
+		if ( ! self::available() || ! $user_id || $order_id < 1 ) {
+			return null;
+		}
+		$order = wc_get_order( (int) $order_id );
+		if ( ! $order instanceof \WC_Order || 'shop_order' !== $order->get_type() || (int) $order->get_customer_id() !== (int) $user_id ) {
+			return null;
+		}
+		return self::shape( $order, $course_of_item, true );
+	}
+
+	/**
 	 * Order shape.
 	 *
 	 * @param \WC_Order $order          Order.
 	 * @param callable  $course_of_item Course for a product ID.
+	 * @param bool      $follow         26 Add the order's fulfilment step (Store apps).
 	 * @return array
 	 */
-	private static function shape( $order, callable $course_of_item ) {
+	private static function shape( $order, callable $course_of_item, $follow = false ) {
 		$status  = (string) $order->get_status();
 		$created = $order->get_date_created();
 		$lines   = array();
@@ -102,7 +148,7 @@ class Woo_Orders {
 				'image_url'  => $image ? $image : null,
 			);
 		}
-		return array(
+		$shape = array(
 			'id'           => (int) $order->get_id(),
 			'number'       => (string) $order->get_order_number(),
 			'status'       => self::STATUSES[ $status ] ?? 'pending',
@@ -111,5 +157,9 @@ class Woo_Orders {
 			'created_at'   => $created ? gmdate( 'Y-m-d\TH:i:s\Z', $created->getTimestamp() ) : gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'items'        => $lines,
 		);
+		if ( $follow ) {
+			$shape['fulfilment_status'] = self::fulfilment_status( $status );
+		}
+		return $shape;
 	}
 }
