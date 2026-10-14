@@ -4,9 +4,10 @@ import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 
 /**
- * Starter plan: the App Store Connect key is optional in the publishing step
- * (it only signs the iOS app), the Google Play key isn't offered, and the
- * pipeline still receives the key.
+ * Publishing yourself (the Growth plan, the Starter of before Phase 13): the
+ * App Store Connect key is optional in the publishing step (it only signs the
+ * iOS app), the Google Play key isn't offered, and the pipeline still receives
+ * the key.
  */
 test.describe.configure({ mode: "serial" });
 
@@ -35,7 +36,7 @@ async function signIn(page: Page, email: string, password: string) {
   await page.waitForURL((url) => url.pathname !== "/sign-in");
 }
 
-test("a Starter client signs up and is activated", async ({ page }) => {
+test("a Growth client signs up and is activated", async ({ page }) => {
   await page.goto("/sign-up");
   await page.getByLabel("Full name").fill(client.name);
   await page.getByLabel("Email").fill(client.email);
@@ -53,13 +54,13 @@ test("a Starter client signs up and is activated", async ({ page }) => {
   await page.getByRole("button", { name: "Search" }).click();
   await page.getByRole("link", { name: `Activate ${client.name}` }).click();
   const panel = page.getByRole("complementary");
-  await panel.getByLabel("Plan").selectOption("starter");
+  await panel.getByLabel("Plan").selectOption("growth");
   await panel.getByLabel("Active until").fill(new Date(Date.now() + 365 * 86_400_000).toISOString().slice(0, 10));
   await panel.getByRole("button", { name: "Activate & send license" }).click();
   await expect(page.getByRole("status")).toContainText("Activated");
 });
 
-test("the App Store Connect key is optional on Starter and reaches the pipeline", async ({ page, request }) => {
+test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   // This client builds a Store app.
   await page.getByText("Store", { exact: true }).click();
@@ -108,7 +109,7 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
   await expect(page.getByRole("list", { name: "iPhone screenshots: 1 of 10" })).toBeVisible();
   await page.getByRole("button", { name: "Save & continue" }).click();
 
-  // Publishing (Starter)
+  // Publishing (Growth: they publish themselves, iOS included)
   await expect(page.getByRole("heading", { name: "Publishing" })).toBeVisible();
   await expect(page.getByRole("group", { name: "App Store Connect API key (optional)" })).toBeVisible();
   await expect(page.getByText("Needed to sign your iOS app. Without it you get the Android app only.")).toBeVisible();

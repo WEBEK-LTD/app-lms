@@ -421,11 +421,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateNow => 'Update now';
 
   @override
-  String get unavailableTitle => 'The app is unavailable';
+  String appPausedTitle(String name) {
+    return '$name is paused';
+  }
 
   @override
-  String unavailableMessage(String name) {
-    return '$name isn\'t available right now. Please contact the academy for help.';
+  String appPausedMessage(String name) {
+    return 'The owner of $name can bring it back. Contact them to find out more, or try again later.';
+  }
+
+  @override
+  String contactOwner(String name) {
+    return 'Contact $name';
+  }
+
+  @override
+  String membersClosedTitle(String name) {
+    return '$name isn\'t taking new members right now';
+  }
+
+  @override
+  String membersClosedMessage(String name) {
+    return 'Contact $name to ask about joining. If you already have an account, sign in with the number you used before.';
   }
 
   @override
@@ -466,14 +483,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error503 =>
-      'The academy is unavailable right now. Please try again later.';
+      'The app is unavailable right now. Please try again later.';
 
   @override
   String get errorGeneric => 'Something went wrong. Please try again.';
 
   @override
   String get errorInvalidResponse =>
-      'The academy sent a response the app couldn\'t read.';
+      'The app received a response it couldn\'t read.';
 
   @override
   String get errorPurchaseNotAllowed =>

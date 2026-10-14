@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../auth/token_manager.dart';
 import 'api_exception.dart';
+import 'offline_cache.dart';
 
 /// Whether a request sends the student's access token.
 enum AuthMode {
@@ -22,7 +23,8 @@ Options authOptions(AuthMode mode, [Options? options]) => (options ?? Options())
     .copyWith(extra: {...?options?.extra, _authKey: mode});
 
 /// Called when any response carries one of the app-wide stop codes
-/// (`maintenance`, `license_inactive`, `update_required`).
+/// (`maintenance`, `license_inactive`, `account_suspended`,
+/// `update_required`).
 typedef GateErrorCallback = void Function(ApiException error);
 
 /// Builds the Dio instance for the Yallapp API (see `apiUrlOf`).
@@ -32,6 +34,7 @@ Dio createHttpClient({
   GateErrorCallback? onGateError,
   HttpClientAdapter? adapter,
   String Function()? language,
+  OfflineCache? offline,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -47,6 +50,7 @@ Dio createHttpClient({
   if (adapter != null) dio.httpClientAdapter = adapter;
   if (language != null) dio.interceptors.add(LanguageInterceptor(language));
   dio.interceptors.add(AuthInterceptor(dio: dio, tokens: tokens));
+  if (offline != null) dio.interceptors.add(OfflineCacheInterceptor(offline));
   if (onGateError != null) dio.interceptors.add(GateInterceptor(onGateError));
   return dio;
 }
@@ -128,6 +132,7 @@ class GateInterceptor extends Interceptor {
   static const _codes = {
     ApiException.maintenance,
     ApiException.licenseInactive,
+    ApiException.accountSuspended,
     ApiException.updateRequired,
   };
 

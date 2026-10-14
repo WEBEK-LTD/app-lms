@@ -16,6 +16,7 @@ import type {
   BookingStatus,
   PushPreferences,
   AuditChanges,
+  OwnerNoticeKind,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -112,8 +113,11 @@ export const licenses = mysqlTable(
     keyHash: varchar("key_hash", { length: 64 }).notNull(),
     keyEncrypted: text("key_encrypted").notNull(),
     keyLast4: varchar("key_last4", { length: 4 }).notNull(),
-    plan: varchar("plan", { length: 16 }).notNull().$type<"starter" | "pro">(),
+    plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
     expiresAt: time("expires_at").notNull(),
+    // 13.3 A downgrade that starts when the paid period ends.
+    nextPlan: varchar("next_plan", { length: 16 }).$type<Plan>(),
+    nextPlanAt: time("next_plan_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -470,7 +474,7 @@ export const planPayments = mysqlTable(
       .references(() => clients.id, { onDelete: "cascade" }),
     /** The app whose plan it pays; null for a payment before the account's first app (creating it fills this in). */
     appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
-    plan: varchar("plan", { length: 16 }).notNull().$type<"starter" | "pro">(),
+    plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
     months: int("months").notNull().$type<1 | 12>(),
     amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
     currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
@@ -876,4 +880,30 @@ export const publishingEvents = mysqlTable(
     at: time("at").notNull(),
   },
   (t) => [index("publishing_events_app_idx").on(t.appId, t.at)],
+);
+
+// 13 Plans, limits and owner notices: what the dashboard and emails tell an app's owner.
+export const ownerNotices = mysqlTable(
+  "owner_notices",
+  {
+    id: autoId("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 32 }).notNull().$type<OwnerNoticeKind>(),
+    dedupeKey: varchar("dedupe_key", { length: 100 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    body: text("body").notNull(),
+    linkUrl: varchar("link_url", { length: 500 }),
+    linkLabel: varchar("link_label", { length: 60 }),
+    tone: varchar("tone", { length: 8 }).notNull().$type<"info" | "warn">(),
+    createdAt: time("created_at").notNull(),
+    emailedAt: time("emailed_at"),
+    dismissedAt: time("dismissed_at"),
+    resolvedAt: time("resolved_at"),
+  },
+  (t) => [uniqueIndex("owner_notices_app_key_unique").on(t.appId, t.dedupeKey), index("owner_notices_client_idx").on(t.clientId, t.createdAt)],
 );

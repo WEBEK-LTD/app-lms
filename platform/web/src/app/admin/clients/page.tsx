@@ -23,7 +23,7 @@ import type { AppBackend } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { appLabel } from "@/lib/app/label";
-import { planName } from "@/lib/plans";
+import { planName, planNamesOf } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "../forms";
 import { getPlans } from "@/lib/settings/platform";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../payments/labels";
@@ -448,7 +448,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
             plan={license?.plan ?? "pro"}
             activeUntil={isoDate(nextYear)}
             pending={!license}
-            planNames={{ starter: plans.starter.name, pro: plans.pro.name }}
+            planNames={planNamesOf(plans)}
           />
         </div>
       ) : null}

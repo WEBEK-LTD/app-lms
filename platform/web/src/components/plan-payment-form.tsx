@@ -4,14 +4,17 @@ import { startTransition, useActionState, useState } from "react";
 import { checkCouponAction, payPlanAction, type CouponState } from "@/app/actions/billing";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
+import type { Plan } from "@/lib/plans";
 import { btn } from "./ui";
 
 export interface CardPlan {
-  id: "starter" | "pro";
+  id: Plan;
   name: string;
   price: string;
   period: string | null;
   tagline: string;
+  /** 13.3 What paying for this plan does to the app's current plan: "Starts today, …". */
+  note?: string | null;
 }
 
 /** Plan choice, billing address and an optional coupon; the card itself is entered on iyzico's page. */
@@ -22,7 +25,7 @@ export function PlanPaymentForm({
   appId,
 }: {
   plans: CardPlan[];
-  current: "starter" | "pro" | null;
+  current: Plan | null;
   cta: string;
   /** The app being paid for (the dashboard's current app); the server checks it is still the current one. */
   appId: string | null;
@@ -74,6 +77,7 @@ export function PlanPaymentForm({
                   </span>
                 </span>
                 {p.tagline ? <span className="text-[13px] text-muted">{p.tagline}</span> : null}
+                {p.note ? <span className="text-[13px] font-semibold text-ink-2">{p.note}</span> : null}
               </span>
             </label>
           );

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
+import '../api/offline_cache.dart';
 import '../api/yallapp_api.dart';
 import '../providers.dart';
 import '../storage/local_settings.dart';
@@ -150,6 +151,7 @@ class AuthController extends Notifier<AuthState> {
       // Already signed out on the server, or offline: sign out locally anyway.
     }
     await ref.read(tokenManagerProvider).clear();
+    await _forgetOffline();
     state = const SignedOut();
   }
 
@@ -157,11 +159,22 @@ class AuthController extends Notifier<AuthState> {
   Future<void> deleteAccount() async {
     await _api.deleteMe();
     await ref.read(tokenManagerProvider).clear();
+    await _forgetOffline();
     state = const SignedOut();
   }
 
   void _signedOutLocally() {
     unawaited(ref.read(tokenManagerProvider).clear());
+    unawaited(_forgetOffline());
     state = const SignedOut();
+  }
+
+  /// What offline mode kept may be this user's own: never show it to the next one.
+  Future<void> _forgetOffline() async {
+    try {
+      await ref.read(offlineCacheProvider).clear();
+    } on Object {
+      // No preferences (tests without them): nothing was kept.
+    }
   }
 }

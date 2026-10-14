@@ -67,7 +67,7 @@ class Gatekeeper {
 		}
 		$reason = $this->blocked_reason();
 		if ( $reason ) {
-			return Controller::error( $reason['code'], $reason['message'], 503 );
+			return Controller::error( $reason['code'], $reason['message'], 503, isset( $reason['contact'] ) ? array( 'contact' => $reason['contact'] ) : array() );
 		}
 		return $result;
 	}
@@ -89,9 +89,29 @@ class Gatekeeper {
 	}
 
 	/**
-	 * Why the API is unavailable, or null.
+	 * How app users reach the app's owner (`OwnerContact`): the app's name and the support
+	 * WhatsApp number and email from the plugin settings.
 	 *
-	 * @return array{code: string, message: string}|null
+	 * @return array{name: string, whatsapp: string|null, email: string|null}
+	 */
+	public function contact() {
+		$settings = $this->plugin->settings();
+		$name     = trim( (string) $settings->get( 'app_name' ) );
+		$whatsapp = trim( (string) $settings->get( 'support_whatsapp' ) );
+		$email    = trim( (string) $settings->get( 'support_email' ) );
+		return array(
+			'name'     => '' !== $name ? $name : html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES, 'UTF-8' ),
+			'whatsapp' => '' !== $whatsapp ? $whatsapp : null,
+			'email'    => is_email( $email ) ? $email : null,
+		);
+	}
+
+	/**
+	 * Why the API is unavailable, or null. A paused app (`license_inactive`, or
+	 * `account_suspended` when the owner's Yallapp account is suspended) names the app and
+	 * carries the owner's contact, so the app can say who can bring it back.
+	 *
+	 * @return array{code: string, message: string, contact?: array}|null
 	 */
 	public function blocked_reason() {
 		$settings = $this->plugin->settings();
@@ -103,11 +123,27 @@ class Gatekeeper {
 			);
 		}
 		if ( ! $this->plugin->license()->allows_api() ) {
-			return array(
-				'code'    => 'license_inactive',
-				'message' => __( 'This app is not available right now. Please contact the academy.', 'yallapp' ),
-			);
+			$status = $this->plugin->license()->status();
+			return self::paused( (string) $status['status'], $this->contact() );
 		}
 		return null;
+	}
+
+	/**
+	 * The error of a paused app: its plan isn't active (`license_inactive`), or the owner's
+	 * Yallapp account is suspended (`account_suspended`). Never says "academy": every app
+	 * type uses its own name.
+	 *
+	 * @param string $license_status The license status from the platform.
+	 * @param array  $contact        OwnerContact.
+	 * @return array{code: string, message: string, contact: array}
+	 */
+	public static function paused( $license_status, array $contact ) {
+		return array(
+			'code'    => 'suspended' === $license_status ? 'account_suspended' : 'license_inactive',
+			/* translators: %1$s: the app's name. */
+			'message' => sprintf( __( '%1$s is paused right now. Please contact %1$s to bring it back.', 'yallapp' ), $contact['name'] ),
+			'contact' => $contact,
+		);
 	}
 }

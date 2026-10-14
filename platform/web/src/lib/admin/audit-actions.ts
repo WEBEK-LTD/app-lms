@@ -30,6 +30,7 @@ export const AUDIT_ACTIONS = {
   "settings.reset": "Platform setting removed",
   "plan.save": "Plan saved",
   "plan.reset": "Plan back to default",
+  "plan.limits": "Plan features and limits changed",
   "plan.availability": "Plan availability changed",
   "switches.save": "Switches changed",
   "team.invite": "Team member invited",

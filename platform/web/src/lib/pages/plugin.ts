@@ -2,6 +2,9 @@ import type { DataStore } from "../data/store";
 import { hashLicenseKey } from "../license/key";
 import type { SiteInfo } from "../license/service";
 import { licenseState } from "../license/status";
+import { effectivePlans, planOfLicense } from "../entitlements";
+import { appDefaults } from "./layout";
+import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
 
 /**
@@ -37,8 +40,10 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   }
   // The license's own app: each app of an account has its own key and site.
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  const layout = app && app.clientId === client.id ? (await store.getAppLayout(app.id))?.published : null;
-  if (!layout) return { status: 204 };
+  const published = app && app.clientId === client.id ? (await store.getAppLayout(app.id))?.published : null;
+  if (!app || !published) return { status: 204 };
+  // 13.1 The layout as the app's plan allows it (languages, sources, the full page editor).
+  const layout = layoutForPlan(published, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store));
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };
   return { status: 200, body: layout, etag: layout.version };
 }

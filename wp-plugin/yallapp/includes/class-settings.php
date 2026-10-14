@@ -36,6 +36,7 @@ class Settings {
 			'logo_id'                      => 0,
 			'primary_color'                => '#0E0D24',
 			'support_whatsapp'             => '',
+			'support_email'                => '',
 			'terms_page_id'                => 0,
 			'privacy_page_id'              => 0,
 			// Sign-in.

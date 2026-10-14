@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/http_client.dart';
+import 'api/offline_cache.dart';
 import 'api/yallapp_api.dart';
 import 'app_environment.dart';
 import 'auth/token_manager.dart';
@@ -47,6 +48,7 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     tokens: tokens,
     onGateError: (error) => ref.read(appGateProvider.notifier).report(error),
     language: language,
+    offline: ref.read(offlineCacheProvider),
   );
   api = HttpYallappApi(
     dio: dio,

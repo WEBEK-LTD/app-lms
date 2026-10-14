@@ -1,3 +1,4 @@
+import { planNamesOf } from "@/lib/plans";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -70,7 +71,7 @@ export default async function CouponPage({ params, searchParams }: PageProps<"/a
       </form>
       <section aria-label="Coupon" className="max-w-[760px] rounded-2xl border border-line bg-white p-5 sm:p-6">
         {/* Turning it off or on starts the form again from the saved coupon. */}
-        <CouponForm key={String(done ?? "")} id={coupon.id} coupon={couponFormValues(coupon)} planNames={{ starter: plans.starter.name, pro: plans.pro.name }} />
+        <CouponForm key={String(done ?? "")} id={coupon.id} coupon={couponFormValues(coupon)} planNames={planNamesOf(plans)} />
       </section>
       <div className="flex flex-col gap-1.5 pt-2">
         <h2 className="m-0 text-[22px] font-extrabold">Uses</h2>

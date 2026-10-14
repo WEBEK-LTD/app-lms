@@ -1,7 +1,7 @@
 import { formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption, License } from "../data/types";
-import type { Plan, PlanInfo } from "../plans";
+import { PLANS, type Plan, type PlanInfo } from "../plans";
 import type { RateLimitRule } from "../rate-limit";
 
 /**
@@ -197,7 +197,7 @@ export interface CouponInput {
   active: boolean;
 }
 
-const ALL_PLANS: Plan[] = ["starter", "pro"];
+const ALL_PLANS: Plan[] = [...PLANS];
 const ALL_PERIODS: (1 | 12)[] = [1, 12];
 const CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR"];
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
+import '../api/models/models.dart';
 import '../auth/auth_controller.dart';
 import '../providers.dart';
 import '../services/external_links.dart';
@@ -9,11 +10,12 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/common.dart';
 import 'app_gate.dart';
+import 'owner_contact.dart';
 import '../l10n/l10n.dart';
 
 /// Shows the app only when `/config` says it may run; otherwise a
-/// full-screen state (start-up, maintenance, update required, license
-/// inactive, or a connection problem).
+/// full-screen state (start-up, maintenance, update required, a paused app,
+/// or a connection problem).
 class GateView extends ConsumerWidget {
   const GateView({super.key, required this.child});
 
@@ -48,12 +50,9 @@ class GateView extends ConsumerWidget {
         actionLabel: l10n.updateNow,
         onAction: () => openExternal(storeUrl(env)),
       ),
-      GateLicenseInactive() => _StateScreen(
-        icon: AppIcons.unavailable,
-        title: l10n.unavailableTitle,
-        message: l10n.unavailableMessage(name),
-        actionLabel: l10n.tryAgain,
-        onAction: retry,
+      GatePaused(:final contact) => _PausedScreen(
+        contact: resolveOwnerContact(ref, contact),
+        onRetry: retry,
       ),
       GateFailed(:final error) => _StateScreen(
         icon: AppIcons.offline,
@@ -91,6 +90,29 @@ class _StateScreen extends StatelessWidget {
         message: message,
         actionLabel: actionLabel,
         onAction: onAction,
+      ),
+    ),
+  );
+}
+
+/// Step 13.5: the app is paused. Its owner can bring it back: "Contact {App}"
+/// (WhatsApp first, else email) and "Try again".
+class _PausedScreen extends StatelessWidget {
+  const _PausedScreen({required this.contact, required this.onRetry});
+
+  final OwnerContact contact;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: OwnerMessageView(
+        icon: AppIcons.paused,
+        title: context.l10n.appPausedTitle(contact.name),
+        message: context.l10n.appPausedMessage(contact.name),
+        contact: contact,
+        secondaryLabel: context.l10n.tryAgain,
+        onSecondary: onRetry,
       ),
     ),
   );

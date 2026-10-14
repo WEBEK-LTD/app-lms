@@ -5,7 +5,9 @@ import type { DataStore } from "../data/store";
 import type { App, Client, PlanPayment, User } from "../data/types";
 import { initializeCheckoutForm, IyzicoError, retrieveCheckoutForm, type IyzicoKeys } from "../payments/iyzico";
 import type { Plan, PlanInfo } from "../plans";
+import { getPlans } from "../settings/platform";
 import type { CouponCheck } from "./coupons";
+import { planChangeFor, type PlanChange } from "./plan-change";
 
 /**
  * Clients pay an app's Yallapp plan by card on iyzico's page, into Yallapp's
@@ -35,16 +37,7 @@ export function readBilling(input: Record<string, unknown>): { ok: true; billing
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, billing: { city, address } };
 }
 
-/** The new end date: `months` after the later of now and the current end. */
-export function extendedUntil(currentEnd: Date | null, months: 1 | 12, now: Date): Date {
-  const base = new Date(Math.max(now.getTime(), currentEnd?.getTime() ?? 0));
-  const end = new Date(base);
-  end.setUTCMonth(end.getUTCMonth() + months);
-  // A month after 31 January is the last day of February, not 3 March.
-  if (end.getUTCDate() !== base.getUTCDate()) end.setUTCDate(0);
-  end.setUTCHours(23, 59, 59, 999);
-  return end;
-}
+export { extendedUntil } from "./plan-change";
 
 interface Deps {
   store: DataStore;
@@ -132,7 +125,7 @@ export async function startPlanPayment(
 }
 
 export type PlanPaymentOutcome =
-  | { kind: "paid"; activation: ActivationOutcome; activeUntil: Date; payment: PlanPayment }
+  | { kind: "paid"; activation: ActivationOutcome; activeUntil: Date; payment: PlanPayment; change: PlanChange }
   | { kind: "already_paid" }
   | { kind: "failed" };
 
@@ -166,20 +159,36 @@ export async function completePlanPayment(
   await deps.store.settleCouponRedemption(payment.id, "redeemed", deps.now);
   // The payment's app: the one it was started for (or the account's first app, which took it).
   const license = await deps.store.getLicenseForApp(payment.clientId, payment.appId);
-  const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, deps.now);
+  // 13.3 An upgrade starts now with the old plan's days credited; a downgrade starts when the paid period ends.
+  const plans = await getPlans(deps.store);
+  const change = planChangeFor(license, plans[payment.plan], payment.months, plans, deps.now);
   const activation = await activateClient(
     deps.store,
     {
       clientId: payment.clientId,
       appId: payment.appId,
-      plan: payment.plan,
-      activeUntil,
-      paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (iyzico ${result.paymentId})`,
+      plan: change.plan,
+      activeUntil: change.activeUntil,
+      nextPlan: change.nextPlan,
+      nextPlanAt: change.nextPlanAt,
+      paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (iyzico ${result.paymentId})${noteFor(change, plans)}`,
     },
     deps.encryptionKey,
     deps.now,
   );
-  return { kind: "paid", activation, activeUntil, payment: { ...payment, status: "paid", paymentId: result.paymentId, paidAt: deps.now } };
+  return {
+    kind: "paid",
+    activation,
+    activeUntil: change.activeUntil,
+    payment: { ...payment, status: "paid", paymentId: result.paymentId, paidAt: deps.now },
+    change,
+  };
+}
+
+function noteFor(change: PlanChange, plans: Record<Plan, PlanInfo>): string {
+  if (change.kind === "upgrade") return `, upgrade to ${plans[change.plan].name}${change.creditDays ? ` with ${change.creditDays} days credited` : ""}`;
+  if (change.kind === "downgrade" && change.nextPlan) return `, moves to ${plans[change.nextPlan].name} when the current period ends`;
+  return "";
 }
 
 // 11.6 Coupons
@@ -235,12 +244,21 @@ export async function activateWithFreeCoupon(deps: {
   await store.createPlanPayment(payment);
   await store.createCouponRedemption(redemptionOf(coupon, payment, "redeemed", now));
   const license = await store.getLicenseForApp(client.id, payment.appId);
-  const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, now);
+  const plans = await getPlans(store);
+  const change = planChangeFor(license, plan, payment.months, plans, now);
   const activation = await activateClient(
     store,
-    { clientId: client.id, appId: payment.appId, plan: plan.id, activeUntil, paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)` },
+    {
+      clientId: client.id,
+      appId: payment.appId,
+      plan: change.plan,
+      activeUntil: change.activeUntil,
+      nextPlan: change.nextPlan,
+      nextPlanAt: change.nextPlanAt,
+      paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)${noteFor(change, plans)}`,
+    },
     deps.encryptionKey,
     now,
   );
-  return { kind: "paid", activation, activeUntil, payment };
+  return { kind: "paid", activation, activeUntil: change.activeUntil, payment, change };
 }

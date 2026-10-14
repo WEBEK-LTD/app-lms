@@ -189,15 +189,32 @@ in-memory store and on MariaDB 10.11 (unit and browser tests).
 | [x] | 12.4 Admin per app: the client list shows each client's apps and their states; the client page has a section per app (plan and license, app, connection, builds, app users and notifications); activation, new key and releasing the website per app; overview counts per app; audit entries name the app; announcements by plan or app type reach an account when any of its apps matches | The team activates only a client's second app, on another plan |
 | [x] | 12.5 Plugin, hosted API and pipeline per app: a license key resolves to its own app (license API and `POST /apps/layout`), the hosted API checks that app's own license, builds and switches use the app's plan, and the pipeline API sends each build's `app_id` | Each app's key and hosted API answer for that app only |
 
+## Phase 13: Plans, limits and owner notices
+
+Four plans per app, Starter, Growth, Pro and Business, whose features and
+limits the platform, the builds, the hosted API, the plugin's layout and the
+app hold to. A feature an app's plan doesn't have disappears from the app
+quietly; the dashboard shows it with an "Upgrade" button. Owners hear from
+Yallapp before an app reaches its users limit or its plan ends, and app users
+of a paused app see how to reach the app's owner. Built and tested with the
+in-memory store and on MariaDB 10.11 (unit, browser, plugin and app tests).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 13.1 Four plans with features and limits per app (`src/lib/plans.ts`), each editable on the admin's Plans page with audit entries; the old Starter and its licenses, payments, coupons, announcements, switches and price move to Growth (`drizzle/0018_plan_features.sql`); iOS builds, connected platforms, the full page editor, languages, card payments in the app, app users, "We publish for you", automatic rebuilds, offline mode and push enforced, the rest marked display-only; the pricing page with the four plans and a comparison table | A Starter app gets no iOS build, ready-made pages and one language, and the pricing page shows the admin's prices |
+| [x] | 13.2 App users limit on the hosted API (`app_user_limit` for a new user, existing users unaffected; WordPress sites keep their users, no limit), a usage meter with "Upgrade" on the dashboard, usage per app on the admin's client page, owner notices by email and on the dashboard at 80% and 100%, once per crossing | A test app at its limit refuses a new number and its owner gets one email |
+| [x] | 13.3 Changing plans from the dashboard: upgrade by card at once with the unused days credited at their value, a lower plan from the end of the paid period (scheduled, or paid ahead), "Keep my plan" | A test client upgrades and sees the credited days; a downgrade starts on its date |
+| [x] | 13.4 Plan-ending reminders by email (admin-editable templates) and on the dashboard 7 days and 1 day before and on the day, each once per license period, with "Renew by card"; a Netlify scheduled function runs the daily job (`netlify/functions/daily-notices.mts` → `POST /api/internal/daily`) | The daily job sends each reminder once (`INTERNAL_JOB_SECRET` set on Netlify) |
+| [x] | 13.5 Owner contact: `license_inactive`, `account_suspended` and `app_user_limit` carry `contact` (contract first); the app shows "{App} is paused" with "Contact {App}" and "Try again", and "{App} isn't taking new members right now" on sign-up; the plugin and the hosted API name the app instead of "the academy" | A paused test app shows its owner's WhatsApp button |
+
 ## Phase 14: We publish for you, and builds you can trust
 
 Many clients don't know how to publish an app. They can now ask our team to
 publish it for them, under their own store accounts, and the Builds &
 downloads page says clearly what happened to every build and what to do
 next. Everything is per app. Built and tested with the in-memory store and on
-MariaDB 10.11 (unit and browser tests); the publishing service is open to
-every app until the plan flag "managed publishing" exists
-(`canUseManagedPublishing` in `src/lib/publishing/steps.ts`).
+MariaDB 10.11 (unit and browser tests); the publishing service comes with the plans that include "We publish for
+you" (`canUseManagedPublishing` in `src/lib/publishing/steps.ts`).
 
 | | Step | Done when |
 |---|---|---|

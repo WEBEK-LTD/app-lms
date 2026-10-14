@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
+import '../api/offline_cache.dart';
 import '../api/yallapp_api.dart';
+import 'owner_contact.dart';
 import '../l10n/language.dart';
 import '../providers.dart';
 
@@ -33,9 +35,14 @@ class GateUpdateRequired extends GateState {
   const GateUpdateRequired();
 }
 
-class GateLicenseInactive extends GateState {
-  const GateLicenseInactive(this.message);
+/// The app is paused (step 13.5): its owner's plan isn't active
+/// (`license_inactive`) or their account is suspended (`account_suspended`).
+/// The owner can bring it back; [contact] says how to reach them.
+class GatePaused extends GateState {
+  const GatePaused(this.message, {this.contact, this.suspended = false});
   final String? message;
+  final OwnerContact? contact;
+  final bool suspended;
 }
 
 class GateFailed extends GateState {
@@ -55,7 +62,12 @@ GateState gateStateForConfig(AppConfig config) {
 /// Decides the gate state from an error, or null if it isn't a stop code.
 GateState? gateStateForError(ApiException error) => switch (error.code) {
   ApiException.maintenance => GateMaintenance(error.message),
-  ApiException.licenseInactive => GateLicenseInactive(error.message),
+  ApiException.licenseInactive ||
+  ApiException.accountSuspended => GatePaused(
+    error.message,
+    contact: error.contact,
+    suspended: error.code == ApiException.accountSuspended,
+  ),
   ApiException.updateRequired => const GateUpdateRequired(),
   _ => null,
 };
@@ -63,8 +75,8 @@ GateState? gateStateForError(ApiException error) => switch (error.code) {
 final appGateProvider = NotifierProvider<AppGate, GateState>(AppGate.new);
 
 /// Loads the runtime config on start and switches to a full-screen state
-/// for maintenance, a forced update or an inactive license, whenever the
-/// server reports one.
+/// for maintenance, a forced update or a paused app, whenever the server
+/// reports one.
 class AppGate extends Notifier<GateState> {
   @override
   GateState build() {
@@ -82,6 +94,7 @@ class AppGate extends Notifier<GateState> {
       final api = ref.read(yallappApiProvider);
       final config = await api.getConfig();
       ref.read(remoteLanguagesProvider.notifier).update(config.languages);
+      await _remember(config);
       final next = gateStateForConfig(config);
       if (next is! GateReady) {
         state = next;
@@ -101,6 +114,17 @@ class AppGate extends Notifier<GateState> {
       }
     } on Object catch (e) {
       if (!quiet || previous is! GateReady) state = GateFailed(e);
+    }
+  }
+
+  /// Keeps what the app needs when it can't reach the server later: how to
+  /// reach the owner (13.5), and whether offline mode is on (13.1).
+  Future<void> _remember(AppConfig config) async {
+    await OwnerContactStore.save(ref, config.site.contact);
+    try {
+      await ref.read(offlineCacheProvider).setEnabled(config.features.offline);
+    } on Object {
+      // No preferences (some tests): offline mode stays off.
     }
   }
 

@@ -79,7 +79,8 @@ describe("license API", () => {
     expect(result.status).toBe(200);
     if (result.status !== 200) return;
     expect(result.body).toMatchObject({ status: "active", plan: "pro", message: null, checked_at: NOW.toISOString() });
-    expect(result.body.features).toEqual(["push", "offline_downloads", "auto_publish"]);
+    expect(result.body.features).toEqual(["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"]);
+    expect(result.body.limits).toEqual({ app_users: null, languages: null, sources: null });
     expect(result.body.expires_at).toBe(days(30).toISOString());
   });
 
@@ -143,7 +144,7 @@ describe("license API", () => {
     const check = await checkLicense(store, site(licenseKey!), later);
     expect(check.status).toBe(200);
     if (check.status !== 200) return;
-    expect(check.body).toMatchObject({ status: "expired", plan: "starter", features: [] });
+    expect(check.body).toMatchObject({ status: "expired", plan: "growth", features: [] });
     expect(check.body.message).toContain("Your Yallapp plan ended on");
 
     await store.deleteActivation(license!.id);

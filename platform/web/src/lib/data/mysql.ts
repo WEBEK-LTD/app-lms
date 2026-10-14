@@ -26,6 +26,7 @@ import type {
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
+import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type {
   Activation,
   App,
@@ -1638,6 +1639,57 @@ export class MysqlStore implements DataStore {
         .where(eq(schema.announcementDismissals.clientId, clientId)),
     );
     return rows.map((r) => r.id);
+  }
+
+  // 13 Plans, limits and owner notices
+
+  async listLicenses(): Promise<License[]> {
+    return this.run((db) => db.select().from(schema.licenses));
+  }
+
+  async createOwnerNotice(notice: Omit<OwnerNotice, "id">): Promise<OwnerNotice | null> {
+    try {
+      const [result] = await this.run((db) => db.insert(schema.ownerNotices).values(notice));
+      return { id: Number(result.insertId), ...notice };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async listOwnerNotices(input: { clientId: string; appId?: string; open?: boolean; limit?: number }): Promise<OwnerNotice[]> {
+    const n = schema.ownerNotices;
+    return this.run((db) =>
+      db
+        .select()
+        .from(n)
+        .where(
+          and(
+            eq(n.clientId, input.clientId),
+            input.appId === undefined ? undefined : eq(n.appId, input.appId),
+            input.open ? and(isNull(n.dismissedAt), isNull(n.resolvedAt)) : undefined,
+          ),
+        )
+        .orderBy(desc(n.createdAt), desc(n.id))
+        .limit(input.limit ?? 100),
+    );
+  }
+
+  async countOwnerNotices(appId: string, kind: OwnerNoticeKind): Promise<number> {
+    const n = schema.ownerNotices;
+    const [row] = await this.run((db) => db.select({ total: count() }).from(n).where(and(eq(n.appId, appId), eq(n.kind, kind))));
+    return Number(row?.total ?? 0);
+  }
+
+  async updateOwnerNotice(clientId: string, id: number, patch: OwnerNoticePatch): Promise<void> {
+    const n = schema.ownerNotices;
+    await this.run((db) => db.update(n).set(patch).where(and(eq(n.id, id), eq(n.clientId, clientId))));
+  }
+
+  async resolveOwnerNotices(appId: string, kinds: OwnerNoticeKind[], now: Date): Promise<void> {
+    if (!kinds.length) return;
+    const n = schema.ownerNotices;
+    await this.run((db) => db.update(n).set({ resolvedAt: now }).where(and(eq(n.appId, appId), inArray(n.kind, kinds), isNull(n.resolvedAt))));
   }
 
   // 14.1 We publish for you

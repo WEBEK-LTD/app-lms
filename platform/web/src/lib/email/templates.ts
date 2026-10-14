@@ -29,7 +29,14 @@ export type EmailTemplateKey =
   | "new_inquiry"
   | "announcement"
   | "publishing_status"
-  | "publishing_request";
+  | "publishing_request"
+
+  // 13 Plans, limits and owner notices
+  | "app_users_80"
+  | "app_users_100"
+  | "plan_ends_in_7_days"
+  | "plan_ends_tomorrow"
+  | "plan_ends_today";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -52,6 +59,18 @@ const SIGNATURE =
 
 const NAME: Placeholder = { name: "name", description: "The client's name", sample: "Ada Lovelace" };
 const APP_NAME: Placeholder = { name: "app_name", description: "The app's name (an account can have several apps)", sample: "Ada Academy" };
+const PLAN: Placeholder = { name: "plan", description: "The app's plan", sample: "Growth" };
+const USAGE_PLACEHOLDERS: Placeholder[] = [
+  PLAN,
+  { name: "app_users", description: "The app's users now", sample: "812" },
+  { name: "app_user_limit", description: "The app users the plan includes", sample: "1,000" },
+  { name: "upgrade_url", description: "The link to change the app's plan", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=change-plan" },
+];
+const RENEW_PLACEHOLDERS: Placeholder[] = [
+  PLAN,
+  { name: "end_date", description: "The last day of the plan", sample: "31 Mar 2027" },
+  { name: "renew_url", description: "The link to renew the app's plan by card", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=renew" },
+];
 
 export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
@@ -286,6 +305,64 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     subject: "Publishing: {{client_name}} {{event}}",
     body:
       "{{client_name}} {{event}} ({{app_name}}).\nEmail: {{email}}\nWhatsApp: {{whatsapp}}\n\nThe Publishing queue: {{admin_url}}",
+  },
+  // 13 Plans, limits and owner notices: each sent once per crossing or per license period.
+  {
+    key: "app_users_80",
+    name: "App users at 80%",
+    description: "To a client when an app on the hosted API reaches 80% of the app users its plan allows (once per crossing).",
+    placeholders: [NAME, APP_NAME, ...USAGE_PLACEHOLDERS],
+    subject: "{{app_name}} has used 80% of its app users",
+    body:
+      "Hello {{name}},\n\n{{app_name}} now has {{app_users}} of the {{app_user_limit}} app users its {{plan}} plan includes. " +
+      "When it reaches {{app_user_limit}}, new people can't sign up in the app; everyone who already has an account keeps using it.\n\n" +
+      "Upgrade for more app users: {{upgrade_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "app_users_100",
+    name: "App users limit reached",
+    description: "To a client when an app on the hosted API reaches the app users its plan allows (once per crossing).",
+    placeholders: [NAME, APP_NAME, ...USAGE_PLACEHOLDERS],
+    subject: "{{app_name}} reached its app users limit",
+    body:
+      "Hello {{name}},\n\n{{app_name}} has {{app_users}} app users, the most its {{plan}} plan includes. " +
+      "New people can't sign up in the app right now; everyone who already has an account keeps using it.\n\n" +
+      "Upgrade to take new members again: {{upgrade_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "plan_ends_in_7_days",
+    name: "Plan ends in 7 days",
+    description: "To a client 7 days before an app's plan ends (once per plan period).",
+    placeholders: [NAME, APP_NAME, ...RENEW_PLACEHOLDERS],
+    subject: "{{app_name}}: your plan ends on {{end_date}}",
+    body:
+      "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} ends on {{end_date}}. When it ends, the app pauses until the plan is renewed.\n\n" +
+      "Renew by card: {{renew_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "plan_ends_tomorrow",
+    name: "Plan ends tomorrow",
+    description: "To a client 1 day before an app's plan ends (once per plan period).",
+    placeholders: [NAME, APP_NAME, ...RENEW_PLACEHOLDERS],
+    subject: "{{app_name}}: your plan ends tomorrow",
+    body:
+      "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} ends tomorrow, {{end_date}}. Renew it today so your app keeps running.\n\n" +
+      "Renew by card: {{renew_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "plan_ends_today",
+    name: "Plan ends today",
+    description: "To a client on the day an app's plan ends (once per plan period).",
+    placeholders: [NAME, APP_NAME, ...RENEW_PLACEHOLDERS],
+    subject: "{{app_name}}: your plan ends today",
+    body:
+      "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} ends today, {{end_date}}. The app pauses when it ends and comes back as soon as you renew.\n\n" +
+      "Renew by card: {{renew_url}}" +
+      SIGNATURE,
   },
 ];
 

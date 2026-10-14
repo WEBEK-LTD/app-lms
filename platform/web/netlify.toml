@@ -19,3 +19,10 @@
 # previews and branch deploys never touch the database.
 [context.production]
   command = "npm run db:migrate && npm run build"
+
+# 13.4 The daily job: netlify/functions/daily-notices.mts runs on a schedule
+# (its `config`) and calls POST /api/internal/daily with INTERNAL_JOB_SECRET.
+# This is Netlify's default functions folder, named here so it's plain where
+# it lives.
+[functions]
+  directory = "netlify/functions"

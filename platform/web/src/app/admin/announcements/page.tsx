@@ -1,3 +1,4 @@
+import { planNamesOf } from "@/lib/plans";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
@@ -23,7 +24,7 @@ export default async function AnnouncementsPage({ searchParams }: PageProps<"/ad
   const { done } = await searchParams;
   const store = await getStore();
   const [announcements, plans] = await Promise.all([store.listAnnouncements(), getPlans(store)]);
-  const planNames = { starter: plans.starter.name, pro: plans.pro.name };
+  const planNames = planNamesOf(plans);
   const now = new Date();
   return (
     <>

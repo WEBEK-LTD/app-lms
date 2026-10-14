@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { activateClientAction, addClientAction, saveClientDetailsAction, uploadReleaseAction } from "@/app/actions/admin";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
+import { PLANS, type Plan } from "@/lib/plans";
 
 /** Activates or extends one app's plan (each app of an account has its own). */
 export function ActivateForm({
@@ -18,10 +19,10 @@ export function ActivateForm({
   clientId: string;
   /** The app whose plan this is; null for a client without an app yet. */
   appId?: string | null;
-  plan: "starter" | "pro";
+  plan: Plan;
   activeUntil: string;
   pending: boolean;
-  planNames: { starter: string; pro: string };
+  planNames: Record<Plan, string>;
   /** "client": the form is on the client's own page, which it goes back to. */
   from?: "client";
 }) {
@@ -39,8 +40,11 @@ export function ActivateForm({
           Plan
         </label>
         <select id={id("plan")} name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
-          <option value="starter">{planNames.starter}</option>
-          <option value="pro">{planNames.pro}</option>
+          {PLANS.map((p) => (
+            <option key={p} value={p}>
+              {planNames[p]}
+            </option>
+          ))}
         </select>
         <FieldError id={`${id("plan")}-error`} error={state.errors?.plan} />
       </div>

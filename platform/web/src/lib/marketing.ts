@@ -603,7 +603,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         details: [
           "APK to install on a phone and test",
           "App Bundle (AAB) for Google Play",
-          "iOS build, uploaded to TestFlight on the Pro plan",
+          "iOS build (Growth and up), uploaded to TestFlight on Pro and Business",
           "Store icon, feature graphic, your screenshots and listing text",
         ],
       },
@@ -674,7 +674,7 @@ export const STEPS: Step[] = [
   {
     title: "Create your account",
     text: "Sign up in a minute. Pay your plan by card or arrange it with our team on WhatsApp, and we activate your account.",
-    details: ["Sign up on yallapp.com.tr, with or without a website", "Choose Starter or Pro", "Pay by card, or talk to us on WhatsApp"],
+    details: ["Sign up on yallapp.com.tr, with or without a website", "Choose Starter, Growth, Pro or Business for each app", "Pay by card, or talk to us on WhatsApp"],
   },
   {
     title: "Connect your content",
@@ -698,7 +698,7 @@ export const STEPS: Step[] = [
   {
     title: "Build and publish",
     text: "Your apps build as soon as the setup is complete. Download them and publish with our guides, or let us publish them for you.",
-    details: ["Starter: download your files and follow the step-by-step guides", "Pro: we upload every new version to Google Play and TestFlight"],
+    details: ["Starter and Growth: download your files and follow the step-by-step guides", "Pro and Business: we publish every new version on Google Play and the App Store"],
   },
 ];
 
@@ -782,7 +782,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Who publishes the apps?",
-        a: "On the Starter plan you download the files and publish them with our step-by-step guides. On the Pro plan we upload every new version to Google Play and TestFlight for you.",
+        a: "On Starter and Growth you download the files and publish them with our step-by-step guides. On Pro and Business we publish your app and every new version on Google Play and the App Store for you.",
       },
       {
         q: "Will Apple accept my app?",
@@ -861,8 +861,8 @@ export const FAQ: FaqGroup[] = [
     title: "Plans and billing",
     items: [
       {
-        q: "What's the difference between Starter and Pro?",
-        a: "With Starter you download your app files and publish them yourself with our guides. With Pro we publish every new version to Google Play and the App Store for you, with priority support.",
+        q: "What's the difference between the plans?",
+        a: "Starter is the Android app with ready-made pages for up to 1,000 app users. Growth adds the iOS app, the full page editor, three languages, card payments, offline mode and up to 10,000 app users. Pro adds unlimited app users and we publish for you. Business adds a dedicated account manager. See the [pricing page](/pricing) for the full comparison.",
       },
       {
         q: "How do I pay?",

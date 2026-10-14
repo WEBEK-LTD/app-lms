@@ -422,11 +422,28 @@ class AppLocalizationsTr extends AppLocalizations {
   String get updateNow => 'Şimdi güncelle';
 
   @override
-  String get unavailableTitle => 'Uygulama kullanılamıyor';
+  String appPausedTitle(String name) {
+    return '$name şu anda duraklatıldı';
+  }
 
   @override
-  String unavailableMessage(String name) {
-    return '$name şu anda kullanılamıyor. Yardım için lütfen akademiyle iletişime geçin.';
+  String appPausedMessage(String name) {
+    return '$name uygulamasının sahibi uygulamayı yeniden açabilir. Ayrıntılar için onlarla iletişime geçin veya daha sonra tekrar deneyin.';
+  }
+
+  @override
+  String contactOwner(String name) {
+    return '$name ile iletişime geç';
+  }
+
+  @override
+  String membersClosedTitle(String name) {
+    return '$name şu anda yeni üye kabul etmiyor';
+  }
+
+  @override
+  String membersClosedMessage(String name) {
+    return 'Katılmak için $name ile iletişime geçin. Zaten bir hesabınız varsa, daha önce kullandığınız numarayla giriş yapın.';
   }
 
   @override
@@ -467,14 +484,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get error503 =>
-      'Akademi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.';
+      'Uygulama şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.';
 
   @override
   String get errorGeneric => 'Bir şeyler ters gitti. Lütfen tekrar deneyin.';
 
   @override
-  String get errorInvalidResponse =>
-      'Akademi, uygulamanın okuyamadığı bir yanıt gönderdi.';
+  String get errorInvalidResponse => 'Uygulama okuyamadığı bir yanıt aldı.';
 
   @override
   String get errorPurchaseNotAllowed =>

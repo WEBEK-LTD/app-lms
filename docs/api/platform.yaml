@@ -133,6 +133,11 @@ paths:
       summary: Get the published layout of the license's app
       description: |
         The license key names the app (each app of an account has its own key).
+        The layout follows the app's plan: at most the plan's number of
+        languages, no lists from content sources beyond the plan's, and on a
+        plan without the full page editor the ready-made pages and tabs for
+        the app type (with the published look). A plan change gives a new
+        `version`.
         Returns 204 when the client hasn't published a layout yet; the plugin
         then serves the default pages. Send the last `version` as
         `If-None-Match` to get 304 when nothing changed.
@@ -213,11 +218,25 @@ components:
         status:
           type: string
           enum: [active, expired, suspended, invalid]
-        plan: { type: [string, 'null'], enum: [starter, pro, null] }
+        plan: { type: [string, 'null'], enum: [starter, growth, pro, business, null], description: "The app's plan. Plans before Phase 13 were starter and pro; the old Starter became Growth." }
         features:
           type: array
-          description: Plan features the plugin may enable.
-          items: { type: string, enum: [push, offline_downloads, auto_publish] }
+          description: |
+            Plan features the plugin may enable (only while the license is
+            active). `push`: push notifications; `offline_downloads`: offline
+            mode in the app; `auto_publish`: we publish to the stores; `ios`:
+            the iOS app; `page_editor`: the full page editor (without it the
+            app gets the ready-made pages); `card_payments`: card payments in
+            the app through Yallapp's payment page; `auto_rebuild`: new builds
+            start when the app's settings change. Unknown values are ignored.
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild] }
+        limits:
+          type: object
+          description: The plan's limits; null means unlimited. Missing on older platforms.
+          properties:
+            app_users: { type: [integer, 'null'], description: "App users on the hosted API. A WordPress site keeps its own users: no limit applies there." }
+            languages: { type: [integer, 'null'], description: "App languages, English included. The layout endpoint already sends at most this many." }
+            sources: { type: [integer, 'null'], description: "Connected content sources the app's pages can list (the app's main content, plus blog posts on WordPress). The layout endpoint already leaves out blocks beyond it." }
         expires_at: { type: [string, 'null'], format: date-time }
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }

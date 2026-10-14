@@ -9,13 +9,19 @@ import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
+import { defaultLayout } from "@/lib/pages/defaults";
+import { appDefaults } from "@/lib/pages/layout";
+import { allowedSources } from "@/lib/pages/plan";
+import { hasFeature, lowestPlanWith } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Pages & look" };
 export const dynamic = "force-dynamic";
 
 /** 10.4: the app's pages, bottom tabs, look and languages, with a preview, drafts and publishing. */
 export default async function PagesPage() {
-  const { app } = await requireClient();
+  const { app, license } = await requireClient();
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
@@ -30,6 +36,12 @@ export default async function PagesPage() {
   const now = new Date();
   const record = await loadLayout(store, app, now);
   const pickable = await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now);
+  // 13.1 What the app's plan allows: the full editor, its languages and content sources.
+  const plans = await effectivePlans(store);
+  const planId = license ? currentPlanId(license, now) : null;
+  const plan = planId ? plans[planId] : null;
+  const sources = plan ? allowedSources(app, plan) : itemSourcesFor(app);
+  const ready = defaultLayout(app, await appDefaults(store), app.createdAt);
   const reach =
     app.backend === "hosted"
       ? "Your app gets published changes the next time it opens."
@@ -63,11 +75,20 @@ export default async function PagesPage() {
           primaryColor: app.primaryColor,
           logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null,
         }}
-        sources={itemSourcesFor(app)}
-        categorySources={categorySourcesFor(app)}
+        sources={sources}
+        categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
         blockTypes={blockTypesFor(app)}
         pickable={pickable}
         reach={reach}
+        plan={{
+          name: plan?.name ?? "current",
+          // Before activation the client can try everything; the app gets what its plan allows.
+          pageEditor: plan ? hasFeature(plan, "page_editor") : true,
+          languages: plan?.limits.languages ?? null,
+          upgradeEditor: plan ? lowestPlanWith(plans, (p) => hasFeature(p, "page_editor"), planId) : null,
+          upgradeLanguages: plan ? lowestPlanWith(plans, (p) => p.limits.languages === null || p.limits.languages > (plan.limits.languages ?? 0), planId) : null,
+        }}
+        ready={{ pages: ready.pages, tabs: ready.tabs }}
       />
     </div>
   );

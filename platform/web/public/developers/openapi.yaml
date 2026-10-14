@@ -226,6 +226,12 @@ paths:
         Returns tokens for an existing account. For a phone number with no account,
         returns a one-time `signup_token` to use with `POST /auth/register`
         (only when sign-up from the app is allowed).
+
+        A new phone number is refused with 403 `app_user_limit` when the app
+        has as many users as its plan allows (apps on the hosted API only;
+        a WordPress site keeps its users and has no limit). The error carries
+        `contact`, so the app can show how to reach the app's owner. People
+        who already have an account keep signing in.
       security: []
       requestBody:
         required: true
@@ -256,7 +262,10 @@ paths:
       tags: [Auth]
       operationId: register
       summary: Create an account after verification
-      description: Fields required here follow the "Required at sign-up" plugin setting.
+      description: |
+        Fields required here follow the "Required at sign-up" plugin setting.
+        Refused with 403 `app_user_limit` (with `contact`) when the app
+        reached its plan's number of app users since the code was verified.
       security: []
       requestBody:
         required: true
@@ -278,6 +287,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Session' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
 
   /auth/refresh:
@@ -1780,7 +1790,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     Forbidden:
-      description: Not allowed, for example not enrolled, device limit reached or purchase not allowed on this platform.
+      description: Not allowed, for example not enrolled, device limit reached, purchase not allowed on this platform, or the app taking no new users (`app_user_limit`, with `contact`).
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -1805,7 +1815,13 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     Unavailable:
-      description: The site is in maintenance mode, the license is inactive, or the platform behind the hosted API (a shop, school or booking account) can't be reached.
+      description: |
+        The site is in maintenance mode, the app is paused (`license_inactive`:
+        its plan ended or isn't active yet; `account_suspended`: the owner's
+        Yallapp account is suspended), or the platform behind the hosted API (a
+        shop, school or booking account) can't be reached. `license_inactive`
+        and `account_suspended` carry `contact`: the app shows that the app's
+        owner can bring it back, with a way to reach them.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -1830,10 +1846,24 @@ components:
             - watch_requirement_not_met
             - maintenance
             - license_inactive
+            - account_suspended
+            - app_user_limit
             - update_required
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
+        contact:
+          $ref: '#/components/schemas/OwnerContact'
+          description: Sent with `license_inactive`, `account_suspended` and `app_user_limit`. How to reach the app's owner (the business behind the app), never Yallapp.
+
+    OwnerContact:
+      type: object
+      description: How app users reach the app's owner, from the app's support settings. The app offers WhatsApp first, then email.
+      required: [name]
+      properties:
+        name: { type: string, description: The app's or site's name., example: Sara's Academy }
+        whatsapp: { type: [string, 'null'], description: A WhatsApp number with its country code., example: '+905321234567' }
+        email: { type: [string, 'null'], format: email }
 
     Page:
       type: object
@@ -1857,6 +1887,7 @@ components:
             terms_url: { type: [string, 'null'], format: uri }
             privacy_url: { type: [string, 'null'], format: uri }
             support_whatsapp: { type: [string, 'null'] }
+            support_email: { type: [string, 'null'], format: email, description: "Where app users can write to the app's owner. Missing on older servers." }
         branding:
           type: object
           required: [primary_color]
@@ -1879,8 +1910,9 @@ components:
             wishlist: { type: boolean }
             reviews: { type: boolean }
             qna: { type: boolean }
-            push: { type: boolean }
+            push: { type: boolean, description: "Whether push notifications are set up and included in the app's plan." }
             orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
+            offline: { type: boolean, description: "Offline mode, when the app's plan includes it: the app keeps what the user last saw and shows it without a connection. Missing means false." }
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
@@ -1894,7 +1926,7 @@ components:
           type: object
           required: [enroll_button, free_enrollment]
           properties:
-            enroll_button: { type: boolean, description: Whether paid courses show "Enroll now" on this platform. Always false on iOS. }
+            enroll_button: { type: boolean, description: "Whether paid courses show \"Enroll now\" on this platform. Always false on iOS, and on the hosted API false when the app's plan has no card payments in the app." }
             free_enrollment: { type: boolean }
             checkout_opens_in: { type: string, enum: [in_app, browser] }
         content:

@@ -28,6 +28,19 @@ import {
 import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 import { PhonePreview } from "./preview";
+import { UpgradeHint } from "@/components/upgrade";
+import type { Plan } from "@/lib/plans";
+
+/** 13.1 What the app's plan allows in the editor. */
+export interface EditorPlan {
+  name: string;
+  /** The full page editor; without it the app gets the ready-made pages and tabs (`ready`). */
+  pageEditor: boolean;
+  /** App languages, English included (null: all). */
+  languages: number | null;
+  upgradeEditor: { id: Plan; name: string } | null;
+  upgradeLanguages: { id: Plan; name: string } | null;
+}
 
 type Panel = "pages" | "tabs" | "look" | "languages";
 type Status = "saved" | "saving" | "unsaved" | "invalid";
@@ -65,6 +78,8 @@ export function PagesEditor({
   blockTypes,
   pickable,
   reach,
+  plan,
+  ready,
 }: {
   initial: { draft: LayoutContent; savedAt: string; published: { version: string; at: string } | null; changes: boolean };
   app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
@@ -73,6 +88,9 @@ export function PagesEditor({
   blockTypes: BlockType[];
   pickable: Pickable;
   reach: string | null;
+  plan: EditorPlan;
+  /** The ready-made pages and tabs the app gets without the full page editor. */
+  ready: Pick<LayoutContent, "pages" | "tabs">;
 }) {
   const [layout, setLayout] = useState<LayoutContent>(initial.draft);
   const [published, setPublished] = useState(initial.published);
@@ -82,7 +100,7 @@ export function PagesEditor({
   const [errors, setErrors] = useState<string[]>([]);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [panel, setPanel] = useState<Panel>("pages");
+  const [panel, setPanel] = useState<Panel>(plan.pageEditor ? "pages" : "look");
   const [editLang, setEditLang] = useState<LanguageCode>(initial.draft.languages.default);
   const [pageSlug, setPageSlug] = useState<string | null>(initial.draft.pages[0]?.slug ?? null);
   const [openBlock, setOpenBlock] = useState<string | null>(null);
@@ -93,6 +111,9 @@ export function PagesEditor({
   const dirty = useRef(false);
 
   const def = layout.languages.default;
+  // Without the full page editor, the app (and the preview) shows the ready-made pages with this look.
+  const shown: LayoutContent = plan.pageEditor ? layout : { ...layout, pages: ready.pages, tabs: ready.tabs };
+  const languagesFull = plan.languages !== null && layout.languages.available.length >= plan.languages;
   const lang: Lang = { edit: layout.languages.available.includes(editLang) ? editLang : def, default: def };
   const page = layout.pages.find((p) => p.slug === pageSlug) ?? layout.pages[0] ?? null;
   const pages = layout.pages.map((p) => ({ slug: p.slug, title: p.title }));
@@ -351,7 +372,20 @@ export function PagesEditor({
           ))}
         </div>
 
-        {panel === "pages" ? (
+        {(panel === "pages" || panel === "tabs") && !plan.pageEditor ? (
+          <section role="tabpanel" id={`panel-${panel}`} aria-labelledby={`tab-${panel}`} className={sectionClass}>
+            <h2 className="m-0 text-[19px] font-bold">{panel === "pages" ? "Pages" : "Bottom tabs"}</h2>
+            <p className="m-0 text-[15px] text-ink-4">
+              On the {plan.name} plan your app uses ready-made pages and tabs for its type, filled with your content. Choose its template, colors and fonts
+              under Look.
+            </p>
+            <UpgradeHint title="Full page editor" to={plan.upgradeEditor}>
+              Build your own pages and tabs from blocks: banners, lists, buttons, videos and more.
+            </UpgradeHint>
+          </section>
+        ) : null}
+
+        {panel === "pages" && plan.pageEditor ? (
           <div role="tabpanel" id="panel-pages" aria-labelledby="tab-pages" className="flex flex-col gap-5">
             <section aria-labelledby="h-page-list" className={sectionClass}>
               <h2 id="h-page-list" className="m-0 text-[19px] font-bold">
@@ -490,7 +524,7 @@ export function PagesEditor({
           </div>
         ) : null}
 
-        {panel === "tabs" ? (
+        {panel === "tabs" && plan.pageEditor ? (
           <section role="tabpanel" id="panel-tabs" aria-labelledby="tab-tabs" className={sectionClass}>
             <div className="flex flex-col gap-1">
               <h2 className="m-0 text-[19px] font-bold">Bottom tabs</h2>
@@ -647,17 +681,30 @@ export function PagesEditor({
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
               <legend className="mb-1.5 p-0 text-sm font-semibold">Languages in the app</legend>
               <div className="flex flex-wrap gap-x-5 gap-y-2">
-                {LANGUAGE_CODES.map((c) => (
-                  <Check key={c} label={LANGUAGE_NAMES[c]} checked={c === def || layout.languages.available.includes(c)} disabled={c === def} onChange={(on) => toggleLanguage(c, on)} />
-                ))}
+                {LANGUAGE_CODES.map((c) => {
+                  const on = c === def || layout.languages.available.includes(c);
+                  return <Check key={c} label={LANGUAGE_NAMES[c]} checked={on} disabled={c === def || (!on && languagesFull)} onChange={(next) => toggleLanguage(c, next)} />;
+                })}
               </div>
             </fieldset>
+            {plan.languages !== null && languagesFull ? (
+              <UpgradeHint title="More app languages" to={plan.upgradeLanguages}>
+                The {plan.name} plan includes {plan.languages} app language{plan.languages === 1 ? "" : "s"}.
+              </UpgradeHint>
+            ) : null}
           </section>
         ) : null}
       </div>
 
       <div className="lg:sticky lg:top-6">
-        <PhonePreview layout={layout} page={page} lang={lang.edit} pickable={pickable} app={app} onOpenPage={setPageSlug} />
+        <PhonePreview
+          layout={shown}
+          page={plan.pageEditor ? page : (shown.pages.find((p) => p.slug === pageSlug) ?? shown.pages[0] ?? null)}
+          lang={lang.edit}
+          pickable={pickable}
+          app={app}
+          onOpenPage={setPageSlug}
+        />
       </div>
     </div>
   );

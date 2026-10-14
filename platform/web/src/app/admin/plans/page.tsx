@@ -7,11 +7,11 @@ import { requireAdmin } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
-import { PLAN_FEATURES, planPrice, PLANS, type Plan } from "@/lib/plans";
+import { PLAN_FEATURES, PLAN_LIMITS, planPrice, PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan } from "@/lib/plans";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
-import { PlanForm } from "./forms";
+import { PlanForm, PlanLimitsForm } from "./forms";
 
 export const metadata: Metadata = { title: "Plans" };
 export const dynamic = "force-dynamic";
@@ -26,8 +26,8 @@ export default async function PlansPage() {
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Plans</h1>
         <span className="text-[15px] text-muted">
-          Changes show on the pricing page at once. License features are what the plugin and the apps may use. A card price lets clients pay
-          online once card payments for plans are on.
+          Changes show on the pricing page at once. Features and limits are what each app on the plan may use: the platform, the builds, the hosted
+          API, the plugin and the app hold to them. A card price lets clients pay online once card payments for plans are on.
         </span>
       </div>
       <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
@@ -47,7 +47,6 @@ export default async function PlansPage() {
                 </span>
               </div>
               <PlanForm
-                features={PLAN_FEATURES}
                 plan={{
                   id,
                   name: plan.name,
@@ -57,9 +56,28 @@ export default async function PlansPage() {
                   cardPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
                   currency: plan.currency,
                   months: String(plan.billingMonths),
-                  features: plan.features,
                 }}
               />
+              <div className="flex flex-col gap-3 border-t border-line-soft pt-4">
+                <h3 className="m-0 text-base font-bold">Features and limits</h3>
+                <PlanLimitsForm
+                  plan={{
+                    id,
+                    name: plan.name,
+                    features: plan.features,
+                    appUsers: plan.limits.appUsers === null ? "" : String(plan.limits.appUsers),
+                    languages: plan.limits.languages === null ? "" : String(plan.limits.languages),
+                    sources: plan.limits.sources === null ? "" : String(plan.limits.sources),
+                    teamMembers: plan.limits.teamMembers === null ? "" : String(plan.limits.teamMembers),
+                    support: plan.limits.support,
+                    accountManager: plan.limits.accountManager,
+                    customFeatures: plan.limits.customFeatures,
+                  }}
+                  features={PLAN_FEATURES}
+                  limits={PLAN_LIMITS}
+                  supportLevels={SUPPORT_LEVELS.map((s) => ({ id: s, label: SUPPORT_LABEL[s] }))}
+                />
+              </div>
               {edits?.value[id] ? (
                 <form action={resetPlanAction} className="border-t border-line-soft pt-3">
                   <input type="hidden" name="plan" value={id} />
@@ -73,7 +91,7 @@ export default async function PlansPage() {
                   What {plan.name} offers
                 </h3>
                 <p className="m-0 text-[13px] text-muted">
-                  Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; license features are set above.
+                  Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; the plan&apos;s features are set above.
                 </p>
                 <PlanAvailabilityForm plan={id} planName={plan.name} groups={availabilityGroups(switches, id)} />
               </div>

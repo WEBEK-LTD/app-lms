@@ -36,7 +36,7 @@ export async function setupClient(options: { plan?: Plan; activeUntil?: Date; ac
   if (options.activate === false) return { store, user, client, licenseKey: null as string | null };
   const outcome = await activateClient(
     store,
-    { clientId: client.id, plan: options.plan ?? "starter", activeUntil: options.activeUntil ?? days(30), paymentNote: "bank transfer" },
+    { clientId: client.id, plan: options.plan ?? "growth", activeUntil: options.activeUntil ?? days(30), paymentNote: "bank transfer" },
     KEY,
     NOW,
   );

@@ -13,6 +13,10 @@ import { IyzicoError } from "@/lib/payments/iyzico";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
+import { revalidatePath } from "next/cache";
+import { recordStaffChange } from "@/lib/admin/audit";
+import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-change";
+import { isPlan } from "@/lib/plans";
 
 /**
  * The client pays the current app's plan by card: off to iyzico's payment
@@ -31,7 +35,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   }
   const store = await getStore();
   const plans = await getPlans(store);
-  const plan = values.plan === "starter" || values.plan === "pro" ? plans[values.plan] : null;
+  const plan = isPlan(values.plan) ? plans[values.plan] : null;
   if (!plan || plan.priceCents === null) return { errors: { plan: "Choose a plan." }, values };
   // 11.5 Switches: card payments can be switched off, for everyone or per plan.
   if (!featureOn(await getSwitches(store), "plan_card_payments", plan.id)) {
@@ -118,4 +122,49 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
     prices,
     message: `Coupon applied${applies.length < plans.length ? ` to ${applies.join(" and ")}` : ""}. The price below is what you pay.`,
   };
+}
+
+// 13.3 Plan changes without paying now
+
+/** The form names the app it was shown for; never change another app because the switcher moved in another tab. */
+async function contextFor(formData: FormData) {
+  const context = await getClientContext();
+  if (!context) redirect("/sign-in");
+  if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) redirect("/dashboard/license?plan_change=switched#change-plan");
+  return context;
+}
+
+/** A lower plan from the end of the paid period: no days are lost, nothing is charged now. */
+export async function scheduleDowngradeAction(formData: FormData): Promise<void> {
+  const context = await contextFor(formData);
+  const to = String(formData.get("plan") ?? "");
+  if (!context.license || !isPlan(to) || context.client.status === "suspended") redirect("/dashboard/license#change-plan");
+  const store = await getStore();
+  const result = await scheduleDowngrade(store, context.license, to, new Date());
+  if (result.ok) {
+    const plans = await getPlans(store);
+    await recordStaffChange(context, `Scheduled a move to the ${plans[to].name} plan when the current period ends`);
+  }
+  revalidatePath("/dashboard", "layout");
+  redirect(`/dashboard/license?plan_change=${result.ok ? "scheduled" : "refused"}#change-plan`);
+}
+
+/** Keeps the current plan: drops a scheduled downgrade. */
+export async function cancelScheduledPlanAction(formData: FormData): Promise<void> {
+  const context = await contextFor(formData);
+  if (context.license) {
+    await cancelScheduledPlan(await getStore(), context.license, new Date());
+    await recordStaffChange(context, "Kept the current plan (dropped a scheduled plan change)");
+  }
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard/license?plan_change=kept#change-plan");
+}
+
+/** Closes an owner notice on the dashboard (13.2, 13.4). Only the client's own. */
+export async function dismissNoticeAction(formData: FormData): Promise<void> {
+  const context = await getClientContext();
+  if (!context) redirect("/sign-in");
+  const id = Number(formData.get("id"));
+  if (Number.isSafeInteger(id) && id > 0) await (await getStore()).updateOwnerNotice(context.client.id, id, { dismissedAt: new Date() });
+  revalidatePath("/dashboard", "layout");
 }

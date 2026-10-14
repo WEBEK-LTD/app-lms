@@ -1,8 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { Client, License, LicenseState, PluginRelease } from "../data/types";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
-import { getPlans } from "../settings/platform";
-import { getSwitches, plansWithSwitches } from "../switches";
+import { currentPlanId } from "../billing/plan-change";
+import { effectivePlans } from "../entitlements";
 import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
@@ -22,6 +22,8 @@ export interface LicenseStatusBody {
   status: LicenseState;
   plan: Plan | null;
   features: PlanFeature[];
+  /** 13.1 The plan's limits (null: unlimited). */
+  limits: { app_users: number | null; languages: number | null; sources: number | null } | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -102,10 +104,12 @@ function statusBody(
   now: Date,
   message: string | null,
 ): LicenseStatusBody {
+  const plan = license ? plans[currentPlanId(license, now)] : null;
   return {
     status: state,
-    plan: license?.plan ?? null,
-    features: state === "active" && license ? [...plans[license.plan].features] : [],
+    plan: plan?.id ?? null,
+    features: state === "active" && plan ? [...plan.features] : [],
+    limits: plan ? { app_users: plan.limits.appUsers, languages: plan.limits.languages, sources: plan.limits.sources } : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -131,7 +135,7 @@ async function findLicense(store: DataStore, key: string): Promise<{ license: Li
 }
 
 export async function activateLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
+  const plans = await effectivePlans(store);
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
@@ -162,7 +166,7 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
 }
 
 export async function checkLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
+  const plans = await effectivePlans(store);
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;

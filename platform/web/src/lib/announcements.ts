@@ -2,7 +2,7 @@ import type { Announcement, AnnouncementAudience, AnnouncementSeverity, App, App
 import { safeHref } from "./content/markdown";
 import type { DataStore } from "./data/store";
 import { clientAccountState, type AccountState } from "./license/status";
-import type { Plan } from "./plans";
+import { PLANS, type Plan } from "./plans";
 
 /**
  * Announcements the team shows clients in their dashboard (and can email):
@@ -55,7 +55,7 @@ export function announcementsFor(
   return { live, banner: live.filter((a) => !dismissed.includes(a.id)) };
 }
 
-const PLAN_IDS: Plan[] = ["starter", "pro"];
+const PLAN_IDS: Plan[] = [...PLANS];
 const APP_TYPES: AppType[] = ["lms", "store", "booking"];
 const STATES: AccountState[] = ["pending", "active", "expired", "suspended"];
 

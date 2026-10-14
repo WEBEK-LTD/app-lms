@@ -1,7 +1,7 @@
 import type { DataStore } from "./data/store";
 import type { App, SwitchesSetting } from "./data/types";
 import { platformDefinitions } from "./hosted/connectors/registry";
-import { PLANS, type Plan, type PlanFeature, type PlanInfo } from "./plans";
+import { PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, type Plan, type PlanFeature, type PlanInfo } from "./plans";
 import { platformSetting } from "./settings/platform";
 
 /**
@@ -44,15 +44,14 @@ const WEBSITE_SWITCHES: { id: string; label: string }[] = [
 export type FeatureSwitch = PlanFeature | "marketplace" | "plan_card_payments";
 
 export const FEATURE_SWITCHES: { id: FeatureSwitch; label: string }[] = [
-  { id: "push", label: "Push notifications" },
-  { id: "offline_downloads", label: "Offline downloads" },
-  { id: "auto_publish", label: "Automatic publishing" },
+  // 13.1 Every plan feature can be switched off for everyone; per plan, the plan editor sets them.
+  ...PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label })),
   { id: "marketplace", label: "Selling through Yallapp's iyzico account" },
   { id: "plan_card_payments", label: "Paying plans by card" },
 ];
 
 /** Features that are also license features, set per plan in the plan editor itself. */
-export const LICENSE_FEATURE_SWITCHES: FeatureSwitch[] = ["push", "offline_downloads", "auto_publish"];
+export const LICENSE_FEATURE_SWITCHES: FeatureSwitch[] = [...PLAN_FEATURE_IDS];
 
 export const switchKey = (kind: SwitchKind, id: string) => `${kind}:${id}`;
 

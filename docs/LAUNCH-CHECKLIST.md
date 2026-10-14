@@ -35,8 +35,15 @@ devices. Everything else is in the code. Tick each line when it's done.
       different. Build problems go to every `SUPER_ADMIN_EMAILS` address.
 - [ ] **Team:** give whoever publishes clients' apps the admin or support
       role (permission "publishing.manage").
-- [ ] **Plans:** names, prices, periods and features; check the pricing page.
+- [ ] **Plans:** names, prices and periods of Starter, Growth, Pro and
+      Business, and each plan's **Features and limits** (app users, languages,
+      connected platforms, iOS, page editor, card payments, offline mode,
+      automatic rebuilds, "We publish for you"); check the pricing page. Plan
+      edits saved before Phase 13 kept only their price (the old Starter's
+      moved to Growth): review the texts.
 - [ ] **Plans › card payments:** the prices clients pay by card for each plan.
+- [ ] **Emails:** check the five owner notices (app users at 80% and 100%,
+      plan ending in 7 days, tomorrow and today).
 - [ ] **Team:** invite the rest of the team with the right role (admin,
       support or viewer); only owners manage the team.
 - [ ] **Defaults for new apps** (Settings), **Switches**, **Website content**
@@ -45,7 +52,11 @@ devices. Everything else is in the code. Tick each line when it's done.
 ## 3. Hosting and builds
 
 - [ ] Netlify variables in `platform/web/README.md` (database, encryption key,
-      signing secrets, `FILES_*`, `BUILD_PIPELINE_TOKEN`).
+      signing secrets, `FILES_*`, `BUILD_PIPELINE_TOKEN`, `INTERNAL_JOB_SECRET`).
+- [ ] The daily job (13.4): after the first production deploy with
+      `INTERNAL_JOB_SECRET` set, Netlify › Logs › Functions shows
+      `daily-notices` as a scheduled function; its next run logs a JSON report.
+      To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/daily`.
 - [ ] `files.yallapp.com.tr`, GitHub secrets and variables: `build/README.md`
       › One-time setup.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch

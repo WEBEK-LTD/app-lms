@@ -1,3 +1,4 @@
+import { PLANS } from "@/lib/plans";
 import Link from "next/link";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
@@ -24,7 +25,7 @@ const LOOKS = [
 export default async function LandingPage() {
   const contact = await getContact();
   const all = await getPlans(await getStore());
-  const plans = [all.starter, all.pro];
+  const plans = PLANS.map((id) => all[id]);
   const text = await getSiteContent("home");
   const features = FEATURE_GROUPS.flatMap((g) => g.features).slice(0, 6);
   return (
@@ -186,13 +187,13 @@ export default async function LandingPage() {
 
         <Section tinted>
           <SectionTitle title={text.plansTitle!} text={text.plansText} />
-          <div className="grid max-w-[900px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))]">
             {plans.map((plan) => (
               <Link
                 key={plan.id}
                 href="/pricing"
                 className={`flex flex-col gap-1.5 rounded-[20px] p-6 text-midnight no-underline hover:text-midnight ${
-                  plan.id === "pro" ? "border-2 border-midnight bg-peach-soft" : "border border-line bg-white hover:border-midnight"
+                  plan.id === "growth" ? "border-2 border-midnight bg-peach-soft" : "border border-line bg-white hover:border-midnight"
                 }`}
               >
                 <span className="text-lg font-bold">{plan.name}</span>

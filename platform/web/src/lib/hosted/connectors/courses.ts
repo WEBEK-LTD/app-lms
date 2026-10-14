@@ -13,6 +13,8 @@ interface CoursesDeps {
   app: App;
   assetUrl: (assetId: string) => string;
   platformUrl: string;
+  /** 13.1 Card payments in the app are in the app's plan (default true); without them paid courses show no purchase action. */
+  cardPayments?: boolean;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -33,7 +35,7 @@ export class CoursesConnector implements Connector {
   }
 
   private get canSell(): boolean {
-    return this.deps.app.catalogSettings?.payment != null;
+    return this.deps.app.catalogSettings?.payment != null && this.deps.cardPayments !== false;
   }
 
   async config() {

@@ -1,5 +1,4 @@
 import type { ArtifactKind, Build, BuildStatus, StageKey } from "../data/types";
-import type { Plan } from "../plans";
 import { bumpPatch } from "../semver";
 
 /**
@@ -94,6 +93,8 @@ export function fileUnavailableReason(input: {
   build: Pick<Build, "artifacts"> | null;
   /** The app has an App Store Connect key saved. */
   hasAppStoreKey: boolean;
+  /** The app's plan includes the iOS app (13.1); true when unknown. */
+  iosOnPlan?: boolean;
   /** Set when the file exists but links can't be signed. */
   linkProblem: string | null;
 }): string | null {
@@ -101,6 +102,7 @@ export function fileUnavailableReason(input: {
   if (!build) return "Available after your first successful build";
   if (!build.artifacts.some((a) => a.kind === kind)) {
     if (kind === "ipa") {
+      if (input.iosOnPlan === false) return "Your plan builds the Android app. Upgrade to get the iOS app";
       return input.hasAppStoreKey
         ? "Not in this build. Start a new build to get the iOS app."
         : "Add your App Store Connect key in App setup › Publishing to get the iOS app";
@@ -111,16 +113,16 @@ export function fileUnavailableReason(input: {
   return input.linkProblem;
 }
 
-/** What each file is for, by plan. */
-export function fileDescription(kind: ArtifactKind, plan: Plan | null): string {
+/** What each file is for: `autoPublish` when the app's plan has "We publish for you" (13.1). */
+export function fileDescription(kind: ArtifactKind, autoPublish: boolean): string {
   switch (kind) {
     case "apk":
       return "Install it directly on an Android phone to test your app";
     case "aab":
-      return plan === "pro" ? "The file for Google Play. On Pro, we upload it for you" : "The file you upload to Google Play";
+      return autoPublish ? "The file for Google Play. On your plan, we upload it for you" : "The file you upload to Google Play";
     case "ipa":
-      return plan === "pro"
-        ? "The iOS app. On Pro, we upload it to TestFlight for you"
+      return autoPublish
+        ? "The iOS app. On your plan, we upload it to TestFlight for you"
         : "The iOS app. Upload it to App Store Connect with Apple's Transporter app";
     case "keystore":
       return "The keystore and its passwords. Every future update on Google Play needs this same key.";

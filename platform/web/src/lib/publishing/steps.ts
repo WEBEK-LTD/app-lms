@@ -1,4 +1,5 @@
-import type { App, AppType, License, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
+import { hasFeature, type PlanInfo } from "../plans";
+import type { App, AppType, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -7,15 +8,9 @@ import type { App, AppType, License, PublishingListing, PublishingRequest, Publi
  * accounts, and can remove that access whenever they like.
  */
 
-/**
- * Whether this app may ask us to publish it.
- * TODO(plans): use the plan feature flag "managed publishing" (`managed_publishing`)
- * once the plans and limits work (roadmap Phase 13) adds it; until then every app may.
- */
-export function canUseManagedPublishing(app: Pick<App, "id">, license: Pick<License, "plan"> | null): boolean {
-  void app;
-  void license;
-  return true;
+/** Whether an app on this plan (as it is now, lib/entitlements.ts) may ask us to publish it: "We publish for you" (13.1). */
+export function canUseManagedPublishing(plan: PlanInfo | null): boolean {
+  return hasFeature(plan, "auto_publish");
 }
 
 export interface PublishingLink {

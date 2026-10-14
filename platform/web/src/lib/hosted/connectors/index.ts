@@ -58,6 +58,8 @@ export function connectorFor(
     platformUrl: string;
     onBooked?: (appointment: BookingAppointment) => Promise<void>;
     onInquiry?: ListingsDeps["onInquiry"];
+    /** 13.1 Card payments in the app (dashboard products and courses) are in the app's plan. */
+    cardPayments?: boolean;
   },
   fetcher: typeof fetch = fetch,
 ): Connector | null {

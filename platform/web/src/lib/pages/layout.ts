@@ -5,6 +5,8 @@ import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
+import type { PlanInfo } from "../plans";
+import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -69,8 +71,19 @@ export async function saveDraft(store: DataStore, app: App, input: unknown, now:
   return { ok: true, value: saved };
 }
 
-/** Saves the draft (when given) and publishes it with a new version. */
-export async function publishLayout(store: DataStore, app: App, input: unknown | undefined, by: string, now: Date): Promise<ParseResult<AppLayoutRecord>> {
+/**
+ * Saves the draft (when given) and publishes it with a new version. 13.1
+ * `plan`: the app's plan, whose limits the published layout must keep (more
+ * languages than it includes are refused).
+ */
+export async function publishLayout(
+  store: DataStore,
+  app: App,
+  input: unknown | undefined,
+  by: string,
+  now: Date,
+  plan: PlanInfo | null = null,
+): Promise<ParseResult<AppLayoutRecord>> {
   let record = await loadLayout(store, app, now);
   if (input !== undefined) {
     const saved = await saveDraft(store, app, input, now);
@@ -81,6 +94,8 @@ export async function publishLayout(store: DataStore, app: App, input: unknown |
     const parsed = parseLayoutContent(record.draft, { app, now });
     if (!parsed.ok) return parsed;
   }
+  const planErrors = planLayoutErrors(record.draft, plan);
+  if (planErrors.length) return { ok: false, errors: planErrors };
   const count = record.publishCount + 1;
   // A page the publish doesn't change keeps its published time; the others carry the time of their last edit.
   const before = new Map((record.published?.pages ?? []).map((p) => [p.slug, p]));
@@ -129,20 +144,26 @@ export async function publishedLayout(store: DataStore, appId: string): Promise<
  * publish the default pages and tabs for the app type, with a version that
  * changes when the defaults do.
  */
-export async function servedLayout(store: DataStore, app: App): Promise<Layout> {
+export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null): Promise<Layout> {
   const published = await publishedLayout(store, app.id);
-  if (published) return published;
-  const content = defaultLayout(app, await appDefaults(store), app.createdAt);
-  return { version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content };
+  const defaults = await appDefaults(store);
+  if (published) return layoutForPlan(published, app, plan, defaults);
+  const content = defaultLayout(app, defaults, app.createdAt);
+  return layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults);
 }
 
 /**
  * `Config.appearance` and `Config.languages`: from the published layout, or
  * the defaults before the first publish.
  */
-export async function lookAndLanguages(store: DataStore, app: App, published?: Layout | null): Promise<{ appearance: Appearance; languages: Languages }> {
+export async function lookAndLanguages(
+  store: DataStore,
+  app: App,
+  published?: Layout | null,
+  plan: PlanInfo | null = null,
+): Promise<{ appearance: Appearance; languages: Languages }> {
   const layout = published === undefined ? await publishedLayout(store, app.id) : published;
-  if (layout) return { appearance: layout.appearance, languages: layout.languages };
+  if (layout) return { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan) };
   const defaults = await appDefaults(store);
-  return { appearance: defaultAppearance(app, defaults), languages: defaults.languages };
+  return { appearance: defaultAppearance(app, defaults), languages: languagesForPlan(defaults.languages, plan) };
 }

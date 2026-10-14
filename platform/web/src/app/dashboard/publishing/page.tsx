@@ -10,6 +10,8 @@ import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
+import { appPlan } from "@/lib/entitlements";
+import { hasFeature } from "@/lib/plans";
 import type { PublishingStore } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
@@ -67,9 +69,10 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const request = await store.getPublishingRequest(app.id);
   const mode = app.publishingMode ?? request?.mode ?? null;
   const teamEmail = await publishingTeamEmail(store);
-  const allowed = canUseManagedPublishing(app, license);
-  const notIncluded = allowed ? undefined : "Not included in this app's plan. Message us on WhatsApp to add it.";
-  const plan = license?.plan ?? null;
+  const current = await appPlan(await getStore(), license, new Date());
+  const allowed = canUseManagedPublishing(current);
+  const notIncluded = allowed ? undefined : "Not included in this app's plan. Upgrade it on License & plugin.";
+  const autoUpload = hasFeature(current, "auto_publish");
 
   const header = (
     <div className="flex flex-col gap-1.5">
@@ -94,7 +97,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         {header}
         {query.error === "not-included" ? (
           <Notice tone="warn" icon="warning" role="alert">
-            Publishing for you isn&apos;t included in this app&apos;s plan. <a href={contact.whatsappUrl}>Message us on WhatsApp</a> to add it.
+            Publishing for you isn&apos;t included in this app&apos;s plan. <Link href="/dashboard/license#change-plan">Upgrade the plan</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
           </Notice>
         ) : null}
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to Google Play and the App Store? You can change your mind later.</p>
@@ -116,8 +119,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             text="You upload the files from Builds & downloads to your own store accounts, with our step-by-step guides."
             points={[
               "Download the Android App Bundle, the iOS app and the store assets.",
-              plan === "pro"
-                ? "On Pro, add your store keys in App setup › Publishing and we upload every new build for you."
+              autoUpload
+                ? "Or add your store keys in App setup › Publishing and we upload every new build for you."
                 : "Follow our Google Play and App Store guides.",
             ]}
           />
@@ -149,9 +152,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             <li>
               Follow our guides: <Link href="/guides/google-play">Publish on Google Play</Link> and <Link href="/guides/app-store">Publish on the App Store</Link>.
             </li>
-            {plan === "pro" ? (
+            {autoUpload ? (
               <li>
-                Pro: with your store keys in <Link href="/dashboard/setup?step=publishing">App setup › Publishing</Link>, we upload every new build for you.
+                With your store keys in <Link href="/dashboard/setup?step=publishing">App setup › Publishing</Link>, we upload every new build for you.
                 {keys.play || keys.appStore ? " Your keys are saved." : " No key is saved yet."}
               </li>
             ) : null}

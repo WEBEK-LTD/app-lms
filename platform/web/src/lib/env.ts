@@ -74,6 +74,16 @@ export function buildPipelineToken(): string | undefined {
 }
 
 /**
+ * 13.4 Bearer token of the internal jobs route (/api/internal/daily), shared
+ * with the Netlify scheduled function. Unset: the route refuses every request.
+ */
+export function internalJobSecret(): string | undefined {
+  const secret = read("INTERNAL_JOB_SECRET");
+  if (secret && secret.length < 32) throw new Error("INTERNAL_JOB_SECRET must be at least 32 characters.");
+  return secret;
+}
+
+/**
  * Where the build pipeline stores app files (files.yallapp.com.tr). Only the
  * origin is used: links on this origin are signed before they're shown.
  */

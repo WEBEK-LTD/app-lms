@@ -6,6 +6,7 @@ import { isSetupComplete, newApp, stepStatus } from "@/lib/app/setup";
 import { registerClient } from "@/lib/auth/accounts";
 import { getStore } from "@/lib/data";
 import { MemoryStore } from "@/lib/data/memory";
+import { PLAN_INFO } from "@/lib/plans";
 import type { App } from "@/lib/data/types";
 import { notifyPublishingStatus, publishingTeamEmail } from "@/lib/publishing/service";
 import {
@@ -39,9 +40,12 @@ function listedApp(clientId: string): App {
 const fullListing = { playCategory: "Education", appStoreCategory: "Education", contentRatingNotes: "Courses for adults. No ads.", reviewNotes: null };
 
 describe("the “Publish it for me” checklist", () => {
-  it("is open to every app until the plan flag exists", () => {
-    expect(canUseManagedPublishing({ id: "a1" }, { plan: "starter" })).toBe(true);
-    expect(canUseManagedPublishing({ id: "a1" }, null)).toBe(true);
+  it("comes with the plans that have “We publish for you”", () => {
+    expect(canUseManagedPublishing(PLAN_INFO.pro)).toBe(true);
+    expect(canUseManagedPublishing(PLAN_INFO.business)).toBe(true);
+    expect(canUseManagedPublishing(PLAN_INFO.starter)).toBe(false);
+    expect(canUseManagedPublishing(PLAN_INFO.growth)).toBe(false);
+    expect(canUseManagedPublishing(null)).toBe(false);
   });
 
   it("links only to Google's, Apple's and Firebase's own pages, and never asks for a password", () => {

@@ -14,6 +14,9 @@ import { bookingSetup } from "@/lib/bookings/setup";
 import type { BookingAppointment } from "@/lib/data/types";
 import { newInquiryMailValues } from "@/lib/listings/notify";
 import { sendTemplate } from "@/lib/email/send";
+import { effectivePlans, planOfLicense } from "@/lib/entitlements";
+import { hasFeature } from "@/lib/plans";
+import { checkAppUserNotices } from "@/lib/notices";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -43,11 +46,19 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
     }
   }
   const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") ?? "");
+  // 13.1 The app's own plan: its features and limits.
+  const plans = await effectivePlans(store);
+  const plan = planOfLicense(plans, license, now);
   const result = await handleHosted(
     {
       store,
       app,
       active: client !== null && appState(client, license, now) === "active",
+      suspended: client?.status === "suspended",
+      plan,
+      onUsersCounted: async (count) => {
+        if (client) await checkAppUserNotices({ store, baseUrl: appUrl(), mail: sendTemplate, now }, { app, client, plan, plans, count });
+      },
       now,
       ip: ipFromHeaders(request.headers),
       secret: hmacSha256(signingSecret(), "hosted-api"),
@@ -59,6 +70,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
         store,
         assetUrl,
         platformUrl: appUrl(),
+        cardPayments: hasFeature(plan, "card_payments"),
         onBooked: async (appointment: BookingAppointment) => {
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;

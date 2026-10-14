@@ -9,12 +9,16 @@ import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { ServiceAccountForm, SendNotificationForm } from "./forms";
+import { UpgradeHint } from "@/components/upgrade";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
+import { hasFeature, lowestPlanWith } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "App notifications" };
 
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
-  const { app } = await requireClient();
+  const { app, license } = await requireClient();
   if (!app || app.backend !== "hosted") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
@@ -29,6 +33,10 @@ export default async function NotificationsPage() {
   const store = await getStore();
   const [customers, sent] = await Promise.all([store.countHostedUsers(app.id), store.listHostedBroadcasts(app.id, 20)]);
   const account = serviceAccountOf(app, encryptionKey());
+  // 13.1 Push comes with the plan; without it, notifications still reach the app's inbox.
+  const plans = await effectivePlans(store);
+  const planId = license ? currentPlanId(license, new Date()) : null;
+  const push = planId ? hasFeature(plans[planId], "push") : false;
 
   return (
     <div className="flex flex-col gap-8">
@@ -51,6 +59,11 @@ export default async function NotificationsPage() {
           <h2 id="h-push" className="m-0 text-[19px] font-bold">
             Push
           </h2>
+          {push ? null : (
+            <UpgradeHint title="Push notifications" to={lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId)} compact>
+              Your plan sends notifications to the app&apos;s inbox only.
+            </UpgradeHint>
+          )}
           {account ? (
             <>
               <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">

@@ -96,6 +96,7 @@ describe("plans from the admin", () => {
     expect(plansWith(null)).toEqual(PLAN_INFO);
     const plans = plansWith({
       pro: {
+        version: 2,
         name: "Premium",
         tagline: "Everything, published for you",
         highlights: ["Automatic publishing"],
@@ -104,11 +105,24 @@ describe("plans from the admin", () => {
         currency: "TRY",
         billingMonths: 12,
         features: ["push", "auto_publish"],
+        limits: { ...PLAN_INFO.pro.limits, appUsers: 50_000 },
+      },
+      // 13.1 An edit saved before the four tiers (no version): only its price still applies.
+      growth: {
+        name: "Starter",
+        tagline: "You publish the apps yourself",
+        highlights: ["Android APK & AAB, iOS build"],
+        price: "On request",
+        priceCents: 120000,
+        currency: "TRY",
+        billingMonths: 12,
+        features: ["push", "offline_downloads"],
       },
     });
     expect(plans.starter).toEqual(PLAN_INFO.starter);
-    expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish"], period: "year" });
+    expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish"], period: "year", limits: { appUsers: 50_000 } });
     expect(planPrice(plans.pro)).toEqual({ price: "₺4,800.00", period: "year" });
     expect(planPrice(plans.starter)).toEqual({ price: "On request", period: null });
+    expect(plans.growth).toEqual({ ...PLAN_INFO.growth, priceCents: 120000, period: "year" });
   });
 });
