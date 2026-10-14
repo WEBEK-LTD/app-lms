@@ -3,7 +3,7 @@ import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
 import type { AppType, AppVertical, Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
 import { toVertical } from "../app/kinds";
-import { chosenSignInMethods } from "../hosted/sign-in-methods";
+import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans } from "../entitlements";
@@ -30,6 +30,8 @@ export interface LicenseStatusBody {
   limits: { app_users: number | null; languages: number | null; sources: number | null } | null;
   /** 18 How people sign in, as the app's owner chose on App sign-in; null: the plugin's own setting. */
   sign_in_methods: SignInMethod[] | null;
+  /** 24 How email sign-in works on WordPress, as the owner chose on App sign-in; null: the plugin's own setting. */
+  email_sign_in: "code" | "password" | null;
   /** 20 The app's engine and kind of business, so the plugin doesn't guess them; null without an app. */
   app_type: AppType | null;
   vertical: AppVertical | null;
@@ -109,6 +111,7 @@ function formatDate(date: Date): string {
 /** 18, 20 What the license status tells about the license's app. */
 interface AppFacts {
   methods: SignInMethod[] | null;
+  emailSignIn: "code" | "password" | null;
   appType: AppType | null;
   vertical: AppVertical | null;
 }
@@ -128,6 +131,7 @@ function statusBody(
     features: state === "active" && plan ? [...plan.features] : [],
     limits: plan ? { app_users: plan.limits.appUsers, languages: plan.limits.languages, sources: plan.limits.sources } : null,
     sign_in_methods: facts.methods,
+    email_sign_in: facts.emailSignIn,
     app_type: facts.appType,
     vertical: facts.vertical,
     expires_at: license ? license.expiresAt.toISOString() : null,
@@ -147,11 +151,11 @@ function inactiveMessage(state: LicenseState, license: License): string {
   }
 }
 
-/** 18 The owner's sign-in methods for the license's app (null until they choose); 20 its engine and vertical. */
+/** 18 The owner's sign-in methods for the license's app (null until they choose); 24 how email works; 20 its engine and vertical. */
 async function appFactsOf(store: DataStore, license: License): Promise<AppFacts> {
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (!app) return { methods: null, appType: null, vertical: null };
-  return { methods: chosenSignInMethods(app), appType: app.appType, vertical: toVertical(app.vertical) };
+  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null };
+  return { methods: chosenSignInMethods(app), emailSignIn: chosenEmailSignIn(app), appType: app.appType, vertical: toVertical(app.vertical) };
 }
 
 async function findLicense(store: DataStore, key: string): Promise<{ license: License; client: Client } | null> {

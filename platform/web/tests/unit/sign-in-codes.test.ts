@@ -63,7 +63,7 @@ describe("POST /sign-in-codes/send: the request", () => {
     const parsed = parseSignInCodeRequest(body("YALL-7K2D-9QWE-4MNB", { app_name: "  Nour\u0000 Academy " }));
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
-    expect(parsed.value.phone).toEqual({ countryCode: "+90", number: "5321234567", e164: "+905321234567" });
+    expect(parsed.value.channel === "whatsapp" && parsed.value.phone).toEqual({ countryCode: "+90", number: "5321234567", e164: "+905321234567" });
     expect(parsed.value.code).toBe("482913");
     expect(parsed.value.appName).toBe("Nour Academy");
   });

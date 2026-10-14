@@ -3,6 +3,7 @@ import { getStore } from "./data";
 import type { DataStore } from "./data/store";
 import { encryptionKey, isProduction, mailCaptureDir } from "./env";
 import { DEFAULT_CONTACT } from "./contact";
+import { fromWithName } from "./email/app-mail";
 import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
 
 export interface Mail {
@@ -19,7 +20,7 @@ export interface Mail {
  * with a warning that doesn't include the content (it may hold a reset link).
  * Emails from the admin's templates go through `sendTemplate` (lib/email/send.ts).
  */
-export async function sendMail(input: Mail): Promise<void> {
+export async function sendMail(input: Mail, options: { fromName?: string } = {}): Promise<void> {
   const store = await getStore();
   const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
   const mail = {
@@ -46,7 +47,9 @@ export async function sendMail(input: Mail): Promise<void> {
     auth: config.user ? { user: config.user, pass: config.pass ?? "" } : undefined,
     requireTLS: !config.secure,
   });
-  await transport.sendMail({ from: config.from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html });
+  // 24 Emails to an app's users go out from Yallapp's address with the app's name.
+  const from = options.fromName ? fromWithName(config.from, options.fromName) : config.from;
+  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html });
 }
 
 /** 19 Whether SMTP is set up (in the admin's Settings or the server's variables). */

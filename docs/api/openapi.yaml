@@ -253,11 +253,20 @@ paths:
       summary: Send a sign-in code by email
       description: |
         Sends a 6-digit code to the email address, when `Config.auth.methods` has
-        `email` and `Config.auth.email_sign_in` is `code` (the hosted API). Same
+        `email` and `Config.auth.email_sign_in` is `code` (the hosted API, and
+        WordPress sites whose owner chose email codes). Same
         rules as phone codes: valid for 5 minutes, 5 attempts, a new code after a
         minute, limited per address and per IP. Verify it with `POST /auth/otp/verify`;
-        an address with no account gets a `signup_token`, and `POST /auth/register`
-        then asks the same details as a phone sign-up (the email is already known).
+        an address with no account gets a `signup_token` (when sign-up from the app
+        is allowed), and `POST /auth/register` then asks the same details as a phone
+        sign-up (the email is already known).
+
+        The email comes from the app's own email address when its owner set up
+        their own email server in the Yallapp dashboard, else from Yallapp's
+        address with the app's name. On WordPress the plugin makes the code
+        and Yallapp delivers it; an account that can edit the site never signs
+        in by code (it gets no email and the code is refused), so staff sign in
+        on the website.
 
         Refused with 403 `method_not_allowed` when the app doesn't offer email
         sign-in. Demo apps sign in only by phone: 403 `demo_number_only`.
@@ -306,7 +315,8 @@ paths:
         For servers whose `Config.auth.email_sign_in` is `password` (a WordPress site:
         its own accounts and passwords, checked by WordPress with the site's own
         rules and security plugins). Only existing accounts sign in here; people
-        without an account sign up by phone or on the website. A wrong address and
+        without an account sign up by phone or on the website (or, where the owner
+        chose email codes, with `POST /auth/email/request`). A wrong address and
         a wrong password get the same 400 `invalid_credentials`, so the answer never
         tells whether an account exists. Limited per address and per IP. Devices
         and the device limit work as for phone sign-in.
@@ -2083,9 +2093,12 @@ components:
               type: string
               enum: [code, password]
               description: |
-                How `email` works: `code` (a 6-digit code by email, `POST /auth/email/request`,
-                the hosted API) or `password` (the account's password, `POST /auth/password`,
-                WordPress). Sent when `methods` has `email`.
+                How `email` works: `code` (a 6-digit code by email, `POST /auth/email/request`;
+                anyone can sign in, and people without an account sign up) or `password`
+                (the account's password, `POST /auth/password`; existing accounts only).
+                The hosted API uses `code`. A WordPress site uses `password` unless its
+                owner chose `code` (in the Yallapp dashboard or the plugin's settings;
+                plugin 0.3.5 and later). Sent when `methods` has `email`.
             password_reset_url: { type: [string, 'null'], format: uri, description: "With `email_sign_in: password`: the website's page to reset a forgotten password." }
             preview_sign_in: { type: boolean, description: "Whether `POST /auth/otp/request` honours `preview: true` (only the store review number signs in, no code is sent). The app preview offers sign-in only when this is true. Missing means false." }
         purchases:

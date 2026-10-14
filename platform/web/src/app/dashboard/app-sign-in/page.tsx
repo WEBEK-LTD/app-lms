@@ -4,12 +4,14 @@ import { Notice, btn } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
+import { appMailFormValues } from "@/lib/email/app-mail";
+import { isProduction } from "@/lib/env";
 import { failureDate } from "@/lib/hosted/app-sender";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
-import { chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
-import { AppSignInForm, AppWhatsappForms, SignInMethodsForm } from "./forms";
+import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
+import { AppMailForms, AppSignInForm, AppWhatsappForms, SignInMethodsForm } from "./forms";
 
 export const metadata: Metadata = { title: "App sign-in" };
 
@@ -69,6 +71,16 @@ function CustomApiSignIn({ app }: { app: App }) {
           </Link>
         </div>
       </section>
+      {/* 24 An own API sends its own emails. */}
+      <section aria-labelledby="h-app-mail" className={sectionClass}>
+        <h2 id="h-app-mail" className="m-0 text-[19px] font-bold">
+          Your app&apos;s email
+        </h2>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+          Your API sends its own emails, like sign-in codes, from your own system and your own address. Yallapp doesn&apos;t send emails to the
+          people using your app, so there&apos;s nothing to set here.
+        </p>
+      </section>
     </div>
   );
 }
@@ -86,7 +98,7 @@ function sourceName(app: App): string {
  * sign-in rules of apps on the hosted API (WordPress sets those in the plugin).
  */
 export default async function AppSignInPage() {
-  const { app, client } = await requireClient();
+  const { app, client, user } = await requireClient();
   if (app?.backend === "custom_api") return <CustomApiSignIn app={app} />;
   if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested")) {
     return (
@@ -104,6 +116,9 @@ export default async function AppSignInPage() {
   const methods = wordpress ? (chosenSignInMethods(app) ?? ["phone"]) : hostedSignInMethods(app);
   const sender = app.hostedSettings?.whatsappSender ?? null;
   const failedAt = sender ? (app.hostedSettings?.whatsappFailedAt ?? null) : null;
+  // 24 The owner's own email server, and its last failure.
+  const mailServer = app.hostedSettings?.mailServer ?? null;
+  const mailFailedAt = mailServer ? (app.hostedSettings?.mailFailedAt ?? null) : null;
   // 19 Email chosen, but the content now comes from a platform that finds customers by phone.
   const emailOff = !wordpress && !emailSignInPossible(app) && (chosenSignInMethods(app) ?? []).includes("email");
   const emailOnlyUsers = emailOff ? await (await getStore()).countHostedEmailOnlyUsers(app.id) : 0;
@@ -113,7 +128,7 @@ export default async function AppSignInPage() {
         <h1 className={titleClass}>App sign-in</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           {wordpress
-            ? "People sign in to your app with the accounts on your website. Choose how, and which WhatsApp number sends their codes. The other sign-in rules are in the Yallapp plugin in WordPress."
+            ? "People sign in to your app with the accounts on your website. Choose how, and who sends their codes. The other sign-in rules are in the Yallapp plugin in WordPress."
             : "Choose how customers sign in to your app, and the rules for new customers. Changes apply at once, without a new build."}
         </p>
       </div>
@@ -144,6 +159,8 @@ export default async function AppSignInPage() {
           emailPossible={emailSignInPossible(app)}
           note={emailSignInNote(app)}
           chosen={wordpress ? chosenSignInMethods(app) !== null : true}
+          emailWay={chosenEmailSignIn(app) ?? "password"}
+          emailWayChosen={chosenEmailSignIn(app) !== null}
         />
       </section>
 
@@ -160,6 +177,26 @@ export default async function AppSignInPage() {
         <AppWhatsappForms
           connected={sender ? { keyLast4: sender.keyLast4, instanceId: sender.instanceId } : null}
           defaultPhone={client.whatsapp ?? ""}
+          wordpress={wordpress}
+        />
+      </section>
+
+      <section aria-labelledby="h-app-mail" className={sectionClass}>
+        <h2 id="h-app-mail" className="m-0 text-[19px] font-bold">
+          Your app&apos;s email
+        </h2>
+        {mailFailedAt ? (
+          <Notice tone="warn" icon="warning" role="status">
+            Your email server couldn&apos;t send an email on {failureDate(mailFailedAt)}
+            {app.hostedSettings?.mailFailedReason ? `: ${app.hostedSettings.mailFailedReason}` : "."} People got that email from Yallapp&apos;s
+            address instead. Check the settings below, then send a test email.
+          </Notice>
+        ) : null}
+        <AppMailForms
+          current={appMailFormValues(app)}
+          saved={mailServer ? { host: mailServer.host, username: mailServer.username, fromName: mailServer.fromName, fromAddress: mailServer.fromAddress } : null}
+          defaultTestTo={user.email}
+          production={isProduction()}
           wordpress={wordpress}
         />
       </section>

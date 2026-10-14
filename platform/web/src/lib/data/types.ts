@@ -159,6 +159,39 @@ export interface HostedSettings {
   whatsappFailedAt?: string | null;
   /** 19 Own API apps: how the API signs people in, as the last API check on the Website step found it. */
   apiSignIn?: ApiSignInSnapshot | null;
+  /**
+   * 24 WordPress apps: how email sign-in works, as the owner chose on App
+   * sign-in: `code` (anyone, a code by email; new people get an account) or
+   * `password` (existing accounts). Missing: the plugin's own setting.
+   */
+  emailSignIn?: "code" | "password" | null;
+  /** 24 The owner's own email server for emails to the app's users; Yallapp's server when missing. */
+  mailServer?: AppMailServer | null;
+  /**
+   * 24 When the own email server last failed to send (ISO time), and why in
+   * plain words (no secrets). Yallapp's server sent that email instead;
+   * cleared when the owner saves the server or a test email goes out.
+   */
+  mailFailedAt?: string | null;
+  mailFailedReason?: string | null;
+}
+
+/**
+ * 24 The owner's own email server (SMTP). The password is encrypted with the
+ * context `app-smtp:<app id>` and never shown again.
+ */
+export interface AppMailServer {
+  /** The service picked on the form (lib/email/app-mail-presets.ts), or "custom". */
+  preset: string;
+  host: string;
+  port: number;
+  security: "ssl" | "starttls" | "none";
+  username: string;
+  passwordEncrypted: string;
+  fromName: string;
+  fromAddress: string;
+  replyTo: string | null;
+  savedAt: string;
 }
 
 /** 19 What an own API's `GET /config` advertised for sign-in at the last API check. */

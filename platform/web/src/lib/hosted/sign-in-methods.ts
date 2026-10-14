@@ -12,8 +12,9 @@ import type { App, SignInMethod } from "../data/types";
  *   Shops and booking platforms (Shopify, ikas, SimplyBook, …) find each
  *   customer's orders and bookings by their phone number, so those apps stay
  *   on phone sign-in.
- * - A WordPress site signs people in with their WordPress email and password;
- *   the plugin gets the owner's choice through the license API.
+ * - A WordPress site signs people in with their WordPress email and password,
+ *   or (24) with a code by email that also signs new people up; the plugin
+ *   gets the owner's choices through the license API.
  */
 
 export const SIGN_IN_METHODS: readonly SignInMethod[] = ["phone", "email"];
@@ -55,6 +56,17 @@ export function emailSignInNote(app: Pick<App, "backend" | "connector" | "demo" 
 export function chosenSignInMethods(app: Pick<App, "hostedSettings">): SignInMethod[] | null {
   const saved = (app.hostedSettings?.signInMethods ?? []).filter((m): m is SignInMethod => SIGN_IN_METHODS.includes(m));
   return saved.length ? [...new Set(saved)] : null;
+}
+
+/** 24 WordPress: how email sign-in works, as the owner chose (null: the plugin's own setting, password by default). */
+export function chosenEmailSignIn(app: Pick<App, "hostedSettings">): "code" | "password" | null {
+  const saved = app.hostedSettings?.emailSignIn;
+  return saved === "code" || saved === "password" ? saved : null;
+}
+
+/** 24 The form's email sign-in choice, or null when it isn't one. */
+export function parseEmailSignInChoice(value: string): "code" | "password" | null {
+  return value === "code" || value === "password" ? value : null;
 }
 
 /** The methods the hosted API offers: the owner's choice where email is possible, else phone. */
