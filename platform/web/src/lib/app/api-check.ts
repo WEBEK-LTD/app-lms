@@ -82,7 +82,8 @@ export function isPrivateAddress(address: string): boolean {
   return v6 === "::" || v6 === "::1" || v6.startsWith("fc") || v6.startsWith("fd") || v6.startsWith("fe8") || v6.startsWith("fe9") || v6.startsWith("fea") || v6.startsWith("feb");
 }
 
-async function defaultResolve(host: string): Promise<string[]> {
+/** The addresses a host name points to (an IP address stands for itself). 24 Also checks the owner's email server. */
+export async function resolveHost(host: string): Promise<string[]> {
   if (isIP(host)) return [host];
   const records = await lookup(host, { all: true });
   return records.map((r) => r.address);
@@ -148,7 +149,7 @@ export async function readApiList(
   options: { fetcher?: Fetch; resolve?: Resolve } = {},
 ): Promise<Record<string, unknown>[]> {
   const fetcher = options.fetcher ?? fetch;
-  const resolve = options.resolve ?? defaultResolve;
+  const resolve = options.resolve ?? resolveHost;
   const base = baseUrl.trim().replace(/\/+$/, "");
   try {
     const url = new URL(base);
@@ -177,7 +178,7 @@ export async function checkApi(
   options: { fetcher?: Fetch; resolve?: Resolve } = {},
 ): Promise<ApiCheckResult> {
   const fetcher = options.fetcher ?? fetch;
-  const resolve = options.resolve ?? defaultResolve;
+  const resolve = options.resolve ?? resolveHost;
   const base = baseUrl.trim().replace(/\/+$/, "");
   const checks: ApiCheck[] = [];
   const done = (): ApiCheckResult => ({ ok: checks.every((c) => c.ok), checks });

@@ -603,7 +603,23 @@ check( 'password: limited per address', 429 === $r['status'] && 'rate_limited' =
 set_settings( array( 'sign_in_methods' => 'email' ) );
 $r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => '53' . str_pad( (string) random_int( 0, 99999999 ), 8, '0', STR_PAD_LEFT ) ) );
 check( 'email only: phone codes refused', 403 === $r['status'] && 'method_not_allowed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
-set_settings( array( 'sign_in_methods' => 'phone' ) );
+$newcomer = 'newcomer' . random_int( 1000, 9999 ) . '@example.org';
+$r        = call( 'POST', '/auth/email/request', array( 'email' => $newcomer ) );
+check( 'email codes: refused while email signs in with the password', 403 === $r['status'] && 'method_not_allowed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'email_sign_in' => 'code' ) );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: email with a code, no password page', array( 'email' ) === ( $r['json']['auth']['methods'] ?? null ) && 'code' === ( $r['json']['auth']['email_sign_in'] ?? '' ) && ! isset( $r['json']['auth']['password_reset_url'] ), $r['json']['auth'] ?? null );
+$r = call( 'POST', '/auth/email/request', array( 'email' => $newcomer ) );
+check( 'email codes: a code is sent', 200 === $r['status'] && ! empty( $r['json']['request_id'] ) && 6 === ( $r['json']['code_length'] ?? 0 ), $r['raw'] );
+$r = call( 'POST', '/auth/otp/verify', array( 'request_id' => $r['json']['request_id'] ?? '', 'code' => '123456', 'device' => device( 'mail-1' ) ) );
+check( 'email codes: a new address signs up', 200 === $r['status'] && ! empty( $r['json']['signup_token'] ), $r['raw'] );
+$r = call( 'POST', '/auth/register', array( 'signup_token' => $r['json']['signup_token'] ?? '', 'name' => 'New Comer', 'device' => device( 'mail-1' ) ) );
+check( 'email codes: the WordPress account is made with that address', 201 === $r['status'] && $newcomer === ( $r['json']['user']['email'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/auth/email/request', array( 'email' => 'not-an-address' ) );
+check( 'email codes: an invalid address', 400 === $r['status'] && 'invalid_email' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/auth/email/request', array( 'email' => $member, 'preview' => true ) );
+check( 'email codes: not in the app preview', 403 === $r['status'] && 'preview_review_number_only' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'sign_in_methods' => 'phone', 'email_sign_in' => 'password' ) );
 wp_cli( 'eval \'global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE \"%yallapp_rl_%\"" );\'' );
 
 set_settings( array( 'device_limit_action' => 'replace_oldest' ) );

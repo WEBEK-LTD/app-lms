@@ -43,7 +43,10 @@ export type EmailTemplateKey =
   | "sign_in_code"
 
   // 19 Sign-in gaps
-  | "own_whatsapp_failed";
+  | "own_whatsapp_failed"
+
+  // 24 Your app's own email
+  | "own_email_failed";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -398,7 +401,8 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
     key: "sign_in_code",
     name: "Sign-in code",
-    description: "To someone signing in to a client's app by email (apps on the hosted API that offer email sign-in). Sent in the app's name.",
+    description:
+      "To someone signing in to a client's app by email (apps on the hosted API, and WordPress sites with email codes). Sent in the app's name, from the app's own email server when its owner set one.",
     placeholders: [
       { name: "app_name", description: "The app's name", sample: "Nour Academy" },
       { name: "code", description: "The 6-digit code", sample: "482913" },
@@ -425,6 +429,25 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nOn {{date}}, your own WhatsApp number couldn't send a sign-in code for {{app_name}}. " +
       "So your customers still got their codes, we sent them from Yallapp's WhatsApp number, when it was available.\n\n" +
       "Check your number and your API key in your WABEK account, then send a test code on App sign-in:\n{{sign_in_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "own_email_failed",
+    name: "Own email server failed",
+    description:
+      "To a client when their own email server (Your app's email, on App sign-in) couldn't send an email to one of their app's users. At most one a day per app; Yallapp's server sent the email instead.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "date", description: "The day it failed", sample: "14 Oct 2026" },
+      { name: "reason", description: "Why, in plain words (never a password)", sample: "The email server refused the username or password." },
+      { name: "sign_in_url", description: "The link to the app's App sign-in page", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=app-sign-in" },
+    ],
+    subject: "{{app_name}}: your email server couldn't send an email",
+    body:
+      "Hello {{name}},\n\nOn {{date}}, your own email server couldn't send an email to someone using {{app_name}}:\n{{reason}}\n\n" +
+      "So they still got it, we sent it from Yallapp's email address instead, with your app's name.\n\n" +
+      "Check your email server's settings, then send a test email on App sign-in:\n{{sign_in_url}}" +
       SIGNATURE,
   },
 ];

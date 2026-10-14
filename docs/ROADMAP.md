@@ -359,3 +359,20 @@ confirm are marked "Unverified" in the code.
 | [x] | 22.3 Website step: Client ID, optional API key (encrypted) and site ID (a dashboard address works), optional store address; the setup check reads one product and, with a key, one order, and says in plain English what to fix (wrong client ID, no Wix Stores, the older Catalog V1, a key without the orders permission, a wrong site ID); platforms can now word their own setup errors (`PlatformCheckError`) | Unit tests and the platforms browser test |
 | [x] | 22.4 Registered everywhere platforms are: switches, the Store choices on the Website step, docs article "Connect your Wix store", Integrations and the marketing lists | Unit tests and the platforms browser test |
 | [~] | 22.5 Checked against a real Wix store | Waiting on a Wix test site with Wix Stores (`docs/LAUNCH-CHECKLIST.md` › 8) |
+
+## Phase 24: Your app's own email
+
+An app's owner sends the emails that go to their app's users from their own
+address, through their own email server, and WordPress apps can sign new
+people up by email with a code. Built and tested with the in-memory store,
+the plugin's unit and integration tests and browser tests. How it works is
+in `docs/ARCHITECTURE.md` ("Sign-in for every app").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 24.1 Contract first: `POST /sign-in-codes/send` takes `channel: email` with `email` (`invalid_email`) and `LicenseStatus.email_sign_in` (`docs/api/platform.yaml`); WordPress sites may serve `Config.auth.email_sign_in: code` (`docs/api/openapi.yaml`) | `redocly lint` passes and responses are checked against the contracts in unit tests |
+| [x] | 24.2 "Your app's email" on App sign-in (hosted, WordPress and "set up WordPress for me" apps; own APIs are told their API sends its own emails): "Sent by Yallapp" (Yallapp's address with the app's name) or "My own email server" with Google, Microsoft, Zoho Mail (also EU), Yandex and Other, each with plain steps; the password encrypted per app (`app-smtp:<app id>`), never shown again, blank keeps it; a warning when the From address isn't at the username's domain; no unencrypted connection in production; "Send a test email" (5 per 10 minutes) with the server's error in plain words; only ports 25, 465, 587 and 2525, never a private or local address, 10-second timeouts | Unit tests with a fake transport; the browser test saves a Google mailbox, never sees the password again and gets a clear error from a server that doesn't exist |
+| [x] | 24.3 Emails to the app's users (email sign-in codes, hosted and WordPress) go through the own server; emails to owners and the team stay on Yallapp's. When it fails: logged without secrets, sent once more from Yallapp's server, the day and reason shown on App sign-in, and the owner emailed at most once a day (template "Own email server failed") | Unit tests and the browser test (a code still arrives and the warning shows) |
+| [x] | 24.4 Plugin 0.3.5: "Email sign-in works" with the password (default) or with a code; codes made like phone codes and emailed through `POST /sign-in-codes/send`; a new address gets a WordPress account when sign-up from the app is on; accounts that can edit the site never sign in by code; the dashboard's choice replaces the setting | `composer lint`, `php -l`, unit tests and the integration test pass |
+| [x] | 24.5 App sign-in for WordPress chooses "With a code by email: anyone can sign up" or "With their password: existing accounts only", with clearer lines on when the website picks it up; docs "Send your app's emails from your own address" with each service's steps; the privacy policy mentions the owner's own email server | Unit tests and the browser tests |
+| [ ] | 24.6 Tried with a real mailbox and on a WordPress test site with plugin 0.3.5 | `docs/LAUNCH-CHECKLIST.md` › 7a |

@@ -15,6 +15,9 @@
 // phpcs:disable -- Test script run by WP-CLI, not loaded by the plugin.
 
 use Yallapp\Auth\Rate_Limiter;
+use Yallapp\Crypto;
+use Yallapp\Otp\Email_Codes;
+use Yallapp\Otp\Methods;
 use Yallapp\Otp\Phone;
 use Yallapp\Otp\Sign_In;
 use Yallapp\Otp\Yallapp_Adapter;
@@ -196,6 +199,79 @@ $check( 'codes: an unreachable platform is a provider error', is_wp_error( $resu
 $none = $adapter->verify( $phone, '123456', false );
 $check( 'codes: a failed send keeps no code', is_wp_error( $none ) && 'code_expired' === $none->get_error_code(), $none );
 $reply = null;
+
+// Email sign-in with a code: Yallapp emails the code, a new address signs up, staff never sign in by code.
+$activate();
+$settings->update( array( 'sign_in_methods' => 'email', 'email_sign_in' => 'code', 'signup_allowed' => true ) );
+$by_mail   = new Sign_In( $settings, new Yallapp_Adapter( $license ), $plugin->devices(), $plugin->tokens(), $license, new Email_Codes( $license ) );
+$clear_box = static function ( $email ) {
+	$bucket = substr( Crypto::hash( Email_Codes::subject( $email ) ), 0, 40 );
+	Rate_Limiter::clear( 'resend|' . $bucket );
+	Rate_Limiter::clear( 'email|' . $bucket );
+	Rate_Limiter::clear( 'ip|' . Rate_Limiter::client_ip() );
+};
+$check( 'email codes: the owner\'s choice is code', Methods::CODE === $by_mail->email_way() );
+$address = 'codes-' . wp_rand( 100000, 999999 ) . '@example.com';
+$clear_box( $address );
+$count = count( $requests );
+$sent  = $by_mail->request_email( strtoupper( $address ) );
+$last  = end( $requests );
+$code  = $last_code();
+$check(
+	'email codes: the platform gets channel email, the address and the code',
+	is_array( $sent ) && ! empty( $sent['request_id'] ) && count( $requests ) === $count + 1 && 'email' === ( $last['body']['channel'] ?? '' )
+		&& $address === ( $last['body']['email'] ?? '' ) && ! isset( $last['body']['phone'] ) && 1 === preg_match( '/^\d{6}$/', $code ),
+	$last
+);
+$stored = $wpdb->get_col( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_yallapp_email_code_%'" );
+$check( 'email codes: kept only as a hash, under no address', count( $stored ) >= 1 && false === strpos( implode( ' ', $stored ), 'example.com' ), $stored );
+$wrong = $by_mail->verify( $sent['request_id'], '000000' === $code ? '111111' : '000000', $device );
+$check( 'email codes: a wrong code is refused', is_wp_error( $wrong ) && 'invalid_code' === $wrong->get_error_code(), $wrong );
+$signup = $by_mail->verify( $sent['request_id'], $code, $device );
+$check( 'email codes: a new address is asked to sign up, without asking its email again', is_array( $signup ) && ! empty( $signup['signup_token'] ) && ! in_array( 'email', $signup['fields'], true ), $signup );
+$made = $by_mail->register( $signup['signup_token'], array( 'name' => 'Sara Code' ), $device );
+$check( 'email codes: sign-up makes a WordPress account with that address', is_array( $made ) && $address === ( $made['user']['email'] ?? '' ) && 'Sara Code' === ( $made['user']['name'] ?? '' ), $made );
+$new_id = (int) ( $made['user']['id'] ?? 0 );
+$clear_box( $address );
+$again   = $by_mail->request_email( $address );
+$session = $by_mail->verify( $again['request_id'], $last_code(), $device );
+$check( 'email codes: the account signs in again by code', is_array( $session ) && $new_id === ( $session['user']['id'] ?? 0 ), $session );
+
+$staff_mail = 'editor-' . wp_rand( 100000, 999999 ) . '@example.com';
+$staff_id   = wp_insert_user(
+	array(
+		'user_login' => 'editor' . wp_rand( 100000, 999999 ),
+		'user_pass'  => wp_generate_password(),
+		'user_email' => $staff_mail,
+		'role'       => 'editor',
+	)
+);
+$clear_box( $staff_mail );
+$count = count( $requests );
+$staff = $by_mail->request_email( $staff_mail );
+$check( 'email codes: a staff account gets the same answer but no email', is_array( $staff ) && ! empty( $staff['request_id'] ) && count( $requests ) === $count, $staff );
+$denied = $by_mail->verify( $staff['request_id'], $code, $device );
+$check( 'email codes: no code signs in a staff account', is_wp_error( $denied ) && 'invalid_code' === $denied->get_error_code(), $denied );
+
+$settings->update( array( 'signup_allowed' => false ) );
+$closed = 'closed-' . wp_rand( 100000, 999999 ) . '@example.com';
+$clear_box( $closed );
+$asked  = $by_mail->request_email( $closed );
+$closed_result = $by_mail->verify( $asked['request_id'], $last_code(), $device );
+$check( 'email codes: with sign-up off, a new address gets no account', is_wp_error( $closed_result ) && 'signup_disabled' === $closed_result->get_error_code(), $closed_result );
+
+$settings->update( array( 'signup_allowed' => true, 'email_sign_in' => 'password' ) );
+$refused = $by_mail->request_email( $address );
+$check( 'email codes: refused when email signs in with the password', is_wp_error( $refused ) && 'method_not_allowed' === $refused->get_error_code(), $refused );
+update_option( 'yallapp_license', array( 'status' => 'active', 'plan' => 'starter', 'features' => array(), 'email_sign_in' => 'code', 'contacted_at' => time() ), false );
+$check( 'email codes: the dashboard\'s choice replaces the setting', Methods::CODE === $by_mail->email_way() );
+$settings->update( array( 'sign_in_methods' => 'phone', 'email_sign_in' => 'password' ) );
+foreach ( array( $new_id, $staff_id ) as $id ) {
+	foreach ( $plugin->devices()->for_user( $id ) as $row ) {
+		$plugin->devices()->remove( $id, (int) $row->id );
+	}
+	wp_delete_user( $id );
+}
 
 // Without an active license, nothing is asked.
 $forget();

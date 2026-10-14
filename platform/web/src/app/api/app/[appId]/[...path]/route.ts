@@ -1,7 +1,6 @@
 import { assetUrl } from "@/lib/assets";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
-import { mailDelivered } from "@/lib/mail";
 import { appOtpSender, recordOwnWhatsappFailure, senderWithFallback } from "@/lib/hosted/app-sender";
 import { resolvedOtpSenderConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
@@ -15,7 +14,7 @@ import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
 import type { BookingAppointment } from "@/lib/data/types";
 import { newInquiryMailValues } from "@/lib/listings/notify";
-import { sendTemplate } from "@/lib/email/send";
+import { appMailDelivered, sendTemplate } from "@/lib/email/send";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { checkAppUserNotices } from "@/lib/notices";
@@ -95,10 +94,11 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       ),
       sendEmailCode: async ({ to, code, appName, minutes }) => {
         // Without SMTP in production, sendMail drops the message: say the code couldn't be sent instead.
-        if (!(await mailDelivered(store))) {
+        // 24 The app's own email server counts too: the code goes out through it.
+        if (!(await appMailDelivered(store, app))) {
           throw new Error("No email server is set up.");
         }
-        await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) });
+        await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) }, { app });
       },
       push: serviceAccountOf(app, encryptionKey()) !== null,
       assetUrl: assetUrl,

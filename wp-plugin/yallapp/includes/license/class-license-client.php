@@ -104,6 +104,35 @@ class License_Client {
 	 *                       `license_inactive`, `license_not_found`, `invalid_phone`, `provider_error`, …
 	 */
 	public function send_code( $phone, $code ) {
+		return $this->send_sign_in_code( array( 'phone' => (string) $phone ), $code );
+	}
+
+	/**
+	 * Asks the platform to email a sign-in code (sendSignInCode with `channel: email`): from the
+	 * app owner's own email server when they set one in the Yallapp dashboard, else Yallapp's.
+	 *
+	 * @param string $email Email address.
+	 * @param string $code  The code this site made.
+	 * @return true|WP_Error The platform's error codes, as for send_code() (`invalid_email` instead of `invalid_phone`).
+	 */
+	public function send_email_code( $email, $code ) {
+		return $this->send_sign_in_code(
+			array(
+				'channel' => 'email',
+				'email'   => (string) $email,
+			),
+			$code
+		);
+	}
+
+	/**
+	 * POST /sign-in-codes/send.
+	 *
+	 * @param array  $to   `phone`, or `channel` and `email`.
+	 * @param string $code The code this site made.
+	 * @return true|WP_Error
+	 */
+	private function send_sign_in_code( array $to, $code ) {
 		$key = (string) $this->settings->get( 'license_key' );
 		if ( '' === $key ) {
 			return new WP_Error( 'license_missing', __( 'Activate your Yallapp license to send sign-in codes.', 'yallapp' ) );
@@ -118,8 +147,8 @@ class License_Client {
 			'/sign-in-codes/send',
 			array_merge(
 				$this->site_info( $key ),
+				$to,
 				array(
-					'phone'    => (string) $phone,
 					'code'     => (string) $code,
 					'app_name' => mb_substr( $name, 0, 60 ),
 				)
@@ -173,7 +202,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, app_type: string|null, vertical: string|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, app_type: string|null, vertical: string|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -183,6 +212,7 @@ class License_Client {
 				'plan'            => null,
 				'features'        => array(),
 				'sign_in_methods' => null,
+				'email_sign_in'   => null,
 				'app_type'        => null,
 				'vertical'        => null,
 				'expires_at'      => null,
@@ -374,6 +404,8 @@ class License_Client {
 			'features'        => $features,
 			// How people sign in, as the owner chose on the dashboard; null: the plugin setting applies.
 			'sign_in_methods' => $methods ? $methods : null,
+			// How email sign-in works (a code, or the password), as the owner chose; null: the plugin setting.
+			'email_sign_in'   => in_array( $result['email_sign_in'] ?? null, array( 'code', 'password' ), true ) ? $result['email_sign_in'] : null,
 			// The app's type and kind of business, as the owner chose them; null when unknown.
 			'app_type'        => $app['app_type'],
 			'vertical'        => $app['vertical'],

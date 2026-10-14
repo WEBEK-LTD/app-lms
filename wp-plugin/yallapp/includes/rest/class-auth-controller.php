@@ -71,6 +71,24 @@ class Auth_Controller extends Controller {
 			)
 		);
 		$this->route(
+			'/auth/email/request',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'request_email_code' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'email'   => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'preview' => array(
+						'type'     => 'boolean',
+						'required' => false,
+					),
+				),
+			)
+		);
+		$this->route(
 			'/auth/password',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -161,6 +179,16 @@ class Auth_Controller extends Controller {
 		// The app preview in the Yallapp dashboard signs in only the store review number.
 		$preview = true === $request['preview'];
 		return $this->result( $this->plugin->sign_in()->request( (string) $request['country_code'], (string) $request['phone'], $preview ) );
+	}
+
+	/**
+	 * POST /auth/email/request: a code by email, when email sign-in works with a code.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function request_email_code( WP_REST_Request $request ) {
+		return $this->result( $this->plugin->sign_in()->request_email( (string) $request['email'], true === $request['preview'] ) );
 	}
 
 	/**

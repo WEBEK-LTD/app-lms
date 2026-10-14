@@ -1,3 +1,4 @@
+import { MAIL_PRESETS } from "../lib/email/app-mail-presets";
 import { DEVELOPER_GUIDE } from "./docs-developer";
 
 /**
@@ -66,6 +67,11 @@ export const GUIDE_REDIRECTS: Record<string, string> = {
 };
 
 const doc = (d: Omit<DocDefault, "key"> & { key?: string }): DocDefault => ({ key: `doc-${d.slug}`, ...d });
+
+/** 24 The steps of each email service on App sign-in › Your app's email, as the dashboard shows them. */
+const MAIL_PRESET_STEPS = MAIL_PRESETS.map(
+  (p) => `**${p.name}** (${p.hint}${p.host ? `: ${p.host}, ${p.ports.map((port) => port.label).join(" or ")}` : ""})\n\n${p.steps.map((step, i) => `${i + 1}. ${step}`).join("\n")}`,
+).join("\n\n");
 
 export const DOCS: DocDefault[] = [
   // -------------------------------------------------------------------------
@@ -794,7 +800,7 @@ People choose which notifications they get in the app's settings. If notificatio
     slug: "app-users",
     section: "Your app",
     title: "App users and sign-in",
-    description: "How people sign in to your app: by phone, by email or both, the WhatsApp number that sends their codes, and the sign-in rules you set.",
+    description: "How people sign in to your app: by phone, by email or both, the WhatsApp number and the email address that send their codes, and the sign-in rules you set.",
     steps: false,
     body: `People sign in to your app with their phone number and a one-time code, with their email address, or either: you choose on the dashboard's **App sign-in** page.
 
@@ -803,12 +809,17 @@ People choose which notifications they get in the app's settings. If notificatio
 On **App sign-in**, under **How people sign in**, choose:
 
 - **Phone number**: a 6-digit code on WhatsApp. The default.
-- **Email address**: with no website or with content in the dashboard, a 6-digit code by email, sent in your app's name. New people sign up with their email address. On WordPress, the email address and password of their account on your website; WordPress checks the password, and "Forgot your password?" opens your website's reset page.
+- **Email address**: with no website or with content in the dashboard, a 6-digit code by email, sent in your app's name. New people sign up with their email address. On WordPress, you choose how email works (see below).
 - **Phone number or email address**: the app shows a **Phone / Email** switch.
 
 Apps connected to Shopify, ikas, Ticimax, IdeaSoft or SimplyBook.me sign in by phone: those platforms find each customer's orders and bookings by their phone number. Apps connected to Teachable or Thinkific can also sign in by email: someone who signs in by email sees the courses of their school account with that address, including courses bought on your website.
 
-On WordPress, email sign-in is for people who already have an account on your website; new people sign up with their phone number or on your website. Your choice reaches your website at the plugin's next license check (within 12 hours), or at once with **Check now** in the Yallapp plugin. Until you choose here, the plugin's own **Sign-in** setting applies.
+On WordPress, choose how email sign-in works:
+
+- **With a code by email: anyone can sign up.** People get a 6-digit code by email. Someone without an account on your website gets one, with the details you ask for, when the plugin's **Allow new accounts to sign up from the app** is on. Accounts that can edit your website (staff) never sign in by code: they sign in on the website. Needs version 0.3.5 or later of the Yallapp plugin.
+- **With their password: existing accounts only.** The email address and password of their account on your website; WordPress checks the password, and "Forgot your password?" opens your website's reset page. New people sign up by phone or on your website.
+
+Your website picks up your choices within 12 hours, or right away when you click **Check now** in the Yallapp plugin. They override the plugin's own **Sign-in** settings; until you choose here, those apply.
 
 Your store review number always signs in, also when the app signs in by email only. When it signs in by email only, the app shows no phone field, so also set a store review email address (see below).
 
@@ -821,6 +832,18 @@ Codes go out from Yallapp's WhatsApp number, with your app's name. To send them 
 On WordPress, this applies when the plugin's **Sign-in codes are sent by** setting is **Sent by Yallapp (WhatsApp)**.
 
 If your number can't send a code (WABEK doesn't answer, or the number is disconnected), that code goes out from Yallapp's number instead, so your customers still get it. We email you, at most once a day, and **App sign-in** shows the day it happened until you save a new key or a test code goes out.
+
+## Send your app's emails from your own address
+
+Emails to the people using your app, like email sign-in codes, go out from Yallapp's address with your app's name. To send them from your own address, like hello@your-site.com, open **App sign-in**, go to **Your app's email**, choose **My own email server** and pick your email service. The server settings are filled in for you; follow the steps shown for your service:
+
+${MAIL_PRESET_STEPS}
+
+Then type the username and password, the **From name** people see (usually your app's name) and the **From address**, and save. The password is stored encrypted and never shown again; leave it blank later to keep it. Use the mailbox's own address as the From address: many services refuse other addresses, and the page warns you when it differs from the username. A **Reply-to address** is optional.
+
+Select **Send a test email** and check that it arrives (look in the spam folder too). If it doesn't, the page says why in plain words: the username or password was refused, the server couldn't be found or didn't answer, or the secure connection failed.
+
+If your server can't send an email later, that email goes out from Yallapp's address instead, so nobody misses a code. We email you, at most once a day, and **Your app's email** shows the day and the reason until you save the settings again or a test email goes out. Emails to you and your team always come from Yallapp. On WordPress, this is for the codes Yallapp emails for your website; your website's own emails still come from WordPress. With your own API, your API sends its own emails.
 
 ## How a phone sign-in works
 

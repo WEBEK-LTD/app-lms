@@ -201,10 +201,19 @@ paths:
         must be active on this site (not expired, suspended or bound to
         another site). Available on every plan.
 
+        With `channel: email`, delivers `code` to `email` instead, in the
+        "Sign-in code" email with the app's name: through the app owner's own
+        email server when they set one (App sign-in, "Your app's email"),
+        else from Yallapp's address. When the own server fails, Yallapp's
+        sends that email once more and the owner is told. Used by sites whose
+        email sign-in works with a code (`LicenseStatus.email_sign_in`).
+
         Limits: 120 requests a minute per IP; per license 300 an hour and
-        2000 a day; per phone number (across all sites) one every 30 seconds
-        and 10 an hour. A request over a limit gets 429 with
-        `retry_after_seconds` and a `Retry-After` header.
+        2000 a day (phone and email together); per phone number or email
+        address (across all sites) one every 30 seconds and 10 an hour. A
+        request over a limit gets 429 with `retry_after_seconds` and a
+        `Retry-After` header. Numbers and addresses are kept only as keyed
+        hashes in the counters, and the code is never stored.
       requestBody:
         required: true
         content:
@@ -213,7 +222,7 @@ paths:
       responses:
         '204': { description: The code was handed to the sender. }
         '400':
-          description: The request is invalid (`invalid_request`), or the phone number isn't a valid mobile number (`invalid_phone`).
+          description: The request is invalid (`invalid_request`), the phone number isn't a valid mobile number (`invalid_phone`), or the email address isn't valid (`invalid_email`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -323,9 +332,15 @@ components:
       allOf:
         - $ref: '#/components/schemas/SiteInfo'
         - type: object
-          required: [phone, code]
+          required: [code]
           properties:
-            phone: { type: string, pattern: '^\+[1-9][0-9]{6,14}$', description: The person's mobile number in E.164., example: '+905321234567' }
+            channel:
+              type: string
+              enum: [whatsapp, email]
+              default: whatsapp
+              description: "`whatsapp` (the default) sends to `phone`; `email` sends to `email`. Missing on plugins before 0.3.5."
+            phone: { type: string, pattern: '^\+[1-9][0-9]{6,14}$', description: "The person's mobile number in E.164. Required with `channel: whatsapp`.", example: '+905321234567' }
+            email: { type: string, format: email, maxLength: 191, description: "The person's email address. Required with `channel: email`.", example: sara@example.com }
             code: { type: string, pattern: '^[0-9]{6}$', description: The code the plugin made. Sent once and never stored., example: '482913' }
             app_name: { type: string, maxLength: 60, description: "The app's name on the site, used only when the license's app has no name on the platform yet.", example: Nour Academy }
 
@@ -362,9 +377,20 @@ components:
             How people sign in to the app, as its owner chose on the dashboard's
             App sign-in page: `phone`, `email` or both. Null when the owner hasn't
             chosen: the plugin's own setting applies. The plugin serves it as
-            `Config.auth.methods` (email signs in with the WordPress password);
+            `Config.auth.methods` (email works as `email_sign_in` says);
             a change reaches the site at its next check (every 12 hours) or at once
             with "Check now". Missing on older platforms.
+        email_sign_in:
+          type: [string, 'null']
+          enum: [code, password, null]
+          description: |
+            How email sign-in works, as the app's owner chose on the dashboard's
+            App sign-in page: `code` (a 6-digit code by email, sent through
+            `POST /sign-in-codes/send` with `channel: email`; people without an
+            account sign up) or `password` (the WordPress email and password;
+            existing accounts only). Null when the owner hasn't chosen: the
+            plugin's own setting applies. The plugin serves it as
+            `Config.auth.email_sign_in`. Missing on older platforms.
         app_type:
           type: [string, 'null']
           enum: [lms, store, booking, real_estate, null]

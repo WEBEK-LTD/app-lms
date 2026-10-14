@@ -75,6 +75,13 @@ export const RATE_LIMITS = {
   appWhatsappTest: { name: "app-whatsapp-test:app", limit: 5, windowSeconds: 10 * 60 },
   // 19 The email telling an owner their own WhatsApp number failed: at most one per app a day (UTC).
   ownWhatsappFailedMail: { name: "own-whatsapp-failed:app", limit: 1, windowSeconds: 24 * 60 * 60 },
+  // 24 Email codes WordPress sites send through Yallapp: per address as a keyed hash, across every site (the license limits above apply too).
+  signInCodeEmailResend: { name: "codes:email-resend", limit: 1, windowSeconds: 30 },
+  signInCodeEmailHour: { name: "codes:email", limit: 10, windowSeconds: 60 * 60 },
+  // 24 The owner's test of their own email server (App sign-in), per app.
+  appMailTest: { name: "app-mail-test:app", limit: 5, windowSeconds: 10 * 60 },
+  // 24 The email telling an owner their own email server failed: at most one per app a day (UTC).
+  ownMailFailedMail: { name: "own-mail-failed:app", limit: 1, windowSeconds: 24 * 60 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;
