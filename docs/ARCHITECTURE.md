@@ -365,6 +365,26 @@ mobile/
   them on the Announcements page. The team can email one to its audience
   with the Announcement template, in batches of 20.
 
+- We publish for you (Phase 14, `publishing_requests`, `publishing_events`,
+  `apps.publishing_mode`): each app is published by its client ("self", with
+  the files and our guides) or by our team ("managed"). For "managed" the
+  client keeps every account in their own name: they create a Google Play
+  developer account and an Apple Developer Program membership (paying the
+  stores directly; organisations need a D-U-N-S number), invite our
+  publishing team email (Admin or a release manager in Play Console, App
+  Manager with access to certificates in App Store Connect, Editor in their
+  Firebase project, or we create the Firebase project), tick each step, and
+  add what the stores ask beyond the setup's Store listing step: the
+  categories, notes for the content rating questionnaires and for the
+  reviewers. Passwords are never asked for or stored. One request per app
+  holds the checklist (when each step was ticked), the listing details and
+  a status per store (Waiting for the client → Accounts ready → Submitted →
+  In review → Live, or Rejected with a note), with the team's note to the
+  client, the store link once live, and the team's own notes. The team
+  works from the admin's Publishing queue; each new status is written to
+  the history (`publishing_events`) and emailed to the client. With
+  "managed", the setup's Publishing step needs no store keys on Pro.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,
@@ -414,3 +434,9 @@ without a new build. The app renders whatever the API sends.
 - Outputs: APK, AAB, IPA, signing key (encrypted), store assets, stored on
   `files.yallapp.com.tr` and listed in the client's dashboard.
 - Pro plan: upload to Google Play and TestFlight with the client's API keys.
+- A build is ready when its Android app was built (an iOS app that couldn't
+  be built shows as a failed stage, with a message, and the team is
+  emailed); it fails when the Android app couldn't be built. Messages are
+  plain words for the client; the CI log is for the team only. A build that
+  stops reporting (a cancelled run) is closed as failed after 6 hours, so
+  the app can build again.

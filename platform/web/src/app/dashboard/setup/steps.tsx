@@ -1142,16 +1142,29 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
 export function PublishingStep({
   plan,
   saved,
+  managed = false,
 }: {
   plan: "starter" | "pro" | null;
   saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
+  /** Our team publishes this app for the client (14.1): nothing here is required. */
+  managed?: boolean;
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
+  const managedNotice = managed ? (
+    <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
+      <Icon name="check_circle" size={20} filled className="text-success" />
+      <span>
+        You asked us to publish your app, so nothing here is required: our team works through the invitations on the{" "}
+        <Link href="/dashboard/publishing">Publishing</Link> page.
+      </span>
+    </p>
+  ) : null;
 
   if (plan !== "pro") {
     return (
       <form action={action} noValidate className="flex flex-wrap items-start gap-6">
         <StepCard title="Publishing" id="h-publishing">
+          {managedNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
             On the Starter plan, you publish the apps under your own Google Play and App Store accounts. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
           </p>
@@ -1166,7 +1179,7 @@ export function PublishingStep({
           <FormMessage message={state.message} />
           <AppStoreKeyFields state={state} saved={saved.appStore} optional />
           <p className="m-0 text-sm text-muted">
-            The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Ask us about the Pro plan on WhatsApp.
+            The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Choose “Publish it for me” on the <Link href="/dashboard/publishing">Publishing</Link> page.
           </p>
           <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
@@ -1183,6 +1196,7 @@ export function PublishingStep({
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       <StepCard title="Publishing" id="h-publishing">
+        {managedNotice}
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           We use these keys only to upload the builds you start. They&apos;re encrypted, never shown again, and you can remove them at any time.
         </p>

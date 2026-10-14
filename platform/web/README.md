@@ -14,14 +14,14 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 |---|---|
 | Website | `/`, `/solutions`, `/solutions/{academy,store,bookings,real-estate}`, `/features`, `/integrations`, `/how-it-works`, `/pricing`, `/faq`, `/contact`, `/docs` and `/docs/<article>` (the user manual, `src/content/docs.ts`; the old `/guides/*` addresses redirect there), `/developers` (API reference made from the contract, `src/content/api-reference.json`), `/terms`, `/privacy`, `/refund`, 404. App screenshots are in `public/screens`; the dashboard ones are taken with `npx playwright test --config playwright.screens.config.ts` |
 | Accounts | `/sign-up`, `/sign-in`, `/forgot-password`, `/reset-password`, `/pending` (also pay by card) |
-| Client dashboard | An app switcher in the header and "Add an app" (`/dashboard/app-type?new=1`): an account can have several apps, each with its own plan and license, and every page works on the current app. `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments`; courses without a website: `/dashboard/courses`, `/dashboard/courses/<id>`, `/dashboard/orders` |
-| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard; `/admin/clients/<id>` has a section per app with its own plan and license), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
+| Client dashboard | An app switcher in the header and "Add an app" (`/dashboard/app-type?new=1`): an account can have several apps, each with its own plan and license, and every page works on the current app. `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/publishing` ("I'll publish it myself" or "Publish it for me": the checklist, listing details and each store's status), `/dashboard/license`, `/dashboard/open/<app>?to=builds\|publishing\|license\|setup` (links in emails: opens that app); hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments`; courses without a website: `/dashboard/courses`, `/dashboard/courses/<id>`, `/dashboard/orders` |
+| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard; `/admin/clients/<id>` has a section per app with its own plan and license), `/admin/builds` (build queue: times, reasons, build logs, "Mark as not finished"), `/admin/publishing` (apps we publish for clients: their checklist, listing details, a status per store, notes, store links), `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
 | Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step, plus an optional Admin API token for order history); apps can also connect ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me with their keys (`src/lib/hosted/connectors/platforms.ts`), or sell without a website: products on `/dashboard/catalog`, orders on `/dashboard/orders`, payment page `/pay/<token>` with the client's iyzico keys, iyzico callback `/api/pay/iyzico/<token>`, product pages `/shop/<app>/<product>`. |
 | Marketplace | Shops without their own iyzico account sell through Yallapp's (commission in admin Settings): they register as iyzico sub-merchants on `/dashboard/catalog`; completing an order, or "Release payout" on `/admin/payments`, releases their share. |
 | Plan payments | Clients pay an app's plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends that app's license. |
-| Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/health` |
+| Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/dashboard/builds/<build>/files/<kind>` and `/api/admin/builds/<build>/files/<kind>` (build files: a link signed when clicked), `/api/health` |
 
 ### How it fits together
 
@@ -54,9 +54,19 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   test fails if it drifts from `docs/`.
 - **Builds:** "Start new build" (and finishing the wizard the first time)
   stores a build record with a snapshot of the config and the store listing.
-  Build numbers and version codes go up by one per build of each app. The pipeline (Phase 5) reads queued
-  builds and reports status and file links; until then download rows show
-  "Available after your first build".
+  Build numbers and version codes go up by one per build of each app, and an
+  app has one build in progress at a time (checked in the same transaction as
+  the insert). The pipeline (Phase 5) reads queued builds and reports status,
+  a message for the client and file links. Builds & downloads shows each
+  build's status in plain words ("Waiting to start", "Building", "Ready",
+  "Didn't finish"), when it was queued, started and finished, why it didn't
+  finish, and "Try again" (the same version). A build still queued after
+  24 hours, or building without a report for 6 hours, has stopped: the next
+  "Start new build" closes it, and the team can close it from the build queue
+  (`src/lib/builds/view.ts`). The client is emailed when a build finishes; the
+  team (`SUPER_ADMIN_EMAILS`) too when it failed or its iOS app couldn't be
+  built, with the CI log, which clients never see. New builds need the app's
+  plan to be active; files from earlier builds stay downloadable.
 - **Secrets clients give us** (Google Play service account JSON, App Store
   Connect .p8) are encrypted with `ENCRYPTION_KEY` and never sent back to the
   browser. Starter clients can add the App Store Connect key too, only to sign
@@ -67,13 +77,33 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   encrypted with the app. A saved key is never replaced (`409 key_exists`):
   a new Android upload key would lock the client out of updating their app on
   Google Play.
-- **Download links:** build files live on `files.yallapp.com.tr`. Links on
-  `FILES_BASE_URL` are signed when the page renders, never stored:
+- **Download links:** build files live on `files.yallapp.com.tr`. A Download
+  button only shows for a file the latest ready build has; it opens
+  `/api/dashboard/builds/<build>/files/<kind>`, which checks the build is one
+  of the signed-in client's apps' and redirects to a link signed at that
+  moment, so a page left open never hands out an expired link. Links on
+  `FILES_BASE_URL` are signed, never stored:
   `?expires=<unix seconds, now + 15 min>&sig=<hex HMAC-SHA256 of "<path>?expires=<expires>"
   with FILES_SIGNING_SECRET>`. The PHP script there checks it with `hash_hmac`
   and `hash_equals` (see `src/lib/files.ts`).
 - **Files:** icons, logos and plugin zips go to Netlify Blobs (store
   `yallapp-files`), or `.data/blobs` locally.
+- **Publishing (14.1):** on `/dashboard/publishing` the client chooses "I'll
+  publish it myself" (the files and our guides; on Pro, store keys for
+  automatic uploads) or "Publish it for me": they create their own Google
+  Play and Apple developer accounts and a Firebase project (or let us create
+  it), invite the publishing team email (admin Settings › Publishing service;
+  the contact email until set) and tick each step, and add the listing
+  details the setup doesn't ask for (categories, content rating notes, notes
+  for reviewers). We never ask for or store their Google or Apple
+  passwords. The team moves each store through Waiting for the client,
+  Accounts ready, Submitted, In review, Live (with the store link) or
+  Rejected (with a note) on `/admin/publishing` (permission
+  `publishing.manage`, logged in the audit log); each new status is emailed
+  to the client with the "Publishing status changed" template and shows on
+  their Publishing page and overview. `canUseManagedPublishing` in
+  `src/lib/publishing/steps.ts` lets every app ask until the plan flag
+  "managed publishing" exists.
 - **Icons:** Material Symbols Rounded, self-hosted as a small subset in
   `src/app/fonts/`. After adding a name to `src/components/icon-names.ts`, run
   `node scripts/fetch-icons.mjs`.
@@ -223,5 +253,5 @@ ever see host.webek.org.
   to 5 MB, logos to 2 MB and plugin zips to 5.5 MB.
 - The plugin update API returns download links valid for 24 hours (WordPress
   can download an update hours after checking); dashboard links last 10 minutes.
-- Build file links (files.yallapp.com.tr) last 15 minutes; reload the page for
-  fresh ones.
+- Build file links (files.yallapp.com.tr) last 15 minutes from the click on
+  Download, which signs a fresh one each time.

@@ -1,5 +1,6 @@
 import { newId } from "../crypto/tokens";
-import type { DataStore } from "../data/store";
+import { BuildRunningError, type DataStore } from "../data/store";
+import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
@@ -81,6 +82,7 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     brandingDoneAt: null,
     listingDoneAt: null,
     publishingDoneAt: null,
+    publishingMode: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -93,7 +95,11 @@ export function hasStoreKeys(app: App): { play: boolean; appStore: boolean } {
   };
 }
 
-/** Which steps are complete. Pro needs at least one store key to finish publishing. */
+/**
+ * Which steps are complete. Pro needs at least one store key to finish
+ * publishing, unless our team publishes the app for them (14.1): then the
+ * team works through invitations to the client's store accounts.
+ */
 export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep, boolean> {
   if (!app) return { "app-type": false, website: false, branding: false, listing: false, publishing: false };
   const keys = hasStoreKeys(app);
@@ -102,7 +108,7 @@ export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep
     website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
-    publishing: Boolean(app.publishingDoneAt) && (plan !== "pro" || keys.play || keys.appStore),
+    publishing: Boolean(app.publishingDoneAt) && (plan !== "pro" || keys.play || keys.appStore || app.publishingMode === "managed"),
   };
 }
 
@@ -186,7 +192,8 @@ export function initialStages(autoPublish: boolean, app: App): Record<StageKey, 
   return {
     queued: "done",
     android: "pending",
-    ios: "pending",
+    // Without an App Store Connect key there's no iOS app (the pipeline skips it), so don't show it as waiting.
+    ios: keys.appStore ? "pending" : "skipped",
     upload_play: autoPublish && keys.play ? "pending" : "skipped",
     upload_testflight: autoPublish && keys.appStore ? "pending" : "skipped",
   };
@@ -217,7 +224,7 @@ export async function queueBuild(
   if (!isSetupComplete(app, license.plan)) return { ok: false, reason: "setup_incomplete" };
   const previous = await store.listBuildsByApp(app.id, 1);
   const last = previous[0];
-  if (last && (last.status === "queued" || last.status === "building")) return { ok: false, reason: "build_running" };
+  if (isInProgress(last, now)) return { ok: false, reason: "build_running" };
   if (last && compareVersions(input.versionName, last.versionName) < 0) return { ok: false, reason: "version_too_low" };
 
   // The store assigns the final version code; 1 is a valid placeholder for validation.
@@ -229,23 +236,37 @@ export async function queueBuild(
 
   // 11.5 Switches: automatic publishing can be switched off, for everyone or per plan.
   const autoPublish = license.plan === "pro" && featureOn(await getSwitches(store), "auto_publish", license.plan);
-  const build = await store.createBuild({
-    id: newId(),
-    clientId: client.id,
-    appId: app.id,
-    versionName: input.versionName,
-    status: "queued",
-    stages: initialStages(autoPublish, app),
-    config: validation.config,
-    storeListing: listing,
-    autoPublish,
-    artifacts: [],
-    message: null,
-    logUrl: null,
-    createdAt: now,
-    startedAt: null,
-    finishedAt: null,
-    updatedAt: now,
-  });
+  // A build that stopped without reporting (a cancelled or crashed run) mustn't block the app for ever: close it.
+  if (last && (last.status === "queued" || last.status === "building")) {
+    await store.updateBuild(last.id, { status: "failed", message: STALLED_MESSAGE, finishedAt: now }, now);
+  }
+  let build: Build;
+  try {
+    build = await store.createBuild(
+      {
+        id: newId(),
+        clientId: client.id,
+        appId: app.id,
+        versionName: input.versionName,
+        status: "queued",
+        stages: initialStages(autoPublish, app),
+        config: validation.config,
+        storeListing: listing,
+        autoPublish,
+        artifacts: [],
+        message: null,
+        logUrl: null,
+        createdAt: now,
+        startedAt: null,
+        finishedAt: null,
+        updatedAt: now,
+      },
+      // Two clicks (or the client and our team) at once queue one build, not two.
+      { exclusive: true },
+    );
+  } catch (error) {
+    if (error instanceof BuildRunningError) return { ok: false, reason: "build_running" };
+    throw error;
+  }
   return { ok: true, build };
 }

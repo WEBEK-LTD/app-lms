@@ -5,6 +5,7 @@ import {
   checkTestCodeAction,
   saveContactAction,
   saveIyzicoSettingAction,
+  savePublishingSettingAction,
   saveMarketplaceAction,
   saveOtpSettingAction,
   saveSmtpSettingAction,
@@ -273,6 +274,29 @@ export function ContactForm({ whatsapp, email }: { whatsapp: string; email: stri
         <Field label="WhatsApp number" name="whatsapp" type="tel" defaultValue={v("whatsapp", whatsapp)} hint="As it should look, with the country code." error={state.errors?.whatsapp} />
         <Field label="Email" name="email" type="email" defaultValue={v("email", email)} error={state.errors?.email} />
       </div>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 14.1 The address clients invite to their store and Firebase accounts. */
+export function PublishingSettingForm({ teamEmail }: { teamEmail: string }) {
+  const [state, action] = useActionState(savePublishingSettingAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field
+        label="Publishing team email"
+        name="teamEmail"
+        type="email"
+        defaultValue={state.values?.teamEmail ?? teamEmail}
+        hint="A Google account (for Google Play and Firebase) that also has an Apple Account. New publishing requests are emailed here too."
+        error={state.errors?.teamEmail}
+      />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save

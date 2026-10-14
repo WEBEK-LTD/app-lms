@@ -10,7 +10,7 @@ import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
-import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
+import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, PublishingSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
 import { AppDefaultsForm } from "./app-defaults-form";
@@ -73,6 +73,7 @@ export default async function SettingsPage() {
   const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
+  const publishing = settings.get("publishing") as PlatformSetting<"publishing"> | undefined;
   const data = dataMode();
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
@@ -111,6 +112,29 @@ export default async function SettingsPage() {
           <p className="m-0 text-sm text-muted">Now: the defaults.</p>
         )}
         <ContactForm whatsapp={contact?.value.whatsapp ?? DEFAULT_CONTACT.whatsapp} email={contact?.value.email ?? DEFAULT_CONTACT.email} />
+      </Section>
+
+      <Section
+        id="h-publishing"
+        title="Publishing service"
+        text="“Publish it for me”: clients invite this email to their Google Play Console, App Store Connect and Firebase accounts, and new requests are sent to it."
+      >
+        {publishing ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              Set here by {publishing.updatedBy}, {formatDateTime(publishing.updatedAt)}.
+            </p>
+            <form action={resetPlatformSettingAction}>
+              <input type="hidden" name="key" value="publishing" />
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Use the contact email
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: the contact email, {contact?.value.email ?? DEFAULT_CONTACT.email}.</p>
+        )}
+        <PublishingSettingForm teamEmail={publishing?.value.teamEmail ?? contact?.value.email ?? DEFAULT_CONTACT.email} />
       </Section>
 
       <Section id="h-otp" title="Sign-in codes" text="How apps on the hosted API send customers their 6-digit sign-in codes.">

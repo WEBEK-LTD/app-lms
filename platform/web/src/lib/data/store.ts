@@ -38,6 +38,8 @@ import type {
 } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
+// 14.1 We publish for you
+import type { PublishingEvent, PublishingRequest } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -66,6 +68,14 @@ export interface SetupRequestRow {
   client: Client;
   user: User;
   app: App;
+}
+
+/** createBuild with `exclusive`: the app already has a build in the queue or running. */
+export class BuildRunningError extends Error {
+  constructor() {
+    super("This app already has a build in progress.");
+    this.name = "BuildRunningError";
+  }
 }
 
 export class DuplicateEmailError extends Error {
@@ -152,12 +162,17 @@ export interface DataStore {
   saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean>;
 
   // Builds
-  /** Assigns the app's next build number and version code. */
-  createBuild(build: Omit<Build, "number" | "versionCode">): Promise<Build>;
+  /**
+   * Assigns the app's next build number and version code. With `exclusive`,
+   * throws BuildRunningError (and saves nothing) when the app already has a
+   * queued or building build, checked in the same transaction as the insert.
+   */
+  createBuild(build: Omit<Build, "number" | "versionCode">, options?: { exclusive?: boolean }): Promise<Build>;
   getBuild(id: string): Promise<Build | null>;
   /** An app's builds, newest first. */
   listBuildsByApp(appId: string, limit: number): Promise<Build[]>;
-  listBuilds(input: { status?: BuildStatus; limit: number }): Promise<Build[]>;
+  /** Oldest first (the pipeline's queue), or newest first with `newestFirst` (the admin's lists). */
+  listBuilds(input: { status?: BuildStatus; limit: number; newestFirst?: boolean }): Promise<Build[]>;
   updateBuild(id: string, patch: BuildPatch, now: Date): Promise<void>;
 
   // Plugin releases
@@ -413,4 +428,14 @@ export interface DataStore {
   dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void>;
   /** The announcements a client dismissed. */
   listDismissedAnnouncementIds(clientId: string): Promise<string[]>;
+
+  // 14.1 We publish for you
+  getPublishingRequest(appId: string): Promise<PublishingRequest | null>;
+  /** Saves the whole request: inserts it, or replaces the app's. */
+  savePublishingRequest(request: PublishingRequest): Promise<void>;
+  /** Apps whose client asked us to publish them ("managed"), oldest request first. */
+  listManagedPublishingRequests(): Promise<PublishingRequest[]>;
+  addPublishingEvent(event: Omit<PublishingEvent, "id">): Promise<PublishingEvent>;
+  /** An app's status changes, newest first. */
+  listPublishingEvents(appId: string): Promise<PublishingEvent[]>;
 }

@@ -10,7 +10,7 @@ describe("admin roles", () => {
   const MATRIX: Record<AdminRole, AdminPermission[]> = {
     owner: [...ADMIN_PERMISSIONS],
     admin: ADMIN_PERMISSIONS.filter((p) => p !== "team.manage"),
-    support: ["view", "clients.license", "clients.edit", "clients.email", "builds.manage"],
+    support: ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage"],
     viewer: ["view"],
   };
 

@@ -25,7 +25,7 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
   listing:
     "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
   publishing:
-    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications.",
+    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or let us publish it for you from the Publishing page.",
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
@@ -193,6 +193,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       {step === "publishing" ? (
         <PublishingStep
           plan={plan}
+          managed={app.publishingMode === "managed"}
           saved={{
             play: hasStoreKeys(app).play ? { clientEmail: app.googlePlayClientEmail } : null,
             appStore: hasStoreKeys(app).appStore ? { issuerId: app.ascIssuerId, keyId: app.ascKeyId } : null,

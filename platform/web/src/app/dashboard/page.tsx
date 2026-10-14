@@ -13,6 +13,7 @@ import { getPlans } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
 import { AnnouncementBanner } from "@/components/announcements";
 import { appLabel } from "@/lib/app/label";
+import { CLIENT_STATUS_LABEL, PUBLISHING_STORES, statusTone, STORE_TITLE } from "@/lib/publishing/steps";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -34,6 +35,7 @@ export default async function OverviewPage() {
   const store = await getStore();
   const plans = await getPlans(store);
   const [latest] = await store.listBuildsByApp(app.id, 1);
+  const publishing = app.publishingMode === "managed" ? await store.getPublishingRequest(app.id) : null;
   const activation = license ? await store.getActivation(license.id) : null;
   const plan = license?.plan ?? null;
   const status = stepStatus(app, plan);
@@ -104,6 +106,30 @@ export default async function OverviewPage() {
             </>
           ) : (
             <span className="text-[15px] text-muted">Your first build starts when the setup is complete.</span>
+          )}
+        </Tile>
+
+        <Tile
+          title="Publishing"
+          action={
+            <Link href="/dashboard/publishing" className={`${btn.secondary} h-10`}>
+              {app.publishingMode ? "Publishing" : "Choose how to publish"}
+            </Link>
+          }
+        >
+          {publishing ? (
+            <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]">
+              {PUBLISHING_STORES.map((which) => (
+                <li key={which} className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold">{STORE_TITLE[which]}</span>
+                  <Badge tone={statusTone(publishing[which].status)}>{CLIENT_STATUS_LABEL[publishing[which].status]}</Badge>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span className="text-[15px] text-muted">
+              {app.publishingMode === "self" ? "You publish your app yourself, with our guides." : "Publish it yourself, or let our team publish it for you."}
+            </span>
           )}
         </Tile>
 

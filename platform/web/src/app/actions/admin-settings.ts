@@ -28,6 +28,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   marketplace: "marketplace commission",
   contact: "contact details",
   plans: "plans",
+  publishing: "publishing team email",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -62,6 +63,10 @@ export async function resetPlatformSettingAction(formData: FormData): Promise<vo
   if (key === "contact") {
     await save(key, null, admin);
     revalidatePath("/", "layout");
+  }
+  if (key === "publishing") {
+    await save(key, null, admin);
+    revalidatePath("/dashboard/publishing");
   }
 }
 
@@ -285,6 +290,18 @@ export async function saveContactAction(_: FormState, formData: FormData): Promi
   // Every page shows them, including the ones built ahead of time.
   revalidatePath("/", "layout");
   return { ok: true, message: "Contact details saved. The website and the dashboard show them now.", values };
+}
+
+/** 14.1 The address clients invite to their Google Play, App Store Connect and Firebase accounts. */
+export async function savePublishingSettingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const values = { teamEmail: str(formData, "teamEmail").toLowerCase() };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.teamEmail) || values.teamEmail.length > 191) {
+    return { errors: { teamEmail: "Enter an email address." }, values };
+  }
+  await save("publishing", values, admin);
+  revalidatePath("/dashboard/publishing");
+  return { ok: true, message: "Saved. Clients now see this address in their publishing steps.", values };
 }
 
 // The sign-in code test: a real code to the admin's own number, then checked like the hosted API does.

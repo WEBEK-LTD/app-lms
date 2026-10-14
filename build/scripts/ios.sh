@@ -22,12 +22,12 @@ path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
 PY
 }
-result '{"ios":"failed"}' '[]' "The iOS build failed. We'll look into it and start it again."
+result '{"ios":"failed"}' '[]' "The iOS app couldn't be built."
 
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
 HAS_ASC=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1]))["app_store_connect"] else "no")' "$WORK/secrets.json")
 if [ "$HAS_ASC" != "yes" ]; then
-	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "Add your App Store Connect key in Publishing to get the iOS app as well."
+	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "Add your App Store Connect key in App setup › Publishing to get the iOS app as well."
 	platform status "$BUILD_ID" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
 	exit 0
 fi
@@ -70,7 +70,7 @@ if [ "${AUTO_PUBLISH:-false}" = "true" ]; then
 		TESTFLIGHT="done"
 	else
 		TESTFLIGHT=failed
-		MESSAGE="Your iOS app is ready, but the TestFlight upload failed. Create the app in App Store Connect with bundle ID $BUNDLE_ID first (see the guide), then start a new build."
+		MESSAGE="Your iOS app is ready, but the upload to TestFlight didn't work. Create the app in App Store Connect with the bundle ID $BUNDLE_ID first (see the App Store guide), then start a new build."
 	fi
 fi
 

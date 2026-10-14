@@ -25,7 +25,7 @@ import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { App, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
-import { artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
+import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { planName, type Plan, type PlanInfo } from "@/lib/plans";
@@ -503,7 +503,7 @@ async function AppEntry({
                             <span className="flex flex-col gap-0.5">
                               {links.map((link, n) =>
                                 link.href ? (
-                                  <a key={`${link.kind}-${n}`} href={link.href}>
+                                  <a key={`${link.kind}-${n}`} href={adminFileHref(build.id, link.kind)}>
                                     {link.label}
                                   </a>
                                 ) : (

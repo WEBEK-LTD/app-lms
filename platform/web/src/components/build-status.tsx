@@ -1,13 +1,9 @@
 import type { BuildStatus, StageKey, StageStatus } from "@/lib/data/types";
+import { BUILD_STATUS_LABEL } from "@/lib/builds/view";
 import { Badge } from "./ui";
 import { Icon } from "./icon";
 
-export const BUILD_STATUS_LABEL: Record<BuildStatus, string> = {
-  queued: "Queued",
-  building: "Building",
-  ready: "Ready",
-  failed: "Failed",
-};
+export { BUILD_STATUS_LABEL };
 
 export function BuildBadge({ status }: { status: BuildStatus }) {
   const tone = status === "ready" ? "success" : status === "failed" ? "danger" : status === "building" ? "warn" : "neutral";

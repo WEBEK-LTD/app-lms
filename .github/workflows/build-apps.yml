@@ -128,7 +128,7 @@ jobs:
           echo "ios=$has" >> "$GITHUB_OUTPUT"
           if [ "$has" != "yes" ]; then
             mkdir -p "$RUNNER_TEMP/result"
-            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"Add your App Store Connect key in Publishing to get the iOS app as well."}' > "$RUNNER_TEMP/result/result.json"
+            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"Add your App Store Connect key in App setup › Publishing to get the iOS app as well."}' > "$RUNNER_TEMP/result/result.json"
             python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
           fi
       - if: steps.check.outputs.ios == 'yes'

@@ -133,8 +133,8 @@ test("the client completes the setup wizard and the first build is queued", asyn
 
   await expect(page).toHaveURL(/\/dashboard\/builds\?started=1$/);
   await expect(page.getByRole("heading", { name: "Build #1 · App version 1.0.0" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Build #1 · App version 1.0.0" }).locator("xpath=../..")).toContainText("Queued");
-  await expect(page.getByText("Available after your first build").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Build #1 · App version 1.0.0" }).locator("xpath=../..")).toContainText("Waiting to start");
+  await expect(page.getByText("Available after your first successful build").first()).toBeVisible();
   // The secret never comes back to the browser.
   await page.goto("/dashboard/setup?step=publishing");
   await expect(page.getByText("publisher@ada-academy.iam.gserviceaccount.com")).toBeVisible();
@@ -177,13 +177,19 @@ test("the pipeline reads the config and the client starts a new build", async ({
 
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/builds");
+  // The button signs the link when it's clicked, so it never expires on an open page.
+  const button = (await page.getByRole("link", { name: "Download Android APK" }).getAttribute("href")) ?? "";
+  expect(button).toBe(`/api/dashboard/builds/${build.id}/files/apk`);
+  const download = await page.request.get(button, { maxRedirects: 0 });
+  expect(download.status()).toBe(303);
   // Links to files.yallapp.com.tr are signed for 15 minutes: hex HMAC-SHA256 of "<path>?expires=<expires>".
-  const href = (await page.getByRole("link", { name: "Download Android APK" }).getAttribute("href")) ?? "";
+  const href = download.headers()["location"] ?? "";
   const match = /^https:\/\/files\.yallapp\.com\.tr\/test\/app\.apk\?expires=(\d+)&sig=([0-9a-f]{64})$/.exec(href);
   expect(match, href).toBeTruthy();
   const expires = Number(match![1]);
   expect(Math.abs(expires - (Math.floor(Date.now() / 1000) + 15 * 60))).toBeLessThan(120);
   expect(match![2]).toBe(createHmac("sha256", E2E.filesSigningSecret).update(`/test/app.apk?expires=${expires}`).digest("hex"));
+  expect((await request.get(button, { maxRedirects: 0 })).headers()["location"]).toMatch(/\/sign-in$/);
   await expect(page.getByRole("button", { name: "Download Android upload key (keep it safe)" })).toBeDisabled();
   await expect(page.getByRole("textbox", { name: "App version" })).toHaveValue("1.0.1");
   await page.getByRole("button", { name: "Start new build" }).click();

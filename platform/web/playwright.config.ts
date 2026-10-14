@@ -20,6 +20,8 @@ export const E2E = {
   contentAdminEmail: "content-admin@yallapp.test",
   /** The super admin of tests/e2e/several-apps.spec.ts (roadmap 12). */
   appsAdminEmail: "apps-admin@yallapp.test",
+  /** The super admin of tests/e2e/publishing.spec.ts (roadmap 14). */
+  publishingAdminEmail: "publishing-admin@yallapp.test",
   /** Emails the server would send, as JSON files (YALLAPP_MAIL_DIR, memory mode only). */
   mailDir: ".data/e2e-mail",
   adminPassword: "admin-password-for-e2e",
@@ -63,7 +65,7 @@ export default defineConfig({
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
       YALLAPP_MAIL_DIR: E2E.mailDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",

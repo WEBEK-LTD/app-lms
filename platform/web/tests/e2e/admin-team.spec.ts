@@ -207,7 +207,7 @@ test("the client page shows the client's app, builds and changes", async ({ requ
 
   const builds = owner.getByRole("region", { name: "Builds" });
   await expect(builds).toContainText("#1 · 1.0.0");
-  await expect(builds).toContainText("Queued");
+  await expect(builds).toContainText("Waiting to start");
   // A failed build runs again from here.
   expect(await failQueuedBuilds(request)).toBe(1);
   await owner.reload();

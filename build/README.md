@@ -28,8 +28,16 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
      platform.
    - Gets an App Store profile, signs and exports the IPA, and uploads it.
    - **Pro:** uploads to TestFlight.
-5. A last job sends the final status (`ready` or `failed`), the files and a
-   message for the client. The platform emails the client.
+5. A last job sends the final status, the files and a message for the
+   client, in plain words. The build is `ready` when the Android app was
+   built, also when the iOS app couldn't be (its stage then shows as failed
+   and the message says so), and `failed` when the Android app couldn't be
+   built. The platform emails the client, and the team when something
+   failed (with the run's log, which clients never see).
+6. A run that's cancelled or crashes before reporting leaves the build
+   `building`: after 6 hours without a report the platform treats it as
+   stopped, closes it when the client starts a new build, and the team can
+   close it from the admin's build queue.
 
 Download links are signed by the platform when it shows them and expire after
 15 minutes. `files-host/index.php` checks the signature on `files.yallapp.com.tr`.
@@ -90,6 +98,10 @@ Set these alongside the platform's other variables (`platform/web/README.md`):
   **Actions: Read and write**, nothing else.
 
 ## What clients do once
+
+Clients who chose "Publish it for me" (dashboard › Publishing) do none of
+this themselves: they invite our publishing team email to their accounts,
+and the team publishes from the admin's Publishing page.
 
 - **Google Play (Pro):** create the app in Play Console and upload the first
   App Bundle by hand. Google Play doesn't let any tool create an app or make

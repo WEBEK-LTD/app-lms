@@ -202,6 +202,12 @@ export interface App {
   brandingDoneAt: Date | null;
   listingDoneAt: Date | null;
   publishingDoneAt: Date | null;
+  /**
+   * 14.1 Who publishes the app on the stores: the client ("self", with our
+   * guides), or our team ("managed", through invitations to the client's own
+   * store accounts; see PublishingRequest). Null until the client chooses.
+   */
+  publishingMode: PublishingMode | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1041,3 +1047,86 @@ export interface Announcement {
 }
 
 export type AnnouncementPatch = Partial<Omit<Announcement, "id" | "createdAt" | "createdBy">>;
+
+// 14.1 We publish for you
+
+export type PublishingMode = "self" | "managed";
+
+/** The two stores, as the publishing service tracks them. */
+export type PublishingStore = "android" | "ios";
+
+/** Where publishing on one store stands, as the team moves it along. */
+export type PublishingStatus = "waiting_client" | "accounts_ready" | "submitted" | "in_review" | "live" | "rejected";
+
+/** The client's checklist (lib/publishing/steps.ts): when each step was ticked, as ISO times. */
+export type PublishingChecklist = Partial<Record<string, string>>;
+
+/** Store listing details the setup wizard doesn't ask for. Everything else comes from the app's Store listing step. */
+export interface PublishingListing {
+  /** Google Play's category, like "Education". */
+  playCategory: string | null;
+  /** The App Store's primary category, like "Education". */
+  appStoreCategory: string | null;
+  /** Notes for the content rating questionnaires: violence, user content, purchases, ads, data collected… */
+  contentRatingNotes: string | null;
+  /** For the stores' reviewers, like how to sign in. */
+  reviewNotes: string | null;
+}
+
+/** Publishing on one store. */
+export interface PublishingTrack {
+  status: PublishingStatus;
+  /** The team's note to the client: why it was rejected, what's next. Shown on the dashboard and in the email. */
+  note: string | null;
+  /** The app's public store page, once it's live. */
+  storeUrl: string | null;
+  /** When the status last changed; null while it's the first one. */
+  updatedAt: Date | null;
+}
+
+/**
+ * An app the client asked us to publish (or decided to publish themselves).
+ * We never store, or ask for, the client's Google or Apple passwords: the
+ * client invites our team email to their own accounts.
+ */
+export interface PublishingRequest {
+  appId: string;
+  clientId: string;
+  mode: PublishingMode;
+  /** Who creates the Firebase project for push notifications. */
+  firebaseBy: "client" | "team";
+  checklist: PublishingChecklist;
+  listing: PublishingListing;
+  android: PublishingTrack;
+  ios: PublishingTrack;
+  /** The team's own notes, never shown to the client. */
+  teamNotes: string | null;
+  /** When the client chose "Publish it for me" (the queue's order). */
+  requestedAt: Date | null;
+  /** When the client finished the checklist; null while steps are open. */
+  readyAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** One status change, for the history on the dashboard and in the admin. */
+export interface PublishingEvent {
+  id: number;
+  appId: string;
+  store: PublishingStore;
+  status: PublishingStatus;
+  note: string | null;
+  /** The team member who changed it. */
+  actorEmail: string;
+  at: Date;
+}
+
+/** The platform setting for the publishing service (admin Settings). */
+export interface PublishingSetting {
+  /** The address clients invite to their Google Play, App Store Connect and Firebase accounts. */
+  teamEmail: string;
+}
+
+export interface PlatformSettingValues {
+  publishing: PublishingSetting;
+}

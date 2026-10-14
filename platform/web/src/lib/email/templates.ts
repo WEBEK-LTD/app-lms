@@ -22,11 +22,14 @@ export type EmailTemplateKey =
   | "plan_renewed"
   | "build_ready"
   | "build_failed"
+  | "build_failed_team"
   | "setup_request"
   | "new_order"
   | "new_appointment"
   | "new_inquiry"
-  | "announcement";
+  | "announcement"
+  | "publishing_status"
+  | "publishing_request";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -110,28 +113,56 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
     key: "build_ready",
     name: "Build ready",
-    description: "To a client when a build of their app finishes.",
+    description: "To a client when a build of one of their apps finishes.",
     placeholders: [
       NAME,
       APP_NAME,
-      { name: "build_number", description: "The build's number", sample: "7" },
-      { name: "builds_url", description: "The Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/builds" },
+      { name: "build_number", description: "The build's number (per app)", sample: "7" },
+      { name: "version", description: "The app version of the build", sample: "1.0.6" },
+      { name: "note_line", description: "A note from the build and a blank line, when there is one; empty otherwise", sample: "Add your App Store Connect key in Publishing to get the iOS app as well.\n\n" },
+      { name: "builds_url", description: "The app's Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/open/0f8e?to=builds" },
     ],
-    subject: "Build #{{build_number}} of your app is ready",
-    body: "Hello {{name}},\n\nBuild #{{build_number}} is ready. Your files are on the Builds & downloads page:\n{{builds_url}}\n\nYallapp",
+    subject: "{{app_name}}: build #{{build_number}} is ready",
+    body:
+      "Hello {{name}},\n\nBuild #{{build_number}} of {{app_name}} (version {{version}}) is ready.\n\n{{note_line}}Download your files on the Builds & downloads page:\n{{builds_url}}" +
+      SIGNATURE,
   },
   {
     key: "build_failed",
     name: "Build didn't finish",
-    description: "To a client when a build of their app fails.",
+    description: "To a client when a build of one of their apps fails. The team gets “Build didn't finish (team)” at the same time.",
     placeholders: [
       NAME,
       APP_NAME,
-      { name: "build_number", description: "The build's number", sample: "7" },
-      { name: "builds_url", description: "The Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/builds" },
+      { name: "build_number", description: "The build's number (per app)", sample: "7" },
+      { name: "version", description: "The app version of the build", sample: "1.0.6" },
+      { name: "reason", description: "Why it didn't finish, in plain words", sample: "The Android app couldn't be built." },
+      { name: "builds_url", description: "The app's Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/open/0f8e?to=builds" },
     ],
-    subject: "Build #{{build_number}} of your app didn't finish",
-    body: "Hello {{name}},\n\nBuild #{{build_number}} didn't finish. We've been notified and will look into it. You can follow it here:\n{{builds_url}}\n\nYallapp",
+    subject: "{{app_name}}: build #{{build_number}} didn't finish",
+    body:
+      "Hello {{name}},\n\nBuild #{{build_number}} of {{app_name}} (version {{version}}) didn't finish, so nothing was published.\n\n{{reason}}\n\n" +
+      "Our team has been told and will look into it. You can also start it again with Try again on the Builds & downloads page:\n{{builds_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "build_failed_team",
+    name: "Build problem (team)",
+    description: "To the team (the super admin emails) when a client's build fails, or its iOS app couldn't be built.",
+    placeholders: [
+      { name: "client_name", description: "The client's name", sample: "Ada Lovelace" },
+      APP_NAME,
+      { name: "build_number", description: "The build's number (per app)", sample: "7" },
+      { name: "version", description: "The app version of the build", sample: "1.0.6" },
+      { name: "status", description: "How the build ended", sample: "Didn't finish" },
+      { name: "reason", description: "The pipeline's message", sample: "The Android app couldn't be built." },
+      { name: "log_line", description: "“Build log: …” and a line break when there is a log; empty otherwise", sample: "Build log: https://github.com/WEBEK-LTD/app-lms/actions/runs/1\n" },
+      { name: "admin_url", description: "The client's page in the admin", sample: "https://yallapp.com.tr/admin/clients/0f8e" },
+    ],
+    subject: "Build problem: {{app_name}} #{{build_number}}",
+    body:
+      "Build #{{build_number}} of {{app_name}} ({{client_name}}, version {{version}}) had a problem.\n\nStatus: {{status}}\nWhat happened: {{reason}}\n{{log_line}}\n" +
+      "The client was emailed too. Their page: {{admin_url}}",
   },
   {
     key: "setup_request",
@@ -218,6 +249,43 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     ],
     subject: "{{title}}",
     body: "Hello {{name}},\n\n{{message}}\n\n{{link_line}}Your dashboard: {{dashboard_url}}" + SIGNATURE,
+  },
+  // 14.1 We publish for you
+  {
+    key: "publishing_status",
+    name: "Publishing status changed",
+    description: "To a client when the team moves their app's Google Play or App Store publishing to a new status.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "store", description: "Google Play or the App Store", sample: "Google Play" },
+      { name: "status", description: "The new status", sample: "In review" },
+      { name: "status_text", description: "What the status means for the client", sample: "Google is reviewing your app. This usually takes a few days." },
+      { name: "note_line", description: "The team's note and a blank line, when there is one; empty otherwise", sample: "Note: The privacy policy page must mention the app.\n\n" },
+      { name: "store_link_line", description: "“Your app: <link>” and a blank line once it's live; empty otherwise", sample: "Your app: https://play.google.com/store/apps/details?id=com.example.app\n\n" },
+      { name: "publishing_url", description: "The app's Publishing page", sample: "https://yallapp.com.tr/dashboard/open/0f8e?to=publishing" },
+    ],
+    subject: "{{app_name}} on {{store}}: {{status}}",
+    body:
+      "Hello {{name}},\n\nPublishing {{app_name}} on {{store}}: {{status}}.\n{{status_text}}\n\n{{note_line}}{{store_link_line}}" +
+      "Follow every step on your Publishing page:\n{{publishing_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "publishing_request",
+    name: "Publishing request (team)",
+    description: "To the publishing team email (Settings) when a client asks us to publish their app, and when they tick the last step of the checklist.",
+    placeholders: [
+      { name: "client_name", description: "The client's name", sample: "Ada Lovelace" },
+      APP_NAME,
+      { name: "event", description: "What happened", sample: "asked us to publish their app" },
+      { name: "email", description: "Their email", sample: "ada@academy.example" },
+      { name: "whatsapp", description: "Their WhatsApp number", sample: "+905321234567" },
+      { name: "admin_url", description: "The Publishing queue in the admin", sample: "https://yallapp.com.tr/admin/publishing" },
+    ],
+    subject: "Publishing: {{client_name}} {{event}}",
+    body:
+      "{{client_name}} {{event}} ({{app_name}}).\nEmail: {{email}}\nWhatsApp: {{whatsapp}}\n\nThe Publishing queue: {{admin_url}}",
   },
 ];
 
