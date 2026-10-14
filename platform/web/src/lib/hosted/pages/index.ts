@@ -34,7 +34,8 @@ export async function handlePages(ctx: HostedContext, req: HostedRequest, user: 
   if (platform !== "android" && platform !== "ios") return { status: 400, body: { code: "invalid_request", message: "Unknown platform." } };
   const slug = req.path[1];
   if (slug !== undefined && !SLUG.test(slug)) return { status: 400, body: { code: "invalid_request", message: "This page address isn't valid." } };
-  const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null);
+  // 17 A draft preview gets the Pages & look draft.
+  const layout = await servedLayout(ctx.store, ctx.app, ctx.plan ?? null, { draft: Boolean(ctx.preview?.draft), now: ctx.now });
   const lang = pickLanguage(req.headers?.get("accept-language"), layout.languages);
   if (slug === undefined) return navigation(layout, lang, req);
   const page = layout.pages.find((p) => p.slug === slug);

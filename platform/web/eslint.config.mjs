@@ -14,5 +14,7 @@ export default defineConfig([
     "test-results/**",
     ".data/**",
     ".netlify/**",
+    // 17 The app preview, built from mobile/ (mobile/tool/build_preview.sh).
+    "public/preview-app/**",
   ]),
 ]);

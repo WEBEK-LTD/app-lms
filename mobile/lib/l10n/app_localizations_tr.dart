@@ -2110,4 +2110,53 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get searchServices => 'Hizmet ara';
+
+  @override
+  String get previewTitle => 'Uygulama önizlemesi';
+
+  @override
+  String get previewInstalledAppOnly => 'Yüklü uygulamada kullanılabilir';
+
+  @override
+  String get previewWebPageNote =>
+      'Gömülü videolar ve ödeme sayfaları gibi web sayfaları yüklü uygulamada açılır.';
+
+  @override
+  String get previewOpenInNewTab => 'Yeni sekmede aç';
+
+  @override
+  String get previewCheckoutNote =>
+      'Sipariş ve ödeme yüklü uygulamada çalışır. Önizleme hiçbir zaman ödeme almaz.';
+
+  @override
+  String get previewSignInNote =>
+      'Bu bir önizleme. Uygulamanızın mağaza inceleme numarası ve koduyla giriş yapın. Önizleme hiçbir zaman giriş kodu göndermez.';
+
+  @override
+  String get previewSignInUnavailable =>
+      'Giriş yüklü uygulamada çalışır. Uygulamanızın sunucusu henüz önizlemeden giriş yapılmasını desteklemiyor.';
+
+  @override
+  String get previewNoLink => 'Önizlemeyi Yallapp panelinizden açın.';
+
+  @override
+  String get previewExpired =>
+      'Bu önizleme bağlantısının süresi doldu. Önizlemeyi Yallapp panelinizden yeniden açın.';
+
+  @override
+  String get previewInvalid =>
+      'Bu önizleme bağlantısı geçerli değil. Önizlemeyi Yallapp panelinizden açın.';
+
+  @override
+  String get previewUnreachable =>
+      'Önizleme yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.';
+
+  @override
+  String get previewNoContent =>
+      'Kurulumun Web sitesi adımında uygulamanızın içeriğinin nereden geleceğini seçin, sonra önizlemeyi yeniden yükleyin.';
+
+  @override
+  String previewApiBlocked(String origin) {
+    return 'Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API\'niz başka adreslerden gelen istekleri engelliyorsa $origin adresine izin verin. Yallapp belgelerindeki Kendi API\'nizi bağlayın rehberi nasıl yapılacağını gösterir.';
+  }
 }

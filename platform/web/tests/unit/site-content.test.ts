@@ -101,6 +101,7 @@ describe("website content pages", () => {
       "Errors",
       "Images and HTML",
       "Test it with the live check",
+      "Let the app preview reach your API",
       "Checklist before you submit",
     ]);
     // Code blocks stay in their section; notes go to the section's note box.

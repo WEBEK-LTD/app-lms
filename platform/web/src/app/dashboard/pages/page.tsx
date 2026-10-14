@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Notice } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Notice, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -51,11 +52,28 @@ export default async function PagesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[680px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Build your app&apos;s pages from blocks, choose its bottom tabs, look and languages. Changes are saved as a draft; your app shows them once you publish.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="flex max-w-[680px] flex-[1_1_320px] flex-col gap-2">
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+            Build your app&apos;s pages from blocks, choose its bottom tabs, look and languages. Changes are saved as a draft; your app shows them once you publish.
+          </p>
+        </div>
+        {/* 17 The real app: with the saved draft on the hosted API, else with what's published. A new tab keeps the editor (and its autosave) open. */}
+        <div className="flex flex-col items-start gap-1">
+          <a
+            href={app.backend === "hosted" ? "/dashboard/preview?pages=draft" : "/dashboard/preview"}
+            target="_blank"
+            rel="noopener"
+            className={`${btn.secondary} h-10 px-4 text-sm`}
+          >
+            <Icon name="visibility" size={18} />
+            {app.backend === "hosted" ? "Preview the draft in your app" : "Preview your app"}
+            <Icon name="open_in_new" size={16} />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+          {app.backend === "hosted" ? null : <span className="text-[13px] text-muted">Shows your published pages.</span>}
+        </div>
       </div>
       {reach ? null : (
         <Notice tone="warn" icon="info">

@@ -78,12 +78,20 @@ class Sign_In {
 	 *
 	 * @param string $country_code Country code.
 	 * @param string $number       National number.
+	 * @param bool   $preview      The app preview in the Yallapp dashboard asks: it never sends a code, so only the store review number signs in.
 	 * @return array|WP_Error
 	 */
-	public function request( $country_code, $number ) {
+	public function request( $country_code, $number, $preview = false ) {
 		$phone = Phone::parse( $country_code, $number );
 		if ( ! $phone ) {
 			return new WP_Error( 'invalid_phone', __( 'Please enter a valid mobile number.', 'yallapp' ), array( 'status' => 400 ) );
+		}
+		if ( $preview && ! $this->is_review_phone( $phone ) ) {
+			return new WP_Error(
+				'preview_review_number_only',
+				__( 'This is a preview, and it never sends codes. Sign in with the store review number and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
+				array( 'status' => 403 )
+			);
 		}
 
 		$resend = (int) $this->settings->get( 'resend_seconds' );

@@ -2106,4 +2106,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchServices => 'Search services';
+
+  @override
+  String get previewTitle => 'App preview';
+
+  @override
+  String get previewInstalledAppOnly => 'Available in the installed app';
+
+  @override
+  String get previewWebPageNote =>
+      'Pages from the web, such as embedded videos and payment pages, open in the installed app.';
+
+  @override
+  String get previewOpenInNewTab => 'Open in a new tab';
+
+  @override
+  String get previewCheckoutNote =>
+      'Checkout and payments work in the installed app. The preview never takes payments.';
+
+  @override
+  String get previewSignInNote =>
+      'This is a preview. Sign in with your app\'s store review number and its code. The preview never sends sign-in codes.';
+
+  @override
+  String get previewSignInUnavailable =>
+      'Signing in works in the installed app. Your app\'s server can\'t sign people in from the preview yet.';
+
+  @override
+  String get previewNoLink => 'Open the preview from your Yallapp dashboard.';
+
+  @override
+  String get previewExpired =>
+      'This preview link has expired. Open the preview again from your Yallapp dashboard.';
+
+  @override
+  String get previewInvalid =>
+      'This preview link isn\'t valid. Open the preview from your Yallapp dashboard.';
+
+  @override
+  String get previewUnreachable =>
+      'The preview couldn\'t load. Check your connection and try again.';
+
+  @override
+  String get previewNoContent =>
+      'Choose where your app\'s content comes from on the Website step of your setup, then reload the preview.';
+
+  @override
+  String previewApiBlocked(String origin) {
+    return 'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow $origin. The guide Connect your own API in the Yallapp docs shows how.';
+  }
 }

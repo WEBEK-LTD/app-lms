@@ -28,12 +28,16 @@ class ApiBundle {
 final apiBundleProvider = Provider<ApiBundle>((ref) {
   final env = ref.watch(appEnvironmentProvider);
   final baseUrl = apiUrlOf(env.build);
+  // 17 The app preview tells the hosted API who it is with its preview token.
+  final previewToken = env.preview?.apiToken;
+  final previewHeaders = <String, dynamic>{'X-Yallapp-Preview': ?previewToken};
   final refreshDio = Dio(
     BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
       contentType: Headers.jsonContentType,
+      headers: previewHeaders,
     ),
   );
   String language() => ref.read(appLanguageProvider);
@@ -50,12 +54,14 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     language: language,
     offline: ref.read(offlineCacheProvider),
   );
+  dio.options.headers.addAll(previewHeaders);
   api = HttpYallappApi(
     dio: dio,
     refreshDio: refreshDio,
     platform: env.platform,
     appVersion: env.appVersion,
     language: language,
+    preview: env.isPreview,
   );
   ref.onDispose(() {
     dio.close();

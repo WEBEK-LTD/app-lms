@@ -88,6 +88,15 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
             <p className="m-0 text-[15px] leading-relaxed text-ink-4">
               Pick the type that matches your business. You can change it later; your next build follows it.
             </p>
+            {app ? (
+              <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+                <Link href="/dashboard/preview" className="inline-flex items-center gap-1.5 font-semibold">
+                  <Icon name="visibility" size={18} />
+                  Preview your app
+                </Link>{" "}
+                to try it with the type it has now.
+              </p>
+            ) : null}
           </>
         )}
       </div>

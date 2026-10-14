@@ -86,6 +86,9 @@ class ApiException implements Exception {
   static const purchaseNotAllowed = 'purchase_not_allowed';
   static const cartChanged = 'cart_changed';
 
+  /// 17 Something the app preview on the web doesn't do (checkout).
+  static const previewUnavailable = 'preview_unavailable';
+
   final String code;
   final String message;
   final int? statusCode;

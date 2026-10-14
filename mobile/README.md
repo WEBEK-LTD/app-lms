@@ -11,6 +11,8 @@ API ([`docs/api/openapi.yaml`](../docs/api/openapi.yaml)).
 mobile/
   config/example.json        a build config (docs/build-config.schema.json)
   tool/apply_config.dart     applies a build config to the project
+  tool/build_preview.sh      builds the app preview (web) into the platform
+  web/                       the web page of the app preview
   assets/fonts/              bundled fonts (SIL OFL, licence next to each font)
   lib/
     main.dart, app.dart      start-up and the app root
@@ -22,6 +24,8 @@ mobile/
       config/                build config + YALLAPP_SITE_URL override
       gate/                  GET /config on start; maintenance, update required,
                              license inactive and offline screens
+      preview/               the app preview on the web: its config from the
+                             platform, notes where the web can't do something
       purchase/              purchase rules (iOS never checks out)
       routing/               go_router setup, paths, sign-in redirects
       services/              push (FCM), screen capture protection, external links
@@ -93,7 +97,46 @@ dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze
 flutter test
 flutter build apk --debug
+flutter build web --release --base-href /preview-app/
+tool/build_preview.sh --check
 ```
+
+## App preview (web)
+
+The web build of this app is only the **app preview** of the client dashboard
+("Preview your app", roadmap 17). It never uses the compiled build config:
+`main.dart` starts `runPreview()` (`lib/core/preview/preview_start.dart`),
+which reads the token in the page address (`?token=…&theme=dark&lang=ar`)
+and gets the build config from `GET <platform>/api/preview/{token}/config`
+on the address it was opened from. Android and iOS builds are unchanged.
+
+In the preview:
+
+- each app's preview keeps its own browser storage (`SharedPreferences`
+  prefix per app); tokens are kept there instead of the phone's secure
+  storage;
+- web views (lesson pages, embeds, in-app pages, checkout) show "Available
+  in the installed app" with "Open in a new tab"; checkout links are never
+  requested; there is no push and no screen capture protection;
+- sign-in sends `preview: true` and is offered only when `/config` has
+  `auth.preview_sign_in`: then only the store review number signs in, and no
+  code is ever sent;
+- the hosted API gets the preview link as `X-Yallapp-Preview`;
+- a site or API that blocks requests from the platform's address gets a
+  message saying how to allow it.
+
+Build it after every change to the app and commit the result; CI fails when
+the committed bundle is older than the app's sources:
+
+```sh
+tool/build_preview.sh           # flutter build web, then copies to platform/web/public/preview-app
+tool/build_preview.sh --check   # what CI runs
+```
+
+The bundle is small on purpose: CanvasKit comes from Google's servers, as in
+any Flutter web app, and only what browsers load is copied. To try it
+locally, run the platform (`platform/web`, `npm run dev`) and open Preview
+your app in its dashboard.
 
 ## Website screenshots
 

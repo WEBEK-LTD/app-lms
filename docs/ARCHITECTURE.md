@@ -485,6 +485,77 @@ Nile Homes (Real estate), on the hosted API with sample content.
   until a download is picked. The QR codes on /demo are made on our server
   (`lib/qr.ts`).
 
+## App preview (Phase 17)
+
+Clients try their real app from the dashboard ("Preview your app") before a
+build. The preview is the Flutter app from `mobile/`, built for the web.
+
+- **One codebase, two ways to get the build config.** Android and iOS builds
+  keep the config compiled in by `tool/apply_config.dart`. The web build is
+  only the preview: `main.dart` starts `runPreview()`
+  (`lib/core/preview/preview_start.dart`), which reads
+  `GET <platform>/api/preview/{token}/config` from the address it was opened
+  on. The answer (`docs/api/platform.yaml`, `getPreviewConfig`) is
+  `buildConfigFor` from the app's current setup, also before the setup is
+  complete (placeholders such as "Your app", listed in
+  `preview.placeholders`), without Firebase files, plus the content source,
+  the missing setup steps and whether it shows the draft pages.
+- **Preview links** (`platform/web/src/lib/preview/token.ts`):
+  `p1.<app id>.<expires>.<draft>.<signature>`, HMAC-SHA256 with a key made
+  from `SIGNING_SECRET` for preview links only. A link is made each time the
+  Preview page opens (and on "Reload after changes"), names one app, and
+  works for an hour. Nothing is stored. The config endpoint is limited to 120
+  requests per 10 minutes per IP.
+- **Serving.** `mobile/tool/build_preview.sh` builds the web app and copies
+  what browsers load to `platform/web/public/preview-app/` (committed,
+  about 9 MB: Netlify builds the platform without Flutter). CanvasKit, the
+  engine's drawing library, comes from Google's servers as in any Flutter
+  web app, so its large files stay out of the repository. `source.sha256`
+  in the bundle is a fingerprint of the app's sources; CI (`mobile.yml`)
+  fails when it doesn't match (`--check`) and also builds the web app. The
+  bundle holds no client data or secrets: every app's config comes from the
+  platform at start-up. `/preview-app/` may be framed by the site itself
+  only (`X-Frame-Options: SAMEORIGIN`, `frame-ancestors 'self'`); every
+  other page keeps `DENY`. No service worker: a deploy serves the new app
+  at once.
+- **Reaching the content.** The preview calls the app's API from the
+  browser at yallapp.com.tr:
+  - the hosted API is on the same origin; it also sends CORS headers to the
+    platform's own addresses (`APP_URL`, Netlify's `URL` and deploy
+    addresses), and the preview sends its link as `X-Yallapp-Preview`. With
+    a valid link for that app the hosted API answers the owner's preview
+    while the app isn't active yet (never while the account is suspended)
+    and serves the Pages & look draft when the link asks for it;
+  - WordPress answers cross-origin REST requests itself; the plugin adds
+    the headers the app sends and reads (`Rest\Cors`). A pending WordPress
+    app shows "paused" until its plugin is connected and its plan is active;
+  - a client's own API must allow `https://yallapp.com.tr` (CORS); the
+    preview says so when the browser can't reach it, and "Connect your own
+    API" shows how. On the web the app never sends `If-None-Match` (the
+    browser revalidates by itself), so sites need no extra permission for
+    it.
+- **Sign-in.** The preview never sends codes. It sends `preview: true` at
+  `POST /auth/otp/request`, and offers sign-in only when `/config` says
+  `auth.preview_sign_in` (the hosted API and the new plugin do): then only
+  the store review number signs in, with its fixed code; other numbers get
+  403 `preview_review_number_only`. On the hosted API the preview link alone
+  is enough for that rule. Otherwise the sign-in screen says signing in works
+  in the installed app and offers browsing without signing in. Tokens are
+  kept in the browser's storage, separate for each app's preview
+  (`SharedPreferences.setPrefix`).
+- **What the web can't do** shows a short note instead: web views (lessons
+  shown as web pages, embeds, in-app pages, checkout and payment pages) show
+  "Available in the installed app" with "Open in a new tab"; checkout links
+  are never requested; no push (no Firebase in the preview) and no screen
+  capture protection. Pictures from sites that don't allow other addresses
+  to read them still show, as page images. The platform is the browser's
+  OS: on an iPhone the iOS purchase rules apply.
+- **Dashboard** (`/dashboard/preview`): the app in a phone frame
+  (`PhoneFrame` in `components/device-frame.tsx`), Light / Dark and the
+  app's languages (passed in the link as `theme` and `lang`), "Reload after
+  changes", "Open on your phone" with a QR code made on our server
+  (`lib/qr.ts`) for the same link, what's missing, and how to sign in.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

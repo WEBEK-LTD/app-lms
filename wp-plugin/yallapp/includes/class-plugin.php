@@ -91,6 +91,8 @@ class Plugin {
 		$this->layout_client()->register();
 		$this->store_checkout()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
+		// The app preview in the Yallapp dashboard runs in a browser.
+		Rest\Cors::register();
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
 		add_action( 'yallapp_daily', array( $this->inbox(), 'purge_old' ) );

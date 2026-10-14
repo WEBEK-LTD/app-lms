@@ -742,6 +742,10 @@ export const FAQ: FaqGroup[] = [
         q: "Do I need to know how to code?",
         a: "No. Everything is done in the dashboard, with step-by-step guides for the stores. Only the “My own API” option needs a developer.",
       },
+      {
+        q: "Can I try my app before it's built?",
+        a: "Yes. Preview your app in the dashboard runs your real app in your browser, with your current setup, content, pages and languages, in light and dark. Scan its QR code to open it on your phone. It works before the setup is complete and never sends sign-in codes or takes payments.",
+      },
     ],
   },
   {

@@ -144,12 +144,23 @@ export async function publishedLayout(store: DataStore, appId: string): Promise<
  * publish the default pages and tabs for the app type, with a version that
  * changes when the defaults do.
  */
-export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null): Promise<Layout> {
+export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null, options: { draft?: boolean; now?: Date } = {}): Promise<Layout> {
+  // 17 The app preview can show the draft, with the plan's limits like the published layout.
+  if (options.draft) return layoutForPlan(await draftLayout(store, app, options.now ?? new Date()), app, plan, await appDefaults(store));
   const published = await publishedLayout(store, app.id);
   const defaults = await appDefaults(store);
   if (published) return layoutForPlan(published, app, plan, defaults);
   const content = defaultLayout(app, defaults, app.createdAt);
   return layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults);
+}
+
+/**
+ * 17 The Pages & look draft as a layout, for the app preview. Its version
+ * changes with every saved edit, so the preview never shows an old copy.
+ */
+export async function draftLayout(store: DataStore, app: App, now: Date): Promise<Layout> {
+  const record = await loadLayout(store, app, now);
+  return { version: `draft.${sha256Hex(JSON.stringify(record.draft)).slice(0, 16)}`, ...record.draft };
 }
 
 /**

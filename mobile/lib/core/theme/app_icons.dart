@@ -88,6 +88,8 @@ abstract final class AppIcons {
   static const arrowForward = Symbols.arrow_forward_rounded;
   static const send = Symbols.send_rounded;
   static const level = Symbols.signal_cellular_alt_rounded;
+  static const preview = Symbols.visibility_rounded;
+  static const info = Symbols.info_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

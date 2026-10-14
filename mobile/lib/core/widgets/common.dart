@@ -53,6 +53,9 @@ class AppNetworkImage extends StatelessWidget {
             semanticLabel: semanticLabel,
             excludeFromSemantics: semanticLabel == null,
             gaplessPlayback: true,
+            // 17 In the app preview, pictures from sites that don't allow
+            // other addresses to read them still show (as page images).
+            webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
             frameBuilder: (context, child, frame, sync) {
               if (sync) return child;
               return Stack(

@@ -232,6 +232,25 @@ Every error is JSON with a stable \`code\` the app can act on and a \`message\` 
 
 > The check is a quick start, not a full test. The [API reference](/developers) lists every field the app reads.
 
+## Let the app preview reach your API
+
+The **Preview your app** page of the dashboard runs your app in a web browser, on yallapp.com.tr. A browser lets it call your API only when your API allows requests from that address (cross-origin requests). Without that, the preview says it couldn't reach your app's content; the installed app isn't affected.
+
+Answer requests that come with \`Origin: https://yallapp.com.tr\` with these headers, and answer the browser's \`OPTIONS\` requests with 204 and the same headers:
+
+~~~http
+Access-Control-Allow-Origin: https://yallapp.com.tr
+Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+Access-Control-Allow-Headers: Authorization, Content-Type, Accept-Language
+Access-Control-Max-Age: 600
+Vary: Origin
+~~~
+
+The preview never sends sign-in codes. To let your client try the signed-in screens there, support preview sign-in:
+
+- When \`POST /auth/otp/request\` comes with \`"preview": true\`, send no code. Accept only your store review number (with its fixed code at \`/auth/otp/verify\`), and answer any other number with 403 and the code \`preview_review_number_only\`.
+- Then set \`auth.preview_sign_in\` to \`true\` in \`/config\`. Without it, the preview says signing in works in the installed app.
+
 ## Checklist before you submit
 
 - Every required endpoint for your app type answers over https, with JSON
@@ -241,6 +260,7 @@ Every error is JSON with a stable \`code\` the app can act on and a \`message\` 
 - Deleting the account (\`DELETE /me\`) works, as Apple and Google require
 - On iOS, no paid digital content offers a purchase
 - A test number with a fixed code works for store reviewers
+- The app preview reaches your API: requests from https://yallapp.com.tr are allowed
 - Lists are paged and stay fast with \`per_page\` set to 50
 
 ---

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
+import '../app_environment.dart';
 import '../auth/auth_controller.dart';
+import '../preview/preview.dart';
 import '../providers.dart';
 import '../services/external_links.dart';
 import '../theme/app_icons.dart';
@@ -57,13 +59,27 @@ class GateView extends ConsumerWidget {
       GateFailed(:final error) => _StateScreen(
         icon: AppIcons.offline,
         title: l10n.connectionTitle,
-        message: friendlyError(error),
+        message: _previewBlocked(env, error)
+            ? l10n.previewApiBlocked(env.preview!.platformUrl)
+            : friendlyError(error),
         actionLabel: l10n.tryAgain,
         onAction: retry,
       ),
     };
     return screen;
   }
+}
+
+/// 17 In the app preview, a site or API that answers the installed app but
+/// not the browser most likely doesn't allow requests from the platform's
+/// address (browsers then report no connection at all).
+bool _previewBlocked(AppEnvironment env, Object error) {
+  final preview = env.preview;
+  if (preview == null || preview.contentSource == PreviewContentSource.hosted) {
+    return false;
+  }
+  final e = unwrapError(error);
+  return e is ApiException && e.code == ApiException.networkError;
 }
 
 class _StateScreen extends StatelessWidget {

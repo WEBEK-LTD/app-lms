@@ -8,6 +8,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/preview/preview_widgets.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
@@ -104,6 +105,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final env = ref.watch(appEnvironmentProvider);
     final logo = config.branding.logoUrl ?? env.build.logoUrl;
     final canGoBack = context.canPop();
+    // 17 The app preview signs in only the store review number, and only
+    // where the server says it can; it never sends a code.
+    final previewBlocked = env.isPreview && !config.auth.previewSignIn;
 
     return Scaffold(
       body: SafeArea(
@@ -161,6 +165,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       context.l10n.signInIntro,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
+                    if (env.isPreview) ...[
+                      const SizedBox(height: 16),
+                      PreviewNote(
+                        previewBlocked
+                            ? context.l10n.previewSignInUnavailable
+                            : context.l10n.previewSignInNote,
+                      ),
+                    ],
                     const SizedBox(height: 32),
                     Text(
                       context.l10n.mobileNumber,
@@ -272,7 +284,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     PrimaryButton(
                       label: context.l10n.sendCode,
                       loading: _sending,
-                      onPressed: _valid ? _send : null,
+                      onPressed: _valid && !previewBlocked ? _send : null,
                     ),
                     const SizedBox(height: 32),
                     Text(

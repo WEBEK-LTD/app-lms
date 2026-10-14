@@ -22,6 +22,16 @@ info:
       blocks, listings) come back in that language when a translation exists,
       else in the default language. The app's own interface strings ship with
       the app.
+
+    The app preview (in the Yallapp dashboard) runs the same app in a web
+    browser at `https://yallapp.com.tr/preview-app/`. For it to reach the API,
+    the server answers cross-origin requests from `https://yallapp.com.tr`
+    (CORS: `Access-Control-Allow-Origin`, and preflight requests allowing the
+    `Authorization` and `Content-Type` headers). WordPress does this for its
+    REST API. On the hosted API the preview also sends
+    `X-Yallapp-Preview: <preview token>`: the API then answers for the app's
+    owner while the app isn't active yet, signs in only the store review
+    number, and serves the Pages & look draft when the preview asks for it.
   license:
     name: Proprietary, WEBEK LTD
     url: https://yallapp.com.tr
@@ -195,6 +205,11 @@ paths:
         public demo number signs in, with the fixed code shown on that page. Any other number
         is refused with 403 `demo_number_only`. The demo number is limited per IP and per app,
         and works in demo apps only.
+
+        The app preview in the Yallapp dashboard sends `preview: true`, and only when
+        `Config.auth.preview_sign_in` is true. Such a request never sends a code: only the
+        store review number signs in, with its fixed code. Any other number is refused with
+        403 `preview_review_number_only`.
       security: []
       requestBody:
         required: true
@@ -206,6 +221,7 @@ paths:
               properties:
                 country_code: { type: string, example: '+90' }
                 phone: { type: string, description: National number without the country code., example: '5321234567' }
+                preview: { type: boolean, description: "Sent by the app preview in the Yallapp dashboard. True: only the store review number signs in and no code is sent." }
       responses:
         '200':
           description: Code sent
@@ -1859,6 +1875,7 @@ components:
             - account_suspended
             - app_user_limit
             - demo_number_only
+            - preview_review_number_only
             - update_required
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
@@ -1933,6 +1950,7 @@ components:
               type: array
               items: { type: string, enum: [name, email, city] }
             default_country_code: { type: string, example: '+90' }
+            preview_sign_in: { type: boolean, description: "Whether `POST /auth/otp/request` honours `preview: true` (only the store review number signs in, no code is sent). The app preview offers sign-in only when this is true. Missing means false." }
         purchases:
           type: object
           required: [enroll_button, free_enrollment]

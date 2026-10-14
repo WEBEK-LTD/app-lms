@@ -19,6 +19,8 @@ import { hasFeature } from "@/lib/plans";
 import { checkAppUserNotices } from "@/lib/notices";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { demoOfficeReply } from "@/lib/demo/cleanup";
+import { corsHeaders, preflight, previewOrigins } from "@/lib/preview/cors";
+import { PREVIEW_HEADER, previewKey, verifyPreviewToken } from "@/lib/preview/token";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -26,7 +28,18 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * The hosted API (docs/api/openapi.yaml, server https://yallapp.com.tr/api/app/{app_id}),
  * for apps whose backend is "hosted".
  */
-async function handle(request: Request, { params }: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {
+async function handle(request: Request, context: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {
+  // 17 The app preview may run on another of the platform's addresses than this API.
+  const cors = corsHeaders(request.headers.get("origin"), previewOrigins(appUrl()));
+  const response = await answer(request, context);
+  for (const [name, value] of Object.entries(cors)) {
+    if (name === "vary") response.headers.append("vary", value);
+    else response.headers.set(name, value);
+  }
+  return response;
+}
+
+async function answer(request: Request, { params }: RouteContext<"/api/app/[appId]/[...path]">): Promise<Response> {
   const { appId, path } = await params;
   if (!UUID.test(appId)) return errorResponse(404, "not_found", "Not found.");
   const store = await getStore();
@@ -53,6 +66,9 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
   // 13.1 The app's own plan: its features and limits.
   const plans = await effectivePlans(store);
   const plan = planOfLicense(plans, license, now);
+  // 17 The app preview's token, for this app only: the owner's preview, with the draft pages when it asks for them.
+  const previewToken = request.headers.get(PREVIEW_HEADER);
+  const preview = previewToken ? verifyPreviewToken(previewToken, previewKey(signingSecret()), now, app.id) : null;
   const result = await handleHosted(
     {
       store,
@@ -66,6 +82,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       },
       now,
       ip: ipFromHeaders(request.headers),
+      preview: preview?.ok ? { draft: preview.grant.draft } : null,
       secret: hmacSha256(signingSecret(), "hosted-api"),
       sender: otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
       push: serviceAccountOf(app, encryptionKey()) !== null,
@@ -104,3 +121,7 @@ export const POST = handle;
 export const PUT = handle;
 export const PATCH = handle;
 export const DELETE = handle;
+
+export function OPTIONS(request: Request): Response {
+  return preflight(request.headers.get("origin"), previewOrigins(appUrl()));
+}

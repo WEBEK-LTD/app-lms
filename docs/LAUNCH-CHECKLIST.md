@@ -100,7 +100,23 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] What visitors add is deleted by the daily job after a day: check the
       daily job's JSON report shows `"demo": {"apps": 4, ...}`.
 
-## 6. Accounts the remaining roadmap steps wait on
+## 6. The app preview (Phase 17)
+
+Nothing to set on Netlify: the preview is served from the site's own files
+(`platform/web/public/preview-app`) and signs its links with `SIGNING_SECRET`.
+
+- [ ] **Release a new Yallapp plugin** (Admin › App & plugin versions) with
+      Phase 17's plugin changes, so WordPress clients can sign in to the
+      preview with their store review number. Older plugins still show their
+      site in the preview, with sign-in marked as working in the installed app.
+- [ ] Open **Preview your app** in a test client's dashboard on
+      `https://yallapp.com.tr` and on a phone through its QR code: the app
+      loads in the phone frame, Light / Dark and the languages switch, and the
+      store review number signs in.
+- [ ] After a change to the app (`mobile/`), run `mobile/tool/build_preview.sh`
+      and commit `platform/web/public/preview-app`; CI fails until it's done.
+
+## 7. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
 |---|---|
@@ -116,3 +132,4 @@ devices. Everything else is in the code. Tick each line when it's done.
 | 8.6, 9.4, 9.5 | An iyzico sandbox account, then the live account |
 | 10.5–10.7 | A WordPress test site and a Real estate test app built on the hosted API, to see published pages, languages and listings on a phone |
 | 14.2, 14.3 | A first client who asks us to publish: their Google Play and Apple developer accounts inviting the publishing team email |
+| 17.7 | A WordPress test site with the new plugin, and a phone, to try the preview of a WordPress app and its QR code |

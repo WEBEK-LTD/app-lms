@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// The access and refresh tokens of the signed-in student.
 class StoredTokens {
@@ -74,6 +75,34 @@ class SecureTokenStore implements TokenStore {
     _loaded = true;
     await _storage.delete(key: _key);
   }
+}
+
+/// Keeps tokens in the browser's storage for the app preview on the web
+/// (roadmap 17), where the phone's secure storage doesn't exist. The
+/// preview's storage is kept apart per app (`SharedPreferences.setPrefix`).
+class PreferencesTokenStore implements TokenStore {
+  PreferencesTokenStore(this._preferences);
+
+  static const _key = 'yallapp.tokens';
+  final SharedPreferences _preferences;
+
+  @override
+  Future<StoredTokens?> read() async {
+    final raw = _preferences.getString(_key);
+    if (raw == null) return null;
+    try {
+      return StoredTokens.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> write(StoredTokens tokens) =>
+      _preferences.setString(_key, jsonEncode(tokens.toJson()));
+
+  @override
+  Future<void> clear() => _preferences.remove(_key);
 }
 
 /// A store that only lives in memory, for tests.

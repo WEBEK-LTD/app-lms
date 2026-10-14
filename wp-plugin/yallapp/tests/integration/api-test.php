@@ -547,6 +547,7 @@ $r = call( 'GET', '/courses' );
 check( 'maintenance blocks API 503', 503 === $r['status'] && 'maintenance' === ( $r['json']['code'] ?? '' ), $r['raw'] );
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'config still served in maintenance', 200 === $r['status'] && true === ( $r['json']['app']['maintenance'] ?? null ) && 'Back soon' === $r['json']['app']['maintenance_message'], $r['raw'] );
+check( 'config says the app preview can sign in', true === ( $r['json']['auth']['preview_sign_in'] ?? null ), $r['json']['auth'] ?? null );
 set_settings( array( 'maintenance' => false, 'required_watch_percent' => 0 ) );
 
 $review = '5' . str_pad( (string) random_int( 0, 999999999 ), 9, '0', STR_PAD_LEFT );
@@ -554,6 +555,12 @@ set_settings( array( 'review_access_enabled' => true, 'review_phone' => '+90' . 
 $r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => $review ) );
 $v = call( 'POST', '/auth/otp/verify', array( 'request_id' => $r['json']['request_id'] ?? '', 'code' => '424242', 'device' => device( 'review-1', 'ios' ) ) );
 check( 'store review number accepts fixed code', 200 === $v['status'] && ( ! empty( $v['json']['signup_token'] ) || ! empty( $v['json']['access_token'] ) ), $v['raw'] );
+// The app preview in the Yallapp dashboard never sends a code: only the store review number gets in.
+$r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => '5321234567', 'preview' => true ) );
+check( 'preview: other numbers refused', 403 === $r['status'] && 'preview_review_number_only' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_cli( 'eval \'global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE \"%yallapp_rl_%\"" );\'' );
+$r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => $review, 'preview' => true ) );
+check( 'preview: the store review number gets in', 200 === $r['status'] && ! empty( $r['json']['request_id'] ), $r['raw'] );
 set_settings( array( 'review_access_enabled' => false ) );
 
 set_settings( array( 'device_limit_action' => 'replace_oldest' ) );

@@ -36,7 +36,8 @@ class YallappApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: look.theme(Brightness.light),
       darkTheme: look.theme(Brightness.dark),
-      themeMode: look.themeModeFor(settings),
+      // 17 The app preview's Light / Dark switch wins over the app's setting.
+      themeMode: env.preview?.themeMode ?? look.themeModeFor(settings),
       // Arabic turns the whole app right to left through the locale.
       locale: Locale(language),
       supportedLocales: AppLocalizations.supportedLocales,

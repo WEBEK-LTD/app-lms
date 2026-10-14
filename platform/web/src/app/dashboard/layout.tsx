@@ -78,6 +78,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard", label: "Overview", icon: "dashboard", exact: true },
         { href: "/dashboard/setup", label: "App setup", icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: "Pages & look", icon: "palette" },
+        { href: "/dashboard/preview", label: "Preview your app", icon: "visibility" },
       ],
     },
     ...(content.length && app?.connector ? [{ label: CONTENT_LABEL[app.connector.kind] ?? "Your business", items: content }] : []),
