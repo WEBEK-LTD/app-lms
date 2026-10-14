@@ -508,9 +508,10 @@ build. The preview is the Flutter app from `mobile/`, built for the web.
   requests per 10 minutes per IP.
 - **Serving.** `mobile/tool/build_preview.sh` builds the web app and copies
   what browsers load to `platform/web/public/preview-app/` (committed,
-  about 9 MB: Netlify builds the platform without Flutter). CanvasKit, the
-  engine's drawing library, comes from Google's servers as in any Flutter
-  web app, so its large files stay out of the repository. `source.sha256`
+  about 22 MB: Netlify builds the platform without Flutter). CanvasKit, the
+  engine's drawing library, is served with it (`--no-web-resources-cdn`:
+  the default build and the Chromium one), so the preview never depends on
+  another server. `source.sha256`
   in the bundle is a fingerprint of the app's sources; CI (`mobile.yml`)
   fails when it doesn't match (`--check`) and also builds the web app. The
   bundle holds no client data or secrets: every app's config comes from the

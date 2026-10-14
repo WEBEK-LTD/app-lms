@@ -20,7 +20,7 @@ FLUTTER_VERSION=3.47.5
 
 fingerprint() {
   {
-    echo "flutter $FLUTTER_VERSION"
+    echo "flutter $FLUTTER_VERSION, canvaskit local"
     find lib web assets -type f | LC_ALL=C sort | while read -r file; do
       printf '%s  %s\n' "$(sha256sum "$file" | cut -d' ' -f1)" "$file"
     done
@@ -40,14 +40,17 @@ if [ "${1:-}" = "--check" ]; then
   exit 0
 fi
 
-flutter build web --release --base-href /preview-app/ --no-wasm-dry-run
+flutter build web --release --base-href /preview-app/ --no-wasm-dry-run --no-web-resources-cdn
 
-# Only what the browser loads. CanvasKit comes from Google's servers (the
-# default), so its large files stay out of the repository.
+# Only what the browser loads. CanvasKit is served with the app (not from a
+# CDN), so the preview never depends on another server: the default build
+# and the one Chromium browsers pick. Skwasm builds aren't made (dart2js only).
 rm -rf "$OUT"
-mkdir -p "$OUT"
+mkdir -p "$OUT/canvaskit/chromium"
 cp build/web/index.html build/web/flutter_bootstrap.js build/web/main.dart.js \
   build/web/version.json build/web/favicon.png "$OUT/"
 cp -R build/web/assets "$OUT/assets"
+cp build/web/canvaskit/canvaskit.js build/web/canvaskit/canvaskit.wasm "$OUT/canvaskit/"
+cp build/web/canvaskit/chromium/canvaskit.js build/web/canvaskit/chromium/canvaskit.wasm "$OUT/canvaskit/chromium/"
 fingerprint > "$OUT/source.sha256"
 du -sh "$OUT"

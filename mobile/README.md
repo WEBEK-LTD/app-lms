@@ -133,8 +133,9 @@ tool/build_preview.sh           # flutter build web, then copies to platform/web
 tool/build_preview.sh --check   # what CI runs
 ```
 
-The bundle is small on purpose: CanvasKit comes from Google's servers, as in
-any Flutter web app, and only what browsers load is copied. To try it
+Only what browsers load is copied, CanvasKit included (the default build and
+the one Chromium browsers pick), so the preview never depends on another
+server. To try it
 locally, run the platform (`platform/web`, `npm run dev`) and open Preview
 your app in its dashboard.
 

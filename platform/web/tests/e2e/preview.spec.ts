@@ -1,5 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
@@ -15,31 +13,6 @@ test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.171" } });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Peony Corner", email: `peony-${suffix}@shop.test`, password: "peony-strong-password-1" };
-
-/**
- * The app draws with CanvasKit, which browsers load from Google's servers.
- * Where those can't be reached (a sandbox), a local Flutter SDK's copy
- * stands in; elsewhere the browser loads it as visitors do.
- */
-function localCanvasKit(): string | null {
-  const roots = [process.env.FLUTTER_ROOT, "/opt/flutter-3.47.5"].filter((r): r is string => Boolean(r));
-  for (const root of roots) {
-    const dir = path.join(root, "bin/cache/flutter_web_sdk/canvaskit");
-    if (existsSync(path.join(dir, "canvaskit.wasm"))) return dir;
-  }
-  return null;
-}
-
-async function serveCanvasKit(page: Page) {
-  const dir = localCanvasKit();
-  if (!dir) return;
-  await page.route("https://www.gstatic.com/flutter-canvaskit/**", async (route) => {
-    const [, file] = /flutter-canvaskit\/[0-9a-f]+\/(.+)$/.exec(new URL(route.request().url()).pathname) ?? [];
-    const local = file ? path.join(dir, file) : "";
-    if (!file || file.includes("..") || !existsSync(local)) return route.fulfill({ status: 404 });
-    await route.fulfill({ body: readFileSync(local), contentType: file.endsWith(".wasm") ? "application/wasm" : "text/javascript" });
-  });
-}
 
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
@@ -78,7 +51,6 @@ test("the app preview runs a shop that isn't set up yet", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
 
   // From the setup steps, the preview is one click away.
-  await serveCanvasKit(page);
   const configRead = page.waitForResponse((r) => /\/api\/preview\/p1\.[^/]+\/config$/.test(new URL(r.url()).pathname), { timeout: 45_000 });
   const apiRead = page.waitForResponse((r) => /\/api\/app\/[0-9a-f-]{36}\/config$/.test(new URL(r.url()).pathname), { timeout: 45_000 });
   await page.getByRole("link", { name: "Preview your app" }).first().click();
