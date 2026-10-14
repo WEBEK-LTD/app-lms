@@ -101,6 +101,10 @@ class Settings {
 			'notify_announcement'          => true,
 			'notify_enrollment'            => true,
 			'notify_qna_answer'            => true,
+			// News & blog apps: new posts are pushed only when the owner turns it on.
+			'notify_new_post'              => false,
+			'news_show_author'             => true,
+			'news_show_dates'              => true,
 			// Updates and maintenance.
 			'min_app_version'              => '',
 			'maintenance'                  => false,

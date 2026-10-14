@@ -30,7 +30,7 @@ class License_Client {
 	/**
 	 * App types (`LicenseStatus.app_type`) and kinds of business (`LicenseStatus.vertical`) the platform may send.
 	 */
-	const APP_TYPES = array( 'lms', 'store', 'booking', 'real_estate' );
+	const APP_TYPES = array( 'lms', 'store', 'booking', 'real_estate', 'news' );
 	const VERTICALS = array( 'restaurant', 'clinic', 'fitness', 'charity' );
 
 	const STATUS_OPTION = 'yallapp_license';

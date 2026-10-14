@@ -48,7 +48,7 @@ class AppTypeTest extends TestCase {
 			$none,
 			License_Client::app_of(
 				array(
-					'app_type' => 'news',
+					'app_type' => 'magazine',
 					'vertical' => 'salon',
 				)
 			)
@@ -60,6 +60,7 @@ class AppTypeTest extends TestCase {
 		$this->assertSame( 'lms', Default_Layout::chosen_type( array( 'app_type' => 'lms' ) ) );
 		$this->assertSame( 'store', Default_Layout::chosen_type( array( 'app_type' => 'store' ) ) );
 		$this->assertSame( 'bookings', Default_Layout::chosen_type( array( 'app_type' => 'booking' ) ) );
+		$this->assertSame( 'news', Default_Layout::chosen_type( array( 'app_type' => 'news' ) ) );
 	}
 
 	public function test_without_a_chosen_type_the_plugin_guesses() {
@@ -68,6 +69,6 @@ class AppTypeTest extends TestCase {
 		$this->assertNull( Default_Layout::chosen_type( null ) );
 		// Real estate apps don't run on WordPress; a type this version doesn't know is guessed too.
 		$this->assertNull( Default_Layout::chosen_type( array( 'app_type' => 'real_estate' ) ) );
-		$this->assertNull( Default_Layout::chosen_type( array( 'app_type' => 'news' ) ) );
+		$this->assertNull( Default_Layout::chosen_type( array( 'app_type' => 'magazine' ) ) );
 	}
 }

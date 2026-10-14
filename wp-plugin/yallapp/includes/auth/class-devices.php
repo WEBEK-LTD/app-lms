@@ -236,7 +236,7 @@ class Devices {
 	 * Push tokens for users, honoring each device's preference for the notification kind.
 	 *
 	 * @param int[]  $user_ids User IDs.
-	 * @param string $kind     Preference key: new_lessons, announcements or daily_reminder. Empty for always.
+	 * @param string $kind     Preference key: new_lessons, announcements, daily_reminder or news. Empty for always.
 	 * @return string[]
 	 */
 	public function push_tokens( array $user_ids, $kind = '' ) {

@@ -159,6 +159,12 @@ Nothing to set on Netlify: the preview is served from the site's own files
       press **Check now** in the plugin, and sign up in the app with a new
       email address.
 
+## 7b. News & blog apps (Phase 23)
+
+- [ ] **Release plugin 0.3.6** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`. WordPress news sites need
+      it for their articles and "Notify app users about new posts".
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

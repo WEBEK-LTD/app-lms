@@ -196,7 +196,7 @@ class Account_Controller extends Controller {
 			return self::error( 'invalid_request', __( 'Sign in from the app to receive notifications.', 'yallapp' ), 400 );
 		}
 		$preferences = array();
-		foreach ( array( 'new_lessons', 'announcements', 'daily_reminder' ) as $key ) {
+		foreach ( array( 'new_lessons', 'announcements', 'daily_reminder', 'news' ) as $key ) {
 			if ( isset( $request['preferences'][ $key ] ) ) {
 				$preferences[ $key ] = (bool) $request['preferences'][ $key ];
 			}

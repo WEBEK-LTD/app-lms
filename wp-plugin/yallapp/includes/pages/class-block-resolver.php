@@ -23,8 +23,8 @@ use Yallapp\Store\Catalog;
  */
 class Block_Resolver {
 
-	const SOURCES    = array( 'courses', 'products', 'services', 'posts', 'listings' );
-	const SCREENS    = array( 'courses', 'my_courses', 'search', 'favorites', 'messages', 'account', 'settings', 'notifications', 'cart', 'orders', 'services', 'appointments' );
+	const SOURCES    = array( 'courses', 'products', 'services', 'posts', 'listings', 'articles' );
+	const SCREENS    = array( 'courses', 'my_courses', 'search', 'favorites', 'messages', 'account', 'settings', 'notifications', 'cart', 'orders', 'services', 'appointments', 'articles', 'bookmarks' );
 	const SORTS      = array( 'newest', 'popular', 'price_asc', 'price_desc' );
 	const SLUG       = '/^[a-z0-9-]{1,64}$/';
 	const ICON       = '/^[a-z0-9_]{1,64}$/';
@@ -365,8 +365,8 @@ class Block_Resolver {
 		if ( 'services' === $source ) {
 			return null !== $this->plugin->bookings();
 		}
-		// Listings live on the hosted API only.
-		return 'posts' === $source;
+		// Listings live on the hosted API only. Articles are the site's posts, opened in the app.
+		return 'posts' === $source || 'articles' === $source;
 	}
 
 	/**
@@ -396,6 +396,8 @@ class Block_Resolver {
 			$items = $this->products( $query );
 		} elseif ( 'services' === $source ) {
 			$items = $this->services( $query );
+		} elseif ( 'articles' === $source ) {
+			$items = $this->articles( $query );
 		} else {
 			$items = $this->posts( $query );
 		}
@@ -610,6 +612,45 @@ class Block_Resolver {
 	}
 
 	/**
+	 * Articles (News & blog apps): the site's posts as cards that open in the app. Featured
+	 * means sticky.
+	 *
+	 * @param array $query Normalized query.
+	 * @return array[]
+	 */
+	private function articles( array $query ) {
+		$result = $this->plugin->articles()->articles(
+			array(
+				'per_page' => $query['ids'] ? count( $query['ids'] ) : $query['limit'],
+				'ids'      => $query['ids'],
+				'featured' => $query['featured'],
+				'category' => $query['category_id'],
+				'orderby'  => 'popular' === $query['sort'] ? 'popular' : 'newest',
+			)
+		);
+		$items  = array();
+		foreach ( $result['items'] as $article ) {
+			$items[] = array(
+				'source'      => 'articles',
+				'id'          => $article['id'],
+				'title'       => $article['title'],
+				'subtitle'    => ! empty( $article['categories'] ) ? $article['categories'][0]['name'] : $article['author'],
+				'image_url'   => $article['image_url'],
+				'price_label' => null,
+				'badge'       => null,
+				'action'      => array(
+					'type' => 'item',
+					'item' => array(
+						'source' => 'articles',
+						'id'     => $article['id'],
+					),
+				),
+			);
+		}
+		return $items;
+	}
+
+	/**
 	 * WordPress posts. Featured means sticky; posts open on the website.
 	 *
 	 * @param array $query Normalized query.
@@ -679,6 +720,9 @@ class Block_Resolver {
 			$terms = $this->plugin->lms()->categories();
 		} elseif ( 'services' === $source ) {
 			$terms = $this->plugin->bookings()->categories();
+		} elseif ( 'articles' === $source ) {
+			// Counted like the app's lists: published posts only.
+			$terms = $this->plugin->articles()->categories();
 		} elseif ( 'products' === $source ) {
 			$terms = array_filter(
 				( new Catalog() )->categories(),

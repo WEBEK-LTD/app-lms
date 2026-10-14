@@ -54,7 +54,7 @@ class Lesson_Renderer {
 	 */
 	public function render( array $lesson, $user_id ) {
 		$post      = $lesson['post'];
-		$processed = Html_Processor::process( $this->rendered_content( $post ), (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$processed = Html_Processor::process( self::the_content( $post ), (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 		$mode      = $this->mode( $post, $processed['needs_webview'] );
 		$position  = (int) get_user_meta( $user_id, 'yallapp_position_' . $post->ID, true );
 		$height    = (string) get_post_meta( $post->ID, self::EMBED_HEIGHT_META, true );
@@ -106,12 +106,12 @@ class Lesson_Renderer {
 	}
 
 	/**
-	 * The content as the website renders it.
+	 * The content as the website renders it (lessons, and articles of News & blog apps).
 	 *
-	 * @param WP_Post $post Lesson.
+	 * @param WP_Post $post Lesson or post.
 	 * @return string
 	 */
-	private function rendered_content( WP_Post $post ) {
+	public static function the_content( WP_Post $post ) {
 		global $wp_query;
 		$saved_post      = $GLOBALS['post'] ?? null;
 		$saved_query     = $wp_query;
@@ -125,13 +125,13 @@ class Lesson_Renderer {
 	}
 
 	/**
-	 * Native or web view.
+	 * Native or web view: the post's own override, else the site setting, else what the content needs.
 	 *
-	 * @param WP_Post $post          Lesson.
+	 * @param WP_Post $post          Lesson or post.
 	 * @param bool    $needs_webview Whether the content needs a browser.
 	 * @return string
 	 */
-	private function mode( WP_Post $post, $needs_webview ) {
+	public function mode( WP_Post $post, $needs_webview ) {
 		$override = (string) get_post_meta( $post->ID, self::OVERRIDE_META, true );
 		if ( in_array( $override, array( 'native', 'webview' ), true ) ) {
 			return $override;
