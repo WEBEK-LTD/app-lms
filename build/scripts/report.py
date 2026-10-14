@@ -3,17 +3,24 @@
 
 Usage: report.py <build-id> <results-dir>
 
-The build is ready when the Android app was built and iOS was built or skipped.
-A missing result means that job failed before it could write one.
+The build is ready when the Android app was built: its files are usable even
+when the iOS app couldn't be built (the iOS stage then shows as failed, with a
+message, and the team is emailed). It fails when the Android app couldn't be
+built. A missing result means that job failed before it could write one.
+
+Messages are shown to the client and put in their email: plain words only.
 """
 import json
 import subprocess
 import sys
 from pathlib import Path
 
+ANDROID_FAILED = "The Android app couldn't be built."
+IOS_FAILED = "The iOS app couldn't be built."
+
 FAILED = {
-    "android": {"stages": {"android": "failed"}, "artifacts": [], "message": "The Android build failed. We'll look into it and start it again."},
-    "ios": {"stages": {"ios": "failed"}, "artifacts": [], "message": "The iOS build failed. We'll look into it and start it again."},
+    "android": {"stages": {"android": "failed"}, "artifacts": [], "message": ANDROID_FAILED},
+    "ios": {"stages": {"ios": "failed"}, "artifacts": [], "message": IOS_FAILED},
 }
 
 
@@ -27,13 +34,25 @@ def load(results, platform, build_id):
 
 def summarize(android, ios):
     stages = {**android["stages"], **ios["stages"]}
-    ok = stages.get("android") == "done" and stages.get("ios") in ("done", "skipped")
-    messages = [m for m in (android.get("message"), ios.get("message")) if m]
+    android_done = stages.get("android") == "done"
+    ios_failed = stages.get("ios") == "failed"
+    if not android_done:
+        # Only why it failed: hints about the iOS app don't help here.
+        messages = [android.get("message") or ANDROID_FAILED]
+        if ios_failed:
+            messages.append(ios.get("message") or IOS_FAILED)
+    elif ios_failed:
+        messages = [
+            android.get("message"),
+            "Your Android app is ready, but the iOS app couldn't be built. Our team has been told and will look into it.",
+        ]
+    else:
+        messages = [android.get("message"), ios.get("message")]
     return {
-        "status": "ready" if ok else "failed",
+        "status": "ready" if android_done else "failed",
         "stages": stages,
         "artifacts": android["artifacts"] + ios["artifacts"],
-        "message": " ".join(messages) or None,
+        "message": " ".join(m for m in messages if m) or None,
     }
 
 

@@ -18,7 +18,7 @@ import type {
   SigningKeysPatch,
   UserPatch,
 } from "./store";
-import { DuplicateEmailError } from "./store";
+import { BuildRunningError, DuplicateEmailError } from "./store";
 import { ACTIVE_BOOKING_STATUSES } from "./types";
 import type {
   Activation,
@@ -61,6 +61,7 @@ import type {
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
+import type { PublishingEvent, PublishingRequest } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -342,8 +343,9 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
-  async createBuild(input: Omit<Build, "number" | "versionCode">): Promise<Build> {
+  async createBuild(input: Omit<Build, "number" | "versionCode">, options: { exclusive?: boolean } = {}): Promise<Build> {
     const previous = [...this.builds.values()].filter((b) => b.appId === input.appId);
+    if (options.exclusive && previous.some((b) => b.status === "queued" || b.status === "building")) throw new BuildRunningError();
     const number = previous.reduce((max, b) => Math.max(max, b.number), 0) + 1;
     const versionCode = previous.reduce((max, b) => Math.max(max, b.versionCode), 0) + 1;
     const build: Build = {
@@ -369,10 +371,10 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async listBuilds(input: { status?: BuildStatus; limit: number }): Promise<Build[]> {
+  async listBuilds(input: { status?: BuildStatus; limit: number; newestFirst?: boolean }): Promise<Build[]> {
     return [...this.builds.values()]
       .filter((b) => !input.status || b.status === input.status)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .sort((a, b) => (a.createdAt.getTime() - b.createdAt.getTime()) * (input.newestFirst ? -1 : 1))
       .slice(0, input.limit)
       .map(clone);
   }
@@ -1255,5 +1257,42 @@ export class MemoryStore implements DataStore {
 
   async listDismissedAnnouncementIds(clientId: string): Promise<string[]> {
     return [...(this.announcementDismissals.get(clientId) ?? [])];
+  }
+
+  // 14.1 We publish for you
+  private publishingRequests = new Map<string, PublishingRequest>();
+  private publishingEvents: PublishingEvent[] = [];
+  private nextPublishingEventId = 1;
+
+  async getPublishingRequest(appId: string): Promise<PublishingRequest | null> {
+    const request = this.publishingRequests.get(appId);
+    return request ? clone(request) : null;
+  }
+
+  async savePublishingRequest(request: PublishingRequest): Promise<void> {
+    // Like the foreign keys: only for an existing app of that client.
+    const app = this.apps.get(request.appId);
+    if (!app || app.clientId !== request.clientId) throw new Error("Unknown app");
+    this.publishingRequests.set(request.appId, clone(request));
+  }
+
+  async listManagedPublishingRequests(): Promise<PublishingRequest[]> {
+    return [...this.publishingRequests.values()]
+      .filter((r) => r.mode === "managed" && this.apps.has(r.appId))
+      .sort((a, b) => (a.requestedAt?.getTime() ?? 0) - (b.requestedAt?.getTime() ?? 0))
+      .map(clone);
+  }
+
+  async addPublishingEvent(event: Omit<PublishingEvent, "id">): Promise<PublishingEvent> {
+    const saved = { ...event, id: this.nextPublishingEventId++ };
+    this.publishingEvents.push(clone(saved));
+    return saved;
+  }
+
+  async listPublishingEvents(appId: string): Promise<PublishingEvent[]> {
+    return this.publishingEvents
+      .filter((e) => e.appId === appId)
+      .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id)
+      .map(clone);
   }
 }

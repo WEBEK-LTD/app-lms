@@ -1,7 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
-import type { Artifact, ArtifactKind } from "./data/types";
-import { filesBaseUrl, filesSigningSecret } from "./env";
+import type { Artifact, ArtifactKind, Build } from "./data/types";
+import { appUrl, filesBaseUrl, filesSigningSecret } from "./env";
 
 /**
  * Download links for build files on files.yallapp.com.tr.
@@ -78,4 +78,35 @@ export function fileLink(url: string, now: Date = new Date()): FileLink {
 /** Signed links for a build's artifacts, in the order the pipeline reported them. */
 export function artifactLinks(artifacts: Artifact[], now: Date = new Date()): ({ kind: ArtifactKind; label: string } & FileLink)[] {
   return artifacts.map((artifact) => ({ kind: artifact.kind, label: ARTIFACT_LABEL[artifact.kind], ...fileLink(artifact.url, now) }));
+}
+
+const ARTIFACT_KINDS = Object.keys(ARTIFACT_LABEL) as ArtifactKind[];
+
+export function isArtifactKind(value: string): value is ArtifactKind {
+  return (ARTIFACT_KINDS as string[]).includes(value);
+}
+
+/** The Download button's address on the dashboard: signed when clicked (see buildFileRedirect). */
+export function dashboardFileHref(buildId: string, kind: ArtifactKind): string {
+  return `/api/dashboard/builds/${buildId}/files/${kind}`;
+}
+
+/** The same in the admin. */
+export function adminFileHref(buildId: string, kind: ArtifactKind): string {
+  return `/api/admin/builds/${buildId}/files/${kind}`;
+}
+
+/**
+ * Redirects (303, not cached) to a freshly signed link for the build's file,
+ * or back to `fallback` with `?download=unavailable` when there's no such file
+ * or links can't be signed. The caller checks who may download it.
+ */
+export function buildFileRedirect(build: Pick<Build, "artifacts"> | null, kind: string, fallback: string, now: Date = new Date()): Response {
+  const artifact = build && isArtifactKind(kind) ? build.artifacts.find((a) => a.kind === kind) : undefined;
+  const link = artifact ? fileLink(artifact.url, now) : null;
+  const location = link?.href ?? new URL(`${fallback}${fallback.includes("?") ? "&" : "?"}download=unavailable`, appUrl()).toString();
+  return new Response(null, {
+    status: 303,
+    headers: { location, "cache-control": "no-store", "referrer-policy": "no-referrer" },
+  });
 }

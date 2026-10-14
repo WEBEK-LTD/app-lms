@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { startBuildAction } from "@/app/actions/dashboard";
+import { retryBuildAction, startBuildAction } from "@/app/actions/dashboard";
 import { FormMessage, SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
 
 export function StartBuildForm({ suggestedVersion, disabledReason }: { suggestedVersion: string; disabledReason: string | null }) {
@@ -41,6 +42,21 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
       <div className="sm:max-w-[420px]">
         <FormMessage message={state.message} ok={state.ok} />
       </div>
+    </form>
+  );
+}
+
+/** "Try again": the same app version as the build that didn't finish (nothing of it was published). */
+export function RetryBuildForm({ versionName }: { versionName: string }) {
+  const [state, action] = useActionState(retryBuildAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-col items-start gap-2">
+      <input type="hidden" name="versionName" value={versionName} />
+      <SubmitButton variant="secondary" className="h-[42px]" pendingText="Starting…">
+        <Icon name="refresh" size={20} />
+        Try again
+      </SubmitButton>
+      <FormMessage message={state.message} ok={state.ok} />
     </form>
   );
 }

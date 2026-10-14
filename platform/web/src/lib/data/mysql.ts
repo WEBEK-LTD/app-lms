@@ -7,6 +7,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AppLayoutRecord } from "./types";
+import type { PublishingEvent, PublishingRequest } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -24,7 +25,7 @@ import type {
   SigningKeysPatch,
   UserPatch,
 } from "./store";
-import { DuplicateEmailError } from "./store";
+import { BuildRunningError, DuplicateEmailError } from "./store";
 import type {
   Activation,
   App,
@@ -429,9 +430,19 @@ export class MysqlStore implements DataStore {
     return result.affectedRows === 1;
   }
 
-  async createBuild(input: Omit<Build, "number" | "versionCode">): Promise<Build> {
+  async createBuild(input: Omit<Build, "number" | "versionCode">, options: { exclusive?: boolean } = {}): Promise<Build> {
     return this.run((db) =>
       db.transaction(async (tx) => {
+        if (options.exclusive) {
+          // A locking read: a second "Start new build" for the same app waits here, then sees the first one.
+          const running = await tx
+            .select({ id: schema.builds.id })
+            .from(schema.builds)
+            .where(and(eq(schema.builds.appId, input.appId), inArray(schema.builds.status, ["queued", "building"])))
+            .limit(1)
+            .for("update");
+          if (running.length > 0) throw new BuildRunningError();
+        }
         const [previous] = await tx
           .select({
             number: sql<number | null>`max(${schema.builds.number})`,
@@ -465,13 +476,13 @@ export class MysqlStore implements DataStore {
     return rows.map(toBuild);
   }
 
-  async listBuilds(input: { status?: BuildStatus; limit: number }): Promise<Build[]> {
+  async listBuilds(input: { status?: BuildStatus; limit: number; newestFirst?: boolean }): Promise<Build[]> {
     const rows = await this.run((db) =>
       db
         .select()
         .from(schema.builds)
         .where(input.status ? eq(schema.builds.status, input.status) : undefined)
-        .orderBy(asc(schema.builds.createdAt))
+        .orderBy(input.newestFirst ? desc(schema.builds.createdAt) : asc(schema.builds.createdAt))
         .limit(input.limit),
     );
     return rows.map(toBuild);
@@ -1628,6 +1639,80 @@ export class MysqlStore implements DataStore {
     );
     return rows.map((r) => r.id);
   }
+
+  // 14.1 We publish for you
+  async getPublishingRequest(appId: string): Promise<PublishingRequest | null> {
+    const t = schema.publishingRequests;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row ? toPublishingRequest(row) : null;
+  }
+
+  async savePublishingRequest(request: PublishingRequest): Promise<void> {
+    const row = fromPublishingRequest(request);
+    // Everything but the key and the creation time.
+    const update: Partial<typeof row> = { ...row };
+    delete update.appId;
+    delete update.createdAt;
+    await this.run((db) => db.insert(schema.publishingRequests).values(row).onDuplicateKeyUpdate({ set: update }));
+  }
+
+  async listManagedPublishingRequests(): Promise<PublishingRequest[]> {
+    const t = schema.publishingRequests;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.mode, "managed")).orderBy(asc(t.requestedAt), asc(t.appId)));
+    return rows.map(toPublishingRequest);
+  }
+
+  async addPublishingEvent(event: Omit<PublishingEvent, "id">): Promise<PublishingEvent> {
+    const [result] = await this.run((db) => db.insert(schema.publishingEvents).values(event));
+    return { id: Number(result.insertId), ...event };
+  }
+
+  async listPublishingEvents(appId: string): Promise<PublishingEvent[]> {
+    const t = schema.publishingEvents;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.at), desc(t.id)));
+  }
+}
+
+function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect): PublishingRequest {
+  return {
+    appId: row.appId,
+    clientId: row.clientId,
+    mode: row.mode,
+    firebaseBy: row.firebaseBy,
+    checklist: row.checklist,
+    listing: row.listing,
+    android: { status: row.androidStatus, note: row.androidNote, storeUrl: row.androidStoreUrl, updatedAt: row.androidUpdatedAt },
+    ios: { status: row.iosStatus, note: row.iosNote, storeUrl: row.iosStoreUrl, updatedAt: row.iosUpdatedAt },
+    teamNotes: row.teamNotes,
+    requestedAt: row.requestedAt,
+    readyAt: row.readyAt,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function fromPublishingRequest(request: PublishingRequest): typeof schema.publishingRequests.$inferInsert {
+  return {
+    appId: request.appId,
+    clientId: request.clientId,
+    mode: request.mode,
+    firebaseBy: request.firebaseBy,
+    checklist: request.checklist,
+    listing: request.listing,
+    androidStatus: request.android.status,
+    androidNote: request.android.note,
+    androidStoreUrl: request.android.storeUrl,
+    androidUpdatedAt: request.android.updatedAt,
+    iosStatus: request.ios.status,
+    iosNote: request.ios.note,
+    iosStoreUrl: request.ios.storeUrl,
+    iosUpdatedAt: request.ios.updatedAt,
+    teamNotes: request.teamNotes,
+    requestedAt: request.requestedAt,
+    readyAt: request.readyAt,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+  };
 }
 
 function toBuild(row: typeof schema.builds.$inferSelect): Build {

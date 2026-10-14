@@ -44,6 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             { href: "/dashboard/setup", label: "App setup", prefix: "/dashboard/app-type" },
             { href: "/dashboard/pages", label: "Pages & look" },
             { href: "/dashboard/builds", label: "Builds & downloads" },
+            { href: "/dashboard/publishing", label: "Publishing" },
             ...(app?.connector?.kind === "catalog"
               ? [
                   { href: "/dashboard/catalog", label: "Products" },

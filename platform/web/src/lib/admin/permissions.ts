@@ -20,8 +20,10 @@ export const ADMIN_PERMISSIONS = [
   "clients.edit",
   /** Send a client's emails again: the license key, a password link. */
   "clients.email",
-  /** Run a client's build again. */
+  /** Run a client's build again, or close one that stopped. */
   "builds.manage",
+  /** Publish clients' apps for them (roadmap 14.1): the Publishing queue, its statuses and notes. */
+  "publishing.manage",
   /** Plans, prices and what each plan offers. */
   "plans.edit",
   /** Yallapp's iyzico account, the marketplace commission and payouts. */
@@ -35,7 +37,7 @@ export const ADMIN_PERMISSIONS = [
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
-const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage"];
+const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage"];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, readonly AdminPermission[]> = {
   owner: ADMIN_PERMISSIONS,
@@ -49,7 +51,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps and sends their emails. No prices, plans, payments, settings or releases.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings or releases.",
   viewer: "Sees everything, changes nothing.",
 };
 

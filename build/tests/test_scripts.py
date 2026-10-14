@@ -27,9 +27,28 @@ class ReportTest(unittest.TestCase):
         self.assertEqual([apk], out["artifacts"])
         self.assertEqual("Add your App Store Connect key.", out["message"])
 
-    def test_failed_when_either_build_fails(self):
-        self.assertEqual("failed", report.summarize(result({"android": "failed"}), result({"ios": "done"}))["status"])
-        self.assertEqual("failed", report.summarize(result({"android": "done"}), result({"ios": "failed"}))["status"])
+    def test_failed_when_the_android_app_fails(self):
+        out = report.summarize(
+            result({"android": "failed"}, message="The Android app couldn't be built."),
+            result({"ios": "skipped"}, message="Add your App Store Connect key."),
+        )
+        self.assertEqual("failed", out["status"])
+        # Only why it failed: the iOS hint doesn't belong in a failure message.
+        self.assertEqual("The Android app couldn't be built.", out["message"])
+
+    def test_android_files_stay_usable_when_only_ios_fails(self):
+        apk = {"kind": "apk", "url": "https://f/a.apk"}
+        out = report.summarize(result({"android": "done"}, [apk]), result({"ios": "failed"}, message="The iOS app couldn't be built."))
+        self.assertEqual("ready", out["status"])
+        self.assertEqual("failed", out["stages"]["ios"])
+        self.assertEqual([apk], out["artifacts"])
+        self.assertIn("the iOS app couldn't be built", out["message"])
+
+    def test_messages_are_plain_words(self):
+        for platform in ("android", "ios"):
+            message = report.FAILED[platform]["message"]
+            self.assertNotIn("We'll", message)
+            self.assertTrue(message.endswith("."))
 
     def test_store_upload_failure_keeps_the_files(self):
         out = report.summarize(

@@ -96,7 +96,7 @@ export async function switchAppAction(formData: FormData): Promise<void> {
   revalidatePath("/dashboard", "layout");
   // Pages every app has stay open; the others (products, bookings…) belong to one kind of app.
   const from = String(formData.get("from") ?? "");
-  const stays = ["/dashboard/setup", "/dashboard/pages", "/dashboard/builds", "/dashboard/license", "/dashboard/announcements"];
+  const stays = ["/dashboard/setup", "/dashboard/pages", "/dashboard/builds", "/dashboard/publishing", "/dashboard/license", "/dashboard/announcements"];
   redirect(stays.includes(from) ? from : "/dashboard");
 }
 
@@ -578,7 +578,8 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   if (Object.keys(errors).length > 0) return { errors, values };
   const hasPlay = Boolean(patch.googlePlayKeyEncrypted ?? app.googlePlayKeyEncrypted);
   const hasAppStore = Boolean((patch.ascPrivateKeyEncrypted ?? app.ascPrivateKeyEncrypted) && (patch.ascKeyId ?? app.ascKeyId));
-  if (!hasPlay && !hasAppStore) {
+  // When our team publishes the app for them (14.1), we work through their invitations: no key needed.
+  if (!hasPlay && !hasAppStore && app.publishingMode !== "managed") {
     return { message: "Add your Google Play key, your App Store Connect key, or both.", values };
   }
   await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
@@ -650,39 +651,55 @@ export async function uploadAssetAction(formData: FormData): Promise<UploadResul
   return { ok: true, id, url: `/api/v1/assets/${id}` };
 }
 
-export async function startBuildAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
-  const values = formValues(formData);
-  const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
+/** Queues a build of the current app, or says in plain words why it can't. */
+async function startBuild(
+  context: ClientContext & { app: App },
+  versionName: string,
+): Promise<{ ok: true; number: number; versionName: string } | { ok: false; message: string; versionTooLow: boolean }> {
   const store = await getStore();
-  const result = await queueBuild(
-    store,
-    { client: context.client, app: context.app, license: context.license, versionName: parsed.data.versionName },
-    new Date(),
-    assetUrl,
-  );
+  const result = await queueBuild(store, { client: context.client, app: context.app, license: context.license, versionName }, new Date(), assetUrl);
   if (!result.ok) {
     const messages = {
       setup_incomplete: "Finish every step of the app setup first.",
       license_inactive:
         context.state === "pending"
           ? "This app isn't activated yet. Pay its plan on the License & plugin page, or message us on WhatsApp."
-          : "Your plan has ended. Message us on WhatsApp to renew it, then start a new build.",
+          : context.state === "suspended"
+            ? "This account is suspended, so new builds can't start. Message us on WhatsApp."
+            : "This app's plan has ended. Renew it on the License & plugin page, then start a new build.",
       build_running: "A build is already in progress. You can start a new one when it finishes.",
       version_too_low: "Use the same or a higher app version than your last build.",
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
     } as const;
-    return {
-      message: messages[result.reason],
-      errors: result.reason === "version_too_low" ? { versionName: messages.version_too_low } : undefined,
-      values,
-    };
+    return { ok: false, message: messages[result.reason], versionTooLow: result.reason === "version_too_low" };
   }
   await startPipeline();
   await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
-  return { ok: true, message: `Build #${result.build.number} is queued.`, values: { versionName: bumpPatch(result.build.versionName) } };
+  return { ok: true, number: result.build.number, versionName: result.build.versionName };
+}
+
+export async function startBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const values = formValues(formData);
+  const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
+  const result = await startBuild(context, parsed.data.versionName);
+  if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values };
+  return { ok: true, message: `Build #${result.number} is queued.`, values: { versionName: bumpPatch(result.versionName) } };
+}
+
+/**
+ * "Try again" on a build that didn't finish: the same app version again
+ * (nothing of it was published), then back to the page, which says so.
+ */
+export async function retryBuildAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
+  const result = await startBuild(context, parsed.data.versionName);
+  if (!result.ok) return { message: result.message };
+  redirect(`/dashboard/builds?queued=${result.number}`);
 }
 
 /** Releases the license from its website so it can be activated on another one. */

@@ -22,7 +22,7 @@ path, stages, artifacts, message = sys.argv[1:]
 json.dump({"stages": json.loads(stages), "artifacts": json.loads(artifacts), "message": message or None}, open(path, "w"))
 PY
 }
-result '{"android":"failed"}' '[]' "The Android build failed. We'll look into it and start it again."
+result '{"android":"failed"}' '[]' "The Android app couldn't be built."
 
 platform status "$BUILD_ID" '{"stages":{"android":"running"}}'
 platform config "$BUILD_ID" "$WORK/config.json"
@@ -120,7 +120,7 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 		PLAY="done"
 	else
 		PLAY=failed
-		MESSAGE="Your Android app is ready, but the Google Play upload failed. Google Play needs the first version uploaded by hand in Play Console; after that, uploads are automatic. Check the guide, then start a new build."
+		MESSAGE="Your Android app is ready, but the upload to Google Play didn't work. Google Play needs the first version uploaded by hand in Play Console; after that, uploads are automatic. Download the App Bundle below and see the Google Play guide."
 	fi
 fi
 

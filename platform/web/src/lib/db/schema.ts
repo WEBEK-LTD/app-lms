@@ -39,6 +39,8 @@ import {
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStatus } from "../data/types";
+// 14.1 We publish for you
+import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -185,6 +187,8 @@ export const apps = mysqlTable(
     brandingDoneAt: time("branding_done_at"),
     listingDoneAt: time("listing_done_at"),
     publishingDoneAt: time("publishing_done_at"),
+    // 14.1 "self" or "managed" (we publish it for the client); null until they choose.
+    publishingMode: varchar("publishing_mode", { length: 8 }).$type<PublishingMode>(),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -818,4 +822,58 @@ export const announcementDismissals = mysqlTable(
     dismissedAt: time("dismissed_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.clientId, t.announcementId] })],
+);
+
+// 14.1 We publish for you
+
+/**
+ * An app the client asked us to publish, one row per app: their checklist,
+ * the extra listing details, and the status on each store. No passwords:
+ * clients invite our team email to their own store accounts.
+ */
+export const publishingRequests = mysqlTable(
+  "publishing_requests",
+  {
+    appId: id("app_id")
+      .primaryKey()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    mode: varchar("mode", { length: 8 }).notNull().$type<PublishingMode>(),
+    firebaseBy: varchar("firebase_by", { length: 8 }).notNull().$type<"client" | "team">(),
+    checklist: jsonText<PublishingChecklist>("checklist").notNull(),
+    listing: jsonText<PublishingListing>("listing").notNull(),
+    androidStatus: varchar("android_status", { length: 16 }).notNull().$type<PublishingStatus>(),
+    androidNote: text("android_note"),
+    androidStoreUrl: varchar("android_store_url", { length: 2048 }),
+    androidUpdatedAt: time("android_updated_at"),
+    iosStatus: varchar("ios_status", { length: 16 }).notNull().$type<PublishingStatus>(),
+    iosNote: text("ios_note"),
+    iosStoreUrl: varchar("ios_store_url", { length: 2048 }),
+    iosUpdatedAt: time("ios_updated_at"),
+    teamNotes: text("team_notes"),
+    requestedAt: time("requested_at"),
+    readyAt: time("ready_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("publishing_requests_queue_idx").on(t.mode, t.requestedAt)],
+);
+
+/** Each status change on a store, for the history the client and the team see. */
+export const publishingEvents = mysqlTable(
+  "publishing_events",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    store: varchar("store", { length: 8 }).notNull().$type<PublishingStore>(),
+    status: varchar("status", { length: 16 }).notNull().$type<PublishingStatus>(),
+    note: text("note"),
+    actorEmail: varchar("actor_email", { length: 191 }).notNull(),
+    at: time("at").notNull(),
+  },
+  (t) => [index("publishing_events_app_idx").on(t.appId, t.at)],
 );

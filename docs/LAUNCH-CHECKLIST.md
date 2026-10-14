@@ -25,6 +25,16 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] **Settings › Marketplace:** the commission percent Yallapp keeps from
       shops that sell through Yallapp's iyzico account.
 - [ ] **Settings › Contact:** WhatsApp number and email shown on the website.
+- [ ] **Settings › Publishing service:** the publishing team email clients
+      invite to their store accounts ("Publish it for me"). Use a mailbox the
+      team reads that is also a Google account (Play Console and Firebase
+      invitations) and an Apple Account (App Store Connect invitations).
+      Until it's set, clients are shown the contact email.
+- [ ] **Emails:** read "Publishing status changed", "Publishing request
+      (team)" and "Build problem (team)" once and change what we want
+      different. Build problems go to every `SUPER_ADMIN_EMAILS` address.
+- [ ] **Team:** give whoever publishes clients' apps the admin or support
+      role (permission "publishing.manage").
 - [ ] **Plans:** names, prices, periods and features; check the pricing page.
 - [ ] **Plans › card payments:** the prices clients pay by card for each plan.
 - [ ] **Team:** invite the rest of the team with the right role (admin,
@@ -41,7 +51,17 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch
       the macOS minutes the iOS builds use.
 
-## 4. Accounts the remaining roadmap steps wait on
+## 4. Publishing for clients (Phase 14)
+
+- [ ] Decide which plans include "Publish it for me" and its price. Until
+      the plan flag "managed publishing" exists, every app can ask for it:
+      `canUseManagedPublishing` in `platform/web/src/lib/publishing/steps.ts`
+      returns true for now.
+- [ ] Our own Apple Account for the publishing team email, with two-factor
+      authentication on a team phone (App Store Connect invitations need it).
+- [ ] Never accept a client's Google or Apple password: only invitations.
+
+## 5. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
 |---|---|
@@ -56,3 +76,4 @@ devices. Everything else is in the code. Tick each line when it's done.
 | 8.5 | A test account on each platform: ikas, Ticimax, IdeaSoft, Teachable (Growth plan), Thinkific (Grow plan), SimplyBook.me (API feature) |
 | 8.6, 9.4, 9.5 | An iyzico sandbox account, then the live account |
 | 10.5–10.7 | A WordPress test site and a Real estate test app built on the hosted API, to see published pages, languages and listings on a phone |
+| 14.2, 14.3 | A first client who asks us to publish: their Google Play and Apple developer accounts inviting the publishing team email |

@@ -15,6 +15,10 @@ info:
       the build is `ready` or `failed`. Finished builds can't change.
     - The build config never contains secrets. Signing keys and store API keys
       are handed over separately.
+    - A build that stops moving doesn't block its app: one still `queued` after
+      24 hours, or `building` without a report for 6 hours, is closed as
+      `failed` when the client starts a new build or the team marks it in the
+      admin. A later report on it gets `409 build_finished`.
   license:
     name: Proprietary, WEBEK LTD
     url: https://yallapp.com.tr
@@ -106,7 +110,8 @@ paths:
       description: |
         Send only what changed. Stages not mentioned keep their status.
         Moving to `building` records the start time; `ready` or `failed`
-        records the finish time, emails the client and closes the build.
+        records the finish time, emails the client (and, for `failed`, the
+        team) and closes the build.
       parameters:
         - $ref: '#/components/parameters/BuildId'
       requestBody:
@@ -248,7 +253,10 @@ components:
 
     Stages:
       type: object
-      description: Upload stages are `skipped` on the Starter plan and when the client has no key for that store.
+      description: >-
+        Upload stages are `skipped` on the Starter plan and when the client has no key for that store.
+        `ios` starts as `skipped` when the app has no App Store Connect key (there is no iOS app to build);
+        the pipeline may still build it, and report `running` and `done`, if a key was added since.
       additionalProperties: false
       properties:
         queued: { $ref: '#/components/schemas/StageStatus' }
@@ -286,12 +294,16 @@ components:
         message:
           type: [string, 'null']
           maxLength: 2000
-          description: Shown to the client, for example why a build failed.
+          description: >-
+            Shown to the client and put in their email, so it must be plain words without
+            technical details: why a build failed, or a note on a ready build (for example
+            that the Google Play upload didn't work). Without one, the platform says which
+            stage failed.
         log_url:
           type: [string, 'null']
           format: uri
           pattern: '^https://'
-          description: Link to the CI run.
+          description: Link to the CI run. Shown to the team only (the repository is private).
         artifacts:
           type: array
           maxItems: 20

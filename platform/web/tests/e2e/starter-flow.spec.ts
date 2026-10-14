@@ -175,19 +175,19 @@ test("the App Store Connect key is optional on Starter and reaches the pipeline"
     },
   });
   await page.goto("/dashboard/builds");
-  await expect(page.getByRole("link", { name: "Download Android upload key (keep it safe)" })).toHaveAttribute(
-    "href",
-    /^https:\/\/files\.yallapp\.com\.tr\/grace\/upload-key\.zip\?expires=\d+&sig=[0-9a-f]{64}$/,
-  );
+  const keyLink = page.getByRole("link", { name: "Download Android upload key (keep it safe)" });
+  await expect(keyLink).toHaveAttribute("href", `/api/dashboard/builds/${build.id}/files/keystore`);
+  const download = await page.request.get((await keyLink.getAttribute("href"))!, { maxRedirects: 0 });
+  expect(download.headers()["location"]).toMatch(/^https:\/\/files\.yallapp\.com\.tr\/grace\/upload-key\.zip\?expires=\d+&sig=[0-9a-f]{64}$/);
 });
 
 test("the super admin sees signed file links in the build queue", async ({ page }) => {
   await signIn(page, E2E.adminEmail, E2E.adminPassword);
   await page.goto("/admin/builds?status=ready");
   const row = page.getByRole("row").filter({ hasText: client.name });
-  await expect(row.getByRole("link", { name: "Android APK" })).toHaveAttribute(
-    "href",
-    /^https:\/\/files\.yallapp\.com\.tr\/grace\/app\.apk\?expires=\d+&sig=[0-9a-f]{64}$/,
-  );
+  const apk = (await row.getByRole("link", { name: "Android APK" }).getAttribute("href"))!;
+  expect(apk).toMatch(/^\/api\/admin\/builds\/[0-9a-f-]{36}\/files\/apk$/);
+  const download = await page.request.get(apk, { maxRedirects: 0 });
+  expect(download.headers()["location"]).toMatch(/^https:\/\/files\.yallapp\.com\.tr\/grace\/app\.apk\?expires=\d+&sig=[0-9a-f]{64}$/);
   await expect(row.getByRole("link", { name: "Android upload key (keep it safe)" })).toBeVisible();
 });

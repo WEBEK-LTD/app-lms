@@ -43,15 +43,33 @@ describe("email templates", () => {
       subject: "Your Yallapp plan has been renewed",
       text: "Hello Ada,\n\nThe Pro plan of Ada Academy is now active until 1 Jan 2027.\n\nDashboard: https://x.test/dashboard" + SIGNATURE,
     });
-    expect(renderTemplate(t("build_ready"), { name: "Ada", build_number: "7", builds_url: "https://x.test/dashboard/builds" })).toEqual({
-      subject: "Build #7 of your app is ready",
-      text: "Hello Ada,\n\nBuild #7 is ready. Your files are on the Builds & downloads page:\nhttps://x.test/dashboard/builds\n\nYallapp",
+    const build = { name: "Ada", app_name: "Ada Academy", build_number: "7", version: "1.0.6", builds_url: "https://x.test/dashboard/open/a1?to=builds", ...WHATSAPP };
+    expect(renderTemplate(t("build_ready"), { ...build, note_line: "" })).toEqual({
+      subject: "Ada Academy: build #7 is ready",
+      text: "Hello Ada,\n\nBuild #7 of Ada Academy (version 1.0.6) is ready.\n\nDownload your files on the Builds & downloads page:\nhttps://x.test/dashboard/open/a1?to=builds" + SIGNATURE,
       html: expect.any(String),
     });
-    expect(renderTemplate(t("build_failed"), { name: "Ada", build_number: "7", builds_url: "https://x.test/dashboard/builds" })).toMatchObject({
-      subject: "Build #7 of your app didn't finish",
-      text: "Hello Ada,\n\nBuild #7 didn't finish. We've been notified and will look into it. You can follow it here:\nhttps://x.test/dashboard/builds\n\nYallapp",
+    expect(renderTemplate(t("build_failed"), { ...build, reason: "The Android app couldn't be built." })).toMatchObject({
+      subject: "Ada Academy: build #7 didn't finish",
+      text:
+        "Hello Ada,\n\nBuild #7 of Ada Academy (version 1.0.6) didn't finish, so nothing was published.\n\nThe Android app couldn't be built.\n\n" +
+        "Our team has been told and will look into it. You can also start it again with Try again on the Builds & downloads page:\nhttps://x.test/dashboard/open/a1?to=builds" +
+        SIGNATURE,
     });
+    expect(
+      renderTemplate(t("build_failed_team"), {
+        client_name: "Ada Lovelace",
+        app_name: "Ada Academy",
+        build_number: "7",
+        version: "1.0.6",
+        status: "Didn't finish",
+        reason: "Gradle failed",
+        log_line: "Build log: https://github.com/x/y/actions/runs/1\n",
+        admin_url: "https://x.test/admin/clients/c1",
+      }).text,
+    ).toBe(
+      "Build #7 of Ada Academy (Ada Lovelace, version 1.0.6) had a problem.\n\nStatus: Didn't finish\nWhat happened: Gradle failed\nBuild log: https://github.com/x/y/actions/runs/1\n\nThe client was emailed too. Their page: https://x.test/admin/clients/c1",
+    );
     const setup = { client_name: "Ada", website: "https://a.test", whatsapp: "+905321234567", email: "ada@a.test", app_type: "Academy" };
     expect(renderTemplate(t("setup_request"), { ...setup, note_line: "" }).text).toBe(
       "Ada asked us to set up WordPress for their app.\nWebsite: https://a.test\nWhatsApp: +905321234567\nEmail: ada@a.test\nApp type: Academy\n\nRequests are listed on the super admin Clients page.",
@@ -101,14 +119,14 @@ describe("email templates", () => {
     const store = new MemoryStore();
     clearPlatformSettingsCache();
     await store.setPlatformSetting("contact", { whatsapp: "+90 500 000 00 00", email: "hello@yallapp.test" }, "admin@yallapp.test", NOW);
-    expect((await renderEmail(store, "build_ready", { name: "Ada", build_number: "3", builds_url: "u" })).subject).toBe("Build #3 of your app is ready");
+    expect((await renderEmail(store, "build_ready", { name: "Ada", app_name: "Ada Academy", build_number: "3", builds_url: "u" })).subject).toBe("Ada Academy: build #3 is ready");
     await store.setEmailTemplate("build_ready", { subject: "Your build {{build_number}} is here", body: "Hi {{name}}, ask {{yallapp_email}}." }, "admin@yallapp.test", NOW);
     expect(await renderEmail(store, "build_ready", { name: "Ada", build_number: "3", builds_url: "u" })).toMatchObject({
       subject: "Your build 3 is here",
       text: "Hi Ada, ask hello@yallapp.test.",
     });
     await store.setEmailTemplate("build_ready", null, "admin@yallapp.test", NOW);
-    expect((await renderEmail(store, "build_ready", { name: "Ada", build_number: "3", builds_url: "u" })).subject).toBe("Build #3 of your app is ready");
+    expect((await renderEmail(store, "build_ready", { name: "Ada", app_name: "Ada Academy", build_number: "3", builds_url: "u" })).subject).toBe("Ada Academy: build #3 is ready");
     clearPlatformSettingsCache();
   });
 

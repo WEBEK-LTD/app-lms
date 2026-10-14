@@ -120,6 +120,13 @@
       "when": 1791948266443,
       "tag": "0016_several_apps",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1791954390253,
+      "tag": "0017_publishing_service",
+      "breakpoints": true
     }
   ]
 }
