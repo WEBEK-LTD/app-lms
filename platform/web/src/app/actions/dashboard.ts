@@ -21,8 +21,9 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
-import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
+import { appUrl, encryptionKey, sessionSecret, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
+import { oauthRedirectUri, partnerAppCredentials, signOAuthState } from "@/lib/hosted/connectors/partner-apps";
 import { PlatformCheckError, platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector, ShopifyPermissionError } from "@/lib/hosted/connectors/shopify";
@@ -390,6 +391,55 @@ async function connectPlatform(
     return { errors: { platform: message }, values };
   }
   return { connector: platformConnectorConfig(app.id, definition, { ...all, ...renewed }, key) };
+}
+
+/**
+ * 25 "Connect with Salla" / "Connect with Zid" on the Website step: the same
+ * checks as saving the step (the platform is offered, customers who signed up
+ * by email agreed to), then the owner goes to the platform's approval page
+ * with the app's ID signed as `state`; src/app/oauth/<platform> saves the
+ * connection when they come back.
+ */
+export async function connectPlatformAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const platformId = String(formData.get("platform") ?? "");
+  const definition = platformDefinition(platformId);
+  const values = { platform: platformId, confirmEmailOff: formData.get("confirmEmailOff") === "on" ? "on" : "" };
+  if (!definition?.oauth || definition.appType !== context.app.appType) {
+    return { errors: { platform: "This platform doesn't work with this app type. Choose another one, or change the app type." }, values };
+  }
+  const store = await getStore();
+  const kept = context.app.websiteDoneAt && definition.id === websiteOf(context.app);
+  if (!kept && !websiteOn(await getSwitches(store), definition.id, context.license?.plan ?? null)) {
+    return { errors: { platform: "This choice isn't available. Choose another one, or message us on WhatsApp." }, values };
+  }
+  if (values.confirmEmailOff !== "on") {
+    const atRisk = await emailOnlyUsersAtRisk(store, context.app);
+    if (atRisk > 0) return { errors: { confirmEmailOff: emailOffWarning(atRisk) + " Tick the box to switch anyway." }, values };
+  }
+  const credentials = await partnerAppCredentials(store, definition.oauth.settingKey, encryptionKey());
+  if (!credentials) return { errors: { platform: `Connecting a ${definition.name} store isn't available yet. Choose another platform, or message us on WhatsApp.` }, values };
+  const state = signOAuthState({ platform: definition.id, appId: context.app.id }, sessionSecret(), new Date());
+  await recordStaffChange(context, `Started connecting a ${definition.name} store`);
+  redirect(definition.oauth.authorizeUrl(credentials.clientId, oauthRedirectUri(appUrl(), definition.id), state));
+}
+
+/** 25 Disconnects a store connected with OAuth (Salla, Zid): its tokens are deleted and the Website step is open again. */
+export async function disconnectPlatformAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const connector = context.app.connector;
+  const definition = connector?.kind === "platform" ? platformDefinition(connector.platform) : null;
+  if (!definition?.oauth || String(formData.get("platform") ?? "") !== definition.id) return { message: "Nothing to disconnect." };
+  const store = await getStore();
+  const now = new Date();
+  await store.updateApp(context.app.id, { connector: null, websiteDoneAt: null }, now);
+  await recordStaffChange(context, `Disconnected the ${definition.name} store`);
+  revalidatePath("/dashboard", "layout");
+  return {
+    ok: true,
+    message: `Your ${definition.name} store is disconnected, so your app shows no products. Connect a store again, or choose another option below. To remove Yallapp's access in ${definition.name} too, remove the Yallapp app from your ${definition.name} dashboard.`,
+    values: { platform: definition.id },
+  };
 }
 
 /** Tells the team a client wants their WordPress site set up for them. */

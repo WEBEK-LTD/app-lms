@@ -123,7 +123,8 @@ export type ConnectorConfig =
   | { kind: "listings" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
-   * Thinkific, SimplyBook): `settings` holds the values that aren't secret,
+   * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
+   * (Salla, Zid): `settings` holds the values that aren't secret,
    * `secretsEncrypted` the rest as encrypted JSON (lib/hosted/connectors/platforms.ts).
    */
   | { kind: "platform"; platform: string; settings: Record<string, string>; secretsEncrypted: string };
@@ -1269,6 +1270,25 @@ export interface PublishingSetting {
 
 export interface PlatformSettingValues {
   publishing: PublishingSetting;
+}
+
+// 25 Salla and Zid stores
+
+/**
+ * Yallapp's partner app on a store platform (Salla Partners, Zid Partner
+ * Dashboard): stores connect to it with OAuth. Secrets are encrypted with the
+ * context `platform:<key>`.
+ */
+export interface PartnerAppSetting {
+  clientId: string;
+  clientSecretEncrypted: string;
+  /** Signs the platform's webhooks; null when not set. */
+  webhookSecretEncrypted: string | null;
+}
+
+export interface PlatformSettingValues {
+  sallaApp: PartnerAppSetting;
+  zidApp: PartnerAppSetting;
 }
 
 // 13 Plans, limits and owner notices

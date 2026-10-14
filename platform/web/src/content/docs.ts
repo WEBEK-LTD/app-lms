@@ -190,7 +190,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
 
 - **My WordPress site**: install the Yallapp plugin on your site. Works with Tutor LMS, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint. See [Install the WordPress plugin](/docs/wordpress-plugin).
 - **My Shopify store** (Store apps): see [Connect Shopify](/docs/shopify).
-- **Another store platform** (Store apps): ikas, Ticimax, IdeaSoft or Wix. See [Connect ikas](/docs/ikas), [Connect Ticimax](/docs/ticimax), [Connect IdeaSoft](/docs/ideasoft) and [Connect your Wix store](/docs/wix).
+- **Another store platform** (Store apps): ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. See [Connect ikas](/docs/ikas), [Connect Ticimax](/docs/ticimax), [Connect IdeaSoft](/docs/ideasoft), [Connect your Wix store](/docs/wix), [Connect your Salla store](/docs/salla) and [Connect your Zid store](/docs/zid).
 - **My Teachable or Thinkific school** (Academy apps): see [Connect Teachable](/docs/teachable) and [Connect Thinkific](/docs/thinkific).
 - **My SimplyBook.me account** (Bookings apps): see [Connect SimplyBook.me](/docs/simplybook).
 - **I don't have a website**: add your content in the dashboard. See [No website](/docs/no-website).
@@ -457,6 +457,68 @@ In your Yallapp dashboard, open **App setup › Website**, choose **Another stor
 Select **Save & continue**. We check the client ID and the key with Wix before saving.
 
 > Your Wix categories become your app's categories. On iPhones, carts with digital products can't be checked out, as Apple's rules require. Product reviews are off for Wix apps. Wix stores still on Wix's older product catalog can't be connected yet.
+`,
+  }),
+  doc({
+    slug: "salla",
+    section: "Your content",
+    title: "Connect your Salla store",
+    description: "Connect your Salla store to a Store app in a few clicks: approve Yallapp's access in Salla, with no keys to copy.",
+    steps: true,
+    body: `Your Store app can take its products, categories, prices and stock from your Salla store, and show customers their orders. Customers finish each order on your Salla store.
+
+## Before you start
+
+- A Salla store, and the account that manages it
+- Your Yallapp app type set to **Store**
+
+## Connect with Salla
+
+1. In your Yallapp dashboard, open **App setup › Website**, choose **Another store platform** and then **Salla**.
+2. Select **Connect with Salla**.
+3. Sign in to Salla if it asks, check the store, and approve Yallapp's access to your products, orders and customers.
+4. Salla brings you back to the Website step, which shows **Connected to** and your store's name. Select **Save & continue**.
+
+There are no keys to copy: we keep the access renewed for you. To connect another store, select **Connect another Salla store**. To stop, select **Disconnect**, and remove the Yallapp app from your Salla dashboard too.
+
+## How orders work
+
+Salla doesn't let other apps fill a shopper's cart, so checkout happens on your store: in the app, **Checkout** opens the product's page on your Salla store in the browser, where the customer picks their options and pays. The app sends one product at a time to your store.
+
+Customers see their orders in the app when they sign in with the same mobile number (with its country code) as their account on your store.
+
+> If **Salla** shows "Not available yet", connecting Salla stores is still being set up. Message us on WhatsApp. Your Salla categories become your app's categories. On iPhones, digital products can't be bought in the app, as Apple's rules require. Product reviews are off for Salla apps.
+`,
+  }),
+  doc({
+    slug: "zid",
+    section: "Your content",
+    title: "Connect your Zid store",
+    description: "Connect your Zid store to a Store app in a few clicks: approve Yallapp's access in Zid, with no keys to copy.",
+    steps: true,
+    body: `Your Store app can take its products, categories, prices and stock from your Zid store, and show customers their orders. Customers finish each order on your Zid store.
+
+## Before you start
+
+- A Zid store, and the account that manages it
+- Your Yallapp app type set to **Store**
+
+## Connect with Zid
+
+1. In your Yallapp dashboard, open **App setup › Website**, choose **Another store platform** and then **Zid**.
+2. Select **Connect with Zid**.
+3. Sign in to Zid if it asks, and approve Yallapp's access to your products, orders and customers.
+4. Zid brings you back to the Website step, which shows **Connected to** and your store's name. Select **Save & continue**.
+
+There are no keys to copy: we keep the access renewed for you. To connect another store, select **Connect another Zid store**. To stop, select **Disconnect**, and remove the Yallapp app from your Zid dashboard too.
+
+## How orders work
+
+Checkout happens on your store: in the app, **Checkout** opens the product's page on your Zid store in the browser, where the customer picks their options and pays. The app sends one product at a time to your store.
+
+Customers see their orders in the app when they sign in with the same mobile number (with its country code) as their account on your store.
+
+> If **Zid** shows "Not available yet", connecting Zid stores is still being set up. Message us on WhatsApp. Your Zid categories become your app's categories. On iPhones, digital products can't be bought in the app, as Apple's rules require. Product reviews are off for Zid apps.
 `,
   }),
   doc({

@@ -17,7 +17,7 @@ import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
-import { getPlans } from "@/lib/settings/platform";
+import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 
 export const metadata: Metadata = { title: "App setup" };
@@ -32,7 +32,7 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
-  const { client, app, apps, license, state } = await requireClient();
+  const { client, app, apps, license, state, staff } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
   const plans = await getPlans(store);
@@ -153,9 +153,29 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           backend={
             app.backend === "hosted" ? (app.connector?.kind === "shopify" ? "shopify" : app.connector?.kind === "platform" ? "platform" : "catalog") : app.backend
           }
-          platforms={platformDefinitions()
-            .filter((p) => p.appType === app.appType && offered(p.id))
-            .map((p) => ({ id: p.id, name: p.name, summary: p.summary, fields: p.fields }))}
+          platforms={await Promise.all(
+            platformDefinitions()
+              .filter((p) => p.appType === app.appType && offered(p.id))
+              .map(async (p) => ({
+                id: p.id,
+                name: p.name,
+                summary: p.summary,
+                fields: p.fields,
+                // 25 Platforms connected through Yallapp's partner app: whether the team set it, and the connected store.
+                ...(p.oauth
+                  ? {
+                      oauth: {
+                        available: (await platformSetting(store, p.oauth.settingKey)) !== null,
+                        connectedStore:
+                          app.connector?.kind === "platform" && app.connector.platform === p.id
+                            ? p.oauth.storeName(platformValues(app, encryptionKey()) ?? {})
+                            : null,
+                      },
+                    }
+                  : {}),
+              })),
+          )}
+          staff={staff !== null}
           platformSaved={
             app.connector?.kind === "platform"
               ? {

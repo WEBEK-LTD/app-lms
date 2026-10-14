@@ -202,6 +202,17 @@ mobile/
   that opens Wix's hosted checkout page; an optional account API key with
   the site ID reads order history, matched exactly by verified phone or
   email.
+- Salla and Zid (25, Store) connect with OAuth through Yallapp's own partner
+  apps (client ID, secret and webhook secret in admin Settings, encrypted
+  platform settings `sallaApp` and `zidApp`): "Connect with …" on the Website
+  step sends the owner to the platform's approval page with the app's ID
+  signed as `state`, and `/oauth/salla` or `/oauth/zid` saves the tokens in
+  the app's connector. Tokens are renewed before they expire and when
+  refused; refresh tokens work once, so one renewal runs per app and
+  server, and across servers the refresh token is claimed in the store
+  first (`oauth-tokens.ts`). Checkout hands one product off to its page on
+  the storefront, in the browser; orders are matched exactly by verified
+  phone or email.
 - No website (Store apps): the client picks "I don't have a website" on the
   Website step and manages products (price, sale price, stock, photos,
   categories, digital or physical), shipping and their iyzico keys on the

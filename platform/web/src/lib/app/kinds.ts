@@ -179,7 +179,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     sitePlaceholder: "https://your-shop.com",
     platformChoice: {
       title: "Another store platform",
-      text: "Your products and checkout come from ikas, Ticimax, IdeaSoft or Wix. Customers sign in to the app with a code we send.",
+      text: "Your products and checkout come from ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. Customers sign in to the app with a code we send.",
     },
     platformPhoneNote: "Your connected shop finds each customer's orders by their phone number, so this app signs in by phone.",
     ownContent: {

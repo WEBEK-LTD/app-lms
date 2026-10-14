@@ -7,6 +7,8 @@ test.describe.configure({ mode: "serial" });
 const suffix = Date.now().toString(36);
 const client = { name: "Nar Shop", email: `nar-${suffix}@shop.test`, password: "nar-strong-password-1" };
 let own: Page;
+/** 25 Kept open to save the Salla partner app in admin Settings (one sign-in). */
+let admin: Page;
 
 test.beforeAll(async ({ browser }) => {
   own = await browser.newPage();
@@ -20,7 +22,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByRole("button", { name: "Create account" }).click();
   await expect(own).toHaveURL(/\/pending$/);
 
-  const admin = await browser.newPage();
+  admin = await browser.newPage();
   await admin.goto("/sign-in");
   await admin.getByLabel("Email").fill(E2E.adminEmail);
   await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
@@ -30,11 +32,11 @@ test.beforeAll(async ({ browser }) => {
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
-  await admin.close();
 });
 
 test.afterAll(async () => {
   await own.close();
+  await admin.close();
 });
 
 test("a shop picks its platform and its keys are checked with it", async () => {
@@ -48,6 +50,8 @@ test("a shop picks its platform and its keys are checked with it", async () => {
   await expect(own.getByRole("radio", { name: "Ticimax", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "IdeaSoft", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "Wix", exact: true })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Salla", exact: true })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Zid", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "Teachable", exact: true })).toHaveCount(0);
 
   await own.getByRole("radio", { name: "Ticimax", exact: true }).check();
@@ -85,4 +89,58 @@ test("22 a Wix store connects with its client ID, and the API key comes with the
   await expect(own.getByRole("radio", { name: "Wix", exact: true })).toBeChecked();
   await expect(own.getByLabel(/^Client ID/)).toHaveValue("0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b");
   await expect(own.getByLabel("API key (optional)")).toHaveValue("");
+});
+
+test("25 Salla and Zid connect with OAuth once the team sets each partner app; until then they aren't available", async () => {
+  await own.goto("/dashboard/setup?step=website");
+  await own.getByText("Another store platform").click();
+  for (const name of ["Salla", "Zid"]) {
+    await own.getByRole("radio", { name, exact: true }).check();
+    await expect(own.getByText("Not available yet", { exact: true })).toBeVisible();
+    await expect(own.getByText(`Connecting a ${name} store isn't available yet.`, { exact: false })).toBeVisible();
+    await expect(own.getByRole("button", { name: `Connect with ${name}` })).toHaveCount(0);
+  }
+
+  // The team saves Yallapp's Salla partner app in admin Settings.
+  await admin.goto("/admin/settings");
+  const salla = admin.getByRole("region", { name: "Salla partner app" });
+  await expect(salla.getByText("Now: not set.", { exact: false })).toBeVisible();
+  await expect(salla.getByText(`${new URL(admin.url()).origin}/oauth/salla`).first()).toBeVisible();
+  await salla.getByLabel("Client ID").fill("e2e-salla-client");
+  await salla.getByLabel("Client Secret").fill("e2e-salla-secret");
+  await salla.getByLabel("Webhook Secret (optional)").fill("e2e-salla-webhook");
+  await salla.getByRole("button", { name: "Save Salla app" }).click();
+  await expect(salla.getByText("Salla partner app saved.", { exact: false })).toBeVisible();
+  await expect(admin.getByRole("region", { name: "Zid partner app" }).getByText("Now: not set.", { exact: false })).toBeVisible();
+
+  await own.goto("/dashboard/setup?step=website");
+  await own.getByText("Another store platform").click();
+  await own.getByRole("radio", { name: "Zid", exact: true }).check();
+  await expect(own.getByText("Not available yet", { exact: true })).toBeVisible();
+  await own.getByRole("radio", { name: "Salla", exact: true }).check();
+  await expect(own.getByText("Not available yet", { exact: true })).toHaveCount(0);
+  const connect = own.getByRole("button", { name: "Connect with Salla" });
+  await expect(connect).toBeVisible();
+
+  // Saving without connecting says what to do.
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own.getByText("Connect your Salla store first", { exact: false })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Salla", exact: true })).toBeChecked();
+
+  // The button opens Salla's approval page with the partner app, our callback and a signed state.
+  await own.route("https://accounts.salla.sa/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<p>Salla approval</p>" }));
+  await own.getByRole("button", { name: "Connect with Salla" }).click();
+  await own.waitForURL(/^https:\/\/accounts\.salla\.sa\/oauth2\/auth\?/);
+  const approval = new URL(own.url());
+  expect(approval.searchParams.get("client_id")).toBe("e2e-salla-client");
+  expect(approval.searchParams.get("response_type")).toBe("code");
+  expect(approval.searchParams.get("redirect_uri")).toBe(`${E2E.baseURL}/oauth/salla`);
+  expect(approval.searchParams.get("scope")).toBe("offline_access");
+  expect(approval.searchParams.get("state")).toMatch(/^[\w-]+\.[\w-]+$/);
+
+  // Coming back with a state this server didn't sign connects nothing.
+  await own.goto("/oauth/salla?code=not-a-code&state=forged.state");
+  await expect(own.getByRole("heading", { name: "This link has expired" })).toBeVisible();
+  await own.getByRole("link", { name: "Back to the Website step" }).click();
+  await expect(own).toHaveURL(/\/dashboard\/setup\?step=website$/);
 });

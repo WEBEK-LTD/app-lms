@@ -7,6 +7,8 @@ import type { Plan } from "@/lib/plans";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
 import {
   checkApiAction,
+  connectPlatformAction,
+  disconnectPlatformAction,
   removeStoreKeyAction,
   saveBrandingAction,
   saveListingAction,
@@ -62,6 +64,13 @@ export interface PlatformOption {
   name: string;
   summary: string;
   fields: { name: string; label: string; hint: string; secret: boolean; placeholder?: string; optional?: boolean }[];
+  /** 25 Connected with OAuth through Yallapp's partner app (Salla, Zid) instead of fields. */
+  oauth?: {
+    /** Whether the team saved the partner app (admin Settings). */
+    available: boolean;
+    /** The connected store's name, when this app is connected to this platform. */
+    connectedStore: string | null;
+  };
 }
 
 /** The Website step's choices, in order; which ones an app type offers, and the wording of its own, are in lib/app/kinds.ts. */
@@ -84,16 +93,99 @@ function Bold({ text }: { text: string }) {
 }
 
 /** The platform to connect and the keys it needs. */
+interface ActionProps {
+  action: (formData: FormData) => void;
+  pending: boolean;
+  state: FormState;
+}
+
+/** 25 "Connect with …" for a platform connected through Yallapp's partner app, or what's missing. */
+function OAuthConnect({
+  platform,
+  oauth,
+  staff,
+  connect,
+  disconnect,
+}: {
+  platform: PlatformOption;
+  oauth: NonNullable<PlatformOption["oauth"]>;
+  staff: boolean;
+  connect: ActionProps;
+  disconnect: ActionProps;
+}) {
+  if (!oauth.available) {
+    return (
+      <div role="status" className="flex flex-col gap-1.5 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed">
+        <span className="flex items-center gap-2 font-semibold">
+          <Icon name="schedule" size={20} className="text-muted" />
+          <span>Not available yet</span>
+        </span>
+        <span className="text-ink-4">Connecting a {platform.name} store isn&apos;t available yet. Choose another platform, or message us on WhatsApp.</span>
+        {staff ? (
+          <span className="text-sm text-ink-4">
+            Team: add Yallapp&apos;s {platform.name} partner app (client ID and client secret) in{" "}
+            <Link href={`/admin/settings#h-${platform.id}`}>Admin › Settings</Link> first.
+          </span>
+        ) : null}
+      </div>
+    );
+  }
+  const message = disconnect.state.message ?? connect.state.message;
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-line bg-sand p-4">
+      {oauth.connectedStore ? (
+        <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
+          <Icon name="check_circle" size={20} filled />
+          <span>
+            Connected to <b>{oauth.connectedStore}</b>
+          </span>
+        </span>
+      ) : (
+        <span className="text-[15px] text-ink-4">
+          You sign in to {platform.name} and approve Yallapp&apos;s access to your products, orders and customers. Then you come back here.
+        </span>
+      )}
+      <div className="flex flex-wrap gap-3">
+        <button type="submit" formAction={connect.action} formNoValidate disabled={connect.pending} className={`${btn.primary} h-10`}>
+          <Icon name="link" size={18} />
+          {connect.pending ? "Opening…" : oauth.connectedStore ? `Connect another ${platform.name} store` : `Connect with ${platform.name}`}
+        </button>
+        {oauth.connectedStore ? (
+          <button type="submit" formAction={disconnect.action} formNoValidate disabled={disconnect.pending} className={`${btn.secondary} h-10`}>
+            <Icon name="link_off" size={18} />
+            {disconnect.pending ? "Disconnecting…" : "Disconnect"}
+          </button>
+        ) : null}
+      </div>
+      {message ? (
+        <p role="status" className="m-0 text-sm text-ink-4">
+          {message}
+        </p>
+      ) : null}
+      {connect.state.errors?.platform ? <FieldError id="f-connect-error" error={connect.state.errors.platform} /> : null}
+      {connect.state.errors?.confirmEmailOff ? <FieldError id="f-connect-email-error" error={connect.state.errors.confirmEmailOff} /> : null}
+    </div>
+  );
+}
+
 function PlatformFields({
   platforms,
   saved,
   state,
+  staff,
+  connect,
+  disconnect,
 }: {
   platforms: PlatformOption[];
   saved: { platform: string; settings: Record<string, string>; secrets: string[] } | null;
   state: FormState;
+  staff: boolean;
+  connect: ActionProps;
+  disconnect: ActionProps;
 }) {
-  const [selected, setSelected] = useState<string>(state.values?.platform ?? saved?.platform ?? platforms[0]?.id ?? "");
+  const [selected, setSelected] = useState<string>(
+    connect.state.values?.platform ?? disconnect.state.values?.platform ?? state.values?.platform ?? saved?.platform ?? platforms[0]?.id ?? "",
+  );
   const platform = platforms.find((p) => p.id === selected) ?? platforms[0];
   if (!platform) return null;
   const same = saved?.platform === platform.id;
@@ -122,6 +214,7 @@ function PlatformFields({
         </fieldset>
       ) : null}
       <p className="m-0 text-sm text-ink-4">{platform.summary}</p>
+      {platform.oauth ? <OAuthConnect platform={platform} oauth={platform.oauth} staff={staff} connect={connect} disconnect={disconnect} /> : null}
       {platform.fields.map((field) => {
         const kept = same && field.secret && saved.secrets.includes(field.name);
         return (
@@ -183,7 +276,10 @@ export function WebsiteStep({
   signInMethods = ["phone"],
   emailOnlyUsers = 0,
   hostedWithoutSource = false,
+  staff = false,
 }: {
+  /** 25 A team member manages this dashboard: says what the team must set for platforms not available yet. */
+  staff?: boolean;
   /** Choices the team switched off (11.5); the app's own choice is never in it. */
   hidden?: Backend[];
   /** 19 How customers sign in with content managed in Yallapp (the owner's choice on App sign-in). */
@@ -216,12 +312,15 @@ export function WebsiteStep({
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
+  // 25 "Connect with …" and "Disconnect" for platforms connected through Yallapp's partner app.
+  const [connectState, connectAction, connecting] = useActionState(connectPlatformAction, initialFormState);
+  const [disconnectState, disconnectAction, disconnecting] = useActionState(disconnectPlatformAction, initialFormState);
   // React resets a form after each submit, which unchecks its controlled radios; drawing the form
   // again after each answer brings back the choices (and fields) the answer kept.
   const [formKey, setFormKey] = useState(0);
-  const [seen, setSeen] = useState(state);
-  if (seen !== state) {
-    setSeen(state);
+  const [seen, setSeen] = useState([state, connectState, disconnectState]);
+  if (seen[0] !== state || seen[1] !== connectState || seen[2] !== disconnectState) {
+    setSeen([state, connectState, disconnectState]);
     setFormKey((k) => k + 1);
   }
   // 19 The check that ran when the API was saved, unless one was run since with the button.
@@ -289,7 +388,14 @@ export function WebsiteStep({
             ) : null}
           </p>
         ) : choice === "platform" ? (
-          <PlatformFields platforms={platforms} saved={platformSaved} state={state} />
+          <PlatformFields
+            platforms={platforms}
+            saved={platformSaved}
+            state={state}
+            staff={staff}
+            connect={{ action: connectAction, pending: connecting, state: connectState }}
+            disconnect={{ action: disconnectAction, pending: disconnecting, state: disconnectState }}
+          />
         ) : (
           <Field
             label={choice === "wordpress" ? "Your WordPress website" : choice === "setup_requested" ? "Your current website (optional)" : "Your website"}

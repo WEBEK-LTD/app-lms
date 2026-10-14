@@ -107,3 +107,30 @@ export class NumericIds {
     return this.ids.get(n) ?? null;
   }
 }
+
+/** 25 An amount in English with the currency's symbol ("SAR 1,234.50", "$12.00"). */
+export function formatCurrency(amount: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).format(amount);
+  } catch {
+    return `${amount.toFixed(2)} ${currency}`;
+  }
+}
+
+/** 25 A number from a platform's price (a number or a decimal string); null when there's none. */
+export function amountOf(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** 25 An option's name as a slug ("Size" → "size"), for variation attributes. */
+export function optionSlug(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[^\p{L}\p{N}]+/gu, "_")
+      .replace(/^_+|_+$/g, "") || "option"
+  );
+}

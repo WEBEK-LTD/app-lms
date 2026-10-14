@@ -10,7 +10,7 @@ import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
-import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, PublishingSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
+import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, PartnerAppForm, PublishingSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
 import { AppDefaultsForm } from "./app-defaults-form";
@@ -75,6 +75,36 @@ export default async function SettingsPage() {
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
   const publishing = settings.get("publishing") as PlatformSetting<"publishing"> | undefined;
+  const partnerApps = [
+    {
+      key: "sallaApp" as const,
+      id: "salla",
+      name: "Salla",
+      setting: settings.get("sallaApp") as PlatformSetting<"sallaApp"> | undefined,
+      webhook: `${appUrl()}/api/webhooks/salla`,
+      help: (
+        <>
+          In the Salla Partners portal, create an app (Apps, then Create App) and choose the custom mode for its authorization. Set its callback URL to{" "}
+          <code className="break-all">{appUrl()}/oauth/salla</code>, give it read access to the store, products, categories, orders and customers,
+          and turn on offline access. For webhooks, set <code className="break-all">{appUrl()}/api/webhooks/salla</code> with the Signature
+          security strategy. Copy its Client ID, Client Secret and Webhook Secret here.
+        </>
+      ),
+    },
+    {
+      key: "zidApp" as const,
+      id: "zid",
+      name: "Zid",
+      setting: settings.get("zidApp") as PlatformSetting<"zidApp"> | undefined,
+      webhook: null,
+      help: (
+        <>
+          In the Zid Partner Dashboard, create an app with the redirect URL <code className="break-all">{appUrl()}/oauth/zid</code> and read
+          access to the store, products, categories, orders and customers. Copy its Client ID and Client Secret here.
+        </>
+      ),
+    },
+  ];
   const data = dataMode();
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
@@ -221,6 +251,40 @@ export default async function SettingsPage() {
         )}
         <MarketplaceForm commission={marketplace ? String(marketplace.value.commissionPercent) : ""} />
       </Section>
+
+      {/* 25 Store platforms connected with OAuth through Yallapp's partner apps. */}
+      {partnerApps.map((p) => (
+        <Section
+          key={p.key}
+          id={`h-${p.id}`}
+          title={`${p.name} partner app`}
+          text={`Store apps connect a ${p.name} store with "Connect with ${p.name}" on their Website step, through this app. Until it's set, ${p.name} shows as not available yet.`}
+        >
+          {p.setting ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="m-0 text-sm text-muted">
+                Set by {p.setting.updatedBy}, {formatDateTime(p.setting.updatedAt)}.
+              </p>
+              <form action={resetPlatformSettingAction}>
+                <input type="hidden" name="key" value={p.key} />
+                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                  Remove the app
+                </SubmitButton>
+              </form>
+            </div>
+          ) : (
+            <p className="m-0 text-sm text-muted">Now: not set. Store apps can&apos;t connect a {p.name} store yet.</p>
+          )}
+          <p className="m-0 text-sm leading-relaxed text-ink-4">{p.help}</p>
+          <PartnerAppForm
+            settingKey={p.key}
+            name={p.name}
+            clientId={p.setting?.value.clientId ?? ""}
+            saved={{ clientSecret: Boolean(p.setting), webhookSecret: Boolean(p.setting?.value.webhookSecretEncrypted) }}
+            webhook={p.webhook}
+          />
+        </Section>
+      ))}
 
       <Section
         id="h-app-defaults"

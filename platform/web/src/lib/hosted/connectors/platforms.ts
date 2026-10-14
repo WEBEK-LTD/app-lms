@@ -1,6 +1,7 @@
 import { decrypt, encrypt } from "../../crypto/encryption";
 import type { DataStore } from "../../data/store";
 import type { App, AppType, ConnectorConfig } from "../../data/types";
+import { partnerAppCredentials, type PartnerAppKey, type PartnerCredentials } from "./partner-apps";
 import { ConnectorError, type Connector } from "./types";
 
 /**
@@ -10,7 +11,7 @@ import { ConnectorError, type Connector } from "./types";
  * together (context `app:connector:<app id>`).
  */
 
-export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook" | "wix";
+export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook" | "wix" | "salla" | "zid";
 
 /**
  * 22 Keys a platform refused for a reason the client can fix (a missing
@@ -47,6 +48,29 @@ export interface PlatformDeps {
   fetcher: typeof fetch;
   /** Saves secrets a platform renewed (OAuth refresh tokens). */
   saveSecrets: (secrets: Record<string, string>) => Promise<void>;
+  /**
+   * 25 Every value saved for the app now (secrets decrypted), or null: tokens
+   * another server renewed since this connector was made.
+   */
+  loadSecrets?: () => Promise<Record<string, string> | null>;
+  /** 25 Yallapp's partner app on the platform (OAuth platforms), or null until the team sets it. */
+  partnerApp?: () => Promise<PartnerCredentials | null>;
+}
+
+/**
+ * 25 A platform the client connects with OAuth through Yallapp's partner app
+ * (Salla, Zid) instead of pasting keys: the Website step shows a "Connect
+ * with …" button, and src/app/oauth/<platform> saves the connection.
+ */
+export interface PlatformOAuth {
+  /** Where the partner app's credentials are kept (admin Settings). */
+  settingKey: PartnerAppKey;
+  /** The platform's approval page. */
+  authorizeUrl(clientId: string, redirectUri: string, state: string): string;
+  /** Swaps an authorization code for the values to save (tokens, the store's ID and name). */
+  connect(code: string, credentials: PartnerCredentials, redirectUri: string, fetcher: typeof fetch): Promise<Record<string, string>>;
+  /** The connected store's name, from the saved values. */
+  storeName(values: Record<string, string>): string | null;
 }
 
 export interface PlatformDefinition {
@@ -62,6 +86,8 @@ export interface PlatformDefinition {
    */
   normalize(values: Record<string, string>): { values: Record<string, string> } | { errors: Record<string, string> };
   create(values: Record<string, string>, deps: PlatformDeps): PlatformConnector;
+  /** 25 Connected with OAuth instead of fields (`fields` is then empty). */
+  oauth?: PlatformOAuth;
 }
 
 const definitions = new Map<PlatformId, PlatformDefinition>();
@@ -121,15 +147,24 @@ export function platformConnector(
   if (!definition) console.error(`[hosted] app ${app.id}: unknown platform "${app.connector.platform}", so it isn't connected.`);
   else if (!values) console.error(`[hosted] app ${app.id}: the saved ${definition.name} keys can't be decrypted, so it isn't connected.`);
   if (!definition || !values) return null;
+  const current = async () => {
+    const latest = await deps.store.getAppById(app.id);
+    // 25 Only while the app is still connected to this platform.
+    if (!latest || latest.connector?.kind !== "platform" || latest.connector.platform !== definition.id) return null;
+    const saved = platformValues(latest, key);
+    return saved ? { app: latest, saved } : null;
+  };
+  const oauth = definition.oauth;
   return definition.create(values, {
     appId: app.id,
     store: deps.store,
     fetcher,
     saveSecrets: async (renewed) => {
-      const current = await deps.store.getAppById(app.id);
-      const saved = current ? platformValues(current, key) : null;
-      if (!current || !saved || current.connector?.kind !== "platform") return;
-      await deps.store.updateApp(app.id, { connector: platformConnectorConfig(app.id, definition, { ...saved, ...renewed }, key) }, new Date());
+      const now = await current();
+      if (!now) return;
+      await deps.store.updateApp(app.id, { connector: platformConnectorConfig(app.id, definition, { ...now.saved, ...renewed }, key) }, new Date());
     },
+    loadSecrets: async () => (await current())?.saved ?? null,
+    ...(oauth ? { partnerApp: () => partnerAppCredentials(deps.store, oauth.settingKey, key) } : {}),
   });
 }
