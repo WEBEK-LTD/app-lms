@@ -96,6 +96,22 @@ function clipboard(board: string, paper: string, ink: string, dx = 0): Shape[] {
   ];
 }
 
+/** 27 A dumbbell lying flat, for the gym. */
+function dumbbell(color: string, bar: string, dx = 0, dy = 0, s = 1): Shape[] {
+  return [
+    r(30 * s + dx, 47 * s + dy, 40 * s, 6 * s, 3 * s, bar),
+    r(20 * s + dx, 34 * s + dy, 10 * s, 32 * s, 3 * s, color),
+    r(70 * s + dx, 34 * s + dy, 10 * s, 32 * s, 3 * s, color),
+    r(13 * s + dx, 40 * s + dy, 7 * s, 20 * s, 2.5 * s, color),
+    r(80 * s + dx, 40 * s + dy, 7 * s, 20 * s, 2.5 * s, color),
+  ];
+}
+
+/** 27 A coach in a sports top with a headband. */
+function coach(skin: string, top: string, hair: string, band: string): Shape[] {
+  return [...avatar(skin, top, hair), r(35, 30, 30, 4, 2, band), r(36, 68, 28, 3, 1.5, WHITE, 0.6)];
+}
+
 function tooth(x: number, y: number, s: number, color: string): Shape[] {
   return [
     r(x - 12 * s, y - 10 * s, 24 * s, 18 * s, 8 * s, color),
@@ -419,6 +435,29 @@ export const PICTURES = {
   "doctor-leyla": { from: "#F1ECF6", to: "#C9B9DE", shapes: coat("#B98466", "#6A4C93", "#1E1A17") },
   "banner-clinic": { from: "#E6F0F5", to: "#2C6A8A", shapes: [...clipboard(WHITE, "#F4F8FA", "#2C6A8A", 76), c(140, 30, 9, "#F2B544", 0.85)] },
 
+  // Gym & fitness (Pulse Studio, 27)
+  "class-yoga": {
+    from: "#EAF3EC",
+    to: "#A9D1B5",
+    shapes: [r(14, 70, 72, 7, 3.5, "#2E7D5B"), c(50, 30, 7, "#2E7D5B"), p([[50, 38], [56, 54], [72, 66], [68, 70], [50, 60], [32, 70], [28, 66], [44, 54]], "#2E7D5B"), ...stroke([[30, 44], [50, 40], [70, 44]], 4, "#2E7D5B")],
+  },
+  "class-spin": {
+    from: "#FCE9DF",
+    to: "#F2A47E",
+    shapes: [c(30, 64, 14, "#B5471B"), c(30, 64, 9, "#FCE9DF"), c(72, 64, 14, "#B5471B"), c(72, 64, 9, "#FCE9DF"), p([[30, 64], [48, 40], [52, 40], [72, 64], [68, 64], [50, 46], [34, 64]], "#3B2A1E"), r(44, 34, 14, 5, 2.5, "#3B2A1E"), r(62, 36, 12, 4, 2, "#3B2A1E")],
+  },
+  "class-hiit": {
+    from: "#FFF1D9",
+    to: "#F3BF62",
+    shapes: [...stroke([[38, 36], [38, 28], [44, 22], [56, 22], [62, 28], [62, 36]], 5, "#3B2A1E"), c(50, 58, 22, "#3B2A1E"), r(42, 54, 16, 4, 2, "#F3BF62", 0.6), p([[76, 16], [70, 30], [76, 30], [72, 42], [84, 24], [78, 24], [82, 16]], "#B5471B")],
+  },
+  "class-pilates": { from: "#EFEAF7", to: "#C3B4E3", shapes: [c(50, 54, 26, "#5B4A9E"), c(42, 46, 8, WHITE, 0.25), r(14, 80, 72, 5, 2.5, "#5B4A9E", 0.4)] },
+  "class-pt": { from: "#E9EEF3", to: "#AFC0D2", shapes: dumbbell("#2B3A4A", "#7D8C99") },
+  "coach-selin": { from: "#EAF3EC", to: "#A9D1B5", shapes: coach("#E9C4A8", "#2E7D5B", "#3B2A1E", "#F3BF62") },
+  "coach-can": { from: "#FCE9DF", to: "#F2A47E", shapes: coach("#C99B7D", "#B5471B", "#1E1A17", WHITE) },
+  "coach-mira": { from: "#EFEAF7", to: "#C3B4E3", shapes: coach("#B98466", "#5B4A9E", "#2B2B2B", "#F3BF62") },
+  "banner-fitness": { from: "#ECEBFA", to: "#4338A8", shapes: [...dumbbell(WHITE, "#D9D7F5", 70, 0, 1), c(150, 26, 8, "#F3BF62", 0.9)] },
+
   // Real estate (Nile Homes)
   "home-zamalek": { from: "#CFE4F3", to: "#F0D7B0", shapes: [ground("#B7C99A"), ...building(CREAM, "#7FA7C9", "#8A5A2B"), ...palm(80)] },
   "home-maadi": { from: "#D9EBDF", to: "#EFDDBE", shapes: [ground("#9DBF86"), ...house("#A0522D", CREAM, "#6B4226", "#7FA7C9"), c(86, 60, 8, "#5E8C4A"), r(85, 64, 2, 22, 1, "#8A5A22")] },
@@ -646,6 +685,7 @@ export const PICTURES = {
     to: "#8A3B12",
     shapes: [c(50, 52, 24, WHITE), c(50, 52, 17, "#F6E0D2"), r(19, 26, 3, 50, 1.5, WHITE), r(14, 26, 2, 14, 1, WHITE), r(24, 26, 2, 14, 1, WHITE), p([[80, 26], [86, 30], [86, 50], [82, 50], [82, 76], [79, 76]], WHITE)],
   },
+  "icon-fitness": { from: "#5650C4", to: "#2E2A80", shapes: dumbbell(WHITE, "#D9D7F5") },
 } satisfies Record<string, Art>;
 
 export type PictureName = keyof typeof PICTURES;

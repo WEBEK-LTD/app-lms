@@ -32,6 +32,8 @@ export const APP_SCREENS = [
   "bookings-slots",
   "clinic-doctor",
   "clinic-intake",
+  "fitness-timetable",
+  "fitness-membership",
   "realestate-search",
   "realestate-listing",
   "realestate-search-ar",
@@ -62,6 +64,8 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "bookings-slots": "Free times to book an appointment",
   "clinic-doctor": "A doctor's profile with specialties, languages and an introduction",
   "clinic-intake": "The intake form a patient fills in when booking a visit",
+  "fitness-timetable": "A gym's class timetable with the spots left in each class",
+  "fitness-membership": "A member's membership with the classes left, and the plans on sale",
   "realestate-search": "Property search with filters",
   "realestate-listing": "A property listing with photos and details",
   "realestate-search-ar": "Property search in Arabic, right to left",
@@ -382,6 +386,56 @@ const SOLUTION_COPY: SolutionCopy[] = [
     docs: [
       { href: "/docs/clinics", label: "Clinics: doctors, visits and the intake form" },
       { href: "/docs/bookings", label: "Services, team and appointments" },
+    ],
+  },
+  {
+    kind: "fitness",
+    summary: "Class timetables, booking a spot, and memberships.",
+    audience: "Gyms, yoga and pilates studios, spin and boxing clubs, and coaches who run group classes.",
+    screens: ["fitness-timetable", "fitness-membership"],
+    sources: [
+      "No website: classes, coaches, the weekly timetable and membership plans managed in the Yallapp dashboard",
+      "WordPress with Amelia, BookingPress or LatePoint, for personal sessions (classes and memberships are for gyms without a website for now)",
+    ],
+    highlights: [
+      {
+        icon: "schedule",
+        title: "A weekly timetable",
+        text: "Set each class once: the day, the time, the coach and how many spots. The app shows the next eight weeks, and you see who's coming to each class.",
+      },
+      {
+        icon: "groups",
+        title: "Never overbooked",
+        text: "A spot is booked only while one is left, even when many members book at the same moment. Members give their spot back up to the time you choose.",
+      },
+      {
+        icon: "card_membership",
+        title: "Memberships and class packs",
+        text: "Monthly, three-month or yearly plans with unlimited classes or a number of them, and class packs. Members pay by card on your payment page, on Android and iPhone.",
+      },
+      {
+        icon: "notifications",
+        title: "Members told at once",
+        text: "Call a class off and everyone who booked it gets a notification in the app, with their spot and class credit back.",
+      },
+    ],
+    inTheApp: [
+      "See the week's classes day by day, with the coach and the spots left",
+      "Book a spot in a tap, and cancel it when allowed",
+      "Buy a membership or a class pack, and see the classes left",
+      "Book a personal session with a coach at a free time",
+    ],
+    forYou: [
+      "Your classes and coaches, and personal sessions with each coach's hours",
+      "Your weekly timetable, with who's coming to each class",
+      "Your membership plans, and whether classes need one",
+      "Who has which membership, adding classes or a membership paid at your desk",
+      "Card payments through iyzico, with your own account or through Yallapp",
+    ],
+    docs: [
+      { href: "/docs/fitness", label: "Gyms and studios: timetable, classes and memberships" },
+      { href: "/docs/bookings", label: "Services, team and appointments" },
+      { href: "/docs/card-payments", label: "Card payments with iyzico" },
     ],
   },
   {

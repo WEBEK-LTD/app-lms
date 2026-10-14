@@ -1,4 +1,5 @@
 import { activateClient } from "../admin/clients";
+import { syncClassSessions } from "../bookings/classes";
 import { ENGINES } from "../app/kinds";
 import { newApp } from "../app/setup";
 import { sha256Hex } from "../crypto/tokens";
@@ -6,7 +7,9 @@ import type { AppPatch, DataStore } from "../data/store";
 import type {
   App,
   AssetKind,
+  BookingService,
   BookingSetup,
+  BookingStaff,
   Client,
   ContactSetting,
   Course,
@@ -40,6 +43,13 @@ import {
   DEMO_PRODUCTS,
   DEMO_SERVICES,
   DEMO_STAFF,
+  FITNESS_CATEGORIES,
+  FITNESS_COACHES,
+  FITNESS_HOURS,
+  FITNESS_PLANS,
+  FITNESS_RULES,
+  FITNESS_SERVICES,
+  FITNESS_TIMETABLE,
   LISTING_SETTINGS,
   MENU_CATEGORIES,
   PRODUCT_CATEGORIES,
@@ -207,6 +217,10 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
+  } else if (content === "bookings" && id === "fitness") {
+    // 27 A gym: classes on a weekly timetable and memberships paid on the (demo) payment page.
+    patch.bookingSetup = await fitnessSetupFor(deps, client.id);
+    patch.catalogSettings = { currency: FITNESS_RULES.currency, shippingCents: 0, freeShippingOverCents: null, payment: null };
   } else if (content === "bookings") {
     patch.bookingSetup = await bookingSetupFor(deps, client.id, id === "clinic");
   }
@@ -222,6 +236,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   if (content === "listings") await syncListings(deps, client.id, saved);
   if (content === "articles") await syncArticles(deps, client.id, saved);
+  // 27 The timetable's classes for the coming weeks (the daily job keeps them going).
+  if (id === "fitness") await syncClassSessions(store, saved, now);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.
@@ -295,6 +311,50 @@ async function bookingSetupFor(deps: DemoSetupDeps, clientId: string, clinic: bo
     return { rules: { ...CLINIC_RULES }, categories, services, staff, nextId: next, intakeFields: CLINIC_INTAKE.map((f) => ({ ...f, options: [...f.options] })) };
   }
   return { rules: { ...BOOKING_RULES }, categories, services, staff, nextId: next };
+}
+
+/**
+ * 27 Pulse Studio: classes (on the timetable only) and personal training
+ * (booked as an appointment), three coaches, a week of classes and two
+ * plans. Fixed IDs, so a refresh keeps the classes and memberships made.
+ */
+async function fitnessSetupFor(deps: DemoSetupDeps, clientId: string): Promise<BookingSetup> {
+  let next = 1;
+  const categories = FITNESS_CATEGORIES.map((name) => ({ id: next++, name }));
+  const services: BookingService[] = [];
+  for (const seed of FITNESS_SERVICES) {
+    services.push({
+      id: next++,
+      categoryId: categories.find((c) => c.name === seed.category)?.id ?? null,
+      name: seed.name,
+      description: seed.description,
+      durationMinutes: seed.minutes,
+      priceCents: seed.priceCents,
+      imageAssetId: await picture(deps, clientId, seed.picture, "product", "product_image"),
+      color: seed.color,
+      // Classes are booked on the timetable; only personal training is booked as an appointment.
+      active: seed.category !== "Classes",
+    });
+  }
+  const staff: BookingStaff[] = [];
+  for (const seed of FITNESS_COACHES) {
+    staff.push({
+      id: next++,
+      name: seed.name,
+      title: seed.title,
+      imageAssetId: await picture(deps, clientId, seed.picture, "avatar", "product_image"),
+      serviceIds: services.filter((s) => seed.services.includes(s.name)).map((s) => s.id),
+      hours: FITNESS_HOURS.map((ranges) => ranges.map((r) => ({ ...r }))),
+      daysOff: [],
+      active: true,
+    });
+  }
+  const classTemplates = FITNESS_TIMETABLE.map(([name, coach, weekday, time, capacity]) => {
+    const service = services.find((s) => s.name === name)!;
+    return { id: next++, serviceId: service.id, staffId: staff.find((s) => s.name === coach)!.id, weekday, time, durationMinutes: service.durationMinutes, capacity, active: true };
+  });
+  const membershipPlans = FITNESS_PLANS.map((p) => ({ id: next++, ...p, active: true }));
+  return { rules: { ...FITNESS_RULES }, categories, services, staff, nextId: next, classTemplates, membershipPlans, membershipRequired: true };
 }
 
 /** Products by SKU and categories by name: updated in place; ones no longer in the demo are removed. 26 The café's dishes, with their options. */

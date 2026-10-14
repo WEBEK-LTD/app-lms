@@ -147,6 +147,20 @@ mobile/
   `order_id`, which opens the order's tracking screen
   (`GET /me/orders/{order_id}`). On WordPress the step follows the
   WooCommerce status; options there are variations (hosted first).
+- Gyms (Phase 27) are the bookings engine with the `fitness` vertical:
+  `BookingsConfig.classes` turns on the Classes and Membership tabs
+  (`/bookings/classes`, `/memberships/*`, `/me/memberships`). Hosted only:
+  weekly class templates and plans live in `apps.booking_setup`; classes
+  are rows in `class_sessions`, made 8 weeks ahead when the timetable is
+  saved and by the daily job (`lib/bookings/classes.ts`). A spot is taken
+  in one transaction that locks the class's row and raises `booked_count`
+  only while it is below `capacity` (the memory store does it in one
+  synchronous step), and uses a credit of the member's membership when
+  classes need one; cancelling in time, or the gym calling a class off
+  (inbox notification and push), gives both back. Memberships are bought on
+  the payment page as an order like products and courses, on iOS too (a
+  service used in person, 3.1.3(e)); paying starts the membership
+  (`startPaidMemberships`).
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.

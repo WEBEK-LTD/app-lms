@@ -147,7 +147,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Real estate or News & blog: what each app type does and where its content can come from.",
+    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate or News & blog: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -170,6 +170,10 @@ Services, staff, free times and appointments. Customers book a time and see or c
 ## Clinic
 
 Bookings for doctors, dentists, therapists and other clinics, in the words patients expect: doctors, patients and visits. Patients read each doctor's profile, book a visit and answer your intake questions. The intake form is for clinics without a website for now; with Amelia, BookingPress or LatePoint, patients book without it. See [Clinics: doctors, visits and the intake form](/docs/clinics) and [the Clinic solution](/solutions/clinic).
+
+## Gym & fitness
+
+Class timetables, booking a spot, and memberships for gyms, studios and coaches. Members see the week's classes with the spots left, book a spot and buy a membership or a class pack by card. Classes and memberships are for gyms without a website for now; personal sessions can also come from Amelia, BookingPress or LatePoint. See [Gyms and studios: timetable, classes and memberships](/docs/fitness) and [the Gym & fitness solution](/solutions/fitness).
 
 ## Real estate
 
@@ -627,6 +631,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 - **Academy**: courses, sections and lessons on the **Courses** page, and orders for paid courses. See [Courses without a website](/docs/courses).
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
 - **Clinic**: services, your doctors and your intake form on the **Doctors & services** page, and visits on the **Visits** page. See [Clinics: doctors, visits and the intake form](/docs/clinics).
+- **Gym & fitness**: classes and coaches on the **Classes & coaches** page, your weekly classes on **Timetable**, plans on **Membership plans** and who has one on **Members**. See [Gyms and studios: timetable, classes and memberships](/docs/fitness).
 - **Real estate**: properties on the **Listings** page and messages on the **Inquiries** page. See [Listings and inquiries](/docs/real-estate).
 - **News & blog**: articles and sections on the **Articles** page, with breaking news sent to your readers' phones. See [News and blog apps](/docs/news).
 
@@ -1351,6 +1356,47 @@ Intake answers are visible only to the patient, in their visits in the app, and 
 Clinics that book through Amelia, BookingPress or LatePoint get the doctor, patient and visit wording, but no intake form in the app for now: patients book the way they do in a Bookings app.
 
 > Payment happens at your clinic. The app never takes payment for a visit.
+`,
+  }),
+  doc({
+    slug: "fitness",
+    section: "Selling and bookings",
+    title: "Gyms and studios: timetable, classes and memberships",
+    description: "Run a Gym & fitness app without a website: your weekly classes, spots in each class, membership plans and your members.",
+    steps: false,
+    body: `A Gym & fitness app is a Bookings app with group classes and memberships. Choose **Gym & fitness** on the first page of **App setup**, then **I don't have a website** on the Website step. Your dashboard's menu then shows **Classes & coaches**, **Timetable**, **Membership plans**, **Members**, **Personal sessions** and **Orders**.
+
+## Classes and coaches
+
+On **Classes & coaches**, add each class you run (for example *Yoga flow*, 60 minutes) and each coach. A class that is only on the timetable, and never booked one to one, has **Customers can book it** turned off. Services that customers do book one to one, like personal training, work as described in [Services, team and appointments](/docs/bookings): each coach's working hours decide the free times, and a coach is never free for a personal session while teaching a class.
+
+## The timetable
+
+On **Timetable**, select **Add a class to the timetable** for each weekly class: the class, the coach, the day, when it starts, how long it is and how many **Spots** it has. The app shows the classes of the next 8 weeks, and new weeks are added every day.
+
+Changing an entry changes its coming classes; a class someone has already booked keeps its time. Taking an entry off the timetable removes its coming classes nobody has booked.
+
+Under **Coming 7 days**, open **Who's coming** to see who booked each class. **Cancel class** calls one off: everyone who booked it gets a notification in the app, and their spot and any class credit it used come back.
+
+## Booking a spot
+
+Members pick a day, see each class with its coach and the spots left, and book a spot in a tap. A spot is booked only while one is left, even when many members book at the same moment. Members can give their spot back up to the time set under **Cancel up to (hours before)** in your booking rules on **Classes & coaches**.
+
+## Membership plans
+
+On **Membership plans**, add each plan with its price and how long it lasts: **Monthly**, **Every 3 months**, **Yearly**, or a **Class pack** with no end date. Fill in **Classes included** for a plan with a number of classes, or leave it empty for unlimited classes (a class pack always has a number). Turn off **On sale in the app** to stop selling a plan; memberships already bought keep running.
+
+Turn on **Classes need a membership** so that only members can book a class. Each booking then uses one class of a plan with classes, and cancelling in time gives it back. Off, anyone signed in can book a class and pays at your place.
+
+Members buy a plan in the app and pay by card on your payment page; the membership starts at once. Set up card payments at the bottom of **Membership plans**: see [Card payments with iyzico](/docs/card-payments). Paid memberships also show on **Orders**.
+
+## Members
+
+**Members** lists who has which membership, when it ends and how many classes are left. Use **Add classes** to add classes to a membership (or a negative number to take some away), **End membership** to stop one, and **Add a membership** for someone who paid at your desk, by the mobile number or email address they sign in with.
+
+## iPhone and the App Store
+
+A membership is for classes at your place, used in person, so Apple allows paying for it outside the app (App Store Review Guideline 3.1.3(e)). The iPhone app opens the same payment page as Android. When you publish, add this to **For the store reviewers** on **Publishing**: the page suggests the words.
 `,
   }),
   doc({

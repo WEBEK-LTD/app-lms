@@ -11,7 +11,7 @@ import { demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/l
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME, demoTypeOfSlug } from "@/lib/demo/constants";
-import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_COURSES, DEMO_DISHES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT } from "@/lib/demo/content";
+import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_COURSES, DEMO_DISHES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { connectorFor } from "@/lib/hosted/connectors";
@@ -42,8 +42,9 @@ function deps(store: MemoryStore, now: Date = NOW, blobs = new Map<string, Buffe
 
 beforeEach(() => clearPlatformSettingsCache());
 
-describe("creating the demo apps", () => {
-  it("makes the demo account with seven apps, their content, pages and a license that doesn't end", async () => {
+// 27 Eight demo apps draw their pictures: slower when the whole suite runs at once.
+describe("creating the demo apps", { timeout: 20_000 }, () => {
+  it("makes the demo account with eight apps, their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -54,6 +55,7 @@ describe("creating the demo apps", () => {
       ["restaurant", true],
       ["booking", true],
       ["clinic", true],
+      ["fitness", true],
       ["real_estate", true],
       ["news", true],
     ]);
@@ -63,10 +65,10 @@ describe("creating the demo apps", () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "real_estate", "news"]);
-    // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", null, null]);
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(7);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news"]);
+    // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical.
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null]);
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(8);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -78,7 +80,7 @@ describe("creating the demo apps", () => {
       expect(layout?.published?.pages[0]?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }
-    const [lms, shop, cafe, bookings, clinic, homes, news] = apps as [App, App, App, App, App, App, App];
+    const [lms, shop, cafe, bookings, clinic, gym, homes, news] = apps as [App, App, App, App, App, App, App, App];
     expect(lms.courseSetup?.courses).toHaveLength(DEMO_COURSES.length);
     expect(lms.courseSetup?.courses.some((c) => c.priceCents === 0)).toBe(true);
     expect(await store.listCatalogProducts(shop.id)).toHaveLength(DEMO_PRODUCTS.length);
@@ -102,6 +104,16 @@ describe("creating the demo apps", () => {
     expect(clinic.bookingSetup?.staff[0]).toMatchObject({ specialties: CLINIC_DOCTORS[0]!.specialties, languages: CLINIC_DOCTORS[0]!.languages, bio: CLINIC_DOCTORS[0]!.bio });
     expect(clinic.bookingSetup?.intakeFields).toEqual(CLINIC_INTAKE);
     expect(clinic.appName).toBe("Kardelen Clinic");
+    // 27 Pulse Studio: a week of classes, made for the coming weeks, and two plans on its demo payment page.
+    expect(gym.appName).toBe("Pulse Studio");
+    expect(gym.bookingSetup?.classTemplates).toHaveLength(FITNESS_TIMETABLE.length);
+    expect(gym.bookingSetup?.membershipPlans?.map((p) => [p.name, p.period, p.credits])).toEqual(FITNESS_PLANS.map((p) => [p.name, p.period, p.credits]));
+    expect(gym.bookingSetup?.membershipRequired).toBe(true);
+    expect(gym.bookingSetup?.services.filter((s) => s.active).map((s) => s.name)).toEqual(["Personal training"]);
+    const classes = await store.listClassSessions({ appId: gym.id });
+    expect(classes.length).toBeGreaterThanOrEqual(FITNESS_TIMETABLE.length * 7);
+    expect(new Set(classes.map((c) => c.serviceName))).toEqual(new Set(["Yoga flow", "Spin", "HIIT", "Mat pilates"]));
+    expect((await store.getAppLayout(gym.id))?.published?.tabs.map((t) => t.label)).toEqual(["Home", "Classes", "Membership", "My bookings", "Account"]);
     expect(await store.listListings(homes.id)).toHaveLength(DEMO_LISTINGS.length);
     // 23 The news demo: its articles, published with pictures, in its sections.
     expect(news.connector).toEqual({ kind: "articles" });
@@ -125,8 +137,8 @@ describe("creating the demo apps", () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(7);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(7);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(8);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(8);
     const products = await store.listCatalogProducts(shop);
     expect(products).toHaveLength(DEMO_PRODUCTS.length);
     expect(products.map((p) => p.name)).not.toContain("Changed by hand");
@@ -358,7 +370,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(7);
+    expect(report.demo.apps).toBe(8);
     expect(report.demo.deleted).toBe(4); // an order, a conversation, a favorite, a device
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });
     expect(left.items.map((o) => o.id)).toEqual([fresh.id]);
