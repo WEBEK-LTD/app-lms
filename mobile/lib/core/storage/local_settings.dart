@@ -3,15 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/models/models.dart';
+import '../l10n/l10n.dart';
 
 enum VideoQuality {
-  auto('Auto'),
-  p1080('1080p'),
-  p720('720p'),
-  p480('480p');
+  auto,
+  p1080,
+  p720,
+  p480;
 
-  const VideoQuality(this.label);
-  final String label;
+  /// "Auto", "1080p".
+  String get label => switch (this) {
+    auto => currentL10n.videoQualityAuto,
+    p1080 => '1080p',
+    p720 => '720p',
+    p480 => '480p',
+  };
 }
 
 const playbackSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
@@ -34,6 +40,7 @@ class LocalSettings {
     this.autoplayNext = true,
     this.notifications = const NotificationPreferences(),
     this.guestMode = false,
+    this.language,
   });
 
   final ThemeMode themeMode;
@@ -48,6 +55,10 @@ class LocalSettings {
   /// The student chose to browse without signing in.
   final bool guestMode;
 
+  /// The interface language the user picked (`en`, `ar`, `tr`); null until
+  /// they pick one.
+  final String? language;
+
   LocalSettings copyWith({
     ThemeMode? themeMode,
     bool? themeModeChosen,
@@ -56,6 +67,7 @@ class LocalSettings {
     bool? autoplayNext,
     NotificationPreferences? notifications,
     bool? guestMode,
+    String? language,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
     themeModeChosen: themeModeChosen ?? this.themeModeChosen,
@@ -64,6 +76,7 @@ class LocalSettings {
     autoplayNext: autoplayNext ?? this.autoplayNext,
     notifications: notifications ?? this.notifications,
     guestMode: guestMode ?? this.guestMode,
+    language: language ?? this.language,
   );
 }
 
@@ -86,6 +99,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _announcements = 'settings.notify_announcements';
   static const _reminder = 'settings.notify_daily_reminder';
   static const _guest = 'settings.guest_mode';
+  static const _language = 'settings.language';
 
   SharedPreferences get _prefs => ref.read(sharedPreferencesProvider);
 
@@ -111,6 +125,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
         dailyReminder: p.getBool(_reminder) ?? false,
       ),
       guestMode: p.getBool(_guest) ?? false,
+      language: p.getString(_language),
     );
   }
 
@@ -145,5 +160,10 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   void setGuestMode(bool value) {
     _prefs.setBool(_guest, value);
     state = state.copyWith(guestMode: value);
+  }
+
+  void setLanguage(String code) {
+    _prefs.setString(_language, code);
+    state = state.copyWith(language: code);
   }
 }

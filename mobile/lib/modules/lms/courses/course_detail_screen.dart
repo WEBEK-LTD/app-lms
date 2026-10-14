@@ -23,6 +23,7 @@ import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// A course page with overview, curriculum, reviews summary, wishlist and
 /// the main action decided by [resolveCourseCta] (design: CourseDetail).
@@ -98,7 +99,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       await ref.read(yallappApiProvider).enrollFree(course.id);
       if (!mounted) return;
       invalidateCourse(ref, course.id);
-      showMessage(context, "You're enrolled. Happy learning!");
+      showMessage(context, context.l10n.enrolledMessage);
     } on ApiException catch (e) {
       if (mounted) showMessage(context, e.message);
     } finally {
@@ -124,7 +125,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       if (inApp) {
         await context.push(
           Paths.web,
-          extra: WebPageArgs(url: link.url, title: 'Checkout'),
+          extra: WebPageArgs(url: link.url, title: context.l10n.checkout),
         );
         if (mounted) invalidateCourse(ref, course.id);
       } else {
@@ -132,7 +133,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
         final opened = await openExternal(link.url);
         if (!opened && mounted) {
           _awaitingCheckout = false;
-          showMessage(context, "The checkout couldn't be opened.");
+          showMessage(context, context.l10n.checkoutFailed);
         }
       }
     } on ApiException catch (e) {
@@ -179,7 +180,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           ),
         ),
       ),
-      _ => const Scaffold(body: LoadingView(label: 'Loading course')),
+      _ => Scaffold(body: LoadingView(label: context.l10n.loadingCourse)),
     };
   }
 
@@ -198,11 +199,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     // Q&A is for enrolled students, when the site and the course have it on.
     final showQna =
         config.features.qna && (course.qna ?? true) && course.enrolled;
+    final l10n = context.l10n;
     final tabs = [
-      'Overview',
-      'Curriculum',
-      if (config.features.reviews) 'Reviews',
-      if (showQna) 'Q&A',
+      _CourseTab.overview,
+      _CourseTab.curriculum,
+      if (config.features.reviews) _CourseTab.reviews,
+      if (showQna) _CourseTab.qna,
     ];
     final tab = _tab.clamp(0, tabs.length - 1);
 
@@ -230,23 +232,23 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           url: course.introVideo?.posterUrl ?? course.imageUrl,
                           seed: course.id,
                         ),
-                        Positioned(
+                        PositionedDirectional(
                           top: MediaQuery.paddingOf(context).top + 16,
-                          left: 20,
+                          start: 20,
                           child: const AppBackButton(),
                         ),
                         if (config.features.wishlist)
-                          Positioned(
+                          PositionedDirectional(
                             top: MediaQuery.paddingOf(context).top + 16,
-                            right: 20,
+                            end: 20,
                             child: SquareIconButton(
                               icon: AppIcons.favorite,
                               filled: wishlisted,
                               foreground: wishlisted ? p.link : p.text,
                               bordered: false,
                               label: wishlisted
-                                  ? 'Remove from wishlist'
-                                  : 'Add to wishlist',
+                                  ? l10n.removeFromWishlist
+                                  : l10n.addToWishlist,
                               onPressed: () => _toggleWishlist(course),
                             ),
                           ),
@@ -274,28 +276,43 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _MetaChip(plural(course.lessonCount, 'lesson')),
+                            _MetaChip(l10n.lessonCount(course.lessonCount)),
                             if (course.durationMinutes != null)
                               _MetaChip(formatMinutes(course.durationMinutes!)),
                             if (course.level != null &&
                                 course.level!.isNotEmpty)
                               _MetaChip(course.level!),
                             if (course.hasCertificate)
-                              const _MetaChip('Certificate'),
+                              _MetaChip(l10n.certificate),
                           ],
                         ),
                         const SizedBox(height: 16),
                         SegmentedTabs(
-                          labels: tabs,
+                          labels: [
+                            for (final t in tabs)
+                              switch (t) {
+                                _CourseTab.overview => l10n.overview,
+                                _CourseTab.curriculum => l10n.curriculum,
+                                _CourseTab.reviews => l10n.reviews,
+                                _CourseTab.qna => l10n.questionsAndAnswers,
+                              },
+                          ],
                           selected: tab,
                           onChanged: (i) => setState(() => _tab = i),
                         ),
                         const SizedBox(height: 16),
                         switch (tabs[tab]) {
-                          'Overview' => _Overview(course: course),
-                          'Reviews' => CourseReviewsTab(courseId: course.id),
-                          'Q&A' => CourseQuestionsTab(courseId: course.id),
-                          _ => _Curriculum(topics: topics, courseId: course.id),
+                          _CourseTab.overview => _Overview(course: course),
+                          _CourseTab.reviews => CourseReviewsTab(
+                            courseId: course.id,
+                          ),
+                          _CourseTab.qna => CourseQuestionsTab(
+                            courseId: course.id,
+                          ),
+                          _CourseTab.curriculum => _Curriculum(
+                            topics: topics,
+                            courseId: course.id,
+                          ),
                         },
                       ],
                     ),
@@ -349,7 +366,7 @@ class _InstructorRow extends StatelessWidget {
               ),
             ),
             Text(
-              'Instructor',
+              context.l10n.instructor,
               style: TextStyle(fontSize: 12, color: p.textSecondary),
             ),
           ],
@@ -358,6 +375,8 @@ class _InstructorRow extends StatelessWidget {
     );
   }
 }
+
+enum _CourseTab { overview, curriculum, reviews, qna }
 
 class _MetaChip extends StatelessWidget {
   const _MetaChip(this.label);
@@ -394,12 +413,15 @@ class _Overview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (course.descriptionHtml.trim().isEmpty)
-          Text('No description yet.', style: TextStyle(color: p.textSecondary))
+          Text(
+            context.l10n.noDescription,
+            style: TextStyle(color: p.textSecondary),
+          )
         else
           HtmlContent(html: course.descriptionHtml),
         if (bio != null && bio.trim().isNotEmpty) ...[
           const SizedBox(height: 20),
-          const SectionHeader(title: 'About the instructor', size: 16),
+          SectionHeader(title: context.l10n.aboutInstructor, size: 16),
           const SizedBox(height: 8),
           Text(
             bio,
@@ -424,7 +446,7 @@ class _Curriculum extends ConsumerWidget {
       AsyncData(:final value) when value.isEmpty => Padding(
         padding: const EdgeInsets.all(16),
         child: Text(
-          'The curriculum will appear here.',
+          context.l10n.curriculumEmpty,
           textAlign: TextAlign.center,
           style: TextStyle(color: p.textSecondary),
         ),
@@ -441,7 +463,7 @@ class _Curriculum extends ConsumerWidget {
         error: error,
         onRetry: () => ref.invalidate(curriculumProvider(courseId)),
       ),
-      _ => const LoadingView(label: 'Loading curriculum'),
+      _ => LoadingView(label: context.l10n.loadingCurriculum),
     };
   }
 }
@@ -481,7 +503,7 @@ class _TopicCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  plural(lessons, 'lesson'),
+                  context.l10n.lessonCount(lessons),
                   style: TextStyle(fontSize: 12, color: p.textSecondary),
                 ),
               ],
@@ -521,7 +543,7 @@ class _CurriculumRow extends StatelessWidget {
         : (item.completed ? p.success : p.text);
     final trailing =
         item.type == CurriculumItemType.quiz && item.questionCount != null
-        ? plural(item.questionCount!, 'question')
+        ? context.l10n.questionCount(item.questionCount!)
         : (item.durationMinutes != null
               ? formatMinutes(item.durationMinutes!)
               : null);
@@ -530,9 +552,9 @@ class _CurriculumRow extends StatelessWidget {
       button: !item.locked,
       label: [
         item.title,
-        if (freePreview) 'free preview',
-        if (item.locked) 'locked',
-        if (item.completed) 'completed',
+        if (freePreview) context.l10n.freePreviewLower,
+        if (item.locked) context.l10n.lockedLower,
+        if (item.completed) context.l10n.completedLower,
         ?trailing,
       ].join(', '),
       excludeSemantics: true,
@@ -568,7 +590,7 @@ class _CurriculumRow extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Free preview',
+                      context.l10n.freePreview,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -615,7 +637,7 @@ class _CtaBar extends StatelessWidget {
         return BottomActionBar(
           child: PrimaryButton(
             key: const ValueKey('cta-continue'),
-            label: 'Continue learning',
+            label: context.l10n.continueLearning,
             icon: AppIcons.play,
             height: 54,
             onPressed: onContinue,
@@ -630,7 +652,7 @@ class _CtaBar extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   key: const ValueKey('cta-enroll-free'),
-                  label: 'Enroll for free',
+                  label: context.l10n.enrollForFree,
                   height: 54,
                   loading: busy,
                   onPressed: onEnrollFree,
@@ -648,7 +670,7 @@ class _CtaBar extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   key: const ValueKey('cta-checkout'),
-                  label: 'Enroll now',
+                  label: context.l10n.enrollNow,
                   icon: AppIcons.cart,
                   height: 54,
                   loading: busy,
@@ -677,7 +699,7 @@ class _CtaBar extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  "This course isn't available on your account yet.",
+                  context.l10n.errorPurchaseNotAllowed,
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
@@ -705,7 +727,7 @@ class _PriceColumn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Course price',
+          context.l10n.coursePrice,
           style: TextStyle(fontSize: 12, color: p.textSecondary),
         ),
         PriceLabel(price, size: 20),

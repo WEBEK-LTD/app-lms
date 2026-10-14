@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderException;
 
 import 'models/json.dart';
+import '../l10n/l10n.dart';
 
 /// An API failure with the contract's stable machine-readable `code`.
 class ApiException implements Exception {
@@ -23,18 +24,17 @@ class ApiException implements Exception {
       return switch (error.type) {
         DioExceptionType.connectionTimeout ||
         DioExceptionType.sendTimeout ||
-        DioExceptionType.receiveTimeout => const ApiException(
+        DioExceptionType.receiveTimeout => ApiException(
           code: timeout,
-          message:
-              'The connection timed out. Check your internet and try again.',
+          message: currentL10n.errorTimeout,
         ),
-        DioExceptionType.cancel => const ApiException(
+        DioExceptionType.cancel => ApiException(
           code: cancelled,
-          message: 'The request was cancelled.',
+          message: currentL10n.errorCancelled,
         ),
-        _ => const ApiException(
+        _ => ApiException(
           code: networkError,
-          message: "We couldn't connect. Check your internet and try again.",
+          message: currentL10n.errorNetwork,
         ),
       };
     }
@@ -100,12 +100,12 @@ class ApiException implements Exception {
   };
 
   static String _fallbackMessage(int? status) => switch (status) {
-    401 => 'Your session has ended. Please sign in again.',
-    403 => "You don't have access to this.",
-    404 => "We couldn't find what you were looking for.",
-    429 => 'Too many attempts. Please wait a moment and try again.',
-    503 => 'The academy is unavailable right now. Please try again later.',
-    _ => 'Something went wrong. Please try again.',
+    401 => currentL10n.error401,
+    403 => currentL10n.error403,
+    404 => currentL10n.error404,
+    429 => currentL10n.error429,
+    503 => currentL10n.error503,
+    _ => currentL10n.errorGeneric,
   };
 
   @override
@@ -121,7 +121,7 @@ String friendlyError(Object raw) {
   final error = unwrapError(raw);
   if (error is ApiException) return error.message;
   if (error is DioException) return ApiException.fromDio(error).message;
-  return 'Something went wrong. Please try again.';
+  return currentL10n.errorGeneric;
 }
 
 /// Riverpod retry policy: only transient network failures are retried, twice.

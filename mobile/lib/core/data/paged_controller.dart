@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/models/models.dart';
+import '../l10n/language.dart';
 
 /// A list that loads page by page.
 class PagedState<T> {
@@ -50,6 +51,8 @@ abstract class PagedController<T> extends Notifier<PagedState<T>> {
 
   @override
   PagedState<T> build() {
+    // Lists come back in the user's language: reload when it changes.
+    ref.watch(appLanguageProvider);
     Future.microtask(refresh);
     return PagedState<T>(loading: true);
   }

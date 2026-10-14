@@ -1,6 +1,11 @@
-/// Dates as the plugin sends and expects them, and as the app shows them.
-/// English only, like every user-facing string.
+/// Dates as the plugin sends and expects them, and as the app shows them
+/// in the app's language.
 library;
+
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+
+import '../l10n/l10n.dart';
 
 /// `yyyy-MM-dd`.
 String isoDate(DateTime day) =>
@@ -19,42 +24,25 @@ DateTime? parseIsoDate(String value) {
 DateTime addDays(DateTime day, int days) =>
     DateTime(day.year, day.month, day.day + days);
 
-const weekdayNames = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-];
-
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+/// Formats [day] with an `intl` [pattern] in the app's language.
+String _format(String pattern, DateTime day) {
+  final locale = currentL10n.localeName;
+  // Loads every locale's date names (bundled, synchronous).
+  initializeDateFormatting(locale);
+  return DateFormat(pattern, locale).format(day);
+}
 
 /// "Monday, 12 October".
-String dayLabel(DateTime day) =>
-    '${weekdayNames[day.weekday - 1]}, ${day.day} ${monthNames[day.month - 1]}';
+String dayLabel(DateTime day) => _format('EEEE, d MMMM', day);
 
 /// "Mon".
-String shortWeekday(DateTime day) =>
-    weekdayNames[day.weekday - 1].substring(0, 3);
+String shortWeekday(DateTime day) => _format('EEE', day);
 
 /// "Oct".
-String shortMonth(DateTime day) => monthNames[day.month - 1].substring(0, 3);
+String shortMonth(DateTime day) => _format('MMM', day);
 
 /// "Mon 12 Oct".
-String shortDayLabel(DateTime day) =>
-    '${shortWeekday(day)} ${day.day} ${shortMonth(day)}';
+String shortDayLabel(DateTime day) => _format('EEE d MMM', day);
+
+/// "12 Oct 2026".
+String shortDate(DateTime time) => _format('d MMM y', time.toLocal());

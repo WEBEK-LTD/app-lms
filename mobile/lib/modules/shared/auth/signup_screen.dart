@@ -7,6 +7,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/widgets/buttons.dart';
 import 'sign_in_screen.dart';
+import '../../../core/l10n/l10n.dart';
 
 class SignupArgs {
   const SignupArgs({required this.signup});
@@ -86,58 +87,58 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: AppBackButton(),
                       ),
                       const SizedBox(height: 28),
                       Semantics(
                         header: true,
                         child: Text(
-                          'Create your account',
+                          context.l10n.createYourAccount,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Your number is verified. Tell us your name to finish joining $site.',
+                        context.l10n.signupIntro(site),
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       const SizedBox(height: 28),
                       _Field(
-                        label: 'Full name',
+                        label: context.l10n.fullName,
                         controller: _name,
                         autofill: AutofillHints.name,
                         capitalization: TextCapitalization.words,
                         validator: (v) => (v == null || v.trim().length < 2)
-                            ? 'Enter your name.'
+                            ? context.l10n.enterName
                             : null,
                       ),
                       if (showEmail) ...[
                         const SizedBox(height: 18),
                         _Field(
-                          label: 'Email',
+                          label: context.l10n.email,
                           controller: _email,
                           autofill: AutofillHints.email,
                           keyboard: TextInputType.emailAddress,
                           validator: (v) {
                             final value = v?.trim() ?? '';
-                            if (value.isEmpty) return 'Enter your email.';
+                            if (value.isEmpty) return context.l10n.enterEmail;
                             return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
                                     .hasMatch(value)
                                 ? null
-                                : 'Enter a valid email address.';
+                                : context.l10n.enterValidEmail;
                           },
                         ),
                       ],
                       if (showCity) ...[
                         const SizedBox(height: 18),
                         _Field(
-                          label: 'City',
+                          label: context.l10n.city,
                           controller: _city,
                           autofill: AutofillHints.addressCity,
                           capitalization: TextCapitalization.words,
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Enter your city.'
+                              ? context.l10n.enterCity
                               : null,
                         ),
                       ],
@@ -152,7 +153,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 child: PrimaryButton(
-                  label: 'Create account',
+                  label: context.l10n.createAccount,
                   loading: _saving,
                   onPressed: _submit,
                 ),

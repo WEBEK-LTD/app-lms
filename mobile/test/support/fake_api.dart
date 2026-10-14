@@ -543,4 +543,107 @@ class FakeApi implements YallappApi {
         upcoming = [];
         return Appointment.fromJson(appointment);
       });
+
+  /// `GET /pages`: null answers like a site without pages (404).
+  Map<String, dynamic>? navigation;
+
+  /// `GET /pages/{slug}` by slug; other slugs answer 404.
+  Map<String, Map<String, dynamic>> pages = {};
+
+  @override
+  Future<Navigation?> getPages() => _answer(
+    'getPages',
+    () => navigation == null ? null : Navigation.fromJson(navigation!),
+  );
+
+  @override
+  Future<AppPage> getPage(String slug) => _answer('getPage', () {
+    final page = pages[slug];
+    if (page == null) {
+      throw const ApiException(
+        code: 'not_found',
+        message: "We couldn't find what you were looking for.",
+        statusCode: 404,
+      );
+    }
+    return AppPage.fromJson(page);
+  });
+
+  List<Map<String, dynamic>> listings = [
+    listingSummaryJson(),
+    listingSummaryJson(id: 43, title: 'Garden duplex', purpose: 'rent'),
+  ];
+  Map<String, dynamic> listing = listingDetailJson();
+  List<Map<String, dynamic>> favorites = [listingSummaryJson(favorited: true)];
+  List<Map<String, dynamic>> inquiries = [inquiryJson()];
+  Map<String, dynamic> inquiry = inquiryJson();
+  ListingQuery? lastListingQuery;
+  String? lastInquiry;
+  String? lastReply;
+
+  @override
+  Future<ListingFilters> getListingFilters() => _answer(
+    'getListingFilters',
+    () => ListingFilters.fromJson(listingFiltersJson()),
+  );
+
+  @override
+  Future<Paged<ListingSummary>> searchListings(ListingQuery query) {
+    lastListingQuery = query;
+    return _answer(
+      'searchListings',
+      () => Paged.fromJson(pageJson(listings), ListingSummary.fromJson),
+    );
+  }
+
+  @override
+  Future<ListingDetail> getListing(int listingId) =>
+      _answer('getListing', () => ListingDetail.fromJson(listing));
+
+  @override
+  Future<Inquiry> sendInquiry(int listingId, String message) {
+    lastInquiry = message;
+    return _answer('sendInquiry', () => Inquiry.fromJson(inquiry));
+  }
+
+  @override
+  Future<Paged<ListingSummary>> listFavorites({int page = 1}) => _answer(
+    'listFavorites',
+    () => Paged.fromJson(pageJson(favorites), ListingSummary.fromJson),
+  );
+
+  @override
+  Future<void> addFavorite(int listingId) => _answer('addFavorite', () {});
+
+  @override
+  Future<void> removeFavorite(int listingId) =>
+      _answer('removeFavorite', () {});
+
+  @override
+  Future<Paged<Inquiry>> listInquiries({int page = 1}) => _answer(
+    'listInquiries',
+    () => Paged.fromJson(pageJson(inquiries), Inquiry.fromJson),
+  );
+
+  @override
+  Future<Inquiry> getInquiry(int inquiryId) =>
+      _answer('getInquiry', () => Inquiry.fromJson(inquiry));
+
+  @override
+  Future<Inquiry> replyToInquiry(int inquiryId, String message) {
+    lastReply = message;
+    return _answer('replyToInquiry', () {
+      final messages = [
+        ...(inquiry['messages'] as List).cast<Map<String, dynamic>>(),
+        {
+          'id': 99,
+          'from': 'user',
+          'text': message,
+          'created_at': '2026-10-12T11:00:00Z',
+        },
+      ];
+      inquiry = {...inquiry, 'messages': messages, 'unread': 0};
+      return Inquiry.fromJson(inquiry);
+    });
+  }
 }

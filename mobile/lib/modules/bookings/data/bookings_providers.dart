@@ -7,11 +7,11 @@ import '../../../core/providers.dart';
 
 final bookingsHomeProvider =
     FutureProvider.autoDispose<List<BookingsHomeSection>>(
-      (ref) => ref.watch(yallappApiProvider).getBookingsHome(),
+      (ref) => ref.contentApi.getBookingsHome(),
     );
 
 final serviceCategoriesProvider = FutureProvider<List<ServiceCategory>>(
-  (ref) => ref.watch(yallappApiProvider).listServiceCategories(),
+  (ref) => ref.contentApi.listServiceCategories(),
 );
 
 /// Services for one search and category.
@@ -34,7 +34,7 @@ final servicesProvider = NotifierProvider.autoDispose
     );
 
 final serviceProvider = FutureProvider.autoDispose.family<ServiceDetail, int>(
-  (ref, id) => ref.watch(yallappApiProvider).getService(id),
+  (ref, id) => ref.contentApi.getService(id),
 );
 
 /// Free times for a service, a staff member (null for anyone) and a week
@@ -43,9 +43,11 @@ typedef AvailabilityQuery = ({int service, int? staff, String from});
 
 final availabilityProvider = FutureProvider.autoDispose
     .family<Availability, AvailabilityQuery>(
-      (ref, q) => ref
-          .watch(yallappApiProvider)
-          .getAvailability(q.service, staffId: q.staff, from: q.from),
+      (ref, q) => ref.contentApi.getAvailability(
+        q.service,
+        staffId: q.staff,
+        from: q.from,
+      ),
     );
 
 class AppointmentsController extends PagedController<Appointment> {
@@ -67,7 +69,7 @@ final appointmentsProvider = NotifierProvider.autoDispose
     >(AppointmentsController.new);
 
 final appointmentProvider = FutureProvider.autoDispose.family<Appointment, int>(
-  (ref, id) => ref.watch(yallappApiProvider).getMyAppointment(id),
+  (ref, id) => ref.contentApi.getMyAppointment(id),
 );
 
 /// After booking or cancelling: lists, the home's next appointment and free

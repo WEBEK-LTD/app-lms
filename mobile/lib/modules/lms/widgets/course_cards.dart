@@ -5,9 +5,10 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/l10n/l10n.dart';
 
 String courseMeta(CourseSummary course) {
-  final lessons = plural(course.lessonCount, 'lesson');
+  final lessons = currentL10n.lessonCount(course.lessonCount);
   final instructor = course.instructor?.name;
   return instructor == null || instructor.isEmpty
       ? lessons
@@ -18,9 +19,9 @@ String _a11yLabel(CourseSummary course) {
   final parts = [
     course.title,
     courseMeta(course),
-    if (course.enrolled) 'Enrolled' else course.price.label,
+    if (course.enrolled) currentL10n.enrolled else course.price.label,
     if (course.rating != null)
-      'Rated ${course.rating!.toStringAsFixed(1)} of 5',
+      currentL10n.ratedOutOf5(course.rating!.toStringAsFixed(1)),
   ];
   return parts.where((p) => p.isNotEmpty).join(', ');
 }
@@ -105,7 +106,7 @@ class EnrolledLabel extends StatelessWidget {
         AppIcon(AppIcons.check, size: 14, color: p.success),
         const SizedBox(width: 4),
         Text(
-          'Enrolled',
+          context.l10n.enrolled,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -182,7 +183,7 @@ class CourseTileCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       course.instructor?.name ??
-                          plural(course.lessonCount, 'lesson'),
+                          context.l10n.lessonCount(course.lessonCount),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: p.textSecondary),
@@ -385,9 +386,16 @@ class ContinueCardClassic extends StatelessWidget {
     final next = nextLabel(course);
     return Semantics(
       button: true,
-      label:
-          'Continue ${course.course.title}, ${progress.percent}% complete'
-          '${next.isEmpty ? '' : ', next: $next'}',
+      label: next.isEmpty
+          ? context.l10n.continueCourseLabel(
+              course.course.title,
+              progress.percent,
+            )
+          : context.l10n.continueCourseNextLabel(
+              course.course.title,
+              progress.percent,
+              next,
+            ),
       excludeSemantics: true,
       child: Material(
         color: p.primary,
@@ -466,7 +474,10 @@ class ContinueCardClassic extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          '${progress.completedItems} of ${progress.totalItems} lessons',
+                          context.l10n.lessonsDone(
+                            progress.completedItems,
+                            progress.totalItems,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -501,7 +512,7 @@ class ContinueCardBold extends StatelessWidget {
     final percent = course.progress.percent;
     return Semantics(
       button: true,
-      label: 'Continue ${course.course.title}, $percent% complete',
+      label: context.l10n.continueCourseLabel(course.course.title, percent),
       excludeSemantics: true,
       child: Material(
         color: p.surface,
@@ -546,7 +557,7 @@ class ContinueCardBold extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Continue',
+                        context.l10n.continueAction,
                         style: TextStyle(fontSize: 12, color: p.textSecondary),
                       ),
                       Text(
@@ -605,7 +616,7 @@ class ContinueCardMinimal extends StatelessWidget {
     final next = nextLabel(course);
     return Semantics(
       button: true,
-      label: 'Continue ${course.course.title}, $percent% complete',
+      label: context.l10n.continueCourseLabel(course.course.title, percent),
       excludeSemantics: true,
       child: Material(
         color: p.surfaceMuted,
@@ -623,7 +634,7 @@ class ContinueCardMinimal extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'CONTINUE',
+                        context.l10n.continueAction.toUpperCase(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

@@ -13,11 +13,12 @@ import '../data/lms_providers.dart';
 import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
+import '../../../core/l10n/l10n.dart';
 
 String orderLabel(CourseOrder order) => switch (order) {
-  CourseOrder.newest => 'Newest',
-  CourseOrder.popular => 'Popular',
-  CourseOrder.title => 'A to Z',
+  CourseOrder.newest => currentL10n.sortNewest,
+  CourseOrder.popular => currentL10n.sortPopular,
+  CourseOrder.title => currentL10n.sortAtoZ,
 };
 
 /// The course catalog with search, price filters, sorting and categories
@@ -146,7 +147,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                     Semantics(
                       header: true,
                       child: Text(
-                        category?.name ?? 'All courses',
+                        category?.name ?? context.l10n.allCourses,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),
@@ -164,7 +165,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                               _onSearchChanged(v);
                             },
                             decoration: InputDecoration(
-                              hintText: 'Course or instructor name',
+                              hintText: context.l10n.searchCoursesHint,
                               prefixIcon: AppIcon(
                                 AppIcons.search,
                                 size: 20,
@@ -183,7 +184,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                         const SizedBox(width: 8),
                         SquareIconButton(
                           icon: AppIcons.filters,
-                          label: 'Filters and sorting',
+                          label: context.l10n.filtersAndSorting,
                           size: 50,
                           radius: 14,
                           onPressed: _openFilters,
@@ -199,9 +200,9 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                           for (final price in PriceFilter.values) ...[
                             PillChip(
                               label: switch (price) {
-                                PriceFilter.all => 'All',
-                                PriceFilter.free => 'Free',
-                                PriceFilter.paid => 'Paid',
+                                PriceFilter.all => context.l10n.filterAll,
+                                PriceFilter.free => context.l10n.free,
+                                PriceFilter.paid => context.l10n.paid,
                               },
                               selected: _query.price == price,
                               onTap: () => _setPrice(price),
@@ -216,7 +217,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                           if (category != null) ...[
                             const SizedBox(width: 8),
                             PillChip(
-                              label: '${category.name}  ×',
+                              label: context.l10n.removeFilter(category.name),
                               selected: true,
                               onTap: () => setState(
                                 () => _query = _query.copyWith(
@@ -266,11 +267,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           hasScrollBody: false,
           child: MessageView(
             icon: AppIcons.search,
-            title: 'No courses found',
+            title: context.l10n.noCoursesFound,
             message: filtered
-                ? 'Try a different search or clear the filters.'
-                : 'Courses will show up here when they are published.',
-            actionLabel: filtered ? 'Clear filters' : null,
+                ? context.l10n.noCoursesFoundFiltered
+                : context.l10n.noCoursesPublished,
+            actionLabel: filtered ? context.l10n.clearFilters : null,
             onAction: filtered
                 ? () {
                     _search.clear();
@@ -298,14 +299,14 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
               return Center(
                 child: TextButton(
                   onPressed: notifier.retry,
-                  child: const Text('Couldn\'t load more. Try again'),
+                  child: Text(context.l10n.loadMoreFailed),
                 ),
               );
             }
             if (s.hasMore) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(16),
-                child: LoadingView(label: 'Loading more courses'),
+                child: LoadingView(label: context.l10n.loadingMoreCourses),
               );
             }
             return const SizedBox.shrink();
@@ -357,7 +358,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
-            heading('Sort by'),
+            heading(context.l10n.sortByTitle),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -371,14 +372,14 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
               ],
             ),
             const SizedBox(height: 12),
-            heading('Category'),
+            heading(context.l10n.category),
             switch (categories) {
               AsyncData(:final value) => Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
                   PillChip(
-                    label: 'All',
+                    label: context.l10n.filterAll,
                     selected: _category == null,
                     onTap: () => setState(() => _category = null),
                   ),
@@ -391,14 +392,14 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                 ],
               ),
               AsyncError() => Text(
-                "Categories couldn't be loaded.",
+                context.l10n.categoriesFailed,
                 style: TextStyle(color: p.textSecondary),
               ),
               _ => const LoadingView(),
             },
             const SizedBox(height: 24),
             PrimaryButton(
-              label: 'Show courses',
+              label: context.l10n.showCourses,
               onPressed: () => Navigator.of(context).pop(
                 CourseQuery(
                   search: widget.query.search,

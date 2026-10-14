@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The price as the shop shows it, with the regular price struck through
 /// when on sale.
@@ -34,7 +35,7 @@ class ProductPriceLabel extends StatelessWidget {
         if (price.onSale && regular != null)
           Text(
             regular,
-            semanticsLabel: 'was $regular',
+            semanticsLabel: context.l10n.wasPrice(regular),
             style: TextStyle(
               fontSize: size - 3,
               color: p.textTertiary,
@@ -47,9 +48,9 @@ class ProductPriceLabel extends StatelessWidget {
 }
 
 String stockLabel(StockStatus status) => switch (status) {
-  StockStatus.inStock => 'In stock',
-  StockStatus.outOfStock => 'Out of stock',
-  StockStatus.onBackorder => 'Available on backorder',
+  StockStatus.inStock => currentL10n.inStock,
+  StockStatus.outOfStock => currentL10n.outOfStock,
+  StockStatus.onBackorder => currentL10n.onBackorder,
 };
 
 /// A small tag on the product image ("Sale", "Out of stock").
@@ -85,8 +86,9 @@ class _Tag extends StatelessWidget {
 String _a11y(ProductSummary product) => [
   product.name,
   product.price.formatted,
-  if (product.price.onSale) 'on sale',
-  if (product.stockStatus == StockStatus.outOfStock) 'out of stock',
+  if (product.price.onSale) currentL10n.onSaleLower,
+  if (product.stockStatus == StockStatus.outOfStock)
+    currentL10n.outOfStockLower,
 ].join(', ');
 
 /// The height of a [ProductCard]'s text below its square image, for rows
@@ -128,16 +130,16 @@ class ProductCard extends StatelessWidget {
                     placeholderIcon: AppIcons.shop,
                   ),
                   if (product.stockStatus == StockStatus.outOfStock)
-                    const Positioned(
-                      left: 8,
+                    PositionedDirectional(
+                      start: 8,
                       top: 8,
-                      child: _Tag('Out of stock', strong: false),
+                      child: _Tag(context.l10n.outOfStock, strong: false),
                     )
                   else if (product.price.onSale)
-                    const Positioned(
-                      left: 8,
+                    PositionedDirectional(
+                      start: 8,
                       top: 8,
-                      child: _Tag('Sale', strong: true),
+                      child: _Tag(context.l10n.sale, strong: true),
                     ),
                 ],
               ),
@@ -269,7 +271,7 @@ class QuantityControl extends StatelessWidget {
       children: [
         SquareIconButton(
           icon: AppIcons.remove,
-          label: 'Fewer',
+          label: context.l10n.fewer,
           size: size,
           iconSize: 18,
           onPressed: quantity > min ? () => onChanged(quantity - 1) : null,
@@ -279,7 +281,7 @@ class QuantityControl extends StatelessWidget {
           child: Text(
             '$quantity',
             textAlign: TextAlign.center,
-            semanticsLabel: 'Quantity $quantity',
+            semanticsLabel: context.l10n.quantityIs(quantity),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -289,7 +291,7 @@ class QuantityControl extends StatelessWidget {
         ),
         SquareIconButton(
           icon: AppIcons.add,
-          label: 'More',
+          label: context.l10n.more,
           size: size,
           iconSize: 18,
           onPressed: quantity < max ? () => onChanged(quantity + 1) : null,

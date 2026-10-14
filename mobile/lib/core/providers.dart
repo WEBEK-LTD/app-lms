@@ -8,6 +8,7 @@ import 'auth/token_manager.dart';
 import 'auth/token_store.dart';
 import 'config/build_config.dart';
 import 'gate/app_gate.dart';
+import 'l10n/language.dart';
 
 /// Must be overridden with the environment loaded at start-up.
 final appEnvironmentProvider = Provider<AppEnvironment>(
@@ -34,6 +35,8 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
       contentType: Headers.jsonContentType,
     ),
   );
+  String language() => ref.read(appLanguageProvider);
+  refreshDio.interceptors.add(LanguageInterceptor(language));
   late final HttpYallappApi api;
   final tokens = TokenManager(
     store: ref.watch(tokenStoreProvider),
@@ -43,12 +46,14 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     baseUrl: baseUrl,
     tokens: tokens,
     onGateError: (error) => ref.read(appGateProvider.notifier).report(error),
+    language: language,
   );
   api = HttpYallappApi(
     dio: dio,
     refreshDio: refreshDio,
     platform: env.platform,
     appVersion: env.appVersion,
+    language: language,
   );
   ref.onDispose(() {
     dio.close();
@@ -65,3 +70,12 @@ final yallappApiProvider = Provider<YallappApi>(
 final tokenManagerProvider = Provider<TokenManager>(
   (ref) => ref.watch(apiBundleProvider).tokens,
 );
+
+extension ContentApi on Ref {
+  /// The API, for content that comes back in the user's language: providers
+  /// that use it reload when the language changes.
+  YallappApi get contentApi {
+    watch(appLanguageProvider);
+    return watch(yallappApiProvider);
+  }
+}

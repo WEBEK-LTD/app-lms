@@ -15,14 +15,15 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
-const orderLabels = {
-  ProductOrder.newest: 'Newest',
-  ProductOrder.popular: 'Best selling',
-  ProductOrder.rating: 'Top rated',
-  ProductOrder.priceAsc: 'Price: low to high',
-  ProductOrder.priceDesc: 'Price: high to low',
-  ProductOrder.title: 'Name',
+Map<ProductOrder, String> get orderLabels => {
+  ProductOrder.newest: currentL10n.sortNewest,
+  ProductOrder.popular: currentL10n.sortBestSelling,
+  ProductOrder.rating: currentL10n.sortTopRated,
+  ProductOrder.priceAsc: currentL10n.sortPriceLowHigh,
+  ProductOrder.priceDesc: currentL10n.sortPriceHighLow,
+  ProductOrder.title: currentL10n.sortName,
 };
 
 ProductOrder? productOrderFrom(String? wire) => switch (wire) {
@@ -160,7 +161,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         setState(() => _query = _query.copyWith(search: text));
                       },
                       decoration: InputDecoration(
-                        hintText: 'Search products',
+                        hintText: context.l10n.searchProducts,
                         prefixIcon: AppIcon(
                           AppIcons.search,
                           size: 20,
@@ -172,7 +173,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   const SizedBox(width: 10),
                   SquareIconButton(
                     icon: AppIcons.sort,
-                    label: 'Sort: ${orderLabels[_query.orderBy]}',
+                    label: context.l10n.sortBy(orderLabels[_query.orderBy]!),
                     size: 50,
                     radius: context.shapes.button,
                     onPressed: _chooseOrder,
@@ -187,7 +188,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
                   PillChip(
-                    label: 'All',
+                    label: context.l10n.filterAll,
                     selected: _query.category == null && !_query.onSale,
                     onTap: () => setState(
                       () => _query = _query.copyWith(
@@ -198,7 +199,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   ),
                   const SizedBox(width: 8),
                   PillChip(
-                    label: 'On sale',
+                    label: context.l10n.onSale,
                     selected: _query.onSale,
                     onTap: () => setState(
                       () => _query = _query.copyWith(onSale: !_query.onSale),
@@ -239,7 +240,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   ) {
     final error = state.error;
     if (state.isInitialLoading) {
-      return const LoadingView(label: 'Loading products');
+      return LoadingView(label: context.l10n.loadingProducts);
     }
     if (error != null && state.items.isEmpty) {
       return ListView(
@@ -253,13 +254,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     }
     if (state.isEmpty) {
       return ListView(
-        children: const [
+        children: [
           SizedBox(
             height: 400,
             child: MessageView(
               icon: AppIcons.search,
-              title: 'No products found',
-              message: 'Try another search or category.',
+              title: context.l10n.noProductsTitle,
+              message: context.l10n.noProductsMessage,
             ),
           ),
         ],
@@ -288,7 +289,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             itemCount: items.length + (state.hasMore && error == null ? 1 : 0),
             itemBuilder: (context, i) {
               if (i >= items.length) {
-                return const LoadingView(label: 'Loading more products');
+                return LoadingView(label: context.l10n.loadingMoreProducts);
               }
               final product = items[i];
               return ProductCard(

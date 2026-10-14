@@ -6,6 +6,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../shared/account/notifications_screen.dart' show timeAgo;
+import '../../../core/l10n/l10n.dart';
 
 /// Who wrote a review, question or reply, with an "Instructor" tag.
 class PersonLine extends StatelessWidget {
@@ -55,7 +56,7 @@ class PersonLine extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      you ? '${person.name} (you)' : person.name,
+                      you ? context.l10n.personYou(person.name) : person.name,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
@@ -76,7 +77,7 @@ class PersonLine extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'Instructor',
+                        context.l10n.instructor,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -117,7 +118,9 @@ class StarRow extends StatelessWidget {
     final p = context.palette;
     if (onChanged == null) {
       return Semantics(
-        label: '${rating.toStringAsFixed(rating % 1 == 0 ? 0 : 1)} out of 5',
+        label: context.l10n.ratingOutOf5(
+          rating.toStringAsFixed(rating % 1 == 0 ? 0 : 1),
+        ),
         excludeSemantics: true,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -140,7 +143,7 @@ class StarRow extends StatelessWidget {
           Semantics(
             button: true,
             selected: rating >= i,
-            label: plural(i, 'star'),
+            label: context.l10n.starCount(i),
             excludeSemantics: true,
             child: InkResponse(
               onTap: () => onChanged!(i),

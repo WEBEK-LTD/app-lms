@@ -9,6 +9,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import 'community_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The course page's Reviews tab: the rating summary, the student's own
 /// review and everyone's reviews.
@@ -21,9 +22,9 @@ class CourseReviewsTab extends ConsumerWidget {
     final rating = ValueNotifier<int>(mine?.rating ?? 0);
     return showTextSheet(
       context,
-      title: mine == null ? 'Write a review' : 'Edit your review',
-      hint: 'What did you like? What could be better? (optional)',
-      sendLabel: 'Post review',
+      title: mine == null ? context.l10n.writeReview : context.l10n.editReview,
+      hint: context.l10n.reviewHint,
+      sendLabel: context.l10n.postReview,
       initial: mine?.text ?? '',
       allowEmpty: true,
       header: ValueListenableBuilder<int>(
@@ -36,7 +37,7 @@ class CourseReviewsTab extends ConsumerWidget {
       ),
       onSend: (text) async {
         if (rating.value == 0) {
-          showMessage(context, 'Choose a rating from 1 to 5 stars.');
+          showMessage(context, context.l10n.chooseRating);
           return false;
         }
         try {
@@ -50,8 +51,8 @@ class CourseReviewsTab extends ConsumerWidget {
             showMessage(
               context,
               saved.status == ReviewStatus.pending
-                  ? 'Thanks! Your review will appear once the academy approves it.'
-                  : 'Thanks for your review!',
+                  ? context.l10n.reviewPending
+                  : context.l10n.reviewThanks,
             );
           }
           return true;
@@ -72,7 +73,7 @@ class CourseReviewsTab extends ConsumerWidget {
       if (state.error != null) {
         return ErrorView(error: state.error!, onRetry: notifier.refresh);
       }
-      return const LoadingView(label: 'Loading reviews');
+      return LoadingView(label: context.l10n.loadingReviews);
     }
     final p = context.palette;
     final mine = head.mine;
@@ -88,7 +89,7 @@ class CourseReviewsTab extends ConsumerWidget {
           const SizedBox(height: 12),
           if (mine == null)
             SecondaryButton(
-              label: 'Write a review',
+              label: context.l10n.writeReview,
               onPressed: () => _write(context, ref, null),
               height: 50,
             )
@@ -101,8 +102,8 @@ class CourseReviewsTab extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: Text(
               head.canReview
-                  ? 'No reviews yet. Be the first to share what you think.'
-                  : 'No reviews yet.',
+                  ? context.l10n.noReviewsBeFirst
+                  : context.l10n.noReviews,
               textAlign: TextAlign.center,
               style: TextStyle(color: p.textSecondary),
             ),
@@ -115,7 +116,11 @@ class CourseReviewsTab extends ConsumerWidget {
           Center(
             child: TextButton(
               onPressed: state.loading ? null : notifier.loadMore,
-              child: Text(state.loading ? 'Loading…' : 'Show more reviews'),
+              child: Text(
+                state.loading
+                    ? context.l10n.loadingEllipsis
+                    : context.l10n.showMoreReviews,
+              ),
             ),
           ),
       ],
@@ -149,7 +154,7 @@ class RatingSummaryCard extends StatelessWidget {
               StarRow(rating: rating ?? 0, size: 16),
               const SizedBox(height: 4),
               Text(
-                plural(summary.ratingCount, 'rating'),
+                context.l10n.ratingCount(summary.ratingCount),
                 style: TextStyle(fontSize: 12, color: p.textSecondary),
               ),
             ],
@@ -184,7 +189,7 @@ class _Bar extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     return Semantics(
-      label: '$star stars: $count',
+      label: context.l10n.starsCount(star, count),
       excludeSemantics: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -247,16 +252,16 @@ class ReviewCard extends StatelessWidget {
           if (review.status == ReviewStatus.pending) ...[
             const SizedBox(height: 6),
             Text(
-              'Waiting for the academy to approve it.',
+              context.l10n.reviewAwaitingApproval,
               style: TextStyle(fontSize: 12, color: p.textSecondary),
             ),
           ],
           if (onEdit != null)
             Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               child: TextButton(
                 onPressed: onEdit,
-                child: const Text('Edit your review'),
+                child: Text(context.l10n.editReview),
               ),
             ),
         ],

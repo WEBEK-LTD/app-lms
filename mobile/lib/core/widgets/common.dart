@@ -6,6 +6,7 @@ import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import 'buttons.dart';
+import '../l10n/l10n.dart';
 
 /// A network image with a soft tinted placeholder while loading or missing.
 class AppNetworkImage extends StatelessWidget {
@@ -84,7 +85,7 @@ class ProgressTrack extends StatelessWidget {
     final value = (percent / 100).clamp(0.0, 1.0).toDouble();
     final radius = BorderRadius.circular(rounded ? height / 2 : 0);
     return Semantics(
-      label: 'Progress',
+      label: context.l10n.progress,
       value: '${(value * 100).round()}%',
       child: ClipRRect(
         borderRadius: radius,
@@ -95,7 +96,7 @@ class ProgressTrack extends StatelessWidget {
             children: [
               ColoredBox(color: track ?? p.segment),
               FractionallySizedBox(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 widthFactor: value,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -175,7 +176,7 @@ class SectionHeader extends StatelessWidget {
               foregroundColor: p.link,
               padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
-            child: const Text('See all'),
+            child: Text(context.l10n.seeAll),
           ),
       ],
     );
@@ -183,15 +184,18 @@ class SectionHeader extends StatelessWidget {
 }
 
 class LoadingView extends StatelessWidget {
-  const LoadingView({super.key, this.label = 'Loading'});
+  const LoadingView({super.key, this.label});
 
-  final String label;
+  /// Read by screen readers; "Loading" by default.
+  final String? label;
 
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
-      child: CircularProgressIndicator(semanticsLabel: label),
+      child: CircularProgressIndicator(
+        semanticsLabel: label ?? context.l10n.loading,
+      ),
     ),
   );
 }
@@ -283,9 +287,9 @@ class ErrorView extends StatelessWidget {
     final offline = e is ApiException && e.isOffline;
     return MessageView(
       icon: offline ? AppIcons.offline : AppIcons.error,
-      title: offline ? "You're offline" : 'Something went wrong',
+      title: offline ? context.l10n.offlineTitle : context.l10n.errorTitle,
       message: friendlyError(error),
-      actionLabel: onRetry == null ? null : 'Try again',
+      actionLabel: onRetry == null ? null : context.l10n.tryAgain,
       onAction: onRetry,
     );
   }
@@ -437,7 +441,7 @@ class SettingsTile extends StatelessWidget {
                 Flexible(
                   flex: 2,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsetsDirectional.only(start: 8),
                     child: Text(
                       value!,
                       textAlign: TextAlign.end,
@@ -450,7 +454,7 @@ class SettingsTile extends StatelessWidget {
               ?trailing,
               if (trailing == null && chevron && onTap != null && !destructive)
                 Padding(
-                  padding: const EdgeInsets.only(left: 4),
+                  padding: const EdgeInsetsDirectional.only(start: 4),
                   child: AppIcon(
                     AppIcons.forward,
                     size: 18,
@@ -491,7 +495,7 @@ Future<bool> confirmAction(
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           style: TextButton.styleFrom(foregroundColor: p.text),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
@@ -506,16 +510,13 @@ Future<bool> confirmAction(
   return result ?? false;
 }
 
-/// "12 lessons", "1 lesson".
-String plural(int count, String singular, [String? pluralForm]) =>
-    '$count ${count == 1 ? singular : (pluralForm ?? '${singular}s')}';
-
 /// "1 h 20 min", "45 min".
 String formatMinutes(int minutes) {
-  if (minutes < 60) return '$minutes min';
+  final l10n = currentL10n;
+  if (minutes < 60) return l10n.durationMinutes(minutes);
   final h = minutes ~/ 60;
   final m = minutes % 60;
-  return m == 0 ? '$h h' : '$h h $m min';
+  return m == 0 ? l10n.durationHours(h) : l10n.durationHoursMinutes(h, m);
 }
 
 /// "04:12", "1:02:03".

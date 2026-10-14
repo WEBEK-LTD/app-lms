@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
+import '../api/yallapp_api.dart';
+import '../l10n/language.dart';
 import '../providers.dart';
 
 /// Where the app stands after `GET /config`.
@@ -14,8 +16,12 @@ class GateLoading extends GateState {
 }
 
 class GateReady extends GateState {
-  const GateReady(this.config);
+  const GateReady(this.config, {this.navigation});
   final AppConfig config;
+
+  /// The tabs and pages from `/pages`; null keeps the built-in tabs and
+  /// `/home`.
+  final Navigation? navigation;
 }
 
 class GateMaintenance extends GateState {
@@ -66,15 +72,47 @@ class AppGate extends Notifier<GateState> {
     return const GateLoading();
   }
 
-  Future<void> load() async {
-    state = const GateLoading();
+  /// Loads `/config`, then `/pages`. A [quiet] reload (after a language
+  /// change) keeps the app on screen and keeps the current state if the
+  /// reload fails.
+  Future<void> load({bool quiet = false}) async {
+    final previous = state;
+    if (!quiet) state = const GateLoading();
     try {
-      final config = await ref.read(yallappApiProvider).getConfig();
-      state = gateStateForConfig(config);
+      final api = ref.read(yallappApiProvider);
+      final config = await api.getConfig();
+      ref.read(remoteLanguagesProvider.notifier).update(config.languages);
+      final next = gateStateForConfig(config);
+      if (next is! GateReady) {
+        state = next;
+        return;
+      }
+      final keep = previous is GateReady ? previous.navigation : null;
+      state = GateReady(
+        config,
+        navigation: await _navigation(api, quiet ? keep : null),
+      );
     } on ApiException catch (e) {
-      state = gateStateForError(e) ?? GateFailed(e);
+      final stop = gateStateForError(e);
+      if (stop != null) {
+        state = stop;
+      } else if (!quiet || previous is! GateReady) {
+        state = GateFailed(e);
+      }
     } on Object catch (e) {
-      state = GateFailed(e);
+      if (!quiet || previous is! GateReady) state = GateFailed(e);
+    }
+  }
+
+  /// Pages are optional: any failure other than a stop code keeps the
+  /// built-in tabs (or [fallback], the tabs already on screen).
+  Future<Navigation?> _navigation(YallappApi api, Navigation? fallback) async {
+    try {
+      final navigation = await api.getPages();
+      return (navigation != null && navigation.usable) ? navigation : null;
+    } on ApiException catch (e) {
+      if (gateStateForError(e) != null) rethrow;
+      return fallback;
     }
   }
 
@@ -90,4 +128,10 @@ final appConfigProvider = Provider<AppConfig>((ref) {
   final gate = ref.watch(appGateProvider);
   if (gate is GateReady) return gate.config;
   throw StateError('The app config is not loaded.');
+});
+
+/// The published tabs and pages, or null for the built-in ones.
+final navigationProvider = Provider<Navigation?>((ref) {
+  final gate = ref.watch(appGateProvider);
+  return gate is GateReady ? gate.navigation : null;
 });

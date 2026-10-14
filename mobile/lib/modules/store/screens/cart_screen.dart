@@ -19,6 +19,7 @@ import '../../lms/data/lms_providers.dart' show ordersProvider;
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The shop's order received page, reached at the end of the checkout:
 /// WooCommerce's and the hosted payment page's `order-received`, Shopify's
@@ -52,14 +53,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final today = DateTime.now();
     final first = rules.firstDay(today);
     if (first == null) {
-      showMessage(context, 'There are no delivery days available right now.');
+      showMessage(context, context.l10n.noDeliveryDays);
       return;
     }
     final last = DateTime(today.year, today.month, today.day + rules.maxDays);
     final current = _deliveryDate;
     final picked = await showDatePicker(
       context: context,
-      helpText: 'Delivery date',
+      helpText: context.l10n.deliveryDate,
       initialDate: current != null && rules.allows(current, today)
           ? current
           : first,
@@ -73,9 +74,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   void _clear() async {
     final ok = await confirmAction(
       context,
-      title: 'Empty your cart?',
-      message: 'Everything in your cart will be removed.',
-      confirmLabel: 'Empty cart',
+      title: context.l10n.emptyCartTitle,
+      message: context.l10n.emptyCartMessage,
+      confirmLabel: context.l10n.emptyCart,
       destructive: true,
     );
     if (ok) ref.read(cartProvider.notifier).clear();
@@ -114,7 +115,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           Paths.web,
           extra: WebPageArgs(
             url: link.url,
-            title: 'Checkout',
+            title: context.l10n.checkout,
             completesOn: isOrderReceived,
           ),
         );
@@ -122,7 +123,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       } else {
         final opened = await openExternal(link.url);
         if (!opened && mounted) {
-          showMessage(context, "The checkout couldn't be opened.");
+          showMessage(context, context.l10n.checkoutFailed);
         }
       }
     } on ApiException catch (e) {
@@ -143,7 +144,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       _deliveryDate = null;
       _gift.clear();
     });
-    showMessage(context, 'Thank you! Your order has been placed.');
+    showMessage(context, context.l10n.orderPlaced);
   }
 
   @override
@@ -154,26 +155,26 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final quote = ref.watch(cartQuoteProvider);
 
     if (store == null) {
-      return const Scaffold(
+      return Scaffold(
         body: SafeArea(
           child: MessageView(
             icon: AppIcons.shop,
-            title: 'The shop is closed right now',
-            message: 'Please try again later.',
+            title: context.l10n.shopClosedTitle,
+            message: context.l10n.tryLater,
           ),
         ),
       );
     }
 
     final header = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 12, 8),
       child: Row(
         children: [
           Expanded(
             child: Semantics(
               header: true,
               child: Text(
-                'Cart',
+                context.l10n.tabCart,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -183,7 +184,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             ),
           ),
           if (items.isNotEmpty)
-            TextButton(onPressed: _clear, child: const Text('Empty cart')),
+            TextButton(onPressed: _clear, child: Text(context.l10n.emptyCart)),
         ],
       ),
     );
@@ -198,9 +199,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               Expanded(
                 child: MessageView(
                   icon: AppIcons.cart,
-                  title: 'Your cart is empty',
-                  message: 'Products you add show up here.',
-                  actionLabel: 'Start shopping',
+                  title: context.l10n.cartEmptyTitle,
+                  message: context.l10n.cartEmptyMessage,
+                  actionLabel: context.l10n.startShopping,
                   onAction: () => context.go(Paths.shop),
                 ),
               ),
@@ -248,10 +249,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         child: SettingsTile(
                           icon: AppIcons.calendar,
                           title: rules.required
-                              ? 'Delivery date'
-                              : 'Delivery date (optional)',
+                              ? context.l10n.deliveryDate
+                              : context.l10n.deliveryDateOptional,
                           value: _deliveryDate == null
-                              ? 'Choose'
+                              ? context.l10n.choose
                               : dayLabel(_deliveryDate!),
                           onTap: () => _pickDate(rules),
                         ),
@@ -266,8 +267,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         maxLines: 4,
                         textCapitalization: TextCapitalization.sentences,
                         decoration: InputDecoration(
-                          labelText: 'Gift message (optional)',
-                          hintText: 'We will add it to your order.',
+                          labelText: context.l10n.giftMessage,
+                          hintText: context.l10n.giftMessageHint,
                           prefixIcon: AppIcon(
                             AppIcons.gift,
                             size: 20,
@@ -281,7 +282,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Subtotal',
+                            context.l10n.subtotal,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -301,7 +302,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Delivery and taxes are added at checkout.',
+                      context.l10n.deliveryAndTaxes,
                       style: TextStyle(fontSize: 13, color: p.textSecondary),
                     ),
                   ],
@@ -321,14 +322,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   blocked
-                      ? 'Change or remove the items marked above to continue.'
-                      : 'Choose a delivery date to continue.',
+                      ? context.l10n.fixCartItems
+                      : context.l10n.chooseDeliveryDate,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
               ),
             PrimaryButton(
-              label: 'Checkout',
+              label: context.l10n.checkout,
               loading: _busy,
               onPressed: ready && !_busy ? () => _checkout(store) : null,
             ),
@@ -391,7 +392,7 @@ class _LineCard extends ConsumerWidget {
                     ),
                     SquareIconButton(
                       icon: AppIcons.delete,
-                      label: 'Remove ${item.name}',
+                      label: context.l10n.removeItem(item.name),
                       size: 36,
                       iconSize: 18,
                       bordered: false,

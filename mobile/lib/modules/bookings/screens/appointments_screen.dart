@@ -14,6 +14,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The Appointments tab: upcoming ones soonest first, past and cancelled
 /// ones newest first.
@@ -38,21 +39,21 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
 
     final Widget list;
     if (state.isInitialLoading) {
-      list = const LoadingView(label: 'Loading appointments');
+      list = LoadingView(label: context.l10n.loadingAppointments);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
       list = filter == AppointmentsFilter.upcoming
           ? MessageView(
               icon: AppIcons.appointments,
-              title: 'No upcoming appointments',
-              message: 'Book a time and it shows up here.',
-              actionLabel: 'Book an appointment',
+              title: context.l10n.noUpcomingAppointments,
+              message: context.l10n.noUpcomingAppointmentsMessage,
+              actionLabel: context.l10n.bookAppointment,
               onAction: () => context.go(Paths.services),
             )
-          : const MessageView(
+          : MessageView(
               icon: AppIcons.appointments,
-              title: 'No past appointments',
+              title: context.l10n.noPastAppointments,
             );
     } else {
       list = RefreshIndicator(
@@ -97,7 +98,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
               child: Semantics(
                 header: true,
                 child: Text(
-                  'Appointments',
+                  context.l10n.tabAppointments,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -109,7 +110,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
               child: SegmentedTabs(
-                labels: const ['Upcoming', 'Past'],
+                labels: [context.l10n.upcoming, context.l10n.past],
                 selected: _tab,
                 onChanged: (i) => setState(() => _tab = i),
               ),
@@ -138,9 +139,9 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   Future<void> _cancel(Appointment a) async {
     final ok = await confirmAction(
       context,
-      title: 'Cancel this appointment?',
+      title: context.l10n.cancelAppointmentTitle,
       message: '${a.serviceName}, ${appointmentWhen(a)}.',
-      confirmLabel: 'Cancel appointment',
+      confirmLabel: context.l10n.cancelAppointment,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -149,7 +150,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
       await ref.read(yallappApiProvider).cancelMyAppointment(a.id);
       if (!mounted) return;
       invalidateAppointments(ref);
-      showMessage(context, 'Your appointment is cancelled.');
+      showMessage(context, context.l10n.appointmentCancelled);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -163,7 +164,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Appointment'),
+        title: Text(context.l10n.appointment),
       ),
       body: switch (appointment) {
         AsyncData(:final value) => _details(value),
@@ -172,12 +173,14 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           onRetry: () =>
               ref.invalidate(appointmentProvider(widget.appointmentId)),
         ),
-        _ => const LoadingView(label: 'Loading appointment'),
+        _ => LoadingView(label: context.l10n.loadingAppointment),
       },
       bottomNavigationBar: switch (appointment) {
         AsyncData(:final value) when value.canCancel => BottomActionBar(
           child: SecondaryButton(
-            label: _cancelling ? 'Cancelling' : 'Cancel appointment',
+            label: _cancelling
+                ? context.l10n.cancelling
+                : context.l10n.cancelAppointment,
             onPressed: _cancelling ? null : () => _cancel(value),
           ),
         ),
@@ -225,7 +228,10 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                 text: formatMinutes(a.end.difference(a.start).inMinutes),
               ),
               if (staff != null)
-                _Row(icon: AppIcons.staff, text: 'With ${staff.name}'),
+                _Row(
+                  icon: AppIcons.staff,
+                  text: context.l10n.withStaff(staff.name),
+                ),
               _Row(icon: AppIcons.orders, text: bookingPriceLabel(a.price)),
               if (a.location != null && a.location!.trim().isNotEmpty)
                 _Row(icon: AppIcons.location, text: a.location!),
@@ -238,17 +244,15 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           const SizedBox(height: 16),
           Text(
             rules?.cancelBeforeMinutes == null
-                ? 'To change or cancel it, please contact us.'
-                : "It's too late to cancel in the app. To change it, "
-                      'please contact us.',
+                ? context.l10n.contactToChange
+                : context.l10n.tooLateToCancel,
             style: TextStyle(fontSize: 14, color: p.textSecondary),
           ),
         ],
         if (a.canCancel && rules?.cancelBeforeMinutes != null) ...[
           const SizedBox(height: 16),
           Text(
-            'You can cancel up to '
-            '${formatMinutes(rules!.cancelBeforeMinutes!)} before it starts.',
+            context.l10n.cancelUpTo(formatMinutes(rules!.cancelBeforeMinutes!)),
             style: TextStyle(fontSize: 14, color: p.textSecondary),
           ),
         ],

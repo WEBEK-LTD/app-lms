@@ -24,6 +24,7 @@ import 'content/html_content.dart';
 import 'embeds/inline_embed.dart';
 import 'video/lesson_video_player.dart';
 import 'video/watermark.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Where a lesson sits in its course.
 class LessonPosition {
@@ -161,8 +162,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       showMessage(
         context,
         progress.courseCompleted
-            ? 'Course complete. Well done!'
-            : 'Lesson complete · ${progress.percent}% of the course done',
+            ? context.l10n.courseComplete
+            : context.l10n.lessonComplete(progress.percent),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -174,16 +175,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         await showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Keep watching'),
+            title: Text(context.l10n.keepWatching),
             content: Text(
               percent == null
-                  ? 'Watch more of the video before marking this lesson complete.'
-                  : 'Watch at least $percent% of the video before marking this lesson complete.',
+                  ? context.l10n.watchMore
+                  : context.l10n.watchAtLeast(percent),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
+                child: Text(context.l10n.ok),
               ),
             ],
           ),
@@ -220,7 +221,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
         ),
       ),
-      _ => const Scaffold(body: LoadingView(label: 'Loading lesson')),
+      _ => Scaffold(body: LoadingView(label: context.l10n.loadingLesson)),
     };
   }
 
@@ -230,11 +231,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       final signedIn = ref.read(authControllerProvider).isSignedIn;
       return MessageView(
         icon: AppIcons.lock,
-        title: 'This lesson is locked',
+        title: context.l10n.lessonLocked,
         message: signedIn
-            ? 'Enroll in the course to open this lesson.'
-            : 'Sign in to open this lesson.',
-        actionLabel: signedIn ? null : 'Sign in',
+            ? context.l10n.lessonLockedEnroll
+            : context.l10n.lessonLockedSignIn,
+        actionLabel: signedIn ? null : context.l10n.signIn,
         onAction: signedIn
             ? null
             : () => context.push(
@@ -297,8 +298,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final header = _LessonHeader(
       subtitle: subtitle,
       counter: position.index != null && position.total != null
-          ? 'Lesson ${position.index} of ${position.total}'
-          : 'Lesson',
+          ? context.l10n.lessonPosition(position.index!, position.total!)
+          : context.l10n.lesson,
     );
 
     if (lesson.renderMode == RenderMode.webview && lesson.webviewUrl != null) {
@@ -351,7 +352,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                     ),
                   if (lesson.attachments.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    const SectionHeader(title: 'Attachments', size: 17),
+                    SectionHeader(title: context.l10n.attachments, size: 17),
                     const SizedBox(height: 8),
                     _Attachments(attachments: lesson.attachments),
                   ],
@@ -445,19 +446,21 @@ class _LessonFooter extends StatelessWidget {
       children: [
         StepIconButton(
           icon: AppIcons.back,
-          label: 'Previous lesson',
+          label: context.l10n.previousLesson,
           onPressed: onPrevious,
         ),
         const SizedBox(width: 10),
         Expanded(
           child: !signedIn
               ? PrimaryButton(
-                  label: 'Sign in to track progress',
+                  label: context.l10n.signInToTrack,
                   height: 54,
                   onPressed: onSignIn,
                 )
               : PrimaryButton(
-                  label: completed ? 'Completed' : 'Mark as complete',
+                  label: completed
+                      ? context.l10n.completed
+                      : context.l10n.markComplete,
                   icon: completed ? AppIcons.checkCircle : AppIcons.check,
                   height: 54,
                   loading: completing,
@@ -467,7 +470,7 @@ class _LessonFooter extends StatelessWidget {
         const SizedBox(width: 10),
         StepIconButton(
           icon: AppIcons.forward,
-          label: 'Next lesson',
+          label: context.l10n.nextLesson,
           onPressed: onNext,
         ),
       ],
@@ -510,7 +513,8 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
     final config = ref.watch(appConfigProvider);
     final user = ref.watch(authControllerProvider).user;
     final hasNotes = (lesson.html ?? '').trim().isNotEmpty;
-    final tabs = [if (hasNotes) 'Notes', 'Lessons', 'Attachments'];
+    final l10n = context.l10n;
+    final tabs = [if (hasNotes) 'notes', 'lessons', 'attachments'];
     final current = tabs[_tab.clamp(0, tabs.length - 1)];
 
     return Scaffold(
@@ -555,24 +559,31 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
                 ),
                 const SizedBox(height: 14),
                 SegmentedTabs(
-                  labels: tabs,
+                  labels: [
+                    for (final t in tabs)
+                      switch (t) {
+                        'notes' => l10n.notes,
+                        'attachments' => l10n.attachments,
+                        _ => l10n.lessons,
+                      },
+                  ],
                   selected: _tab.clamp(0, tabs.length - 1),
                   onChanged: (i) => setState(() => _tab = i),
                 ),
                 const SizedBox(height: 14),
                 switch (current) {
-                  'Notes' => HtmlContent(
+                  'notes' => HtmlContent(
                     html: lesson.html!,
                     embeds: lesson.embeds,
                     title: lesson.title,
                     embedHeight: lesson.embedHeight,
                   ),
-                  'Attachments' =>
+                  'attachments' =>
                     lesson.attachments.isEmpty
                         ? Padding(
                             padding: const EdgeInsets.all(16),
                             child: Text(
-                              'This lesson has no attachments.',
+                              l10n.noAttachments,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: p.textSecondary),
                             ),
@@ -684,7 +695,7 @@ class _TopicItemRow extends StatelessWidget {
     }
     final trailing =
         item.type == CurriculumItemType.quiz && item.questionCount != null
-        ? plural(item.questionCount!, 'question')
+        ? context.l10n.questionCount(item.questionCount!)
         : (item.durationMinutes != null
               ? formatMinutes(item.durationMinutes!)
               : null);
@@ -693,9 +704,9 @@ class _TopicItemRow extends StatelessWidget {
       button: !current,
       label: [
         item.title,
-        if (item.completed) 'completed',
-        if (item.locked) 'locked',
-        if (current) 'playing now',
+        if (item.completed) context.l10n.completedLower,
+        if (item.locked) context.l10n.lockedLower,
+        if (current) context.l10n.playingNow,
       ].join(', '),
       excludeSemantics: true,
       child: InkWell(
@@ -762,7 +773,9 @@ class _Attachments extends StatelessWidget {
 }
 
 String _size(int bytes) {
-  if (bytes < 1024) return '$bytes B';
-  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(0)} KB';
-  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  if (bytes < 1024) return currentL10n.sizeBytes(bytes);
+  if (bytes < 1024 * 1024) {
+    return currentL10n.sizeKilobytes((bytes / 1024).toStringAsFixed(0));
+  }
+  return currentL10n.sizeMegabytes((bytes / (1024 * 1024)).toStringAsFixed(1));
 }

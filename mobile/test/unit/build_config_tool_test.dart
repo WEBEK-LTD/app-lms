@@ -53,18 +53,26 @@ void main() {
     expect(validateBuildConfig(c).isValid, isFalse);
   });
 
-  test('app types: Academy and Store', () {
+  test('app types: Academy, Store, Bookings and Real estate', () {
     expect(
       validateBuildConfig(example()..['app_type'] = 'store').isValid,
       isTrue,
     );
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
-      contains('"app_type" must be one of lms, store, booking.'),
+      contains('"app_type" must be one of lms, store, booking, real_estate.'),
     );
     expect(
       renderDartConfig(example()..['app_type'] = 'store'),
       contains('appType: AppType.store,'),
+    );
+    expect(
+      validateBuildConfig(example()..['app_type'] = 'real_estate').isValid,
+      isTrue,
+    );
+    expect(
+      renderDartConfig(example()..['app_type'] = 'real_estate'),
+      contains('appType: AppType.realEstate,'),
     );
   });
 

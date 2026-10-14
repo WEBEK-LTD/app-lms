@@ -16,6 +16,7 @@ import '../../lms/lesson/content/html_content.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -37,7 +38,7 @@ class ProductScreen extends ConsumerWidget {
       ),
       _ => Scaffold(
         appBar: AppBar(leading: const AppBackButton()),
-        body: const LoadingView(label: 'Loading product'),
+        body: LoadingView(label: context.l10n.loadingProduct),
       ),
     };
   }
@@ -114,10 +115,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
       ?..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(added ? 'Added to cart' : 'Your cart is full.'),
+          content: Text(
+            added ? context.l10n.addedToCart : context.l10n.cartFull,
+          ),
           action: added
               ? SnackBarAction(
-                  label: 'View cart',
+                  label: context.l10n.viewCart,
                   onPressed: () => context.go(Paths.cart),
                 )
               : null,
@@ -166,7 +169,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                 padding: const EdgeInsets.all(6),
                 child: SquareIconButton(
                   icon: AppIcons.cart,
-                  label: count > 0 ? 'Cart, $count items' : 'Cart',
+                  label: count > 0
+                      ? context.l10n.cartWithItems(count)
+                      : context.l10n.tabCart,
                   badge: count > 0,
                   onPressed: () => context.go(Paths.cart),
                 ),
@@ -212,12 +217,14 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                           onPressed: () =>
                               context.push(Paths.productReviews(product.id)),
                           child: Text(
-                            plural(product.summary.ratingCount, 'review'),
+                            context.l10n.reviewCount(
+                              product.summary.ratingCount,
+                            ),
                           ),
                         )
                       else
                         Text(
-                          plural(product.summary.ratingCount, 'rating'),
+                          context.l10n.ratingCount(product.summary.ratingCount),
                           style: TextStyle(
                             fontSize: 13,
                             color: p.textSecondary,
@@ -273,13 +280,13 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                 ],
                 if (product.descriptionHtml.trim().isNotEmpty) ...[
                   const SizedBox(height: 24),
-                  const SectionHeader(title: 'Description'),
+                  SectionHeader(title: context.l10n.description),
                   const SizedBox(height: 8),
                   HtmlContent(html: product.descriptionHtml),
                 ],
                 if (product.related.isNotEmpty) ...[
                   const SizedBox(height: 24),
-                  const SectionHeader(title: 'You may also like'),
+                  SectionHeader(title: context.l10n.youMayAlsoLike),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 160 + productCardTextHeight(context),
@@ -310,24 +317,24 @@ class _ProductViewState extends ConsumerState<_ProductView> {
       bottomNavigationBar: BottomActionBar(
         child: switch (cta) {
           ProductCta.addToCart => PrimaryButton(
-            label: 'Add to cart',
+            label: context.l10n.addToCart,
             icon: AppIcons.cart,
             onPressed: _addToCart,
           ),
           ProductCta.chooseOptions => PrimaryButton(
-            label: 'Choose ${_missing(product)}',
+            label: context.l10n.chooseOptions(_missing(product)),
             onPressed: null,
           ),
-          ProductCta.unavailableOption => const PrimaryButton(
-            label: 'Not available in these options',
+          ProductCta.unavailableOption => PrimaryButton(
+            label: context.l10n.notAvailableInOptions,
             onPressed: null,
           ),
-          ProductCta.outOfStock => const PrimaryButton(
-            label: 'Out of stock',
+          ProductCta.outOfStock => PrimaryButton(
+            label: context.l10n.outOfStock,
             onPressed: null,
           ),
           ProductCta.notInApp => Text(
-            "This item isn't sold in the app.",
+            context.l10n.notSoldInApp,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: p.textSecondary),
           ),
@@ -347,7 +354,9 @@ class _ProductViewState extends ConsumerState<_ProductView> {
       for (final a in product.choices)
         if ((_chosen[a.slug] ?? '').isEmpty) a.name.toLowerCase(),
     ];
-    return names.isEmpty ? 'options' : names.join(' and ');
+    return names.isEmpty
+        ? context.l10n.optionsLower
+        : names.join(context.l10n.listAnd);
   }
 }
 
@@ -372,7 +381,7 @@ class _Gallery extends StatelessWidget {
         url: images.firstOrNull,
         seed: seed,
         placeholderIcon: AppIcons.shop,
-        semanticLabel: 'Product photo',
+        semanticLabel: context.l10n.productPhoto,
       );
     }
     return Stack(
@@ -384,7 +393,7 @@ class _Gallery extends StatelessWidget {
           itemBuilder: (context, i) => AppNetworkImage(
             url: images[i],
             seed: seed,
-            semanticLabel: 'Product photo ${i + 1} of ${images.length}',
+            semanticLabel: context.l10n.productPhotoOf(i + 1, images.length),
           ),
         ),
         Positioned(
@@ -432,7 +441,7 @@ class _QuantityStepper extends StatelessWidget {
     return Row(
       children: [
         Text(
-          'Quantity',
+          context.l10n.quantity,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,

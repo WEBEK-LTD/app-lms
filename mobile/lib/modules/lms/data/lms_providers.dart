@@ -16,17 +16,17 @@ final homeSectionsProvider = FutureProvider.autoDispose<List<HomeSection>>((
   ref,
 ) {
   ref.watch(_signedInProvider);
-  return ref.watch(yallappApiProvider).getHome();
+  return ref.contentApi.getHome();
 });
 
 final categoriesProvider = FutureProvider<List<Category>>(
-  (ref) => ref.watch(yallappApiProvider).listCategories(),
+  (ref) => ref.contentApi.listCategories(),
 );
 
 final courseDetailProvider = FutureProvider.autoDispose
     .family<CourseDetail, int>((ref, id) {
       ref.watch(_signedInProvider);
-      return ref.watch(yallappApiProvider).getCourse(id);
+      return ref.contentApi.getCourse(id);
     });
 
 final curriculumProvider = FutureProvider.autoDispose.family<List<Topic>, int>((
@@ -34,27 +34,27 @@ final curriculumProvider = FutureProvider.autoDispose.family<List<Topic>, int>((
   id,
 ) {
   ref.watch(_signedInProvider);
-  return ref.watch(yallappApiProvider).getCurriculum(id);
+  return ref.contentApi.getCurriculum(id);
 });
 
 final lessonProvider = FutureProvider.autoDispose.family<Lesson, int>(
-  (ref, id) => ref.watch(yallappApiProvider).getLesson(id),
+  (ref, id) => ref.contentApi.getLesson(id),
 );
 
 final quizProvider = FutureProvider.autoDispose.family<Quiz, int>(
-  (ref, id) => ref.watch(yallappApiProvider).getQuiz(id),
+  (ref, id) => ref.contentApi.getQuiz(id),
 );
 
 final wishlistProvider = FutureProvider.autoDispose<List<CourseSummary>>(
-  (ref) => ref.watch(yallappApiProvider).listWishlist(),
+  (ref) => ref.contentApi.listWishlist(),
 );
 
 final certificatesProvider = FutureProvider.autoDispose<List<Certificate>>(
-  (ref) => ref.watch(yallappApiProvider).listCertificates(),
+  (ref) => ref.contentApi.listCertificates(),
 );
 
 final devicesProvider = FutureProvider.autoDispose<DeviceList>(
-  (ref) => ref.watch(yallappApiProvider).listDevices(),
+  (ref) => ref.contentApi.listDevices(),
 );
 
 /// The course catalog for one search and filter combination.
@@ -255,6 +255,4 @@ final courseQuestionsProvider = NotifierProvider.autoDispose
     );
 
 final questionThreadProvider = FutureProvider.autoDispose
-    .family<QuestionThread, int>(
-      (ref, id) => ref.watch(yallappApiProvider).getQuestion(id),
-    );
+    .family<QuestionThread, int>((ref, id) => ref.contentApi.getQuestion(id));

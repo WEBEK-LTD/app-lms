@@ -1,4 +1,5 @@
 import 'json.dart';
+import '../../l10n/l10n.dart';
 
 class PageMeta {
   const PageMeta({
@@ -97,7 +98,7 @@ class Price {
   /// The text shown for the price: "Free", the site's formatted price, or the
   /// amount with its currency.
   String get label {
-    if (isFree) return 'Free';
+    if (isFree) return currentL10n.free;
     if (formatted != null && formatted!.isNotEmpty) return formatted!;
     final value = saleAmount ?? amount;
     if (value == null) return '';

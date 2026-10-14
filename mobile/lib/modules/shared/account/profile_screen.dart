@@ -12,6 +12,7 @@ import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The Account tab (design: Profile).
 class ProfileScreen extends ConsumerWidget {
@@ -20,9 +21,9 @@ class ProfileScreen extends ConsumerWidget {
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
     final ok = await confirmAction(
       context,
-      title: 'Log out?',
-      message: "You'll need a verification code to sign in again.",
-      confirmLabel: 'Log out',
+      title: context.l10n.logOutTitle,
+      message: context.l10n.logOutMessage,
+      confirmLabel: context.l10n.logOut,
       destructive: true,
     );
     if (ok) await ref.read(authControllerProvider.notifier).signOut();
@@ -98,18 +99,18 @@ class ProfileScreen extends ConsumerWidget {
                   onPressed: user == null
                       ? null
                       : () => context.push(Paths.editProfile),
-                  child: const Text('Edit'),
+                  child: Text(context.l10n.edit),
                 ),
               ],
             ),
             const SizedBox(height: 18),
             if (store && showOrders) ...[
               SettingsGroup(
-                title: 'Shopping',
+                title: context.l10n.shopping,
                 children: [
                   SettingsTile(
                     icon: AppIcons.orders,
-                    title: 'My orders',
+                    title: context.l10n.myOrders,
                     onTap: () => context.push(Paths.orders),
                   ),
                 ],
@@ -118,30 +119,30 @@ class ProfileScreen extends ConsumerWidget {
             ],
             if (lms) ...[
               SettingsGroup(
-                title: 'Learning',
+                title: context.l10n.learning,
                 children: [
                   if (config.features.certificates)
                     SettingsTile(
                       icon: AppIcons.certificate,
-                      title: 'My certificates',
+                      title: context.l10n.myCertificates,
                       onTap: () => context.push(Paths.certificates),
                     ),
                   if (config.features.quizzes)
                     SettingsTile(
                       icon: AppIcons.quizResults,
-                      title: 'Quiz results',
+                      title: context.l10n.quizResults,
                       onTap: () => context.push(Paths.quizResults),
                     ),
                   if (config.features.wishlist)
                     SettingsTile(
                       icon: AppIcons.favorite,
-                      title: 'Wishlist',
+                      title: context.l10n.wishlist,
                       onTap: () => context.go(Paths.myCoursesTab('wishlist')),
                     ),
                   if (showOrders)
                     SettingsTile(
                       icon: AppIcons.orders,
-                      title: 'My orders',
+                      title: context.l10n.myOrders,
                       onTap: () => context.push(Paths.orders),
                     ),
                   if (!config.features.certificates &&
@@ -150,7 +151,7 @@ class ProfileScreen extends ConsumerWidget {
                       !showOrders)
                     SettingsTile(
                       icon: AppIcons.myCourses,
-                      title: 'My Courses',
+                      title: context.l10n.tabMyCourses,
                       onTap: () => context.go(Paths.myCourses),
                     ),
                 ],
@@ -158,34 +159,34 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 18),
             ],
             SettingsGroup(
-              title: 'Account & app',
+              title: context.l10n.accountAndApp,
               children: [
                 SettingsTile(
                   icon: AppIcons.notifications,
-                  title: 'Notifications',
+                  title: context.l10n.notifications,
                   onTap: () => context.push(Paths.notifications),
                 ),
                 SettingsTile(
                   icon: AppIcons.settings,
-                  title: 'Settings',
+                  title: context.l10n.settings,
                   onTap: () => context.push(Paths.settings),
                 ),
                 if (support != null && support.trim().isNotEmpty)
                   SettingsTile(
                     icon: AppIcons.help,
-                    title: 'Help & support',
+                    title: context.l10n.helpAndSupport,
                     onTap: () => openExternal(whatsappLink(support)),
                   ),
                 if (config.site.privacyUrl != null)
                   SettingsTile(
                     icon: AppIcons.article,
-                    title: 'Privacy Policy',
+                    title: context.l10n.privacyPolicy,
                     onTap: () => openExternal(config.site.privacyUrl!),
                   ),
                 if (config.site.termsUrl != null)
                   SettingsTile(
                     icon: AppIcons.article,
-                    title: 'Terms & Conditions',
+                    title: context.l10n.termsAndConditions,
                     onTap: () => openExternal(config.site.termsUrl!),
                   ),
               ],
@@ -194,7 +195,7 @@ class ProfileScreen extends ConsumerWidget {
             AppCard(
               child: SettingsTile(
                 icon: AppIcons.logout,
-                title: 'Log out',
+                title: context.l10n.logOut,
                 destructive: true,
                 onTap: () => _signOut(context, ref),
               ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/api/models/models.dart';
 import '../../core/routing/paths.dart';
 import '../../core/widgets/common.dart';
+import '../../core/l10n/l10n.dart';
 
 void openCourse(BuildContext context, int courseId) =>
     context.push(Paths.course(courseId));
@@ -16,7 +17,7 @@ void openCurriculumItem(
   bool replace = false,
 }) {
   if (item.locked) {
-    showMessage(context, 'Enroll in this course to open this item.');
+    showMessage(context, context.l10n.enrollToOpen);
     return;
   }
   final String location;
@@ -27,10 +28,7 @@ void openCurriculumItem(
       location = Paths.quiz(item.id);
     case CurriculumItemType.assignment:
     case CurriculumItemType.live:
-      showMessage(
-        context,
-        'Assignments and live classes are on the website for now.',
-      );
+      showMessage(context, context.l10n.assignmentsOnWebsite);
       return;
   }
   if (replace) {

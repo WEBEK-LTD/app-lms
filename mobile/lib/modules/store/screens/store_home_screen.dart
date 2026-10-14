@@ -14,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart' show unreadNotificationsProvider;
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The Store app's Home: sections from `GET /store/home` in the order set in
 /// the plugin.
@@ -39,7 +40,7 @@ class StoreHomeScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            _ => const LoadingView(label: 'Loading the shop'),
+            _ => LoadingView(label: context.l10n.loadingShop),
           },
         ),
       ),
@@ -91,12 +92,12 @@ class _Sections extends ConsumerWidget {
           child: _SearchField(onTap: () => context.go(_shopSearch)),
         ),
         if (known.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 48),
             child: MessageView(
               icon: AppIcons.shop,
-              title: 'The shop is getting ready',
-              message: 'New products will show up here soon.',
+              title: context.l10n.shopGettingReady,
+              message: context.l10n.newProductsSoon,
               compact: true,
             ),
           ),
@@ -116,7 +117,7 @@ class _Sections extends ConsumerWidget {
         );
       case StoreSectionType.categories:
         return _Block(
-          title: s.title ?? 'Categories',
+          title: s.title ?? context.l10n.categories,
           onSeeAll: () => context.go(Paths.shop),
           child: SizedBox(
             height: 76 + MediaQuery.textScalerOf(context).scale(36),
@@ -180,10 +181,10 @@ final _shopSearch = Uri(
 ).toString();
 
 String _defaultTitle(StoreSectionType type) => switch (type) {
-  StoreSectionType.featuredProducts => 'Featured',
-  StoreSectionType.saleProducts => 'On sale',
-  StoreSectionType.newProducts => 'New arrivals',
-  StoreSectionType.bestSellers => 'Best sellers',
+  StoreSectionType.featuredProducts => currentL10n.featured,
+  StoreSectionType.saleProducts => currentL10n.onSale,
+  StoreSectionType.newProducts => currentL10n.newArrivals,
+  StoreSectionType.bestSellers => currentL10n.bestSellers,
   _ => '',
 };
 
@@ -201,7 +202,7 @@ class _Block extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 12, 10),
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 12, 10),
           child: SectionHeader(title: title, onSeeAll: onSeeAll),
         ),
         child,
@@ -227,7 +228,7 @@ class _Banner extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       image: true,
-      label: 'Offer',
+      label: context.l10n.offer,
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
@@ -253,7 +254,7 @@ class _SearchField extends StatelessWidget {
     final p = context.palette;
     return Semantics(
       button: true,
-      label: 'Search products',
+      label: context.l10n.searchProducts,
       excludeSemantics: true,
       child: Material(
         color: p.surface,
@@ -274,7 +275,7 @@ class _SearchField extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Search products',
+                      context.l10n.searchProducts,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 15, color: p.textSecondary),
@@ -301,7 +302,9 @@ class _NotificationsButton extends ConsumerWidget {
     final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     return SquareIconButton(
       icon: AppIcons.notifications,
-      label: unread > 0 ? 'Notifications, $unread unread' : 'Notifications',
+      label: unread > 0
+          ? context.l10n.notificationsUnread(unread)
+          : context.l10n.notifications,
       badge: unread > 0,
       onPressed: () => context.push(Paths.notifications),
     );

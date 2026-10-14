@@ -13,31 +13,20 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
+import '../../../core/format/dates.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// "5 min ago", "3 h ago", "Yesterday", then the date.
 String timeAgo(DateTime time, {DateTime? now}) {
   final local = time.toLocal();
   final diff = (now ?? DateTime.now()).difference(local);
-  if (diff.inMinutes < 1) return 'Just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-  if (diff.inHours < 24) return '${diff.inHours} h ago';
-  if (diff.inDays == 1) return 'Yesterday';
-  if (diff.inDays < 7) return '${diff.inDays} days ago';
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return '${local.day} ${months[local.month - 1]} ${local.year}';
+  final l10n = currentL10n;
+  if (diff.inMinutes < 1) return l10n.justNow;
+  if (diff.inMinutes < 60) return l10n.minutesAgo(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.hoursAgo(diff.inHours);
+  if (diff.inDays == 1) return l10n.yesterday;
+  if (diff.inDays < 7) return l10n.daysAgo(diff.inDays);
+  return shortDate(local);
 }
 
 IconData _iconFor(NotificationType type) => switch (type) {
@@ -89,12 +78,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
-      body = const MessageView(
+      body = MessageView(
         icon: AppIcons.notifications,
-        title: 'No notifications yet',
-        message:
-            'New lessons, announcements and answers to your questions '
-            'will show up here.',
+        title: context.l10n.noNotificationsTitle,
+        message: context.l10n.noNotificationsMessage,
       );
     } else {
       body = RefreshIndicator(
@@ -117,7 +104,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       );
     }
     return AccountScaffold(
-      title: 'Notifications',
+      title: context.l10n.notifications,
       scrollable: false,
       child: body,
     );
@@ -136,7 +123,7 @@ class _NotificationTile extends StatelessWidget {
     final n = notification;
     final opens = pushTargetLocation(n.target) != Paths.home;
     return Semantics(
-      label: n.read ? null : 'Unread',
+      label: n.read ? null : context.l10n.unread,
       child: AppCard(
         padding: const EdgeInsets.all(14),
         onTap: opens ? onTap : null,
@@ -176,7 +163,7 @@ class _NotificationTile extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          margin: const EdgeInsets.only(left: 8),
+                          margin: const EdgeInsetsDirectional.only(start: 8),
                           decoration: BoxDecoration(
                             color: p.accent,
                             shape: BoxShape.circle,
@@ -225,10 +212,10 @@ class OrdersScreen extends ConsumerWidget {
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
-      body = const MessageView(
+      body = MessageView(
         icon: AppIcons.orders,
-        title: 'No orders yet',
-        message: 'Your purchases show up here.',
+        title: context.l10n.noOrdersTitle,
+        message: context.l10n.noOrdersMessage,
       );
     } else {
       body = RefreshIndicator(
@@ -248,7 +235,11 @@ class OrdersScreen extends ConsumerWidget {
         ),
       );
     }
-    return AccountScaffold(title: 'My orders', scrollable: false, child: body);
+    return AccountScaffold(
+      title: context.l10n.myOrders,
+      scrollable: false,
+      child: body,
+    );
   }
 }
 
@@ -279,7 +270,7 @@ class _OrderCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Order #${order.number}',
+                  context.l10n.orderNumber(order.number),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -329,7 +320,7 @@ class _OrderCard extends StatelessWidget {
                 },
                 child: Text(
                   line.quantity > 1
-                      ? '${line.name} × ${line.quantity}'
+                      ? context.l10n.lineQuantity(line.name, line.quantity)
                       : line.name,
                   style: TextStyle(
                     fontSize: 14,

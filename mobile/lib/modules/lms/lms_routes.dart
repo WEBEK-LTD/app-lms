@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/api/models/models.dart';
 import '../../core/api/yallapp_api.dart';
+import '../../core/l10n/l10n.dart';
+import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
+import '../../core/theme/app_icons.dart';
 import '../shared/account/lists_screens.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
@@ -10,93 +14,107 @@ import 'courses/course_detail_screen.dart';
 import 'courses/course_questions.dart';
 import 'courses/courses_screen.dart';
 import 'home/home_screen.dart';
-import 'lesson/embeds/embed_fullscreen_screen.dart';
 import 'lesson/lesson_screen.dart';
 import 'my_courses/my_courses_screen.dart';
 import 'quiz/quiz_screen.dart';
 
-/// The Academy module's routes: sign-in, the four tabs and the pushed
-/// screens.
-List<RouteBase> lmsRoutes() => [
-  signInRoute(),
-  StatefulShellRoute.indexedStack(
-    pageBuilder: (context, state, shell) =>
-        appPage(state, MainShell(shell: shell)),
-    branches: [
-      StatefulShellBranch(
-        routes: [
-          GoRoute(
-            path: Paths.home,
-            pageBuilder: (context, state) => appPage(state, const HomeScreen()),
-          ),
-        ],
-      ),
-      StatefulShellBranch(
-        routes: [
-          GoRoute(
-            path: Paths.courses,
-            pageBuilder: (context, state) {
-              final q = state.uri.queryParameters;
-              return appPage(
-                state,
-                CoursesScreen(
-                  key: const ValueKey('courses'),
-                  initialCategory: int.tryParse(q['category'] ?? ''),
-                  initialSearch: q['q'],
-                  initialOrder: switch (q['sort']) {
-                    'popular' => CourseOrder.popular,
-                    'title' => CourseOrder.title,
-                    'newest' => CourseOrder.newest,
-                    _ => null,
-                  },
-                  focusSearch: q['focus'] == '1',
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      StatefulShellBranch(
-        routes: [
-          GoRoute(
-            path: Paths.myCourses,
-            pageBuilder: (context, state) => appPage(
-              state,
-              MyCoursesScreen(
-                key: const ValueKey('my-courses'),
-                initialTab: myCoursesTabFrom(state.uri.queryParameters['tab']),
-              ),
-            ),
-          ),
-        ],
-      ),
-      StatefulShellBranch(
-        routes: [
-          GoRoute(
-            path: Paths.account,
-            pageBuilder: (context, state) =>
-                appPage(state, const ProfileScreen()),
-            routes: accountSubRoutes(
-              extra: [
-                GoRoute(
-                  path: 'certificates',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder: (context, state) =>
-                      appPage(state, const CertificatesScreen()),
-                ),
-                GoRoute(
-                  path: 'quiz-results',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder: (context, state) =>
-                      appPage(state, const QuizResultsScreen()),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ],
+/// The Academy module: home, courses, my courses and the account as tabs,
+/// and the course, lesson, quiz and question pages.
+final lmsModule = AppModule(
+  tabPaths: {Paths.home, Paths.courses, Paths.myCourses, Paths.account},
+  screens: _screens,
+  defaultTabs: (_) => _defaultTabs,
+  screenLocation: (screen, config) => switch (screen) {
+    BuiltInScreen.courses => Paths.courses,
+    BuiltInScreen.myCourses => Paths.myCourses,
+    BuiltInScreen.search => '${Paths.courses}?focus=1',
+    BuiltInScreen.favorites =>
+      (config?.features.wishlist ?? false)
+          ? Paths.myCoursesTab('wishlist')
+          : null,
+    BuiltInScreen.account => Paths.account,
+    BuiltInScreen.settings => Paths.settings,
+    BuiltInScreen.notifications => Paths.notifications,
+    BuiltInScreen.orders =>
+      (config?.features.orders ?? false) ? Paths.orders : null,
+    BuiltInScreen.messages ||
+    BuiltInScreen.cart ||
+    BuiltInScreen.services ||
+    BuiltInScreen.appointments => null,
+  },
+  routes: _pushedRoutes,
+);
+
+final _defaultTabs = [
+  ShellTab(
+    icon: AppIcons.home,
+    label: (c) => c.l10n.tabHome,
+    location: Paths.home,
   ),
+  ShellTab(
+    icon: AppIcons.courses,
+    label: (c) => c.l10n.tabCourses,
+    location: Paths.courses,
+  ),
+  ShellTab(
+    icon: AppIcons.myCourses,
+    label: (c) => c.l10n.tabMyCourses,
+    location: Paths.myCourses,
+  ),
+  ShellTab(
+    icon: AppIcons.account,
+    label: (c) => c.l10n.tabAccount,
+    location: Paths.account,
+  ),
+];
+
+List<TabScreen> _screens() => [
+  TabScreen(Paths.home, (state) => const HomeScreen()),
+  TabScreen(Paths.courses, (state) {
+    final q = state.uri.queryParameters;
+    return CoursesScreen(
+      key: const ValueKey('courses'),
+      initialCategory: int.tryParse(q['category'] ?? ''),
+      initialSearch: q['q'],
+      initialOrder: switch (q['sort']) {
+        'popular' => CourseOrder.popular,
+        'title' => CourseOrder.title,
+        'newest' => CourseOrder.newest,
+        _ => null,
+      },
+      focusSearch: q['focus'] == '1',
+    );
+  }),
+  TabScreen(
+    Paths.myCourses,
+    (state) => MyCoursesScreen(
+      key: const ValueKey('my-courses'),
+      initialTab: myCoursesTabFrom(state.uri.queryParameters['tab']),
+    ),
+  ),
+  TabScreen(
+    Paths.account,
+    (state) => const ProfileScreen(),
+    routes: accountSubRoutes(
+      extra: [
+        GoRoute(
+          path: 'certificates',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const CertificatesScreen()),
+        ),
+        GoRoute(
+          path: 'quiz-results',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const QuizResultsScreen()),
+        ),
+      ],
+    ),
+  ),
+];
+
+List<RouteBase> _pushedRoutes() => [
   GoRoute(
     path: '/course/:id',
     pageBuilder: (context, state) {
@@ -138,18 +156,4 @@ List<RouteBase> lmsRoutes() => [
       );
     },
   ),
-  GoRoute(
-    path: Paths.embed,
-    pageBuilder: (context, state) {
-      final args = state.extra;
-      return appPage(
-        state,
-        args is EmbedFullscreenArgs
-            ? EmbedFullscreenScreen(args: args)
-            : const NotFoundScreen(),
-        fullscreen: true,
-      );
-    },
-  ),
-  ...sharedPageRoutes(),
 ];

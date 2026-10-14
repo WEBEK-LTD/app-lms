@@ -18,6 +18,8 @@ Map<String, dynamic> configJson({
   bool staffChoice = true,
   int? cancelBeforeMinutes = 60,
   Map<String, dynamic>? appearance,
+  Map<String, dynamic>? languages,
+  Map<String, dynamic>? listings,
 }) => {
   'site': {
     'name': 'Your Academy',
@@ -69,6 +71,8 @@ Map<String, dynamic> configJson({
       cancelBeforeMinutes: cancelBeforeMinutes,
     ),
   'appearance': ?appearance,
+  'languages': ?languages,
+  'listings': ?listings,
 };
 
 /// `Config.appearance` as the dashboard sends it.
@@ -811,4 +815,328 @@ Map<String, dynamic> bookingsHomeJson() => {
     },
     {'type': 'loyalty_card', 'title': 'From a newer plugin'},
   ],
+};
+
+// ------------------------------------------------------------------ Pages
+
+/// `Config.languages`.
+Map<String, dynamic> languagesJson({
+  String defaultCode = 'en',
+  List<String> available = const ['en', 'ar', 'tr'],
+}) => {'default': defaultCode, 'available': available};
+
+Map<String, dynamic> navTabJson(
+  String id,
+  String label,
+  String icon,
+  Map<String, dynamic> target,
+) => {'id': id, 'label': label, 'icon': icon, 'target': target};
+
+/// `GET /pages`: a page tab, two built-in screens and a tab whose target a
+/// newer dashboard added (skipped).
+Map<String, dynamic> navigationJson({List<Map<String, dynamic>>? tabs}) => {
+  'version': '2026-10-13T18:00:00Z.4',
+  'tabs':
+      tabs ??
+      [
+        navTabJson('t1', 'Discover', 'explore', {
+          'type': 'page',
+          'page_slug': 'home',
+        }),
+        navTabJson('t2', 'Catalog', 'menu_book', {
+          'type': 'screen',
+          'screen': 'courses',
+        }),
+        navTabJson('t3', 'Later', 'rocket', {'type': 'teleport'}),
+        navTabJson('t4', 'Me', 'person', {
+          'type': 'screen',
+          'screen': 'account',
+        }),
+      ],
+  'pages': [
+    {'slug': 'home', 'title': 'Discover', 'updated_at': '2026-10-13T18:00:00Z'},
+  ],
+};
+
+Map<String, dynamic> itemJson({
+  String source = 'courses',
+  String id = '1',
+  String title = 'UI Design Fundamentals',
+  String? priceLabel = '₺450',
+  bool favorited = false,
+}) => {
+  'source': source,
+  'id': id,
+  'title': title,
+  'subtitle': 'Deniz Kaya · 24 lessons',
+  'image_url': null,
+  'price_label': priceLabel,
+  'badge': 'New',
+  'favorited': favorited,
+  'action': null,
+};
+
+/// One block of every type in the contract, plus one the app doesn't know.
+List<Map<String, dynamic>> allBlocksJson({String layout = 'carousel'}) => [
+  {
+    'id': 'b1',
+    'type': 'banner',
+    'title': null,
+    'image_url': 'https://cdn.example.com/banner.jpg',
+    'heading': 'Autumn intake is open',
+    'subheading': 'Start any course this week',
+    'action': {'type': 'course', 'course_id': 1},
+  },
+  {
+    'id': 'b2',
+    'type': 'text',
+    'title': 'About us',
+    'html': '<p>We teach <strong>design</strong> and English.</p>',
+  },
+  {
+    'id': 'b3',
+    'type': 'image',
+    'title': null,
+    'image_url': 'https://cdn.example.com/campus.jpg',
+    'aspect_ratio': 1.78,
+    'action': null,
+  },
+  {
+    'id': 'b4',
+    'type': 'video',
+    'title': 'Welcome',
+    'url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    'poster_url': null,
+  },
+  {
+    'id': 'b4b',
+    'type': 'video',
+    'title': 'Campus tour',
+    'url': 'https://cdn.example.com/tour.mp4',
+    'poster_url': null,
+  },
+  {
+    'id': 'b5',
+    'type': 'button',
+    'title': null,
+    'label': 'See all courses',
+    'icon': 'arrow_forward',
+    'style': 'filled',
+    'action': {'type': 'screen', 'screen': 'courses'},
+  },
+  {
+    'id': 'b5b',
+    'type': 'button',
+    'title': null,
+    'label': 'Our website',
+    'icon': 'not_a_real_icon',
+    'style': 'outlined',
+    'action': {
+      'type': 'url',
+      'url': 'https://your-academy.com',
+      'open_in': 'browser',
+    },
+  },
+  {
+    'id': 'b5c',
+    'type': 'button',
+    'title': null,
+    'label': 'Something new',
+    'icon': null,
+    'style': 'text',
+    'action': {'type': 'hologram'},
+  },
+  {
+    'id': 'b6',
+    'type': 'items',
+    'title': 'Popular courses',
+    'source': 'courses',
+    'layout': layout,
+    'see_all': {'type': 'screen', 'screen': 'courses'},
+    'items': [
+      itemJson(),
+      itemJson(id: '2', title: 'Business English', priceLabel: 'Free'),
+      itemJson(
+        id: '3',
+        title: 'A very long course title that wraps onto more than two lines on a small phone',
+      ),
+    ],
+  },
+  {
+    'id': 'b7',
+    'type': 'categories',
+    'title': 'Categories',
+    'source': 'courses',
+    'style': 'tiles',
+    'categories': [
+      {'id': 4, 'name': 'Design', 'count': 12},
+      {'id': 5, 'name': 'Languages', 'count': 1},
+    ],
+  },
+  {
+    'id': 'b7b',
+    'type': 'categories',
+    'title': null,
+    'source': 'courses',
+    'style': 'chips',
+    'categories': [
+      {'id': 4, 'name': 'Design', 'count': 12},
+    ],
+  },
+  {
+    'id': 'b8',
+    'type': 'search',
+    'title': null,
+    'source': 'courses',
+    'placeholder': 'Find your next course',
+  },
+  {
+    'id': 'b9',
+    'type': 'continue_learning',
+    'title': 'Pick up where you left off',
+    'course': myCourseJson(),
+  },
+  {
+    'id': 'b10',
+    'type': 'embed',
+    'title': 'Timetable',
+    'url': 'https://forms.example.com/timetable',
+    'height': 420,
+  },
+  {'id': 'b11', 'type': 'spacer', 'title': null, 'size': 'large'},
+  {'id': 'b12', 'type': 'carousel_3d', 'title': 'From the future'},
+];
+
+/// `GET /pages/{slug}`.
+Map<String, dynamic> appPageJson({
+  String slug = 'home',
+  String title = 'Discover',
+  bool showTitle = true,
+  List<Map<String, dynamic>>? blocks,
+}) => {
+  'slug': slug,
+  'title': title,
+  'updated_at': '2026-10-13T18:00:00Z',
+  'show_title': showTitle,
+  'blocks': blocks ?? allBlocksJson(),
+};
+
+// ------------------------------------------------------------ Real estate
+
+Map<String, dynamic> listingsConfigJson({bool messages = true}) => {
+  'currency': 'EGP',
+  'area_unit': 'm2',
+  'contact': {
+    'name': 'Nile Homes',
+    'phone': '+201001234567',
+    'whatsapp': '+201001234567',
+    'email': 'hello@nilehomes.example',
+  },
+  'messages': messages,
+};
+
+Map<String, dynamic> listingFiltersJson() => {
+  'purposes': ['sale', 'rent'],
+  'types': [
+    {'key': 'apartment', 'label': 'Apartment', 'count': 12},
+    {'key': 'villa', 'label': 'Villa', 'count': 3},
+  ],
+  'cities': [
+    {
+      'name': 'Cairo',
+      'count': 14,
+      'districts': ['Maadi', 'Zamalek'],
+    },
+    {'name': 'Giza', 'count': 1, 'districts': <String>[]},
+  ],
+  'price': {'min': 900000, 'max': 12000000},
+  'area': {'min': 60, 'max': 450},
+  'bedrooms_max': 5,
+};
+
+Map<String, dynamic> listingSummaryJson({
+  int id = 42,
+  String title = 'Bright apartment with a Nile view',
+  String purpose = 'sale',
+  bool favorited = false,
+  bool featured = true,
+}) => {
+  'id': id,
+  'reference': 'NH-10$id',
+  'title': title,
+  'purpose': purpose,
+  'type': 'apartment',
+  'type_label': 'Apartment',
+  'price': {
+    'amount': purpose == 'rent' ? '18000.00' : '4250000.00',
+    'currency': 'EGP',
+    'formatted': purpose == 'rent' ? 'EGP 18,000' : 'EGP 4,250,000',
+    'period': purpose == 'rent' ? 'month' : null,
+    'negotiable': purpose == 'sale',
+  },
+  'image_url': null,
+  'city': 'Cairo',
+  'district': 'Maadi',
+  'area': 185,
+  'bedrooms': 3,
+  'bathrooms': 2,
+  'featured': featured,
+  'favorited': favorited,
+};
+
+Map<String, dynamic> listingDetailJson({int id = 42}) => {
+  ...listingSummaryJson(id: id),
+  'description_html':
+      '<p>Sunny corner flat, <strong>two balconies</strong>.</p>',
+  'images': [
+    {'url': 'https://cdn.example.com/l1.jpg', 'alt': 'Living room'},
+    {'url': 'https://cdn.example.com/l2.jpg', 'alt': null},
+  ],
+  'video_url': null,
+  'features': ['Elevator', 'Balcony', 'Security'],
+  'floor': 7,
+  'year_built': 2018,
+  'furnished': false,
+  'location': {
+    'address': '12 Road 9, Maadi, Cairo',
+    'latitude': 29.96,
+    'longitude': 31.25,
+  },
+  'similar': [
+    listingSummaryJson(id: 43, title: 'Garden duplex', purpose: 'rent'),
+  ],
+  'created_at': '2026-10-01T09:00:00Z',
+};
+
+Map<String, dynamic> inquiryJson({
+  int id = 7,
+  int unread = 1,
+  String status = 'open',
+  List<Map<String, dynamic>>? messages,
+}) => {
+  'id': id,
+  'listing': {
+    'id': 42,
+    'title': 'Bright apartment with a Nile view',
+    'image_url': null,
+  },
+  'status': status,
+  'unread': unread,
+  'updated_at': '2026-10-12T10:00:00Z',
+  'messages':
+      messages ??
+      [
+        {
+          'id': 1,
+          'from': 'user',
+          'text': 'Is it still available?',
+          'created_at': '2026-10-12T09:00:00Z',
+        },
+        {
+          'id': 2,
+          'from': 'office',
+          'text': 'Yes, viewings on Saturday.',
+          'created_at': '2026-10-12T10:00:00Z',
+        },
+      ],
 };

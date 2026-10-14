@@ -11,25 +11,10 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import '../../lms/quiz/quiz_screen.dart';
 import 'account_scaffold.dart';
+import '../../../core/format/dates.dart';
+import '../../../core/l10n/l10n.dart';
 
-String _date(DateTime d) {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  final local = d.toLocal();
-  return '${local.day} ${months[local.month - 1]} ${local.year}';
-}
+String _date(DateTime d) => shortDate(d);
 
 /// Devices signed in to the account, with sign-out for the others.
 class DevicesScreen extends ConsumerWidget {
@@ -42,9 +27,9 @@ class DevicesScreen extends ConsumerWidget {
   ) async {
     final ok = await confirmAction(
       context,
-      title: 'Sign out ${device.name}?',
-      message: 'That device will need a verification code to sign in again.',
-      confirmLabel: 'Sign out',
+      title: context.l10n.signOutDeviceTitle(device.name),
+      message: context.l10n.signOutDeviceMessage,
+      confirmLabel: context.l10n.signOut,
       destructive: true,
     );
     if (!ok) return;
@@ -60,13 +45,13 @@ class DevicesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     return AccountScaffold(
-      title: 'Registered devices',
+      title: context.l10n.registeredDevices,
       child: switch (ref.watch(devicesProvider)) {
         AsyncData(:final value) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'You can use ${plural(value.limit, 'device')} with this account.',
+              context.l10n.deviceLimit(value.limit),
               style: TextStyle(fontSize: 14, color: p.textSecondary),
             ),
             const SizedBox(height: 12),
@@ -79,13 +64,15 @@ class DevicesScreen extends ConsumerWidget {
                       icon: d.platform == DevicePlatform.ios
                           ? AppIcons.phoneIphone
                           : AppIcons.phoneAndroid,
-                      title: d.current ? '${d.name} (this device)' : d.name,
-                      subtitle: 'Last used ${_date(d.lastSeenAt)}',
+                      title: d.current
+                          ? context.l10n.thisDevice(d.name)
+                          : d.name,
+                      subtitle: context.l10n.lastUsed(_date(d.lastSeenAt)),
                       chevron: false,
                       trailing: d.current
                           ? null
                           : IconButton(
-                              tooltip: 'Sign out ${d.name}',
+                              tooltip: context.l10n.signOutDevice(d.name),
                               icon: AppIcon(AppIcons.logout, color: p.danger),
                               onPressed: () => _remove(context, ref, d),
                             ),
@@ -111,12 +98,12 @@ class CertificatesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => AccountScaffold(
-    title: 'My certificates',
+    title: context.l10n.myCertificates,
     child: switch (ref.watch(certificatesProvider)) {
-      AsyncData(:final value) when value.isEmpty => const MessageView(
+      AsyncData(:final value) when value.isEmpty => MessageView(
         icon: AppIcons.certificate,
-        title: 'No certificates yet',
-        message: 'Complete a course to earn its certificate.',
+        title: context.l10n.noCertificatesTitle,
+        message: context.l10n.noCertificatesMessage,
       ),
       AsyncData(:final value) => AppCard(
         child: Column(
@@ -160,10 +147,10 @@ class QuizResultsScreen extends ConsumerWidget {
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
-      body = const MessageView(
+      body = MessageView(
         icon: AppIcons.quizResults,
-        title: 'No quiz results yet',
-        message: 'Your quiz scores will show up here.',
+        title: context.l10n.noQuizResultsTitle,
+        message: context.l10n.noQuizResultsMessage,
       );
     } else {
       body = NotificationListener<ScrollNotification>(
@@ -180,7 +167,7 @@ class QuizResultsScreen extends ConsumerWidget {
       );
     }
     return AccountScaffold(
-      title: 'Quiz results',
+      title: context.l10n.quizResults,
       scrollable: false,
       child: body,
     );

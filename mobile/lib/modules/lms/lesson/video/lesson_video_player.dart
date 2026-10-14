@@ -15,6 +15,7 @@ import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/common.dart';
 import '../embeds/embed_frame.dart';
 import 'watermark.dart';
+import '../../../../core/l10n/l10n.dart';
 
 /// How much of a video has been watched: distinct seconds played, so skipping
 /// ahead doesn't count.
@@ -214,18 +215,18 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     } else if (_error != null) {
       video = _VideoMessage(
         icon: AppIcons.error,
-        message: "The video couldn't be played.",
-        actionLabel: 'Try again',
+        message: context.l10n.videoFailed,
+        actionLabel: context.l10n.tryAgain,
         onAction: () {
           _reloaded = false;
           unawaited(_init(widget.video, _lastPosition));
         },
       );
     } else if (_loading || _controller == null) {
-      video = const Center(
+      video = Center(
         child: CircularProgressIndicator(
           color: Colors.white,
-          semanticsLabel: 'Loading video',
+          semanticsLabel: context.l10n.loadingVideo,
         ),
       );
     } else {
@@ -245,7 +246,7 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
             if (widget.watermark != null && !widget.captured)
               MovingWatermark(text: widget.watermark!),
             if (widget.overlay != null)
-              Positioned(top: 12, left: 12, child: widget.overlay!),
+              PositionedDirectional(top: 12, start: 12, child: widget.overlay!),
           ],
         ),
       ),
@@ -257,9 +258,9 @@ class _CapturedNotice extends StatelessWidget {
   const _CapturedNotice();
 
   @override
-  Widget build(BuildContext context) => const _VideoMessage(
+  Widget build(BuildContext context) => _VideoMessage(
     icon: AppIcons.visibilityOff,
-    message: 'Screen recording is on. Stop recording to keep watching.',
+    message: context.l10n.screenRecording,
   );
 }
 
@@ -342,9 +343,9 @@ class _WebVideo extends ConsumerWidget {
           'iframe,video{border:0;width:100%!important;height:100%!important}'
           '</style></head><body>$embedHtml</body></html>';
     } else {
-      return const _VideoMessage(
+      return _VideoMessage(
         icon: AppIcons.error,
-        message: "This video isn't available.",
+        message: context.l10n.videoUnavailable,
       );
     }
     return builder(
@@ -483,7 +484,9 @@ class _Controls extends StatelessWidget {
         Center(
           child: Semantics(
             button: true,
-            label: value.isPlaying ? 'Pause' : (ended ? 'Play again' : 'Play'),
+            label: value.isPlaying
+                ? context.l10n.pause
+                : (ended ? context.l10n.playAgain : context.l10n.play),
             excludeSemantics: true,
             child: Material(
               color: Colors.white,
@@ -531,8 +534,10 @@ class _Controls extends StatelessWidget {
                     value: duration.inMilliseconds == 0
                         ? 0
                         : position.inMilliseconds / duration.inMilliseconds,
-                    semanticFormatterCallback: (_) =>
-                        '${formatClock(position)} of ${formatClock(duration)}',
+                    semanticFormatterCallback: (_) => context.l10n.positionOf(
+                      formatClock(position),
+                      formatClock(duration),
+                    ),
                     onChanged: duration == Duration.zero
                         ? null
                         : (v) => onSeek(duration * v),
@@ -551,8 +556,9 @@ class _Controls extends StatelessWidget {
                     ),
                     _ChipButton(
                       label: speedLabel(value.playbackSpeed),
-                      semantics:
-                          'Playback speed ${speedLabel(value.playbackSpeed)}',
+                      semantics: context.l10n.playbackSpeedIs(
+                        speedLabel(value.playbackSpeed),
+                      ),
                       color: chip,
                       onTap: onSpeed,
                     ),
@@ -562,8 +568,8 @@ class _Controls extends StatelessWidget {
                           ? AppIcons.fullscreenExit
                           : AppIcons.fullscreen,
                       semantics: fullScreen
-                          ? 'Exit full screen'
-                          : 'Full screen',
+                          ? context.l10n.exitFullScreen
+                          : context.l10n.fullScreen,
                       color: chip,
                       onTap: onFullScreen,
                     ),

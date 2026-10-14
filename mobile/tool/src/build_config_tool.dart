@@ -57,8 +57,12 @@ const fonts = [
 
 const templates = ['classic', 'bold', 'minimal'];
 
-/// App types with a module in this app. Bookings comes later.
-const appTypes = ['lms', 'store', 'booking'];
+/// App types with a module in this app (`app_type` in the schema).
+const appTypes = ['lms', 'store', 'booking', 'real_estate'];
+
+/// The Dart `AppType` value for a schema `app_type`.
+String dartAppType(String wire) =>
+    wire.replaceAllMapped(RegExp('_([a-z])'), (m) => m.group(1)!.toUpperCase());
 
 final _androidPackage = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _iosBundleId = RegExp(
@@ -418,7 +422,7 @@ String renderDartConfig(
 import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
-  appType: AppType.${c['app_type']},
+  appType: AppType.${dartAppType(c['app_type'] as String)},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},

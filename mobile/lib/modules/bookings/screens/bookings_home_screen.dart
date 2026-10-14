@@ -14,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart' show unreadNotificationsProvider;
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The Bookings app's Home: sections from `GET /bookings/home` in the order
 /// set in the plugin.
@@ -39,7 +40,7 @@ class BookingsHomeScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            _ => const LoadingView(label: 'Loading'),
+            _ => LoadingView(label: context.l10n.loading),
           },
         ),
       ),
@@ -89,18 +90,18 @@ class _Sections extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
           child: PrimaryButton(
-            label: 'Book an appointment',
+            label: context.l10n.bookAppointment,
             icon: AppIcons.book,
             onPressed: () => context.go(Paths.services),
           ),
         ),
         if (known.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 48),
             child: MessageView(
               icon: AppIcons.book,
-              title: 'Getting ready',
-              message: 'Services you can book will show up here soon.',
+              title: context.l10n.gettingReady,
+              message: context.l10n.servicesSoon,
               compact: true,
             ),
           ),
@@ -120,7 +121,7 @@ class _Sections extends ConsumerWidget {
           child: Semantics(
             button: service != null,
             image: true,
-            label: 'Offer',
+            label: context.l10n.offer,
             excludeSemantics: true,
             child: GestureDetector(
               onTap: service == null
@@ -137,7 +138,7 @@ class _Sections extends ConsumerWidget {
         final appointment = s.appointment;
         if (appointment == null) return const SizedBox.shrink();
         return _Block(
-          title: s.title ?? 'Your next appointment',
+          title: s.title ?? context.l10n.nextAppointment,
           onSeeAll: () => context.go(Paths.appointments),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -150,7 +151,7 @@ class _Sections extends ConsumerWidget {
       case BookingsSectionType.categories:
         if (s.categories.isEmpty) return const SizedBox.shrink();
         return _Block(
-          title: s.title ?? 'Categories',
+          title: s.title ?? context.l10n.categories,
           onSeeAll: () => context.go(Paths.services),
           child: SizedBox(
             height: chipRowHeight(context),
@@ -174,7 +175,7 @@ class _Sections extends ConsumerWidget {
       case BookingsSectionType.services:
         if (s.services.isEmpty) return const SizedBox.shrink();
         return _Block(
-          title: s.title ?? 'Services',
+          title: s.title ?? context.l10n.services,
           onSeeAll: () => context.go(Paths.services),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -196,7 +197,7 @@ class _Sections extends ConsumerWidget {
         if (s.staff.isEmpty) return const SizedBox.shrink();
         final scale = MediaQuery.textScalerOf(context);
         return _Block(
-          title: s.title ?? 'Our team',
+          title: s.title ?? context.l10n.ourTeam,
           child: SizedBox(
             height: 72 + scale.scale(36),
             child: ListView.separated(
@@ -259,7 +260,7 @@ class _Block extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 12, 10),
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 12, 10),
           child: SectionHeader(title: title, onSeeAll: onSeeAll),
         ),
         child,
@@ -279,7 +280,9 @@ class _NotificationsButton extends ConsumerWidget {
     final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     return SquareIconButton(
       icon: AppIcons.notifications,
-      label: unread > 0 ? 'Notifications, $unread unread' : 'Notifications',
+      label: unread > 0
+          ? context.l10n.notificationsUnread(unread)
+          : context.l10n.notifications,
       badge: unread > 0,
       onPressed: () => context.push(Paths.notifications),
     );

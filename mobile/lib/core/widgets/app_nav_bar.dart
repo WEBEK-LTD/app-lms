@@ -3,19 +3,13 @@ import 'package:flutter/material.dart';
 import '../config/build_config_data.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
+import '../l10n/l10n.dart';
 
 class NavDestination {
   const NavDestination(this.icon, this.label);
   final IconData icon;
   final String label;
 }
-
-const mainDestinations = [
-  NavDestination(AppIcons.home, 'Home'),
-  NavDestination(AppIcons.courses, 'Courses'),
-  NavDestination(AppIcons.myCourses, 'My Courses'),
-  NavDestination(AppIcons.account, 'Account'),
-];
 
 /// The bottom navigation in each template's style:
 /// Classic (icon over label), Bold (filled pill for the active tab, icons
@@ -26,7 +20,7 @@ class AppNavBar extends StatelessWidget {
     required this.template,
     required this.currentIndex,
     required this.onSelected,
-    this.destinations = mainDestinations,
+    required this.destinations,
     this.badges = const {},
   });
 
@@ -60,7 +54,7 @@ class AppNavBar extends StatelessWidget {
     };
     return Semantics(
       container: true,
-      label: 'Main navigation',
+      label: context.l10n.mainNavigation,
       explicitChildNodes: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -167,7 +161,7 @@ class AppNavBar extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: count > 0 ? '${d.label}, $count' : d.label,
+      label: count > 0 ? context.l10n.tabWithCount(d.label, count) : d.label,
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(18),

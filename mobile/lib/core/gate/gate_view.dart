@@ -9,6 +9,7 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/common.dart';
 import 'app_gate.dart';
+import '../l10n/l10n.dart';
 
 /// Shows the app only when `/config` says it may run; otherwise a
 /// full-screen state (start-up, maintenance, update required, license
@@ -26,40 +27,39 @@ class GateView extends ConsumerWidget {
     final env = ref.watch(appEnvironmentProvider);
     final name = env.build.appName;
 
+    final l10n = context.l10n;
     final Widget screen = switch (gate) {
       GateReady() when auth is AuthChecking => const SplashView(),
       GateReady() => child,
       GateLoading() => const SplashView(),
       GateMaintenance(:final message) => _StateScreen(
         icon: AppIcons.maintenance,
-        title: "We'll be right back",
+        title: l10n.maintenanceTitle,
         message: (message == null || message.trim().isEmpty)
-            ? '$name is being updated. Please try again in a little while.'
+            ? l10n.maintenanceMessage(name)
             : message,
-        actionLabel: 'Try again',
+        actionLabel: l10n.tryAgain,
         onAction: retry,
       ),
       GateUpdateRequired() => _StateScreen(
         icon: AppIcons.update,
-        title: 'Update required',
-        message:
-            'A new version of $name is available. Update the app to keep learning.',
-        actionLabel: 'Update now',
+        title: l10n.updateRequiredTitle,
+        message: l10n.updateRequiredMessage(name),
+        actionLabel: l10n.updateNow,
         onAction: () => openExternal(storeUrl(env)),
       ),
       GateLicenseInactive() => _StateScreen(
         icon: AppIcons.unavailable,
-        title: 'The app is unavailable',
-        message:
-            "$name isn't available right now. Please contact the academy for help.",
-        actionLabel: 'Try again',
+        title: l10n.unavailableTitle,
+        message: l10n.unavailableMessage(name),
+        actionLabel: l10n.tryAgain,
         onAction: retry,
       ),
       GateFailed(:final error) => _StateScreen(
         icon: AppIcons.offline,
-        title: "We couldn't connect",
+        title: l10n.connectionTitle,
         message: friendlyError(error),
-        actionLabel: 'Try again',
+        actionLabel: l10n.tryAgain,
         onAction: retry,
       ),
     };
@@ -153,7 +153,7 @@ class SplashView extends ConsumerWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
                 color: foreground,
-                semanticsLabel: 'Loading',
+                semanticsLabel: context.l10n.loading,
               ),
             ),
           ],

@@ -150,12 +150,12 @@ apps and their sign-in this needs for clients without WordPress are Phase 8.
 |---|---|---|
 | [x] | 10.1 Plan and API contract: `Config.appearance`, `/pages`, page blocks | Contract approved |
 | [~] | 10.2 App: looks from `/config` (templates, light, dark and system mode, font, corners, cards) | Changing the look in the API changes the app without a new build |
-| [ ] | 10.3 App: bottom tabs and pages from `/pages`, one renderer for every block in every template, fallback to `/home` | Every block renders in all templates on several screen sizes |
+| [x] | 10.3 App: bottom tabs and pages from `/pages`, one renderer for every block in every template, fallback to `/home` | Every block renders in all templates on several screen sizes |
 | [x] | 10.4 Dashboard: page and look editor with drag-and-drop ordering, preview, drafts and publish | A client builds and publishes a page |
 | [~] | 10.5 Plugin: fetch the published layout from the platform and serve `/pages` with the site's courses, products and posts | A page published in the dashboard shows in a WordPress client's app |
 | [~] | 10.6 Hosted API: serve `/pages` and the look for apps on the hosted API, with their dashboard content or connected platform | A page published in the dashboard shows in a hosted app |
 | [~] | 10.7 Real estate apps: listings managed in the dashboard, search, filters, favorites and messages to the office | A real estate test app runs on the hosted API |
-| [~] | 10.8 Languages: English by default, more languages the client turns on (right-to-left for Arabic), translated page content | A test app switches between English and Arabic |
+| [x] | 10.8 Languages: English by default, more languages the client turns on (right-to-left for Arabic), translated page content | A test app switches between English and Arabic |
 
 ## Phase 11: The admin runs everything
 
@@ -163,12 +163,12 @@ The WEBEK team controls every part of Yallapp from the super admin pages.
 
 | | Step | Done when |
 |---|---|---|
-| [ ] | 11.1 Overview: clients, revenue, builds and apps at a glance | The numbers match the data |
-| [ ] | 11.2 One page per client: plan and extension, app, connection, builds, app users, notifications | The team handles a client from one page |
+| [x] | 11.1 Overview: clients, revenue, builds and apps at a glance | The numbers match the data |
+| [x] | 11.2 One page per client: plan and extension, app, connection, builds, app users, notifications | The team handles a client from one page |
 | [ ] | 11.3 Website content edited in the admin: home page texts, guides and legal pages | A text change shows on yallapp.com.tr |
 | [ ] | 11.4 Email templates edited in the admin | A changed template is what clients receive |
-| [ ] | 11.5 Switches: app types, platforms and features on or off, per plan | A switched-off platform disappears from the Website step |
+| [x] | 11.5 Switches: app types, platforms and features on or off, per plan | A switched-off platform disappears from the Website step |
 | [ ] | 11.6 Coupons and discounts on plans | A coupon lowers a card payment |
-| [ ] | 11.7 Admin team with roles, and a log of every change | A support admin can't change prices; the log shows who changed what |
+| [x] | 11.7 Admin team with roles, and a log of every change | A support admin can't change prices; the log shows who changed what |
 | [ ] | 11.8 Announcements to clients, in the dashboard and by email | Clients see an announcement |
 | [x] | 11.9 Defaults for new apps: template, look and languages | A new client starts with the defaults |

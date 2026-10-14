@@ -8,6 +8,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'account_scaffold.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Edit name, email and city (`PATCH /me`). The phone number is the sign-in
 /// identity and can't be changed here.
@@ -55,7 +56,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           );
       ref.read(authControllerProvider.notifier).updateUser(user);
       if (!mounted) return;
-      showMessage(context, 'Profile saved');
+      showMessage(context, context.l10n.profileSaved);
       Navigator.of(context).maybePop();
     } on ApiException catch (e) {
       if (mounted) showMessage(context, e.message);
@@ -81,9 +82,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
     return AccountScaffold(
-      title: 'Edit profile',
+      title: context.l10n.editProfile,
       footer: PrimaryButton(
-        label: 'Save',
+        label: context.l10n.save,
         loading: _saving,
         onPressed: _save,
         height: 54,
@@ -93,45 +94,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            label('Full name'),
+            label(context.l10n.fullName),
             TextFormField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
               autofillHints: const [AutofillHints.name],
-              decoration: deco('Full name'),
+              decoration: deco(context.l10n.fullName),
               validator: (v) => (v == null || v.trim().length < 2)
-                  ? 'Enter your name.'
+                  ? context.l10n.enterName
                   : null,
             ),
-            label('Email'),
+            label(context.l10n.email),
             TextFormField(
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
-              decoration: deco('Email (optional)'),
+              decoration: deco(context.l10n.emailOptional),
               validator: (v) {
                 final value = v?.trim() ?? '';
                 if (value.isEmpty) return null;
                 return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)
                     ? null
-                    : 'Enter a valid email address.';
+                    : context.l10n.enterValidEmail;
               },
             ),
-            label('City'),
+            label(context.l10n.city),
             TextFormField(
               controller: _city,
               textCapitalization: TextCapitalization.words,
-              decoration: deco('City (optional)'),
+              decoration: deco(context.l10n.cityOptional),
             ),
-            label('Mobile number'),
+            label(context.l10n.mobileNumber),
             TextFormField(
               initialValue: phone,
               enabled: false,
-              decoration: deco('Mobile number'),
+              decoration: deco(context.l10n.mobileNumber),
             ),
             const SizedBox(height: 6),
             Text(
-              'Your mobile number is how you sign in, so it can’t be changed here.',
+              context.l10n.mobileNumberLocked,
               style: TextStyle(fontSize: 13, color: p.textSecondary),
             ),
           ],

@@ -99,12 +99,26 @@ class AppIcon extends StatelessWidget {
   final bool filled;
   final String? semanticLabel;
 
+  /// Icons that point along the reading direction: mirrored right to left.
+  static const _directional = [
+    AppIcons.back,
+    AppIcons.forward,
+    Symbols.arrow_forward_rounded,
+    Symbols.arrow_back_rounded,
+    Symbols.send_rounded,
+  ];
+
   @override
-  Widget build(BuildContext context) => Icon(
-    icon,
-    size: size,
-    color: color,
-    fill: filled ? 1 : 0,
-    semanticLabel: semanticLabel,
-  );
+  Widget build(BuildContext context) {
+    final glyph = Icon(
+      icon,
+      size: size,
+      color: color,
+      fill: filled ? 1 : 0,
+      semanticLabel: semanticLabel,
+    );
+    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    if (!rtl || !_directional.contains(icon)) return glyph;
+    return Transform.flip(flipX: true, child: glyph);
+  }
 }

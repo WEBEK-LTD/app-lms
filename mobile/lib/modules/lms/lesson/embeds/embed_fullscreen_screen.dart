@@ -9,6 +9,7 @@ import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/buttons.dart';
 import 'embed_frame.dart';
+import '../../../../core/l10n/l10n.dart';
 
 class EmbedFullscreenArgs {
   const EmbedFullscreenArgs({
@@ -104,7 +105,7 @@ class _EmbedFullscreenScreenState extends ConsumerState<EmbedFullscreenScreen> {
                     children: [
                       SquareIconButton(
                         icon: AppIcons.close,
-                        label: 'Exit full screen',
+                        label: context.l10n.exitFullScreen,
                         background: const Color(0xFF24223F),
                         foreground: BrandColors.white,
                         bordered: false,
@@ -126,7 +127,7 @@ class _EmbedFullscreenScreenState extends ConsumerState<EmbedFullscreenScreen> {
                       ),
                       SquareIconButton(
                         icon: AppIcons.rotate,
-                        label: 'Rotate screen',
+                        label: context.l10n.rotateScreen,
                         background: const Color(0xFF24223F),
                         foreground: BrandColors.white,
                         bordered: false,

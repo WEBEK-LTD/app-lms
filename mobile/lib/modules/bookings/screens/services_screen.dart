@@ -12,6 +12,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The Book tab: every service customers can book, by category and search.
 class ServicesScreen extends ConsumerStatefulWidget {
@@ -63,16 +64,18 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
 
     final Widget list;
     if (state.isInitialLoading) {
-      list = const LoadingView(label: 'Loading services');
+      list = LoadingView(label: context.l10n.loadingServices);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
       list = MessageView(
         icon: AppIcons.book,
-        title: _query.search.isEmpty ? 'No services yet' : 'No matches',
+        title: _query.search.isEmpty
+            ? context.l10n.noServicesYet
+            : context.l10n.noMatches,
         message: _query.search.isEmpty
-            ? 'Services you can book will show up here.'
-            : 'Try another word.',
+            ? context.l10n.servicesShowHere
+            : context.l10n.tryAnotherWord,
       );
     } else {
       list = RefreshIndicator(
@@ -117,7 +120,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
               child: Semantics(
                 header: true,
                 child: Text(
-                  'Book',
+                  context.l10n.tabBook,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -133,7 +136,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
                 onChanged: _searchChanged,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  hintText: 'Search services',
+                  hintText: context.l10n.searchServices,
                   prefixIcon: AppIcon(AppIcons.search, color: p.textSecondary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(context.shapes.button),
@@ -149,7 +152,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     PillChip(
-                      label: 'All',
+                      label: context.l10n.filterAll,
                       selected: _query.category == null,
                       onTap: () => _category(null),
                     ),

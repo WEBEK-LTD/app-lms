@@ -15,6 +15,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'sign_in_screen.dart';
 import 'signup_screen.dart';
+import '../../../core/l10n/l10n.dart';
 
 class OtpArgs {
   const OtpArgs({
@@ -86,7 +87,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Future<void> _verify() async {
     if (_verifying || _code.text.length != _length) return;
     if (_expired) {
-      setState(() => _error = 'This code has expired. Request a new one.');
+      setState(() => _error = context.l10n.codeExpired);
       return;
     }
     setState(() {
@@ -114,7 +115,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (!mounted) return;
       setState(() {
         _error = e.code == 'signup_disabled'
-            ? "There's no account with this number. Please contact the academy."
+            ? context.l10n.noAccountForNumber
             : e.message;
         _code.clear();
       });
@@ -142,7 +143,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         _start(result);
         _code.clear();
       });
-      showMessage(context, 'We sent you a new code.');
+      showMessage(context, context.l10n.newCodeSent);
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = otpRequestError(e));
     } finally {
@@ -155,6 +156,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final p = context.palette;
     final number = '${widget.args.countryCode} ${widget.args.phone}';
     final resendIn = _resendIn;
+    final sentTo = parts(context.l10n.codeSentTo);
+    final resendParts = parts(context.l10n.resendCodeIn);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -170,7 +173,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     Semantics(
                       header: true,
                       child: Text(
-                        'Enter verification code',
+                        context.l10n.enterCode,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
@@ -183,7 +186,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                           color: p.textSecondary,
                         ),
                         children: [
-                          const TextSpan(text: 'We sent a code to '),
+                          TextSpan(text: sentTo.first),
                           TextSpan(
                             text: number,
                             style: TextStyle(
@@ -191,6 +194,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                               color: p.text,
                             ),
                           ),
+                          if (sentTo.length > 1) TextSpan(text: sentTo.last),
                         ],
                       ),
                     ),
@@ -198,9 +202,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       onPressed: () => context.pop(),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                       ),
-                      child: const Text('Change number'),
+                      child: Text(context.l10n.changeNumber),
                     ),
                     const SizedBox(height: 20),
                     _CodeBoxes(
@@ -238,9 +242,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                                           color: p.textSecondary,
                                         ),
                                         children: [
-                                          const TextSpan(
-                                            text: 'You can request a new code in ',
-                                          ),
+                                          TextSpan(text: resendParts.first),
                                           TextSpan(
                                             text: formatClock(
                                               resendIn +
@@ -253,6 +255,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                                               color: p.text,
                                             ),
                                           ),
+                                          if (resendParts.length > 1)
+                                            TextSpan(text: resendParts.last),
                                         ],
                                       ),
                                     ),
@@ -263,7 +267,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                           : TextButton(
                               onPressed: _resending ? null : _resend,
                               child: Text(
-                                _resending ? 'Sending…' : 'Send a new code',
+                                _resending
+                                    ? context.l10n.sending
+                                    : context.l10n.sendNewCode,
                               ),
                             ),
                     ),
@@ -274,7 +280,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               child: PrimaryButton(
-                label: 'Verify & sign in',
+                label: context.l10n.verifyAndSignIn,
                 loading: _verifying,
                 onPressed: _code.text.length == _length ? _verify : null,
               ),
@@ -349,7 +355,7 @@ class _CodeBoxes extends StatelessWidget {
         ),
         Positioned.fill(
           child: Semantics(
-            label: 'Verification code, $length digits',
+            label: context.l10n.codeFieldLabel(length),
             textField: true,
             child: TextField(
               controller: controller,

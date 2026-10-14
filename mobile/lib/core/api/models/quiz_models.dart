@@ -1,5 +1,6 @@
 import 'json.dart';
 import 'learning_models.dart';
+import '../../l10n/l10n.dart';
 
 class Quiz {
   const Quiz({
@@ -137,16 +138,16 @@ class Question {
           type == QuestionType.trueFalse);
 
   String get typeLabel => switch (type) {
-    QuestionType.singleChoice => 'Single choice',
-    QuestionType.multipleChoice => 'Multiple choice',
-    QuestionType.trueFalse => 'True or false',
-    QuestionType.shortAnswer => 'Short answer',
-    QuestionType.openEnded => 'Open answer',
-    QuestionType.fillInBlank => 'Fill in the blank',
-    QuestionType.ordering => 'Ordering',
-    QuestionType.matching => 'Matching',
-    QuestionType.imageAnswer => 'Image answer',
-    QuestionType.other => 'Question',
+    QuestionType.singleChoice => currentL10n.questionSingleChoice,
+    QuestionType.multipleChoice => currentL10n.questionMultipleChoice,
+    QuestionType.trueFalse => currentL10n.questionTrueFalse,
+    QuestionType.shortAnswer => currentL10n.questionShortAnswer,
+    QuestionType.openEnded => currentL10n.questionOpenEnded,
+    QuestionType.fillInBlank => currentL10n.questionFillInBlank,
+    QuestionType.ordering => currentL10n.questionOrdering,
+    QuestionType.matching => currentL10n.questionMatching,
+    QuestionType.imageAnswer => currentL10n.questionImageAnswer,
+    QuestionType.other => currentL10n.questionOther,
   };
 }
 
@@ -207,8 +208,8 @@ class AttemptResult {
   final DateTime? finishedAt;
 
   String get statusLabel => switch (status) {
-    AttemptStatus.passed => 'Passed',
-    AttemptStatus.failed => 'Not passed',
-    AttemptStatus.pendingReview => 'Waiting for review',
+    AttemptStatus.passed => currentL10n.attemptPassed,
+    AttemptStatus.failed => currentL10n.attemptFailed,
+    AttemptStatus.pendingReview => currentL10n.attemptPendingReview,
   };
 }

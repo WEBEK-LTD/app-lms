@@ -7,15 +7,15 @@ import '../../../core/providers.dart';
 import 'cart_controller.dart';
 
 final storeHomeProvider = FutureProvider.autoDispose<List<StoreHomeSection>>(
-  (ref) => ref.watch(yallappApiProvider).getStoreHome(),
+  (ref) => ref.contentApi.getStoreHome(),
 );
 
 final productCategoriesProvider = FutureProvider<List<ProductCategory>>(
-  (ref) => ref.watch(yallappApiProvider).listProductCategories(),
+  (ref) => ref.contentApi.listProductCategories(),
 );
 
 final productProvider = FutureProvider.autoDispose.family<ProductDetail, int>(
-  (ref, id) => ref.watch(yallappApiProvider).getProduct(id),
+  (ref, id) => ref.contentApi.getProduct(id),
 );
 
 /// The catalog for one search, category, filter and order.
@@ -59,7 +59,5 @@ final productReviewsProvider = NotifierProvider.autoDispose
 final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
   final items = ref.watch(cartProvider);
   if (items.isEmpty) return Future.value();
-  return ref.watch(yallappApiProvider).quoteCart([
-    for (final i in items) i.toInput(),
-  ]);
+  return ref.contentApi.quoteCart([for (final i in items) i.toInput()]);
 });

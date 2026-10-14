@@ -7,6 +7,7 @@ import '../../lms/courses/course_reviews.dart'
     show RatingSummaryCard, ReviewCard;
 import '../../shared/account/account_scaffold.dart';
 import '../data/store_providers.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// A product's reviews from the shop.
 class ProductReviewsScreen extends ConsumerWidget {
@@ -22,14 +23,14 @@ class ProductReviewsScreen extends ConsumerWidget {
     final summary = controller.summary;
     final Widget body;
     if (state.isInitialLoading) {
-      body = const LoadingView(label: 'Loading reviews');
+      body = LoadingView(label: context.l10n.loadingReviews);
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: controller.retry);
     } else if (state.items.isEmpty) {
-      body = const MessageView(
+      body = MessageView(
         icon: AppIcons.star,
-        title: 'No reviews yet',
-        message: 'Reviews from customers show up here.',
+        title: context.l10n.noReviews,
+        message: context.l10n.customerReviewsShowHere,
       );
     } else {
       body = RefreshIndicator(
@@ -55,6 +56,10 @@ class ProductReviewsScreen extends ConsumerWidget {
         ),
       );
     }
-    return AccountScaffold(title: 'Reviews', scrollable: false, child: body);
+    return AccountScaffold(
+      title: context.l10n.reviews,
+      scrollable: false,
+      child: body,
+    );
   }
 }

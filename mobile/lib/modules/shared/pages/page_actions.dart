@@ -1,0 +1,90 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/api/models/models.dart';
+import '../../../core/config/build_config_data.dart';
+import '../../../core/gate/app_gate.dart';
+import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart';
+import '../../../core/routing/paths.dart';
+import '../../../core/services/external_links.dart';
+import '../../../core/web/web_page_screen.dart';
+
+/// Runs a tab's, button's or card's action. Actions this app type can't
+/// follow (a product in an Academy app, a post) do nothing.
+void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
+  if (action == null) return;
+  final appType = ref.read(appEnvironmentProvider).build.appType;
+  switch (action.type) {
+    case PageActionType.page:
+      final slug = action.pageSlug;
+      if (slug != null && slug.isNotEmpty) {
+        openLocation(context, Paths.page(slug));
+      }
+    case PageActionType.screen:
+      final screen = action.screen;
+      if (screen == null) return;
+      final gate = ref.read(appGateProvider);
+      final location = ref
+          .read(appModuleProvider)
+          .screenLocation(screen, gate is GateReady ? gate.config : null);
+      if (location != null) openLocation(context, location);
+    case PageActionType.course:
+      final id = action.courseId;
+      if (id != null && appType == AppType.lms) {
+        context.push(Paths.course(id));
+      }
+    case PageActionType.item:
+      final item = action.item;
+      final location = item == null ? null : itemLocation(item, appType);
+      if (location != null) context.push(location);
+    case PageActionType.url:
+      final url = action.url;
+      final uri = url == null ? null : Uri.tryParse(url);
+      if (uri == null || !uri.hasScheme) return;
+      if (action.openIn == OpenIn.browser ||
+          !(uri.scheme == 'https' || uri.scheme == 'http')) {
+        openExternal(url!);
+      } else {
+        context.push(
+          Paths.web,
+          extra: WebPageArgs(url: url!, title: uri.host),
+        );
+      }
+  }
+}
+
+/// The detail screen of a list entry, when this app type has one.
+String? itemLocation(ItemRef item, AppType appType) {
+  final id = int.tryParse(item.id);
+  if (id == null) return null;
+  return switch ((item.source, appType)) {
+    (ItemSource.courses, AppType.lms) => Paths.course(id),
+    (ItemSource.products, AppType.store) => Paths.product(id),
+    (ItemSource.services, AppType.booking) => Paths.service(id),
+    (ItemSource.listings, AppType.realEstate) => Paths.listing(id),
+    _ => null,
+  };
+}
+
+/// The search screen for a list source, when this app type has one.
+String? searchLocation(ItemSource? source, AppType appType) =>
+    switch ((source, appType)) {
+      (ItemSource.courses, AppType.lms) => '${Paths.courses}?focus=1',
+      (ItemSource.products, AppType.store) => '${Paths.shop}?focus=1',
+      (ItemSource.services, AppType.booking) => Paths.services,
+      (ItemSource.listings, AppType.realEstate) => '${Paths.search}?focus=1',
+      _ => null,
+    };
+
+/// The catalog filtered to a category, when this app type has one.
+String? categoryLocation(ItemSource? source, AppType appType, int id) =>
+    switch ((source, appType)) {
+      (ItemSource.courses, AppType.lms) => Paths.coursesFiltered(category: id),
+      (ItemSource.products, AppType.store) => Paths.shopFiltered(category: id),
+      (ItemSource.services, AppType.booking) => Paths.servicesFiltered(
+        category: id,
+      ),
+      _ => null,
+    };

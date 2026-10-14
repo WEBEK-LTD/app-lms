@@ -6,6 +6,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The height of a horizontal row of [PillChip]s at the current text size.
 double chipRowHeight(BuildContext context) =>
@@ -13,7 +14,7 @@ double chipRowHeight(BuildContext context) =>
 
 /// "Free" or the business's formatted price.
 String bookingPriceLabel(BookingPrice price) =>
-    price.free ? 'Free' : price.formatted;
+    price.free ? currentL10n.free : price.formatted;
 
 /// "30 min · ₺300.00".
 String serviceFacts(ServiceSummary service, {BookingPrice? price}) =>
@@ -24,8 +25,8 @@ String serviceFacts(ServiceSummary service, {BookingPrice? price}) =>
 String appointmentWhen(Appointment a) {
   final day = parseIsoDate(a.localDate);
   return day == null
-      ? '${a.localDate} at ${a.localTime}'
-      : '${dayLabel(day)} at ${a.localTime}';
+      ? currentL10n.dayAtTime(a.localDate, a.localTime)
+      : currentL10n.dayAtTime(dayLabel(day), a.localTime);
 }
 
 /// The colour of an appointment's status label.
@@ -154,7 +155,7 @@ class AppointmentCard extends StatelessWidget {
       semanticLabel: [
         a.serviceName,
         appointmentWhen(a),
-        if (staff != null) 'with ${staff.name}',
+        if (staff != null) context.l10n.withStaffLower(staff.name),
         a.statusLabel,
       ].join(', '),
       child: Row(

@@ -5,6 +5,7 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/buttons.dart';
 import 'web_view.dart';
+import '../l10n/l10n.dart';
 
 class WebPageArgs {
   const WebPageArgs({
@@ -78,7 +79,9 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
                   children: [
                     SquareIconButton(
                       icon: AppIcons.close,
-                      label: _completed ? 'Done' : 'Close',
+                      label: _completed
+                          ? context.l10n.done
+                          : context.l10n.close,
                       onPressed: _close,
                     ),
                     const SizedBox(width: 12),

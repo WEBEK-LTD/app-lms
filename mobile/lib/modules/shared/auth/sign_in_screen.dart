@@ -18,6 +18,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'country_codes.dart';
 import 'otp_screen.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Sign in with a mobile number (design: Main).
 class SignInScreen extends ConsumerStatefulWidget {
@@ -142,7 +143,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             style: TextButton.styleFrom(
                               foregroundColor: p.text,
                             ),
-                            child: const Text('Not now'),
+                            child: Text(context.l10n.notNow),
                           ),
                       ],
                     ),
@@ -150,18 +151,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     Semantics(
                       header: true,
                       child: Text(
-                        'Welcome',
+                        context.l10n.welcome,
                         style: Theme.of(context).textTheme.displaySmall,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Sign in with your mobile number and we'll send you a verification code.",
+                      context.l10n.signInIntro,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 32),
                     Text(
-                      'Mobile number',
+                      context.l10n.mobileNumber,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -173,7 +174,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       children: [
                         Semantics(
                           button: true,
-                          label: 'Country code $_dialCode. Choose country code',
+                          label: context.l10n.chooseCountryCode(_dialCode),
                           excludeSemantics: true,
                           child: Material(
                             color: p.surface,
@@ -234,7 +235,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               color: p.text,
                             ),
                             decoration: InputDecoration(
-                              hintText: 'Mobile number',
+                              hintText: context.l10n.mobileNumber,
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide(
@@ -255,15 +256,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ],
                     const SizedBox(height: 32),
                     PrimaryButton(
-                      label: 'Send code',
+                      label: context.l10n.sendCode,
                       loading: _sending,
                       onPressed: _valid ? _send : null,
                     ),
                     const SizedBox(height: 32),
                     Text(
                       config.auth.signupAllowed
-                          ? "New here? We'll ask for your name after verification and create your account with this number."
-                          : 'Use the mobile number registered with ${config.site.name}.',
+                          ? context.l10n.signInNewHere
+                          : context.l10n.signInRegisteredOnly(config.site.name),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -287,7 +288,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
 String otpRequestError(ApiException e) {
   if (e.code == 'rate_limited' && e.retryAfterSeconds != null) {
-    return 'Too many attempts. Try again in ${e.retryAfterSeconds} seconds.';
+    return currentL10n.tooManyAttemptsSeconds(e.retryAfterSeconds!);
   }
   return e.message;
 }
@@ -334,7 +335,7 @@ class _Logo extends StatelessWidget {
         height: 52,
         radius: 14,
         fit: BoxFit.contain,
-        semanticLabel: '$name logo',
+        semanticLabel: context.l10n.logoOf(name),
       );
     }
     final initials = name
@@ -393,6 +394,34 @@ class _LegalLineState extends State<_LegalLine> {
     );
   }
 
+  /// "By continuing, you agree to the Terms & Conditions and Privacy
+  /// Policy", with the documents as links.
+  List<InlineSpan> _legalSpans(
+    AppLocalizations l10n,
+    String? terms,
+    String? privacy,
+    Color color,
+  ) {
+    if (terms != null && privacy != null) {
+      final t = parts2(l10n.legalAgreeBoth);
+      return [
+        TextSpan(text: t[0]),
+        _link(l10n.termsAndConditions, terms, color),
+        TextSpan(text: t[1]),
+        _link(l10n.privacyPolicy, privacy, color),
+        if (t.length > 2) TextSpan(text: t[2]),
+      ];
+    }
+    final t = parts(l10n.legalAgreeOne);
+    return [
+      TextSpan(text: t.first),
+      terms != null
+          ? _link(l10n.termsAndConditions, terms, color)
+          : _link(l10n.privacyPolicy, privacy!, color),
+      if (t.length > 1) TextSpan(text: t.last),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -406,12 +435,7 @@ class _LegalLineState extends State<_LegalLine> {
     return Text.rich(
       TextSpan(
         style: TextStyle(fontSize: 13, height: 1.6, color: p.textSecondary),
-        children: [
-          const TextSpan(text: 'By continuing, you agree to the '),
-          if (terms != null) _link('Terms & Conditions', terms, p.link),
-          if (terms != null && privacy != null) const TextSpan(text: ' and '),
-          if (privacy != null) _link('Privacy Policy', privacy, p.link),
-        ],
+        children: _legalSpans(context.l10n, terms, privacy, p.link),
       ),
       textAlign: TextAlign.center,
     );
@@ -438,7 +462,7 @@ class _CountrySheetState extends State<_CountrySheet> {
         .where(
           (c) =>
               q.isEmpty ||
-              c.name.toLowerCase().contains(q) ||
+              c.name(context.l10n).toLowerCase().contains(q) ||
               c.dialCode.contains(q.replaceAll('+', '')),
         )
         .toList();
@@ -452,7 +476,7 @@ class _CountrySheetState extends State<_CountrySheet> {
               child: TextField(
                 autofocus: false,
                 decoration: InputDecoration(
-                  hintText: 'Search country or code',
+                  hintText: context.l10n.searchCountry,
                   prefixIcon: AppIcon(AppIcons.search, color: p.textSecondary),
                 ),
                 onChanged: (v) => setState(() => _query = v),
@@ -464,13 +488,16 @@ class _CountrySheetState extends State<_CountrySheet> {
                   if (typed != null && RegExp(r'^\+?[0-9]+$').hasMatch(q))
                     ListTile(
                       minTileHeight: 52,
-                      title: Text('Use $typed'),
+                      title: Text(context.l10n.useCode(typed)),
                       onTap: () => Navigator.of(context).pop(typed),
                     ),
                   for (final c in items)
                     ListTile(
                       minTileHeight: 52,
-                      title: Text(c.name, style: TextStyle(color: p.text)),
+                      title: Text(
+                        c.name(context.l10n),
+                        style: TextStyle(color: p.text),
+                      ),
                       trailing: Text(
                         c.dialCode,
                         style: TextStyle(

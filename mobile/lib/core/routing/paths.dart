@@ -25,8 +25,17 @@ abstract final class Paths {
   static const orders = '/account/orders';
   static const notifications = '/notifications';
 
+  // Real estate apps (the search is the Home tab).
+  static const search = '/search';
+  static const favorites = '/favorites';
+  static const messages = '/messages';
+
   static const embed = '/embed';
   static const web = '/web';
+
+  /// A page built in the dashboard (`GET /pages/{slug}`).
+  static String page(String slug) => '/page/${Uri.encodeComponent(slug)}';
+  static const pagePrefix = '/page/';
 
   static String course(int id) => '/course/$id';
   static String lesson(int id) => '/lesson/$id';
@@ -36,6 +45,8 @@ abstract final class Paths {
   static String productReviews(int id) => '/product/$id/reviews';
   static String service(int id) => '/service/$id';
   static String appointment(int id) => '/appointment/$id';
+  static String listing(int id) => '/listing/$id';
+  static String conversation(int id) => '/messages/$id';
 
   static String servicesFiltered({int? category}) => Uri(
     path: services,

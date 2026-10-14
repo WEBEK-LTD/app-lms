@@ -17,6 +17,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The `slot_taken` error: someone booked the time first.
 const slotTaken = 'slot_taken';
@@ -44,7 +45,7 @@ class ServiceScreen extends ConsumerWidget {
       ),
       _ => Scaffold(
         appBar: AppBar(leading: const AppBackButton()),
-        body: const LoadingView(label: 'Loading service'),
+        body: LoadingView(label: context.l10n.loadingService),
       ),
     };
   }
@@ -133,15 +134,12 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
     if (!mounted || result == null) return;
     if (result is Appointment) {
       invalidateAppointments(ref);
-      showMessage(context, 'Your appointment is booked.');
+      showMessage(context, context.l10n.appointmentBooked);
       context.pushReplacement(Paths.appointment(result.id));
     } else if (result == slotTaken) {
       setState(() => _slot = null);
       ref.invalidate(availabilityProvider(_query));
-      showMessage(
-        context,
-        'This time was just taken. Please choose another one.',
-      );
+      showMessage(context, context.l10n.slotTaken);
     }
   }
 
@@ -201,7 +199,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
                 ],
                 if (staffChoice) ...[
                   const SizedBox(height: 22),
-                  const SectionHeader(title: 'With'),
+                  SectionHeader(title: context.l10n.withTitle),
                   const SizedBox(height: 10),
                   _StaffPicker(
                     staff: service.staff,
@@ -210,7 +208,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
                   ),
                 ],
                 const SizedBox(height: 22),
-                const SectionHeader(title: 'Choose a time'),
+                SectionHeader(title: context.l10n.chooseTime),
                 const SizedBox(height: 6),
                 _WeekBar(
                   start: _weekStart,
@@ -228,9 +226,9 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
                           ref.invalidate(availabilityProvider(_query)),
                     ),
                   ),
-                  _ => const Padding(
+                  _ => Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
-                    child: LoadingView(label: 'Finding free times'),
+                    child: LoadingView(label: context.l10n.findingTimes),
                   ),
                 },
               ],
@@ -240,9 +238,9 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
       ),
       bottomNavigationBar: BottomActionBar(
         child: _slot == null
-            ? const PrimaryButton(label: 'Choose a time', onPressed: null)
+            ? PrimaryButton(label: context.l10n.chooseTime, onPressed: null)
             : PrimaryButton(
-                label: 'Book ${_slotLabel(_slot!)}',
+                label: context.l10n.bookSlot(_slotLabel(_slot!)),
                 icon: AppIcons.book,
                 onPressed: _book,
               ),
@@ -254,7 +252,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
     final day = _day == null ? null : parseIsoDate(_day!);
     return day == null
         ? slot.localTime
-        : '${dayLabel(day)} at ${slot.localTime}';
+        : currentL10n.dayAtTime(dayLabel(day), slot.localTime);
   }
 
   String _slotLabel(TimeSlot slot) {
@@ -272,11 +270,9 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: MessageView(
           icon: AppIcons.calendar,
-          title: 'No free times this week',
-          message: _staff == null
-              ? null
-              : 'Try another week, or anyone available.',
-          actionLabel: _canGoForward ? 'Next week' : null,
+          title: context.l10n.noTimesThisWeek,
+          message: _staff == null ? null : context.l10n.tryAnotherWeek,
+          actionLabel: _canGoForward ? context.l10n.nextWeek : null,
           onAction: _canGoForward ? () => _moveWeek(1) : null,
           compact: true,
         ),
@@ -304,7 +300,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              'No free times on this day.',
+              context.l10n.noTimesThisDay,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: p.textSecondary),
             ),
@@ -328,7 +324,7 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
         if (elsewhere) ...[
           const SizedBox(height: 12),
           Text(
-            'Times are in ${availability.timezone.replaceAll('_', ' ')} time.',
+            context.l10n.timesIn(availability.timezone.replaceAll('_', ' ')),
             style: TextStyle(fontSize: 13, color: p.textSecondary),
           ),
         ],
@@ -365,7 +361,7 @@ class _StaffPicker extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           _StaffChoice(
-            label: 'Anyone',
+            label: context.l10n.anyone,
             selected: selected == null,
             onTap: () => onChanged(null),
             avatar: _AnyoneAvatar(selected: selected == null),
@@ -429,7 +425,7 @@ class _StaffChoice extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.shapes.card),
         child: Container(
           width: 88,
-          margin: const EdgeInsets.only(right: 8),
+          margin: const EdgeInsetsDirectional.only(end: 8),
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(context.shapes.card),
@@ -486,7 +482,7 @@ class _WeekBar extends StatelessWidget {
       children: [
         SquareIconButton(
           icon: AppIcons.back,
-          label: 'Previous week',
+          label: context.l10n.previousWeek,
           onPressed: onBack,
           size: 40,
         ),
@@ -503,7 +499,7 @@ class _WeekBar extends StatelessWidget {
         ),
         SquareIconButton(
           icon: AppIcons.forward,
-          label: 'Next week',
+          label: context.l10n.nextWeek,
           onPressed: onForward,
           size: 40,
         ),
@@ -546,7 +542,7 @@ class _DayStrip extends StatelessWidget {
                   label: date == null
                       ? d.date
                       : '${dayLabel(date)}, '
-                            '${open ? plural(d.slots.length, 'free time') : 'no free times'}',
+                            '${open ? context.l10n.freeTimeCount(d.slots.length) : context.l10n.noFreeTimes}',
                   excludeSemantics: true,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -679,7 +675,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             Semantics(
               header: true,
               child: Text(
-                'Confirm your booking',
+                context.l10n.confirmYourBooking,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -692,7 +688,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             _Fact(icon: AppIcons.calendar, text: widget.when),
             _Fact(
               icon: AppIcons.staff,
-              text: widget.staff?.name ?? 'Anyone available',
+              text: widget.staff?.name ?? context.l10n.anyoneAvailable,
             ),
             _Fact(
               icon: AppIcons.schedule,
@@ -708,8 +704,8 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
                 minLines: 2,
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Note for the business (optional)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.noteForBusiness,
                 ),
               ),
             ],
@@ -719,7 +715,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             ],
             const SizedBox(height: 16),
             PrimaryButton(
-              label: 'Confirm booking',
+              label: context.l10n.confirmBooking,
               loading: _busy,
               onPressed: _busy ? null : _confirm,
             ),

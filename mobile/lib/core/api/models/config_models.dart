@@ -3,6 +3,7 @@ import '../../config/build_config_data.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'listing_models.dart';
 import 'store_models.dart';
 
 /// `GET /config`: branding, detected features and app rules.
@@ -18,6 +19,8 @@ class AppConfig {
     this.store,
     this.bookings,
     this.appearance,
+    this.languages,
+    this.listings,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -31,6 +34,8 @@ class AppConfig {
     store: optObject(json, 'store', StoreConfig.fromJson),
     bookings: optObject(json, 'bookings', BookingsConfig.fromJson),
     appearance: optObject(json, 'appearance', Appearance.fromJson),
+    languages: optObject(json, 'languages', Languages.fromJson),
+    listings: optObject(json, 'listings', ListingsConfig.fromJson),
   );
 
   final SiteInfo site;
@@ -49,6 +54,39 @@ class AppConfig {
 
   /// The look set in the client dashboard; `null` keeps the build's look.
   final Appearance? appearance;
+
+  /// The languages the client turned on; `null` on older servers means
+  /// English only.
+  final Languages? languages;
+
+  /// The office's settings (Real estate apps).
+  final ListingsConfig? listings;
+}
+
+/// `Config.languages`. Codes the app doesn't ship are dropped.
+class Languages {
+  const Languages({required this.defaultCode, required this.available});
+
+  factory Languages.fromJson(Json json) {
+    final available = [
+      for (final code in stringList(json, 'available'))
+        if (shippedLanguages.contains(code)) code,
+    ];
+    final fallback = optString(json, 'default');
+    final defaultCode = shippedLanguages.contains(fallback)
+        ? fallback!
+        : (available.isEmpty ? 'en' : available.first);
+    return Languages(
+      defaultCode: defaultCode,
+      available: available.isEmpty ? [defaultCode] : available,
+    );
+  }
+
+  /// The interface languages this app ships translations for.
+  static const shippedLanguages = ['en', 'ar', 'tr'];
+
+  final String defaultCode;
+  final List<String> available;
 }
 
 class SiteInfo {

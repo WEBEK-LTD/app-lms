@@ -13,6 +13,7 @@ import '../../../core/widgets/common.dart';
 import '../../shared/account/account_scaffold.dart';
 import '../data/lms_providers.dart';
 import 'community_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The course page's Q&A tab for enrolled students: ask the instructor,
 /// and read what others asked.
@@ -23,9 +24,9 @@ class CourseQuestionsTab extends ConsumerWidget {
 
   Future<void> _ask(BuildContext context, WidgetRef ref) => showTextSheet(
     context,
-    title: 'Ask a question',
-    hint: 'What would you like to ask about this course?',
-    sendLabel: 'Send question',
+    title: context.l10n.askQuestion,
+    hint: context.l10n.askQuestionHint,
+    sendLabel: context.l10n.sendQuestion,
     onSend: (text) async {
       try {
         final question = await ref
@@ -48,7 +49,7 @@ class CourseQuestionsTab extends ConsumerWidget {
     final state = ref.watch(courseQuestionsProvider(courseId));
     final notifier = ref.read(courseQuestionsProvider(courseId).notifier);
     if (state.isInitialLoading) {
-      return const LoadingView(label: 'Loading questions');
+      return LoadingView(label: context.l10n.loadingQuestions);
     }
     if (state.error != null && state.items.isEmpty) {
       return ErrorView(error: state.error!, onRetry: notifier.retry);
@@ -57,17 +58,17 @@ class CourseQuestionsTab extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SecondaryButton(
-          label: 'Ask a question',
+          label: context.l10n.askQuestion,
           icon: AppIcons.chat,
           onPressed: () => _ask(context, ref),
           height: 50,
         ),
         const SizedBox(height: 12),
         if (state.items.isEmpty)
-          const MessageView(
+          MessageView(
             icon: AppIcons.chat,
-            title: 'No questions yet',
-            message: 'Ask the instructor anything about this course.',
+            title: context.l10n.noQuestionsTitle,
+            message: context.l10n.noQuestionsMessage,
             compact: true,
           ),
         for (final q in state.items) ...[
@@ -81,7 +82,11 @@ class CourseQuestionsTab extends ConsumerWidget {
           Center(
             child: TextButton(
               onPressed: state.loading ? null : notifier.loadMore,
-              child: Text(state.loading ? 'Loading…' : 'Show more questions'),
+              child: Text(
+                state.loading
+                    ? context.l10n.loadingEllipsis
+                    : context.l10n.showMoreQuestions,
+              ),
             ),
           ),
       ],
@@ -123,8 +128,8 @@ class _QuestionCard extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 question.answerCount == 0
-                    ? 'No answers yet'
-                    : plural(question.answerCount, 'answer'),
+                    ? context.l10n.noAnswersYet
+                    : context.l10n.answerCount(question.answerCount),
                 style: TextStyle(fontSize: 13, color: p.textSecondary),
               ),
             ],
@@ -180,7 +185,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     final p = context.palette;
     return switch (thread) {
       AsyncData(:final value) => AccountScaffold(
-        title: 'Question',
+        title: context.l10n.questionOther,
         footer: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -191,8 +196,8 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                 maxLines: 5,
                 maxLength: 2000,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  hintText: 'Write a reply',
+                decoration: InputDecoration(
+                  hintText: context.l10n.writeReply,
                   counterText: '',
                 ),
               ),
@@ -202,7 +207,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
               listenable: _reply,
               builder: (context, _) => SquareIconButton(
                 icon: AppIcons.forward,
-                label: 'Send reply',
+                label: context.l10n.sendReply,
                 size: 52,
                 background: p.primary,
                 foreground: p.onPrimary,
@@ -238,15 +243,15 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
             const SizedBox(height: 18),
             SectionHeader(
               title: value.answers.isEmpty
-                  ? 'No answers yet'
-                  : plural(value.answers.length, 'answer'),
+                  ? context.l10n.noAnswersYet
+                  : context.l10n.answerCount(value.answers.length),
               size: 16,
             ),
             if (value.answers.isEmpty && value.question.mine)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  "You'll get a notification when the instructor answers.",
+                  context.l10n.answerNotification,
                   style: TextStyle(fontSize: 14, color: p.textSecondary),
                 ),
               ),
@@ -281,7 +286,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
         ),
       ),
       AsyncError(:final error) => AccountScaffold(
-        title: 'Question',
+        title: context.l10n.questionOther,
         scrollable: false,
         child: ErrorView(
           error: error,
@@ -289,10 +294,10 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
               ref.invalidate(questionThreadProvider(widget.questionId)),
         ),
       ),
-      _ => const AccountScaffold(
-        title: 'Question',
+      _ => AccountScaffold(
+        title: context.l10n.questionOther,
         scrollable: false,
-        child: LoadingView(label: 'Loading question'),
+        child: LoadingView(label: context.l10n.loadingQuestion),
       ),
     };
   }
