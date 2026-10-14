@@ -38,4 +38,5 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   posts: "Blog posts",
   listings: "Listings",
   articles: "Articles",
+  events: "Events",
 };

@@ -54,6 +54,8 @@ import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 23 News & blog
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
+// 28 Events & tickets
+import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -423,6 +425,43 @@ export interface DataStore {
   /** How articles show in the app; null until saved (the defaults apply). */
   getNewsSettings(appId: string): Promise<NewsSettings | null>;
   saveNewsSettings(appId: string, settings: NewsSettings, now: Date): Promise<void>;
+
+  // 28 Events & tickets apps
+  /** Every event of the app, any status, soonest first. */
+  listEvents(appId: string): Promise<EventRecord[]>;
+  getEvent(appId: string, id: number): Promise<EventRecord | null>;
+  createEvent(input: EventInput, now: Date): Promise<EventRecord>;
+  updateEvent(appId: string, id: number, patch: Partial<EventInput>, now: Date): Promise<void>;
+  /** Deletes the event with its ticket types and tickets. */
+  deleteEvent(appId: string, id: number): Promise<void>;
+  /** The ticket types of the app, or of one event, in their order. */
+  listTicketTypes(appId: string, eventId?: number): Promise<TicketType[]>;
+  createTicketType(input: TicketTypeInput, now: Date): Promise<TicketType>;
+  updateTicketType(appId: string, id: number, patch: Partial<Omit<TicketTypeInput, "appId" | "eventId">>): Promise<void>;
+  /** Deletes the ticket type with its tickets. */
+  deleteTicketType(appId: string, id: number): Promise<void>;
+  /**
+   * Takes places for tickets, atomically: the tickets that hold a place (valid,
+   * used, and pending ones until their hold ends) of the event and of the
+   * ticket type are counted, and the new ones are written only if every one of
+   * them fits both limits; two claims never see the same free places. Refused
+   * when the event isn't published or the ticket type isn't the event's.
+   */
+  claimTickets(claim: TicketClaim): Promise<{ ok: true; tickets: EventTicket[] } | { ok: false; reason: TicketClaimRefusal }>;
+  /** Places taken per ticket type (valid, used and pending tickets until their hold ends), for what's left. */
+  countTicketPlaces(appId: string, now: Date): Promise<{ eventId: number; ticketTypeId: number; count: number }[]>;
+  /** Tickets of the app, by event, holder or order, oldest first. */
+  listTickets(input: { appId: string; eventId?: number; userId?: number; orderId?: number }): Promise<EventTicket[]>;
+  getTicketByCode(appId: string, code: string): Promise<EventTicket | null>;
+  /** A paid order's pending tickets become valid (once); returns how many. */
+  issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number>;
+  /** Marks a valid ticket used, once: a second check-in is refused with the ticket as it is. */
+  checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult>;
+  /** Cancels valid tickets (these, or every one of an event); returns how many. Their places go back on sale. */
+  cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number>;
+  /** How events show and sell in the app; null until saved (the defaults apply). */
+  getEventSettings(appId: string): Promise<EventSettings | null>;
+  saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

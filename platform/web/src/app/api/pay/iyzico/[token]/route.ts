@@ -1,5 +1,5 @@
 import { fulfilmentOf } from "@/lib/catalog/fulfilment";
-import { completePayment, enrollPaidCourses, newOrderMailValues, startPaidMemberships } from "@/lib/catalog/payment";
+import { completePayment, deliverPaidOrder, newOrderMailValues } from "@/lib/catalog/payment";
 import { accountForOrder } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -23,9 +23,8 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
   if (!app || !account || typeof iyzicoToken !== "string" || iyzicoToken === "") return back("?payment=failed");
   const outcome = await completePayment({ store, app, account, baseUrl: iyzicoApiUrl(), now: new Date(), order, iyzicoToken });
   if (outcome === "paid") {
-    await enrollPaidCourses(store, app, order, new Date());
-    // 27 A gym's membership starts at once.
-    await startPaidMemberships(store, app, order, new Date());
+    // Courses enrol the student, 27 a gym's membership starts, 28 tickets are issued only now, after iyzico confirmed the payment.
+    await deliverPaidOrder(store, app, order, new Date());
     const client = await store.getClientById(app.clientId);
     const owner = client ? await store.getUserById(client.userId) : null;
     const paid = await store.getCatalogOrder(app.id, order.id);

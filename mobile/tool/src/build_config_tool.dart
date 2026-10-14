@@ -59,7 +59,7 @@ const fonts = [
 const templates = ['classic', 'bold', 'minimal'];
 
 /// App types with a module in this app (`app_type` in the schema).
-const appTypes = ['lms', 'store', 'booking', 'real_estate', 'news'];
+const appTypes = ['lms', 'store', 'booking', 'real_estate', 'news', 'events'];
 
 /// Kinds of business (`vertical` in the schema), on top of the app type.
 const verticals = ['restaurant', 'clinic', 'fitness', 'charity'];

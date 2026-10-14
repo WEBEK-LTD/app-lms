@@ -192,6 +192,8 @@ class AuthController extends Notifier<AuthState> {
   Future<void> _forgetOffline() async {
     try {
       await ref.read(offlineCacheProvider).clear();
+      // 28 Their tickets too.
+      await ref.read(sharedPreferencesProvider).remove(ticketWalletKey);
     } on Object {
       // No preferences (tests without them): nothing was kept.
     }

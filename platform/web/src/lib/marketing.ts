@@ -39,6 +39,8 @@ export const APP_SCREENS = [
   "realestate-search-ar",
   "news-home",
   "news-article",
+  "events-list",
+  "events-ticket",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -71,6 +73,8 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "realestate-search-ar": "Property search in Arabic, right to left",
   "news-home": "A news app's home screen with top stories and sections",
   "news-article": "An article with its picture, author and date",
+  "events-list": "An events app's list of upcoming events with dates and prices",
+  "events-ticket": "A ticket with its QR code, ready to show at the door",
   "dashboard-pages": "The pages and look editor in the Yallapp dashboard",
   "dashboard-setup": "The app setup steps in the Yallapp dashboard",
   "dashboard-builds": "Builds and downloads in the Yallapp dashboard",
@@ -527,6 +531,48 @@ const SOLUTION_COPY: SolutionCopy[] = [
     ],
     docs: [{ href: "/docs/news", label: "News and blog apps" }],
   },
+  {
+    kind: "events",
+    summary: "Event listings, free sign-ups and paid tickets with QR codes.",
+    audience: "Culture centres, venues, theatres, clubs, festivals and organisers of workshops and talks.",
+    screens: ["events-list", "events-ticket"],
+    sources: ["No website: events and tickets managed in the Yallapp dashboard"],
+    highlights: [
+      {
+        icon: "calendar_month",
+        title: "Your programme in a list and a calendar",
+        text: "Upcoming events with their pictures, dates, venue and prices, filters by category and a calendar to pick a day.",
+      },
+      {
+        icon: "confirmation_number",
+        title: "Free sign-ups and paid tickets",
+        text: "Free tickets in a tap. Paid tickets are paid by card on a secure page and issued once the payment is confirmed. Places never sell twice.",
+      },
+      {
+        icon: "qr_code_scanner",
+        title: "Check-in at the door",
+        text: "Every ticket has a QR code that works without a connection. Scan it with a phone's camera on the Check-in page, or type its code: each ticket gets in once.",
+      },
+      {
+        icon: "notifications",
+        title: "Ticket holders hear about changes",
+        text: "Move an event or cancel it, and everyone holding a ticket gets a notification.",
+      },
+    ],
+    inTheApp: [
+      "Browse upcoming events, by category or on a calendar",
+      "Get free tickets or buy paid ones",
+      "Keep every ticket and its QR code in My tickets, also offline",
+      "Add an event to their calendar and find the venue on a map",
+    ],
+    forYou: [
+      "Events with pictures, a venue or an online link, and ticket types with their own prices and limits",
+      "Sales and attendees per event, with a CSV export",
+      "Check tickets at the door with a phone, no app to install",
+      "Card payments into your own iyzico account, or through Yallapp's",
+    ],
+    docs: [{ href: "/docs/events", label: "Events and tickets" }],
+  },
 ];
 
 /** 20 One page per kind that has copy, named and addressed by the registry. */
@@ -651,6 +697,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "Services in Yallapp", types: ["Bookings", "Clinic"], text: "Services, team, working hours, days off and booking rules. Clinics add doctor profiles and an intake form.", docs: "/docs/bookings" },
       { name: "Listings in Yallapp", types: ["Real estate"], text: "Properties with photos, features, a map position and messages.", docs: "/docs/real-estate" },
       { name: "Articles in Yallapp", types: ["News & blog"], text: "Articles with pictures and sections, published when you're ready, with breaking news.", docs: "/docs/news" },
+      { name: "Events in Yallapp", types: ["Events & tickets"], text: "Events with ticket types, free sign-ups, paid tickets, attendees and check-in at the door.", docs: "/docs/events" },
     ],
   },
   {
@@ -659,10 +706,10 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
     text: "Your apps run on your own accounts, so your customers, payments and store listings stay yours.",
     icon: "key",
     items: [
-      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
-      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
-      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
-      { name: "iyzico", types: ["Store", "Academy"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
+      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
+      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
+      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
+      { name: "iyzico", types: ["Store", "Academy", "Events & tickets"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
     ],
   },
 ];

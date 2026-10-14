@@ -183,3 +183,20 @@ jobs:
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Apply the example config as an Events & tickets app
+        run: |
+          jq '.app_type = "events"' config/example.json > "$RUNNER_TEMP/events.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/events.json"
+          grep -q 'appType: AppType.events' lib/generated/build_config.g.dart
+
+      - name: Build Events & tickets debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Events & tickets debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-events-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

@@ -1543,3 +1543,148 @@ Map<String, dynamic> restaurantOrderJson({
     'delivery_fee': type == 'delivery' ? '₺30.00' : null,
   },
 };
+
+// --------------------------------------------------------- Events & tickets (28)
+
+Map<String, dynamic> eventsConfigJson({int? allowCancelHours = 24}) => {
+  'show_map': true,
+  'allow_cancel_hours': allowCancelHours,
+  'time_zone': 'Europe/Istanbul',
+  'currency': 'TRY',
+};
+
+Map<String, dynamic> eventVenueJson() => {
+  'name': 'Main Hall',
+  'address': 'Moda Cd. 120, Kadıköy',
+  'latitude': 40.9837,
+  'longitude': 29.0262,
+};
+
+/// An event at 20:30 on the organiser's clock, [daysAhead] days from now.
+Map<String, dynamic> eventSummaryJson({
+  int id = 7,
+  String title = 'Autumn Jazz Night',
+  int daysAhead = 6,
+  bool online = false,
+  bool venue = true,
+  String status = 'scheduled',
+  String? priceLabel = 'From ₺350.00',
+  int? spotsLeft = 120,
+  bool soldOut = false,
+  String? category = 'Concerts',
+}) {
+  final day = DateTime.now().add(Duration(days: daysAhead));
+  String two(int n) => n.toString().padLeft(2, '0');
+  final date = '${day.year}-${two(day.month)}-${two(day.day)}';
+  return {
+    'id': id,
+    'title': title,
+    'category': category == null
+        ? null
+        : {'id': category.toLowerCase(), 'name': category},
+    'image_url': null,
+    'starts_at': '${date}T17:30:00Z',
+    'ends_at': '${date}T19:30:00Z',
+    'starts_local': '${date}T20:30',
+    'ends_local': '${date}T22:30',
+    'time_zone': 'Europe/Istanbul',
+    'venue': venue ? eventVenueJson() : null,
+    'online': online,
+    'price_label': priceLabel,
+    'status': status,
+    'spots_left': spotsLeft,
+    'sold_out': soldOut,
+  };
+}
+
+Map<String, dynamic> ticketTypeJson({
+  int id = 11,
+  String name = 'Standard',
+  String? amount = '350.00',
+  int? remaining = 100,
+  bool onSale = true,
+  String action = 'checkout',
+  int maxPerOrder = 4,
+}) => {
+  'id': id,
+  'name': name,
+  'price': amount == null
+      ? {
+          'is_free': true,
+          'amount': null,
+          'sale_amount': null,
+          'currency': null,
+          'formatted': null,
+        }
+      : {
+          'is_free': false,
+          'amount': amount,
+          'sale_amount': null,
+          'currency': 'TRY',
+          'formatted': '₺$amount',
+        },
+  'remaining': remaining,
+  'sale_ends_at': null,
+  'max_per_order': maxPerOrder,
+  'on_sale': onSale,
+  'action': action,
+};
+
+Map<String, dynamic> eventDetailJson({
+  int id = 7,
+  bool venue = true,
+  bool online = false,
+  String? onlineUrl,
+  int myTickets = 0,
+  String status = 'scheduled',
+  List<Map<String, dynamic>>? ticketTypes,
+}) => {
+  ...eventSummaryJson(id: id, venue: venue, online: online, status: status),
+  'render_mode': 'native',
+  'html': '<p>A quartet plays standards and their own tunes.</p><ul><li>Doors open at 20:00</li></ul>',
+  'webview_url': null,
+  'embeds': <Map<String, dynamic>>[],
+  'images': <Map<String, dynamic>>[],
+  'organiser': 'Kuzey Culture Centre',
+  'online_url': onlineUrl,
+  'ticket_types':
+      ticketTypes ??
+      [
+        ticketTypeJson(),
+        ticketTypeJson(
+          id: 12,
+          name: 'Free seat',
+          amount: null,
+          action: 'register',
+          remaining: 3,
+        ),
+      ],
+  'my_tickets': myTickets,
+};
+
+Map<String, dynamic> ticketJson({
+  String code = 'K7QM4XP2HD9W',
+  String status = 'valid',
+  String holder = 'Mona Aziz',
+  int daysAhead = 6,
+  bool canCancel = true,
+  String? usedAt,
+}) => {
+  'code': code,
+  'qr_payload': 'YT1.$code.Qy3Zq0yI4mF0Hk9b2Wc1xA',
+  'status': status,
+  'holder_name': holder,
+  'event': eventSummaryJson(daysAhead: daysAhead),
+  'ticket_type': {'id': 12, 'name': 'Free seat'},
+  'price': {
+    'is_free': true,
+    'amount': null,
+    'sale_amount': null,
+    'currency': null,
+    'formatted': null,
+  },
+  'online_url': null,
+  'used_at': usedAt,
+  'can_cancel': canCancel,
+  'created_at': '2026-10-12T10:00:00Z',
+};

@@ -355,4 +355,36 @@ final websiteShots = <Shot>[
     template: AppTemplate.minimal,
     location: '/article/101',
   ),
+  // Events & tickets, a client palette (28).
+  Shot(
+    'events-list',
+    api: () => DemoApi.events(
+      primary: _berry,
+      appearance: _appearance(
+        template: 'bold',
+        font: 'Outfit',
+        secondary: _sand,
+        corners: 'round',
+        cards: 'elevated',
+      ),
+    ),
+    appType: AppType.events,
+    template: AppTemplate.bold,
+  ),
+  Shot(
+    'events-ticket',
+    api: () => DemoApi.events(
+      primary: _berry,
+      appearance: _appearance(
+        template: 'bold',
+        font: 'Outfit',
+        secondary: _sand,
+        corners: 'round',
+        cards: 'elevated',
+      ),
+    ),
+    appType: AppType.events,
+    template: AppTemplate.bold,
+    location: '/ticket/K7QM4XP2HD9W',
+  ),
 ];

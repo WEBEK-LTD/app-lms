@@ -74,7 +74,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
               <Logo height={36} reversed />
             </div>
             <p className="m-0 max-w-[340px] text-[15px] leading-relaxed">
-              Branded Android and iOS apps for academies, stores, bookings, real estate offices and news sites, from the website you already run, or
+              Branded Android and iOS apps for academies, stores, bookings, real estate offices, news sites and events, from the website you already run, or
               from no website at all.
             </p>
             {full ? (

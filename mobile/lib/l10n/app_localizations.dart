@@ -4575,6 +4575,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Give back my spot'**
   String get classGiveBack;
+
+  /// No description provided for @tabEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get tabEvents;
+
+  /// No description provided for @tabTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'My tickets'**
+  String get tabTickets;
+
+  /// No description provided for @eventsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search events'**
+  String get eventsSearchHint;
+
+  /// No description provided for @eventsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventsAll;
+
+  /// Shows the events as a list (beside Calendar).
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get eventsListView;
+
+  /// Shows the events on a month calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get eventsCalendarView;
+
+  /// No description provided for @loadingEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading events'**
+  String get loadingEvents;
+
+  /// No description provided for @noEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on yet'**
+  String get noEventsTitle;
+
+  /// No description provided for @noEventsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New events will show here.'**
+  String get noEventsMessage;
+
+  /// No description provided for @noEventsFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No events found'**
+  String get noEventsFoundTitle;
+
+  /// No description provided for @noEventsFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try other words or another category.'**
+  String get noEventsFoundMessage;
+
+  /// No description provided for @noEventsOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day.'**
+  String get noEventsOnDay;
+
+  /// No description provided for @eventsPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get eventsPreviousMonth;
+
+  /// No description provided for @eventsNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get eventsNextMonth;
+
+  /// No description provided for @eventsOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event} other{{count} events}}'**
+  String eventsOnDay(int count);
+
+  /// No description provided for @eventOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get eventOnline;
+
+  /// No description provided for @eventSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get eventSoldOut;
+
+  /// No description provided for @eventCancelledBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get eventCancelledBadge;
+
+  /// No description provided for @eventEndedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get eventEndedBadge;
+
+  /// No description provided for @eventSpotsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String eventSpotsLeft(int count);
+
+  /// No description provided for @eventCancelledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This event is cancelled.'**
+  String get eventCancelledMessage;
+
+  /// No description provided for @eventEndedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This event has ended.'**
+  String get eventEndedMessage;
+
+  /// No description provided for @eventAddToCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get eventAddToCalendar;
+
+  /// No description provided for @eventShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get eventShare;
+
+  /// No description provided for @eventJoinOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Join online'**
+  String get eventJoinOnline;
+
+  /// No description provided for @eventOnlineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The link to join is on your ticket.'**
+  String get eventOnlineNote;
+
+  /// No description provided for @eventOrganiser.
+  ///
+  /// In en, this message translates to:
+  /// **'By {name}'**
+  String eventOrganiser(String name);
+
+  /// No description provided for @eventTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tickets'**
+  String get eventTicketsTitle;
+
+  /// No description provided for @eventNoTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Tickets aren\'t out yet.'**
+  String get eventNoTickets;
+
+  /// No description provided for @eventGetTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Get tickets'**
+  String get eventGetTickets;
+
+  /// No description provided for @eventBuyTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy tickets'**
+  String get eventBuyTickets;
+
+  /// No description provided for @eventSalesEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales ended'**
+  String get eventSalesEnded;
+
+  /// No description provided for @eventSalesEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales end {date}'**
+  String eventSalesEnd(String date);
+
+  /// Paid tickets that can't be bought here (an online event on iPhone, or no card payments). Never a link to buy elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sold in the app'**
+  String get eventNotInApp;
+
+  /// No description provided for @eventYourTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You have 1 ticket} other{You have {count} tickets}}'**
+  String eventYourTickets(int count);
+
+  /// No description provided for @eventSeeTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'See my tickets'**
+  String get eventSeeTickets;
+
+  /// No description provided for @eventSeeEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'See the event'**
+  String get eventSeeEvent;
+
+  /// No description provided for @ticketsHowMany.
+  ///
+  /// In en, this message translates to:
+  /// **'How many tickets'**
+  String get ticketsHowMany;
+
+  /// No description provided for @ticketsNamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on each ticket'**
+  String get ticketsNamesTitle;
+
+  /// No description provided for @ticketNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket {number}'**
+  String ticketNameLabel(int number);
+
+  /// No description provided for @ticketsGetFree.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Get 1 free ticket} other{Get {count} free tickets}}'**
+  String ticketsGetFree(int count);
+
+  /// No description provided for @ticketsContinueToPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to payment'**
+  String get ticketsContinueToPayment;
+
+  /// No description provided for @ticketsIssuedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. Your tickets are under My tickets.'**
+  String get ticketsIssuedMessage;
+
+  /// No description provided for @ticketsPaidMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received. Your tickets are under My tickets.'**
+  String get ticketsPaidMessage;
+
+  /// No description provided for @ticketsSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tickets live here'**
+  String get ticketsSignInTitle;
+
+  /// No description provided for @ticketsSignInMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your tickets and show them at the door.'**
+  String get ticketsSignInMessage;
+
+  /// No description provided for @noTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No tickets yet'**
+  String get noTicketsTitle;
+
+  /// No description provided for @noTicketsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tickets you get show here, with a QR code for the door.'**
+  String get noTicketsMessage;
+
+  /// No description provided for @ticketsOfflineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline: these are the tickets saved on this phone.'**
+  String get ticketsOfflineNote;
+
+  /// No description provided for @ticketStatusValid.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid'**
+  String get ticketStatusValid;
+
+  /// No description provided for @ticketStatusUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get ticketStatusUsed;
+
+  /// No description provided for @ticketStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get ticketStatusCancelled;
+
+  /// No description provided for @ticketUsedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in {time}'**
+  String ticketUsedAt(String time);
+
+  /// No description provided for @ticketShowAtDoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code at the door'**
+  String get ticketShowAtDoor;
+
+  /// No description provided for @ticketCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel ticket'**
+  String get ticketCancel;
+
+  /// No description provided for @ticketCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this ticket?'**
+  String get ticketCancelTitle;
+
+  /// No description provided for @ticketCancelMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your place goes back on sale. You can\'t undo this.'**
+  String get ticketCancelMessage;
+
+  /// No description provided for @ticketCancelledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket cancelled.'**
+  String get ticketCancelledMessage;
+
+  /// No description provided for @ticketQrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of the ticket for {name}'**
+  String ticketQrLabel(String name);
 }
 
 class _AppLocalizationsDelegate

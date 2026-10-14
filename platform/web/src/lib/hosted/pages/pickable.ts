@@ -53,6 +53,11 @@ export async function pickableContent(
       const listings = (await deps.store.listListings(app.id)).filter((l) => l.status === "published").slice(0, 200);
       out.items.listings = listings.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title }));
     }
+    // 28 Events: the published ones still to come (a list block shows only those).
+    if (engine.source === "events") {
+      const events = (await deps.store.listEvents(app.id)).filter((e) => e.status === "published" && e.endAt.getTime() > now.getTime()).slice(0, 200);
+      out.items.events = events.map((e) => ({ id: String(e.id), title: `${e.title} (${e.startAt.toISOString().slice(0, 10)})` }));
+    }
     return out;
   }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });

@@ -92,6 +92,17 @@ tags:
       API serves articles written in the Yallapp dashboard or read from the
       site's RSS or Atom feed. An article's body is processed like lesson
       content (`render_mode`, `html` with embed placeholders, `embeds`).
+  - name: Events
+    description: |
+      Events and tickets, for Events & tickets apps (roadmap 28): events with
+      their days and times, a venue or an online link, and ticket types. Free
+      tickets are taken in the app; paid tickets are bought on the web payment
+      page and issued only once the payment is confirmed. Each ticket has a
+      random code and a signed QR payload, checked once at the door. Tickets
+      to events at a venue are physical-world services, bought on Android and
+      iOS; tickets to online-only events (no venue) are digital content, so
+      iOS never offers buying them (free tickets work everywhere). Served by
+      the hosted API.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -2203,6 +2214,216 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /events/filters:
+    get:
+      tags: [Events]
+      operationId: getEventFilters
+      summary: Get the filters the events list offers
+      description: The categories of upcoming published events, with how many each has, and the days of the first and last upcoming event, for the list's filters and the calendar.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Filters
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EventFilters' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /events:
+    get:
+      tags: [Events]
+      operationId: listEvents
+      summary: List events
+      description: |
+        Published events, soonest first. Without `from`, events that haven't
+        ended yet; a cancelled event stays in the list with `status: cancelled`
+        until it would have ended. `from` and `to` are days in
+        `EventsConfig.time_zone`, both included.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: from, in: query, schema: { type: string, format: date }, description: 'Events that end on or after this day.' }
+        - { name: to, in: query, schema: { type: string, format: date }, description: 'Events that start on or before this day.' }
+        - { name: category, in: query, schema: { type: string, maxLength: 60 }, description: 'An `EventFilters.categories` id.' }
+        - { name: search, in: query, schema: { type: string, maxLength: 100 }, description: 'Words in the title, description, venue or organiser.' }
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/EventSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /events/{event_id}:
+    get:
+      tags: [Events]
+      operationId: getEvent
+      summary: Get an event
+      description: |
+        A published event with its description (processed like a lesson's
+        content), pictures, venue, ticket types and what each ticket type's
+        button does on this platform (`TicketType.action`). The online link is
+        sent only to people holding a ticket. Signed-in users get `my_tickets`.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: The event
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EventDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /events/{event_id}/register:
+    post:
+      tags: [Events]
+      operationId: registerForEvent
+      summary: Get free tickets
+      description: |
+        Free ticket types only, on every platform. One ticket per name in
+        `attendee_names` (the signed-in user's name for the rest), at most the
+        ticket type's `max_per_order`. Places are taken atomically: fails with
+        `sold_out` (409) when there aren't that many left, with `sales_ended`
+        (409) after the ticket type's sales end or once the event started,
+        with `event_cancelled` (409), and with `purchase_required` (403) for a
+        paid ticket type.
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TicketOrderInput' }
+      responses:
+        '201':
+          description: The tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tickets]
+                properties:
+                  tickets:
+                    type: array
+                    items: { $ref: '#/components/schemas/Ticket' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /events/checkout-link:
+    post:
+      tags: [Events]
+      operationId: createEventCheckoutLink
+      summary: Get a one-time link to buy paid tickets
+      description: |
+        Holds the places and opens the web payment page; the tickets are
+        issued only once the payment is confirmed, and show in
+        `GET /me/tickets` then. Places that aren't paid for are freed after
+        the link expires. Fails with `purchase_not_allowed` (403) on iOS for
+        online-only events (no venue: digital content) and when the organiser
+        can't take card payments, and with `sold_out`, `sales_ended` or
+        `event_cancelled` (409) like `register`. The payment page's last page
+        has `order-received` in its address.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required: [event_id]
+                  properties:
+                    event_id: { type: integer }
+                - $ref: '#/components/schemas/TicketOrderInput'
+      responses:
+        '200':
+          description: Checkout link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in: { type: string, enum: [in_app, browser] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/tickets:
+    get:
+      tags: [Events]
+      operationId: listMyTickets
+      summary: List the user's tickets
+      description: |
+        Every ticket issued to the signed-in user, upcoming events first
+        (soonest first), then past ones. The app keeps the last answer on the
+        device, so tickets and their QR codes show without a connection.
+      responses:
+        '200':
+          description: Tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Ticket' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/tickets/{ticket_code}/cancel:
+    post:
+      tags: [Events]
+      operationId: cancelMyTicket
+      summary: Cancel one of the user's tickets
+      description: |
+        Free tickets only, when the organiser allows it (`EventsConfig.allow_cancel_hours`)
+        and the event starts at least that many hours later; the place goes back
+        on sale. Fails with `cancel_not_allowed` (403) otherwise, and with a
+        conflict (409) for a ticket already used or cancelled. Paid tickets are
+        refunded by the organiser.
+      parameters:
+        - $ref: '#/components/parameters/TicketCode'
+      responses:
+        '200':
+          description: The cancelled ticket
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ticket' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2276,6 +2497,16 @@ components:
       required: true
       description: Numeric on WordPress and for articles written in Yallapp; a short code for articles from a feed.
       schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,64}$', example: '1042' }
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TicketCode:
+      name: ticket_code
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[A-HJ-NP-Z2-9]{12}$', example: K7QM4XP2HD9W }
     InquiryId:
       name: inquiry_id
       in: path
@@ -2376,6 +2607,11 @@ components:
             - membership_required
             - no_credits
             - too_late
+            - sold_out
+            - sales_ended
+            - event_cancelled
+            - purchase_required
+            - cancel_not_allowed
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -2505,6 +2741,7 @@ components:
         languages: { $ref: '#/components/schemas/Languages' }
         listings: { $ref: '#/components/schemas/ListingsConfig' }
         news: { $ref: '#/components/schemas/NewsConfig' }
+        events: { $ref: '#/components/schemas/EventsConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, null]
@@ -2869,11 +3106,12 @@ components:
         id: { type: integer }
         title: { type: string }
         body: { type: string }
-        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer, article] }
+        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer, article, event] }
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
         question_id: { type: [integer, 'null'], description: "For qna_answer, the question that was answered." }
         article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
+        event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
         created_at: { type: string, format: date-time }
         read: { type: boolean }
 
@@ -3667,7 +3905,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -3683,8 +3921,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website.
-      enum: [courses, products, services, posts, listings, articles]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events]
 
     Item:
       type: object
@@ -4110,3 +4348,157 @@ components:
                 type: array
                 maxItems: 10
                 items: { $ref: '#/components/schemas/ArticleSummary' }
+
+    EventsConfig:
+      type: object
+      description: Settings for Events & tickets apps (roadmap 28).
+      required: [show_map, allow_cancel_hours, time_zone, currency]
+      properties:
+        show_map: { type: boolean, description: "Whether an event's page offers \"Open in maps\" for its venue." }
+        allow_cancel_hours:
+          type: [integer, 'null']
+          minimum: 0
+          description: Free tickets can be cancelled in the app until this many hours before the event starts. Null when people can't cancel.
+        time_zone: { type: string, example: Europe/Istanbul, description: "The organiser's time zone: event days and times are shown in it." }
+        currency: { type: string, example: TRY }
+
+    EventFilters:
+      type: object
+      required: [categories, first_date, last_date]
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            required: [id, name, count]
+            properties:
+              id: { type: string, example: concerts }
+              name: { type: string, example: Concerts }
+              count: { type: integer, description: 'Upcoming published events in it.' }
+        first_date: { type: [string, 'null'], format: date, description: 'The day the first upcoming event starts, in `EventsConfig.time_zone`.' }
+        last_date: { type: [string, 'null'], format: date, description: 'The day the last upcoming event starts.' }
+
+    EventVenue:
+      type: object
+      required: [name, address, latitude, longitude]
+      properties:
+        name: { type: string, example: Main Hall }
+        address: { type: [string, 'null'], example: 'Moda Cd. 12, Kadıköy, İstanbul' }
+        latitude: { type: [number, 'null'] }
+        longitude: { type: [number, 'null'] }
+
+    EventCategory:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string, example: concerts }
+        name: { type: string, example: Concerts }
+
+    EventSummary:
+      type: object
+      required: [id, title, category, image_url, starts_at, ends_at, starts_local, ends_local, time_zone, venue, online, price_label, status, spots_left, sold_out]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category:
+          oneOf:
+            - $ref: '#/components/schemas/EventCategory'
+            - type: 'null'
+        image_url: { type: [string, 'null'], format: uri }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        starts_local: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', example: '2026-10-20T20:30', description: 'When it starts on the clock in `time_zone`: the day and time the app shows (apps carry no time zone database).' }
+        ends_local: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', example: '2026-10-20T22:30' }
+        time_zone: { type: string, example: Europe/Istanbul }
+        venue:
+          description: Where it happens; null for an online-only event.
+          oneOf:
+            - $ref: '#/components/schemas/EventVenue'
+            - type: 'null'
+        online: { type: boolean, description: 'Whether it can be joined online (it has an online link).' }
+        price_label: { type: [string, 'null'], description: 'Display text only ("Free", "From ₺150"). Never a purchase button.', example: Free }
+        status: { type: string, enum: [scheduled, cancelled, ended] }
+        spots_left: { type: [integer, 'null'], description: 'Places left across its ticket types; null when there''s no limit.' }
+        sold_out: { type: boolean }
+
+    TicketType:
+      type: object
+      required: [id, name, price, remaining, sale_ends_at, max_per_order, on_sale, action]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Standard }
+        price: { $ref: '#/components/schemas/Price' }
+        remaining: { type: [integer, 'null'], description: 'Tickets left of this type (the event''s own limit counted); null when there''s no limit.' }
+        sale_ends_at: { type: [string, 'null'], format: date-time }
+        max_per_order: { type: integer, minimum: 1 }
+        on_sale: { type: boolean, description: 'Whether it can be had now (not sold out, sales not ended, event not cancelled or started).' }
+        action:
+          type: string
+          description: |
+            What its button does on this platform: `register` (free, `POST /events/{event_id}/register`),
+            `checkout` (paid, `POST /events/checkout-link`) or `none` (no button: not on sale, or paid tickets that
+            can't be bought here, such as an online-only event on iOS).
+          enum: [register, checkout, none]
+
+    EventDetail:
+      allOf:
+        - $ref: '#/components/schemas/EventSummary'
+        - type: object
+          description: The description is processed exactly like a lesson's content (see `Lesson`).
+          required: [render_mode, html, webview_url, embeds, images, organiser, online_url, ticket_types, my_tickets]
+          properties:
+            render_mode: { type: string, enum: [native, webview] }
+            html: { type: [string, 'null'] }
+            webview_url: { type: [string, 'null'], format: uri }
+            embeds:
+              type: array
+              items: { $ref: '#/components/schemas/Embed' }
+            images:
+              type: array
+              items:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+            organiser: { type: [string, 'null'], example: Kuzey Culture Centre }
+            online_url: { type: [string, 'null'], format: uri, description: 'The link to join online; only for a signed-in user holding a valid ticket.' }
+            ticket_types:
+              type: array
+              items: { $ref: '#/components/schemas/TicketType' }
+            my_tickets: { type: integer, description: 'The signed-in user''s valid and used tickets to it; 0 when signed out.' }
+
+    TicketOrderInput:
+      type: object
+      required: [ticket_type_id, quantity]
+      properties:
+        ticket_type_id: { type: integer }
+        quantity: { type: integer, minimum: 1, maximum: 20 }
+        attendee_names:
+          type: array
+          maxItems: 20
+          description: A name per ticket, shown on it. Left out or shorter, the user's own name fills the rest.
+          items: { type: string, maxLength: 80 }
+
+    Ticket:
+      type: object
+      required: [code, qr_payload, status, holder_name, event, ticket_type, price, online_url, used_at, can_cancel, created_at]
+      properties:
+        code: { type: string, pattern: '^[A-HJ-NP-Z2-9]{12}$', example: K7QM4XP2HD9W, description: 'Random and unguessable. Shown in groups of four ("K7QM-4XP2-HD9W") for typing at the door.' }
+        qr_payload:
+          type: string
+          example: YT1.K7QM4XP2HD9W.Qy3Zq0yI4mF0Hk9b2Wc1xA
+          description: What the QR code holds, as it is. It is signed with a key of this app, so a QR code can't be made up offline; the organiser's check-in checks it.
+        status: { type: string, enum: [valid, used, cancelled] }
+        holder_name: { type: string }
+        event: { $ref: '#/components/schemas/EventSummary' }
+        ticket_type:
+          type: object
+          required: [id, name]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        price: { $ref: '#/components/schemas/Price' }
+        online_url: { type: [string, 'null'], format: uri, description: 'For an online event, the link to join; null for a cancelled ticket.' }
+        used_at: { type: [string, 'null'], format: date-time, description: 'When it was checked in at the door.' }
+        can_cancel: { type: boolean, description: 'Whether `POST /me/tickets/{ticket_code}/cancel` would work now.' }
+        created_at: { type: string, format: date-time }

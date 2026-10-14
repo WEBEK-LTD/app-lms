@@ -47,6 +47,12 @@ String shortDayLabel(DateTime day) => _format('EEE d MMM', day);
 /// "12 Oct 2026".
 String shortDate(DateTime time) => _format('d MMM y', time.toLocal());
 
+/// "October 2026": a calendar's month.
+String monthLabel(DateTime day) => _format('MMMM y', day);
+
+/// "18 Oct, 19:42": a moment on this phone's clock.
+String dayAndTime(DateTime time) => _format('d MMM, HH:mm', time.toLocal());
+
 /// "2 April 1990": a calendar day with its year (an intake form's date).
 String longDate(DateTime day) => _format('d MMMM y', day);
 

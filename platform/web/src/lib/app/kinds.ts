@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab } from "../pages/typ
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -390,6 +390,57 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     categories: { play: "News & Magazines", appStore: "News" },
     demo: { slug: "news" },
   },
+  // 28 Events & tickets: event listings, free sign-ups and paid tickets with QR codes checked at the door.
+  events: {
+    id: "events",
+    name: "Events & tickets",
+    icon: "confirmation_number",
+    homePath: "/events",
+    configCheck: { label: "Config has the events settings", fix: "Add `events` to /config.", key: "events", in: "root", type: "object" },
+    // Hosted only for now: events are managed in the dashboard (a WordPress events plugin is a later step).
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-venue.com",
+    platformChoice: { title: "Another platform", text: "Your events come from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "events",
+      choice: {
+        title: "Events managed in Yallapp",
+        text: "Add your events and their tickets here in the dashboard. People get free tickets or buy paid ones in the app, and you check their QR codes at the door.",
+      },
+      next: "After this step, add your events and their tickets on the **Events** page, and check tickets at the door on the **Check-in** page. People sign in to the app with",
+      switchLabel: "No website: events in the dashboard",
+      adminLabel: "Events & tickets: events in the dashboard",
+      nav: {
+        label: "Your events",
+        items: [
+          { href: "/dashboard/events", label: "Events", icon: "event" },
+          { href: "/dashboard/check-in", label: "Check-in", icon: "qr_code_scanner" },
+        ],
+      },
+    },
+    pages: {
+      source: "events",
+      read: null,
+      blocks: [],
+      tabs: [tab("events", "Events", "event", "events"), tab("tickets", "My tickets", "confirmation_number", "tickets")],
+      home: [
+        { id: "search", type: "search", visibility: "everyone", title: null, source: "events", placeholder: "Search events" },
+        {
+          id: "upcoming",
+          type: "items",
+          visibility: "everyone",
+          title: "Coming up",
+          source: "events",
+          layout: "carousel",
+          see_all: { type: "screen", screen: "events" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "Events", appStore: "Entertainment" },
+    demo: { slug: "events" },
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -545,6 +596,18 @@ export const KINDS: readonly KindInfo[] = [
     icon: "newspaper",
     tile: "bg-tile-4 text-[#6B2E55]",
     marketing: { slug: "news", icon: "newspaper" },
+  },
+  {
+    // 28 Events & tickets
+    id: "events",
+    engine: "events",
+    vertical: null,
+    name: "Events & tickets",
+    description: "Event listings, free sign-ups and paid tickets with QR codes checked at the door.",
+    requires: "No website needed: you add your events here in the dashboard",
+    icon: "confirmation_number",
+    tile: "bg-tile-1 text-[#8A4B12]",
+    marketing: { slug: "events", icon: "confirmation_number" },
   },
 ];
 

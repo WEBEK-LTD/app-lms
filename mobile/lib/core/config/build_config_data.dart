@@ -6,8 +6,9 @@ library;
 enum AppTemplate { classic, bold, minimal }
 
 /// Which module the app is: an Academy (`lms`), a Store, Bookings, Real
-/// estate (`real_estate`) or News & blog (`news`). One app type per build.
-enum AppType { lms, store, booking, realEstate, news }
+/// estate (`real_estate`), News & blog (`news`) or Events & tickets
+/// (`events`). One app type per build.
+enum AppType { lms, store, booking, realEstate, news, events }
 
 /// The kind of business on top of the app type (`vertical` in the build
 /// config and in `Config`). It changes wording and defaults, never which

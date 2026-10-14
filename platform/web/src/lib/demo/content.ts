@@ -6,7 +6,7 @@ import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
 
 /**
- * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven, 27 eight) with
+ * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven, 27 eight, 28 nine) with
  * believable names, prices and texts. People, shops and addresses are
  * invented. Pictures are drawn in lib/demo/pictures.ts.
  */
@@ -186,6 +186,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["news-home", "news-article"],
   },
+  events: {
+    summary: "A city culture centre with concerts, a film club, a ceramics workshop and online talks: free sign-ups and paid tickets.",
+    tryThis: [
+      "Get free tickets for the film club and find them, with their QR code, under My tickets",
+      "Buy a concert ticket: the demo checkout takes no card",
+      "Switch to the calendar and pick a day",
+      "On an iPhone, open the online masterclass: paid online events show no buy button there",
+    ],
+    screens: ["events-list", "events-ticket"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -342,6 +352,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Local news: the city, business, culture, sport and food.",
     fullDescription: `The Harbour Post brings local news to your phone: the city, business, culture, sport and food.\n\nRead the top stories, browse sections, save articles for later and get breaking news.\n\n${PRIVACY_NOTE}`,
     welcome: "Local news, written by people who live here.",
+  },
+  events: {
+    appName: "Kuzey Culture Centre",
+    shortName: "Kuzey",
+    primaryColor: "#5B2A86",
+    splashColor: "#F1EAF7",
+    secondaryColor: "#F2B544",
+    template: "bold",
+    font: "Outfit",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-events",
+    banner: { picture: "banner-events", heading: "Something on every week", subheading: "Concerts, films, workshops and talks at the centre and online." },
+    androidPackage: "com.yallapp.demo.events",
+    storeTitle: "Kuzey Culture Centre",
+    shortDescription: "Concerts, films, workshops and talks: tickets in your pocket.",
+    fullDescription: `Kuzey Culture Centre puts its programme on your phone: concerts, a film club, workshops and online talks.\n\nGet free tickets, buy paid ones and show the QR code at the door, even without a connection.\n\n${PRIVACY_NOTE}`,
+    welcome: "Concerts, films, workshops and talks. Get your tickets here and show them at the door.",
   },
 };
 
@@ -1082,5 +1111,112 @@ export const DEMO_ARTICLES: DemoArticle[] = [
     featured: false,
     hoursAgo: 72,
     body: "<p>Harbour United beat their visitors 2–1 on Sunday with a header in the 89th minute, their third win in a row.</p><p>The visitors had equalised just after half time. The home side's young striker scored the winner from a corner.</p>",
+  },
+];
+
+// 28 Events & tickets
+
+export interface DemoTicketType {
+  name: string;
+  priceCents: number;
+  capacity: number | null;
+  maxPerOrder: number;
+}
+
+export interface DemoEvent {
+  /** Unique in the demo: events are matched by title when the demo is refreshed. */
+  title: string;
+  category: string;
+  picture: PictureName;
+  /** How many days after the refresh it starts, and at what local time (Europe/Istanbul). */
+  daysAhead: number;
+  start: string;
+  minutes: number;
+  /** Null for an online-only event. */
+  venue: { name: string; address: string; latitude: number; longitude: number } | null;
+  onlineUrl: string | null;
+  capacity: number | null;
+  description: string;
+  ticketTypes: DemoTicketType[];
+}
+
+export const EVENT_SETTINGS = { currency: "TRY" as CatalogCurrency, timeZone: "Europe/Istanbul", showMap: true, allowCancelHours: 24 };
+
+const CENTRE = { name: "Kuzey Culture Centre, Main Hall", address: "Moda Cd. 120, Kadıköy, İstanbul", latitude: 40.9837, longitude: 29.0262 };
+const STUDIO = { name: "Kuzey Culture Centre, Studio 2", address: "Moda Cd. 120, Kadıköy, İstanbul", latitude: 40.9837, longitude: 29.0262 };
+
+export const DEMO_EVENTS: DemoEvent[] = [
+  {
+    title: "Autumn Jazz Night",
+    category: "Concerts",
+    picture: "event-jazz",
+    daysAhead: 6,
+    start: "20:30",
+    minutes: 120,
+    venue: CENTRE,
+    onlineUrl: null,
+    capacity: 180,
+    description:
+      "<p>A quartet from the city's jazz scene plays standards and their own tunes in the Main Hall, with a short break halfway.</p><ul><li>Doors open at 20:00</li><li>The café is open before the concert and in the break</li><li>Seats are not numbered, except in the front rows</li></ul>",
+    ticketTypes: [
+      { name: "Standard", priceCents: 35000, capacity: 150, maxPerOrder: 6 },
+      { name: "Front rows", priceCents: 55000, capacity: 30, maxPerOrder: 4 },
+    ],
+  },
+  {
+    title: "Saturday Film Club: harbour classics",
+    category: "Film",
+    picture: "event-film",
+    daysAhead: 3,
+    start: "15:00",
+    minutes: 150,
+    venue: STUDIO,
+    onlineUrl: null,
+    capacity: 60,
+    description:
+      "<p>An old black-and-white film set on the waterfront, with a short talk before it and tea after. Free for everyone; take a ticket so we keep you a seat.</p>",
+    ticketTypes: [{ name: "Free seat", priceCents: 0, capacity: null, maxPerOrder: 4 }],
+  },
+  {
+    title: "Ceramics for beginners",
+    category: "Workshops",
+    picture: "event-ceramics",
+    daysAhead: 10,
+    start: "11:00",
+    minutes: 180,
+    venue: STUDIO,
+    onlineUrl: null,
+    capacity: 12,
+    description:
+      "<p>Make your first bowl on the wheel with a potter from the neighbourhood. Clay, tools and an apron are included; we fire your bowl and you collect it a week later.</p><p>Wear clothes that can get a little dusty.</p>",
+    ticketTypes: [{ name: "Workshop place", priceCents: 45000, capacity: null, maxPerOrder: 2 }],
+  },
+  {
+    title: "Online talk: writing about your city",
+    category: "Talks",
+    picture: "event-talk",
+    daysAhead: 8,
+    start: "19:00",
+    minutes: 60,
+    venue: null,
+    onlineUrl: "https://meet.example.com/kuzey-writing-talk",
+    capacity: null,
+    description:
+      "<p>Two local writers talk about turning streets, ferries and neighbours into stories, and answer your questions. The link to join is on your ticket.</p>",
+    ticketTypes: [{ name: "Free online seat", priceCents: 0, capacity: null, maxPerOrder: 1 }],
+  },
+  {
+    title: "Online masterclass: the city at night",
+    category: "Talks",
+    picture: "event-photo",
+    daysAhead: 14,
+    start: "20:00",
+    minutes: 90,
+    venue: null,
+    onlineUrl: "https://meet.example.com/kuzey-night-photography",
+    capacity: 100,
+    description:
+      "<p>A photographer shows how she takes pictures of the city after dark with a phone or a small camera, then looks at pictures people send in.</p>",
+    ticketTypes: [{ name: "Online place", priceCents: 15000, capacity: null, maxPerOrder: 1 }],
   },
 ];

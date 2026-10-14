@@ -66,6 +66,8 @@ const symbolsByName = <String, IconData>{
   'card_giftcard': Symbols.card_giftcard_rounded,
   'category': Symbols.category_rounded,
   'chat_bubble': Symbols.chat_bubble_rounded,
+  // 28 Events & tickets apps' My tickets tab.
+  'confirmation_number': AppIcons.ticket,
   'cottage': Symbols.cottage_rounded,
   'dashboard': Symbols.dashboard_rounded,
   'description': Symbols.description_rounded,

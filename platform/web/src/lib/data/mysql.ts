@@ -83,6 +83,8 @@ import { ACTIVE_BOOKING_STATUSES } from "./types";
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 23 News & blog
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
+// 28 Events & tickets
+import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -1558,6 +1560,225 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  // 28 Events & tickets
+
+  async listEvents(appId: string): Promise<EventRecord[]> {
+    const t = schema.events;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.startAt), asc(t.id)));
+  }
+
+  async getEvent(appId: string, id: number): Promise<EventRecord | null> {
+    const t = schema.events;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createEvent(input: EventInput, now: Date): Promise<EventRecord> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.events).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateEvent(appId: string, id: number, patch: Partial<EventInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...rest } = patch;
+    void _ignored;
+    const t = schema.events;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteEvent(appId: string, id: number): Promise<void> {
+    // Its ticket types and tickets cascade.
+    const t = schema.events;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listTicketTypes(appId: string, eventId?: number): Promise<TicketType[]> {
+    const t = schema.eventTicketTypes;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eventId !== undefined ? eq(t.eventId, eventId) : undefined))
+        .orderBy(asc(t.eventId), asc(t.position), asc(t.id)),
+    );
+  }
+
+  async createTicketType(input: TicketTypeInput, now: Date): Promise<TicketType> {
+    const values = { ...input, createdAt: now };
+    const [result] = await this.run((db) => db.insert(schema.eventTicketTypes).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateTicketType(appId: string, id: number, patch: Partial<Omit<TicketTypeInput, "appId" | "eventId">>): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    const t = schema.eventTicketTypes;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteTicketType(appId: string, id: number): Promise<void> {
+    const t = schema.eventTicketTypes;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async claimTickets(claim: TicketClaim): Promise<{ ok: true; tickets: EventTicket[] } | { ok: false; reason: TicketClaimRefusal }> {
+    const e = schema.events;
+    const tt = schema.eventTicketTypes;
+    const tk = schema.eventTickets;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // One claim at a time per event: the event's row is the lock, so the
+        // counts below already include the tickets of a claim that just ended.
+        const [event] = await tx
+          .select({ id: e.id, status: e.status, capacity: e.capacity })
+          .from(e)
+          .where(and(eq(e.appId, claim.appId), eq(e.id, claim.eventId)))
+          .for("update");
+        const [type] = await tx
+          .select({ id: tt.id, capacity: tt.capacity })
+          .from(tt)
+          .where(and(eq(tt.appId, claim.appId), eq(tt.id, claim.ticketTypeId), eq(tt.eventId, claim.eventId)))
+          .limit(1);
+        if (!event || event.status !== "published" || !type) return { ok: false as const, reason: "not_on_sale" as const };
+        const holdsPlace = or(inArray(tk.status, ["valid", "used"]), and(eq(tk.status, "pending"), gt(tk.holdUntil, claim.now)));
+        const counts = await tx
+          .select({ ticketTypeId: tk.ticketTypeId, n: count() })
+          .from(tk)
+          .where(and(eq(tk.eventId, claim.eventId), holdsPlace))
+          .groupBy(tk.ticketTypeId);
+        const total = counts.reduce((sum, c) => sum + Number(c.n), 0);
+        const ofType = Number(counts.find((c) => c.ticketTypeId === type.id)?.n ?? 0);
+        const wanted = claim.tickets.length;
+        if (event.capacity !== null && total + wanted > event.capacity) return { ok: false as const, reason: "sold_out" as const };
+        if (type.capacity !== null && ofType + wanted > type.capacity) return { ok: false as const, reason: "sold_out" as const };
+        const rows = claim.tickets.map((t) => ({
+          appId: claim.appId,
+          eventId: claim.eventId,
+          ticketTypeId: claim.ticketTypeId,
+          userId: claim.userId,
+          orderId: claim.orderId,
+          code: t.code,
+          holderName: t.holderName,
+          priceCents: claim.priceCents,
+          status: claim.status,
+          holdUntil: claim.holdUntil,
+          usedAt: null,
+          cancelledAt: null,
+          createdAt: claim.now,
+        }));
+        await tx.insert(tk).values(rows);
+        const saved = await tx
+          .select()
+          .from(tk)
+          .where(
+            inArray(
+              tk.code,
+              rows.map((r) => r.code),
+            ),
+          )
+          .orderBy(asc(tk.id));
+        return { ok: true as const, tickets: saved };
+      }),
+    );
+  }
+
+  async countTicketPlaces(appId: string, now: Date): Promise<{ eventId: number; ticketTypeId: number; count: number }[]> {
+    const t = schema.eventTickets;
+    const rows = await this.run((db) =>
+      db
+        .select({ eventId: t.eventId, ticketTypeId: t.ticketTypeId, count: count() })
+        .from(t)
+        .where(and(eq(t.appId, appId), or(inArray(t.status, ["valid", "used"]), and(eq(t.status, "pending"), gt(t.holdUntil, now)))))
+        .groupBy(t.eventId, t.ticketTypeId),
+    );
+    return rows.map((r) => ({ eventId: r.eventId, ticketTypeId: r.ticketTypeId, count: Number(r.count) }));
+  }
+
+  async listTickets(input: { appId: string; eventId?: number; userId?: number; orderId?: number }): Promise<EventTicket[]> {
+    const t = schema.eventTickets;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, input.appId),
+            input.eventId !== undefined ? eq(t.eventId, input.eventId) : undefined,
+            input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+            input.orderId !== undefined ? eq(t.orderId, input.orderId) : undefined,
+          ),
+        )
+        .orderBy(asc(t.createdAt), asc(t.id)),
+    );
+  }
+
+  async getTicketByCode(appId: string, code: string): Promise<EventTicket | null> {
+    const t = schema.eventTickets;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.code, code))).limit(1));
+    return row ?? null;
+  }
+
+  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number> {
+    void now;
+    const t = schema.eventTickets;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "valid", holdUntil: null })
+        .where(and(eq(t.appId, appId), eq(t.orderId, orderId), eq(t.status, "pending"))),
+    );
+    return result.affectedRows;
+  }
+
+  async checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult> {
+    const t = schema.eventTickets;
+    // Only a valid ticket changes: of two scans at once, one wins and the other sees it used.
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "used", usedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.code, code), eq(t.status, "valid"))),
+    );
+    const ticket = await this.getTicketByCode(appId, code);
+    if (!ticket) return { ok: false, reason: "not_found" };
+    if (result.affectedRows === 1) return { ok: true, ticket };
+    return { ok: false, reason: ticket.status === "valid" ? "used" : ticket.status, ticket };
+  }
+
+  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number> {
+    if (input.ids === undefined && input.eventId === undefined) return 0;
+    if (input.ids !== undefined && input.ids.length === 0) return 0;
+    const t = schema.eventTickets;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "cancelled", cancelledAt: now })
+        .where(
+          and(
+            eq(t.appId, appId),
+            eq(t.status, "valid"),
+            input.ids !== undefined ? inArray(t.id, input.ids) : undefined,
+            input.eventId !== undefined ? eq(t.eventId, input.eventId) : undefined,
+          ),
+        ),
+    );
+    return result.affectedRows;
+  }
+
+  async getEventSettings(appId: string): Promise<EventSettings | null> {
+    const t = schema.eventSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.eventSettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
+  }
+
   // 10.7 Listings
 
   async listListings(appId: string): Promise<Listing[]> {
@@ -2047,6 +2268,8 @@ export class MysqlStore implements DataStore {
   async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
     const s = schema;
     // Each statement is limited to the one app; messages and refresh tokens cascade.
+    // 28 Tickets first: a ticket of a deleted order goes with it.
+    const [tickets] = await this.run((db) => db.delete(s.eventTickets).where(and(eq(s.eventTickets.appId, appId), lt(s.eventTickets.createdAt, before))));
     const [orders] = await this.run((db) => db.delete(s.catalogOrders).where(and(eq(s.catalogOrders.appId, appId), lt(s.catalogOrders.createdAt, before))));
     const [appointments] = await this.run((db) =>
       db.delete(s.bookingAppointments).where(and(eq(s.bookingAppointments.appId, appId), lt(s.bookingAppointments.createdAt, before))),
@@ -2097,6 +2320,7 @@ export class MysqlStore implements DataStore {
       notifications: notifications.affectedRows,
       classBookings: classBookings.affectedRows,
       memberships: memberships.affectedRows,
+      tickets: tickets.affectedRows,
     };
   }
 

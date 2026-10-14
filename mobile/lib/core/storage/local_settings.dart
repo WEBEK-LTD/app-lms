@@ -22,6 +22,10 @@ enum VideoQuality {
 
 const playbackSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
 
+/// 28 The signed-in user's tickets kept on this phone (Events & tickets
+/// apps), so they show offline; forgotten on sign-out.
+const ticketWalletKey = 'events.tickets';
+
 String speedLabel(double speed) {
   final text = speed == speed.roundToDouble()
       ? speed.toStringAsFixed(0)

@@ -2771,4 +2771,222 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get classGiveBack => 'Yerimi bırak';
+
+  @override
+  String get tabEvents => 'Etkinlikler';
+
+  @override
+  String get tabTickets => 'Biletlerim';
+
+  @override
+  String get eventsSearchHint => 'Etkinlik ara';
+
+  @override
+  String get eventsAll => 'Tümü';
+
+  @override
+  String get eventsListView => 'Liste';
+
+  @override
+  String get eventsCalendarView => 'Takvim';
+
+  @override
+  String get loadingEvents => 'Etkinlikler yükleniyor';
+
+  @override
+  String get noEventsTitle => 'Henüz etkinlik yok';
+
+  @override
+  String get noEventsMessage => 'Yeni etkinlikler burada görünecek.';
+
+  @override
+  String get noEventsFoundTitle => 'Etkinlik bulunamadı';
+
+  @override
+  String get noEventsFoundMessage =>
+      'Başka kelimeler ya da başka bir kategori deneyin.';
+
+  @override
+  String get noEventsOnDay => 'Bu gün etkinlik yok.';
+
+  @override
+  String get eventsPreviousMonth => 'Önceki ay';
+
+  @override
+  String get eventsNextMonth => 'Sonraki ay';
+
+  @override
+  String eventsOnDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count etkinlik',
+      one: '1 etkinlik',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventOnline => 'Çevrim içi';
+
+  @override
+  String get eventSoldOut => 'Tükendi';
+
+  @override
+  String get eventCancelledBadge => 'İptal edildi';
+
+  @override
+  String get eventEndedBadge => 'Sona erdi';
+
+  @override
+  String eventSpotsLeft(int count) {
+    return '$count kaldı';
+  }
+
+  @override
+  String get eventCancelledMessage => 'Bu etkinlik iptal edildi.';
+
+  @override
+  String get eventEndedMessage => 'Bu etkinlik sona erdi.';
+
+  @override
+  String get eventAddToCalendar => 'Takvime ekle';
+
+  @override
+  String get eventShare => 'Paylaş';
+
+  @override
+  String get eventJoinOnline => 'Çevrim içi katıl';
+
+  @override
+  String get eventOnlineNote => 'Katılma bağlantısı biletinizde.';
+
+  @override
+  String eventOrganiser(String name) {
+    return 'Düzenleyen: $name';
+  }
+
+  @override
+  String get eventTicketsTitle => 'Biletler';
+
+  @override
+  String get eventNoTickets => 'Biletler henüz satışta değil.';
+
+  @override
+  String get eventGetTickets => 'Bilet al';
+
+  @override
+  String get eventBuyTickets => 'Bilet satın al';
+
+  @override
+  String get eventSalesEnded => 'Satış sona erdi';
+
+  @override
+  String eventSalesEnd(String date) {
+    return 'Satış $date tarihinde bitiyor';
+  }
+
+  @override
+  String get eventNotInApp => 'Uygulamada satılmıyor';
+
+  @override
+  String eventYourTickets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count biletiniz var',
+      one: '1 biletiniz var',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventSeeTickets => 'Biletlerimi gör';
+
+  @override
+  String get eventSeeEvent => 'Etkinliği gör';
+
+  @override
+  String get ticketsHowMany => 'Kaç bilet';
+
+  @override
+  String get ticketsNamesTitle => 'Her biletteki isim';
+
+  @override
+  String ticketNameLabel(int number) {
+    return '$number. bilet';
+  }
+
+  @override
+  String ticketsGetFree(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ücretsiz bilet al',
+      one: '1 ücretsiz bilet al',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsContinueToPayment => 'Ödemeye geç';
+
+  @override
+  String get ticketsIssuedMessage => 'Tamam. Biletleriniz Biletlerim\'de.';
+
+  @override
+  String get ticketsPaidMessage => 'Ödeme alındı. Biletleriniz Biletlerim\'de.';
+
+  @override
+  String get ticketsSignInTitle => 'Biletleriniz burada';
+
+  @override
+  String get ticketsSignInMessage =>
+      'Biletlerinizi görmek ve girişte göstermek için oturum açın.';
+
+  @override
+  String get noTicketsTitle => 'Henüz biletiniz yok';
+
+  @override
+  String get noTicketsMessage =>
+      'Aldığınız biletler girişte göstereceğiniz QR koduyla burada görünür.';
+
+  @override
+  String get ticketsOfflineNote =>
+      'Çevrim dışısınız: bunlar bu telefonda kayıtlı biletler.';
+
+  @override
+  String get ticketStatusValid => 'Geçerli';
+
+  @override
+  String get ticketStatusUsed => 'Kullanıldı';
+
+  @override
+  String get ticketStatusCancelled => 'İptal edildi';
+
+  @override
+  String ticketUsedAt(String time) {
+    return 'Giriş yapıldı: $time';
+  }
+
+  @override
+  String get ticketShowAtDoor => 'Bu kodu girişte gösterin';
+
+  @override
+  String get ticketCancel => 'Bileti iptal et';
+
+  @override
+  String get ticketCancelTitle => 'Bu bilet iptal edilsin mi?';
+
+  @override
+  String get ticketCancelMessage =>
+      'Yeriniz yeniden satışa çıkar. Bu geri alınamaz.';
+
+  @override
+  String get ticketCancelledMessage => 'Bilet iptal edildi.';
+
+  @override
+  String ticketQrLabel(String name) {
+    return '$name adına biletin QR kodu';
+  }
 }

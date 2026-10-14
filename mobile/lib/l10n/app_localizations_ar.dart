@@ -2811,4 +2811,227 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classGiveBack => 'تخلَّ عن مكاني';
+
+  @override
+  String get tabEvents => 'الفعاليات';
+
+  @override
+  String get tabTickets => 'تذاكري';
+
+  @override
+  String get eventsSearchHint => 'ابحث عن فعالية';
+
+  @override
+  String get eventsAll => 'الكل';
+
+  @override
+  String get eventsListView => 'قائمة';
+
+  @override
+  String get eventsCalendarView => 'تقويم';
+
+  @override
+  String get loadingEvents => 'جارٍ تحميل الفعاليات';
+
+  @override
+  String get noEventsTitle => 'لا توجد فعاليات بعد';
+
+  @override
+  String get noEventsMessage => 'ستظهر الفعاليات الجديدة هنا.';
+
+  @override
+  String get noEventsFoundTitle => 'لم نجد فعاليات';
+
+  @override
+  String get noEventsFoundMessage => 'جرّب كلمات أخرى أو فئة أخرى.';
+
+  @override
+  String get noEventsOnDay => 'لا توجد فعاليات في هذا اليوم.';
+
+  @override
+  String get eventsPreviousMonth => 'الشهر السابق';
+
+  @override
+  String get eventsNextMonth => 'الشهر التالي';
+
+  @override
+  String eventsOnDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فعالية',
+      few: '$count فعاليات',
+      two: 'فعاليتان',
+      one: 'فعالية واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventOnline => 'عبر الإنترنت';
+
+  @override
+  String get eventSoldOut => 'نفدت التذاكر';
+
+  @override
+  String get eventCancelledBadge => 'أُلغيت';
+
+  @override
+  String get eventEndedBadge => 'انتهت';
+
+  @override
+  String eventSpotsLeft(int count) {
+    return 'بقي $count';
+  }
+
+  @override
+  String get eventCancelledMessage => 'أُلغيت هذه الفعالية.';
+
+  @override
+  String get eventEndedMessage => 'انتهت هذه الفعالية.';
+
+  @override
+  String get eventAddToCalendar => 'أضف إلى التقويم';
+
+  @override
+  String get eventShare => 'مشاركة';
+
+  @override
+  String get eventJoinOnline => 'انضم عبر الإنترنت';
+
+  @override
+  String get eventOnlineNote => 'رابط الانضمام موجود في تذكرتك.';
+
+  @override
+  String eventOrganiser(String name) {
+    return 'تنظيم $name';
+  }
+
+  @override
+  String get eventTicketsTitle => 'التذاكر';
+
+  @override
+  String get eventNoTickets => 'لم تُطرح التذاكر بعد.';
+
+  @override
+  String get eventGetTickets => 'احصل على التذاكر';
+
+  @override
+  String get eventBuyTickets => 'اشترِ التذاكر';
+
+  @override
+  String get eventSalesEnded => 'انتهى البيع';
+
+  @override
+  String eventSalesEnd(String date) {
+    return 'ينتهي البيع $date';
+  }
+
+  @override
+  String get eventNotInApp => 'لا تُباع في التطبيق';
+
+  @override
+  String eventYourTickets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'لديك $count تذكرة',
+      few: 'لديك $count تذاكر',
+      two: 'لديك تذكرتان',
+      one: 'لديك تذكرة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventSeeTickets => 'عرض تذاكري';
+
+  @override
+  String get eventSeeEvent => 'عرض الفعالية';
+
+  @override
+  String get ticketsHowMany => 'عدد التذاكر';
+
+  @override
+  String get ticketsNamesTitle => 'الاسم على كل تذكرة';
+
+  @override
+  String ticketNameLabel(int number) {
+    return 'التذكرة $number';
+  }
+
+  @override
+  String ticketsGetFree(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'احصل على $count تذكرة مجانية',
+      few: 'احصل على $count تذاكر مجانية',
+      two: 'احصل على تذكرتين مجانيتين',
+      one: 'احصل على تذكرة مجانية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsContinueToPayment => 'المتابعة إلى الدفع';
+
+  @override
+  String get ticketsIssuedMessage => 'تم. تذاكرك في «تذاكري».';
+
+  @override
+  String get ticketsPaidMessage => 'تم الدفع. تذاكرك في «تذاكري».';
+
+  @override
+  String get ticketsSignInTitle => 'تذاكرك هنا';
+
+  @override
+  String get ticketsSignInMessage =>
+      'سجّل الدخول لترى تذاكرك وتعرضها عند الدخول.';
+
+  @override
+  String get noTicketsTitle => 'لا توجد تذاكر بعد';
+
+  @override
+  String get noTicketsMessage =>
+      'تظهر هنا التذاكر التي تحصل عليها، مع رمز QR للدخول.';
+
+  @override
+  String get ticketsOfflineNote =>
+      'أنت غير متصل: هذه التذاكر المحفوظة على هذا الهاتف.';
+
+  @override
+  String get ticketStatusValid => 'صالحة';
+
+  @override
+  String get ticketStatusUsed => 'مستخدمة';
+
+  @override
+  String get ticketStatusCancelled => 'ملغاة';
+
+  @override
+  String ticketUsedAt(String time) {
+    return 'سُجّل الدخول $time';
+  }
+
+  @override
+  String get ticketShowAtDoor => 'اعرض هذا الرمز عند الدخول';
+
+  @override
+  String get ticketCancel => 'إلغاء التذكرة';
+
+  @override
+  String get ticketCancelTitle => 'إلغاء هذه التذكرة؟';
+
+  @override
+  String get ticketCancelMessage =>
+      'سيُعرض مكانك للبيع من جديد، ولا يمكن التراجع عن ذلك.';
+
+  @override
+  String get ticketCancelledMessage => 'أُلغيت التذكرة.';
+
+  @override
+  String ticketQrLabel(String name) {
+    return 'رمز QR لتذكرة $name';
+  }
 }

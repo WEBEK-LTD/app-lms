@@ -30,6 +30,8 @@ export interface Connector {
     listings?: unknown;
     /** 23 Config.news. */
     news?: { show_author: boolean; show_dates: boolean; breaking_news_push: boolean };
+    /** 28 Config.events. */
+    events?: unknown;
     features?: Record<string, unknown>;
     purchases?: { enroll_button: boolean; free_enrollment: boolean };
   }>;

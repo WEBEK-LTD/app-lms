@@ -13,7 +13,7 @@ export const THEME_MODES = ["system", "light", "dark"] as const;
 export const CORNERS = ["sharp", "soft", "round"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 export const LANGUAGE_CODES = ["en", "ar", "tr"] as const;
-export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles"] as const;
+export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events"] as const;
 export const BLOCK_TYPES = [
   "banner",
   "text",
@@ -46,6 +46,9 @@ export const SCREENS = [
   "bookmarks",
   "classes",
   "memberships",
+  // 28 Events & tickets
+  "events",
+  "tickets",
 ] as const;
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;

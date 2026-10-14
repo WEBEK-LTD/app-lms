@@ -27,14 +27,14 @@ const PRODUCT_IMAGES_MAX = 6;
 
 /**
  * An active client whose app sells from the dashboard (products, or with
- * `courses` also paid courses and 27 memberships: card payments and orders), or a redirect.
+ * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders), or a redirect.
  */
 async function requireCatalogApp(options: { courses?: boolean } = {}): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const kind = context.app?.connector?.kind;
-  if (!context.app || !(kind === "catalog" || (options.courses && (kind === "courses" || kind === "bookings")))) redirect("/dashboard");
+  if (!context.app || !(kind === "catalog" || (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")))) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -44,6 +44,7 @@ function refresh() {
   revalidatePath("/dashboard/catalog", "layout");
   revalidatePath("/dashboard/courses", "layout");
   revalidatePath("/dashboard/memberships");
+  revalidatePath("/dashboard/events", "layout");
   revalidatePath("/dashboard/orders");
 }
 

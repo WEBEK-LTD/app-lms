@@ -48,6 +48,29 @@ CourseCta resolveCourseCta({
 bool canOpenCheckout(DevicePlatform platform) =>
     platform == DevicePlatform.android;
 
+/// 28 What a ticket type's button does (Events & tickets apps), from the
+/// server's `action`. A ticket to an event at a venue is a physical-world
+/// service, bought on both platforms; a ticket to an online-only event is
+/// digital content, so iOS never shows a buy button for a paid one, whatever
+/// the server sends (Apple's rule). Free tickets work everywhere.
+TicketAction resolveTicketAction({
+  required TicketAction serverAction,
+  required DevicePlatform platform,
+  required EventSummary event,
+  required TicketType type,
+}) {
+  if (serverAction == TicketAction.checkout &&
+      platform == DevicePlatform.ios &&
+      event.onlineOnly) {
+    return TicketAction.none;
+  }
+  // A free ticket is never sold, and a paid one is never "registered".
+  if (serverAction == TicketAction.register && !type.price.isFree) {
+    return TicketAction.none;
+  }
+  return serverAction;
+}
+
 /// What the product page's main button does (Store apps).
 enum ProductCta {
   /// "Add to cart".

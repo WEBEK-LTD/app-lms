@@ -38,6 +38,10 @@ abstract final class Paths {
   static const articles = '/articles';
   static const saved = '/saved';
 
+  // Events & tickets apps (28).
+  static const events = '/events';
+  static const tickets = '/tickets';
+
   static const embed = '/embed';
   static const web = '/web';
 
@@ -59,6 +63,20 @@ abstract final class Paths {
   static String listing(int id) => '/listing/$id';
   static String conversation(int id) => '/messages/$id';
   static String article(String id) => '/article/${Uri.encodeComponent(id)}';
+  static String event(int id) => '/event/$id';
+  static String ticket(String code) => '/ticket/${Uri.encodeComponent(code)}';
+
+  /// The Events tab, on a category or with the search box focused.
+  static String eventsFiltered({String? category, bool focus = false}) {
+    final query = <String, String>{
+      'category': ?category,
+      if (focus) 'focus': '1',
+    };
+    return Uri(
+      path: events,
+      queryParameters: query.isEmpty ? null : query,
+    ).toString();
+  }
 
   /// The Latest tab, on a section or with the search box focused.
   static String articlesFiltered({String? category, bool focus = false}) {
@@ -110,7 +128,9 @@ abstract final class Paths {
       location.startsWith(notifications) ||
       location.startsWith('/appointment') ||
       location.startsWith('/question/') ||
-      location.startsWith('/quiz/');
+      location.startsWith('/quiz/') ||
+      // 28 A ticket is the signed-in user's own.
+      location.startsWith('/ticket/');
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

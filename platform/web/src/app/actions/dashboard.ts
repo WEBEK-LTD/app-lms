@@ -185,6 +185,8 @@ function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "bookings":
       return { connector: { kind }, bookingSetup: app.bookingSetup ?? DEFAULT_BOOKING_SETUP };
     case "catalog":
+    // 28 Paid tickets use the shop's card payment settings, like paid courses.
+    case "events":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":
     case "articles":

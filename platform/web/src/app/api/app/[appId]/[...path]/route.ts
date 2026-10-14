@@ -108,6 +108,7 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         assetUrl,
         platformUrl: appUrl(),
         cardPayments: hasFeature(plan, "card_payments"),
+        signingSecret: signingSecret(),
         onBooked: async (appointment: BookingAppointment) => {
           if (app.demo) return;
           const owner = client ? await store.getUserById(client.userId) : null;

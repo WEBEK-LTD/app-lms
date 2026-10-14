@@ -2765,4 +2765,222 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get classGiveBack => 'Give back my spot';
+
+  @override
+  String get tabEvents => 'Events';
+
+  @override
+  String get tabTickets => 'My tickets';
+
+  @override
+  String get eventsSearchHint => 'Search events';
+
+  @override
+  String get eventsAll => 'All';
+
+  @override
+  String get eventsListView => 'List';
+
+  @override
+  String get eventsCalendarView => 'Calendar';
+
+  @override
+  String get loadingEvents => 'Loading events';
+
+  @override
+  String get noEventsTitle => 'Nothing on yet';
+
+  @override
+  String get noEventsMessage => 'New events will show here.';
+
+  @override
+  String get noEventsFoundTitle => 'No events found';
+
+  @override
+  String get noEventsFoundMessage => 'Try other words or another category.';
+
+  @override
+  String get noEventsOnDay => 'Nothing on this day.';
+
+  @override
+  String get eventsPreviousMonth => 'Previous month';
+
+  @override
+  String get eventsNextMonth => 'Next month';
+
+  @override
+  String eventsOnDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events',
+      one: '1 event',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventOnline => 'Online';
+
+  @override
+  String get eventSoldOut => 'Sold out';
+
+  @override
+  String get eventCancelledBadge => 'Cancelled';
+
+  @override
+  String get eventEndedBadge => 'Ended';
+
+  @override
+  String eventSpotsLeft(int count) {
+    return '$count left';
+  }
+
+  @override
+  String get eventCancelledMessage => 'This event is cancelled.';
+
+  @override
+  String get eventEndedMessage => 'This event has ended.';
+
+  @override
+  String get eventAddToCalendar => 'Add to calendar';
+
+  @override
+  String get eventShare => 'Share';
+
+  @override
+  String get eventJoinOnline => 'Join online';
+
+  @override
+  String get eventOnlineNote => 'The link to join is on your ticket.';
+
+  @override
+  String eventOrganiser(String name) {
+    return 'By $name';
+  }
+
+  @override
+  String get eventTicketsTitle => 'Tickets';
+
+  @override
+  String get eventNoTickets => 'Tickets aren\'t out yet.';
+
+  @override
+  String get eventGetTickets => 'Get tickets';
+
+  @override
+  String get eventBuyTickets => 'Buy tickets';
+
+  @override
+  String get eventSalesEnded => 'Sales ended';
+
+  @override
+  String eventSalesEnd(String date) {
+    return 'Sales end $date';
+  }
+
+  @override
+  String get eventNotInApp => 'Not sold in the app';
+
+  @override
+  String eventYourTickets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count tickets',
+      one: 'You have 1 ticket',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get eventSeeTickets => 'See my tickets';
+
+  @override
+  String get eventSeeEvent => 'See the event';
+
+  @override
+  String get ticketsHowMany => 'How many tickets';
+
+  @override
+  String get ticketsNamesTitle => 'Name on each ticket';
+
+  @override
+  String ticketNameLabel(int number) {
+    return 'Ticket $number';
+  }
+
+  @override
+  String ticketsGetFree(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Get $count free tickets',
+      one: 'Get 1 free ticket',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsContinueToPayment => 'Continue to payment';
+
+  @override
+  String get ticketsIssuedMessage => 'Done. Your tickets are under My tickets.';
+
+  @override
+  String get ticketsPaidMessage =>
+      'Payment received. Your tickets are under My tickets.';
+
+  @override
+  String get ticketsSignInTitle => 'Your tickets live here';
+
+  @override
+  String get ticketsSignInMessage =>
+      'Sign in to see your tickets and show them at the door.';
+
+  @override
+  String get noTicketsTitle => 'No tickets yet';
+
+  @override
+  String get noTicketsMessage =>
+      'Tickets you get show here, with a QR code for the door.';
+
+  @override
+  String get ticketsOfflineNote =>
+      'You\'re offline: these are the tickets saved on this phone.';
+
+  @override
+  String get ticketStatusValid => 'Valid';
+
+  @override
+  String get ticketStatusUsed => 'Used';
+
+  @override
+  String get ticketStatusCancelled => 'Cancelled';
+
+  @override
+  String ticketUsedAt(String time) {
+    return 'Checked in $time';
+  }
+
+  @override
+  String get ticketShowAtDoor => 'Show this code at the door';
+
+  @override
+  String get ticketCancel => 'Cancel ticket';
+
+  @override
+  String get ticketCancelTitle => 'Cancel this ticket?';
+
+  @override
+  String get ticketCancelMessage =>
+      'Your place goes back on sale. You can\'t undo this.';
+
+  @override
+  String get ticketCancelledMessage => 'Ticket cancelled.';
+
+  @override
+  String ticketQrLabel(String name) {
+    return 'QR code of the ticket for $name';
+  }
 }

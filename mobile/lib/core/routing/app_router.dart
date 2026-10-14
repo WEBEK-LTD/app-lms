@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../modules/bookings/bookings_routes.dart';
+import '../../modules/events/events_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
@@ -63,6 +64,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.booking => bookingsModule,
     AppType.realEstate => realEstateModule,
     AppType.news => newsModule,
+    AppType.events => eventsModule,
   },
 );
 

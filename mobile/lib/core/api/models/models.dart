@@ -7,6 +7,7 @@ export 'catalog_models.dart';
 export 'class_models.dart';
 export 'community_models.dart';
 export 'config_models.dart';
+export 'event_models.dart';
 export 'json.dart' show Json;
 export 'learning_models.dart';
 export 'listing_models.dart';
