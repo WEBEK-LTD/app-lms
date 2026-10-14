@@ -91,8 +91,17 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
     </>
   ) : app.backend === "wordpress" ? (
     <>
-      Sign in with the store review number and code set in the Yallapp plugin&apos;s settings on your site (Store review access). An older plugin can&apos;t do this: the
-      preview then says sign-in is available in the installed app.
+      The preview never sends sign-in codes. Sign in with the store review number and code set in the Yallapp plugin&apos;s settings on your site (Store review
+      access)
+      {app.siteUrl ? (
+        <>
+          :{" "}
+          <a href={`${app.siteUrl.replace(/\/+$/, "")}/wp-admin/admin.php?page=yallapp`} target="_blank" rel="noreferrer">
+            open the plugin&apos;s settings
+          </a>
+        </>
+      ) : null}
+      . An older plugin can&apos;t do this: the preview then says sign-in is available in the installed app.
     </>
   ) : (
     <>
