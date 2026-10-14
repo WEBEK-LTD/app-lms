@@ -1,3 +1,4 @@
+import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
 import type { App } from "../../data/types";
 import type { ItemSource } from "../../pages/types";
@@ -21,16 +22,26 @@ async function items(connector: Connector, path: string[], now: Date): Promise<R
   }
 }
 
+/** Where a WordPress site (the Yallapp plugin) or a client's own API answers; null for other apps. */
+export function ownApiBase(app: Pick<App, "backend" | "siteUrl" | "apiBaseUrl">): string | null {
+  if (app.backend === "custom_api") return app.apiBaseUrl ?? null;
+  if (app.backend === "wordpress" && app.siteUrl) return `${app.siteUrl.replace(/\/+$/, "")}/wp-json/yallapp/v1`;
+  return null;
+}
+
 /**
- * For apps on the hosted API with a connected platform: the courses or
- * products and their categories, read the way the app reads them.
+ * The courses, products or services and their categories, read the way the
+ * app reads them: from the connected platform on the hosted API, or from the
+ * client's WordPress site or own API.
  */
 export async function pickableContent(
   app: App,
-  deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string },
+  deps: { store: DataStore; key: Buffer; assetUrl: (id: string) => string; platformUrl: string; readList?: typeof readApiList },
   now: Date,
 ): Promise<Pickable> {
   const out: Pickable = { items: {}, categories: {} };
+  const base = ownApiBase(app);
+  if (base) return ownApiPickable(app, base, deps.readList ?? readApiList);
   if (app.backend !== "hosted") return out;
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
   if (!connector) return out;
@@ -45,6 +56,32 @@ export async function pickableContent(
   if (app.appType === "booking") {
     out.items.services = (await items(connector, ["bookings", "services"], now)).map((s) => ({ id: String(s.id), title: String(s.name ?? "") }));
     out.categories.services = (await items(connector, ["bookings", "categories"], now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
+  }
+  return out;
+}
+
+/** The same lists from a WordPress site or a client's own API, in parallel. */
+async function ownApiPickable(app: App, base: string, readList: typeof readApiList): Promise<Pickable> {
+  const out: Pickable = { items: {}, categories: {} };
+  const q = "?per_page=50&platform=android";
+  const titles = (list: Record<string, unknown>[], field: string) =>
+    list.filter((x) => x.id !== undefined && x.id !== null).map((x) => ({ id: String(x.id), title: String(x[field] ?? "") }));
+  const names = (list: Record<string, unknown>[]) =>
+    list.filter((x) => x.id !== undefined && x.id !== null).map((x) => ({ id: String(x.id), name: String(x.name ?? "") }));
+  if (app.appType === "lms") {
+    const [items, categories] = await Promise.all([readList(base, `/courses${q}`), readList(base, `/categories${q}`)]);
+    out.items.courses = titles(items, "title");
+    out.categories.courses = names(categories);
+  }
+  if (app.appType === "store") {
+    const [items, categories] = await Promise.all([readList(base, `/store/products${q}`), readList(base, `/store/categories${q}`)]);
+    out.items.products = titles(items, "name");
+    out.categories.products = names(categories);
+  }
+  if (app.appType === "booking") {
+    const [items, categories] = await Promise.all([readList(base, `/bookings/services${q}`), readList(base, `/bookings/categories${q}`)]);
+    out.items.services = titles(items, "name");
+    out.categories.services = names(categories);
   }
   return out;
 }
