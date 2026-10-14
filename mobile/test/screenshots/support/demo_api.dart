@@ -126,6 +126,56 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// A local news site (23).
+  factory DemoApi.news({Map<String, dynamic>? appearance, String? primary}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('The Harbour Post'),
+        'branding': {'logo_url': null, 'primary_color': primary ?? '#0E0D24'},
+        'news': newsConfigJson(),
+        'appearance': ?appearance,
+      },
+    );
+    final articles = _articles();
+    api
+      ..articles = articles
+      ..newsCategories = [
+        for (final (i, name) in _sections.indexed)
+          {'id': '${i + 1}', 'name': name, 'count': 4},
+      ]
+      ..newsHome = {
+        'featured': articles.take(3).toList(),
+        'latest': articles.skip(3).toList(),
+        'rails': [
+          for (final (i, name) in _sections.indexed)
+            {
+              'category': {'id': '${i + 1}', 'name': name, 'count': 4},
+              'articles': [
+                for (final a in articles)
+                  if ((a['categories'] as List).any(
+                    (c) => (c as Map)['name'] == name,
+                  ))
+                    a,
+              ],
+            },
+        ],
+      }
+      ..article = {
+        ...articles.first,
+        'render_mode': 'native',
+        'html':
+            '<p>Late ferries across the harbour return on Monday after a two-year break, the city\'s ferry company announced on Tuesday.</p>'
+            '<p>Boats will leave every 40 minutes until 1:00 on weekdays and until 2:30 on Friday and Saturday nights. Fares stay the same as during the day.</p>'
+            '<h3>Why now</h3>'
+            '<p>Two new boats joined the fleet this summer, which frees the crews needed for the night timetable.</p>'
+            '<blockquote>People asked for this every week. Now we have the boats to do it properly.</blockquote>',
+        'webview_url': null,
+        'embeds': <Map<String, dynamic>>[],
+      };
+    return api;
+  }
+
   final bool arabic;
 
   static const _languages = {
@@ -1306,4 +1356,80 @@ class DemoApi extends FakeApi {
       ],
     }),
   );
+
+  // ---------------------------------------------------------- News & blog
+
+  static const _sections = ['City', 'Culture', 'Sport', 'Food'];
+
+  static Map<String, dynamic> _article(
+    int id,
+    String title,
+    String section,
+    String image,
+    String author,
+    String publishedAt,
+  ) => {
+    'id': '$id',
+    'title': title,
+    'excerpt': null,
+    'author': author,
+    'published_at': publishedAt,
+    'image_url': demoImage(image),
+    'categories': [
+      {'id': '${_sections.indexOf(section) + 1}', 'name': section},
+    ],
+    'url': 'https://example.com/news/$id',
+    'featured': false,
+  };
+
+  static List<Map<String, dynamic>> _articles() => [
+    _article(
+      101,
+      'Night ferries return to the harbour from Monday',
+      'City',
+      'article-harbour',
+      'Ayla Demir',
+      '2026-10-14T07:10:00Z',
+    ),
+    _article(
+      102,
+      'Old market hall reopens with forty stalls',
+      'Food',
+      'article-market',
+      'Kerem Aydın',
+      '2026-10-14T05:30:00Z',
+    ),
+    _article(
+      103,
+      'Harbour United sign a new coach before the derby',
+      'Sport',
+      'article-stadium',
+      'Murat Şen',
+      '2026-10-13T19:45:00Z',
+    ),
+    _article(
+      104,
+      'Tram line 3 extends to the university next spring',
+      'City',
+      'article-tram',
+      'Ayla Demir',
+      '2026-10-13T12:00:00Z',
+    ),
+    _article(
+      105,
+      'Five books to read on the ferry this month',
+      'Culture',
+      'article-books',
+      'Deniz Arslan',
+      '2026-10-12T16:20:00Z',
+    ),
+    _article(
+      106,
+      'A new bridge path opens to walkers and cyclists',
+      'City',
+      'article-bridge',
+      'Selin Kaya',
+      '2026-10-12T09:00:00Z',
+    ),
+  ];
 }

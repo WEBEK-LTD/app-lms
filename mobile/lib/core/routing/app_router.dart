@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../modules/bookings/bookings_routes.dart';
 import '../../modules/lms/lms_routes.dart';
+import '../../modules/news/news_routes.dart';
 import '../../modules/real_estate/real_estate_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
@@ -61,6 +62,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.store => storeModule,
     AppType.booking => bookingsModule,
     AppType.realEstate => realEstateModule,
+    AppType.news => newsModule,
   },
 );
 

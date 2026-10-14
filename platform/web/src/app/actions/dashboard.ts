@@ -27,7 +27,7 @@ import { oauthRedirectUri, partnerAppCredentials, signOAuthState } from "@/lib/h
 import { PlatformCheckError, platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector, ShopifyPermissionError } from "@/lib/hosted/connectors/shopify";
-import { emailOffWarning, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
+import { emailOffWarning, emailOnlyUsersAtRisk, platformKeepsEmail } from "@/lib/hosted/sign-in-methods";
 import { sendTemplate } from "@/lib/email/send";
 import { choosePublishingMode } from "@/lib/publishing/service";
 import { recordApiCheck, resolveApiCheckNotices } from "@/lib/app/api-check-notice";
@@ -187,6 +187,7 @@ function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "catalog":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":
+    case "articles":
       return { connector: { kind } };
   }
 }
@@ -225,7 +226,9 @@ export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData)
     return afterStep(context, "website");
   }
   // 19 A connected platform signs in by phone only: customers who signed up by email couldn't sign in any more.
-  if ((data.backend === "shopify" || data.backend === "platform") && formData.get("confirmEmailOff") !== "on") {
+  // 23 A news feed keeps email sign-in: nobody is at risk.
+  const keepsEmail = data.backend === "platform" && platformKeepsEmail(data.platform);
+  if ((data.backend === "shopify" || data.backend === "platform") && !keepsEmail && formData.get("confirmEmailOff") !== "on") {
     const atRisk = await emailOnlyUsersAtRisk(store, context.app);
     if (atRisk > 0) {
       const secrets = data.backend === "platform" ? (platformDefinition(data.platform)?.fields.filter((f) => f.secret).map((f) => `p_${f.name}`) ?? []) : [];
@@ -383,11 +386,12 @@ async function connectPlatform(
       })
       .check();
   } catch (e) {
-    // 22 A reason the client can fix is said as the platform's connector words it.
+    // 22 A reason the client can fix is said as the platform's connector words it;
+    // 23 a platform can also say what's wrong itself (a feed that can't be read, for example).
     const message =
       e instanceof PlatformCheckError
         ? e.message
-        : `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.`;
+        : (definition.explain?.(e) ?? `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.`);
     return { errors: { platform: message }, values };
   }
   return { connector: platformConnectorConfig(app.id, definition, { ...all, ...renewed }, key) };

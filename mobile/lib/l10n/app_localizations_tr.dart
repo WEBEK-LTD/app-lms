@@ -2320,4 +2320,69 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get staffViewProfile => 'Profili gör';
+
+  @override
+  String get tabLatest => 'En yeni';
+
+  @override
+  String get tabSaved => 'Kaydedilenler';
+
+  @override
+  String get newsTopStories => 'Öne çıkanlar';
+
+  @override
+  String get newsLatest => 'En yeni';
+
+  @override
+  String get newsAll => 'Tümü';
+
+  @override
+  String get newsSearchHint => 'Makalelerde ara';
+
+  @override
+  String get loadingArticles => 'Makaleler yükleniyor';
+
+  @override
+  String get noArticlesTitle => 'Henüz makale yok';
+
+  @override
+  String get noArticlesMessage => 'Yeni makaleler burada görünecek.';
+
+  @override
+  String get noArticlesFoundTitle => 'Makale bulunamadı';
+
+  @override
+  String get noArticlesFoundMessage =>
+      'Başka kelimeler veya başka bir bölüm deneyin.';
+
+  @override
+  String get noSavedTitle => 'Kaydedilen makale yok';
+
+  @override
+  String get noSavedMessage =>
+      'Bir makaleyi burada tutmak ve daha sonra, bağlantı olmadan da okumak için yer imine dokunun.';
+
+  @override
+  String get articleSave => 'Makaleyi kaydet';
+
+  @override
+  String get articleUnsave => 'Kaydedilenlerden çıkar';
+
+  @override
+  String get articleSavedMessage =>
+      'Kaydedildi. Kaydedilenler\'de bulabilirsiniz.';
+
+  @override
+  String get articleShare => 'Paylaş';
+
+  @override
+  String articleBy(String author) {
+    return 'Yazan: $author';
+  }
+
+  @override
+  String get articleOpenOnSite => 'Web sitesinde oku';
+
+  @override
+  String get notifyBreakingNews => 'Son dakika haberleri';
 }

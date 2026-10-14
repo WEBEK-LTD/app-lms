@@ -502,6 +502,40 @@
       ]
     },
     {
+      "name": "News",
+      "description": "Articles and categories, for News & blog apps (roadmap 23). Read-only and free to read: there is no paid content. WordPress serves the site's published posts (never private or password-protected ones); the hosted API serves articles written in the Yallapp dashboard or read from the site's RSS or Atom feed. An article's body is processed like lesson content (`render_mode`, `html` with embed placeholders, `embeds`).",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/news/home",
+          "summary": "Get the news home screen",
+          "description": "Featured articles (sticky posts on WordPress, featured in the dashboard; the newest on a feed), the latest articles (without repeating those) and a rail per category with articles, newest first. Empty lists are sent as empty arrays; rails without articles are left out.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/news/categories",
+          "summary": "List article categories",
+          "description": "Categories with published articles, in the site's own order.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/news/articles",
+          "summary": "List articles",
+          "description": "Published articles, newest first (or in the order of `ids`).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/news/articles/{article_id}",
+          "summary": "Get an article",
+          "description": "A published article with its body, processed like a lesson's content.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

@@ -156,6 +156,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["realestate-search", "realestate-listing"],
   },
+  news: {
+    summary: "A local news site with top stories, sections for the city, business, culture, sport and food, and breaking news.",
+    tryThis: [
+      "Open a top story and share it",
+      "Browse a section, or search for \"ferry\"",
+      "Save an article and find it under Saved",
+      "Switch the app to Turkish in Settings",
+    ],
+    screens: ["news-home", "news-article"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -255,6 +265,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Homes for sale and for rent in Cairo and Giza.",
     fullDescription: `Nile Homes lists apartments, villas and offices in Cairo and Giza.\n\nSearch with filters, save homes to your favorites and message the office about any of them.\n\n${PRIVACY_NOTE}`,
     welcome: "Homes we know well, in the neighbourhoods we know best.",
+  },
+  news: {
+    appName: "The Harbour Post",
+    shortName: "Harbour Post",
+    primaryColor: "#1F4E5F",
+    splashColor: "#F4EFE6",
+    secondaryColor: "#B03A5B",
+    template: "minimal",
+    font: "Lexend",
+    corners: "soft",
+    cards: "flat",
+    languages: ["en", "tr"],
+    icon: "icon-news",
+    banner: { picture: "banner-news", heading: "News from your side of the water", subheading: "The city, its people and what's on, every day." },
+    androidPackage: "com.yallapp.demo.news",
+    storeTitle: "The Harbour Post",
+    shortDescription: "Local news: the city, business, culture, sport and food.",
+    fullDescription: `The Harbour Post brings local news to your phone: the city, business, culture, sport and food.\n\nRead the top stories, browse sections, save articles for later and get breaking news.\n\n${PRIVACY_NOTE}`,
+    welcome: "Local news, written by people who live here.",
   },
 };
 
@@ -697,3 +726,104 @@ export const DEMO_LISTINGS: DemoListing[] = [
   },
 ];
 
+
+// 23 News & blog
+
+export interface DemoArticle {
+  /** Unique in the demo: articles are matched by title when the demo is refreshed. */
+  title: string;
+  excerpt: string;
+  author: string;
+  category: string;
+  picture: PictureName;
+  featured: boolean;
+  /** How long before the demo was set up it was published. */
+  hoursAgo: number;
+  /** Simple HTML, as editors write it on the Articles page. */
+  body: string;
+}
+
+export const ARTICLE_CATEGORIES = ["City", "Business", "Culture", "Sport", "Food"];
+
+export const DEMO_ARTICLES: DemoArticle[] = [
+  {
+    title: "Night ferries return to the harbour from Monday",
+    excerpt: "Boats will run every 40 minutes until 1:00 on weekdays and until 2:30 at weekends, the city's ferry company said.",
+    author: "Ayla Demir",
+    category: "City",
+    picture: "article-harbour",
+    featured: true,
+    hoursAgo: 2,
+    body: "<p>Late ferries across the harbour return on Monday after a two-year break, the city's ferry company announced on Tuesday.</p><p>Boats will leave every 40 minutes until 1:00 on weekdays and until 2:30 on Friday and Saturday nights. Fares stay the same as during the day.</p><h3>Why now</h3><p>Two new boats joined the fleet this summer, which frees the crews needed for the night timetable. The company says it will review the service after three months.</p><blockquote>People asked for this every week. Now we have the boats to do it properly.</blockquote><p>The full timetable is on the company's website and at every pier.</p>",
+  },
+  {
+    title: "Old market hall reopens with forty stalls",
+    excerpt: "After eighteen months of repairs, the covered market is back with fruit, fish, spices and a row of small kitchens.",
+    author: "Kerem Aydın",
+    category: "Food",
+    picture: "article-market",
+    featured: true,
+    hoursAgo: 6,
+    body: "<p>The covered market hall on the old square opened its doors again on Saturday, after eighteen months of repairs to its roof and floors.</p><p>Forty stalls sell fruit, vegetables, fish, cheese and spices, and a new row of six small kitchens serves breakfast and lunch.</p><ul><li>Open Tuesday to Sunday, 8:00 to 19:00</li><li>Kitchens open until 21:00 on Fridays</li><li>Bicycle parking at both entrances</li></ul><p>Most of the traders are the families who ran the stalls before the hall closed.</p>",
+  },
+  {
+    title: "Harbour United sign a new coach before the derby",
+    excerpt: "The club named its former captain as head coach on a two-year contract, five days before the season's first derby.",
+    author: "Murat Şen",
+    category: "Sport",
+    picture: "article-stadium",
+    featured: true,
+    hoursAgo: 9,
+    body: "<p>Harbour United have appointed their former captain as head coach on a two-year contract, the club said on Wednesday.</p><p>He takes charge of his first training session on Thursday, five days before the derby at home.</p><p>“I know this club and these supporters. We'll work hard and we'll be ready on Tuesday,” he told reporters.</p>",
+  },
+  {
+    title: "Tram line 3 extends to the university next spring",
+    excerpt: "Four new stops will link the seafront to the campus. Work on the tracks starts in November.",
+    author: "Ayla Demir",
+    category: "City",
+    picture: "article-tram",
+    featured: false,
+    hoursAgo: 20,
+    body: "<p>Tram line 3 will run to the university campus from next spring, with four new stops between the seafront and the main gate.</p><p>Work on the tracks starts in November. Buses will replace trams on the last two stops of the line at weekends while the work goes on.</p><h3>The new stops</h3><ol><li>Lighthouse Street</li><li>Fishermen's Square</li><li>Science Park</li><li>University</li></ol>",
+  },
+  {
+    title: "Small shops hire more people this autumn",
+    excerpt: "A survey of 300 local businesses finds most plan to hire before the end of the year, mainly in food and repairs.",
+    author: "Selin Kaya",
+    category: "Business",
+    picture: "article-bridge",
+    featured: false,
+    hoursAgo: 28,
+    body: "<p>Six in ten small businesses in the city plan to hire at least one person before the end of the year, a survey by the chamber of commerce found.</p><p>Cafés, bakeries and repair shops were the most likely to be hiring. Rents and energy prices remain owners' biggest worries.</p><p>The chamber will hold a free job fair at the old customs building on the first Saturday of November.</p>",
+  },
+  {
+    title: "Five books to read on the ferry this month",
+    excerpt: "Short novels, a book of essays about the sea and a cookbook you'll want to read cover to cover.",
+    author: "Deniz Arslan",
+    category: "Culture",
+    picture: "article-books",
+    featured: false,
+    hoursAgo: 40,
+    body: "<p>The crossing takes twenty minutes: long enough for a chapter, short enough to want to come back to it. Here are this month's picks from our editors.</p><ul><li><strong>A summer novel</strong> set on three islands, told by the people who stay when the visitors leave</li><li><strong>Essays about the sea</strong>, one for every crossing</li><li><strong>A cookbook</strong> from the market's oldest fish stall</li><li><strong>A short mystery</strong> that starts on the last ferry of the night</li><li><strong>Poems</strong> about the city's old streets</li></ul>",
+  },
+  {
+    title: "Jazz on the pier every Thursday in October",
+    excerpt: "Free evening concerts by local bands, from 19:30 on the old pier. Bring a jacket.",
+    author: "Deniz Arslan",
+    category: "Culture",
+    picture: "article-harbour",
+    featured: false,
+    hoursAgo: 55,
+    body: "<p>Local jazz bands play free concerts on the old pier every Thursday evening in October, starting at 19:30.</p><p>There are a few benches, but most people bring a blanket. The café at the end of the pier stays open until the last song.</p>",
+  },
+  {
+    title: "Harbour United win at home with a late goal",
+    excerpt: "A header in the 89th minute gave the home side their third win in a row.",
+    author: "Murat Şen",
+    category: "Sport",
+    picture: "article-stadium",
+    featured: false,
+    hoursAgo: 72,
+    body: "<p>Harbour United beat their visitors 2–1 on Sunday with a header in the 89th minute, their third win in a row.</p><p>The visitors had equalised just after half time. The home side's young striker scored the winner from a corner.</p>",
+  },
+];

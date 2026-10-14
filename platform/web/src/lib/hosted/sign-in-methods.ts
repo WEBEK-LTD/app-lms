@@ -23,12 +23,20 @@ export const SIGN_IN_METHODS: readonly SignInMethod[] = ["phone", "email"];
 /** 19 Connected platforms that find each student by their email address. */
 export const EMAIL_PLATFORMS = new Set(["teachable", "thinkific"]);
 
+/** 23 Connected sources that know nothing about readers (a news feed): accounts are the app's own, so email works. */
+export const OWN_ACCOUNT_PLATFORMS = new Set(["rss"]);
+
+/** 23 Whether an app connected to this platform can still offer email sign-in. */
+export function platformKeepsEmail(platform: string): boolean {
+  return EMAIL_PLATFORMS.has(platform) || OWN_ACCOUNT_PLATFORMS.has(platform);
+}
+
 /** Whether this app can offer email sign-in at all. */
 export function emailSignInPossible(app: Pick<App, "backend" | "connector" | "demo">): boolean {
   // 19 Also a WordPress site our team is still setting up.
   if (app.backend === "wordpress" || app.backend === "setup_requested") return true;
   if (app.backend !== "hosted" || app.demo) return false;
-  if (app.connector?.kind === "platform") return EMAIL_PLATFORMS.has(app.connector.platform);
+  if (app.connector?.kind === "platform") return platformKeepsEmail(app.connector.platform);
   // Content managed in Yallapp (lib/app/kinds.ts): accounts are the hosted API's own, so email works.
   return !app.connector || isOwnContent(app.connector.kind);
 }

@@ -62,6 +62,8 @@ import type {
 } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
+// 23 News & blog
+import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
@@ -899,6 +901,77 @@ export class MemoryStore implements DataStore {
   async setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void> {
     if (value === null) this.platformSettings.delete(key);
     else this.platformSettings.set(key, clone({ key, value, updatedAt: now, updatedBy }) as PlatformSetting);
+  }
+
+  // 23 News & blog
+
+  private articles = new Map<number, Article>();
+  private nextArticleId = 1;
+  private articleCategories = new Map<number, ArticleCategory>();
+  private nextArticleCategoryId = 1;
+  private newsSettings = new Map<string, NewsSettings>();
+
+  async listArticles(appId: string): Promise<Article[]> {
+    return [...this.articles.values()]
+      .filter((a) => a.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getArticle(appId: string, id: number): Promise<Article | null> {
+    const article = this.articles.get(id);
+    return article && article.appId === appId ? clone(article) : null;
+  }
+
+  async createArticle(input: ArticleInput, now: Date): Promise<Article> {
+    const article: Article = { ...clone(input), id: this.nextArticleId++, createdAt: now, updatedAt: now };
+    this.articles.set(article.id, clone(article));
+    return article;
+  }
+
+  async updateArticle(appId: string, id: number, patch: Partial<ArticleInput>, now: Date): Promise<void> {
+    const article = this.articles.get(id);
+    if (article && article.appId === appId) this.articles.set(id, clone({ ...article, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteArticle(appId: string, id: number): Promise<void> {
+    if (this.articles.get(id)?.appId === appId) this.articles.delete(id);
+  }
+
+  async listArticleCategories(appId: string): Promise<ArticleCategory[]> {
+    return [...this.articleCategories.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async createArticleCategory(input: Omit<ArticleCategory, "id">): Promise<ArticleCategory> {
+    const category: ArticleCategory = { ...clone(input), id: this.nextArticleCategoryId++ };
+    this.articleCategories.set(category.id, clone(category));
+    return category;
+  }
+
+  async updateArticleCategory(appId: string, id: number, patch: Partial<Pick<ArticleCategory, "name" | "position">>): Promise<void> {
+    const category = this.articleCategories.get(id);
+    if (category && category.appId === appId) this.articleCategories.set(id, clone({ ...category, ...patch }));
+  }
+
+  async deleteArticleCategory(appId: string, id: number): Promise<void> {
+    if (this.articleCategories.get(id)?.appId !== appId) return;
+    this.articleCategories.delete(id);
+    for (const article of this.articles.values()) {
+      if (article.appId === appId && article.categoryIds.includes(id)) article.categoryIds = article.categoryIds.filter((c) => c !== id);
+    }
+  }
+
+  async getNewsSettings(appId: string): Promise<NewsSettings | null> {
+    const settings = this.newsSettings.get(appId);
+    return settings ? clone(settings) : null;
+  }
+
+  async saveNewsSettings(appId: string, settings: NewsSettings, now: Date): Promise<void> {
+    void now;
+    this.newsSettings.set(appId, clone(settings));
   }
 
   // 10.7 Listings

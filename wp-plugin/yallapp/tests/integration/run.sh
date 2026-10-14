@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Builds the dev site, serves it, and runs the end-to-end API checks.
 #
-# Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/integration/run.sh [site-dir]
+# Usage: [LMS=<id>] [APP=store|bookings|news] [BOOKING=<id>] tests/integration/run.sh [site-dir]
 #        Without LMS: Tutor LMS and its full suite (api-test.php).
 #        LMS=learnpress|lifterlms|masterstudy|sensei|masteriyo: that LMS and adapter-test.php.
 #        LMS=learndash LEARNDASH_DIR=<unpacked sfwd-lms>: a local LearnDash copy (not on
 #        wordpress.org, so not in CI) and adapter-test.php.
 #        APP=store: WooCommerce without an LMS and store-test.php.
 #        APP=bookings BOOKING=amelia|bookingpress|latepoint: that booking plugin and bookings-test.php.
+#        APP=news: a news site (posts only) and news-test.php.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -36,6 +37,8 @@ if [ "$APP" = bookings ]; then
 	BOOKING=${BOOKING:-amelia} php "$HERE/bookings-test.php" "http://127.0.0.1:$PORT"
 elif [ "$APP" = store ]; then
 	php "$HERE/store-test.php" "http://127.0.0.1:$PORT"
+elif [ "$APP" = news ]; then
+	php "$HERE/news-test.php" "http://127.0.0.1:$PORT"
 elif [ -z "$LMS" ] || [ "$LMS" = tutor ]; then
 	php "$HERE/api-test.php" "http://127.0.0.1:$PORT"
 else

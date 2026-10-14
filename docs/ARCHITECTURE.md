@@ -112,9 +112,10 @@ mobile/
   modules/store/   Store screens (WooCommerce): home, shop, product, cart
   modules/bookings/ Bookings screens (Amelia, BookingPress, LatePoint): home,
                    services, a service's free times, appointments
+  modules/news/    News & blog screens: home, latest, article, saved
 ```
 
-- The build config's `app_type` (`lms`, `store`, `booking` or `real_estate`) picks the module's routes
+- The build config's `app_type` (`lms`, `store`, `booking`, `real_estate` or `news`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 - App kinds (roadmap 20): `app_type` is the engine (the module); the optional
   `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
@@ -385,6 +386,25 @@ mobile/
   notifications inbox and is pushed to their phones. Texts are served as the
   office wrote them. Page list blocks get listing cards from
   `lib/hosted/listings/page-items.ts`.
+
+- News & blog apps (engine `news`, roadmap 23): read-only articles, free to
+  read (no paid content, so no reader-app rules apply). Their content comes
+  from WordPress (the plugin serves published posts: never private or
+  password-protected ones; sticky posts are the top stories), an own API,
+  articles written on the dashboard's Articles page (connector `articles`:
+  `articles`, `article_categories`, `news_settings`), or the site's RSS or
+  Atom feed (platform connector `rss`: read like the API check reads an own
+  API, https only, public addresses only, no redirects, 8 seconds, 2 MB, with
+  a small XML reader that never reads a DTD; cached 5 minutes). The News
+  endpoints are the same for both hosted sources (`lib/news/service.ts`), and
+  every body is processed like lesson content (iframes become embeds), so the
+  app renders articles with the lesson renderer. Breaking news: the plugin
+  sends a new post a minute after it is published when "Notify app users
+  about new posts" is on (a post can opt out); the dashboard sends an article
+  when it is published with "Send as breaking news". Both reach the inbox of
+  everyone and the phones of signed-in users that allow news
+  (`NotificationPreferences.news`); the notification opens the article.
+  Saved articles stay on the device.
 
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the

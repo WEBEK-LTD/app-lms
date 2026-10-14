@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab } from "../pages/typ
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -327,6 +327,65 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     categories: { play: "House & Home", appStore: "Lifestyle" },
     demo: { slug: "real-estate" },
   },
+  // 23 News sites, blogs and magazines: read-only articles, no paid content.
+  news: {
+    id: "news",
+    name: "News & blog",
+    icon: "newspaper",
+    homePath: "/news/home",
+    configCheck: { label: "Config has the news settings", fix: "Add `news` to /config.", key: "news", in: "root", type: "object" },
+    websites: ["wordpress", "platform", "catalog", "custom_api", "setup_requested"],
+    sitePlaceholder: "https://your-news-site.com",
+    platformChoice: {
+      title: "My site's RSS feed",
+      text: "Your articles come from your website's RSS or Atom feed, whatever runs your site. Readers can sign in to the app with a code we send.",
+    },
+    // Readers' accounts are the app's own: email works with a feed.
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "articles",
+      choice: { text: "Write your articles here in the dashboard, with pictures and categories, and send the important ones as breaking news." },
+      next: "After this step, write your first articles on the **Articles** page. Readers sign in to the app with",
+      switchLabel: "No website: articles in the dashboard",
+      adminLabel: "No website: articles in the dashboard",
+      nav: {
+        label: "Your news",
+        items: [{ href: "/dashboard/articles", label: "Articles", icon: "newspaper" }],
+      },
+    },
+    pages: {
+      source: "articles",
+      read: { items: "news/articles", categories: "news/categories", title: "title" },
+      blocks: [],
+      tabs: [tab("articles", "Latest", "newspaper", "articles"), tab("saved", "Saved", "bookmark", "bookmarks")],
+      home: [
+        { id: "search", type: "search", visibility: "everyone", title: null, source: "articles", placeholder: "Search articles" },
+        {
+          id: "top-stories",
+          type: "items",
+          visibility: "everyone",
+          title: "Top stories",
+          source: "articles",
+          layout: "carousel",
+          see_all: null,
+          query: newest(5, true),
+        },
+        { id: "categories", type: "categories", visibility: "everyone", title: "Sections", source: "articles", style: "chips" },
+        {
+          id: "latest",
+          type: "items",
+          visibility: "everyone",
+          title: "Latest",
+          source: "articles",
+          layout: "list",
+          see_all: { type: "screen", screen: "articles" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "News & Magazines", appStore: "News" },
+    demo: { slug: "news" },
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -403,6 +462,17 @@ export const KINDS: readonly KindInfo[] = [
     icon: "apartment",
     tile: "bg-tile-3 text-[#3F3A6B]",
     marketing: { slug: "real-estate", icon: "apartment" },
+  },
+  {
+    id: "news",
+    engine: "news",
+    vertical: null,
+    name: "News & blog",
+    description: "Articles, categories and breaking-news alerts from your site or written in Yallapp.",
+    requires: "Works with: WordPress, any site with an RSS feed, or no website at all",
+    icon: "newspaper",
+    tile: "bg-tile-4 text-[#6B2E55]",
+    marketing: { slug: "news", icon: "newspaper" },
   },
 ];
 

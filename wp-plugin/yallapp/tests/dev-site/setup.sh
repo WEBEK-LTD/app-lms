@@ -4,20 +4,21 @@
 # plugin, then seeds sample courses or products. WordPress, SQLite and Tutor LMS
 # come from GitHub; the other plugins are the pinned releases from wordpress.org.
 #
-# Usage: [LMS=<id>] [APP=store|bookings] [BOOKING=<id>] tests/dev-site/setup.sh <site-dir>
+# Usage: [LMS=<id>] [APP=store|bookings|news] [BOOKING=<id>] tests/dev-site/setup.sh <site-dir>
 #        LMS: tutor (default), learnpress, lifterlms, masterstudy, sensei, masteriyo,
 #        or learndash with LEARNDASH_DIR=<an unpacked sfwd-lms folder>: LearnDash is a paid
 #        plugin that isn't on wordpress.org, so it is never downloaded (and not run in CI).
 #        APP=store: a shop with WooCommerce and no LMS (seed-store.php)
 #        APP=bookings: a booking plugin and no LMS (seed-bookings-<BOOKING>.php);
-#        BOOKING: amelia (default), bookingpress, latepoint. SEED=0 skips seeding.
+#        BOOKING: amelia (default), bookingpress, latepoint.
+#        APP=news: a news site with posts only (seed-news.php). SEED=0 skips seeding.
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
 SITE_DIR=${1:?usage: setup.sh <site-dir>}
 APP=${APP:-lms}
 LMS=${LMS:-tutor}
-if [ "$APP" = store ] || [ "$APP" = bookings ]; then
+if [ "$APP" = store ] || [ "$APP" = bookings ] || [ "$APP" = news ]; then
 	LMS=none
 fi
 BOOKING=${BOOKING:-amelia}
@@ -209,6 +210,8 @@ elif [ "$APP" = bookings ]; then
 	wp eval-file "$HERE/seed-bookings-$BOOKING.php"
 elif [ "$APP" = store ]; then
 	wp eval-file "$HERE/seed-store.php"
+elif [ "$APP" = news ]; then
+	wp eval-file "$HERE/seed-news.php"
 elif [ "$LMS" = tutor ]; then
 	wp eval-file "$HERE/seed.php"
 else

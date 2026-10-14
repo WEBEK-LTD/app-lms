@@ -2,6 +2,7 @@
 export { platformDefinitions, platformDefinition } from "./platforms";
 import "./ideasoft";
 import "./ikas";
+import "./rss";
 import "./teachable";
 import "./thinkific";
 import "./simplybook";

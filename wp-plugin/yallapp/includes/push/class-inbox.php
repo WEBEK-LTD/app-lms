@@ -31,7 +31,7 @@ class Inbox {
 	/**
 	 * Saves a notification.
 	 *
-	 * @param string $type      new_lesson, announcement, enrolled or qna_answer.
+	 * @param string $type      new_lesson, announcement, enrolled, qna_answer or article.
 	 * @param string $audience  all, course or user.
 	 * @param int    $target_id Course ID or user ID; 0 for everyone.
 	 * @param string $title     Title.
@@ -39,9 +39,10 @@ class Inbox {
 	 * @param int    $course_id Course to open, or 0.
 	 * @param int    $lesson_id   Lesson to open, or 0.
 	 * @param int    $question_id Question to open, or 0.
+	 * @param int    $article_id  Article (post) to open, or 0.
 	 * @return int Notification ID, 0 on failure.
 	 */
-	public function add( $type, $audience, $target_id, $title, $body, $course_id = 0, $lesson_id = 0, $question_id = 0 ) {
+	public function add( $type, $audience, $target_id, $title, $body, $course_id = 0, $lesson_id = 0, $question_id = 0, $article_id = 0 ) {
 		global $wpdb;
 		$inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Plugin table.
 			Installer::tables()['notifications'],
@@ -54,9 +55,10 @@ class Inbox {
 				'course_id'   => absint( $course_id ),
 				'lesson_id'   => absint( $lesson_id ),
 				'question_id' => absint( $question_id ),
+				'article_id'  => absint( $article_id ),
 				'created_at'  => current_time( 'mysql', true ),
 			),
-			array( '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%s' )
+			array( '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%d', '%s' )
 		);
 		return $inserted ? (int) $wpdb->insert_id : 0;
 	}
@@ -93,6 +95,7 @@ class Inbox {
 				'course_id'   => (int) $row->course_id ? (int) $row->course_id : null,
 				'lesson_id'   => (int) $row->lesson_id ? (int) $row->lesson_id : null,
 				'question_id' => (int) $row->question_id ? (int) $row->question_id : null,
+				'article_id'  => ! empty( $row->article_id ) ? (string) (int) $row->article_id : null,
 				'created_at'  => mysql2date( 'Y-m-d\TH:i:s\Z', $row->created_at, false ),
 				'read'        => (int) $row->id <= $read_id,
 			);

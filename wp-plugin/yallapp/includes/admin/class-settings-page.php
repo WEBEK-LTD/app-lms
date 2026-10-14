@@ -147,7 +147,8 @@ class Settings_Page {
 		wp_nonce_field( 'yallapp_save' );
 		$detector = $this->plugin->detector();
 		$shop     = $detector->woocommerce()['active'];
-		$academy  = null !== $detector->lms() || ! $shop;
+		$news     = 'news' === \Yallapp\Pages\Default_Layout::chosen_type( $this->plugin->license()->status() );
+		$academy  = null !== $detector->lms() || ( ! $shop && ! $news );
 		$this->general_card();
 		$this->sign_in_card();
 		$this->purchases_card();
@@ -158,6 +159,9 @@ class Settings_Page {
 		}
 		if ( $shop ) {
 			$this->store_card();
+		}
+		if ( $news ) {
+			$this->news_card();
 		}
 		$this->notifications_card();
 		$this->updates_card();
@@ -923,7 +927,25 @@ class Settings_Page {
 		$this->toggle( 'notify_announcement', __( 'An instructor posts an announcement', 'yallapp' ) );
 		$this->toggle( 'notify_enrollment', __( 'An enrollment is confirmed after payment', 'yallapp' ) );
 		$this->toggle( 'notify_qna_answer', __( 'An instructor answers a student\'s question', 'yallapp' ) );
+		$this->toggle(
+			'notify_new_post',
+			__( 'Notify app users about new posts', 'yallapp' ),
+			__( 'News & blog apps: each new post goes to the notifications inbox and, with Firebase, to the phones of people signed in to the app. Untick it for one post in its "In the app" box.', 'yallapp' )
+		);
 		echo '</fieldset>';
+		$this->close();
+	}
+
+	/**
+	 * News & blog card: what articles show in the app.
+	 *
+	 * @return void
+	 */
+	private function news_card() {
+		$this->open( __( 'News & blog', 'yallapp' ) );
+		echo '<p class="ya-help">' . esc_html__( 'The app shows your published posts. Sticky posts are the top stories; private and password-protected posts never show.', 'yallapp' ) . '</p>';
+		$this->toggle( 'news_show_author', __( 'Show who wrote each article', 'yallapp' ) );
+		$this->toggle( 'news_show_dates', __( 'Show when each article was published', 'yallapp' ) );
 		$this->close();
 	}
 

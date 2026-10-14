@@ -33,7 +33,9 @@ final storeModule = AppModule(
     BuiltInScreen.favorites ||
     BuiltInScreen.messages ||
     BuiltInScreen.services ||
-    BuiltInScreen.appointments => null,
+    BuiltInScreen.appointments ||
+    BuiltInScreen.articles ||
+    BuiltInScreen.bookmarks => null,
   },
   routes: _pushedRoutes,
   badges: (ref) => {Paths.cart: ref.watch(cartCountProvider)},

@@ -40,7 +40,9 @@ final lmsModule = AppModule(
     BuiltInScreen.messages ||
     BuiltInScreen.cart ||
     BuiltInScreen.services ||
-    BuiltInScreen.appointments => null,
+    BuiltInScreen.appointments ||
+    BuiltInScreen.articles ||
+    BuiltInScreen.bookmarks => null,
   },
   routes: _pushedRoutes,
 );

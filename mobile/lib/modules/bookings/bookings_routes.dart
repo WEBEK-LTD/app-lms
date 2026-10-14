@@ -33,7 +33,9 @@ final bookingsModule = AppModule(
     BuiltInScreen.myCourses ||
     BuiltInScreen.favorites ||
     BuiltInScreen.messages ||
-    BuiltInScreen.cart => null,
+    BuiltInScreen.cart ||
+    BuiltInScreen.articles ||
+    BuiltInScreen.bookmarks => null,
   },
   routes: _pushedRoutes,
 );

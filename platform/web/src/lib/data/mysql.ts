@@ -72,6 +72,8 @@ import type {
 import { ACTIVE_BOOKING_STATUSES } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
+// 23 News & blog
+import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -1234,6 +1236,81 @@ export class MysqlStore implements DataStore {
       db.select({ hits: t.hits }).from(t).where(and(eq(t.bucket, bucket), eq(t.windowStart, windowStart))).limit(1),
     );
     return rows[0]?.hits ?? 0;
+  }
+
+  // 23 News & blog
+
+  async listArticles(appId: string): Promise<Article[]> {
+    const t = schema.articles;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)));
+  }
+
+  async getArticle(appId: string, id: number): Promise<Article | null> {
+    const t = schema.articles;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createArticle(input: ArticleInput, now: Date): Promise<Article> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.articles).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateArticle(appId: string, id: number, patch: Partial<ArticleInput>, now: Date): Promise<void> {
+    const { appId: _ignored, ...rest } = patch;
+    void _ignored;
+    const t = schema.articles;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteArticle(appId: string, id: number): Promise<void> {
+    const t = schema.articles;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listArticleCategories(appId: string): Promise<ArticleCategory[]> {
+    const t = schema.articleCategories;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async createArticleCategory(input: Omit<ArticleCategory, "id">): Promise<ArticleCategory> {
+    const [result] = await this.run((db) => db.insert(schema.articleCategories).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateArticleCategory(appId: string, id: number, patch: Partial<Pick<ArticleCategory, "name" | "position">>): Promise<void> {
+    const t = schema.articleCategories;
+    if (Object.keys(patch).length === 0) return;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteArticleCategory(appId: string, id: number): Promise<void> {
+    const t = schema.articleCategories;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    // Categories are a JSON list on each article: the few that had it lose it.
+    const a = schema.articles;
+    const rows = await this.run((db) => db.select({ id: a.id, categoryIds: a.categoryIds }).from(a).where(eq(a.appId, appId)));
+    for (const row of rows) {
+      if (!row.categoryIds.includes(id)) continue;
+      const categoryIds = row.categoryIds.filter((c) => c !== id);
+      await this.run((db) => db.update(a).set({ categoryIds }).where(and(eq(a.appId, appId), eq(a.id, row.id))));
+    }
+  }
+
+  async getNewsSettings(appId: string): Promise<NewsSettings | null> {
+    const t = schema.newsSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveNewsSettings(appId: string, settings: NewsSettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.newsSettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
   }
 
   // 10.7 Listings

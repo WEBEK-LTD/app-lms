@@ -102,6 +102,7 @@ class Plugin {
 		if ( is_admin() ) {
 			( new Admin\Settings_Page( $this ) )->register();
 			( new Admin\Lesson_Meta_Box() )->register();
+			( new Admin\Post_Meta_Box( $this ) )->register();
 		}
 	}
 
@@ -123,6 +124,7 @@ class Plugin {
 		( new Rest\Community_Controller( $this ) )->register_routes();
 		( new Rest\Store_Controller( $this ) )->register_routes();
 		( new Rest\Bookings_Controller( $this ) )->register_routes();
+		( new Rest\News_Controller( $this ) )->register_routes();
 	}
 
 	/**
@@ -336,6 +338,20 @@ class Plugin {
 			'lesson_renderer',
 			function () {
 				return new Lesson_Renderer( $this->settings(), $this->media() );
+			}
+		);
+	}
+
+	/**
+	 * The site's posts as articles (News & blog apps).
+	 *
+	 * @return News\Articles
+	 */
+	public function articles() {
+		return $this->service(
+			'articles',
+			function () {
+				return new News\Articles( $this->settings(), $this->lesson_renderer() );
 			}
 		);
 	}

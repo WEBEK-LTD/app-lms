@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.5
+Stable tag: 0.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,12 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.6 =
+* News & blog apps: your published posts are the app's articles, with their featured image, categories and author, on a home screen with the top stories (your sticky posts), the latest posts and a row per category, plus search. Private and password-protected posts never show. Articles look the way lessons do: pictures, YouTube and Vimeo videos and embeds are sized for the phone.
+* Settings › Notifications › "Notify app users about new posts" (off by default): each new post goes to the app's notifications inbox and, with Firebase, to the phones of people signed in to the app. A post's "In the app" box can leave it out.
+* Settings › News & blog: show or hide each article's author and date.
+* Page blocks can list articles, top stories and categories, opened in the app.
 
 = 0.3.5 =
 * Email sign-in with a code: Settings › Sign-in › "Email sign-in works" can be "With a code by email". Yallapp emails a 6-digit code (from your own address when you set your email server in your Yallapp dashboard), and people without an account sign up with their email address when sign-up from the app is allowed. Codes are kept as a hash, for 5 minutes and 5 attempts, like phone codes. Staff accounts that can edit the site never sign in by code. The password stays the default.

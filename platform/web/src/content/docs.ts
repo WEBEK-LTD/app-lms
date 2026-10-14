@@ -147,7 +147,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Bookings, Clinic or Real estate: what each app type does and where its content can come from.",
+    description: "Academy, Store, Bookings, Clinic, Real estate or News & blog: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -171,6 +171,10 @@ Bookings for doctors, dentists, therapists and other clinics, in the words patie
 
 Property listings with search and filters, favorites and messages to your office. Listings are always managed in the Yallapp dashboard, so you don't need a website. See [the Real estate solution](/solutions/real-estate).
 
+## News & blog
+
+Articles, sections and breaking-news alerts for news sites, blogs and magazines. Readers browse the latest stories and sections, search, save articles to read later and share them. Content from your WordPress posts, any website's RSS or Atom feed, your own API, or articles you write in the dashboard. Reading is free: there's no paid content in the app. See [the News & blog solution](/solutions/news) and [News and blog apps](/docs/news).
+
 ## Changing the app type later
 
 Open **App setup** and choose another type. Your next build includes the new type's screens. Content made for the old type, such as a shop or a bookings setup, doesn't carry over: go through the **Website** step again to choose the new type's content.
@@ -193,8 +197,9 @@ Open **App setup** and choose another type. Your next build includes the new typ
 - **Another store platform** (Store apps): ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. See [Connect ikas](/docs/ikas), [Connect Ticimax](/docs/ticimax), [Connect IdeaSoft](/docs/ideasoft), [Connect your Wix store](/docs/wix), [Connect your Salla store](/docs/salla) and [Connect your Zid store](/docs/zid).
 - **My Teachable or Thinkific school** (Academy apps): see [Connect Teachable](/docs/teachable) and [Connect Thinkific](/docs/thinkific).
 - **My SimplyBook.me account** (Bookings apps): see [Connect SimplyBook.me](/docs/simplybook).
+- **My site's RSS feed** (News & blog apps): the articles of any website's RSS or Atom feed. See [News and blog apps](/docs/news).
 - **I don't have a website**: add your content in the dashboard. See [No website](/docs/no-website).
-- **My own API** (Academy, Store and Bookings apps): for developers. See [Connect your own API](/docs/my-own-api).
+- **My own API** (Academy, Store, Bookings and News & blog apps): for developers. See [Connect your own API](/docs/my-own-api).
 - **I don't have WordPress**: our team sets up a WordPress site for you and moves your content over.
 
 Real estate apps have one choice, **Listings managed in Yallapp**.
@@ -607,7 +612,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
     slug: "no-website",
     section: "Your content",
     title: "No website: manage everything in Yallapp",
-    description: "Run a store, academy, bookings or real estate app without a website, with your content in the Yallapp dashboard.",
+    description: "Run a store, academy, bookings, real estate or news app without a website, with your content in the Yallapp dashboard.",
     steps: false,
     body: `You don't need a website to have an app. Choose **I don't have a website** on the Website step (for Real estate apps, **Listings managed in Yallapp**), and new pages appear in your dashboard's menu for your content.
 
@@ -618,6 +623,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
 - **Clinic**: services, your doctors and your intake form on the **Doctors & services** page, and visits on the **Visits** page. See [Clinics: doctors, visits and the intake form](/docs/clinics).
 - **Real estate**: properties on the **Listings** page and messages on the **Inquiries** page. See [Listings and inquiries](/docs/real-estate).
+- **News & blog**: articles and sections on the **Articles** page, with breaking news sent to your readers' phones. See [News and blog apps](/docs/news).
 
 ## Sign-in, notifications and settings
 
@@ -1360,6 +1366,44 @@ People filter by purpose, type, price, rooms, area and place, sort the results, 
 ## Inquiries
 
 When someone messages you about a listing, it appears on the **Inquiries** page and you get an email. Your reply lands in their app's notifications inbox and is pushed to their phone.
+`,
+  }),
+
+  doc({
+    slug: "news",
+    section: "Your content",
+    title: "News and blog apps",
+    description: "Run a News & blog app from your WordPress posts, your site's RSS feed or articles you write in the dashboard, and send breaking news.",
+    steps: false,
+    body: `News & blog apps show your articles: the top stories, the latest ones and a row per section on the home screen, every article in its own screen, search, and a **Saved** tab where readers keep articles to read later on their phone. Readers can share any article. Reading is free for everyone: there's no paid content in the app.
+
+## From your WordPress site
+
+Install the Yallapp plugin (see [Install the WordPress plugin](/docs/wordpress-plugin)). The app shows your **published posts** with their featured image, categories and author. Private and password-protected posts never show. Sticky posts are the top stories. Articles look like they do on your site: pictures, YouTube and Vimeo videos and embeds are sized for the phone.
+
+To tell readers about new posts, turn on **Notify app users about new posts** in the plugin's settings (**Yallapp › Settings › Notifications**). Each new post is then pushed to people signed in to the app, unless you tick **Don't notify app users about this post** in the post's **In the app** box. Push needs your Firebase project (see [Push notifications with Firebase](/docs/push-notifications)).
+
+## From your site's RSS feed
+
+Any website with an RSS or Atom feed works: WordPress (at /feed), Ghost, Blogger, Substack, Medium and most news systems. Choose **My site's RSS feed** on the Website step and paste your feed's address; we read it to check it before saving. New articles show in the app a few minutes after they're in your feed. The feed must be on https, and its address must be the final one (we don't follow redirects).
+
+Feeds can't tell us when an article is new, so breaking news isn't sent automatically. Send an alert yourself from **App notifications** when you need to.
+
+## Articles written in Yallapp
+
+Choose **I don't have a website** on the Website step, then write on the **Articles** page:
+
+- a **title**, an optional **summary** (made from the article when you leave it empty) and the **author** shown in the app
+- the **article** itself: paragraphs, headings, lists, quotes, links and pictures from https addresses; YouTube and Vimeo videos show as players
+- a **picture** (PNG or JPEG, up to 5 MB) and its **sections**
+
+Save a **draft** while you work, **publish** it to show it in the app, and **unpublish** it to take it out again. Mark the important ones as **top stories**. When you publish, tick **Send as breaking news** to push the article to your readers' phones; it also lands in their notifications inbox and opens the article.
+
+On the same page you set your **sections** and whether articles show their **author** and **date**.
+
+## Your pages
+
+The home page starts with a search box, the top stories, the sections and the latest articles. Change it on **Pages & look**: list blocks can show the latest articles, a section's, the top stories or articles you pick.
 `,
   }),
 

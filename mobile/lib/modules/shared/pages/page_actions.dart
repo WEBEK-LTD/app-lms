@@ -57,6 +57,10 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
 
 /// The detail screen of a list entry, when this app type has one.
 String? itemLocation(ItemRef item, AppType appType) {
+  // 23 Articles keep their ID as it is (a feed's are long numbers).
+  if (item.source == ItemSource.articles && appType == AppType.news) {
+    return item.id.isEmpty ? null : Paths.article(item.id);
+  }
   final id = int.tryParse(item.id);
   if (id == null) return null;
   return switch ((item.source, appType)) {
@@ -69,14 +73,17 @@ String? itemLocation(ItemRef item, AppType appType) {
 }
 
 /// The search screen for a list source, when this app type has one.
-String? searchLocation(ItemSource? source, AppType appType) =>
-    switch ((source, appType)) {
-      (ItemSource.courses, AppType.lms) => '${Paths.courses}?focus=1',
-      (ItemSource.products, AppType.store) => '${Paths.shop}?focus=1',
-      (ItemSource.services, AppType.booking) => Paths.services,
-      (ItemSource.listings, AppType.realEstate) => '${Paths.search}?focus=1',
-      _ => null,
-    };
+String? searchLocation(ItemSource? source, AppType appType) => switch ((
+  source,
+  appType,
+)) {
+  (ItemSource.courses, AppType.lms) => '${Paths.courses}?focus=1',
+  (ItemSource.products, AppType.store) => '${Paths.shop}?focus=1',
+  (ItemSource.services, AppType.booking) => Paths.services,
+  (ItemSource.listings, AppType.realEstate) => '${Paths.search}?focus=1',
+  (ItemSource.articles, AppType.news) => Paths.articlesFiltered(focus: true),
+  _ => null,
+};
 
 /// The catalog filtered to a category, when this app type has one.
 String? categoryLocation(ItemSource? source, AppType appType, int id) =>
@@ -85,6 +92,9 @@ String? categoryLocation(ItemSource? source, AppType appType, int id) =>
       (ItemSource.products, AppType.store) => Paths.shopFiltered(category: id),
       (ItemSource.services, AppType.booking) => Paths.servicesFiltered(
         category: id,
+      ),
+      (ItemSource.articles, AppType.news) => Paths.articlesFiltered(
+        category: '$id',
       ),
       _ => null,
     };

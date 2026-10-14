@@ -3819,6 +3819,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View profile'**
   String get staffViewProfile;
+
+  /// No description provided for @tabLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get tabLatest;
+
+  /// No description provided for @tabSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get tabSaved;
+
+  /// No description provided for @newsTopStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Top stories'**
+  String get newsTopStories;
+
+  /// No description provided for @newsLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get newsLatest;
+
+  /// No description provided for @newsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get newsAll;
+
+  /// No description provided for @newsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search articles'**
+  String get newsSearchHint;
+
+  /// No description provided for @loadingArticles.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading articles'**
+  String get loadingArticles;
+
+  /// No description provided for @noArticlesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No articles yet'**
+  String get noArticlesTitle;
+
+  /// No description provided for @noArticlesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New articles will show here.'**
+  String get noArticlesMessage;
+
+  /// No description provided for @noArticlesFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No articles found'**
+  String get noArticlesFoundTitle;
+
+  /// No description provided for @noArticlesFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try other words or another section.'**
+  String get noArticlesFoundMessage;
+
+  /// No description provided for @noSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved articles'**
+  String get noSavedTitle;
+
+  /// No description provided for @noSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the bookmark on an article to keep it here and read it later, even without a connection.'**
+  String get noSavedMessage;
+
+  /// No description provided for @articleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save article'**
+  String get articleSave;
+
+  /// No description provided for @articleUnsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get articleUnsave;
+
+  /// No description provided for @articleSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Find it under Saved.'**
+  String get articleSavedMessage;
+
+  /// No description provided for @articleShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get articleShare;
+
+  /// No description provided for @articleBy.
+  ///
+  /// In en, this message translates to:
+  /// **'By {author}'**
+  String articleBy(String author);
+
+  /// No description provided for @articleOpenOnSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Read on the website'**
+  String get articleOpenOnSite;
+
+  /// No description provided for @notifyBreakingNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking news'**
+  String get notifyBreakingNews;
 }
 
 class _AppLocalizationsDelegate

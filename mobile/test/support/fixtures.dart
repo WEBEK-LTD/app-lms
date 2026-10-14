@@ -1189,3 +1189,91 @@ Map<String, dynamic> inquiryJson({
         },
       ],
 };
+
+// ------------------------------------------------------------ News & blog (23)
+
+Map<String, dynamic> newsConfigJson({bool push = true}) => {
+  'show_author': true,
+  'show_dates': true,
+  'breaking_news_push': push,
+};
+
+Map<String, dynamic> newsCategoryJson({
+  String id = '7',
+  String name = 'City',
+  int count = 3,
+}) => {'id': id, 'name': name, 'count': count};
+
+Map<String, dynamic> articleSummaryJson({
+  String id = '1042',
+  String title = 'Night ferries return to the harbour',
+  String? author = 'Ayla Demir',
+  String? url = 'https://harbour.example/night-ferries',
+  bool featured = false,
+  List<Map<String, dynamic>>? categories,
+}) => {
+  'id': id,
+  'title': title,
+  'excerpt': 'Boats every 40 minutes until 1:00.',
+  'author': author,
+  'published_at': '2026-10-13T08:00:00Z',
+  'image_url': null,
+  'categories':
+      categories ??
+      [
+        {'id': '7', 'name': 'City'},
+      ],
+  'url': url,
+  'featured': featured,
+};
+
+Map<String, dynamic> articleJson({
+  String id = '1042',
+  String renderMode = 'native',
+}) => {
+  ...articleSummaryJson(id: id, featured: true),
+  'render_mode': renderMode,
+  'html': '<p>Late ferries return on Monday.</p><div data-yallapp-embed="yallapp-embed-1"></div><h3>Why now</h3><p>Two new boats joined the fleet.</p>',
+  'webview_url': renderMode == 'webview'
+      ? 'https://harbour.example/night-ferries'
+      : null,
+  'embeds': [
+    {
+      'placeholder': 'yallapp-embed-1',
+      'src': 'https://www.youtube.com/embed/abc',
+      'provider': 'youtube',
+      'width': '560',
+      'height': '315',
+      'aspect_ratio': 1.7778,
+      'allow_fullscreen': true,
+    },
+  ],
+};
+
+Map<String, dynamic> newsHomeJson() => {
+  'featured': [articleSummaryJson(featured: true)],
+  'latest': [
+    articleSummaryJson(id: '1043', title: 'A late goal wins the derby'),
+    articleSummaryJson(id: '1044', title: 'Tram line 3 extends'),
+  ],
+  'rails': [
+    {
+      'category': newsCategoryJson(),
+      'articles': [
+        articleSummaryJson(id: '1044', title: 'Tram line 3 extends'),
+      ],
+    },
+    {
+      'category': newsCategoryJson(id: '8', name: 'Sport', count: 1),
+      'articles': [
+        articleSummaryJson(
+          id: '1043',
+          title: 'A late goal wins the derby',
+          categories: [
+            {'id': '8', 'name': 'Sport'},
+          ],
+        ),
+      ],
+    },
+  ],
+};

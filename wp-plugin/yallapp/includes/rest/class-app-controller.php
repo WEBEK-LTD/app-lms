@@ -108,6 +108,8 @@ class App_Controller extends Controller {
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
 				'bookings'  => Bookings_Controller::config( $this->plugin->bookings() ),
+				// News & blog apps read the site's posts.
+				'news'      => News_Controller::config( $this->plugin ),
 				'auth'      => array(
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),

@@ -194,6 +194,37 @@ const demoArt = <String, DemoArt>{
     Color(0xFF7A68A6),
     Symbols.bed_rounded,
   ),
+  // News & blog (a local paper).
+  'article-harbour': DemoArt(
+    Color(0xFFCFE4F3),
+    Color(0xFF4F86B0),
+    Symbols.directions_boat_rounded,
+  ),
+  'article-market': DemoArt(
+    Color(0xFFF6E0CB),
+    Color(0xFFC8553D),
+    Symbols.storefront_rounded,
+  ),
+  'article-stadium': DemoArt(
+    Color(0xFFD9EBDF),
+    Color(0xFF3E7A4A),
+    Symbols.sports_soccer_rounded,
+  ),
+  'article-tram': DemoArt(
+    Color(0xFFE9E2F2),
+    Color(0xFFB03A5B),
+    Symbols.tram_rounded,
+  ),
+  'article-books': DemoArt(
+    Color(0xFFF4EEE6),
+    Color(0xFF8A5A2B),
+    Symbols.auto_stories_rounded,
+  ),
+  'article-bridge': DemoArt(
+    Color(0xFFF8DDC4),
+    Color(0xFF5D6B66),
+    Symbols.directions_bike_rounded,
+  ),
 };
 
 /// Paints every demo picture and stores it in the image cache under its

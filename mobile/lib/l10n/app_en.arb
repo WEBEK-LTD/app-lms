@@ -1530,5 +1530,32 @@
   "staffViewProfile": "View profile",
   "@staffViewProfile": {
     "description": "Opens a staff member's profile (also read by screen readers)."
-  }
+  },
+  "tabLatest": "Latest",
+  "tabSaved": "Saved",
+  "newsTopStories": "Top stories",
+  "newsLatest": "Latest",
+  "newsAll": "All",
+  "newsSearchHint": "Search articles",
+  "loadingArticles": "Loading articles",
+  "noArticlesTitle": "No articles yet",
+  "noArticlesMessage": "New articles will show here.",
+  "noArticlesFoundTitle": "No articles found",
+  "noArticlesFoundMessage": "Try other words or another section.",
+  "noSavedTitle": "No saved articles",
+  "noSavedMessage": "Tap the bookmark on an article to keep it here and read it later, even without a connection.",
+  "articleSave": "Save article",
+  "articleUnsave": "Remove from saved",
+  "articleSavedMessage": "Saved. Find it under Saved.",
+  "articleShare": "Share",
+  "articleBy": "By {author}",
+  "@articleBy": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "articleOpenOnSite": "Read on the website",
+  "notifyBreakingNews": "Breaking news"
 }

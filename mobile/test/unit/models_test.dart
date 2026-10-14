@@ -165,6 +165,7 @@ void main() {
         'new_lessons': true,
         'announcements': true,
         'daily_reminder': true,
+        'news': true,
       });
     });
   });

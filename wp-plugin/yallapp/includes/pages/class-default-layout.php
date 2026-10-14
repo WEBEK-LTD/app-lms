@@ -39,7 +39,7 @@ class Default_Layout {
 	 * The kind of app the site serves: the type the owner chose in the Yallapp dashboard
 	 * (sent with the license status), else a guess from the plugins the site has.
 	 *
-	 * @return string lms, store, bookings or site.
+	 * @return string lms, store, bookings, news or site.
 	 */
 	public function app_type() {
 		$chosen = self::chosen_type( $this->plugin->license()->status() );
@@ -51,13 +51,14 @@ class Default_Layout {
 	 * platform doesn't say, or names a type WordPress doesn't serve. Pure.
 	 *
 	 * @param array $status License status.
-	 * @return string|null lms, store, bookings or null.
+	 * @return string|null lms, store, bookings, news or null.
 	 */
 	public static function chosen_type( $status ) {
 		$types = array(
 			'lms'     => 'lms',
 			'store'   => 'store',
 			'booking' => 'bookings',
+			'news'    => 'news',
 		);
 		$type  = is_array( $status ) && isset( $status['app_type'] ) && is_string( $status['app_type'] ) ? $status['app_type'] : '';
 		return $types[ $type ] ?? null;
@@ -92,6 +93,8 @@ class Default_Layout {
 			$blocks = $this->lms_blocks();
 		} elseif ( 'store' === $type ) {
 			$blocks = $this->store_blocks();
+		} elseif ( 'news' === $type ) {
+			$blocks = self::news_blocks();
 		} else {
 			$blocks = $this->bookings_blocks( $type );
 		}
@@ -113,7 +116,7 @@ class Default_Layout {
 		 * Filters the pages an app gets before a layout is published in the dashboard.
 		 *
 		 * @param array  $layout Layout shape, without its version.
-		 * @param string $type   lms, store, bookings or site.
+		 * @param string $type   lms, store, bookings, news or site.
 		 */
 		$layout = (array) apply_filters( 'yallapp_default_layout', $layout, $type );
 		// Changes whenever the tabs, the blocks or the site's content change.
@@ -138,6 +141,9 @@ class Default_Layout {
 		} elseif ( 'bookings' === $type ) {
 			$tabs[] = self::tab( 'book', __( 'Book', 'yallapp' ), 'event_available', self::screen( 'services' ) );
 			$tabs[] = self::tab( 'appointments', __( 'Appointments', 'yallapp' ), 'event_note', self::screen( 'appointments' ) );
+		} elseif ( 'news' === $type ) {
+			$tabs[] = self::tab( 'articles', __( 'Latest', 'yallapp' ), 'newspaper', self::screen( 'articles' ) );
+			$tabs[] = self::tab( 'saved', __( 'Saved', 'yallapp' ), 'bookmark', self::screen( 'bookmarks' ) );
 		}
 		$tabs[] = self::tab( 'account', __( 'Account', 'yallapp' ), 'person', self::screen( 'account' ) );
 		return $tabs;
@@ -178,6 +184,38 @@ class Default_Layout {
 			$blocks[] = self::items( 'latest-courses', 'courses', __( 'Latest courses', 'yallapp' ), array(), self::screen( 'courses' ) );
 		}
 		return array_values( array_filter( $blocks ) );
+	}
+
+	/**
+	 * Home blocks for a News & blog app: search, the top stories (sticky posts), the
+	 * sections and the latest posts, all opened in the app. Pure.
+	 *
+	 * @return array[]
+	 */
+	public static function news_blocks() {
+		return array(
+			self::search( 'articles', __( 'Search articles', 'yallapp' ) ),
+			self::items(
+				'top-stories',
+				'articles',
+				__( 'Top stories', 'yallapp' ),
+				array(
+					'featured' => true,
+					'limit'    => 5,
+				),
+				null
+			),
+			self::block(
+				'categories',
+				'categories',
+				__( 'Sections', 'yallapp' ),
+				array(
+					'source' => 'articles',
+					'style'  => 'chips',
+				)
+			),
+			self::items( 'latest', 'articles', __( 'Latest', 'yallapp' ), array(), self::screen( 'articles' ), 'list' ),
+		);
 	}
 
 	/**
@@ -314,12 +352,13 @@ class Default_Layout {
 	 * @param string     $title   Title.
 	 * @param array      $query   Query besides the limit.
 	 * @param array|null $see_all Action for "See all".
+	 * @param string     $layout  carousel, grid or list.
 	 * @return array
 	 */
-	private static function items( $id, $source, $title, array $query, $see_all ) {
+	private static function items( $id, $source, $title, array $query, $see_all, $layout = 'carousel' ) {
 		$fields = array(
 			'source' => $source,
-			'layout' => 'carousel',
+			'layout' => $layout,
 			'query'  => array_merge(
 				array(
 					'sort'  => 'newest',

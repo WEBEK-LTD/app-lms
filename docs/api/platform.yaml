@@ -393,7 +393,7 @@ components:
             `Config.auth.email_sign_in`. Missing on older platforms.
         app_type:
           type: [string, 'null']
-          enum: [lms, store, booking, real_estate, null]
+          enum: [lms, store, booking, real_estate, news, null]
           description: |
             The app's type, as its owner chose it in the dashboard: the module
             its build includes. The plugin uses it instead of guessing from the
@@ -515,7 +515,7 @@ components:
           required: [schema_version, app_type, app_name, short_name, site_url, android_package, ios_bundle_id, version_name, version_code, branding]
           properties:
             schema_version: { const: 1 }
-            app_type: { type: string, enum: [lms, store, booking, real_estate] }
+            app_type: { type: string, enum: [lms, store, booking, real_estate, news] }
             app_name: { type: string, minLength: 1 }
             short_name: { type: string, minLength: 1 }
             site_url: { type: string, format: uri }

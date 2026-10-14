@@ -27,7 +27,9 @@ export interface Announcement {
 
 /**
  * Adds a notification to every customer's inbox and pushes it to the devices
- * that allow announcements. The inbox keeps it even when push fails.
+ * that allow announcements. The inbox keeps it even when push fails. 23 With
+ * `articleId` it is breaking news: it opens the article and goes to devices
+ * that allow news.
  */
 export async function announce(input: {
   store: DataStore;
@@ -37,22 +39,28 @@ export async function announce(input: {
   account: ServiceAccount | null;
   now: Date;
   send?: typeof sendPush;
+  articleId?: string | null;
 }): Promise<Announcement> {
+  const articleId = input.articleId ?? null;
   const notification = await input.store.createHostedNotification({
     appId: input.app.id,
     userId: null,
     title: input.title,
     body: input.body,
+    ...(articleId ? { articleId } : {}),
     createdAt: input.now,
   });
   if (!input.account) return { notification, pushed: 0, pushError: "Push is off: add your Firebase service account." };
   const devices = await input.store.listHostedPushDevices(input.app.id, null);
-  const tokens = devices.filter((d) => d.pushPreferences?.announcements !== false).map((d) => d.pushToken!);
+  const tokens = devices.filter((d) => (articleId ? d.pushPreferences?.news : d.pushPreferences?.announcements) !== false).map((d) => d.pushToken!);
+  const data: Record<string, string> = articleId
+    ? { type: "article", article_id: articleId, notification_id: String(notification.id) }
+    : { type: "announcement", notification_id: String(notification.id) };
   try {
     const result = await (input.send ?? sendPush)(
       input.account,
       tokens,
-      { title: input.title, body: input.body, data: { type: "announcement", notification_id: String(notification.id) } },
+      { title: input.title, body: input.body, data },
       { now: input.now },
     );
     for (const token of result.invalidTokens) await input.store.clearHostedPushToken(input.app.id, token);

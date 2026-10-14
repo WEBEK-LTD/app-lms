@@ -313,6 +313,10 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
+    // 23 Breaking news needs push set up and in the app's plan too.
+    ...(extra.news
+      ? { news: { ...extra.news, breaking_news_push: extra.news.breaking_news_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
+      : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null)),
   });
@@ -750,7 +754,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   if (!token) return badRequest("The push token is missing.");
   const prefs = record(body.preferences);
   const preferences: Record<string, boolean> = {};
-  for (const key of ["announcements", "new_lessons", "daily_reminder"]) {
+  for (const key of ["announcements", "new_lessons", "daily_reminder", "news"]) {
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
   // A token moves with the install: forget it on any other device first.
@@ -771,10 +775,12 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     id: n.id,
     title: n.title,
     body: n.body,
-    type: "announcement",
+    // 23 Breaking news opens its article.
+    type: n.articleId ? "article" : "announcement",
     course_id: null,
     lesson_id: null,
     question_id: null,
+    ...(n.articleId ? { article_id: n.articleId } : {}),
     created_at: n.createdAt.toISOString(),
     read: readAt !== null && n.createdAt.getTime() <= readAt.getTime(),
   };

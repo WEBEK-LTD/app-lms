@@ -11,7 +11,7 @@ import { demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/l
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME, demoTypeOfSlug } from "@/lib/demo/constants";
-import { CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_COURSES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF } from "@/lib/demo/content";
+import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_COURSES, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { connectorFor } from "@/lib/hosted/connectors";
@@ -43,7 +43,7 @@ function deps(store: MemoryStore, now: Date = NOW, blobs = new Map<string, Buffe
 beforeEach(() => clearPlatformSettingsCache());
 
 describe("creating the demo apps", () => {
-  it("makes the demo account with five apps, their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with six apps, their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -54,6 +54,7 @@ describe("creating the demo apps", () => {
       ["booking", true],
       ["clinic", true],
       ["real_estate", true],
+      ["news", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -61,10 +62,10 @@ describe("creating the demo apps", () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "booking", "booking", "real_estate"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "booking", "booking", "real_estate", "news"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, null, "clinic", null]);
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(5);
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, null, "clinic", null, null]);
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(6);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -76,7 +77,7 @@ describe("creating the demo apps", () => {
       expect(layout?.published?.pages[0]?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }
-    const [lms, shop, bookings, clinic, homes] = apps as [App, App, App, App, App];
+    const [lms, shop, bookings, clinic, homes, news] = apps as [App, App, App, App, App, App];
     expect(lms.courseSetup?.courses).toHaveLength(DEMO_COURSES.length);
     expect(lms.courseSetup?.courses.some((c) => c.priceCents === 0)).toBe(true);
     expect(await store.listCatalogProducts(shop.id)).toHaveLength(DEMO_PRODUCTS.length);
@@ -90,6 +91,12 @@ describe("creating the demo apps", () => {
     expect(clinic.bookingSetup?.intakeFields).toEqual(CLINIC_INTAKE);
     expect(clinic.appName).toBe("Kardelen Clinic");
     expect(await store.listListings(homes.id)).toHaveLength(DEMO_LISTINGS.length);
+    // 23 The news demo: its articles, published with pictures, in its sections.
+    expect(news.connector).toEqual({ kind: "articles" });
+    const articles = await store.listArticles(news.id);
+    expect(articles).toHaveLength(DEMO_ARTICLES.length);
+    expect(articles.every((a) => a.status === "published" && a.imageAssetId && a.categoryIds.length === 1)).toBe(true);
+    expect((await store.listArticleCategories(news.id)).map((c) => c.name)).toEqual(ARTICLE_CATEGORIES);
     // Every picture is a PNG we drew.
     for (const data of blobs.values()) expect(readPngInfo(data)).toMatchObject({ hasTransparency: false });
   });
@@ -106,14 +113,17 @@ describe("creating the demo apps", () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(5);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(5);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(6);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(6);
     const products = await store.listCatalogProducts(shop);
     expect(products).toHaveLength(DEMO_PRODUCTS.length);
     expect(products.map((p) => p.name)).not.toContain("Changed by hand");
     expect(blobs.size).toBe(pictures);
     const homes = second.apps.find((a) => a.type === "real_estate")!.appId;
     expect(await store.listListings(homes)).toHaveLength(DEMO_LISTINGS.length);
+    const news = second.apps.find((a) => a.type === "news")!.appId;
+    expect(await store.listArticles(news)).toHaveLength(DEMO_ARTICLES.length);
+    expect(await store.listArticleCategories(news)).toHaveLength(ARTICLE_CATEGORIES.length);
     // One app at a time works too.
     const one = await setupDemoApps(deps(store), ["booking"]);
     expect(one.apps).toEqual([{ type: "booking", appId: first.apps[2]!.appId, created: false }]);
@@ -332,7 +342,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(5);
+    expect(report.demo.apps).toBe(6);
     expect(report.demo.deleted).toBe(4); // an order, a conversation, a favorite, a device
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });
     expect(left.items.map((o) => o.id)).toEqual([fresh.id]);

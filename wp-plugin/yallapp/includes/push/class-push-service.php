@@ -26,6 +26,16 @@ class Push_Service {
 	const TOKEN_KEY  = 'yallapp_fcm_access_token';
 
 	/**
+	 * News & blog apps: a new post is announced a minute after it's published, once the
+	 * editor's "In the app" box (saved after the status changes, or in a second request by
+	 * the block editor) has said whether to.
+	 */
+	const POST_HOOK     = 'yallapp_notify_post';
+	const POST_DELAY    = 60;
+	const NO_PUSH_META  = '_yallapp_no_push';
+	const NOTIFIED_META = '_yallapp_notified';
+
+	/**
 	 * Plugin.
 	 *
 	 * @var Plugin
@@ -49,6 +59,7 @@ class Push_Service {
 	public function register() {
 		add_action( 'transition_post_status', array( $this, 'on_status_change' ), 10, 3 );
 		add_action( self::SEND_HOOK, array( $this, 'send_batch' ), 10, 4 );
+		add_action( self::POST_HOOK, array( $this, 'notify_post' ) );
 		$lms = $this->plugin->lms();
 		if ( $lms ) {
 			$lms->listen( array( $this, 'on_enrolled' ), array( $this, 'on_answered' ) );
@@ -74,6 +85,12 @@ class Push_Service {
 	 */
 	public function on_status_change( $new_status, $old_status, $post ) {
 		if ( 'publish' !== $new_status || 'publish' === $old_status || ! $post instanceof WP_Post ) {
+			return;
+		}
+		if ( 'post' === $post->post_type ) {
+			if ( $this->plugin->settings()->get( 'notify_new_post' ) && ! get_post_meta( $post->ID, self::NOTIFIED_META, true ) ) {
+				wp_schedule_single_event( time() + self::POST_DELAY, self::POST_HOOK, array( (int) $post->ID ) );
+			}
 			return;
 		}
 		$lms = $this->plugin->lms();
@@ -111,6 +128,62 @@ class Push_Service {
 		if ( $this->is_configured() ) {
 			$this->queue( $lms->student_ids( $course_id ), $kind, $notification, $data );
 		}
+	}
+
+	/**
+	 * Tells app users about a new post (News & blog apps): saved to everyone's inbox and
+	 * pushed to devices that allow news. Runs in cron, once per post; nothing is sent when the
+	 * setting was turned off since, the post isn't public any more, or its "In the app" box
+	 * says not to.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool Whether it was sent.
+	 */
+	public function notify_post( $post_id ) {
+		$post = get_post( (int) $post_id );
+		if ( ! \Yallapp\News\Articles::readable( $post ) || ! $this->plugin->settings()->get( 'notify_new_post' ) ) {
+			return false;
+		}
+		if ( get_post_meta( $post->ID, self::NO_PUSH_META, true ) || get_post_meta( $post->ID, self::NOTIFIED_META, true ) ) {
+			return false;
+		}
+		update_post_meta( $post->ID, self::NOTIFIED_META, time() );
+		$notification = self::post_notification(
+			html_entity_decode( wp_strip_all_tags( get_the_title( $post ) ), ENT_QUOTES, 'UTF-8' ),
+			(string) \Yallapp\News\Articles::excerpt_of( $post->post_excerpt, $post->post_content )
+		);
+		$this->plugin->inbox()->add( 'article', Inbox::AUDIENCE_ALL, 0, $notification['title'], $notification['body'], 0, 0, 0, $post->ID );
+		if ( $this->is_configured() && $this->plugin->license()->has_feature( 'push' ) ) {
+			$this->queue(
+				$this->plugin->devices()->push_user_ids(),
+				'news',
+				$notification,
+				array(
+					'type'       => 'article',
+					'article_id' => (string) $post->ID,
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * A new post's notification: its title and the start of its excerpt, cut to what phones show. Pure.
+	 *
+	 * @param string $title   Title.
+	 * @param string $excerpt Excerpt.
+	 * @return array{title: string, body: string}
+	 */
+	public static function post_notification( $title, $excerpt ) {
+		$cut  = static function ( $text, $max ) {
+			$text = trim( (string) $text );
+			return mb_strlen( $text ) <= $max ? $text : rtrim( mb_substr( $text, 0, $max - 1 ) ) . "\u{2026}";
+		};
+		$body = '' !== trim( $excerpt ) ? $excerpt : $title;
+		return array(
+			'title' => $cut( $title, 65 ),
+			'body'  => $cut( $body, 240 ),
+		);
 	}
 
 	/**

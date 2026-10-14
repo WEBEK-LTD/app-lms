@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show immutable, kIsWeb;
 
 import 'api_exception.dart';
 import 'http_client.dart';
@@ -306,6 +306,54 @@ class ListingQuery {
   );
 }
 
+/// An articles list (`GET /news/articles`), for News & blog apps (23).
+@immutable
+class ArticleQuery {
+  const ArticleQuery({
+    this.page = 1,
+    this.perPage = 20,
+    this.search = '',
+    this.category,
+    this.featured = false,
+  });
+
+  final int page;
+  final int perPage;
+  final String search;
+
+  /// A `NewsCategory.id`.
+  final String? category;
+  final bool featured;
+
+  ArticleQuery copyWith({int? page}) => ArticleQuery(
+    page: page ?? this.page,
+    perPage: perPage,
+    search: search,
+    category: category,
+    featured: featured,
+  );
+
+  Map<String, dynamic> toQuery() => {
+    'page': page,
+    'per_page': perPage,
+    if (search.trim().isNotEmpty) 'search': search.trim(),
+    'category': ?category,
+    if (featured) 'featured': true,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is ArticleQuery &&
+      other.page == page &&
+      other.perPage == perPage &&
+      other.search == search &&
+      other.category == category &&
+      other.featured == featured;
+
+  @override
+  int get hashCode => Object.hash(page, perPage, search, category, featured);
+}
+
 class RegisterInput {
   const RegisterInput({
     required this.signupToken,
@@ -486,6 +534,12 @@ abstract class YallappApi {
   /// Also marks the office's messages as read.
   Future<Inquiry> getInquiry(int inquiryId);
   Future<Inquiry> replyToInquiry(int inquiryId, String message);
+
+  // 23 News & blog apps.
+  Future<NewsHome> getNewsHome();
+  Future<List<NewsCategory>> listNewsCategories();
+  Future<Paged<ArticleSummary>> listArticles(ArticleQuery query);
+  Future<Article> getArticle(String articleId);
 }
 
 /// [YallappApi] over HTTP.
@@ -1237,5 +1291,31 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => Inquiry.fromJson(asJson(data)),
     body: {'message': message.trim()},
+  );
+
+  @override
+  Future<NewsHome> getNewsHome() =>
+      _get('/news/home', _optional, NewsHome.fromJson);
+
+  @override
+  Future<List<NewsCategory>> listNewsCategories() => _get(
+    '/news/categories',
+    _optional,
+    (json) => reqListOf(json, 'items', NewsCategory.fromJson),
+  );
+
+  @override
+  Future<Paged<ArticleSummary>> listArticles(ArticleQuery query) => _get(
+    '/news/articles',
+    _optional,
+    (json) => Paged.fromJson(json, ArticleSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<Article> getArticle(String articleId) => _get(
+    '/news/articles/${Uri.encodeComponent(articleId)}',
+    _optional,
+    Article.fromJson,
   );
 }
