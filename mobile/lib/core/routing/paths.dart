@@ -46,6 +46,9 @@ abstract final class Paths {
   static String quiz(int id) => '/quiz/$id';
   static String question(int id) => '/question/$id';
   static String product(int id) => '/product/$id';
+
+  /// 26 One order, for following it.
+  static String order(int id) => '$orders/$id';
   static String productReviews(int id) => '/product/$id/reviews';
   static String service(int id) => '/service/$id';
   static String appointment(int id) => '/appointment/$id';

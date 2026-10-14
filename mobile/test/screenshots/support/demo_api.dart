@@ -9,8 +9,14 @@ import 'demo_images.dart';
 /// academy, a flower and gift shop in Istanbul, a hair and beauty studio
 /// and an estate agency in Cairo. Shapes come from the contract fixtures.
 class DemoApi extends FakeApi {
-  DemoApi._({required Map<String, dynamic> config, this.arabic = false})
-    : super(config: config);
+  DemoApi._({
+    required Map<String, dynamic> config,
+    this.arabic = false,
+    this.restaurant = false,
+  }) : super(config: config);
+
+  /// 26 The café's menu instead of the flower shop's products.
+  final bool restaurant;
 
   /// An academy with Yallapp's default colors.
   factory DemoApi.academy({
@@ -56,6 +62,33 @@ class DemoApi extends FakeApi {
     api
       ..product = _productDetail()
       ..cartQuote = _cartQuote();
+    return api;
+  }
+
+  /// 26 A neighbourhood café: a menu with options, pickup or delivery, and
+  /// an order on its way.
+  factory DemoApi.restaurant() {
+    final api = DemoApi._(
+      restaurant: true,
+      config: {
+        ...configJson(lms: null, orders: true, languages: _languages),
+        'site': _site('Defne Café'),
+        'branding': {'logo_url': null, 'primary_color': '#B5552A'},
+        'vertical': 'restaurant',
+        'store': {
+          ...storeConfigJson(
+            guestCheckout: false,
+            deliveryDate: false,
+            giftMessage: false,
+          ),
+          'fulfilment': fulfilmentConfigJson(),
+        },
+      },
+    );
+    api
+      ..product = _dishDetail()
+      ..order = _restaurantOrder()
+      ..orderTimes = orderTimesJson();
     return api;
   }
 
@@ -766,7 +799,8 @@ class DemoApi extends FakeApi {
   Future<List<ProductCategory>> listProductCategories() =>
       super.listProductCategories().then(
         (_) => [
-          for (final c in _productCategories) ProductCategory.fromJson(c),
+          for (final c in restaurant ? _menuCategories : _productCategories)
+            ProductCategory.fromJson(c),
         ],
       );
 
@@ -774,8 +808,100 @@ class DemoApi extends FakeApi {
   Future<Paged<ProductSummary>> listProducts(ProductQuery query) => super
       .listProducts(query)
       .then(
-        (_) => Paged.fromJson(pageJson(_products), ProductSummary.fromJson),
+        (_) => Paged.fromJson(
+          pageJson(
+            restaurant
+                ? [
+                    for (final (category, dish) in _dishes)
+                      if (query.category == null || query.category == category)
+                        dish,
+                  ]
+                : _products,
+          ),
+          ProductSummary.fromJson,
+        ),
       );
+
+  // ------------------------------------------------------------ Restaurant
+
+  static final _menuCategories = [
+    for (final (id, name, count) in [
+      (41, 'Breakfast', 2),
+      (42, 'Mains', 3),
+      (43, 'Desserts', 1),
+      (44, 'Drinks', 2),
+    ])
+      {...productCategoryJson(id: id, name: name), 'count': count},
+  ];
+
+  static final _dishes = [
+    (41, _product(51, 'Turkish Breakfast Plate', 'dish-breakfast', '₺420')),
+    (41, _product(52, 'Simit with Cheese', 'dish-breakfast', '₺120')),
+    (42, _product(53, 'Defne Burger', 'dish-burger', '₺460')),
+    (42, _product(54, 'Grilled Chicken Wrap', 'dish-wrap', '₺340')),
+    (42, _product(55, 'Lentil Soup', 'dish-soup', '₺140', was: '₺160')),
+    (43, _product(56, 'San Sebastian Cheesecake', 'dish-cheesecake', '₺220')),
+    (44, _product(57, 'Turkish Coffee', 'drink-coffee', '₺90')),
+    (44, _product(58, 'Fresh Orange Juice', 'drink-juice', '₺120')),
+  ];
+
+  static Map<String, dynamic> _dishDetail() => {
+    ...dishJson(),
+    ..._dishes[2].$2,
+    'description_html':
+        '<p>A beef patty, lettuce, tomato and our house sauce in a brioche '
+        'bun, with fries or a salad.</p>',
+    'short_description_html': null,
+    'images': [
+      {'url': demoImage('dish-burger'), 'alt': 'Defne Burger'},
+    ],
+    'categories': [_menuCategories[1]],
+    'option_groups': [
+      ...(dishJson()['option_groups'] as List),
+      {
+        'id': 'side',
+        'name': 'Side',
+        'min': 1,
+        'max': 1,
+        'options': [
+          {'id': 'fries', 'name': 'Fries', 'price_delta': '0.00'},
+          {'id': 'salad', 'name': 'Salad', 'price_delta': '0.00'},
+        ],
+      },
+    ],
+  };
+
+  static Map<String, dynamic> _restaurantOrder() => {
+    ...restaurantOrderJson(status: 'out_for_delivery'),
+    'number': '1042',
+    'total': '₺715.00',
+    'items': [
+      {
+        'name': 'Defne Burger',
+        'product_id': 53,
+        'quantity': 1,
+        'image_url': demoImage('dish-burger'),
+        'options': ['Double', 'Cheddar', 'Fries'],
+      },
+      {
+        'name': 'Fresh Orange Juice',
+        'product_id': 58,
+        'quantity': 1,
+        'image_url': demoImage('drink-juice'),
+        'options': ['Small'],
+      },
+    ],
+    'fulfilment': {
+      'type': 'delivery',
+      'scheduled_for': null,
+      'delivery_address': {
+        'address': 'Moda Caddesi 12, flat 3',
+        'district': 'Moda',
+        'notes': null,
+      },
+      'delivery_fee': '₺35.00',
+    },
+  };
 
   static Map<String, dynamic> _productDetail() => {
     ..._products.first,

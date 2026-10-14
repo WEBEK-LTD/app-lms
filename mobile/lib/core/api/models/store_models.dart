@@ -1,5 +1,6 @@
 import 'config_models.dart';
 import 'json.dart';
+import 'restaurant_models.dart';
 
 /// `Config.store`: the shop's settings for Store apps.
 class StoreConfig {
@@ -10,6 +11,7 @@ class StoreConfig {
     required this.reviews,
     required this.deliveryDate,
     required this.giftMessage,
+    this.fulfilment,
   });
 
   factory StoreConfig.fromJson(Json json) => StoreConfig(
@@ -27,6 +29,7 @@ class StoreConfig {
     giftMessage: GiftMessageRules.fromJson(
       asJson(json['gift_message'], 'gift_message'),
     ),
+    fulfilment: optObject(json, 'fulfilment', FulfilmentConfig.fromJson),
   );
 
   final String currency;
@@ -35,6 +38,9 @@ class StoreConfig {
   final bool reviews;
   final DeliveryDateRules deliveryDate;
   final GiftMessageRules giftMessage;
+
+  /// 26 Pickup and delivery of a restaurant or café; null for other shops.
+  final FulfilmentConfig? fulfilment;
 }
 
 /// The delivery date the customer picks in the cart.
@@ -314,6 +320,7 @@ class ProductDetail {
     this.sku,
     this.maxQuantity,
     this.externalUrl,
+    this.optionGroups = const [],
   });
 
   factory ProductDetail.fromJson(Json json) => ProductDetail(
@@ -329,6 +336,7 @@ class ProductDetail {
     related: listOf(json, 'related', ProductSummary.fromJson),
     externalUrl: optString(json, 'external_url'),
     permalink: reqString(json, 'permalink'),
+    optionGroups: listOf(json, 'option_groups', OptionGroup.fromJson),
   );
 
   final ProductSummary summary;
@@ -343,6 +351,9 @@ class ProductDetail {
   final List<ProductSummary> related;
   final String? externalUrl;
   final String permalink;
+
+  /// 26 Choices made before adding it to the cart (a dish's size or extras).
+  final List<OptionGroup> optionGroups;
 
   int get id => summary.id;
   String get name => summary.name;
@@ -417,6 +428,7 @@ class CartLineInput {
     required this.quantity,
     this.variationId,
     this.attributes = const {},
+    this.options = const [],
   });
 
   final int productId;
@@ -424,11 +436,15 @@ class CartLineInput {
   final int quantity;
   final Map<String, String> attributes;
 
+  /// 26 The IDs of the chosen options.
+  final List<String> options;
+
   Json toJson() => {
     'product_id': productId,
     if (variationId != null) 'variation_id': variationId,
     'quantity': quantity,
     if (attributes.isNotEmpty) 'attributes': attributes,
+    if (options.isNotEmpty) 'options': options,
   };
 }
 
@@ -470,6 +486,7 @@ class CartQuoteLine {
     this.problem,
     this.maxQuantity,
     this.digital = false,
+    this.options = const [],
   });
 
   factory CartQuoteLine.fromJson(Json json) => CartQuoteLine(
@@ -484,6 +501,7 @@ class CartQuoteLine {
     problem: optString(json, 'problem'),
     maxQuantity: optInt(json, 'max_quantity'),
     digital: boolOr(json, 'digital', false),
+    options: listOf(json, 'options', CartLineOption.fromJson),
   );
 
   final int productId;
@@ -497,4 +515,7 @@ class CartQuoteLine {
   final String? problem;
   final int? maxQuantity;
   final bool digital;
+
+  /// 26 The chosen options, as priced.
+  final List<CartLineOption> options;
 }

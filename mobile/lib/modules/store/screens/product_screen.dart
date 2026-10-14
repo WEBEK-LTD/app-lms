@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
+import '../../../core/format/money.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../../core/purchase/purchase_rules.dart';
@@ -15,6 +16,7 @@ import '../../lms/courses/community_widgets.dart' show StarRow;
 import '../../lms/lesson/content/html_content.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
+import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -82,7 +84,61 @@ class _ProductViewState extends ConsumerState<_ProductView> {
     if (max != null && _quantity > max) _quantity = max < 1 ? 1 : max;
   });
 
+  /// 26 A product with option groups: the option sheet first, then the cart.
+  Future<void> _chooseOptions() async {
+    final price = _variation?.price ?? _product.summary.price;
+    final choice = await showOptionSheet(
+      context,
+      product: _product,
+      price: price,
+      maxQuantity: _maxQuantity ?? CartController.maxQuantity,
+    );
+    if (choice == null || !mounted) return;
+    final unit =
+        centsOf(price.amount) +
+        choice.options.fold<int>(0, (sum, o) => sum + o.priceDeltaCents);
+    final added = ref
+        .read(cartProvider.notifier)
+        .add(
+          CartItem(
+            productId: _product.id,
+            variationId: _variation?.id,
+            quantity: choice.quantity,
+            name: _product.name,
+            options: [for (final o in choice.options) o.id],
+            optionNames: [for (final o in choice.options) o.name],
+            imageUrl: _variation?.imageUrl ?? _product.summary.imageUrl,
+            price: formatMoney(unit, price.currency),
+            maxQuantity: _maxQuantity,
+          ),
+        );
+    _added(added);
+  }
+
+  void _added(bool added) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    messenger
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            added ? context.l10n.addedToCart : context.l10n.cartFull,
+          ),
+          action: added
+              ? SnackBarAction(
+                  label: context.l10n.viewCart,
+                  onPressed: () => context.go(Paths.cart),
+                )
+              : null,
+        ),
+      );
+  }
+
   void _addToCart() {
+    if (_product.optionGroups.isNotEmpty) {
+      _chooseOptions();
+      return;
+    }
     final variation = _variation;
     final options = [
       for (final a in _product.choices)
@@ -110,22 +166,7 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             maxQuantity: _maxQuantity,
           ),
         );
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    messenger
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            added ? context.l10n.addedToCart : context.l10n.cartFull,
-          ),
-          action: added
-              ? SnackBarAction(
-                  label: context.l10n.viewCart,
-                  onPressed: () => context.go(Paths.cart),
-                )
-              : null,
-        ),
-      );
+    _added(added);
   }
 
   @override
@@ -273,7 +314,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
                     ],
                   ),
                 ],
-                if (cta == ProductCta.addToCart) ...[
+                if (product.optionGroups.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  _OptionGroupsSummary(groups: product.optionGroups),
+                ],
+                if (cta == ProductCta.addToCart &&
+                    product.optionGroups.isEmpty) ...[
                   const SizedBox(height: 18),
                   _QuantityStepper(
                     quantity: _quantity,
@@ -421,6 +467,36 @@ class _Gallery extends StatelessWidget {
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// 26 The dish's option groups, before the option sheet opens.
+class _OptionGroupsSummary extends StatelessWidget {
+  const _OptionGroupsSummary({required this.groups});
+
+  final List<OptionGroup> groups;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final g in groups)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: p.surfaceMuted,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '${g.name} · ${g.required ? context.l10n.optionsRequired : context.l10n.optionsOptional}',
+              style: TextStyle(fontSize: 13, color: p.textSecondary),
+            ),
+          ),
       ],
     );
   }

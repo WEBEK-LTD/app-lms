@@ -142,6 +142,42 @@ const demoArt = <String, DemoArt>{
     Color(0xFFB8432F),
     Symbols.local_florist_rounded,
   ),
+  // 26 Restaurant (a neighbourhood café).
+  'dish-breakfast': DemoArt(
+    Color(0xFFFBE7C2),
+    Color(0xFFD9922F),
+    Symbols.egg_alt_rounded,
+  ),
+  'dish-burger': DemoArt(
+    Color(0xFFF6D3BC),
+    Color(0xFFB5552A),
+    Symbols.lunch_dining_rounded,
+  ),
+  'dish-wrap': DemoArt(
+    Color(0xFFDDEBC8),
+    Color(0xFF5E8C3A),
+    Symbols.kebab_dining_rounded,
+  ),
+  'dish-soup': DemoArt(
+    Color(0xFFF7D9BF),
+    Color(0xFFC86A2E),
+    Symbols.soup_kitchen_rounded,
+  ),
+  'dish-cheesecake': DemoArt(
+    Color(0xFFF1E1D3),
+    Color(0xFF9C6B43),
+    Symbols.cake_rounded,
+  ),
+  'drink-coffee': DemoArt(
+    Color(0xFFE9DACB),
+    Color(0xFF6B4226),
+    Symbols.coffee_rounded,
+  ),
+  'drink-juice': DemoArt(
+    Color(0xFFFFE6BF),
+    Color(0xFFE58A1F),
+    Symbols.local_bar_rounded,
+  ),
   // Bookings (a hair and beauty studio).
   'service-cut': DemoArt(
     Color(0xFFD9E7E1),

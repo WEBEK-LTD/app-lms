@@ -16,6 +16,7 @@ import '../../../core/widgets/common.dart';
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 Map<ProductOrder, String> get orderLabels => {
   ProductOrder.newest: currentL10n.sortNewest,
@@ -161,7 +162,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         setState(() => _query = _query.copyWith(search: text));
                       },
                       decoration: InputDecoration(
-                        hintText: context.l10n.searchProducts,
+                        hintText: context.words.searchProducts,
                         prefixIcon: AppIcon(
                           AppIcons.search,
                           size: 20,
@@ -242,7 +243,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     if (state.isInitialLoading) {
       return SkeletonList(
         layout: SkeletonLayout.grid,
-        label: context.l10n.loadingProducts,
+        label: context.words.loadingProducts,
       );
     }
     if (error != null && state.items.isEmpty) {
@@ -262,8 +263,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             height: 400,
             child: MessageView(
               icon: AppIcons.search,
-              title: context.l10n.noProductsTitle,
-              message: context.l10n.noProductsMessage,
+              title: context.words.noProductsTitle,
+              message: context.words.noProductsMessage,
             ),
           ),
         ],

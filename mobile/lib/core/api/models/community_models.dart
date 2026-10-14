@@ -1,5 +1,6 @@
 import 'catalog_models.dart';
 import 'json.dart';
+import 'restaurant_models.dart';
 
 /// What a notification is about; it decides the screen a tap opens.
 enum NotificationType {
@@ -95,6 +96,7 @@ class OrderLine {
     this.productId,
     this.quantity = 1,
     this.imageUrl,
+    this.options = const [],
   });
 
   factory OrderLine.fromJson(Json json) => OrderLine(
@@ -103,6 +105,7 @@ class OrderLine {
     productId: optInt(json, 'product_id'),
     quantity: intOr(json, 'quantity', 1),
     imageUrl: optString(json, 'image_url'),
+    options: stringList(json, 'options'),
   );
 
   final String name;
@@ -110,6 +113,9 @@ class OrderLine {
   final int? productId;
   final int quantity;
   final String? imageUrl;
+
+  /// 26 The chosen options' names.
+  final List<String> options;
 }
 
 /// An order from the site's checkout (`GET /me/orders`).
@@ -122,6 +128,8 @@ class Order {
     required this.total,
     required this.createdAt,
     required this.items,
+    this.fulfilmentStatus,
+    this.fulfilment,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -136,6 +144,8 @@ class Order {
     total: reqString(json, 'total'),
     createdAt: reqDate(json, 'created_at'),
     items: reqListOf(json, 'items', OrderLine.fromJson),
+    fulfilmentStatus: fulfilmentStatusFrom(json['fulfilment_status']),
+    fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
   );
 
   final int id;
@@ -145,6 +155,15 @@ class Order {
   final String total;
   final DateTime createdAt;
   final List<OrderLine> items;
+
+  /// 26 Where a restaurant's order is; null for orders not followed this way.
+  final FulfilmentStatus? fulfilmentStatus;
+
+  /// 26 How a restaurant's order is collected.
+  final OrderFulfilment? fulfilment;
+
+  /// Whether the app shows its steps.
+  bool get trackable => fulfilmentStatus != null;
 }
 
 /// A reviewer, asker or replier.

@@ -128,6 +128,15 @@ void main() {
       pushTargetLocation({'type': 'enrolled', 'course_id': '9'}),
       '/course/9',
     );
+    // 26 A restaurant's order moved on: its tracking screen.
+    expect(
+      pushTargetLocation({
+        'type': 'announcement',
+        'notification_id': '3',
+        'order_id': '7',
+      }),
+      '/account/orders/7',
+    );
     expect(
       pushTargetLocation({'type': 'announcement', 'course_id': '9'}),
       '/course/9',

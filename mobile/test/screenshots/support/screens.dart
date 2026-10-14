@@ -187,6 +187,34 @@ final websiteShots = <Shot>[
     template: AppTemplate.minimal,
     preferences: {CartController.storageKey: jsonEncode(DemoApi.cartItems())},
   ),
+  // 26 Restaurant: the menu, a dish's options and an order on its way.
+  Shot(
+    'restaurant-menu',
+    api: DemoApi.restaurant,
+    appType: AppType.store,
+    after: (tester, router) async => router.go('/shop'),
+  ),
+  Shot(
+    'restaurant-dish',
+    api: DemoApi.restaurant,
+    appType: AppType.store,
+    location: '/product/53',
+    after: (tester, router) async {
+      await tester.tap(find.text('Add to cart'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Double'));
+      await tester.tap(find.text('Cheddar'));
+      await tester.ensureVisible(find.text('Fries'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Fries'));
+    },
+  ),
+  Shot(
+    'restaurant-order',
+    api: DemoApi.restaurant,
+    appType: AppType.store,
+    location: '/account/orders/1042',
+  ),
   // Bookings.
   Shot(
     'bookings-services',

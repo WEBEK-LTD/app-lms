@@ -13,6 +13,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart';
 import 'account_scaffold.dart';
+import 'order_screen.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -262,8 +263,18 @@ class _OrderCard extends StatelessWidget {
       OrderStatus.refunded => true,
       _ => false,
     };
+    // 26 A restaurant's order shows its step and opens its tracking screen.
+    final step = order.fulfilmentStatus;
+    final status = step != null
+        ? OrderSteps.label(
+            context,
+            step,
+            order.fulfilment?.type ?? FulfilmentType.pickup,
+          )
+        : order.statusLabel;
     return AppCard(
       padding: const EdgeInsets.all(16),
+      onTap: order.trackable ? () => context.push(Paths.order(order.id)) : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -295,7 +306,7 @@ class _OrderCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    order.statusLabel,
+                    status,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -320,9 +331,12 @@ class _OrderCard extends StatelessWidget {
                   _ => null,
                 },
                 child: Text(
-                  line.quantity > 1
-                      ? context.l10n.lineQuantity(line.name, line.quantity)
-                      : line.name,
+                  [
+                    line.quantity > 1
+                        ? context.l10n.lineQuantity(line.name, line.quantity)
+                        : line.name,
+                    if (line.options.isNotEmpty) line.options.join(', '),
+                  ].join(' · '),
                   style: TextStyle(
                     fontSize: 14,
                     color:

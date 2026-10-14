@@ -87,10 +87,26 @@ void main() {
         for (final vertical in [null, ...AppVertical.values]) {
           final wording = VerticalWording(l10n, vertical);
           final clinic = vertical == AppVertical.clinic;
+          final restaurant = vertical == AppVertical.restaurant;
           expect(wording.isClinic, clinic);
+          expect(wording.isRestaurant, restaurant);
           expect(
             wording.business,
-            clinic ? l10n.wordingClinic : l10n.wordingBusiness,
+            clinic
+                ? l10n.wordingClinic
+                : restaurant
+                ? l10n.wordingRestaurant
+                : l10n.wordingBusiness,
+          );
+          // 26 A restaurant's store screens show its menu.
+          expect(wording.shop, restaurant ? l10n.menuTitle : l10n.tabShop);
+          expect(
+            wording.searchProducts,
+            restaurant ? l10n.menuSearch : l10n.searchProducts,
+          );
+          expect(
+            wording.noProductsTitle,
+            restaurant ? l10n.menuEmptyTitle : l10n.noProductsTitle,
           );
           expect(
             wording.customer,
@@ -135,6 +151,13 @@ void main() {
       );
       expect(en.business, 'Business');
       expect(en.customer, 'Customer');
+      expect(en.shop, 'Shop');
+      final menu = VerticalWording(
+        lookupAppLocalizations(const Locale('tr')),
+        AppVertical.restaurant,
+      );
+      expect(menu.shop, 'Menü');
+      expect(menu.searchProducts, 'Menüde ara');
     });
   });
 }

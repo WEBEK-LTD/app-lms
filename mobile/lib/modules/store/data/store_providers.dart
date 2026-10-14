@@ -61,3 +61,9 @@ final cartQuoteProvider = FutureProvider.autoDispose<CartQuote?>((ref) {
   if (items.isEmpty) return Future.value();
   return ref.contentApi.quoteCart([for (final i in items) i.toInput()]);
 });
+
+/// 26 Whether a restaurant's kitchen is open now and the times an order can
+/// be for. Asked again whenever the cart opens.
+final orderTimesProvider = FutureProvider.autoDispose<OrderTimes>(
+  (ref) => ref.contentApi.getOrderTimes(),
+);
