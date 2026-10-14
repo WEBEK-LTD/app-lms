@@ -1,6 +1,6 @@
 import { assetUrl } from "@/lib/assets";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, isProduction, signingSecret, waabekApiUrl } from "@/lib/env";
+import { appUrl, encryptionKey, isProduction, mailCaptureDir, signingSecret, waabekApiUrl } from "@/lib/env";
 import { appOtpSender } from "@/lib/hosted/app-sender";
 import { resolvedOtpSenderConfig, resolvedSmtpConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
@@ -89,7 +89,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       sender: appOtpSender(app, encryptionKey(), waabekApiUrl()) ?? otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
       sendEmailCode: async ({ to, code, appName, minutes }) => {
         // Without SMTP in production, sendMail drops the message: say the code couldn't be sent instead.
-        if (isProduction() && process.env.YALLAPP_DATA !== "memory" && !(await resolvedSmtpConfig(store, encryptionKey()))) {
+        // End-to-end runs keep the email in YALLAPP_MAIL_DIR (never on Netlify), so it isn't lost there.
+        if (isProduction() && process.env.YALLAPP_DATA !== "memory" && !mailCaptureDir() && !(await resolvedSmtpConfig(store, encryptionKey()))) {
           throw new Error("No email server is set up.");
         }
         await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) });
