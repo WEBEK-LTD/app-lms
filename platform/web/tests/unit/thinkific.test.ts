@@ -556,7 +556,8 @@ describe("Thinkific on the hosted API", () => {
 
   it("says when the school can't be reached", async () => {
     connector = create({}, fakeSchool({ down: true }).fetcher);
-    expect((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).status).toBe(503);
+    // 19 The app still opens: the config comes without the courses part.
+    expect((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).status).toBe(200);
     // The contract doesn't list 503 for the course endpoints yet; the plugin answers lms_unavailable the same way.
     const result = await connector.handle({ method: "GET", path: ["courses"], query: new URLSearchParams(), body: undefined, user: null, now: NOW });
     expect(result).toEqual({ status: 503, body: { code: "lms_unavailable", message: "Courses are not available right now. Please try again in a moment." } });

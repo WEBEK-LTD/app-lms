@@ -721,7 +721,10 @@ describe("SimplyBook on the hosted API", () => {
     expect((await call("GET", "/bookings/availability", { query: { service: "1", from: MONDAY } })).status).toBe(503);
     expect((await book(token, { service_id: 1, start: localToUtc(MONDAY, "10:00", TZ).toISOString() })).status).toBe(503);
     expect((await call("GET", "/me/appointments", { token })).status).toBe(503);
-    expect((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).status).toBe(503);
+    // 19 The app still opens: the config comes without the bookings part.
+    const config = await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } });
+    expect(config.status).toBe(200);
+    expect((config.body as Record<string, unknown>).bookings).toBeUndefined();
   });
 
   it("keeps the home screen when the admin access fails", async () => {
