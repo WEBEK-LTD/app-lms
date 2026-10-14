@@ -2,6 +2,8 @@
 
 /* eslint-disable @next/next/no-img-element -- previews of uploaded files served by our own asset route */
 import Link from "next/link";
+import { UpgradeHint } from "@/components/upgrade";
+import type { Plan } from "@/lib/plans";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
 import {
   checkApiAction,
@@ -1140,17 +1142,26 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
 }
 
 export function PublishingStep({
-  plan,
+  autoPublish,
+  ios,
+  planName,
+  upgrade,
   saved,
-  managed = false,
+  teamPublishes = false,
 }: {
-  plan: "starter" | "pro" | null;
+  /** "We publish for you" is in the app's plan (13.1): we upload the builds to the stores. */
+  autoPublish: boolean;
+  /** The iOS app is in the app's plan. */
+  ios: boolean;
+  planName: string;
+  /** The lowest plans with what this one lacks, for the Upgrade hints. */
+  upgrade: { managed: { id: Plan; name: string } | null; ios: { id: Plan; name: string } | null };
   saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
-  /** Our team publishes this app for the client (14.1): nothing here is required. */
-  managed?: boolean;
+  /** The client asked our team to publish this app (14.1): nothing here is required. */
+  teamPublishes?: boolean;
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
-  const managedNotice = managed ? (
+  const teamNotice = teamPublishes ? (
     <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
       <Icon name="check_circle" size={20} filled className="text-success" />
       <span>
@@ -1160,27 +1171,42 @@ export function PublishingStep({
     </p>
   ) : null;
 
-  if (plan !== "pro") {
+  if (!autoPublish) {
     return (
       <form action={action} noValidate className="flex flex-wrap items-start gap-6">
         <StepCard title="Publishing" id="h-publishing">
-          {managedNotice}
+          {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            On the Starter plan, you publish the apps under your own Google Play and App Store accounts. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
+            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own Google Play{ios ? " and App Store" : ""} account
+            {ios ? "s" : ""}. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step
+            guides take you through each store.
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             <li>
               <Link href="/guides/google-play">Publish on Google Play</Link>
             </li>
-            <li>
-              <Link href="/guides/app-store">Publish on the App Store</Link>
-            </li>
+            {ios ? (
+              <li>
+                <Link href="/guides/app-store">Publish on the App Store</Link>
+              </li>
+            ) : null}
           </ul>
           <FormMessage message={state.message} />
-          <AppStoreKeyFields state={state} saved={saved.appStore} optional />
-          <p className="m-0 text-sm text-muted">
-            The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Choose “Publish it for me” on the <Link href="/dashboard/publishing">Publishing</Link> page.
-          </p>
+          {ios ? (
+            <>
+              <AppStoreKeyFields state={state} saved={saved.appStore} optional />
+              <p className="m-0 text-sm text-muted">
+                The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time.
+              </p>
+            </>
+          ) : (
+            <UpgradeHint title="iOS app" to={upgrade.ios}>
+              Your plan builds the Android app. Upgrade to get your app on the App Store too.
+            </UpgradeHint>
+          )}
+          <UpgradeHint title="We publish for you" to={upgrade.managed}>
+            We upload your apps and every update to the stores for you.
+          </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
@@ -1196,7 +1222,7 @@ export function PublishingStep({
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       <StepCard title="Publishing" id="h-publishing">
-        {managedNotice}
+        {teamNotice}
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           We use these keys only to upload the builds you start. They&apos;re encrypted, never shown again, and you can remove them at any time.
         </p>
@@ -1214,7 +1240,13 @@ export function PublishingStep({
           />
         </fieldset>
 
-        <AppStoreKeyFields state={state} saved={saved.appStore} />
+        {ios ? (
+          <AppStoreKeyFields state={state} saved={saved.appStore} />
+        ) : (
+          <UpgradeHint title="iOS app" to={upgrade.ios}>
+            Your plan builds the Android app. Upgrade to get your app on the App Store too.
+          </UpgradeHint>
+        )}
 
         <FirebaseFields state={state} saved={saved.firebase} />
 

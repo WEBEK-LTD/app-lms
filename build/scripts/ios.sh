@@ -27,7 +27,7 @@ result '{"ios":"failed"}' '[]' "The iOS app couldn't be built."
 platform secrets "$BUILD_ID" "$WORK/secrets.json"
 HAS_ASC=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1]))["app_store_connect"] else "no")' "$WORK/secrets.json")
 if [ "$HAS_ASC" != "yes" ]; then
-	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "Add your App Store Connect key in App setup › Publishing to get the iOS app as well."
+	result '{"ios":"skipped","upload_testflight":"skipped"}' '[]' "No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."
 	platform status "$BUILD_ID" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
 	exit 0
 fi

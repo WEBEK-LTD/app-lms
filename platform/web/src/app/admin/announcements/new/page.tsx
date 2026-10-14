@@ -1,3 +1,4 @@
+import { planNamesOf } from "@/lib/plans";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
@@ -23,7 +24,7 @@ export default async function NewAnnouncementPage() {
         <h1 className="m-0 text-[28px] font-extrabold">New announcement</h1>
       </div>
       <section aria-label="Announcement" className="max-w-[900px] rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <AnnouncementForm announcement={announcementFormValues(null)} {...audienceOptions({ starter: plans.starter.name, pro: plans.pro.name })} />
+        <AnnouncementForm announcement={announcementFormValues(null)} {...audienceOptions(planNamesOf(plans))} />
       </section>
     </>
   );

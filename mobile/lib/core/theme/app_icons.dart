@@ -50,6 +50,10 @@ abstract final class AppIcons {
   static const maintenance = Symbols.construction_rounded;
   static const update = Symbols.system_update_rounded;
   static const unavailable = Symbols.block_rounded;
+  // 13.5 A paused app, the owner's contact, an app taking no new members.
+  static const paused = Symbols.pause_circle_rounded;
+  static const mail = Symbols.mail_rounded;
+  static const group = Symbols.group_rounded;
   static const error = Symbols.error_rounded;
   static const openInNew = Symbols.open_in_new_rounded;
   static const attachment = Symbols.attach_file_rounded;

@@ -22,7 +22,10 @@ import { getStore } from "@/lib/data";
 import type { ArtifactKind, Build } from "@/lib/data/types";
 import { ARTIFACT_LABEL, dashboardFileHref, fileLink } from "@/lib/files";
 import { latestRelease } from "@/lib/license/service";
-import { planName } from "@/lib/plans";
+import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
+import { UpgradeHint } from "@/components/upgrade";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { RetryBuildForm, StartBuildForm } from "./start-build";
 
@@ -114,19 +117,23 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const current = builds[0] ?? null;
   const lastReady: Build | null = builds.find((b) => b.status === "ready") ?? null;
   const release = latestRelease(await store.listReleases());
-  const plan = license?.plan ?? null;
   const now = new Date();
+  // 13.1 The app's plan as it is now.
+  const effective = await effectivePlans(store);
+  const plan = license ? currentPlanId(license, now) : null;
+  const currentPlan = plan ? effective[plan] : null;
+  const autoPublish = currentPlan ? hasFeature(currentPlan, "auto_publish") : false;
   const keys = hasStoreKeys(app);
 
   // Each Download button opens a route that signs a fresh 15-minute link when clicked, so it never expires on an open page.
   const fileRow = (kind: ArtifactKind) => {
     const url = lastReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
-    const unavailable = fileUnavailableReason({ kind, build: lastReady, hasAppStoreKey: keys.appStore, linkProblem: link?.disabledReason ?? null });
+    const unavailable = fileUnavailableReason({ kind, build: lastReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
     return { href: unavailable === null && lastReady ? dashboardFileHref(lastReady.id, kind) : null, unavailable };
   };
 
-  const setupDone = isSetupComplete(app, plan);
+  const setupDone = isSetupComplete(app, plan, effective);
   const running = isInProgress(current, now);
   const stalled = current !== null && isStalled(current, now);
   const licenseProblem =
@@ -157,10 +164,20 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
       </div>
 
-      {started ? (
+      {started === "auto" ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          Saved. A new build with your changes is queued automatically. We&apos;ll email you when your files are ready.
+        </Notice>
+      ) : started ? (
         <Notice tone="success" icon="check_circle" role="status">
           Your app setup is complete and your first build is queued. We&apos;ll email you when your files are ready.
         </Notice>
+      ) : null}
+
+      {currentPlan && !hasFeature(currentPlan, "auto_rebuild") && builds.length > 0 ? (
+        <UpgradeHint title="Automatic rebuilds" to={lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan)}>
+          On your plan, start a new build after you change your app&apos;s name, icon, colors or store details.
+        </UpgradeHint>
       ) : null}
 
       {typeof queued === "string" && /^\d+$/.test(queued) ? (
@@ -190,7 +207,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {!setupDone ? (
         <Notice icon="info">
           Your first build starts when the app setup is complete.{" "}
-          <Link href={`/dashboard/setup?step=${nextStep(app, plan) ?? "website"}`} className="font-bold">
+          <Link href={`/dashboard/setup?step=${nextStep(app, plan, effective) ?? "website"}`} className="font-bold">
             Continue the setup
           </Link>
         </Notice>
@@ -248,7 +265,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </div>
         <ul className="m-0 list-none p-0">
           {FILES.map((file) => (
-            <DownloadRow key={file.kind} title={ARTIFACT_LABEL[file.kind]} text={fileDescription(file.kind, plan)} highlight={file.highlight} {...fileRow(file.kind)} />
+            <DownloadRow key={file.kind} title={ARTIFACT_LABEL[file.kind]} text={fileDescription(file.kind, autoPublish)} highlight={file.highlight} {...fileRow(file.kind)} />
           ))}
           <DownloadRow
             title="WordPress plugin (.zip)"
@@ -256,7 +273,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             href={release && state === "active" ? "/api/dashboard/plugin" : null}
             unavailable={!release ? "No plugin release yet" : "Available while this app's plan is active"}
           />
-          <DownloadRow title={ARTIFACT_LABEL.store_assets} text={fileDescription("store_assets", plan)} {...fileRow("store_assets")} last />
+          <DownloadRow title={ARTIFACT_LABEL.store_assets} text={fileDescription("store_assets", autoPublish)} {...fileRow("store_assets")} last />
         </ul>
       </section>
 

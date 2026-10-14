@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/gate/owner_contact.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -113,6 +114,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       // Signed in: the router leaves the sign-in screens by itself.
     } on ApiException catch (e) {
       if (!mounted) return;
+      // 13.2 A new number while the app takes no new members: a screen with the owner's contact.
+      if (e.code == ApiException.appUserLimit) {
+        _code.clear();
+        await showMembersClosed(context, ref, e.contact);
+        return;
+      }
       setState(() {
         _error = e.code == 'signup_disabled'
             ? context.l10n.noAccountForNumber

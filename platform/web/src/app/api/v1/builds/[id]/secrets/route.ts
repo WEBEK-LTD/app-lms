@@ -1,3 +1,4 @@
+import { buildHasIos } from "@/lib/app/setup";
 import { buildSecrets, isBuilding } from "@/lib/builds/signing";
 import { encryptionKey } from "@/lib/env";
 import { errorResponse, json } from "@/lib/http";
@@ -18,5 +19,5 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
   if (!isBuilding(build)) {
     return errorResponse(409, "build_not_building", `Build ${build.id} is ${build.status}. Keys are only available while it's building.`);
   }
-  return json(buildSecrets(app, encryptionKey()));
+  return json(buildSecrets(app, encryptionKey(), { ios: buildHasIos(build) }));
 }

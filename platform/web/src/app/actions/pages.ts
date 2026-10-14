@@ -7,6 +7,7 @@ import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, publishLayout, saveDraft } from "@/lib/pages/layout";
 import type { LayoutContent } from "@/lib/pages/types";
+import { appPlan } from "@/lib/entitlements";
 
 // 10.4 The page and look editor's saves: the draft, publishing and discarding it.
 
@@ -57,8 +58,11 @@ export async function saveLayoutDraftAction(json: string): Promise<LayoutSaveRes
 }
 
 export async function publishLayoutAction(json: string): Promise<LayoutSaveResult> {
-  const { app, user, staff } = await requireLayoutApp();
-  const published = await publishLayout(await getStore(), app, parseJson(json), (staff ?? user).email, new Date());
+  const { app, user, staff, license } = await requireLayoutApp();
+  const store = await getStore();
+  const now = new Date();
+  // 13.1 The published layout keeps to the app's plan (its languages).
+  const published = await publishLayout(store, app, parseJson(json), (staff ?? user).email, now, await appPlan(store, license, now));
   if (!published.ok) return published;
   revalidatePath("/dashboard/pages");
   return result(published.value, "Published. Your app shows the new pages the next time it opens.");

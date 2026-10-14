@@ -20,7 +20,9 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
 | Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step, plus an optional Admin API token for order history); apps can also connect ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me with their keys (`src/lib/hosted/connectors/platforms.ts`), or sell without a website: products on `/dashboard/catalog`, orders on `/dashboard/orders`, payment page `/pay/<token>` with the client's iyzico keys, iyzico callback `/api/pay/iyzico/<token>`, product pages `/shop/<app>/<product>`. |
 | Marketplace | Shops without their own iyzico account sell through Yallapp's (commission in admin Settings): they register as iyzico sub-merchants on `/dashboard/catalog`; completing an order, or "Release payout" on `/admin/payments`, releases their share. |
-| Plan payments | Clients pay an app's plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends that app's license. |
+| Plan payments | Clients pay an app's plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends that app's license. On License & plugin (`#change-plan`) the client upgrades (starts at once, unused days credited at their value) or moves to a lower plan when the period ends. |
+| Plans and limits (13) | Four plans (`src/lib/plans.ts`): Starter, Growth, Pro, Business, with features and limits edited on `/admin/plans`. `src/lib/entitlements.ts` gives an app's plan; the hosted API, the license API, `POST /apps/layout`, builds, the page editor and the dashboard hold to it. Owner notices (`owner_notices`) on the overview and by email; `/dashboard/open?app=<id>&to=renew\|change-plan` opens a notice's link on its app. |
+| Daily job | `netlify/functions/daily-notices.mts` (Netlify scheduled function, 06:10 UTC) calls `POST /api/internal/daily` with `INTERNAL_JOB_SECRET`; `runDailyNotices` in `src/lib/notices.ts` applies downgrades whose date came, sends the plan-ending reminders (7 days, 1 day, the day) and the app users notices, each once. |
 | Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/dashboard/builds/<build>/files/<kind>` and `/api/admin/builds/<build>/files/<kind>` (build files: a link signed when clicked), `/api/health` |
 
 ### How it fits together
@@ -162,6 +164,7 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `TRUSTED_PROXY_SECRET` | with the proxy | 32+ characters, shared with `deploy/apache-proxy.conf` on host.webek.org. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
+| `INTERNAL_JOB_SECRET` | for 13.4 | 32+ characters. Bearer token of `POST /api/internal/daily`, which the scheduled function `daily-notices` calls once a day. Without it the route refuses every request and no reminders go out. |
 | `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's 10-minute schedule. |
 | `GITHUB_REPOSITORY` | no | Default `WEBEK-LTD/app-lms`. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
@@ -246,6 +249,27 @@ ever see host.webek.org.
   `/.well-known/` is not proxied so renewals keep working.
 - **Forms:** `next.config.ts` allows server actions from yallapp.com.tr, because
   the browser's origin differs from the host Netlify sees.
+
+### The daily job (13.4)
+
+Netlify runs `netlify/functions/daily-notices.mts` on its schedule (in the
+file's `config`, every day at 06:10 UTC) on published deploys only. It calls
+`POST /api/internal/daily` on the site (`URL`, else `APP_URL`) with
+`Authorization: Bearer $INTERNAL_JOB_SECRET`. The work is
+`runDailyNotices` (`src/lib/notices.ts`), unit tested without Netlify:
+
+- downgrades whose date came are written into the license's plan;
+- each app's license gets its reminder 7 days before it ends (sent from 7 to 2
+  days left, so a missed day still sends it), 1 day before and on the day (up
+  to 2 days after, for the same reason), each once per license period: the
+  end date is part of the notice's key, so a renewal starts a new period and
+  hides the old period's notices;
+- hosted apps get their app users notices again (after a downgrade lowered a
+  limit, or users were deleted).
+
+Every notice is a row in `owner_notices`, unique per app and key; its email
+goes out only when the row was new. Running the job twice a day is safe. To
+run it by hand: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/daily`.
 
 ### Limits to know
 

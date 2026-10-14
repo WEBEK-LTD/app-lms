@@ -90,6 +90,8 @@ export function buildSummary(build: Build) {
     version_code: build.versionCode,
     status: build.status,
     auto_publish: build.autoPublish,
+    // 13.1 Whether the build's plan includes the iOS app.
+    ios: build.stages.ios !== "skipped",
     stages: build.stages,
     artifacts: build.artifacts,
     message: build.message,

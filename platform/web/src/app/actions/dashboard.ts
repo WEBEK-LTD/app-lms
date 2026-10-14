@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
-import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { APP_TYPE_NAMES, isAppType, isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
+import { hasFeature } from "@/lib/plans";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { startPipeline } from "@/lib/builds/dispatch";
@@ -58,15 +61,29 @@ function stepUrl(step: SetupStep): string {
   return `/dashboard/setup?step=${step}`;
 }
 
-/** After a step is saved: go to the next step, or queue the first build when setup is complete. */
+/**
+ * After a step is saved: go to the next step, or queue the first build when
+ * setup is complete. 13.1 With automatic rebuilds in the app's plan, a change
+ * after the first build queues a new build (unless one is already running).
+ */
 async function afterStep(context: ClientContext & { app: App }, step: SetupStep): Promise<never> {
   const store = await getStore();
   const app = (await store.getAppById(context.app.id))!;
   await recordStaffChange(context, `Saved the ${STEP_LABEL[step]} step of the app`, context.app, app);
-  const plan = context.license?.plan ?? null;
+  const now = new Date();
+  const plans = await effectivePlans(store);
+  const plan = context.license ? currentPlanId(context.license, now) : null;
   revalidatePath("/dashboard", "layout");
-  if (isSetupComplete(app, plan)) {
+  if (isSetupComplete(app, plan, plans)) {
     const builds = await store.listBuildsByApp(app.id, 1);
+    const last = builds[0];
+    if (last && plan && hasFeature(plans[plan], "auto_rebuild") && context.state === "active" && last.status !== "queued" && last.status !== "building") {
+      const rebuilt = await queueBuild(store, { client: context.client, app, license: context.license, versionName: bumpPatch(last.versionName) }, now, assetUrl);
+      if (rebuilt.ok) {
+        await startPipeline();
+        redirect("/dashboard/builds?started=auto");
+      }
+    }
     if (builds.length === 0) {
       const result = await queueBuild(
         store,
@@ -559,7 +576,9 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const patch: AppPatch = { ...appStore.patch, ...firebase.patch };
   const values = appStore.values;
 
-  if (context.license?.plan !== "pro") {
+  // 13.1 Store keys for uploading are only asked when we publish for the client.
+  const plans = await effectivePlans(store);
+  if (!managedPublishing(context.license ? currentPlanId(context.license, now) : null, plans)) {
     if (Object.keys(errors).length > 0) return { errors, values };
     await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
     return afterStep(context, "publishing");

@@ -19,6 +19,8 @@ export interface CatalogDeps {
   assetUrl: (assetId: string) => string;
   /** The platform's address, for product and payment page links. */
   platformUrl: string;
+  /** 13.1 Card payments in the app are in the app's plan (default true). Without them products show without a cart. */
+  cardPayments?: boolean;
 }
 
 type OrderBy = "newest" | "popular" | "rating" | "price_asc" | "price_desc" | "title";
@@ -128,7 +130,7 @@ export class CatalogConnector implements Connector {
       rating: null,
       rating_count: 0,
       stock_status: inStock ? "in_stock" : "out_of_stock",
-      purchasable: inStock,
+      purchasable: inStock && this.deps.cardPayments !== false,
       digital: p.digital,
     };
   }
@@ -324,6 +326,7 @@ export class CatalogConnector implements Connector {
     if (platform !== "android" && platform !== "ios") return error(400, "invalid_request", "Unknown platform.");
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
+    if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
     if (!this.settings.payment) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
     }

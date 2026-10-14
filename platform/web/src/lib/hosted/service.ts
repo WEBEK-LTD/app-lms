@@ -16,6 +16,7 @@ import { handlePages } from "./pages";
 import { lookAndLanguages } from "../pages/layout";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
+import { hasFeature, type PlanInfo } from "../plans";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -51,6 +52,15 @@ export interface HostedContext {
   app: App;
   /** Whether this app's own license is active (each app has its own plan); requests fail with license_inactive otherwise. */
   active: boolean;
+  /** 13.5 The owner's account is suspended: requests fail with account_suspended. */
+  suspended?: boolean;
+  /**
+   * 13.1 The app's plan (features and limits, switches applied). Left out
+   * (older callers and tests): nothing is limited.
+   */
+  plan?: PlanInfo | null;
+  /** 13.2 Called with the app's number of users after a sign-up, or a sign-up refused at the limit (owner notices). */
+  onUsersCounted?: (count: number) => Promise<void>;
   now: Date;
   ip: string;
   /** Signs access tokens and hashes codes. */
@@ -108,11 +118,43 @@ function text(value: unknown, max: number): string {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** How app users reach the app's owner (`OwnerContact`): the app's support WhatsApp and email. */
+export function ownerContact(app: App): { name: string; whatsapp: string | null; email: string | null } {
+  return { name: app.appName?.trim() || "This app", whatsapp: hostedSettings(app).supportWhatsapp, email: app.supportEmail };
+}
+
+/** The app is paused (its plan isn't active, or the owner's account is suspended): the owner can bring it back. */
+export function pausedError(app: App, suspended: boolean): HostedResult {
+  const contact = ownerContact(app);
+  const owner = app.appName?.trim() || "the app's owner";
+  return error(503, suspended ? "account_suspended" : "license_inactive", `${contact.name} is paused right now. Please contact ${owner} to bring it back.`, { contact });
+}
+
+/** 13.2 A new user past the plan's limit. */
+function userLimitError(app: App): HostedResult {
+  const contact = ownerContact(app);
+  return error(403, "app_user_limit", `${contact.name} isn't taking new members right now. Please contact ${app.appName?.trim() || "the app's owner"}.`, { contact });
+}
+
+/** Whether a new user would go past the plan's app users (store reviewers always get in). */
+async function userLimitReached(ctx: HostedContext, phone: string): Promise<boolean> {
+  const limit = ctx.plan?.limits.appUsers ?? null;
+  if (limit === null) return false;
+  const settings = hostedSettings(ctx.app);
+  if (settings.reviewPhone && parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone) return false;
+  const count = await ctx.store.countHostedUsers(ctx.app.id);
+  if (count < limit) return false;
+  try {
+    await ctx.onUsersCounted?.(count);
+  } catch (e) {
+    console.error("[hosted] app users notice failed", e);
+  }
+  return true;
+}
+
 export async function handleHosted(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   if (ctx.app.backend !== "hosted") return notFound();
-  if (!ctx.active) {
-    return error(503, "license_inactive", "This app is not available right now. Please try again later.");
-  }
+  if (!ctx.active || ctx.suspended) return pausedError(ctx.app, Boolean(ctx.suspended));
   const route = `${req.method} /${req.path.join("/")}`;
   switch (route) {
     case "GET /config":
@@ -194,6 +236,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       terms_url: settings.termsUrl,
       privacy_url: app.privacyUrl,
       support_whatsapp: settings.supportWhatsapp,
+      support_email: app.supportEmail,
     },
     branding: {
       logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null,
@@ -208,24 +251,29 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       wishlist: false,
       reviews: false,
       qna: false,
-      push: ctx.push,
+      // 13.1 Push and offline mode come with the plan.
+      push: ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")),
       orders: false,
       ...extra.features,
+      offline: ctx.plan === undefined ? false : hasFeature(ctx.plan, "offline_downloads"),
     },
     auth: {
       signup_allowed: settings.signupAllowed,
       signup_fields: signupFields(settings),
       default_country_code: settings.defaultCountryCode,
     },
-    // Paid courses never show "Enroll now" on iOS.
-    purchases: { ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }), ...(platform === "ios" ? { enroll_button: false } : {}) },
+    // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
+    purchases: {
+      ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),
+      ...(platform === "ios" || (ctx.plan !== undefined && !hasFeature(ctx.plan, "card_payments")) ? { enroll_button: false } : {}),
+    },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
     // 10.6 Looks and languages
-    ...(await lookAndLanguages(ctx.store, app)),
+    ...(await lookAndLanguages(ctx.store, app, undefined, ctx.plan ?? null)),
   });
 }
 
@@ -322,6 +370,8 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
   const user = await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone);
   if (user) return session(ctx, user, record(body.device));
   if (!settings.signupAllowed) return error(403, "signup_disabled", "There is no account with this number.");
+  // 13.2 Existing users keep signing in; a new one is refused past the plan's app users.
+  if (await userLimitReached(ctx, challenge.phone)) return userLimitError(ctx.app);
   const signupToken = randomToken(24);
   await ctx.store.createHostedChallenge({
     tokenHash: sha256Hex(signupToken),
@@ -353,6 +403,7 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   if (fields.includes("city") && !city) return badRequest("Please enter your city.");
   const device = deviceInput(body.device);
   if (!device) return error(400, "invalid_device", "Device details are missing.");
+  if (await userLimitReached(ctx, challenge.phone)) return userLimitError(ctx.app);
 
   const user = await ctx.store.createHostedUser({
     appId: ctx.app.id,
@@ -364,6 +415,14 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   });
   if (!user) return error(409, "account_exists", "An account with this number already exists. Please sign in.");
   await ctx.store.deleteHostedChallenge(hash);
+  if (ctx.onUsersCounted && ctx.plan?.limits.appUsers != null) {
+    try {
+      await ctx.onUsersCounted(await ctx.store.countHostedUsers(ctx.app.id));
+    } catch (e) {
+      // A notice never fails a sign-up.
+      console.error("[hosted] app users notice failed", e);
+    }
+  }
   const result = await session(ctx, user, record(body.device));
   return result.status === 200 ? { ...result, status: 201 } : result;
 }

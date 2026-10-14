@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cancelScheduledPlanAction, scheduleDowngradeAction } from "@/app/actions/billing";
 import { releaseSiteAction } from "@/app/actions/dashboard";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
@@ -11,8 +12,10 @@ import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { planName } from "@/lib/plans";
+import { comparePlans, formatLimit, hasFeature, isPlan, PLANS, planName, planPrice, SUPPORT_LABEL, type Plan, type PlanInfo } from "@/lib/plans";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
@@ -30,16 +33,49 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/** The few lines that tell the tiers apart, on a plan card. */
+function planLines(plan: PlanInfo): string[] {
+  return [
+    hasFeature(plan, "ios") ? "Android & iOS apps" : "Android app",
+    `${formatLimit(plan.limits.appUsers)} app users`,
+    `${formatLimit(plan.limits.languages, "All")} app language${plan.limits.languages === 1 ? "" : "s"}`,
+    hasFeature(plan, "page_editor") ? "Full page editor" : "Ready-made page templates",
+    hasFeature(plan, "auto_publish") ? "We publish for you" : "You publish with our guides",
+    SUPPORT_LABEL[plan.limits.support].replace(", with your account manager", ""),
+  ];
+}
+
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
   const contact = await getContact();
-  const { license, state, app, apps } = await requireClient();
-  const { released, payment } = await searchParams;
+  const { license, state, app, apps, client } = await requireClient();
+  const { released, payment, plan: wanted, plan_change: planChange } = await searchParams;
   const store = await getStore();
+  const now = new Date();
   const plans = await getPlans(store);
+  // 13.1 What each plan includes for apps (switches applied); prices from the admin.
+  const effective = await effectivePlans(store);
+  const currentId: Plan | null = license ? currentPlanId(license, now) : null;
+  const scheduled = scheduledPlan(license, now);
   const payable = (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(plans, await getSwitches(store)) : [];
+  // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
+  const notes = payable.map((p) => {
+    const info = plans[p.id];
+    const change = planChangeFor(license, info, info.billingMonths, plans, now);
+    const note =
+      change.kind === "upgrade"
+        ? `Upgrade: starts today${change.creditDays ? `, with ${change.creditDays} days credited for your current plan` : ""}. Active until ${formatDate(change.activeUntil)}.`
+        : change.kind === "downgrade"
+          ? `Starts on ${formatDate(change.nextPlanAt)}, when your current plan ends. Active until ${formatDate(change.activeUntil)}.`
+          : change.kind === "renew" && state === "active"
+            ? `Adds ${info.billingMonths === 1 ? "a month" : "a year"}: active until ${formatDate(change.activeUntil)}.`
+            : null;
+    return { ...p, note };
+  });
+  const selected = isPlan(wanted) ? wanted : (scheduled?.plan ?? currentId);
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;
+  const active = state === "active";
 
   return (
     <>
@@ -71,6 +107,23 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
         </Notice>
       ) : null}
+      {planChange === "scheduled" && scheduled ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          Done. {appLabel(app)} moves to {effective[scheduled.plan].name} on {formatDate(scheduled.at)}, when the current period ends. Nothing is charged now.
+        </Notice>
+      ) : null}
+      {planChange === "kept" ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          {appLabel(app)} stays on {planName(currentId, effective)}.
+        </Notice>
+      ) : null}
+      {planChange === "refused" || planChange === "switched" ? (
+        <Notice tone="warn" icon="warning" role="alert">
+          {planChange === "switched"
+            ? "You switched to another app in the meantime. Check which app you're changing and try again."
+            : "That plan change isn't possible now. Choose a lower plan while your plan is active, or pay for a plan below."}
+        </Notice>
+      ) : null}
       {state === "pending" ? (
         <Notice tone="warn" icon="hourglass_top">
           This app isn&apos;t activated yet. {payable.length ? "Pay its plan by card below, or " : ""}
@@ -80,8 +133,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       ) : null}
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan ended on {formatDate(license?.expiresAt)}. The plugin reports the license as expired, and your apps stop loading content.{" "}
-          {payable.length ? "Renew it by card below, or " : ""}
+          Your plan ended on {formatDate(license?.expiresAt)}. The app is paused: the plugin reports the license as expired, and your app users see that you
+          can bring it back. {payable.length ? "Renew it by card below, or " : ""}
           <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to renew.
         </Notice>
       ) : null}
@@ -107,7 +160,14 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </div>
         ) : null}
         <dl className="m-0">
-          <Row label="Plan">{planName(license?.plan, plans)}</Row>
+          <Row label="Plan">
+            {planName(currentId, effective)}
+            {scheduled ? (
+              <span className="block text-[13px] font-normal text-muted">
+                Moves to {effective[scheduled.plan].name} on {formatDate(scheduled.at)}
+              </span>
+            ) : null}
+          </Row>
           <Row label="Active until">{formatDate(license?.expiresAt)}</Row>
           <Row label="Activated on">
             {activation ? (
@@ -133,19 +193,105 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         ) : null}
       </section>
 
+      <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-change-plan" className="m-0 text-[19px] font-bold">
+            {currentId ? "Change plan" : "Plans"}
+          </h2>
+          <p className="m-0 text-sm text-muted">
+            {active
+              ? "Upgrades start today: you pay the new plan and the days left on your current plan are credited at their value. Moving to a lower plan never loses days: it starts when your current plan ends."
+              : "Each app has its own plan. Pay for the plan you choose below."}{" "}
+            <Link href="/pricing">Compare every feature</Link>
+          </p>
+        </div>
+        {scheduled && client.status !== "suspended" ? (
+          <form action={cancelScheduledPlanAction} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ivory px-4 py-3">
+            <input type="hidden" name="appId" value={app?.id ?? ""} />
+            <span className="text-[15px]">
+              Moving to <strong>{effective[scheduled.plan].name}</strong> on {formatDate(scheduled.at)}.
+            </span>
+            <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+              Keep {planName(currentId, effective)}
+            </SubmitButton>
+          </form>
+        ) : null}
+        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))]">
+          {PLANS.map((id) => {
+            const plan = effective[id];
+            const shown = planPrice(plans[id]);
+            const isCurrent = id === currentId;
+            const direction = currentId ? comparePlans(currentId, id) : 1;
+            const canPay = payable.some((p) => p.id === id);
+            return (
+              <div
+                key={id}
+                data-plan={id}
+                className={`flex flex-col gap-2.5 rounded-xl border p-4 ${isCurrent ? "border-2 border-midnight bg-ivory" : "border-line"}`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[17px] font-bold">{plan.name}</span>
+                  {isCurrent ? <Badge tone="success">Current plan</Badge> : scheduled?.plan === id ? <Badge tone="warn">From {formatDate(scheduled.at)}</Badge> : null}
+                </div>
+                <span className="text-[15px] font-bold">
+                  {shown.price}
+                  {shown.period ? <span className="font-normal text-muted"> / {shown.period}</span> : null}
+                </span>
+                <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[13px] text-ink-4">
+                  {planLines(plan).map((line) => (
+                    <li key={line} className="flex items-start gap-1.5">
+                      <Icon name="check" size={16} className="mt-px text-success" />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-1">
+                  {isCurrent ? null : active && direction < 0 ? (
+                    scheduled?.plan === id ? null : (
+                      <form action={scheduleDowngradeAction}>
+                        <input type="hidden" name="appId" value={app?.id ?? ""} />
+                        <input type="hidden" name="plan" value={id} />
+                        <SubmitButton variant="secondary" className="h-9 w-full px-3 text-sm">
+                          Switch when this period ends
+                        </SubmitButton>
+                      </form>
+                    )
+                  ) : canPay ? (
+                    <Link href={`/dashboard/license?plan=${id}#renew`} className={`${direction > 0 ? btn.primary : btn.secondary} h-9 w-full px-3 text-sm`}>
+                      {direction > 0 && currentId ? (
+                        <>
+                          <Icon name="upgrade" size={18} />
+                          Upgrade to {plan.name}
+                        </>
+                      ) : (
+                        `Choose ${plan.name}`
+                      )}
+                    </Link>
+                  ) : (
+                    <a href={contact.whatsappUrl} className={`${btn.secondary} h-9 w-full px-3 text-sm`}>
+                      Ask us on WhatsApp
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {payable.length ? (
-        <section aria-labelledby="h-pay" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 id="h-pay" className="m-0 text-[19px] font-bold">
-              {state === "pending" ? "Pay by card" : state === "expired" ? "Renew by card" : "Extend by card"}
+              {state === "pending" ? "Pay by card" : state === "expired" ? "Renew by card" : "Extend by card or change plan"}
             </h2>
             <p className="m-0 text-sm text-muted">
               {state === "pending"
                 ? `The payment activates ${appLabel(app)} on the plan you choose. Your other apps keep their own plans.`
-                : "A payment adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
+                : "Paying for your current plan adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
             </p>
           </div>
-          <PlanPaymentForm plans={payable} current={license?.plan ?? null} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} />
+          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} />
         </section>
       ) : null}
 

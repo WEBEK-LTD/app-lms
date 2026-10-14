@@ -101,10 +101,12 @@ void main() {
       ApiException err(String code) =>
           ApiException(code: code, message: 'm', statusCode: 503);
       expect(gateStateForError(err('maintenance')), isA<GateMaintenance>());
-      expect(
-        gateStateForError(err('license_inactive')),
-        isA<GateLicenseInactive>(),
-      );
+      expect(gateStateForError(err('license_inactive')), isA<GatePaused>());
+      final suspended = gateStateForError(err('account_suspended'));
+      expect(suspended, isA<GatePaused>());
+      expect((suspended as GatePaused).suspended, isTrue);
+      // A user limit only matters on sign-up: never a stop for the whole app.
+      expect(gateStateForError(err('app_user_limit')), isNull);
       expect(
         gateStateForError(err('update_required')),
         isA<GateUpdateRequired>(),

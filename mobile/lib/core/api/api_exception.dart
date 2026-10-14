@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderException;
 
+import 'models/config_models.dart' show OwnerContact;
 import 'models/json.dart';
 import '../l10n/l10n.dart';
 
@@ -12,6 +13,7 @@ class ApiException implements Exception {
     this.statusCode,
     this.retryAfterSeconds,
     this.details,
+    this.contact,
   });
 
   /// Builds an exception from a Dio failure, reading the contract's `Error`
@@ -55,6 +57,9 @@ class ApiException implements Exception {
           statusCode: statusCode,
           retryAfterSeconds: optInt(json, 'retry_after_seconds'),
           details: json['details'] is Map ? asJson(json['details']) : null,
+          contact: json['contact'] is Map
+              ? OwnerContact.fromJson(asJson(json['contact']))
+              : null,
         );
       }
     }
@@ -72,6 +77,8 @@ class ApiException implements Exception {
   static const unauthorized = 'unauthorized';
   static const maintenance = 'maintenance';
   static const licenseInactive = 'license_inactive';
+  static const accountSuspended = 'account_suspended';
+  static const appUserLimit = 'app_user_limit';
   static const updateRequired = 'update_required';
   static const watchRequirementNotMet = 'watch_requirement_not_met';
   static const deviceLimitReached = 'device_limit_reached';
@@ -84,6 +91,10 @@ class ApiException implements Exception {
   final int? statusCode;
   final int? retryAfterSeconds;
   final Map<String, dynamic>? details;
+
+  /// How to reach the app's owner, with `license_inactive`,
+  /// `account_suspended` and `app_user_limit`.
+  final OwnerContact? contact;
 
   bool get isUnauthorized => statusCode == 401;
   bool get isOffline => code == networkError || code == timeout;

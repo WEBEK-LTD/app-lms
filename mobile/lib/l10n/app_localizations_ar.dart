@@ -437,11 +437,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get updateNow => 'حدّث الآن';
 
   @override
-  String get unavailableTitle => 'التطبيق غير متاح';
+  String appPausedTitle(String name) {
+    return '$name متوقف مؤقتًا';
+  }
 
   @override
-  String unavailableMessage(String name) {
-    return '$name غير متاح حاليًا. يُرجى التواصل مع الأكاديمية للمساعدة.';
+  String appPausedMessage(String name) {
+    return 'يمكن لمالك $name إعادة تشغيله. تواصل معه لمعرفة المزيد، أو حاول مرة أخرى لاحقًا.';
+  }
+
+  @override
+  String contactOwner(String name) {
+    return 'تواصل مع $name';
+  }
+
+  @override
+  String membersClosedTitle(String name) {
+    return '$name لا يقبل أعضاء جددًا حاليًا';
+  }
+
+  @override
+  String membersClosedMessage(String name) {
+    return 'تواصل مع $name لتسأل عن الانضمام. إذا كان لديك حساب بالفعل، فسجّل الدخول بالرقم الذي استخدمته من قبل.';
   }
 
   @override
@@ -481,14 +498,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'محاولات كثيرة جدًا. يُرجى الانتظار قليلًا ثم المحاولة مرة أخرى.';
 
   @override
-  String get error503 => 'الأكاديمية غير متاحة حاليًا. يُرجى المحاولة لاحقًا.';
+  String get error503 => 'التطبيق غير متاح حاليًا. يُرجى المحاولة لاحقًا.';
 
   @override
   String get errorGeneric => 'حدث خطأ ما. يُرجى المحاولة مرة أخرى.';
 
   @override
-  String get errorInvalidResponse =>
-      'أرسلت الأكاديمية ردًا لم يتمكن التطبيق من قراءته.';
+  String get errorInvalidResponse => 'تلقى التطبيق ردًا لم يتمكن من قراءته.';
 
   @override
   String get errorPurchaseNotAllowed => 'هذه الدورة غير متاحة في حسابك بعد.';

@@ -213,8 +213,8 @@ export const CONTENT_PAGES: ContentPage[] = [
   }),
   headerPage("pricing", "Pricing", "/pricing", {
     eyebrow: "Pricing",
-    title: "Simple plans for your app",
-    intro: "Pay by card in your dashboard, or arrange it with our team on WhatsApp. We activate your account as soon as your plan is confirmed.",
+    title: "A plan for every app",
+    intro: "Start with Android, grow into iOS, and let us publish for you when you are ready. Each app has its own plan. Pay by card in your dashboard, or arrange it with our team on WhatsApp.",
   }),
   {
     key: "faq",

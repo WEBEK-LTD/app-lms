@@ -766,17 +766,35 @@ abstract class AppLocalizations {
   /// **'Update now'**
   String get updateNow;
 
-  /// No description provided for @unavailableTitle.
+  /// No description provided for @appPausedTitle.
   ///
   /// In en, this message translates to:
-  /// **'The app is unavailable'**
-  String get unavailableTitle;
+  /// **'{name} is paused'**
+  String appPausedTitle(String name);
 
-  /// No description provided for @unavailableMessage.
+  /// No description provided for @appPausedMessage.
   ///
   /// In en, this message translates to:
-  /// **'{name} isn\'t available right now. Please contact the academy for help.'**
-  String unavailableMessage(String name);
+  /// **'The owner of {name} can bring it back. Contact them to find out more, or try again later.'**
+  String appPausedMessage(String name);
+
+  /// No description provided for @contactOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact {name}'**
+  String contactOwner(String name);
+
+  /// No description provided for @membersClosedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn\'t taking new members right now'**
+  String membersClosedTitle(String name);
+
+  /// No description provided for @membersClosedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact {name} to ask about joining. If you already have an account, sign in with the number you used before.'**
+  String membersClosedMessage(String name);
 
   /// No description provided for @connectionTitle.
   ///
@@ -847,7 +865,7 @@ abstract class AppLocalizations {
   /// No description provided for @error503.
   ///
   /// In en, this message translates to:
-  /// **'The academy is unavailable right now. Please try again later.'**
+  /// **'The app is unavailable right now. Please try again later.'**
   String get error503;
 
   /// No description provided for @errorGeneric.
@@ -859,7 +877,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorInvalidResponse.
   ///
   /// In en, this message translates to:
-  /// **'The academy sent a response the app couldn\'t read.'**
+  /// **'The app received a response it couldn\'t read.'**
   String get errorInvalidResponse;
 
   /// No description provided for @errorPurchaseNotAllowed.

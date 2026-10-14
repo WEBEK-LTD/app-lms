@@ -15,7 +15,19 @@ import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket } from "@/lib/hosted/otp-test";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
-import { PLAN_FEATURES, type PlanFeature, type PlanSetting } from "@/lib/plans";
+import {
+  isPlan,
+  PLAN_FEATURE_IDS,
+  PLAN_INFO,
+  planSettingOf,
+  plansWith,
+  SUPPORT_LEVELS,
+  type Plan,
+  type PlanInfo,
+  type PlanLimits,
+  type PlanSetting,
+  type SupportLevel,
+} from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { clearPlatformSettingsCache, encryptSetting, platformSetting, resolvedOtpSenderConfig } from "@/lib/settings/platform";
 
@@ -200,16 +212,26 @@ export async function saveIyzicoSettingAction(_: FormState, formData: FormData):
   return { ok: true, message: accepted ? "iyzico account saved." : "Saved. iyzico couldn't be reached to check the keys." };
 }
 
-const PLAN_IDS = ["starter", "pro"] as const;
+/** The plan as it is now (defaults with the team's edits), to save a full edit from. */
+async function currentPlan(plan: Plan): Promise<{ saved: Partial<Record<Plan, PlanSetting>>; info: PlanInfo }> {
+  const store = await getStore();
+  const saved = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
+  return { saved, info: plansWith(saved)[plan] };
+}
 
+async function revalidatePlans() {
+  revalidatePath("/admin/plans");
+  revalidatePath("/pricing");
+  revalidatePath("/");
+}
+
+/** Name, texts and price of a plan. Its features and limits are kept (savePlanLimitsAction). */
 export async function savePlanAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("plans.edit");
-  const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
-  if (!PLAN_IDS.includes(plan)) return { message: "Unknown plan." };
+  const plan = str(formData, "plan");
+  if (!isPlan(plan)) return { message: "Unknown plan." };
   const values: Record<string, string> = {};
   for (const name of ["name", "tagline", "highlights", "price", "cardPrice", "currency", "months"]) values[name] = str(formData, name);
-  const features = formData.getAll("features").map(String);
-  values.features = features.join(",");
   const errors: Record<string, string> = {};
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
   if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
@@ -222,11 +244,10 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   if (values.cardPrice && (priceCents === null || priceCents === 0)) errors.cardPrice = "Enter a price, like 4800, or leave it empty.";
   if (!["TRY", "USD", "EUR"].includes(values.currency!)) errors.currency = "Choose a currency.";
   if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
-  const known = new Set(PLAN_FEATURES.map((f) => f.id));
   if (Object.keys(errors).length) return { errors, values };
-  const store = await getStore();
-  const saved = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
+  const { saved, info } = await currentPlan(plan);
   const setting: PlanSetting = {
+    ...planSettingOf(info),
     name: values.name!,
     tagline: values.tagline!,
     highlights,
@@ -234,7 +255,6 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     priceCents,
     currency: values.currency as PlanSetting["currency"],
     billingMonths: values.months === "1" ? 1 : 12,
-    features: features.filter((f): f is PlanFeature => known.has(f as PlanFeature)),
   };
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
@@ -243,16 +263,76 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     before: saved[plan] ?? null,
     after: setting,
   });
-  revalidatePath("/admin/plans");
-  revalidatePath("/pricing");
-  revalidatePath("/");
+  await revalidatePlans();
   return { ok: true, message: `${setting.name} saved. The pricing page shows it now.` };
+}
+
+/** "" or "unlimited" is no limit; otherwise a whole number up to 10,000,000. */
+function readLimit(raw: string): number | null | undefined {
+  const value = raw.replace(/[,\s]/g, "");
+  if (value === "" || value.toLowerCase() === "unlimited") return null;
+  if (!/^\d{1,8}$/.test(value)) return undefined;
+  const n = Number(value);
+  return n <= 10_000_000 ? n : undefined;
+}
+
+/**
+ * 13.1 What a plan includes: its features (enforced where PLAN_FEATURES
+ * says) and limits, plus the display-only items. Apps on the plan get the
+ * change at once; WordPress sites with their next license check.
+ */
+export async function savePlanLimitsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("plans.edit");
+  const plan = str(formData, "plan");
+  if (!isPlan(plan)) return { message: "Unknown plan." };
+  const features = formData.getAll("features").map(String);
+  const values: Record<string, string> = { features: features.join(",") };
+  for (const name of ["appUsers", "languages", "sources", "teamMembers", "support"]) values[name] = str(formData, name);
+  values.accountManager = formData.get("accountManager") === "on" ? "on" : "";
+  values.customFeatures = formData.get("customFeatures") === "on" ? "on" : "";
+  const errors: Record<string, string> = {};
+  const limits: Partial<PlanLimits> = {};
+  for (const [name, min] of [
+    ["appUsers", 1],
+    ["languages", 1],
+    ["sources", 1],
+    ["teamMembers", 1],
+  ] as const) {
+    const limit = readLimit(values[name]!);
+    if (limit === undefined || (limit !== null && limit < min)) errors[name] = "Enter a whole number from 1, or leave it empty for no limit.";
+    else limits[name] = limit;
+  }
+  if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
+  if (Object.keys(errors).length) return { errors, values };
+  const { saved, info } = await currentPlan(plan);
+  const setting: PlanSetting = {
+    ...planSettingOf(info),
+    features: PLAN_FEATURE_IDS.filter((f) => features.includes(f)),
+    limits: {
+      appUsers: limits.appUsers ?? null,
+      languages: limits.languages ?? null,
+      sources: limits.sources ?? null,
+      teamMembers: limits.teamMembers ?? null,
+      support: values.support as SupportLevel,
+      accountManager: values.accountManager === "on",
+      customFeatures: values.customFeatures === "on",
+    },
+  };
+  await save("plans", { ...saved, [plan]: setting }, admin, {
+    action: "plan.limits",
+    target: { type: "plan", id: plan },
+    summary: `Changed what the ${setting.name} plan includes`,
+    before: saved[plan] ? { features: info.features, limits: info.limits } : { features: PLAN_INFO[plan].features, limits: PLAN_INFO[plan].limits },
+    after: { features: setting.features, limits: setting.limits },
+  });
+  await revalidatePlans();
+  return { ok: true, message: `${setting.name}: features and limits saved. Apps on this plan follow them now.`, values };
 }
 
 export async function resetPlanAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("plans.edit");
-  const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
-  if (!PLAN_IDS.includes(plan)) return;
+  const plan = str(formData, "plan");
+  if (!isPlan(plan)) return;
   const store = await getStore();
   const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
   await save("plans", Object.keys(rest).length ? rest : null, admin, {
@@ -262,8 +342,7 @@ export async function resetPlanAction(formData: FormData): Promise<void> {
     before: _removed ?? null,
     after: null,
   });
-  revalidatePath("/admin/plans");
-  revalidatePath("/pricing");
+  await revalidatePlans();
 }
 
 /** Shops without their own iyzico account sell through Yallapp's, for this commission. */

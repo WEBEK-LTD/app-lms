@@ -21,6 +21,11 @@ use Yallapp\Settings;
  */
 class License_Client {
 
+	/**
+	 * Plan features the platform may report (docs/api/platform.yaml, LicenseStatus).
+	 */
+	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild' );
+
 	const STATUS_OPTION = 'yallapp_license';
 	const CHECK_HOOK    = 'yallapp_license_check';
 	const GRACE         = 259200;
@@ -90,6 +95,20 @@ class License_Client {
 	 */
 	public function allows_api() {
 		return ! self::enforced() || $this->is_active();
+	}
+
+	/**
+	 * Whether the app's plan includes a feature (`push`, `offline_downloads`, …). Without
+	 * license enforcement every feature is on; with it, only an active license's features.
+	 *
+	 * @param string $feature Feature.
+	 * @return bool
+	 */
+	public function has_feature( $feature ) {
+		if ( ! self::enforced() ) {
+			return true;
+		}
+		return $this->is_active() && in_array( $feature, (array) $this->status()['features'], true );
 	}
 
 	/**
@@ -294,10 +313,10 @@ class License_Client {
 	 */
 	private function save_status( array $result ) {
 		$allowed  = array( 'active', 'expired', 'suspended', 'invalid' );
-		$features = array_values( array_intersect( (array) ( $result['features'] ?? array() ), array( 'push', 'offline_downloads', 'auto_publish' ) ) );
+		$features = array_values( array_intersect( (array) ( $result['features'] ?? array() ), self::FEATURES ) );
 		$status   = array(
 			'status'       => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
-			'plan'         => in_array( $result['plan'] ?? null, array( 'starter', 'pro' ), true ) ? $result['plan'] : null,
+			'plan'         => in_array( $result['plan'] ?? null, array( 'starter', 'growth', 'pro', 'business' ), true ) ? $result['plan'] : null,
 			'features'     => $features,
 			'expires_at'   => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
 			'checked_at'   => gmdate( 'c' ),

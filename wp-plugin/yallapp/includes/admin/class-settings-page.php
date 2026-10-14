@@ -450,6 +450,7 @@ class Settings_Page {
 		$this->image( 'logo_id', __( 'Logo', 'yallapp' ) );
 		$this->color( 'primary_color', __( 'Primary color', 'yallapp' ) );
 		$this->text( 'support_whatsapp', __( 'Support WhatsApp number', 'yallapp' ), '+90 5xx xxx xx xx' );
+		$this->text( 'support_email', __( 'Support email', 'yallapp' ), 'help@example.com' );
 		$this->page( 'terms_page_id', __( 'Terms & Conditions page', 'yallapp' ) );
 		$this->page( 'privacy_page_id', __( 'Privacy Policy page', 'yallapp' ) );
 		$this->close();

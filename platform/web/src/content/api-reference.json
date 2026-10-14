@@ -57,14 +57,14 @@
           "method": "POST",
           "path": "/auth/otp/verify",
           "summary": "Verify a sign-in code",
-          "description": "Returns tokens for an existing account. For a phone number with no account, returns a one-time `signup_token` to use with `POST /auth/register` (only when sign-up from the app is allowed).",
+          "description": "Returns tokens for an existing account. For a phone number with no account, returns a one-time `signup_token` to use with `POST /auth/register` (only when sign-up from the app is allowed).\n\nA new phone number is refused with 403 `app_user_limit` when the app has as many users as its plan allows (apps on the hosted API only; a WordPress site keeps its users and has no limit). The error carries `contact`, so the app can show how to reach the app's owner. People who already have an account keep signing in.",
           "access": "public"
         },
         {
           "method": "POST",
           "path": "/auth/register",
           "summary": "Create an account after verification",
-          "description": "Fields required here follow the \"Required at sign-up\" plugin setting.",
+          "description": "Fields required here follow the \"Required at sign-up\" plugin setting. Refused with 403 `app_user_limit` (with `contact`) when the app reached its plan's number of app users since the code was verified.",
           "access": "public"
         },
         {

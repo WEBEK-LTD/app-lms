@@ -283,9 +283,40 @@
     }
   },
   "updateNow": "Update now",
-  "unavailableTitle": "The app is unavailable",
-  "unavailableMessage": "{name} isn't available right now. Please contact the academy for help.",
-  "@unavailableMessage": {
+  "appPausedTitle": "{name} is paused",
+  "@appPausedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "appPausedMessage": "The owner of {name} can bring it back. Contact them to find out more, or try again later.",
+  "@appPausedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactOwner": "Contact {name}",
+  "@contactOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersClosedTitle": "{name} isn't taking new members right now",
+  "@membersClosedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membersClosedMessage": "Contact {name} to ask about joining. If you already have an account, sign in with the number you used before.",
+  "@membersClosedMessage": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -303,9 +334,9 @@
   "error403": "You don't have access to this.",
   "error404": "We couldn't find what you were looking for.",
   "error429": "Too many attempts. Please wait a moment and try again.",
-  "error503": "The academy is unavailable right now. Please try again later.",
+  "error503": "The app is unavailable right now. Please try again later.",
   "errorGeneric": "Something went wrong. Please try again.",
-  "errorInvalidResponse": "The academy sent a response the app couldn't read.",
+  "errorInvalidResponse": "The app received a response it couldn't read.",
   "errorPurchaseNotAllowed": "This course isn't available on your account yet.",
   "free": "Free",
   "questionSingleChoice": "Single choice",

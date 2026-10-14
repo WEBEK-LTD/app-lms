@@ -125,15 +125,15 @@ describe("how builds read on Builds & downloads", () => {
     expect(fileUnavailableReason({ kind: "keystore", build: ready, hasAppStoreKey: false, linkProblem: null })).toMatch(/Not in this build/);
   });
 
-  it("describes the iOS app by plan: TestFlight on Pro, Transporter on Starter", () => {
-    expect(fileDescription("ipa", "pro")).toMatch(/TestFlight/);
-    expect(fileDescription("ipa", "starter")).toMatch(/Transporter/);
-    expect(fileDescription("aab", "starter")).toBe("The file you upload to Google Play");
+  it("describes the iOS app by plan: TestFlight with \"We publish for you\", Transporter without", () => {
+    expect(fileDescription("ipa", true)).toMatch(/TestFlight/);
+    expect(fileDescription("ipa", false)).toMatch(/Transporter/);
+    expect(fileDescription("aab", false)).toBe("The file you upload to Google Play");
   });
 });
 
 describe("queueing builds safely", () => {
-  async function ready(plan: "starter" | "pro" = "starter", patch: Partial<App> = {}) {
+  async function ready(plan: "starter" | "growth" | "pro" = "growth", patch: Partial<App> = {}) {
     const { store, client } = await setupClient({ plan, activeUntil: days(60) });
     const app = { ...completeApp(client.id), ...patch };
     await store.createApp(app);

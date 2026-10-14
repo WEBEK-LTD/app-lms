@@ -82,7 +82,7 @@ export const DOCS: DocDefault[] = [
 - **You set up your app in the dashboard**: its type, where its content comes from, its name, icon, colors and pages.
 - **Your content stays where it is.** With a website or an online platform, the app reads it live. Without one, you add your products, courses, services or listings in the dashboard.
 - **We build your apps.** You get the files for Google Play and the App Store, your signing key and your store assets.
-- **You publish them under your own name**, with our guides, or we publish them for you on the Pro plan.
+- **You publish them under your own name**, with our guides, or we publish them for you on the Pro and Business plans.
 - **You change your app without a new version.** Pages, look, languages and content change from the dashboard and show the next time the app opens.
 
 ## What you need
@@ -545,7 +545,7 @@ The live preview shows your choices as you go. Your pages, the secondary color, 
 
 - **App Store Connect API key**: the Issuer ID, Key ID and private key (.p8) from **App Store Connect › Users and Access › Integrations › App Store Connect API**, with the App Manager role. It's needed to sign your iOS app; without it you get the Android app only.
 - **Push notifications** (optional): your google-services.json and GoogleService-Info.plist files from Firebase. See [Push notifications with Firebase](/docs/push-notifications).
-- **Pro plan**: also a **Google Play service account key** (JSON), so we can upload to Google Play for you. See [Publish on Google Play](/docs/google-play).
+- **Pro and Business plans**: also a **Google Play service account key** (JSON), so we can upload to Google Play for you, unless you asked our team to publish the app (**Publishing** page). See [Publish on Google Play](/docs/google-play).
 
 Keys are encrypted, never shown again, and used only for the builds you start. You can remove them at any time.
 
@@ -751,9 +751,9 @@ Sign up in **Google Play Console** with a Google account, choose a personal or o
 
 Enroll at developer.apple.com with an Apple Account that has two-factor authentication. Choose **Individual** or **Organization** (with your D-U-N-S number), and pay the yearly fee. Then sign in to **App Store Connect** with the same Apple Account.
 
-## Give us access on the Pro plan
+## Give us access on Pro and Business
 
-On the Pro plan we upload your builds for you. Add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps).
+On the Pro and Business plans we upload your builds for you. Add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps).
 `,
   }),
   doc({
@@ -763,7 +763,7 @@ On the Pro plan we upload your builds for you. Add the Google Play service accou
     title: "Publish on Google Play",
     description: "Use the files from your dashboard to publish your app under your own Google Play developer account.",
     steps: true,
-    body: `Use the files from your dashboard to publish your app under your own Google Play developer account. On the Pro plan, we upload each new version for you.
+    body: `Use the files from your dashboard to publish your app under your own Google Play developer account. On the Pro and Business plans, we upload each new version for you.
 
 ## Before you start
 
@@ -794,7 +794,7 @@ Create a closed testing release and upload your .aab file. New personal develope
 
 Create a production release with the same .aab, add release notes and send it for review. Keep your signing key safe: every future update must be signed with it.
 
-## Pro plan: let us upload
+## Pro and Business: let us upload
 
 In Google Cloud, create a service account for your Play Console's project and a JSON key for it (**IAM › Service accounts › Keys**). In Play Console, invite the service account's email under **Users and permissions** with access to your app's releases. Upload the JSON key on the **Publishing** step. We then upload every new build for you.
 `,
@@ -806,13 +806,13 @@ In Google Cloud, create a service account for your Play Console's project and a 
     title: "Publish on the App Store",
     description: "Publish your iOS app under your own Apple Developer account.",
     steps: true,
-    body: `Publish your iOS app under your own Apple Developer account. On the Pro plan, we upload each build to TestFlight for you.
+    body: `Publish your iOS app under your own Apple Developer account. The iOS app comes with the Growth, Pro and Business plans; on Pro and Business we upload each build to TestFlight for you.
 
 ## Before you start
 
 - An Apple Developer Program membership (see [Developer accounts](/docs/developer-accounts))
 - Your App Store Connect API key on the **Publishing** step: we need it to sign your iOS build
-- Your iOS build (.ipa) from [Builds & downloads](/dashboard/builds), or a TestFlight upload on the Pro plan
+- Your iOS build (.ipa) from [Builds & downloads](/dashboard/builds), or a TestFlight upload on Pro and Business
 - Your store assets and iPhone screenshots, and a privacy policy page
 
 ## Create the app in App Store Connect
@@ -821,7 +821,7 @@ In App Store Connect, open **Apps**, choose **+ › New App**, select iOS, and e
 
 ## Upload the build
 
-Starter: upload the .ipa file with Apple’s **Transporter** app on a Mac. Pro: we upload it to TestFlight for you. The build appears in App Store Connect after Apple processes it.
+When you publish yourself, upload the .ipa file with Apple’s **Transporter** app on a Mac. On Pro and Business we upload it to TestFlight for you. The build appears in App Store Connect after Apple processes it.
 
 ## Fill in the App Store listing
 
@@ -854,7 +854,7 @@ Your first build starts when you finish the setup steps. After that, start a new
 
 - **APK**: install it directly on an Android phone to test.
 - **App Bundle (.aab)**: the file you upload to Google Play.
-- **iOS build (.ipa)**: the file you upload to App Store Connect. On the Pro plan it's uploaded to TestFlight for you. It needs the App Store Connect API key on the Publishing step.
+- **iOS build (.ipa)**: the file you upload to App Store Connect. On Pro and Business it's uploaded to TestFlight for you. It comes with the Growth plan and up, and needs the App Store Connect API key on the Publishing step.
 - **Android upload key**: the keystore and its passwords. Every future update on Google Play needs this same key: keep a copy somewhere safe.
 - **Store assets**: store icons, the feature graphic, your screenshots and your listing text.
 - **WordPress plugin** (.zip), on WordPress sites.
@@ -867,7 +867,7 @@ Your Android signing key is created with your first build, stored encrypted, and
 
 ## Test before you publish
 
-Install the APK on an Android phone (allow installs from your browser or files app when the phone asks). On the Pro plan, test the iOS build with TestFlight.
+Install the APK on an Android phone (allow installs from your browser or files app when the phone asks). On Pro and Business, test the iOS build with TestFlight.
 `,
   }),
   doc({
@@ -885,7 +885,7 @@ Open [Builds & downloads](/dashboard/builds), choose **Start new build** and ent
 
 ## Publish the new version
 
-Starter: download the new .aab and .ipa, then create a new release in Google Play Console and a new version in App Store Connect. Pro: we upload the new version for you, and you can follow each step on the Builds & downloads page.
+When you publish yourself, download the new .aab (and .ipa), then create a new release in Google Play Console (and a new version in App Store Connect). On Pro and Business we upload the new version for you, and you can follow each step on the Builds & downloads page. From Growth up, a new build starts by itself when you change your app's settings.
 
 > Always use the same Android signing key. Google Play rejects updates signed with a different key.
 
@@ -1105,16 +1105,26 @@ When someone messages you about a listing, it appears on the **Inquiries** page 
     slug: "plans-and-billing",
     section: "Account and billing",
     title: "Plans, billing and coupons",
-    description: "The Starter and Pro plans, paying by card, coupons, renewals and refunds.",
+    description: "The Starter, Growth, Pro and Business plans, changing plans, paying by card, coupons, renewals and refunds.",
     steps: false,
-    body: `Yallapp has two plans. Both include your Android and iOS apps, push notifications and the documentation; the difference is who publishes the apps.
+    body: `Each app has its own plan. Every plan includes your Android app, push notifications, your own branding and the documentation.
 
-## Starter and Pro
+## The four plans
 
-- **Starter**: you download your app files and publish them yourself with our step-by-step guides.
-- **Pro**: we upload every new version to Google Play and TestFlight for you, with priority support.
+- **Starter**: the Android app, one content source, ready-made page templates, one language and up to 1,000 app users. You publish it with our step-by-step guides.
+- **Growth**: adds the iOS app, the full page editor, three languages, card payments in the app, offline mode, automatic rebuilds and up to 10,000 app users.
+- **Pro**: adds unlimited app users, every language and "We publish for you": we publish your app and every update on Google Play and the App Store, with priority support.
+- **Business**: everything in Pro, with a dedicated account manager and custom features on request.
 
-See the [pricing page](/pricing) for the current prices.
+App users limits count the people signed in to apps on our hosting. Apps on your WordPress site keep their users on your site, with no limit. See the [pricing page](/pricing) for the current prices and the full comparison.
+
+## Changing plans
+
+On **License & plugin**, choose another plan for the current app. A higher plan starts at once, paid by card, and the days left on your current plan are credited. A lower plan starts when your paid period ends, and you can keep your current plan until then.
+
+## Reminders
+
+We email you, and show a notice on your dashboard, 7 days and 1 day before an app's plan ends and on the day it ends, with a link to renew by card. When an app nears or reaches its app users limit, you hear from us too.
 
 ## Paying by card
 

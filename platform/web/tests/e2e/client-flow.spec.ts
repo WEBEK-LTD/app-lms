@@ -231,7 +231,12 @@ test("the plugin activates and checks the license through the API", async ({ req
 
   const activate = await request.post("/api/v1/licenses/activate", { data: site });
   expect(activate.status()).toBe(200);
-  expect(await activate.json()).toMatchObject({ status: "active", plan: "pro", features: ["push", "offline_downloads", "auto_publish"] });
+  expect(await activate.json()).toMatchObject({
+    status: "active",
+    plan: "pro",
+    features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
+    limits: { app_users: null, languages: null, sources: null },
+  });
 
   const check = await request.post("/api/v1/licenses/check", { data: { ...site, site_url: client.site.replace("https://", "http://www.") + "/" } });
   expect(await check.json()).toMatchObject({ status: "active" });

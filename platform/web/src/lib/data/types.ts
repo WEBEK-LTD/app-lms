@@ -52,6 +52,13 @@ export interface License {
   keyLast4: string;
   plan: Plan;
   expiresAt: Date;
+  /**
+   * 13.3 A downgrade waiting for the end of the paid period: from
+   * `nextPlanAt` on, the license is on `nextPlan` (the daily job writes it
+   * into `plan`; `currentPlanId` reads it before then).
+   */
+  nextPlan?: Plan | null;
+  nextPlanAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1130,3 +1137,36 @@ export interface PublishingSetting {
 export interface PlatformSettingValues {
   publishing: PublishingSetting;
 }
+
+// 13 Plans, limits and owner notices
+
+/**
+ * What the dashboard tells an app's owner, also sent by email: app users near
+ * or at the plan's limit, and the plan ending in 7 days, tomorrow or today.
+ */
+export type OwnerNoticeKind = "app_users_80" | "app_users_100" | "plan_ends_7" | "plan_ends_1" | "plan_ends_0";
+
+export interface OwnerNotice {
+  id: number;
+  clientId: string;
+  appId: string;
+  kind: OwnerNoticeKind;
+  /**
+   * Unique per app: one notice (and one email) per crossing of a limit or per
+   * license period, e.g. `plan_ends_7:2027-03-31T23:59:59.999Z`.
+   */
+  dedupeKey: string;
+  title: string;
+  body: string;
+  linkUrl: string | null;
+  linkLabel: string | null;
+  tone: "info" | "warn";
+  createdAt: Date;
+  emailedAt: Date | null;
+  /** The owner closed it in the dashboard. */
+  dismissedAt: Date | null;
+  /** No longer true (users went below the threshold, the plan was renewed): hidden. */
+  resolvedAt: Date | null;
+}
+
+export type OwnerNoticePatch = Partial<Pick<OwnerNotice, "emailedAt" | "dismissedAt" | "resolvedAt">>;

@@ -1,3 +1,4 @@
+import { planNamesOf } from "@/lib/plans";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -33,7 +34,7 @@ export default async function AnnouncementPage({ params, searchParams }: PagePro
   const { done } = await searchParams;
   const now = new Date();
   const [plans, recipients] = await Promise.all([getPlans(store), audienceRecipients(store, announcement.audience, now)]);
-  const planNames = { starter: plans.starter.name, pro: plans.pro.name };
+  const planNames = planNamesOf(plans);
   const notice = typeof done === "string" ? doneNotice(done) : null;
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change announcements">

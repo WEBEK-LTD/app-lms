@@ -28,7 +28,9 @@ import { encryptionKey } from "@/lib/env";
 import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
-import { planName, type Plan, type PlanInfo } from "@/lib/plans";
+import { formatLimit, planName, planNamesOf, type Plan, type PlanInfo } from "@/lib/plans";
+import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { APP_TYPE_SWITCHES, getSwitches, websiteOf, websiteOn } from "@/lib/switches";
 import type { SwitchesSetting } from "@/lib/data/types";
@@ -374,6 +376,12 @@ async function AppEntry({
     app ? store.listBuildsByApp(app.id, 20) : Promise.resolve([]),
   ]);
   const state = appState(client, license, now);
+  // 13.2 App users against the plan's limit (hosted apps; WordPress sites keep their own users).
+  const effective = await effectivePlans(store);
+  const currentPlan = license ? effective[currentPlanId(license, now)] : null;
+  const scheduled = scheduledPlan(license, now);
+  const appUsers = app?.backend === "hosted" ? await store.countHostedUsers(app.id) : null;
+  const userLimit = currentPlan?.limits.appUsers ?? null;
   const base = license && license.expiresAt > now ? license.expiresAt : now;
   const nextYear = new Date(base);
   nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
@@ -396,7 +404,23 @@ async function AppEntry({
         <Card id={`h-plan-${entry.key}`} title="Plan and license" level={3}>
           <Facts
             rows={[
-              ["Plan", license ? `${planName(license.plan, plans)} until ${formatDate(license.expiresAt)}` : "Not activated"],
+              [
+                "Plan",
+                license
+                  ? `${currentPlan?.name ?? planName(license.plan, plans)} until ${formatDate(license.expiresAt)}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
+                  : "Not activated",
+              ],
+              [
+                "App users",
+                appUsers === null ? (
+                  "On their website (no limit)"
+                ) : (
+                  <span key="u" data-usage="" className={userLimit !== null && appUsers >= userLimit ? "font-bold text-danger" : undefined}>
+                    {formatLimit(appUsers)}
+                    {userLimit === null ? " (no limit)" : ` / ${formatLimit(userLimit)}`}
+                  </span>
+                ),
+              ],
               ["License", license ? <span key="k" className="font-mono text-[13px] break-all">{revealLicenseKey(license, encryptionKey())}</span> : "None yet"],
               [
                 "Plugin",
@@ -414,7 +438,7 @@ async function AppEntry({
                 plan={license?.plan ?? "pro"}
                 activeUntil={isoDate(nextYear)}
                 pending={!license}
-                planNames={{ starter: plans.starter.name, pro: plans.pro.name }}
+                planNames={planNamesOf(plans)}
                 from="client"
               />
             </div>

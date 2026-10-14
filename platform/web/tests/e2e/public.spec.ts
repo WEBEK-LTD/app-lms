@@ -11,7 +11,7 @@ const PAGES: { path: string; heading: RegExp; footer: boolean }[] = [
   { path: "/features", heading: /Everything your app needs, built in/, footer: true },
   { path: "/integrations", heading: /Your content, from wherever it lives/, footer: true },
   { path: "/how-it-works", heading: /From sign-up to the app stores in five steps/, footer: true },
-  { path: "/pricing", heading: /Simple plans for your app/, footer: true },
+  { path: "/pricing", heading: /A plan for every app/, footer: true },
   { path: "/faq", heading: /Questions, answered/, footer: true },
   { path: "/contact", heading: /Talk to us/, footer: true },
   { path: "/docs", heading: /Yallapp documentation/, footer: true },

@@ -96,6 +96,7 @@ class SiteInfo {
     this.termsUrl,
     this.privacyUrl,
     this.supportWhatsapp,
+    this.supportEmail,
   });
 
   factory SiteInfo.fromJson(Json json) => SiteInfo(
@@ -104,6 +105,7 @@ class SiteInfo {
     termsUrl: optString(json, 'terms_url'),
     privacyUrl: optString(json, 'privacy_url'),
     supportWhatsapp: optString(json, 'support_whatsapp'),
+    supportEmail: optString(json, 'support_email'),
   );
 
   final String name;
@@ -111,6 +113,38 @@ class SiteInfo {
   final String? termsUrl;
   final String? privacyUrl;
   final String? supportWhatsapp;
+
+  /// Where users write to the app's owner. Older servers don't send it.
+  final String? supportEmail;
+
+  /// How users reach the app's owner, from this config.
+  OwnerContact get contact =>
+      OwnerContact(name: name, whatsapp: supportWhatsapp, email: supportEmail);
+}
+
+/// `OwnerContact`: how app users reach the app's owner (the business behind
+/// the app), sent with `license_inactive`, `account_suspended` and
+/// `app_user_limit`. The app offers WhatsApp first, then email.
+class OwnerContact {
+  const OwnerContact({required this.name, this.whatsapp, this.email});
+
+  factory OwnerContact.fromJson(Json json) => OwnerContact(
+    name: optString(json, 'name') ?? '',
+    whatsapp: _blankToNull(optString(json, 'whatsapp')),
+    email: _blankToNull(optString(json, 'email')),
+  );
+
+  final String name;
+  final String? whatsapp;
+  final String? email;
+
+  /// Whether there is a way to reach the owner.
+  bool get reachable => whatsapp != null || email != null;
+
+  Json toJson() => {'name': name, 'whatsapp': whatsapp, 'email': email};
+
+  static String? _blankToNull(String? value) =>
+      (value == null || value.trim().isEmpty) ? null : value.trim();
 }
 
 class RemoteBranding {
@@ -148,6 +182,7 @@ class SiteFeatures {
     required this.qna,
     required this.push,
     this.orders = false,
+    this.offline = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -163,6 +198,7 @@ class SiteFeatures {
     qna: reqBool(json, 'qna'),
     push: reqBool(json, 'push'),
     orders: boolOr(json, 'orders', false),
+    offline: boolOr(json, 'offline', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -179,6 +215,10 @@ class SiteFeatures {
   /// Whether the site sells (courses or products), so customers have orders.
   /// Older plugins don't send it.
   final bool orders;
+
+  /// Offline mode, when the app's plan includes it: the app keeps what the
+  /// user last saw and shows it without a connection.
+  final bool offline;
 }
 
 enum SignupField { name, email, city }

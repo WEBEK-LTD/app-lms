@@ -246,6 +246,60 @@ mobile/
     emails name it (`{{app_name}}`). The admin shows a section per app on a
     client's page, and the pipeline API sends each build's `app_id`.
 
+- Plans, limits and owner notices (Phase 13): four plans per app, Starter,
+  Growth, Pro and Business (`src/lib/plans.ts`). Each has features
+  (`ios`, `push`, `offline_downloads` for offline mode, `page_editor`,
+  `card_payments`, `auto_rebuild`, `auto_publish` for "We publish for you")
+  and limits (app users, languages, connected platforms; team members,
+  support, an account manager and custom features are display-only). The
+  team edits names, prices, features and limits on the admin's Plans page
+  (audited); an edit saved before the four plans keeps only its price.
+  `src/lib/entitlements.ts` gives an app's plan as it is now (switches
+  applied, a scheduled downgrade counted from its date). Where it is held to:
+  - **Builds:** without `ios` the iOS stages start skipped and
+    `/builds/{id}/secrets` sends no App Store Connect key, so the pipeline
+    skips iOS; `auto_publish` uploads to the stores; with `auto_rebuild` a
+    saved setup step queues a new build after the first one.
+  - **Pages:** without `page_editor` the served layout (hosted API and
+    `POST /apps/layout`) has the ready-made pages and tabs for the app type,
+    with the published look; languages beyond the plan's are dropped
+    (publishing more is refused); lists from sources beyond its connected
+    platforms (the app's main content first, then the blog on WordPress) are
+    left out. The page editor shows the same limits with "Upgrade".
+  - **Hosted API:** `features.push` and `features.offline` follow the plan;
+    without `card_payments` products show without a cart and paid courses
+    without a purchase button (checkout links are refused). A new user past
+    the plan's app users is refused with 403 `app_user_limit` at
+    `/auth/otp/verify` and `/auth/register`; existing users keep signing in
+    and the store review number always gets in. WordPress sites keep their
+    users on their own site: no limit there.
+  - **Plugin:** the license API reports the plan's features and limits; the
+    plugin's `features.push` and `features.offline` follow them when the
+    license is enforced.
+  - **App:** offline mode keeps GET answers (never sign-in calls, at most 150,
+    forgotten on sign-out) and shows them without a connection.
+
+  Changing plans (License & plugin, `#change-plan`): an upgrade is paid by
+  card and starts at once; the days left on the old plan are credited at
+  their value (list prices in the same currency; otherwise one for one). A
+  lower plan never loses days: chosen without paying it is scheduled
+  (`licenses.next_plan`, `next_plan_at` = the current end), paid ahead it
+  starts at the current end and adds its period. Owner notices
+  (`owner_notices`, unique per app and key, so each is told once): app users
+  at 80% and 100% (per crossing; resolved when the number goes back down) and
+  the plan ending in 7 days, tomorrow and today (per license period), on the
+  dashboard's overview and by email (templates in the admin). The daily job
+  (Netlify scheduled function → `POST /api/internal/daily` with
+  `INTERNAL_JOB_SECRET`) applies due downgrades and sends the reminders.
+  Links open the dashboard on the notice's app (`/dashboard/open`).
+
+  Owner contact: `license_inactive` and `account_suspended` (503) and
+  `app_user_limit` (403) carry `contact` (`{name, whatsapp, email}` from the
+  app's support settings). The app shows "{App} is paused" with "Contact
+  {App}" (WhatsApp first, else email; from the error, else the last config it
+  loaded) and "Try again", and on sign-up "{App} isn't taking new members
+  right now".
+
 - Bookings without a website (connector `bookings`): a Bookings app whose
   client picks "I don't have a website" gets its services, categories,
   team (services each person provides, working hours per weekday, days off)

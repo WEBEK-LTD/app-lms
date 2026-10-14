@@ -8,7 +8,7 @@ Environment: PLATFORM_API_URL (e.g. https://yallapp.com.tr/api/v1) and BUILD_PIP
   platform.py config <id> <file>         saves the build config
   platform.py store <id> <file>          saves the store listing (texts and screenshot URLs)
   platform.py secrets <id> <file>        saves the build's keys (file mode 600)
-  platform.py has_ios <id>               prints yes when an App Store Connect key is saved
+  platform.py has_ios <id>               prints yes when the build gets an App Store Connect key (saved, and iOS in its plan)
   platform.py signing <id> <json-file>   saves signing keys created by this build
   platform.py status <id> <json>         sends a status report
 """

@@ -1,12 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { PLANS, type Plan } from "@/lib/plans";
 import { createCouponAction, updateCouponAction } from "@/app/actions/admin-coupons";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import type { CouponFormValues } from "@/lib/billing/coupons";
 import { initialFormState } from "@/lib/forms";
 
-export function CouponForm({ id, coupon, planNames }: { id?: string; coupon: CouponFormValues; planNames: { starter: string; pro: string } }) {
+export function CouponForm({ id, coupon, planNames }: { id?: string; coupon: CouponFormValues; planNames: Record<Plan, string> }) {
   const [state, action] = useActionState(id ? updateCouponAction : createCouponAction, initialFormState);
   const s = state.values;
   const v = (name: keyof CouponFormValues & string) => (s ? (s[name] ?? "") : String(coupon[name]));
@@ -51,7 +52,7 @@ export function CouponForm({ id, coupon, planNames }: { id?: string; coupon: Cou
       <div className="grid gap-4 sm:grid-cols-2">
         <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
           <legend className="mb-1 text-sm font-semibold">Plans</legend>
-          {(["starter", "pro"] as const).map((plan) => (
+          {PLANS.map((plan) => (
             <label key={plan} className="flex cursor-pointer items-center gap-2 text-[15px]">
               <input type="checkbox" name="plans" value={plan} defaultChecked={inList("plans", plan)} className="h-4 w-4 accent-midnight" />
               {planNames[plan]}

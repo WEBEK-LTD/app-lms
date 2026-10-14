@@ -4,11 +4,12 @@ import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
-import type { Plan } from "../plans";
+import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plans";
+import { currentPlanId } from "../billing/plan-change";
+import { effectivePlans } from "../entitlements";
 import { compareVersions } from "../semver";
 import { appUrl } from "../env";
 import { hostedApiUrl } from "../hosted/urls";
-import { featureOn, getSwitches } from "../switches";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -95,20 +96,26 @@ export function hasStoreKeys(app: App): { play: boolean; appStore: boolean } {
   };
 }
 
+/** Whether we publish the app for the client on this plan ("We publish for you"). */
+export function managedPublishing(plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): boolean {
+  return plan !== null && isPlan(plan) && hasFeature(plans[plan], "auto_publish");
+}
+
 /**
- * Which steps are complete. Pro needs at least one store key to finish
- * publishing, unless our team publishes the app for them (14.1): then the
- * team works through invitations to the client's store accounts.
+ * Which steps are complete. With "We publish for you" on the plan, publishing
+ * needs at least one store key, unless our team publishes the app through
+ * invitations to the client's store accounts (14.1, publishingMode "managed").
  */
-export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep, boolean> {
+export function stepStatus(app: App | null, plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): Record<SetupStep, boolean> {
   if (!app) return { "app-type": false, website: false, branding: false, listing: false, publishing: false };
   const keys = hasStoreKeys(app);
+  const managed = managedPublishing(plan, plans);
   return {
     "app-type": Boolean(app.appTypeDoneAt),
     website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
-    publishing: Boolean(app.publishingDoneAt) && (plan !== "pro" || keys.play || keys.appStore || app.publishingMode === "managed"),
+    publishing: Boolean(app.publishingDoneAt) && (!managed || keys.play || keys.appStore || app.publishingMode === "managed"),
   };
 }
 
@@ -127,13 +134,13 @@ export function websiteReady(app: App): boolean {
   return app.backend === "wordpress";
 }
 
-export function isSetupComplete(app: App | null, plan: Plan | null): boolean {
-  return Object.values(stepStatus(app, plan)).every(Boolean);
+export function isSetupComplete(app: App | null, plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): boolean {
+  return Object.values(stepStatus(app, plan, plans)).every(Boolean);
 }
 
 /** The first incomplete step, or null when setup is done. */
-export function nextStep(app: App | null, plan: Plan | null): SetupStep | null {
-  const status = stepStatus(app, plan);
+export function nextStep(app: App | null, plan: Plan | null, plans: Record<Plan, PlanInfo> = PLAN_INFO): SetupStep | null {
+  const status = stepStatus(app, plan, plans);
   return SETUP_STEPS.find((step) => !status[step]) ?? null;
 }
 
@@ -187,16 +194,22 @@ export function buildConfigFor(
   };
 }
 
-export function initialStages(autoPublish: boolean, app: App): Record<StageKey, StageStatus> {
+/** The stages a new build starts with. Without iOS on the app's plan (13.1), the iOS stages are skipped from the start. */
+export function initialStages(autoPublish: boolean, app: App, ios = true): Record<StageKey, StageStatus> {
   const keys = hasStoreKeys(app);
   return {
     queued: "done",
     android: "pending",
-    // Without an App Store Connect key there's no iOS app (the pipeline skips it), so don't show it as waiting.
-    ios: keys.appStore ? "pending" : "skipped",
+    // No iOS app without iOS on the plan, or without an App Store Connect key (the pipeline skips it): don't show it as waiting.
+    ios: ios && keys.appStore ? "pending" : "skipped",
     upload_play: autoPublish && keys.play ? "pending" : "skipped",
-    upload_testflight: autoPublish && keys.appStore ? "pending" : "skipped",
+    upload_testflight: ios && autoPublish && keys.appStore ? "pending" : "skipped",
   };
+}
+
+/** Whether a build includes the iOS app (its plan had iOS when it was queued). */
+export function buildHasIos(build: Pick<Build, "stages">): boolean {
+  return build.stages.ios !== "skipped";
 }
 
 export type QueueBuildResult =
@@ -221,7 +234,11 @@ export async function queueBuild(
   ) {
     return { ok: false, reason: "license_inactive" };
   }
-  if (!isSetupComplete(app, license.plan)) return { ok: false, reason: "setup_incomplete" };
+  // 13.1 The app's plan as it is now (a scheduled downgrade counts from its date), without switched-off features.
+  const plans = await effectivePlans(store);
+  const planId = currentPlanId(license, now);
+  const plan = plans[planId];
+  if (!isSetupComplete(app, planId, plans)) return { ok: false, reason: "setup_incomplete" };
   const previous = await store.listBuildsByApp(app.id, 1);
   const last = previous[0];
   if (isInProgress(last, now)) return { ok: false, reason: "build_running" };
@@ -234,8 +251,9 @@ export async function queueBuild(
   const listing = storeListingOf(app, assetUrl);
   if (!listing) return { ok: false, reason: "setup_incomplete" };
 
-  // 11.5 Switches: automatic publishing can be switched off, for everyone or per plan.
-  const autoPublish = license.plan === "pro" && featureOn(await getSwitches(store), "auto_publish", license.plan);
+  // "We publish for you" and the iOS app come with the plan (and its switches, 11.5).
+  const autoPublish = hasFeature(plan, "auto_publish");
+  const ios = hasFeature(plan, "ios");
   // A build that stopped without reporting (a cancelled or crashed run) mustn't block the app for ever: close it.
   if (last && (last.status === "queued" || last.status === "building")) {
     await store.updateBuild(last.id, { status: "failed", message: STALLED_MESSAGE, finishedAt: now }, now);
@@ -249,7 +267,7 @@ export async function queueBuild(
         appId: app.id,
         versionName: input.versionName,
         status: "queued",
-        stages: initialStages(autoPublish, app),
+        stages: initialStages(autoPublish, app, ios),
         config: validation.config,
         storeListing: listing,
         autoPublish,

@@ -120,7 +120,8 @@ jobs:
       LANG: en_US.UTF-8
     steps:
       - uses: actions/checkout@v4
-      # Without an App Store Connect key there is no iOS app; skip the macOS setup.
+      # Without an App Store Connect key, or without iOS in the app's plan (the secrets
+      # then send none), there is no iOS app; skip the macOS setup.
       - id: check
         name: Check for an App Store Connect key
         run: |
@@ -128,7 +129,7 @@ jobs:
           echo "ios=$has" >> "$GITHUB_OUTPUT"
           if [ "$has" != "yes" ]; then
             mkdir -p "$RUNNER_TEMP/result"
-            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"Add your App Store Connect key in App setup › Publishing to get the iOS app as well."}' > "$RUNNER_TEMP/result/result.json"
+            echo '{"stages":{"ios":"skipped","upload_testflight":"skipped"},"artifacts":[],"message":"No iOS app in this build: add your App Store Connect key in App setup › Publishing, on a plan with the iOS app."}' > "$RUNNER_TEMP/result/result.json"
             python3 build/scripts/platform.py status "${{ matrix.build.id }}" '{"stages":{"ios":"skipped","upload_testflight":"skipped"}}'
           fi
       - if: steps.check.outputs.ios == 'yes'

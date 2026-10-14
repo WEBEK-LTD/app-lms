@@ -59,8 +59,12 @@ export function isBuilding(build: Build): boolean {
   return build.status === "building";
 }
 
-/** Decrypts everything the pipeline needs for a build. Store keys are returned on every plan. */
-export function buildSecrets(app: App, key: Buffer): BuildSecrets {
+/**
+ * Decrypts everything the pipeline needs for a build. Store keys are returned
+ * on every plan, except the App Store Connect key for a build without iOS
+ * (its plan has no iOS app, 13.1): the pipeline then skips iOS.
+ */
+export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean } = {}): BuildSecrets {
   return {
     android_upload_key: app.androidUploadKeyEncrypted
       ? (JSON.parse(decrypt(app.androidUploadKeyEncrypted, key, keyContext.androidUploadKey(app.id))) as AndroidUploadKey)
@@ -72,7 +76,7 @@ export function buildSecrets(app: App, key: Buffer): BuildSecrets {
       ? { service_account_json: decrypt(app.googlePlayKeyEncrypted, key, keyContext.googlePlay(app.id)) }
       : null,
     app_store_connect:
-      app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId
+      options.ios !== false && app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId
         ? {
             issuer_id: app.ascIssuerId,
             key_id: app.ascKeyId,

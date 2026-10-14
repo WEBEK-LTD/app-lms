@@ -55,7 +55,16 @@ export async function resolveClientApp(store: DataStore, client: Pick<Client, "i
  */
 export async function activateClient(
   store: DataStore,
-  input: { clientId: string; appId?: string | null; plan: Plan; activeUntil: Date; paymentNote: string },
+  input: {
+    clientId: string;
+    appId?: string | null;
+    plan: Plan;
+    activeUntil: Date;
+    paymentNote: string;
+    /** 13.3 A downgrade that starts later; left out, any scheduled one is cleared. */
+    nextPlan?: Plan | null;
+    nextPlanAt?: Date | null;
+  },
   encryptionKey: Buffer,
   now: Date,
 ): Promise<ActivationOutcome> {
@@ -72,8 +81,9 @@ export async function activateClient(
   let licenseKey: string;
   let created = false;
   if (license) {
-    await store.updateLicense(license.id, { plan: input.plan, expiresAt: input.activeUntil }, now);
-    license = { ...license, plan: input.plan, expiresAt: input.activeUntil, updatedAt: now };
+    const next = { nextPlan: input.nextPlan ?? null, nextPlanAt: input.nextPlan ? (input.nextPlanAt ?? null) : null };
+    await store.updateLicense(license.id, { plan: input.plan, expiresAt: input.activeUntil, ...next }, now);
+    license = { ...license, plan: input.plan, expiresAt: input.activeUntil, ...next, updatedAt: now };
     licenseKey = revealLicenseKey(license, encryptionKey);
   } else {
     const { key, hash } = await uniqueKey(store);
@@ -87,6 +97,8 @@ export async function activateClient(
       keyLast4: key.slice(-4),
       plan: input.plan,
       expiresAt: input.activeUntil,
+      nextPlan: null,
+      nextPlanAt: null,
       createdAt: now,
       updatedAt: now,
     };

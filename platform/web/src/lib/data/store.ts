@@ -40,6 +40,8 @@ import type {
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 14.1 We publish for you
 import type { PublishingEvent, PublishingRequest } from "./types";
+// 13 Owner notices
+import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -92,7 +94,7 @@ export type ClaimResult = { ok: true; activation: Activation } | { ok: false; ex
 
 export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt">>;
 export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt">>;
-export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4">>;
+export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
 /** Signing keys created by the build pipeline. Written only through `saveSigningKeys`, which never replaces one. */
 export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
@@ -438,4 +440,18 @@ export interface DataStore {
   addPublishingEvent(event: Omit<PublishingEvent, "id">): Promise<PublishingEvent>;
   /** An app's status changes, newest first. */
   listPublishingEvents(appId: string): Promise<PublishingEvent[]>;
+
+  // 13 Plans, limits and owner notices
+  /** Every license of every client (the daily job: reminders and due plan changes). */
+  listLicenses(): Promise<License[]>;
+  /** Null (and nothing saved) when the app already has a notice with this dedupe key. */
+  createOwnerNotice(notice: Omit<OwnerNotice, "id">): Promise<OwnerNotice | null>;
+  /** Newest first: a client's notices, one app's, or only the open ones (neither dismissed nor resolved). */
+  listOwnerNotices(input: { clientId: string; appId?: string; open?: boolean; limit?: number }): Promise<OwnerNotice[]>;
+  /** How many notices of this kind the app ever had (for the next crossing's dedupe key). */
+  countOwnerNotices(appId: string, kind: OwnerNoticeKind): Promise<number>;
+  /** Only the client's own notice changes. */
+  updateOwnerNotice(clientId: string, id: number, patch: OwnerNoticePatch): Promise<void>;
+  /** Marks the app's open notices of these kinds resolved. */
+  resolveOwnerNotices(appId: string, kinds: OwnerNoticeKind[], now: Date): Promise<void>;
 }

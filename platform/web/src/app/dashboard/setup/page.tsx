@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Notice, formatDate } from "@/components/ui";
-import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { effectivePlans } from "@/lib/entitlements";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -12,7 +14,7 @@ import { platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
-import { planName } from "@/lib/plans";
+import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { BrandingStep, HostedWebsiteStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
 import { getPlans } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
@@ -25,20 +27,22 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
   listing:
     "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
   publishing:
-    "Pro: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). Starter: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or let us publish it for you from the Publishing page.",
+    "When we publish for you: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). When you publish yourself: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or ask our team to publish it from the Publishing page.",
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
   const { client, app, apps, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
-  const plan = license?.plan ?? null;
-  const status = stepStatus(app, plan);
-  const requested = (await searchParams).step;
-  const step: SetupStep = isSetupStep(requested) && requested !== "app-type" ? requested : (nextStep(app, plan) ?? "website");
-  const complete = Object.values(status).every(Boolean);
-
   const store = await getStore();
   const plans = await getPlans(store);
+  // 13.1 The app's plan as it is now, with the team's edits and switches.
+  const effective = await effectivePlans(store);
+  const plan = license ? currentPlanId(license, new Date()) : null;
+  const status = stepStatus(app, plan, effective);
+  const requested = (await searchParams).step;
+  const step: SetupStep = isSetupStep(requested) && requested !== "app-type" ? requested : (nextStep(app, plan, effective) ?? "website");
+  const complete = Object.values(status).every(Boolean);
+  const current = plan ? effective[plan] : null;
   // 11.5 Switches: switched-off websites and platforms aren't offered; the app's own stays, with a notice.
   const switches = await getSwitches(store);
   const currentWebsite = websiteOf(app);
@@ -192,8 +196,14 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
       {step === "publishing" ? (
         <PublishingStep
-          plan={plan}
-          managed={app.publishingMode === "managed"}
+          autoPublish={managedPublishing(plan, effective)}
+          ios={hasFeature(current, "ios")}
+          planName={current?.name ?? "current"}
+          upgrade={{
+            managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan),
+            ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan),
+          }}
+          teamPublishes={app.publishingMode === "managed"}
           saved={{
             play: hasStoreKeys(app).play ? { clientEmail: app.googlePlayClientEmail } : null,
             appStore: hasStoreKeys(app).appStore ? { issuerId: app.ascIssuerId, keyId: app.ascKeyId } : null,

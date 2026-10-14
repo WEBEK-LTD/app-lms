@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/gate/owner_contact.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/widgets/buttons.dart';
 import 'sign_in_screen.dart';
@@ -63,7 +64,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           );
       // Signed in: the router leaves the sign-in screens by itself.
     } on ApiException catch (e) {
-      if (mounted) setState(() => _error = e.message);
+      if (!mounted) return;
+      // 13.2 The app reached its owner's number of users: say so, with their contact.
+      if (e.code == ApiException.appUserLimit) {
+        await showMembersClosed(context, ref, e.contact);
+        return;
+      }
+      setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

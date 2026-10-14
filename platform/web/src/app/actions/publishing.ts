@@ -8,6 +8,7 @@ import { assetUrl } from "@/lib/assets";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { getStore } from "@/lib/data";
+import { appPlan } from "@/lib/entitlements";
 import type { DataStore } from "@/lib/data/store";
 import type { App, PublishingRequest } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
@@ -54,9 +55,9 @@ export async function choosePublishingModeAction(formData: FormData): Promise<vo
   const context = await requireApp();
   const mode = formData.get("mode");
   if (mode !== "self" && mode !== "managed") redirect(PAGE);
-  if (mode === "managed" && !canUseManagedPublishing(context.app, context.license)) redirect(`${PAGE}?error=not-included`);
   const store = await getStore();
   const now = new Date();
+  if (mode === "managed" && !canUseManagedPublishing(await appPlan(store, context.license, now))) redirect(`${PAGE}?error=not-included`);
   const existing = await store.getPublishingRequest(context.app.id);
   const request: PublishingRequest = existing
     ? { ...existing, mode, requestedAt: mode === "managed" ? (existing.requestedAt ?? now) : existing.requestedAt, updatedAt: now }

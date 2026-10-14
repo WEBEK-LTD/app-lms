@@ -58,10 +58,13 @@ class App_Controller extends Controller {
 	public function config( WP_REST_Request $request ) {
 		$settings = $this->plugin->settings();
 		$platform = (string) $request['platform'];
-		$blocked  = ( new Gatekeeper( $this->plugin ) )->blocked_reason();
-		if ( $blocked && 'license_inactive' === $blocked['code'] ) {
-			return self::error( $blocked['code'], $blocked['message'], 503 );
+		$gate     = new Gatekeeper( $this->plugin );
+		$blocked  = $gate->blocked_reason();
+		if ( $blocked && in_array( $blocked['code'], array( 'license_inactive', 'account_suspended' ), true ) ) {
+			return self::error( $blocked['code'], $blocked['message'], 503, array( 'contact' => $blocked['contact'] ) );
 		}
+		$contact = $gate->contact();
+		$license = $this->plugin->license();
 
 		$lms        = $this->plugin->lms();
 		$features   = $lms ? $lms->features() : array();
@@ -80,6 +83,7 @@ class App_Controller extends Controller {
 					'terms_url'        => $terms_id ? get_permalink( $terms_id ) : null,
 					'privacy_url'      => $privacy_id ? get_permalink( $privacy_id ) : ( get_privacy_policy_url() ? get_privacy_policy_url() : null ),
 					'support_whatsapp' => '' !== $whatsapp ? $whatsapp : null,
+					'support_email'    => $contact['email'],
 				),
 				'branding'  => array(
 					'logo_url'      => $logo ? $logo : null,
@@ -94,7 +98,9 @@ class App_Controller extends Controller {
 					'wishlist'     => ! empty( $features['wishlist'] ),
 					'reviews'      => ! empty( $features['reviews'] ),
 					'qna'          => ! empty( $features['qna'] ),
-					'push'         => $this->plugin->push()->is_configured(),
+					// The app's plan decides push and offline mode (license features).
+					'push'         => $this->plugin->push()->is_configured() && $license->has_feature( 'push' ),
+					'offline'      => $license->has_feature( 'offline_downloads' ),
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,

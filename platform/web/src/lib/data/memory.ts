@@ -43,6 +43,9 @@ import type {
   HostedUser,
   HostedUserPatch,
   License,
+  OwnerNotice,
+  OwnerNoticeKind,
+  OwnerNoticePatch,
   PluginRelease,
   ResetToken,
   User,
@@ -1294,5 +1297,50 @@ export class MemoryStore implements DataStore {
       .filter((e) => e.appId === appId)
       .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id)
       .map(clone);
+  }
+
+  // 13 Plans, limits and owner notices
+  private ownerNotices = new Map<number, OwnerNotice>();
+  private nextOwnerNoticeId = 1;
+
+  async listLicenses(): Promise<License[]> {
+    return [...this.licenses.values()].map(clone);
+  }
+
+  async createOwnerNotice(notice: Omit<OwnerNotice, "id">): Promise<OwnerNotice | null> {
+    for (const existing of this.ownerNotices.values()) {
+      if (existing.appId === notice.appId && existing.dedupeKey === notice.dedupeKey) return null;
+    }
+    const saved: OwnerNotice = { ...notice, id: this.nextOwnerNoticeId++ };
+    this.ownerNotices.set(saved.id, clone(saved));
+    return clone(saved);
+  }
+
+  async listOwnerNotices(input: { clientId: string; appId?: string; open?: boolean; limit?: number }): Promise<OwnerNotice[]> {
+    return [...this.ownerNotices.values()]
+      .filter(
+        (n) =>
+          n.clientId === input.clientId &&
+          (input.appId === undefined || n.appId === input.appId) &&
+          (!input.open || (n.dismissedAt === null && n.resolvedAt === null)),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, input.limit ?? 100)
+      .map(clone);
+  }
+
+  async countOwnerNotices(appId: string, kind: OwnerNoticeKind): Promise<number> {
+    return [...this.ownerNotices.values()].filter((n) => n.appId === appId && n.kind === kind).length;
+  }
+
+  async updateOwnerNotice(clientId: string, id: number, patch: OwnerNoticePatch): Promise<void> {
+    const notice = this.ownerNotices.get(id);
+    if (notice && notice.clientId === clientId) this.ownerNotices.set(id, clone({ ...notice, ...patch }));
+  }
+
+  async resolveOwnerNotices(appId: string, kinds: OwnerNoticeKind[], now: Date): Promise<void> {
+    for (const [id, notice] of this.ownerNotices) {
+      if (notice.appId === appId && kinds.includes(notice.kind) && notice.resolvedAt === null) this.ownerNotices.set(id, { ...notice, resolvedAt: now });
+    }
   }
 }
