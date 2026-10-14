@@ -98,6 +98,32 @@ async function getJson(fetcher: Fetch, url: string, init?: RequestInit): Promise
   return { status: response.status, body };
 }
 
+/**
+ * A list (`{ items: [...] }`) from a client's own API, read the way the app
+ * reads it: https only, never a private address, no redirects, 8 seconds at
+ * most. An empty list when anything goes wrong.
+ */
+export async function readApiList(
+  baseUrl: string,
+  path: string,
+  options: { fetcher?: Fetch; resolve?: Resolve } = {},
+): Promise<Record<string, unknown>[]> {
+  const fetcher = options.fetcher ?? fetch;
+  const resolve = options.resolve ?? defaultResolve;
+  const base = baseUrl.trim().replace(/\/+$/, "");
+  try {
+    const url = new URL(base);
+    if (url.protocol !== "https:" || url.search || url.hash) return [];
+    const addresses = await resolve(url.hostname);
+    if (addresses.length === 0 || addresses.some(isPrivateAddress)) return [];
+    const { status, body } = await getJson(fetcher, `${base}${path}`);
+    const items = status === 200 && isObject(body) ? body.items : null;
+    return Array.isArray(items) ? items.filter(isObject) : [];
+  } catch {
+    return [];
+  }
+}
+
 const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home", booking: "/bookings/home", real_estate: "/listings" };
 
 /** What /config must have for each app type. */

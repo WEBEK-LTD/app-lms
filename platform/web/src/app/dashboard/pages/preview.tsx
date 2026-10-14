@@ -10,7 +10,9 @@ import { IconGlyph } from "./controls";
 
 /**
  * A phone showing the draft roughly as the app draws it in the chosen
- * template, in the language being edited. Lists show sample cards.
+ * template, in the language being edited. Lists show the names of the
+ * client's entries when we can read them (lib/hosted/pages/pickable.ts), else
+ * sample cards.
  */
 
 interface Theme {
@@ -319,7 +321,11 @@ export function PhonePreview({
           })}
         </nav>
       </div>
-      <figcaption className="text-xs text-muted">Preview of the draft. Lists show sample entries.</figcaption>
+      <figcaption className="text-xs text-muted">
+        {Object.values(pickable.items).some((list) => list && list.length > 0)
+          ? "Preview of the draft. Lists show the names of your entries; pictures are placeholders."
+          : "Preview of the draft. Lists show sample entries until we can read yours."}
+      </figcaption>
     </figure>
   );
 }
