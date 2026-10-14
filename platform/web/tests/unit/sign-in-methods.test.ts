@@ -7,6 +7,7 @@ import { LogSender, type OtpSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import {
   chosenSignInMethods,
+  emailSignInNote,
   emailSignInPossible,
   hostedSignInMethods,
   normalizeEmail,
@@ -37,6 +38,26 @@ describe("sign-in methods", () => {
     expect(emailSignInPossible(app({ backend: "hosted", demo: true }))).toBe(false);
     expect(emailSignInPossible(app({ backend: "wordpress" }))).toBe(true);
     expect(emailSignInPossible(app({ backend: "custom_api" }))).toBe(false);
+  });
+
+  it("19 offer email for the course platforms, which know students by email, and say why shops stay on phone", () => {
+    const both = { signInMethods: ["phone", "email"] } as App["hostedSettings"];
+    const platform = (id: string, appType: App["appType"]) =>
+      app({ backend: "hosted", appType, connector: { kind: "platform", platform: id, settings: {}, secretsEncrypted: "x" }, hostedSettings: both });
+    for (const id of ["teachable", "thinkific"]) {
+      expect(emailSignInPossible(platform(id, "lms"))).toBe(true);
+      expect(hostedSignInMethods(platform(id, "lms"))).toEqual(["phone", "email"]);
+      expect(emailSignInNote(platform(id, "lms"))).toMatch(/knows students by email/);
+    }
+    for (const id of ["ikas", "ticimax", "ideasoft"]) {
+      expect(emailSignInPossible(platform(id, "store"))).toBe(false);
+      expect(emailSignInNote(platform(id, "store"))).toBe("Your connected shop finds each customer's orders by their phone number, so this app signs in by phone.");
+    }
+    expect(emailSignInPossible(platform("simplybook", "booking"))).toBe(false);
+    expect(emailSignInNote(platform("simplybook", "booking"))).toMatch(/^Your booking platform finds each customer's bookings by their phone number/);
+    expect(emailSignInNote(app({ backend: "hosted", connector: { kind: "shopify", shopDomain: "x.myshopify.com", storefrontTokenEncrypted: "x" } }))).toMatch(/connected shop/);
+    expect(emailSignInNote(app({ backend: "hosted", connector: { kind: "catalog" } }))).toBeNull();
+    expect(emailSignInNote(app({ backend: "wordpress" }))).toBeNull();
   });
 
   it("read and write the form's choice", () => {

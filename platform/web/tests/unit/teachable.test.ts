@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import type { MemoryStore } from "@/lib/data/memory";
-import type { App } from "@/lib/data/types";
+import type { App, HostedUser } from "@/lib/data/types";
 import { platformConnector, platformConnectorConfig } from "@/lib/hosted/connectors/platforms";
 import {
   cleanHtml,
@@ -564,6 +564,28 @@ describe("Teachable on the hosted API", () => {
     expect(server.state.users.find((u) => u.id === 501)).toMatchObject({ email: "ada@example.com", courses: [{ course_id: 1002, percent_complete: 50 }] });
     expect(server.state.calls.filter((c) => c.startsWith("GET /users/"))).not.toContain("GET /users/501");
     expect(server.state.bodies.some((b) => JSON.stringify(b.body).toLowerCase().includes("ada@example.com"))).toBe(false);
+  });
+
+  it("19 links someone who signed in by email to the school's student with that address", async () => {
+    const emailUser = (id: number, email: string): HostedUser => ({ id, appId: app.id, phone: null, name: "Ada Lovelace", email, city: null, notificationsReadAt: null, createdAt: NOW, updatedAt: NOW });
+    const ask = async (user: HostedUser, method: string, route: string, params: string[] = []) => {
+      let concrete = route;
+      for (const param of params) concrete = concrete.replace(/\{[^}]+\}/, param);
+      const result = await connector.handle({ method, path: concrete.split("/").filter(Boolean), query: new URLSearchParams({ platform: "ios" }), body: undefined, user, now: NOW });
+      expectContract(method, route, result!);
+      return result!;
+    };
+    // Ada bought Business English on the school's website with ada@example.com, then signed in to the app by email.
+    const ada = emailUser(40, "ada@example.com");
+    expect((await ask(ada, "GET", "/me/courses")).body).toMatchObject({ total: 1, items: [{ course: { id: 1002 } }] });
+    expect((await ask(ada, "GET", "/courses/{course_id}", ["1002"])).body).toMatchObject({ enrolled: true, purchase: { action: "continue" } });
+    expect(server.state.calls.filter((c) => c === "POST /users")).toHaveLength(0);
+
+    // Someone new by email is created with their address; paid courses still aren't sold in the app.
+    const bea = emailUser(41, "bea@example.com");
+    expect((await ask(bea, "GET", "/courses/{course_id}", ["1002"])).body).toMatchObject({ enrolled: false, purchase: { action: "none" } });
+    expect((await ask(bea, "GET", "/me/courses")).body).toMatchObject({ total: 0 });
+    expect(server.state.users.at(-1)).toMatchObject({ email: "bea@example.com", src: "yallapp" });
   });
 
   it("doesn't sell courses in the app on any platform", async () => {

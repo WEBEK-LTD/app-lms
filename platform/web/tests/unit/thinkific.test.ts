@@ -477,6 +477,38 @@ describe("Thinkific on the hosted API", () => {
     expect(school.users.filter((u) => u.external_id === external(user.id))).toHaveLength(1);
   });
 
+  it("19 links someone who signed in by email to the school's student with that address", async () => {
+    connector = create({ ssoSecret: SSO_SECRET });
+    const emailUser = (id: number, email: string): HostedUser => ({ id, appId: app.id, phone: null, name: "Mona Adel", email, city: null, notificationsReadAt: null, createdAt: NOW, updatedAt: NOW });
+    const ask = async (user: HostedUser, method: string, route: string, params: string[] = []) => {
+      let concrete = route;
+      for (const param of params) concrete = concrete.replace(/\{[^}]+\}/, param);
+      const result = await connector.handle({ method, path: concrete.split("/").filter(Boolean), query: new URLSearchParams({ platform: "ios" }), body: undefined, user, now });
+      expectContract(method, route, result!);
+      return result!;
+    };
+    // Mona bought course 20 on the school's website with mona@example.com, then signed in to the app by email.
+    school.users.push({ id: 60, email: "mona@example.com", first_name: "Mona", last_name: "Adel", external_id: null });
+    school.enrollments.push({ id: 11, course_id: 20, user_id: 60, percentage_completed: 0, completed: false, expired: false, activated_at: NOW.toISOString(), updated_at: NOW.toISOString() });
+    const mona = emailUser(40, "mona@example.com");
+    expect((await ask(mona, "GET", "/me/courses")).body).toMatchObject({ total: 1, items: [{ course: { id: 20 } }] });
+    expect((await ask(mona, "GET", "/courses/{course_id}", ["20"])).body).toMatchObject({ enrolled: true, purchase: { action: "continue" } });
+    // Found by her address only: never by an external ID, never created again.
+    expect(school.calls.some((c) => c.path.startsWith("/users/yallapp-"))).toBe(false);
+    expect(school.calls.some((c) => c.method === "POST" && c.path === "/users")).toBe(false);
+    // The lesson player signs her in by her address.
+    const lesson = (await ask(mona, "GET", "/lessons/{lesson_id}", ["2001"])).body as { webview_url: string };
+    const claims = verifyJwt(new URL(lesson.webview_url).searchParams.get("jwt")!, SSO_SECRET);
+    expect(claims).toMatchObject({ email: "mona@example.com" });
+    expect(claims).not.toHaveProperty("external_id");
+
+    // Someone new by email: paid courses still aren't sold in the app; enrolling free creates them with their address.
+    const sam = emailUser(41, "sam@example.com");
+    expect((await ask(sam, "GET", "/courses/{course_id}", ["20"])).body).toMatchObject({ enrolled: false, purchase: { action: "none" } });
+    expect((await ask(sam, "POST", "/courses/{course_id}/enroll", ["10"])).status).toBeLessThan(300);
+    expect(school.users.at(-1)).toMatchObject({ email: "sam@example.com", external_id: null });
+  });
+
   it("never gives a user another student's account for the e-mail they set", async () => {
     connector = create({ ssoSecret: SSO_SECRET });
     // The victim's Thinkific account, enrolled in the paid course.

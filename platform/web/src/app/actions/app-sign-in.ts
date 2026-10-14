@@ -14,7 +14,7 @@ import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hos
 import { OtpSendError } from "@/lib/hosted/otp-sender";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
-import { emailSignInPossible, parseSignInMethodsChoice } from "@/lib/hosted/sign-in-methods";
+import { emailSignInNote, emailSignInPossible, parseSignInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "deviceLimit", "supportWhatsapp", "termsUrl", "reviewPhone", "reviewCode"];
@@ -63,8 +63,9 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
   const methods = parseSignInMethodsChoice(choice);
   if (!methods) return { errors: { methods: "Choose how people sign in." }, values: { methods: choice } };
   if (methods.includes("email") && !emailSignInPossible(app)) {
+    // 19 The reason for this app's platform (a shop or booking platform finds customers by phone).
     return {
-      errors: { methods: "Your connected platform finds each customer by their phone number, so this app signs in by phone." },
+      errors: { methods: emailSignInNote(app) ?? "This app signs in by phone." },
       values: { methods: choice },
     };
   }

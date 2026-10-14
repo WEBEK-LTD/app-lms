@@ -31,11 +31,14 @@ export function SignInMethodsForm({
   current,
   wordpress,
   emailPossible,
+  note = null,
   chosen,
 }: {
   current: "phone" | "email" | "both";
   wordpress: boolean;
   emailPossible: boolean;
+  /** 19 Why email isn't offered, or how it works with the app's platform (emailSignInNote). */
+  note?: string | null;
   chosen: boolean;
 }) {
   const [state, action] = useActionState(saveSignInMethodsAction, initialFormState);
@@ -63,11 +66,8 @@ export function SignInMethodsForm({
         })}
         <FieldError id="methods-error" error={error} />
       </fieldset>
-      {!emailPossible ? (
-        <p className="m-0 text-sm leading-relaxed text-muted">
-          Your connected platform finds each customer&apos;s orders and bookings by their phone number, so this app signs in by phone.
-        </p>
-      ) : null}
+      {/* 19 Why email isn't offered, or how it works with a course platform. */}
+      {note ? <p className="m-0 text-sm leading-relaxed text-muted">{note}</p> : null}
       {wordpress ? (
         <p className="m-0 text-sm leading-relaxed text-muted">
           {chosen
