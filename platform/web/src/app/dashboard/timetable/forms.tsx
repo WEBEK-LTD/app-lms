@@ -42,7 +42,7 @@ export function ClassTemplateForm({
   const e = state.errors ?? {};
   const key = current.id ?? "new";
   return (
-    <form action={action} noValidate className="flex flex-col gap-4" key={current.id ? JSON.stringify(v) : state.ok ? state.message : "new"}>
+    <form action={action} noValidate className="flex flex-col gap-4" key={current.id || !state.ok ? JSON.stringify(v) : state.message}>
       <FormMessage message={state.message} ok={state.ok} />
       <input type="hidden" name="id" value={current.id ?? ""} />
       <div className="grid gap-4 sm:grid-cols-3">

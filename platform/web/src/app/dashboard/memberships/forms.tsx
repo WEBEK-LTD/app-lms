@@ -42,7 +42,7 @@ export function MembershipPlanForm({ current, submit, currency }: { current: Rec
   const e = state.errors ?? {};
   const key = current.id ?? "new";
   return (
-    <form action={action} noValidate className="flex flex-col gap-4" key={current.id ? JSON.stringify(v) : state.ok ? state.message : "new"}>
+    <form action={action} noValidate className="flex flex-col gap-4" key={current.id || !state.ok ? JSON.stringify(v) : state.message}>
       <FormMessage message={state.message} ok={state.ok} />
       <input type="hidden" name="id" value={current.id ?? ""} />
       <div className="grid gap-4 sm:grid-cols-2">
@@ -98,7 +98,7 @@ export function GiveMembershipForm({ plans }: { plans: { id: number; name: strin
   const v = state.ok ? {} : (state.values ?? {});
   const e = state.errors ?? {};
   return (
-    <form action={action} noValidate className="flex flex-col gap-3" key={state.ok ? state.message : "form"}>
+    <form action={action} noValidate className="flex flex-col gap-3" key={state.ok ? state.message : JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="give-who" label="Their mobile number or email" name="who" defaultValue={v.who} hint="The one they sign in to the app with." error={e.who} small />

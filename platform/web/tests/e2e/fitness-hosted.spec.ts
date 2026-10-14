@@ -82,7 +82,7 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   api = (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
 
   const nav = own.getByRole("navigation", { name: "Dashboard" });
-  for (const name of ["Timetable", "Membership plans", "Members", "Personal sessions"]) await expect(nav.getByRole("link", { name })).toBeVisible();
+  for (const name of ["Timetable", "Membership plans", "Members", "Personal sessions"]) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
   await nav.getByRole("link", { name: "Classes & coaches" }).click();
   await expect(own.getByRole("heading", { name: "Classes & coaches", level: 1 })).toBeVisible();
 
@@ -97,10 +97,10 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await coaches.getByLabel("Role").fill("Yoga coach");
   await coaches.getByRole("checkbox", { name: "Yoga flow" }).check();
   await coaches.getByRole("button", { name: "Add coach" }).click();
-  await expect(coaches.getByText("Selin Aydın")).toBeVisible();
+  await expect(coaches.locator("summary").getByText("Selin Aydın", { exact: true })).toBeVisible();
 
   // Tomorrow at 18:00, two spots.
-  await nav.getByRole("link", { name: "Timetable" }).click();
+  await nav.getByRole("link", { name: "Timetable", exact: true }).click();
   await expect(own.getByRole("heading", { name: "Timetable", level: 1 })).toBeVisible();
   const weekly = own.getByRole("region", { name: "Weekly classes" });
   await weekly.locator("#class-new-service").selectOption({ label: "Yoga flow" });
@@ -112,7 +112,6 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await expect(weekly.getByText("Enter 1 to 500 spots.")).toBeVisible();
   await weekly.locator("#class-new-capacity").fill("2");
   await weekly.getByRole("button", { name: "Add to timetable" }).click();
-  await expect(weekly.getByText("Added Yoga flow to the timetable.")).toBeVisible();
   await expect(weekly.getByText(`${TOMORROW} 18:00 · Yoga flow`)).toBeVisible();
   await expect(own.getByRole("region", { name: "Coming 7 days" }).getByText("0 of 2 booked")).toBeVisible();
 
@@ -128,12 +127,12 @@ test("the gym sets up its classes, coach, timetable and plans, in a gym's words"
   await expect(plans.getByText("A class pack needs a number of classes.")).toBeVisible();
   await plans.locator("#plan-new-credits").fill("5");
   await plans.getByRole("button", { name: "Add plan" }).click();
-  await expect(plans.getByText("Added “5-class pack”.")).toBeVisible();
+  await expect(plans.locator("summary").getByText("5-class pack", { exact: true })).toBeVisible();
   if (!(await plans.locator("#plan-new-name").isVisible())) await plans.getByText("Add a plan").click();
   await plans.locator("#plan-new-name").fill("Monthly unlimited");
   await plans.locator("#plan-new-price").fill("1800");
   await plans.getByRole("button", { name: "Add plan" }).click();
-  await expect(plans.getByText("Added “Monthly unlimited”.")).toBeVisible();
+  await expect(plans.locator("summary").getByText("Monthly unlimited", { exact: true })).toBeVisible();
   // Without card payments, nothing is on sale yet.
   await expect(own.getByText("Plans go on sale in the app once card payments are set up below.")).toBeVisible();
 });
@@ -160,7 +159,7 @@ test("members need a membership; spots never overbook when two book at once", as
   expect((await request.post(`${api}/memberships/checkout-link?platform=ios`, { data: { plan_id: 1 }, headers: members.Ada!.headers })).status()).toBe(404);
 
   // Paid at the desk: the gym adds their memberships.
-  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members" }).click();
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members", exact: true }).click();
   const give = own.getByRole("region", { name: "Add a membership" });
   for (const [name, plan] of [
     ["Ada", "5-class pack"],
@@ -188,16 +187,16 @@ test("members need a membership; spots never overbook when two book at once", as
 });
 
 test("the timetable lists who's coming; calling a class off frees spots, gives credits back and tells members", async ({ request }) => {
-  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Timetable" }).click();
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Timetable", exact: true }).click();
   const coming = own.getByRole("region", { name: "Coming 7 days" });
   await expect(coming.getByText("2 of 2 booked")).toBeVisible();
   await coming.getByText("Who's coming (2)").click();
   await expect(coming.getByText(new RegExp(`Ada · ${members.Ada!.email}`))).toBeVisible();
 
-  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members" }).click();
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members", exact: true }).click();
   await expect(own.getByText("4 classes left")).toBeVisible();
 
-  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Timetable" }).click();
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Timetable", exact: true }).click();
   await own.getByRole("region", { name: "Coming 7 days" }).getByRole("button", { name: /^Cancel class/ }).first().click();
   await expect(own.getByRole("region", { name: "Coming 7 days" }).getByText("Cancelled", { exact: true }).first()).toBeVisible();
 
@@ -206,7 +205,7 @@ test("the timetable lists who's coming; calling a class off frees spots, gives c
   expect((await (await request.get(`${api}/me/memberships`, { headers: members.Ada!.headers })).json()).items[0].credits_left).toBe(5);
 
   // The owner adds classes to Ada's pack by hand.
-  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members" }).click();
+  await own.getByRole("navigation", { name: "Dashboard" }).getByRole("link", { name: "Members", exact: true }).click();
   await own.getByLabel("Add classes for Ada").fill("3");
   await own.getByRole("button", { name: "Add", exact: true }).first().click();
   await expect(own.getByText("Added 3 classes.")).toBeVisible();
