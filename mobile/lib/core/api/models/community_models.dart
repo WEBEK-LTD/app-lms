@@ -9,6 +9,9 @@ enum NotificationType {
   enrolled,
   qnaAnswer,
   article,
+
+  /// 28 An event the user holds tickets to changed or was cancelled.
+  event,
   unknown,
 }
 
@@ -25,6 +28,7 @@ class InboxNotification {
     this.lessonId,
     this.questionId,
     this.articleId,
+    this.eventId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -40,6 +44,7 @@ class InboxNotification {
     lessonId: optInt(json, 'lesson_id'),
     questionId: optInt(json, 'question_id'),
     articleId: optString(json, 'article_id'),
+    eventId: optInt(json, 'event_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -54,6 +59,9 @@ class InboxNotification {
 
   /// For [NotificationType.article] (breaking news): the article to open.
   final String? articleId;
+
+  /// For [NotificationType.event]: the event to open.
+  final int? eventId;
   final DateTime createdAt;
   final bool read;
 
@@ -64,6 +72,7 @@ class InboxNotification {
     'lesson_id': ?lessonId,
     'question_id': ?questionId,
     'article_id': ?articleId,
+    'event_id': ?eventId,
   };
 }
 

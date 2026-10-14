@@ -34,6 +34,7 @@ final newsModule = AppModule(
     BuiltInScreen.appointments ||
     BuiltInScreen.classes ||
     BuiltInScreen.memberships => null,
+    BuiltInScreen.events || BuiltInScreen.tickets => null,
   },
   routes: _pushedRoutes,
 );

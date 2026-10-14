@@ -2053,5 +2053,136 @@
   "classGiveBack": "Give back my spot",
   "@classGiveBack": {
     "description": "Confirms giving back a spot in a class."
+  },
+  "tabEvents": "Events",
+  "tabTickets": "My tickets",
+  "eventsSearchHint": "Search events",
+  "eventsAll": "All",
+  "eventsListView": "List",
+  "@eventsListView": {
+    "description": "Shows the events as a list (beside Calendar)."
+  },
+  "eventsCalendarView": "Calendar",
+  "@eventsCalendarView": {
+    "description": "Shows the events on a month calendar."
+  },
+  "loadingEvents": "Loading events",
+  "noEventsTitle": "Nothing on yet",
+  "noEventsMessage": "New events will show here.",
+  "noEventsFoundTitle": "No events found",
+  "noEventsFoundMessage": "Try other words or another category.",
+  "noEventsOnDay": "Nothing on this day.",
+  "eventsPreviousMonth": "Previous month",
+  "eventsNextMonth": "Next month",
+  "eventsOnDay": "{count, plural, =1{1 event} other{{count} events}}",
+  "@eventsOnDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventOnline": "Online",
+  "eventSoldOut": "Sold out",
+  "eventCancelledBadge": "Cancelled",
+  "eventEndedBadge": "Ended",
+  "eventSpotsLeft": "{count} left",
+  "@eventSpotsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventCancelledMessage": "This event is cancelled.",
+  "eventEndedMessage": "This event has ended.",
+  "eventAddToCalendar": "Add to calendar",
+  "eventShare": "Share",
+  "eventJoinOnline": "Join online",
+  "eventOnlineNote": "The link to join is on your ticket.",
+  "eventOrganiser": "By {name}",
+  "@eventOrganiser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventTicketsTitle": "Tickets",
+  "eventNoTickets": "Tickets aren't out yet.",
+  "eventGetTickets": "Get tickets",
+  "eventBuyTickets": "Buy tickets",
+  "eventSalesEnded": "Sales ended",
+  "eventSalesEnd": "Sales end {date}",
+  "@eventSalesEnd": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventNotInApp": "Not sold in the app",
+  "@eventNotInApp": {
+    "description": "Paid tickets that can't be bought here (an online event on iPhone, or no card payments). Never a link to buy elsewhere."
+  },
+  "eventYourTickets": "{count, plural, =1{You have 1 ticket} other{You have {count} tickets}}",
+  "@eventYourTickets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventSeeTickets": "See my tickets",
+  "eventSeeEvent": "See the event",
+  "ticketsHowMany": "How many tickets",
+  "ticketsNamesTitle": "Name on each ticket",
+  "ticketNameLabel": "Ticket {number}",
+  "@ticketNameLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ticketsGetFree": "{count, plural, =1{Get 1 free ticket} other{Get {count} free tickets}}",
+  "@ticketsGetFree": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ticketsContinueToPayment": "Continue to payment",
+  "ticketsIssuedMessage": "Done. Your tickets are under My tickets.",
+  "ticketsPaidMessage": "Payment received. Your tickets are under My tickets.",
+  "ticketsSignInTitle": "Your tickets live here",
+  "ticketsSignInMessage": "Sign in to see your tickets and show them at the door.",
+  "noTicketsTitle": "No tickets yet",
+  "noTicketsMessage": "Tickets you get show here, with a QR code for the door.",
+  "ticketsOfflineNote": "You're offline: these are the tickets saved on this phone.",
+  "ticketStatusValid": "Valid",
+  "ticketStatusUsed": "Used",
+  "ticketStatusCancelled": "Cancelled",
+  "ticketUsedAt": "Checked in {time}",
+  "@ticketUsedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketShowAtDoor": "Show this code at the door",
+  "ticketCancel": "Cancel ticket",
+  "ticketCancelTitle": "Cancel this ticket?",
+  "ticketCancelMessage": "Your place goes back on sale. You can't undo this.",
+  "ticketCancelledMessage": "Ticket cancelled.",
+  "ticketQrLabel": "QR code of the ticket for {name}",
+  "@ticketQrLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

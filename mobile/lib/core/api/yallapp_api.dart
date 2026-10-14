@@ -306,6 +306,61 @@ class ListingQuery {
   );
 }
 
+/// An events list (`GET /events`), for Events & tickets apps (28).
+@immutable
+class EventQuery {
+  const EventQuery({
+    this.page = 1,
+    this.perPage = 20,
+    this.search = '',
+    this.category,
+    this.from,
+    this.to,
+  });
+
+  final int page;
+  final int perPage;
+  final String search;
+
+  /// An `EventFilters.categories` id.
+  final String? category;
+
+  /// `yyyy-MM-dd` days on the organiser's calendar, both included.
+  final String? from;
+  final String? to;
+
+  EventQuery copyWith({int? page}) => EventQuery(
+    page: page ?? this.page,
+    perPage: perPage,
+    search: search,
+    category: category,
+    from: from,
+    to: to,
+  );
+
+  Map<String, dynamic> toQuery() => {
+    'page': page,
+    'per_page': perPage,
+    if (search.trim().isNotEmpty) 'search': search.trim(),
+    'category': ?category,
+    'from': ?from,
+    'to': ?to,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventQuery &&
+      other.page == page &&
+      other.perPage == perPage &&
+      other.search == search &&
+      other.category == category &&
+      other.from == from &&
+      other.to == to;
+
+  @override
+  int get hashCode => Object.hash(page, perPage, search, category, from, to);
+}
+
 /// An articles list (`GET /news/articles`), for News & blog apps (23).
 @immutable
 class ArticleQuery {
@@ -566,6 +621,29 @@ abstract class YallappApi {
   Future<List<NewsCategory>> listNewsCategories();
   Future<Paged<ArticleSummary>> listArticles(ArticleQuery query);
   Future<Article> getArticle(String articleId);
+
+  // 28 Events & tickets apps.
+  Future<EventFilters> getEventFilters();
+  Future<Paged<EventSummary>> listEvents(EventQuery query);
+  Future<EventDetail> getEvent(int eventId);
+
+  /// Free tickets: one per name (the user's own name for the rest).
+  Future<List<Ticket>> registerForEvent(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames,
+  });
+
+  /// Paid tickets: the payment page, where paying issues the tickets.
+  Future<CheckoutLink> createEventCheckoutLink(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames,
+  });
+  Future<List<Ticket>> listMyTickets();
+  Future<Ticket> cancelMyTicket(String code);
 }
 
 /// [YallappApi] over HTTP.
@@ -1410,5 +1488,80 @@ class HttpYallappApi implements YallappApi {
     '/news/articles/${Uri.encodeComponent(articleId)}',
     _optional,
     Article.fromJson,
+  );
+
+  @override
+  Future<EventFilters> getEventFilters() =>
+      _get('/events/filters', _optional, EventFilters.fromJson);
+
+  @override
+  Future<Paged<EventSummary>> listEvents(EventQuery query) => _get(
+    '/events',
+    _optional,
+    (json) => Paged.fromJson(json, EventSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<EventDetail> getEvent(int eventId) => _get(
+    '/events/$eventId',
+    _optional,
+    EventDetail.fromJson,
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<List<Ticket>> registerForEvent(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames = const [],
+  }) => _send(
+    'POST',
+    '/events/$eventId/register',
+    _required,
+    (data) => reqListOf(asJson(data), 'tickets', Ticket.fromJson),
+    body: {
+      'ticket_type_id': ticketTypeId,
+      'quantity': quantity,
+      'attendee_names': [for (final n in attendeeNames) n.trim()],
+    },
+  );
+
+  @override
+  Future<CheckoutLink> createEventCheckoutLink(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames = const [],
+  }) => preview
+      ? _noCheckoutInPreview()
+      : _send(
+          'POST',
+          '/events/checkout-link',
+          _required,
+          (data) => CheckoutLink.fromJson(asJson(data)),
+          body: {
+            'event_id': eventId,
+            'ticket_type_id': ticketTypeId,
+            'quantity': quantity,
+            'attendee_names': [for (final n in attendeeNames) n.trim()],
+          },
+          query: {'platform': platform.name},
+        );
+
+  @override
+  Future<List<Ticket>> listMyTickets() => _get(
+    '/me/tickets',
+    _required,
+    (json) => reqListOf(json, 'items', Ticket.fromJson),
+  );
+
+  @override
+  Future<Ticket> cancelMyTicket(String code) => _send(
+    'POST',
+    '/me/tickets/${Uri.encodeComponent(code)}/cancel',
+    _required,
+    (data) => Ticket.fromJson(asJson(data)),
   );
 }

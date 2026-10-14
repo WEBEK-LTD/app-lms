@@ -61,6 +61,10 @@ String? itemLocation(ItemRef item, AppType appType) {
   if (item.source == ItemSource.articles && appType == AppType.news) {
     return item.id.isEmpty ? null : Paths.article(item.id);
   }
+  if (item.source == ItemSource.events && appType == AppType.events) {
+    final event = int.tryParse(item.id);
+    return event == null ? null : Paths.event(event);
+  }
   final id = int.tryParse(item.id);
   if (id == null) return null;
   return switch ((item.source, appType)) {
@@ -82,6 +86,7 @@ String? searchLocation(ItemSource? source, AppType appType) => switch ((
   (ItemSource.services, AppType.booking) => Paths.services,
   (ItemSource.listings, AppType.realEstate) => '${Paths.search}?focus=1',
   (ItemSource.articles, AppType.news) => Paths.articlesFiltered(focus: true),
+  (ItemSource.events, AppType.events) => Paths.eventsFiltered(focus: true),
   _ => null,
 };
 

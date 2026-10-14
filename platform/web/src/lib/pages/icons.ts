@@ -21,6 +21,8 @@ export const PAGE_ICONS = [
   "map",
   "calendar_month",
   "event",
+  // 28 Events & tickets apps' My tickets tab.
+  "confirmation_number",
   "schedule",
   "favorite",
   "bookmark",

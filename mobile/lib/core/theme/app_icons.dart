@@ -104,6 +104,16 @@ abstract final class AppIcons {
   static const closed = Symbols.door_front_rounded;
   static const fitness = Symbols.fitness_center_rounded;
   static const membership = Symbols.card_membership_rounded;
+
+  // Events & tickets apps (28).
+  static const event = Symbols.event_rounded;
+  static const ticket = Symbols.confirmation_number_rounded;
+  static const qrCode = Symbols.qr_code_2_rounded;
+  static const map = Symbols.map_rounded;
+  static const calendarAdd = Symbols.calendar_add_on_rounded;
+  static const online = Symbols.videocam_rounded;
+  static const list = Symbols.view_list_rounded;
+  static const eventBusy = Symbols.event_busy_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

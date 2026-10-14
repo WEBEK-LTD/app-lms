@@ -261,6 +261,32 @@ const demoArt = <String, DemoArt>{
     Color(0xFF5D6B66),
     Symbols.directions_bike_rounded,
   ),
+  // Events & tickets (a culture centre, 28).
+  'event-jazz': DemoArt(
+    Color(0xFF3B2A5E),
+    Color(0xFFF2B544),
+    Symbols.music_note_rounded,
+  ),
+  'event-film': DemoArt(
+    Color(0xFFF4EEE6),
+    Color(0xFF24476B),
+    Symbols.movie_rounded,
+  ),
+  'event-ceramics': DemoArt(
+    Color(0xFFF6E0CB),
+    Color(0xFFC2643A),
+    Symbols.palette_rounded,
+  ),
+  'event-talk': DemoArt(
+    Color(0xFFDCE8F2),
+    Color(0xFF24476B),
+    Symbols.mic_rounded,
+  ),
+  'event-photo': DemoArt(
+    Color(0xFF1F2A44),
+    Color(0xFF9CC3DD),
+    Symbols.photo_camera_rounded,
+  ),
 };
 
 /// Paints every demo picture and stores it in the image cache under its

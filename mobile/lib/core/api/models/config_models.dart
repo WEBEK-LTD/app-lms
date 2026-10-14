@@ -1,6 +1,7 @@
 import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
 import 'catalog_models.dart';
+import 'event_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
@@ -23,6 +24,7 @@ class AppConfig {
     this.languages,
     this.listings,
     this.news,
+    this.events,
     this.vertical,
   });
 
@@ -40,6 +42,7 @@ class AppConfig {
     languages: optObject(json, 'languages', Languages.fromJson),
     listings: optObject(json, 'listings', ListingsConfig.fromJson),
     news: optObject(json, 'news', NewsConfig.fromJson),
+    events: optObject(json, 'events', EventsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
   );
 
@@ -69,6 +72,9 @@ class AppConfig {
 
   /// How articles show (News & blog apps, 23).
   final NewsConfig? news;
+
+  /// Events & tickets apps' settings (28).
+  final EventsConfig? events;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

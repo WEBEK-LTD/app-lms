@@ -823,4 +823,132 @@ class FakeApi implements YallappApi {
     lastArticleId = articleId;
     return _answer('getArticle', () => Article.fromJson(article));
   }
+
+  // Events & tickets (28).
+
+  Map<String, dynamic> eventFilters = {
+    'categories': [
+      {'id': 'concerts', 'name': 'Concerts', 'count': 2},
+      {'id': 'film', 'name': 'Film', 'count': 1},
+    ],
+    'first_date': null,
+    'last_date': null,
+  };
+  List<Map<String, dynamic>> events = [
+    eventSummaryJson(),
+    eventSummaryJson(
+      id: 8,
+      title: 'Saturday Film Club',
+      daysAhead: 3,
+      priceLabel: 'Free',
+      category: 'Film',
+    ),
+    eventSummaryJson(
+      id: 9,
+      title: 'Online masterclass',
+      daysAhead: 9,
+      venue: false,
+      online: true,
+      priceLabel: '₺150.00',
+      spotsLeft: null,
+      category: null,
+    ),
+  ];
+  Map<String, dynamic> event = eventDetailJson();
+  List<Map<String, dynamic>> tickets = [ticketJson()];
+  final eventQueries = <EventQuery>[];
+  int? lastEventId;
+  ({int eventId, int ticketTypeId, int quantity, List<String> names})?
+  lastTicketOrder;
+  String? lastCancelledTicket;
+
+  @override
+  Future<EventFilters> getEventFilters() =>
+      _answer('getEventFilters', () => EventFilters.fromJson(eventFilters));
+
+  @override
+  Future<Paged<EventSummary>> listEvents(EventQuery query) {
+    eventQueries.add(query);
+    return _answer(
+      'listEvents',
+      () => Paged.fromJson(pageJson(events), EventSummary.fromJson),
+    );
+  }
+
+  @override
+  Future<EventDetail> getEvent(int eventId) {
+    lastEventId = eventId;
+    return _answer('getEvent', () => EventDetail.fromJson(event));
+  }
+
+  @override
+  Future<List<Ticket>> registerForEvent(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames = const [],
+  }) {
+    lastTicketOrder = (
+      eventId: eventId,
+      ticketTypeId: ticketTypeId,
+      quantity: quantity,
+      names: attendeeNames,
+    );
+    return _answer('registerForEvent', () {
+      final issued = [
+        for (var i = 0; i < quantity; i++)
+          ticketJson(
+            code: 'NEWT${i}KT2HD9W'.substring(0, 12),
+            holder: i < attendeeNames.length && attendeeNames[i].isNotEmpty
+                ? attendeeNames[i]
+                : 'Mona Aziz',
+          ),
+      ];
+      tickets = [...tickets, ...issued];
+      return [for (final t in issued) Ticket.fromJson(t)];
+    });
+  }
+
+  @override
+  Future<CheckoutLink> createEventCheckoutLink(
+    int eventId, {
+    required int ticketTypeId,
+    required int quantity,
+    List<String> attendeeNames = const [],
+  }) {
+    lastTicketOrder = (
+      eventId: eventId,
+      ticketTypeId: ticketTypeId,
+      quantity: quantity,
+      names: attendeeNames,
+    );
+    return _answer(
+      'createEventCheckoutLink',
+      () => CheckoutLink.fromJson({
+        'url': 'https://yallapp.com.tr/pay/abc',
+        'expires_at': '2030-01-01T00:00:00Z',
+        'open_in': 'in_app',
+      }),
+    );
+  }
+
+  @override
+  Future<List<Ticket>> listMyTickets() => _answer(
+    'listMyTickets',
+    () => [for (final t in tickets) Ticket.fromJson(t)],
+  );
+
+  @override
+  Future<Ticket> cancelMyTicket(String code) {
+    lastCancelledTicket = code;
+    return _answer('cancelMyTicket', () {
+      tickets = [
+        for (final t in tickets)
+          t['code'] == code
+              ? {...t, 'status': 'cancelled', 'can_cancel': false}
+              : t,
+      ];
+      return Ticket.fromJson(tickets.firstWhere((t) => t['code'] == code));
+    });
+  }
 }

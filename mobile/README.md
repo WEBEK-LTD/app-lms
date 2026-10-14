@@ -43,6 +43,9 @@ mobile/
       news/                  News & blog apps: home, latest by section and
                              search, the article (lesson renderer), saved
                              articles on the device, sharing
+      events/                Events & tickets apps (hosted API): events as a
+                             list or a calendar, the event and its tickets,
+                             My tickets with QR codes kept on the device
       shared/pages/          dashboard pages from /pages: one renderer for
                              every block in every template
   test/                      unit and widget tests with a fake API

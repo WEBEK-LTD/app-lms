@@ -276,6 +276,125 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// 28 A culture centre in Istanbul: concerts, a film club, a workshop and
+  /// online talks, free and paid.
+  factory DemoApi.events({Map<String, dynamic>? appearance, String? primary}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Kuzey Culture Centre'),
+        'branding': {'logo_url': null, 'primary_color': primary ?? '#0E0D24'},
+        'events': eventsConfigJson(),
+        'appearance': ?appearance,
+      },
+    );
+    Map<String, dynamic> event(
+      int id,
+      String title,
+      String category,
+      String image,
+      int days, {
+      String price = 'Free',
+      bool venue = true,
+      int? left,
+    }) => {
+      ...eventSummaryJson(
+        id: id,
+        title: title,
+        daysAhead: days,
+        venue: venue,
+        online: !venue,
+        priceLabel: price,
+        spotsLeft: left,
+        category: category,
+      ),
+      'image_url': demoImage(image),
+    };
+    api
+      ..eventFilters = {
+        'categories': [
+          {'id': 'concerts', 'name': 'Concerts', 'count': 1},
+          {'id': 'film', 'name': 'Film', 'count': 1},
+          {'id': 'workshops', 'name': 'Workshops', 'count': 1},
+          {'id': 'talks', 'name': 'Talks', 'count': 2},
+        ],
+        'first_date': null,
+        'last_date': null,
+      }
+      ..events = [
+        event(
+          2,
+          'Saturday Film Club: harbour classics',
+          'Film',
+          'event-film',
+          3,
+          left: 41,
+        ),
+        event(
+          1,
+          'Autumn Jazz Night',
+          'Concerts',
+          'event-jazz',
+          6,
+          price: 'From ₺350.00',
+          left: 112,
+        ),
+        event(
+          4,
+          'Online talk: writing about your city',
+          'Talks',
+          'event-talk',
+          8,
+          venue: false,
+        ),
+        event(
+          3,
+          'Ceramics for beginners',
+          'Workshops',
+          'event-ceramics',
+          10,
+          price: '₺450.00',
+          left: 4,
+        ),
+        event(
+          5,
+          'Online masterclass: the city at night',
+          'Talks',
+          'event-photo',
+          14,
+          price: '₺150.00',
+          venue: false,
+        ),
+      ]
+      ..tickets = [
+        {
+          ...ticketJson(
+            code: 'K7QM4XP2HD9W',
+            holder: 'Mona Aziz',
+            daysAhead: 6,
+          ),
+          'event': event(
+            1,
+            'Autumn Jazz Night',
+            'Concerts',
+            'event-jazz',
+            6,
+            price: 'From ₺350.00',
+          ),
+          'ticket_type': {'id': 11, 'name': 'Front rows'},
+          'price': {
+            'is_free': false,
+            'amount': '550.00',
+            'sale_amount': null,
+            'currency': 'TRY',
+            'formatted': '₺550.00',
+          },
+          'can_cancel': false,
+        },
+      ];
+    return api;
+  }
+
   final bool arabic;
 
   static const _languages = {

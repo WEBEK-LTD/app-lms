@@ -126,6 +126,10 @@ enum BuiltInScreen {
   /// 27 A gym's class timetable and membership (Bookings apps).
   classes,
   memberships,
+
+  /// 28 Events & tickets apps.
+  events,
+  tickets,
 }
 
 enum OpenIn { inApp, browser }
@@ -179,7 +183,15 @@ BuiltInScreen? _screenFrom(Object? wire) {
 }
 
 /// Where a list comes from.
-enum ItemSource { courses, products, services, posts, listings, articles }
+enum ItemSource {
+  courses,
+  products,
+  services,
+  posts,
+  listings,
+  articles,
+  events,
+}
 
 /// An entry from a list source, for `item` actions.
 class ItemRef {
