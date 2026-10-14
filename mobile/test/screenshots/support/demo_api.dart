@@ -73,6 +73,24 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// 21 A family clinic: doctors with profiles and an intake form.
+  factory DemoApi.clinic() {
+    final config = {
+      ...configJson(lms: null, bookings: true, languages: _languages),
+      'site': _site('Kardelen Clinic'),
+      'branding': {'logo_url': null, 'primary_color': '#2C6A8A'},
+      'vertical': 'clinic',
+    };
+    config['bookings'] = {
+      ...(config['bookings'] as Map<String, dynamic>),
+      'notes': false,
+      'intake_fields': _intake,
+    };
+    final api = DemoApi._(config: config);
+    api.service = _clinicService();
+    return api;
+  }
+
   /// An estate agency in Cairo.
   factory DemoApi.realEstate({
     bool arabic = false,
@@ -931,6 +949,80 @@ class DemoApi extends FakeApi {
           ServiceSummary.fromJson,
         ),
       );
+
+  static const _intake = [
+    {
+      'id': 'reason',
+      'label': 'Reason for your visit',
+      'type': 'textarea',
+      'required': true,
+    },
+    {
+      'id': 'first_visit',
+      'label': 'Is this your first visit to us?',
+      'type': 'choice',
+      'options': ['Yes', 'No'],
+      'required': true,
+    },
+    {
+      'id': 'date_of_birth',
+      'label': 'Date of birth',
+      'type': 'date',
+      'required': false,
+    },
+    {
+      'id': 'allergies',
+      'label': 'Allergies we should know about',
+      'type': 'text',
+      'required': false,
+    },
+  ];
+
+  static Map<String, dynamic> _doctor(
+    int id,
+    String name,
+    String title,
+    List<String> specialties,
+    List<String> languages,
+    String bio,
+  ) => {
+    ..._staff(id, name, title),
+    'specialties': specialties,
+    'languages': languages,
+    'bio': bio,
+  };
+
+  static Map<String, dynamic> _clinicService() => {
+    'id': 1,
+    'name': 'Dental check-up',
+    'image_url': null,
+    'duration_minutes': 45,
+    'price': _bookingPrice('1500.00', '₺1,500'),
+    'category_id': 1,
+    'color': '#4A7FB0',
+    'description_html':
+        '<p>A check of your teeth and gums, with a cleaning. Payment is at '
+        'the clinic.</p>',
+    'staff': [
+      _doctor(
+        1,
+        'Dr. Kerem Aksoy',
+        'Dentist',
+        ['General dentistry', "Children's dentistry"],
+        ['Turkish', 'English', 'German'],
+        'Kerem studied in Istanbul and Berlin. Children like his visits '
+            'because he shows them every tool before he uses it.',
+      ),
+      _doctor(
+        2,
+        'Dr. Selin Yurt',
+        'Dentist',
+        ['Orthodontics'],
+        ['Turkish', 'English'],
+        'Selin plans braces and aligners for teenagers and adults.',
+      ),
+    ],
+  };
 
   static Map<String, dynamic> _serviceDetail() => {
     ..._services.first,

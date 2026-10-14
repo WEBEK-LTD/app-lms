@@ -2206,4 +2206,115 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordingCustomer => 'Customer';
+
+  @override
+  String get wordingClinic => 'Clinic';
+
+  @override
+  String get wordingPatient => 'Patient';
+
+  @override
+  String get clinicDoctor => 'Doctor';
+
+  @override
+  String get clinicOurDoctors => 'Our doctors';
+
+  @override
+  String get clinicVisits => 'Visits';
+
+  @override
+  String get clinicVisit => 'Visit';
+
+  @override
+  String get clinicBookVisit => 'Book a visit';
+
+  @override
+  String get clinicNextVisit => 'Your next visit';
+
+  @override
+  String get clinicNoUpcomingVisits => 'No upcoming visits';
+
+  @override
+  String get clinicNoUpcomingVisitsMessage =>
+      'Book a visit and it shows up here.';
+
+  @override
+  String get clinicNoPastVisits => 'No past visits';
+
+  @override
+  String get clinicLoadingVisits => 'Loading visits';
+
+  @override
+  String get clinicLoadingVisit => 'Loading visit';
+
+  @override
+  String get clinicCancelVisit => 'Cancel visit';
+
+  @override
+  String get clinicCancelVisitTitle => 'Cancel this visit?';
+
+  @override
+  String get clinicVisitCancelled => 'Your visit is cancelled.';
+
+  @override
+  String get clinicVisitBooked => 'Your visit is booked.';
+
+  @override
+  String get clinicAnyDoctor => 'Any doctor';
+
+  @override
+  String get clinicAnyDoctorAvailable => 'Any available doctor';
+
+  @override
+  String get clinicNoteForClinic => 'Note for the clinic (optional)';
+
+  @override
+  String get clinicConfirmVisit => 'Confirm your visit';
+
+  @override
+  String get intakeTitle => 'A few questions';
+
+  @override
+  String intakeIntro(String business) {
+    return 'Answer these before you book. Only you and $business see your answers.';
+  }
+
+  @override
+  String get intakeOptional => 'Optional';
+
+  @override
+  String get intakeRequired => 'Please answer this.';
+
+  @override
+  String get intakeChooseOne => 'Please choose one.';
+
+  @override
+  String intakeTooLong(int max) {
+    return 'Please use at most $max characters.';
+  }
+
+  @override
+  String get intakeChooseDate => 'Choose a date';
+
+  @override
+  String get yourAnswers => 'Your answers';
+
+  @override
+  String answersPrivate(String business) {
+    return 'Only you and $business see these answers.';
+  }
+
+  @override
+  String get staffSpecialties => 'Specialties';
+
+  @override
+  String get staffLanguages => 'Languages';
+
+  @override
+  String staffAbout(String name) {
+    return 'About $name';
+  }
+
+  @override
+  String get staffViewProfile => 'View profile';
 }

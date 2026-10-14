@@ -1377,10 +1377,158 @@
   },
   "wordingBusiness": "Business",
   "@wordingBusiness": {
-    "description": "What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now."
+    "description": "What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); clinics use their own word, every other kind this default."
   },
   "wordingCustomer": "Customer",
   "@wordingCustomer": {
-    "description": "What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now."
+    "description": "What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); clinics use their own word, every other kind this default."
+  },
+  "wordingClinic": "Clinic",
+  "@wordingClinic": {
+    "description": "What a clinic app calls the business that owns it (vertical_wording.dart)."
+  },
+  "wordingPatient": "Patient",
+  "@wordingPatient": {
+    "description": "What a clinic app calls the clinic's customers (vertical_wording.dart)."
+  },
+  "clinicDoctor": "Doctor",
+  "@clinicDoctor": {
+    "description": "Heading above the doctor picker when booking. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicOurDoctors": "Our doctors",
+  "@clinicOurDoctors": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicVisits": "Visits",
+  "@clinicVisits": {
+    "description": "The tab and screen with the patient's visits. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicVisit": "Visit",
+  "@clinicVisit": {
+    "description": "Title of one visit. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicBookVisit": "Book a visit",
+  "@clinicBookVisit": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicNextVisit": "Your next visit",
+  "@clinicNextVisit": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicNoUpcomingVisits": "No upcoming visits",
+  "@clinicNoUpcomingVisits": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicNoUpcomingVisitsMessage": "Book a visit and it shows up here.",
+  "@clinicNoUpcomingVisitsMessage": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicNoPastVisits": "No past visits",
+  "@clinicNoPastVisits": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicLoadingVisits": "Loading visits",
+  "@clinicLoadingVisits": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicLoadingVisit": "Loading visit",
+  "@clinicLoadingVisit": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicCancelVisit": "Cancel visit",
+  "@clinicCancelVisit": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicCancelVisitTitle": "Cancel this visit?",
+  "@clinicCancelVisitTitle": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicVisitCancelled": "Your visit is cancelled.",
+  "@clinicVisitCancelled": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicVisitBooked": "Your visit is booked.",
+  "@clinicVisitBooked": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicAnyDoctor": "Any doctor",
+  "@clinicAnyDoctor": {
+    "description": "The doctor picker's choice for the first doctor free. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicAnyDoctorAvailable": "Any available doctor",
+  "@clinicAnyDoctorAvailable": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicNoteForClinic": "Note for the clinic (optional)",
+  "@clinicNoteForClinic": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "clinicConfirmVisit": "Confirm your visit",
+  "@clinicConfirmVisit": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word."
+  },
+  "intakeTitle": "A few questions",
+  "@intakeTitle": {
+    "description": "Title of the intake form shown before booking, when the business asks questions (BookingsConfig.intake_fields)."
+  },
+  "intakeIntro": "Answer these before you book. Only you and {business} see your answers.",
+  "@intakeIntro": {
+    "description": "Under the intake form's title; business is the business's name.",
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "intakeOptional": "Optional",
+  "@intakeOptional": {
+    "description": "Next to an intake question that can be left empty."
+  },
+  "intakeRequired": "Please answer this.",
+  "intakeChooseOne": "Please choose one.",
+  "intakeTooLong": "Please use at most {max} characters.",
+  "@intakeTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "intakeChooseDate": "Choose a date",
+  "@intakeChooseDate": {
+    "description": "An intake question's date field before a date is chosen."
+  },
+  "yourAnswers": "Your answers",
+  "@yourAnswers": {
+    "description": "Heading of the customer's intake answers on their appointment."
+  },
+  "answersPrivate": "Only you and {business} see these answers.",
+  "@answersPrivate": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "staffSpecialties": "Specialties",
+  "@staffSpecialties": {
+    "description": "On a staff member's (a doctor's) profile."
+  },
+  "staffLanguages": "Languages",
+  "@staffLanguages": {
+    "description": "On a staff member's profile: the languages they speak."
+  },
+  "staffAbout": "About {name}",
+  "@staffAbout": {
+    "description": "On a staff member's profile, above a few lines about them.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "staffViewProfile": "View profile",
+  "@staffViewProfile": {
+    "description": "Opens a staff member's profile (also read by screen readers)."
   }
 }

@@ -3604,17 +3604,221 @@ abstract class AppLocalizations {
   /// **'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow {origin}. The guide Connect your own API in the Yallapp docs shows how.'**
   String previewApiBlocked(String origin);
 
-  /// What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now.
+  /// What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); clinics use their own word, every other kind this default.
   ///
   /// In en, this message translates to:
   /// **'Business'**
   String get wordingBusiness;
 
-  /// What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now.
+  /// What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); clinics use their own word, every other kind this default.
   ///
   /// In en, this message translates to:
   /// **'Customer'**
   String get wordingCustomer;
+
+  /// What a clinic app calls the business that owns it (vertical_wording.dart).
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get wordingClinic;
+
+  /// What a clinic app calls the clinic's customers (vertical_wording.dart).
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get wordingPatient;
+
+  /// Heading above the doctor picker when booking. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get clinicDoctor;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Our doctors'**
+  String get clinicOurDoctors;
+
+  /// The tab and screen with the patient's visits. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get clinicVisits;
+
+  /// Title of one visit. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit'**
+  String get clinicVisit;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Book a visit'**
+  String get clinicBookVisit;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Your next visit'**
+  String get clinicNextVisit;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming visits'**
+  String get clinicNoUpcomingVisits;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Book a visit and it shows up here.'**
+  String get clinicNoUpcomingVisitsMessage;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'No past visits'**
+  String get clinicNoPastVisits;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading visits'**
+  String get clinicLoadingVisits;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading visit'**
+  String get clinicLoadingVisit;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel visit'**
+  String get clinicCancelVisit;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this visit?'**
+  String get clinicCancelVisitTitle;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Your visit is cancelled.'**
+  String get clinicVisitCancelled;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Your visit is booked.'**
+  String get clinicVisitBooked;
+
+  /// The doctor picker's choice for the first doctor free. lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Any doctor'**
+  String get clinicAnyDoctor;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Any available doctor'**
+  String get clinicAnyDoctorAvailable;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the clinic (optional)'**
+  String get clinicNoteForClinic;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in clinic apps (Config.vertical clinic) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your visit'**
+  String get clinicConfirmVisit;
+
+  /// Title of the intake form shown before booking, when the business asks questions (BookingsConfig.intake_fields).
+  ///
+  /// In en, this message translates to:
+  /// **'A few questions'**
+  String get intakeTitle;
+
+  /// Under the intake form's title; business is the business's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer these before you book. Only you and {business} see your answers.'**
+  String intakeIntro(String business);
+
+  /// Next to an intake question that can be left empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get intakeOptional;
+
+  /// No description provided for @intakeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please answer this.'**
+  String get intakeRequired;
+
+  /// No description provided for @intakeChooseOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose one.'**
+  String get intakeChooseOne;
+
+  /// No description provided for @intakeTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use at most {max} characters.'**
+  String intakeTooLong(int max);
+
+  /// An intake question's date field before a date is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get intakeChooseDate;
+
+  /// Heading of the customer's intake answers on their appointment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers'**
+  String get yourAnswers;
+
+  /// No description provided for @answersPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you and {business} see these answers.'**
+  String answersPrivate(String business);
+
+  /// On a staff member's (a doctor's) profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialties'**
+  String get staffSpecialties;
+
+  /// On a staff member's profile: the languages they speak.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get staffLanguages;
+
+  /// On a staff member's profile, above a few lines about them.
+  ///
+  /// In en, this message translates to:
+  /// **'About {name}'**
+  String staffAbout(String name);
+
+  /// Opens a staff member's profile (also read by screen readers).
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get staffViewProfile;
 }
 
 class _AppLocalizationsDelegate

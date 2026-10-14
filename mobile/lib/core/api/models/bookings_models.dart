@@ -11,6 +11,7 @@ class BookingsConfig {
     required this.maxDaysAhead,
     required this.minMinutesAhead,
     this.cancelBeforeMinutes,
+    this.intakeFields = const [],
   });
 
   factory BookingsConfig.fromJson(Json json) => BookingsConfig(
@@ -22,6 +23,7 @@ class BookingsConfig {
     maxDaysAhead: intOr(json, 'max_days_ahead', 60),
     minMinutesAhead: intOr(json, 'min_minutes_ahead', 0),
     cancelBeforeMinutes: optInt(json, 'cancel_before_minutes'),
+    intakeFields: listOf(json, 'intake_fields', IntakeField.fromJson),
   );
 
   final String plugin;
@@ -40,6 +42,67 @@ class BookingsConfig {
 
   /// Null when customers can't cancel in the app.
   final int? cancelBeforeMinutes;
+
+  /// Questions asked when booking (a clinic's intake form); empty for none.
+  final List<IntakeField> intakeFields;
+}
+
+enum IntakeFieldType { text, textarea, date, choice }
+
+/// A question customers answer when booking (`IntakeField`).
+class IntakeField {
+  const IntakeField({
+    required this.id,
+    required this.label,
+    required this.type,
+    this.options = const [],
+    this.required = false,
+  });
+
+  /// Unknown types are shown as a short answer.
+  factory IntakeField.fromJson(Json json) => IntakeField(
+    id: reqString(json, 'id'),
+    label: reqString(json, 'label'),
+    type: enumFrom(IntakeFieldType.values, json['type'], IntakeFieldType.text),
+    options: stringList(json, 'options'),
+    required: boolOr(json, 'required', false),
+  );
+
+  /// The key of its answer.
+  final String id;
+  final String label;
+  final IntakeFieldType type;
+
+  /// The choices of a [IntakeFieldType.choice] question.
+  final List<String> options;
+  final bool required;
+
+  /// The longest answer the server takes.
+  int get maxLength => switch (type) {
+    IntakeFieldType.text => 200,
+    IntakeFieldType.textarea => 2000,
+    IntakeFieldType.date => 10,
+    IntakeFieldType.choice => 80,
+  };
+}
+
+/// An answer to an intake question, with the question as it was asked.
+class IntakeAnswer {
+  const IntakeAnswer({
+    required this.id,
+    required this.label,
+    required this.value,
+  });
+
+  factory IntakeAnswer.fromJson(Json json) => IntakeAnswer(
+    id: reqString(json, 'id'),
+    label: reqString(json, 'label'),
+    value: reqString(json, 'value'),
+  );
+
+  final String id;
+  final String label;
+  final String value;
 }
 
 class BookingPrice {
@@ -91,6 +154,9 @@ class StaffMember {
     this.imageUrl,
     this.title,
     this.price,
+    this.specialties = const [],
+    this.languages = const [],
+    this.bio,
   });
 
   factory StaffMember.fromJson(Json json) => StaffMember(
@@ -99,6 +165,9 @@ class StaffMember {
     imageUrl: optString(json, 'image_url'),
     title: optString(json, 'title'),
     price: optObject(json, 'price', BookingPrice.fromJson),
+    specialties: stringList(json, 'specialties'),
+    languages: stringList(json, 'languages'),
+    bio: optString(json, 'bio'),
   );
 
   final int id;
@@ -108,6 +177,17 @@ class StaffMember {
 
   /// Their own price for a service, when it differs.
   final BookingPrice? price;
+
+  /// A profile, when the business wrote one (a doctor's fields, the
+  /// languages they speak and a few lines about them).
+  final List<String> specialties;
+  final List<String> languages;
+  final String? bio;
+
+  bool get hasProfile =>
+      specialties.isNotEmpty ||
+      languages.isNotEmpty ||
+      (bio?.trim().isNotEmpty ?? false);
 }
 
 class ServiceSummary {
@@ -240,6 +320,7 @@ class Appointment {
     this.staff,
     this.notes,
     this.location,
+    this.answers = const [],
   });
 
   factory Appointment.fromJson(Json json) {
@@ -264,6 +345,7 @@ class Appointment {
       notes: optString(json, 'notes'),
       location: optString(json, 'location'),
       canCancel: boolOr(json, 'can_cancel', false),
+      answers: listOf(json, 'answers', IntakeAnswer.fromJson),
     );
   }
 
@@ -282,6 +364,9 @@ class Appointment {
   final String? notes;
   final String? location;
   final bool canCancel;
+
+  /// The customer's own answers to the intake questions.
+  final List<IntakeAnswer> answers;
 
   bool get isActive =>
       status == AppointmentStatus.approved ||

@@ -81,15 +81,54 @@ void main() {
       );
     });
 
-    test('words default to the same text for every kind', () {
+    test('clinics have their own words, every other kind the default', () {
       for (final code in ['en', 'ar', 'tr']) {
         final l10n = lookupAppLocalizations(Locale(code));
         for (final vertical in [null, ...AppVertical.values]) {
           final wording = VerticalWording(l10n, vertical);
-          expect(wording.business, l10n.wordingBusiness);
-          expect(wording.customer, l10n.wordingCustomer);
+          final clinic = vertical == AppVertical.clinic;
+          expect(wording.isClinic, clinic);
+          expect(
+            wording.business,
+            clinic ? l10n.wordingClinic : l10n.wordingBusiness,
+          );
+          expect(
+            wording.customer,
+            clinic ? l10n.wordingPatient : l10n.wordingCustomer,
+          );
+          expect(
+            wording.appointments,
+            clinic ? l10n.clinicVisits : l10n.tabAppointments,
+          );
+          expect(
+            wording.bookAppointment,
+            clinic ? l10n.clinicBookVisit : l10n.bookAppointment,
+          );
+          expect(
+            wording.ourTeam,
+            clinic ? l10n.clinicOurDoctors : l10n.ourTeam,
+          );
         }
       }
+      final clinic = VerticalWording(
+        lookupAppLocalizations(const Locale('en')),
+        AppVertical.clinic,
+      );
+      expect(clinic.customer, 'Patient');
+      expect(clinic.appointments, 'Visits');
+      expect(clinic.nextAppointment, 'Your next visit');
+      expect(clinic.anyone, 'Any doctor');
+      expect(clinic.staffHeading, 'Doctor');
+      final tr = VerticalWording(
+        lookupAppLocalizations(const Locale('tr')),
+        AppVertical.clinic,
+      );
+      expect(tr.customer, 'Hasta');
+      final ar = VerticalWording(
+        lookupAppLocalizations(const Locale('ar')),
+        AppVertical.clinic,
+      );
+      expect(ar.appointments, 'الزيارات');
       final en = VerticalWording(
         lookupAppLocalizations(const Locale('en')),
         null,

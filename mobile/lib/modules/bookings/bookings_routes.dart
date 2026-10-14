@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/api/models/models.dart';
 import '../../core/l10n/l10n.dart';
+import '../../core/l10n/vertical_wording.dart';
 import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
@@ -50,7 +51,8 @@ final _defaultTabs = [
   ),
   ShellTab(
     icon: AppIcons.appointments,
-    label: (c) => c.l10n.tabAppointments,
+    // 21 "Visits" in a clinic's app.
+    label: (c) => c.words.appointments,
     location: Paths.appointments,
   ),
   ShellTab(

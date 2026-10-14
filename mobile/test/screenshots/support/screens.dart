@@ -207,6 +207,43 @@ final websiteShots = <Shot>[
       await tester.tap(find.text('11:00').first);
     },
   ),
+  // 21 Clinic: a doctor's profile and the intake form.
+  Shot(
+    'clinic-doctor',
+    api: DemoApi.clinic,
+    appType: AppType.booking,
+    location: '/service/1',
+    after: (tester, router) async {
+      await tester.tap(find.text('Dr. Kerem Aksoy').first);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('View profile'));
+    },
+  ),
+  Shot(
+    'clinic-intake',
+    api: DemoApi.clinic,
+    appType: AppType.booking,
+    location: '/service/1',
+    after: (tester, router) async {
+      await tester.scrollUntilVisible(
+        find.text('11:00'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('11:00').first);
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.textContaining(RegExp(r'^Book ')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('intake-reason')),
+        'A check-up and a cleaning. One tooth on the left is sensitive to '
+        'cold.',
+      );
+      await tester.tap(find.text('No'));
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      FocusManager.instance.primaryFocus?.unfocus();
+    },
+  ),
   // Real estate, a client palette.
   Shot(
     'realestate-search',

@@ -683,6 +683,53 @@ Map<String, dynamic> staffJson({
   'price': price == null ? null : bookingPriceJson(price),
 };
 
+/// 21 A doctor with a profile (`StaffMember.specialties`, `languages`, `bio`).
+Map<String, dynamic> doctorJson({int id = 1, String name = 'Dr. Ayşe Demir'}) =>
+    {
+      'id': id,
+      'name': name,
+      'image_url': null,
+      'title': 'Dentist',
+      'price': null,
+      'specialties': ['Orthodontics', "Children's dentistry"],
+      'languages': ['Turkish', 'English'],
+      'bio': 'Twelve years in Istanbul, with children and adults.',
+    };
+
+/// 21 A clinic's intake form (`BookingsConfig.intake_fields`), with a type
+/// from a newer server.
+List<Map<String, dynamic>> intakeFieldsJson() => [
+  {
+    'id': 'reason',
+    'label': 'Reason for your visit',
+    'type': 'textarea',
+    'required': true,
+  },
+  {
+    'id': 'first_visit',
+    'label': 'First visit?',
+    'type': 'choice',
+    'options': ['Yes', 'No'],
+    'required': true,
+  },
+  {'id': 'birth', 'label': 'Date of birth', 'type': 'date', 'required': false},
+  {
+    'id': 'heard',
+    'label': 'How did you hear of us?',
+    'type': 'signature',
+    'required': false,
+  },
+];
+
+/// 21 A clinic's config: the clinic vertical and an intake form.
+Map<String, dynamic> clinicConfigJson() {
+  final config = configJson(lms: null, bookings: true);
+  config['vertical'] = 'clinic';
+  (config['bookings'] as Map<String, dynamic>)['intake_fields'] =
+      intakeFieldsJson();
+  return config;
+}
+
 Map<String, dynamic> serviceSummaryJson({
   int id = 1,
   String name = 'Haircut',
@@ -760,6 +807,7 @@ Map<String, dynamic> appointmentJson({
   bool canCancel = true,
   String localDate = '2026-10-19',
   String localTime = '10:00',
+  List<Map<String, dynamic>>? answers,
 }) => {
   'id': id,
   'status': status,
@@ -778,6 +826,7 @@ Map<String, dynamic> appointmentJson({
   'notes': null,
   'location': null,
   'can_cancel': canCancel,
+  'answers': ?answers,
 };
 
 Map<String, dynamic> bookingsHomeJson() => {

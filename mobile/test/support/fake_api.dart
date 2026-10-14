@@ -519,7 +519,14 @@ class FakeApi implements YallappApi {
     );
   }
 
-  ({int service, DateTime start, int? staff, String? notes})? lastBooking;
+  ({
+    int service,
+    DateTime start,
+    int? staff,
+    String? notes,
+    Map<String, String>? answers,
+  })?
+  lastBooking;
 
   @override
   Future<Appointment> bookAppointment({
@@ -527,12 +534,14 @@ class FakeApi implements YallappApi {
     required DateTime start,
     int? staffId,
     String? notes,
+    Map<String, String>? answers,
   }) {
     lastBooking = (
       service: serviceId,
       start: start,
       staff: staffId,
       notes: notes,
+      answers: answers,
     );
     return _answer(
       'bookAppointment',
