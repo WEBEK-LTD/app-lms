@@ -1,3 +1,4 @@
+import { ENGINES, isAppType, isOwnContent } from "../app/kinds";
 import type { App, SignInMethod } from "../data/types";
 
 /**
@@ -17,8 +18,6 @@ import type { App, SignInMethod } from "../data/types";
 
 export const SIGN_IN_METHODS: readonly SignInMethod[] = ["phone", "email"];
 
-/** Content managed in Yallapp: accounts are the hosted API's own, so email works. */
-const OWN_CONTENT = new Set(["catalog", "bookings", "courses", "listings"]);
 
 /** 19 Connected platforms that find each student by their email address. */
 export const EMAIL_PLATFORMS = new Set(["teachable", "thinkific"]);
@@ -29,7 +28,8 @@ export function emailSignInPossible(app: Pick<App, "backend" | "connector" | "de
   if (app.backend === "wordpress" || app.backend === "setup_requested") return true;
   if (app.backend !== "hosted" || app.demo) return false;
   if (app.connector?.kind === "platform") return EMAIL_PLATFORMS.has(app.connector.platform);
-  return !app.connector || OWN_CONTENT.has(app.connector.kind);
+  // Content managed in Yallapp (lib/app/kinds.ts): accounts are the hosted API's own, so email works.
+  return !app.connector || isOwnContent(app.connector.kind);
 }
 
 /**
@@ -46,13 +46,9 @@ export function emailSignInNote(app: Pick<App, "backend" | "connector" | "demo" 
   }
   if (emailSignInPossible(app)) return null;
   if (app.demo) return "Demo apps sign in with the demo number only.";
-  if (connector?.kind === "shopify" || (connector?.kind === "platform" && app.appType === "store")) {
-    return "Your connected shop finds each customer's orders by their phone number, so this app signs in by phone.";
-  }
-  if (connector?.kind === "platform" && app.appType === "booking") {
-    return "Your booking platform finds each customer's bookings by their phone number, so this app signs in by phone.";
-  }
-  return "Your connected platform finds each customer by their phone number, so this app signs in by phone.";
+  // 20 Each engine words it for its platforms (lib/app/kinds.ts); Shopify is a shop.
+  const note = connector?.kind === "shopify" ? ENGINES.store.platformPhoneNote : connector?.kind === "platform" && isAppType(app.appType) ? ENGINES[app.appType].platformPhoneNote : null;
+  return note ?? "Your connected platform finds each customer by their phone number, so this app signs in by phone.";
 }
 
 /** The owner's choice as saved, or null when they haven't chosen. */

@@ -36,11 +36,39 @@ class Default_Layout {
 	}
 
 	/**
-	 * The kind of app the site serves.
+	 * The kind of app the site serves: the type the owner chose in the Yallapp dashboard
+	 * (sent with the license status), else a guess from the plugins the site has.
 	 *
 	 * @return string lms, store, bookings or site.
 	 */
 	public function app_type() {
+		$chosen = self::chosen_type( $this->plugin->license()->status() );
+		return null !== $chosen ? $chosen : $this->guessed_type();
+	}
+
+	/**
+	 * The app type in the license status (`app_type`), in this class's words. Null when the
+	 * platform doesn't say, or names a type WordPress doesn't serve. Pure.
+	 *
+	 * @param array $status License status.
+	 * @return string|null lms, store, bookings or null.
+	 */
+	public static function chosen_type( $status ) {
+		$types = array(
+			'lms'     => 'lms',
+			'store'   => 'store',
+			'booking' => 'bookings',
+		);
+		$type  = is_array( $status ) && isset( $status['app_type'] ) && is_string( $status['app_type'] ) ? $status['app_type'] : '';
+		return $types[ $type ] ?? null;
+	}
+
+	/**
+	 * The kind of app the site's plugins suggest.
+	 *
+	 * @return string lms, store, bookings or site.
+	 */
+	private function guessed_type() {
 		if ( $this->plugin->lms() ) {
 			return 'lms';
 		}

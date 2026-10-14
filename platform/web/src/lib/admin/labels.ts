@@ -1,3 +1,4 @@
+import { engineOfContent } from "../app/kinds";
 import type { App, AppBackend } from "../data/types";
 import { platformDefinition } from "../hosted/connectors/registry";
 
@@ -16,11 +17,8 @@ export function contentSource(app: App): string {
     const account = Object.values(connector.settings).find(Boolean);
     return `Their ${platformDefinition(connector.platform)?.name ?? connector.platform} account${account ? ` (${account})` : ""}`;
   }
-  if (connector?.kind === "listings") return "Real estate: listings in the dashboard";
-  if (connector?.kind === "courses") return "No website: courses in the dashboard";
-  if (connector?.kind === "bookings") return "No website: services and hours in the dashboard";
-  if (connector?.kind === "catalog") {
-    return `No website: products in the dashboard${app.catalogSettings?.payment?.provider === "yallapp" ? ", sells through Yallapp" : ""}`;
-  }
+  // 20 Content managed in the dashboard, as its engine names it (lib/app/kinds.ts).
+  const own = engineOfContent(connector?.kind)?.ownContent;
+  if (own) return `${own.adminLabel}${own.kind === "catalog" && app.catalogSettings?.payment?.provider === "yallapp" ? ", sells through Yallapp" : ""}`;
   return BACKEND_NAMES[app.backend];
 }

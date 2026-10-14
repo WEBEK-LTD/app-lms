@@ -27,6 +27,12 @@ class License_Client {
 	 */
 	const FEATURES = array( 'push', 'offline_downloads', 'auto_publish', 'ios', 'page_editor', 'card_payments', 'auto_rebuild' );
 
+	/**
+	 * App types (`LicenseStatus.app_type`) and kinds of business (`LicenseStatus.vertical`) the platform may send.
+	 */
+	const APP_TYPES = array( 'lms', 'store', 'booking', 'real_estate' );
+	const VERTICALS = array( 'restaurant', 'clinic', 'fitness', 'charity' );
+
 	const STATUS_OPTION = 'yallapp_license';
 	const CHECK_HOOK    = 'yallapp_license_check';
 	const GRACE         = 259200;
@@ -167,7 +173,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, app_type: string|null, vertical: string|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -177,6 +183,8 @@ class License_Client {
 				'plan'            => null,
 				'features'        => array(),
 				'sign_in_methods' => null,
+				'app_type'        => null,
+				'vertical'        => null,
 				'expires_at'      => null,
 				'checked_at'      => null,
 				'message'         => null,
@@ -358,6 +366,7 @@ class License_Client {
 	private function save_status( array $result ) {
 		$allowed  = array( 'active', 'expired', 'suspended', 'invalid' );
 		$features = array_values( array_intersect( (array) ( $result['features'] ?? array() ), self::FEATURES ) );
+		$app      = self::app_of( $result );
 		$methods  = isset( $result['sign_in_methods'] ) && is_array( $result['sign_in_methods'] ) ? array_values( array_intersect( array( 'phone', 'email' ), $result['sign_in_methods'] ) ) : array();
 		$status   = array(
 			'status'          => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
@@ -365,6 +374,9 @@ class License_Client {
 			'features'        => $features,
 			// How people sign in, as the owner chose on the dashboard; null: the plugin setting applies.
 			'sign_in_methods' => $methods ? $methods : null,
+			// The app's type and kind of business, as the owner chose them; null when unknown.
+			'app_type'        => $app['app_type'],
+			'vertical'        => $app['vertical'],
 			'expires_at'      => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
 			'checked_at'      => gmdate( 'c' ),
 			'message'         => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
@@ -373,6 +385,22 @@ class License_Client {
 		update_option( self::STATUS_OPTION, $status, false );
 		delete_transient( 'yallapp_release' );
 		return $status;
+	}
+
+	/**
+	 * The app's type and kind of business, as the owner chose them in the dashboard. Unknown
+	 * values (a newer platform) and older platforms that don't send them are null. Pure.
+	 *
+	 * @param array $result License status from the platform.
+	 * @return array{app_type: string|null, vertical: string|null}
+	 */
+	public static function app_of( array $result ) {
+		$type     = $result['app_type'] ?? null;
+		$vertical = $result['vertical'] ?? null;
+		return array(
+			'app_type' => in_array( $type, self::APP_TYPES, true ) ? $type : null,
+			'vertical' => in_array( $vertical, self::VERTICALS, true ) ? $vertical : null,
+		);
 	}
 
 	/**

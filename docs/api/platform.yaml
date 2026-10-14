@@ -365,6 +365,22 @@ components:
             `Config.auth.methods` (email signs in with the WordPress password);
             a change reaches the site at its next check (every 12 hours) or at once
             with "Check now". Missing on older platforms.
+        app_type:
+          type: [string, 'null']
+          enum: [lms, store, booking, real_estate, null]
+          description: |
+            The app's type, as its owner chose it in the dashboard: the module
+            its build includes. The plugin uses it instead of guessing from the
+            plugins it finds (for the pages an app gets before any are
+            published). Null when the license has no app yet. Unknown values
+            are treated as null. Missing on older platforms.
+        vertical:
+          type: [string, 'null']
+          enum: [restaurant, clinic, fitness, charity, null]
+          description: |
+            The kind of business, on top of `app_type` (`Config.vertical` in the
+            app API): wording and defaults only. Null when the app has none.
+            Unknown values are treated as null. Missing on older platforms.
         expires_at: { type: [string, 'null'], format: date-time }
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }

@@ -1,6 +1,7 @@
 import type {
   AppBackend,
   AppType,
+  AppVertical,
   AssetKind,
   CatalogCurrency,
   CatalogCustomer,
@@ -149,6 +150,8 @@ export const apps = mysqlTable(
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
     appType: varchar("app_type", { length: 16 }).notNull().$type<AppType>(),
+    // 20 The kind of business (lib/app/kinds.ts); null for the engine's own wording.
+    vertical: varchar("vertical", { length: 16 }).$type<AppVertical>(),
     siteUrl: varchar("site_url", { length: 255 }),
     backend: varchar("backend", { length: 20 }).notNull().default("wordpress").$type<AppBackend>(),
     apiBaseUrl: varchar("api_base_url", { length: 2048 }),

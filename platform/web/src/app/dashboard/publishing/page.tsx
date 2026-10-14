@@ -29,8 +29,8 @@ import {
   stepDone,
   stepText,
   STORE_TITLE,
-  SUGGESTED_CATEGORIES,
 } from "@/lib/publishing/steps";
+import { suggestedCategories } from "@/lib/app/kinds";
 import { ChecklistForm, ListingForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
@@ -178,7 +178,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const events = await store.listPublishingEvents(app.id);
   const progress = checklistProgress(request, app);
   const missing = listingMissing(app, request.listing);
-  const suggested = SUGGESTED_CATEGORIES[app.appType];
+  const suggested = suggestedCategories(app);
   const steps = PUBLISHING_STEPS.map((step) => ({
     id: step.id,
     title: step.title,

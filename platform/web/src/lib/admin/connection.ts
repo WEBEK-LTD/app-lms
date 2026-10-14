@@ -1,3 +1,4 @@
+import { isOwnContent } from "../app/kinds";
 import { checkApi } from "../app/api-check";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
@@ -20,7 +21,7 @@ export interface ConnectionStatus {
  */
 export async function checkConnection(store: DataStore, app: App, key: Buffer): Promise<ConnectionStatus> {
   const connector = app.connector;
-  if (connector?.kind === "catalog" || connector?.kind === "bookings" || connector?.kind === "courses" || connector?.kind === "listings") {
+  if (isOwnContent(connector?.kind)) {
     return { ok: true, message: "Content is managed in the dashboard and served by the hosted API.", problems: [] };
   }
   if (connector?.kind === "shopify") {

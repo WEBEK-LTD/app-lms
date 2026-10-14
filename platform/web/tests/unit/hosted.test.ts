@@ -131,6 +131,15 @@ describe("hosted API", () => {
     expect((await call("GET", "/config", { query: { platform: "web", app_version: "1" } })).status).toBe(400);
   });
 
+  it("20 sends the app's vertical, null without one or for a value it doesn't know", async () => {
+    const vertical = async () => ((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { vertical: unknown }).vertical;
+    expect(await vertical()).toBeNull();
+    app = { ...app, vertical: "restaurant" };
+    expect(await vertical()).toBe("restaurant");
+    app = { ...app, vertical: "salon" as never };
+    expect(await vertical()).toBeNull();
+  });
+
   it("19 still serves the configuration when the connected platform fails, and logs it without secrets", async () => {
     const logged: string[] = [];
     const spy = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(" ")));

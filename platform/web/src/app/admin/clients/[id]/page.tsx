@@ -33,7 +33,8 @@ import { formatLimit, planName, planNamesOf, type Plan, type PlanInfo } from "@/
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
-import { APP_TYPE_SWITCHES, getSwitches, websiteOf, websiteOn } from "@/lib/switches";
+import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
+import { appTypeName } from "@/lib/app/kinds";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
@@ -392,7 +393,7 @@ async function AppEntry({
   const steps = stepStatus(app, license?.plan ?? null);
   const headingId = `h-app-${entry.key}`;
   const appField = app ? <input type="hidden" name="appId" value={app.id} /> : null;
-  const typeName = app ? (APP_TYPE_SWITCHES.find((t) => t.id === app.appType)?.label ?? app.appType) : null;
+  const typeName = app ? appTypeName(app) : null;
 
   return (
     <section id={`app-${entry.key}`} aria-labelledby={headingId} className="flex flex-col gap-4 rounded-[20px] border border-line bg-sand/50 p-3 sm:p-4">
@@ -618,7 +619,7 @@ function AppCard({
       </Card>
     );
   }
-  const typeName = APP_TYPE_SWITCHES.find((t) => t.id === app.appType)?.label ?? app.appType;
+  const typeName = appTypeName(app);
   return (
     <Card id={cardId} title="App" aside={manage} level={3}>
       {websiteSwitchedOff ? (

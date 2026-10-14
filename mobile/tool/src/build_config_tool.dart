@@ -10,6 +10,7 @@ const _topLevelKeys = {
   'schema_version',
   'client_id',
   'app_type',
+  'vertical',
   'app_name',
   'short_name',
   'site_url',
@@ -59,6 +60,9 @@ const templates = ['classic', 'bold', 'minimal'];
 
 /// App types with a module in this app (`app_type` in the schema).
 const appTypes = ['lms', 'store', 'booking', 'real_estate'];
+
+/// Kinds of business (`vertical` in the schema), on top of the app type.
+const verticals = ['restaurant', 'clinic', 'fitness', 'charity'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>
@@ -156,6 +160,9 @@ ValidationResult validateBuildConfig(Object? decoded) {
   }
   if (c.containsKey('app_type') && !appTypes.contains(c['app_type'])) {
     errors.add('"app_type" must be one of ${appTypes.join(', ')}.');
+  }
+  if (c.containsKey('vertical') && !verticals.contains(c['vertical'])) {
+    errors.add('"vertical" must be one of ${verticals.join(', ')}.');
   }
   _string(c, 'client_id', errors);
   _string(c, 'app_name', errors, min: 1, max: 30);
@@ -423,6 +430,7 @@ import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
   appType: AppType.${dartAppType(c['app_type'] as String)},
+  vertical: ${c['vertical'] == null ? 'null' : 'AppVertical.${c['vertical']}'},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},

@@ -583,5 +583,7 @@
   "previewInvalid": "Bu önizleme bağlantısı geçerli değil. Önizlemeyi Yallapp panelinizden açın.",
   "previewUnreachable": "Önizleme yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
   "previewNoContent": "Kurulumun Web sitesi adımında uygulamanızın içeriğinin nereden geleceğini seçin, sonra önizlemeyi yeniden yükleyin.",
-  "previewApiBlocked": "Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API'niz başka adreslerden gelen istekleri engelliyorsa {origin} adresine izin verin. Yallapp belgelerindeki Kendi API'nizi bağlayın rehberi nasıl yapılacağını gösterir."
+  "previewApiBlocked": "Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API'niz başka adreslerden gelen istekleri engelliyorsa {origin} adresine izin verin. Yallapp belgelerindeki Kendi API'nizi bağlayın rehberi nasıl yapılacağını gösterir.",
+  "wordingBusiness": "İşletme",
+  "wordingCustomer": "Müşteri"
 }

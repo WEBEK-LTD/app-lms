@@ -137,6 +137,8 @@ class App_Controller extends Controller {
 					'maintenance'         => null !== $blocked,
 					'maintenance_message' => $blocked ? $blocked['message'] : null,
 				),
+				// The kind of business the owner chose in the dashboard: wording and defaults only.
+				'vertical'  => $license->status()['vertical'],
 			) + $this->look()
 		);
 	}

@@ -2,7 +2,8 @@ import { generateKeyPairSync } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { APP_TYPE_NAMES, buildConfigFor, isAppType, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
+import { ENGINES, isAppType } from "@/lib/app/kinds";
+import { buildConfigFor, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { BuildConfig } from "@/lib/build-config/types";
 import type { App } from "@/lib/data/types";
@@ -103,7 +104,7 @@ describe("build config schema", () => {
     expect(config.app_type).toBe("booking");
     expect(validateBuildConfig(config).ok).toBe(true);
     expect(isAppType("booking")).toBe(true);
-    expect(APP_TYPE_NAMES.booking).toBe("Bookings");
+    expect(ENGINES.booking.name).toBe("Bookings");
   });
 
   it("builds Real estate apps, on the hosted API only", () => {
@@ -119,7 +120,19 @@ describe("build config schema", () => {
     expect(validateBuildConfig(config).ok).toBe(true);
     vi.unstubAllEnvs();
     expect(isAppType("real_estate")).toBe(true);
-    expect(APP_TYPE_NAMES.real_estate).toBe("Real estate");
+    expect(ENGINES.real_estate.name).toBe("Real estate");
+  });
+
+  it("20 sends the vertical only when the app has one, and the schema knows only the verticals", () => {
+    const plain = buildConfigFor(completeApp("c1"), { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(plain).not.toHaveProperty("vertical");
+    expect(newApp("c1", null, NOW).vertical).toBeNull();
+    const app = { ...completeApp("c1"), appType: "store" as const, vertical: "restaurant" as const };
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.vertical).toBe("restaurant");
+    expect(validateBuildConfig(config).ok).toBe(true);
+    expect(validateBuildConfig({ ...config, vertical: "salon" }).ok).toBe(false);
+    expect(validateBuildConfig({ ...config, vertical: null }).ok).toBe(false);
   });
 
   it("builds the config from wizard data without secrets", async () => {

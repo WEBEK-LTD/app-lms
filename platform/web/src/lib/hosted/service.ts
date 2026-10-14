@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import {
@@ -307,6 +308,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },
+    // 20 The kind of business: wording and defaults in the app, never its screens.
+    vertical: toVertical(app.vertical),
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),

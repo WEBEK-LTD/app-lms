@@ -1,5 +1,5 @@
 import { hasFeature, type PlanInfo } from "../plans";
-import type { App, AppType, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
+import type { App, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -225,14 +225,6 @@ export const APP_STORE_CATEGORIES = [
   "Utilities",
   "Weather",
 ] as const;
-
-/** A sensible first choice per app type; the client can change it. */
-export const SUGGESTED_CATEGORIES: Record<AppType, { play: string; appStore: string }> = {
-  lms: { play: "Education", appStore: "Education" },
-  store: { play: "Shopping", appStore: "Shopping" },
-  booking: { play: "Lifestyle", appStore: "Lifestyle" },
-  real_estate: { play: "House & Home", appStore: "Lifestyle" },
-};
 
 const EMPTY_TRACK: PublishingTrack = { status: "waiting_client", note: null, storeUrl: null, updatedAt: null };
 

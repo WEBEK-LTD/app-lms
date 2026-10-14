@@ -1,3 +1,4 @@
+import { ENGINES, isAppType } from "../app/kinds";
 import type { App } from "../data/types";
 import { APP_FONTS, type Appearance, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutTab } from "./types";
 
@@ -43,7 +44,7 @@ function escape(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
 
-const tab = (id: string, label: string, icon: string, target: LayoutTab["target"]): LayoutTab => ({ id, label, icon, target });
+const tab =(id: string, label: string, icon: string, target: LayoutTab["target"]): LayoutTab => ({ id, label, icon, target });
 
 /** A sensible first layout for the app's type: a home page and the usual tabs. */
 export function defaultLayout(app: Pick<App, "appType" | "backend" | "appName" | "template" | "font" | "brandingDoneAt">, defaults: AppDefaultsSetting, now: Date): LayoutContent {
@@ -56,112 +57,11 @@ export function defaultLayout(app: Pick<App, "appType" | "backend" | "appName" |
   };
   const homeTab = tab("home", "Home", "home", { type: "page", page_slug: "home" });
   const accountTab = tab("account", "Account", "person", { type: "screen", screen: "account" });
-  switch (app.appType as string) {
-    case "lms":
-      return {
-        ...base,
-        tabs: [homeTab, tab("courses", "Courses", "school", { type: "screen", screen: "courses" }), tab("learning", "My courses", "menu_book", { type: "screen", screen: "my_courses" }), accountTab],
-        pages: home([
-          welcome(name),
-          { id: "search", type: "search", visibility: "everyone", title: null, source: "courses", placeholder: "Search courses" },
-          { id: "continue", type: "continue_learning", visibility: "signed_in", title: "Continue learning" },
-          {
-            id: "new-courses",
-            type: "items",
-            visibility: "everyone",
-            title: "New courses",
-            source: "courses",
-            layout: "carousel",
-            see_all: { type: "screen", screen: "courses" },
-            query: { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] },
-          },
-          { id: "categories", type: "categories", visibility: "everyone", title: "Categories", source: "courses", style: "chips" },
-        ]),
-      };
-    case "store":
-      return {
-        ...base,
-        tabs: [
-          homeTab,
-          tab("shop", "Shop", "storefront", { type: "screen", screen: "search" }),
-          tab("cart", "Cart", "shopping_cart", { type: "screen", screen: "cart" }),
-          accountTab,
-        ],
-        pages: home([
-          welcome(name),
-          { id: "search", type: "search", visibility: "everyone", title: null, source: "products", placeholder: "Search products" },
-          { id: "categories", type: "categories", visibility: "everyone", title: "Categories", source: "products", style: "chips" },
-          {
-            id: "featured",
-            type: "items",
-            visibility: "everyone",
-            title: "Featured",
-            source: "products",
-            layout: "grid",
-            see_all: null,
-            query: { category_id: null, featured: true, sort: "newest", limit: 6, ids: [] },
-          },
-          {
-            id: "new-products",
-            type: "items",
-            visibility: "everyone",
-            title: "New arrivals",
-            source: "products",
-            layout: "carousel",
-            see_all: { type: "screen", screen: "search" },
-            query: { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] },
-          },
-        ]),
-      };
-    case "real_estate":
-      return {
-        ...base,
-        tabs: [
-          homeTab,
-          tab("search", "Search", "search", { type: "screen", screen: "search" }),
-          tab("favorites", "Favorites", "favorite", { type: "screen", screen: "favorites" }),
-          tab("messages", "Messages", "chat", { type: "screen", screen: "messages" }),
-          accountTab,
-        ],
-        pages: home([
-          welcome(name),
-          { id: "search", type: "search", visibility: "everyone", title: null, source: "listings", placeholder: "Search properties" },
-          {
-            id: "new-listings",
-            type: "items",
-            visibility: "everyone",
-            title: "New listings",
-            source: "listings",
-            layout: "list",
-            see_all: { type: "screen", screen: "search" },
-            query: { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] },
-          },
-        ]),
-      };
-    case "booking":
-      return {
-        ...base,
-        tabs: [
-          homeTab,
-          tab("book", "Book", "calendar_month", { type: "screen", screen: "services" }),
-          tab("appointments", "Appointments", "event", { type: "screen", screen: "appointments" }),
-          accountTab,
-        ],
-        pages: home([
-          welcome(name),
-          {
-            id: "services",
-            type: "items",
-            visibility: "everyone",
-            title: "Our services",
-            source: "services",
-            layout: "list",
-            see_all: { type: "screen", screen: "services" },
-            query: { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] },
-          },
-        ]),
-      };
-    default:
-      return { ...base, tabs: [homeTab, accountTab], pages: home([welcome(name)]) };
-  }
+  // 20 The engine's usual tabs and home blocks (lib/app/kinds.ts); an unknown type gets Home and Account.
+  const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
+  return {
+    ...base,
+    tabs: [homeTab, ...structuredClone(engine?.tabs ?? []), accountTab],
+    pages: home([welcome(name), ...structuredClone(engine?.home ?? [])]),
+  };
 }

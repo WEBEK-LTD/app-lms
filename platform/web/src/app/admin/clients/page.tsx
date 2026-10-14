@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import Link from "next/link";
 import {
   manageClientAction,
@@ -14,12 +13,13 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
 import { revealLicenseKey } from "@/lib/admin/clients";
+import { contentSource } from "@/lib/admin/labels";
 import { can, type AdminPermission } from "@/lib/admin/permissions";
-import { APP_TYPE_NAMES, SETUP_STEPS, stepStatus } from "@/lib/app/setup";
+import { appTypeName } from "@/lib/app/kinds";
+import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { ClientAppRow, ClientFilter, ClientRow } from "@/lib/data/store";
-import type { AppBackend } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { appLabel } from "@/lib/app/label";
@@ -50,12 +50,6 @@ const DONE: Record<string, string> = {
   unhosted: "The app no longer uses the hosted API. The client chooses a website on their Website step.",
 };
 
-const BACKEND_NAMES: Record<AppBackend, string> = {
-  wordpress: "Their WordPress site",
-  custom_api: "Their own API",
-  setup_requested: "Asked us to set up WordPress",
-  hosted: "Yallapp hosted API",
-};
 
 function stateTone(state: AccountState) {
   return state === "active" ? "success" : state === "pending" ? "warn" : "danger";
@@ -172,7 +166,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
                 </Link>
                 <span>{client.whatsapp}</span>
                 <span className="text-muted">{app.siteUrl ? hostOf(app.siteUrl) : hostOf(client.siteUrl)}</span>
-                <span className="text-muted">{APP_TYPE_NAMES[app.appType]}</span>
+                <span className="text-muted">{appTypeName(app)}</span>
                 <span className="text-muted">Asked {formatDate(app.setupRequestedAt)}</span>
                 {app.setupNote ? <span className="basis-full text-ink-4">{app.setupNote}</span> : null}
               </li>
@@ -404,21 +398,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
           <>
             <dt className="text-muted">Content from</dt>
             <dd className="m-0">
-              {app.connector?.kind === "shopify"
-                ? `Their Shopify store (${app.connector.shopDomain})`
-                : app.connector?.kind === "platform"
-                  ? `Their ${platformDefinition(app.connector.platform)?.name ?? app.connector.platform} account${
-                      Object.values(app.connector.settings).find(Boolean) ? ` (${Object.values(app.connector.settings).find(Boolean)})` : ""
-                    }`
-                : app.connector?.kind === "listings"
-                  ? "Real estate: listings in the dashboard"
-                : app.connector?.kind === "courses"
-                  ? "No website: courses in the dashboard"
-                  : app.connector?.kind === "bookings"
-                  ? "No website: services and hours in the dashboard"
-                  : app.connector?.kind === "catalog"
-                  ? `No website: products in the dashboard${app.catalogSettings?.payment?.provider === "yallapp" ? ", sells through Yallapp" : ""}`
-                  : BACKEND_NAMES[app.backend]}
+              {contentSource(app)}
             </dd>
           </>
         ) : null}

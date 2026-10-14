@@ -21,6 +21,7 @@ class AppConfig {
     this.appearance,
     this.languages,
     this.listings,
+    this.vertical,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -36,6 +37,7 @@ class AppConfig {
     appearance: optObject(json, 'appearance', Appearance.fromJson),
     languages: optObject(json, 'languages', Languages.fromJson),
     listings: optObject(json, 'listings', ListingsConfig.fromJson),
+    vertical: AppVertical.fromWire(json['vertical']),
   );
 
   final SiteInfo site;
@@ -61,6 +63,10 @@ class AppConfig {
 
   /// The office's settings (Real estate apps).
   final ListingsConfig? listings;
+
+  /// The kind of business (wording and defaults only); null for none, on
+  /// older servers, and for values this app doesn't know.
+  final AppVertical? vertical;
 }
 
 /// `Config.languages`. Codes the app doesn't ship are dropped.

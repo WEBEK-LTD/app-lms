@@ -9,6 +9,25 @@ enum AppTemplate { classic, bold, minimal }
 /// estate (`real_estate`). One app type per build.
 enum AppType { lms, store, booking, realEstate }
 
+/// The kind of business on top of the app type (`vertical` in the build
+/// config and in `Config`). It changes wording and defaults, never which
+/// screens the app has. Null for most apps.
+enum AppVertical {
+  restaurant,
+  clinic,
+  fitness,
+  charity;
+
+  /// The value as the build config and `Config` send it; anything unknown
+  /// (a newer platform) is none.
+  static AppVertical? fromWire(Object? value) {
+    for (final vertical in values) {
+      if (vertical.name == value) return vertical;
+    }
+    return null;
+  }
+}
+
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
 class FirebaseOptionsData {
@@ -32,6 +51,7 @@ class FirebaseOptionsData {
 class BuildConfigData {
   const BuildConfigData({
     this.appType = AppType.lms,
+    this.vertical,
     required this.appName,
     required this.shortName,
     required this.siteUrl,
@@ -52,6 +72,10 @@ class BuildConfigData {
   });
 
   final AppType appType;
+
+  /// The kind of business; `Config.vertical` replaces it when the server
+  /// sends one.
+  final AppVertical? vertical;
   final String appName;
   final String shortName;
 
@@ -86,6 +110,7 @@ class BuildConfigData {
     AppType? appType,
   }) => BuildConfigData(
     appType: appType ?? this.appType,
+    vertical: vertical,
     appName: appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,

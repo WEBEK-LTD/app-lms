@@ -35,6 +35,7 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
       'real_estate' => AppType.realEstate,
       _ => AppType.lms,
     },
+    vertical: AppVertical.fromWire(json['vertical']),
     appName: appName,
     shortName: text(json['short_name'], appName),
     siteUrl: normalizeSiteUrl(text(json['site_url'], '')),

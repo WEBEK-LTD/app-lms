@@ -2237,4 +2237,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String previewApiBlocked(String origin) {
     return 'تعذّر على المعاينة الوصول إلى محتوى تطبيقك. إذا كان موقعك أو واجهتك البرمجية يحظر الطلبات من عناوين أخرى، فاسمح بـ $origin. يشرح دليل ربط واجهتك البرمجية في مستندات Yallapp الطريقة.';
   }
+
+  @override
+  String get wordingBusiness => 'النشاط التجاري';
+
+  @override
+  String get wordingCustomer => 'العميل';
 }

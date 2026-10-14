@@ -2200,4 +2200,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String previewApiBlocked(String origin) {
     return 'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow $origin. The guide Connect your own API in the Yallapp docs shows how.';
   }
+
+  @override
+  String get wordingBusiness => 'Business';
+
+  @override
+  String get wordingCustomer => 'Customer';
 }

@@ -1,4 +1,10 @@
 import type { IconName } from "@/components/icon-names";
+import { KINDS, kindById } from "./app/kinds";
+
+/** "a, b and c". */
+function listText(items: string[]): string {
+  return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : (items[0] ?? "");
+}
 
 /**
  * Content of the public marketing pages: home, solutions, features,
@@ -54,7 +60,7 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
 
 /** True numbers about the product, shown on the home and features pages. */
 export const NUMBERS: { value: string; label: string }[] = [
-  { value: "4", label: "app types: academy, store, bookings and real estate" },
+  { value: String(KINDS.length), label: `app types: ${listText(KINDS.map((k) => k.name.toLowerCase()))}` },
   { value: "18", label: "platforms and plugins your content can come from" },
   { value: "3", label: "app templates: Classic, Bold and Minimal" },
   { value: "3", label: "languages: English, Arabic (right to left) and Turkish" },
@@ -65,14 +71,10 @@ export const NUMBERS: { value: string; label: string }[] = [
 // ---------------------------------------------------------------------------
 // Solutions: one page per app type.
 
-export type SolutionId = "academy" | "store" | "bookings" | "real-estate";
-
-export interface Solution {
-  id: SolutionId;
-  /** The content key of the page's editable header (lib/content/site.ts). */
-  contentKey: string;
-  name: string;
-  icon: IconName;
+/** What a solution page says; its address, name and icon come from its kind (lib/app/kinds.ts). */
+interface SolutionCopy {
+  /** The kind (KINDS) the page is about. */
+  kind: string;
   /** One line for cards. */
   summary: string;
   /** Who it's for. */
@@ -88,12 +90,18 @@ export interface Solution {
   docs: { href: string; label: string }[];
 }
 
-export const SOLUTIONS: Solution[] = [
+export interface Solution extends SolutionCopy {
+  /** /solutions/<id>: the kind's marketing slug. */
+  id: string;
+  /** The content key of the page's editable header (lib/content/site.ts). */
+  contentKey: string;
+  name: string;
+  icon: IconName;
+}
+
+const SOLUTION_COPY: SolutionCopy[] = [
   {
-    id: "academy",
-    contentKey: "solution-academy",
-    name: "Academy",
-    icon: "school",
+    kind: "academy",
     summary: "Courses, lessons, quizzes, progress and certificates.",
     audience: "Online academies, training centres, coaches and schools.",
     screens: ["academy-home", "academy-course", "academy-lesson"],
@@ -148,10 +156,7 @@ export const SOLUTIONS: Solution[] = [
     ],
   },
   {
-    id: "store",
-    contentKey: "solution-store",
-    name: "Store",
-    icon: "storefront",
+    kind: "store",
     summary: "Products, cart, checkout and orders.",
     audience: "Shops, florists, boutiques and brands that sell physical or digital products.",
     screens: ["store-home", "store-product", "store-cart"],
@@ -207,10 +212,7 @@ export const SOLUTIONS: Solution[] = [
     ],
   },
   {
-    id: "bookings",
-    contentKey: "solution-bookings",
-    name: "Bookings",
-    icon: "calendar_month",
+    kind: "bookings",
     summary: "Services, staff, free times and appointments.",
     audience: "Salons, clinics, studios, consultants and anyone who takes appointments.",
     screens: ["bookings-services", "bookings-slots"],
@@ -261,10 +263,7 @@ export const SOLUTIONS: Solution[] = [
     ],
   },
   {
-    id: "real-estate",
-    contentKey: "solution-real-estate",
-    name: "Real estate",
-    icon: "apartment",
+    kind: "real_estate",
     summary: "Listings with search, filters, favorites and messages.",
     audience: "Real estate offices and agents who sell or rent properties.",
     screens: ["realestate-search", "realestate-listing", "realestate-search-ar"],
@@ -307,6 +306,13 @@ export const SOLUTIONS: Solution[] = [
   },
 ];
 
+/** 20 One page per kind that has copy, named and addressed by the registry. */
+export const SOLUTIONS: Solution[] = SOLUTION_COPY.map((copy) => {
+  const kind = kindById(copy.kind);
+  if (!kind) throw new Error(`Unknown kind ${copy.kind}`);
+  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: kind.name, icon: kind.marketing.icon };
+});
+
 export function solution(id: string): Solution | undefined {
   return SOLUTIONS.find((s) => s.id === id);
 }
@@ -317,7 +323,7 @@ export function solution(id: string): Solution | undefined {
 export interface Integration {
   name: string;
   /** App types it serves. */
-  types: ("Academy" | "Store" | "Bookings" | "Real estate")[];
+  types: string[];
   text: string;
   docs?: string;
 }

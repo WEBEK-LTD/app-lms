@@ -87,8 +87,16 @@ export interface StoreListing {
   iphoneScreenshots?: string[];
 }
 
-/** "lms" is an Academy app, "store" a WooCommerce Store app, "booking" a Bookings app, "real_estate" a Real estate app (hosted API only). */
+/**
+ * The app's engine: the Flutter module its build includes. "lms" is an
+ * Academy app, "store" a Store app, "booking" a Bookings app, "real_estate" a
+ * Real estate app (hosted API only). What each engine is and offers is in
+ * lib/app/kinds.ts.
+ */
 export type AppType = "lms" | "store" | "booking" | "real_estate";
+
+/** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's
@@ -190,6 +198,8 @@ export interface App {
   id: string;
   clientId: string;
   appType: AppType;
+  /** 20 The kind of business (null: the engine's own wording); chosen with the app type. */
+  vertical?: AppVertical | null;
   siteUrl: string | null;
   backend: AppBackend;
   /** The client's own API base URL (backend "custom_api"). */

@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BuildBadge } from "@/components/build-status";
-import { APP_TYPE_ICON, AppStateBadge, LinkCard } from "@/components/dashboard";
+import { AppStateBadge, LinkCard } from "@/components/dashboard";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Badge, Notice, PageHeader, ProgressBar, btn, formatDate } from "@/components/ui";
-import { APP_TYPE_NAMES, SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { kindOf } from "@/lib/app/kinds";
+import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { daysUntil } from "@/lib/license/status";
@@ -158,7 +159,7 @@ export default async function OverviewPage() {
             <img src={`/api/v1/assets/${app.iconAssetId}`} alt="" width={64} height={64} className="h-16 w-16 flex-none rounded-2xl border border-line object-cover" />
           ) : (
             <span className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-peach text-accent">
-              <Icon name={APP_TYPE_ICON[app.appType]} size={32} />
+              <Icon name={kindOf(app).icon} size={32} />
             </span>
           )}
           <div className="flex min-w-0 flex-col gap-1.5">
@@ -166,7 +167,7 @@ export default async function OverviewPage() {
               {appLabel(app)}
             </h2>
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
-              <Badge tone="neutral">{APP_TYPE_NAMES[app.appType]}</Badge>
+              <Badge tone="neutral">{kindOf(app).name}</Badge>
               <AppStateBadge state={state} />
               <span>
                 {license

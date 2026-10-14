@@ -1,3 +1,4 @@
+import { ENGINES, isAppType } from "../../app/kinds";
 import type { App, HostedUser } from "../../data/types";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
@@ -86,9 +87,9 @@ function visible(block: LayoutBlock, user: HostedUser | null): boolean {
 /** Whether the hosted API can fill lists and searches of this source for the app. */
 function servable(app: App, connector: Connector | null | undefined, source: ItemSource | undefined): boolean {
   if (!source || !itemSourcesFor(app).includes(source)) return false;
-  if (source === "courses") return app.appType === "lms" && Boolean(connector);
-  if (source === "products") return app.appType === "store" && Boolean(connector);
-  if (source === "services") return app.appType === "booking" && Boolean(connector);
+  // The engine's own list, read from its connector (lib/app/kinds.ts); others (listings, posts) have their own resolvers.
+  const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
+  if (engine?.read && source === engine.source) return Boolean(connector);
   return itemResolver(source) !== null;
 }
 
@@ -121,7 +122,7 @@ async function resolveBlock(pc: PageContext, block: LayoutBlock): Promise<Record
         return categories && categories.length ? { ...out, style: block.style ?? "chips", categories } : null;
       }
       case "continue_learning": {
-        if (!user || ctx.app.appType !== "lms" || !ctx.connector) return null;
+        if (!user || !ctx.connector || !isAppType(ctx.app.appType) || !ENGINES[ctx.app.appType].pages.blocks.includes("continue_learning")) return null;
         const course = await courseInProgress(pc);
         return course ? { ...out, course } : null;
       }

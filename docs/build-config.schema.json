@@ -21,6 +21,7 @@
     "schema_version": { "const": 1 },
     "client_id": { "type": "string", "description": "The platform's client ID, for logs." },
     "app_type": { "enum": ["lms", "store", "booking", "real_estate"], "description": "Which module the build includes: 'lms' (Academy), 'store' (WooCommerce), 'booking' (Amelia, BookingPress or LatePoint) or 'real_estate' (property listings on the hosted API)." },
+    "vertical": { "type": "string", "enum": ["restaurant", "clinic", "fitness", "charity"], "description": "Optional. The kind of business, on top of app_type: it changes wording and defaults in the app, never which module or screens it has. Left out for apps without one; apps treat an unknown value as none." },
     "app_name": { "type": "string", "minLength": 1, "maxLength": 30 },
     "short_name": { "type": "string", "minLength": 1, "maxLength": 12, "description": "Shown under the app icon." },
     "site_url": { "type": "string", "format": "uri", "pattern": "^https://", "description": "The client's WordPress site. The app calls <site_url>/wp-json/yallapp/v1." },

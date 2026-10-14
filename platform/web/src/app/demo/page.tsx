@@ -8,6 +8,7 @@ import { Notice } from "@/components/ui";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import type { AppType } from "@/lib/data/types";
+import { defaultKind } from "@/lib/app/kinds";
 import { demoDownloadBuild, listDemoApps } from "@/lib/demo/apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
@@ -19,13 +20,6 @@ export const metadata: Metadata = {
 };
 /** Whether each download is ready comes from the admin. */
 export const dynamic = "force-dynamic";
-
-const ICONS: Record<AppType, "school" | "storefront" | "calendar_month" | "apartment"> = {
-  lms: "school",
-  store: "storefront",
-  booking: "calendar_month",
-  real_estate: "apartment",
-};
 
 async function downloads(): Promise<Partial<Record<AppType, boolean>>> {
   try {
@@ -91,6 +85,7 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
         const guide = DEMO_GUIDES[type];
         const brand = DEMO_BRANDS[type];
         const slug = DEMO_SLUGS[type];
+        const kind = defaultKind(type);
         const href = `${base}/demo/download/${slug}`;
         return (
           <Section key={type} id={slug} tinted={index % 2 === 0}>
@@ -98,8 +93,8 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
               <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-6">
                 <div className="flex flex-col gap-2.5">
                   <span className="flex items-center gap-2 text-[13px] font-bold tracking-[1px] text-accent uppercase">
-                    <Icon name={ICONS[type]} size={20} />
-                    {guide.label}
+                    <Icon name={kind.marketing.icon} size={20} />
+                    {kind.name}
                   </span>
                   <h2 id={`h-${slug}`} className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">
                     {brand.appName}
@@ -139,8 +134,8 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
                     <span className="text-sm text-muted">The Android download is on its way.</span>
                   </div>
                 )}
-                <Link href={`/solutions/${slug}`} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
-                  About {guide.label.toLowerCase()} apps
+                <Link href={`/solutions/${kind.marketing.slug}`} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
+                  About {kind.name.toLowerCase()} apps
                   <Icon name="arrow_forward" size={20} />
                 </Link>
               </div>

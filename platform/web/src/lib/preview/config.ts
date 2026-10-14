@@ -1,3 +1,4 @@
+import { hostedOnly } from "../app/kinds";
 import { buildConfigFor, SETUP_STEPS, STEP_LABEL, stepStatus, type SetupStep } from "../app/setup";
 import type { BuildConfig } from "../build-config/types";
 import { APP_FONTS } from "../build-config/types";
@@ -44,7 +45,7 @@ export const PLACEHOLDER = {
 export function previewContentSource(app: App): PreviewContentSource {
   if (app.backend === "hosted") return "hosted";
   // Real estate apps only run on the hosted API.
-  if (app.appType === "real_estate") return "none";
+  if (hostedOnly(app.appType)) return "none";
   if (app.backend === "custom_api") return app.apiBaseUrl ? "custom_api" : "none";
   if (app.backend === "wordpress") return app.siteUrl ? "wordpress" : "none";
   // "setup_requested": our team is still setting up the site.

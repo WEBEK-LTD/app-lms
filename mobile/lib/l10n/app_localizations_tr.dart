@@ -2203,4 +2203,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String previewApiBlocked(String origin) {
     return 'Önizleme uygulamanızın içeriğine ulaşamadı. Siteniz veya API\'niz başka adreslerden gelen istekleri engelliyorsa $origin adresine izin verin. Yallapp belgelerindeki Kendi API\'nizi bağlayın rehberi nasıl yapılacağını gösterir.';
   }
+
+  @override
+  String get wordingBusiness => 'İşletme';
+
+  @override
+  String get wordingCustomer => 'Müşteri';
 }

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
 import { appLabel } from "@/lib/app/label";
-import { APP_TYPE_NAMES, isAppType, queueBuild } from "@/lib/app/setup";
+import { queueBuild } from "@/lib/app/setup";
+import { ENGINES, isAppType } from "@/lib/app/kinds";
 import { assetUrl } from "@/lib/assets";
 import { requireAdmin } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
@@ -56,7 +57,7 @@ export async function setupDemosAction(formData: FormData): Promise<void> {
     console.error("[demo]", error.message);
     redirect(back("error=setup"));
   }
-  const names = result.apps.map((a) => `${APP_TYPE_NAMES[a.type]}${a.created ? " (new)" : ""}`).join(", ");
+  const names = result.apps.map((a) => `${ENGINES[a.type].name}${a.created ? " (new)" : ""}`).join(", ");
   await recordAudit({
     actor: admin,
     action: "demo.setup",

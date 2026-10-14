@@ -1,4 +1,5 @@
-import type { Announcement, AnnouncementAudience, AnnouncementSeverity, App, AppType, License } from "./data/types";
+import type { Announcement, AnnouncementAudience, AnnouncementSeverity, App, License } from "./data/types";
+import { APP_TYPES, ENGINES } from "./app/kinds";
 import { safeHref } from "./content/markdown";
 import type { DataStore } from "./data/store";
 import { clientAccountState, type AccountState } from "./license/status";
@@ -56,7 +57,6 @@ export function announcementsFor(
 }
 
 const PLAN_IDS: Plan[] = [...PLANS];
-const APP_TYPES: AppType[] = ["lms", "store", "booking"];
 const STATES: AccountState[] = ["pending", "active", "expired", "suspended"];
 
 export const AUDIENCE_KINDS: { id: AnnouncementAudience["kind"]; label: string }[] = [
@@ -66,7 +66,6 @@ export const AUDIENCE_KINDS: { id: AnnouncementAudience["kind"]; label: string }
   { id: "state", label: "Clients in chosen states" },
 ];
 
-export const APP_TYPE_LABELS: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings", real_estate: "Real estate" };
 export const STATE_LABELS: Record<AccountState, string> = { pending: "Pending activation", active: "Active", expired: "Expired", suspended: "Suspended" };
 
 /** "All clients", "Plans: Pro", … */
@@ -77,7 +76,7 @@ export function describeAudience(audience: AnnouncementAudience, planNames: Reco
     case "plan":
       return `Plans: ${audience.plans.map((p) => planNames[p]).join(", ")}`;
     case "app_type":
-      return `App types: ${audience.appTypes.map((t) => APP_TYPE_LABELS[t]).join(", ")}`;
+      return `App types: ${audience.appTypes.map((t) => ENGINES[t]?.name ?? t).join(", ")}`;
     case "state":
       return `States: ${audience.states.map((s) => STATE_LABELS[s]).join(", ")}`;
   }
@@ -144,7 +143,8 @@ export function audienceOptions(planNames: Record<Plan, string>) {
   return {
     audienceKinds: AUDIENCE_KINDS,
     plans: PLAN_IDS.map((id) => ({ id, label: planNames[id] })),
-    appTypes: APP_TYPES.map((id) => ({ id, label: APP_TYPE_LABELS[id] })),
+    // 20 Every engine (Real estate was missing).
+    appTypes: APP_TYPES.map((id) => ({ id, label: ENGINES[id].name })),
     states: STATES.map((id) => ({ id, label: STATE_LABELS[id] })),
   };
 }

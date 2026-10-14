@@ -3,6 +3,7 @@ import type { App, SwitchesSetting } from "./data/types";
 import { platformDefinitions } from "./hosted/connectors/registry";
 import { PLAN_FEATURE_IDS, PLAN_FEATURES, PLANS, type Plan, type PlanFeature, type PlanInfo } from "./plans";
 import { platformSetting } from "./settings/platform";
+import { APP_TYPES, ENGINES, isAppType } from "./app/kinds";
 
 /**
  * Switches (roadmap 11.5): app types, websites (the Website step's choices
@@ -22,12 +23,8 @@ export interface SwitchItem {
   label: string;
 }
 
-export const APP_TYPE_SWITCHES: { id: string; label: string }[] = [
-  { id: "lms", label: "Academy" },
-  { id: "store", label: "Store" },
-  { id: "booking", label: "Bookings" },
-  { id: "real_estate", label: "Real estate" },
-];
+/** One per engine (lib/app/kinds.ts): a kind with a vertical follows its engine's switch. */
+export const APP_TYPE_SWITCHES: { id: string; label: string }[] = APP_TYPES.map((id) => ({ id, label: ENGINES[id].name }));
 
 /** The Website step's choices besides the platform connectors. */
 const WEBSITE_SWITCHES: { id: string; label: string }[] = [
@@ -35,10 +32,8 @@ const WEBSITE_SWITCHES: { id: string; label: string }[] = [
   { id: "custom_api", label: "Their own API" },
   { id: "setup_requested", label: "WordPress set up by our team" },
   { id: "shopify", label: "Shopify" },
-  { id: "catalog", label: "No website: products in the dashboard" },
-  { id: "bookings", label: "No website: bookings in the dashboard" },
-  { id: "courses", label: "No website: courses in the dashboard" },
-  { id: "listings", label: "No website: listings in the dashboard" },
+  // Content managed in the dashboard, one per engine.
+  ...APP_TYPES.map((id) => ({ id: ENGINES[id].ownContent.kind, label: ENGINES[id].ownContent.switchLabel })),
 ];
 
 export type FeatureSwitch = PlanFeature | "marketplace" | "plan_card_payments";
@@ -96,9 +91,9 @@ export function featureOn(setting: SwitchesSetting | null | undefined, feature: 
   return isOn(setting, switchKey("feature", feature), plan);
 }
 
-/** The Website step's "no website" choice for an app type. */
+/** The Website step's "no website" choice for an app type: its content managed in the dashboard. */
 export function noWebsiteFor(appType: string): string {
-  return appType === "lms" ? "courses" : appType === "booking" ? "bookings" : appType === "real_estate" ? "listings" : "catalog";
+  return isAppType(appType) ? ENGINES[appType].ownContent.kind : "catalog";
 }
 
 /** The website switch an app uses now: its connector, or its backend. */

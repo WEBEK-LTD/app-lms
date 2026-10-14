@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Badge, formatDateTime } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
-import { APP_TYPE_NAMES } from "@/lib/app/setup";
+import { appTypeName } from "@/lib/app/kinds";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
@@ -100,7 +100,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                   <Link href={`/admin/clients/${request.clientId}#app-${request.appId}`}>{user?.name ?? "Unknown client"}</Link>
                   {user ? ` · ${user.email}` : ""}
                   {client ? ` · ${client.whatsapp}` : ""}
-                  {app ? ` · ${APP_TYPE_NAMES[app.appType]}` : ""}
+                  {app ? ` · ${appTypeName(app)}` : ""}
                 </span>
                 <span className="text-xs text-muted">
                   Asked {formatDateTime(request.requestedAt)} · {request.readyAt ? `Client ready ${formatDateTime(request.readyAt)}` : `Checklist ${progress.done} of ${progress.total}`}

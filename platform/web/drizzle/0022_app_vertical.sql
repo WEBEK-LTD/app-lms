@@ -1,0 +1,2 @@
+-- App kinds (roadmap 20): the kind of business on top of the app type (its engine). Null keeps the engine's own wording; it never changes what the app does.
+ALTER TABLE `apps` ADD `vertical` varchar(16);

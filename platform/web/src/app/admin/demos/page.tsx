@@ -6,7 +6,7 @@ import { BuildBadge } from "@/components/build-status";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Card, Notice, formatDateTime } from "@/components/ui";
-import { APP_TYPE_NAMES } from "@/lib/app/setup";
+import { APP_TYPES, ENGINES } from "@/lib/app/kinds";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { demoClient, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
@@ -19,10 +19,7 @@ export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
   all: "The demo apps are created and up to date.",
-  lms: "The Academy demo is up to date.",
-  store: "The Store demo is up to date.",
-  booking: "The Bookings demo is up to date.",
-  real_estate: "The Real estate demo is up to date.",
+  ...Object.fromEntries(APP_TYPES.map((type) => [type, `The ${ENGINES[type].name} demo is up to date.`])),
   build: "The build is queued. It shows here, and on the build queue, as it runs.",
   download: "The /demo page now offers this build for download.",
   no_download: "The /demo page shows \"Coming soon\" for this app again.",
@@ -30,7 +27,7 @@ const DONE: Record<string, string> = {
 
 const ERROR: Record<string, string> = {
   setup: `The demo apps couldn't be set up. If ${DEMO_ACCOUNT.email} already has an account that isn't the demo account, remove it first; otherwise try again, one app at a time.`,
-  unknown_type: "Choose one of the four app types.",
+  unknown_type: "Choose one of the app types.",
   not_demo: "That isn't a demo app.",
   not_downloadable: "Only a ready build with an Android APK can be the download.",
   setup_incomplete: "The demo app's setup isn't complete. Refresh it first.",
@@ -108,7 +105,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
                     <h2 className="m-0 text-[19px] font-bold">{DEMO_BRANDS[type].appName}</h2>
-                    <span className="text-sm text-muted">{APP_TYPE_NAMES[type]} demo</span>
+                    <span className="text-sm text-muted">{ENGINES[type].name} demo</span>
                   </div>
                   <span className="text-sm font-semibold">{app ? (live ? "Download live" : "Coming soon on /demo") : "Not created yet"}</span>
                 </div>
