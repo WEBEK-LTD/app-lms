@@ -8,7 +8,7 @@ import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
-import { appTypeName, engineOfContent, kindOf } from "@/lib/app/kinds";
+import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import type { App } from "@/lib/data/types";
@@ -16,9 +16,9 @@ import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
-/** What the app's content and customers pages are, for apps whose content is managed here (lib/app/kinds.ts). */
+/** What the app's content and customers pages are, for apps whose content is managed here (lib/app/kinds.ts; 21 in the kind's words). */
 function contentNav(app: App | null): { label: string; items: DashboardNavGroup["items"] } | null {
-  return engineOfContent(app?.connector?.kind)?.ownContent.nav ?? null;
+  return app ? contentNavOf(app) : null;
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -58,7 +58,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     ...(app?.backend === "hosted"
       ? [
           {
-            label: "App users",
+            label: usersLabelOf(app),
             items: [
               { href: "/dashboard/notifications", label: "App notifications", icon: "notifications" as const },
               { href: "/dashboard/app-sign-in", label: "App sign-in", icon: "login" as const },
@@ -68,7 +68,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       : app?.backend === "wordpress" || app?.backend === "setup_requested" || app?.backend === "custom_api"
         ? // 18 WordPress apps choose how people sign in, and the WhatsApp number that sends their codes (19: also while our team sets up the site).
           // 19 Own API apps see how their API signs people in.
-          [{ label: "App users", items: [{ href: "/dashboard/app-sign-in", label: "App sign-in", icon: "login" as const }] }]
+          [{ label: usersLabelOf(app), items: [{ href: "/dashboard/app-sign-in", label: "App sign-in", icon: "login" as const }] }]
         : []),
     {
       label: "Publish",

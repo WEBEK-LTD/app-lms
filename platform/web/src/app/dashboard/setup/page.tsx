@@ -169,6 +169,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
               : null
           }
           appType={app.appType}
+          vertical={app.vertical ?? null}
           shopDomain={app.connector?.kind === "shopify" ? app.connector.shopDomain : ""}
           shopifyConnected={app.connector?.kind === "shopify"}
           shopifyAdmin={app.connector?.kind === "shopify" && Boolean(app.connector.adminTokenEncrypted)}

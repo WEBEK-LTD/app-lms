@@ -19,6 +19,8 @@ export function newAppointmentMailValues(a: BookingAppointment, timezone: string
     contact_label: a.customerPhone ? "Phone" : "Email",
     phone: a.customerPhone ?? a.customerEmail ?? "",
     note_line: a.notes ? `Note: ${a.notes}\n` : "",
+    // 21 Intake answers are health data: never in the email, only a pointer to the dashboard.
+    intake_line: a.answers?.length ? "See the intake answers on your dashboard.\n" : "",
     approval_line: a.status === "pending" ? "\nIt waits for your approval.\n" : "",
     appointments_url: dashboardUrl,
   };

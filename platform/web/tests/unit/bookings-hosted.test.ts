@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { freeTimes } from "@/lib/bookings/availability";
-import { newAppointmentMail } from "@/lib/bookings/mail";
+import { checkAnswers, fieldIdFor, parseIntakeField, parseStaffProfile } from "@/lib/bookings/intake";
+import { newAppointmentMail, newAppointmentMailValues } from "@/lib/bookings/mail";
 import { addDays, localToUtc, utcToLocal } from "@/lib/bookings/time";
 import type { MemoryStore } from "@/lib/data/memory";
-import { DEFAULT_BOOKING_RULES, type App, type BookingAppointment, type BookingSetup, type TimeRange } from "@/lib/data/types";
+import { DEFAULT_BOOKING_RULES, type App, type BookingAppointment, type BookingSetup, type IntakeField, type TimeRange } from "@/lib/data/types";
 import { BookingsConnector } from "@/lib/hosted/connectors/bookings";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -38,6 +39,28 @@ function salon(): BookingSetup {
     nextId: 30,
   };
 }
+
+/** 21 The salon as a clinic: doctors with profiles and an intake form. */
+const INTAKE: IntakeField[] = [
+  { id: "reason", label: "Reason for your visit", type: "textarea", options: [], required: true },
+  { id: "first_visit", label: "First visit?", type: "choice", options: ["Yes", "No"], required: true },
+  { id: "birth", label: "Date of birth", type: "date", options: [], required: false },
+  { id: "allergies", label: "Allergies", type: "text", options: [], required: false },
+];
+
+function clinicSetup(): BookingSetup {
+  const setup = salon();
+  return {
+    ...setup,
+    staff: setup.staff.map((s, i) =>
+      i === 0 ? { ...s, title: "Dentist", specialties: ["Orthodontics", "Children's dentistry"], languages: ["Turkish", "English"], bio: "Twelve years in Istanbul." } : s,
+    ),
+    intakeFields: INTAKE,
+  };
+}
+
+/** Answers that must never leave the dashboard and the patient's own appointments. */
+const SECRET = { reason: "Sharp pain in the lower left molar", first_visit: "Yes", birth: "1990-04-02", allergies: "Penicillin" };
 
 describe("time zones", () => {
   it("turns local times into instants and back", () => {
@@ -259,6 +282,148 @@ describe("bookings on the hosted API", () => {
     const other = await store.createHostedUser({ appId: app.id, phone: null, name: "Can", email: "can@example.com", city: null, now: NOW });
     const theirs = await connector.handle({ method: "GET", path: ["me", "appointments"], query: new URLSearchParams(), body: undefined, user: other, now: NOW });
     expect(theirs!.body).toMatchObject({ total: 0, items: [] });
+  });
+
+  describe("21 a clinic's intake form and doctor profiles", () => {
+    beforeEach(() => {
+      app = { ...app, vertical: "clinic", appName: "Kardelen Clinic", bookingSetup: clinicSetup() };
+    });
+
+    it("sends the questions, the doctors' profiles and the clinic's words", async () => {
+      const config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { bookings: Record<string, unknown> };
+      expect(config.bookings.intake_fields).toEqual([
+        { id: "reason", label: "Reason for your visit", type: "textarea", required: true },
+        { id: "first_visit", label: "First visit?", type: "choice", options: ["Yes", "No"], required: true },
+        { id: "birth", label: "Date of birth", type: "date", required: false },
+        { id: "allergies", label: "Allergies", type: "text", required: false },
+      ]);
+      const cut = (await call("GET", "/bookings/services/{service_id}", { params: ["10"] })).body as { staff: Record<string, unknown>[] };
+      expect(cut.staff[0]).toEqual({
+        id: 20,
+        name: "Ayşe Kaya",
+        image_url: null,
+        title: "Dentist",
+        price: null,
+        specialties: ["Orthodontics", "Children's dentistry"],
+        languages: ["Turkish", "English"],
+        bio: "Twelve years in Istanbul.",
+      });
+      // Without a profile, nothing extra is sent.
+      expect(Object.keys(cut.staff[1]!)).toEqual(["id", "name", "image_url", "title", "price"]);
+      const home = (await call("GET", "/bookings/home")).body as { sections: { type: string; title: string }[] };
+      expect(home.sections.find((s) => s.type === "staff")?.title).toBe("Our doctors");
+    });
+
+    it("checks the answers before taking the time, keeps them and shows them only to the patient", async () => {
+      const token = await signUp();
+      const start = "2026-10-19T07:00:00.000Z";
+      const book = (answers: unknown, as = token) => call("POST", "/bookings/appointments", { query: { platform: "android" }, token: as, body: { service_id: 10, staff_id: 20, start, answers } });
+
+      const missing = await book(undefined);
+      expect(missing).toMatchObject({ status: 400, body: { code: "invalid_answers", details: { fields: { reason: "Please answer this.", first_visit: "Please choose one." } } } });
+      const wrong = await book({ reason: "x".repeat(2001), first_visit: "Maybe", birth: "1990-02-30", allergies: 7 });
+      expect((wrong.body as { details: { fields: Record<string, string> } }).details.fields).toEqual({
+        reason: "Please use at most 2000 characters.",
+        first_visit: "Please choose one of the options.",
+        birth: "Please choose a date.",
+        allergies: "Please answer this again.",
+      });
+      expect((await book(["Pain"])).body).toMatchObject({ code: "invalid_answers" });
+      expect((await book({ reason: "y".repeat(10), first_visit: "No", allergies: "z".repeat(201) })).body).toMatchObject({ details: { fields: { allergies: "Please use at most 200 characters." } } });
+      expect(booked).toHaveLength(0);
+
+      // The time is still free: the answers were checked first.
+      const ok = await book({ ...SECRET, allergies: "  ", unknown: "ignored" });
+      expect(ok.status).toBe(201);
+      const answers = [
+        { id: "reason", label: "Reason for your visit", value: SECRET.reason },
+        { id: "first_visit", label: "First visit?", value: "Yes" },
+        { id: "birth", label: "Date of birth", value: "1990-04-02" },
+      ];
+      expect((ok.body as { answers: unknown }).answers).toEqual(answers);
+      expect(booked[0]!.answers).toEqual(answers);
+      const id = String((ok.body as { id: number }).id);
+      expect((await call("GET", "/me/appointments/{appointment_id}", { token, params: [id] })).body).toMatchObject({ answers });
+      expect((await call("GET", "/me/appointments", { token })).body).toMatchObject({ items: [{ answers }] });
+      const next = ((await call("GET", "/bookings/home", { token })).body as { sections: unknown[] }).sections[0];
+      expect(next).toMatchObject({ type: "next_appointment", title: "Your next visit", appointment: { answers } });
+      // Nobody else sees them.
+      const other = await signUp("5321234568", "Can Yıldız");
+      expect((await call("GET", "/me/appointments/{appointment_id}", { token: other, params: [id] })).status).toBe(404);
+      expect((await call("GET", "/me/appointments", { token: other })).body).toMatchObject({ total: 0 });
+      // A question changed later doesn't change what was asked.
+      app = { ...app, bookingSetup: { ...clinicSetup(), intakeFields: [{ ...INTAKE[0]!, label: "Why are you coming?" }] } };
+      expect((await call("GET", "/me/appointments/{appointment_id}", { token, params: [id] })).body).toMatchObject({ answers });
+    });
+
+    it("never puts the answers in the email to the clinic", async () => {
+      const token = await signUp();
+      const ok = await call("POST", "/bookings/appointments", { query: { platform: "android" }, token, body: { service_id: 10, staff_id: 20, start: "2026-10-19T07:00:00.000Z", notes: "Hi", answers: SECRET } });
+      expect(ok.status).toBe(201);
+      const mail = newAppointmentMail(booked[0]!, "Europe/Istanbul", "Kardelen Clinic", "https://yallapp.test/dashboard/appointments");
+      expect(mail.text).toContain("See the intake answers on your dashboard.");
+      const values = newAppointmentMailValues(booked[0]!, "Europe/Istanbul", "Kardelen Clinic", "https://yallapp.test/dashboard/appointments");
+      for (const text of [mail.subject, mail.text, ...Object.values(values)]) {
+        for (const secret of [SECRET.reason, "1990-04-02", "Reason for your visit", "Date of birth"]) expect(text).not.toContain(secret);
+      }
+      // Without answers, no line about them.
+      const plain = newAppointmentMail({ ...booked[0]!, answers: null }, "Europe/Istanbul", "Kardelen Clinic", "https://yallapp.test/dashboard/appointments");
+      expect(plain.text).not.toContain("intake");
+    });
+
+    it("keeps no answers for a business without questions", async () => {
+      app = { ...app, vertical: null, bookingSetup: salon() };
+      const token = await signUp();
+      const ok = await call("POST", "/bookings/appointments", { query: { platform: "android" }, token, body: { service_id: 10, start: "2026-10-19T07:00:00.000Z", answers: SECRET } });
+      expect(ok.status).toBe(201);
+      expect(ok.body).not.toHaveProperty("answers");
+      expect(booked[0]!.answers).toBeNull();
+      expect(((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { bookings: object }).bookings).not.toHaveProperty("intake_fields");
+    });
+  });
+});
+
+describe("21 intake questions and doctor profiles on the Services & team page", () => {
+  it("checks a question and gives it a key from its label", () => {
+    expect(parseIntakeField({ label: "Reason for your visit", type: "textarea", options: "", required: "on" }, INTAKE, null)).toEqual({
+      ok: true,
+      value: { id: "reason_for_your_visit", label: "Reason for your visit", type: "textarea", options: [], required: true },
+    });
+    expect(parseIntakeField({ label: "Smoker?", type: "choice", options: "Yes\nNo\nYes\n", required: "" }, [], null)).toMatchObject({ ok: true, value: { options: ["Yes", "No"], required: false } });
+    const bad = parseIntakeField({ label: "A", type: "choice", options: "Only one" }, [], null);
+    expect(bad.ok ? [] : Object.keys(bad.errors).sort()).toEqual(["label", "options"]);
+    expect(parseIntakeField({ label: "Hmm", type: "file" }, [], null)).toMatchObject({ ok: false, errors: { type: "Choose the kind of answer." } });
+    // Editing keeps the key, so answers given before still match.
+    expect(parseIntakeField({ label: "Why are you coming?", type: "text" }, INTAKE, INTAKE[0]!)).toMatchObject({ ok: true, value: { id: "reason", type: "text" } });
+    const full = Array.from({ length: 20 }, (_, i) => ({ ...INTAKE[3]!, id: `q${i}` }));
+    expect(parseIntakeField({ label: "One more", type: "text" }, full, null)).toMatchObject({ ok: false, errors: { label: "A form can have up to 20 questions." } });
+    expect(fieldIdFor("Doğum tarihi (İlk)", [])).toBe("dogum_tarihi_ilk");
+    expect(fieldIdFor("Allergies", ["allergies", "allergies_2"])).toBe("allergies_3");
+    expect(fieldIdFor("?!", [])).toBe("question");
+  });
+
+  it("checks answers by type", () => {
+    expect(checkAnswers([], { anything: "x" })).toEqual({ ok: true, value: null });
+    expect(checkAnswers(INTAKE, { reason: " Pain ", first_visit: "No" })).toEqual({
+      ok: true,
+      value: [
+        { id: "reason", label: "Reason for your visit", value: "Pain" },
+        { id: "first_visit", label: "First visit?", value: "No" },
+      ],
+    });
+    expect(checkAnswers(INTAKE, "Pain")).toMatchObject({ ok: false });
+    expect(checkAnswers([INTAKE[2]!], { birth: "02/04/1990" })).toMatchObject({ ok: false, errors: { birth: "Please choose a date." } });
+    expect(checkAnswers([INTAKE[2]!], {})).toEqual({ ok: true, value: [] });
+  });
+
+  it("checks a doctor's profile", () => {
+    expect(parseStaffProfile({ specialties: "Orthodontics, Implants,, Orthodontics", languages: "English\nTurkish", bio: "  Hello.  " })).toEqual({
+      ok: true,
+      value: { specialties: ["Orthodontics", "Implants"], languages: ["English", "Turkish"], bio: "Hello." },
+    });
+    expect(parseStaffProfile({})).toEqual({ ok: true, value: { specialties: [], languages: [], bio: null } });
+    const bad = parseStaffProfile({ specialties: Array.from({ length: 11 }, (_, i) => `S${i}`).join(","), languages: "x".repeat(41), bio: "b".repeat(2001) });
+    expect(bad.ok ? [] : Object.keys(bad.errors).sort()).toEqual(["bio", "languages", "specialties"]);
   });
 });
 
