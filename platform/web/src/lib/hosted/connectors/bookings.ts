@@ -247,7 +247,9 @@ export class BookingsConnector implements Connector {
         serviceName: service.name,
         staffName: member.name,
         customerName: request.user.name,
-        customerPhone: request.user.phone ?? request.user.email ?? "",
+        // 19 Someone who signed in by email has no phone: their email goes in its own field.
+        customerPhone: request.user.phone,
+        customerEmail: request.user.phone ? null : request.user.email,
         startAt: slot.start,
         endAt: slot.end,
         status: this.setup.rules.autoApprove ? "approved" : "pending",

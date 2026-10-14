@@ -821,6 +821,16 @@ export class MysqlStore implements DataStore {
     return rows[0]?.n ?? 0;
   }
 
+  async countHostedEmailOnlyUsers(appId: string): Promise<number> {
+    const rows = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(schema.hostedUsers)
+        .where(and(eq(schema.hostedUsers.appId, appId), isNull(schema.hostedUsers.phone))),
+    );
+    return rows[0]?.n ?? 0;
+  }
+
   // Catalog
 
   async listCatalogCategories(appId: string): Promise<CatalogCategory[]> {
@@ -1784,13 +1794,21 @@ export class MysqlStore implements DataStore {
   }
 }
 
+/**
+ * 19 When the last email to the publishing team failed: kept in the checklist
+ * JSON under this key (not a step), so it needs no column of its own.
+ */
+const TEAM_EMAIL_FAILED = "_teamEmailFailedAt";
+
 function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect): PublishingRequest {
+  const { [TEAM_EMAIL_FAILED]: failed, ...checklist } = row.checklist ?? {};
   return {
     appId: row.appId,
     clientId: row.clientId,
     mode: row.mode,
     firebaseBy: row.firebaseBy,
-    checklist: row.checklist,
+    checklist,
+    teamEmailFailedAt: failed ? new Date(failed) : null,
     listing: row.listing,
     android: { status: row.androidStatus, note: row.androidNote, storeUrl: row.androidStoreUrl, updatedAt: row.androidUpdatedAt },
     ios: { status: row.iosStatus, note: row.iosNote, storeUrl: row.iosStoreUrl, updatedAt: row.iosUpdatedAt },
@@ -1808,7 +1826,7 @@ function fromPublishingRequest(request: PublishingRequest): typeof schema.publis
     clientId: request.clientId,
     mode: request.mode,
     firebaseBy: request.firebaseBy,
-    checklist: request.checklist,
+    checklist: request.teamEmailFailedAt ? { ...request.checklist, [TEAM_EMAIL_FAILED]: request.teamEmailFailedAt.toISOString() } : request.checklist,
     listing: request.listing,
     androidStatus: request.android.status,
     androidNote: request.android.note,

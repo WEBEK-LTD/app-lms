@@ -125,8 +125,9 @@ export function stepStatus(app: App | null, plan: Plan | null, plans: Record<Pla
  * finished yet keeps it open, so no build starts against a missing site.
  */
 export function websiteReady(app: App): boolean {
-  // The hosted API needs no website: our team switches the app to it.
-  if (app.backend === "hosted") return true;
+  // The hosted API needs no website, but something to serve: content managed here or a connected platform (19).
+  // An app our team moved to it without one would build empty.
+  if (app.backend === "hosted") return Boolean(app.connector);
   // Real estate apps only run on the hosted API.
   if (app.appType === "real_estate") return false;
   if (!app.websiteDoneAt || !app.siteUrl) return false;

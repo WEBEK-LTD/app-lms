@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, onTestFinished } from "vitest";
+import { beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { newApp, buildConfigFor, websiteReady } from "@/lib/app/setup";
 import { decodeJwt, encodeJwt } from "@/lib/hosted/jwt";
 import { announce } from "@/lib/hosted/notify";
@@ -11,7 +11,10 @@ import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 import { expectContract } from "./contract";
-import { NOW, setupClient } from "./helpers";
+import { KEY, NOW, setupClient } from "./helpers";
+import { connectorFor, shopifyConnectorConfig } from "@/lib/hosted/connectors";
+import { platformConnectorConfig, platformDefinition } from "@/lib/hosted/connectors/platforms";
+import { ConnectorError, type Connector } from "@/lib/hosted/connectors/types";
 
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 
@@ -126,6 +129,49 @@ describe("hosted API", () => {
     expect(body.features).toMatchObject({ lms: null, push: false });
     expect(body.auth.signup_fields).toEqual(["name"]);
     expect((await call("GET", "/config", { query: { platform: "web", app_version: "1" } })).status).toBe(400);
+  });
+
+  it("19 still serves the configuration when the connected platform fails, and logs it without secrets", async () => {
+    const logged: string[] = [];
+    const spy = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(" ")));
+    onTestFinished(() => spy.mockRestore());
+    for (const failure of [new ConnectorError("Shopify answered HTTP 503."), new TypeError("Cannot read properties of undefined")]) {
+      const connector: Connector = {
+        config: async () => {
+          throw failure;
+        },
+        handle: async () => null,
+      };
+      const result = await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } }, { connector });
+      expect(result.status).toBe(200);
+      const body = result.body as Record<string, unknown>;
+      expect(body.site).toMatchObject({ name: "Rose Shop" });
+      expect(body.features).toMatchObject({ orders: false });
+      expect(body.store).toBeUndefined();
+    }
+    expect(logged).toHaveLength(2);
+    expect(logged[0]).toContain(`app ${app.id}`);
+    expect(logged[0]).toContain("Shopify answered HTTP 503.");
+    expect(logged[1]).toContain("TypeError");
+  });
+
+  it("19 logs a connected platform whose saved keys can't be read", async () => {
+    const logged: string[] = [];
+    const spy = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(" ")));
+    onTestFinished(() => spy.mockRestore());
+    const deps = { store, assetUrl: (id: string) => id, platformUrl: "https://yallapp.test" };
+    const shopify = { ...app, connector: shopifyConnectorConfig(app.id, "rose.myshopify.com", "storefront-secret-token", KEY) };
+    expect(connectorFor(shopify, KEY, deps)).not.toBeNull();
+    expect(connectorFor(shopify, Buffer.alloc(32, 9), deps)).toBeNull();
+    const ikas = { ...app, connector: platformConnectorConfig(app.id, platformDefinition("ikas")!, { store: "rose", clientId: "id", clientSecret: "ikas-secret" }, KEY) };
+    expect(connectorFor(ikas, Buffer.alloc(32, 9), deps)).toBeNull();
+    expect(connectorFor({ ...app, connector: { kind: "platform", platform: "nope", settings: {}, secretsEncrypted: "x" } }, KEY, deps)).toBeNull();
+    expect(logged).toEqual([
+      expect.stringContaining("the saved Shopify token can't be decrypted"),
+      expect.stringContaining("the saved ikas keys can't be decrypted"),
+      expect.stringContaining('unknown platform "nope"'),
+    ]);
+    expect(logged.join(" ")).not.toMatch(/storefront-secret-token|ikas-secret/);
   });
 
   it("answers only for hosted apps with an active account", async () => {
@@ -301,7 +347,9 @@ describe("hosted API", () => {
     });
     const config = buildConfigFor(app, { id: app.clientId }, { name: "1.0.0", code: 1 }, (id) => `https://x/${id}`);
     expect(config.api_base_url).toBe(`https://yallapp.test/api/app/${app.id}`);
-    expect(websiteReady(app)).toBe(true);
+    // 19 Moved to the hosted API by our team, but nothing serves content yet: the Website step stays open.
+    expect(websiteReady(app)).toBe(false);
+    expect(websiteReady({ ...app, connector: { kind: "catalog" } })).toBe(true);
     const valid = validateBuildConfig({ ...config, app_name: "Rose", short_name: "Rose", site_url: "https://rose.test", android_package: "com.rose.app", ios_bundle_id: "com.rose.app" });
     expect(valid.ok ? [] : valid.errors).toEqual([]);
   });
@@ -404,6 +452,7 @@ describe("App sign-in form", () => {
         supportWhatsapp: "+905321234567",
         termsUrl: "https://shop.test/terms",
         reviewPhone: "+905550000001",
+        reviewEmail: null,
         reviewCode: "246810",
       },
     });
@@ -424,7 +473,7 @@ describe("App sign-in form", () => {
       expect(Object.keys(parsed.errors).sort()).toEqual(["defaultCountryCode", "deviceLimit", "reviewCode", "reviewPhone", "supportWhatsapp", "termsUrl"]);
     }
     const noPhone = parseHostedSettingsForm({ ...base, reviewPhone: "" });
-    expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number reviewers sign in with, or clear the code.");
+    expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number or email address reviewers sign in with, or clear the code.");
     const off = parseHostedSettingsForm({ ...base, reviewPhone: "", reviewCode: "", supportWhatsapp: "", termsUrl: "", signupAllowed: "" });
     expect(off.ok && off.value).toMatchObject({ signupAllowed: false, reviewPhone: null, reviewCode: null, supportWhatsapp: null, termsUrl: null });
   });

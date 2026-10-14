@@ -1,4 +1,5 @@
-import { cartLines, error, intParam, type CartLineInput } from "./common";
+import type { HostedUser } from "../../data/types";
+import { cartLines, e164Of, error, intParam, verifiedEmail, type CartLineInput } from "./common";
 import { ConnectorError, type Connector, type ConnectorRequest, type ConnectorResult } from "./types";
 
 /**
@@ -8,14 +9,17 @@ import { ConnectorError, type Connector, type ConnectorRequest, type ConnectorRe
  * their GIDs), so the app's integer IDs map back without a lookup table.
  * Reviews aren't available through the Storefront API (`store.reviews` is
  * false). Order history needs the optional Admin API token (read_orders and
- * read_customers): the customer's orders are those of the Shopify customer
- * with the phone number they signed in with, which the hosted API verified.
+ * read_customers): the customer's orders are those of the Shopify customers
+ * with exactly the phone number they signed in with, or (19) exactly the
+ * email address an email account signed in with, both verified by the hosted
+ * API, and the orders placed or shipped with that exact phone or email.
  */
 
 export const SHOPIFY_API_VERSION = "2025-07";
 const PAGE_LIMIT = 250;
 const CACHE_MS = 5 * 60_000;
 const CHECKOUT_LINK_MINUTES = 5;
+const UNREACHABLE = "Shopify didn't answer.";
 /** The collection Shopify creates for the online store's home page. */
 const FEATURED_HANDLE = "frontpage";
 
@@ -56,7 +60,7 @@ export class ShopifyClient {
         signal: AbortSignal.timeout(10_000),
       });
     } catch {
-      throw new ConnectorError("Shopify didn't answer.");
+      throw new ConnectorError(UNREACHABLE);
     }
     if (!response.ok) throw new ConnectorError(`Shopify answered HTTP ${response.status}.`);
     const body = (await response.json().catch(() => ({}))) as { data?: T; errors?: { message?: string }[] };
@@ -83,7 +87,7 @@ export class ShopifyAdminClient {
         signal: AbortSignal.timeout(10_000),
       });
     } catch {
-      throw new ConnectorError("Shopify didn't answer.");
+      throw new ConnectorError(UNREACHABLE);
     }
     if (!response.ok) throw new ConnectorError(`Shopify answered HTTP ${response.status}.`);
     const body = (await response.json().catch(() => ({}))) as { data?: T; errors?: { message?: string }[] };
@@ -154,6 +158,8 @@ const QUERIES = {
       }
     }
   }`,
+  // 19 Whether the token reads products at all.
+  anyProduct: `query { products(first: 1) { nodes { id } } }`,
   productFirstVariants: `query($ids: [ID!]!) {
     nodes(ids: $ids) { ... on Product { id variants(first: 2) { nodes { id } } } }
   }`,
@@ -163,24 +169,48 @@ const QUERIES = {
 };
 
 const ADMIN_QUERIES = {
-  shop: `query { shop { name } }`,
-  customers: `query($query: String!) { customers(first: 10, query: $query) { nodes { id phone } } }`,
-  orders: `query($query: String!, $first: Int!, $after: String) {
-    orders(first: $first, after: $after, query: $query, sortKey: CREATED_AT, reverse: true) {
+  // 19 With the token's permissions, to say which one is missing.
+  shop: `query { shop { name } currentAppInstallation { accessScopes { handle } } }`,
+  customers: `query($query: String!) { customers(first: 10, query: $query) { nodes { id phone email } } }`,
+  orders: `query($query: String!, $first: Int!) {
+    orders(first: $first, query: $query, sortKey: CREATED_AT, reverse: true) {
       nodes {
         id name createdAt cancelledAt displayFinancialStatus displayFulfillmentStatus
+        email phone customer { id } shippingAddress { phone }
         currentTotalPriceSet { shopMoney { amount currencyCode } }
         lineItems(first: 50) { nodes { name quantity image { url } product { id } } }
       }
-      pageInfo { hasNextPage endCursor }
     }
   }`,
 };
+
+/** 19 What the Admin API token needs for order history. */
+export const ADMIN_SCOPES = ["read_orders", "read_customers"] as const;
+/** The newest orders read per lookup (customers, email, phone) for the order history. */
+const ORDER_LOOKUP_LIMIT = 250;
+
+/** 19 A token Shopify accepts but without a permission the app needs; the message names it. */
+export class ShopifyPermissionError extends ConnectorError {
+  constructor(message: string) {
+    super(message);
+    this.name = "ShopifyPermissionError";
+  }
+}
+
+/** The permissions of `needed` the token doesn't have (a write permission includes its read one). */
+export function missingScopes(granted: string[], needed: readonly string[]): string[] {
+  const have = new Set(granted);
+  return needed.filter((scope) => !have.has(scope) && !have.has(scope.replace(/^read_/, "write_")));
+}
 
 interface AdminOrder {
   id: string;
   name: string;
   createdAt: string;
+  email?: string | null;
+  phone?: string | null;
+  customer?: { id: string } | null;
+  shippingAddress?: { phone: string | null } | null;
   cancelledAt: string | null;
   displayFinancialStatus: string | null;
   displayFulfillmentStatus: string;
@@ -461,14 +491,38 @@ export class ShopifyConnector implements Connector {
     return new Mapper(await this.shop(), this.settings.shopDomain);
   }
 
-  /** Checks the domain and token; returns the shop's name. */
+  /**
+   * Checks the domain and token; returns the shop's name. 19 The token must
+   * also read products (the Storefront API's product listings permission).
+   */
   async check(): Promise<string> {
-    return (await this.client.query<{ shop: Shop }>(QUERIES.shop)).shop.name;
+    const name = (await this.client.query<{ shop: Shop }>(QUERIES.shop)).shop.name;
+    try {
+      await this.client.query(QUERIES.anyProduct);
+    } catch (e) {
+      if (!(e instanceof ConnectorError) || e.message === UNREACHABLE || /HTTP 5\d\d/.test(e.message)) throw e;
+      throw new ShopifyPermissionError(
+        "This Storefront API token can't read your products. In Shopify, give it the unauthenticated_read_product_listings permission, then paste it again.",
+      );
+    }
+    return name;
   }
 
-  /** Checks the Admin API token, when there is one. */
+  /** Checks the Admin API token, when there is one: 19 it must have read_orders and read_customers. */
   async checkAdmin(): Promise<void> {
-    if (this.admin) await this.admin.query(ADMIN_QUERIES.shop);
+    if (!this.admin) return;
+    const data = await this.admin.query<{ currentAppInstallation?: { accessScopes?: { handle: string }[] } | null }>(ADMIN_QUERIES.shop);
+    const missing = missingScopes((data.currentAppInstallation?.accessScopes ?? []).map((s) => s.handle), ADMIN_SCOPES);
+    if (missing.length === 1) {
+      throw new ShopifyPermissionError(
+        `This Admin API token doesn't have the ${missing[0]} permission. In Shopify, add it to the app's Admin API scopes, install the app again, then paste the new token.`,
+      );
+    }
+    if (missing.length > 1) {
+      throw new ShopifyPermissionError(
+        `This Admin API token doesn't have the ${missing.join(" and ")} permissions. In Shopify, add them to the app's Admin API scopes, install the app again, then paste the new token.`,
+      );
+    }
   }
 
   async config() {
@@ -664,33 +718,58 @@ export class ShopifyConnector implements Connector {
 
   // Orders
 
+  /**
+   * 19 The Shopify customers who are this customer: exactly their verified
+   * phone number, or exactly the email address an email account signed in
+   * with. Shopify matches searches loosely, so each match is compared here,
+   * and an empty phone or email never matches.
+   */
+  private async customerIds(admin: ShopifyAdminClient, phone: string | null, email: string | null): Promise<Set<number>> {
+    const find = async (query: string, same: (c: { phone?: string | null; email?: string | null }) => boolean) => {
+      const found = await admin.query<{ customers: { nodes: { id: string; phone?: string | null; email?: string | null }[] } }>(ADMIN_QUERIES.customers, { query });
+      return found.customers.nodes.filter(same).map((c) => numericId(c.id));
+    };
+    const [byPhone, byEmail] = await Promise.all([
+      phone ? find(`phone:${JSON.stringify(phone)}`, (c) => e164Of(c.phone) === phone) : [],
+      email ? find(`email:${JSON.stringify(email)}`, (c) => c.email?.trim().toLowerCase() === email) : [],
+    ]);
+    return new Set([...byPhone, ...byEmail]);
+  }
+
+  /**
+   * 19 The customer's orders, newest first: those of their Shopify customers,
+   * those placed with their exact email (email accounts), and those placed or
+   * shipped with their exact phone number (Shopify often links an order to a
+   * customer by email and leaves the customer's phone empty).
+   */
+  private async customerOrders(admin: ShopifyAdminClient, user: HostedUser): Promise<AdminOrder[]> {
+    const phone = e164Of(user.phone);
+    const email = verifiedEmail(user);
+    if (!phone && !email) return [];
+    const ids = await this.customerIds(admin, phone, email);
+    const lookup = async (query: string, own: (order: AdminOrder) => boolean): Promise<AdminOrder[]> => {
+      const data = await admin.query<{ orders: { nodes: AdminOrder[] } }>(ADMIN_QUERIES.orders, { query, first: ORDER_LOOKUP_LIMIT });
+      return data.orders.nodes.filter(own);
+    };
+    const samePhone = (value: string | null | undefined) => phone !== null && e164Of(value) === phone;
+    const lists = await Promise.all([
+      ids.size > 0 ? lookup([...ids].map((id) => `customer_id:${id}`).join(" OR "), (o) => Boolean(o.customer && ids.has(numericId(o.customer.id)))) : [],
+      email ? lookup(`email:${JSON.stringify(email)}`, (o) => o.email?.trim().toLowerCase() === email) : [],
+      // Each order's own phones are compared here, so however loosely Shopify matches `phone`, nothing extra shows.
+      phone ? lookup(`phone:${JSON.stringify(phone)}`, (o) => samePhone(o.phone) || samePhone(o.shippingAddress?.phone)) : [],
+    ]);
+    const byId = new Map<string, AdminOrder>();
+    for (const order of lists.flat()) byId.set(order.id, order);
+    return [...byId.values()].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || numericId(b.id) - numericId(a.id));
+  }
+
   private async orders(request: ConnectorRequest, admin: ShopifyAdminClient): Promise<ConnectorResult> {
     if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
     const page = intParam(request.query, "page", 1, 10_000);
     const perPage = intParam(request.query, "per_page", 20, 50);
-    const empty = { status: 200, body: { page, per_page: perPage, total: 0, total_pages: 1, items: [] } };
-    const phone = request.user.phone;
-    // Shopify matches phone searches loosely: keep the customers whose number is exactly this one.
-    const found = await admin.query<{ customers: { nodes: { id: string; phone: string | null }[] } }>(ADMIN_QUERIES.customers, {
-      query: `phone:${JSON.stringify(phone)}`,
-    });
-    const ids = found.customers.nodes.filter((c) => c.phone === phone).map((c) => numericId(c.id));
-    if (ids.length === 0) return empty;
-    const query = ids.map((id) => `customer_id:${id}`).join(" OR ");
-    const result = await this.page(
-      async (first, after) => {
-        const data = await admin.query<{ orders: { nodes: AdminOrder[]; pageInfo: ProductPage["pageInfo"] } }>(ADMIN_QUERIES.orders, {
-          query,
-          first,
-          after,
-        });
-        return data.orders as unknown as ProductPage;
-      },
-      page,
-      perPage,
-    );
+    const all = await this.customerOrders(admin, request.user);
     const map = await this.mapper();
-    const items = (result.items as unknown as AdminOrder[]).map((order) => {
+    const items = all.slice((page - 1) * perPage, page * perPage).map((order) => {
       const status = orderStatus(order);
       return {
         id: numericId(order.id),
@@ -708,16 +787,9 @@ export class ShopifyConnector implements Connector {
         })),
       };
     });
-    const seen = (page - 1) * perPage + items.length;
     return {
       status: 200,
-      body: {
-        page,
-        per_page: perPage,
-        total: seen + (result.hasNext ? 1 : 0),
-        total_pages: result.hasNext ? page + 1 : page,
-        items,
-      },
+      body: { page, per_page: perPage, total: all.length, total_pages: Math.max(1, Math.ceil(all.length / perPage)), items },
     };
   }
 

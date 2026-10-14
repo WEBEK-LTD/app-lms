@@ -62,7 +62,11 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
     wordpress: `Your WordPress site, ${app.siteUrl ?? ""}, through the Yallapp plugin.`,
     custom_api: `Your own API, ${app.apiBaseUrl ?? ""}.`,
     hosted: "Your content in Yallapp, or the platform you connected.",
-    none: "Not connected yet. The preview shows your app's look until you choose where its content comes from.",
+    none:
+      app.backend === "setup_requested"
+        ? // 19 Our team is still setting up the WordPress site.
+          "Your WordPress site, once our team has set it up. Until then the preview shows your app's look."
+        : "Not connected yet. The preview shows your app's look until you choose where its content comes from.",
   };
 
   const settings = hostedSettings(app);
@@ -80,6 +84,11 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
         To try the signed-in screens, add a store review number and code on <Link href="/dashboard/app-sign-in">App sign-in</Link>, then sign in with them here.
       </>
     )
+  ) : app.backend === "setup_requested" ? (
+    <>
+      Signing in works in the preview once our team has set up your WordPress site with the Yallapp plugin: then sign in with the store review number and code
+      set in the plugin&apos;s settings. Choose how people sign in now on <Link href="/dashboard/app-sign-in">App sign-in</Link>.
+    </>
   ) : app.backend === "wordpress" ? (
     <>
       Sign in with the store review number and code set in the Yallapp plugin&apos;s settings on your site (Store review access). An older plugin can&apos;t do this: the
@@ -116,7 +125,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
         </nav>
       ) : (
         <Notice icon="info">
-          The preview shows your published pages: your {source === "wordpress" ? "site" : "API"} gets pages from Yallapp only once they&apos;re published. Drafts show in the
+          The preview shows your published pages: your {source === "wordpress" || app.backend === "setup_requested" ? "site" : "API"} gets pages from Yallapp only once they&apos;re published. Drafts show in the
           editor on <Link href="/dashboard/pages">Pages &amp; look</Link>.
         </Notice>
       )}

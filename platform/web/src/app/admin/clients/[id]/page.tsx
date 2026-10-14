@@ -37,7 +37,7 @@ import { APP_TYPE_SWITCHES, getSwitches, websiteOf, websiteOn } from "@/lib/swit
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
-import { ClientNotificationForm, ConnectionCheckForm } from "./forms";
+import { ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
 
 export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
@@ -49,7 +49,8 @@ const DONE: Record<string, string> = {
   reinstated: "Reinstated.",
   regenerated: "New license key created. The old key no longer works.",
   released: "The license was released from its website.",
-  hosted: "The app now uses the hosted API. Its next build signs customers in through Yallapp.",
+  hosted: "The app now uses the hosted API. The client chooses where its content comes from on their Website step; its next build signs customers in through Yallapp.",
+  "wordpress-ready": "The app now gets its content from the client's new WordPress site. The client was emailed and sees a notice on their dashboard.",
   unhosted: "The app no longer uses the hosted API. The client chooses a website on their Website step.",
   rerun: "The build is queued again.",
   "signed-out": "The app user was signed out of every device.",
@@ -488,6 +489,7 @@ async function AppEntry({
           cardId={`h-appinfo-${entry.key}`}
           stepsDone={SETUP_STEPS.filter((s) => steps[s]).length}
           websiteSwitchedOff={app ? !websiteOn(switches, websiteOf(app), license?.plan ?? null) : false}
+          activatedSite={activation?.siteUrl ?? null}
           several={several}
           may={{ edit: may.edit }}
         />
@@ -583,6 +585,7 @@ function AppCard({
   cardId,
   stepsDone,
   websiteSwitchedOff,
+  activatedSite,
   several,
   may,
 }: {
@@ -591,6 +594,8 @@ function AppCard({
   cardId: string;
   stepsDone: number;
   websiteSwitchedOff: boolean;
+  /** Where the app's license is active (normalized, without https). */
+  activatedSite: string | null;
   several: boolean;
   may: { edit: boolean };
 }) {
@@ -650,6 +655,12 @@ function AppCard({
         <span className="text-sm font-semibold">Connection</span>
         <ConnectionCheckForm clientId={clientId} appId={app.id} />
       </div>
+      {app.backend === "setup_requested" && may.edit ? (
+        <div className="flex flex-col gap-2 border-t border-line-soft pt-3.5">
+          <span className="text-sm font-semibold">WordPress set-up</span>
+          <WordpressReadyForm clientId={clientId} appId={app.id} siteUrl={activatedSite ? `https://${activatedSite}` : (app.siteUrl ?? "")} />
+        </div>
+      ) : null}
       {may.edit ? (
         <form action={setHostedApiAction} className="border-t border-line-soft pt-3.5">
           <input type="hidden" name="clientId" value={clientId} />

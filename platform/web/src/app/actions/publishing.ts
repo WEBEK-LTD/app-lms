@@ -12,15 +12,8 @@ import { appPlan } from "@/lib/entitlements";
 import type { DataStore } from "@/lib/data/store";
 import type { App, PublishingRequest } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
-import { notifyPublishingTeam } from "@/lib/publishing/service";
-import {
-  APP_STORE_CATEGORIES,
-  applyChecklist,
-  canUseManagedPublishing,
-  checklistProgress,
-  newPublishingRequest,
-  PLAY_CATEGORIES,
-} from "@/lib/publishing/steps";
+import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
+import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, PLAY_CATEGORIES } from "@/lib/publishing/steps";
 
 /** The dashboard's current app, for an active client (or our team managing them). */
 async function requireApp(): Promise<ClientContext & { app: App }> {
@@ -58,17 +51,8 @@ export async function choosePublishingModeAction(formData: FormData): Promise<vo
   const store = await getStore();
   const now = new Date();
   if (mode === "managed" && !canUseManagedPublishing(await appPlan(store, context.license, now))) redirect(`${PAGE}?error=not-included`);
-  const existing = await store.getPublishingRequest(context.app.id);
-  const request: PublishingRequest = existing
-    ? { ...existing, mode, requestedAt: mode === "managed" ? (existing.requestedAt ?? now) : existing.requestedAt, updatedAt: now }
-    : newPublishingRequest(context.app, mode, now);
-  await store.savePublishingRequest(request);
-  // Managed: our team publishes through invitations, so the setup's Publishing step (store keys) is done for them.
-  await store.updateApp(context.app.id, { publishingMode: mode, ...(mode === "managed" && !context.app.publishingDoneAt ? { publishingDoneAt: now } : {}) }, now);
-  await recordStaffChange(context, mode === "managed" ? "Chose “Publish it for me”" : "Chose “I'll publish it myself”", { publishingMode: context.app.publishingMode }, { publishingMode: mode });
-  if (mode === "managed" && existing?.mode !== "managed") {
-    await notifyPublishingTeam(store, { user: context.user, client: context.client, app: context.app, event: "asked us to publish their app" });
-  }
+  // 19 The same as choosing in the setup's Publishing step.
+  await choosePublishingMode(store, context, mode, now);
 
   // That may have completed the setup: the first build starts, as when the last setup step is saved.
   const app = (await store.getAppById(context.app.id))!;

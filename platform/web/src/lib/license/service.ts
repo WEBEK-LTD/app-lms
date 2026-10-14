@@ -1,4 +1,6 @@
+import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
+import type { Mailer } from "../notices";
 import type { Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
 import { chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
@@ -145,7 +147,17 @@ async function findLicense(store: DataStore, key: string): Promise<{ license: Li
   return client ? { license, client } : null;
 }
 
-export async function activateLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
+/**
+ * 19 What an activation may tell the app's owner: when the app waited for the
+ * WordPress site our team set up, the plugin activating its license means the
+ * site is ready. Without it (tests), the app still moves, without an email.
+ */
+export interface ActivationOptions {
+  mail?: Mailer;
+  baseUrl?: string;
+}
+
+export async function activateLicense(store: DataStore, site: SiteInfo, now: Date, options: ActivationOptions = {}): Promise<ApiResult<LicenseStatusBody>> {
   const plans = await effectivePlans(store);
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
@@ -173,6 +185,17 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
         message: `This license is active on ${claim.existing.siteUrl}. Deactivate it there, or release it from your Yallapp dashboard, then try again.`,
       },
     };
+  }
+  // 19 The app waited for its WordPress site: this is it.
+  const app = license.appId ? await store.getAppById(license.appId) : null;
+  const siteUrl = httpsSiteAddress(site.siteUrlRaw);
+  if (app?.backend === "setup_requested" && siteUrl) {
+    try {
+      await moveToWordpress({ store, now, baseUrl: options.baseUrl ?? "", mail: options.mail ?? (async () => undefined) }, app, siteUrl);
+    } catch (error) {
+      // The activation stands; our team can still mark the site ready.
+      console.error("[license] the app couldn't be moved to its WordPress site", error);
+    }
   }
   return { status: 200, body: statusBody(methods, plans, "active", license, now, null) };
 }

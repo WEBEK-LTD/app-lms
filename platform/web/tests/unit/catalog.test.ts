@@ -203,6 +203,17 @@ describe("catalog shop on the hosted API", () => {
     });
   });
 
+  it("19 shows products without a cart until card payments are set up", async () => {
+    expect((await call("GET", "/store/products/{product_id}", { params: [String(ids.roses)] })).body).toMatchObject({ purchasable: true });
+    app = { ...app, catalogSettings: { ...app.catalogSettings!, payment: null } };
+    const all = (await call("GET", "/store/products")).body as { items: { purchasable: boolean }[] };
+    expect(all.items.every((p) => p.purchasable === false)).toBe(true);
+    expect((await call("GET", "/store/products/{product_id}", { params: [String(ids.roses)] })).body).toMatchObject({ purchasable: false });
+    // A demo shop's payment page charges nothing: it still sells.
+    app = { ...app, demo: true };
+    expect((await call("GET", "/store/products/{product_id}", { params: [String(ids.roses)] })).body).toMatchObject({ purchasable: true });
+  });
+
   it("shows a product", async () => {
     const result = await call("GET", "/store/products/{product_id}", { params: [String(ids.roses)] });
     expect(result.body).toMatchObject({

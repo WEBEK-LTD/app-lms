@@ -42,6 +42,10 @@
   --color-tile-3: #e6e3ef;
   --color-tile-4: #eedde8;
 
+  /* 19 The phone frame around app screens (components/device-frame.tsx). */
+  --color-phone: #16161a;
+  --color-phone-edge: #4a4a52;
+
   --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -185,5 +189,57 @@
       font-weight: 600;
       text-align: left;
     }
+  }
+}
+
+/*
+ * 19 The phone frame (components/device-frame.tsx). The outer box is a size
+ * container, so the bezel, the corners and the camera are shares of the
+ * phone's width: a small phone looks like a large one, only smaller.
+ */
+.phone {
+  container-type: inline-size;
+}
+.phone-body {
+  --phone-bezel: clamp(3px, 2.6cqw, 10px);
+  --phone-radius: 14cqw;
+  position: relative;
+  padding: var(--phone-bezel);
+  border-radius: var(--phone-radius);
+  background: var(--color-phone);
+  /* A thin metal band with a dark seam inside it, then a light lift off the page. */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    inset 0 0 0 1.5px var(--color-phone-edge),
+    inset 0 0 0 2.5px #0a0a0c,
+    0 1px 2px rgba(14, 13, 36, 0.08),
+    0 16px 32px -16px rgba(14, 13, 36, 0.28);
+}
+.phone-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--phone-radius) - var(--phone-bezel));
+}
+/* The camera, a small pill in the middle of the status bar. */
+.phone-island {
+  position: absolute;
+  z-index: 1;
+  top: 1.5cqw;
+  left: 50%;
+  width: 28cqw;
+  height: 6.4cqw;
+  translate: -50% 0;
+  border-radius: 999px;
+  background: #050506;
+  pointer-events: none;
+}
+.phone-button {
+  position: absolute;
+  width: 2px;
+  background: color-mix(in srgb, var(--color-phone) 55%, var(--color-phone-edge));
+}
+@container (width < 180px) {
+  .phone-button {
+    display: none;
   }
 }

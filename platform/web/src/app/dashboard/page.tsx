@@ -22,8 +22,9 @@ import { AnnouncementBanner } from "@/components/announcements";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { isInProgress, statusExplanation } from "@/lib/builds/view";
 import { dashboardFileHref, fileLink } from "@/lib/files";
-import { CLIENT_STATUS_LABEL, PUBLISHING_STORES, statusTone, STORE_TITLE } from "@/lib/publishing/steps";
+import { CLIENT_STATUS_LABEL, isLiveSomewhere, PUBLISHING_STORES, statusTone, STORE_TITLE } from "@/lib/publishing/steps";
 import type { App } from "@/lib/data/types";
+import { paymentsSetUp } from "@/lib/catalog/settings";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -83,6 +84,8 @@ export default async function OverviewPage() {
   const plugin = usesPlugin(app);
   const activation = license && plugin ? await store.getActivation(license.id) : null;
   const status = stepStatus(app, plan, effective);
+  // 19 "Publish it for me" until a store is live: the Publishing step is done, our team isn't yet.
+  const teamOnIt = publishing !== null && status.publishing && !isLiveSomewhere(publishing);
   const done = SETUP_STEPS.filter((step) => status[step]).length;
   const next = nextStep(app, plan, effective);
   const daysLeft = license ? daysUntil(license.expiresAt, now) : 0;
@@ -140,6 +143,14 @@ export default async function OverviewPage() {
         </Notice>
       ) : null}
 
+      {/* 19 Products managed here show without a cart until the shop can take card payments. */}
+      {app.connector?.kind === "catalog" && !paymentsSetUp(app) ? (
+        <Notice tone="warn" icon="warning">
+          Customers can see your products in the app but can&apos;t pay for them until you set up{" "}
+          <Link href="/dashboard/catalog#h-payments">Card payments</Link> on the Products page.
+        </Notice>
+      ) : null}
+
       {/* The app at a glance: what it is, its state and plan, and the next thing to do. */}
       <section aria-labelledby="h-app" className="flex flex-wrap items-center gap-x-6 gap-y-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex min-w-0 flex-[1_1_320px] items-center gap-4">
@@ -193,18 +204,26 @@ export default async function OverviewPage() {
           <span className="text-2xl font-extrabold">{next ? `${done} of ${SETUP_STEPS.length} steps` : "Complete"}</span>
           <ProgressBar value={done} max={SETUP_STEPS.length} label="Setup progress" tone={next ? "accent" : "success"} />
           <ol className="m-0 mt-1 flex list-none flex-col gap-1.5 p-0 text-sm">
-            {SETUP_STEPS.map((step) => (
-              <li key={step} className={`flex items-center gap-2 ${status[step] ? "text-ink-4" : step === next ? "font-bold" : "text-muted"}`}>
-                <Icon
-                  name={status[step] ? "check_circle" : step === next ? "arrow_forward" : "radio_button_unchecked"}
-                  size={18}
-                  filled={status[step]}
-                  className={status[step] ? "text-success" : step === next ? "text-accent" : "text-faint"}
-                />
-                {STEP_LABEL[step]}
-                <span className="sr-only">{status[step] ? " (done)" : step === next ? " (next)" : " (to do)"}</span>
-              </li>
-            ))}
+            {SETUP_STEPS.map((step) =>
+              step === "publishing" && teamOnIt ? (
+                // 19 The step counts as done ("Publish it for me" needs no keys), but nothing is live yet.
+                <li key={step} className="flex items-center gap-2 text-ink-4">
+                  <Icon name="hourglass_top" size={18} className="text-accent" />
+                  {STEP_LABEL[step]}: our team is on it
+                </li>
+              ) : (
+                <li key={step} className={`flex items-center gap-2 ${status[step] ? "text-ink-4" : step === next ? "font-bold" : "text-muted"}`}>
+                  <Icon
+                    name={status[step] ? "check_circle" : step === next ? "arrow_forward" : "radio_button_unchecked"}
+                    size={18}
+                    filled={status[step]}
+                    className={status[step] ? "text-success" : step === next ? "text-accent" : "text-faint"}
+                  />
+                  {STEP_LABEL[step]}
+                  <span className="sr-only">{status[step] ? " (done)" : step === next ? " (next)" : " (to do)"}</span>
+                </li>
+              ),
+            )}
           </ol>
         </Tile>
 
@@ -260,7 +279,7 @@ export default async function OverviewPage() {
         >
           {publishing ? (
             <>
-              <span className="text-sm text-muted">Our team publishes it for you.</span>
+              <span className="text-sm text-muted">{teamOnIt ? "Our team is on it: it isn't live on a store yet." : "Our team publishes it for you."}</span>
               <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
                 {PUBLISHING_STORES.map((which) => (
                   <li key={which} className="flex flex-wrap items-center justify-between gap-2">

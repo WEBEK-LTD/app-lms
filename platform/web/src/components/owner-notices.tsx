@@ -6,7 +6,8 @@ import { btn } from "./ui";
 /**
  * 13.2 and 13.4 What the platform told the account's owner (also by email):
  * app users near the plan's limit and plans about to end, for every app of
- * the account, until closed or no longer true.
+ * the account, until closed or no longer true. 19 Also: the WordPress site
+ * our team set up is ready, and the app's own API failed its last check.
  */
 export function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
   if (!notices.length) return null;
@@ -19,7 +20,11 @@ export function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
           role={n.tone === "warn" ? "alert" : "status"}
           className={`flex flex-wrap items-start gap-3 rounded-xl px-4 py-3.5 text-[15px] leading-relaxed text-ink-2 ${n.tone === "warn" ? "bg-warn-bg" : "bg-peach"}`}
         >
-          <Icon name={n.kind.startsWith("app_users") ? "group" : "schedule"} size={22} className={n.tone === "warn" ? "text-warn" : "text-accent"} />
+          <Icon
+            name={n.kind.startsWith("app_users") ? "group" : n.kind === "wordpress_ready" ? "web" : n.kind === "api_check_failed" ? "warning" : "schedule"}
+            size={22}
+            className={n.tone === "warn" ? "text-warn" : "text-accent"}
+          />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <strong>{n.title}</strong>
             <span>{n.body}</span>

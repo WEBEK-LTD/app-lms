@@ -96,8 +96,12 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByRole("button", { name: "Save & continue" }).click();
   await expect(page.getByRole("heading", { name: "Branding" })).toBeVisible();
 
+  // 19 Without card payments, the owner is told customers can't pay yet (here and on the overview).
   await page.getByRole("link", { name: "Products", exact: true }).click();
-  await expect(page.getByText("can't take orders until you set up")).toBeVisible();
+  await expect(page.getByText("can't pay for them until you set up Card payments below")).toBeVisible();
+  await page.goto("/dashboard");
+  await expect(page.getByText("can't pay for them until you set up Card payments on the Products page")).toBeVisible();
+  await page.getByRole("link", { name: "Products", exact: true }).click();
   await page.getByLabel("New category").fill("Bouquets");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByLabel("Category name")).toHaveValue("Bouquets");

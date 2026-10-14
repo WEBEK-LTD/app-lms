@@ -1,5 +1,5 @@
 import { hasFeature, type PlanInfo } from "../plans";
-import type { App, AppType, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
+import type { App, AppType, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -112,6 +112,34 @@ export const CLIENT_STATUS_LABEL: Record<PublishingStatus, string> = { ...PUBLIS
 
 export function isPublishingStatus(value: unknown): value is PublishingStatus {
   return typeof value === "string" && (PUBLISHING_STATUSES as string[]).includes(value);
+}
+
+/** Live on both stores: the request is no longer open for the team. */
+export function isLiveEverywhere(request: Pick<PublishingRequest, "android" | "ios">): boolean {
+  return request.android.status === "live" && request.ios.status === "live";
+}
+
+/** Live on at least one store. */
+export function isLiveSomewhere(request: Pick<PublishingRequest, "android" | "ios">): boolean {
+  return request.android.status === "live" || request.ios.status === "live";
+}
+
+/** 19 The requests the team still works on ("Publish it for me", not live everywhere): the admin's Publishing badge. */
+export function openPublishingCount(requests: PublishingRequest[]): number {
+  return requests.filter((r) => r.mode === "managed" && !isLiveEverywhere(r)).length;
+}
+
+/**
+ * One line of the publishing history, for the team (admin) or the client:
+ * a store's new status, or (19) the client choosing who publishes the app.
+ */
+export function publishingEventLabel(event: Pick<PublishingEvent, "store" | "status">, reader: "team" | "client"): string {
+  if (event.store === "mode") {
+    if (event.status === "managed") return reader === "team" ? "Asked us to publish the app" : "You asked us to publish your app";
+    return reader === "team" ? "Will publish the app themselves" : "You chose to publish your app yourself";
+  }
+  const status = event.status as PublishingStatus;
+  return `${STORE_TITLE[event.store]}: ${(reader === "team" ? PUBLISHING_STATUS_LABEL : CLIENT_STATUS_LABEL)[status] ?? status}`;
 }
 
 /** What a status means for the client, in plain words. */

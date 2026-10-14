@@ -511,7 +511,9 @@ export const bookingAppointments = mysqlTable(
     serviceName: varchar("service_name", { length: 120 }).notNull(),
     staffName: varchar("staff_name", { length: 120 }).notNull(),
     customerName: varchar("customer_name", { length: 120 }).notNull(),
-    customerPhone: varchar("customer_phone", { length: 24 }).notNull(),
+    // 19 Someone who signed in by email has no phone: their email is kept instead.
+    customerPhone: varchar("customer_phone", { length: 24 }),
+    customerEmail: varchar("customer_email", { length: 191 }),
     startAt: time("start_at").notNull(),
     endAt: time("end_at").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<BookingStatus>(),
@@ -879,8 +881,9 @@ export const publishingEvents = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    store: varchar("store", { length: 8 }).notNull().$type<PublishingStore>(),
-    status: varchar("status", { length: 16 }).notNull().$type<PublishingStatus>(),
+    // 19 Also "mode" with the mode chosen ("managed" or "self") as the status.
+    store: varchar("store", { length: 8 }).notNull().$type<PublishingStore | "mode">(),
+    status: varchar("status", { length: 16 }).notNull().$type<PublishingStatus | PublishingMode>(),
     note: text("note"),
     actorEmail: varchar("actor_email", { length: 191 }).notNull(),
     at: time("at").notNull(),

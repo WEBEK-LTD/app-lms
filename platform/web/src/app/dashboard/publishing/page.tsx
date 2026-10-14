@@ -23,6 +23,7 @@ import {
   PLAY_CATEGORIES,
   PUBLISHING_STEPS,
   PUBLISHING_STORES,
+  publishingEventLabel,
   statusText,
   statusTone,
   stepDone,
@@ -317,7 +318,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               <li key={event.id} className="flex flex-wrap gap-x-2 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
                 <span className="text-muted">{formatDateTime(event.at)}</span>
                 <span className="font-semibold">
-                  {STORE_TITLE[event.store]}: {CLIENT_STATUS_LABEL[event.status]}
+                  {publishingEventLabel(event, "client")}
                 </span>
                 {event.note ? <span className="basis-full text-ink-4">{event.note}</span> : null}
               </li>

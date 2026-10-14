@@ -14,6 +14,7 @@ import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, Publis
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
 import { AppDefaultsForm } from "./app-defaults-form";
+import { SmtpMissingNotice } from "../smtp-notice";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
@@ -93,6 +94,8 @@ export default async function SettingsPage() {
           Settings saved here replace the Netlify variables and apply within 30 seconds. Secrets are stored encrypted and never shown again.
         </span>
       </div>
+      {/* 19 Without SMTP, production drops every email with only a server log line. */}
+      {smtp || envSmtp ? null : <SmtpMissingNotice what="Emails to the team (new publishing and set-up requests, build problems) aren't sent" settingsLink={false} />}
       <ReadOnly when={!can(adminRole, "settings.edit")} what="change platform settings">
 
       <Section id="h-contact" title="Contact details" text="How clients reach Yallapp: shown on every page of the website, in the dashboard and in emails.">

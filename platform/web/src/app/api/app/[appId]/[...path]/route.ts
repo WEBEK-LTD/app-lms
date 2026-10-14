@@ -1,8 +1,9 @@
 import { assetUrl } from "@/lib/assets";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, isProduction, mailCaptureDir, signingSecret, waabekApiUrl } from "@/lib/env";
-import { appOtpSender } from "@/lib/hosted/app-sender";
-import { resolvedOtpSenderConfig, resolvedSmtpConfig } from "@/lib/settings/platform";
+import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
+import { mailDelivered } from "@/lib/mail";
+import { appOtpSender, recordOwnWhatsappFailure, senderWithFallback } from "@/lib/hosted/app-sender";
+import { resolvedOtpSenderConfig } from "@/lib/settings/platform";
 import { hmacSha256 } from "@/lib/crypto/tokens";
 import { connectorFor } from "@/lib/hosted/connectors";
 import { serviceAccountOf } from "@/lib/hosted/notify";
@@ -86,11 +87,15 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       preview: preview?.ok ? { draft: preview.grant.draft } : null,
       secret: hmacSha256(signingSecret(), "hosted-api"),
       // 18 The owner's own WhatsApp number when they connected one, else Yallapp's sender.
-      sender: appOtpSender(app, encryptionKey(), waabekApiUrl()) ?? otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
+      // 19 When the own number fails, Yallapp's sender sends that code and the owner is told.
+      sender: senderWithFallback(
+        appOtpSender(app, encryptionKey(), waabekApiUrl()),
+        otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey())),
+        () => recordOwnWhatsappFailure({ store, now, baseUrl: appUrl(), mail: sendTemplate }, app.id),
+      ),
       sendEmailCode: async ({ to, code, appName, minutes }) => {
         // Without SMTP in production, sendMail drops the message: say the code couldn't be sent instead.
-        // End-to-end runs keep the email in YALLAPP_MAIL_DIR (never on Netlify), so it isn't lost there.
-        if (isProduction() && process.env.YALLAPP_DATA !== "memory" && !mailCaptureDir() && !(await resolvedSmtpConfig(store, encryptionKey()))) {
+        if (!(await mailDelivered(store))) {
           throw new Error("No email server is set up.");
         }
         await sendTemplate("sign_in_code", to, { app_name: appName, code, minutes: String(minutes) });

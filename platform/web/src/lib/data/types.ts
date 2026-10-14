@@ -133,6 +133,8 @@ export interface HostedSettings {
   /** App store review access: this number signs in with `reviewCode`, no message sent. */
   reviewPhone: string | null;
   reviewCode: string | null;
+  /** 19 App store review access for email sign-in: this address signs in with `reviewCode`, no email sent. */
+  reviewEmail?: string | null;
   /**
    * 18 How people sign in, as the owner chose on App sign-in (hosted and
    * WordPress apps). Missing until they choose: phone on the hosted API, the
@@ -141,6 +143,24 @@ export interface HostedSettings {
   signInMethods?: SignInMethod[];
   /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
   whatsappSender?: AppWhatsappSender | null;
+  /**
+   * 19 When the owner's own WhatsApp number last failed to send a code (ISO
+   * time). Yallapp's sender sent that code instead; cleared when the owner
+   * saves a key, sends a test code that arrives, or goes back to Yallapp's number.
+   */
+  whatsappFailedAt?: string | null;
+  /** 19 Own API apps: how the API signs people in, as the last API check on the Website step found it. */
+  apiSignIn?: ApiSignInSnapshot | null;
+}
+
+/** 19 What an own API's `GET /config` advertised for sign-in at the last API check. */
+export interface ApiSignInSnapshot {
+  checkedAt: string;
+  /** The API address that was checked; shown only while it's the app's saved address. */
+  baseUrl: string;
+  methods: SignInMethod[];
+  emailSignIn: "code" | "password" | null;
+  previewSignIn: boolean;
 }
 
 export type SignInMethod = "phone" | "email";
@@ -701,7 +721,10 @@ export interface BookingAppointment {
   serviceName: string;
   staffName: string;
   customerName: string;
-  customerPhone: string;
+  /** E.164; null for someone who signed in by email (19). */
+  customerPhone: string | null;
+  /** 19 The address of someone who signed in by email; null otherwise. */
+  customerEmail: string | null;
   startAt: Date;
   endAt: Date;
   status: BookingStatus;
@@ -1144,18 +1167,27 @@ export interface PublishingRequest {
   requestedAt: Date | null;
   /** When the client finished the checklist; null while steps are open. */
   readyAt: Date | null;
+  /**
+   * 19 When the last email to the publishing team wasn't sent (SMTP missing or
+   * failing); null (or absent) once one goes out. Shown on the request in the admin.
+   */
+  teamEmailFailedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/** One status change, for the history on the dashboard and in the admin. */
+/**
+ * One status change, for the history on the dashboard and in the admin. 19 Or
+ * the client choosing how the app is published: store "mode", status the
+ * mode they chose ("managed" or "self").
+ */
 export interface PublishingEvent {
   id: number;
   appId: string;
-  store: PublishingStore;
-  status: PublishingStatus;
+  store: PublishingStore | "mode";
+  status: PublishingStatus | PublishingMode;
   note: string | null;
-  /** The team member who changed it. */
+  /** The team member who changed it (or the client, for a mode change). */
   actorEmail: string;
   at: Date;
 }
@@ -1176,7 +1208,15 @@ export interface PlatformSettingValues {
  * What the dashboard tells an app's owner, also sent by email: app users near
  * or at the plan's limit, and the plan ending in 7 days, tomorrow or today.
  */
-export type OwnerNoticeKind = "app_users_80" | "app_users_100" | "plan_ends_7" | "plan_ends_1" | "plan_ends_0";
+export type OwnerNoticeKind =
+  | "app_users_80"
+  | "app_users_100"
+  | "plan_ends_7"
+  | "plan_ends_1"
+  | "plan_ends_0"
+  // 19 The WordPress site our team set up is ready; the app's own API failed its last check.
+  | "wordpress_ready"
+  | "api_check_failed";
 
 export interface OwnerNotice {
   id: number;

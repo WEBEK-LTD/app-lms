@@ -151,10 +151,14 @@ test("the client works through the checklist and the listing details", async () 
   // The overview shows where it stands.
   await own.goto("/dashboard");
   await expect(own.getByRole("listitem").filter({ hasText: "Google Play" })).toContainText("Waiting for you");
+  // 19 The setup counts the step as done, but nothing is live yet.
+  await expect(own.getByText("Publishing: our team is on it")).toBeVisible();
 });
 
 test("the team moves each store along, and the client is emailed", async () => {
   await admin.goto("/admin/publishing");
+  // 19 The open requests are counted next to Publishing.
+  await expect(admin.getByRole("navigation", { name: "Super admin" }).getByRole("link", { name: /^Publishing \d+ open requests?$/ })).toBeVisible();
   const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
   await expect(card).toContainText("Client ready");
   await expect(card).toContainText("Firebase project: we create it");
@@ -284,4 +288,34 @@ test("the team closes a build that stopped, and the client can start again", asy
   // The history keeps every build, with its times.
   const history = own.getByRole("region", { name: "Build history" });
   await expect(history.getByRole("row")).toHaveCount(4);
+});
+
+test("publishing yourself after all tells the team, and the setup's Publishing step asks us again", async () => {
+  await own.goto("/dashboard/publishing");
+  await own.getByRole("button", { name: "I'll publish it myself" }).click();
+  await expect(own.getByText("Saved: you publish Franklin Lab yourself.")).toBeVisible();
+  await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} will publish their app themselves`);
+  await admin.goto("/admin/publishing");
+  await expect(admin.getByRole("region", { name: `Franklin Lab (${client.name})` })).toHaveCount(0);
+
+  // 19 The same choice in the setup: "Publish it for me" needs no store keys.
+  await own.goto("/dashboard/setup?step=publishing");
+  await expect(own.getByRole("radio", { name: /I'll publish it myself/ })).toBeChecked();
+  await own.getByRole("button", { name: "Save & finish" }).click();
+  await expect(own.getByText("Add your Google Play key, your App Store Connect key, or both. Or choose “Publish it for me”.")).toBeVisible();
+  await own.getByRole("radio", { name: /Publish it for me/ }).check();
+  await expect(own.getByText("No store keys needed.")).toBeVisible();
+  await own.getByRole("button", { name: "Save & finish" }).click();
+  await expect(own).toHaveURL(/\/dashboard\/builds/);
+  await expect
+    .poll(async () => (await mailsTo(teamEmail)).filter((m) => m.subject === `Publishing: ${client.name} asked us to publish their app`).length)
+    .toBe(2);
+
+  await admin.goto("/admin/publishing");
+  const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
+  await card.locator("summary").filter({ hasText: "History" }).click();
+  await expect(card).toContainText("Will publish the app themselves");
+  await expect(card).toContainText("Asked us to publish the app");
+  await own.goto("/dashboard/publishing");
+  await expect(own.getByRole("region", { name: "History" })).toContainText("You chose to publish your app yourself");
 });

@@ -1,5 +1,6 @@
 import "server-only";
 import { getStore } from "./data";
+import type { DataStore } from "./data/store";
 import { encryptionKey, isProduction, mailCaptureDir } from "./env";
 import { DEFAULT_CONTACT } from "./contact";
 import { platformSetting, resolvedSmtpConfig } from "./settings/platform";
@@ -46,6 +47,22 @@ export async function sendMail(input: Mail): Promise<void> {
     requireTLS: !config.secure,
   });
   await transport.sendMail({ from: config.from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html });
+}
+
+/** 19 Whether SMTP is set up (in the admin's Settings or the server's variables). */
+export async function smtpConfigured(store: DataStore): Promise<boolean> {
+  return (await resolvedSmtpConfig(store, encryptionKey())) !== null;
+}
+
+/**
+ * 19 Whether service email reaches anyone: through SMTP, or (outside
+ * production) the server log. False in production without SMTP, where
+ * sendMail drops messages with only a warning.
+ */
+export async function mailDelivered(store: DataStore): Promise<boolean> {
+  // End-to-end runs keep every email in YALLAPP_MAIL_DIR (never on Netlify), so nothing is lost there.
+  if (!isProduction() || process.env.YALLAPP_DATA === "memory" || mailCaptureDir()) return true;
+  return smtpConfigured(store);
 }
 
 /** Replaced by sendMail with the WhatsApp number set in the admin. */

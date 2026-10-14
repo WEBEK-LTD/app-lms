@@ -658,6 +658,10 @@ export class MemoryStore implements DataStore {
     return [...this.hostedUsers.values()].filter((u) => u.appId === appId).length;
   }
 
+  async countHostedEmailOnlyUsers(appId: string): Promise<number> {
+    return [...this.hostedUsers.values()].filter((u) => u.appId === appId && u.phone === null).length;
+  }
+
   // Catalog
 
   async listCatalogCategories(appId: string): Promise<CatalogCategory[]> {

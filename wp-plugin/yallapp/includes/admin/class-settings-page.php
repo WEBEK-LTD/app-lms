@@ -557,9 +557,10 @@ class Settings_Page {
 			)
 		);
 		echo '<fieldset class="ya-sub"><legend>' . esc_html__( 'Store review access', 'yallapp' ) . '</legend>';
-		echo '<p class="ya-help">' . esc_html__( 'Apple and Google reviewers need to sign in. This number gets no code and accepts the fixed code. Keep it on while your app is in review.', 'yallapp' ) . '</p>';
+		echo '<p class="ya-help">' . esc_html__( 'Apple and Google reviewers need to sign in. This number gets no code and accepts the fixed code. With email sign-in, reviewers type the test email address (not a staff account) and the fixed code as the password; apps that sign in by email only need it. Keep it on while your app is in review.', 'yallapp' ) . '</p>';
 		$this->toggle( 'review_access_enabled', __( 'Turn on store review access', 'yallapp' ) );
 		$this->text( 'review_phone', __( 'Test number', 'yallapp' ), '+90 500 000 00 00' );
+		$this->text( 'review_email', __( 'Test email', 'yallapp' ), 'review@your-site.com' );
 		$this->text( 'review_code', __( 'Fixed code', 'yallapp' ), '000000' );
 		echo '</fieldset>';
 		$this->close();

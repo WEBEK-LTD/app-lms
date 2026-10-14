@@ -260,8 +260,13 @@ paths:
         then asks the same details as a phone sign-up (the email is already known).
 
         Refused with 403 `method_not_allowed` when the app doesn't offer email
-        sign-in. The app preview (`preview: true`) and demo apps sign in only by
-        phone: 403 `preview_review_number_only` or `demo_number_only`.
+        sign-in. Demo apps sign in only by phone: 403 `demo_number_only`.
+
+        Store review: the app's store review email address (for apps that sign in
+        by email only, where reviewers can't use the review number) gets no email
+        and signs in with the fixed review code. The app preview (`preview: true`)
+        never sends a code: only the store review address signs in there, and any
+        other address is refused with 403 `preview_review_number_only`.
       security: []
       requestBody:
         required: true
@@ -307,7 +312,13 @@ paths:
         and the device limit work as for phone sign-in.
 
         Refused with 403 `method_not_allowed` when the app doesn't offer email
-        sign-in, and with 403 `preview_review_number_only` in the app preview.
+        sign-in. In the app preview only the store review email address signs in;
+        anything else gets 403 `preview_review_number_only`.
+
+        Store review on WordPress: with the plugin's store review access on, its
+        test email address signs in with the fixed code as the password, to the
+        site's account with that address (made when there is none and sign-up is
+        allowed; never an account that can edit the site).
       security: []
       requestBody:
         required: true
@@ -2055,6 +2066,10 @@ components:
                 (on WordPress, the plugin's setting when the dashboard has none):
                 `phone` (a code by WhatsApp or SMS), `email`, or both. Missing means
                 `[phone]`. The app shows a Phone / Email switch when there are both.
+                For an own API (the client's own server), the client's API decides:
+                it sends what it supports, and serves the endpoints for each method
+                (`POST /auth/otp/request` for phone, `POST /auth/email/request` or
+                `POST /auth/password` for email, as `email_sign_in` says).
             email_sign_in:
               type: string
               enum: [code, password]

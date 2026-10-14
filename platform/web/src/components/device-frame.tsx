@@ -15,17 +15,37 @@ const PHONE_SIZES = {
 } as const;
 
 /**
- * The phone frame on its own, around any screen: a screenshot, or the live
- * app preview (17). `screenClassName` sizes the screen; the frame grows
- * around it.
+ * 19 The one phone frame, around any screen: a screenshot, a drawn preview or
+ * the live app preview (17). Give it a width (`className`); the bezel, the
+ * corners and the camera scale with it (the `.phone` styles in globals.css).
+ * The screen keeps a modern phone's 19.5:9 unless `screenClassName` sizes it.
+ * `island` draws the camera pill over the top of the screen: leave it off
+ * when the screen has no status bar under it.
  */
-export function PhoneFrame({ children, className = "", screenClassName = "aspect-[1080/2340]" }: { children: React.ReactNode; className?: string; screenClassName?: string }) {
+export function PhoneFrame({
+  children,
+  className = "",
+  screenClassName = "aspect-[1080/2340] bg-ivory",
+  island = true,
+  ...rest
+}: {
+  children?: React.ReactNode;
+  className?: string;
+  screenClassName?: string;
+  island?: boolean;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, "className" | "children">) {
   return (
-    <div className={`relative max-w-full rounded-[38px] bg-midnight p-[9px] shadow-[0_24px_48px_-28px_rgba(14,13,36,0.55)] ${className}`}>
-      {/* Side buttons. */}
-      <span aria-hidden="true" className="absolute top-[22%] -left-[3px] h-[9%] w-[3px] rounded-l bg-night-3" />
-      <span aria-hidden="true" className="absolute top-[18%] -right-[3px] h-[13%] w-[3px] rounded-r bg-night-3" />
-      <div className={`relative overflow-hidden rounded-[30px] bg-ivory ${screenClassName}`}>{children}</div>
+    <div {...rest} className={`phone max-w-full ${className}`} data-phone-frame="">
+      <div className="phone-body">
+        {/* Side buttons: volume on the left, power on the right. */}
+        <span aria-hidden="true" className="phone-button top-[21%] -left-[2px] h-[6%] rounded-l-sm" />
+        <span aria-hidden="true" className="phone-button top-[29%] -left-[2px] h-[6%] rounded-l-sm" />
+        <span aria-hidden="true" className="phone-button top-[25%] -right-[2px] h-[10%] rounded-r-sm" />
+        <div className={`phone-screen ${screenClassName}`}>
+          {children}
+          {island ? <span aria-hidden="true" className="phone-island" data-phone-island="" /> : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -46,20 +66,16 @@ export function DeviceFrame({
 }) {
   return (
     <figure className={`m-0 flex max-w-full flex-none flex-col items-center gap-3 ${className}`}>
-      <div className={`max-w-full ${PHONE_SIZES[size]}`} data-screen={screen}>
-        <PhoneFrame>
-          <Image
-            src={`/screens/${screen}.png`}
-            alt={SCREEN_ALT[screen]}
-            fill
-            sizes="(max-width: 640px) 60vw, 280px"
-            priority={priority}
-            className="object-cover"
-          />
-          {/* The camera. */}
-          <span aria-hidden="true" className="absolute top-[1.6%] left-1/2 h-[2.6%] w-[28%] -translate-x-1/2 rounded-full bg-midnight" />
-        </PhoneFrame>
-      </div>
+      <PhoneFrame className={PHONE_SIZES[size]} data-screen={screen}>
+        <Image
+          src={`/screens/${screen}.png`}
+          alt={SCREEN_ALT[screen]}
+          fill
+          sizes="(max-width: 640px) 60vw, 280px"
+          priority={priority}
+          className="object-cover"
+        />
+      </PhoneFrame>
       {caption ? <figcaption className="text-center text-sm font-semibold text-ink-4">{caption}</figcaption> : null}
     </figure>
   );

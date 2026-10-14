@@ -1,3 +1,5 @@
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
@@ -100,4 +102,49 @@ test("the app sees the services and free times", async ({ request }) => {
   await own.getByRole("link", { name: "Appointments" }).click();
   await expect(own.getByText("No upcoming appointments.")).toBeVisible();
   await expect(own.getByText("Approve new ones, or reject them.")).toBeVisible();
+});
+
+/** The sign-in code in the latest email to this address (captured in YALLAPP_MAIL_DIR). */
+async function emailedCode(to: string): Promise<string> {
+  const dir = path.resolve(E2E.mailDir);
+  const files = await readdir(dir).catch(() => [] as string[]);
+  const mails = (await Promise.all(files.map(async (f) => JSON.parse(await readFile(path.join(dir, f), "utf8")) as { to: string; subject: string; sentAt: string }))).filter(
+    (m) => m.to === to,
+  );
+  mails.sort((a, b) => a.sentAt.localeCompare(b.sentAt));
+  const subject = mails.at(-1)?.subject ?? "";
+  expect(subject).toMatch(/^\d{6} is your .+ code$/);
+  return subject.slice(0, 6);
+}
+
+test("19 someone who signs in by email books, and the business reaches them by email", async ({ request }) => {
+  await own.getByRole("link", { name: "App sign-in" }).click();
+  await own.getByText("Phone number or email address").click();
+  await own.getByRole("button", { name: "Save sign-in methods" }).click();
+  await expect(own.getByRole("status").first()).toContainText("Saved.");
+
+  // A long address: it no longer has to fit the phone column.
+  const email = `a-customer-with-a-rather-long-address-${suffix}@a-long-company-name.example.com`;
+  const device = { id: `e2e-book-${suffix}`, platform: "android", name: "Pixel", app_version: "1.0.0" };
+  const asked = (await (await request.post(`${api}/auth/email/request`, { data: { email } })).json()) as { request_id: string };
+  const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id: asked.request_id, code: await emailedCode(email), device } })).json()) as {
+    signup_token: string;
+  };
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Deniz Mail", device } });
+  expect(registered.status()).toBe(201);
+  const token = ((await registered.json()) as { access_token: string }).access_token;
+
+  const services = await (await request.get(`${api}/bookings/services`)).json();
+  const day = new Date(Date.now() + 14 * 86_400_000);
+  day.setUTCDate(day.getUTCDate() + ((6 - day.getUTCDay() + 7) % 7));
+  const free = await (await request.get(`${api}/bookings/availability?service=${services.items[0].id}&from=${day.toISOString().slice(0, 10)}&days=1`)).json();
+  const booked = await request.post(`${api}/bookings/appointments?platform=android`, {
+    data: { service_id: services.items[0].id, start: free.days[0].slots.at(-1).start },
+    headers: { authorization: `Bearer ${token}` },
+  });
+  expect(booked.status()).toBe(201);
+
+  await own.getByRole("link", { name: "Appointments" }).click();
+  await expect(own.getByRole("link", { name: email })).toHaveAttribute("href", `mailto:${email}`);
+  await expect(own.locator('a[href^="tel:"]')).toHaveCount(0);
 });

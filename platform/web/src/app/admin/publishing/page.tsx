@@ -6,11 +6,13 @@ import { appLabel } from "@/lib/app/label";
 import { APP_TYPE_NAMES } from "@/lib/app/setup";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { PublishingRequest } from "@/lib/data/types";
+import { smtpConfigured } from "@/lib/mail";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   checklistProgress,
+  isLiveEverywhere,
   listingMissing,
+  publishingEventLabel,
   PUBLISHING_STATUS_LABEL,
   PUBLISHING_STATUSES,
   PUBLISHING_STEPS,
@@ -19,6 +21,7 @@ import {
   stepDone,
   STORE_TITLE,
 } from "@/lib/publishing/steps";
+import { SmtpMissingNotice } from "../smtp-notice";
 import { TeamNotesForm, TrackForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
@@ -30,15 +33,18 @@ const TABS = [
   { id: "all", label: "All" },
 ] as const;
 
-const isLiveEverywhere = (r: PublishingRequest) => r.android.status === "live" && r.ios.status === "live";
-
 /** 14.1 We publish for you: the apps whose clients asked us to publish them, with each store's status. */
 export default async function PublishingQueuePage({ searchParams }: PageProps<"/admin/publishing">) {
   await requireAdmin();
   const query = await searchParams;
   const tab = TABS.find((t) => t.id === query.show)?.id ?? "open";
   const store = await getStore();
-  const [all, mayManage, teamEmail] = await Promise.all([store.listManagedPublishingRequests(), adminCan("publishing.manage"), publishingTeamEmail(store)]);
+  const [all, mayManage, teamEmail, smtp] = await Promise.all([
+    store.listManagedPublishingRequests(),
+    adminCan("publishing.manage"),
+    publishingTeamEmail(store),
+    smtpConfigured(store),
+  ]);
   const requests = all.filter((r) => (tab === "all" ? true : tab === "live" ? isLiveEverywhere(r) : !isLiveEverywhere(r)));
   const rows = await Promise.all(
     requests.map(async (request) => {
@@ -62,6 +68,8 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
           accounts; we never ask for their passwords. A new status emails the client.
         </span>
       </div>
+      {/* 19 Without SMTP, new requests reach nobody: the team checks this page instead. */}
+      {smtp ? null : <SmtpMissingNotice what="New requests aren't emailed to the publishing team" />}
       <nav aria-label="Show" className="flex flex-wrap gap-2.5">
         {TABS.map((t) => (
           <Link
@@ -99,6 +107,9 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
+                {request.teamEmailFailedAt ? (
+                  <Badge tone="danger">Email to the team failed · {formatDateTime(request.teamEmailFailedAt)}</Badge>
+                ) : null}
                 {PUBLISHING_STORES.map((which) => (
                   <Badge key={which} tone={statusTone(request[which].status)}>
                     {STORE_TITLE[which]}: {PUBLISHING_STATUS_LABEL[request[which].status]}
@@ -182,8 +193,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                 <ul className="mt-2 flex list-none flex-col gap-1 p-0 text-sm">
                   {events.map((event) => (
                     <li key={event.id}>
-                      <span className="text-muted">{formatDateTime(event.at)}</span> · {STORE_TITLE[event.store]}: {PUBLISHING_STATUS_LABEL[event.status]} ·{" "}
-                      {event.actorEmail}
+                      <span className="text-muted">{formatDateTime(event.at)}</span> · {publishingEventLabel(event, "team")} · {event.actorEmail}
                       {event.note ? <span className="block text-ink-4">{event.note}</span> : null}
                     </li>
                   ))}

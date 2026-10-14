@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { wordpressReadyAction } from "@/app/actions/admin";
 import { checkConnectionAction, sendClientNotificationAction } from "@/app/actions/admin-clients";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -43,6 +44,34 @@ export function ClientNotificationForm({ clientId, appId, titleMax, bodyMax }: {
       </div>
       <SubmitButton className="h-10 self-start px-4 text-sm" pendingText="Sending…">
         Send to the app&apos;s users
+      </SubmitButton>
+    </form>
+  );
+}
+
+/** 19 The WordPress site our team set up is ready: the app moves to it and the client is told. */
+export function WordpressReadyForm({ clientId, appId, siteUrl }: { clientId: string; appId: string; siteUrl: string }) {
+  const [state, action] = useActionState(wordpressReadyAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-2.5">
+      <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="appId" value={appId} />
+      <input type="hidden" name="from" value="client" />
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field
+        id={`f-wordpress-site-${appId}`}
+        label="Their new WordPress site"
+        name="siteUrl"
+        type="url"
+        required
+        defaultValue={state.values?.siteUrl ?? siteUrl}
+        placeholder="https://academy.example"
+        hint="The app moves to this site, and the client gets an email and a notice on their dashboard. Activating their license in the plugin on this site does the same."
+        error={state.errors?.siteUrl}
+        small
+      />
+      <SubmitButton className="h-9 self-start px-3 text-sm" pendingText="Saving…">
+        WordPress is ready
       </SubmitButton>
     </form>
   );

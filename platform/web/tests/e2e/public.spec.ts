@@ -61,6 +61,25 @@ test("the landing page has the Home link, pricing and the full footer", async ({
   await expect(footer.getByRole("link", { name: "Documentation" })).toHaveAttribute("href", "/docs");
 });
 
+test("the phones on the landing page have thin bezels that scale with their size", async ({ page }) => {
+  // 19 One frame everywhere: the bezel is about 2.6% of the phone's width (3 to 10 px), the corners about 14%.
+  await page.goto("/");
+  const phones = await page.locator("[data-phone-frame] > .phone-body").evaluateAll((bodies) =>
+    bodies
+      .filter((b) => (b as HTMLElement).offsetWidth > 0)
+      .map((b) => {
+        const style = getComputedStyle(b);
+        return { width: (b as HTMLElement).offsetWidth, bezel: parseFloat(style.paddingTop), radius: parseFloat(style.borderTopLeftRadius) };
+      }),
+  );
+  expect(phones.length).toBeGreaterThan(3);
+  for (const phone of phones) {
+    expect(phone.bezel).toBeGreaterThanOrEqual(3);
+    expect(phone.bezel).toBeLessThanOrEqual(Math.max(3, phone.width * 0.03));
+    expect(phone.radius / phone.width).toBeCloseTo(0.14, 2);
+  }
+});
+
 test("every menu link opens its own page", async ({ page }) => {
   const pages = [
     { name: "Solutions", path: "/solutions" },

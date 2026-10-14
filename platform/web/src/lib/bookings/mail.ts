@@ -15,7 +15,9 @@ export function newAppointmentMailValues(a: BookingAppointment, timezone: string
     time: local.time,
     timezone,
     price: formatCents(a.priceCents, a.currency),
-    phone: a.customerPhone,
+    // 19 Someone who signed in by email is reached by email.
+    contact_label: a.customerPhone ? "Phone" : "Email",
+    phone: a.customerPhone ?? a.customerEmail ?? "",
     note_line: a.notes ? `Note: ${a.notes}\n` : "",
     approval_line: a.status === "pending" ? "\nIt waits for your approval.\n" : "",
     appointments_url: dashboardUrl,

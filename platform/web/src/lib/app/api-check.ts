@@ -1,6 +1,6 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
-import type { AppType } from "../data/types";
+import type { AppType, SignInMethod } from "../data/types";
 
 /**
  * Checks a client's own API against the parts of docs/api/openapi.yaml every
@@ -10,7 +10,8 @@ import type { AppType } from "../data/types";
  */
 
 export interface ApiCheck {
-  id: "reachable" | "config" | "app_type" | "home" | "errors";
+  /** 19 `errors` probes phone sign-in, `email_errors` and `password_errors` the email endpoints. */
+  id: "reachable" | "config" | "app_type" | "home" | "errors" | "email_errors" | "password_errors";
   label: string;
   ok: boolean;
   detail?: string;
@@ -19,6 +20,40 @@ export interface ApiCheck {
 export interface ApiCheckResult {
   ok: boolean;
   checks: ApiCheck[];
+  /** 19 How the API signs people in, as its /config says (when /config answered with valid sign-in settings). */
+  signIn?: ApiSignIn;
+}
+
+/** 19 `Config.auth`'s sign-in settings: `methods` (missing means phone) and `email_sign_in`. */
+export interface ApiSignIn {
+  methods: SignInMethod[];
+  emailSignIn: "code" | "password" | null;
+  previewSignIn: boolean;
+}
+
+/**
+ * 19 The sign-in settings in a /config's `auth`, or the problems with them:
+ * `methods` only "phone" and "email" and not empty (missing means phone),
+ * `email_sign_in` "code" or "password", and required when email is offered.
+ */
+export function readSignIn(auth: unknown): { ok: true; value: ApiSignIn } | { ok: false; problems: string[] } {
+  const value = isObject(auth) ? auth : {};
+  const problems: string[] = [];
+  let methods: SignInMethod[] = ["phone"];
+  if (value.methods !== undefined) {
+    const list = value.methods;
+    if (!Array.isArray(list) || list.length === 0 || !list.every((m) => m === "phone" || m === "email") || new Set(list).size !== list.length) {
+      problems.push('auth.methods (a list of "phone" and/or "email")');
+    } else {
+      methods = list as SignInMethod[];
+    }
+  }
+  const raw = value.email_sign_in;
+  const emailSignIn = raw === "code" || raw === "password" ? raw : null;
+  if (raw !== undefined && raw !== null && emailSignIn === null) problems.push('auth.email_sign_in ("code" or "password")');
+  else if (methods.includes("email") && emailSignIn === null) problems.push('auth.email_sign_in ("code" or "password", needed with email)');
+  if (problems.length) return { ok: false, problems };
+  return { ok: true, value: { methods, emailSignIn: methods.includes("email") ? emailSignIn : null, previewSignIn: value.preview_sign_in === true } };
 }
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -73,6 +108,9 @@ export function configProblems(config: unknown): string[] {
   need("auth.signup_allowed", isObject(auth) && typeof auth.signup_allowed === "boolean");
   need("auth.signup_fields", isObject(auth) && Array.isArray(auth.signup_fields));
   need("auth.default_country_code", isObject(auth) && typeof auth.default_country_code === "string");
+  // 19 How people sign in: phone, email or both.
+  const signIn = readSignIn(auth);
+  if (!signIn.ok) problems.push(...signIn.problems);
   need("purchases", isObject(config.purchases));
   need("content", isObject(config.content));
   const app = config.app;
@@ -206,26 +244,38 @@ export async function checkApi(
     checks.push({ id: "home", label: `GET ${HOME_PATH[appType]} returns sections`, ok: false, detail: "No answer." });
   }
 
-  try {
-    const error = await getJson(fetcher, `${base}/auth/otp/request`, {
-      method: "POST",
-      body: "{}",
-      headers: { "content-type": "application/json" },
-    });
-    const ok =
-      error.status >= 400 &&
-      error.status < 500 &&
-      isObject(error.body) &&
-      typeof error.body.code === "string" &&
-      typeof error.body.message === "string";
-    checks.push({
-      id: "errors",
-      label: "Errors use the contract's shape",
-      ok,
-      detail: ok ? undefined : "POST /auth/otp/request with {} should answer 400 with `code` and `message`.",
-    });
-  } catch {
-    checks.push({ id: "errors", label: "Errors use the contract's shape", ok: false, detail: "No answer." });
+  // 19 The sign-in endpoints the API offers (phone when /config doesn't say), each with an empty body.
+  const signIn = readSignIn(body.auth);
+  const offered: ApiSignIn = signIn.ok ? signIn.value : { methods: ["phone"], emailSignIn: null, previewSignIn: false };
+  const probes: { id: ApiCheck["id"]; path: string }[] = [];
+  if (offered.methods.includes("phone")) probes.push({ id: "errors", path: "/auth/otp/request" });
+  if (offered.methods.includes("email") && offered.emailSignIn === "code") probes.push({ id: "email_errors", path: "/auth/email/request" });
+  if (offered.methods.includes("email") && offered.emailSignIn === "password") probes.push({ id: "password_errors", path: "/auth/password" });
+  for (const probe of probes) {
+    const label = probes.length === 1 ? "Errors use the contract's shape" : `POST ${probe.path} errors use the contract's shape`;
+    try {
+      const error = await getJson(fetcher, `${base}${probe.path}`, {
+        method: "POST",
+        body: "{}",
+        headers: { "content-type": "application/json" },
+      });
+      // 19 A sign-in endpoint that isn't there (404, 405) fails, even with the error shape.
+      const missing = error.status === 404 || error.status === 405;
+      const ok =
+        !missing &&
+        error.status >= 400 &&
+        error.status < 500 &&
+        isObject(error.body) &&
+        typeof error.body.code === "string" &&
+        typeof error.body.message === "string";
+      const detail = missing
+        ? `POST ${probe.path} answered ${error.status}. Serve it, or don't offer this sign-in in /config.`
+        : `POST ${probe.path} with {} should answer 400 with \`code\` and \`message\`.`;
+      checks.push({ id: probe.id, label, ok, detail: ok ? undefined : detail });
+    } catch {
+      checks.push({ id: probe.id, label, ok: false, detail: "No answer." });
+    }
   }
+  if (config.status === 200 && signIn.ok) return { ...done(), signIn: signIn.value };
   return done();
 }

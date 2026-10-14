@@ -24,6 +24,7 @@ export type EmailTemplateKey =
   | "build_failed"
   | "build_failed_team"
   | "setup_request"
+  | "wordpress_ready"
   | "new_order"
   | "new_appointment"
   | "new_inquiry"
@@ -39,7 +40,10 @@ export type EmailTemplateKey =
   | "plan_ends_today"
 
   // 18 Sign-in for every app
-  | "sign_in_code";
+  | "sign_in_code"
+
+  // 19 Sign-in gaps
+  | "own_whatsapp_failed";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -203,6 +207,23 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "{{client_name}} asked us to set up WordPress for their app.\nWebsite: {{website}}\nWhatsApp: {{whatsapp}}\nEmail: {{email}}\nApp type: {{app_type}}\n{{note_line}}\n" +
       "Requests are listed on the super admin Clients page.",
   },
+  // 19 The answer to a set-up request.
+  {
+    key: "wordpress_ready",
+    name: "WordPress site ready",
+    description: "To a client when the WordPress site our team set up for their app is ready: the team marks it ready, or the plugin is activated on it.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "website", description: "The new WordPress site", sample: "https://academy.example" },
+      { name: "setup_url", description: "The link to the app's setup", sample: "https://yallapp.com.tr/dashboard/open/sample?to=setup" },
+    ],
+    subject: "{{app_name}}: your WordPress site is ready",
+    body:
+      "Hello {{name}},\n\nYour WordPress site is ready: {{website}}\n\n{{app_name}} now gets its content from it, through the Yallapp plugin. " +
+      "Finish the remaining setup steps and your first build starts:\n\n{{setup_url}}" +
+      SIGNATURE,
+  },
   {
     key: "new_order",
     name: "New order",
@@ -231,14 +252,15 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "time", description: "The time (business's time zone)", sample: "14:30" },
       { name: "timezone", description: "The business's time zone", sample: "Europe/Istanbul" },
       { name: "price", description: "The price", sample: "₺600.00" },
-      { name: "phone", description: "The customer's phone", sample: "+905321234567" },
+      { name: "contact_label", description: "“Phone”, or “Email” when the customer signed in by email", sample: "Phone" },
+      { name: "phone", description: "The customer's phone, or their email when they signed in by email", sample: "+905321234567" },
       { name: "note_line", description: "“Note: …” and a line break when the customer wrote one; empty otherwise", sample: "Note: First visit.\n" },
       { name: "approval_line", description: "A line saying it waits for approval, when it does; empty otherwise", sample: "\nIt waits for your approval.\n" },
       { name: "appointments_url", description: "The dashboard's Appointments page", sample: "https://yallapp.com.tr/dashboard/appointments" },
     ],
     subject: "New appointment: {{service}}, {{date}} {{time}}",
     body:
-      "{{customer_name}} booked {{service}} with {{staff}} in {{app_name}}.\n\nWhen: {{date}} at {{time}} ({{timezone}})\nPrice: {{price}}\nPhone: {{phone}}\n" +
+      "{{customer_name}} booked {{service}} with {{staff}} in {{app_name}}.\n\nWhen: {{date}} at {{time}} ({{timezone}})\nPrice: {{price}}\n{{contact_label}}: {{phone}}\n" +
       "{{note_line}}{{approval_line}}\nYour appointments: {{appointments_url}}",
   },
   {
@@ -381,6 +403,24 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Your {{app_name}} sign-in code is {{code}}.\n\nIt expires in {{minutes}} minutes. Don't share it with anyone.\n\n" +
       "If you didn't try to sign in to {{app_name}}, you can ignore this email.",
+  },
+  {
+    key: "own_whatsapp_failed",
+    name: "Own WhatsApp number failed",
+    description:
+      "To a client when their own WhatsApp number (WABEK, on App sign-in) couldn't send an app's sign-in code. At most one a day per app; Yallapp's number sent the code instead.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "date", description: "The day it failed", sample: "14 Oct 2026" },
+      { name: "sign_in_url", description: "The link to the app's App sign-in page", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=app-sign-in" },
+    ],
+    subject: "{{app_name}}: your WhatsApp number couldn't send sign-in codes",
+    body:
+      "Hello {{name}},\n\nOn {{date}}, your own WhatsApp number couldn't send a sign-in code for {{app_name}}. " +
+      "So your customers still got their codes, we sent them from Yallapp's WhatsApp number, when it was available.\n\n" +
+      "Check your number and your API key in your WABEK account, then send a test code on App sign-in:\n{{sign_in_url}}" +
+      SIGNATURE,
   },
 ];
 

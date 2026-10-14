@@ -89,7 +89,8 @@ export function PreviewPanel({
           Reload after changes
         </button>
       </div>
-      <PhoneFrame screenClassName="h-[min(720px,80vh)] w-[360px] max-w-[calc(100vw-52px)] bg-white">
+      {/* 19 No camera pill: the app on the web draws no status bar, so it would cover the app's top bar. */}
+      <PhoneFrame className="w-[380px]" screenClassName="h-[min(720px,80vh)] bg-white" island={false}>
         <iframe
           key={frameSrc}
           src={frameSrc}

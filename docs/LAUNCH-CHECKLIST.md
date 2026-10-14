@@ -127,7 +127,7 @@ Nothing to set on Netlify: the preview is served from the site's own files
       hosted API that offer email sign-in send their codes by email.
 - [ ] **Emails › Sign-in code:** read it once. It goes to app users in the
       app's name, without Yallapp's signature.
-- [ ] **Release plugin 0.3.1** (Admin › App & plugin versions) with the
+- [ ] **Release plugin 0.3.2** (Admin › App & plugin versions) with the
       changelog from `wp-plugin/yallapp/readme.txt`. Sites update from the
       WordPress updater.
 - [ ] On the client site with Digits 8.3.3.2 and Additional SMS Gateways (no
