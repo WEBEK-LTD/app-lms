@@ -275,6 +275,39 @@ mobile/
   with its fixed code. The hosted API reads them on each request, so no
   new build is needed.
 
+- Website content (`site_content`, 11.3): the home page's texts, the
+  closing band, the page titles, the FAQ, the guides and the legal pages
+  are edited on the admin's Website content page. Each page's defaults are
+  the texts in code (`src/lib/content/site.ts`, `src/content/`), so a page
+  is unchanged until someone saves it; "Back to the default text" removes
+  the edit. Long texts are a small Markdown (`src/lib/content/markdown.ts`)
+  rendered as React elements or escaped HTML: no raw HTML, links only to
+  http(s), mailto, tel or paths on the site. Pages stay prerendered and
+  read the content once; a save rebuilds the pages that show it.
+- Email templates (`email_templates`, 11.4): every email the platform sends
+  has a subject and a plain-text body with documented `{{placeholders}}`
+  (`src/lib/email/templates.ts`); the defaults are the emails as they were.
+  Saving refuses placeholders the email doesn't have. Sending
+  (`sendTemplate`) reads the saved template each time and adds an HTML part
+  in which every value is escaped. In memory mode `YALLAPP_MAIL_DIR` keeps
+  each email as a file for the end-to-end tests.
+- Coupons (`coupons`, `coupon_redemptions`, 11.6): a percentage or an
+  amount per currency off a plan's card payment, limited to plans, billing
+  periods, dates, uses in total and per client, or a first payment. The
+  client enters the code on the card payment form; the server works out the
+  price from the plan and the coupon each time (never below iyzico's 1.00
+  minimum) and charges that. A coupon for the whole price activates or
+  extends the plan without iyzico, recorded as a paid payment of 0. Each
+  use is recorded with its plan payment: pending on iyzico's page (holding
+  its use for an hour), then used or failed.
+- Announcements (`announcements`, `announcement_dismissals`, 11.8): the
+  team writes a title and a Markdown message for all clients or by plan,
+  app type or account state, with an optional link, a start and an end,
+  as information or a warning. Clients see the live ones above their
+  overview (and on the waiting page) until they close them, and all of
+  them on the Announcements page. The team can email one to its audience
+  with the Announcement template, in batches of 20.
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

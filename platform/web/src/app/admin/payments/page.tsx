@@ -32,6 +32,8 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
     names.set(id, user?.name ?? "Deleted client");
   }
   const paid = payments.filter((p) => p.status === "paid");
+  // 11.6: the coupon each payment used.
+  const coupons = new Map((await store.listCouponRedemptions({})).map((r) => [r.paymentId, r]));
 
   return (
     <>
@@ -65,7 +67,14 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   <td className="px-4 py-3">
                     {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"}
                   </td>
-                  <td className="px-4 py-3 font-semibold">{formatCents(p.amountCents, p.currency)}</td>
+                  <td className="px-4 py-3 font-semibold">
+                    {formatCents(p.amountCents, p.currency)}
+                    {coupons.has(p.id) ? (
+                      <span className="block text-xs font-normal text-muted">
+                        Coupon {coupons.get(p.id)!.code}, {formatCents(coupons.get(p.id)!.discountCents, p.currency)} off
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3">
                     <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                   </td>

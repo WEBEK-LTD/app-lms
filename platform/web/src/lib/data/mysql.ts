@@ -61,6 +61,8 @@ import type {
   User,
 } from "./types";
 import { ACTIVE_BOOKING_STATUSES } from "./types";
+// 11.3, 11.4, 11.6 and 11.8
+import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 
 type Db = MySql2Database<typeof schema>;
 
@@ -1134,6 +1136,158 @@ export class MysqlStore implements DataStore {
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
     return rows[0]?.hits ?? 1;
+  }
+
+  // 11.3 Website content
+
+  async listSiteContent(): Promise<SiteContentRecord[]> {
+    return this.run((db) => db.select().from(schema.siteContent));
+  }
+
+  async getSiteContent(key: string): Promise<SiteContentRecord | null> {
+    const rows = await this.run((db) => db.select().from(schema.siteContent).where(eq(schema.siteContent.key, key)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async setSiteContent(key: string, fields: Record<string, string> | null, updatedBy: string, now: Date): Promise<void> {
+    if (fields === null) {
+      await this.run((db) => db.delete(schema.siteContent).where(eq(schema.siteContent.key, key)));
+      return;
+    }
+    await this.run((db) =>
+      db
+        .insert(schema.siteContent)
+        .values({ key, fields, updatedAt: now, updatedBy })
+        .onDuplicateKeyUpdate({ set: { fields, updatedAt: now, updatedBy } }),
+    );
+  }
+
+  // 11.4 Email templates
+
+  async listEmailTemplates(): Promise<EmailTemplateRecord[]> {
+    return this.run((db) => db.select().from(schema.emailTemplates));
+  }
+
+  async getEmailTemplate(key: string): Promise<EmailTemplateRecord | null> {
+    const rows = await this.run((db) => db.select().from(schema.emailTemplates).where(eq(schema.emailTemplates.key, key)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async setEmailTemplate(key: string, template: { subject: string; body: string } | null, updatedBy: string, now: Date): Promise<void> {
+    if (template === null) {
+      await this.run((db) => db.delete(schema.emailTemplates).where(eq(schema.emailTemplates.key, key)));
+      return;
+    }
+    const set = { subject: template.subject, body: template.body, updatedAt: now, updatedBy };
+    await this.run((db) => db.insert(schema.emailTemplates).values({ key, ...set }).onDuplicateKeyUpdate({ set }));
+  }
+
+  // 11.6 Coupons
+
+  async createCoupon(coupon: Coupon): Promise<boolean> {
+    try {
+      await this.run((db) => db.insert(schema.coupons).values(coupon));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async updateCoupon(id: string, patch: CouponPatch, now: Date): Promise<boolean> {
+    try {
+      await this.run((db) => db.update(schema.coupons).set({ ...patch, updatedAt: now }).where(eq(schema.coupons.id, id)));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async getCoupon(id: string): Promise<Coupon | null> {
+    const rows = await this.run((db) => db.select().from(schema.coupons).where(eq(schema.coupons.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | null> {
+    const rows = await this.run((db) => db.select().from(schema.coupons).where(eq(schema.coupons.code, code)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async listCoupons(): Promise<Coupon[]> {
+    return this.run((db) => db.select().from(schema.coupons).orderBy(desc(schema.coupons.createdAt)));
+  }
+
+  async createCouponRedemption(redemption: CouponRedemption): Promise<void> {
+    await this.run((db) => db.insert(schema.couponRedemptions).values(redemption));
+  }
+
+  async settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.couponRedemptions)
+        .set({ status, redeemedAt: status === "redeemed" ? now : null })
+        .where(and(eq(schema.couponRedemptions.paymentId, paymentId), eq(schema.couponRedemptions.status, "pending"))),
+    );
+  }
+
+  async listCouponRedemptions(input: { couponId?: string; clientId?: string }): Promise<CouponRedemption[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.couponRedemptions)
+        .where(
+          and(
+            input.couponId !== undefined ? eq(schema.couponRedemptions.couponId, input.couponId) : undefined,
+            input.clientId !== undefined ? eq(schema.couponRedemptions.clientId, input.clientId) : undefined,
+          ),
+        )
+        .orderBy(desc(schema.couponRedemptions.createdAt)),
+    );
+  }
+
+  // 11.8 Announcements
+
+  async createAnnouncement(announcement: Announcement): Promise<void> {
+    await this.run((db) => db.insert(schema.announcements).values(announcement));
+  }
+
+  async updateAnnouncement(id: string, patch: AnnouncementPatch, now: Date): Promise<void> {
+    await this.run((db) => db.update(schema.announcements).set({ ...patch, updatedAt: now }).where(eq(schema.announcements.id, id)));
+  }
+
+  async deleteAnnouncement(id: string): Promise<void> {
+    // Dismissals go with it (foreign key on delete cascade).
+    await this.run((db) => db.delete(schema.announcements).where(eq(schema.announcements.id, id)));
+  }
+
+  async getAnnouncement(id: string): Promise<Announcement | null> {
+    const rows = await this.run((db) => db.select().from(schema.announcements).where(eq(schema.announcements.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async listAnnouncements(): Promise<Announcement[]> {
+    return this.run((db) => db.select().from(schema.announcements).orderBy(desc(schema.announcements.startsAt)));
+  }
+
+  async dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void> {
+    if (!(await this.getAnnouncement(input.announcementId))) return;
+    await this.run((db) =>
+      db
+        .insert(schema.announcementDismissals)
+        .values({ announcementId: input.announcementId, clientId: input.clientId, dismissedAt: input.now })
+        .onDuplicateKeyUpdate({ set: { announcementId: input.announcementId } }),
+    );
+  }
+
+  async listDismissedAnnouncementIds(clientId: string): Promise<string[]> {
+    const rows = await this.run((db) =>
+      db
+        .select({ id: schema.announcementDismissals.announcementId })
+        .from(schema.announcementDismissals)
+        .where(eq(schema.announcementDismissals.clientId, clientId)),
+    );
+    return rows.map((r) => r.id);
   }
 }
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
 import { FEATURES, WORKS_WITH } from "@/lib/marketing";
 
@@ -8,13 +9,14 @@ export const metadata: Metadata = {
   description: "Branding, one-time code sign-in, protected video, HTML lessons, quizzes, push notifications and selling courses: everything in a Yallapp app.",
 };
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+  const text = await getSiteContent("features");
   return (
     <MarketingPage
       current="features"
-      eyebrow="Features"
-      title="Everything your students need, in their pocket"
-      intro="Your courses, lessons and quizzes stay in your LMS plugin. The app reads them live, so there's nothing to copy or maintain twice."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))]">

@@ -5,6 +5,7 @@ import type { DataStore } from "../data/store";
 import type { Client, PlanPayment, User } from "../data/types";
 import { initializeCheckoutForm, IyzicoError, retrieveCheckoutForm, type IyzicoKeys } from "../payments/iyzico";
 import type { Plan, PlanInfo } from "../plans";
+import type { CouponCheck } from "./coupons";
 
 /**
  * Clients pay their Yallapp plan by card on iyzico's page, into Yallapp's own
@@ -61,17 +62,20 @@ export async function startPlanPayment(
     billing: BillingDetails;
     ip: string;
     callbackUrl: (token: string) => string;
+    /** 11.6: a coupon checked for this client and plan (checkCoupon); the payment is its lowered price. */
+    coupon?: Extract<CouponCheck, { ok: true }>;
   },
 ): Promise<string> {
-  const { client, user, plan } = deps;
+  const { client, user, plan, coupon } = deps;
   if (plan.priceCents === null) throw new Error("This plan has no card price");
+  if (coupon && coupon.amountCents === 0) throw new Error("A free payment doesn't go to iyzico");
   const token = randomToken(24);
   const payment: PlanPayment = {
     id: newId(),
     clientId: client.id,
     plan: plan.id,
     months: plan.billingMonths,
-    amountCents: plan.priceCents,
+    amountCents: coupon ? coupon.amountCents : plan.priceCents,
     currency: plan.currency,
     status: "pending",
     tokenHash: sha256Hex(token),
@@ -80,6 +84,7 @@ export async function startPlanPayment(
     paidAt: null,
   };
   await deps.store.createPlanPayment(payment);
+  if (coupon) await deps.store.createCouponRedemption(redemptionOf(coupon, payment, "pending", deps.now));
   const [first, ...rest] = user.name.trim().split(/\s+/);
   const address = { contactName: user.name, city: deps.billing.city, country: "Turkey", address: deps.billing.address };
   const price = centsToDecimal(payment.amountCents);
@@ -149,9 +154,11 @@ export async function completePlanPayment(
   }
   if (!result.paid || result.basketId !== payment.id || result.paidCents < payment.amountCents || !result.paymentId) {
     await deps.store.failPlanPayment(payment.id);
+    await deps.store.settleCouponRedemption(payment.id, "failed", deps.now);
     return { kind: "failed" };
   }
   if (!(await deps.store.payPlanPayment(payment.id, result.paymentId, deps.now))) return { kind: "already_paid" };
+  await deps.store.settleCouponRedemption(payment.id, "redeemed", deps.now);
   const license = await deps.store.getLicenseByClientId(payment.clientId);
   const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, deps.now);
   const activation = await activateClient(
@@ -166,4 +173,64 @@ export async function completePlanPayment(
     deps.now,
   );
   return { kind: "paid", activation, activeUntil, payment: { ...payment, status: "paid", paymentId: result.paymentId, paidAt: deps.now } };
+}
+
+// 11.6 Coupons
+
+function redemptionOf(coupon: Extract<CouponCheck, { ok: true }>, payment: PlanPayment, status: "pending" | "redeemed", now: Date) {
+  return {
+    couponId: coupon.coupon.id,
+    paymentId: payment.id,
+    clientId: payment.clientId,
+    code: coupon.coupon.code,
+    plan: payment.plan,
+    fullCents: coupon.fullCents,
+    discountCents: coupon.discountCents,
+    currency: payment.currency,
+    status,
+    createdAt: now,
+    redeemedAt: status === "redeemed" ? now : null,
+  };
+}
+
+/**
+ * A coupon that takes the whole price: no card payment. The payment is
+ * recorded as paid with an amount of 0, and the client is activated or their
+ * license extended as after a card payment.
+ */
+export async function activateWithFreeCoupon(deps: {
+  store: DataStore;
+  client: Client;
+  plan: PlanInfo;
+  coupon: Extract<CouponCheck, { ok: true }>;
+  encryptionKey: Buffer;
+  now: Date;
+}): Promise<Extract<PlanPaymentOutcome, { kind: "paid" }>> {
+  const { store, client, plan, coupon, now } = deps;
+  if (coupon.amountCents !== 0) throw new Error("This coupon doesn't take the whole price");
+  const payment: PlanPayment = {
+    id: newId(),
+    clientId: client.id,
+    plan: plan.id,
+    months: plan.billingMonths,
+    amountCents: 0,
+    currency: plan.currency,
+    status: "paid",
+    // Nobody calls back with this token: the payment is complete.
+    tokenHash: sha256Hex(randomToken(24)),
+    paymentId: null,
+    createdAt: now,
+    paidAt: now,
+  };
+  await store.createPlanPayment(payment);
+  await store.createCouponRedemption(redemptionOf(coupon, payment, "redeemed", now));
+  const license = await store.getLicenseByClientId(client.id);
+  const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, now);
+  const activation = await activateClient(
+    store,
+    { clientId: client.id, plan: plan.id, activeUntil, paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)` },
+    deps.encryptionKey,
+    now,
+  );
+  return { kind: "paid", activation, activeUntil, payment };
 }

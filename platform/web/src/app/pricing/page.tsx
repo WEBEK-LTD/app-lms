@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
 import { planPrice } from "@/lib/plans";
 import { getStore } from "@/lib/data";
@@ -43,12 +44,13 @@ export default async function PricingPage() {
   const contact = await getContact();
   const all = await getPlans(await getStore());
   const plans = [all.starter, all.pro];
+  const text = await getSiteContent("pricing");
   return (
     <MarketingPage
       current="pricing"
-      eyebrow="Pricing"
-      title="Simple plans for your academy"
-      intro="Payments are arranged directly with our team on WhatsApp. We activate your account as soon as your plan is confirmed."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <div className="grid max-w-[900px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">

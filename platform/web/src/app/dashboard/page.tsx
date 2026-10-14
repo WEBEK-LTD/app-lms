@@ -11,6 +11,7 @@ import { ACCOUNT_STATE_LABEL, daysUntil } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
+import { AnnouncementBanner } from "@/components/announcements";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -46,6 +47,8 @@ export default async function OverviewPage() {
           {app.appName ?? "Your app"} · Plan: {planName(plan, plans)}
         </span>
       </div>
+
+      <AnnouncementBanner context={{ client, license, app, state }} />
 
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">

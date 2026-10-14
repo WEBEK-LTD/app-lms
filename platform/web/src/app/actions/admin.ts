@@ -15,7 +15,7 @@ import { appUrl, encryptionKey, iyzicoApiUrl, superAdminEmails } from "@/lib/env
 import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder } from "@/lib/catalog/settings";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
-import { activationMail, renewalMail, resetPasswordMail, sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { getPlans } from "@/lib/settings/platform";
 import { formatDate } from "@/components/ui";
 import { activateSchema, addClientSchema, clientDetailsSchema, releaseSchema } from "@/lib/validation";
@@ -49,10 +49,10 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
     const planLabel = (await getPlans(store))[parsed.data.plan].name;
     const until = formatDate(activeUntil);
     const dashboard = `${appUrl()}/dashboard`;
-    await sendMail(
+    await (
       client.status === "pending" || outcome.created
-        ? activationMail(user.email, user.name, planLabel, until, outcome.licenseKey, dashboard)
-        : renewalMail(user.email, user.name, planLabel, until, dashboard),
+        ? sendTemplate("account_activated", user.email, { name: user.name, plan: planLabel, active_until: until, license_key: outcome.licenseKey, dashboard_url: dashboard })
+        : sendTemplate("plan_renewed", user.email, { name: user.name, plan: planLabel, active_until: until, dashboard_url: dashboard })
     ).catch((error: unknown) => console.error("[mail] activation email failed", error));
   }
   revalidatePath("/admin");
@@ -165,7 +165,7 @@ export async function addClientAction(_: FormState, formData: FormData): Promise
   const reset = await createPasswordReset(store, parsed.data.email, now, { adminEmails: [] });
   if (reset) {
     const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
-    await sendMail(resetPasswordMail(reset.user.email, reset.user.name, link, true)).catch((error: unknown) =>
+    await sendTemplate("password_set", reset.user.email, { name: reset.user.name, link }).catch((error: unknown) =>
       console.error("[mail] set-password email failed", error),
     );
   }

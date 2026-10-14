@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section } from "@/components/marketing";
 import { getContact, type Contact } from "@/lib/contact";
 
@@ -29,12 +30,13 @@ const channels = (contact: Contact): { icon: IconName; title: string; text: stri
 
 export default async function ContactPage() {
   const CHANNELS = channels(await getContact());
+  const text = await getSiteContent("contact");
   return (
     <MarketingPage
       current="contact"
-      eyebrow="Contact"
-      title="Talk to us"
-      intro="Questions about Yallapp, a plan for your academy, or help with your apps: we're here."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <div className="grid max-w-[900px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">

@@ -5,6 +5,7 @@ import type { App, CatalogCustomer, CatalogOrder } from "../data/types";
 import { approvePaymentItem, initializeCheckoutForm, IyzicoError, retrieveCheckoutForm } from "../payments/iyzico";
 import { centsToDecimal, formatCents } from "./money";
 import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
+import { emailTemplate, renderTemplate } from "../email/templates";
 
 /** What the payment page asks for, checked; or the errors per field. */
 export function readCustomer(
@@ -158,23 +159,27 @@ export async function approvePayout(deps: PaymentDeps & { order: CatalogOrder })
   return true;
 }
 
-/** The email telling the shop owner about a paid order. */
-export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl: string): { subject: string; text: string } {
+/** The values of the shop owner's "New order" email (lib/email/templates.ts) for a paid order. */
+export function newOrderMailValues(order: CatalogOrder, appName: string, dashboardUrl: string): Record<string, string> {
   const money = (cents: number) => formatCents(cents, order.currency);
   const c = order.customer;
   return {
-    subject: `New order ${orderNumber(order)} · ${money(order.totalCents)}`,
-    text: [
-      `A customer paid for an order in ${appName}.`,
-      "",
+    app_name: appName,
+    order_number: orderNumber(order),
+    total: money(order.totalCents),
+    order_lines: [
       ...order.lines.map((l) => `${l.name} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
       ...(order.shippingCents > 0 ? [`Shipping: ${money(order.shippingCents)}`] : []),
-      `Total: ${money(order.totalCents)}`,
-      "",
-      ...(c ? [c.name, c.phone, c.email, `${c.address}, ${c.city}`, ""] : []),
-      `See your orders: ${dashboardUrl}`,
     ].join("\n"),
+    customer: c ? `${[c.name, c.phone, c.email, `${c.address}, ${c.city}`].join("\n")}\n\n` : "",
+    orders_url: dashboardUrl,
   };
+}
+
+/** The email telling the shop owner about a paid order, with the default template (sending uses the team's edit). */
+export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl: string): { subject: string; text: string } {
+  const { subject, text } = renderTemplate(emailTemplate("new_order")!, newOrderMailValues(order, appName, dashboardUrl));
+  return { subject, text };
 }
 
 /** A paid course order enrols its student in its courses (apps whose courses are managed in the dashboard). */

@@ -16,6 +16,9 @@ import type {
   BookingStatus,
   PushPreferences,
 } from "../data/types";
+// 11.6 and 11.8
+import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
+import type { Plan } from "../plans";
 import {
   bigint,
   boolean,
@@ -514,4 +517,112 @@ export const lessonProgress = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
+);
+
+// 11.3 Website content
+
+/** The team's edits of yallapp.com.tr's texts, one row per page or section. */
+export const siteContent = mysqlTable("site_content", {
+  key: varchar("content_key", { length: 64 }).primaryKey(),
+  fields: jsonText<Record<string, string>>("fields").notNull(),
+  updatedAt: time("updated_at").notNull(),
+  updatedBy: varchar("updated_by", { length: 191 }).notNull(),
+});
+
+// 11.4 Email templates
+
+/** The team's edits of the emails the platform sends, one row per email. */
+export const emailTemplates = mysqlTable("email_templates", {
+  key: varchar("template_key", { length: 64 }).primaryKey(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  updatedAt: time("updated_at").notNull(),
+  updatedBy: varchar("updated_by", { length: 191 }).notNull(),
+});
+
+// 11.6 Coupons
+
+export const coupons = mysqlTable(
+  "coupons",
+  {
+    id: id("id").primaryKey(),
+    code: varchar("code", { length: 40 }).notNull(),
+    note: varchar("note", { length: 200 }).notNull(),
+    discount: jsonText<CouponDiscount>("discount").notNull(),
+    plans: jsonText<Plan[] | null>("plans"),
+    periods: jsonText<(1 | 12)[] | null>("periods"),
+    validFrom: time("valid_from"),
+    validUntil: time("valid_until"),
+    maxRedemptions: int("max_redemptions"),
+    maxPerClient: int("max_per_client"),
+    firstPaymentOnly: boolean("first_payment_only").notNull(),
+    active: boolean("active").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+  },
+  (t) => [uniqueIndex("coupons_code_unique").on(t.code)],
+);
+
+/** Coupons used on plan payments. */
+export const couponRedemptions = mysqlTable(
+  "coupon_redemptions",
+  {
+    paymentId: id("payment_id")
+      .primaryKey()
+      .references(() => planPayments.id, { onDelete: "cascade" }),
+    couponId: id("coupon_id")
+      .notNull()
+      .references(() => coupons.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 40 }).notNull(),
+    plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
+    fullCents: bigint("full_cents", { mode: "number", unsigned: true }).notNull(),
+    discountCents: bigint("discount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    status: varchar("status", { length: 16 }).notNull().$type<CouponRedemption["status"]>(),
+    createdAt: time("created_at").notNull(),
+    redeemedAt: time("redeemed_at"),
+  },
+  (t) => [index("coupon_redemptions_coupon_idx").on(t.couponId, t.createdAt), index("coupon_redemptions_client_idx").on(t.clientId, t.couponId)],
+);
+
+// 11.8 Announcements
+
+export const announcements = mysqlTable(
+  "announcements",
+  {
+    id: id("id").primaryKey(),
+    title: varchar("title", { length: 120 }).notNull(),
+    body: text("body").notNull(),
+    audience: jsonText<AnnouncementAudience>("audience").notNull(),
+    severity: varchar("severity", { length: 16 }).notNull().$type<AnnouncementSeverity>(),
+    linkUrl: varchar("link_url", { length: 500 }),
+    linkLabel: varchar("link_label", { length: 60 }),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at"),
+    emailedAt: time("emailed_at"),
+    emailedCount: int("emailed_count").notNull().default(0),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+  },
+  (t) => [index("announcements_starts_idx").on(t.startsAt)],
+);
+
+/** Announcements a client closed on their dashboard. */
+export const announcementDismissals = mysqlTable(
+  "announcement_dismissals",
+  {
+    announcementId: id("announcement_id")
+      .notNull()
+      .references(() => announcements.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    dismissedAt: time("dismissed_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.clientId, t.announcementId] })],
 );

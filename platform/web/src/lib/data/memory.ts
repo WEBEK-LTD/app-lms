@@ -51,6 +51,8 @@ import type {
   CourseEnrollment,
   LessonProgress,
 } from "./types";
+// 11.3, 11.4, 11.6 and 11.8
+import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -842,5 +844,134 @@ export class MemoryStore implements DataStore {
   async setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void> {
     if (value === null) this.platformSettings.delete(key);
     else this.platformSettings.set(key, clone({ key, value, updatedAt: now, updatedBy }) as PlatformSetting);
+  }
+
+  // 11.3 Website content
+  private siteContent = new Map<string, SiteContentRecord>();
+
+  async listSiteContent(): Promise<SiteContentRecord[]> {
+    return [...this.siteContent.values()].map(clone);
+  }
+
+  async getSiteContent(key: string): Promise<SiteContentRecord | null> {
+    const record = this.siteContent.get(key);
+    return record ? clone(record) : null;
+  }
+
+  async setSiteContent(key: string, fields: Record<string, string> | null, updatedBy: string, now: Date): Promise<void> {
+    if (fields === null) this.siteContent.delete(key);
+    else this.siteContent.set(key, clone({ key, fields, updatedAt: now, updatedBy }));
+  }
+
+  // 11.4 Email templates
+  private emailTemplates = new Map<string, EmailTemplateRecord>();
+
+  async listEmailTemplates(): Promise<EmailTemplateRecord[]> {
+    return [...this.emailTemplates.values()].map(clone);
+  }
+
+  async getEmailTemplate(key: string): Promise<EmailTemplateRecord | null> {
+    const record = this.emailTemplates.get(key);
+    return record ? clone(record) : null;
+  }
+
+  async setEmailTemplate(key: string, template: { subject: string; body: string } | null, updatedBy: string, now: Date): Promise<void> {
+    if (template === null) this.emailTemplates.delete(key);
+    else this.emailTemplates.set(key, { key, subject: template.subject, body: template.body, updatedAt: now, updatedBy });
+  }
+
+  // 11.6 Coupons
+  private coupons = new Map<string, Coupon>();
+  private couponRedemptions: CouponRedemption[] = [];
+
+  private codeTaken(code: string, exceptId: string | null): boolean {
+    for (const coupon of this.coupons.values()) if (coupon.code === code && coupon.id !== exceptId) return true;
+    return false;
+  }
+
+  async createCoupon(coupon: Coupon): Promise<boolean> {
+    if (this.codeTaken(coupon.code, null)) return false;
+    this.coupons.set(coupon.id, clone(coupon));
+    return true;
+  }
+
+  async updateCoupon(id: string, patch: CouponPatch, now: Date): Promise<boolean> {
+    const coupon = this.coupons.get(id);
+    if (!coupon) return true;
+    if (patch.code !== undefined && this.codeTaken(patch.code, id)) return false;
+    this.coupons.set(id, clone({ ...coupon, ...patch, updatedAt: now }));
+    return true;
+  }
+
+  async getCoupon(id: string): Promise<Coupon | null> {
+    const coupon = this.coupons.get(id);
+    return coupon ? clone(coupon) : null;
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | null> {
+    for (const coupon of this.coupons.values()) if (coupon.code === code) return clone(coupon);
+    return null;
+  }
+
+  async listCoupons(): Promise<Coupon[]> {
+    return [...this.coupons.values()].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(clone);
+  }
+
+  async createCouponRedemption(redemption: CouponRedemption): Promise<void> {
+    this.couponRedemptions.push(clone(redemption));
+  }
+
+  async settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void> {
+    for (const r of this.couponRedemptions) {
+      if (r.paymentId === paymentId && r.status === "pending") {
+        r.status = status;
+        r.redeemedAt = status === "redeemed" ? now : null;
+      }
+    }
+  }
+
+  async listCouponRedemptions(input: { couponId?: string; clientId?: string }): Promise<CouponRedemption[]> {
+    return this.couponRedemptions
+      .filter((r) => (input.couponId === undefined || r.couponId === input.couponId) && (input.clientId === undefined || r.clientId === input.clientId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  // 11.8 Announcements
+  private announcements = new Map<string, Announcement>();
+  private announcementDismissals = new Map<string, Set<string>>();
+
+  async createAnnouncement(announcement: Announcement): Promise<void> {
+    this.announcements.set(announcement.id, clone(announcement));
+  }
+
+  async updateAnnouncement(id: string, patch: AnnouncementPatch, now: Date): Promise<void> {
+    const announcement = this.announcements.get(id);
+    if (announcement) this.announcements.set(id, clone({ ...announcement, ...patch, updatedAt: now }));
+  }
+
+  async deleteAnnouncement(id: string): Promise<void> {
+    this.announcements.delete(id);
+    for (const dismissed of this.announcementDismissals.values()) dismissed.delete(id);
+  }
+
+  async getAnnouncement(id: string): Promise<Announcement | null> {
+    const announcement = this.announcements.get(id);
+    return announcement ? clone(announcement) : null;
+  }
+
+  async listAnnouncements(): Promise<Announcement[]> {
+    return [...this.announcements.values()].sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime()).map(clone);
+  }
+
+  async dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void> {
+    if (!this.announcements.has(input.announcementId)) return;
+    const dismissed = this.announcementDismissals.get(input.clientId) ?? new Set<string>();
+    dismissed.add(input.announcementId);
+    this.announcementDismissals.set(input.clientId, dismissed);
+  }
+
+  async listDismissedAnnouncementIds(clientId: string): Promise<string[]> {
+    return [...(this.announcementDismissals.get(clientId) ?? [])];
   }
 }
