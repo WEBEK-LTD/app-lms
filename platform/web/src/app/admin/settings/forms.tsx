@@ -8,6 +8,7 @@ import {
   savePublishingSettingAction,
   saveMarketplaceAction,
   saveOtpSettingAction,
+  savePartnerAppAction,
   saveSmtpSettingAction,
   sendTestCodeAction,
   sendTestEmailAction,
@@ -300,6 +301,54 @@ export function PublishingSettingForm({ teamEmail }: { teamEmail: string }) {
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 25 Yallapp's partner app on Salla or Zid. */
+export function PartnerAppForm({
+  settingKey,
+  name,
+  clientId,
+  saved,
+  webhook,
+}: {
+  settingKey: "sallaApp" | "zidApp";
+  name: string;
+  clientId: string;
+  /** Whether a client secret (and a webhook secret) is saved. */
+  saved: { clientSecret: boolean; webhookSecret: boolean };
+  /** Where the platform sends webhooks, when Yallapp reads them. */
+  webhook: string | null;
+}) {
+  const [state, action] = useActionState(savePartnerAppAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="key" value={settingKey} />
+      <Field label="Client ID" name="clientId" autoComplete="off" defaultValue={state.values?.clientId ?? clientId} error={state.errors?.clientId} />
+      <Field
+        label="Client Secret"
+        name="clientSecret"
+        type="password"
+        autoComplete="off"
+        placeholder={saved.clientSecret ? "Saved. Paste a new one to replace it." : ""}
+        error={state.errors?.clientSecret}
+      />
+      <Field
+        label="Webhook Secret (optional)"
+        name="webhookSecret"
+        type="password"
+        autoComplete="off"
+        placeholder={saved.webhookSecret ? "Saved. Paste a new one to replace it." : ""}
+        hint={webhook ? `Checks the webhooks ${name} sends to ${webhook}.` : `Kept for ${name}'s webhooks; stores connect without it.`}
+        error={state.errors?.webhookSecret}
+      />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save {name} app
         </SubmitButton>
       </div>
     </form>

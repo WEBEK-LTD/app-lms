@@ -7,3 +7,5 @@ import "./thinkific";
 import "./simplybook";
 import "./ticimax";
 import "./wix";
+import "./salla";
+import "./zid";

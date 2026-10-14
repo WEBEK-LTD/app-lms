@@ -376,3 +376,23 @@ in `docs/ARCHITECTURE.md` ("Sign-in for every app").
 | [x] | 24.4 Plugin 0.3.5: "Email sign-in works" with the password (default) or with a code; codes made like phone codes and emailed through `POST /sign-in-codes/send`; a new address gets a WordPress account when sign-up from the app is on; accounts that can edit the site never sign in by code; the dashboard's choice replaces the setting | `composer lint`, `php -l`, unit tests and the integration test pass |
 | [x] | 24.5 App sign-in for WordPress chooses "With a code by email: anyone can sign up" or "With their password: existing accounts only", with clearer lines on when the website picks it up; docs "Send your app's emails from your own address" with each service's steps; the privacy policy mentions the owner's own email server | Unit tests and the browser tests |
 | [ ] | 24.6 Tried with a real mailbox and on a WordPress test site with plugin 0.3.5 | `docs/LAUNCH-CHECKLIST.md` › 7a |
+
+## Phase 25: Salla and Zid stores
+
+Store apps take their products, categories, prices and order history from a
+Salla or Zid store (the leading platforms in Saudi Arabia and the Gulf),
+connected with OAuth through Yallapp's own partner apps instead of pasted
+keys, on the same platform connector framework
+(`platform/web/src/lib/hosted/connectors/salla.ts`, `zid.ts`). Written from
+the platforms' documentation; details only a real store can confirm are
+marked "Unverified" in the code. No migration: the partner apps are
+encrypted platform settings and each store's tokens live in the app's
+connector.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 25.1 Partner apps: admin Settings › "Salla partner app" and "Zid partner app" (client ID, client secret, webhook secret; encrypted; help on where to create them and the callback addresses). The Website step's "Connect with Salla/Zid" sends the owner to the approval page with the app's ID signed as `state` (20 minutes); `/oauth/salla` and `/oauth/zid` check the state and that the signed-in owner has the app, swap the code, check the store and save it. Without the partner app the platform shows "Not available yet" (the team sees what to set). Disconnect deletes the tokens | Unit tests of the state and the callback (success, forged, expired, other platform, other owner, denied, refused code, unset app, store that can't be read); the platforms browser test |
+| [x] | 25.2 Tokens: renewed a day before they expire and once when refused, saved as a pair in one write; one renewal per app and server, and across servers the refresh token is claimed in the store first (others wait for the saved pair; a refresh token is never used twice); a refused refresh token asks the owner to connect again. Salla's signed `app.store.authorize` webhooks (`/api/webhooks/salla`) renew the tokens of stores already connected | Unit tests: renewal before expiry, after a 401, two requests at once, another server's claim, a used refresh token, tokens of another store, webhooks |
+| [x] | 25.3 Salla and Zid connectors: products (search, category, sale, price order per page), product detail with options and SKUs/variants as variations, images, prices and sale prices, categories with subcategories, cart pricing; checkout hands one product off to its page on the storefront, in the browser (more than one: one at a time); digital products aren't sold on iOS; order history of the customers with exactly the verified phone (E.164) or the verified email of an email account, never by an empty value | Unit tests with a fake Salla and a fake Zid checked against the contract |
+| [x] | 25.4 Registered everywhere platforms are: switches, the Store choices on the Website step, the connected-platforms plan limit, docs articles "Connect your Salla store" and "Connect your Zid store", Integrations and the marketing lists | Unit tests and the platforms browser test |
+| [~] | 25.5 Checked against real Salla and Zid stores | Waiting on the partner apps and test stores (`docs/LAUNCH-CHECKLIST.md` › 8) |

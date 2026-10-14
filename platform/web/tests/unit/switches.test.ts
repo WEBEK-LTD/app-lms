@@ -42,6 +42,8 @@ describe("switches", () => {
       "website:thinkific",
       "website:simplybook",
       "website:wix",
+      "website:salla",
+      "website:zid",
       "feature:push",
       "feature:offline_downloads",
       "feature:auto_publish",

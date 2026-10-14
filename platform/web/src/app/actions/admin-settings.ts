@@ -41,6 +41,8 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   contact: "contact details",
   plans: "plans",
   publishing: "publishing team email",
+  sallaApp: "Salla partner app",
+  zidApp: "Zid partner app",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -80,6 +82,42 @@ export async function resetPlatformSettingAction(formData: FormData): Promise<vo
     await save(key, null, admin);
     revalidatePath("/dashboard/publishing");
   }
+  // 25 Without the partner app, stores can't connect (connected ones can't renew their tokens).
+  if (key === "sallaApp" || key === "zidApp") {
+    await save(key, null, admin);
+    revalidatePath("/dashboard", "layout");
+  }
+}
+
+/**
+ * 25 Yallapp's partner app on Salla or Zid: the client ID, client secret and
+ * (optional) webhook secret from the platform's partner portal. Empty secrets
+ * keep the saved ones.
+ */
+export async function savePartnerAppAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const key = str(formData, "key");
+  if (key !== "sallaApp" && key !== "zidApp") return { message: "Unknown setting." };
+  const name = key === "sallaApp" ? "Salla" : "Zid";
+  const store = await getStore();
+  const saved = (await platformSetting(store, key, { fresh: true }))?.value ?? null;
+  const values = { clientId: str(formData, "clientId") };
+  const clientSecret = str(formData, "clientSecret");
+  const webhookSecret = str(formData, "webhookSecret");
+  const errors: Record<string, string> = {};
+  if (!/^[\w.\-~]{1,200}$/.test(values.clientId)) errors.clientId = `Paste the Client ID exactly as ${name} shows it.`;
+  if (!clientSecret && !saved) errors.clientSecret = "Paste the Client Secret.";
+  else if (clientSecret.length > 500 || /\s/.test(clientSecret)) errors.clientSecret = `Paste the Client Secret exactly as ${name} shows it.`;
+  if (webhookSecret.length > 500 || /\s/.test(webhookSecret)) errors.webhookSecret = `Paste the Webhook Secret exactly as ${name} shows it.`;
+  if (Object.keys(errors).length) return { errors, values };
+  const encryption = encryptionKey();
+  await save(key, {
+    clientId: values.clientId,
+    clientSecretEncrypted: clientSecret ? encryptSetting(key, clientSecret, encryption) : saved!.clientSecretEncrypted,
+    webhookSecretEncrypted: webhookSecret ? encryptSetting(key, webhookSecret, encryption) : (saved?.webhookSecretEncrypted ?? null),
+  }, admin);
+  revalidatePath("/dashboard", "layout");
+  return { ok: true, message: `${name} partner app saved. Store apps can connect a ${name} store now.`, values };
 }
 
 export async function saveOtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
