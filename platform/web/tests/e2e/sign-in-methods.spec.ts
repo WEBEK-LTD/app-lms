@@ -38,7 +38,7 @@ async function signIn(page: Page, email: string, password: string) {
 
 test("the owner turns on email sign-in and their own WhatsApp number", async ({ page }) => {
   // A new email code waits a minute after the first one.
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
   await page.goto("/sign-up");
   await page.getByLabel("Full name").fill(client.name);
   await page.getByLabel("Email").fill(client.email);
@@ -111,6 +111,49 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   await expect(page.getByRole("button", { name: "Send a test code" })).toBeVisible();
   await page.getByRole("button", { name: "Use Yallapp's number again" }).click();
   await expect(page.getByText("Your app's codes go out from Yallapp's WhatsApp number")).toBeVisible();
+
+  // 24 The app's own email server: Google, with the steps; the password is never shown again.
+  await expect(page.getByRole("heading", { name: "Your app's email" })).toBeVisible();
+  await expect(page.getByText("go out from Yallapp's address with your app's name")).toBeVisible();
+  await page.getByText("My own email server").click();
+  await expect(page.getByLabel("Your email service", { exact: true })).toHaveValue("google");
+  await expect(page.getByText("How to set up Google")).toBeVisible();
+  await expect(page.getByText(/search for "App passwords"/)).toBeVisible();
+  await page.getByLabel("Username", { exact: true }).fill(`lilac-${suffix}@gmail.com`);
+  await page.getByLabel("Password", { exact: true }).fill("abcd-efgh-e2e-secret");
+  await page.getByLabel("From name", { exact: true }).fill("Lilac Corner");
+  await page.getByLabel("From address", { exact: true }).fill(`lilac-${suffix}@gmail.com`);
+  await page.getByRole("button", { name: "Save email settings" }).click();
+  await expect(page.getByText("Saved. Send a test email to check that your server sends it.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(`through your email server (smtp.gmail.com)`)).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("placeholder", "•••••••• (saved)");
+  expect(await page.content()).not.toContain("abcd-efgh-e2e-secret");
+  // A local address is refused; an address that doesn't exist fails the test email in plain words.
+  await page.getByLabel("Your email service", { exact: true }).selectOption("custom");
+  await page.getByLabel("Server", { exact: true }).fill("localhost");
+  await page.getByRole("button", { name: "Save email settings" }).click();
+  await expect(page.getByText("This is a local or private address.")).toBeVisible();
+  await page.getByLabel("Server", { exact: true }).fill("mail.yallapp-e2e.invalid");
+  await page.getByLabel("Port", { exact: true }).fill("587");
+  await page.getByLabel("Security", { exact: true }).selectOption("starttls");
+  await page.getByRole("button", { name: "Save email settings" }).click();
+  await expect(page.getByText("Saved. Send a test email")).toBeVisible();
+  await page.getByLabel("Send a test email to").fill(`owner-${suffix}@shop.test`);
+  await page.getByRole("button", { name: "Send a test email" }).click();
+  await expect(page.getByText("The test email wasn't sent. We couldn't find the email server mail.yallapp-e2e.invalid. Check the server name.")).toBeVisible();
+  expect(await page.content()).not.toContain("abcd-efgh-e2e-secret");
+  // A code still arrives (from Yallapp's address) when the own server fails, and the page says so.
+  const fallback = `fallback-${suffix}@example.com`;
+  expect((await page.request.post(`${api}/auth/email/request`, { data: { email: fallback } })).status()).toBe(200);
+  expect(await emailedCode(fallback)).toMatch(/^\d{6}$/);
+  await page.reload();
+  await expect(page.getByText(/Your email server couldn't send an email on .+: We couldn't find the email server mail\.yallapp-e2e\.invalid/)).toBeVisible();
+  // Back to Yallapp's address.
+  await page.getByText("Sent by Yallapp", { exact: true }).click();
+  await page.getByRole("button", { name: "Save email settings" }).click();
+  await expect(page.getByText("Saved. Yallapp sends your app's emails")).toBeVisible();
 
   // The rules are still there, and still saved separately.
   await expect(page.getByLabel("Devices per customer")).toHaveValue("2");

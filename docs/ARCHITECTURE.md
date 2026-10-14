@@ -522,6 +522,33 @@ mobile/
   key (encrypted with the context `app-whatsapp:<app id>`, never shown again)
   and an instance ID, with "Send a test code". The app's phone codes then go
   out from it, on the hosted API and for its WordPress site.
+- **The app's own email (Phase 24).** Optional, on App sign-in under "Your
+  app's email": "Sent by Yallapp" (the platform's SMTP, from Yallapp's
+  address with the app's name as the display name) or the owner's own SMTP
+  server (`apps.hosted_settings.mailServer`; presets in
+  `src/lib/email/app-mail-presets.ts`; the password encrypted with the
+  context `app-smtp:<app id>`, never shown again). Emails to the app's own
+  users (`sendTemplate(…, { app })`: email sign-in codes on the hosted API
+  and for WordPress) go through it; emails to owners and the team never do.
+  The platform connects only on ports 25, 465, 587 or 2525, resolves the host
+  once, refuses private and local addresses and connects to the checked
+  address (the name is kept for TLS), with 10-second timeouts. When the own
+  server fails, the email goes out once more from Yallapp's server, the
+  reason is logged and kept on the app in plain words (`mailFailedAt`,
+  `mailFailedReason`; App sign-in shows it) and the owner gets the "Own
+  email server failed" email at most once a day. "Send a test email" (5 per
+  10 minutes per app) shows the server's error in plain words, never the
+  password.
+- **Email codes on WordPress (Phase 24).** The owner (App sign-in, sent as
+  `LicenseStatus.email_sign_in`) or the plugin setting chooses how email
+  works: the password (the default) or a code. With a code, the plugin
+  serves `email_sign_in: code`, makes each code like a phone code
+  (`Otp\Email_Codes`, an HMAC bound to `email:<address>`) and asks the
+  platform to email it (`POST /sign-in-codes/send` with `channel: email`,
+  the same license limits, per address one every 30 seconds and 10 an hour
+  as a keyed hash). A new address signs up through `/auth/register` (a
+  WordPress account with that email, when sign-up from the app is allowed);
+  accounts that can edit the site get no email and never sign in by code.
 
 ## Demo apps (Phase 16)
 
