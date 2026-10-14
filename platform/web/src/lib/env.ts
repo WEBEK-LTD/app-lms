@@ -258,3 +258,14 @@ export function blobsMode(): "netlify" | "fs" {
 export function blobsDir(): string {
   return read("YALLAPP_BLOBS_DIR") ?? ".data/blobs";
 }
+
+// 11.4 Email templates
+
+/**
+ * Memory mode only (end-to-end tests): emails that would go to the log are
+ * also written to this folder as JSON, so the tests can read what was sent.
+ */
+export function mailCaptureDir(): string | undefined {
+  const dir = read("YALLAPP_MAIL_DIR");
+  return dir && read("YALLAPP_DATA") === "memory" && !isNetlify() ? dir : undefined;
+}

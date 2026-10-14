@@ -9,11 +9,11 @@ import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
 import { accountState } from "@/lib/license/status";
-import { newAppointmentMail } from "@/lib/bookings/mail";
+import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
 import type { BookingAppointment } from "@/lib/data/types";
-import { sendMail } from "@/lib/mail";
-import { newInquiryMail } from "@/lib/listings/notify";
+import { newInquiryMailValues } from "@/lib/listings/notify";
+import { sendTemplate } from "@/lib/email/send";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -61,14 +61,14 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
         onBooked: async (appointment: BookingAppointment) => {
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
-          const mail = newAppointmentMail(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
-          await sendMail({ to: owner.email, ...mail });
+          const values = newAppointmentMailValues(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
+          await sendTemplate("new_appointment", owner.email, values);
         },
         onInquiry: async ({ inquiry, listing, user, text }) => {
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
           const url = `${appUrl()}/dashboard/inquiries/${inquiry.id}`;
-          await sendMail({ to: owner.email, ...newInquiryMail({ listing, user, text, appName: app.appName ?? "your app", url }) });
+          await sendTemplate("new_inquiry", owner.email, newInquiryMailValues({ listing, user, text, appName: app.appName ?? "your app", url }));
         },
       }),
     },

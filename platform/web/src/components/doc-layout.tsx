@@ -73,6 +73,6 @@ export const LEGAL_NAV: DocNavGroup[] = [
   },
 ];
 
-export function LastUpdated() {
-  return <span className="text-sm text-muted">Last updated: 12 October 2026</span>;
+export function LastUpdated({ date }: { date: string }) {
+  return <span className="text-sm text-muted">Last updated: {date}</span>;
 }

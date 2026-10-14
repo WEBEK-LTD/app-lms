@@ -11,7 +11,7 @@ import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
 import { appUrl } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
-import { resetPasswordMail, sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { inviteAdminSchema } from "@/lib/validation";
 
 export interface InviteState extends FormState {
@@ -60,7 +60,7 @@ export async function inviteAdminAction(_: InviteState, formData: FormData): Pro
   const reset = await createPasswordReset(store, email, now, { adminEmails: [] });
   if (!reset) return { ok: true, message: `${email} is on the team as ${ROLE_LABELS[role]}.` };
   const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
-  await sendMail(resetPasswordMail(email, user.name, link, true)).catch((error: unknown) => console.error("[mail] team invitation failed", error));
+  await sendTemplate("password_set", email, { name: user.name, link }).catch((error: unknown) => console.error("[mail] team invitation failed", error));
   return {
     ok: true,
     message: `${email} is on the team as ${ROLE_LABELS[role]}. We emailed them a link to set their password; it works for 1 hour. You can also send it yourself:`,

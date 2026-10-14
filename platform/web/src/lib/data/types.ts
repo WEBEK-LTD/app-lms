@@ -916,3 +916,118 @@ export interface SwitchesSetting {
 export interface PlatformSettingValues {
   switches: SwitchesSetting;
 }
+
+
+// 11.3 Website content
+
+/** The team's edit of one page or section of yallapp.com.tr (lib/content/site.ts); pages without one show the text in code. */
+export interface SiteContentRecord {
+  key: string;
+  /** Every field of the page, as saved. */
+  fields: Record<string, string>;
+  updatedAt: Date;
+  /** Email of the admin who saved it. */
+  updatedBy: string;
+}
+
+// 11.4 Email templates
+
+/** The team's edit of one email (lib/email/templates.ts); emails without one use the text in code. */
+export interface EmailTemplateRecord {
+  key: string;
+  subject: string;
+  body: string;
+  updatedAt: Date;
+  updatedBy: string;
+}
+
+// 11.6 Coupons
+
+export type CouponDiscount =
+  | { kind: "percent"; percent: number }
+  /** Cents off per currency; a plan in a currency without an amount gets no discount. */
+  | { kind: "fixed"; amounts: Partial<Record<CatalogCurrency, number>> };
+
+/** A discount on plan card payments. */
+export interface Coupon {
+  id: string;
+  /** Upper case; clients may type it in any case. */
+  code: string;
+  /** For the team only. */
+  note: string;
+  discount: CouponDiscount;
+  /** The plans it applies to; null for every plan. */
+  plans: Plan[] | null;
+  /** Billing periods in months it applies to; null for every period. */
+  periods: (1 | 12)[] | null;
+  validFrom: Date | null;
+  validUntil: Date | null;
+  /** Uses across every client; null for no limit. */
+  maxRedemptions: number | null;
+  /** Uses per client; null for no limit. */
+  maxPerClient: number | null;
+  /** Only for clients who have never been activated. */
+  firstPaymentOnly: boolean;
+  /** Off: clients can't use it anymore. */
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
+
+export type CouponPatch = Partial<Omit<Coupon, "id" | "createdAt" | "createdBy">>;
+
+/**
+ * A coupon used on a plan payment: "pending" while the client is on
+ * iyzico's page, "redeemed" once the payment is paid (at once for a free
+ * one), "failed" when the payment fails.
+ */
+export interface CouponRedemption {
+  couponId: string;
+  /** The plan payment (plan_payments.id). */
+  paymentId: string;
+  clientId: string;
+  code: string;
+  plan: Plan;
+  /** The plan's price before the coupon, and what the coupon took off. */
+  fullCents: number;
+  discountCents: number;
+  currency: CatalogCurrency;
+  status: "pending" | "redeemed" | "failed";
+  createdAt: Date;
+  redeemedAt: Date | null;
+}
+
+// 11.8 Announcements
+
+export type AnnouncementSeverity = "info" | "warning";
+
+/** Which clients see an announcement. */
+export type AnnouncementAudience =
+  | { kind: "all" }
+  | { kind: "plan"; plans: Plan[] }
+  | { kind: "app_type"; appTypes: AppType[] }
+  | { kind: "state"; states: ("pending" | "active" | "expired" | "suspended")[] };
+
+export interface Announcement {
+  id: string;
+  title: string;
+  /** Markdown (lib/content/markdown.ts), rendered without HTML. */
+  body: string;
+  audience: AnnouncementAudience;
+  severity: AnnouncementSeverity;
+  /** An optional link under the text. */
+  linkUrl: string | null;
+  linkLabel: string | null;
+  /** Shown from this time, until `endsAt` when set. */
+  startsAt: Date;
+  endsAt: Date | null;
+  /** When it was emailed to its audience, and to how many clients. */
+  emailedAt: Date | null;
+  emailedCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
+
+export type AnnouncementPatch = Partial<Omit<Announcement, "id" | "createdAt" | "createdBy">>;

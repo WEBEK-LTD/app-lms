@@ -21,7 +21,7 @@ import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/h
 import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
-import { sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
@@ -324,20 +324,15 @@ async function connectPlatform(
 
 /** Tells the team a client wants their WordPress site set up for them. */
 async function notifySetupRequest(context: ClientContext, siteUrl: string, note: string): Promise<void> {
-  const admins = superAdminEmails();
-  const text = [
-    `${context.user.name} asked us to set up WordPress for their app.`,
-    `Website: ${siteUrl}`,
-    `WhatsApp: ${context.client.whatsapp}`,
-    `Email: ${context.user.email}`,
-    `App type: ${APP_TYPE_NAMES[context.app?.appType ?? "lms"]}`,
-    note ? `Note: ${note}` : "",
-    "",
-    "Requests are listed on the super admin Clients page.",
-  ]
-    .filter((line, i, all) => line !== "" || i === all.length - 2)
-    .join("\n");
-  await Promise.all(admins.map((to) => sendMail({ to, subject: "WordPress set-up request", text })));
+  const values = {
+    client_name: context.user.name,
+    website: siteUrl,
+    whatsapp: context.client.whatsapp,
+    email: context.user.email,
+    app_type: APP_TYPE_NAMES[context.app?.appType ?? "lms"],
+    note_line: note ? `Note: ${note}\n` : "",
+  };
+  await Promise.all(superAdminEmails().map((to) => sendTemplate("setup_request", to, values)));
 }
 
 export interface ApiCheckState {

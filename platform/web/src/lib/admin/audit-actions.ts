@@ -32,6 +32,19 @@ export const AUDIT_ACTIONS = {
   "team.invite": "Team member invited",
   "team.role": "Team role changed",
   "team.remove": "Team member removed",
+  "content.update": "Website content saved",
+  "content.reset": "Website content back to default",
+  "email_template.update": "Email template saved",
+  "email_template.reset": "Email template back to default",
+  "coupon.create": "Coupon created",
+  "coupon.update": "Coupon saved",
+  "coupon.enable": "Coupon turned on",
+  "coupon.disable": "Coupon turned off",
+  "announcement.create": "Announcement created",
+  "announcement.update": "Announcement saved",
+  "announcement.email": "Announcement emailed",
+  "announcement.end": "Announcement ended",
+  "announcement.delete": "Announcement deleted",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -46,6 +59,10 @@ export const AUDIT_TARGETS = {
   plan: "Plan",
   switches: "Switches",
   admin: "Team member",
+  content: "Website content",
+  email_template: "Email template",
+  coupon: "Coupon",
+  announcement: "Announcement",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

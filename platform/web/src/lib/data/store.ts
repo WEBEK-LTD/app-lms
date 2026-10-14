@@ -36,6 +36,8 @@ import type {
   AuditEntry,
   AuditQuery,
 } from "./types";
+// 11.3, 11.4, 11.6 and 11.8
+import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -346,4 +348,46 @@ export interface DataStore {
   // 11.2 Client page
   /** An app's customers, newest first; `query` matches the name, phone or email. */
   listHostedUsers(input: { appId: string; query?: string; offset: number; limit: number }): Promise<{ items: HostedUser[]; total: number }>;
+
+
+  // 11.3 Website content
+  listSiteContent(): Promise<SiteContentRecord[]>;
+  getSiteContent(key: string): Promise<SiteContentRecord | null>;
+  /** Saves a page's texts, or removes the edit (back to the text in code) when `fields` is null. */
+  setSiteContent(key: string, fields: Record<string, string> | null, updatedBy: string, now: Date): Promise<void>;
+
+  // 11.4 Email templates
+  listEmailTemplates(): Promise<EmailTemplateRecord[]>;
+  getEmailTemplate(key: string): Promise<EmailTemplateRecord | null>;
+  /** Saves an email's subject and body, or removes the edit (back to the default) when `template` is null. */
+  setEmailTemplate(key: string, template: { subject: string; body: string } | null, updatedBy: string, now: Date): Promise<void>;
+
+  // 11.6 Coupons
+  /** False (and nothing saved) when another coupon has the same code. */
+  createCoupon(coupon: Coupon): Promise<boolean>;
+  /** False (and nothing saved) when another coupon has the new code. */
+  updateCoupon(id: string, patch: CouponPatch, now: Date): Promise<boolean>;
+  getCoupon(id: string): Promise<Coupon | null>;
+  /** `code` in upper case. */
+  getCouponByCode(code: string): Promise<Coupon | null>;
+  /** Newest first. */
+  listCoupons(): Promise<Coupon[]>;
+  createCouponRedemption(redemption: CouponRedemption): Promise<void>;
+  /** Moves a pending redemption (by its plan payment) to redeemed or failed. */
+  settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void>;
+  /** Newest first: a coupon's, a client's, or both. */
+  listCouponRedemptions(input: { couponId?: string; clientId?: string }): Promise<CouponRedemption[]>;
+
+  // 11.8 Announcements
+  createAnnouncement(announcement: Announcement): Promise<void>;
+  updateAnnouncement(id: string, patch: AnnouncementPatch, now: Date): Promise<void>;
+  /** Also forgets who dismissed it. */
+  deleteAnnouncement(id: string): Promise<void>;
+  getAnnouncement(id: string): Promise<Announcement | null>;
+  /** Newest start first. */
+  listAnnouncements(): Promise<Announcement[]>;
+  /** Hides an announcement from a client's dashboard banner (once; again is a no-op). */
+  dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void>;
+  /** The announcements a client dismissed. */
+  listDismissedAnnouncementIds(clientId: string): Promise<string[]>;
 }

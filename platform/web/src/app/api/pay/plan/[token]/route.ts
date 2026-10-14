@@ -1,10 +1,9 @@
+import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
 import { completePlanPayment } from "@/lib/billing/plan-payment";
-import { formatDate } from "@/components/ui";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
-import { activationMail, renewalMail, sendMail } from "@/lib/mail";
-import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { yallappIyzicoKeys } from "@/lib/settings/platform";
 
 /**
  * Where iyzico sends a client back after paying their plan, with its token.
@@ -32,18 +31,6 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
     encryptionKey: encryptionKey(),
   });
   if (outcome.kind === "failed") return failed();
-  if (outcome.kind === "paid") {
-    const user = await store.getUserById(client.userId);
-    if (user) {
-      const plan = (await getPlans(store))[payment.plan].name;
-      const until = formatDate(outcome.activeUntil);
-      const dashboard = `${appUrl()}/dashboard`;
-      await sendMail(
-        outcome.activation.created
-          ? activationMail(user.email, user.name, plan, until, outcome.activation.licenseKey, dashboard)
-          : renewalMail(user.email, user.name, plan, until, dashboard),
-      ).catch((error: unknown) => console.error("[mail] payment email failed", error));
-    }
-  }
+  if (outcome.kind === "paid") await sendPlanPaidMail(store, client, outcome);
   return go("/dashboard/license?payment=paid");
 }

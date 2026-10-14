@@ -1,20 +1,28 @@
+import { emailTemplate, renderTemplate } from "../email/templates";
 import type { DataStore } from "../data/store";
 import type { App, HostedNotification, HostedUser, Listing, ListingInquiry } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { sendPush, type ServiceAccount } from "../hosted/push";
 
-/** The email telling the office about a message from the app. */
-export function newInquiryMail(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string }): { subject: string; text: string } {
+/** The values of the office's "New message to the office" email (lib/email/templates.ts). */
+export function newInquiryMailValues(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string }): Record<string, string> {
   const { listing, user } = input;
   return {
-    subject: `New message about ${listing.title}`.slice(0, 150),
-    text:
-      `${user.name} wrote about ${listing.reference ? `${listing.title} (${listing.reference})` : listing.title} in ${input.appName}:\n\n` +
-      `${input.text}\n\n` +
-      `Phone: ${user.phone}\n` +
-      (user.email ? `Email: ${user.email}\n` : "") +
-      `\nReply in your dashboard: ${input.url}`,
+    app_name: input.appName,
+    customer_name: user.name,
+    listing: listing.reference ? `${listing.title} (${listing.reference})` : listing.title,
+    listing_title: listing.title,
+    message: input.text,
+    phone: user.phone,
+    email_line: user.email ? `Email: ${user.email}\n` : "",
+    conversation_url: input.url,
   };
+}
+
+/** The email telling the office about a message, with the default template (sending uses the team's edit). */
+export function newInquiryMail(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string }): { subject: string; text: string } {
+  const { subject, text } = renderTemplate(emailTemplate("new_inquiry")!, newInquiryMailValues(input));
+  return { subject: subject.slice(0, 150), text };
 }
 
 const clip = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { AnnouncementBanner } from "@/components/announcements";
 import { AuthShell } from "@/components/auth-shell";
 import { Icon } from "@/components/icon";
 import { SignOutButton } from "@/components/sign-out";
@@ -80,6 +81,8 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
                   : "Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key."}
             </p>
           </div>
+
+          <AnnouncementBanner context={context} />
 
           {suspended ? null : (
             <ol className="m-0 flex list-none flex-col gap-3 p-0 text-[15px]">

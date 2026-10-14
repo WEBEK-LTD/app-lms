@@ -59,6 +59,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 ]
               : []),
             { href: "/dashboard/license", label: "License & plugin" },
+            { href: "/dashboard/announcements", label: "Announcements" },
             { href: contact.whatsappUrl, label: "Support", external: true },
           ]}
         />

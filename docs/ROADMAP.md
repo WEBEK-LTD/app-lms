@@ -165,10 +165,10 @@ The WEBEK team controls every part of Yallapp from the super admin pages.
 |---|---|---|
 | [x] | 11.1 Overview: clients, revenue, builds and apps at a glance | The numbers match the data |
 | [x] | 11.2 One page per client: plan and extension, app, connection, builds, app users, notifications | The team handles a client from one page |
-| [ ] | 11.3 Website content edited in the admin: home page texts, guides and legal pages | A text change shows on yallapp.com.tr |
-| [ ] | 11.4 Email templates edited in the admin | A changed template is what clients receive |
+| [x] | 11.3 Website content edited in the admin: home page texts, guides and legal pages | A text change shows on yallapp.com.tr |
+| [x] | 11.4 Email templates edited in the admin | A changed template is what clients receive |
 | [x] | 11.5 Switches: app types, platforms and features on or off, per plan | A switched-off platform disappears from the Website step |
-| [ ] | 11.6 Coupons and discounts on plans | A coupon lowers a card payment |
+| [x] | 11.6 Coupons and discounts on plans | A coupon lowers a card payment |
 | [x] | 11.7 Admin team with roles, and a log of every change | A support admin can't change prices; the log shows who changed what |
-| [ ] | 11.8 Announcements to clients, in the dashboard and by email | Clients see an announcement |
+| [x] | 11.8 Announcements to clients, in the dashboard and by email | Clients see an announcement |
 | [x] | 11.9 Defaults for new apps: template, look and languages | A new client starts with the defaults |

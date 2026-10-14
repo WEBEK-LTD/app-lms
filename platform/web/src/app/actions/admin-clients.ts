@@ -15,7 +15,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { announce, NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
-import { activationMail, resetPasswordMail, sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { getPlans } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
@@ -136,9 +136,13 @@ export async function resendLicenseEmailAction(formData: FormData): Promise<void
   const { admin, store, client, user, license } = await clientFrom(formData, "clients.email");
   if (!user || !license) back(client.id, "");
   const plan = (await getPlans(store))[license!.plan].name;
-  await sendMail(
-    activationMail(user!.email, user!.name, plan, formatDate(license!.expiresAt), revealLicenseKey(license!, encryptionKey()), `${appUrl()}/dashboard`),
-  ).catch((error: unknown) => console.error("[mail] license email failed", error));
+  await sendTemplate("account_activated", user!.email, {
+    name: user!.name,
+    plan,
+    active_until: formatDate(license!.expiresAt),
+    license_key: revealLicenseKey(license!, encryptionKey()),
+    dashboard_url: `${appUrl()}/dashboard`,
+  }).catch((error: unknown) => console.error("[mail] license email failed", error));
   await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again` });
   back(client.id, "done=license-sent");
 }
@@ -150,7 +154,7 @@ export async function sendPasswordLinkAction(formData: FormData): Promise<void> 
   const reset = await createPasswordReset(store, user!.email, new Date(), { adminEmails: [] });
   if (reset) {
     const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
-    await sendMail(resetPasswordMail(reset.user.email, reset.user.name, link, reset.isNewAccount)).catch((error: unknown) =>
+    await sendTemplate(reset.isNewAccount ? "password_set" : "password_reset", reset.user.email, { name: reset.user.name, link }).catch((error: unknown) =>
       console.error("[mail] password link failed", error),
     );
   }

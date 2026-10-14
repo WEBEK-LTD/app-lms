@@ -9,7 +9,7 @@ import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
 import { appUrl, superAdminEmails } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
-import { resetPasswordMail, sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
 
@@ -87,7 +87,7 @@ export async function forgotPasswordAction(_: FormState, formData: FormData): Pr
   if (request) {
     const link = `${appUrl()}/reset-password?token=${encodeURIComponent(request.token)}`;
     // Answer the same way even if sending fails, so the page doesn't reveal which emails have accounts.
-    await sendMail(resetPasswordMail(request.user.email, request.user.name, link, request.isNewAccount)).catch((error: unknown) =>
+    await sendTemplate(request.isNewAccount ? "password_set" : "password_reset", request.user.email, { name: request.user.name, link }).catch((error: unknown) =>
       console.error("[mail] reset email failed", error),
     );
   }
