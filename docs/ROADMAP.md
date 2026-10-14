@@ -313,3 +313,17 @@ closed. Built and tested with the in-memory store and on MariaDB 10.11.
 | [x] | 19.7 "Set up WordPress for me": the website is optional; App sign-in, preview and pages say the right thing; the team's "WordPress is ready" (or the plugin's activation on a site) moves the app to WordPress and tells the client; hosted apps without a content source choose one before they build | Unit tests and a browser test |
 | [x] | 19.8 "Publish it for me" in the setup's Publishing step; open requests counted in the admin menu; a warning when SMTP isn't set and a flag when the team's email fails; the team is told when a client publishes themselves; a new request starts the queue again | Unit tests and the publishing browser test |
 | [x] | 19.9 One phone frame for the site and the dashboard: thin, proportional bezel and corners, a camera pill, a light shadow; used by the live preview, the Branding step and the page editor | Browser tests check the proportions and that no page scrolls sideways at 360 px |
+
+## Phase 20: App kinds and verticals
+
+Prepares Yallapp for new kinds of apps without adding any yet. An app's type
+(`app_type`) is now its engine, the module its build includes; its vertical is
+the kind of business, which changes wording, defaults, the demo and marketing,
+never routes. The four kinds the app type picker shows behave as before.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 20.1 One registry of engines and kinds (`platform/web/src/lib/app/kinds.ts`): names, icons, demo, home path, own content, page sources and default pages, websites offered, store categories, dashboard menu, marketing pages; every per-type table and check in the platform reads it; announcements offer Real estate too | Unit tests show the four kinds give the same values as before |
+| [x] | 20.2 The vertical (`apps.vertical`, `drizzle/0022_app_vertical.sql`): none, restaurant, clinic, fitness or charity; saved by the app type picker; sent in the build config (`vertical`), `Config.vertical` and the license status (`app_type`, `vertical`) | Unit and contract tests; migrations applied twice on MariaDB 10.11; browser tests on both stores |
+| [x] | 20.3 The app reads `vertical` from its build config and `Config` (unknown values are none) and has a wording helper with the default words in English, Arabic and Turkish; the app preview is rebuilt | flutter analyze and flutter test |
+| [x] | 20.4 Plugin 0.3.3: the pages an app gets before any are published follow the app type chosen in the dashboard instead of a guess from the site's plugins; `Config.vertical` is passed on | Plugin unit tests |
