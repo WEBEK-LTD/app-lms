@@ -14,6 +14,7 @@ import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { planName } from "@/lib/plans";
 import { BrandingStep, HostedWebsiteStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
 import { getPlans } from "@/lib/settings/platform";
+import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 
 export const metadata: Metadata = { title: "App setup" };
 
@@ -37,6 +38,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
   const store = await getStore();
   const plans = await getPlans(store);
+  // 11.5 Switches: switched-off websites and platforms aren't offered; the app's own stays, with a notice.
+  const switches = await getSwitches(store);
+  const currentWebsite = websiteOf(app);
+  const offered = (website: string) => (app.websiteDoneAt !== null && website === currentWebsite) || websiteOn(switches, website, plan);
+  const websiteSwitchedOff = app.websiteDoneAt !== null && !websiteOn(switches, currentWebsite, plan);
   const activation = license ? await store.getActivation(license.id) : null;
   const icon = app.iconAssetId ? await store.getAsset(app.iconAssetId) : null;
   const logo = app.logoAssetId ? await store.getAsset(app.logoAssetId) : null;
@@ -105,8 +111,16 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       {step === "website" && app.backend === "hosted" && !app.connector ? (
         <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} />
       ) : null}
+      {step === "website" && websiteSwitchedOff ? (
+        <Notice tone="warn" icon="info" role="status">
+          What your app is connected to isn&apos;t offered to new apps anymore. Your app keeps working with it.
+        </Notice>
+      ) : null}
       {step === "website" && (app.backend !== "hosted" || app.connector) ? (
         <WebsiteStep
+          hidden={(["wordpress", "custom_api", "setup_requested", "shopify", "catalog"] as const).filter(
+            (b) => !offered(b === "catalog" ? noWebsiteFor(app.appType) : b),
+          )}
           siteUrl={app.siteUrl ?? client.siteUrl}
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
@@ -115,7 +129,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             app.backend === "hosted" ? (app.connector?.kind === "shopify" ? "shopify" : app.connector?.kind === "platform" ? "platform" : "catalog") : app.backend
           }
           platforms={platformDefinitions()
-            .filter((p) => p.appType === app.appType)
+            .filter((p) => p.appType === app.appType && offered(p.id))
             .map((p) => ({ id: p.id, name: p.name, summary: p.summary, fields: p.fields }))}
           platformSaved={
             app.connector?.kind === "platform"

@@ -51,6 +51,10 @@ import type {
   BookingStatus,
   CourseEnrollment,
   LessonProgress,
+  AdminMember,
+  AdminMemberRow,
+  AuditEntry,
+  AuditQuery,
 } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -1005,5 +1009,95 @@ export class MemoryStore implements DataStore {
 
   async saveAppLayout(layout: AppLayoutRecord): Promise<void> {
     this.appLayouts.set(layout.appId, clone(layout));
+  }
+
+  // 11.7 Admin team and audit log
+  private adminMembers = new Map<string, AdminMember>();
+  private auditEntries: AuditEntry[] = [];
+
+  async listAdminMembers(): Promise<AdminMemberRow[]> {
+    const rows: AdminMemberRow[] = [];
+    for (const member of [...this.adminMembers.values()].sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime())) {
+      const user = this.users.get(member.userId);
+      if (user) rows.push({ member: clone(member), user: clone(user) });
+    }
+    return rows;
+  }
+
+  async getAdminMember(userId: string): Promise<AdminMember | null> {
+    const member = this.adminMembers.get(userId);
+    return member && this.users.has(userId) ? clone(member) : null;
+  }
+
+  async saveAdminMember(member: AdminMember): Promise<void> {
+    this.adminMembers.set(member.userId, clone(member));
+  }
+
+  async deleteAdminMember(userId: string): Promise<void> {
+    this.adminMembers.delete(userId);
+  }
+
+  async createAuditEntry(entry: Omit<AuditEntry, "id">): Promise<AuditEntry> {
+    const saved: AuditEntry = { ...clone(entry), id: this.auditEntries.length + 1 };
+    this.auditEntries.push(saved);
+    return clone(saved);
+  }
+
+  async listAuditEntries(query: AuditQuery): Promise<{ items: AuditEntry[]; total: number }> {
+    const actor = query.actor?.toLowerCase();
+    const matches = this.auditEntries
+      .filter(
+        (e) =>
+          (!actor || e.actorEmail.toLowerCase().includes(actor)) &&
+          (!query.action || e.action === query.action) &&
+          (!query.targetType || e.targetType === query.targetType) &&
+          (!query.targetId || e.targetId === query.targetId) &&
+          (!query.clientId || e.clientId === query.clientId) &&
+          (!query.from || e.at.getTime() >= query.from.getTime()) &&
+          (!query.to || e.at.getTime() < query.to.getTime()),
+      )
+      .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id);
+    return { items: matches.slice(query.offset, query.offset + query.limit).map(clone), total: matches.length };
+  }
+
+  // 11.1 Overview
+  async listApps(): Promise<App[]> {
+    return [...this.apps.values()].map(clone);
+  }
+
+  async listBuildsSince(since: Date): Promise<Build[]> {
+    return [...this.builds.values()]
+      .filter((b) => b.createdAt.getTime() >= since.getTime())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  async listPaidPlanPaymentsSince(since: Date): Promise<PlanPayment[]> {
+    return [...this.planPayments.values()].filter((p) => p.status === "paid" && p.paidAt && p.paidAt.getTime() >= since.getTime()).map(clone);
+  }
+
+  async listMarketplaceOrdersSince(since: Date): Promise<CatalogOrder[]> {
+    return [...this.catalogOrders.values()]
+      .filter((o) => o.commissionCents !== null && o.paidAt !== null && o.paidAt.getTime() >= since.getTime())
+      .map(clone);
+  }
+
+  async countHostedUsersByApp(): Promise<Record<string, number>> {
+    const counts: Record<string, number> = {};
+    for (const user of this.hostedUsers.values()) counts[user.appId] = (counts[user.appId] ?? 0) + 1;
+    return counts;
+  }
+
+  // 11.2 Client page
+  async listHostedUsers(input: { appId: string; query?: string; offset: number; limit: number }): Promise<{ items: HostedUser[]; total: number }> {
+    const q = input.query?.trim().toLowerCase();
+    const matches = [...this.hostedUsers.values()]
+      .filter(
+        (u) =>
+          u.appId === input.appId &&
+          (!q || u.name.toLowerCase().includes(q) || u.phone.includes(q) || (u.email ?? "").toLowerCase().includes(q)),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: matches.slice(input.offset, input.offset + input.limit).map(clone), total: matches.length };
   }
 }

@@ -84,8 +84,8 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   await expect(page.getByLabel("City")).toBeChecked();
 
   await page.getByRole("button", { name: "Back to admin" }).click();
-  await expect(page).toHaveURL(/\/admin\?client=/);
-  await expect(page.getByRole("complementary")).toContainText("No website: products in the dashboard");
+  await expect(page).toHaveURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole("region", { name: "App", exact: true })).toContainText("No website: products in the dashboard");
   // The admin's own pages no longer show the client's dashboard.
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/admin$/);
@@ -100,4 +100,19 @@ test("the client sees what the team set", async ({ browser }) => {
   // Still pending activation: the app waits for the team, but its setup is kept.
   await expect(own).toHaveURL(/\/pending$/);
   await own.close();
+});
+
+test("the team sends the app's users a notification from the client's page", async () => {
+  await page.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await page.getByRole("link", { name: client.name, exact: true }).click();
+  await expect(page.getByRole("region", { name: "App users (0)" })).toContainText("No app users yet.");
+  const notifications = page.getByRole("region", { name: "Notifications" });
+  await expect(notifications).toContainText("None sent yet.");
+  await notifications.getByLabel("Title").fill("Spring sale");
+  await notifications.getByLabel("Message").fill("Everything is 20% off this week.");
+  await notifications.getByRole("button", { name: "Send to the app's users" }).click();
+  await expect(notifications.getByText("Added to the app users' inboxes.")).toBeVisible();
+  await page.reload();
+  await expect(notifications).toContainText("Spring sale");
+  await expect(page.getByRole("region", { name: "Changes by the team" })).toContainText('Sent "Spring sale" to the app\'s users');
 });

@@ -7,6 +7,7 @@ import type { Plan } from "../plans";
 import { compareVersions } from "../semver";
 import { appUrl } from "../env";
 import { hostedApiUrl } from "../hosted/urls";
+import { featureOn, getSwitches } from "../switches";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -218,7 +219,8 @@ export async function queueBuild(
   const listing = storeListingOf(app, assetUrl);
   if (!listing) return { ok: false, reason: "setup_incomplete" };
 
-  const autoPublish = license.plan === "pro";
+  // 11.5 Switches: automatic publishing can be switched off, for everyone or per plan.
+  const autoPublish = license.plan === "pro" && featureOn(await getSwitches(store), "auto_publish", license.plan);
   const build = await store.createBuild({
     id: newId(),
     clientId: client.id,

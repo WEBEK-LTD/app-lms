@@ -1,18 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { recordAudit } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { FormState } from "@/lib/forms";
 import { parseAppDefaults } from "@/lib/pages/validate";
-import { clearPlatformSettingsCache } from "@/lib/settings/platform";
+import { clearPlatformSettingsCache, platformSetting } from "@/lib/settings/platform";
 
 // 11.9 Defaults for new apps: the look and languages a new app's first layout starts with.
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
 
 export async function saveAppDefaultsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   const languages = formData.getAll("languages").map(String);
   const values: Record<string, string> = {
     template: str(formData, "template"),
@@ -37,16 +38,33 @@ export async function saveAppDefaultsAction(_: FormState, formData: FormData): P
   });
   if (!parsed.ok) return { message: parsed.errors.join(" "), values };
   const store = await getStore();
+  const before = (await platformSetting(store, "appDefaults", { fresh: true }))?.value ?? null;
   await store.setPlatformSetting("appDefaults", parsed.value, admin.email, new Date());
   clearPlatformSettingsCache();
+  await recordAudit({
+    actor: admin,
+    action: "settings.save",
+    target: { type: "setting", id: "appDefaults" },
+    summary: "Saved the defaults for new apps",
+    before,
+    after: parsed.value,
+  });
   revalidatePath("/admin/settings");
   return { ok: true, message: "Defaults saved. New apps start with them.", values };
 }
 
 export async function resetAppDefaultsAction(): Promise<void> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   const store = await getStore();
+  const before = (await platformSetting(store, "appDefaults", { fresh: true }))?.value ?? null;
   await store.setPlatformSetting("appDefaults", null, admin.email, new Date());
   clearPlatformSettingsCache();
+  await recordAudit({
+    actor: admin,
+    action: "settings.reset",
+    target: { type: "setting", id: "appDefaults" },
+    summary: "Removed the defaults for new apps",
+    before,
+  });
   revalidatePath("/admin/settings");
 }

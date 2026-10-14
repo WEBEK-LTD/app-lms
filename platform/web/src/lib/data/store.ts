@@ -31,6 +31,10 @@ import type {
   PluginRelease,
   ResetToken,
   User,
+  AdminMember,
+  AdminMemberRow,
+  AuditEntry,
+  AuditQuery,
 } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -315,4 +319,31 @@ export interface DataStore {
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
   /** Creates or replaces the app's layout. */
   saveAppLayout(layout: AppLayoutRecord): Promise<void>;
+
+  // 11.7 Admin team and audit log
+  /** Everyone in admin_members with their user, oldest first. */
+  listAdminMembers(): Promise<AdminMemberRow[]>;
+  getAdminMember(userId: string): Promise<AdminMember | null>;
+  /** Adds the member, or replaces their role. */
+  saveAdminMember(member: AdminMember): Promise<void>;
+  deleteAdminMember(userId: string): Promise<void>;
+  createAuditEntry(entry: Omit<AuditEntry, "id">): Promise<AuditEntry>;
+  /** Newest first. */
+  listAuditEntries(query: AuditQuery): Promise<{ items: AuditEntry[]; total: number }>;
+
+  // 11.1 Overview
+  /** Every client's app. */
+  listApps(): Promise<App[]>;
+  /** Builds queued at or after `since`, newest first. */
+  listBuildsSince(since: Date): Promise<Build[]>;
+  /** Plan payments paid at or after `since`. */
+  listPaidPlanPaymentsSince(since: Date): Promise<PlanPayment[]>;
+  /** Orders sold through Yallapp's account (with a commission) paid at or after `since`. */
+  listMarketplaceOrdersSince(since: Date): Promise<CatalogOrder[]>;
+  /** Customers per hosted app, by app ID (apps without customers are left out). */
+  countHostedUsersByApp(): Promise<Record<string, number>>;
+
+  // 11.2 Client page
+  /** An app's customers, newest first; `query` matches the name, phone or email. */
+  listHostedUsers(input: { appId: string; query?: string; offset: number; limit: number }): Promise<{ items: HostedUser[]; total: number }>;
 }

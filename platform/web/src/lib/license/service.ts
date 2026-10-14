@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { Client, License, LicenseState, PluginRelease } from "../data/types";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { getPlans } from "../settings/platform";
+import { getSwitches, plansWithSwitches } from "../switches";
 import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
@@ -130,7 +131,7 @@ async function findLicense(store: DataStore, key: string): Promise<{ license: Li
 }
 
 export async function activateLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = await getPlans(store);
+  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
@@ -161,7 +162,7 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
 }
 
 export async function checkLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
-  const plans = await getPlans(store);
+  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;

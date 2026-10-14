@@ -220,3 +220,10 @@ export const releaseSchema = z.object({
   changelog: z.string().trim().min(1, "Describe what changed.").max(20_000),
   published: z.union([z.literal("on"), z.literal("")]).optional().transform((value) => value === "on"),
 });
+
+// 11.7 Admin team
+export const inviteAdminSchema = z.object({
+  name: z.string().trim().min(2, "Enter their name.").max(120),
+  email,
+  role: z.enum(["owner", "admin", "support", "viewer"], { error: "Choose a role." }),
+});

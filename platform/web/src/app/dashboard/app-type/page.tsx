@@ -3,7 +3,10 @@ import { chooseAppTypeAction } from "@/app/actions/dashboard";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { SubmitButton } from "@/components/form";
+import { Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
+import { getStore } from "@/lib/data";
+import { appTypeOn, getSwitches } from "@/lib/switches";
 import type { AppType } from "@/lib/data/types";
 
 export const metadata: Metadata = { title: "Choose app type" };
@@ -43,9 +46,13 @@ const TYPES: { value: AppType; name: string; icon: IconName; tile: string; text:
   },
 ];
 
-export default async function AppTypePage() {
-  const { app } = await requireClient();
-  const current: AppType = app?.appType ?? "lms";
+export default async function AppTypePage({ searchParams }: PageProps<"/dashboard/app-type">) {
+  const { app, license } = await requireClient();
+  // 11.5 Switches: types the team switched off aren't offered (the app's own type stays).
+  const switches = await getSwitches(await getStore());
+  const types = TYPES.filter((t) => t.value === app?.appType || appTypeOn(switches, t.value, license?.plan ?? null));
+  const current: AppType = app?.appType ?? types[0]?.value ?? "lms";
+  const unavailable = (await searchParams).unavailable === "1";
   return (
     <form action={chooseAppTypeAction} className="flex flex-col gap-8">
       <div className="flex max-w-[620px] flex-col gap-2">
@@ -55,9 +62,15 @@ export default async function AppTypePage() {
         </p>
       </div>
 
+      {unavailable ? (
+        <Notice tone="warn" icon="warning" role="alert">
+          This app type isn&apos;t available. Choose another one, or message us on WhatsApp.
+        </Notice>
+      ) : null}
+
       <fieldset className="m-0 grid gap-5 border-0 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
         <legend className="sr-only">App type</legend>
-        {TYPES.map((type) => (
+        {types.map((type) => (
           <label
             key={type.value}
             className="group flex cursor-pointer flex-col gap-3.5 rounded-[20px] border border-line bg-white p-[26px] has-[:checked]:border-2 has-[:checked]:border-midnight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"

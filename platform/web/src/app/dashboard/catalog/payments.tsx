@@ -6,12 +6,17 @@ import { catalogSettings, marketplaceTerms } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
+import { featureOn, getSwitches } from "@/lib/switches";
 import { MarketplaceForm, PaymentKeysForm } from "./forms";
 
 /** Card payments of an app selling from the dashboard: the shop's own iyzico account, or Yallapp's. */
 export async function CardPayments({ app }: { app: App }) {
   const settings = catalogSettings(app);
-  const terms = await marketplaceTerms(await getStore(), encryptionKey());
+  const store = await getStore();
+  const terms = await marketplaceTerms(store, encryptionKey());
+  // 11.5 Switches: joining can be switched off, for everyone or per plan (shops that joined keep selling).
+  const license = await store.getLicenseByClientId(app.clientId);
+  const joinable = terms !== null && featureOn(await getSwitches(store), "marketplace", license?.plan ?? null);
   return (
       <section aria-labelledby="h-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-payments" className="m-0 text-[19px] font-bold">
@@ -40,7 +45,7 @@ export async function CardPayments({ app }: { app: App }) {
             completed.
           </p>
         ) : null}
-        {settings.payment?.provider !== "yallapp" && terms ? (
+        {settings.payment?.provider !== "yallapp" && terms && joinable ? (
           <details className="rounded-xl border border-line p-4" open={!settings.payment}>
             <summary className="cursor-pointer text-[15px] font-bold">No iyzico account? Sell through Yallapp</summary>
             <div className="flex flex-col gap-4 pt-3">
@@ -53,7 +58,7 @@ export async function CardPayments({ app }: { app: App }) {
           </details>
         ) : null}
         {settings.payment?.provider !== "yallapp" ? (
-          <details className="rounded-xl border border-line p-4" open={!terms || settings.payment?.provider === "iyzico"}>
+          <details className="rounded-xl border border-line p-4" open={!joinable || settings.payment?.provider === "iyzico"}>
             <summary className="cursor-pointer text-[15px] font-bold">Use your own iyzico account</summary>
             <div className="flex flex-col gap-4 pt-3">
               <p className="m-0 text-sm leading-relaxed text-ink-4">

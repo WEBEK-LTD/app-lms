@@ -189,7 +189,10 @@ export function WebsiteStep({
   hostedApiUrl,
   platforms,
   platformSaved,
+  hidden = [],
 }: {
+  /** Choices the team switched off (11.5); the app's own choice is never in it. */
+  hidden?: Backend[];
   /** The platforms this app type can connect. */
   platforms: PlatformOption[];
   /** The connected platform: its values that aren't secret, and which secrets are saved. */
@@ -212,8 +215,11 @@ export function WebsiteStep({
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
-  // Real estate apps have one choice: listings managed in Yallapp.
-  const [choice, setChoice] = useState<Backend>((state.values?.backend as Backend | undefined) ?? (appType === "real_estate" ? "catalog" : backend));
+  const offered = BACKENDS.filter(
+    (b) => (!b.appTypes || b.appTypes.includes(appType)) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
+  ).map((b) => b.id);
+  const initial = (state.values?.backend as Backend | undefined) ?? backend;
+  const [choice, setChoice] = useState<Backend>(offered.includes(initial) ? initial : (offered[0] ?? initial));
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
@@ -238,7 +244,7 @@ export function WebsiteStep({
                     ? { ...b, ...PLATFORM_CHOICE[appType] }
                     : b,
             )
-            .filter((b) => b.id !== "platform" || platforms.length > 0)
+            .filter((b) => offered.includes(b.id))
             .map((b) => (
             <label
               key={b.id}
