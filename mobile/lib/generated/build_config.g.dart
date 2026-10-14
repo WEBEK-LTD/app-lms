@@ -5,6 +5,7 @@ import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
   appType: AppType.lms,
+  vertical: null,
   appName: 'Your Academy',
   shortName: 'Academy',
   siteUrl: 'https://your-academy.com',

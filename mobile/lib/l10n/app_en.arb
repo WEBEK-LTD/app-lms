@@ -1374,5 +1374,13 @@
         "type": "String"
       }
     }
+  },
+  "wordingBusiness": "Business",
+  "@wordingBusiness": {
+    "description": "What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now."
+  },
+  "wordingCustomer": "Customer",
+  "@wordingCustomer": {
+    "description": "What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now."
   }
 }

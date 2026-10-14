@@ -3603,6 +3603,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow {origin}. The guide Connect your own API in the Yallapp docs shows how.'**
   String previewApiBlocked(String origin);
+
+  /// What the app calls the business that owns it. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get wordingBusiness;
+
+  /// What the app calls the business's customers. lib/core/l10n/vertical_wording.dart picks the word by the app's kind of business (Config.vertical); every kind uses this default for now.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get wordingCustomer;
 }
 
 class _AppLocalizationsDelegate
