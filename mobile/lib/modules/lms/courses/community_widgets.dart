@@ -24,29 +24,9 @@ class PersonLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final initial = person.name.trim().isEmpty
-        ? '?'
-        : person.name.trim().characters.first.toUpperCase();
     return Row(
       children: [
-        ClipOval(
-          child: person.avatarUrl != null
-              ? AppNetworkImage(url: person.avatarUrl, width: 32, height: 32)
-              : Container(
-                  width: 32,
-                  height: 32,
-                  color: p.placeholderFor(person.name.length),
-                  alignment: Alignment.center,
-                  child: Text(
-                    initial,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: p.text,
-                    ),
-                  ),
-                ),
-        ),
+        InitialsAvatar(name: person.name, imageUrl: person.avatarUrl, size: 34),
         const SizedBox(width: 10),
         Expanded(
           child: Column(

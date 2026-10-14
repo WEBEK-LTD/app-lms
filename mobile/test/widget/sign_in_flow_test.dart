@@ -37,7 +37,7 @@ void main() {
 
     expect(app.api.calls, contains('requestOtp'));
     expect(find.text('Enter verification code'), findsOneWidget);
-    expect(find.textContaining('+90 5321234567'), findsOneWidget);
+    expect(find.textContaining('+90 532 123 45 67'), findsOneWidget);
     expect(
       find.textContaining('You can request a new code in'),
       findsOneWidget,

@@ -87,7 +87,11 @@ class DevicesScreen extends ConsumerWidget {
           error: error,
           onRetry: () => ref.invalidate(devicesProvider),
         ),
-        _ => const LoadingView(),
+        _ => const SkeletonList(
+          layout: SkeletonLayout.text,
+          count: 2,
+          padding: EdgeInsets.zero,
+        ),
       },
     );
   }
@@ -129,7 +133,11 @@ class CertificatesScreen extends ConsumerWidget {
         error: error,
         onRetry: () => ref.invalidate(certificatesProvider),
       ),
-      _ => const LoadingView(),
+      _ => const SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 3,
+        padding: EdgeInsets.zero,
+      ),
     },
   );
 }
@@ -143,7 +151,7 @@ class QuizResultsScreen extends ConsumerWidget {
     final notifier = ref.read(quizAttemptsProvider.notifier);
     final Widget body;
     if (state.isInitialLoading) {
-      body = const LoadingView();
+      body = const SkeletonList(layout: SkeletonLayout.text);
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {

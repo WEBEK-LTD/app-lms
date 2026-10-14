@@ -37,15 +37,15 @@ class ServiceScreen extends ConsumerWidget {
     return switch (service) {
       AsyncData(:final value) => _ServiceView(service: value, today: today),
       AsyncError(:final error) => Scaffold(
-        appBar: AppBar(leading: const AppBackButton()),
+        appBar: AppBar(leading: const AppBarBackButton()),
         body: ErrorView(
           error: error,
           onRetry: () => ref.invalidate(serviceProvider(serviceId)),
         ),
       ),
       _ => Scaffold(
-        appBar: AppBar(leading: const AppBackButton()),
-        body: LoadingView(label: context.l10n.loadingService),
+        appBar: AppBar(leading: const AppBarBackButton()),
+        body: SkeletonDetail(label: context.l10n.loadingService),
       ),
     };
   }
@@ -65,6 +65,9 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
   late final DateTime _today;
   late DateTime _weekStart;
   int? _staffId;
+
+  /// Whether the picture has scrolled away: the bar then shows the name.
+  bool _collapsed = false;
   String? _day;
   TimeSlot? _slot;
 
@@ -151,90 +154,114 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
         (_rules?.staffChoice ?? true) && service.staff.length > 1;
     final availability = ref.watch(availabilityProvider(_query));
 
+    final hasImage = service.summary.imageUrl != null;
     return Scaffold(
       backgroundColor: p.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: service.summary.imageUrl == null ? null : 220,
-            backgroundColor: p.surface,
-            leading: const Padding(
-              padding: EdgeInsets.all(6),
-              child: AppBackButton(),
+      body: NotificationListener<ScrollUpdateNotification>(
+        onNotification: (n) {
+          final collapsed =
+              !hasImage || n.metrics.pixels > 220 - kToolbarHeight - 24;
+          if (n.depth == 0 && collapsed != _collapsed) {
+            setState(() => _collapsed = collapsed);
+          }
+          return false;
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              expandedHeight: hasImage ? 220 : null,
+              backgroundColor: p.surface,
+              leading: const AppBarBackButton(),
+              title: AnimatedOpacity(
+                opacity: _collapsed || !hasImage ? 1 : 0,
+                duration: const Duration(milliseconds: 160),
+                child: Text(
+                  service.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              flexibleSpace: service.summary.imageUrl == null
+                  ? null
+                  : FlexibleSpaceBar(
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          AppNetworkImage(
+                            url: service.summary.imageUrl,
+                            seed: service.id,
+                          ),
+                          const HeroScrim(),
+                        ],
+                      ),
+                    ),
             ),
-            flexibleSpace: service.summary.imageUrl == null
-                ? null
-                : FlexibleSpaceBar(
-                    background: AppNetworkImage(
-                      url: service.summary.imageUrl,
-                      seed: service.id,
+            SliverPadding(
+              padding: readablePadding(context, top: 12, bottom: 24),
+              sliver: SliverList.list(
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      service.name,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        height: 1.3,
+                        color: p.text,
+                      ),
                     ),
                   ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            sliver: SliverList.list(
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    service.name,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      height: 1.3,
-                      color: p.text,
-                    ),
+                  const SizedBox(height: 6),
+                  Text(
+                    serviceFacts(service.summary, price: _price),
+                    style: TextStyle(fontSize: 15, color: p.textSecondary),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  serviceFacts(service.summary, price: _price),
-                  style: TextStyle(fontSize: 15, color: p.textSecondary),
-                ),
-                if (service.descriptionHtml.trim().isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  HtmlContent(html: service.descriptionHtml),
-                ],
-                if (staffChoice) ...[
+                  if (service.descriptionHtml.trim().isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    HtmlContent(html: service.descriptionHtml),
+                  ],
+                  if (staffChoice) ...[
+                    const SizedBox(height: 22),
+                    SectionHeader(title: context.l10n.withTitle),
+                    const SizedBox(height: 10),
+                    _StaffPicker(
+                      staff: service.staff,
+                      selected: _staffId,
+                      onChanged: _chooseStaff,
+                    ),
+                  ],
                   const SizedBox(height: 22),
-                  SectionHeader(title: context.l10n.withTitle),
-                  const SizedBox(height: 10),
-                  _StaffPicker(
-                    staff: service.staff,
-                    selected: _staffId,
-                    onChanged: _chooseStaff,
+                  SectionHeader(title: context.l10n.chooseTime),
+                  const SizedBox(height: 6),
+                  _WeekBar(
+                    start: _weekStart,
+                    onBack: _canGoBack ? () => _moveWeek(-1) : null,
+                    onForward: _canGoForward ? () => _moveWeek(1) : null,
                   ),
-                ],
-                const SizedBox(height: 22),
-                SectionHeader(title: context.l10n.chooseTime),
-                const SizedBox(height: 6),
-                _WeekBar(
-                  start: _weekStart,
-                  onBack: _canGoBack ? () => _moveWeek(-1) : null,
-                  onForward: _canGoForward ? () => _moveWeek(1) : null,
-                ),
-                const SizedBox(height: 8),
-                switch (availability) {
-                  AsyncData(:final value) => _times(value),
-                  AsyncError(:final error) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: ErrorView(
-                      error: error,
-                      onRetry: () =>
-                          ref.invalidate(availabilityProvider(_query)),
+                  const SizedBox(height: 8),
+                  switch (availability) {
+                    AsyncData(:final value) => _times(value),
+                    AsyncError(:final error) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: ErrorView(
+                        error: error,
+                        onRetry: () =>
+                            ref.invalidate(availabilityProvider(_query)),
+                      ),
                     ),
-                  ),
-                  _ => Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: LoadingView(label: context.l10n.findingTimes),
-                  ),
-                },
-              ],
+                    _ => Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: LoadingView(label: context.l10n.findingTimes),
+                    ),
+                  },
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomActionBar(
         child: _slot == null

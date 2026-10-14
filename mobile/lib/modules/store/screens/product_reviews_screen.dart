@@ -23,7 +23,10 @@ class ProductReviewsScreen extends ConsumerWidget {
     final summary = controller.summary;
     final Widget body;
     if (state.isInitialLoading) {
-      body = LoadingView(label: context.l10n.loadingReviews);
+      body = SkeletonList(
+        layout: SkeletonLayout.text,
+        label: context.l10n.loadingReviews,
+      );
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: controller.retry);
     } else if (state.items.isEmpty) {

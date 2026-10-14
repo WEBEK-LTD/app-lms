@@ -49,7 +49,12 @@ class CourseQuestionsTab extends ConsumerWidget {
     final state = ref.watch(courseQuestionsProvider(courseId));
     final notifier = ref.read(courseQuestionsProvider(courseId).notifier);
     if (state.isInitialLoading) {
-      return LoadingView(label: context.l10n.loadingQuestions);
+      return SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 3,
+        padding: EdgeInsets.zero,
+        label: context.l10n.loadingQuestions,
+      );
     }
     if (state.error != null && state.items.isEmpty) {
       return ErrorView(error: state.error!, onRetry: notifier.retry);

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'country_codes.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -161,7 +162,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final number = '${widget.args.countryCode} ${widget.args.phone}';
+    final number = ltrIsolate(
+      formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
+    );
     final resendIn = _resendIn;
     final sentTo = parts(context.l10n.codeSentTo);
     final resendParts = parts(context.l10n.resendCodeIn);

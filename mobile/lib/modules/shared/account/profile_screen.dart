@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../auth/country_codes.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
@@ -89,7 +90,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        user?.phone ?? '',
+                        ltrIsolate(formatPhone(user?.phone ?? '')),
                         style: TextStyle(fontSize: 14, color: p.textSecondary),
                       ),
                     ],

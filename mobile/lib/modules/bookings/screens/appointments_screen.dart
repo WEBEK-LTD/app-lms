@@ -39,7 +39,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
 
     final Widget list;
     if (state.isInitialLoading) {
-      list = LoadingView(label: context.l10n.loadingAppointments);
+      list = SkeletonList(count: 4, label: context.l10n.loadingAppointments);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
@@ -163,7 +163,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     final appointment = ref.watch(appointmentProvider(widget.appointmentId));
     return Scaffold(
       appBar: AppBar(
-        leading: const AppBackButton(),
+        leading: const AppBarBackButton(),
         title: Text(context.l10n.appointment),
       ),
       body: switch (appointment) {

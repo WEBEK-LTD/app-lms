@@ -66,7 +66,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchListingsHint => 'Search by place, title or reference';
+  String get searchListingsHint => 'Place or reference';
 
   @override
   String get filters => 'Filters';
@@ -1491,7 +1491,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInToTrack => 'Sign in to track progress';
 
   @override
-  String get markComplete => 'Mark as complete';
+  String get markComplete => 'Mark complete';
 
   @override
   String get nextLesson => 'Next lesson';

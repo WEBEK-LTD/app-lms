@@ -16,6 +16,7 @@ import '../../../core/purchase/purchase_rules.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
@@ -180,7 +181,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           ),
         ),
       ),
-      _ => Scaffold(body: LoadingView(label: context.l10n.loadingCourse)),
+      _ => Scaffold(body: SkeletonDetail(label: context.l10n.loadingCourse)),
     };
   }
 
@@ -232,6 +233,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           url: course.introVideo?.posterUrl ?? course.imageUrl,
                           seed: course.id,
                         ),
+                        const HeroScrim(),
                         PositionedDirectional(
                           top: MediaQuery.paddingOf(context).top + 16,
                           start: 20,
@@ -256,7 +258,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding: readablePadding(context, top: 20, bottom: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -276,14 +278,30 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _MetaChip(l10n.lessonCount(course.lessonCount)),
+                            if (course.rating != null && course.ratingCount > 0)
+                              _MetaChip(
+                                '${course.rating!.toStringAsFixed(1)} · '
+                                '${l10n.ratingCount(course.ratingCount)}',
+                                icon: AppIcons.star,
+                                iconColor: p.star,
+                              ),
+                            _MetaChip(
+                              l10n.lessonCount(course.lessonCount),
+                              icon: AppIcons.courses,
+                            ),
                             if (course.durationMinutes != null)
-                              _MetaChip(formatMinutes(course.durationMinutes!)),
+                              _MetaChip(
+                                formatMinutes(course.durationMinutes!),
+                                icon: AppIcons.schedule,
+                              ),
                             if (course.level != null &&
                                 course.level!.isNotEmpty)
-                              _MetaChip(course.level!),
+                              _MetaChip(course.level!, icon: AppIcons.level),
                             if (course.hasCertificate)
-                              _MetaChip(l10n.certificate),
+                              _MetaChip(
+                                l10n.certificate,
+                                icon: AppIcons.certificate,
+                              ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -345,15 +363,12 @@ class _InstructorRow extends StatelessWidget {
     final p = context.palette;
     return Row(
       children: [
-        ClipOval(
-          child: AppNetworkImage(
-            url: instructor.avatarUrl,
-            seed: 2,
-            width: 36,
-            height: 36,
-          ),
+        InitialsAvatar(
+          name: instructor.name,
+          imageUrl: instructor.avatarUrl,
+          size: 40,
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -378,24 +393,47 @@ class _InstructorRow extends StatelessWidget {
 
 enum _CourseTab { overview, curriculum, reviews, qna }
 
+/// A fact about the course (lessons, length, level) with its icon.
 class _MetaChip extends StatelessWidget {
-  const _MetaChip(this.label);
+  const _MetaChip(this.label, {required this.icon, this.iconColor});
 
   final String label;
+  final IconData icon;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     return Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      constraints: const BoxConstraints(minHeight: 32),
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 12, 6),
       decoration: BoxDecoration(
         color: p.surface,
         border: Border.all(color: p.border),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.shapes.chip),
       ),
-      alignment: Alignment.center,
-      child: Text(label, style: TextStyle(fontSize: 13, color: p.text)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppIcon(
+            icon,
+            size: 16,
+            color: iconColor ?? p.textSecondary,
+            filled: iconColor != null,
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: p.text,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -463,7 +501,12 @@ class _Curriculum extends ConsumerWidget {
         error: error,
         onRetry: () => ref.invalidate(curriculumProvider(courseId)),
       ),
-      _ => LoadingView(label: context.l10n.loadingCurriculum),
+      _ => SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 3,
+        padding: EdgeInsets.zero,
+        label: context.l10n.loadingCurriculum,
+      ),
     };
   }
 }

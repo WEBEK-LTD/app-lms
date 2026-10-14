@@ -58,7 +58,11 @@ class _FavoritesList extends ConsumerWidget {
     final error = state.error;
     final Widget body;
     if (state.isInitialLoading) {
-      body = LoadingView(label: l10n.loadingFavorites);
+      body = SkeletonList(
+        layout: SkeletonLayout.media,
+        count: 3,
+        label: l10n.loadingFavorites,
+      );
     } else if (error != null && items.isEmpty) {
       body = ListView(
         children: [

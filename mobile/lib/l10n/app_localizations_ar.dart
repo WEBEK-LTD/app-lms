@@ -70,7 +70,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get searchListingsHint => 'ابحث بالمكان أو العنوان أو الرقم المرجعي';
+  String get searchListingsHint => 'المنطقة أو الرقم المرجعي';
 
   @override
   String get filters => 'عوامل التصفية';

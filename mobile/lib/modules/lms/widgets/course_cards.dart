@@ -48,7 +48,7 @@ class CourseListCard extends StatelessWidget {
               seed: seedFor(course),
               width: 96,
               height: 96,
-              radius: 12,
+              radius: context.shapes.r(12),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -81,7 +81,8 @@ class CourseListCard extends StatelessWidget {
                             ? const EnrolledLabel()
                             : PriceLabel(course.price),
                       ),
-                      if (course.rating != null) RatingLabel(course.rating!),
+                      if (course.rating != null)
+                        RatingLabel(course.rating!, count: course.ratingCount),
                     ],
                   ),
                 ],
@@ -119,9 +120,12 @@ class EnrolledLabel extends StatelessWidget {
 }
 
 class RatingLabel extends StatelessWidget {
-  const RatingLabel(this.rating, {super.key});
+  const RatingLabel(this.rating, {super.key, this.count = 0});
 
   final double rating;
+
+  /// Shown in brackets after the rating when more than zero.
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +136,9 @@ class RatingLabel extends StatelessWidget {
         AppIcon(AppIcons.star, size: 14, color: p.star, filled: true),
         const SizedBox(width: 4),
         Text(
-          rating.toStringAsFixed(1),
+          count > 0
+              ? '${rating.toStringAsFixed(1)} ($count)'
+              : rating.toStringAsFixed(1),
           style: TextStyle(fontSize: 12, color: p.textSecondary),
         ),
       ],
@@ -188,11 +194,17 @@ class CourseTileCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: p.textSecondary),
                     ),
-                    const SizedBox(height: 6),
-                    if (course.enrolled)
-                      const EnrolledLabel()
-                    else
-                      PriceLabel(course.price),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: course.enrolled
+                              ? const EnrolledLabel()
+                              : PriceLabel(course.price),
+                        ),
+                        if (course.rating != null) RatingLabel(course.rating!),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -323,7 +335,7 @@ class CourseRow extends StatelessWidget {
                 seed: seedFor(course),
                 width: 52,
                 height: 52,
-                radius: 10,
+                radius: context.shapes.r(10),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -411,18 +423,35 @@ class ContinueCardClassic extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: 64,
                       height: 64,
-                      decoration: BoxDecoration(
-                        color: p.primarySoft,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      alignment: Alignment.center,
-                      child: AppIcon(
-                        AppIcons.playCircle,
-                        size: 28,
-                        color: p.onPrimarySoft,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          AppNetworkImage(
+                            url: course.course.imageUrl,
+                            seed: seedFor(course.course),
+                            radius: context.shapes.r(14),
+                          ),
+                          Center(
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: p.primary.withValues(alpha: 0.72),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: AppIcon(
+                                AppIcons.play,
+                                size: 20,
+                                filled: true,
+                                color: p.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -461,10 +490,13 @@ class ContinueCardClassic extends StatelessWidget {
                 ProgressTrack(
                   percent: progress.percent,
                   track: p.onPrimary.withValues(alpha: 0.2),
-                  fill: p.onPrimary,
+                  // Ember when it shows on the card, else the card's text.
+                  fill: contrastRatio(p.accent, p.primary) >= 3
+                      ? p.accent
+                      : p.onPrimary,
                 ),
-                const SizedBox(height: 6),
-                DefaultTextStyle(
+                const SizedBox(height: 8),
+                DefaultTextStyle.merge(
                   style: TextStyle(
                     fontSize: 12,
                     color: p.onPrimary.withValues(alpha: 0.78),

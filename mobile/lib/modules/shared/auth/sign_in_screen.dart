@@ -13,6 +13,7 @@ import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
@@ -170,85 +171,98 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Semantics(
-                          button: true,
-                          label: context.l10n.chooseCountryCode(_dialCode),
-                          excludeSemantics: true,
-                          child: Material(
-                            color: p.surface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              side: BorderSide(color: p.inputBorder),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              onTap: _pickCountry,
-                              child: SizedBox(
-                                height: 56,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
+                    // The code button is as tall as the number field.
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            button: true,
+                            label: context.l10n.chooseCountryCode(_dialCode),
+                            excludeSemantics: true,
+                            child: Material(
+                              color: p.surface,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  context.shapes.r(14),
+                                ),
+                                side: BorderSide(color: p.inputBorder),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: _pickCountry,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 56,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        _dialCode,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                    ),
+                                    child: Row(
+                                      textDirection: TextDirection.ltr,
+                                      children: [
+                                        Text(
+                                          _dialCode,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: p.text,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        AppIcon(
+                                          AppIcons.expand,
+                                          size: 18,
                                           color: p.text,
                                         ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      AppIcon(
-                                        AppIcons.expand,
-                                        size: 18,
-                                        color: p.text,
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _phone,
-                            keyboardType: TextInputType.phone,
-                            textInputAction: TextInputAction.send,
-                            autofillHints: const [
-                              AutofillHints.telephoneNumberNational,
-                            ],
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9 ]'),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _phone,
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.send,
+                              // Numbers read left to right in every language.
+                              textDirection: TextDirection.ltr,
+                              autofillHints: const [
+                                AutofillHints.telephoneNumberNational,
+                              ],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9 ]'),
+                                ),
+                                LengthLimitingTextInputFormatter(18),
+                              ],
+                              style: TextStyle(
+                                fontSize: 18,
+                                letterSpacing: 1,
+                                color: p.text,
                               ),
-                              LengthLimitingTextInputFormatter(18),
-                            ],
-                            style: TextStyle(
-                              fontSize: 18,
-                              letterSpacing: 1,
-                              color: p.text,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: context.l10n.mobileNumber,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide(
-                                  color: p.text,
-                                  width: 1.5,
+                              decoration: InputDecoration(
+                                hintText: context.l10n.mobileNumber,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    context.shapes.r(14),
+                                  ),
+                                  borderSide: BorderSide(
+                                    color: p.text,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
+                              onChanged: (_) => setState(() => _error = null),
+                              onSubmitted: (_) => _send(),
                             ),
-                            onChanged: (_) => setState(() => _error = null),
-                            onSubmitted: (_) => _send(),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 10),

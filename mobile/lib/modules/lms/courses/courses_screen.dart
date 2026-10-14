@@ -193,7 +193,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 44,
+                      height: chipRowHeight(context),
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
@@ -246,7 +246,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
     final notifier = ref.read(coursesProvider(_query).notifier);
     if (s.isInitialLoading) {
       return const [
-        SliverFillRemaining(hasScrollBody: false, child: LoadingView()),
+        SliverToBoxAdapter(child: SkeletonList(padding: EdgeInsets.zero)),
       ];
     }
     if (s.error != null && items.isEmpty) {

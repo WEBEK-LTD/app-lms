@@ -182,7 +182,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               ),
             ),
             SizedBox(
-              height: 40,
+              height: chipRowHeight(context),
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -240,7 +240,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   ) {
     final error = state.error;
     if (state.isInitialLoading) {
-      return LoadingView(label: context.l10n.loadingProducts);
+      return SkeletonList(
+        layout: SkeletonLayout.grid,
+        label: context.l10n.loadingProducts,
+      );
     }
     if (error != null && state.items.isEmpty) {
       return ListView(

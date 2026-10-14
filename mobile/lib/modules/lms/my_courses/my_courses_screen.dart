@@ -115,7 +115,7 @@ class _EnrolledList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final PagedState<MyCourse> state = ref.watch(myCoursesProvider(status));
     final notifier = ref.read(myCoursesProvider(status).notifier);
-    if (state.isInitialLoading) return const LoadingView();
+    if (state.isInitialLoading) return const SkeletonList(count: 4);
     if (state.error != null && state.items.isEmpty) {
       return ErrorView(error: state.error!, onRetry: notifier.retry);
     }
@@ -377,7 +377,7 @@ class _WishlistList extends ConsumerWidget {
         error: error,
         onRetry: () => ref.invalidate(wishlistProvider),
       ),
-      _ => const LoadingView(),
+      _ => const SkeletonList(count: 4),
     };
   }
 }

@@ -75,7 +75,7 @@ class _Tag extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: strong ? Colors.white : p.text,
+            color: strong ? p.onAccent : p.text,
           ),
         ),
       ),
@@ -103,108 +103,131 @@ class ProductCard extends StatelessWidget {
     required this.product,
     required this.onTap,
     this.width,
+    this.plain = false,
   });
 
   final ProductSummary product;
   final VoidCallback onTap;
   final double? width;
 
+  /// Minimal template: a rounded picture and text, without a card.
+  final bool plain;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final card = AppCard(
-      onTap: onTap,
-      semanticLabel: _a11y(product),
-      child: ExcludeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  AppNetworkImage(
-                    url: product.imageUrl,
-                    seed: product.id,
-                    placeholderIcon: AppIcons.shop,
+    final picture = AppNetworkImage(
+      url: product.imageUrl,
+      seed: product.id,
+      placeholderIcon: AppIcons.shop,
+      radius: plain ? context.shapes.card : 0,
+    );
+    final content = ExcludeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                picture,
+                if (product.stockStatus == StockStatus.outOfStock)
+                  PositionedDirectional(
+                    start: 8,
+                    top: 8,
+                    child: _Tag(context.l10n.outOfStock, strong: false),
+                  )
+                else if (product.price.onSale)
+                  PositionedDirectional(
+                    start: 8,
+                    top: 8,
+                    child: _Tag(context.l10n.sale, strong: true),
                   ),
-                  if (product.stockStatus == StockStatus.outOfStock)
-                    PositionedDirectional(
-                      start: 8,
-                      top: 8,
-                      child: _Tag(context.l10n.outOfStock, strong: false),
-                    )
-                  else if (product.price.onSale)
-                    PositionedDirectional(
-                      start: 8,
-                      top: 8,
-                      child: _Tag(context.l10n.sale, strong: true),
-                    ),
-                ],
-              ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                      color: p.text,
-                    ),
+          ),
+          Padding(
+            padding: plain
+                ? const EdgeInsets.fromLTRB(2, 10, 2, 8)
+                : const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                    color: p.text,
                   ),
-                  const SizedBox(height: 6),
-                  ProductPriceLabel(product.price, size: 14),
-                  if (product.rating != null && product.ratingCount > 0) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        AppIcon(
-                          AppIcons.star,
-                          size: 14,
-                          color: p.star,
-                          filled: true,
-                        ),
-                        const SizedBox(width: 3),
-                        Flexible(
-                          child: Text(
-                            '${product.rating!.toStringAsFixed(1)} '
-                            '(${product.ratingCount})',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: p.textSecondary,
-                            ),
+                ),
+                const SizedBox(height: 6),
+                ProductPriceLabel(product.price, size: 14),
+                if (product.rating != null && product.ratingCount > 0) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      AppIcon(
+                        AppIcons.star,
+                        size: 14,
+                        color: p.star,
+                        filled: true,
+                      ),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          '${product.rating!.toStringAsFixed(1)} '
+                          '(${product.ratingCount})',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: p.textSecondary,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+    final card = plain
+        ? Semantics(
+            button: true,
+            label: _a11y(product),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(context.shapes.card),
+              child: content,
+            ),
+          )
+        : AppCard(onTap: onTap, semanticLabel: _a11y(product), child: content);
     return width == null ? card : SizedBox(width: width, child: card);
   }
 }
 
 /// A category as a rounded chip with its image.
 class CategoryChip extends StatelessWidget {
-  const CategoryChip({super.key, required this.category, required this.onTap});
+  const CategoryChip({
+    super.key,
+    required this.category,
+    required this.onTap,
+    this.square = false,
+  });
 
   final ProductCategory category;
   final VoidCallback onTap;
+
+  /// Bold template: a rounded square picture instead of a circle.
+  final bool square;
 
   @override
   Widget build(BuildContext context) {
@@ -220,15 +243,25 @@ class CategoryChip extends StatelessWidget {
           width: 84,
           child: Column(
             children: [
-              ClipOval(
-                child: AppNetworkImage(
+              if (square)
+                AppNetworkImage(
                   url: category.imageUrl,
                   seed: category.id,
-                  width: 64,
+                  width: 68,
                   height: 64,
+                  radius: context.shapes.r(18),
                   placeholderIcon: AppIcons.shop,
+                )
+              else
+                ClipOval(
+                  child: AppNetworkImage(
+                    url: category.imageUrl,
+                    seed: category.id,
+                    width: 64,
+                    height: 64,
+                    placeholderIcon: AppIcons.shop,
+                  ),
                 ),
-              ),
               const SizedBox(height: 6),
               Text(
                 category.name,

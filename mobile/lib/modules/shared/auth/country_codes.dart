@@ -100,6 +100,61 @@ String? normalizeDialCode(String input) {
   return '+$digits';
 }
 
+/// A phone number for reading: "+905321234567" becomes
+/// "+90 532 123 45 67". Numbers without a known country code are returned
+/// as they are. Pass [dialCode] when [phone] is the national part only.
+String formatPhone(String phone, {String? dialCode}) {
+  final trimmed = phone.trim();
+  final digits = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.isEmpty) return trimmed;
+  String? code = dialCode;
+  var national = digits;
+  if (code != null) {
+    national = nationalNumber(digits, code);
+  } else if (trimmed.startsWith('+')) {
+    for (final c in countryCodes) {
+      final d = c.dialCode.substring(1);
+      if (digits.startsWith(d) && (code == null || d.length >= code.length)) {
+        code = c.dialCode;
+      }
+    }
+    if (code == null) return trimmed;
+    national = digits.substring(code.length - 1);
+  } else {
+    return trimmed;
+  }
+  final List<int> groups;
+  if (code == '+90' && national.length == 10) {
+    groups = [3, 3, 2, 2];
+  } else if (national.length <= 4) {
+    groups = [national.length];
+  } else {
+    // Threes, with a final four rather than a lone digit.
+    final sizes = <int>[];
+    var left = national.length;
+    while (left > 4) {
+      sizes.add(3);
+      left -= 3;
+    }
+    sizes.add(left);
+    groups = sizes;
+  }
+  final parts = <String>[];
+  var at = 0;
+  for (final g in groups) {
+    if (at >= national.length) break;
+    final end = (at + g).clamp(0, national.length);
+    parts.add(national.substring(at, end));
+    at = end;
+  }
+  if (at < national.length) parts.add(national.substring(at));
+  return '$code ${parts.join(' ')}';
+}
+
+/// [text] kept left to right inside right-to-left text (phone numbers,
+/// codes): Unicode directional isolates, invisible on screen.
+String ltrIsolate(String text) => '\u2066$text\u2069';
+
 /// The national number to send: digits only, without a leading trunk 0
 /// (Italy keeps it, as its numbers start with 0).
 String nationalNumber(String input, String dialCode) {

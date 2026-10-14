@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/country_codes.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/providers.dart';
@@ -126,8 +127,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
             label(context.l10n.mobileNumber),
             TextFormField(
-              initialValue: phone,
+              initialValue: formatPhone(phone),
               enabled: false,
+              textDirection: TextDirection.ltr,
               decoration: deco(context.l10n.mobileNumber),
             ),
             const SizedBox(height: 6),

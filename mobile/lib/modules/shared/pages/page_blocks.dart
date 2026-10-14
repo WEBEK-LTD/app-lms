@@ -375,10 +375,9 @@ class _Button extends ConsumerWidget {
           style: TextButton.styleFrom(
             foregroundColor: p.link,
             minimumSize: const Size(64, 44),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
+            // From the theme so the label keeps the app's font.
+            textStyle: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(fontSize: 15),
           ),
           icon: icon == null ? null : AppIcon(icon, size: 18, color: p.link),
           label: Text(block.label, textAlign: TextAlign.center),
@@ -748,7 +747,7 @@ class _Categories extends ConsumerWidget {
 
     if (block.style == CategoriesStyle.chips) {
       return SizedBox(
-        height: 44,
+        height: chipRowHeight(context),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: block.categories.length,
