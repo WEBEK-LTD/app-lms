@@ -38,7 +38,7 @@ test("a new client signs up and waits for activation", async ({ page }) => {
   await page.getByLabel("Full name").fill(client.name);
   await page.getByLabel("Email").fill(client.email);
   await page.getByLabel("WhatsApp number").fill(client.whatsapp);
-  await page.getByLabel("Your WordPress website").fill(client.site);
+  await page.getByLabel("Your website (optional)").fill(client.site);
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();

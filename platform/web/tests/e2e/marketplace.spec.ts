@@ -72,7 +72,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Full name").fill(shop.name);
   await own.getByLabel("Email").fill(shop.email);
   await own.getByLabel("WhatsApp number").fill("+90 544 000 00 31");
-  await own.getByLabel("Your WordPress website").fill(`https://olive-${suffix}.shop.test`);
+  await own.getByLabel("Your website (optional)").fill(`https://olive-${suffix}.shop.test`);
   await own.getByLabel("Password", { exact: true }).fill(shop.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();

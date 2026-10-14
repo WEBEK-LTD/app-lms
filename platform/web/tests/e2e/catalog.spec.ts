@@ -72,7 +72,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByLabel("Full name").fill(client.name);
   await page.getByLabel("Email").fill(client.email);
   await page.getByLabel("WhatsApp number").fill("+90 544 000 00 03");
-  await page.getByLabel("Your WordPress website").fill(`https://tulip-${suffix}.shop.test`);
+  await page.getByLabel("Your website (optional)").fill(`https://tulip-${suffix}.shop.test`);
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();

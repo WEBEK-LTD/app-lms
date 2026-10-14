@@ -3,15 +3,17 @@ import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
 import { LEGAL_LINE, Logo, LogoLink } from "./brand";
 
-export type SitePage = "home" | "features" | "how" | "pricing" | "faq" | "guides" | "contact";
+export type SitePage = "home" | "solutions" | "features" | "integrations" | "how" | "pricing" | "docs" | "faq" | "contact";
 
 export const SITE_PAGES: { id: SitePage; href: string; label: string }[] = [
   { id: "home", href: "/", label: "Home" },
+  { id: "solutions", href: "/solutions", label: "Solutions" },
   { id: "features", href: "/features", label: "Features" },
+  { id: "integrations", href: "/integrations", label: "Integrations" },
   { id: "how", href: "/how-it-works", label: "How it works" },
   { id: "pricing", href: "/pricing", label: "Pricing" },
+  { id: "docs", href: "/docs", label: "Docs" },
   { id: "faq", href: "/faq", label: "FAQ" },
-  { id: "guides", href: "/guides", label: "Guides" },
   { id: "contact", href: "/contact", label: "Contact" },
 ];
 
@@ -20,9 +22,9 @@ export async function SiteHeader({ current, white = true }: { current?: SitePage
   const contact = await getContact();
   return (
     <header className={`border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
-      <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-8 gap-y-3 px-4 py-[18px] sm:px-6">
+      <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-6 gap-y-3 px-4 py-[18px] sm:px-6">
         <LogoLink href="/" />
-        <div className="order-2 ml-auto flex items-center gap-2.5 sm:order-3 sm:ml-0">
+        <div className="order-2 ml-auto flex items-center gap-2.5 lg:order-3 lg:ml-0">
           <Link href="/sign-in" className="flex h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline sm:px-4">
             Sign in
           </Link>
@@ -30,7 +32,7 @@ export async function SiteHeader({ current, white = true }: { current?: SitePage
             Contact us
           </a>
         </div>
-        <nav aria-label="Main" className="order-3 flex w-full flex-1 flex-wrap items-center gap-x-6 gap-y-2 text-[15px] sm:order-2 sm:w-auto">
+        <nav aria-label="Main" className="order-3 flex w-full flex-1 flex-wrap items-center gap-x-5 gap-y-2 text-[15px] lg:order-2 lg:w-auto">
           {SITE_PAGES.map((page) =>
             page.id === current ? (
               <Link
@@ -71,7 +73,8 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
               <Logo height={36} reversed />
             </div>
             <p className="m-0 max-w-[340px] text-[15px] leading-relaxed">
-              Branded Android and iOS apps for WordPress academies, built from the website you already run.
+              Branded Android and iOS apps for academies, stores, bookings and real estate offices, from the website you already run, or
+              from no website at all.
             </p>
             {full ? (
               <a
@@ -85,12 +88,19 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
           </div>
           <nav aria-label="Product" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>PRODUCT</FooterHeading>
-            {SITE_PAGES.filter((page) => page.id !== "guides" && page.id !== "contact").map((page) => (
+            {SITE_PAGES.filter((page) => !["home", "docs", "faq", "contact"].includes(page.id)).map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}
               </Link>
             ))}
-            <Link href="/guides" className={footerLink}>Publishing guides</Link>
+          </nav>
+          <nav aria-label="Resources" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
+            <FooterHeading>RESOURCES</FooterHeading>
+            <Link href="/docs" className={footerLink}>Documentation</Link>
+            <Link href="/docs/google-play" className={footerLink}>Publish on Google Play</Link>
+            <Link href="/docs/app-store" className={footerLink}>Publish on the App Store</Link>
+            <Link href="/developers" className={footerLink}>API reference</Link>
+            <Link href="/faq" className={footerLink}>FAQ</Link>
           </nav>
           <nav aria-label="Account" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>ACCOUNT</FooterHeading>
@@ -121,7 +131,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
         <div className="flex flex-wrap justify-between gap-3 border-t border-night-line pt-6 text-sm">
           <span>{LEGAL_LINE}</span>
           {full ? (
-            <span>WordPress is a trademark of the WordPress Foundation. Yallapp is not affiliated with the LMS plugins it supports.</span>
+            <span>WordPress, Shopify and the other names on this site are trademarks of their owners. Yallapp is not affiliated with the platforms it connects to.</span>
           ) : (
             <a href={contact.whatsappUrl} className="text-night-text no-underline hover:text-white hover:underline">
               WhatsApp: {contact.whatsappDisplay} · yallapp.com.tr

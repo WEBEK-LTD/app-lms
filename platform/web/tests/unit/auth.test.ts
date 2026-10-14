@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildConfigFor, newApp } from "@/lib/app/setup";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { checkResetToken, completePasswordReset, createPasswordReset } from "@/lib/auth/reset";
@@ -112,6 +113,25 @@ describe("auth form rules", () => {
       expect(parsed.data.whatsapp).toBe("+905446731942");
       expect(parsed.data.siteUrl).toBe("https://academy.test");
     }
+  });
+
+  it("lets clients sign up without a website, and new apps then start without one", async () => {
+    for (const siteUrl of ["", "   ", undefined]) {
+      const parsed = signUpSchema.safeParse({ ...valid, siteUrl });
+      expect(parsed.success, String(siteUrl)).toBe(true);
+      if (parsed.success) expect(parsed.data.siteUrl).toBe("");
+    }
+    expect(signUpSchema.safeParse({ ...valid, siteUrl: "not a site" }).success).toBe(false);
+
+    const store = new MemoryStore();
+    const parsed = signUpSchema.parse({ ...valid, email: "nosite@shop.test", siteUrl: "" });
+    const { client } = await registerClient(store, parsed, NOW);
+    expect(client.siteUrl).toBe("");
+    const app = newApp(client.id, client.siteUrl, NOW, "store");
+    expect(app.siteUrl).toBeNull();
+    // The hosted API's config falls back to the platform's address.
+    const config = buildConfigFor({ ...app, backend: "hosted" }, client, { name: "1.0.0", code: 1 }, (id) => `https://yallapp.test/${id}`);
+    expect(config.site_url).toMatch(/^https?:\/\//);
   });
 
   it("requires the terms checkbox, a 10-character password and a real email", () => {

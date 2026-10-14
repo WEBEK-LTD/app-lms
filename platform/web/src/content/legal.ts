@@ -13,13 +13,13 @@ export interface LegalDefault {
   body: string;
 }
 
-export const LEGAL_UPDATED = "12 October 2026";
+export const LEGAL_UPDATED = "14 October 2026";
 
 export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: LEGAL_UPDATED,
+  updated: "14 October 2026",
   body: `## 1. Who we are
 
 Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. WEBEK LTD is the data controller for the personal data described here. We follow the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. When we process data of people in Türkiye or the European Union, we also follow the Turkish Personal Data Protection Law No. 6698 (KVKK) and the EU General Data Protection Regulation (GDPR). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -32,9 +32,15 @@ Yallapp is a trading name of WEBEK LTD, a company registered in England and Wale
 - **Billing records:** your plan, dates and payment notes.
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
 
-## 3. Data about your students
+## 3. Data about your app's users
 
-The Yallapp plugin runs on your WordPress website. Your students’ accounts, phone numbers, progress and orders stay in your website’s database, and Yallapp’s servers do not receive them. License checks send only your website address, plugin version and license key. You are the data controller for your students and should give them your own privacy notice. Push notifications are sent through your own Firebase project. If you ask us for help with a problem involving a student, we use only the data you share with us, and only on your instructions.
+How your app users' data is handled depends on where the app gets its content:
+
+- **Your WordPress website (Yallapp plugin):** your users' accounts, phone numbers, progress and orders stay in your website's database, and Yallapp does not receive them. License checks send only your website address, plugin version and license key.
+- **Another platform or your own API:** the app talks to that platform or API directly. We store only the connection details you give us, encrypted.
+- **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and WEBEK LTD is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
+
+In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com. If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
 ## 4. Why we use your data, and our legal basis
 
@@ -45,7 +51,7 @@ The Yallapp plugin runs on your WordPress website. Your students’ accounts, ph
 
 ## 5. Who we share it with
 
-We share data only with providers that help us run Yallapp: website hosting (Netlify), our own servers for the database and build files, the build service that compiles your apps, and Apple or Google when we publish for you. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
+We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
 
 ## 6. International transfers
 
@@ -84,11 +90,11 @@ These terms cover your use of Yallapp: the website at yallapp.com.tr, the client
 
 ## 2. Who Yallapp is for
 
-Yallapp is a business service for academies, trainers and other organisations that run a WordPress website. By creating an account, you confirm that you are using Yallapp for your business, trade or profession, and not as a consumer.
+Yallapp is a business service for academies, trainers, shops, service providers, real estate businesses and other organisations. By creating an account, you confirm that you are using Yallapp for your business, trade or profession, and not as a consumer.
 
 ## 3. What Yallapp provides
 
-Yallapp builds branded Android and iOS apps that connect to your WordPress website and supported LMS plugin. Depending on your plan, we provide the WordPress plugin, your app build files, publishing guides, and publishing to the app stores on your behalf.
+Yallapp builds branded Android and iOS apps that get their content from your WordPress website, a supported platform, your own API, or content you manage in the Yallapp dashboard. Depending on your plan, we provide the WordPress plugin, hosting for apps without a website, your app build files, publishing guides, and publishing to the app stores on your behalf. Each app in your account has its own plan.
 
 ## 4. Your account
 
@@ -104,7 +110,7 @@ You can cancel within 3 days of your account being activated and receive a full 
 
 ## 7. Your website, content and licenses
 
-You keep ownership of your website, courses and brand. You are responsible for holding valid licenses for the WordPress plugins and services your website uses, such as your LMS plugin, Digits, WooCommerce and your SMS or WhatsApp gateway. You allow us to use your name, logo and content only to build, publish and support your apps.
+You keep ownership of your website, content and brand. You are responsible for holding valid licenses for the plugins, platforms and services your app uses, such as your LMS or store plugin, Digits, WooCommerce and your SMS or WhatsApp gateway. You allow us to use your name, logo and content only to build, publish and support your apps.
 
 ## 8. App store accounts and publishing
 

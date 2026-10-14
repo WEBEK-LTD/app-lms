@@ -18,7 +18,7 @@ test.beforeAll(async ({ browser }) => {
   await signUp.getByLabel("Full name").fill(client.name);
   await signUp.getByLabel("Email").fill(client.email);
   await signUp.getByLabel("WhatsApp number").fill("+90 544 000 00 09");
-  await signUp.getByLabel("Your WordPress website").fill(`https://poppy-${suffix}.studio.test`);
+  await signUp.getByLabel("Your website (optional)").fill(`https://poppy-${suffix}.studio.test`);
   await signUp.getByLabel("Password", { exact: true }).fill(client.password);
   await signUp.getByRole("checkbox").check();
   await signUp.getByRole("button", { name: "Create account" }).click();

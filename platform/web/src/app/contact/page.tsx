@@ -74,7 +74,8 @@ export default async function ContactPage() {
           </div>
         </div>
         <p className="m-0 max-w-[900px] text-[15px] text-ink-4">
-          Already a client? <Link href="/sign-in">Sign in</Link> to your dashboard for your license, builds and downloads.
+          Already a client? <Link href="/sign-in">Sign in</Link> to your dashboard for your app, builds and downloads, or read the{" "}
+          <Link href="/docs">documentation</Link>.
         </p>
       </Section>
     </MarketingPage>

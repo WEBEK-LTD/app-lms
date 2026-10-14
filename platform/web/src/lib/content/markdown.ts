@@ -1,8 +1,8 @@
 /**
  * The small Markdown the team writes in the admin (website pages,
  * announcements): paragraphs, ## headings, - and 1. lists, > notes, ---
- * rules, **bold**, *italic*, `code` and [links](https://…) (`\` before a
- * character shows it as it is). There is no raw
+ * rules, ``` code blocks, **bold**, *italic*, `code` and
+ * [links](https://…) (`\` before a character shows it as it is). There is no raw
  * HTML: every character of the text is escaped, and links only open http(s),
  * mailto and tel addresses or paths on this site. One parser, rendered by
  * components/markdown.tsx for pages and by `markdownToHtml` for emails.
@@ -22,6 +22,7 @@ export type Block =
   | { t: "ul"; items: Inline[][] }
   | { t: "ol"; start: number; items: Inline[][] }
   | { t: "quote"; blocks: Block[] }
+  | { t: "pre"; lang: string; v: string }
   | { t: "hr" };
 
 /** Addresses a link may open; anything else is shown as plain text. */
@@ -36,6 +37,8 @@ const HEADING = /^(#{1,4})\s+(.*)$/;
 const BULLET = /^[-*]\s+(.*)$/;
 const NUMBERED = /^(\d{1,3})[.)]\s+(.*)$/;
 const RULE = /^(-{3,}|\*{3,}|_{3,})$/;
+/** A code block opens and closes with ``` or ~~~ on a line of its own; a word after the opening one names the language. */
+const FENCE = /^(```|~~~)\s*([a-z0-9+-]*)\s*$/i;
 
 /** Splits Markdown into blocks. */
 export function parseMarkdown(source: string): Block[] {
@@ -47,6 +50,19 @@ export function parseMarkdown(source: string): Block[] {
     const trimmed = line.trim();
     if (trimmed === "") {
       i += 1;
+      continue;
+    }
+    const fence = FENCE.exec(trimmed);
+    if (fence) {
+      // A code block keeps its lines as they are, up to the closing fence (or the end of the text).
+      const code: string[] = [];
+      i += 1;
+      while (i < lines.length && lines[i]!.trim() !== fence[1]) {
+        code.push(lines[i]!.trimEnd());
+        i += 1;
+      }
+      i += 1;
+      blocks.push({ t: "pre", lang: fence[2]!.toLowerCase(), v: code.join("\n") });
       continue;
     }
     if (RULE.test(trimmed)) {
@@ -96,7 +112,9 @@ export function parseMarkdown(source: string): Block[] {
     const paragraph: string[] = [];
     while (i < lines.length) {
       const current = lines[i]!.trim();
-      if (current === "" || HEADING.test(current) || current.startsWith(">") || RULE.test(current) || BULLET.test(current) || NUMBERED.test(current)) break;
+      if (current === "" || HEADING.test(current) || current.startsWith(">") || FENCE.test(current) || RULE.test(current) || BULLET.test(current) || NUMBERED.test(current)) {
+        break;
+      }
       paragraph.push(lines[i]!);
       i += 1;
     }
@@ -245,6 +263,8 @@ export function markdownToHtml(source: string, baseUrl = ""): string {
             return `<ol${b.start !== 1 ? ` start="${b.start}"` : ""}>${b.items.map((item) => `<li>${inlineHtml(item, baseUrl)}</li>`).join("")}</ol>`;
           case "quote":
             return `<blockquote>${render(b.blocks)}</blockquote>`;
+          case "pre":
+            return `<pre><code>${escapeHtml(b.v)}</code></pre>`;
           case "hr":
             return "<hr>";
         }
@@ -256,6 +276,18 @@ export function markdownToHtml(source: string, baseUrl = ""): string {
 /** The words of some inline nodes, for titles and summaries. */
 export function inlineText(nodes: Inline[]): string {
   return nodes.map((n) => (n.t === "text" || n.t === "code" ? n.v : n.t === "br" ? " " : "c" in n ? inlineText(n.c) : "")).join("");
+}
+
+/** A heading's anchor: its words in lowercase, joined with dashes ("Before you start" → "before-you-start"). */
+export function headingId(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "section"
+  );
 }
 
 /** Fills `{{name}}` with the given values (website pages: the contact details). Other text stays as it is. */

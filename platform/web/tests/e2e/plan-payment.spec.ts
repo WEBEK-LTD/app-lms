@@ -52,7 +52,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Full name").fill(client.name);
   await own.getByLabel("Email").fill(client.email);
   await own.getByLabel("WhatsApp number").fill("+90 544 000 00 21");
-  await own.getByLabel("Your WordPress website").fill(`https://linden-${suffix}.school.test`);
+  await own.getByLabel("Your website (optional)").fill(`https://linden-${suffix}.school.test`);
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();

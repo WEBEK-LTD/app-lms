@@ -56,7 +56,7 @@ test("the overview counts from the data and the team adds a client", async () =>
   await panel.getByLabel("Full name").fill(client.name);
   await panel.getByLabel("Email").fill(client.email);
   await panel.getByLabel("WhatsApp number").fill("+90 544 000 00 31");
-  await panel.getByLabel("WordPress website").fill(`https://quill-${suffix}.academy.test`);
+  await panel.getByLabel("Website (optional)").fill(`https://quill-${suffix}.academy.test`);
   await panel.getByRole("button", { name: "Add client" }).click();
   await expect(owner.getByRole("status")).toContainText("Client added.");
   clientId = new URL(owner.url()).searchParams.get("client") ?? "";

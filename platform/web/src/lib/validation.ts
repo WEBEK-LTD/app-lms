@@ -45,11 +45,25 @@ const httpsSiteUrl = siteUrl.refine(
   "Your website must use https. Apps can only connect to secure sites.",
 );
 
+/**
+ * The website on sign-up is optional: apps also come from Shopify and other
+ * platforms, or from no website. Empty is stored as "" (clients.site_url is
+ * NOT NULL), and new apps start without a website (lib/app/setup.ts).
+ */
+const optionalSiteUrl = z
+  .string()
+  .trim()
+  .max(255, "This address is too long.")
+  .optional()
+  .default("")
+  .transform((value) => (value === "" || /^https?:\/\//i.test(value) ? value : `https://${value}`))
+  .refine((value) => value === "" || isHttpUrl(value), "Enter a full address, e.g. https://your-site.com, or leave it empty.");
+
 export const signUpSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name.").max(120, "This name is too long."),
   email,
   whatsapp,
-  siteUrl,
+  siteUrl: optionalSiteUrl,
   password,
   terms: z.literal("on", "Please confirm the terms and that you're signing up for your business."),
 });
@@ -205,7 +219,7 @@ export const addClientSchema = z.object({
   name: z.string().trim().min(2, "Enter the client's name.").max(120),
   email,
   whatsapp,
-  siteUrl,
+  siteUrl: optionalSiteUrl,
 });
 
 export const clientDetailsSchema = addClientSchema.omit({ email: true }).extend({

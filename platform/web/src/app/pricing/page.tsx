@@ -20,7 +20,7 @@ const COMPARISON: { label: string; starter: boolean; pro: boolean }[] = [
   { label: "Android APK and App Bundle (AAB)", starter: true, pro: true },
   { label: "iOS build (IPA)", starter: true, pro: true },
   { label: "Android upload key and store assets", starter: true, pro: true },
-  { label: "WordPress plugin and updates", starter: true, pro: true },
+  { label: "WordPress plugin and updates, for WordPress sites", starter: true, pro: true },
   { label: "Push notifications", starter: true, pro: true },
   { label: "Step-by-step publishing guides", starter: true, pro: true },
   { label: "Upload to Google Play for you", starter: false, pro: true },

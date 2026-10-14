@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
+import { BrowserFrame, DASHBOARD_PATHS } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
+import { CheckList, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { REQUIREMENTS, STEPS } from "@/lib/marketing";
 
 export const metadata: Metadata = {
   title: "How it works",
-  description: "From your WordPress website to Google Play and the App Store in four steps.",
+  description: "From sign-up to Google Play and the App Store in five steps, with your website, an online platform, your own API or no website at all.",
 };
 
 export default async function HowItWorksPage() {
   const text = await getSiteContent("how-it-works");
   return (
-    <MarketingPage
-      current="how"
-      eyebrow={text.eyebrow}
-      title={text.title!}
-      intro={text.intro!}
-    >
+    <MarketingPage current="how" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!}>
       <Section>
         <ol className="m-0 flex list-none flex-col gap-5 p-0">
           {STEPS.map((step, index) => (
@@ -26,30 +22,28 @@ export default async function HowItWorksPage() {
               <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-2.5">
                 <h2 className="m-0 text-xl font-bold">{step.title}</h2>
                 <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p>
-                <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-                  {step.details.map((detail) => (
-                    <li key={detail} className="flex gap-2.5">
-                      <Icon name="check" size={20} className="flex-none text-success" />
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
+                <CheckList items={step.details} />
               </div>
             </li>
           ))}
         </ol>
       </Section>
       <Section tinted>
+        <SectionTitle title="All of it in your dashboard" text="Each setup step is checked as you go, and your first build starts when the last one is done." />
+        <BrowserFrame screen="dashboard-setup" path={DASHBOARD_PATHS["dashboard-setup"]} />
+        <MoreLink href="/docs/setup-steps">The setup steps, one by one</MoreLink>
+      </Section>
+      <Section>
         <SectionTitle title="What you need" text="Your apps are published under your own name, so the store accounts are yours." />
         <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
           {REQUIREMENTS.map((item) => (
             <li key={item} className="flex gap-3 rounded-2xl border border-line bg-white p-5 text-[15px]">
-              <Icon name="check_circle" size={22} className="flex-none text-success" />
+              <Icon name="check_circle" size={22} className="text-success" />
               {item}
             </li>
           ))}
         </ul>
-        <MoreLink href="/guides">Read the publishing guides</MoreLink>
+        <MoreLink href="/docs">Read the documentation</MoreLink>
       </Section>
     </MarketingPage>
   );
