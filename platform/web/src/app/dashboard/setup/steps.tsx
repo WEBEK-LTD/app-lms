@@ -14,6 +14,7 @@ import {
   saveWebsiteAction,
   uploadAssetAction,
 } from "@/app/actions/dashboard";
+import { PhoneFrame } from "@/components/device-frame";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
@@ -736,9 +737,9 @@ export function BrandingStep({
 
       <aside aria-label="Live preview" className="flex w-full flex-col items-center gap-3 lg:w-auto lg:flex-[0_1_300px]">
         <span className="text-[13px] font-semibold text-muted">Live preview</span>
-        <div className="h-[500px] w-[250px] rounded-[36px] bg-midnight p-2.5" aria-hidden="true">
+        <PhoneFrame className="w-[250px]" aria-hidden="true">
           <div
-            className="flex h-full w-full flex-col gap-4 rounded-[28px] px-[18px] pt-10 pb-[18px]"
+            className="flex h-full w-full flex-col gap-4 px-[18px] pt-10 pb-[18px]"
             style={{ background: template === "minimal" ? "#FFFFFF" : splash }}
           >
             {logoFile ? (
@@ -760,7 +761,7 @@ export function BrandingStep({
               Send code
             </span>
           </div>
-        </div>
+        </PhoneFrame>
       </aside>
     </form>
   );

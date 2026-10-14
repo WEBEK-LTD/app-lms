@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { PhoneFrame } from "@/components/device-frame";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { cleanBlockHtml } from "@/lib/pages/html";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
@@ -253,74 +254,74 @@ export function PhonePreview({
   const shown = page ? translated(page, lang, def) : null;
   const classic = appearance.template === "classic";
   return (
-    <figure className="m-0 flex flex-col items-center gap-2" aria-label="Phone preview">
-      <div
-        dir={rtl ? "rtl" : "ltr"}
-        lang={lang}
-        style={{
-          width: 300,
-          height: 600,
-          borderRadius: 36,
-          border: "10px solid #0e0d24",
-          background: theme.bg,
-          color: theme.text,
-          fontFamily: `"${appearance.font}", ui-sans-serif, system-ui, sans-serif`,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+    <figure className="m-0 flex max-w-full flex-col items-center gap-2" aria-label="Phone preview">
+      {/* 19 The shared phone frame; the screen clips the content to its rounded corners. */}
+      <PhoneFrame className="w-[300px]">
         <div
+          dir={rtl ? "rtl" : "ltr"}
+          lang={lang}
           style={{
-            padding: "16px 14px 10px",
-            background: classic ? theme.primary : theme.bg,
-            color: classic ? "#fff" : theme.text,
-            borderBottom: appearance.template === "minimal" ? `1px solid ${theme.line}` : undefined,
-            fontWeight: 800,
-            fontSize: appearance.template === "bold" ? 20 : 15,
+            height: "100%",
+            background: theme.bg,
+            color: theme.text,
+            fontFamily: `"${appearance.font}", ui-sans-serif, system-ui, sans-serif`,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {shown?.show_title ? shown.title : app.name}
+          <div
+            style={{
+              // Room for the status bar and the camera above the title.
+              padding: "12cqw 14px 10px",
+              background: classic ? theme.primary : theme.bg,
+              color: classic ? "#fff" : theme.text,
+              borderBottom: appearance.template === "minimal" ? `1px solid ${theme.line}` : undefined,
+              fontWeight: 800,
+              fontSize: appearance.template === "bold" ? 20 : 15,
+            }}
+          >
+            {shown?.show_title ? shown.title : app.name}
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
+            {page?.blocks.length ? (
+              page.blocks.map((block) => <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />)
+            ) : (
+              <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>Add blocks to this page.</p>
+            )}
+          </div>
+          <nav style={{ display: "flex", borderTop: `1px solid ${theme.line}`, background: theme.surface, padding: "6px 4px 10px" }}>
+            {layout.tabs.map((tab) => {
+              const t = translated(tab, lang, def);
+              const current = tab.target.type === "page" && tab.target.page_slug === page?.slug;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => (tab.target.type === "page" && tab.target.page_slug ? onOpenPage(tab.target.page_slug) : undefined)}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                    border: 0,
+                    background: "transparent",
+                    color: current ? theme.primary : theme.muted,
+                    fontSize: 10,
+                    fontWeight: current ? 700 : 500,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <IconGlyph name={tab.icon} size={22} />
+                  {t.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: 12, display: "flex", flexDirection: "column", gap: 12 }}>
-          {page?.blocks.length ? (
-            page.blocks.map((block) => <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />)
-          ) : (
-            <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>Add blocks to this page.</p>
-          )}
-        </div>
-        <nav style={{ display: "flex", borderTop: `1px solid ${theme.line}`, background: theme.surface, padding: "6px 4px 10px" }}>
-          {layout.tabs.map((tab) => {
-            const t = translated(tab, lang, def);
-            const current = tab.target.type === "page" && tab.target.page_slug === page?.slug;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                tabIndex={-1}
-                onClick={() => (tab.target.type === "page" && tab.target.page_slug ? onOpenPage(tab.target.page_slug) : undefined)}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 2,
-                  border: 0,
-                  background: "transparent",
-                  color: current ? theme.primary : theme.muted,
-                  fontSize: 10,
-                  fontWeight: current ? 700 : 500,
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                }}
-              >
-                <IconGlyph name={tab.icon} size={22} />
-                {t.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      </PhoneFrame>
       <figcaption className="text-xs text-muted">
         {Object.values(pickable.items).some((list) => list && list.length > 0)
           ? "Preview of the draft. Lists show the names of your entries; pictures are placeholders."

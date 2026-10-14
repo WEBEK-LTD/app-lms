@@ -67,6 +67,9 @@ test("the app preview runs a shop that isn't set up yet", async ({ page }) => {
 
   // The app itself in the frame: it reads its config, then the hosted API answers its preview (the app isn't set up yet).
   const frame = page.locator("iframe[data-testid=app-preview]");
+  // 19 The shared phone frame, without the camera pill: the app on the web has no status bar under it.
+  await expect(page.locator("[data-phone-frame]").filter({ has: frame })).toHaveCount(1);
+  await expect(page.locator("[data-phone-frame] [data-phone-island]")).toHaveCount(0);
   await expect(frame).toHaveAttribute("src", /^\/preview-app\/index\.html\?token=p1\./);
   const config = await configRead;
   expect(config.status()).toBe(200);

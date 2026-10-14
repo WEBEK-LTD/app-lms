@@ -112,6 +112,8 @@ test("the client builds a page, reorders it and publishes", async () => {
   await expect(blocks.first()).toContainText("Text: Learn with Nil");
 
   await expect(own.getByRole("figure", { name: "Phone preview" })).toContainText("See courses");
+  // 19 The draft sits in the shared phone frame, clipped to its rounded screen.
+  await expect(own.getByRole("figure", { name: "Phone preview" }).locator("[data-phone-frame] .phone-screen")).toContainText("See courses");
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText("Published. Your app shows the new pages")).toBeVisible();
   await expect(own.getByText(/Published version 20\d\d-.*\.1,/)).toBeVisible();
