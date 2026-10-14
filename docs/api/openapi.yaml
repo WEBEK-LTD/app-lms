@@ -675,6 +675,30 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /me/orders/{order_id}:
+    get:
+      tags: [Commerce]
+      operationId: getOrder
+      summary: Get one of the customer's orders
+      description: |
+        One order of the signed-in customer, for following it: a restaurant's
+        order shows `fulfilment` and `fulfilment_status`, which change as the
+        kitchen works on it (received, preparing, ready, out for delivery,
+        completed). Each change also reaches the customer as a notification,
+        whose push `data` carries the `order_id`. `not_found` for someone
+        else's order.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /courses/{course_id}/reviews:
     get:
       tags: [Community]
@@ -1375,6 +1399,19 @@ paths:
         with `one_product_at_a_time` (409) when the shop's checkout can only
         take one product from the app (show the message), and with
         `purchase_not_allowed` (403) for digital products on iOS.
+
+        Shops with `store.fulfilment` (restaurants and cafés) also take how
+        the order is collected: `fulfilment` (`pickup` or `delivery`, one the
+        shop offers), a `delivery_address` for delivery, and `scheduled_for`
+        (one of the `slots` of `GET /store/order-times`; null or missing for
+        "as soon as possible"). They fail with `kitchen_closed` (409) for an
+        order as soon as possible while closed (show the message; a scheduled
+        time may still work), `below_minimum` (409) when a delivery's subtotal
+        is under `store.fulfilment.min_order`, `outside_delivery_area` (400)
+        when the district isn't one of `store.fulfilment.delivery_areas`, and
+        `invalid_request` (400) for a missing address or a time that isn't
+        offered. The delivery fee is added to the order on our payment page.
+        Prices, options and fees are always computed by the server.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/Platform'
@@ -1389,6 +1426,12 @@ paths:
                   properties:
                     delivery_date: { type: [string, 'null'], format: date, description: "Required when `store.delivery_date.required` is true." }
                     gift_message: { type: [string, 'null'], maxLength: 500 }
+                    fulfilment: { type: [string, 'null'], enum: [pickup, delivery, null], description: "Shops with `store.fulfilment` only (required there): how the customer gets the order." }
+                    delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
+                    scheduled_for:
+                      type: [string, 'null']
+                      format: date-time
+                      description: "Shops with `store.fulfilment` only: the time the order is for, one of `GET /store/order-times` `slots`. Null or missing: as soon as possible." 
       responses:
         '200':
           description: Checkout link
@@ -1405,6 +1448,28 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /store/order-times:
+    get:
+      tags: [Store]
+      operationId: getOrderTimes
+      summary: When the kitchen takes orders now
+      description: |
+        For shops with `store.fulfilment` (restaurants and cafés): whether
+        they're open now, when they open or close next, whether an order "as
+        soon as possible" can be placed now, and the times a scheduled order
+        can be for. Computed in the shop's time zone at the time of the
+        request, so the app asks again before checkout. `not_found` for shops
+        without `store.fulfilment`.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Opening state and times
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderTimes' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
   /bookings/home:
@@ -2026,6 +2091,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      schema: { type: integer }
     PageSlug:
       name: slug
       in: path
@@ -2108,6 +2178,9 @@ components:
             - preview_review_number_only
             - update_required
             - invalid_answers
+            - kitchen_closed
+            - below_minimum
+            - outside_delivery_area
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -2630,6 +2703,29 @@ components:
               product_id: { type: [integer, 'null'], description: "The WooCommerce product, for store orders." }
               quantity: { type: integer, minimum: 1 }
               image_url: { type: [string, 'null'], format: uri }
+              options:
+                type: array
+                description: The options chosen for this line (a dish's size or extras), as their names. Missing or empty for none.
+                items: { type: string }
+        fulfilment_status:
+          type: [string, 'null']
+          enum: [received, preparing, ready, out_for_delivery, completed, cancelled, null]
+          description: |
+            Where the order is, for following it (restaurants and cafés): it
+            only moves forward (received, preparing, ready, out for delivery
+            for deliveries, completed), or to cancelled. Null or missing for
+            orders that aren't followed this way. On WordPress it follows the
+            WooCommerce status (processing is preparing, completed and
+            cancelled are themselves).
+        fulfilment:
+          type: [object, 'null']
+          description: How a restaurant's order is collected. Null or missing for other orders.
+          required: [type]
+          properties:
+            type: { type: string, enum: [pickup, delivery] }
+            scheduled_for: { type: [string, 'null'], format: date-time, description: Null for "as soon as possible". }
+            delivery_address: { $ref: '#/components/schemas/DeliveryAddress' }
+            delivery_fee: { type: [string, 'null'], description: "Formatted; null when there is none.", example: ₺30.00 }
 
     Person:
       type: object
@@ -2741,6 +2837,76 @@ components:
           properties:
             enabled: { type: boolean }
             max_length: { type: integer, minimum: 1, maximum: 500 }
+        fulfilment: { $ref: '#/components/schemas/FulfilmentConfig' }
+
+    FulfilmentConfig:
+      type: object
+      description: |
+        Pickup and delivery for restaurants and cafés (the store engine with
+        the `restaurant` vertical). Missing for other shops, whose checkout is
+        unchanged. Apps that don't know it check out as before; the server
+        then refuses the order with `invalid_request`.
+      required: [pickup, delivery, prep_minutes, timezone, hours, asap, scheduled_slots]
+      properties:
+        pickup: { type: boolean, description: Customers can collect their order. }
+        delivery: { type: boolean, description: The shop delivers. }
+        pickup_address: { type: [string, 'null'], description: Where to collect orders. }
+        min_order: { type: [string, 'null'], description: "The smallest subtotal for a delivery, as an amount; null for none.", example: '150.00' }
+        min_order_formatted: { type: [string, 'null'], example: ₺150.00 }
+        delivery_fee: { type: [string, 'null'], description: "Added to deliveries, as an amount; null when free.", example: '30.00' }
+        delivery_fee_formatted: { type: [string, 'null'], example: ₺30.00 }
+        delivery_areas:
+          type: array
+          description: Districts or postcodes the shop delivers to; the customer picks one. Empty when any address is fine.
+          items: { type: string }
+        delivery_note: { type: [string, 'null'], description: "Where the shop delivers, in its own words (for example \"Within 3 km of Moda\")." }
+        prep_minutes: { type: integer, minimum: 0, description: How long an order takes to prepare. }
+        timezone: { type: string, example: Europe/Istanbul }
+        hours:
+          type: array
+          description: Opening hours per weekday, Sunday first (7 entries), in the shop's time zone, as bookings' working hours. An empty day is closed.
+          minItems: 7
+          maxItems: 7
+          items:
+            type: array
+            items:
+              type: object
+              required: [start, end]
+              properties:
+                start: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '09:00' }
+                end: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '22:00' }
+        asap: { type: boolean, description: Orders "as soon as possible" are taken while open. }
+        scheduled_slots:
+          type: object
+          description: Orders for a later time.
+          required: [enabled, step_minutes, max_days_ahead]
+          properties:
+            enabled: { type: boolean }
+            step_minutes: { type: integer, minimum: 5, description: Minutes between the times offered. }
+            max_days_ahead: { type: integer, minimum: 0, description: "0: today only." }
+
+    OrderTimes:
+      type: object
+      required: [open_now, opens_at, closes_at, asap, ready_in_minutes, slots]
+      properties:
+        open_now: { type: boolean }
+        opens_at: { type: [string, 'null'], format: date-time, description: "When closed: the next opening; null when there is none in the next week." }
+        closes_at: { type: [string, 'null'], format: date-time, description: "When open: the closing time." }
+        asap: { type: boolean, description: "Whether an order \"as soon as possible\" can be placed now (open and taken)." }
+        ready_in_minutes: { type: integer, minimum: 0 }
+        slots:
+          type: array
+          description: Times a scheduled order can be for, soonest first; empty when scheduled orders are off.
+          maxItems: 500
+          items: { type: string, format: date-time }
+
+    DeliveryAddress:
+      type: [object, 'null']
+      required: [address]
+      properties:
+        address: { type: string, minLength: 5, maxLength: 300, description: "Street, building and flat." }
+        district: { type: [string, 'null'], maxLength: 80, description: "One of `store.fulfilment.delivery_areas` when there are any." }
+        notes: { type: [string, 'null'], maxLength: 300, description: "For the courier (floor, door code)." }
 
     StoreHomeSection:
       type: object
@@ -2846,6 +3012,35 @@ components:
               items: { $ref: '#/components/schemas/ProductSummary' }
             external_url: { type: [string, 'null'], format: uri, description: "For external products, the page that sells it." }
             permalink: { type: string, format: uri }
+            option_groups:
+              type: array
+              description: |
+                Choices made before adding the product to the cart, each priced
+                on top of the product (a dish's size, sauce or extras). The
+                cart line sends the chosen options' `id`s; the server checks
+                `min` and `max` per group and prices them itself. Missing or
+                empty: no options.
+              items: { $ref: '#/components/schemas/OptionGroup' }
+
+    OptionGroup:
+      type: object
+      required: [id, name, min, max, options]
+      properties:
+        id: { type: string, example: size }
+        name: { type: string, example: Size }
+        min: { type: integer, minimum: 0, description: "Options to choose at least; 0 makes the group optional." }
+        max: { type: integer, minimum: 1, description: Options to choose at most. }
+        options:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [id, name, price_delta]
+            properties:
+              id: { type: string, description: Unique within the product. }
+              name: { type: string, example: Large }
+              price_delta: { type: string, description: "Added to the unit price, as an amount (0.00 for none).", example: '20.00' }
+              price_delta_formatted: { type: [string, 'null'], description: "Formatted, null when free.", example: +₺20.00 }
 
     ProductVariation:
       type: object
@@ -2882,6 +3077,11 @@ components:
                 type: object
                 description: Chosen options for attributes the variation leaves as "any".
                 additionalProperties: { type: string }
+              options:
+                type: array
+                maxItems: 50
+                description: The `id`s of the chosen options of the product's `option_groups`. Lines of the same product with other options are separate lines.
+                items: { type: string, maxLength: 64 }
 
     Cart:
       type: object
@@ -2904,6 +3104,16 @@ components:
               problem: { type: [string, 'null'], description: "Why the line can't be bought as it is, for the customer.", example: Only 2 left in stock. }
               max_quantity: { type: [integer, 'null'] }
               digital: { type: boolean }
+              options:
+                type: array
+                description: The chosen options, as priced (their prices are in `unit_price`).
+                items:
+                  type: object
+                  required: [id, name, group]
+                  properties:
+                    id: { type: string }
+                    name: { type: string, example: Large }
+                    group: { type: string, example: Size }
         item_count: { type: integer }
         subtotal: { type: string, description: "Formatted, before shipping, taxes and coupons.", example: ₺900.00 }
         subtotal_amount: { type: string, example: '900.00' }
