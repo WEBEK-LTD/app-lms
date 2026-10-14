@@ -421,12 +421,28 @@ class Settings_Page {
 			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), false, __( 'Install and activate Tutor LMS', 'yallapp' ) );
 		}
 		$dev_codes = \Yallapp\Otp\Dev_Adapter::allowed();
+		if ( $dev_codes ) {
+			$digits_note = __( 'Development codes are on (123456)', 'yallapp' );
+		} elseif ( $digits['api'] ) {
+			$digits_note = __( 'Compatible', 'yallapp' );
+		} elseif ( $digits['active'] ) {
+			$digits_note = __( 'Digits is active, but its sign-in API (/digits/v1/send_otp) is not available. Update Digits to its latest version and check that its API is turned on.', 'yallapp' );
+		} else {
+			$digits_note = __( 'Install and activate Digits to send sign-in codes', 'yallapp' );
+		}
 		$this->status_row(
 			__( 'Digits', 'yallapp' ),
-			$digits['active'] ? $digits['version'] : __( 'Not found', 'yallapp' ),
+			$digits['active'] ? ( '' !== $digits['version'] ? $digits['version'] : __( 'Active', 'yallapp' ) ) : __( 'Not found', 'yallapp' ),
 			$digits['api'] || $dev_codes,
-			$dev_codes ? __( 'Development codes are on (123456)', 'yallapp' ) : ( $digits['api'] ? __( 'Compatible', 'yallapp' ) : __( 'Install and activate Digits to send sign-in codes', 'yallapp' ) )
+			$digits_note
 		);
+		if ( $digits['addons'] ) {
+			$names = array();
+			foreach ( $digits['addons'] as $addon ) {
+				$names[] = trim( $addon['name'] . ' ' . $addon['version'] );
+			}
+			$this->status_row( __( 'Digits add-ons', 'yallapp' ), implode( ', ', $names ), true, __( 'Codes go out through the gateway you choose in Digits', 'yallapp' ) );
+		}
 		$checkout = $lms && 'tutor' === $lms['id'] && function_exists( 'tutor_utils' ) && 'wc' === tutor_utils()->get_option( 'monetize_by' );
 		$this->status_row(
 			__( 'WooCommerce', 'yallapp' ),

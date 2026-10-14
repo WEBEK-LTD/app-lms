@@ -128,19 +128,73 @@ class Detector {
 	 * @return array{active: bool, version: string, api: bool}
 	 */
 	public function digits() {
-		$active  = $this->plugin_active( 'digits' );
-		$version = '';
-		foreach ( array( 'DIGITS_VERSION', 'DIGITS_PLUGIN_VERSION' ) as $constant ) {
-			if ( defined( $constant ) ) {
-				$version = (string) constant( $constant );
-				break;
+		$found = self::find_digits( $this->active_plugin_headers() );
+		foreach ( array( 'DIGITS_VERSION', 'DIGITS_PLUGIN_VERSION', 'digits_version' ) as $constant ) {
+			if ( '' === $found['version'] && defined( $constant ) ) {
+				$found['version'] = (string) constant( $constant );
 			}
 		}
-		return array(
-			'active'  => $active,
-			'version' => $version,
-			'api'     => $active && $this->has_route( '/digits/v1/send_otp' ),
+		$found['api'] = $found['active'] && $this->has_route( '/digits/v1/send_otp' );
+		return $found;
+	}
+
+	/**
+	 * Finds Digits and its add-ons (such as Additional SMS Gateways) among the
+	 * active plugins, by folder or by the name in their header, so a renamed
+	 * folder or a network activation doesn't hide them.
+	 *
+	 * @param array<string, array<string, string>> $plugins Plugin file => header (Name, Version, Description, Author).
+	 * @return array{active: bool, version: string, addons: array<int, array{name: string, version: string}>}
+	 */
+	public static function find_digits( array $plugins ) {
+		$found = array(
+			'active'  => false,
+			'version' => '',
+			'addons'  => array(),
 		);
+		foreach ( $plugins as $file => $header ) {
+			$name   = isset( $header['Name'] ) ? (string) $header['Name'] : '';
+			$folder = strtolower( (string) strtok( (string) $file, '/' ) );
+			// "DIGITS: WordPress Mobile Number Signup and Login", usually in the "digits" folder.
+			$main = 'digits' === $folder || ( 0 === stripos( $name, 'digits' ) && false !== stripos( $name, 'login' ) );
+			if ( $main && ! $found['active'] ) {
+				$found['active']  = true;
+				$found['version'] = isset( $header['Version'] ) ? (string) $header['Version'] : '';
+				continue;
+			}
+			$about = $name . ' ' . ( isset( $header['Description'] ) ? (string) $header['Description'] : '' ) . ' ' . ( isset( $header['Author'] ) ? (string) $header['Author'] : '' );
+			// Add-ons: their folder, name, description or author points to Digits; Digits' own "Additional SMS Gateways" too.
+			if ( 0 === strpos( $folder, 'digits' ) || false !== stripos( $about, 'digits' ) || false !== stripos( $about, 'unitedover' ) || false !== stripos( $name, 'sms gateway' ) ) {
+				$found['addons'][] = array(
+					'name'    => '' !== $name ? $name : $folder,
+					'version' => isset( $header['Version'] ) ? (string) $header['Version'] : '',
+				);
+			}
+		}
+		return $found;
+	}
+
+	/**
+	 * Headers of the active plugins, network-activated ones included.
+	 *
+	 * @return array<string, array<string, string>>
+	 */
+	private function active_plugin_headers() {
+		$files = (array) get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			$files = array_merge( $files, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+		}
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$headers = array();
+		foreach ( array_unique( array_map( 'strval', $files ) ) as $file ) {
+			$path = WP_PLUGIN_DIR . '/' . $file;
+			if ( is_readable( $path ) ) {
+				$headers[ $file ] = get_plugin_data( $path, false, false );
+			}
+		}
+		return $headers;
 	}
 
 	/**
@@ -156,30 +210,13 @@ class Detector {
 	}
 
 	/**
-	 * Whether a plugin whose folder starts with the slug is active.
-	 *
-	 * @param string $slug Plugin folder.
-	 * @return bool
-	 */
-	private function plugin_active( $slug ) {
-		foreach ( (array) get_option( 'active_plugins', array() ) as $plugin ) {
-			if ( 0 === strpos( (string) $plugin, $slug . '/' ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Whether a REST route is registered.
 	 *
 	 * @param string $route Route path.
 	 * @return bool
 	 */
 	private function has_route( $route ) {
-		if ( ! did_action( 'rest_api_init' ) ) {
-			return false;
-		}
+		// Starting the REST server registers every route, also on admin pages.
 		return array_key_exists( $route, rest_get_server()->get_routes() );
 	}
 }
