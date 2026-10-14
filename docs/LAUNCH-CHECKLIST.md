@@ -26,6 +26,10 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] **Settings › Contact:** WhatsApp number and email shown on the website.
 - [ ] **Plans:** names, prices, periods and features; check the pricing page.
 - [ ] **Plans › card payments:** the prices clients pay by card for each plan.
+- [ ] **Team:** invite the rest of the team with the right role (admin,
+      support or viewer); only owners manage the team.
+- [ ] **Defaults for new apps** (Settings), **Switches**, **Website content**
+      and **Emails:** check each once and change what we want different.
 
 ## 3. Hosting and builds
 
@@ -50,3 +54,4 @@ devices. Everything else is in the code. Tick each line when it's done.
 | 8.4 | A Shopify development store (Storefront token, and an Admin API token for order history) |
 | 8.5 | A test account on each platform: ikas, Ticimax, IdeaSoft, Teachable (Growth plan), Thinkific (Grow plan), SimplyBook.me (API feature) |
 | 8.6, 9.4, 9.5 | An iyzico sandbox account, then the live account |
+| 10.5–10.7 | A WordPress test site and a Real estate test app built on the hosted API, to see published pages, languages and listings on a phone |
