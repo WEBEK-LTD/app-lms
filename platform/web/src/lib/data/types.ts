@@ -133,6 +133,8 @@ export interface HostedSettings {
   /** App store review access: this number signs in with `reviewCode`, no message sent. */
   reviewPhone: string | null;
   reviewCode: string | null;
+  /** 19 App store review access for email sign-in: this address signs in with `reviewCode`, no email sent. */
+  reviewEmail?: string | null;
   /**
    * 18 How people sign in, as the owner chose on App sign-in (hosted and
    * WordPress apps). Missing until they choose: phone on the hosted API, the
@@ -141,6 +143,24 @@ export interface HostedSettings {
   signInMethods?: SignInMethod[];
   /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
   whatsappSender?: AppWhatsappSender | null;
+  /**
+   * 19 When the owner's own WhatsApp number last failed to send a code (ISO
+   * time). Yallapp's sender sent that code instead; cleared when the owner
+   * saves a key, sends a test code that arrives, or goes back to Yallapp's number.
+   */
+  whatsappFailedAt?: string | null;
+  /** 19 Own API apps: how the API signs people in, as the last API check on the Website step found it. */
+  apiSignIn?: ApiSignInSnapshot | null;
+}
+
+/** 19 What an own API's `GET /config` advertised for sign-in at the last API check. */
+export interface ApiSignInSnapshot {
+  checkedAt: string;
+  /** The API address that was checked; shown only while it's the app's saved address. */
+  baseUrl: string;
+  methods: SignInMethod[];
+  emailSignIn: "code" | "password" | null;
+  previewSignIn: boolean;
 }
 
 export type SignInMethod = "phone" | "email";

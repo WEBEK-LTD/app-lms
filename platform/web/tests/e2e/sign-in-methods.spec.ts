@@ -114,4 +114,36 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
 
   // The rules are still there, and still saved separately.
   await expect(page.getByLabel("Devices per customer")).toHaveValue("2");
+
+  // 19 Email only: the store review email address signs in with the review code, and no email is sent.
+  await page.getByText("Email address", { exact: true }).click();
+  await page.getByRole("button", { name: "Save sign-in methods" }).click();
+  await expect(page.getByRole("status").first()).toContainText("Saved.");
+  expect((await config()).auth.methods).toEqual(["email"]);
+  await expect(page.getByText("Your app signs in by email only, so reviewers need the review email address.")).toBeVisible();
+  const reviewer = `review-${suffix}@shop.test`;
+  await page.getByLabel("Review email address").fill(reviewer);
+  await page.getByLabel("Review code").fill("246810");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("Saved. The app uses these rules now")).toBeVisible();
+  const review = await page.request.post(`${api}/auth/email/request`, { data: { email: reviewer } });
+  expect(review.status()).toBe(200);
+  const reviewed = await page.request.post(`${api}/auth/otp/verify`, {
+    data: { request_id: ((await review.json()) as { request_id: string }).request_id, code: "246810", device: { ...device, id: `review-${suffix}` } },
+  });
+  expect(((await reviewed.json()) as { signup_required?: boolean }).signup_required).toBe(true);
+  const dir = path.resolve(E2E.mailDir);
+  const sentTo = await Promise.all((await readdir(dir).catch(() => [] as string[])).map(async (f) => (JSON.parse(await readFile(path.join(dir, f), "utf8")) as { to: string }).to));
+  expect(sentTo).not.toContain(reviewer);
+
+  // 19 A connected platform signs in by phone only: the Website step warns about the customer who signed up by email.
+  await page.goto("/dashboard/setup?step=website");
+  await page.getByText("My Shopify store").click();
+  await expect(page.getByText("1 customer signed up with their email address.")).toBeVisible();
+  await page.getByRole("textbox", { name: "Your website" }).fill("https://lilac-shop.test");
+  await page.getByLabel("Your Shopify address").fill(`lilac-${suffix}.myshopify.com`);
+  await page.getByLabel("Storefront API access token").fill("shpat-e2e");
+  await page.getByRole("button", { name: "Save & continue" }).click();
+  await expect(page.getByText("Tick the box to switch anyway.")).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "I understand: switch, and sign in by phone only." })).toBeVisible();
 });

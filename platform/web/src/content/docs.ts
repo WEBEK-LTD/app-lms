@@ -762,13 +762,17 @@ Apps connected to Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific or Simp
 
 On WordPress, email sign-in is for people who already have an account on your website; new people sign up with their phone number or on your website. Your choice reaches your website at the plugin's next license check (within 12 hours), or at once with **Check now** in the Yallapp plugin. Until you choose here, the plugin's own **Sign-in** setting applies.
 
-Your store review number always signs in, also when the app signs in by email only.
+Your store review number always signs in, also when the app signs in by email only. When it signs in by email only, the app shows no phone field, so also set a store review email address (see below).
+
+If you change where your app's content comes from to Shopify or another connected platform, the app signs in by phone only. The **Website** step warns you first when customers signed up with their email address: they can't sign in after the change.
 
 ## The WhatsApp number that sends codes
 
 Codes go out from Yallapp's WhatsApp number, with your app's name. To send them from your own WhatsApp number instead, open a WABEK account at waabek.com, connect your number there, then on **App sign-in** paste your WABEK **API key** and the **Instance ID** of that number, and select **Send a test code**. The key is stored encrypted and never shown again. **Use Yallapp's number again** goes back to ours.
 
 On WordPress, this applies when the plugin's **Sign-in codes are sent by** setting is **Sent by Yallapp (WhatsApp)**.
+
+If your number can't send a code (WABEK doesn't answer, or the number is disconnected), that code goes out from Yallapp's number instead, so your customers still get it. We email you, at most once a day, and **App sign-in** shows the day it happened until you save a new key or a test code goes out.
 
 ## How a phone sign-in works
 
@@ -790,13 +794,15 @@ For apps without a website, or connected to another platform, the rules are on t
 - **Country code** shown first on the sign-in screen, like 90 for Turkey
 - **Devices per customer**: a customer at the limit signs out on another device first; 0 means no limit
 - **Support WhatsApp** shown in the app, and your **Terms page**
-- **App store review**: a review phone number and a fixed review code for Apple and Google (see below)
+- **App store review**: a review phone number, a review email address and a fixed review code for Apple and Google (see below)
 
 Changes apply right away, without a new build. On WordPress, the same rules are in the Yallapp plugin's **Sign-in** settings.
 
 ## Access for store reviewers
 
-Apple and Google reviewers must be able to sign in, and they can't receive your codes. Set a review phone number and a fixed code, and give both to the stores: under **App access** in Google Play Console, and under **App Review Information** in App Store Connect. Without it, your app may be rejected.
+Apple and Google reviewers must be able to sign in, and they can't receive your codes. Set a review phone number and a fixed code, and give both to the stores: under **App access** in Google Play Console, and under **App Review Information** in App Store Connect. Without it, your app may be rejected. When your app signs in by email only, set a review email address too and give the stores that address with the code: the app shows them no phone field. No email or message is sent to either. Add them to **For the store reviewers** on **Publishing** when our team publishes for you.
+
+On WordPress, the same is in the plugin's **Store review access** settings: a test number, a test email address and a fixed code. With email sign-in, reviewers type the test email address and the fixed code as the password. Use an address that isn't one of your staff's accounts.
 
 ## Deleting an account
 

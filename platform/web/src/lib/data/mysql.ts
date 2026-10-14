@@ -821,6 +821,16 @@ export class MysqlStore implements DataStore {
     return rows[0]?.n ?? 0;
   }
 
+  async countHostedEmailOnlyUsers(appId: string): Promise<number> {
+    const rows = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(schema.hostedUsers)
+        .where(and(eq(schema.hostedUsers.appId, appId), isNull(schema.hostedUsers.phone))),
+    );
+    return rows[0]?.n ?? 0;
+  }
+
   // Catalog
 
   async listCatalogCategories(appId: string): Promise<CatalogCategory[]> {

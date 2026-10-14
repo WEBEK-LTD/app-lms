@@ -1,6 +1,7 @@
 import { hmacSha256 } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { senderWithFallback } from "../hosted/app-sender";
 import type { OtpSender } from "../hosted/otp-sender";
 import { parseAnyPhone, type Phone } from "../hosted/phone";
 import { hitRateLimit, RATE_LIMITS, rateLimitHits, type RateLimitRule } from "../rate-limit";
@@ -72,6 +73,8 @@ export interface SignInCodeDeps {
   sender: OtpSender | null;
   /** The app owner's own WhatsApp number (App sign-in page), used instead when it has one. */
   appSender?: (app: App) => OtpSender | null;
+  /** 19 The owner's own number failed (Yallapp's sender then sent the code): keep it on the app and tell the owner. */
+  onAppSenderFailed?: (app: App) => Promise<void>;
   /** Keys the phone number's hash in the rate-limit counters. */
   secret: string;
   now: Date;
@@ -110,13 +113,17 @@ export async function sendSignInCode(store: DataStore, request: SignInCodeReques
   }
 
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  const sender = (app && deps.appSender?.(app)) || deps.sender;
+  // 19 The owner's own number first; when it fails, Yallapp's sender sends the code once more.
+  const sender = senderWithFallback((app && deps.appSender?.(app)) || null, deps.sender, async () => {
+    if (app) await deps.onAppSenderFailed?.(app);
+  });
   if (!sender) return fail(502, "provider_error", "Sign-in codes can't be sent right now. Try again later.");
   const appName = app?.appName?.trim() || request.appName || "Yallapp";
   try {
     await sender.send({ phone: request.phone.e164, code: request.code, appName, expiresInSeconds: SIGN_IN_CODE_TTL_SECONDS });
-  } catch {
-    // The sender's error can hold the provider's answer, never the code; nothing is logged here.
+  } catch (e) {
+    // 19 The provider's answer is logged (it never holds the code); the number and the code aren't.
+    console.error(`[sign-in codes] code not sent for license ${license.id}: ${(e instanceof Error ? e.message : String(e)).slice(0, 300)}`);
     return fail(502, "provider_error", "The sign-in code couldn't be sent. Try again.");
   }
   await hitRateLimit(store, RATE_LIMITS.signInCodesSent, license.id, now);

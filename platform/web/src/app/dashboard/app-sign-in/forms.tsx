@@ -162,7 +162,7 @@ export function AppWhatsappForms({
   );
 }
 
-export function AppSignInForm({ current }: { current: Record<string, string> }) {
+export function AppSignInForm({ current, emailOnly = false }: { current: Record<string, string>; emailOnly?: boolean }) {
   const [state, action] = useActionState(saveAppSignInAction, initialFormState);
   const v = state.values ?? current;
   const e = state.errors ?? {};
@@ -213,10 +213,21 @@ export function AppSignInForm({ current }: { current: Record<string, string> }) 
       <fieldset className="m-0 flex flex-col gap-4 border-0 p-0">
         <legend className="mb-1.5 text-[17px] font-bold">App store review</legend>
         <p className="m-0 text-sm leading-relaxed text-muted">
-          Apple and Google sign in to check the app before it goes live. This number signs in with this code; no message is sent.
+          Apple and Google sign in to check the app before it goes live. This number and this email address sign in with this code; no
+          message is sent. {emailOnly ? "Your app signs in by email only, so reviewers need the review email address." : "Set the email address when your app offers email sign-in."}{" "}
+          Give them to the stores with your notes for the reviewers on Publishing.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Review phone number" name="reviewPhone" type="tel" defaultValue={v.reviewPhone} error={e.reviewPhone} />
+          <Field
+            label="Review email address"
+            name="reviewEmail"
+            type="email"
+            autoComplete="off"
+            defaultValue={v.reviewEmail}
+            placeholder="review@your-site.com"
+            error={e.reviewEmail}
+          />
           <Field label="Review code" name="reviewCode" inputMode="numeric" autoComplete="off" maxLength={6} defaultValue={v.reviewCode} error={e.reviewCode} />
         </div>
       </fieldset>

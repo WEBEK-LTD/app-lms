@@ -404,6 +404,7 @@ describe("App sign-in form", () => {
         supportWhatsapp: "+905321234567",
         termsUrl: "https://shop.test/terms",
         reviewPhone: "+905550000001",
+        reviewEmail: null,
         reviewCode: "246810",
       },
     });
@@ -424,7 +425,7 @@ describe("App sign-in form", () => {
       expect(Object.keys(parsed.errors).sort()).toEqual(["defaultCountryCode", "deviceLimit", "reviewCode", "reviewPhone", "supportWhatsapp", "termsUrl"]);
     }
     const noPhone = parseHostedSettingsForm({ ...base, reviewPhone: "" });
-    expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number reviewers sign in with, or clear the code.");
+    expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number or email address reviewers sign in with, or clear the code.");
     const off = parseHostedSettingsForm({ ...base, reviewPhone: "", reviewCode: "", supportWhatsapp: "", termsUrl: "", signupAllowed: "" });
     expect(off.ok && off.value).toMatchObject({ signupAllowed: false, reviewPhone: null, reviewCode: null, supportWhatsapp: null, termsUrl: null });
   });

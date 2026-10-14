@@ -19,12 +19,13 @@ import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
+import { emailOffWarning, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
 import { sendTemplate } from "@/lib/email/send";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
@@ -245,6 +246,17 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
     revalidatePath("/dashboard", "layout");
     return afterStep(context, "website");
   }
+  // 19 A connected platform signs in by phone only: customers who signed up by email couldn't sign in any more.
+  if ((data.backend === "shopify" || data.backend === "platform") && formData.get("confirmEmailOff") !== "on") {
+    const atRisk = await emailOnlyUsersAtRisk(store, context.app);
+    if (atRisk > 0) {
+      const secrets = data.backend === "platform" ? (platformDefinition(data.platform)?.fields.filter((f) => f.secret).map((f) => `p_${f.name}`) ?? []) : [];
+      return {
+        errors: { confirmEmailOff: emailOffWarning(atRisk) + " Tick the box to switch anyway." },
+        values: formValues(formData, ["storefrontToken", "adminToken", ...secrets]),
+      };
+    }
+  }
   if (data.backend === "shopify") {
     const result = await connectShopify(context.app, data);
     if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken", "adminToken"]) };
@@ -399,7 +411,14 @@ export async function checkApiAction(_: ApiCheckState, formData: FormData): Prom
   if (!limited.allowed) return { result: null, error: "Too many checks. Try again in a few minutes." };
   const address = String(formData.get("apiBaseUrl") ?? "").trim();
   if (!address) return { result: null, error: "Enter your API's address first." };
-  return { result: await checkApi(address, context.app.appType) };
+  const result = await checkApi(address, context.app.appType);
+  // 19 Kept for App sign-in, which shows how the API signs people in.
+  if (result.signIn) {
+    const now = new Date();
+    const apiSignIn = { checkedAt: now.toISOString(), baseUrl: address.replace(/\/+$/, ""), ...result.signIn };
+    await (await getStore()).updateApp(context.app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(context.app.hostedSettings ?? {}), apiSignIn } }, now);
+  }
+  return { result };
 }
 
 export async function saveBrandingAction(_: FormState, formData: FormData): Promise<FormState> {

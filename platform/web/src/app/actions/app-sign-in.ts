@@ -17,7 +17,7 @@ import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
 import { emailSignInPossible, parseSignInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
-const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "deviceLimit", "supportWhatsapp", "termsUrl", "reviewPhone", "reviewCode"];
+const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "deviceLimit", "supportWhatsapp", "termsUrl", "reviewPhone", "reviewEmail", "reviewCode"];
 
 /** 18 App sign-in is for apps on the hosted API and WordPress apps (the methods and the WhatsApp number). */
 async function signInContext(hostedOnly = false) {
@@ -92,7 +92,7 @@ export async function saveAppWhatsappAction(_: FormState, formData: FormData): P
   if (!parsed.ok) return { errors: parsed.errors, values: { instanceId: instance } };
   const store = await getStore();
   const sender = appWhatsappSender(app.id, parsed.apiKey, parsed.instanceId, encryptionKey(), new Date());
-  const next = withSettings(app, { whatsappSender: sender });
+  const next = withSettings(app, { whatsappSender: sender, whatsappFailedAt: null });
   await store.updateApp(app.id, { hostedSettings: next }, new Date());
   await recordStaffChange(context, "Connected the app's own WhatsApp number", auditable(app.hostedSettings), auditable(next));
   revalidatePath("/dashboard/app-sign-in");
@@ -103,7 +103,7 @@ export async function saveAppWhatsappAction(_: FormState, formData: FormData): P
 export async function removeAppWhatsappAction(): Promise<void> {
   const { context, app } = await signInContext();
   const store = await getStore();
-  const next = withSettings(app, { whatsappSender: null });
+  const next = withSettings(app, { whatsappSender: null, whatsappFailedAt: null });
   await store.updateApp(app.id, { hostedSettings: next }, new Date());
   await recordStaffChange(context, "Removed the app's own WhatsApp number", auditable(app.hostedSettings), auditable(next));
   revalidatePath("/dashboard/app-sign-in");
@@ -128,5 +128,10 @@ export async function testAppWhatsappAction(_: FormState, formData: FormData): P
     return { ok: false, message: `The test code wasn't sent: ${reason} Check the API key and the instance ID in your WABEK account.`, values: { phone: raw } };
   }
   await recordStaffChange(context, "Sent a test code from the app's own WhatsApp number");
+  // 19 The number works again: the warning about its last failure goes away.
+  if (app.hostedSettings?.whatsappFailedAt) {
+    await store.updateApp(app.id, { hostedSettings: withSettings(app, { whatsappFailedAt: null }) }, new Date());
+    revalidatePath("/dashboard/app-sign-in");
+  }
   return { ok: true, message: `A test code was sent to ${phone.e164} from your WhatsApp number. If it arrived, your app's codes go out from it.`, values: { phone: raw } };
 }
