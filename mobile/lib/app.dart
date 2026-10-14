@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/gate/app_gate.dart';
@@ -10,6 +11,7 @@ import 'core/routing/app_router.dart';
 import 'core/services/push_registration.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
+import 'core/theme/app_theme.dart';
 
 /// The app root: theme from the build and runtime config, routing, and the
 /// start-up gate.
@@ -40,7 +42,12 @@ class YallappApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: router,
-      builder: (context, child) => GateView(child: child ?? const SizedBox()),
+      // Status bar icons follow the theme; screens with a colored top
+      // (the Bold header) set their own.
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: overlayStyleOn(Theme.of(context).scaffoldBackgroundColor),
+        child: GateView(child: child ?? const SizedBox()),
+      ),
     );
   }
 }

@@ -39,6 +39,7 @@ mobile/
       shared/pages/          dashboard pages from /pages: one renderer for
                              every block in every template
   test/                      unit and widget tests with a fake API
+    screenshots/             the website's screenshots (tool/screenshots.sh)
   android/, ios/             platform projects (screen capture channels in
                              MainActivity.kt and AppDelegate.swift)
 ```
@@ -94,6 +95,16 @@ flutter test
 flutter build apk --debug
 ```
 
+## Website screenshots
+
+`tool/screenshots.sh` renders real screens of the app with demo content
+(an academy, a flower shop, a beauty studio and an estate agency) through
+the fake API, with the bundled fonts and Material Symbols, and writes them
+to `platform/web/public/screens/` (1080 x 2340 PNG). Pictures in the demo
+content are drawn in the test (`test/screenshots/support/demo_images.dart`),
+so nothing is downloaded. `tool/screenshots.sh --check` compares instead of
+writing. The normal `flutter test` run skips these tests.
+
 ## Rules this app follows
 
 - Every interface string lives in `lib/l10n/app_en.arb` (English, the
@@ -102,11 +113,16 @@ flutter build apk --debug
   comes from Settings, else the device, else `Config.languages.default`, and
   is sent as `Accept-Language`. Arabic is right to left: use
   `EdgeInsetsDirectional`, `AlignmentDirectional` and `PositionedDirectional`
-  where a side matters.
+  where a side matters. The template fonts are Latin only; Arabic letters
+  come from the bundled Readex Pro (`fontFallback` in the theme), so they
+  look the same on every phone. Phone numbers are shown left to right
+  (`formatPhone`, `ltrIsolate`).
 - Icons are Google Material Symbols, Rounded style only (`AppIcons`).
 - No imagery or wording that suggests AI.
 - iOS never shows a purchase button for paid courses and never requests
   `/auth/checkout-link`, whatever the server sends. Free enrollment works on
   both platforms.
 - Icon buttons have screen reader labels and touch targets of at least
-  44 points.
+  48 points (`TapTarget`), also where they look smaller.
+- Lists show skeletons (`SkeletonList`, `SkeletonHome`, `SkeletonDetail`)
+  while they load, not a bare spinner.

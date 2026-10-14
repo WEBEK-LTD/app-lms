@@ -50,7 +50,11 @@ class PageScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _ => LoadingView(label: context.l10n.loadingPage),
+          _ => SkeletonList(
+            layout: SkeletonLayout.media,
+            count: 3,
+            label: context.l10n.loadingPage,
+          ),
         },
       ),
     );

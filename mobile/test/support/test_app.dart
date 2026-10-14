@@ -64,6 +64,7 @@ class TestApp {
     this.guest = false,
     this.framingAllowed = true,
     this.preferences = const {},
+    this.wrap,
   }) : api = api ?? FakeApi();
 
   final FakeApi api;
@@ -76,6 +77,9 @@ class TestApp {
 
   /// Extra SharedPreferences values (for example 'settings.theme_mode').
   final Map<String, Object> preferences;
+
+  /// Puts widgets around the app (the website screenshots add a status bar).
+  final Widget Function(Widget app)? wrap;
   final webViews = WebViewLog();
   final security = FakeScreenSecurity();
   late final MemoryTokenStore tokens;
@@ -117,12 +121,11 @@ class TestApp {
     ];
     container = ProviderContainer(overrides: overrides, retry: (_, _) => null);
     addTearDown(container.dispose);
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const YallappApp(),
-      ),
+    final app = UncontrolledProviderScope(
+      container: container,
+      child: const YallappApp(),
     );
+    await tester.pumpWidget(wrap == null ? app : wrap!(app));
     await settle(tester);
   }
 

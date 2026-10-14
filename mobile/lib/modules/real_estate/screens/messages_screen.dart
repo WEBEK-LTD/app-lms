@@ -72,7 +72,10 @@ class _Conversations extends ConsumerWidget {
 
     final Widget body;
     if (state.isInitialLoading) {
-      body = LoadingView(label: l10n.loadingMessages);
+      body = SkeletonList(
+        layout: SkeletonLayout.text,
+        label: l10n.loadingMessages,
+      );
     } else if (error != null && state.items.isEmpty) {
       body = ListView(
         children: [
@@ -204,7 +207,7 @@ class _ConversationRow extends StatelessWidget {
                           Badge(
                             label: Text(unread > 99 ? '99+' : '$unread'),
                             backgroundColor: p.accent,
-                            textColor: Colors.white,
+                            textColor: p.onAccent,
                           ),
                         ],
                       ],

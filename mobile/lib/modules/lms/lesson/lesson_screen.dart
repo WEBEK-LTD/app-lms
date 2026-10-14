@@ -332,7 +332,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             Expanded(
               child: ListView(
                 key: const ValueKey('lesson-article'),
-                padding: const EdgeInsets.all(20),
+                padding: readablePadding(context, top: 20, bottom: 20),
                 children: [
                   Semantics(
                     header: true,

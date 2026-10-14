@@ -5,7 +5,34 @@ import '../theme/app_theme.dart';
 import '../theme/palette.dart';
 import '../l10n/l10n.dart';
 
-/// The 44 x 44 square icon button from the designs (back, close, wishlist).
+/// The smallest area a finger can reliably hit (Material: 48 x 48).
+const minTapTarget = 48.0;
+
+/// Makes [child] at least [minTapTarget] square for taps without changing
+/// how big it looks: taps just outside it still reach [onTap].
+class TapTarget extends StatelessWidget {
+  const TapTarget({super.key, required this.child, required this.onTap});
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    excludeFromSemantics: true,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: minTapTarget,
+        minHeight: minTapTarget,
+      ),
+      child: Center(widthFactor: 1, heightFactor: 1, child: child),
+    ),
+  );
+}
+
+/// The 44 x 44 square icon button from the designs (back, close, wishlist),
+/// inside a 48 x 48 tap target. Dims its icon when disabled.
 class SquareIconButton extends StatelessWidget {
   const SquareIconButton({
     super.key,
@@ -42,46 +69,52 @@ class SquareIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final bg = background ?? p.surface;
+    final enabled = onPressed != null;
+    final fg = foreground ?? p.text;
     return Semantics(
       button: true,
       label: label,
-      enabled: onPressed != null,
+      enabled: enabled,
       excludeSemantics: true,
-      child: Material(
-        color: bg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius),
-          side: bordered ? BorderSide(color: p.border) : BorderSide.none,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onPressed,
-          child: SizedBox(
-            width: size < 44 ? 44 : size,
-            height: size < 44 ? 44 : size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AppIcon(
-                  icon,
-                  size: iconSize,
-                  color: foreground ?? p.text,
-                  filled: filled,
-                ),
-                if (badge)
-                  PositionedDirectional(
-                    top: 9,
-                    end: 10,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: p.accent,
-                        shape: BoxShape.circle,
+      child: TapTarget(
+        onTap: onPressed,
+        child: Material(
+          color: bg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius),
+            side: bordered ? BorderSide(color: p.border) : BorderSide.none,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPressed,
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  AppIcon(
+                    icon,
+                    size: iconSize,
+                    color: enabled ? fg : fg.withValues(alpha: 0.35),
+                    filled: filled,
+                  ),
+                  if (badge)
+                    PositionedDirectional(
+                      top: size * 0.2,
+                      end: size * 0.22,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: p.accent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: bg, width: 1.5),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -111,6 +144,24 @@ class AppBackButton extends StatelessWidget {
   }
 }
 
+/// The width of an app bar's leading slot holding [AppBackButton], so the
+/// button lines up with the page's 20 point margin.
+const backLeadingWidth = 70.0;
+
+/// [AppBackButton] for `AppBar.leading` (with [backLeadingWidth]).
+class AppBarBackButton extends StatelessWidget {
+  const AppBarBackButton({super.key});
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsetsDirectional.only(start: 18),
+    child: Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: AppBackButton(),
+    ),
+  );
+}
+
 /// The full-width primary button (Midnight with white text by default).
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -131,6 +182,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final fg = onPressed == null && !loading ? p.textTertiary : p.onPrimary;
     final child = loading
         ? SizedBox(
             width: 22,
@@ -145,17 +197,20 @@ class PrimaryButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                AppIcon(icon!, size: 20, color: p.onPrimary),
+                AppIcon(icon!, size: 20, color: fg),
                 const SizedBox(width: 8),
               ],
               Flexible(
                 child: Text(
                   label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: p.onPrimary,
+                    height: 1.2,
+                    color: fg,
                   ),
                 ),
               ),
@@ -165,9 +220,8 @@ class PrimaryButton extends StatelessWidget {
       onPressed: loading ? null : onPressed,
       style: FilledButton.styleFrom(
         minimumSize: Size.fromHeight(height),
-        disabledBackgroundColor: loading
-            ? p.primary
-            : p.primary.withValues(alpha: 0.4),
+        disabledBackgroundColor: loading ? p.primary : p.segment,
+        disabledForegroundColor: p.textTertiary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(context.shapes.button),
         ),
@@ -205,16 +259,29 @@ class SecondaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(context.shapes.button),
         ),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        // From the theme so the button keeps the app's font.
+        textStyle: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(fontSize: 16, height: 1.2),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            AppIcon(icon!, size: 18, color: p.text),
+            AppIcon(
+              icon!,
+              size: 18,
+              color: onPressed == null ? p.textTertiary : p.text,
+            ),
             const SizedBox(width: 6),
           ],
-          Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -251,7 +318,12 @@ class StepIconButton extends StatelessWidget {
   }
 }
 
-/// A pill-shaped filter chip (All / Free / Paid / Newest, categories).
+/// The height of a horizontal row of [PillChip]s (48 at normal text size).
+double chipRowHeight(BuildContext context) =>
+    34 + MediaQuery.textScalerOf(context).scale(14);
+
+/// A pill-shaped filter chip (All / Free / Paid / Newest, categories): 40
+/// high inside a 48 high tap target.
 class PillChip extends StatelessWidget {
   const PillChip({
     super.key,
@@ -272,26 +344,29 @@ class PillChip extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      child: Material(
-        color: selected ? p.primary : p.surface,
-        shape: StadiumBorder(
-          side: selected ? BorderSide.none : BorderSide(color: p.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: height < 44 ? 44 : height),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                widthFactor: 1,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    color: selected ? p.onPrimary : p.text,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Material(
+          color: selected ? p.primary : p.surface,
+          shape: StadiumBorder(
+            side: selected ? BorderSide.none : BorderSide(color: p.border),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: height, minWidth: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Center(
+                  widthFactor: 1,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      color: selected ? p.onPrimary : p.text,
+                    ),
                   ),
                 ),
               ),
@@ -304,6 +379,8 @@ class PillChip extends StatelessWidget {
 }
 
 /// The three-way segmented control from the designs (tabs, appearance).
+/// Each segment is 44 high, with the control's padding 52: taps on the
+/// padding count for the nearest segment.
 class SegmentedTabs extends StatelessWidget {
   const SegmentedTabs({
     super.key,
@@ -325,16 +402,14 @@ class SegmentedTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Container(
-      padding: const EdgeInsets.all(4),
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: p.segment,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.shapes.r(12)),
       ),
       child: Row(
         children: [
-          for (var i = 0; i < labels.length; i++) ...[
-            if (i > 0) const SizedBox(width: 4),
+          for (var i = 0; i < labels.length; i++)
             Expanded(
               child: Semantics(
                 selected: i == selected,
@@ -344,25 +419,64 @@ class SegmentedTabs extends StatelessWidget {
                     ? labels[i]
                     : context.l10n.tabPosition(labels[i], i + 1, labels.length),
                 excludeSemantics: true,
-                child: Material(
-                  color: i == selected ? p.surface : Colors.transparent,
-                  borderRadius: BorderRadius.circular(9),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(9),
-                    onTap: () => onChanged(i),
-                    child: SizedBox(
-                      height: height,
-                      child: Center(
-                        child: Text(
-                          labels[i],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: i == selected
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                            color: i == selected ? p.text : p.textSecondary,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onChanged(i),
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      i == 0 ? 4 : 2,
+                      4,
+                      i == labels.length - 1 ? 4 : 2,
+                      4,
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOut,
+                      decoration: BoxDecoration(
+                        color: i == selected ? p.surface : Colors.transparent,
+                        borderRadius: BorderRadius.circular(
+                          context.shapes.r(9),
+                        ),
+                        boxShadow: i == selected && !p.isDark
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x140E0D24),
+                                  blurRadius: 3,
+                                  offset: Offset(0, 1),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(
+                            context.shapes.r(9),
+                          ),
+                          onTap: () => onChanged(i),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: height),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                child: Text(
+                                  labels[i],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: i == selected
+                                        ? FontWeight.w700
+                                        : FontWeight.w400,
+                                    color: i == selected
+                                        ? p.text
+                                        : p.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -371,7 +485,6 @@ class SegmentedTabs extends StatelessWidget {
                 ),
               ),
             ),
-          ],
         ],
       ),
     );
@@ -397,7 +510,18 @@ class BottomActionBar extends StatelessWidget {
         color: p.surface,
         border: Border(top: BorderSide(color: p.border)),
       ),
-      child: SafeArea(top: false, minimum: padding, child: child),
+      child: SafeArea(
+        top: false,
+        minimum: padding,
+        // As wide as the page's text on a tablet (readableWidth).
+        child: Align(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }

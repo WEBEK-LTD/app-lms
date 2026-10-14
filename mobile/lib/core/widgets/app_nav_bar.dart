@@ -96,7 +96,7 @@ class AppNavBar extends StatelessWidget {
       return Badge(
         label: Text(count > 99 ? '99+' : '$count'),
         backgroundColor: p.accent,
-        textColor: Colors.white,
+        textColor: p.onAccent,
         child: glyph,
       );
     }
@@ -141,8 +141,22 @@ class AppNavBar extends StatelessWidget {
         content = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            icon(minimal ? 22 : 24, color, filled: selected),
-            const SizedBox(height: 4),
+            if (minimal)
+              icon(22, color, filled: selected)
+            else
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                width: 56,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: selected ? p.accentSoft : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: icon(24, color, filled: selected),
+              ),
+            SizedBox(height: minimal ? 4 : 0),
             Text(
               d.label,
               maxLines: 1,

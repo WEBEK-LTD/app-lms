@@ -223,11 +223,20 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
         },
       );
     } else if (_loading || _controller == null) {
-      video = Center(
-        child: CircularProgressIndicator(
-          color: Colors.white,
-          semanticsLabel: context.l10n.loadingVideo,
-        ),
+      // The poster, dimmed, while the video gets ready.
+      final poster = widget.video.posterUrl;
+      video = Stack(
+        fit: StackFit.expand,
+        children: [
+          if (poster != null && poster.isNotEmpty)
+            Opacity(opacity: 0.55, child: AppNetworkImage(url: poster)),
+          Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              semanticsLabel: context.l10n.loadingVideo,
+            ),
+          ),
+        ],
       );
     } else {
       video = _NativeVideo(

@@ -50,7 +50,7 @@ class ListingScreen extends ConsumerWidget {
             ],
           ),
         ),
-        _ => LoadingView(label: context.l10n.loadingListing),
+        _ => SkeletonDetail(label: context.l10n.loadingListing),
       },
     );
   }
@@ -115,7 +115,7 @@ class _ListingBody extends ConsumerWidget {
               children: [
                 _Gallery(listing: listing),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+                  padding: readablePadding(context, top: 18, bottom: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -381,6 +381,7 @@ class _GalleryState extends State<_Gallery> {
                 ),
               ),
             ),
+          const HeroScrim(),
           PositionedDirectional(
             top: top + 8,
             start: 16,

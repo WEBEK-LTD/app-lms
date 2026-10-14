@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _ => LoadingView(label: context.l10n.loadingHome),
+          _ => SkeletonHome(label: context.l10n.loadingHome),
         },
       ),
     );
@@ -252,7 +253,7 @@ class _CategoryChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: chipRowHeight(context),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -396,57 +397,60 @@ class _BoldHome extends ConsumerWidget {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: p.primary,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(28),
+        AnnotatedRegion<SystemUiOverlayStyle>(
+          value: overlayStyleOn(p.primary),
+          child: Container(
+            decoration: BoxDecoration(
+              color: p.primary,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(28),
+              ),
             ),
-          ),
-          padding: EdgeInsets.fromLTRB(
-            20,
-            MediaQuery.paddingOf(context).top + 24,
-            20,
-            26,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.l10n.welcomeBack,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: p.onPrimary.withValues(alpha: 0.78),
-                          ),
-                        ),
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            _displayName(ref),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+            padding: EdgeInsets.fromLTRB(
+              20,
+              MediaQuery.paddingOf(context).top + 24,
+              20,
+              26,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.l10n.welcomeBack,
                             style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              color: p.onPrimary,
+                              fontSize: 14,
+                              color: p.onPrimary.withValues(alpha: 0.78),
                             ),
                           ),
-                        ),
-                      ],
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              _displayName(ref),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: p.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const _NotificationsButton(style: _ButtonStyle.onPrimary),
-                ],
-              ),
-              const SizedBox(height: 18),
-              _SearchBar(label: context.l10n.whatToLearn, pill: true),
-            ],
+                    const _NotificationsButton(style: _ButtonStyle.onPrimary),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                _SearchBar(label: context.l10n.whatToLearn, pill: true),
+              ],
+            ),
           ),
         ),
         Padding(
@@ -690,7 +694,9 @@ class _CourseQueryList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(coursesProvider(query));
-    if (state.isInitialLoading) return const LoadingView();
+    if (state.isInitialLoading) {
+      return const SkeletonList(count: 4, padding: EdgeInsets.zero);
+    }
     if (state.error != null && state.items.isEmpty) {
       return ErrorView(
         error: state.error!,
@@ -771,7 +777,11 @@ class _CategoryRows extends ConsumerWidget {
         error: error,
         onRetry: () => ref.invalidate(categoriesProvider),
       ),
-      _ => const LoadingView(),
+      _ => const SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 4,
+        padding: EdgeInsets.zero,
+      ),
     };
   }
 }

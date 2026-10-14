@@ -11,6 +11,7 @@ import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
@@ -277,33 +278,45 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            context.l10n.subtotal,
+                    const SizedBox(height: 16),
+                    AppCard(
+                      color: p.surfaceMuted,
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  context.l10n.subtotal,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: p.text,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                value?.subtotal ?? '…',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: p.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            context.l10n.deliveryAndTaxes,
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: p.text,
+                              fontSize: 13,
+                              color: p.textSecondary,
                             ),
                           ),
-                        ),
-                        Text(
-                          value?.subtotal ?? '…',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: p.text,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.l10n.deliveryAndTaxes,
-                      style: TextStyle(fontSize: 13, color: p.textSecondary),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -364,9 +377,9 @@ class _LineCard extends ConsumerWidget {
           AppNetworkImage(
             url: quoted?.imageUrl ?? item.imageUrl,
             seed: item.productId,
-            width: 76,
-            height: 76,
-            radius: 12,
+            width: 84,
+            height: 84,
+            radius: context.shapes.r(12),
             placeholderIcon: AppIcons.shop,
           ),
           const SizedBox(width: 12),
@@ -415,29 +428,52 @@ class _LineCard extends ConsumerWidget {
                     ),
                   ),
                 ],
-                const SizedBox(height: 6),
-                Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    QuantityControl(
+                const SizedBox(height: 4),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final stepper = QuantityControl(
                       quantity: item.quantity,
                       max: max < item.quantity ? item.quantity : max,
                       compact: true,
                       onChanged: (q) => cart.setQuantity(item.key, q),
-                    ),
-                    if (quoted != null && quoted.available)
-                      Text(
-                        quoted.lineTotal,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: p.text,
-                        ),
-                      ),
-                  ],
+                    );
+                    final total = quoted != null && quoted.available
+                        ? Text(
+                            quoted.lineTotal,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: p.text,
+                            ),
+                          )
+                        : null;
+                    // The total goes under the stepper on narrow phones.
+                    final room = MediaQuery.textScalerOf(context).scale(56);
+                    if (total == null ||
+                        constraints.maxWidth >= 136 + 8 + room) {
+                      return Row(
+                        children: [
+                          stepper,
+                          const SizedBox(width: 8),
+                          if (total != null)
+                            Expanded(
+                              child: Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: total,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [stepper, const SizedBox(height: 4), total],
+                    );
+                  },
                 ),
               ],
             ),

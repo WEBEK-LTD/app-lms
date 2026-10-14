@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 import '../api/api_exception.dart';
 import '../api/models/models.dart';
@@ -9,6 +10,7 @@ import 'buttons.dart';
 import '../l10n/l10n.dart';
 
 /// A network image with a soft tinted placeholder while loading or missing.
+/// The picture fades in once it arrives.
 class AppNetworkImage extends StatelessWidget {
   const AppNetworkImage({
     super.key,
@@ -29,19 +31,17 @@ class AppNetworkImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final String? semanticLabel;
+
+  /// Drawn on the placeholder; a picture icon by default.
   final IconData? placeholderIcon;
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    final placeholder = Container(
+    final placeholder = _ImagePlaceholder(
       width: width,
       height: height,
-      color: p.placeholderFor(seed),
-      alignment: Alignment.center,
-      child: placeholderIcon == null
-          ? null
-          : AppIcon(placeholderIcon!, size: 28, color: p.textSecondary),
+      seed: seed,
+      icon: placeholderIcon ?? AppIcons.image,
     );
     final image = (url == null || url!.isEmpty)
         ? placeholder
@@ -53,13 +53,186 @@ class AppNetworkImage extends StatelessWidget {
             semanticLabel: semanticLabel,
             excludeFromSemantics: semanticLabel == null,
             gaplessPlayback: true,
-            frameBuilder: (context, child, frame, sync) =>
-                frame == null && !sync ? placeholder : child,
+            frameBuilder: (context, child, frame, sync) {
+              if (sync) return child;
+              return Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  placeholder,
+                  AnimatedOpacity(
+                    opacity: frame == null ? 0 : 1,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    child: child,
+                  ),
+                ],
+              );
+            },
             errorBuilder: (_, _, _) => placeholder,
           );
     if (radius == 0) return image;
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }
+}
+
+/// A soft tint with a quiet icon, scaled to the space it fills.
+class _ImagePlaceholder extends StatelessWidget {
+  const _ImagePlaceholder({
+    required this.width,
+    required this.height,
+    required this.seed,
+    required this.icon,
+  });
+
+  final double? width;
+  final double? height;
+  final int seed;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final tint = p.placeholderFor(seed);
+    return SizedBox(
+      width: width,
+      height: height,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
+            colors: [Color.lerp(tint, p.surface, p.isDark ? 0.1 : 0.35)!, tint],
+          ),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final side = constraints.biggest.shortestSide;
+            if (!side.isFinite || side < 40) {
+              // Fills a bounded space, like an empty Container.
+              return const LimitedBox(
+                maxWidth: 0,
+                maxHeight: 0,
+                child: SizedBox.expand(),
+              );
+            }
+            return Center(
+              child: AppIcon(
+                icon,
+                size: (side * 0.32).clamp(18.0, 44.0),
+                color: p.textSecondary.withValues(alpha: 0.45),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// A round picture of a person, or their initials on a soft tint.
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar({
+    super.key,
+    required this.name,
+    this.imageUrl,
+    this.size = 36,
+  });
+
+  final String name;
+  final String? imageUrl;
+  final double size;
+
+  /// "Deniz Kaya" → "DK", "Ayşe" → "A".
+  static String initialsOf(String name) {
+    final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    if (words.isEmpty) return '?';
+    final first = words.first.characters.first;
+    final last = words.length > 1 ? words.last.characters.first : '';
+    return (first + last).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return ClipOval(
+        child: AppNetworkImage(
+          url: imageUrl,
+          seed: name.length,
+          width: size,
+          height: size,
+        ),
+      );
+    }
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: p.placeholderFor(name.length),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initialsOf(name),
+        maxLines: 1,
+        style: TextStyle(
+          fontSize: size * 0.38,
+          fontWeight: FontWeight.w700,
+          height: 1,
+          color: p.text,
+        ),
+      ),
+    );
+  }
+}
+
+/// The widest a column of text and cards gets on a tablet.
+const readableWidth = 720.0;
+
+/// Page padding that keeps content [readableWidth] wide and centered on a
+/// tablet, with the usual 20 point margins on a phone.
+EdgeInsets readablePadding(
+  BuildContext context, {
+  double top = 0,
+  double bottom = 0,
+  double side = 20,
+}) {
+  final width = MediaQuery.sizeOf(context).width;
+  final x = width > readableWidth + side * 2
+      ? (width - readableWidth) / 2
+      : side;
+  return EdgeInsets.fromLTRB(x, top, x, bottom);
+}
+
+/// A soft shade over the top of a full-bleed picture, so the status bar
+/// and the buttons on it read on any image (light status bar icons). Put it
+/// in the picture's [Stack].
+class HeroScrim extends StatelessWidget {
+  const HeroScrim({super.key});
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+    top: 0,
+    left: 0,
+    right: 0,
+    height: MediaQuery.paddingOf(context).top + 72,
+    child: IgnorePointer(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light.copyWith(
+          statusBarColor: Colors.transparent,
+        ),
+        child: const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0x590E0D24), Color(0x000E0D24)],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// A rounded progress track with an Ember fill.
@@ -196,6 +369,423 @@ class LoadingView extends StatelessWidget {
       child: CircularProgressIndicator(
         semanticsLabel: label ?? context.l10n.loading,
       ),
+    ),
+  );
+}
+
+/// How a [SkeletonList] draws its rows while content loads.
+enum SkeletonLayout {
+  /// Cards with a square picture and two lines (courses, services, orders).
+  rows,
+
+  /// Two columns of square pictures with text (products).
+  grid,
+
+  /// Wide pictures with text under them (listings).
+  media,
+
+  /// Rows with a small icon and text (notifications, messages, results).
+  text,
+}
+
+/// Grey shapes in the layout of the content that is loading, gently
+/// pulsing. Screen readers hear "Loading" (or [label]).
+class SkeletonList extends StatelessWidget {
+  const SkeletonList({
+    super.key,
+    this.layout = SkeletonLayout.rows,
+    this.count = 6,
+    this.padding = const EdgeInsets.fromLTRB(20, 8, 20, 20),
+    this.label,
+  });
+
+  final SkeletonLayout layout;
+  final int count;
+  final EdgeInsetsGeometry padding;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget content = switch (layout) {
+      SkeletonLayout.grid => LayoutBuilder(
+        builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 600 ? 3 : 2;
+          const gap = 12.0;
+          final cell = (constraints.maxWidth - gap * (columns - 1)) / columns;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (var i = 0; i < count; i++)
+                SizedBox(width: cell, child: const _SkeletonProduct()),
+            ],
+          );
+        },
+      ),
+      _ => Column(
+        children: [
+          for (var i = 0; i < count; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            switch (layout) {
+              SkeletonLayout.media => const _SkeletonMedia(),
+              SkeletonLayout.text => _SkeletonText(seed: i),
+              _ => _SkeletonRow(seed: i),
+            },
+          ],
+        ],
+      ),
+    };
+    return Semantics(
+      label: label ?? context.l10n.loading,
+      liveRegion: true,
+      child: ExcludeSemantics(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: padding,
+          child: SkeletonPulse(child: content),
+        ),
+      ),
+    );
+  }
+}
+
+/// A screen-sized placeholder for a page with a big picture on top
+/// (course, product, service, listing).
+class SkeletonDetail extends StatelessWidget {
+  const SkeletonDetail({super.key, this.label, this.imageHeight = 240});
+
+  final String? label;
+  final double imageHeight;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: label ?? context.l10n.loading,
+    liveRegion: true,
+    child: ExcludeSemantics(
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: SkeletonPulse(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(
+                height: imageHeight + MediaQuery.paddingOf(context).top,
+                radius: 0,
+              ),
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonBox(width: 240, height: 24),
+                    SizedBox(height: 12),
+                    SkeletonBox(width: 140, height: 16),
+                    SizedBox(height: 24),
+                    SkeletonBox(height: 14),
+                    SizedBox(height: 10),
+                    SkeletonBox(height: 14),
+                    SizedBox(height: 10),
+                    SkeletonBox(width: 200, height: 14),
+                    SizedBox(height: 28),
+                    SkeletonBox(height: 52, radius: 14),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// The shape of a Home screen while its sections load: a greeting, the
+/// search field, a banner, a row of chips and two cards.
+class SkeletonHome extends StatelessWidget {
+  const SkeletonHome({super.key, this.label});
+
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = context.shapes.r(16);
+    return Semantics(
+      label: label ?? context.l10n.loading,
+      liveRegion: true,
+      child: ExcludeSemantics(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            MediaQuery.paddingOf(context).top + 24,
+            20,
+            20,
+          ),
+          child: SkeletonPulse(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SkeletonBox(width: 110, height: 12),
+                          SizedBox(height: 10),
+                          SkeletonBox(width: 160, height: 22),
+                        ],
+                      ),
+                    ),
+                    SkeletonBox(width: 44, height: 44, radius: 12),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SkeletonBox(height: 50, radius: context.shapes.r(14)),
+                const SizedBox(height: 24),
+                AspectRatio(
+                  aspectRatio: 16 / 7,
+                  child: SkeletonBox(radius: radius),
+                ),
+                const SizedBox(height: 24),
+                const SkeletonBox(width: 120, height: 18),
+                const SizedBox(height: 14),
+                const Row(
+                  children: [
+                    SkeletonBox(width: 56, height: 40, radius: 20),
+                    SizedBox(width: 8),
+                    SkeletonBox(width: 84, height: 40, radius: 20),
+                    SizedBox(width: 8),
+                    SkeletonBox(width: 76, height: 40, radius: 20),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 0.8,
+                        child: SkeletonBox(radius: radius),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 0.8,
+                        child: SkeletonBox(radius: radius),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Fades its [child] in and out slowly while content loads (still when the
+/// system asks for less motion).
+class SkeletonPulse extends StatefulWidget {
+  const SkeletonPulse({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<SkeletonPulse> createState() => _SkeletonPulseState();
+}
+
+class _SkeletonPulseState extends State<SkeletonPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+    lowerBound: 0.55,
+    value: 1,
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller
+        ..stop()
+        ..value = 1;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _controller, child: widget.child);
+}
+
+/// One grey shape of a skeleton.
+class SkeletonBox extends StatelessWidget {
+  const SkeletonBox({super.key, this.width, this.height = 14, this.radius = 6});
+
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: width ?? double.infinity,
+    height: height,
+    decoration: BoxDecoration(
+      color: context.palette.segment,
+      borderRadius: BorderRadius.circular(radius),
+    ),
+  );
+}
+
+class _SkeletonCard extends StatelessWidget {
+  const _SkeletonCard({required this.child, this.padding = 12});
+
+  final Widget child;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.all(padding),
+    clipBehavior: Clip.antiAlias,
+    decoration: ShapeDecoration(
+      color: context.palette.surface,
+      shape: context.cardShape(16, outlined: true),
+    ),
+    child: child,
+  );
+}
+
+class _SkeletonRow extends StatelessWidget {
+  const _SkeletonRow({required this.seed});
+
+  final int seed;
+
+  @override
+  Widget build(BuildContext context) => _SkeletonCard(
+    child: Row(
+      children: [
+        SkeletonBox(width: 72, height: 72, radius: context.shapes.r(12)),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FractionallySizedBox(
+                widthFactor: seed.isEven ? 0.85 : 0.7,
+                child: const SkeletonBox(height: 15),
+              ),
+              const SizedBox(height: 10),
+              const FractionallySizedBox(
+                widthFactor: 0.5,
+                child: SkeletonBox(height: 12),
+              ),
+              const SizedBox(height: 12),
+              const SkeletonBox(width: 64, height: 14),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SkeletonText extends StatelessWidget {
+  const _SkeletonText({required this.seed});
+
+  final int seed;
+
+  @override
+  Widget build(BuildContext context) => _SkeletonCard(
+    padding: 16,
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SkeletonBox(width: 40, height: 40, radius: 12),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FractionallySizedBox(
+                widthFactor: seed.isEven ? 0.8 : 0.6,
+                child: const SkeletonBox(height: 15),
+              ),
+              const SizedBox(height: 10),
+              const SkeletonBox(height: 12),
+              const SizedBox(height: 8),
+              const FractionallySizedBox(
+                widthFactor: 0.4,
+                child: SkeletonBox(height: 12),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SkeletonProduct extends StatelessWidget {
+  const _SkeletonProduct();
+
+  @override
+  Widget build(BuildContext context) => const _SkeletonCard(
+    padding: 0,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(aspectRatio: 1, child: SkeletonBox(radius: 0)),
+        Padding(
+          padding: EdgeInsets.fromLTRB(10, 12, 10, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(height: 14),
+              SizedBox(height: 8),
+              SkeletonBox(width: 70, height: 14),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SkeletonMedia extends StatelessWidget {
+  const _SkeletonMedia();
+
+  @override
+  Widget build(BuildContext context) => const _SkeletonCard(
+    padding: 0,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(aspectRatio: 16 / 9, child: SkeletonBox(radius: 0)),
+        Padding(
+          padding: EdgeInsets.fromLTRB(14, 14, 14, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(width: 150, height: 18),
+              SizedBox(height: 10),
+              SkeletonBox(height: 14),
+              SizedBox(height: 8),
+              SkeletonBox(width: 120, height: 12),
+            ],
+          ),
+        ),
+      ],
     ),
   );
 }
@@ -408,60 +998,71 @@ class SettingsTile extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 54),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              if (icon != null) ...[
-                AppIcon(icon!, color: color),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: color,
-                        fontWeight: destructive
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                      ),
-                    ),
-                    if (subtitle != null)
+          // The value takes what it needs, up to 45% of the row; the title
+          // gets the rest.
+          child: LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                if (icon != null) ...[
+                  AppIcon(icon!, color: color),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        subtitle!,
-                        style: TextStyle(fontSize: 13, color: p.textSecondary),
+                        title,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: color,
+                          fontWeight: destructive
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                        ),
                       ),
-                  ],
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              if (value != null)
-                Flexible(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8),
-                    child: Text(
-                      value!,
-                      textAlign: TextAlign.end,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 14, color: p.textSecondary),
+                if (value != null)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * 0.45,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 8),
+                      child: Text(
+                        value!,
+                        textAlign: TextAlign.end,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14, color: p.textSecondary),
+                      ),
                     ),
                   ),
-                ),
-              ?trailing,
-              if (trailing == null && chevron && onTap != null && !destructive)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 4),
-                  child: AppIcon(
-                    AppIcons.forward,
-                    size: 18,
-                    color: p.textTertiary,
+                ?trailing,
+                if (trailing == null &&
+                    chevron &&
+                    onTap != null &&
+                    !destructive)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 4),
+                    child: AppIcon(
+                      AppIcons.forward,
+                      size: 18,
+                      color: p.textTertiary,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

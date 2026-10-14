@@ -84,6 +84,10 @@ abstract final class AppIcons {
   static const staff = Symbols.groups_rounded;
   static const location = Symbols.location_on_rounded;
   static const notes = Symbols.notes_rounded;
+  static const image = Symbols.image_rounded;
+  static const arrowForward = Symbols.arrow_forward_rounded;
+  static const send = Symbols.send_rounded;
+  static const level = Symbols.signal_cellular_alt_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

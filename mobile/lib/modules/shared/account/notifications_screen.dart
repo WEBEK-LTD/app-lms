@@ -74,7 +74,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     }
     final Widget body;
     if (state.isInitialLoading) {
-      body = const LoadingView();
+      body = const SkeletonList(layout: SkeletonLayout.text);
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
@@ -208,7 +208,7 @@ class OrdersScreen extends ConsumerWidget {
         ref.watch(appEnvironmentProvider).build.appType == AppType.store;
     final Widget body;
     if (state.isInitialLoading) {
-      body = const LoadingView();
+      body = const SkeletonList(layout: SkeletonLayout.text);
     } else if (state.error != null && state.items.isEmpty) {
       body = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {

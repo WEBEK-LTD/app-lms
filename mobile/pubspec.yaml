@@ -65,6 +65,11 @@ flutter:
     - family: Lexend
       fonts:
         - asset: assets/fonts/lexend/Lexend-Variable.ttf
+    # Arabic letters for every font above (they have Latin only): the
+    # theme's fallback, so Arabic looks the same on Android and iOS.
+    - family: Readex Pro
+      fonts:
+        - asset: assets/fonts/readexpro/ReadexPro-Variable.ttf
     - family: JetBrains Mono
       fonts:
         - asset: assets/fonts/jetbrainsmono/JetBrainsMono-Variable.ttf

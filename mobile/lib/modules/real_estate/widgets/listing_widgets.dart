@@ -143,7 +143,7 @@ class ListingTag extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: accent ? Colors.white : p.text,
+          color: accent ? p.onAccent : p.text,
         ),
       ),
     );

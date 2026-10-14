@@ -30,15 +30,15 @@ class ProductScreen extends ConsumerWidget {
     return switch (product) {
       AsyncData(:final value) => _ProductView(product: value),
       AsyncError(:final error) => Scaffold(
-        appBar: AppBar(leading: const AppBackButton()),
+        appBar: AppBar(leading: const AppBarBackButton()),
         body: ErrorView(
           error: error,
           onRetry: () => ref.invalidate(productProvider(productId)),
         ),
       ),
       _ => Scaffold(
-        appBar: AppBar(leading: const AppBackButton()),
-        body: LoadingView(label: context.l10n.loadingProduct),
+        appBar: AppBar(leading: const AppBarBackButton()),
+        body: SkeletonDetail(label: context.l10n.loadingProduct),
       ),
     };
   }
@@ -160,13 +160,10 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             pinned: true,
             expandedHeight: _imageHeight(MediaQuery.sizeOf(context)),
             backgroundColor: p.surface,
-            leading: const Padding(
-              padding: EdgeInsets.all(6),
-              child: AppBackButton(),
-            ),
+            leading: const AppBarBackButton(),
             actions: [
               Padding(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsetsDirectional.only(end: 18),
                 child: SquareIconButton(
                   icon: AppIcons.cart,
                   label: count > 0
@@ -178,16 +175,22 @@ class _ProductViewState extends ConsumerState<_ProductView> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: _Gallery(
-                images: images,
-                seed: product.id,
-                index: _image,
-                onChanged: (i) => setState(() => _image = i),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _Gallery(
+                    images: images,
+                    seed: product.id,
+                    index: _image,
+                    onChanged: (i) => setState(() => _image = i),
+                  ),
+                  const HeroScrim(),
+                ],
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+            padding: readablePadding(context, top: 18, bottom: 24),
             sliver: SliverList.list(
               children: [
                 Semantics(

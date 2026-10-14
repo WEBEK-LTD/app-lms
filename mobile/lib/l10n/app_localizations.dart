@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchListingsHint.
   ///
   /// In en, this message translates to:
-  /// **'Search by place, title or reference'**
+  /// **'Place or reference'**
   String get searchListingsHint;
 
   /// No description provided for @filters.
@@ -2383,7 +2383,7 @@ abstract class AppLocalizations {
   /// No description provided for @markComplete.
   ///
   /// In en, this message translates to:
-  /// **'Mark as complete'**
+  /// **'Mark complete'**
   String get markComplete;
 
   /// No description provided for @nextLesson.

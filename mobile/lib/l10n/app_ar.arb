@@ -16,7 +16,7 @@
   "playVideo": "تشغيل الفيديو",
   "savedItem": "محفوظ",
   "itemCount": "{count, plural, =0{لا عناصر} =1{عنصر واحد} =2{عنصران} few{{count} عناصر} many{{count} عنصرًا} other{{count} عنصر}}",
-  "searchListingsHint": "ابحث بالمكان أو العنوان أو الرقم المرجعي",
+  "searchListingsHint": "المنطقة أو الرقم المرجعي",
   "filters": "عوامل التصفية",
   "filtersActive": "{count, plural, =1{عوامل التصفية، واحد مفعّل} =2{عوامل التصفية، اثنان مفعّلان} few{عوامل التصفية، {count} مفعّلة} many{عوامل التصفية، {count} مفعّلًا} other{عوامل التصفية، {count} مفعّل}}",
   "sortBy": "الترتيب: {order}",

@@ -64,7 +64,7 @@ class _ServicesScreenState extends ConsumerState<ServicesScreen> {
 
     final Widget list;
     if (state.isInitialLoading) {
-      list = LoadingView(label: context.l10n.loadingServices);
+      list = SkeletonList(label: context.l10n.loadingServices);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {

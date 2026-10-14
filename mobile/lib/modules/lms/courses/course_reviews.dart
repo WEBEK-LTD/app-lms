@@ -73,7 +73,12 @@ class CourseReviewsTab extends ConsumerWidget {
       if (state.error != null) {
         return ErrorView(error: state.error!, onRetry: notifier.refresh);
       }
-      return LoadingView(label: context.l10n.loadingReviews);
+      return SkeletonList(
+        layout: SkeletonLayout.text,
+        count: 3,
+        padding: EdgeInsets.zero,
+        label: context.l10n.loadingReviews,
+      );
     }
     final p = context.palette;
     final mine = head.mine;

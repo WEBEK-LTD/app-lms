@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 import '../api/models/config_models.dart' show CardStyle, CornerStyle;
 import '../config/build_config_data.dart';
@@ -23,6 +24,18 @@ const bundledFonts = {
 
 /// Monospace font for code (bundled, SIL OFL).
 const codeFontFamily = 'JetBrains Mono';
+
+/// Fonts for letters the template fonts don't have: Readex Pro draws Arabic
+/// (the template fonts are Latin only), so it looks the same on every phone
+/// instead of the system's Arabic font.
+const fontFallback = ['Readex Pro'];
+
+/// Status bar icons that read on [background], over a transparent bar.
+SystemUiOverlayStyle overlayStyleOn(Color background) =>
+    (background.computeLuminance() > 0.4
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light)
+        .copyWith(statusBarColor: const Color(0x00000000));
 
 /// Picks the build config's font when it is bundled, else the template's.
 String resolveFont(String? font, AppTemplate template) =>
@@ -163,6 +176,7 @@ ThemeData buildAppTheme({
   TextStyle s(double size, FontWeight weight, {double? height, Color? color}) =>
       TextStyle(
         fontFamily: fontFamily,
+        fontFamilyFallback: fontFallback,
         fontSize: size,
         fontWeight: weight,
         height: height,
@@ -193,6 +207,7 @@ ThemeData buildAppTheme({
     brightness: brightness,
     colorScheme: scheme,
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFallback,
     textTheme: text,
     scaffoldBackgroundColor: p.background,
     canvasColor: p.background,
@@ -207,6 +222,10 @@ ThemeData buildAppTheme({
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
+      systemOverlayStyle: overlayStyleOn(p.background),
+      // Room for AppBarBackButton, lined up with the 20 point margin.
+      leadingWidth: 70,
+      titleSpacing: 4,
       titleTextStyle: text.titleLarge,
     ),
     filledButtonTheme: FilledButtonThemeData(
@@ -275,6 +294,7 @@ ThemeData buildAppTheme({
       backgroundColor: p.isDark ? BrandColors.ivory : BrandColors.midnight,
       contentTextStyle: TextStyle(
         fontFamily: fontFamily,
+        fontFamilyFallback: fontFallback,
         color: p.isDark ? BrandColors.midnight : BrandColors.white,
         fontSize: 15,
       ),
@@ -284,12 +304,20 @@ ThemeData buildAppTheme({
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: p.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(shapes.r(20)),
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       titleTextStyle: text.titleMedium,
       contentTextStyle: text.bodyMedium?.copyWith(color: p.textSecondary),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: p.surface,
+      surfaceTintColor: Colors.transparent,
       showDragHandle: true,
+      dragHandleColor: p.inputBorder,
+      dragHandleSize: const Size(36, 4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(shapes.r(20))),
       ),

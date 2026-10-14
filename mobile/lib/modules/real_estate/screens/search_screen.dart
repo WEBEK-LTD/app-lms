@@ -162,7 +162,7 @@ class _ListingsSearchScreenState extends ConsumerState<ListingsSearchScreen> {
                     isLabelVisible: count > 0,
                     label: Text('$count'),
                     backgroundColor: p.accent,
-                    textColor: Colors.white,
+                    textColor: p.onAccent,
                     child: SquareIconButton(
                       icon: AppIcons.filters,
                       label: count > 0
@@ -187,7 +187,7 @@ class _ListingsSearchScreenState extends ConsumerState<ListingsSearchScreen> {
               ),
             ),
             SizedBox(
-              height: 44,
+              height: chipRowHeight(context),
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),

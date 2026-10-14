@@ -26,7 +26,7 @@
       }
     }
   },
-  "searchListingsHint": "Search by place, title or reference",
+  "searchListingsHint": "Place or reference",
   "filters": "Filters",
   "filtersActive": "{count, plural, =1{Filters, 1 active} other{Filters, {count} active}}",
   "@filtersActive": {
@@ -946,7 +946,7 @@
   "noAttachments": "This lesson has no attachments.",
   "previousLesson": "Previous lesson",
   "signInToTrack": "Sign in to track progress",
-  "markComplete": "Mark as complete",
+  "markComplete": "Mark complete",
   "nextLesson": "Next lesson",
   "playingNow": "playing now",
   "sizeBytes": "{size} B",

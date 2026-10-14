@@ -246,6 +246,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// Text on [accent] (badges, tags): white only where it reads, else
+  /// Midnight (never white on Ember).
+  Color get onAccent => contrastRatio(BrandColors.white, accent) >= 4.5
+      ? BrandColors.white
+      : BrandColors.midnight;
+
   Color placeholderFor(int seed) =>
       placeholders[seed.abs() % placeholders.length];
 

@@ -66,7 +66,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get searchListingsHint => 'Yer, başlık veya ilan no. ile ara';
+  String get searchListingsHint => 'Yer veya ilan no.';
 
   @override
   String get filters => 'Filtreler';
@@ -1491,7 +1491,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signInToTrack => 'İlerlemeyi takip etmek için giriş yapın';
 
   @override
-  String get markComplete => 'Tamamlandı olarak işaretle';
+  String get markComplete => 'Dersi tamamla';
 
   @override
   String get nextLesson => 'Sonraki ders';

@@ -8,10 +8,6 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 
-/// The height of a horizontal row of [PillChip]s at the current text size.
-double chipRowHeight(BuildContext context) =>
-    30 + MediaQuery.textScalerOf(context).scale(14);
-
 /// "Free" or the business's formatted price.
 String bookingPriceLabel(BookingPrice price) =>
     price.free ? currentL10n.free : price.formatted;
@@ -60,7 +56,7 @@ class ServiceTile extends StatelessWidget {
             seed: service.id,
             width: 64,
             height: 64,
-            radius: 12,
+            radius: context.shapes.r(12),
             placeholderIcon: AppIcons.book,
           ),
           const SizedBox(width: 14),
@@ -113,9 +109,7 @@ class StaffAvatar extends StatelessWidget {
         ),
       );
     }
-    final initial = staff.name.trim().isEmpty
-        ? '?'
-        : staff.name.trim().characters.first.toUpperCase();
+    final initial = InitialsAvatar.initialsOf(staff.name);
     return Container(
       width: size,
       height: size,
@@ -124,7 +118,7 @@ class StaffAvatar extends StatelessWidget {
       child: Text(
         initial,
         style: TextStyle(
-          fontSize: size * 0.4,
+          fontSize: size * 0.34,
           fontWeight: FontWeight.w700,
           color: p.onPrimarySoft,
         ),
