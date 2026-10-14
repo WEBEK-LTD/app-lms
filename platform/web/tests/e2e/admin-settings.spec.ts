@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+import { createServer, type Server } from "node:http";
 import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
@@ -60,6 +62,45 @@ test("the team sets the sign-in code sender and goes back to the variables", asy
 
   await otp.getByRole("button", { name: "Use the Netlify variables" }).click();
   await expect(otp).toContainText("Now: Netlify variables (webhook)");
+});
+
+test("the team sends itself a test sign-in code and checks it", async () => {
+  // The code gateway of the Netlify variables (OTP_SENDER=webhook in playwright.config.ts).
+  const codes = new Map<string, string>();
+  const gateway: Server = createServer((request, response) => {
+    let body = "";
+    request.on("data", (chunk: Buffer) => (body += chunk.toString()));
+    request.on("end", () => {
+      const expected = `sha256=${createHmac("sha256", E2E.otpWebhookSecret).update(body).digest("base64url")}`;
+      if (request.headers["x-yallapp-signature"] !== expected) return response.writeHead(401).end();
+      const { phone, code } = JSON.parse(body) as { phone: string; code: string };
+      codes.set(phone, code);
+      response.writeHead(204).end();
+    });
+  });
+  await new Promise<void>((resolve) => gateway.listen(E2E.otpWebhookPort, resolve));
+  try {
+    await openSettings();
+    const otp = page.getByRole("region", { name: "Sign-in codes" });
+    await otp.getByLabel("Your number").fill("123");
+    await otp.getByRole("button", { name: "Send a test code" }).click();
+    await expect(otp.getByText("Enter your number with the country code")).toBeVisible();
+
+    await otp.getByLabel("Your number").fill("+20 100 765 4321");
+    await otp.getByRole("button", { name: "Send a test code" }).click();
+    await expect(otp.getByText("Test code sent to +201007654321.")).toBeVisible();
+    await expect.poll(() => codes.get("+201007654321")).toBeTruthy();
+    const code = codes.get("+201007654321")!;
+
+    await otp.getByLabel("The code you got").fill(code === "000000" ? "000001" : "000000");
+    await otp.getByRole("button", { name: "Check the code" }).click();
+    await expect(otp.getByText("That code isn't right.")).toBeVisible();
+    await otp.getByLabel("The code you got").fill(code);
+    await otp.getByRole("button", { name: "Check the code" }).click();
+    await expect(otp.getByText("The code is right: sign-in codes work.")).toBeVisible();
+  } finally {
+    await new Promise((resolve) => gateway.close(resolve));
+  }
 });
 
 test("the team sets the email server and sends a test email", async () => {

@@ -1,18 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
-import { encryptionKey, iyzicoApiUrl, WAABEK_API_URL } from "@/lib/env";
+import { decrypt, encrypt } from "@/lib/crypto/encryption";
+import { appUrl, encryptionKey, iyzicoApiUrl, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
+import { otpSenderFrom } from "@/lib/hosted/otp-sender";
+import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket } from "@/lib/hosted/otp-test";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
 import { PLAN_FEATURES, type PlanFeature, type PlanSetting } from "@/lib/plans";
-import { clearPlatformSettingsCache, encryptSetting, platformSetting } from "@/lib/settings/platform";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { clearPlatformSettingsCache, encryptSetting, platformSetting, resolvedOtpSenderConfig } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
 
@@ -279,3 +284,67 @@ export async function saveContactAction(_: FormState, formData: FormData): Promi
   revalidatePath("/", "layout");
   return { ok: true, message: "Contact details saved. The website and the dashboard show them now.", values };
 }
+
+// The sign-in code test: a real code to the admin's own number, then checked like the hosted API does.
+
+const OTP_TEST_COOKIE = "yallapp_otp_test";
+
+async function otpTestSender() {
+  const store = await getStore();
+  return otpSenderFrom(await resolvedOtpSenderConfig(store, encryptionKey()));
+}
+
+export async function sendTestCodeAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("settings.edit");
+  const values = { phone: str(formData, "phone") };
+  const phone = parseAnyPhone(values.phone, "+90");
+  if (!phone) return { errors: { phone: "Enter your number with the country code, like +20 100 123 4567." }, values };
+  const store = await getStore();
+  const now = new Date();
+  if (!(await hitRateLimit(store, RATE_LIMITS.otpTest, admin.id, now)).allowed) {
+    return { message: "That's a lot of test codes. Wait a few minutes and try again.", values };
+  }
+  const sender = await otpTestSender();
+  if (!sender) return { message: "Sign-in codes are off or not set. Choose how codes are sent and save first.", values };
+  let ticket: OtpTestTicket;
+  try {
+    ticket = await sendTestCode(sender, phone.e164, sessionSecret(), now);
+  } catch (e) {
+    return { message: `The code wasn't sent: ${e instanceof Error ? e.message : "unknown error"}`, values };
+  }
+  (await cookies()).set(OTP_TEST_COOKIE, encrypt(JSON.stringify(ticket), encryptionKey(), "otp-test"), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production" && appUrl().startsWith("https:"),
+    sameSite: "strict",
+    path: "/admin",
+    maxAge: OTP_TEST_TTL_SECONDS,
+  });
+  return { ok: true, message: `Test code sent to ${phone.e164}. Type it below when it arrives.`, values };
+}
+
+export async function checkTestCodeAction(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin("settings.edit");
+  const code = str(formData, "code");
+  const jar = await cookies();
+  let ticket: OtpTestTicket | null = null;
+  try {
+    const raw = jar.get(OTP_TEST_COOKIE)?.value;
+    ticket = raw ? (JSON.parse(decrypt(raw, encryptionKey(), "otp-test")) as OtpTestTicket) : null;
+  } catch {
+    ticket = null;
+  }
+  if (!ticket) return { message: "Send a test code first." };
+  const sender = await otpTestSender();
+  if (!sender) return { message: "Sign-in codes are off or not set. Choose how codes are sent and save first." };
+  let result: "right" | "wrong" | "expired";
+  try {
+    result = await checkTestCode(sender, ticket, code, sessionSecret(), new Date());
+  } catch (e) {
+    return { message: `The code couldn't be checked: ${e instanceof Error ? e.message : "unknown error"}`, values: { code } };
+  }
+  if (result === "wrong") return { errors: { code: "That code isn't right." }, values: { code } };
+  jar.delete({ name: OTP_TEST_COOKIE, path: "/admin" });
+  if (result === "expired") return { message: "The test code expired. Send a new one." };
+  return { ok: true, message: `The code is right: sign-in codes work. ${ticket.phone} got it and it was checked.` };
+}
+

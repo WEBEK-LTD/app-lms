@@ -46,4 +46,5 @@ export const RATE_LIMITS = {
   pipelineIp: { name: "pipeline:ip", limit: 600, windowSeconds: 60 },
   hostedNotify: { name: "hosted-notify:app", limit: 10, windowSeconds: 60 * 60 },
   planPayment: { name: "plan-payment:client", limit: 10, windowSeconds: 60 * 60 },
+  otpTest: { name: "otp-test:admin", limit: 5, windowSeconds: 10 * 60 },
 } satisfies Record<string, RateLimitRule>;
