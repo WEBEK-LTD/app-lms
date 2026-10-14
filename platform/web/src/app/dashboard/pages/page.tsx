@@ -25,8 +25,8 @@ export default async function PagesPage() {
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Pages & look</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           First <Link href="/dashboard/app-type">choose your app type</Link>. Your app then starts with a home page you can change here.
         </p>
       </div>
@@ -52,8 +52,8 @@ export default async function PagesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[680px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Pages & look</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Build your app&apos;s pages from blocks, choose its bottom tabs, look and languages. Changes are saved as a draft; your app shows them once you publish.
         </p>
       </div>

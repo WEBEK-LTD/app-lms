@@ -29,7 +29,7 @@ export function UpgradeHint({
       className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-ivory ${compact ? "px-3.5 py-2.5" : "px-4 py-3.5"}`}
       data-upgrade-hint=""
     >
-      <div className="flex min-w-0 flex-1 items-start gap-2.5">
+      <div className="flex min-w-0 flex-[1_1_220px] items-start gap-2.5">
         <Icon name="lock" size={20} className="mt-0.5 text-muted" />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="text-[15px] font-bold">{title}</span>

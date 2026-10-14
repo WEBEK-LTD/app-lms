@@ -3,9 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-status";
 import { Icon } from "@/components/icon";
-import { Notice, formatDate, formatDateTime } from "@/components/ui";
+import { LinkCard } from "@/components/dashboard";
+import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
 import { hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
-import { appLabel } from "@/lib/app/label";
+import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import {
   failureReason,
@@ -64,11 +65,11 @@ function DownloadRow({
           Download<span className="sr-only"> {title}</span>
         </a>
       ) : (
-        <span className="flex max-w-[280px] flex-col items-end gap-1">
+        <span className="flex max-w-[280px] flex-col items-start gap-1 sm:items-end">
           <button type="button" disabled aria-describedby={hintId} className="h-[38px] cursor-not-allowed rounded-lg border border-line bg-sand px-4 text-sm font-semibold text-muted">
             Download<span className="sr-only"> {title}</span>
           </button>
-          <span id={hintId} className="text-right text-xs text-muted">
+          <span id={hintId} className="text-xs text-muted sm:text-right">
             {unavailable}
           </span>
         </span>
@@ -124,6 +125,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const currentPlan = plan ? effective[plan] : null;
   const autoPublish = currentPlan ? hasFeature(currentPlan, "auto_publish") : false;
   const keys = hasStoreKeys(app);
+  const plugin = usesPlugin(app);
 
   // Each Download button opens a route that signs a fresh 15-minute link when clicked, so it never expires on an open page.
   const fileRow = (kind: ArtifactKind) => {
@@ -136,13 +138,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const setupDone = isSetupComplete(app, plan, effective);
   const running = isInProgress(current, now);
   const stalled = current !== null && isStalled(current, now);
+  const licenseName = licensePageName(app);
   const licenseProblem =
     state === "pending"
-      ? "This app isn't activated yet. Pay its plan on License & plugin, or message us on WhatsApp."
+      ? `This app isn't activated yet. Pay its plan on ${licenseName}, or message us on WhatsApp.`
       : state === "suspended"
         ? "This account is suspended, so new builds can't start. Message us on WhatsApp."
         : state === "expired"
-          ? "This app's plan has ended. Renew it on License & plugin to start new builds."
+          ? `This app's plan has ended. Renew it on ${licenseName} to start new builds.`
           : null;
   const disabledReason =
     licenseProblem ??
@@ -154,15 +157,15 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="m-0 text-[28px] font-extrabold">Builds &amp; downloads</h1>
-          <span className="text-[15px] text-muted">
-            {appLabel(app)} · Plan: {planName(plan, plans)}
-          </span>
-        </div>
-        <StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />
-      </div>
+      <PageHeader
+        title="Builds & downloads"
+        description={
+          <>
+            Your Android and iOS apps for {appLabel(app)}, built from your setup. Plan: {planName(plan, plans)}.
+          </>
+        }
+        actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
+      />
 
       {started === "auto" ? (
         <Notice tone="success" icon="check_circle" role="status">
@@ -195,7 +198,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
           This app&apos;s plan ended on {formatDate(license?.expiresAt)}. New builds need an active plan:{" "}
-          <Link href="/dashboard/license">renew it on License &amp; plugin</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>. Files from
+          <Link href="/dashboard/license#renew">renew it on {licenseName}</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>. Files from
           your earlier builds stay available below.
         </Notice>
       ) : state === "suspended" ? (
@@ -215,9 +218,11 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
 
       {current ? (
         <section aria-labelledby="h-current" className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-col gap-1">
-              <h2 id="h-current" className="m-0 text-[19px] font-bold">
+          {/* The heading's grandparent holds the status badge (tests read it from there). */}
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="text-sm font-semibold text-muted">Latest build</span>
+              <h2 id="h-current" className="m-0 text-lg font-bold">
                 Build #{current.number} · App version {current.versionName}
               </h2>
               <span className="text-sm text-muted">Version code {current.versionCode}</span>
@@ -249,105 +254,103 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           {(current.status === "failed" || stalled) && !licenseProblem && setupDone ? <RetryBuildForm versionName={current.versionName} /> : null}
         </section>
       ) : setupDone && !licenseProblem ? (
-        <Notice icon="info">No builds yet. Choose Start new build to build your apps; it usually takes 15 to 45 minutes.</Notice>
+        <EmptyState icon="build" title="No builds yet.">
+          Choose Start new build to build your apps; it usually takes 15 to 45 minutes. We email you when your files are ready.
+        </EmptyState>
       ) : null}
 
-      <section aria-labelledby="h-files" className="overflow-hidden rounded-2xl border border-line bg-white">
-        <div className="flex flex-col gap-1 border-b border-line-soft px-4 py-5 sm:px-6">
-          <h2 id="h-files" className="m-0 text-[19px] font-bold">
-            {lastReady ? `Files from build #${lastReady.number} (version ${lastReady.versionName})` : "Files from your latest successful build"}
-          </h2>
-          <span className="text-sm text-muted">
-            {lastReady
-              ? `Finished ${formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt)}. Each download link is made when you click it.`
-              : "Your files appear here when a build finishes."}
-          </span>
-        </div>
+      <Section
+        titleId="h-files"
+        title={lastReady ? `Files from build #${lastReady.number} (version ${lastReady.versionName})` : "Files from your latest successful build"}
+        description={
+          lastReady
+            ? `Finished ${formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt)}. Each download link is made when you click it.`
+            : "Your files appear here when a build finishes."
+        }
+        flush
+        className="overflow-hidden"
+      >
         <ul className="m-0 list-none p-0">
           {FILES.map((file) => (
             <DownloadRow key={file.kind} title={ARTIFACT_LABEL[file.kind]} text={fileDescription(file.kind, autoPublish)} highlight={file.highlight} {...fileRow(file.kind)} />
           ))}
-          <DownloadRow
-            title="WordPress plugin (.zip)"
-            text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
-            href={release && state === "active" ? "/api/dashboard/plugin" : null}
-            unavailable={!release ? "No plugin release yet" : "Available while this app's plan is active"}
-          />
+          {plugin ? (
+            <DownloadRow
+              title="WordPress plugin (.zip)"
+              text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
+              href={release && state === "active" ? "/api/dashboard/plugin" : null}
+              unavailable={!release ? "No plugin release yet" : "Available while this app's plan is active"}
+            />
+          ) : null}
           <DownloadRow title={ARTIFACT_LABEL.store_assets} text={fileDescription("store_assets", autoPublish)} {...fileRow("store_assets")} last />
         </ul>
+      </Section>
+
+      <Notice tone="neutral" icon="phone_iphone">
+        Apple&apos;s rule: the iPhone app never shows buy buttons for paid courses or digital products; free enrolment works on both phones. Your Android
+        app opens your checkout as usual.
+      </Notice>
+
+      <section aria-labelledby="h-next" className="flex flex-col gap-3">
+        <h2 id="h-next" className="m-0 text-lg font-bold">
+          Get it on the stores
+        </h2>
+        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
+          <LinkCard href="/dashboard/publishing" icon="publish" title="Publishing" text="Publish it yourself, or let us publish it for you" />
+          <LinkCard href="/docs/google-play" icon="menu_book" title="Publish on Google Play" text="Step-by-step guide" />
+          <LinkCard href="/docs/app-store" icon="menu_book" title="Publish on the App Store" text="Step-by-step guide" />
+        </div>
       </section>
 
-      <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
-        <Icon name="phone_iphone" size={20} className="text-muted" />
-        <span>
-          Apple&apos;s rule: the iPhone app never shows buy buttons for paid courses or digital products; free enrolment works on both phones. Your
-          Android app opens your checkout as usual.
-        </span>
-      </p>
-
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-        {[
-          { href: "/dashboard/publishing", title: "Publishing", text: "Publish it yourself, or let us publish it for you" },
-          { href: "/guides/google-play", title: "Publish on Google Play", text: "Step-by-step guide" },
-          { href: "/guides/app-store", title: "Publish on the App Store", text: "Step-by-step guide" },
-        ].map((guide) => (
-          <Link
-            key={guide.href}
-            href={guide.href}
-            className="flex items-center gap-3.5 rounded-2xl border border-line bg-white px-[22px] py-5 text-midnight no-underline hover:border-midnight hover:text-midnight"
-          >
-            <Icon name={guide.href === "/dashboard/publishing" ? "storefront" : "menu_book"} size={26} />
-            <span className="flex flex-1 flex-col gap-0.5">
-              <span className="text-[15px] font-bold">{guide.title}</span>
-              <span className="text-[13px] text-muted">{guide.text}</span>
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
-        <h2 id="h-history" className="m-0 text-[17px] font-bold">
-          Build history
-        </h2>
+      <Section titleId="h-history" title="Build history" description={builds.length ? "Every build of this app, newest first." : undefined}>
         {builds.length === 0 ? (
           <p className="m-0 text-sm text-muted">No builds yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
-              <thead>
-                <tr className="text-left text-muted">
-                  <th scope="col" className="py-2 font-semibold">Build</th>
-                  <th scope="col" className="py-2 font-semibold">App version</th>
-                  <th scope="col" className="py-2 font-semibold">Queued</th>
-                  <th scope="col" className="py-2 font-semibold">Finished</th>
-                  <th scope="col" className="py-2 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {builds.map((build) => (
-                  <tr key={build.id} className="border-t border-line-soft align-top">
-                    <td className="py-2.5">#{build.number}</td>
-                    <td className="py-2.5">
+          // A table from md up; on phones each build is a card (globals.css, .table-cards).
+          <table className="table-cards w-full border-collapse text-sm">
+            <thead>
+              <tr className="text-left text-muted">
+                <th scope="col" className="py-2 pr-4 font-semibold">Build</th>
+                <th scope="col" className="py-2 pr-4 font-semibold">App version</th>
+                <th scope="col" className="py-2 pr-4 font-semibold">Queued</th>
+                <th scope="col" className="py-2 pr-4 font-semibold">Finished</th>
+                <th scope="col" className="py-2 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {builds.map((build) => (
+                <tr key={build.id} className="align-top md:border-t md:border-line-soft">
+                  <td data-label="Build" className="md:py-2.5 md:pr-4 font-semibold">
+                    #{build.number}
+                  </td>
+                  <td data-label="App version" className="md:py-2.5 md:pr-4">
+                    <span>
                       {build.versionName} <span className="text-muted">({build.versionCode})</span>
-                    </td>
-                    <td className="py-2.5">{formatDateTime(build.createdAt)}</td>
-                    <td className="py-2.5">
+                    </span>
+                  </td>
+                  <td data-label="Queued" className="md:py-2.5 md:pr-4">
+                    {formatDateTime(build.createdAt)}
+                  </td>
+                  <td data-label="Finished" className="md:py-2.5 md:pr-4">
+                    <span>
                       {build.finishedAt ? formatDateTime(build.finishedAt) : "Not yet"}
                       {formatDuration(build.startedAt, build.finishedAt) ? (
                         <span className="block text-xs text-muted">Took {formatDuration(build.startedAt, build.finishedAt)}</span>
                       ) : null}
-                    </td>
-                    <td className="py-2.5">
+                    </span>
+                  </td>
+                  <td data-label="Status" className="md:py-2.5">
+                    <span>
                       <BuildStatusText status={build.status} />
                       {build.status === "failed" ? <span className="block max-w-[260px] text-xs text-muted">{failureReason(build)}</span> : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
-      </section>
+      </Section>
     </>
   );
 }

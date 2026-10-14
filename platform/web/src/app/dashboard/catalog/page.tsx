@@ -3,7 +3,7 @@ import Link from "next/link";
 import { deleteCategoryAction, renameCategoryAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn } from "@/components/ui";
+import { Badge, EmptyState, Notice, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
@@ -21,8 +21,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   if (!app || app.connector?.kind !== "catalog") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Products</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Products</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Your app gets its products from your website. To add products here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
           <Link href="/dashboard/setup?step=website">Website step</Link>.
         </p>
@@ -37,13 +37,13 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Products</h1>
-          <p className="m-0 text-[17px] leading-relaxed text-ink-4">What your app sells. Changes show in the app right away.</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Products</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">What your app sells. Changes show in the app right away.</p>
         </div>
-        <Link href="/dashboard/catalog/new" className={`${btn.primary} h-[46px]`}>
+        <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
           Add product
         </Link>
@@ -55,20 +55,19 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         </p>
       ) : null}
       {!settings.payment ? (
-        <p className="m-0 flex items-start gap-2 rounded-xl bg-warn-bg px-4 py-3 text-[15px] text-warn">
-          <Icon name="warning" size={20} />
-          <span>
-            Your app can&apos;t take orders until you set up <a href="#h-payments">Card payments</a> below.
-          </span>
-        </p>
+        <Notice tone="warn" icon="warning">
+          Your app can&apos;t take orders until you set up <a href="#h-payments">Card payments</a> below.
+        </Notice>
       ) : null}
 
       <section aria-labelledby="h-products" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-products" className="m-0 text-[19px] font-bold">
+        <h2 id="h-products" className="m-0 text-lg font-bold">
           {products.length} {products.length === 1 ? "product" : "products"}
         </h2>
         {products.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No products yet. Add your first one.</p>
+          <EmptyState icon="inventory_2" title="No products yet.">
+            Choose Add product to add your first one: its name, price, photos and stock. It shows in your app right away.
+          </EmptyState>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
             {products.map((p) => (
@@ -100,7 +99,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
 
       <div className="flex flex-wrap items-start gap-6">
         <section aria-labelledby="h-categories" className="flex min-w-0 flex-[1_1_380px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-categories" className="m-0 text-[19px] font-bold">
+          <h2 id="h-categories" className="m-0 text-lg font-bold">
             Categories
           </h2>
           {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">Group your products, like &quot;Bouquets&quot; or &quot;Gifts&quot;.</p> : null}
@@ -130,7 +129,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         </section>
 
         <section aria-labelledby="h-shop" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-shop" className="m-0 text-[19px] font-bold">
+          <h2 id="h-shop" className="m-0 text-lg font-bold">
             Shop settings
           </h2>
           <ShopSettingsForm

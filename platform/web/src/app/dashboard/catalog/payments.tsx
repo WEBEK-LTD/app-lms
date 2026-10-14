@@ -19,7 +19,7 @@ export async function CardPayments({ app }: { app: App }) {
   const joinable = terms !== null && featureOn(await getSwitches(store), "marketplace", license?.plan ?? null);
   return (
       <section aria-labelledby="h-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-payments" className="m-0 text-[19px] font-bold">
+        <h2 id="h-payments" className="m-0 text-lg font-bold">
           Card payments
         </h2>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">Customers pay by card on a secure iyzico page.</p>

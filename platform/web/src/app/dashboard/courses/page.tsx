@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteCourseCategoryAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
-import { Badge } from "@/components/ui";
+import { Badge, Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
@@ -18,8 +18,8 @@ export default async function CoursesPage() {
   if (!app || app.connector?.kind !== "courses") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Courses</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Courses</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Your app gets its courses from your website. To manage them here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
           <Link href="/dashboard/setup?step=website">Website step</Link>.
         </p>
@@ -32,19 +32,19 @@ export default async function CoursesPage() {
   const paid = setup.courses.some((c) => c.priceCents > 0);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Courses</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">What your students learn in the app. Changes show in the app right away.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Courses</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">What your students learn in the app. Changes show in the app right away.</p>
       </div>
       {paid && !app.catalogSettings?.payment ? (
-        <p className="m-0 rounded-xl bg-warn-bg px-4 py-3 text-[15px] text-warn">
+        <Notice tone="warn" icon="warning">
           Paid courses can&apos;t be bought until you set up <a href="#h-payments">Card payments</a> below.
-        </p>
+        </Notice>
       ) : null}
 
       <section aria-labelledby="h-courses" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-courses" className="m-0 text-[19px] font-bold">
+        <h2 id="h-courses" className="m-0 text-lg font-bold">
           {setup.courses.length} {setup.courses.length === 1 ? "course" : "courses"}
         </h2>
         {setup.courses.length ? (
@@ -67,7 +67,7 @@ export default async function CoursesPage() {
       </section>
 
       <section aria-labelledby="h-new-course" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-new-course" className="m-0 text-[19px] font-bold">
+        <h2 id="h-new-course" className="m-0 text-lg font-bold">
           Add a course
         </h2>
         <CourseForm
@@ -81,7 +81,7 @@ export default async function CoursesPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section aria-labelledby="h-course-categories" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-course-categories" className="m-0 text-[19px] font-bold">
+          <h2 id="h-course-categories" className="m-0 text-lg font-bold">
             Categories
           </h2>
           {setup.categories.length ? (
@@ -102,7 +102,7 @@ export default async function CoursesPage() {
           <CourseCategoryForm />
         </section>
         <section aria-labelledby="h-course-currency" className="flex min-w-0 flex-[1_1_260px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-course-currency" className="m-0 text-[19px] font-bold">
+          <h2 id="h-course-currency" className="m-0 text-lg font-bold">
             Prices
           </h2>
           <CurrencyForm currency={setup.currency} />

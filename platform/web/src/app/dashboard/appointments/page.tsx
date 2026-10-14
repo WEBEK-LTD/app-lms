@@ -41,8 +41,8 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Appointments</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">Appointments from your app are in your booking plugin. This page is for businesses without a website.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Appointments</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Appointments from your app are in your booking plugin. This page is for businesses without a website.</p>
       </div>
     );
   }
@@ -64,8 +64,8 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Appointments</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Appointments</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Booked in your app, in {rules.timezone} time. {rules.autoApprove ? "New ones are approved at once." : "Approve new ones, or reject them."}
         </p>
       </div>

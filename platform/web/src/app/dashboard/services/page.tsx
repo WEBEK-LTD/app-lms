@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteBookingCategoryAction, deleteBookingServiceAction, deleteBookingStaffAction } from "@/app/actions/bookings";
 import { SubmitButton } from "@/components/form";
-import { Badge } from "@/components/ui";
+import { Badge, Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { bookingSetup, WEEKDAYS } from "@/lib/bookings/setup";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
@@ -49,7 +49,7 @@ function Card({ id, title, text, children }: { id: string; title: string; text?:
   return (
     <section aria-labelledby={id} className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <div className="flex flex-col gap-1">
-        <h2 id={id} className="m-0 text-[19px] font-bold">
+        <h2 id={id} className="m-0 text-lg font-bold">
           {title}
         </h2>
         {text ? <p className="m-0 text-[15px] text-ink-4">{text}</p> : null}
@@ -65,8 +65,8 @@ export default async function ServicesPage() {
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Services &amp; team</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Services &amp; team</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Your app gets its services from your booking plugin. To manage them here instead, choose &quot;I don&apos;t have a website&quot; on
           the <Link href="/dashboard/setup?step=website">Website step</Link>.
         </p>
@@ -79,15 +79,15 @@ export default async function ServicesPage() {
   const category = new Map(setup.categories.map((c) => [c.id, c.name]));
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Services &amp; team</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">What customers can book in your app, who does it and when. Changes show in the app right away.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Services &amp; team</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">What customers can book in your app, who does it and when. Changes show in the app right away.</p>
       </div>
       {setup.services.length === 0 || setup.staff.length === 0 ? (
-        <p className="m-0 rounded-xl bg-warn-bg px-4 py-3 text-[15px] text-warn">
+        <Notice tone="warn" icon="warning">
           Customers can book once you add a service and a team member who provides it.
-        </p>
+        </Notice>
       ) : null}
 
       <Card id="h-services" title="Services">

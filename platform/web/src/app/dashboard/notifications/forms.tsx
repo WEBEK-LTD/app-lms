@@ -40,7 +40,7 @@ export function SendNotificationForm({ titleMax, bodyMax }: { titleMax: number; 
         <FieldError id="f-body-error" error={state.errors?.body} />
       </div>
       <div className="flex justify-end">
-        <SubmitButton className="h-[46px]" pendingText="Sending…">
+        <SubmitButton className="h-11" pendingText="Sending…">
           Send to everyone
         </SubmitButton>
       </div>
