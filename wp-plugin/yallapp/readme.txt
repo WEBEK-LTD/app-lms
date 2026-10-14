@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.3
+Stable tag: 0.3.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,10 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.5 =
+* Email sign-in with a code: Settings › Sign-in › "Email sign-in works" can be "With a code by email". Yallapp emails a 6-digit code (from your own address when you set your email server in your Yallapp dashboard), and people without an account sign up with their email address when sign-up from the app is allowed. Codes are kept as a hash, for 5 minutes and 5 attempts, like phone codes. Staff accounts that can edit the site never sign in by code. The password stays the default.
+* Your Yallapp dashboard's App sign-in page can choose this for you; its choice replaces the setting.
 
 = 0.3.3 =
 * The app type you chose in your Yallapp dashboard now decides the pages your app gets before you publish any, instead of a guess from the plugins on your site (a site with both an LMS and WooCommerce no longer gets academy pages for a Store app). The kind of business you chose is passed on to the app too.

@@ -10,7 +10,7 @@ namespace Yallapp\Otp;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Phone (a code), email (the WordPress email and password) or both. The app's owner chooses on
+ * Phone (a code), email (the WordPress email and password, or a code by email) or both. The app's owner chooses on
  * the Yallapp dashboard's App sign-in page, and the platform sends the choice with the license
  * status (`sign_in_methods`); until they choose, the plugin's own setting applies. Pure.
  */
@@ -18,6 +18,12 @@ class Methods {
 
 	const PHONE = 'phone';
 	const EMAIL = 'email';
+
+	/**
+	 * How email sign-in works.
+	 */
+	const PASSWORD = 'password';
+	const CODE     = 'code';
 
 	/**
 	 * The plugin setting's choices.
@@ -43,6 +49,24 @@ class Methods {
 			}
 		}
 		return self::CHOICES[ $setting ] ?? self::CHOICES['phone'];
+	}
+
+	/**
+	 * How email sign-in works: `password` (existing accounts, the WordPress password) or `code`
+	 * (a code by email; people without an account sign up). The owner's choice on the Yallapp
+	 * dashboard (the license status's `email_sign_in`), else the plugin setting, else password.
+	 *
+	 * @param mixed  $platform The license status's `email_sign_in` (`code`, `password` or null).
+	 * @param string $setting  The plugin setting.
+	 * @return string `code` or `password`.
+	 */
+	public static function email_way( $platform, $setting ) {
+		foreach ( array( $platform, $setting ) as $way ) {
+			if ( self::CODE === $way || self::PASSWORD === $way ) {
+				return $way;
+			}
+		}
+		return self::PASSWORD;
 	}
 
 	/**

@@ -497,24 +497,37 @@ class Settings_Page {
 			__( 'People sign in with', 'yallapp' ),
 			array(
 				'phone' => __( 'Their phone number and a code', 'yallapp' ),
-				'email' => __( 'Their email address and password on this website', 'yallapp' ),
+				'email' => __( 'Their email address', 'yallapp' ),
 				'both'  => __( 'Either: the app shows a Phone / Email switch', 'yallapp' ),
 			)
 		);
+		$this->radios(
+			'email_sign_in',
+			__( 'Email sign-in works', 'yallapp' ),
+			array(
+				'password' => __( 'With their password: existing accounts only', 'yallapp' ),
+				'code'     => __( 'With a code by email: anyone can sign up (Yallapp emails the code)', 'yallapp' ),
+			)
+		);
 		$platform = $this->plugin->license()->status()['sign_in_methods'];
+		$way      = $this->plugin->license()->status()['email_sign_in'];
 		if ( \Yallapp\Otp\Methods::from_platform( $platform ) && $this->plugin->license()->has_key() ) {
-			$names  = array(
+			$by_code = \Yallapp\Otp\Methods::CODE === $this->plugin->sign_in()->email_way();
+			$names   = array(
 				'phone' => __( 'phone number', 'yallapp' ),
-				'email' => __( 'email and password', 'yallapp' ),
+				'email' => $by_code ? __( 'email and a code', 'yallapp' ) : __( 'email and password', 'yallapp' ),
 			);
-			$chosen = array();
+			$chosen  = array();
 			foreach ( $this->plugin->sign_in()->methods() as $method ) {
 				$chosen[] = $names[ $method ];
 			}
 			/* translators: %s: sign-in methods, such as "phone number, email and password". */
 			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( sprintf( __( 'Chosen on your Yallapp dashboard\'s App sign-in page: %s. That choice replaces this setting.', 'yallapp' ), implode( ', ', $chosen ) ) ) . '</span></p>';
 		}
-		echo '<p class="ya-help">' . esc_html__( 'Email sign-in is for people who already have an account on this website; new people sign up with their phone number or on the website. WordPress checks the password, with your security plugins.', 'yallapp' ) . '</p>';
+		if ( null !== $way && $this->plugin->license()->has_key() ) {
+			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( 'code' === $way ? __( 'Chosen on your Yallapp dashboard: email sign-in with a code. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: email sign-in with the password. That choice replaces this setting.', 'yallapp' ) ) . '</span></p>';
+		}
+		echo '<p class="ya-help">' . esc_html__( 'With the password, only people who already have an account on this website sign in by email, and WordPress checks the password with your security plugins. With a code, Yallapp emails a 6-digit code (from your own address when you set one in your Yallapp dashboard), and people without an account sign up when sign-up from the app is allowed. Staff accounts that can edit the site never sign in by code. Needs an active license.', 'yallapp' ) . '</p>';
 		$this->provider_choice();
 		$this->toggle( 'signup_allowed', __( 'Allow new accounts to sign up from the app', 'yallapp' ) );
 		$this->checks(

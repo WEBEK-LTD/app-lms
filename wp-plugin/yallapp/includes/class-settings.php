@@ -42,6 +42,7 @@ class Settings {
 			// Sign-in.
 			'otp_provider'                 => 'yallapp',
 			'sign_in_methods'              => 'phone',
+			'email_sign_in'                => 'password',
 			'signup_allowed'               => true,
 			'signup_fields'                => array( 'name' ),
 			'default_country_code'         => '+90',
@@ -118,6 +119,7 @@ class Settings {
 		return array(
 			'otp_provider'           => array( 'yallapp', 'digits', 'dev' ),
 			'sign_in_methods'        => array( 'phone', 'email', 'both' ),
+			'email_sign_in'          => array( 'password', 'code' ),
 			'device_limit_action'    => array( 'block', 'replace_oldest' ),
 			'checkout_opens_in'      => array( 'in_app', 'browser' ),
 			'watermark'              => array( 'off', 'phone', 'name', 'name_and_phone' ),

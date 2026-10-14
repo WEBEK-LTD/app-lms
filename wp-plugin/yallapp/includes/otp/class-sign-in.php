@@ -70,6 +70,13 @@ class Sign_In {
 	private $license;
 
 	/**
+	 * Email codes (email sign-in with a code).
+	 *
+	 * @var Email_Codes|null
+	 */
+	private $email_codes;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings            $settings Settings.
@@ -77,13 +84,15 @@ class Sign_In {
 	 * @param Devices             $devices  Devices.
 	 * @param Tokens              $tokens   Tokens.
 	 * @param License_Client|null $license  License client.
+	 * @param Email_Codes|null    $email_codes Email codes, for email sign-in with a code.
 	 */
-	public function __construct( Settings $settings, Otp_Adapter $otp, Devices $devices, Tokens $tokens, $license = null ) {
-		$this->settings = $settings;
-		$this->otp      = $otp;
-		$this->devices  = $devices;
-		$this->tokens   = $tokens;
-		$this->license  = $license instanceof License_Client ? $license : null;
+	public function __construct( Settings $settings, Otp_Adapter $otp, Devices $devices, Tokens $tokens, $license = null, $email_codes = null ) {
+		$this->settings    = $settings;
+		$this->otp         = $otp;
+		$this->devices     = $devices;
+		$this->tokens      = $tokens;
+		$this->license     = $license instanceof License_Client ? $license : null;
+		$this->email_codes = $email_codes instanceof Email_Codes ? $email_codes : null;
 	}
 
 	/**
@@ -94,6 +103,196 @@ class Sign_In {
 	public function methods() {
 		$platform = $this->license && $this->license->has_key() ? ( $this->license->status()['sign_in_methods'] ?? null ) : null;
 		return Methods::resolve( $platform, (string) $this->settings->get( 'sign_in_methods' ) );
+	}
+
+	/**
+	 * How email sign-in works: `code` (a code by email; people without an account sign up) or
+	 * `password` (existing accounts). The owner's choice on the Yallapp dashboard, else the plugin setting.
+	 *
+	 * @return string
+	 */
+	public function email_way() {
+		$platform = $this->license && $this->license->has_key() ? ( $this->license->status()['email_sign_in'] ?? null ) : null;
+		return Methods::email_way( $platform, (string) $this->settings->get( 'email_sign_in' ) );
+	}
+
+	/**
+	 * Sends a code to an email address (email sign-in with a code). The same answer whether or not
+	 * the address has an account. Accounts that can edit the site (staff) never sign in by code:
+	 * they get no email, and no code signs them in.
+	 *
+	 * @param string $email   Email address.
+	 * @param bool   $preview The app preview in the Yallapp dashboard asks: only the store review address signs in.
+	 * @return array|WP_Error
+	 */
+	public function request_email( $email, $preview = false ) {
+		$email = strtolower( trim( (string) $email ) );
+		if ( '' === $email || strlen( $email ) > 191 || ! is_email( $email ) ) {
+			return new WP_Error( 'invalid_email', __( 'Please enter a valid email address.', 'yallapp' ), array( 'status' => 400 ) );
+		}
+		$review = Review_Access::is_review_email( $this->settings->all(), $email );
+		if ( $preview && ! $review ) {
+			return new WP_Error(
+				'preview_review_number_only',
+				__( 'This is a preview, and it never sends codes. Sign in with the store review email address and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
+				array( 'status' => 403 )
+			);
+		}
+		if ( ! in_array( Methods::EMAIL, $this->methods(), true ) ) {
+			return new WP_Error( 'method_not_allowed', __( 'This app doesn\'t offer sign-in by email. Sign in with your phone number.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		if ( Methods::CODE !== $this->email_way() && ! $review ) {
+			return new WP_Error( 'method_not_allowed', __( 'This app signs in with your email address and password.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+
+		$bucket = substr( Crypto::hash( Email_Codes::subject( $email ) ), 0, 40 );
+		$resend = (int) $this->settings->get( 'resend_seconds' );
+		$wait   = Rate_Limiter::hit( 'resend|' . $bucket, 1, max( 1, $resend ) );
+		if ( $wait ) {
+			return self::rate_limited( $wait );
+		}
+		$wait = Rate_Limiter::hit( 'email|' . $bucket, max( 1, (int) $this->settings->get( 'max_code_requests_per_hour' ) ), HOUR_IN_SECONDS );
+		if ( ! $wait ) {
+			$wait = Rate_Limiter::hit( 'ip|' . Rate_Limiter::client_ip(), self::IP_LIMIT_PER_H, HOUR_IN_SECONDS );
+		}
+		if ( $wait ) {
+			return self::rate_limited( $wait );
+		}
+
+		$staff = self::is_staff( get_user_by( 'email', $email ) );
+		if ( ! $review && ! $staff ) {
+			if ( ! $this->email_codes ) {
+				Rate_Limiter::clear( 'resend|' . $bucket );
+				return new WP_Error( 'provider_unavailable', __( 'Sign-in codes are not available right now. Please try again later.', 'yallapp' ), array( 'status' => 502 ) );
+			}
+			$sent = $this->email_codes->send( $email );
+			if ( is_wp_error( $sent ) ) {
+				Rate_Limiter::clear( 'resend|' . $bucket );
+				return $sent;
+			}
+		}
+
+		$request_id = Crypto::token( 24 );
+		set_transient(
+			'yallapp_otp_' . Crypto::hash( $request_id ),
+			array(
+				'email'    => $email,
+				'attempts' => 0,
+				'review'   => $review,
+			),
+			self::REQUEST_TTL
+		);
+		return array(
+			'request_id'           => $request_id,
+			'code_length'          => self::CODE_LENGTH,
+			'resend_after_seconds' => $resend,
+			'expires_in_seconds'   => self::CODE_EXPIRES_IN,
+		);
+	}
+
+	/**
+	 * Verifies an email code: signs in the account with that address, or asks for sign-up details.
+	 *
+	 * @param string $key    The request's transient key.
+	 * @param array  $state  The request.
+	 * @param string $code   Code.
+	 * @param array  $device DeviceInput.
+	 * @return array|WP_Error Session, or SignupRequired.
+	 */
+	private function verify_email( $key, array $state, $code, array $device ) {
+		$email = (string) $state['email'];
+		$user  = get_user_by( 'email', $email );
+		$wrong = new WP_Error( 'invalid_code', __( 'That code is not correct.', 'yallapp' ), array( 'status' => 400 ) );
+		if ( self::is_staff( $user ) ) {
+			// Never a staff account by code: they sign in on the website.
+			return $wrong;
+		}
+		if ( ! empty( $state['review'] ) ) {
+			$valid = Review_Access::is_review_email( $this->settings->all(), $email ) && Review_Access::code_matches( $this->settings->all(), (string) $code ) ? true : $wrong;
+		} else {
+			$valid = $this->email_codes ? $this->email_codes->verify( $email, (string) $code ) : $wrong;
+		}
+		if ( is_wp_error( $valid ) ) {
+			return $valid;
+		}
+		delete_transient( $key );
+
+		if ( $user instanceof \WP_User ) {
+			return $this->session( (int) $user->ID, $device );
+		}
+		if ( ! $this->settings->get( 'signup_allowed' ) ) {
+			return new WP_Error( 'signup_disabled', __( 'There is no account with this email address.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		$signup_token = Crypto::token( 24 );
+		set_transient( 'yallapp_signup_' . Crypto::hash( $signup_token ), array( 'email' => $email ), self::SIGNUP_TTL );
+		return array(
+			'signup_required' => true,
+			'signup_token'    => $signup_token,
+			'fields'          => array_values( array_diff( $this->signup_fields(), array( 'email' ) ) ),
+		);
+	}
+
+	/**
+	 * Creates the account for a verified new email address and signs in.
+	 *
+	 * @param string $key    The sign-up's transient key.
+	 * @param string $email  The verified address.
+	 * @param array  $fields name, city.
+	 * @param array  $device DeviceInput.
+	 * @return array|WP_Error Session.
+	 */
+	private function register_email( $key, $email, array $fields, array $device ) {
+		if ( email_exists( $email ) ) {
+			return new WP_Error( 'account_exists', __( 'An account with this email address already exists. Please sign in.', 'yallapp' ), array( 'status' => 409 ) );
+		}
+		$name = sanitize_text_field( (string) ( $fields['name'] ?? '' ) );
+		$city = sanitize_text_field( (string) ( $fields['city'] ?? '' ) );
+		if ( '' === $name ) {
+			return new WP_Error( 'invalid_request', __( 'Please enter your name.', 'yallapp' ), array( 'status' => 400 ) );
+		}
+		if ( in_array( 'city', $this->signup_fields(), true ) && '' === $city ) {
+			return new WP_Error( 'invalid_request', __( 'Please enter your city.', 'yallapp' ), array( 'status' => 400 ) );
+		}
+		$base  = sanitize_user( (string) strstr( $email, '@', true ), true );
+		$base  = '' !== $base ? substr( $base, 0, 50 ) : 'user';
+		$login = $base;
+		while ( username_exists( $login ) ) {
+			$login = $base . wp_rand( 100, 99999 );
+		}
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => $login,
+				'user_pass'    => wp_generate_password( 32, true, true ),
+				'user_email'   => $email,
+				'display_name' => $name,
+				'first_name'   => $name,
+				'role'         => get_option( 'default_role', 'subscriber' ),
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			return new WP_Error( 'invalid_request', $user_id->get_error_message(), array( 'status' => 400 ) );
+		}
+		update_user_meta( $user_id, self::USER_META_SOURCE, 1 );
+		if ( '' !== $city ) {
+			update_user_meta( $user_id, self::USER_META_CITY, $city );
+		}
+		delete_transient( $key );
+
+		/** This action is documented in includes/otp/class-sign-in.php (register). */
+		do_action( 'yallapp_user_registered', $user_id );
+
+		return $this->session( (int) $user_id, $device );
+	}
+
+	/**
+	 * Whether this is an account that can edit the site: it never signs in by a code sent by email
+	 * or by the shared store review code.
+	 *
+	 * @param mixed $user User, or false.
+	 * @return bool
+	 */
+	private static function is_staff( $user ) {
+		return $user instanceof \WP_User && user_can( $user, 'edit_posts' );
 	}
 
 	/**
@@ -296,6 +495,9 @@ class Sign_In {
 		}
 		++$state['attempts'];
 		set_transient( $key, $state, self::REQUEST_TTL );
+		if ( isset( $state['email'] ) ) {
+			return $this->verify_email( $key, $state, (string) $code, $device );
+		}
 
 		$phone   = Phone::parse( $state['country_code'], $state['number'] );
 		$user_id = $this->otp->find_user( $phone );
@@ -346,6 +548,9 @@ class Sign_In {
 		$state = get_transient( $key );
 		if ( ! is_array( $state ) ) {
 			return new WP_Error( 'code_expired', __( 'Your verification has expired. Please start again.', 'yallapp' ), array( 'status' => 400 ) );
+		}
+		if ( isset( $state['email'] ) ) {
+			return $this->register_email( $key, (string) $state['email'], $fields, $device );
 		}
 		$phone = Phone::parse( $state['country_code'], $state['number'] );
 		if ( $this->otp->find_user( $phone ) ) {

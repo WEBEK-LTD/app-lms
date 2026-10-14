@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use WP_REST_Request;
 use WP_REST_Server;
 use Yallapp\Lms\Purchase_Rules;
+use Yallapp\Otp\Methods;
 
 /**
  * GET /config and GET /home.
@@ -115,10 +116,7 @@ class App_Controller extends Controller {
 					'methods'              => $methods,
 					// `preview: true` at /auth/otp/request signs in only the store review number.
 					'preview_sign_in'      => true,
-				) + ( $by_email ? array(
-					'email_sign_in'      => 'password',
-					'password_reset_url' => wp_lostpassword_url(),
-				) : array() ),
+				) + ( $by_email ? $this->email_auth() : array() ),
 				'purchases' => array(
 					'enroll_button'     => Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),
 					'free_enrollment'   => (bool) $settings->get( 'free_enrollment' ),
@@ -140,6 +138,22 @@ class App_Controller extends Controller {
 				// The kind of business the owner chose in the dashboard: wording and defaults only.
 				'vertical'  => $license->status()['vertical'],
 			) + $this->look()
+		);
+	}
+
+	/**
+	 * Config.auth for email sign-in: with a code by email (anyone; new people sign up), or with
+	 * the WordPress password (existing accounts) and the site's page to reset it.
+	 *
+	 * @return array
+	 */
+	private function email_auth() {
+		if ( Methods::CODE === $this->plugin->sign_in()->email_way() ) {
+			return array( 'email_sign_in' => Methods::CODE );
+		}
+		return array(
+			'email_sign_in'      => Methods::PASSWORD,
+			'password_reset_url' => wp_lostpassword_url(),
 		);
 	}
 

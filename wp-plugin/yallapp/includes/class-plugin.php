@@ -19,6 +19,7 @@ use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Tutor_Adapter;
 use Yallapp\Otp\Adapter_Choice;
 use Yallapp\Otp\Dev_Adapter;
+use Yallapp\Otp\Email_Codes;
 use Yallapp\Otp\Digits_Adapter;
 use Yallapp\Otp\Otp_Adapter;
 use Yallapp\Otp\Sign_In;
@@ -304,7 +305,9 @@ class Plugin {
 		return $this->service(
 			'sign_in',
 			function () {
-				return new Sign_In( $this->settings(), $this->otp(), $this->devices(), $this->tokens(), $this->license() );
+				// Email codes: development codes too where phone codes use them (a local site without a license).
+				$email_codes = new Email_Codes( $this->license(), Adapter_Choice::DEV === $this->otp_choice()['id'] );
+				return new Sign_In( $this->settings(), $this->otp(), $this->devices(), $this->tokens(), $this->license(), $email_codes );
 			}
 		);
 	}

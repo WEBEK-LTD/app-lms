@@ -142,6 +142,23 @@ Nothing to set on Netlify: the preview is served from the site's own files
       WABEK API key and instance ID on **App sign-in**, then **Send a test
       code**.
 
+## 7a. Your app's own email (Phase 24)
+
+- [ ] **Release plugin 0.3.5** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`. WordPress sites need it
+      for "Email sign-in works: with a code by email".
+- [ ] **Emails › Own email server failed:** read it once. It goes to the
+      owner, at most once a day per app.
+- [ ] Try **App sign-in › Your app's email** with a real mailbox (a Gmail
+      account with an App password is quickest): save, **Send a test email**,
+      and sign in to a hosted test app by email; the code comes from that
+      address. Then change the password to a wrong one and check that the
+      code still arrives from Yallapp's address, the page shows the warning
+      and the owner gets one email.
+- [ ] On a test WordPress app: choose email with a code on **App sign-in**,
+      press **Check now** in the plugin, and sign up in the app with a new
+      email address.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
