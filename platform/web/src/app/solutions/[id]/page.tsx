@@ -86,6 +86,22 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[id
         <MoreLink href="/integrations">All integrations</MoreLink>
       </Section>
 
+      <Section>
+        <div className="flex flex-wrap items-center justify-between gap-6 rounded-[20px] bg-peach-soft p-6 sm:p-8">
+          <div className="flex max-w-[620px] flex-col gap-2">
+            <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">Try a {s.name.toLowerCase()} app on your phone</h2>
+            <p className="m-0 text-[16px] leading-relaxed text-ink-4">Install our {s.name.toLowerCase()} demo app with sample content and see how it works before you pay.</p>
+          </div>
+          <Link
+            href={`/demo#${s.id}`}
+            className="flex h-[50px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
+          >
+            <Icon name="smartphone" size={20} />
+            Try the {s.name.toLowerCase()} demo
+          </Link>
+        </div>
+      </Section>
+
       <Section tinted>
         <SectionTitle title="Other app types" />
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]">

@@ -6,6 +6,7 @@ import type { EmailTemplateKey, TemplateValue } from "./email/templates";
 import { effectivePlans } from "./entitlements";
 import { appState } from "./license/status";
 import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
+import { cleanDemoActivity, type DemoCleanupReport } from "./demo/cleanup";
 
 /**
  * Owner notices (roadmap 13.2 and 13.4): what the dashboard and email tell
@@ -201,6 +202,8 @@ export interface DailyReport {
   usageNotices: number;
   /** Reminders of periods that were renewed since, now hidden. */
   resolved: number;
+  /** 16 What visitors added to the demo apps more than a day ago, deleted. */
+  demo: DemoCleanupReport;
 }
 
 /**
@@ -211,7 +214,13 @@ export interface DailyReport {
  */
 export async function runDailyNotices(deps: NoticeDeps): Promise<DailyReport> {
   const { store, now } = deps;
-  const report: DailyReport = { planChanges: await applyDuePlanChanges(store, now), reminders: 0, usageNotices: 0, resolved: 0 };
+  const report: DailyReport = {
+    planChanges: await applyDuePlanChanges(store, now),
+    reminders: 0,
+    usageNotices: 0,
+    resolved: 0,
+    demo: await cleanDemoActivity(store, now),
+  };
   const plans = await effectivePlans(store);
   const licenses = await store.listLicenses();
   const clients = new Map<string, Client | null>();
@@ -223,7 +232,8 @@ export async function runDailyNotices(deps: NoticeDeps): Promise<DailyReport> {
   for (const license of licenses) {
     if (!license.appId) continue;
     const [client, app] = [await clientOf(license.clientId), await store.getAppById(license.appId)];
-    if (!client || !app || app.clientId !== client.id) continue;
+    // 16 Demo apps have no owner to remind (and their license doesn't end).
+    if (!client || !app || app.clientId !== client.id || app.demo) continue;
     // A renewed license: reminders of the old period are no longer true.
     const open = await store.listOwnerNotices({ clientId: client.id, appId: app.id, open: true, limit: 20 });
     const stale = open.filter((n) => n.kind.startsWith("plan_ends_") && !n.dedupeKey.endsWith(`:${license.expiresAt.toISOString()}`));

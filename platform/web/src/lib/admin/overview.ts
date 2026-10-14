@@ -141,6 +141,21 @@ export function appsByWebsite(apps: Pick<App, "backend" | "connector">[]): { key
   return tally(apps, websiteOf);
 }
 
+/**
+ * 16 The demo apps' account isn't a client: its account, apps and their app
+ * users stay out of the counts (their builds are real builds and stay in).
+ */
+export function withoutDemo<R extends { client: Pick<ClientRow["client"], "id"> }, A extends Pick<App, "clientId" | "demo">>(
+  rows: R[],
+  apps: A[],
+  demoClientId: string | null,
+): { rows: R[]; apps: A[] } {
+  return {
+    rows: rows.filter((row) => row.client.id !== demoClientId),
+    apps: apps.filter((app) => !app.demo && app.clientId !== demoClientId),
+  };
+}
+
 /** Apps on the hosted API and their customers. */
 export function hostedUsage(apps: Pick<App, "id" | "backend">[], usersByApp: Record<string, number>): { apps: number; users: number } {
   const hosted = apps.filter((a) => a.backend === "hosted");

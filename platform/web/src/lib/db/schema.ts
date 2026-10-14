@@ -193,6 +193,9 @@ export const apps = mysqlTable(
     publishingDoneAt: time("publishing_done_at"),
     // 14.1 "self" or "managed" (we publish it for the client); null until they choose.
     publishingMode: varchar("publishing_mode", { length: 8 }).$type<PublishingMode>(),
+    // 16 Demo apps: set by the admin's Demo apps page only; the build whose APK /demo offers.
+    demo: boolean("demo").notNull().default(false),
+    demoBuildId: id("demo_build_id"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

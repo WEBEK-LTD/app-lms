@@ -53,6 +53,7 @@ export default async function LandingPage() {
                   {text.secondaryCta}
                 </Link>
               </div>
+              <MoreLink href="/demo">Try a demo app on your phone</MoreLink>
               <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted">
                 <span>Works with:</span>
                 {WORKS_WITH.map((name) => (
@@ -101,6 +102,7 @@ export default async function LandingPage() {
               </Link>
             ))}
           </div>
+          <MoreLink href="/demo">Try the four demo apps</MoreLink>
         </Section>
 
         <Section>

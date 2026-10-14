@@ -22,7 +22,9 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
           <Icon name="check_circle" size={48} filled className="text-success" />
           <h1 className="m-0 text-[24px] font-extrabold">Thank you!</h1>
           <p className="m-0 text-[16px] leading-relaxed text-ink-4">
-            Your order {orderNumber(order!)} is placed and paid. You&apos;ll find it in your orders in the app.
+            {app?.demo
+              ? `Your demo order ${orderNumber(order!)} is placed. Nothing was charged. You'll find it in your orders in the app.`
+              : `Your order ${orderNumber(order!)} is placed and paid. You'll find it in your orders in the app.`}
           </p>
         </>
       ) : (

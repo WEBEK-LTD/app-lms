@@ -72,7 +72,35 @@ devices. Everything else is in the code. Tick each line when it's done.
       authentication on a team phone (App Store Connect invitations need it).
 - [ ] Never accept a client's Google or Apple password: only invitations.
 
-## 5. Accounts the remaining roadmap steps wait on
+## 5. Demo apps on yallapp.com.tr/demo (Phase 16)
+
+- [ ] Make `demos@yallapp.com.tr` a mailbox (or forward it) the team reads:
+      it owns the demo apps, and build emails go there. Don't create an
+      account with it yourself.
+- [ ] **Team:** demo apps need the permission "demos.manage" (owners and
+      admins have it).
+- [ ] **Admin › Demo apps › Create the demo apps.** It makes the four apps
+      with their content, pages and a Business license that doesn't end. If
+      it stops halfway (a slow database), press **Refresh** on each app: it
+      updates, never duplicates. Press it again whenever the demo content in
+      the code changes.
+- [ ] Open `https://yallapp.com.tr/demo`: the four demos show the sign-in
+      number and code, with "Coming soon" until a download is picked.
+- [ ] **Build them:** once `build/README.md` › One-time setup is done, press
+      **Start a build** on each demo app. When the build is ready, choose it
+      under **Public download** and **Save**: /demo then shows "Download for
+      Android" and its QR code instead of "Coming soon". Scan the QR code with
+      an Android phone, install, and sign in with **+1 202 555 0123** and the
+      code **246810**.
+- [ ] **iPhone demos** are by request: add the person's Apple Account to the
+      demo app's TestFlight in App Store Connect (an App Store Connect key on
+      the demo app in its dashboard, then a new build, uploads it).
+- [ ] After each change to the demo content, refresh the apps; to update the
+      APK, build again and pick the new build.
+- [ ] What visitors add is deleted by the daily job after a day: check the
+      daily job's JSON report shows `"demo": {"apps": 4, ...}`.
+
+## 6. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
 |---|---|

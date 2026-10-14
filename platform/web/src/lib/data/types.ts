@@ -215,6 +215,14 @@ export interface App {
    * store accounts; see PublishingRequest). Null until the client chooses.
    */
   publishingMode: PublishingMode | null;
+  /**
+   * 16 A demo app people can try before they pay (lib/demo): set only by the
+   * admin's Demo apps page. It signs in with the public demo number only,
+   * never takes card payments, and what visitors add is deleted after a day.
+   */
+  demo?: boolean;
+  /** 16 The ready build whose APK /demo offers for download; null until the team picks one. */
+  demoBuildId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1170,3 +1178,27 @@ export interface OwnerNotice {
 }
 
 export type OwnerNoticePatch = Partial<Pick<OwnerNotice, "emailedAt" | "dismissedAt" | "resolvedAt">>;
+
+// 16 Demo apps people can try
+
+/** Where the demo apps live (lib/demo): the account the admin's Demo apps page made. */
+export interface DemoSetting {
+  /** The "Yallapp demos" account. Only this account's apps marked `demo` are demo apps. */
+  clientId: string;
+}
+
+export interface PlatformSettingValues {
+  demo: DemoSetting;
+}
+
+/** What the daily job deleted from one demo app: visitors' activity from before a time. */
+export interface DemoPurgeCounts {
+  orders: number;
+  appointments: number;
+  inquiries: number;
+  favorites: number;
+  enrollments: number;
+  progress: number;
+  devices: number;
+  notifications: number;
+}

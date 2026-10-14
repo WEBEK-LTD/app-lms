@@ -188,7 +188,13 @@ paths:
       tags: [Auth]
       operationId: requestOtp
       summary: Send a sign-in code
-      description: Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.
+      description: |
+        Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.
+
+        Demo apps on the hosted API (the apps on yallapp.com.tr/demo) send no code: only the
+        public demo number signs in, with the fixed code shown on that page. Any other number
+        is refused with 403 `demo_number_only`. The demo number is limited per IP and per app,
+        and works in demo apps only.
       security: []
       requestBody:
         required: true
@@ -214,6 +220,7 @@ paths:
                   resend_after_seconds: { type: integer, example: 60 }
                   expires_in_seconds: { type: integer, example: 300 }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
         '502': { $ref: '#/components/responses/ProviderError' }
 
@@ -386,6 +393,7 @@ paths:
                 name: { type: string }
                 email: { type: string, format: email }
                 city: { type: string }
+      description: In a demo app everyone shares one account, which can't be changed (403 `feature_disabled`).
       responses:
         '200':
           description: Updated student
@@ -394,11 +402,12 @@ paths:
               schema: { $ref: '#/components/schemas/User' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
     delete:
       tags: [Account]
       operationId: deleteMe
       summary: Delete account
-      description: Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device.
+      description: Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.
       responses:
         '204': { description: Account deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -408,6 +417,7 @@ paths:
       tags: [Account]
       operationId: listDevices
       summary: List signed-in devices
+      description: In a demo app, only the current device, and `limit` 0 (no limit).
       responses:
         '200':
           description: Devices
@@ -1848,6 +1858,7 @@ components:
             - license_inactive
             - account_suspended
             - app_user_limit
+            - demo_number_only
             - update_required
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }

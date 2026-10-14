@@ -17,6 +17,8 @@ import { sendTemplate } from "@/lib/email/send";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { checkAppUserNotices } from "@/lib/notices";
+import { withDemoChecked } from "@/lib/demo/apps";
+import { demoOfficeReply } from "@/lib/demo/cleanup";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -28,8 +30,10 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
   const { appId, path } = await params;
   if (!UUID.test(appId)) return errorResponse(404, "not_found", "Not found.");
   const store = await getStore();
-  const app = await store.getAppById(appId);
-  if (!app) return errorResponse(404, "not_found", "Not found.");
+  const found = await store.getAppById(appId);
+  if (!found) return errorResponse(404, "not_found", "Not found.");
+  // 16 Demo sign-in and demo checkout only for the demo account's own demo apps.
+  const app = await withDemoChecked(store, found);
   // Each app has its own plan: the API answers while this app's license is active.
   const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const now = new Date();
@@ -57,7 +61,8 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
       suspended: client?.status === "suspended",
       plan,
       onUsersCounted: async (count) => {
-        if (client) await checkAppUserNotices({ store, baseUrl: appUrl(), mail: sendTemplate, now }, { app, client, plan, plans, count });
+        // 16 Demo apps have no owner to tell.
+        if (client && !app.demo) await checkAppUserNotices({ store, baseUrl: appUrl(), mail: sendTemplate, now }, { app, client, plan, plans, count });
       },
       now,
       ip: ipFromHeaders(request.headers),
@@ -72,12 +77,15 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
         platformUrl: appUrl(),
         cardPayments: hasFeature(plan, "card_payments"),
         onBooked: async (appointment: BookingAppointment) => {
+          if (app.demo) return;
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
           const values = newAppointmentMailValues(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
           await sendTemplate("new_appointment", owner.email, values);
         },
         onInquiry: async ({ inquiry, listing, user, text }) => {
+          // 16 A demo office answers at once, so visitors see how replies arrive.
+          if (app.demo) return void (await demoOfficeReply(store, app, inquiry, new Date()));
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
           const url = `${appUrl()}/dashboard/inquiries/${inquiry.id}`;
