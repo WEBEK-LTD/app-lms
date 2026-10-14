@@ -70,9 +70,12 @@ export function connectorFor(
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);
-    return token
-      ? new ShopifyConnector({ shopDomain: app.connector.shopDomain, storefrontToken: token, adminToken: shopifyAdminToken(app, key) }, fetcher)
-      : null;
+    if (!token) {
+      // 19 Said in the server log: the app then has no content until the owner connects the shop again.
+      console.error(`[hosted] app ${app.id}: the saved Shopify token can't be decrypted, so the shop isn't connected.`);
+      return null;
+    }
+    return new ShopifyConnector({ shopDomain: app.connector.shopDomain, storefrontToken: token, adminToken: shopifyAdminToken(app, key) }, fetcher);
   }
   return null;
 }

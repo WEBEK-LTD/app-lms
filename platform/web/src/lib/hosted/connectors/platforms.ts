@@ -105,6 +105,9 @@ export function platformConnector(
   if (app.connector?.kind !== "platform") return null;
   const definition = platformDefinition(app.connector.platform);
   const values = platformValues(app, key);
+  // 19 Said in the server log: the app then has no content until the owner connects the platform again.
+  if (!definition) console.error(`[hosted] app ${app.id}: unknown platform "${app.connector.platform}", so it isn't connected.`);
+  else if (!values) console.error(`[hosted] app ${app.id}: the saved ${definition.name} keys can't be decrypted, so it isn't connected.`);
   if (!definition || !values) return null;
   return definition.create(values, {
     appId: app.id,
