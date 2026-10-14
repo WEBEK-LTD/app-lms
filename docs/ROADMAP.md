@@ -327,3 +327,19 @@ never routes. The four kinds the app type picker shows behave as before.
 | [x] | 20.2 The vertical (`apps.vertical`, `drizzle/0022_app_vertical.sql`): none, restaurant, clinic, fitness or charity; saved by the app type picker; sent in the build config (`vertical`), `Config.vertical` and the license status (`app_type`, `vertical`) | Unit and contract tests; migrations applied twice on MariaDB 10.11; browser tests on both stores |
 | [x] | 20.3 The app reads `vertical` from its build config and `Config` (unknown values are none) and has a wording helper with the default words in English, Arabic and Turkish; the app preview is rebuilt | flutter analyze and flutter test |
 | [x] | 20.4 Plugin 0.3.3: the pages an app gets before any are published follow the app type chosen in the dashboard instead of a guess from the site's plugins; `Config.vertical` is passed on | Plugin unit tests |
+
+## Phase 22: Wix stores
+
+Store apps take their products, categories, prices and checkout from a Wix
+store, through Wix's Headless REST APIs, with the same platform connector
+framework as ikas (`platform/web/src/lib/hosted/connectors/wix.ts`). Written
+from Wix's documentation and SDK typings; details only a real Wix site can
+confirm are marked "Unverified" in the code.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 22.1 Wix connector: a Headless OAuth app's client ID gets anonymous visitor tokens (kept in memory, renewed once when refused); Catalog V3 products (search, sort, categories with their subcategories, sale, cursor paging), product detail with options, variants, images and the product page; categories without "All Products"; cart pricing from each product's variants; checkout through an eCommerce checkout and a redirect session to Wix's hosted checkout, opened in the app; digital products not sold on iOS | Unit tests with a fake Wix (token, products, categories, variants, cart, checkout link) checked against the contract |
+| [x] | 22.2 Order history with an optional API key and site ID: orders placed with exactly the verified email of an email account, those of the Wix contacts with exactly the verified phone (E.164), and those placed or delivered with it; an empty phone or email never asks Wix for anything | Unit tests: phone, email, an account without either, a longer number, a number without its country code, a key without the contacts permission |
+| [x] | 22.3 Website step: Client ID, optional API key (encrypted) and site ID (a dashboard address works), optional store address; the setup check reads one product and, with a key, one order, and says in plain English what to fix (wrong client ID, no Wix Stores, the older Catalog V1, a key without the orders permission, a wrong site ID); platforms can now word their own setup errors (`PlatformCheckError`) | Unit tests and the platforms browser test |
+| [x] | 22.4 Registered everywhere platforms are: switches, the Store choices on the Website step, docs article "Connect your Wix store", Integrations and the marketing lists | Unit tests and the platforms browser test |
+| [~] | 22.5 Checked against a real Wix store | Waiting on a Wix test site with Wix Stores (`docs/LAUNCH-CHECKLIST.md` › 8) |

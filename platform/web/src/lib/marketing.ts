@@ -166,6 +166,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "ikas",
       "Ticimax",
       "IdeaSoft",
+      "Wix",
       "Your own API",
       "No website: products managed in the Yallapp dashboard",
     ],
@@ -178,7 +179,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       {
         icon: "payments",
         title: "Checkout you already trust",
-        text: "Customers pay on your own checkout: WooCommerce, Shopify, ikas, Ticimax or IdeaSoft. Without a website, they pay by card on a secure iyzico page.",
+        text: "Customers pay on your own checkout: WooCommerce, Shopify, ikas, Ticimax, IdeaSoft or Wix. Without a website, they pay by card on a secure iyzico page.",
       },
       {
         icon: "local_offer",
@@ -207,6 +208,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
     docs: [
       { href: "/docs/shopify", label: "Connect Shopify" },
       { href: "/docs/ikas", label: "Connect ikas" },
+      { href: "/docs/wix", label: "Connect your Wix store" },
       { href: "/docs/store-orders", label: "Products, orders and shipping" },
       { href: "/docs/card-payments", label: "Card payments with iyzico" },
     ],
@@ -376,6 +378,12 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "ikas", types: ["Store"], text: "Products, prices and stock, with checkout on your ikas store.", docs: "/docs/ikas" },
       { name: "Ticimax", types: ["Store"], text: "Products, prices and stock; customers finish their order on your shop.", docs: "/docs/ticimax" },
       { name: "IdeaSoft", types: ["Store"], text: "Products, prices, stock and orders; customers pay on your store's checkout.", docs: "/docs/ideasoft" },
+      {
+        name: "Wix",
+        types: ["Store"],
+        text: "Wix Stores products, categories, cart pricing and Wix's own checkout. Order history with an optional API key.",
+        docs: "/docs/wix",
+      },
       { name: "Teachable", types: ["Academy"], text: "Your school's courses, lessons and student progress.", docs: "/docs/teachable" },
       { name: "Thinkific", types: ["Academy"], text: "Courses, lessons and progress, with free enrollment in the app.", docs: "/docs/thinkific" },
       {
@@ -433,6 +441,7 @@ export const WORKS_WITH = [
   "ikas",
   "Ticimax",
   "IdeaSoft",
+  "Wix",
   "Teachable",
   "Thinkific",
   "SimplyBook.me",
@@ -687,7 +696,7 @@ export const STEPS: Step[] = [
     text: "Choose your app type and where its content comes from: your website, an online platform, your own API, or nothing at all.",
     details: [
       "Academy, Store, Bookings or Real estate",
-      "WordPress plugin, Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me",
+      "WordPress plugin, Shopify, ikas, Ticimax, IdeaSoft, Wix, Teachable, Thinkific or SimplyBook.me",
       "No website? Add products, courses, services or listings in the dashboard",
     ],
   },
@@ -759,7 +768,7 @@ export const FAQ: FaqGroup[] = [
     items: [
       {
         q: "Where can my app's content come from?",
-        a: "A WordPress site with the Yallapp plugin (Tutor LMS, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress or LatePoint), Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific, SimplyBook.me, your own API, or the Yallapp dashboard. See [Integrations](/integrations).",
+        a: "A WordPress site with the Yallapp plugin (Tutor LMS, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress or LatePoint), Shopify, ikas, Ticimax, IdeaSoft, Wix, Teachable, Thinkific, SimplyBook.me, your own API, or the Yallapp dashboard. See [Integrations](/integrations).",
       },
       {
         q: "Do I have to move my content anywhere?",
@@ -846,7 +855,7 @@ export const FAQ: FaqGroup[] = [
     items: [
       {
         q: "How do customers pay?",
-        a: "On your own checkout when your shop runs on WooCommerce, Shopify, ikas, Ticimax or IdeaSoft. Without a website, they pay by card on a secure iyzico page, into your own iyzico merchant account.",
+        a: "On your own checkout when your shop runs on WooCommerce, Shopify, ikas, Ticimax, IdeaSoft or Wix. Without a website, they pay by card on a secure iyzico page, into your own iyzico merchant account.",
       },
       {
         q: "I don't have an iyzico account. Can I still sell?",

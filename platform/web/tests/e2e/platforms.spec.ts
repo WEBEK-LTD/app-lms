@@ -47,6 +47,7 @@ test("a shop picks its platform and its keys are checked with it", async () => {
   await expect(own.getByRole("radio", { name: "ikas", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "Ticimax", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "IdeaSoft", exact: true })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Wix", exact: true })).toBeVisible();
   await expect(own.getByRole("radio", { name: "Teachable", exact: true })).toHaveCount(0);
 
   await own.getByRole("radio", { name: "Ticimax", exact: true }).check();
@@ -60,4 +61,25 @@ test("a shop picks its platform and its keys are checked with it", async () => {
   await expect(own.getByText("Ticimax didn't accept these details.", { exact: false })).toBeVisible();
   await expect(own.getByLabel(/^Shop address/)).toHaveValue("https://www.nar.test/admin");
   await expect(own.getByLabel(/^Web service key/)).toHaveValue("");
+});
+
+test("22 a Wix store connects with its client ID, and the API key comes with the site ID", async () => {
+  await own.getByRole("radio", { name: "Wix", exact: true }).check();
+  await expect(own.getByText(/^In your Wix dashboard, open Settings, then Headless Settings/)).toBeVisible();
+  await expect(own.getByLabel("API key (optional)")).toBeVisible();
+  await expect(own.getByLabel("Site ID (optional)")).toBeVisible();
+
+  // The key needs the site ID: said on the field, before asking Wix.
+  await own.getByLabel(/^Client ID/).fill("0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b");
+  await own.getByLabel("API key (optional)").fill("IST.not-a-real-key");
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own.getByText("Enter your site ID too: Wix needs it with the API key.")).toBeVisible();
+
+  // The test server can't reach Wix (or Wix refuses this client ID), so nothing is saved.
+  await own.getByLabel("API key (optional)").fill("IST.not-a-real-key");
+  await own.getByLabel("Site ID (optional)").fill("https://manage.wix.com/dashboard/11111111-2222-3333-4444-555555555555/home");
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own.getByText(/^Wix didn't accept th/)).toBeVisible();
+  await expect(own.getByLabel(/^Client ID/)).toHaveValue("0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b");
+  await expect(own.getByLabel("API key (optional)")).toHaveValue("");
 });

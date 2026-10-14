@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cartLines, error, intParam, type CartLineInput } from "./common";
+import { cartLines, error, intParam, normalizeHost, NumericIds, stableNumericId, type CartLineInput } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
@@ -52,52 +52,17 @@ export function normalizeStoreName(value: string): string | null {
 }
 
 /** "www.your-store.com" from a storefront address; null when it isn't a host name. */
-export function normalizeStorefront(value: string): string | null {
-  let host = value.trim().toLowerCase();
-  host = host.replace(/^https?:\/\//, "").split(/[/?#]/)[0] ?? "";
-  return /^(?=.{4,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(host) ? host : null;
-}
+export const normalizeStorefront = normalizeHost;
 
 // IDs
 
-/** A stable positive 31-bit number for an ikas ID (FNV-1a, 32 bits, shifted right by one). */
-export function ikasNumericId(id: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < id.length; i++) {
-    hash ^= id.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return hash >>> 1 || 1;
-}
-
-let collisionLogged = false;
-
-/** Numbers back to ikas IDs, for the IDs seen so far. */
-class IdMap {
-  private readonly ids = new Map<number, string>();
-
-  /** The number of an ikas ID, or null when another ID already has it (the first one keeps it). */
-  add(id: string): number | null {
-    const n = ikasNumericId(id);
-    const known = this.ids.get(n);
-    if (known === undefined) this.ids.set(n, id);
-    else if (known !== id) {
-      if (!collisionLogged) console.warn("ikas: two IDs share an app ID; the one seen later is left out.");
-      collisionLogged = true;
-      return null;
-    }
-    return n;
-  }
-
-  get(n: number): string | null {
-    return this.ids.get(n) ?? null;
-  }
-}
+/** A stable positive 31-bit number for an ikas ID (common.ts, shared with Wix). */
+export const ikasNumericId = stableNumericId;
 
 interface StoreIds {
-  products: IdMap;
-  variants: IdMap;
-  categories: IdMap;
+  products: NumericIds;
+  variants: NumericIds;
+  categories: NumericIds;
 }
 
 const idMaps = new Map<string, StoreIds>();
@@ -500,7 +465,7 @@ export class IkasConnector implements PlatformConnector {
     this.cacheKey = `${settings.store}:${settings.clientId}`;
     let ids = idMaps.get(settings.store);
     if (!ids) {
-      ids = { products: new IdMap(), variants: new IdMap(), categories: new IdMap() };
+      ids = { products: new NumericIds("ikas"), variants: new NumericIds("ikas"), categories: new NumericIds("ikas") };
       idMaps.set(settings.store, ids);
     }
     this.ids = ids;

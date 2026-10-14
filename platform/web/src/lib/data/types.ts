@@ -122,7 +122,7 @@ export type ConnectorConfig =
   /** Real estate: listings, the office settings, favorites and inquiries in the listing_* tables. */
   | { kind: "listings" }
   /**
-   * A platform connected with keys (ikas, Ticimax, IdeaSoft, Teachable,
+   * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook): `settings` holds the values that aren't secret,
    * `secretsEncrypted` the rest as encrypted JSON (lib/hosted/connectors/platforms.ts).
    */

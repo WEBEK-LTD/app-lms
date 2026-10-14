@@ -160,3 +160,4 @@ Nothing to set on Netlify: the preview is served from the site's own files
 | 10.5–10.7 | A WordPress test site and a Real estate test app built on the hosted API, to see published pages, languages and listings on a phone |
 | 14.2, 14.3 | A first client who asks us to publish: their Google Play and Apple developer accounts inviting the publishing team email |
 | 17.7 | A WordPress test site with the new plugin, and a phone, to try the preview of a WordPress app and its QR code |
+| 22.5 | A Wix test site with Wix Stores (Catalog V3): a Headless OAuth app's client ID, and an account API key that reads orders and contacts with the site ID |

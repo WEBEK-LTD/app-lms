@@ -190,6 +190,11 @@ mobile/
   are checked with the platform before they're saved (values that aren't
   secret as they are, secrets encrypted together, renewed OAuth tokens
   saved back).
+- Wix (22, Store) is one of them: a Headless OAuth app's client ID gets
+  visitor tokens for the catalog (Catalog V3), cart pricing and a checkout
+  that opens Wix's hosted checkout page; an optional account API key with
+  the site ID reads order history, matched exactly by verified phone or
+  email.
 - No website (Store apps): the client picks "I don't have a website" on the
   Website step and manages products (price, sale price, stock, photos,
   categories, digital or physical), shipping and their iyzico keys on the

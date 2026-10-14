@@ -1,7 +1,7 @@
 import { decrypt, encrypt } from "../../crypto/encryption";
 import type { DataStore } from "../../data/store";
 import type { App, AppType, ConnectorConfig } from "../../data/types";
-import type { Connector } from "./types";
+import { ConnectorError, type Connector } from "./types";
 
 /**
  * Platforms a client connects with keys they paste on the Website step
@@ -10,7 +10,19 @@ import type { Connector } from "./types";
  * together (context `app:connector:<app id>`).
  */
 
-export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook";
+export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook" | "wix";
+
+/**
+ * 22 Keys a platform refused for a reason the client can fix (a missing
+ * permission, a site without a shop): the Website step shows this message
+ * instead of the general one.
+ */
+export class PlatformCheckError extends ConnectorError {
+  constructor(message: string) {
+    super(message);
+    this.name = "PlatformCheckError";
+  }
+}
 
 export interface PlatformField {
   name: string;
