@@ -59,6 +59,7 @@ test("a shop picks its platform and its keys are checked with it", async () => {
   await own.getByLabel(/^Web service key/).fill("not-a-real-key");
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own.getByText("Ticimax didn't accept these details.", { exact: false })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Ticimax", exact: true })).toBeChecked();
   await expect(own.getByLabel(/^Shop address/)).toHaveValue("https://www.nar.test/admin");
   await expect(own.getByLabel(/^Web service key/)).toHaveValue("");
 });
@@ -80,6 +81,8 @@ test("22 a Wix store connects with its client ID, and the API key comes with the
   await own.getByLabel("Site ID (optional)").fill("https://manage.wix.com/dashboard/11111111-2222-3333-4444-555555555555/home");
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own.getByText(/^Wix didn't accept th/)).toBeVisible();
+  // The choices stay chosen after a failed save.
+  await expect(own.getByRole("radio", { name: "Wix", exact: true })).toBeChecked();
   await expect(own.getByLabel(/^Client ID/)).toHaveValue("0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b");
   await expect(own.getByLabel("API key (optional)")).toHaveValue("");
 });

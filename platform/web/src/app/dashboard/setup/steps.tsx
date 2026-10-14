@@ -213,6 +213,14 @@ export function WebsiteStep({
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
+  // React resets a form after each submit, which unchecks its controlled radios; drawing the form
+  // again after each answer brings back the choices (and fields) the answer kept.
+  const [formKey, setFormKey] = useState(0);
+  const [seen, setSeen] = useState(state);
+  if (seen !== state) {
+    setSeen(state);
+    setFormKey((k) => k + 1);
+  }
   // 19 The check that ran when the API was saved, unless one was run since with the button.
   const checkResult = check.result ?? state.apiCheck ?? null;
   const savedWithFailedCheck = Boolean(state.apiCheck && !state.apiCheck.ok);
@@ -223,7 +231,7 @@ export function WebsiteStep({
   const initial = (state.values?.backend as Backend | undefined) ?? backend;
   const [choice, setChoice] = useState<Backend>(offered.includes(initial) ? initial : (offered[0] ?? initial));
   return (
-    <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+    <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="backend" value={choice} />
       <StepCard title="Website" id="h-website">
