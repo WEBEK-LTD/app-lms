@@ -1,5 +1,6 @@
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
+import type { AdminRole } from "../admin/permissions";
 
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
@@ -714,4 +715,75 @@ export interface LessonProgress {
   positionSeconds: number;
   completedAt: Date | null;
   updatedAt: Date;
+}
+
+// 11.7 Admin team and audit log
+
+/** Someone of the WEBEK team in the super admin pages, besides SUPER_ADMIN_EMAILS (always owners). */
+export interface AdminMember {
+  userId: string;
+  role: AdminRole;
+  /** Email of the owner who invited them or last changed their role. */
+  addedBy: string;
+  addedAt: Date;
+  updatedAt: Date;
+}
+
+export interface AdminMemberRow {
+  member: AdminMember;
+  user: User;
+}
+
+/** Changed fields of an audit entry, secrets redacted. */
+export interface AuditChanges {
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+}
+
+/** One change made in the admin: who, when, what and to what. */
+export interface AuditEntry {
+  id: number;
+  at: Date;
+  /** The team member's user ID; null once their account is gone. */
+  actorId: string | null;
+  actorEmail: string;
+  /** A key from lib/admin/audit-actions.ts, like client.activate. */
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  /** The client the change concerns, for their page in the admin. */
+  clientId: string | null;
+  summary: string;
+  changes: AuditChanges | null;
+}
+
+export interface AuditQuery {
+  /** Part of the team member's email. */
+  actor?: string;
+  action?: string;
+  targetType?: string;
+  targetId?: string;
+  clientId?: string;
+  /** Entries at or after `from` and before `to`. */
+  from?: Date;
+  to?: Date;
+  offset: number;
+  limit: number;
+}
+
+// 11.5 Switches
+
+/**
+ * App types, websites and features the team switched off (keys like
+ * `app_type:store`, `website:ikas`, `feature:push`; lib/switches.ts), for
+ * everyone or per plan. Everything not listed is on.
+ */
+export interface SwitchesSetting {
+  off: string[];
+  offByPlan: Partial<Record<Plan, string[]>>;
+}
+
+/** Merged into the settings above. */
+export interface PlatformSettingValues {
+  switches: SwitchesSetting;
 }

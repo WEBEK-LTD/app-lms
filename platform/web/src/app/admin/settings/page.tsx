@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { resetPlatformSettingAction } from "@/app/actions/admin-settings";
 import { SubmitButton } from "@/components/form";
 import { Badge, formatDateTime } from "@/components/ui";
+import { ReadOnly } from "@/components/read-only";
+import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
@@ -60,7 +62,7 @@ function Section({ id, title, text, children }: { id: string; title: string; tex
  * (secrets stay encrypted and are never shown); the server rows are read-only.
  */
 export default async function SettingsPage() {
-  await requireAdmin();
+  const { adminRole } = await requireAdmin();
   const settings = await platformSettings(await getStore(), { fresh: true });
   const otp = settings.get("otp") as PlatformSetting<"otp"> | undefined;
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
@@ -86,6 +88,7 @@ export default async function SettingsPage() {
           Settings saved here replace the Netlify variables and apply within 30 seconds. Secrets are stored encrypted and never shown again.
         </span>
       </div>
+      <ReadOnly when={!can(adminRole, "settings.edit")} what="change platform settings">
 
       <Section id="h-contact" title="Contact details" text="How clients reach Yallapp: shown on every page of the website, in the dashboard and in emails.">
         {contact ? (
@@ -194,6 +197,7 @@ export default async function SettingsPage() {
           <Row label="Super admins" ok={superAdminEmails().length > 0} value={superAdminEmails().join(", ")} />
         </div>
       </Section>
+      </ReadOnly>
     </>
   );
 }

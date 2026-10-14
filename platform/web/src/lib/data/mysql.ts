@@ -59,6 +59,10 @@ import type {
   StageStatus,
   StoreListing,
   User,
+  AdminMember,
+  AdminMemberRow,
+  AuditEntry,
+  AuditQuery,
 } from "./types";
 import { ACTIVE_BOOKING_STATUSES } from "./types";
 
@@ -1134,6 +1138,110 @@ export class MysqlStore implements DataStore {
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
     return rows[0]?.hits ?? 1;
+  }
+
+  // 11.7 Admin team and audit log
+
+  async listAdminMembers(): Promise<AdminMemberRow[]> {
+    return this.run((db) =>
+      db
+        .select({ member: schema.adminMembers, user: schema.users })
+        .from(schema.adminMembers)
+        .innerJoin(schema.users, eq(schema.users.id, schema.adminMembers.userId))
+        .orderBy(asc(schema.adminMembers.addedAt)),
+    );
+  }
+
+  async getAdminMember(userId: string): Promise<AdminMember | null> {
+    const rows = await this.run((db) => db.select().from(schema.adminMembers).where(eq(schema.adminMembers.userId, userId)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async saveAdminMember(member: AdminMember): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.adminMembers)
+        .values(member)
+        .onDuplicateKeyUpdate({ set: { role: member.role, addedBy: member.addedBy, updatedAt: member.updatedAt } }),
+    );
+  }
+
+  async deleteAdminMember(userId: string): Promise<void> {
+    await this.run((db) => db.delete(schema.adminMembers).where(eq(schema.adminMembers.userId, userId)));
+  }
+
+  async createAuditEntry(entry: Omit<AuditEntry, "id">): Promise<AuditEntry> {
+    const [result] = await this.run((db) => db.insert(schema.adminAuditLog).values(entry));
+    return { id: Number(result.insertId), ...entry };
+  }
+
+  async listAuditEntries(query: AuditQuery): Promise<{ items: AuditEntry[]; total: number }> {
+    const t = schema.adminAuditLog;
+    const actor = query.actor?.trim();
+    const where = and(
+      actor ? like(t.actorEmail, `%${actor.replace(/[\\%_]/g, (c) => `\\${c}`)}%`) : undefined,
+      query.action ? eq(t.action, query.action) : undefined,
+      query.targetType ? eq(t.targetType, query.targetType) : undefined,
+      query.targetId ? eq(t.targetId, query.targetId) : undefined,
+      query.clientId ? eq(t.clientId, query.clientId) : undefined,
+      query.from ? gte(t.at, query.from) : undefined,
+      query.to ? lt(t.at, query.to) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.at), desc(t.id)).limit(query.limit).offset(query.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  // 11.1 Overview
+
+  async listApps(): Promise<App[]> {
+    return this.run((db) => db.select().from(schema.apps));
+  }
+
+  async listBuildsSince(since: Date): Promise<Build[]> {
+    const rows = await this.run((db) => db.select().from(schema.builds).where(gte(schema.builds.createdAt, since)).orderBy(desc(schema.builds.createdAt)));
+    return rows.map(toBuild);
+  }
+
+  async listPaidPlanPaymentsSince(since: Date): Promise<PlanPayment[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.planPayments)
+        .where(and(eq(schema.planPayments.status, "paid"), gte(schema.planPayments.paidAt, since))),
+    );
+  }
+
+  async listMarketplaceOrdersSince(since: Date): Promise<CatalogOrder[]> {
+    return this.run((db) =>
+      db
+        .select()
+        .from(schema.catalogOrders)
+        .where(and(isNotNull(schema.catalogOrders.commissionCents), gte(schema.catalogOrders.paidAt, since))),
+    );
+  }
+
+  async countHostedUsersByApp(): Promise<Record<string, number>> {
+    const rows = await this.run((db) =>
+      db.select({ appId: schema.hostedUsers.appId, n: count() }).from(schema.hostedUsers).groupBy(schema.hostedUsers.appId),
+    );
+    return Object.fromEntries(rows.map((r) => [r.appId, r.n]));
+  }
+
+  // 11.2 Client page
+
+  async listHostedUsers(input: { appId: string; query?: string; offset: number; limit: number }): Promise<{ items: HostedUser[]; total: number }> {
+    const t = schema.hostedUsers;
+    const q = input.query?.trim();
+    const pattern = q ? `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : null;
+    const where = and(eq(t.appId, input.appId), pattern ? or(like(t.name, pattern), like(t.phone, pattern), like(t.email, pattern)) : undefined);
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
   }
 }
 

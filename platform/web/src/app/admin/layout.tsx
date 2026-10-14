@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Logo } from "@/components/brand";
 import { SideNavLinks } from "@/components/side-nav";
 import { SignOutButton } from "@/components/sign-out";
+import { ROLE_LABELS } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: { default: "Super admin", template: "%s · Yallapp admin" }, robots: { index: false } };
@@ -18,16 +19,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <SideNavLinks
           dark
           items={[
-            { href: "/admin", label: "Clients", exact: true },
+            { href: "/admin", label: "Overview", exact: true },
+            { href: "/admin/clients", label: "Clients" },
             { href: "/admin/builds", label: "Build queue" },
             { href: "/admin/releases", label: "App & plugin versions" },
             { href: "/admin/plans", label: "Plans" },
             { href: "/admin/payments", label: "Payments" },
+            { href: "/admin/switches", label: "Switches" },
+            { href: "/admin/team", label: "Team" },
+            { href: "/admin/audit", label: "Audit log" },
             { href: "/admin/settings", label: "Settings" },
           ]}
         />
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-night-line px-2 pt-3 text-sm text-night-muted md:mt-auto">
-          <span className="min-w-0 break-all">{user.email}</span>
+          <span className="min-w-0 break-all">
+            {user.email} · {ROLE_LABELS[user.adminRole]}
+          </span>
           <SignOutButton className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-ivory hover:underline" />
         </div>
       </nav>

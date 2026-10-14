@@ -55,6 +55,7 @@ async function signIn(page: Page, email: string, password: string) {
 
 async function openClientAsAdmin(page: Page, action: "Activate" | "Manage") {
   await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await page.goto("/admin/clients");
   await page.getByRole("searchbox", { name: "Search clients" }).fill(client.email);
   await page.getByRole("button", { name: "Search" }).click();
   await page.getByRole("link", { name: `${action} ${client.name}` }).click();

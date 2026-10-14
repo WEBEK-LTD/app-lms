@@ -15,7 +15,9 @@ import type {
   CourseSetup,
   BookingStatus,
   PushPreferences,
+  AuditChanges,
 } from "../data/types";
+import type { AdminRole } from "../admin/permissions";
 import {
   bigint,
   boolean,
@@ -514,4 +516,44 @@ export const lessonProgress = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
+);
+
+// 11.7 Admin team and audit log
+
+/** The WEBEK team in the super admin pages, besides SUPER_ADMIN_EMAILS (always owners). */
+export const adminMembers = mysqlTable("admin_members", {
+  userId: id("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 16 }).notNull().$type<AdminRole>(),
+  addedBy: varchar("added_by", { length: 191 }).notNull(),
+  addedAt: time("added_at").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+/**
+ * Every change made in the admin. No foreign keys: entries outlive the
+ * people and clients they name. `changes` never holds secret values.
+ */
+export const adminAuditLog = mysqlTable(
+  "admin_audit_log",
+  {
+    id: serial("id").primaryKey(),
+    at: time("at").notNull(),
+    actorId: id("actor_id"),
+    actorEmail: varchar("actor_email", { length: 191 }).notNull(),
+    action: varchar("action", { length: 64 }).notNull(),
+    targetType: varchar("target_type", { length: 32 }).notNull(),
+    targetId: varchar("target_id", { length: 64 }),
+    clientId: id("client_id"),
+    summary: varchar("summary", { length: 500 }).notNull(),
+    changes: jsonText<AuditChanges>("changes"),
+  },
+  (t) => [
+    index("admin_audit_log_at_idx").on(t.at),
+    index("admin_audit_log_actor_idx").on(t.actorEmail, t.at),
+    index("admin_audit_log_action_idx").on(t.action, t.at),
+    index("admin_audit_log_target_idx").on(t.targetType, t.targetId),
+    index("admin_audit_log_client_idx").on(t.clientId, t.at),
+  ],
 );

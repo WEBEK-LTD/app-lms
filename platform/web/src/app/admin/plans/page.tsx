@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { resetPlanAction } from "@/app/actions/admin-settings";
 import { SubmitButton } from "@/components/form";
+import { ReadOnly } from "@/components/read-only";
+import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
-import { PLAN_FEATURES, planPrice, PLANS } from "@/lib/plans";
+import type { SwitchesSetting } from "@/lib/data/types";
+import { PLAN_FEATURES, planPrice, PLANS, type Plan } from "@/lib/plans";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
+import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
+import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
 import { PlanForm } from "./forms";
 
 export const metadata: Metadata = { title: "Plans" };
@@ -13,9 +18,9 @@ export const dynamic = "force-dynamic";
 
 /** Plans and prices: shown on the pricing page, used by licenses and card payments. */
 export default async function PlansPage() {
-  await requireAdmin();
+  const { adminRole } = await requireAdmin();
   const store = await getStore();
-  const [plans, edits] = await Promise.all([getPlans(store), platformSetting(store, "plans")]);
+  const [plans, edits, switches] = await Promise.all([getPlans(store), platformSetting(store, "plans"), getSwitches(store, { fresh: true })]);
   return (
     <>
       <div className="flex flex-col gap-1.5">
@@ -25,6 +30,7 @@ export default async function PlansPage() {
           online once card payments for plans are on.
         </span>
       </div>
+      <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
       <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr))]">
         {PLANS.map((id) => {
           const plan = plans[id];
@@ -62,10 +68,36 @@ export default async function PlansPage() {
                   </SubmitButton>
                 </form>
               ) : null}
+              <div className="flex flex-col gap-3 border-t border-line-soft pt-4">
+                <h3 className="m-0 text-base font-bold">
+                  What {plan.name} offers
+                </h3>
+                <p className="m-0 text-[13px] text-muted">
+                  Clients on this plan can choose what&apos;s ticked. Switches turn things off for everyone; license features are set above.
+                </p>
+                <PlanAvailabilityForm plan={id} planName={plan.name} groups={availabilityGroups(switches, id)} />
+              </div>
             </section>
           );
         })}
       </div>
+      </ReadOnly>
     </>
   );
+}
+
+// 11.5 Switches: per plan, everything but the license features.
+function availabilityGroups(switches: SwitchesSetting | null, plan: Plan): AvailabilityGroup[] {
+  const licenseKeys = new Set(LICENSE_FEATURE_SWITCHES.map((f) => switchKey("feature", f)));
+  return switchGroups().map((group) => ({
+    title: group.title,
+    items: group.items
+      .filter((item) => !licenseKeys.has(item.key))
+      .map((item) => ({
+        key: item.key,
+        label: item.label,
+        on: !(switches?.offByPlan[plan] ?? []).includes(item.key),
+        offForEveryone: (switches?.off ?? []).includes(item.key),
+      })),
+  }));
 }

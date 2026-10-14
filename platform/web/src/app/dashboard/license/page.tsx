@@ -13,6 +13,7 @@ import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
@@ -34,7 +35,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const { released, payment } = await searchParams;
   const store = await getStore();
   const plans = await getPlans(store);
-  const payable = (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(plans) : [];
+  const payable = (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(plans, await getSwitches(store)) : [];
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;

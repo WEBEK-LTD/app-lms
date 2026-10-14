@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
-import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
+import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { recordStaffChange } from "@/lib/admin/audit";
+import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
@@ -59,6 +61,7 @@ function stepUrl(step: SetupStep): string {
 async function afterStep(context: ClientContext & { app: App }, step: SetupStep): Promise<never> {
   const store = await getStore();
   const app = (await store.getAppById(context.app.id))!;
+  await recordStaffChange(context, `Saved the ${STEP_LABEL[step]} step of the app`, context.app, app);
   const plan = context.license?.plan ?? null;
   revalidatePath("/dashboard", "layout");
   if (isSetupComplete(app, plan)) {
@@ -86,7 +89,14 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   const appType = formData.get("appType");
   if (!isAppType(appType)) redirect("/dashboard/app-type");
   const store = await getStore();
+  // 11.5 Switches: a switched-off type can't be chosen (an app keeps its own).
+  if (appType !== context.app?.appType && !appTypeOn(await getSwitches(store), appType, context.license?.plan ?? null)) {
+    redirect("/dashboard/app-type?unavailable=1");
+  }
   const now = new Date();
+  if (context.app?.appType !== appType) {
+    await recordStaffChange(context, `Set the app type to ${APP_TYPE_NAMES[appType]}`, { appType: context.app?.appType ?? null }, { appType });
+  }
   if (!context.app) {
     await store.createApp(newApp(context.client.id, context.client.siteUrl, now, appType));
   } else if (context.app.appType !== appType) {
@@ -119,6 +129,11 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const store = await getStore();
   const now = new Date();
   const data = parsed.data;
+  // 11.5 Switches: a switched-off website or platform can't be chosen; the app's current one can still be saved.
+  const website = data.backend === "catalog" ? noWebsiteFor(context.app.appType) : data.backend === "platform" ? data.platform : data.backend;
+  if (!(context.app.websiteDoneAt && website === websiteOf(context.app)) && !websiteOn(await getSwitches(store), website, context.license?.plan ?? null)) {
+    return { message: "This choice isn't available. Choose another one, or message us on WhatsApp.", values: { backend: data.backend } };
+  }
   if (data.backend === "catalog" && context.app.appType === "lms") {
     await store.updateApp(
       context.app.id,
@@ -543,6 +558,7 @@ export async function removeStoreKeyAction(formData: FormData): Promise<void> {
   } else if (formData.get("store") === "firebase-ios") {
     await store.updateApp(context.app.id, { firebaseIosAssetId: null }, now);
   }
+  await recordStaffChange(context, `Removed a saved key or file (${String(formData.get("store") ?? "")})`);
   revalidatePath("/dashboard", "layout");
   redirect(stepUrl("publishing"));
 }
@@ -621,6 +637,7 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
     };
   }
   await startPipeline();
+  await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
   return { ok: true, message: `Build #${result.build.number} is queued.`, values: { versionName: bumpPatch(result.build.versionName) } };
 }
@@ -631,6 +648,7 @@ export async function releaseSiteAction(): Promise<void> {
   if (context.license) {
     const store = await getStore();
     await store.deleteActivation(context.license.id);
+    await recordStaffChange(context, "Released the license from its website");
   }
   revalidatePath("/dashboard", "layout");
   redirect("/dashboard/license?released=1");

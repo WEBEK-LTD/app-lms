@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { deleteReleaseAction, toggleReleaseAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Badge, formatDate } from "@/components/ui";
+import { ReadOnly } from "@/components/read-only";
+import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { latestRelease } from "@/lib/license/service";
@@ -10,7 +12,7 @@ import { ReleaseForm } from "../forms";
 export const metadata: Metadata = { title: "App & plugin versions" };
 
 export default async function ReleasesPage() {
-  await requireAdmin();
+  const { adminRole } = await requireAdmin();
   const releases = await (await getStore()).listReleases();
   const latest = latestRelease(releases);
 
@@ -24,6 +26,7 @@ export default async function ReleasesPage() {
         </span>
       </div>
 
+      <ReadOnly when={!can(adminRole, "releases.manage")} what="upload or publish releases">
       <div className="flex flex-wrap items-start gap-5">
         <section aria-labelledby="h-upload" className="flex min-w-0 flex-[1_1_380px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-upload" className="m-0 text-[19px] font-bold">
@@ -77,6 +80,7 @@ export default async function ReleasesPage() {
           )}
         </section>
       </div>
+      </ReadOnly>
     </>
   );
 }

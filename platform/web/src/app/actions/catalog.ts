@@ -15,6 +15,8 @@ import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput } fr
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { checkIyzicoKeys, createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
+import { recordStaffChange } from "@/lib/admin/audit";
+import { featureOn, getSwitches } from "@/lib/switches";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -194,7 +196,8 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
 }
 
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true });
+  const { app } = context;
   const apiKey = str(formData, "apiKey");
   const secretKey = str(formData, "secretKey");
   const sandbox = formData.get("sandbox") === "on";
@@ -215,6 +218,7 @@ export async function savePaymentKeysAction(_: FormState, formData: FormData): P
     { catalogSettings: { ...catalogSettings(app), payment: encryptPaymentKeys(app.id, apiKey, secretKey, sandbox, encryptionKey()) } },
     now,
   );
+  await recordStaffChange(context, `Saved the shop's own iyzico keys (${sandbox ? "sandbox" : "live"})`);
   refresh();
   return {
     ok: true,
@@ -226,12 +230,14 @@ const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone
 
 /** The shop sells through Yallapp's account: iyzico registers it as a sub-merchant that gets each sale minus the commission. */
 export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true });
+  const { app } = context;
   const values: Record<string, string> = {};
   for (const name of SUB_MERCHANT_FIELDS) values[name] = str(formData, name);
   const store = await getStore();
   const terms = await marketplaceTerms(store, encryptionKey());
-  if (!terms) return { message: "Selling through Yallapp isn't available right now. Add your own iyzico keys instead.", values };
+  // 11.5 Switches: joining can be switched off, for everyone or per plan.
+  if (!terms || !featureOn(await getSwitches(store), "marketplace", context.license?.plan ?? null)) return { message: "Selling through Yallapp isn't available right now. Add your own iyzico keys instead.", values };
   const parsed = parseSubMerchantForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
   let subMerchantKey: string;
@@ -264,13 +270,16 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
     },
     now,
   );
+  await recordStaffChange(context, `Joined selling through Yallapp (payee ${parsed.details.name})`);
   refresh();
   return { ok: true, message: `Done. Your app takes payments now; iyzico pays your share to the IBAN ending ${parsed.details.iban.slice(-4)}.` };
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const { app } = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true });
+  const { app } = context;
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
+  await recordStaffChange(context, "Turned off the shop's card payments");
   refresh();
 }
 

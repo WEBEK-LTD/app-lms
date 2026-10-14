@@ -9,6 +9,7 @@ import type { FormState } from "@/lib/forms";
 import { IyzicoError } from "@/lib/payments/iyzico";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { featureOn, getSwitches } from "@/lib/switches";
 
 /** The client pays a plan by card: off to iyzico's payment page. */
 export async function payPlanAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -21,6 +22,10 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   const plans = await getPlans(store);
   const plan = values.plan === "starter" || values.plan === "pro" ? plans[values.plan] : null;
   if (!plan || plan.priceCents === null) return { errors: { plan: "Choose a plan." }, values };
+  // 11.5 Switches: card payments can be switched off, for everyone or per plan.
+  if (!featureOn(await getSwitches(store), "plan_card_payments", plan.id)) {
+    return { message: "Card payments aren't available for this plan. Message us on WhatsApp to pay.", values };
+  }
   const billing = readBilling(values);
   if (!billing.ok) return { errors: billing.errors, values };
   const keys = await yallappIyzicoKeys(store, encryptionKey());

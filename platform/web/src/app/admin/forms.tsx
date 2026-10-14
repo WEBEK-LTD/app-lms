@@ -11,17 +11,21 @@ export function ActivateForm({
   activeUntil,
   pending,
   planNames,
+  from,
 }: {
   clientId: string;
   plan: "starter" | "pro";
   activeUntil: string;
   pending: boolean;
   planNames: { starter: string; pro: string };
+  /** "client": the form is on the client's own page, which it goes back to. */
+  from?: "client";
 }) {
   const [state, action] = useActionState(activateClientAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <input type="hidden" name="clientId" value={clientId} />
+      {from ? <input type="hidden" name="from" value={from} /> : null}
       <FormMessage message={state.message} />
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-plan" className="text-sm font-semibold">

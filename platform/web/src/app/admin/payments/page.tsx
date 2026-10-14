@@ -4,6 +4,7 @@ import { releasePayoutAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, formatDateTime } from "@/components/ui";
 import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
+import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 /** Clients' card payments for their plans, newest first. */
 export default async function PaymentsPage({ searchParams }: PageProps<"/admin/payments">) {
-  await requireAdmin();
+  const { adminRole } = await requireAdmin();
   const { done } = await searchParams;
   const store = await getStore();
   const [payments, plans, sales] = await Promise.all([store.listPlanPayments({ limit: 100 }), getPlans(store), store.listMarketplaceOrders(100)]);
@@ -60,7 +61,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
               {payments.map((p) => (
                 <tr key={p.id} className="border-t border-line-soft">
                   <td className="px-4 py-3">
-                    <Link href={`/admin?client=${p.clientId}`}>{names.get(p.clientId)}</Link>
+                    <Link href={`/admin/clients?client=${p.clientId}`}>{names.get(p.clientId)}</Link>
                   </td>
                   <td className="px-4 py-3">
                     {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"}
@@ -130,7 +131,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   <td className="px-4 py-3">
                     {o.payoutApprovedAt ? (
                       <span>Released {formatDateTime(o.payoutApprovedAt)}</span>
-                    ) : o.status === "processing" || o.status === "completed" ? (
+                    ) : (o.status === "processing" || o.status === "completed") && can(adminRole, "payments.manage") ? (
                       <form action={releasePayoutAction}>
                         <input type="hidden" name="appId" value={o.appId} />
                         <input type="hidden" name="orderId" value={o.id} />

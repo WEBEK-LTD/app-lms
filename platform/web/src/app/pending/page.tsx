@@ -6,8 +6,9 @@ import { SignOutButton } from "@/components/sign-out";
 import { btn } from "@/components/ui";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { Notice } from "@/components/ui";
-import { getClientContext, getCurrentUser, isSuperAdmin } from "@/lib/auth/session";
+import { getAdminRole, getClientContext, getCurrentUser } from "@/lib/auth/session";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { getSwitches } from "@/lib/switches";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
@@ -19,7 +20,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   const contact = await getContact();
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
-  if (isSuperAdmin(user)) redirect("/admin");
+  if (await getAdminRole()) redirect("/admin");
   const context = await getClientContext();
   if (!context) {
     // A user without a client profile (for example a former super admin): nowhere else to send them.
@@ -45,7 +46,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   const suspended = context.client.status === "suspended";
   const { payment } = await searchParams;
   const store = await getStore();
-  const payable = !suspended && (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(await getPlans(store)) : [];
+  const payable = !suspended && (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(await getPlans(store), await getSwitches(store)) : [];
   const whatsapp = `${contact.whatsappUrl}?text=${encodeURIComponent(
     suspended
       ? `Hello, my Yallapp account (${user.email}) is suspended. Can you help?`

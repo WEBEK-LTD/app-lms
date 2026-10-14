@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { recordStaffChange } from "@/lib/admin/audit";
 import { getStore } from "@/lib/data";
 import type { FormState } from "@/lib/forms";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
@@ -22,6 +23,7 @@ export async function saveAppSignInAction(_: FormState, formData: FormData): Pro
   if (!parsed.ok) return { errors: parsed.errors, values };
   const store = await getStore();
   await store.updateApp(app.id, { hostedSettings: parsed.value }, new Date());
+  await recordStaffChange(context, "Saved the app sign-in rules", app.hostedSettings ?? {}, parsed.value);
   revalidatePath("/dashboard/app-sign-in");
   return { ok: true, message: "Saved. The app uses these rules now; no new build is needed.", values };
 }

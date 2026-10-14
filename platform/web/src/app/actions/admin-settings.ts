@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth/session";
+import { recordAudit, type AuditInput } from "@/lib/admin/audit";
+import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
@@ -15,26 +16,52 @@ import { clearPlatformSettingsCache, encryptSetting, platformSetting } from "@/l
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
 
-async function save<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, email: string) {
+const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
+  otp: "sign-in codes",
+  smtp: "email server",
+  iyzico: "Yallapp's iyzico account",
+  marketplace: "marketplace commission",
+  contact: "contact details",
+  plans: "plans",
+};
+
+/** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
+async function save<K extends PlatformSettingKey>(
+  key: K,
+  value: PlatformSettingValues[K] | null,
+  admin: AdminUser,
+  audit: Partial<Pick<AuditInput, "action" | "target" | "summary" | "before" | "after">> = {},
+) {
   const store = await getStore();
-  await store.setPlatformSetting(key, value, email, new Date());
+  const before = (await platformSetting(store, key, { fresh: true }))?.value ?? null;
+  await store.setPlatformSetting(key, value, admin.email, new Date());
   clearPlatformSettingsCache();
+  const label = SETTING_LABELS[key] ?? key;
+  await recordAudit({
+    actor: admin,
+    action: value === null ? "settings.reset" : "settings.save",
+    target: { type: "setting", id: key },
+    summary: value === null ? `Removed the ${label} setting` : `Saved the ${label} setting`,
+    before,
+    after: value,
+    ...audit,
+  });
   revalidatePath("/admin/settings");
 }
 
 /** Back to the Netlify variables for this setting. */
 export async function resetPlatformSettingAction(formData: FormData): Promise<void> {
-  const admin = await requireAdmin();
   const key = String(formData.get("key")) as PlatformSettingKey;
-  if (key === "otp" || key === "smtp" || key === "iyzico" || key === "marketplace") await save(key, null, admin.email);
+  const admin = await requireAdmin(key === "iyzico" || key === "marketplace" ? "payments.manage" : "settings.edit");
+  if (key === "otp" || key === "smtp" || key === "iyzico" || key === "marketplace") await save(key, null, admin);
   if (key === "contact") {
-    await save(key, null, admin.email);
+    await save(key, null, admin);
     revalidatePath("/", "layout");
   }
 }
 
 export async function saveOtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   const store = await getStore();
   const saved = (await platformSetting(store, "otp", { fresh: true }))?.value ?? null;
   const kind = str(formData, "kind");
@@ -78,12 +105,12 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
   } else {
     return { errors: { kind: "Choose how codes are sent." }, values };
   }
-  await save("otp", value, admin.email);
+  await save("otp", value, admin);
   return { ok: true, message: "Sign-in codes setting saved. It applies within 30 seconds on every server." };
 }
 
 export async function saveSmtpSettingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   const store = await getStore();
   const saved = (await platformSetting(store, "smtp", { fresh: true }))?.value ?? null;
   const values: Record<string, string> = {};
@@ -105,12 +132,12 @@ export async function saveSmtpSettingAction(_: FormState, formData: FormData): P
     passEncrypted: pass ? encryptSetting("smtp", pass, encryptionKey()) : keepPass,
     from: values.from!,
   };
-  await save("smtp", value, admin.email);
+  await save("smtp", value, admin);
   return { ok: true, message: "Email setting saved. Send a test email to check it.", values };
 }
 
 export async function sendTestEmailAction(): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   try {
     await sendMail({
       to: admin.email,
@@ -124,7 +151,7 @@ export async function sendTestEmailAction(): Promise<FormState> {
 }
 
 export async function saveIyzicoSettingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("payments.manage");
   const apiKey = str(formData, "apiKey");
   const secretKey = str(formData, "secretKey");
   const sandbox = formData.get("sandbox") === "on";
@@ -140,7 +167,7 @@ export async function saveIyzicoSettingAction(_: FormState, formData: FormData):
   await save(
     "iyzico",
     { apiKeyEncrypted: encryptSetting("iyzico", apiKey, key), secretKeyEncrypted: encryptSetting("iyzico", secretKey, key), sandbox },
-    admin.email,
+    admin,
   );
   return { ok: true, message: accepted ? "iyzico account saved." : "Saved. iyzico couldn't be reached to check the keys." };
 }
@@ -148,7 +175,7 @@ export async function saveIyzicoSettingAction(_: FormState, formData: FormData):
 const PLAN_IDS = ["starter", "pro"] as const;
 
 export async function savePlanAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
   if (!PLAN_IDS.includes(plan)) return { message: "Unknown plan." };
   const values: Record<string, string> = {};
@@ -181,7 +208,13 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     billingMonths: values.months === "1" ? 1 : 12,
     features: features.filter((f): f is PlanFeature => known.has(f as PlanFeature)),
   };
-  await save("plans", { ...saved, [plan]: setting }, admin.email);
+  await save("plans", { ...saved, [plan]: setting }, admin, {
+    action: "plan.save",
+    target: { type: "plan", id: plan },
+    summary: `Saved the ${setting.name} plan`,
+    before: saved[plan] ?? null,
+    after: setting,
+  });
   revalidatePath("/admin/plans");
   revalidatePath("/pricing");
   revalidatePath("/");
@@ -189,38 +222,43 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
 }
 
 export async function resetPlanAction(formData: FormData): Promise<void> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("plans.edit");
   const plan = str(formData, "plan") as (typeof PLAN_IDS)[number];
   if (!PLAN_IDS.includes(plan)) return;
   const store = await getStore();
   const { [plan]: _removed, ...rest } = (await platformSetting(store, "plans", { fresh: true }))?.value ?? {};
-  void _removed;
-  await save("plans", Object.keys(rest).length ? rest : null, admin.email);
+  await save("plans", Object.keys(rest).length ? rest : null, admin, {
+    action: "plan.reset",
+    target: { type: "plan", id: plan },
+    summary: `Put the ${plan} plan back to its defaults`,
+    before: _removed ?? null,
+    after: null,
+  });
   revalidatePath("/admin/plans");
   revalidatePath("/pricing");
 }
 
 /** Shops without their own iyzico account sell through Yallapp's, for this commission. */
 export async function saveMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("payments.manage");
   const raw = str(formData, "commission").replace(",", ".");
   const percent = Number(raw);
   if (!/^\d{1,2}(\.\d{1,2})?$/.test(raw) || percent > 50) {
     return { errors: { commission: "Enter a percent from 0 to 50, like 8 or 7.5." }, values: { commission: raw } };
   }
-  await save("marketplace", { commissionPercent: percent }, admin.email);
+  await save("marketplace", { commissionPercent: percent }, admin);
   return { ok: true, message: `Shops can sell through Yallapp for a ${percent}% commission.`, values: { commission: raw } };
 }
 
 /** Yallapp's WhatsApp number and email, shown across the website, the dashboard and emails. */
 export async function saveContactAction(_: FormState, formData: FormData): Promise<FormState> {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin("settings.edit");
   const values = { whatsapp: str(formData, "whatsapp"), email: str(formData, "email") };
   const errors: Record<string, string> = {};
   if (!parseAnyPhone(values.whatsapp, "+90") || !values.whatsapp.startsWith("+")) errors.whatsapp = "Enter the number with its country code, like +90 544 673 19 42.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.email.length > 191) errors.email = "Enter an email address.";
   if (Object.keys(errors).length) return { errors, values };
-  await save("contact", values, admin.email);
+  await save("contact", values, admin);
   // Every page shows them, including the ones built ahead of time.
   revalidatePath("/", "layout");
   return { ok: true, message: "Contact details saved. The website and the dashboard show them now.", values };
