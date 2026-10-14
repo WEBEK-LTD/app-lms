@@ -23,7 +23,7 @@ import type { AppPatch } from "@/lib/data/store";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
 import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
-import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
+import { PlatformCheckError, platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector, ShopifyPermissionError } from "@/lib/hosted/connectors/shopify";
 import { emailOffWarning, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
@@ -381,11 +381,13 @@ async function connectPlatform(
         },
       })
       .check();
-  } catch {
-    return {
-      errors: { platform: `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.` },
-      values,
-    };
+  } catch (e) {
+    // 22 A reason the client can fix is said as the platform's connector words it.
+    const message =
+      e instanceof PlatformCheckError
+        ? e.message
+        : `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.`;
+    return { errors: { platform: message }, values };
   }
   return { connector: platformConnectorConfig(app.id, definition, { ...all, ...renewed }, key) };
 }

@@ -49,7 +49,7 @@ describe("sign-in methods", () => {
       expect(hostedSignInMethods(platform(id, "lms"))).toEqual(["phone", "email"]);
       expect(emailSignInNote(platform(id, "lms"))).toMatch(/knows students by email/);
     }
-    for (const id of ["ikas", "ticimax", "ideasoft"]) {
+    for (const id of ["ikas", "ticimax", "ideasoft", "wix"]) {
       expect(emailSignInPossible(platform(id, "store"))).toBe(false);
       expect(emailSignInNote(platform(id, "store"))).toBe("Your connected shop finds each customer's orders by their phone number, so this app signs in by phone.");
     }

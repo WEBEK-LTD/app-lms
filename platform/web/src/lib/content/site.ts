@@ -108,7 +108,7 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     eyebrow: "Store apps",
     title: "Your shop, one tap away",
     intro:
-      "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard with card payments.",
+      "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, your own API, or products you add in the dashboard with card payments.",
   },
   bookings: {
     eyebrow: "Bookings apps",

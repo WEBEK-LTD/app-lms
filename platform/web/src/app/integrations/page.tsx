@@ -8,7 +8,7 @@ import { INTEGRATION_GROUPS } from "@/lib/marketing";
 export const metadata: Metadata = {
   title: "Integrations",
   description:
-    "WordPress with Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint; Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific, SimplyBook.me; your own API; or no website.",
+    "WordPress with Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint; Shopify, ikas, Ticimax, IdeaSoft, Wix, Teachable, Thinkific, SimplyBook.me; your own API; or no website.",
 };
 
 export default async function IntegrationsPage() {

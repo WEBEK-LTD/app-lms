@@ -6,3 +6,4 @@ import "./teachable";
 import "./thinkific";
 import "./simplybook";
 import "./ticimax";
+import "./wix";

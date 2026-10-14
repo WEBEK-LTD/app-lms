@@ -180,7 +180,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
 
 - **My WordPress site**: install the Yallapp plugin on your site. Works with Tutor LMS, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint. See [Install the WordPress plugin](/docs/wordpress-plugin).
 - **My Shopify store** (Store apps): see [Connect Shopify](/docs/shopify).
-- **Another store platform** (Store apps): ikas, Ticimax or IdeaSoft. See [Connect ikas](/docs/ikas), [Connect Ticimax](/docs/ticimax) and [Connect IdeaSoft](/docs/ideasoft).
+- **Another store platform** (Store apps): ikas, Ticimax, IdeaSoft or Wix. See [Connect ikas](/docs/ikas), [Connect Ticimax](/docs/ticimax), [Connect IdeaSoft](/docs/ideasoft) and [Connect your Wix store](/docs/wix).
 - **My Teachable or Thinkific school** (Academy apps): see [Connect Teachable](/docs/teachable) and [Connect Thinkific](/docs/thinkific).
 - **My SimplyBook.me account** (Bookings apps): see [Connect SimplyBook.me](/docs/simplybook).
 - **I don't have a website**: add your content in the dashboard. See [No website](/docs/no-website).
@@ -404,6 +404,49 @@ Open [yallapp.com.tr/oauth/ideasoft](/oauth/ideasoft), enter your store's myidea
 ## Enter them on the Website step
 
 In your Yallapp dashboard, open **App setup › Website**, choose **Another store platform** and then **IdeaSoft**. Enter your **Store address** (your-store.myideasoft.com), the **Client ID**, the **Client Secret** and the **Refresh token**. Select **Save & continue**. We check them with IdeaSoft before saving and keep the access renewed for you.
+`,
+  }),
+  doc({
+    slug: "wix",
+    section: "Your content",
+    title: "Connect your Wix store",
+    description: "Connect your Wix store to a Store app with a Headless client ID, and an optional API key for order history.",
+    steps: true,
+    body: `Your Store app can take its products, categories, prices and stock from your Wix store. Customers pay on Wix's own checkout page, inside the app.
+
+## Before you start
+
+- A Wix site with **Wix Stores**, and access to its dashboard
+- Your Yallapp app type set to **Store**
+
+## Create an OAuth app in Wix
+
+In your Wix site's dashboard, open **Settings** and then **Headless Settings**. Under **OAuth apps**, create a new OAuth app and give it a name, for example "Mobile app". Copy its **Client ID**.
+
+The client ID only lets the app see your store as a visitor of your website does: your products, and a checkout for each cart. It can't change anything.
+
+## Optional: order history
+
+To show customers their orders in the app, create an API key:
+
+1. In Wix, open your account's **API Keys** page (from the account menu) and select **Generate API Key**.
+2. Give it a name and the permission to read **Wix Stores** and **eCommerce** orders. To find more of each customer's orders, also allow reading **Contacts**.
+3. Copy the API key. Wix shows it only once.
+4. Copy your **site ID**: it's in your site dashboard's address, after /dashboard/.
+
+Orders are matched exactly to the phone number customers sign in with, so they must use the same number in your store.
+
+## Enter them on the Website step
+
+In your Yallapp dashboard, open **App setup › Website**, choose **Another store platform** and then **Wix**. Enter:
+
+- **Client ID** from the OAuth app.
+- **API key** and **Site ID** (optional, together), for order history. You can paste your whole site dashboard address as the site ID.
+- **Store address** (optional): the address your customers visit, such as www.your-store.com. Shoppers come back to it after checkout.
+
+Select **Save & continue**. We check the client ID and the key with Wix before saving.
+
+> Your Wix categories become your app's categories. On iPhones, carts with digital products can't be checked out, as Apple's rules require. Product reviews are off for Wix apps. Wix stores still on Wix's older product catalog can't be connected yet.
 `,
   }),
   doc({
