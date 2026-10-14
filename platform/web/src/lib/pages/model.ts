@@ -106,7 +106,8 @@ export function newBlock(type: BlockType, sources: ItemSource[]): LayoutBlock {
         query: { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] },
       };
     case "categories":
-      return { ...base, title: "", source: sources.find((s) => s !== "listings") ?? source, style: "chips" };
+      // Listings and (28) events have no category lists.
+      return { ...base, title: "", source: sources.find((s) => s !== "listings" && s !== "events") ?? source, style: "chips" };
     case "search":
       return { ...base, source, placeholder: "Search" };
     case "continue_learning":

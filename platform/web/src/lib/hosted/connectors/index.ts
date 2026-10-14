@@ -6,6 +6,7 @@ import { ArticlesConnector } from "./articles";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
 import { CoursesConnector } from "./courses";
+import { EventsConnector } from "./events";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
@@ -59,8 +60,10 @@ export function connectorFor(
     platformUrl: string;
     onBooked?: (appointment: BookingAppointment) => Promise<void>;
     onInquiry?: ListingsDeps["onInquiry"];
-    /** 13.1 Card payments in the app (dashboard products and courses) are in the app's plan. */
+    /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
+    /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */
+    signingSecret?: string;
   },
   fetcher: typeof fetch = fetch,
 ): Connector | null {
@@ -69,6 +72,7 @@ export function connectorFor(
   if (app.connector?.kind === "courses") return new CoursesConnector({ ...deps, app });
   if (app.connector?.kind === "listings") return new ListingsConnector({ ...deps, app });
   if (app.connector?.kind === "articles") return new ArticlesConnector({ ...deps, app });
+  if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

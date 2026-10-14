@@ -51,6 +51,8 @@ import { sql } from "drizzle-orm";
 import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStatus } from "../data/types";
 // 23 News & blog
 import type { ArticleStatus, NewsSettings } from "../data/types";
+// 28 Events & tickets
+import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 
@@ -400,6 +402,8 @@ export const hostedNotifications = mysqlTable(
     body: text("body").notNull(),
     // 23 Breaking news: the article it opens.
     articleId: varchar("article_id", { length: 64 }),
+    // 28 An event that changed or was cancelled, told to its ticket holders.
+    eventId: bigint("event_id", { mode: "number", unsigned: true }),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
@@ -744,6 +748,99 @@ export const newsSettings = mysqlTable("news_settings", {
     .primaryKey()
     .references(() => apps.id, { onDelete: "cascade" }),
   settings: jsonText<NewsSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+// 28 Events & tickets apps: events, ticket types and tickets managed in the dashboard.
+
+export const events = mysqlTable(
+  "events",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 150 }).notNull(),
+    description: mediumtext("description").notNull(),
+    category: varchar("category", { length: 60 }),
+    imageAssetIds: jsonText<string[]>("image_asset_ids").notNull(),
+    startAt: time("start_at").notNull(),
+    endAt: time("end_at").notNull(),
+    venueName: varchar("venue_name", { length: 150 }),
+    venueAddress: varchar("venue_address", { length: 250 }),
+    latitude: double("latitude"),
+    longitude: double("longitude"),
+    onlineUrl: varchar("online_url", { length: 500 }),
+    organiser: varchar("organiser", { length: 120 }),
+    capacity: int("capacity"),
+    status: varchar("status", { length: 16 }).notNull().$type<EventStatus>(),
+    publishedAt: time("published_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("events_app_idx").on(t.appId, t.status, t.startAt)],
+);
+
+export const eventTicketTypes = mysqlTable(
+  "event_ticket_types",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    eventId: bigint("event_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
+    capacity: int("capacity"),
+    saleEndsAt: time("sale_ends_at"),
+    maxPerOrder: int("max_per_order").notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("event_ticket_types_event_idx").on(t.eventId, t.position)],
+);
+
+export const eventTickets = mysqlTable(
+  "event_tickets",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    eventId: bigint("event_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    ticketTypeId: bigint("ticket_type_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => eventTicketTypes.id, { onDelete: "cascade" }),
+    // The holder keeps their ticket's record for the organiser after deleting their account.
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }).references(() => catalogOrders.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 16 }).notNull(),
+    holderName: varchar("holder_name", { length: 80 }).notNull(),
+    priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<TicketStatus>(),
+    holdUntil: time("hold_until"),
+    usedAt: time("used_at"),
+    cancelledAt: time("cancelled_at"),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("event_tickets_code_unique").on(t.code),
+    index("event_tickets_event_idx").on(t.eventId, t.ticketTypeId, t.status),
+    index("event_tickets_user_idx").on(t.appId, t.userId),
+    index("event_tickets_order_idx").on(t.orderId),
+  ],
+);
+
+/** How events show and sell in the app (Config.events), one row per app. */
+export const eventSettings = mysqlTable("event_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<EventSettings>("settings").notNull(),
   updatedAt: time("updated_at").notNull(),
 });
 

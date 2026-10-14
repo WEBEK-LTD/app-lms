@@ -164,10 +164,10 @@ const appOf = (appType: AppType, patch: Partial<App> = {}): App => ({ ...newApp(
 
 describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
-    expect(APP_TYPES).toEqual([...FOUR, "news"]);
+    expect(APP_TYPES).toEqual([...FOUR, "news", "events"]);
     // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
-    // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "real_estate", "news"]);
+    // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic. 28 Events & tickets, a new engine, last.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "real_estate", "news", "events"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -188,13 +188,13 @@ describe("20 app kinds registry", () => {
       expect(suggestedCategories({ appType: type })).toEqual(BEFORE.categories[type]);
       expect(noWebsiteFor(type)).toBe(BEFORE.noWebsite[type]);
     }
-    expect(KINDS.filter((k) => k.vertical === null && k.engine !== "news").map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
+    expect(KINDS.filter((k) => k.vertical === null && k.engine !== "news" && k.engine !== "events").map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
-    // 21 One more demo: the clinic, after Bookings. 23 The news app, last. 26 The café, after the shop. 27 The gym, after the clinic.
-    expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness" });
+    // 21 One more demo: the clinic, after Bookings. 23 The news app. 26 The café, after the shop. 27 The gym, after the clinic. 28 The events app, last.
+    expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events"]);
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events" });
     expect(demoTypeOfSlug("fitness")).toBe("fitness");
     expect(demoTypeOfSlug("clinic")).toBe("clinic");
     expect(engineOfDemoSlug("clinic")).toBeNull();
@@ -203,7 +203,7 @@ describe("20 app kinds registry", () => {
       expect(engineOfDemoSlug(slug)).toBe(type);
     }
     expect(demoTypeOfSlug("salon")).toBeNull();
-    expect(APP_TYPE_SWITCHES).toEqual([...Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })), { id: "news", label: "News & blog" }]);
+    expect(APP_TYPE_SWITCHES).toEqual([...Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })), { id: "news", label: "News & blog" }, { id: "events", label: "Events & tickets" }]);
     const websites = switchGroups().find((g) => g.kind === "website")!.items;
     expect(Object.fromEntries(websites.filter((w) => isOwnContent(w.id)).map((w) => [w.id, w.label]))).toEqual({
       catalog: "No website: products in the dashboard",
@@ -211,6 +211,7 @@ describe("20 app kinds registry", () => {
       courses: "No website: courses in the dashboard",
       listings: "No website: listings in the dashboard",
       articles: "No website: articles in the dashboard",
+      events: "No website: events in the dashboard",
     });
     for (const [kind, [label, ...items]] of Object.entries(BEFORE.contentNav)) {
       const nav = engineOfContent(kind)!.ownContent.nav;
@@ -277,7 +278,8 @@ describe("20 app kinds registry", () => {
   });
 
   it("keeps Real estate on the hosted API only", () => {
-    expect(APP_TYPES.filter(hostedOnly)).toEqual(["real_estate"]);
+    // 28 Events & tickets is hosted only too, for now.
+    expect(APP_TYPES.filter(hostedOnly)).toEqual(["real_estate", "events"]);
     const wordpress = appOf("real_estate", { websiteDoneAt: NOW });
     expect(websiteReady(wordpress)).toBe(false);
     expect(previewContentSource(wordpress)).toBe("none");
@@ -307,6 +309,7 @@ describe("20 app kinds registry", () => {
       ["fitness", "solution-fitness", "Gym & fitness", "fitness_center"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
       ["news", "solution-news", "News & blog", "newspaper"],
+      ["events", "solution-events", "Events & tickets", "confirmation_number"],
     ]);
     const headers = CONTENT_PAGES.filter((p) => p.key.startsWith("solution-"));
     expect(headers.map((p) => [p.key, p.title, p.path])).toEqual([
@@ -318,9 +321,10 @@ describe("20 app kinds registry", () => {
       ["solution-fitness", "Solutions: Gym & fitness", "/solutions/fitness"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
       ["solution-news", "Solutions: News & blog", "/solutions/news"],
+      ["solution-events", "Solutions: Events & tickets", "/solutions/events"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "8", label: "app types: academy, store, restaurant & café, bookings, clinic, gym & fitness, real estate and news & blog" });
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps", "Events & tickets apps"]);
+    expect(NUMBERS[0]).toEqual({ value: "9", label: "app types: academy, store, restaurant & café, bookings, clinic, gym & fitness, real estate, news & blog and events & tickets" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
@@ -333,6 +337,7 @@ describe("20 app kinds registry", () => {
       { id: "booking", label: "Bookings" },
       { id: "real_estate", label: "Real estate" },
       { id: "news", label: "News & blog" },
+      { id: "events", label: "Events & tickets" },
     ]);
     expect(describeAudience({ kind: "app_type", appTypes: ["real_estate", "store"] }, planNames)).toBe("App types: Real estate, Store");
   });

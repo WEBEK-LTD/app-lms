@@ -73,6 +73,8 @@ import type {
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
 // 23 News & blog
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
+// 28 Events & tickets
+import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
@@ -544,6 +546,10 @@ export class MemoryStore implements DataStore {
       if (booking.appId === appId && booking.userId === id) booking.userId = null;
     }
     for (const [key, m] of this.memberships) if (m.appId === appId && m.userId === id) this.memberships.delete(key);
+    // 28 Tickets stay with the organiser, with their holder's name.
+    for (const ticket of this.tickets.values()) {
+      if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
+    }
     this.forgetListingUser(appId, id);
   }
 
@@ -1146,6 +1152,179 @@ export class MemoryStore implements DataStore {
     this.newsSettings.set(appId, clone(settings));
   }
 
+  // 28 Events & tickets
+
+  private events = new Map<number, EventRecord>();
+  private nextEventId = 1;
+  private ticketTypes = new Map<number, TicketType>();
+  private nextTicketTypeId = 1;
+  private tickets = new Map<number, EventTicket>();
+  private nextTicketId = 1;
+  private eventSettings = new Map<string, EventSettings>();
+
+  async listEvents(appId: string): Promise<EventRecord[]> {
+    return [...this.events.values()]
+      .filter((e) => e.appId === appId)
+      .sort((a, b) => a.startAt.getTime() - b.startAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async getEvent(appId: string, id: number): Promise<EventRecord | null> {
+    const event = this.events.get(id);
+    return event && event.appId === appId ? clone(event) : null;
+  }
+
+  async createEvent(input: EventInput, now: Date): Promise<EventRecord> {
+    const event: EventRecord = { ...clone(input), id: this.nextEventId++, createdAt: now, updatedAt: now };
+    this.events.set(event.id, clone(event));
+    return event;
+  }
+
+  async updateEvent(appId: string, id: number, patch: Partial<EventInput>, now: Date): Promise<void> {
+    const event = this.events.get(id);
+    if (event && event.appId === appId) this.events.set(id, clone({ ...event, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteEvent(appId: string, id: number): Promise<void> {
+    if (this.events.get(id)?.appId !== appId) return;
+    this.events.delete(id);
+    for (const [key, t] of this.ticketTypes) if (t.eventId === id) this.ticketTypes.delete(key);
+    for (const [key, t] of this.tickets) if (t.eventId === id) this.tickets.delete(key);
+  }
+
+  async listTicketTypes(appId: string, eventId?: number): Promise<TicketType[]> {
+    return [...this.ticketTypes.values()]
+      .filter((t) => t.appId === appId && (eventId === undefined || t.eventId === eventId))
+      .sort((a, b) => a.eventId - b.eventId || a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async createTicketType(input: TicketTypeInput, now: Date): Promise<TicketType> {
+    const type: TicketType = { ...clone(input), id: this.nextTicketTypeId++, createdAt: now };
+    this.ticketTypes.set(type.id, clone(type));
+    return type;
+  }
+
+  async updateTicketType(appId: string, id: number, patch: Partial<Omit<TicketTypeInput, "appId" | "eventId">>): Promise<void> {
+    const type = this.ticketTypes.get(id);
+    if (type && type.appId === appId) this.ticketTypes.set(id, clone({ ...type, ...patch, id, appId, eventId: type.eventId }));
+  }
+
+  async deleteTicketType(appId: string, id: number): Promise<void> {
+    if (this.ticketTypes.get(id)?.appId !== appId) return;
+    this.ticketTypes.delete(id);
+    for (const [key, t] of this.tickets) if (t.ticketTypeId === id) this.tickets.delete(key);
+  }
+
+  /** Whether a ticket takes a place: issued, used, or held for a payment that may still come. */
+  private holdsPlace(t: EventTicket, now: Date): boolean {
+    return t.status === "valid" || t.status === "used" || (t.status === "pending" && t.holdUntil !== null && t.holdUntil.getTime() > now.getTime());
+  }
+
+  async claimTickets(claim: TicketClaim): Promise<{ ok: true; tickets: EventTicket[] } | { ok: false; reason: TicketClaimRefusal }> {
+    // No await between the count and the write: claims can't interleave in one process.
+    const event = this.events.get(claim.eventId);
+    const type = this.ticketTypes.get(claim.ticketTypeId);
+    if (!event || event.appId !== claim.appId || event.status !== "published" || !type || type.eventId !== event.id) return { ok: false, reason: "not_on_sale" };
+    const holding = [...this.tickets.values()].filter((t) => t.eventId === event.id && this.holdsPlace(t, claim.now));
+    const wanted = claim.tickets.length;
+    if (event.capacity !== null && holding.length + wanted > event.capacity) return { ok: false, reason: "sold_out" };
+    if (type.capacity !== null && holding.filter((t) => t.ticketTypeId === type.id).length + wanted > type.capacity) return { ok: false, reason: "sold_out" };
+    const issued = claim.tickets.map((t): EventTicket => ({
+      id: this.nextTicketId++,
+      appId: claim.appId,
+      eventId: event.id,
+      ticketTypeId: type.id,
+      userId: claim.userId,
+      orderId: claim.orderId,
+      code: t.code,
+      holderName: t.holderName,
+      priceCents: claim.priceCents,
+      status: claim.status,
+      holdUntil: claim.holdUntil,
+      usedAt: null,
+      cancelledAt: null,
+      createdAt: claim.now,
+    }));
+    for (const t of issued) this.tickets.set(t.id, clone(t));
+    return { ok: true, tickets: issued.map(clone) };
+  }
+
+  async countTicketPlaces(appId: string, now: Date): Promise<{ eventId: number; ticketTypeId: number; count: number }[]> {
+    const counts = new Map<number, { eventId: number; ticketTypeId: number; count: number }>();
+    for (const t of this.tickets.values()) {
+      if (t.appId !== appId || !this.holdsPlace(t, now)) continue;
+      const row = counts.get(t.ticketTypeId) ?? { eventId: t.eventId, ticketTypeId: t.ticketTypeId, count: 0 };
+      row.count++;
+      counts.set(t.ticketTypeId, row);
+    }
+    return [...counts.values()];
+  }
+
+  async listTickets(input: { appId: string; eventId?: number; userId?: number; orderId?: number }): Promise<EventTicket[]> {
+    return [...this.tickets.values()]
+      .filter(
+        (t) =>
+          t.appId === input.appId &&
+          (input.eventId === undefined || t.eventId === input.eventId) &&
+          (input.userId === undefined || t.userId === input.userId) &&
+          (input.orderId === undefined || t.orderId === input.orderId),
+      )
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async getTicketByCode(appId: string, code: string): Promise<EventTicket | null> {
+    const ticket = [...this.tickets.values()].find((t) => t.appId === appId && t.code === code);
+    return ticket ? clone(ticket) : null;
+  }
+
+  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number> {
+    void now;
+    let issued = 0;
+    for (const t of this.tickets.values()) {
+      if (t.appId === appId && t.orderId === orderId && t.status === "pending") {
+        t.status = "valid";
+        t.holdUntil = null;
+        issued++;
+      }
+    }
+    return issued;
+  }
+
+  async checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult> {
+    const ticket = [...this.tickets.values()].find((t) => t.appId === appId && t.code === code);
+    if (!ticket) return { ok: false, reason: "not_found" };
+    if (ticket.status !== "valid") return { ok: false, reason: ticket.status, ticket: clone(ticket) };
+    ticket.status = "used";
+    ticket.usedAt = now;
+    return { ok: true, ticket: clone(ticket) };
+  }
+
+  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number> {
+    if (input.ids === undefined && input.eventId === undefined) return 0;
+    let cancelled = 0;
+    for (const t of this.tickets.values()) {
+      if (t.appId !== appId || t.status !== "valid") continue;
+      if (input.ids !== undefined && !input.ids.includes(t.id)) continue;
+      if (input.eventId !== undefined && t.eventId !== input.eventId) continue;
+      t.status = "cancelled";
+      t.cancelledAt = now;
+      cancelled++;
+    }
+    return cancelled;
+  }
+
+  async getEventSettings(appId: string): Promise<EventSettings | null> {
+    const settings = this.eventSettings.get(appId);
+    return settings ? clone(settings) : null;
+  }
+
+  async saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void> {
+    void now;
+    this.eventSettings.set(appId, clone(settings));
+  }
+
   // 10.7 Listings
 
   private listings = new Map<number, Listing>();
@@ -1621,7 +1800,15 @@ export class MemoryStore implements DataStore {
       notifications: 0,
       classBookings: 0,
       memberships: 0,
+      tickets: 0,
     };
+    // 28 Tickets first: a ticket of a deleted order goes with it.
+    for (const [id, ticket] of this.tickets) {
+      if (ticket.appId === appId && old(ticket.createdAt)) {
+        this.tickets.delete(id);
+        counts.tickets++;
+      }
+    }
     // 27 Spots taken more than a day ago are freed; memberships bought then are gone.
     for (const [id, booking] of this.classBookings) {
       if (booking.appId !== appId || !old(booking.updatedAt)) continue;

@@ -147,7 +147,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate or News & blog: what each app type does and where its content can come from.",
+    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate, News & blog or Events & tickets: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -182,6 +182,10 @@ Property listings with search and filters, favorites and messages to your office
 ## News & blog
 
 Articles, sections and breaking-news alerts for news sites, blogs and magazines. Readers browse the latest stories and sections, search, save articles to read later and share them. Content from your WordPress posts, any website's RSS or Atom feed, your own API, or articles you write in the dashboard. Reading is free: there's no paid content in the app. See [the News & blog solution](/solutions/news) and [News and blog apps](/docs/news).
+
+## Events & tickets
+
+Event listings with a calendar, free sign-ups and paid tickets with QR codes checked at the door. People keep their tickets in the app, also offline, and hear when an event changes. Events are managed in the Yallapp dashboard, so you don't need a website. See [the Events & tickets solution](/solutions/events) and [Events and tickets](/docs/events).
 
 ## Changing the app type later
 
@@ -620,9 +624,9 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
     slug: "no-website",
     section: "Your content",
     title: "No website: manage everything in Yallapp",
-    description: "Run a store, restaurant, academy, bookings, real estate or news app without a website, with your content in the Yallapp dashboard.",
+    description: "Run a store, restaurant, academy, bookings, real estate, news or events app without a website, with your content in the Yallapp dashboard.",
     steps: false,
-    body: `You don't need a website to have an app. Choose **I don't have a website** on the Website step (for Real estate apps, **Listings managed in Yallapp**), and new pages appear in your dashboard's menu for your content.
+    body: `You don't need a website to have an app. Choose **I don't have a website** on the Website step (for Real estate apps, **Listings managed in Yallapp**; for Events & tickets apps, **Events managed in Yallapp**), and new pages appear in your dashboard's menu for your content.
 
 ## What you manage, by app type
 
@@ -634,6 +638,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 - **Gym & fitness**: classes and coaches on the **Classes & coaches** page, your weekly classes on **Timetable**, plans on **Membership plans** and who has one on **Members**. See [Gyms and studios: timetable, classes and memberships](/docs/fitness).
 - **Real estate**: properties on the **Listings** page and messages on the **Inquiries** page. See [Listings and inquiries](/docs/real-estate).
 - **News & blog**: articles and sections on the **Articles** page, with breaking news sent to your readers' phones. See [News and blog apps](/docs/news).
+- **Events & tickets**: events, ticket types, sales and attendees on the **Events** page, and tickets checked at the door on the **Check-in** page. See [Events and tickets](/docs/events).
 
 ## Sign-in, notifications and settings
 
@@ -1502,6 +1507,52 @@ On the same page you set your **sections** and whether articles show their **aut
 ## Your pages
 
 The home page starts with a search box, the top stories, the sections and the latest articles. Change it on **Pages & look**: list blocks can show the latest articles, a section's, the top stories or articles you pick.
+`,
+  }),
+
+  doc({
+    slug: "events",
+    section: "Your content",
+    title: "Events and tickets",
+    description: "Run an Events & tickets app: publish events, give free tickets or sell paid ones, and check QR codes at the door.",
+    steps: false,
+    body: `Events & tickets apps show your programme: upcoming events in a list and on a calendar, filters by category, each event with its pictures, date and time, venue or online link, and its tickets. People get free tickets in a tap or buy paid ones, and keep every ticket with its QR code under **My tickets**, also without a connection.
+
+Choose **Events & tickets** on **App type**, then **Events managed in Yallapp** on the Website step. Your events are managed here in the dashboard.
+
+## Your events
+
+On the **Events** page, add an event:
+
+- a **title**, a **category** (like Concerts, Film or Workshops) and a **description**: paragraphs, headings, lists, links and pictures from https addresses; YouTube and Vimeo videos show as players
+- up to six **pictures**, the first one is the cover
+- when it **starts** and **ends**, in your time zone
+- the **venue** (name, address and, for the map link, its latitude and longitude) and/or an **online link**. The online link is shown only to people holding a ticket
+- the **organiser** shown in the app, and the **places** in total if the room has a limit
+
+Save it as a **draft** while you work and **publish** it to show it in the app. Then add its **ticket types**: a name, a price (0 for free tickets), how many there are, when sales end and how many one person can take at a time. Sales always end when the event starts.
+
+## Free and paid tickets
+
+Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico account, or sell through Yallapp's. The places are held while the buyer pays, and the tickets are issued only once iyzico confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
+
+**On iPhones**, Apple lets apps sell tickets to events that happen at a place, but not to online-only events, which count as digital content. So in the iPhone app, paid tickets to an event without a venue show no buy button; free tickets work everywhere. On Android, everything can be bought in the app.
+
+In **Event settings** on the same page you choose your currency and time zone, whether events show **Open in maps**, and until how many hours before an event people can **cancel free tickets** in the app (their place goes back on sale). Paid tickets are refunded by you, in your iyzico panel.
+
+## Sales and attendees
+
+Each event's page lists its tickets: who holds them, their type, their code and whether they were used. **Download the attendee list** gives you the same as a CSV file for a spreadsheet.
+
+If you change an event's time, venue or online link, or **cancel** the event, everyone holding a ticket gets a notification. Cancelling an event cancels its tickets.
+
+## Check-in at the door
+
+Open **Check-in** on a phone at the door. Tap **Scan with the camera** and point it at a ticket's QR code (this works in browsers that can read QR codes, like Chrome on Android); you can always type the ticket's code instead. A valid ticket is marked used and shows the holder's name. Each ticket gets in once: scanning it again shows **Already used** with the time. The QR codes are signed for your app, so a made-up QR code is refused.
+
+## Your pages
+
+The home page starts with a search box and the events coming up. Change it on **Pages & look**: list blocks can show your next events or events you pick.
 `,
   }),
 

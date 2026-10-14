@@ -139,6 +139,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     title: "Your listings, with search, favorites and messages",
     intro: "Add your properties in the dashboard. People search them with filters, save favorites and message your office, in an app with your name on it.",
   },
+  events: {
+    eyebrow: "Events & tickets apps",
+    title: "Your events, with tickets in every pocket",
+    intro:
+      "Publish your programme in your own app. People get free tickets or buy paid ones, keep them with a QR code on their phone, and you check them at the door.",
+  },
   news: {
     eyebrow: "News & blog apps",
     title: "Your stories, on your readers' home screens",
@@ -186,7 +192,7 @@ export const CONTENT_PAGES: ContentPage[] = [
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      solutionsTitle: "One platform, eight kinds of apps",
+      solutionsTitle: "One platform, nine kinds of apps",
       solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
       featuresTitle: "Everything your app needs",
       featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",

@@ -246,3 +246,24 @@ export async function enrollPaidCourses(store: DataStore, app: App, order: Catal
   // Nothing to deliver: the order is done once the student is in.
   await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
 }
+
+/**
+ * 28 A paid ticket order issues its tickets: the places held when the
+ * checkout link was made become valid tickets, and only now (after iyzico
+ * confirmed the payment, or a demo order was placed). Apps whose events are
+ * managed in the dashboard only.
+ */
+export async function issuePaidTickets(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<number> {
+  if (app.connector?.kind !== "events") return 0;
+  const issued = await store.issueOrderTickets(app.id, order.id, now);
+  // Nothing to deliver: the tickets are in the buyer's app.
+  await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
+  return issued;
+}
+
+/** What a paid order delivers right away: enrolments for courses, 27 a gym's membership, 28 tickets for events. */
+export async function deliverPaidOrder(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<void> {
+  await enrollPaidCourses(store, app, order, now);
+  await startPaidMemberships(store, app, order, now);
+  await issuePaidTickets(store, app, order, now);
+}

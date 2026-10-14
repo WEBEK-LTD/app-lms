@@ -90,10 +90,11 @@ export interface StoreListing {
 /**
  * The app's engine: the Flutter module its build includes. "lms" is an
  * Academy app, "store" a Store app, "booking" a Bookings app, "real_estate" a
- * Real estate app (hosted API only), "news" a News & blog app (23). What each
- * engine is and offers is in lib/app/kinds.ts.
+ * Real estate app (hosted API only), "news" a News & blog app (23), "events"
+ * an Events & tickets app (28, hosted API only). What each engine is and
+ * offers is in lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
@@ -123,6 +124,8 @@ export type ConnectorConfig =
   | { kind: "listings" }
   /** 23 News & blog: articles written in the dashboard (articles, article_categories, news_settings). */
   | { kind: "articles" }
+  /** 28 Events & tickets: events, ticket types, tickets and settings in the event_* tables. */
+  | { kind: "events" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -456,6 +459,8 @@ export interface HostedNotification {
   body: string;
   /** 23 Breaking news: the article the notification opens. Missing or null for announcements. */
   articleId?: string | null;
+  /** 28 An event that changed or was cancelled, told to its ticket holders. Missing or null otherwise. */
+  eventId?: number | null;
   createdAt: Date;
 }
 
@@ -1554,6 +1559,8 @@ export interface DemoPurgeCounts {
   /** 27 Spots in classes, and memberships. */
   classBookings: number;
   memberships: number;
+  /** 28 Tickets of demo Events & tickets apps. */
+  tickets: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard
@@ -1596,4 +1603,119 @@ export interface ArticleCategory {
 export interface NewsSettings {
   showAuthor: boolean;
   showDates: boolean;
+}
+
+// 28 Events & tickets apps: events, ticket types and tickets managed in the dashboard
+
+/** Draft: only the organiser sees it. Published: in the app. Cancelled: in the app as cancelled, no tickets sold. */
+export type EventStatus = "draft" | "published" | "cancelled";
+
+export interface EventRecord {
+  id: number;
+  appId: string;
+  title: string;
+  /** As the organiser wrote it: simple HTML, cleaned whenever it's served (lib/news/html.ts). */
+  description: string;
+  /** One category name, or none. The app's filters list the ones in use. */
+  category: string | null;
+  /** Pictures; the first one is the cover. */
+  imageAssetIds: string[];
+  startAt: Date;
+  endAt: Date;
+  /** Where it happens; null for an online-only event (digital content on iOS). */
+  venueName: string | null;
+  venueAddress: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  /** The link to join online; sent only to ticket holders. */
+  onlineUrl: string | null;
+  organiser: string | null;
+  /** Places across every ticket type; null for no limit beyond the ticket types' own. */
+  capacity: number | null;
+  status: EventStatus;
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type EventInput = Omit<EventRecord, "id" | "createdAt" | "updatedAt">;
+
+export interface TicketType {
+  id: number;
+  appId: string;
+  eventId: number;
+  name: string;
+  /** 0 for free tickets (taken in the app). */
+  priceCents: number;
+  /** Tickets of this type; null for no limit (the event's own limit still counts). */
+  capacity: number | null;
+  /** No sales after this moment; the event's start ends sales anyway. */
+  saleEndsAt: Date | null;
+  maxPerOrder: number;
+  position: number;
+  createdAt: Date;
+}
+
+export type TicketTypeInput = Omit<TicketType, "id" | "createdAt">;
+
+/**
+ * pending: places held for a paid order until `holdUntil` (not a ticket yet);
+ * valid: issued; used: checked in at the door; cancelled: by the holder, the
+ * organiser or with the event.
+ */
+export type TicketStatus = "pending" | "valid" | "used" | "cancelled";
+
+export interface EventTicket {
+  id: number;
+  appId: string;
+  eventId: number;
+  ticketTypeId: number;
+  /** The app user who got it; null after they deleted their account. */
+  userId: number | null;
+  /** The paid order (catalog_orders) it came with; null for free tickets. */
+  orderId: number | null;
+  /** 12 random characters (lib/events/codes.ts), unique. */
+  code: string;
+  holderName: string;
+  priceCents: number;
+  status: TicketStatus;
+  /** Pending tickets hold their place until then. */
+  holdUntil: Date | null;
+  usedAt: Date | null;
+  cancelledAt: Date | null;
+  createdAt: Date;
+}
+
+/** Tickets to take in one go: they all get a place, or none does. */
+export interface TicketClaim {
+  appId: string;
+  eventId: number;
+  ticketTypeId: number;
+  userId: number | null;
+  orderId: number | null;
+  /** One per ticket, with its code. */
+  tickets: { code: string; holderName: string }[];
+  priceCents: number;
+  status: "pending" | "valid";
+  holdUntil: Date | null;
+  now: Date;
+}
+
+/** Why tickets couldn't be taken: not enough places, or the event or ticket type is gone or not on sale. */
+export type TicketClaimRefusal = "sold_out" | "not_on_sale";
+
+/** The check-in at the door: the ticket now used, or why not. */
+export type CheckInResult =
+  | { ok: true; ticket: EventTicket }
+  | { ok: false; reason: "not_found" }
+  | { ok: false; reason: "used" | "cancelled" | "pending"; ticket: EventTicket };
+
+/** How events show and sell in the app (`Config.events`), one row per app. */
+export interface EventSettings {
+  currency: CatalogCurrency;
+  /** IANA time zone the organiser's days and times are in. */
+  timeZone: string;
+  showMap: boolean;
+  /** Free tickets can be cancelled until this many hours before the start; null: never. */
+  allowCancelHours: number | null;
 }

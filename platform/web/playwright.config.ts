@@ -34,6 +34,8 @@ export const E2E = {
   restaurantAdminEmail: "restaurant-admin@yallapp.test",
   /** The super admin of tests/e2e/fitness-hosted.spec.ts (roadmap 27). */
   fitnessAdminEmail: "fitness-admin@yallapp.test",
+  /** The super admin of tests/e2e/events-hosted.spec.ts (roadmap 28). */
+  eventsAdminEmail: "events-admin@yallapp.test",
   /** Bearer token of the daily job, POST /api/internal/daily (13.4). */
   internalJobSecret: "e2e-internal-job-secret-0123456789abcdef",
   /** Emails the server would send, as JSON files (YALLAPP_MAIL_DIR, memory mode only). */
@@ -79,7 +81,7 @@ export default defineConfig({
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
       YALLAPP_MAIL_DIR: E2E.mailDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",

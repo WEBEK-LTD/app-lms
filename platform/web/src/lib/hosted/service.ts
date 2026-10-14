@@ -313,6 +313,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
+    // 28 Events & tickets
+    ...(extra.events ? { events: extra.events } : {}),
     // 23 Breaking news needs push set up and in the app's plan too.
     ...(extra.news
       ? { news: { ...extra.news, breaking_news_push: extra.news.breaking_news_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
@@ -775,12 +777,13 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     id: n.id,
     title: n.title,
     body: n.body,
-    // 23 Breaking news opens its article.
-    type: n.articleId ? "article" : "announcement",
+    // 23 Breaking news opens its article; 28 a change to an event opens the event.
+    type: n.articleId ? "article" : n.eventId ? "event" : "announcement",
     course_id: null,
     lesson_id: null,
     question_id: null,
     ...(n.articleId ? { article_id: n.articleId } : {}),
+    ...(n.eventId ? { event_id: n.eventId } : {}),
     created_at: n.createdAt.toISOString(),
     read: readAt !== null && n.createdAt.getTime() <= readAt.getTime(),
   };

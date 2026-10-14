@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · Yallapp",
   },
   description:
-    "Branded Android and iOS apps for academies, stores, bookings, real estate offices and news sites, from your WordPress site, Shopify and other platforms, your own API, or no website at all.",
+    "Branded Android and iOS apps for academies, stores, bookings, real estate offices, news sites and events, from your WordPress site, Shopify and other platforms, your own API, or no website at all.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

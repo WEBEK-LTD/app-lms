@@ -14,6 +14,7 @@ import type {
   ContactSetting,
   Course,
   CourseSetup,
+  EventInput,
   HostedSettings,
   ListingInput,
 } from "../data/types";
@@ -23,6 +24,7 @@ import { publishLayout } from "../pages/layout";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { artPng } from "./art";
+import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoKind, type DemoId } from "./constants";
 import {
   ARTICLE_CATEGORIES,
@@ -37,6 +39,8 @@ import {
   COURSE_CURRENCY,
   DEMO_ARTICLES,
   DEMO_BRANDS,
+  DEMO_EVENTS,
+  EVENT_SETTINGS,
   DEMO_COURSES,
   DEMO_DISHES,
   DEMO_LISTINGS,
@@ -223,6 +227,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     patch.catalogSettings = { currency: FITNESS_RULES.currency, shippingCents: 0, freeShippingOverCents: null, payment: null };
   } else if (content === "bookings") {
     patch.bookingSetup = await bookingSetupFor(deps, client.id, id === "clinic");
+  } else if (content === "events") {
+    // 28 Paid tickets go through the demo payment page, which charges nothing.
+    patch.catalogSettings = { currency: EVENT_SETTINGS.currency, shippingCents: 0, freeShippingOverCents: null, payment: null };
   }
   await store.updateApp(app.id, patch, now);
   const saved = (await store.getAppById(app.id))!;
@@ -238,6 +245,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   if (content === "articles") await syncArticles(deps, client.id, saved);
   // 27 The timetable's classes for the coming weeks (the daily job keeps them going).
   if (id === "fitness") await syncClassSessions(store, saved, now);
+  if (content === "events") await syncEvents(deps, client.id, saved);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.
@@ -478,6 +486,53 @@ async function syncArticles(deps: DemoSetupDeps, clientId: string, app: App): Pr
   }
   const titles = new Set(DEMO_ARTICLES.map((a) => a.title));
   for (const a of articles) if (!titles.has(a.title) && a.status !== "draft") await store.updateArticle(app.id, a.id, { status: "draft" }, now);
+}
+
+/**
+ * 28 Events by title, dated a few days after the refresh so they're always
+ * coming up; their ticket types by name. Events no longer in the demo go back
+ * to drafts.
+ */
+async function syncEvents(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+  const { store, now } = deps;
+  await store.saveEventSettings(app.id, { ...EVENT_SETTINGS }, now);
+  const events = await store.listEvents(app.id);
+  const today = utcToLocal(now, EVENT_SETTINGS.timeZone).date;
+  for (const seed of DEMO_EVENTS) {
+    const startAt = localToUtc(addDays(today, seed.daysAhead), seed.start, EVENT_SETTINGS.timeZone);
+    const input: EventInput = {
+      appId: app.id,
+      title: seed.title,
+      description: seed.description,
+      category: seed.category,
+      imageAssetIds: [await picture(deps, clientId, seed.picture, "course", "product_image")],
+      startAt,
+      endAt: new Date(startAt.getTime() + seed.minutes * 60_000),
+      venueName: seed.venue?.name ?? null,
+      venueAddress: seed.venue?.address ?? null,
+      latitude: seed.venue?.latitude ?? null,
+      longitude: seed.venue?.longitude ?? null,
+      onlineUrl: seed.onlineUrl,
+      organiser: DEMO_BRANDS.events.appName,
+      capacity: seed.capacity,
+      status: "published",
+      publishedAt: now,
+    };
+    const found = events.find((e) => e.title === seed.title);
+    const event = found ?? (await store.createEvent(input, now));
+    if (found) await store.updateEvent(app.id, found.id, input, now);
+    const types = await store.listTicketTypes(app.id, event.id);
+    for (const [position, t] of seed.ticketTypes.entries()) {
+      const fields = { name: t.name, priceCents: t.priceCents, capacity: t.capacity, saleEndsAt: null, maxPerOrder: t.maxPerOrder, position };
+      const existing = types.find((x) => x.name === t.name);
+      if (existing) await store.updateTicketType(app.id, existing.id, fields);
+      else await store.createTicketType({ ...fields, appId: app.id, eventId: event.id }, now);
+    }
+    const names = new Set(seed.ticketTypes.map((t) => t.name));
+    for (const t of types) if (!names.has(t.name)) await store.deleteTicketType(app.id, t.id);
+  }
+  const titles = new Set(DEMO_EVENTS.map((e) => e.title));
+  for (const e of events) if (!titles.has(e.title) && e.status !== "draft") await store.updateEvent(app.id, e.id, { status: "draft" }, now);
 }
 
 function escapeHtml(text: string): string {
