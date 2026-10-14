@@ -151,6 +151,32 @@ const REMINDER_EMAIL: Record<"plan_ends_7" | "plan_ends_1" | "plan_ends_0", Emai
   plan_ends_0: "plan_ends_today",
 };
 
+/**
+ * 19 The WordPress site our team set up for the app is ready (lib/app/wordpress-ready.ts):
+ * a dashboard notice and an email, once per set-up request.
+ */
+export async function notifyWordpressReady(deps: NoticeDeps, input: { app: App; client: Client; siteUrl: string }): Promise<OwnerNotice | null> {
+  const { app, client, siteUrl } = input;
+  const name = appLabel(app);
+  const setupUrl = `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open/${app.id}?to=setup`;
+  return createAndMail(
+    deps,
+    await ownerOf(deps.store, client),
+    {
+      clientId: client.id,
+      appId: app.id,
+      kind: "wordpress_ready",
+      dedupeKey: `wordpress_ready:${(app.setupRequestedAt ?? deps.now).toISOString()}`,
+      title: `Your WordPress site for ${name} is ready`,
+      body: `${name} now gets its content from ${siteUrl} through the Yallapp plugin. Finish the remaining setup steps to build your app.`,
+      linkUrl: setupUrl,
+      linkLabel: "Continue setup",
+      tone: "info",
+    },
+    { key: "wordpress_ready", values: { app_name: name, website: siteUrl, setup_url: setupUrl } },
+  );
+}
+
 /** 13.4 The reminder due for one app's license, if any (once per license period). */
 export async function remindLicense(
   deps: NoticeDeps,

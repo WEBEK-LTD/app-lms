@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, resolveClientApp, suspendClient } from "@/lib/admin/clients";
 import { appLabel } from "@/lib/app/label";
+import { httpsSiteAddress, moveToWordpress } from "@/lib/app/wordpress-ready";
 import { recordAudit } from "@/lib/admin/audit";
 import type { AdminPermission } from "@/lib/admin/permissions";
 import { registerClient } from "@/lib/auth/accounts";
@@ -191,6 +192,38 @@ export async function setHostedApiAction(formData: FormData): Promise<void> {
   });
   revalidateClient(id);
   redirect(clientUrl(id, hosted ? "hosted" : "unhosted", formData));
+}
+
+/**
+ * 19 The WordPress site our team set up for a client is ready: the app moves
+ * to it (backend "wordpress" with its address), and the client gets a
+ * dashboard notice and an email. The plugin activating the app's license on
+ * a site does the same on its own.
+ */
+export async function wordpressReadyAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { id, admin } = await clientIdFrom(formData, "clients.edit");
+  const raw = String(formData.get("siteUrl") ?? "");
+  const values = { siteUrl: raw };
+  const app = await appFromForm(id, formData);
+  if (!app) return { message: "This app no longer exists.", values };
+  if (app.backend !== "setup_requested") return { message: "This app isn't waiting for a WordPress site any more.", values };
+  const siteUrl = httpsSiteAddress(raw);
+  if (!siteUrl || !new URL(siteUrl).hostname.includes(".")) return { errors: { siteUrl: "Enter the site's address, like https://academy.example." }, values };
+  const store = await getStore();
+  const now = new Date();
+  const moved = await moveToWordpress({ store, now, baseUrl: appUrl(), mail: sendTemplate }, app, siteUrl);
+  await recordAudit({
+    actor: admin,
+    action: "client.wordpress_ready",
+    target: { type: "app", id: app.id },
+    clientId: id,
+    summary: `Moved ${await clientName(id)}'s app to their new WordPress site, ${siteUrl}${onApp(app)}`,
+    before: { backend: app.backend, siteUrl: app.siteUrl },
+    after: { backend: moved?.backend ?? "wordpress", siteUrl },
+  });
+  revalidateClient(id);
+  revalidatePath("/dashboard", "layout");
+  redirect(clientUrl(id, "wordpress-ready", formData));
 }
 
 /** Name, WhatsApp number and website of a client. Their sign-in email stays as it is. */

@@ -91,7 +91,8 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
 
   await signIn(page, client.email, client.password);
   await page.goto("/dashboard/setup?step=website");
-  await expect(page.getByText("doesn't need a website")).toBeVisible();
+  // 19 The owner still chooses where the content comes from; the app's API address is shown meanwhile.
+  await expect(page.getByText("Our team moved your app to the Yallapp hosted API, but nothing gives it content yet.")).toBeVisible();
   api = (await page.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
   expect(api).toMatch(/\/api\/app\/[0-9a-f-]{36}$/);
 });

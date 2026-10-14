@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
@@ -17,7 +18,7 @@ const sectionClass = "flex max-w-[760px] flex-col gap-4 rounded-2xl border borde
  */
 export default async function AppSignInPage() {
   const { app, client } = await requireClient();
-  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress")) {
+  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested")) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">App sign-in</h1>
@@ -30,7 +31,9 @@ export default async function AppSignInPage() {
       </div>
     );
   }
-  const wordpress = app.backend === "wordpress";
+  // 19 An app waiting for the WordPress site our team sets up chooses now; it applies once the site is ready.
+  const waiting = app.backend === "setup_requested";
+  const wordpress = app.backend === "wordpress" || waiting;
   const methods = wordpress ? (chosenSignInMethods(app) ?? ["phone"]) : hostedSignInMethods(app);
   const sender = app.hostedSettings?.whatsappSender ?? null;
   return (
@@ -43,6 +46,11 @@ export default async function AppSignInPage() {
             : "Choose how customers sign in to your app, and the rules for new customers. Changes apply at once, without a new build."}
         </p>
       </div>
+      {waiting ? (
+        <Notice icon="hourglass_top">
+          Our team is still setting up your WordPress site. Choose now: what you save here applies as soon as your site and the Yallapp plugin are ready.
+        </Notice>
+      ) : null}
 
       <section aria-labelledby="h-methods" className={sectionClass}>
         <h2 id="h-methods" className="m-0 text-[19px] font-bold">

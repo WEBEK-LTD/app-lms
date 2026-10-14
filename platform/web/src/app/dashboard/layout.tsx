@@ -92,8 +92,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
             ],
           },
         ]
-      : app?.backend === "wordpress"
-        ? // 18 WordPress apps choose how people sign in, and the WhatsApp number that sends their codes.
+      : app?.backend === "wordpress" || app?.backend === "setup_requested"
+        ? // 18 WordPress apps choose how people sign in, and the WhatsApp number that sends their codes (19: also while our team sets up the site).
           [{ label: "App users", items: [{ href: "/dashboard/app-sign-in", label: "App sign-in", icon: "login" as const }] }]
         : []),
     {

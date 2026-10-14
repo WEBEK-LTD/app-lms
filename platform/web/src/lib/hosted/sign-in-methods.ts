@@ -19,7 +19,8 @@ const OWN_CONTENT = new Set(["catalog", "bookings", "courses", "listings"]);
 
 /** Whether this app can offer email sign-in at all. */
 export function emailSignInPossible(app: Pick<App, "backend" | "connector" | "demo">): boolean {
-  if (app.backend === "wordpress") return true;
+  // 19 Also a WordPress site our team is still setting up.
+  if (app.backend === "wordpress" || app.backend === "setup_requested") return true;
   if (app.backend !== "hosted" || app.demo) return false;
   return !app.connector || OWN_CONTENT.has(app.connector.kind);
 }
