@@ -84,7 +84,7 @@ export function AddClientForm() {
       <Field label="Full name" name="name" required defaultValue={v.name} error={state.errors?.name} small />
       <Field label="Email" name="email" type="email" required defaultValue={v.email} error={state.errors?.email} small />
       <Field label="WhatsApp number" name="whatsapp" type="tel" required defaultValue={v.whatsapp} error={state.errors?.whatsapp} small />
-      <Field label="WordPress website" name="siteUrl" type="url" required defaultValue={v.siteUrl} error={state.errors?.siteUrl} small />
+      <Field label="Website (optional)" name="siteUrl" type="url" defaultValue={v.siteUrl} error={state.errors?.siteUrl} small />
       <SubmitButton className="h-11" pendingText="Adding…">
         Add client
       </SubmitButton>
@@ -102,7 +102,7 @@ export function ClientDetailsForm({ clientId, name, whatsapp, siteUrl }: { clien
       <FormMessage message={state.message} ok={state.ok} />
       <Field label="Full name" name="name" required defaultValue={v.name ?? name} error={state.errors?.name} small />
       <Field label="WhatsApp number" name="whatsapp" type="tel" required defaultValue={v.whatsapp ?? whatsapp} error={state.errors?.whatsapp} small />
-      <Field label="Website" name="siteUrl" type="url" required defaultValue={v.siteUrl ?? siteUrl} error={state.errors?.siteUrl} small />
+      <Field label="Website (optional)" name="siteUrl" type="url" defaultValue={v.siteUrl ?? siteUrl} error={state.errors?.siteUrl} small />
       <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
         Save details
       </SubmitButton>

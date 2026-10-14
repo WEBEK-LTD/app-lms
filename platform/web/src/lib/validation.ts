@@ -219,7 +219,7 @@ export const addClientSchema = z.object({
   name: z.string().trim().min(2, "Enter the client's name.").max(120),
   email,
   whatsapp,
-  siteUrl,
+  siteUrl: optionalSiteUrl,
 });
 
 export const clientDetailsSchema = addClientSchema.omit({ email: true }).extend({

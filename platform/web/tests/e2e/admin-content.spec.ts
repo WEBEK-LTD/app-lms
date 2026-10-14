@@ -82,7 +82,7 @@ test.beforeAll(async ({ browser }) => {
   await panel.getByLabel("Full name").fill(client.name);
   await panel.getByLabel("Email").fill(client.email);
   await panel.getByLabel("WhatsApp number").fill("+90 544 000 00 31");
-  await panel.getByLabel("WordPress website").fill(`https://willow-${suffix}.academy.test`);
+  await panel.getByLabel("Website (optional)").fill(`https://willow-${suffix}.academy.test`);
   await panel.getByRole("button", { name: "Add client" }).click();
   await expect(admin).toHaveURL(/done=added/);
   await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Set your Yallapp password");

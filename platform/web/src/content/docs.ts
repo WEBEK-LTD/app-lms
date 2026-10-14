@@ -1153,7 +1153,11 @@ Each app has its own plan and its own price, and is renewed on its own. You can 
 
 ## Adding an app
 
-Ask us on WhatsApp, or add it from your dashboard when the option is shown. The new app goes through the same [setup steps](/docs/setup-steps).
+Open the app menu at the top of your dashboard (it shows your current app) and choose **Add an app**. Pick its app type, and the new app goes through the same [setup steps](/docs/setup-steps). It starts once its plan is paid by card on the **License** page or activated by our team. An account can hold up to 20 apps.
+
+## Switching between apps
+
+The same menu lists all your apps with their state. Choose one, and every page of the dashboard (setup, pages, products, builds, license) works on that app.
 
 > Each app is published under the store accounts you choose. One Google Play and one Apple developer account can hold all your apps.
 `,
