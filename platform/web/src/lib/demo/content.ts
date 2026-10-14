@@ -6,7 +6,7 @@ import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
 
 /**
- * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven) with
+ * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven, 27 eight) with
  * believable names, prices and texts. People, shops and addresses are
  * invented. Pictures are drawn in lib/demo/pictures.ts.
  */

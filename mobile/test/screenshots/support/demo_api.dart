@@ -130,7 +130,7 @@ class DemoApi extends FakeApi {
     final config = {
       ...configJson(lms: null, bookings: true, languages: _languages),
       'site': _site('Pulse Studio'),
-      'branding': {'logo_url': null, 'primary_color': '#B5471B'},
+      'branding': {'logo_url': null, 'primary_color': '#4338A8'},
       'vertical': 'fitness',
     };
     config['bookings'] = {
