@@ -16,6 +16,17 @@ import { NOW, setupClient } from "./helpers";
 const DEVICE = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
 
 describe("phone numbers", () => {
+  it("refuses numbers that don't exist and drops a 0 typed after the country code", () => {
+    // A typo for +90 544 673 19 42: +95 (Myanmar) 446731942 isn't a valid number there.
+    expect(parseAnyPhone("+95446731942", "+90")).toBeNull();
+    expect(parseAnyPhone("+90 0544 673 19 42", "+90")?.e164).toBe("+905446731942");
+    expect(parseAnyPhone("0090 544 673 19 42", "+20")?.e164).toBe("+905446731942");
+    expect(parseAnyPhone("+20 100 123 4567", "+90")?.e164).toBe("+201001234567");
+    expect(parseAnyPhone("+20 1001234", "+90")).toBeNull();
+    expect(parsePhone("+90", "123 456 7890")).toBeNull();
+    expect(parsePhone("+999", "5321234567")).toBeNull();
+  });
+
   it("parses like the plugin", () => {
     expect(parsePhone("+90", "0532 123 45 67")?.e164).toBe("+905321234567");
     expect(parsePhone("+90", "+90 532 123 45 67")?.e164).toBe("+905321234567");
@@ -408,7 +419,10 @@ describe("App sign-in form", () => {
       reviewCode: "12",
     });
     expect(parsed.ok).toBe(false);
-    if (!parsed.ok) expect(Object.keys(parsed.errors).sort()).toEqual(["defaultCountryCode", "deviceLimit", "reviewCode", "termsUrl"]);
+    // Without a valid default country code, numbers typed without one can't be read either.
+    if (!parsed.ok) {
+      expect(Object.keys(parsed.errors).sort()).toEqual(["defaultCountryCode", "deviceLimit", "reviewCode", "reviewPhone", "supportWhatsapp", "termsUrl"]);
+    }
     const noPhone = parseHostedSettingsForm({ ...base, reviewPhone: "" });
     expect(noPhone.ok ? null : noPhone.errors.reviewPhone).toBe("Enter the number reviewers sign in with, or clear the code.");
     const off = parseHostedSettingsForm({ ...base, reviewPhone: "", reviewCode: "", supportWhatsapp: "", termsUrl: "", signupAllowed: "" });
