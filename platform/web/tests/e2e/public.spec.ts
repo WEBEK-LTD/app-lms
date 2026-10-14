@@ -11,6 +11,8 @@ const PAGES: { path: string; heading: RegExp; footer: boolean }[] = [
   { path: "/docs/clinics", heading: /Clinics: doctors, visits and the intake form/, footer: true },
   { path: "/solutions/restaurant", heading: /Your menu, ordered from your customers. phones/, footer: true },
   { path: "/docs/restaurants", heading: /Restaurants and cafés: menu, pickup, delivery and the kitchen/, footer: true },
+  { path: "/solutions/fitness", heading: /Your classes, booked from your members. phones/, footer: true },
+  { path: "/docs/fitness", heading: /Gyms and studios: timetable, classes and memberships/, footer: true },
   { path: "/solutions/real-estate", heading: /Your listings, with search, favorites and messages/, footer: true },
   { path: "/features", heading: /Everything your app needs, built in/, footer: true },
   { path: "/integrations", heading: /Your content, from wherever it lives/, footer: true },
@@ -116,6 +118,7 @@ test("the home page shows the app types, the screens and the comparison", async 
     ["Restaurant & café apps", "/solutions/restaurant"],
     ["Bookings apps", "/solutions/bookings"],
     ["Clinic apps", "/solutions/clinic"],
+    ["Gym & fitness apps", "/solutions/fitness"],
     ["Real estate apps", "/solutions/real-estate"],
   ] as const) {
     await expect(page.getByRole("link", { name: new RegExp(name) })).toHaveAttribute("href", path);

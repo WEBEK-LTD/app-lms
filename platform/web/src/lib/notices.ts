@@ -7,6 +7,8 @@ import { effectivePlans } from "./entitlements";
 import { appState } from "./license/status";
 import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
 import { cleanDemoActivity, type DemoCleanupReport } from "./demo/cleanup";
+import { bookingSetup } from "./bookings/setup";
+import { hasClasses, syncClassSessions } from "./bookings/classes";
 
 /**
  * Owner notices (roadmap 13.2 and 13.4): what the dashboard and email tell
@@ -230,6 +232,26 @@ export interface DailyReport {
   resolved: number;
   /** 16 What visitors added to the demo apps more than a day ago, deleted. */
   demo: DemoCleanupReport;
+  /** 27 Classes made from the timetables for the weeks ahead (and empty ones no longer on them removed). */
+  classes: { apps: number; created: number; removed: number };
+}
+
+/** 27 Keeps every timetable's classes made for the weeks ahead (lib/bookings/classes.ts). */
+async function syncAllClasses(store: DataStore, now: Date): Promise<DailyReport["classes"]> {
+  const report = { apps: 0, created: 0, removed: 0 };
+  for (const app of await store.listApps()) {
+    if (app.connector?.kind !== "bookings" || !hasClasses(bookingSetup(app))) continue;
+    try {
+      const done = await syncClassSessions(store, app, now);
+      report.apps++;
+      report.created += done.created;
+      report.removed += done.removed;
+    } catch (e) {
+      // One app's failure doesn't stop the others; the next run tries again.
+      console.error(`[daily] classes of app ${app.id}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+  return report;
 }
 
 /**
@@ -246,6 +268,7 @@ export async function runDailyNotices(deps: NoticeDeps): Promise<DailyReport> {
     usageNotices: 0,
     resolved: 0,
     demo: await cleanDemoActivity(store, now),
+    classes: await syncAllClasses(store, now),
   };
   const plans = await effectivePlans(store);
   const licenses = await store.listLicenses();

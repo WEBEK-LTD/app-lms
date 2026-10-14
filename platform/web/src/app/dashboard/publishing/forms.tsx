@@ -156,10 +156,13 @@ export function ListingForm({
   current,
   playCategories,
   appStoreCategories,
+  reviewNote,
 }: {
   current: { playCategory: string; appStoreCategory: string; contentRatingNotes: string; reviewNotes: string };
   playCategories: readonly string[];
   appStoreCategories: readonly string[];
+  /** 27 What the kind's apps should tell the reviewers (a gym's memberships paid outside the app). */
+  reviewNote?: string;
 }) {
   const [state, action] = useActionState(savePublishingListingAction, initialFormState);
   const v = { ...current, ...state.values };
@@ -182,7 +185,11 @@ export function ListingForm({
         name="reviewNotes"
         label="For the store reviewers (optional)"
         value={v.reviewNotes}
-        hint="Anything Apple and Google need to try your app, like a phone number and code they can sign in with."
+        hint={
+          reviewNote
+            ? `Anything Apple and Google need to try your app, like a phone number and code they can sign in with. Also say: “${reviewNote}”`
+            : "Anything Apple and Google need to try your app, like a phone number and code they can sign in with."
+        }
         error={e.reviewNotes}
       />
       <FormMessage message={state.message} ok={state.ok} />

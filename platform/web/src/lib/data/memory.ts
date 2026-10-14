@@ -1,5 +1,6 @@
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
+import { membershipToUse } from "../bookings/memberships";
 import type { AppLayoutRecord } from "./types";
 import type {
   AppPatch,
@@ -53,6 +54,14 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  BookClassInput,
+  BookClassResult,
+  ClassBooking,
+  ClassBookingStatus,
+  ClassSession,
+  ClassSessionPatch,
+  Membership,
+  MembershipPatch,
   CourseEnrollment,
   LessonProgress,
   AdminMember,
@@ -102,6 +111,11 @@ export class MemoryStore implements DataStore {
   private planPayments = new Map<string, PlanPayment>();
   private bookingAppointments = new Map<number, BookingAppointment>();
   private nextBookingId = 1;
+  // 27 Classes and memberships
+  private classSessions = new Map<number, ClassSession>();
+  private classBookings = new Map<number, ClassBooking>();
+  private memberships = new Map<number, Membership>();
+  private nextClassId = 1;
   private courseEnrollments: CourseEnrollment[] = [];
   private lessonProgress = new Map<string, LessonProgress>();
 
@@ -525,6 +539,11 @@ export class MemoryStore implements DataStore {
     for (const order of this.catalogOrders.values()) {
       if (order.appId === appId && order.userId === id) order.userId = null;
     }
+    // 27 Spots in classes stay counted; memberships go with the account.
+    for (const booking of this.classBookings.values()) {
+      if (booking.appId === appId && booking.userId === id) booking.userId = null;
+    }
+    for (const [key, m] of this.memberships) if (m.appId === appId && m.userId === id) this.memberships.delete(key);
     this.forgetListingUser(appId, id);
   }
 
@@ -830,6 +849,159 @@ export class MemoryStore implements DataStore {
       })
       .sort((a, b) => (input.scope?.kind === "past" ? b.startAt.getTime() - a.startAt.getTime() : a.startAt.getTime() - b.startAt.getTime()) || a.id - b.id);
     return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  // 27 Classes and memberships. Each method changes everything in one synchronous step, so concurrent calls can't interleave.
+
+  async createClassSession(input: Omit<ClassSession, "id">): Promise<ClassSession | null> {
+    for (const other of this.classSessions.values()) {
+      if (other.appId === input.appId && input.templateId !== null && other.templateId === input.templateId && other.startAt.getTime() === input.startAt.getTime()) return null;
+    }
+    const session: ClassSession = { ...clone(input), id: this.nextClassId++ };
+    this.classSessions.set(session.id, clone(session));
+    return session;
+  }
+
+  async getClassSession(appId: string, id: number): Promise<ClassSession | null> {
+    const session = this.classSessions.get(id);
+    return session && session.appId === appId ? clone(session) : null;
+  }
+
+  async listClassSessions(input: { appId: string; startFrom?: Date; startBefore?: Date }): Promise<ClassSession[]> {
+    return [...this.classSessions.values()]
+      .filter((s) => s.appId === input.appId)
+      .filter((s) => !input.startFrom || s.startAt >= input.startFrom)
+      .filter((s) => !input.startBefore || s.startAt < input.startBefore)
+      .sort((a, b) => a.startAt.getTime() - b.startAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async updateClassSession(appId: string, id: number, patch: ClassSessionPatch): Promise<void> {
+    const session = this.classSessions.get(id);
+    if (!session || session.appId !== appId) return;
+    const next = { ...session, ...clone(patch) };
+    next.capacity = Math.max(next.capacity, session.bookedCount);
+    this.classSessions.set(id, next);
+  }
+
+  async deleteClassSession(appId: string, id: number): Promise<boolean> {
+    const session = this.classSessions.get(id);
+    if (!session || session.appId !== appId || session.bookedCount > 0) return false;
+    this.classSessions.delete(id);
+    for (const [key, b] of this.classBookings) if (b.sessionId === id) this.classBookings.delete(key);
+    return true;
+  }
+
+  async bookClass(input: BookClassInput): Promise<BookClassResult> {
+    const session = this.classSessions.get(input.sessionId);
+    if (!session || session.appId !== input.appId) return { ok: false, reason: "not_found" };
+    const existing = [...this.classBookings.values()].find((b) => b.sessionId === session.id && b.userId === input.userId);
+    if (existing?.status === "booked") return { ok: true, booking: clone(existing), session: clone(session) };
+    if (session.status !== "scheduled") return { ok: false, reason: "cancelled" };
+    if (session.startAt < input.bookableFrom) return { ok: false, reason: "too_late" };
+    if (session.bookedCount >= session.capacity) return { ok: false, reason: "full" };
+    let membershipId: number | null = null;
+    if (input.membershipRequired) {
+      const mine = [...this.memberships.values()].filter((m) => m.appId === input.appId && m.userId === input.userId);
+      const pick = membershipToUse(mine, input.now);
+      if (!pick.ok) return { ok: false, reason: pick.reason };
+      const membership = this.memberships.get(pick.membership.id)!;
+      if (membership.creditsLeft !== null) membership.creditsLeft -= 1;
+      membership.updatedAt = input.now;
+      membershipId = membership.id;
+    }
+    session.bookedCount += 1;
+    session.updatedAt = input.now;
+    const fields = {
+      membershipId,
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerEmail: input.customerEmail,
+      status: "booked" as const,
+      updatedAt: input.now,
+    };
+    const booking: ClassBooking = existing
+      ? { ...existing, ...fields }
+      : { id: this.nextClassId++, appId: input.appId, sessionId: session.id, userId: input.userId, createdAt: input.now, ...fields };
+    this.classBookings.set(booking.id, clone(booking));
+    return { ok: true, booking: clone(booking), session: clone(session) };
+  }
+
+  /** Marks a spot cancelled, frees it and gives its credit back. */
+  private releaseSpot(booking: ClassBooking, now: Date): void {
+    booking.status = "cancelled";
+    booking.updatedAt = now;
+    const session = this.classSessions.get(booking.sessionId);
+    if (session) session.bookedCount = Math.max(0, session.bookedCount - 1);
+    const membership = booking.membershipId === null ? null : this.memberships.get(booking.membershipId);
+    if (membership && membership.creditsLeft !== null) {
+      membership.creditsLeft += 1;
+      membership.updatedAt = now;
+    }
+  }
+
+  async cancelClassBooking(input: { appId: string; sessionId: number; userId: number; now: Date }): Promise<ClassBooking | null> {
+    const booking = [...this.classBookings.values()].find(
+      (b) => b.appId === input.appId && b.sessionId === input.sessionId && b.userId === input.userId && b.status === "booked",
+    );
+    if (!booking) return null;
+    this.releaseSpot(booking, input.now);
+    return clone(booking);
+  }
+
+  async cancelClassSession(appId: string, id: number, now: Date): Promise<ClassBooking[]> {
+    const session = this.classSessions.get(id);
+    if (!session || session.appId !== appId || session.status === "cancelled") return [];
+    session.status = "cancelled";
+    session.updatedAt = now;
+    const released: ClassBooking[] = [];
+    for (const booking of this.classBookings.values()) {
+      if (booking.sessionId !== id || booking.status !== "booked") continue;
+      released.push(clone(booking));
+      this.releaseSpot(booking, now);
+    }
+    return released;
+  }
+
+  async listClassBookings(input: { appId: string; sessionIds?: number[]; userId?: number; status?: ClassBookingStatus }): Promise<ClassBooking[]> {
+    return [...this.classBookings.values()]
+      .filter((b) => b.appId === input.appId)
+      .filter((b) => !input.sessionIds || input.sessionIds.includes(b.sessionId))
+      .filter((b) => input.userId === undefined || b.userId === input.userId)
+      .filter((b) => !input.status || b.status === input.status)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async createMembership(input: Omit<Membership, "id">): Promise<Membership> {
+    const membership: Membership = { ...clone(input), id: this.nextClassId++ };
+    this.memberships.set(membership.id, clone(membership));
+    return membership;
+  }
+
+  async getMembership(appId: string, id: number): Promise<Membership | null> {
+    const membership = this.memberships.get(id);
+    return membership && membership.appId === appId ? clone(membership) : null;
+  }
+
+  async listMemberships(input: { appId: string; userId?: number; limit?: number }): Promise<Membership[]> {
+    return [...this.memberships.values()]
+      .filter((m) => m.appId === input.appId && (input.userId === undefined || m.userId === input.userId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .slice(0, input.limit ?? 500)
+      .map(clone);
+  }
+
+  async updateMembership(appId: string, id: number, patch: MembershipPatch): Promise<void> {
+    const membership = this.memberships.get(id);
+    if (membership && membership.appId === appId) this.memberships.set(id, { ...membership, ...clone(patch) });
+  }
+
+  async addMembershipCredits(appId: string, id: number, credits: number, now: Date): Promise<void> {
+    const membership = this.memberships.get(id);
+    if (!membership || membership.appId !== appId || membership.creditsLeft === null) return;
+    membership.creditsLeft = Math.max(0, membership.creditsLeft + credits);
+    membership.updatedAt = now;
   }
 
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
@@ -1438,7 +1610,32 @@ export class MemoryStore implements DataStore {
   // 16 Demo apps
   async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
     const old = (date: Date) => date.getTime() < before.getTime();
-    const counts: DemoPurgeCounts = { orders: 0, appointments: 0, inquiries: 0, favorites: 0, enrollments: 0, progress: 0, devices: 0, notifications: 0 };
+    const counts: DemoPurgeCounts = {
+      orders: 0,
+      appointments: 0,
+      inquiries: 0,
+      favorites: 0,
+      enrollments: 0,
+      progress: 0,
+      devices: 0,
+      notifications: 0,
+      classBookings: 0,
+      memberships: 0,
+    };
+    // 27 Spots taken more than a day ago are freed; memberships bought then are gone.
+    for (const [id, booking] of this.classBookings) {
+      if (booking.appId !== appId || !old(booking.updatedAt)) continue;
+      const session = this.classSessions.get(booking.sessionId);
+      if (session && booking.status === "booked") session.bookedCount = Math.max(0, session.bookedCount - 1);
+      this.classBookings.delete(id);
+      counts.classBookings++;
+    }
+    for (const [id, membership] of this.memberships) {
+      if (membership.appId === appId && old(membership.createdAt)) {
+        this.memberships.delete(id);
+        counts.memberships++;
+      }
+    }
     for (const [id, order] of this.catalogOrders) {
       if (order.appId === appId && old(order.createdAt)) {
         this.catalogOrders.delete(id);

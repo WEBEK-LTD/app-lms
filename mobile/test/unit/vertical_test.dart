@@ -81,21 +81,25 @@ void main() {
       );
     });
 
-    test('clinics have their own words, every other kind the default', () {
+    test('clinics, restaurants and gyms have their own words, every other kind the default', () {
       for (final code in ['en', 'ar', 'tr']) {
         final l10n = lookupAppLocalizations(Locale(code));
         for (final vertical in [null, ...AppVertical.values]) {
           final wording = VerticalWording(l10n, vertical);
           final clinic = vertical == AppVertical.clinic;
           final restaurant = vertical == AppVertical.restaurant;
+          final gym = vertical == AppVertical.fitness;
           expect(wording.isClinic, clinic);
           expect(wording.isRestaurant, restaurant);
+          expect(wording.isFitness, gym);
           expect(
             wording.business,
             clinic
                 ? l10n.wordingClinic
                 : restaurant
                 ? l10n.wordingRestaurant
+                : gym
+                ? l10n.wordingGym
                 : l10n.wordingBusiness,
           );
           // 26 A restaurant's store screens show its menu.
@@ -110,7 +114,11 @@ void main() {
           );
           expect(
             wording.customer,
-            clinic ? l10n.wordingPatient : l10n.wordingCustomer,
+            clinic
+                ? l10n.wordingPatient
+                : gym
+                ? l10n.wordingMember
+                : l10n.wordingCustomer,
           );
           expect(
             wording.appointments,
@@ -122,7 +130,11 @@ void main() {
           );
           expect(
             wording.ourTeam,
-            clinic ? l10n.clinicOurDoctors : l10n.ourTeam,
+            clinic
+                ? l10n.clinicOurDoctors
+                : gym
+                ? l10n.fitnessOurCoaches
+                : l10n.ourTeam,
           );
         }
       }
@@ -158,6 +170,24 @@ void main() {
       );
       expect(menu.shop, 'Menü');
       expect(menu.searchProducts, 'Menüde ara');
+      // 27 A gym's coaches, members and classes.
+      final gym = VerticalWording(
+        lookupAppLocalizations(const Locale('en')),
+        AppVertical.fitness,
+      );
+      expect(gym.business, 'Gym');
+      expect(gym.customer, 'Member');
+      expect(gym.staffHeading, 'Coach');
+      expect(gym.ourTeam, 'Our coaches');
+      expect(gym.anyone, 'Any coach');
+      expect(gym.classes, 'Classes');
+      expect(
+        VerticalWording(
+          lookupAppLocalizations(const Locale('tr')),
+          AppVertical.fitness,
+        ).classes,
+        'Dersler',
+      );
     });
   });
 }

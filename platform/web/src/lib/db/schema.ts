@@ -19,6 +19,9 @@ import type {
   CourseSetup,
   BookingStatus,
   IntakeAnswer,
+  ClassBookingStatus,
+  ClassSessionStatus,
+  MembershipPeriod,
   PushPreferences,
   AuditChanges,
   OwnerNoticeKind,
@@ -546,6 +549,79 @@ export const bookingAppointments = mysqlTable(
     index("booking_appointments_app_start_idx").on(t.appId, t.startAt),
     index("booking_appointments_user_idx").on(t.appId, t.userId, t.startAt),
   ],
+);
+
+/** 27 Group classes made from the weekly timetable (apps.booking_setup.classTemplates), one row per class so spots are counted and locked. */
+export const classSessions = mysqlTable(
+  "class_sessions",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    templateId: int("template_id"),
+    serviceId: int("service_id").notNull(),
+    staffId: int("staff_id").notNull(),
+    serviceName: varchar("service_name", { length: 120 }).notNull(),
+    staffName: varchar("staff_name", { length: 120 }).notNull(),
+    startAt: time("start_at").notNull(),
+    endAt: time("end_at").notNull(),
+    capacity: int("capacity").notNull(),
+    // Spots taken: raised only by a conditional update below the capacity.
+    bookedCount: int("booked_count").notNull().default(0),
+    status: varchar("status", { length: 16 }).notNull().$type<ClassSessionStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("class_sessions_template_start_unique").on(t.appId, t.templateId, t.startAt), index("class_sessions_app_start_idx").on(t.appId, t.startAt)],
+);
+
+/** 27 Customers' spots in classes: one row per class and customer. */
+export const classBookings = mysqlTable(
+  "class_bookings",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    sessionId: bigint("session_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => classSessions.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    membershipId: bigint("membership_id", { mode: "number", unsigned: true }),
+    customerName: varchar("customer_name", { length: 120 }).notNull(),
+    customerPhone: varchar("customer_phone", { length: 24 }),
+    customerEmail: varchar("customer_email", { length: 191 }),
+    status: varchar("status", { length: 16 }).notNull().$type<ClassBookingStatus>(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("class_bookings_session_user_unique").on(t.sessionId, t.userId), index("class_bookings_user_idx").on(t.appId, t.userId)],
+);
+
+/** 27 Customers' memberships of a gym or studio. */
+export const memberships = mysqlTable(
+  "memberships",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    planId: int("plan_id").notNull(),
+    planName: varchar("plan_name", { length: 120 }).notNull(),
+    period: varchar("period", { length: 16 }).notNull().$type<MembershipPeriod>(),
+    creditsLeft: int("credits_left"),
+    status: varchar("status", { length: 16 }).notNull().$type<"active" | "cancelled">(),
+    startsAt: time("starts_at").notNull(),
+    endsAt: time("ends_at"),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("memberships_user_idx").on(t.appId, t.userId), uniqueIndex("memberships_order_unique").on(t.orderId)],
 );
 
 /** Students of courses managed in the dashboard. */

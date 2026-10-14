@@ -4263,6 +4263,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading your order'**
   String get loadingOrder;
+
+  /// What a gym or studio app calls the business that owns it (vertical_wording.dart).
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get wordingGym;
+
+  /// What a gym or studio app calls its customers (vertical_wording.dart).
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get wordingMember;
+
+  /// Heading above the coach picker when booking a personal session. lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness).
+  ///
+  /// In en, this message translates to:
+  /// **'Coach'**
+  String get fitnessCoach;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Our coaches'**
+  String get fitnessOurCoaches;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Any coach'**
+  String get fitnessAnyCoach;
+
+  /// lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word.
+  ///
+  /// In en, this message translates to:
+  /// **'Any coach who\'s free'**
+  String get fitnessAnyCoachAvailable;
+
+  /// The class timetable's title and tab (a gym's or studio's group classes).
+  ///
+  /// In en, this message translates to:
+  /// **'Classes'**
+  String get classesTitle;
+
+  /// Read by screen readers while the timetable loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading classes'**
+  String get classesLoading;
+
+  /// The timetable on a day without classes.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes this day'**
+  String get classesNone;
+
+  /// No description provided for @classesNoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick another day to see its classes.'**
+  String get classesNoneMessage;
+
+  /// When the business has no classes in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes yet'**
+  String get classesNoTimetable;
+
+  /// No description provided for @classesNoTimetableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{business} hasn\'t added its classes to the app yet.'**
+  String classesNoTimetableMessage(String business);
+
+  /// Spots left in a class.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 spot left} other{{count} spots left}}'**
+  String classSpotsLeft(int count);
+
+  /// A class with no spots left.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get classFull;
+
+  /// A class the business called off.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get classCancelledLabel;
+
+  /// On a class the member has a spot in.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re booked'**
+  String get classBookedLabel;
+
+  /// Books a spot in a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get classBook;
+
+  /// Gives back the member's spot in a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get classCancel;
+
+  /// Read by screen readers on a class's Book button.
+  ///
+  /// In en, this message translates to:
+  /// **'Book {name}'**
+  String classBookName(String name);
+
+  /// Read by screen readers on a class's Cancel button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel your spot in {name}'**
+  String classCancelName(String name);
+
+  /// Asks before cancelling a spot in a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Give back your spot?'**
+  String get classCancelTitle;
+
+  /// No description provided for @classCancelMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} on {when}. Someone else can take your spot.'**
+  String classCancelMessage(String name, String when);
+
+  /// No description provided for @classKeepSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my spot'**
+  String get classKeepSpot;
+
+  /// No description provided for @classBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re booked for {name}.'**
+  String classBooked(String name);
+
+  /// No description provided for @classSpotCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your spot is free again.'**
+  String get classSpotCancelled;
+
+  /// Under a class's name: its coach.
+  ///
+  /// In en, this message translates to:
+  /// **'with {name}'**
+  String classWith(String name);
+
+  /// No description provided for @classSignInToBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to book a spot.'**
+  String get classSignInToBook;
+
+  /// The membership screen's title and tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get membershipTitle;
+
+  /// Read by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your membership'**
+  String get membershipLoading;
+
+  /// No description provided for @membershipMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My membership'**
+  String get membershipMine;
+
+  /// No description provided for @membershipNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No membership yet'**
+  String get membershipNone;
+
+  /// No description provided for @membershipNoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a plan to book classes.'**
+  String get membershipNoneMessage;
+
+  /// No description provided for @membershipSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your membership and buy a plan.'**
+  String get membershipSignIn;
+
+  /// No description provided for @membershipUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited classes'**
+  String get membershipUnlimited;
+
+  /// No description provided for @membershipClassesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 class left} other{{count} classes left}}'**
+  String membershipClassesLeft(int count);
+
+  /// Classes a plan includes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 class} other{{count} classes}}'**
+  String membershipClasses(int count);
+
+  /// When a membership ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String membershipUntil(String date);
+
+  /// A pack of classes.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get membershipNoEnd;
+
+  /// No description provided for @membershipEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get membershipEnded;
+
+  /// No description provided for @membershipCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get membershipCancelled;
+
+  /// No description provided for @membershipActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get membershipActive;
+
+  /// Above the membership plans on sale.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get membershipPlans;
+
+  /// No description provided for @membershipNoPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans aren\'t on sale in the app right now. Ask us when you come in.'**
+  String get membershipNoPlans;
+
+  /// Buys a membership plan on the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get membershipBuy;
+
+  /// Read by screen readers on a plan's Buy button.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {name}'**
+  String membershipBuyName(String name);
+
+  /// After a plan's price.
+  ///
+  /// In en, this message translates to:
+  /// **'a month'**
+  String get membershipPerMonth;
+
+  /// After a plan's price.
+  ///
+  /// In en, this message translates to:
+  /// **'every 3 months'**
+  String get membershipPerQuarter;
+
+  /// After a plan's price.
+  ///
+  /// In en, this message translates to:
+  /// **'a year'**
+  String get membershipPerYear;
+
+  /// After a pack's price.
+  ///
+  /// In en, this message translates to:
+  /// **'class pack'**
+  String get membershipPack;
+
+  /// No description provided for @membershipBought.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is active.'**
+  String get membershipBought;
+
+  /// Opens the membership plans, for example when booking a class needs one.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get membershipSeePlans;
+
+  /// Confirms giving back a spot in a class.
+  ///
+  /// In en, this message translates to:
+  /// **'Give back my spot'**
+  String get classGiveBack;
 }
 
 class _AppLocalizationsDelegate

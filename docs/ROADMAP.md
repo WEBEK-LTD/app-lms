@@ -436,3 +436,25 @@ browser, plugin integration and app tests). How it works is in
 | [x] | 26.6 Plugin 0.3.7: Store orders carry `fulfilment_status` from the WooCommerce status (on hold is received, processing is preparing, completed, cancelled, refunded and failed are cancelled) and `GET /me/orders/{id}` returns the customer's own order. Variations stay the options of WordPress restaurants | `composer lint`, `php -l`, unit tests and the store integration test pass |
 | [ ] | 26.7 WooCommerce Product Add-Ons as option groups: hosted first. The official add-on is a paid plugin that isn't in the integration environment, so it can't be checked yet | The mapping is checked against the add-on's code in the integration environments (tests/integration) |
 | [x] | 26.8 A café demo app (Defne Café, /demo/download/restaurant: a menu with options, pickup and delivery, drawn pictures), the Restaurant & café solution page, the docs article "Restaurants and cafés" and the app types article | Unit tests; browser tests of /demo and the public pages |
+
+## Phase 27: Gyms and fitness
+
+The "Gym & fitness" kind: the bookings engine with the `fitness` vertical,
+for gyms, studios and coaches. Members see the week's classes with the spots
+left, book a spot (never more than the class holds) and buy a membership or
+a class pack on the payment page; personal sessions stay ordinary
+appointments. Classes and memberships are hosted first: WordPress gyms book
+personal sessions through Amelia, BookingPress or LatePoint with the gym's
+words. Built and tested with the in-memory store and on MariaDB 10.11 (unit,
+browser and app tests).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 27.1 Kind `fitness` in the registry (fitness_center, Health & Fitness): picker, the dashboard's words and menu (Classes & coaches, Timetable, Membership plans, Members, Personal sessions, Orders) and the first layout's Classes, Membership and My bookings tabs; the reviewers' hint on Publishing suggests the 3.1.3(e) note | Unit tests; the seven other kinds unchanged |
+| [x] | 27.2 Contract, all optional: `BookingsConfig.classes`; `GET /bookings/classes`, `POST /bookings/classes/{id}/book` and `/cancel` (`ClassSession`); `GET /memberships/plans`, `POST /memberships/checkout-link` (Android and iOS), `GET /me/memberships`; `class_full`, `class_cancelled`, `membership_required`, `no_credits`; the `classes` and `memberships` screens | Redocly lint; every response checked against the contract in unit tests |
+| [x] | 27.3 Hosted: weekly class templates, plans and "Classes need a membership" in the booking setup; classes made 8 weeks ahead on save and by the daily job (`drizzle/0026_fitness.sql`: `class_sessions`, `class_bookings`, `memberships`); spots taken under the class's row lock with a conditional update, credits used and given back in the same step; a coach teaching a class isn't free for a personal session | Unit tests, including concurrent bookings on the memory store and from eight connections on MariaDB (`TEST_DATABASE_URL`); migrations applied twice |
+| [x] | 27.4 Memberships paid on the payment page as an order (own iyzico account or marketplace commission, as other payments); paying or the demo's "Place demo order" starts the membership | Unit tests |
+| [x] | 27.5 Dashboard: Timetable (weekly classes, the coming week with who's coming, Cancel class with an inbox notification and push to members), Membership plans (with card payments) and Members (add a membership, add classes, end one) | Browser test of a gym on the hosted API, also on MariaDB: two members booking the last spot at once get one spot |
+| [x] | 27.6 App: Classes (day tabs, class cards with spots left, Book and Cancel), My membership and the plans with the payment page hand-off, gym words in English, Arabic and Turkish; app preview rebuilt; screenshots for the website | flutter analyze, flutter test, `build_preview.sh --check` |
+| [x] | 27.7 Demo app Pulse Studio (/demo/download/fitness: a week of classes, three coaches, two plans), the Gym & fitness solution page and the docs article "Gyms and studios" | Unit tests; browser tests of /demo and the public pages |
+| [ ] | 27.8 Waiting lists, and classes from WordPress (Amelia events with group capacity): hosted only for now | Checked against the plugins in the integration environments (tests/integration) |

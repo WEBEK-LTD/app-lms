@@ -72,6 +72,34 @@ final appointmentProvider = FutureProvider.autoDispose.family<Appointment, int>(
   (ref, id) => ref.contentApi.getMyAppointment(id),
 );
 
+// 27 A gym's classes and memberships.
+
+/// Classes from `from` to `to` (`yyyy-MM-dd` in the business's time zone).
+typedef ClassesQuery = ({String from, String to});
+
+final classesProvider = FutureProvider.autoDispose
+    .family<ClassList, ClassesQuery>(
+      (ref, q) => ref.contentApi.listClasses(from: q.from, to: q.to),
+    );
+
+final membershipPlansProvider =
+    FutureProvider.autoDispose<List<MembershipPlan>>(
+      (ref) => ref.contentApi.listMembershipPlans(),
+    );
+
+/// The member's memberships, active ones first.
+final myMembershipsProvider = FutureProvider.autoDispose<List<Membership>>(
+  (ref) => ref.contentApi.listMyMemberships(),
+);
+
+/// After booking or giving back a spot, or buying a plan: the timetable
+/// and the membership show the change.
+void invalidateClasses(WidgetRef ref) {
+  ref
+    ..invalidate(classesProvider)
+    ..invalidate(myMembershipsProvider);
+}
+
 /// After booking or cancelling: lists, the home's next appointment and free
 /// times show the change.
 void invalidateAppointments(WidgetRef ref) {

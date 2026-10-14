@@ -50,4 +50,7 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   appointments: "Appointments",
   articles: "All articles",
   bookmarks: "Saved articles",
+  // 27 A gym's or studio's classes and membership.
+  classes: "Class timetable",
+  memberships: "Membership",
 };

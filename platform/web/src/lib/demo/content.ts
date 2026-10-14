@@ -6,7 +6,7 @@ import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
 
 /**
- * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven) with
+ * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven, 27 eight) with
  * believable names, prices and texts. People, shops and addresses are
  * invented. Pictures are drawn in lib/demo/pictures.ts.
  */
@@ -158,6 +158,15 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["clinic-intake", "clinic-doctor"],
   },
+  fitness: {
+    summary: "A yoga, spin and strength studio with a week of classes, three coaches and two membership plans.",
+    tryThis: [
+      "Open Classes and pick a day: each class shows its coach and the spots left",
+      "Buy a membership on the demo payment page: no card is asked for",
+      "Book a spot in a class, see your classes left go down, and cancel to get it back",
+    ],
+    screens: ["fitness-timetable", "fitness-membership"],
+  },
   real_estate: {
     summary: "An estate agency with homes for sale and for rent, with filters, favorites and messages.",
     tryThis: [
@@ -276,6 +285,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Book visits with our family doctor, dentist and physiotherapist.",
     fullDescription: `Kardelen Clinic is a family clinic. See our doctors and what they do, choose a free time and answer a short intake form before your visit.\n\nYour visits are in the app, where you can cancel up to a day before. Payment is at the clinic.\n\n${PRIVACY_NOTE}`,
     welcome: "Open Monday to Friday, 09:00 to 18:00, and Saturday mornings.",
+  },
+  fitness: {
+    appName: "Pulse Studio",
+    shortName: "Pulse",
+    primaryColor: "#4338A8",
+    splashColor: "#ECEBFA",
+    secondaryColor: "#2E7D5B",
+    template: "bold",
+    font: "Outfit",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "tr"],
+    icon: "icon-fitness",
+    banner: { picture: "banner-fitness", heading: "Your week of classes", subheading: "Yoga, spin, HIIT and pilates. Book a spot, come and move." },
+    androidPackage: "com.yallapp.demo.fitness",
+    storeTitle: "Pulse Studio",
+    shortDescription: "Book yoga, spin, HIIT and pilates classes at Pulse Studio.",
+    fullDescription: `Pulse Studio is a yoga, spin and strength studio. See the week's classes with the spots left, book a spot in a tap and cancel up to two hours before.\n\nBuy a monthly membership or a class pack, and see the classes you have left.\n\n${PRIVACY_NOTE}`,
+    welcome: "Classes every day of the week. Personal training on request.",
   },
   real_estate: {
     appName: "Nile Homes",
@@ -734,6 +762,50 @@ export const CLINIC_INTAKE: IntakeField[] = [
   { id: "first_visit", label: "Is this your first visit to us?", type: "choice", options: ["Yes", "No"], required: true },
   { id: "date_of_birth", label: "Date of birth", type: "date", options: [], required: false },
   { id: "allergies", label: "Allergies we should know about", type: "text", options: [], required: false },
+];
+
+// Gym & fitness (27)
+
+export const FITNESS_RULES: BookingRules = { ...BOOKING_RULES, cancelBeforeMinutes: 120, minMinutesAhead: 0, maxDaysAhead: 14 };
+
+export const FITNESS_HOURS: TimeRange[][] = [day("08:00", "14:00"), day("07:00", "21:00"), day("07:00", "21:00"), day("07:00", "21:00"), day("07:00", "21:00"), day("07:00", "21:00"), day("08:00", "14:00")];
+
+export const FITNESS_CATEGORIES = ["Classes", "Personal training"];
+
+/** The classes, and personal training booked as an appointment. */
+export const FITNESS_SERVICES: DemoService[] = [
+  { name: "Yoga flow", category: "Classes", minutes: 60, priceCents: 0, picture: "class-yoga", color: "#2E7D5B", description: "A steady flow for every level, with time to breathe and stretch at the end." },
+  { name: "Spin", category: "Classes", minutes: 45, priceCents: 0, picture: "class-spin", color: "#B5471B", description: "Music, hills and sprints on the bike. Bring water and a towel." },
+  { name: "HIIT", category: "Classes", minutes: 30, priceCents: 0, picture: "class-hiit", color: "#C98A16", description: "Short bursts of work and rest, with kettlebells and your own body weight." },
+  { name: "Mat pilates", category: "Classes", minutes: 50, priceCents: 0, picture: "class-pilates", color: "#5B4A9E", description: "Core strength, balance and posture on the mat." },
+  { name: "Personal training", category: "Personal training", minutes: 60, priceCents: 1200_00, picture: "class-pt", color: "#2B3A4A", description: "An hour with a coach on what you'd like to work on. Paid at the studio." },
+];
+
+export const FITNESS_COACHES: DemoStaff[] = [
+  { name: "Selin Aydın", title: "Yoga and pilates coach", picture: "coach-selin", services: ["Yoga flow", "Mat pilates", "Personal training"] },
+  { name: "Can Yılmaz", title: "Spin and HIIT coach", picture: "coach-can", services: ["Spin", "HIIT", "Personal training"] },
+  { name: "Mira Haddad", title: "Strength coach", picture: "coach-mira", services: ["HIIT", "Mat pilates"] },
+];
+
+/** A week of classes: [class, coach, weekday (0 Sunday), start, spots]. */
+export const FITNESS_TIMETABLE: [string, string, number, string, number][] = [
+  ["Yoga flow", "Selin Aydın", 1, "07:30", 14],
+  ["Spin", "Can Yılmaz", 1, "18:30", 12],
+  ["HIIT", "Mira Haddad", 2, "07:00", 10],
+  ["Mat pilates", "Selin Aydın", 2, "19:00", 12],
+  ["Yoga flow", "Selin Aydın", 3, "07:30", 14],
+  ["Spin", "Can Yılmaz", 3, "18:30", 12],
+  ["HIIT", "Can Yılmaz", 4, "18:00", 10],
+  ["Mat pilates", "Mira Haddad", 4, "19:00", 12],
+  ["Spin", "Can Yılmaz", 5, "07:00", 12],
+  ["Yoga flow", "Selin Aydın", 5, "18:30", 14],
+  ["HIIT", "Mira Haddad", 6, "10:00", 10],
+  ["Yoga flow", "Selin Aydın", 0, "10:00", 14],
+];
+
+export const FITNESS_PLANS: { name: string; priceCents: number; period: "month" | "pack"; credits: number | null; description: string }[] = [
+  { name: "Monthly unlimited", priceCents: 1800_00, period: "month", credits: null, description: "Every class, every day, for a month." },
+  { name: "10-class pack", priceCents: 1500_00, period: "pack", credits: 10, description: "Ten classes, no end date. Share your week as you like." },
 ];
 
 // Real estate

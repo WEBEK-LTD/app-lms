@@ -63,9 +63,10 @@ export function defaultLayout(
   const accountTab = tab("account", "Account", "person", { type: "screen", screen: "account" });
   // 20 The engine's usual tabs and home blocks (lib/app/kinds.ts); an unknown type gets Home and Account.
   const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
-  // 21 The kind's own tab names ("Visits" in a clinic's app).
-  const names = isAppType(app.appType) ? (kindOf({ appType: app.appType, vertical: app.vertical ?? null }).wording?.tabs ?? {}) : {};
-  const tabs = structuredClone(engine?.tabs ?? []).map((t) => (names[t.id] ? { ...t, label: names[t.id]! } : t));
+  // 21 The kind's own tab names ("Visits" in a clinic's app); 27 or its own tabs (a gym's Classes and Membership).
+  const kind = isAppType(app.appType) ? kindOf({ appType: app.appType, vertical: app.vertical ?? null }) : null;
+  const names = kind?.wording?.tabs ?? {};
+  const tabs = structuredClone(kind?.tabs ?? engine?.tabs ?? []).map((t) => (names[t.id] ? { ...t, label: names[t.id]! } : t));
   return {
     ...base,
     tabs: [homeTab, ...tabs, accountTab],

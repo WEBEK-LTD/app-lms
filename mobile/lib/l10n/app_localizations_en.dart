@@ -2567,4 +2567,202 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingOrder => 'Loading your order';
+
+  @override
+  String get wordingGym => 'Gym';
+
+  @override
+  String get wordingMember => 'Member';
+
+  @override
+  String get fitnessCoach => 'Coach';
+
+  @override
+  String get fitnessOurCoaches => 'Our coaches';
+
+  @override
+  String get fitnessAnyCoach => 'Any coach';
+
+  @override
+  String get fitnessAnyCoachAvailable => 'Any coach who\'s free';
+
+  @override
+  String get classesTitle => 'Classes';
+
+  @override
+  String get classesLoading => 'Loading classes';
+
+  @override
+  String get classesNone => 'No classes this day';
+
+  @override
+  String get classesNoneMessage => 'Pick another day to see its classes.';
+
+  @override
+  String get classesNoTimetable => 'No classes yet';
+
+  @override
+  String classesNoTimetableMessage(String business) {
+    return '$business hasn\'t added its classes to the app yet.';
+  }
+
+  @override
+  String classSpotsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count spots left',
+      one: '1 spot left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classFull => 'Full';
+
+  @override
+  String get classCancelledLabel => 'Cancelled';
+
+  @override
+  String get classBookedLabel => 'You\'re booked';
+
+  @override
+  String get classBook => 'Book';
+
+  @override
+  String get classCancel => 'Cancel';
+
+  @override
+  String classBookName(String name) {
+    return 'Book $name';
+  }
+
+  @override
+  String classCancelName(String name) {
+    return 'Cancel your spot in $name';
+  }
+
+  @override
+  String get classCancelTitle => 'Give back your spot?';
+
+  @override
+  String classCancelMessage(String name, String when) {
+    return '$name on $when. Someone else can take your spot.';
+  }
+
+  @override
+  String get classKeepSpot => 'Keep my spot';
+
+  @override
+  String classBooked(String name) {
+    return 'You\'re booked for $name.';
+  }
+
+  @override
+  String get classSpotCancelled => 'Your spot is free again.';
+
+  @override
+  String classWith(String name) {
+    return 'with $name';
+  }
+
+  @override
+  String get classSignInToBook => 'Sign in to book a spot.';
+
+  @override
+  String get membershipTitle => 'Membership';
+
+  @override
+  String get membershipLoading => 'Loading your membership';
+
+  @override
+  String get membershipMine => 'My membership';
+
+  @override
+  String get membershipNone => 'No membership yet';
+
+  @override
+  String get membershipNoneMessage => 'Choose a plan to book classes.';
+
+  @override
+  String get membershipSignIn =>
+      'Sign in to see your membership and buy a plan.';
+
+  @override
+  String get membershipUnlimited => 'Unlimited classes';
+
+  @override
+  String membershipClassesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes left',
+      one: '1 class left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes',
+      one: '1 class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get membershipNoEnd => 'No end date';
+
+  @override
+  String get membershipEnded => 'Ended';
+
+  @override
+  String get membershipCancelled => 'Cancelled';
+
+  @override
+  String get membershipActive => 'Active';
+
+  @override
+  String get membershipPlans => 'Plans';
+
+  @override
+  String get membershipNoPlans =>
+      'Plans aren\'t on sale in the app right now. Ask us when you come in.';
+
+  @override
+  String get membershipBuy => 'Buy';
+
+  @override
+  String membershipBuyName(String name) {
+    return 'Buy $name';
+  }
+
+  @override
+  String get membershipPerMonth => 'a month';
+
+  @override
+  String get membershipPerQuarter => 'every 3 months';
+
+  @override
+  String get membershipPerYear => 'a year';
+
+  @override
+  String get membershipPack => 'class pack';
+
+  @override
+  String get membershipBought => 'Your membership is active.';
+
+  @override
+  String get membershipSeePlans => 'See plans';
+
+  @override
+  String get classGiveBack => 'Give back my spot';
 }

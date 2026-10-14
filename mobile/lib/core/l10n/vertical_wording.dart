@@ -31,7 +31,8 @@ extension VerticalWordingContext on BuildContext {
 }
 
 /// Words that change with the kind of business (a clinic's patients,
-/// doctors and visits; 26 a restaurant's menu). Kinds without words of their own use the default
+/// doctors and visits; 26 a restaurant's menu; 27 a gym's members, coaches
+/// and classes). Kinds without words of their own use the default
 /// words; a kind's own words go in the ARB files and in the getters below.
 class VerticalWording {
   const VerticalWording(this.l10n, this.vertical);
@@ -45,7 +46,14 @@ class VerticalWording {
   /// 26 A restaurant or café: the menu on the store screens.
   bool get isRestaurant => vertical == AppVertical.restaurant;
 
+  /// 27 A gym or studio: coaches, members and classes.
+  bool get isFitness => vertical == AppVertical.fitness;
+
   String _pick(String clinic, String other) => isClinic ? clinic : other;
+
+  /// 27 A gym's word, a clinic's, or the default.
+  String _pick3(String clinic, String fitness, String other) =>
+      isClinic ? clinic : (isFitness ? fitness : other);
 
   String _food(String restaurant, String other) =>
       isRestaurant ? restaurant : other;
@@ -53,19 +61,29 @@ class VerticalWording {
   /// The business that owns the app.
   String get business => isRestaurant
       ? l10n.wordingRestaurant
-      : _pick(l10n.wordingClinic, l10n.wordingBusiness);
+      : _pick3(l10n.wordingClinic, l10n.wordingGym, l10n.wordingBusiness);
 
   /// The business's customers.
-  String get customer => _pick(l10n.wordingPatient, l10n.wordingCustomer);
+  String get customer =>
+      _pick3(l10n.wordingPatient, l10n.wordingMember, l10n.wordingCustomer);
 
   // Bookings screens.
 
-  /// The heading above the staff picker ("With", "Doctor").
-  String get staffHeading => _pick(l10n.clinicDoctor, l10n.withTitle);
-  String get ourTeam => _pick(l10n.clinicOurDoctors, l10n.ourTeam);
-  String get anyone => _pick(l10n.clinicAnyDoctor, l10n.anyone);
-  String get anyoneAvailable =>
-      _pick(l10n.clinicAnyDoctorAvailable, l10n.anyoneAvailable);
+  /// The heading above the staff picker ("With", "Doctor", "Coach").
+  String get staffHeading =>
+      _pick3(l10n.clinicDoctor, l10n.fitnessCoach, l10n.withTitle);
+  String get ourTeam =>
+      _pick3(l10n.clinicOurDoctors, l10n.fitnessOurCoaches, l10n.ourTeam);
+  String get anyone =>
+      _pick3(l10n.clinicAnyDoctor, l10n.fitnessAnyCoach, l10n.anyone);
+  String get anyoneAvailable => _pick3(
+    l10n.clinicAnyDoctorAvailable,
+    l10n.fitnessAnyCoachAvailable,
+    l10n.anyoneAvailable,
+  );
+
+  /// 27 The class timetable ("Classes").
+  String get classes => l10n.classesTitle;
 
   /// The appointments tab and screen ("Appointments", "Visits").
   String get appointments => _pick(l10n.clinicVisits, l10n.tabAppointments);

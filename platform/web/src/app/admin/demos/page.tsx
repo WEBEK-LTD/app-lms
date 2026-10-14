@@ -36,7 +36,7 @@ const ERROR: Record<string, string> = {
   invalid_config: "The build config isn't valid. Refresh the demo app and try again.",
 };
 
-/** Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and the clinic; 26 the café). */
+/** Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and the clinic; 26 the café; 27 the gym). */
 export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/demos">) {
   await requireAdmin();
   const query = await searchParams;

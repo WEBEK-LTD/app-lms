@@ -44,6 +44,8 @@ export const SCREENS = [
   "appointments",
   "articles",
   "bookmarks",
+  "classes",
+  "memberships",
 ] as const;
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;

@@ -17,6 +17,10 @@ abstract final class Paths {
   static const services = '/services';
   static const appointments = '/appointments';
 
+  /// 27 A gym's class timetable and membership.
+  static const classes = '/classes';
+  static const memberships = '/memberships';
+
   static const editProfile = '/account/edit';
   static const settings = '/account/settings';
   static const devices = '/account/settings/devices';

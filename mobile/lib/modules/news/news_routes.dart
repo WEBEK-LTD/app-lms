@@ -31,7 +31,9 @@ final newsModule = AppModule(
     BuiltInScreen.cart ||
     BuiltInScreen.orders ||
     BuiltInScreen.services ||
-    BuiltInScreen.appointments => null,
+    BuiltInScreen.appointments ||
+    BuiltInScreen.classes ||
+    BuiltInScreen.memberships => null,
   },
   routes: _pushedRoutes,
 );

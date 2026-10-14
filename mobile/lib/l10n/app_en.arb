@@ -1833,5 +1833,225 @@
   "loadingOrder": "Loading your order",
   "@loadingOrder": {
     "description": "Screen reader label while an order loads."
+  },
+  "wordingGym": "Gym",
+  "@wordingGym": {
+    "description": "What a gym or studio app calls the business that owns it (vertical_wording.dart)."
+  },
+  "wordingMember": "Member",
+  "@wordingMember": {
+    "description": "What a gym or studio app calls its customers (vertical_wording.dart)."
+  },
+  "fitnessCoach": "Coach",
+  "@fitnessCoach": {
+    "description": "Heading above the coach picker when booking a personal session. lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness)."
+  },
+  "fitnessOurCoaches": "Our coaches",
+  "@fitnessOurCoaches": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word."
+  },
+  "fitnessAnyCoach": "Any coach",
+  "@fitnessAnyCoach": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word."
+  },
+  "fitnessAnyCoachAvailable": "Any coach who's free",
+  "@fitnessAnyCoachAvailable": {
+    "description": "lib/core/l10n/vertical_wording.dart uses it in gym apps (Config.vertical fitness) instead of the general bookings word."
+  },
+  "classesTitle": "Classes",
+  "@classesTitle": {
+    "description": "The class timetable's title and tab (a gym's or studio's group classes)."
+  },
+  "classesLoading": "Loading classes",
+  "@classesLoading": {
+    "description": "Read by screen readers while the timetable loads."
+  },
+  "classesNone": "No classes this day",
+  "@classesNone": {
+    "description": "The timetable on a day without classes."
+  },
+  "classesNoneMessage": "Pick another day to see its classes.",
+  "classesNoTimetable": "No classes yet",
+  "@classesNoTimetable": {
+    "description": "When the business has no classes in the app."
+  },
+  "classesNoTimetableMessage": "{business} hasn't added its classes to the app yet.",
+  "@classesNoTimetableMessage": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "classSpotsLeft": "{count, plural, =1{1 spot left} other{{count} spots left}}",
+  "@classSpotsLeft": {
+    "description": "Spots left in a class.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classFull": "Full",
+  "@classFull": {
+    "description": "A class with no spots left."
+  },
+  "classCancelledLabel": "Cancelled",
+  "@classCancelledLabel": {
+    "description": "A class the business called off."
+  },
+  "classBookedLabel": "You're booked",
+  "@classBookedLabel": {
+    "description": "On a class the member has a spot in."
+  },
+  "classBook": "Book",
+  "@classBook": {
+    "description": "Books a spot in a class."
+  },
+  "classCancel": "Cancel",
+  "@classCancel": {
+    "description": "Gives back the member's spot in a class."
+  },
+  "classBookName": "Book {name}",
+  "@classBookName": {
+    "description": "Read by screen readers on a class's Book button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classCancelName": "Cancel your spot in {name}",
+  "@classCancelName": {
+    "description": "Read by screen readers on a class's Cancel button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classCancelTitle": "Give back your spot?",
+  "@classCancelTitle": {
+    "description": "Asks before cancelling a spot in a class."
+  },
+  "classCancelMessage": "{name} on {when}. Someone else can take your spot.",
+  "@classCancelMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "classKeepSpot": "Keep my spot",
+  "classBooked": "You're booked for {name}.",
+  "@classBooked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSpotCancelled": "Your spot is free again.",
+  "classWith": "with {name}",
+  "@classWith": {
+    "description": "Under a class's name: its coach.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSignInToBook": "Sign in to book a spot.",
+  "membershipTitle": "Membership",
+  "@membershipTitle": {
+    "description": "The membership screen's title and tab."
+  },
+  "membershipLoading": "Loading your membership",
+  "@membershipLoading": {
+    "description": "Read by screen readers."
+  },
+  "membershipMine": "My membership",
+  "membershipNone": "No membership yet",
+  "membershipNoneMessage": "Choose a plan to book classes.",
+  "membershipSignIn": "Sign in to see your membership and buy a plan.",
+  "membershipUnlimited": "Unlimited classes",
+  "membershipClassesLeft": "{count, plural, =1{1 class left} other{{count} classes left}}",
+  "@membershipClassesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "membershipClasses": "{count, plural, =1{1 class} other{{count} classes}}",
+  "@membershipClasses": {
+    "description": "Classes a plan includes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "membershipUntil": "Until {date}",
+  "@membershipUntil": {
+    "description": "When a membership ends.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipNoEnd": "No end date",
+  "@membershipNoEnd": {
+    "description": "A pack of classes."
+  },
+  "membershipEnded": "Ended",
+  "membershipCancelled": "Cancelled",
+  "membershipActive": "Active",
+  "membershipPlans": "Plans",
+  "@membershipPlans": {
+    "description": "Above the membership plans on sale."
+  },
+  "membershipNoPlans": "Plans aren't on sale in the app right now. Ask us when you come in.",
+  "membershipBuy": "Buy",
+  "@membershipBuy": {
+    "description": "Buys a membership plan on the payment page."
+  },
+  "membershipBuyName": "Buy {name}",
+  "@membershipBuyName": {
+    "description": "Read by screen readers on a plan's Buy button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipPerMonth": "a month",
+  "@membershipPerMonth": {
+    "description": "After a plan's price."
+  },
+  "membershipPerQuarter": "every 3 months",
+  "@membershipPerQuarter": {
+    "description": "After a plan's price."
+  },
+  "membershipPerYear": "a year",
+  "@membershipPerYear": {
+    "description": "After a plan's price."
+  },
+  "membershipPack": "class pack",
+  "@membershipPack": {
+    "description": "After a pack's price."
+  },
+  "membershipBought": "Your membership is active.",
+  "membershipSeePlans": "See plans",
+  "@membershipSeePlans": {
+    "description": "Opens the membership plans, for example when booking a class needs one."
+  },
+  "classGiveBack": "Give back my spot",
+  "@classGiveBack": {
+    "description": "Confirms giving back a spot in a class."
   }
 }

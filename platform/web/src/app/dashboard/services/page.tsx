@@ -98,6 +98,8 @@ export default async function ServicesPage() {
   const { rules } = setup;
   const money = (cents: number) => (cents ? formatCents(cents, rules.currency) : "Free");
   const category = new Map(setup.categories.map((c) => [c.id, c.name]));
+  // 27 Classes on the timetable that aren't booked one to one.
+  const onTimetable = new Set(setup.classTemplates.map((t) => t.serviceId));
 
   return (
     <div className="flex flex-col gap-6">
@@ -126,7 +128,7 @@ export default async function ServicesPage() {
                     <span className="flex items-center gap-2 text-sm text-muted">
                       {s.durationMinutes} min · {money(s.priceCents)}
                       {s.categoryId ? ` · ${category.get(s.categoryId)}` : ""}
-                      {s.active ? null : <Badge tone="warn">Hidden</Badge>}
+                      {s.active ? null : onTimetable.has(s.id) ? <Badge tone="neutral">Timetable only</Badge> : <Badge tone="warn">Hidden</Badge>}
                     </span>
                   </summary>
                   <div className="flex flex-col gap-3 border-t border-line-soft p-4">
