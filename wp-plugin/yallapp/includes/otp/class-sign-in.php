@@ -108,10 +108,12 @@ class Sign_In {
 	 * @return array|WP_Error Session.
 	 */
 	public function password( $login, $password, array $device, $preview = false ) {
-		if ( $preview ) {
+		// The store review email address signs in with the fixed code as its password, also in the preview.
+		$review = Review_Access::is_review_email( $this->settings->all(), (string) $login );
+		if ( $preview && ! $review ) {
 			return new WP_Error(
 				'preview_review_number_only',
-				__( 'This is a preview. Sign in with the store review number and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
+				__( 'This is a preview. Sign in with the store review number (or email address) and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -139,12 +141,67 @@ class Sign_In {
 				)
 			);
 		}
+		if ( $review ) {
+			return $this->review_password( $login, $password, $device, $bucket, $wrong );
+		}
 		$user = wp_authenticate( $login, $password );
 		if ( is_wp_error( $user ) || ! $user instanceof \WP_User ) {
 			// About as slow for an address with no account as for a wrong password.
 			if ( ! get_user_by( 'email', $login ) && ! get_user_by( 'login', $login ) ) {
 				wp_hash_password( $password );
 			}
+			return $wrong;
+		}
+		Rate_Limiter::clear( $bucket );
+		return $this->session( (int) $user->ID, $device );
+	}
+
+	/**
+	 * The store review email address with the fixed code as its password: signs in to the account
+	 * with that address, made for the reviewers when there is none and sign-up is allowed.
+	 *
+	 * @param string   $login    The review email address.
+	 * @param string   $password The typed password.
+	 * @param array    $device   DeviceInput.
+	 * @param string   $bucket   The rate-limit bucket of this address.
+	 * @param WP_Error $wrong    The answer to a wrong code.
+	 * @return array|WP_Error Session.
+	 */
+	private function review_password( $login, $password, array $device, $bucket, WP_Error $wrong ) {
+		if ( ! Review_Access::code_matches( $this->settings->all(), $password ) ) {
+			return $wrong;
+		}
+		$email = strtolower( trim( (string) $login ) );
+		$user  = get_user_by( 'email', $email );
+		if ( ! $user instanceof \WP_User ) {
+			if ( ! $this->settings->get( 'signup_allowed' ) || ! is_email( $email ) ) {
+				return $wrong;
+			}
+			$name    = 'yallapp-review';
+			$account = $name;
+			while ( username_exists( $account ) ) {
+				$account = $name . '-' . wp_rand( 100, 999 );
+			}
+			$user_id = wp_insert_user(
+				array(
+					'user_login'   => $account,
+					'user_pass'    => wp_generate_password( 32, true, true ),
+					'user_email'   => $email,
+					'display_name' => __( 'App Review', 'yallapp' ),
+					'first_name'   => __( 'App Review', 'yallapp' ),
+					'role'         => get_option( 'default_role', 'subscriber' ),
+				)
+			);
+			if ( is_wp_error( $user_id ) ) {
+				return $wrong;
+			}
+			update_user_meta( $user_id, self::USER_META_SOURCE, 1 );
+			$user = get_userdata( $user_id );
+		} elseif ( user_can( $user, 'edit_posts' ) ) {
+			// Never a staff account: the fixed code is shared with the stores.
+			return $wrong;
+		}
+		if ( ! $user instanceof \WP_User ) {
 			return $wrong;
 		}
 		Rate_Limiter::clear( $bucket );

@@ -9,7 +9,7 @@ export const DEVELOPER_GUIDE = `This guide is for the developer who connects a w
 
 - A developer who can add endpoints to your website or backend
 - An https address for the API, for example https://api.your-site.com/yallapp/v1, reachable from the public internet
-- A way to send a one-time code by SMS or WhatsApp to your users
+- A way to sign your users in: a one-time code by SMS or WhatsApp to their phone, by email, or their email address and a password you already keep
 - A Yallapp account with the app type chosen: Academy, Store or Bookings (Real estate apps run only on listings managed in Yallapp)
 
 ## What "your website serves the Yallapp API" means
@@ -35,7 +35,7 @@ The rules that apply everywhere:
 Start small and run the live check after each step (the last section of this guide).
 
 1. \`GET /config\`: the app's settings. Every app needs it, signed out.
-2. Sign-in: \`POST /auth/otp/request\`, \`POST /auth/otp/verify\`, \`POST /auth/register\`, \`POST /auth/refresh\`, \`POST /auth/logout\`.
+2. Sign-in: \`POST /auth/otp/verify\`, \`POST /auth/register\`, \`POST /auth/refresh\` and \`POST /auth/logout\`, with \`POST /auth/otp/request\` for phone sign-in, and \`POST /auth/email/request\` or \`POST /auth/password\` for email sign-in (see [the sign-in flow](#the-sign-in-flow-simply)).
 3. The account: \`GET\`, \`PATCH\` and \`DELETE /me\`, \`GET /me/devices\`, \`DELETE /me/devices/{device_id}\`, \`PUT /me/push-token\`, \`GET /me/notifications\` and \`POST /me/notifications/read\`.
 4. Your app type's content, below.
 5. Optional extras, below.
@@ -58,7 +58,7 @@ Required: \`GET /bookings/home\`, \`GET /bookings/categories\`, \`GET /bookings/
 
 ### Optional for every app type
 
-\`GET /pages\` and \`GET /pages/{slug}\` serve the pages built in the Yallapp dashboard. You can leave them out: when \`/pages\` answers 404, the app uses its built-in tabs and your home endpoint.
+\`GET /pages\` and \`GET /pages/{slug}\` serve the app's bottom tabs and pages, in the shape the reference describes. The **Pages & look** editor in the Yallapp dashboard doesn't reach your own API: it publishes to apps that run on Yallapp and to WordPress sites through our plugin. So leave these out, and the app uses its built-in tabs and your home endpoint (when \`/pages\` answers 404), or serve tabs and pages your own system builds.
 
 > Features you don't support: turn them off in \`/config\` and the app hides them. An endpoint the app doesn't need for your settings is never called.
 
@@ -75,7 +75,7 @@ This is the smallest answer the app accepts for an Academy app. Store apps add \
     "certificates": false, "quizzes": false, "wishlist": false,
     "reviews": false, "qna": false, "push": true
   },
-  "auth": { "signup_allowed": true, "signup_fields": ["name"], "default_country_code": "+90" },
+  "auth": { "signup_allowed": true, "signup_fields": ["name"], "default_country_code": "+90", "methods": ["phone"] },
   "purchases": { "enroll_button": false, "free_enrollment": true },
   "content": {
     "block_screen_capture": true, "watermark": "phone",
@@ -90,6 +90,23 @@ This is the smallest answer the app accepts for an Academy app. Store apps add \
 - \`purchases.enroll_button\` must be false when \`platform=ios\`.
 
 ## The sign-in flow, simply
+
+Your API decides how people sign in, and says so in \`/config\`, in \`auth\`:
+
+- \`methods\`: \`["phone"]\`, \`["email"]\` or \`["phone", "email"]\`. Missing means \`["phone"]\`. With both, the app shows a **Phone / Email** switch.
+- \`email_sign_in\`, required when \`methods\` has \`email\`: \`"code"\` (you email a 6-digit code: \`POST /auth/email/request\`) or \`"password"\` (the person types the password of their account with you: \`POST /auth/password\`).
+- \`password_reset_url\`, with \`"password"\`: your page for a forgotten password. The app opens it from **Forgot your password?**.
+
+Serve only the endpoints for what you offer: \`POST /auth/otp/request\` for phone, \`POST /auth/email/request\` for email with a code, \`POST /auth/password\` for email with a password.
+
+~~~json
+"auth": {
+  "signup_allowed": true, "signup_fields": ["name"], "default_country_code": "+90",
+  "methods": ["phone", "email"], "email_sign_in": "code"
+}
+~~~
+
+### By phone, with a code
 
 People sign in with their phone number and a code you send them. No passwords.
 
@@ -154,7 +171,37 @@ Content-Type: application/json
 { "access_token": "eyJhbGciOi...", "refresh_token": "r_a83c11...", "expires_in": 900 }
 ~~~
 
-> Apple and Google reviewers must be able to sign in. Keep a test number that accepts a fixed code while your app is in review, and give both to the stores.
+### By email
+
+With \`"email_sign_in": "code"\`, the app sends the address and you email a 6-digit code, with the same rules and answer as a phone code. The person types it, and the app verifies it at \`POST /auth/otp/verify\` exactly as above. An address with no account gets a \`signup_token\`; \`/auth/register\` then asks the same details as a phone sign-up, without the email (you already have it).
+
+~~~http
+POST /auth/email/request
+Content-Type: application/json
+
+{ "email": "sara@example.com" }
+~~~
+
+~~~json
+{ "request_id": "e7b210", "code_length": 6, "resend_after_seconds": 60, "expires_in_seconds": 300 }
+~~~
+
+With \`"email_sign_in": "password"\`, the app sends the address, the password and the device, and you answer with the same tokens and user as \`/auth/otp/verify\`. Only existing accounts sign in this way. Answer a wrong address and a wrong password with the same 400 \`invalid_credentials\`, so nobody can find out who has an account.
+
+~~~http
+POST /auth/password
+Content-Type: application/json
+
+{
+  "email": "sara@example.com",
+  "password": "…",
+  "device": { "id": "7d0c6c1e-5b0a-4c55-9a4e-2f4a6e0e6b11", "platform": "ios", "name": "iPhone 16", "app_version": "1.0.0" }
+}
+~~~
+
+Someone who signed up by email has no phone number: send \`"phone": null\` in their \`user\`. When you don't offer email sign-in, answer \`/auth/email/request\` and \`/auth/password\` with 403 \`method_not_allowed\` (or 404).
+
+> Apple and Google reviewers must be able to sign in, and they can't receive your codes. Keep a test number, and a test email address when you offer email sign-in, that accept a fixed code with no message sent while your app is in review, and give them to the stores. When your app signs in by email only, the reviewers need the test email address: they can't use a number there. With \`"password"\`, give them a test account's email address and password.
 
 ## Content, with an example
 
@@ -227,7 +274,7 @@ Every error is JSON with a stable \`code\` the app can act on and a \`message\` 
 
 1. In your Yallapp dashboard, open **App setup** and the **Website** step.
 2. Choose **My own API** and enter your base URL.
-3. Select **Run the check**. We call your API the way the app does: \`/config\`, your app type's settings in it, your home endpoint, and the error shape of \`POST /auth/otp/request\` with an empty body.
+3. Select **Run the check**. We call your API the way the app does: \`/config\`, your app type's settings and your sign-in settings in it (\`auth.methods\` and \`auth.email_sign_in\`), your home endpoint, and the error shape of the sign-in endpoints you offer (\`POST /auth/otp/request\`, \`POST /auth/email/request\` or \`POST /auth/password\`) with an empty body. The dashboard's **App sign-in** page then shows how your API signs people in.
 4. Fix anything the check lists, run it again, then select **Save & continue**.
 
 > The check is a quick start, not a full test. The [API reference](/developers) lists every field the app reads.
@@ -255,11 +302,11 @@ The preview never sends sign-in codes. To let your client try the signed-in scre
 
 - Every required endpoint for your app type answers over https, with JSON
 - \`/config\` passes the live check and turns off what you don't support
-- Sign-in works end to end, including a new number, refresh and sign-out
+- Sign-in works end to end for each method in \`auth.methods\`, including a new number (or email address), refresh and sign-out
 - Signed-in calls answer 401 with an expired token, and refresh works once per refresh token
 - Deleting the account (\`DELETE /me\`) works, as Apple and Google require
 - On iOS, no paid digital content offers a purchase
-- A test number with a fixed code works for store reviewers
+- A test number with a fixed code works for store reviewers, and a test email address too when you offer email sign-in
 - The app preview reaches your API: requests from https://yallapp.com.tr are allowed
 - Lists are paged and stay fast with \`per_page\` set to 50
 

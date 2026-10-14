@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,9 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.2 =
+* Store review access by email: Settings › Sign-in › Store review access has a test email address. With email sign-in, reviewers type it and the fixed code as the password, so apps that sign in by email only pass the store review too. It signs in to the account with that address (made when there is none and sign-up is allowed), never a staff account. The app preview signs in with it as well.
 
 = 0.3.1 =
 * Sign-in codes on every WordPress site: "Sent by Yallapp (WhatsApp)" is the new default. The plugin makes each code (6 digits, kept as a hash, valid for 5 minutes, 5 attempts) and Yallapp delivers it with your app's name. Digits' REST API add-on is no longer needed.

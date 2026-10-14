@@ -1,5 +1,6 @@
 import type { HostedSettings } from "../data/types";
 import { parseAnyPhone } from "./phone";
+import { normalizeEmail } from "./sign-in-methods";
 
 export type HostedSettingsForm = Record<string, string>;
 
@@ -14,6 +15,7 @@ export function hostedSettingsValues(settings: HostedSettings): HostedSettingsFo
     supportWhatsapp: settings.supportWhatsapp ?? "",
     termsUrl: settings.termsUrl ?? "",
     reviewPhone: settings.reviewPhone ?? "",
+    reviewEmail: settings.reviewEmail ?? "",
     reviewCode: settings.reviewCode ?? "",
   };
 }
@@ -46,11 +48,15 @@ export function parseHostedSettingsForm(
   }
 
   const reviewPhoneRaw = (values.reviewPhone ?? "").trim();
+  const reviewEmailRaw = (values.reviewEmail ?? "").trim();
   const reviewCode = (values.reviewCode ?? "").trim();
   const reviewPhone = reviewPhoneRaw ? parseAnyPhone(reviewPhoneRaw, countryCode) : null;
+  // 19 Apps that sign in by email only need a review email address: reviewers can't use the number there.
+  const reviewEmail = reviewEmailRaw ? normalizeEmail(reviewEmailRaw) : null;
   if (reviewPhoneRaw && !reviewPhone) errors.reviewPhone = "Enter a phone number, like +90 555 000 00 00.";
-  if (reviewPhoneRaw && !/^\d{6}$/.test(reviewCode)) errors.reviewCode = "Enter the 6-digit code reviewers type.";
-  if (!reviewPhoneRaw && reviewCode) errors.reviewPhone = "Enter the number reviewers sign in with, or clear the code.";
+  if (reviewEmailRaw && !reviewEmail) errors.reviewEmail = "Enter an email address, like review@your-site.com.";
+  if ((reviewPhoneRaw || reviewEmailRaw) && !/^\d{6}$/.test(reviewCode)) errors.reviewCode = "Enter the 6-digit code reviewers type.";
+  if (!reviewPhoneRaw && !reviewEmailRaw && reviewCode) errors.reviewPhone = "Enter the number or email address reviewers sign in with, or clear the code.";
 
   if (Object.keys(errors).length) return { ok: false, errors };
   const signupFields: HostedSettings["signupFields"] = [];
@@ -66,7 +72,8 @@ export function parseHostedSettingsForm(
       supportWhatsapp: whatsapp?.e164 ?? null,
       termsUrl: terms,
       reviewPhone: reviewPhone?.e164 ?? null,
-      reviewCode: reviewPhone ? reviewCode : null,
+      reviewEmail,
+      reviewCode: reviewPhone || reviewEmail ? reviewCode : null,
     },
   };
 }

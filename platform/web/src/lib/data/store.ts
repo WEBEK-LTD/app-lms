@@ -247,6 +247,8 @@ export interface DataStore {
   /** Everyone's notifications of an app, newest first, for the dashboard. */
   listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
   countHostedUsers(appId: string): Promise<number>;
+  /** 19 The app's users who signed up by email (no phone number): they can't sign in when email sign-in is off. */
+  countHostedEmailOnlyUsers(appId: string): Promise<number>;
 
   // Platform settings (admin)
   /**

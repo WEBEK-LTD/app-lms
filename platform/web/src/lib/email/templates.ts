@@ -39,7 +39,10 @@ export type EmailTemplateKey =
   | "plan_ends_today"
 
   // 18 Sign-in for every app
-  | "sign_in_code";
+  | "sign_in_code"
+
+  // 19 Sign-in gaps
+  | "own_whatsapp_failed";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -381,6 +384,24 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Your {{app_name}} sign-in code is {{code}}.\n\nIt expires in {{minutes}} minutes. Don't share it with anyone.\n\n" +
       "If you didn't try to sign in to {{app_name}}, you can ignore this email.",
+  },
+  {
+    key: "own_whatsapp_failed",
+    name: "Own WhatsApp number failed",
+    description:
+      "To a client when their own WhatsApp number (WABEK, on App sign-in) couldn't send an app's sign-in code. At most one a day per app; Yallapp's number sent the code instead.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "date", description: "The day it failed", sample: "14 Oct 2026" },
+      { name: "sign_in_url", description: "The link to the app's App sign-in page", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=app-sign-in" },
+    ],
+    subject: "{{app_name}}: your WhatsApp number couldn't send sign-in codes",
+    body:
+      "Hello {{name}},\n\nOn {{date}}, your own WhatsApp number couldn't send a sign-in code for {{app_name}}. " +
+      "So your customers still got their codes, we sent them from Yallapp's WhatsApp number, when it was available.\n\n" +
+      "Check your number and your API key in your WABEK account, then send a test code on App sign-in:\n{{sign_in_url}}" +
+      SIGNATURE,
   },
 ];
 

@@ -73,6 +73,8 @@ export const RATE_LIMITS = {
   signInCodePhoneHour: { name: "codes:phone", limit: 10, windowSeconds: 60 * 60 },
   // The owner's test of their own WhatsApp number (App sign-in), per app.
   appWhatsappTest: { name: "app-whatsapp-test:app", limit: 5, windowSeconds: 10 * 60 },
+  // 19 The email telling an owner their own WhatsApp number failed: at most one per app a day (UTC).
+  ownWhatsappFailedMail: { name: "own-whatsapp-failed:app", limit: 1, windowSeconds: 24 * 60 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

@@ -19,7 +19,8 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
-import type { AppType } from "@/lib/data/types";
+import type { AppType, SignInMethod } from "@/lib/data/types";
+import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
@@ -153,13 +154,14 @@ function PlatformFields({
 }
 
 /** The Website step of an app on the hosted API: nothing to fill in. */
-export function HostedWebsiteStep({ apiUrl }: { apiUrl: string }) {
+export function HostedWebsiteStep({ apiUrl, signInMethods = ["phone"] }: { apiUrl: string; signInMethods?: SignInMethod[] }) {
   return (
     <div className="flex flex-wrap items-start gap-6">
       <StepCard title="Website" id="h-website">
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app runs on the Yallapp hosted API, so it doesn&apos;t need a website. Your customers sign in with a code we send to their
-          phone, and you send them notifications from <Link href="/dashboard/notifications">App notifications</Link>.
+          Your app runs on the Yallapp hosted API, so it doesn&apos;t need a website. Your customers sign in with{" "}
+          {codeDeliveryText(signInMethods)}, and you send them notifications from{" "}
+          <Link href="/dashboard/notifications">App notifications</Link>.
         </p>
         <div className="flex flex-col gap-1 rounded-xl border border-line bg-sand p-4">
           <span className="text-sm font-semibold">Your app&apos;s API address</span>
@@ -193,9 +195,15 @@ export function WebsiteStep({
   platforms,
   platformSaved,
   hidden = [],
+  signInMethods = ["phone"],
+  emailOnlyUsers = 0,
 }: {
   /** Choices the team switched off (11.5); the app's own choice is never in it. */
   hidden?: Backend[];
+  /** 19 How customers sign in with content managed in Yallapp (the owner's choice on App sign-in). */
+  signInMethods?: SignInMethod[];
+  /** 19 Customers who signed up by email: a connected platform (phone only) would lock them out. */
+  emailOnlyUsers?: number;
   /** The platforms this app type can connect. */
   platforms: PlatformOption[];
   /** The connected platform: its values that aren't secret, and which secrets are saved. */
@@ -272,23 +280,23 @@ export function WebsiteStep({
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
             {appType === "lms" ? (
               <>
-                After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with
-                a code we send to their phone.
+                After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with{" "}
+                {codeDeliveryText(signInMethods)}.
               </>
             ) : appType === "real_estate" ? (
               <>
                 After this step, set up your office and add your properties on the <b>Listings</b> page, and answer people&apos;s messages on
-                the <b>Inquiries</b> page. People sign in to the app with a code we send to their phone.
+                the <b>Inquiries</b> page. People sign in to the app with {codeDeliveryText(signInMethods)}.
               </>
             ) : appType === "booking" ? (
               <>
                 After this step, add your services, your team and their hours on the <b>Services &amp; team</b> page. Your customers sign in to
-                the app with a code we send to their phone.
+                the app with {codeDeliveryText(signInMethods)}.
               </>
             ) : (
               <>
                 After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app
-                with a code we send to their phone.
+                with {codeDeliveryText(signInMethods)}.
               </>
             )}
             {hostedApiUrl && backend === "catalog" ? (
@@ -306,7 +314,7 @@ export function WebsiteStep({
             type="url"
             required
             defaultValue={v(state, "siteUrl", siteUrl)}
-            placeholder="https://your-academy.com"
+            placeholder={choice === "shopify" || appType === "store" ? "https://your-shop.com" : "https://your-academy.com"}
             hint={
               choice === "setup_requested"
                 ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
@@ -429,6 +437,25 @@ export function WebsiteStep({
               )}
             </div>
           </>
+        ) : null}
+        {(choice === "shopify" || choice === "platform") && emailOnlyUsers > 0 ? (
+          <div role="alert" className="flex flex-col gap-2 rounded-xl border border-line bg-warn-bg p-4 text-[15px] leading-relaxed">
+            <span className="flex items-start gap-2">
+              <Icon name="warning" size={20} className="text-warn" />
+              <span>{emailOffWarning(emailOnlyUsers)}</span>
+            </span>
+            <label className="flex cursor-pointer items-start gap-2 text-sm font-semibold">
+              <input
+                type="checkbox"
+                name="confirmEmailOff"
+                defaultChecked={state.values?.confirmEmailOff === "on"}
+                aria-describedby={state.errors?.confirmEmailOff ? "f-confirmEmailOff-error" : undefined}
+                className="mt-0.5 h-4 w-4 accent-midnight"
+              />
+              I understand: switch, and sign in by phone only.
+            </label>
+            <FieldError id="f-confirmEmailOff-error" error={state.errors?.confirmEmailOff} />
+          </div>
         ) : null}
         {choice === "setup_requested" ? (
           <>

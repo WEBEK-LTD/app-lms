@@ -155,11 +155,12 @@ function userLimitError(app: App): HostedResult {
 }
 
 /** Whether a new user would go past the plan's app users (store reviewers always get in). */
-async function userLimitReached(ctx: HostedContext, phone: string | null): Promise<boolean> {
+async function userLimitReached(ctx: HostedContext, phone: string | null, email: string | null = null): Promise<boolean> {
   const limit = ctx.plan?.limits.appUsers ?? null;
   if (limit === null) return false;
   const settings = hostedSettings(ctx.app);
   if (phone && settings.reviewPhone && parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone) return false;
+  if (email && isReviewEmail(settings, email)) return false;
   const count = await ctx.store.countHostedUsers(ctx.app.id);
   if (count < limit) return false;
   try {
@@ -325,6 +326,18 @@ function isReviewPhone(settings: HostedSettings, phone: Phone): boolean {
   return parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone.e164;
 }
 
+/** 19 The store review email address (for apps that sign in by email only), with its code set. */
+function isReviewEmail(settings: HostedSettings, email: string): boolean {
+  if (!settings.reviewEmail || !settings.reviewCode) return false;
+  return normalizeEmail(settings.reviewEmail) === email;
+}
+
+/** 19 Why a code wasn't sent, for the logs: the provider's answer, never the code or the address. */
+function logSendFailure(kind: "phone" | "email", app: App, e: unknown): void {
+  const reason = e instanceof Error ? e.message : String(e);
+  console.error(`[hosted] ${kind} sign-in code not sent for app ${app.id}: ${reason.slice(0, 300)}`);
+}
+
 function codeHash(ctx: HostedContext, requestId: string, code: string): string {
   return hmacSha256(ctx.secret, `hosted-code:${ctx.app.id}:${requestId}:${code}`);
 }
@@ -417,7 +430,8 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
         appName: ctx.app.appName ?? "Yallapp",
         expiresInSeconds: CODE_TTL_SECONDS,
       });
-    } catch {
+    } catch (e) {
+      logSendFailure("phone", ctx.app, e);
       await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
       return error(502, "provider_error", "We couldn't send the code. Please try again.");
     }
@@ -436,18 +450,20 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
   if (ctx.app.demo) {
     return error(403, "demo_number_only", `This is a demo app. Sign in with the demo number ${DEMO_SIGN_IN.display} and the code shown on yallapp.com.tr/demo.`);
   }
-  // 17 The preview never sends a code: only the store review number signs in there.
-  if (ctx.preview || body.preview === true) return previewNumberOnly();
+  const email = normalizeEmail(body.email);
+  // 19 The store review address signs in with the review code, like the review number: nothing is sent.
+  const review = email !== null && isReviewEmail(hostedSettings(ctx.app), email);
+  // 17 The preview never sends a code: only the store review number (or address) signs in there.
+  if ((ctx.preview || body.preview === true) && !review) return previewNumberOnly();
   if (!hostedSignInMethods(ctx.app).includes("email")) {
     return error(403, "method_not_allowed", "This app doesn't offer sign-in by email. Sign in with your phone number.");
   }
-  const email = normalizeEmail(body.email);
   if (!email) return error(400, "invalid_email", "Please enter a valid email address.");
   const wait =
     (await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
     (await limited(ctx, HOSTED_LIMITS.email, email)) ??
     (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
-  if (wait) return wait;
+  if (wait && !review) return wait;
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
@@ -457,18 +473,21 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
     kind: "otp",
     phone: null,
     email,
-    codeHash: codeHash(ctx, requestId, code),
+    codeHash: review ? null : codeHash(ctx, requestId, code),
     attempts: 0,
-    review: false,
+    review,
     expiresAt: new Date(ctx.now.getTime() + CODE_TTL_SECONDS * 1000),
     createdAt: ctx.now,
   });
-  try {
-    if (!ctx.sendEmailCode) throw new Error("No email sender.");
-    await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60) });
-  } catch {
-    await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
-    return error(502, "provider_error", "We couldn't send the code. Please try again.");
+  if (!review) {
+    try {
+      if (!ctx.sendEmailCode) throw new Error("No email sender.");
+      await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60) });
+    } catch (e) {
+      logSendFailure("email", ctx.app, e);
+      await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
+      return error(502, "provider_error", "We couldn't send the code. Please try again.");
+    }
   }
   if (Math.random() < 0.05) await ctx.store.purgeHostedExpired(ctx.now);
   return ok({ request_id: requestId, code_length: CODE_LENGTH, resend_after_seconds: RESEND_SECONDS, expires_in_seconds: CODE_TTL_SECONDS });
@@ -509,7 +528,7 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
     return error(403, "signup_disabled", challenge.email ? "There is no account with this email address." : "There is no account with this number.");
   }
   // 13.2 Existing users keep signing in; a new one is refused past the plan's app users.
-  if (await userLimitReached(ctx, challenge.phone)) return userLimitError(ctx.app);
+  if (await userLimitReached(ctx, challenge.phone, challenge.email)) return userLimitError(ctx.app);
   const signupToken = randomToken(24);
   await ctx.store.createHostedChallenge({
     tokenHash: sha256Hex(signupToken),
@@ -546,7 +565,7 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   if (fields.includes("city") && !city) return badRequest("Please enter your city.");
   const device = deviceInput(body.device);
   if (!device) return error(400, "invalid_device", "Device details are missing.");
-  if (await userLimitReached(ctx, challenge.phone)) return userLimitError(ctx.app);
+  if (await userLimitReached(ctx, challenge.phone, challenge.email)) return userLimitError(ctx.app);
 
   const user = await ctx.store.createHostedUser({
     appId: ctx.app.id,

@@ -50,6 +50,32 @@ export function signInMethodsChoice(methods: readonly SignInMethod[]): "phone" |
   return methods.includes("email") ? "email" : "phone";
 }
 
+/** 19 How customers get their code, for the setup copy: "a code we send to their phone", "… email address" or "… phone or email address". */
+export function codeDeliveryText(methods: readonly SignInMethod[]): string {
+  const phone = methods.includes("phone") || !methods.includes("email");
+  if (phone && methods.includes("email")) return "a code we send to their phone or email address";
+  return phone ? "a code we send to their phone" : "a code we send to their email address";
+}
+
+/**
+ * 19 Customers who signed up by email (no phone number) and couldn't sign in
+ * if the app's content moved to a connected platform, which signs in by phone
+ * only. Zero when email sign-in isn't possible now anyway.
+ */
+export async function emailOnlyUsersAtRisk(
+  store: { countHostedEmailOnlyUsers(appId: string): Promise<number> },
+  app: Pick<App, "id" | "backend" | "connector" | "demo">,
+): Promise<number> {
+  if (app.backend !== "hosted" || !emailSignInPossible(app)) return 0;
+  return store.countHostedEmailOnlyUsers(app.id);
+}
+
+/** 19 The Website step's warning before such a switch. */
+export function emailOffWarning(count: number): string {
+  const who = count === 1 ? "1 customer signed up" : `${count.toLocaleString("en-GB")} customers signed up`;
+  return `${who} with their email address. A connected platform finds customers by their phone number, so this app would sign in by phone only, and they couldn't sign in any more.`;
+}
+
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** A sign-in email address, trimmed and lowercase, or null when it isn't one. */

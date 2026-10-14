@@ -12,6 +12,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinitions } from "@/lib/hosted/connectors/registry";
+import { chosenSignInMethods, emailOnlyUsersAtRisk, hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
@@ -131,7 +132,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       </ol>
 
       {step === "website" && app.backend === "hosted" && !app.connector ? (
-        <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} />
+        <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} signInMethods={hostedSignInMethods(app)} />
       ) : null}
       {step === "website" && websiteSwitchedOff ? (
         <Notice tone="warn" icon="info" role="status">
@@ -173,6 +174,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           apiBaseUrl={app.apiBaseUrl ?? ""}
           setupNote={app.setupNote ?? ""}
           setupRequestedAt={app.setupRequestedAt ? formatDate(app.setupRequestedAt) : null}
+          signInMethods={chosenSignInMethods(app) ?? ["phone"]}
+          emailOnlyUsers={await emailOnlyUsersAtRisk(store, app)}
         />
       ) : null}
       {step === "branding" ? (

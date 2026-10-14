@@ -52,6 +52,7 @@ class Settings {
 			'device_limit_action'          => 'block',
 			'review_access_enabled'        => false,
 			'review_phone'                 => '',
+			'review_email'                 => '',
 			'review_code'                  => '',
 			// Purchases.
 			'android_enroll_button'        => true,
