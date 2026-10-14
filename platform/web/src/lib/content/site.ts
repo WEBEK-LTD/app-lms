@@ -1,6 +1,6 @@
 import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
-import { FAQ } from "../marketing";
+import { FAQ, SOLUTIONS } from "../marketing";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
 
 /**
@@ -96,6 +96,33 @@ function legalPage(page: LegalDefault): ContentPage {
   };
 }
 
+/** 20 The editable header of each solution page, by kind (lib/app/kinds.ts); its key, title and address come from the kind. */
+const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: string }> = {
+  academy: {
+    eyebrow: "Academy apps",
+    title: "Your academy, in your students' pockets",
+    intro:
+      "Courses, protected lessons, quizzes and progress in your own app, from your WordPress LMS, Teachable, Thinkific, your own API, or courses you add in the dashboard.",
+  },
+  store: {
+    eyebrow: "Store apps",
+    title: "Your shop, one tap away",
+    intro:
+      "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard with card payments.",
+  },
+  bookings: {
+    eyebrow: "Bookings apps",
+    title: "Appointments, booked in your own app",
+    intro:
+      "Services, your team and real free times, from Amelia, BookingPress, LatePoint, SimplyBook.me, your own API, or a setup in the dashboard. Customers book in seconds and pay at your business.",
+  },
+  real_estate: {
+    eyebrow: "Real estate apps",
+    title: "Your listings, with search, favorites and messages",
+    intro: "Add your properties in the dashboard. People search them with filters, save favorites and message your office, in an app with your name on it.",
+  },
+};
+
 /** A page whose editable part is its header: the label, the title and the introduction. */
 function headerPage(key: string, title: string, path: string, defaults: { eyebrow: string; title: string; intro: string }): ContentPage {
   return { key, group: "Pages", title, path, revalidate: { path }, fields: PAGE_HEADER, defaults };
@@ -171,29 +198,9 @@ export const CONTENT_PAGES: ContentPage[] = [
     title: "An app for the way your business works",
     intro: "Academies, stores, bookings businesses and real estate offices each get their own screens, built on the same platform, with or without a website.",
   }),
-  headerPage("solution-academy", "Solutions: Academy", "/solutions/academy", {
-    eyebrow: "Academy apps",
-    title: "Your academy, in your students' pockets",
-    intro:
-      "Courses, protected lessons, quizzes and progress in your own app, from your WordPress LMS, Teachable, Thinkific, your own API, or courses you add in the dashboard.",
-  }),
-  headerPage("solution-store", "Solutions: Store", "/solutions/store", {
-    eyebrow: "Store apps",
-    title: "Your shop, one tap away",
-    intro:
-      "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard with card payments.",
-  }),
-  headerPage("solution-bookings", "Solutions: Bookings", "/solutions/bookings", {
-    eyebrow: "Bookings apps",
-    title: "Appointments, booked in your own app",
-    intro:
-      "Services, your team and real free times, from Amelia, BookingPress, LatePoint, SimplyBook.me, your own API, or a setup in the dashboard. Customers book in seconds and pay at your business.",
-  }),
-  headerPage("solution-real-estate", "Solutions: Real estate", "/solutions/real-estate", {
-    eyebrow: "Real estate apps",
-    title: "Your listings, with search, favorites and messages",
-    intro: "Add your properties in the dashboard. People search them with filters, save favorites and message your office, in an app with your name on it.",
-  }),
+  ...SOLUTIONS.map((solution) =>
+    headerPage(solution.contentKey, `Solutions: ${solution.name}`, `/solutions/${solution.id}`, SOLUTION_HEADERS[solution.kind] ?? { eyebrow: `${solution.name} apps`, title: solution.name, intro: solution.summary }),
+  ),
   headerPage("features", "Features", "/features", {
     eyebrow: "Features",
     title: "Everything your app needs, built in",

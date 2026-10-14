@@ -1,13 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { AppType } from "@/lib/data/types";
 import type { AccountState } from "@/lib/license/status";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { Badge } from "./ui";
-
-/** Each app type's icon, the same in the switcher, the overview and the app type cards. */
-export const APP_TYPE_ICON: Record<AppType, IconName> = { lms: "school", store: "shopping_bag", booking: "calendar_month", real_estate: "apartment" };
 
 /** An app's state as a badge: Active, Pending activation, Paused (its plan ended) or Suspended. */
 export function AppStateBadge({ state }: { state: AccountState }) {

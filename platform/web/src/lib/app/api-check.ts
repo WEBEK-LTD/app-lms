@@ -1,3 +1,4 @@
+import { ENGINES, type EngineInfo } from "./kinds";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import type { AppType, SignInMethod } from "../data/types";
@@ -162,19 +163,13 @@ export async function readApiList(
   }
 }
 
-const HOME_PATH: Record<AppType, string> = { lms: "/home", store: "/store/home", booking: "/bookings/home", real_estate: "/listings" };
-
-/** What /config must have for each app type. */
-const TYPE_CHECK: Record<AppType, { label: string; fix: string; ok: (config: Record<string, unknown>) => boolean }> = {
-  lms: {
-    label: "Config names the LMS",
-    fix: "Set `features.lms`.",
-    ok: (c) => isObject(c.features) && typeof c.features.lms === "string",
-  },
-  store: { label: "Config has the store settings", fix: "Add `store` to /config.", ok: (c) => isObject(c.store) },
-  booking: { label: "Config has the bookings settings", fix: "Add `bookings` to /config.", ok: (c) => isObject(c.bookings) },
-  real_estate: { label: "Config has the office settings", fix: "Add `listings` to /config.", ok: (c) => isObject(c.listings) },
-};
+/** What /config must have for the app's engine (lib/app/kinds.ts). */
+function typeCheckOk(rule: EngineInfo["configCheck"], config: Record<string, unknown>): boolean {
+  const within = rule.in === "features" ? config.features : config;
+  if (!isObject(within)) return false;
+  const value = within[rule.key];
+  return rule.type === "string" ? typeof value === "string" : isObject(value);
+}
 
 export async function checkApi(
   baseUrl: string,
@@ -227,21 +222,22 @@ export async function checkApi(
   });
 
   const body = isObject(config.body) ? config.body : {};
-  const rule = TYPE_CHECK[appType];
-  const typeOk = rule.ok(body);
+  const engine = ENGINES[appType];
+  const rule = engine.configCheck;
+  const typeOk = typeCheckOk(rule, body);
   checks.push({ id: "app_type", label: rule.label, ok: typeOk, detail: typeOk ? undefined : rule.fix });
 
   try {
-    const home = await getJson(fetcher, `${base}${HOME_PATH[appType]}`);
+    const home = await getJson(fetcher, `${base}${engine.homePath}`);
     const ok = home.status === 200 && isObject(home.body) && Array.isArray(home.body.sections);
     checks.push({
       id: "home",
-      label: `GET ${HOME_PATH[appType]} returns sections`,
+      label: `GET ${engine.homePath} returns sections`,
       ok,
       detail: ok ? undefined : `HTTP ${home.status}${home.body === undefined ? ", not JSON" : ""}`,
     });
   } catch {
-    checks.push({ id: "home", label: `GET ${HOME_PATH[appType]} returns sections`, ok: false, detail: "No answer." });
+    checks.push({ id: "home", label: `GET ${engine.homePath} returns sections`, ok: false, detail: "No answer." });
   }
 
   // 19 The sign-in endpoints the API offers (phone when /config doesn't say), each with an empty body.

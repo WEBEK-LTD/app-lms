@@ -1,21 +1,16 @@
+import { ENGINES, hostedOnly, isAppType } from "../app/kinds";
 import type { App } from "../data/types";
 import type { BlockType, ItemSource } from "./types";
 
 /**
- * Which lists an app's pages can show. Services come from a bookings plugin or
- * hosted bookings; posts from a WordPress site only;
- * listings are hosted only (Real estate apps).
+ * Which lists an app's pages can show: its engine's (lib/app/kinds.ts), and
+ * blog posts from a WordPress site or own API (never on the hosted API, nor
+ * for engines that only run there).
  */
-const BY_APP_TYPE: Record<string, ItemSource[]> = {
-  lms: ["courses"],
-  store: ["products"],
-  booking: ["services"],
-  real_estate: ["listings"],
-};
-
 export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  const sources = [...(BY_APP_TYPE[app.appType] ?? [])];
-  if (app.backend !== "hosted" && (app.appType as string) !== "real_estate") sources.push("posts");
+  const known = isAppType(app.appType);
+  const sources: ItemSource[] = known ? [ENGINES[app.appType].pages.source] : [];
+  if (app.backend !== "hosted" && !(known && hostedOnly(app.appType))) sources.push("posts");
   return sources;
 }
 
@@ -30,7 +25,7 @@ export function blockTypesFor(app: Pick<App, "appType" | "backend">): BlockType[
   const types: BlockType[] = ["banner", "text", "image", "video", "button"];
   if (sources.length) types.push("items", "search");
   if (categorySourcesFor(app).length) types.push("categories");
-  if (app.appType === "lms") types.push("continue_learning");
+  if (isAppType(app.appType)) types.push(...ENGINES[app.appType].pages.blocks);
   types.push("embed", "spacer");
   return types;
 }

@@ -116,6 +116,16 @@ mobile/
 
 - The build config's `app_type` (`lms`, `store`, `booking` or `real_estate`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
+- App kinds (roadmap 20): `app_type` is the engine (the module); the optional
+  `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
+  build config `vertical`, `Config.vertical`) is the kind of business and only
+  changes wording, defaults, the demo and marketing, never routes. The
+  dashboard's app type picker shows kinds (an engine with a vertical). What
+  each engine and kind is (names, icons, websites it offers, its own content,
+  page sources, default pages, store categories, demo and marketing pages)
+  lives in one registry, `platform/web/src/lib/app/kinds.ts`; the platform
+  reads every per-type value from it. The app's wording helper is
+  `mobile/lib/core/l10n/vertical_wording.dart`.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.

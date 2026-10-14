@@ -155,6 +155,13 @@
       "when": 1791982202496,
       "tag": "0021_booking_customer_email",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1791985664777,
+      "tag": "0022_app_vertical",
+      "breakpoints": true
     }
   ]
 }

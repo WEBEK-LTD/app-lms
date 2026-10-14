@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
-import { APP_TYPE_NAMES, isAppType, isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
+import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
@@ -130,8 +131,12 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   const adding = formData.get("new") === "1";
   const current = adding ? null : context.app;
   const back = adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type";
-  const appType = formData.get("appType");
-  if (!isAppType(appType)) redirect(back);
+  // 20 The picker sends a kind (an engine with a vertical); a bare engine id means its default kind.
+  const rawType = formData.get("appType");
+  const kind = kindById(formData.get("kind")) ?? (isAppType(rawType) ? defaultKind(rawType) : null);
+  if (!kind) redirect(back);
+  const appType = kind.engine;
+  const vertical = kind.vertical;
   const store = await getStore();
   // 11.5 Switches: a switched-off type can't be chosen (an app keeps its own). A new app has no plan yet.
   if (appType !== current?.appType && !appTypeOn(await getSwitches(store), appType, current ? (context.license?.plan ?? null) : null)) {
@@ -141,42 +146,48 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   if (!current) {
     if (context.apps.length >= MAX_APPS_PER_CLIENT) redirect(`${back}${adding ? "&" : "?"}limit=1`);
     // The account's first app starts with the website given at sign-up; the next ones ask for theirs.
-    const app = newApp(context.client.id, context.apps.length ? null : context.client.siteUrl, now, appType);
+    const app = newApp(context.client.id, context.apps.length ? null : context.client.siteUrl, now, appType, vertical);
     await store.createApp(app);
     await chooseApp(app.id);
     await recordStaffChange(
       { ...context, app },
-      context.apps.length ? `Added an app: ${APP_TYPE_NAMES[appType]}` : `Set the app type to ${APP_TYPE_NAMES[appType]}`,
+      context.apps.length ? `Added an app: ${kind.name}` : `Set the app type to ${kind.name}`,
       { appType: null },
-      { appType },
+      { appType, vertical },
     );
     revalidatePath("/dashboard", "layout");
     redirect(stepUrl("website"));
   }
   if (current.appType !== appType) {
-    await recordStaffChange(context, `Set the app type to ${APP_TYPE_NAMES[appType]}`, { appType: current.appType }, { appType });
+    await recordStaffChange(context, `Set the app type to ${kind.name}`, { appType: current.appType, vertical: current.vertical ?? null }, { appType, vertical });
     // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
-    const kind = current.connector?.kind;
-    const connector = current.connector;
     // Real estate apps only run with listings managed in Yallapp.
-    const fits =
-      appType === "real_estate"
-        ? kind === "listings"
-        : !kind ||
-          (connector?.kind === "platform"
-            ? platformDefinition(connector.platform)?.appType === appType
-            : kind === "bookings"
-              ? appType === "booking"
-              : kind === "courses"
-                ? appType === "lms"
-                : kind !== "listings" && appType === "store");
+    const fits = connectorFits(appType, current.connector, (platform) => platformDefinition(platform)?.appType ?? null);
     await store.updateApp(
       current.id,
-      fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
+      fits ? { appType, vertical, appTypeDoneAt: now } : { appType, vertical, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
       now,
     );
+  } else if ((current.vertical ?? null) !== vertical) {
+    // 20 The same engine for another kind of business: only the wording and defaults change.
+    await recordStaffChange(context, `Set the app type to ${kind.name}`, { vertical: current.vertical ?? null }, { vertical });
+    await store.updateApp(current.id, { vertical, appTypeDoneAt: now }, now);
   }
   redirect(stepUrl("website"));
+}
+
+/** 20 The connector and starting settings of content managed in the dashboard. */
+function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
+  switch (kind) {
+    case "courses":
+      return { connector: { kind }, courseSetup: app.courseSetup ?? DEFAULT_COURSE_SETUP, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
+    case "bookings":
+      return { connector: { kind }, bookingSetup: app.bookingSetup ?? DEFAULT_BOOKING_SETUP };
+    case "catalog":
+      return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
+    case "listings":
+      return { connector: { kind } };
+  }
 }
 
 export interface WebsiteFormState extends FormState {
@@ -201,59 +212,14 @@ export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData)
   }
   // 19 A failed check of the app's own API no longer applies once it uses something else.
   if (data.backend !== "custom_api") await resolveApiCheckNotices(store, context.app.id, now);
-  if (context.app.appType === "real_estate") {
+  const engine = ENGINES[context.app.appType];
+  if (hostedOnly(context.app.appType) && data.backend !== "catalog") {
     // Real estate apps have no website: listings are managed in the dashboard and served by the hosted API.
-    if (data.backend !== "catalog") return { errors: { backend: "Real estate apps run on Yallapp. Choose Listings managed in Yallapp." }, values };
-    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", connector: { kind: "listings" }, websiteDoneAt: now }, now);
-    revalidatePath("/dashboard", "layout");
-    return afterStep(context, "website");
-  }
-  if (data.backend === "catalog" && context.app.appType === "lms") {
-    await store.updateApp(
-      context.app.id,
-      {
-        siteUrl: null,
-        backend: "hosted",
-        connector: { kind: "courses" },
-        courseSetup: context.app.courseSetup ?? DEFAULT_COURSE_SETUP,
-        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
-        websiteDoneAt: now,
-      },
-      now,
-    );
-    revalidatePath("/dashboard", "layout");
-    return afterStep(context, "website");
-  }
-  if (data.backend === "catalog" && context.app.appType === "booking") {
-    await store.updateApp(
-      context.app.id,
-      {
-        siteUrl: null,
-        backend: "hosted",
-        connector: { kind: "bookings" },
-        bookingSetup: context.app.bookingSetup ?? DEFAULT_BOOKING_SETUP,
-        websiteDoneAt: now,
-      },
-      now,
-    );
-    revalidatePath("/dashboard", "layout");
-    return afterStep(context, "website");
+    return { errors: { backend: `${engine.name} apps run on Yallapp. Choose ${ownContentTitle(context.app.appType)}.` }, values };
   }
   if (data.backend === "catalog") {
-    if (context.app.appType !== "store") {
-      return { errors: { backend: "Choose your app type first." }, values };
-    }
-    await store.updateApp(
-      context.app.id,
-      {
-        siteUrl: null,
-        backend: "hosted",
-        connector: { kind: "catalog" },
-        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
-        websiteDoneAt: now,
-      },
-      now,
-    );
+    // 20 The engine's own content, managed in the dashboard (lib/app/kinds.ts).
+    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", ...ownContentSetup(engine.ownContent.kind, context.app), websiteDoneAt: now }, now);
     revalidatePath("/dashboard", "layout");
     return afterStep(context, "website");
   }
@@ -329,7 +295,7 @@ async function connectShopify(
   app: App,
   data: { shopDomain: string; storefrontToken: string; adminToken: string; removeAdminToken?: "on" },
 ): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string> }> {
-  if (app.appType !== "store") return { errors: { backend: "Shopify works with Store apps. Choose Store as your app type first." } };
+  if (!ENGINES[app.appType].websites.includes("shopify")) return { errors: { backend: "Shopify works with Store apps. Choose Store as your app type first." } };
   const key = encryptionKey();
   const sameShop = app.connector?.kind === "shopify" && app.connector.shopDomain === data.shopDomain;
   const saved = sameShop ? shopifyToken(app, key) : null;
@@ -431,7 +397,7 @@ async function notifySetupRequest(context: ClientContext, siteUrl: string | null
     website: siteUrl ?? "None yet",
     whatsapp: context.client.whatsapp,
     email: context.user.email,
-    app_type: APP_TYPE_NAMES[context.app?.appType ?? "lms"],
+    app_type: context.app ? appTypeName(context.app) : ENGINES.lms.name,
     note_line: note ? `Note: ${note}\n` : "",
   };
   await Promise.all(superAdminEmails().map((to) => sendTemplate("setup_request", to, values)));

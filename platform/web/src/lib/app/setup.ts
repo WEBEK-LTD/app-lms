@@ -1,7 +1,7 @@
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
-import type { App, AppType, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
+import type { App, AppType, AppVertical, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plans";
@@ -10,6 +10,7 @@ import { effectivePlans } from "../entitlements";
 import { compareVersions } from "../semver";
 import { appUrl } from "../env";
 import { hostedApiUrl } from "../hosted/urls";
+import { hostedOnly } from "./kinds";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -26,20 +27,12 @@ export function isSetupStep(value: unknown): value is SetupStep {
   return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
 }
 
-export const APP_TYPES: readonly AppType[] = ["lms", "store", "booking", "real_estate"];
-
-/** What clients call each app type. */
-export const APP_TYPE_NAMES: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings", real_estate: "Real estate" };
-
-export function isAppType(value: unknown): value is AppType {
-  return typeof value === "string" && (APP_TYPES as readonly string[]).includes(value);
-}
-
-export function newApp(clientId: string, siteUrl: string | null, now: Date, appType: AppType = "lms"): App {
+export function newApp(clientId: string, siteUrl: string | null, now: Date, appType: AppType = "lms", vertical: AppVertical | null = null): App {
   return {
     id: newId(),
     clientId,
     appType,
+    vertical,
     // Clients may sign up without a website (stored as ""): the app then starts without one.
     siteUrl: siteUrl || null,
     backend: "wordpress",
@@ -129,7 +122,7 @@ export function websiteReady(app: App): boolean {
   // An app our team moved to it without one would build empty.
   if (app.backend === "hosted") return Boolean(app.connector);
   // Real estate apps only run on the hosted API.
-  if (app.appType === "real_estate") return false;
+  if (hostedOnly(app.appType)) return false;
   if (!app.websiteDoneAt || !app.siteUrl) return false;
   if (app.backend === "custom_api") return Boolean(app.apiBaseUrl);
   return app.backend === "wordpress";
@@ -180,6 +173,8 @@ export function buildConfigFor(
     schema_version: 1,
     client_id: client.id,
     app_type: app.appType,
+    // 20 The kind of business, when the app has one.
+    ...(app.vertical ? { vertical: app.vertical } : {}),
     ...(app.backend === "custom_api" && app.apiBaseUrl ? { api_base_url: app.apiBaseUrl } : {}),
     ...(app.backend === "hosted" ? { api_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
     app_name: app.appName ?? "",

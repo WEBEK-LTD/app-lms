@@ -1,4 +1,5 @@
 import type { AppType } from "../data/types";
+import { APP_TYPES, ENGINES, engineOfDemoSlug } from "../app/kinds";
 import type { RateLimitRule } from "../rate-limit";
 
 /**
@@ -44,11 +45,12 @@ export const DEMO_ACCOUNT = { email: "demos@yallapp.com.tr", name: "Yallapp demo
 /** The demo apps never expire: their Business license runs to the end of 2099. */
 export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
 
-/** Each demo's address on /demo and of its download: /demo/download/<slug>. */
-export const DEMO_SLUGS: Record<AppType, string> = { lms: "academy", store: "store", booking: "bookings", real_estate: "real-estate" };
+/** Each demo's address on /demo and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
+export const DEMO_SLUGS = Object.fromEntries(APP_TYPES.map((type) => [type, ENGINES[type].demo.slug])) as Record<AppType, string>;
 
-export const DEMO_TYPES: readonly AppType[] = ["lms", "store", "booking", "real_estate"];
+/** One demo per engine, in the registry's order. */
+export const DEMO_TYPES: readonly AppType[] = APP_TYPES;
 
 export function demoTypeOfSlug(slug: string): AppType | null {
-  return DEMO_TYPES.find((type) => DEMO_SLUGS[type] === slug) ?? null;
+  return engineOfDemoSlug(slug);
 }

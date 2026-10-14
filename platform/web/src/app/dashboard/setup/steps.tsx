@@ -19,6 +19,7 @@ import { PhoneFrame } from "@/components/device-frame";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import { ENGINES, ownContentTitle, type WebsiteChoice } from "@/lib/app/kinds";
 import type { ApiCheckResult } from "@/lib/app/api-check";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
 import type { AppType, SignInMethod } from "@/lib/data/types";
@@ -53,7 +54,7 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
-type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
+type Backend = WebsiteChoice;
 
 /** A platform connected with keys, as the Website step shows it. */
 export interface PlatformOption {
@@ -63,36 +64,24 @@ export interface PlatformOption {
   fields: { name: string; label: string; hint: string; secret: boolean; placeholder?: string; optional?: boolean }[];
 }
 
-const PLATFORM_CHOICE: Record<AppType, { title: string; text: string }> = {
-  store: { title: "Another store platform", text: "Your products and checkout come from ikas, Ticimax or IdeaSoft. Customers sign in to the app with a code we send." },
-  lms: { title: "My Teachable or Thinkific school", text: "Your courses and lessons come from your online school. Students sign in to the app with a code we send." },
-  booking: { title: "My SimplyBook.me account", text: "Your services, team and free times come from SimplyBook.me. Customers sign in to the app with a code we send." },
-  real_estate: { title: "Another platform", text: "Your listings come from another platform." },
-};
-
-const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[] }[] = [
-  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here.", appTypes: ["lms", "store", "booking"] },
-  {
-    id: "shopify",
-    title: "My Shopify store",
-    text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
-    appTypes: ["store"],
-  },
-  { id: "platform", title: "", text: "", appTypes: ["store", "lms", "booking"] },
-  {
-    id: "catalog",
-    title: "I don't have a website",
-    text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
-    appTypes: ["store", "booking", "lms", "real_estate"],
-  },
-  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself.", appTypes: ["lms", "store", "booking"] },
-  {
-    id: "setup_requested",
-    title: "I don't have WordPress",
-    text: "Our team sets up WordPress for you and moves your content over.",
-    appTypes: ["lms", "store", "booking"],
-  },
+/** The Website step's choices, in order; which ones an app type offers, and the wording of its own, are in lib/app/kinds.ts. */
+const BACKENDS: { id: Backend; title: string; text: string }[] = [
+  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
+  { id: "shopify", title: "My Shopify store", text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send." },
+  { id: "platform", title: "", text: "" },
+  { id: "catalog", title: "", text: "" },
+  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
+  { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
 ];
+
+/** "After this step, add … on the **Courses** page." with the bold parts. */
+function Bold({ text }: { text: string }) {
+  return (
+    <>
+      {text.split("**").map((part, i) => (i % 2 === 1 ? <b key={i}>{part}</b> : part))}
+    </>
+  );
+}
 
 /** The platform to connect and the keys it needs. */
 function PlatformFields({
@@ -227,8 +216,9 @@ export function WebsiteStep({
   // 19 The check that ran when the API was saved, unless one was run since with the button.
   const checkResult = check.result ?? state.apiCheck ?? null;
   const savedWithFailedCheck = Boolean(state.apiCheck && !state.apiCheck.ok);
+  const engine = ENGINES[appType];
   const offered = BACKENDS.filter(
-    (b) => (!b.appTypes || b.appTypes.includes(appType)) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
+    (b) => engine.websites.includes(b.id) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
   ).map((b) => b.id);
   const initial = (state.values?.backend as Backend | undefined) ?? backend;
   const [choice, setChoice] = useState<Backend>(offered.includes(initial) ? initial : (offered[0] ?? initial));
@@ -248,21 +238,13 @@ export function WebsiteStep({
         ) : null}
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
-          {BACKENDS.filter((b) => !b.appTypes || b.appTypes.includes(appType))
+          {BACKENDS.filter((b) => engine.websites.includes(b.id))
             .map((b) =>
-              b.id === "catalog" && appType === "booking"
-                ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
-                : b.id === "catalog" && appType === "real_estate"
-                  ? {
-                      ...b,
-                      title: "Listings managed in Yallapp",
-                      text: "Add your properties here in the dashboard. People search them in the app, save favorites and message your office.",
-                    }
-                : b.id === "catalog" && appType === "lms"
-                  ? { ...b, text: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android." }
-                  : b.id === "platform"
-                    ? { ...b, ...PLATFORM_CHOICE[appType] }
-                    : b,
+              b.id === "catalog"
+                ? { ...b, title: ownContentTitle(appType), text: engine.ownContent.choice.text }
+                : b.id === "platform"
+                  ? { ...b, ...engine.platformChoice }
+                  : b,
             )
             .filter((b) => offered.includes(b.id))
             .map((b) => (
@@ -287,27 +269,7 @@ export function WebsiteStep({
         </fieldset>
         {choice === "catalog" ? (
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
-            {appType === "lms" ? (
-              <>
-                After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with{" "}
-                {codeDeliveryText(signInMethods)}.
-              </>
-            ) : appType === "real_estate" ? (
-              <>
-                After this step, set up your office and add your properties on the <b>Listings</b> page, and answer people&apos;s messages on
-                the <b>Inquiries</b> page. People sign in to the app with {codeDeliveryText(signInMethods)}.
-              </>
-            ) : appType === "booking" ? (
-              <>
-                After this step, add your services, your team and their hours on the <b>Services &amp; team</b> page. Your customers sign in to
-                the app with {codeDeliveryText(signInMethods)}.
-              </>
-            ) : (
-              <>
-                After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app
-                with {codeDeliveryText(signInMethods)}.
-              </>
-            )}
+            <Bold text={engine.ownContent.next} /> {codeDeliveryText(signInMethods)}.
             {hostedApiUrl && backend === "catalog" ? (
               <span className="mt-2 block text-sm">
                 Your app&apos;s API address: <code className="break-all">{hostedApiUrl}</code>
@@ -323,7 +285,7 @@ export function WebsiteStep({
             type="url"
             required={choice !== "setup_requested"}
             defaultValue={v(state, "siteUrl", siteUrl)}
-            placeholder={choice === "shopify" || appType === "store" ? "https://your-shop.com" : "https://your-academy.com"}
+            placeholder={choice === "shopify" ? ENGINES.store.sitePlaceholder : engine.sitePlaceholder}
             hint={
               choice === "setup_requested"
                 ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."

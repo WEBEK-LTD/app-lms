@@ -1,5 +1,6 @@
 import { readApiList } from "../../app/api-check";
 import type { DataStore } from "../../data/store";
+import { ENGINES, isAppType } from "../../app/kinds";
 import type { App } from "../../data/types";
 import type { ItemSource } from "../../pages/types";
 import { connectorFor } from "../connectors";
@@ -43,26 +44,22 @@ export async function pickableContent(
   const base = ownApiBase(app);
   if (base) return ownApiPickable(app, base, deps.readList ?? readApiList);
   if (app.backend !== "hosted") return out;
+  // 20 What the engine lists (lib/app/kinds.ts).
+  const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
+  if (!engine) return out;
   // 19 Real estate: the published listings (a list block shows only those), from the dashboard's own data.
-  if (app.appType === "real_estate") {
-    const listings = (await deps.store.listListings(app.id)).filter((l) => l.status === "published").slice(0, 200);
-    out.items.listings = listings.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title }));
+  if (!engine.read) {
+    if (engine.source === "listings") {
+      const listings = (await deps.store.listListings(app.id)).filter((l) => l.status === "published").slice(0, 200);
+      out.items.listings = listings.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title }));
+    }
     return out;
   }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
   if (!connector) return out;
-  if (app.appType === "lms") {
-    out.items.courses = (await items(connector, ["courses"], now)).map((c) => ({ id: String(c.id), title: String(c.title ?? "") }));
-    out.categories.courses = (await items(connector, ["categories"], now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
-  }
-  if (app.appType === "store") {
-    out.items.products = (await items(connector, ["store", "products"], now)).map((p) => ({ id: String(p.id), title: String(p.name ?? "") }));
-    out.categories.products = (await items(connector, ["store", "categories"], now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
-  }
-  if (app.appType === "booking") {
-    out.items.services = (await items(connector, ["bookings", "services"], now)).map((s) => ({ id: String(s.id), title: String(s.name ?? "") }));
-    out.categories.services = (await items(connector, ["bookings", "categories"], now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
-  }
+  const { read, source } = engine;
+  out.items[source] = (await items(connector, read.items.split("/"), now)).map((x) => ({ id: String(x.id), title: String(x[read.title] ?? "") }));
+  out.categories[source] = (await items(connector, read.categories.split("/"), now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
   return out;
 }
 
@@ -74,20 +71,12 @@ async function ownApiPickable(app: App, base: string, readList: typeof readApiLi
     list.filter((x) => x.id !== undefined && x.id !== null).map((x) => ({ id: String(x.id), title: String(x[field] ?? "") }));
   const names = (list: Record<string, unknown>[]) =>
     list.filter((x) => x.id !== undefined && x.id !== null).map((x) => ({ id: String(x.id), name: String(x.name ?? "") }));
-  if (app.appType === "lms") {
-    const [items, categories] = await Promise.all([readList(base, `/courses${q}`), readList(base, `/categories${q}`)]);
-    out.items.courses = titles(items, "title");
-    out.categories.courses = names(categories);
-  }
-  if (app.appType === "store") {
-    const [items, categories] = await Promise.all([readList(base, `/store/products${q}`), readList(base, `/store/categories${q}`)]);
-    out.items.products = titles(items, "name");
-    out.categories.products = names(categories);
-  }
-  if (app.appType === "booking") {
-    const [items, categories] = await Promise.all([readList(base, `/bookings/services${q}`), readList(base, `/bookings/categories${q}`)]);
-    out.items.services = titles(items, "name");
-    out.categories.services = names(categories);
+  const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
+  if (engine?.read) {
+    const { read, source } = engine;
+    const [items, categories] = await Promise.all([readList(base, `/${read.items}${q}`), readList(base, `/${read.categories}${q}`)]);
+    out.items[source] = titles(items, read.title);
+    out.categories[source] = names(categories);
   }
   return out;
 }

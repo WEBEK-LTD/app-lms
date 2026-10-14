@@ -1,4 +1,5 @@
 import { activateClient } from "../admin/clients";
+import { ENGINES } from "../app/kinds";
 import { newApp } from "../app/setup";
 import { sha256Hex } from "../crypto/tokens";
 import type { AppPatch, DataStore } from "../data/store";
@@ -9,7 +10,6 @@ import type {
   AssetKind,
   BookingSetup,
   Client,
-  ConnectorConfig,
   ContactSetting,
   Course,
   CourseSetup,
@@ -127,13 +127,6 @@ async function demoAccount(deps: DemoSetupDeps): Promise<{ client: Client; creat
   return { client, created: true };
 }
 
-const CONNECTOR: Record<AppType, ConnectorConfig> = {
-  lms: { kind: "courses" },
-  store: { kind: "catalog" },
-  booking: { kind: "bookings" },
-  real_estate: { kind: "listings" },
-};
-
 function hostedSettingsFor(deps: DemoSetupDeps): HostedSettings {
   return {
     signupFields: [],
@@ -157,12 +150,14 @@ async function setupApp(deps: DemoSetupDeps, client: Client, type: AppType): Pro
     await store.createApp(app);
   }
   const brand = DEMO_BRANDS[type];
+  // Every demo app's content is managed in the dashboard: its engine's own content (lib/app/kinds.ts).
+  const content = ENGINES[type].ownContent.kind;
   const iconAssetId = await picture(deps, client.id, brand.icon, "icon", "icon");
   const patch: AppPatch = {
     demo: true,
     backend: "hosted",
     siteUrl: null,
-    connector: CONNECTOR[type],
+    connector: { kind: content },
     hostedSettings: hostedSettingsFor(deps),
     appName: brand.appName,
     shortName: brand.shortName,
@@ -186,12 +181,12 @@ async function setupApp(deps: DemoSetupDeps, client: Client, type: AppType): Pro
     // Our own apps: the team publishes them, when it wants to.
     publishingMode: "managed",
   };
-  if (type === "lms") {
+  if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
     patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup);
-  } else if (type === "store") {
+  } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
-  } else if (type === "booking") {
+  } else if (content === "bookings") {
     patch.bookingSetup = await bookingSetupFor(deps, client.id);
   }
   await store.updateApp(app.id, patch, now);
@@ -203,8 +198,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, type: AppType): Pro
     await activateClient(store, { clientId: client.id, appId: saved.id, plan: "business", activeUntil: DEMO_LICENSE_UNTIL, paymentNote: "" }, deps.encryptionKey, now);
   }
 
-  if (type === "store") await syncProducts(deps, client.id, saved);
-  if (type === "real_estate") await syncListings(deps, client.id, saved);
+  if (content === "catalog") await syncProducts(deps, client.id, saved);
+  if (content === "listings") await syncListings(deps, client.id, saved);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.

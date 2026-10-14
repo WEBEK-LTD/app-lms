@@ -96,10 +96,8 @@ export interface DemoListing {
   description: string;
 }
 
-/** What /demo says to try in each app. */
+/** What /demo says to try in each app (its name and icon come from lib/app/kinds.ts). */
 export interface DemoGuide {
-  /** The app type's name on the website. */
-  label: string;
   summary: string;
   tryThis: string[];
   screens: AppScreen[];
@@ -107,7 +105,6 @@ export interface DemoGuide {
 
 export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
   lms: {
-    label: "Academy",
     summary: "An online academy with courses in design, business, languages and programming.",
     tryThis: [
       "Open a course and watch a free preview lesson",
@@ -118,7 +115,6 @@ export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
     screens: ["academy-home", "academy-course", "academy-lesson"],
   },
   store: {
-    label: "Store",
     summary: "A flower and gift shop with categories, sale prices and free delivery over an amount.",
     tryThis: [
       "Browse the categories and open a product",
@@ -129,7 +125,6 @@ export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
     screens: ["store-home", "store-product", "store-cart"],
   },
   booking: {
-    label: "Bookings",
     summary: "A hair and beauty studio with services, a team of three and their working hours.",
     tryThis: [
       "Pick a service and see the free times",
@@ -139,7 +134,6 @@ export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
     screens: ["bookings-services", "bookings-slots"],
   },
   real_estate: {
-    label: "Real estate",
     summary: "An estate agency with homes for sale and for rent, with filters, favorites and messages.",
     tryThis: [
       "Search with filters: for rent, 2+ bedrooms, a price range",

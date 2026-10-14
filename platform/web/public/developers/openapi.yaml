@@ -2108,6 +2108,15 @@ components:
         appearance: { $ref: '#/components/schemas/Appearance' }
         languages: { $ref: '#/components/schemas/Languages' }
         listings: { $ref: '#/components/schemas/ListingsConfig' }
+        vertical:
+          type: [string, 'null']
+          enum: [restaurant, clinic, fitness, charity, null]
+          description: |
+            The kind of business the app is for, on top of its type (the module
+            in the build): it changes wording and defaults in the app, never
+            which screens or endpoints it uses. Null or missing means none;
+            apps treat a value they don't know as none, so new values can be
+            added without breaking older apps.
 
     HomeSection:
       type: object

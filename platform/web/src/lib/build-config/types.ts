@@ -1,3 +1,5 @@
+import type { AppType, AppVertical } from "../data/types";
+
 /** TypeScript view of docs/build-config.schema.json (schema_version 1). */
 
 export const APP_FONTS = [
@@ -15,7 +17,10 @@ export const APP_TEMPLATES = ["classic", "bold", "minimal"] as const;
 export interface BuildConfig {
   schema_version: 1;
   client_id?: string;
-  app_type: "lms" | "store" | "booking" | "real_estate";
+  /** The engine: the module the build includes (lib/app/kinds.ts). */
+  app_type: AppType;
+  /** 20 The kind of business; left out when the app has none. */
+  vertical?: AppVertical;
   /** Only for apps whose content isn't served by the WordPress plugin. */
   api_base_url?: string;
   app_name: string;

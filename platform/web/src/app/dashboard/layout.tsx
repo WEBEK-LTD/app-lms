@@ -4,12 +4,11 @@ import { Logo } from "@/components/brand";
 import { stopManagingAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { APP_TYPE_ICON } from "@/components/dashboard";
 import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard-nav";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
-import { APP_TYPE_NAMES } from "@/lib/app/setup";
+import { appTypeName, engineOfContent, kindOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import type { App } from "@/lib/data/types";
@@ -17,35 +16,9 @@ import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
-/** The name of the group of content pages in the sidebar. */
-const CONTENT_LABEL: Record<string, string> = { catalog: "Your shop", courses: "Your school", bookings: "Your bookings", listings: "Your properties" };
-
-/** What the app's content and customers pages are, for apps whose content is managed here. */
-function contentItems(app: App | null): DashboardNavGroup["items"] {
-  switch (app?.connector?.kind) {
-    case "catalog":
-      return [
-        { href: "/dashboard/catalog", label: "Products", icon: "inventory_2" },
-        { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
-      ];
-    case "courses":
-      return [
-        { href: "/dashboard/courses", label: "Courses", icon: "school" },
-        { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
-      ];
-    case "bookings":
-      return [
-        { href: "/dashboard/services", label: "Services & team", icon: "groups" },
-        { href: "/dashboard/appointments", label: "Appointments", icon: "event_available" },
-      ];
-    case "listings":
-      return [
-        { href: "/dashboard/listings", label: "Listings", icon: "home_work" },
-        { href: "/dashboard/inquiries", label: "Inquiries", icon: "forum" },
-      ];
-    default:
-      return [];
-  }
+/** What the app's content and customers pages are, for apps whose content is managed here (lib/app/kinds.ts). */
+function contentNav(app: App | null): { label: string; items: DashboardNavGroup["items"] } | null {
+  return engineOfContent(app?.connector?.kind)?.ownContent.nav ?? null;
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -56,13 +29,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const switcherApps = apps.map((a) => ({
     id: a.id,
     label: appLabel(a),
-    detail: `${APP_TYPE_NAMES[a.appType]} · ${ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]}`,
+    detail: `${appTypeName(a)} · ${ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]}`,
   }));
   const currentApp = app
     ? {
         label: appLabel(app),
-        typeName: APP_TYPE_NAMES[app.appType],
-        typeIcon: APP_TYPE_ICON[app.appType],
+        typeName: kindOf(app).name,
+        typeIcon: kindOf(app).icon,
         iconUrl: app.iconAssetId ? `/api/v1/assets/${app.iconAssetId}` : null,
         state,
         // An app whose plan ended is paused for its users.
@@ -71,7 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     : null;
 
   // Only what the current app uses: its content pages, and the app users pages on the hosted API.
-  const content = contentItems(app);
+  const content = contentNav(app);
   const groups: DashboardNavGroup[] = [
     {
       items: [
@@ -81,7 +54,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/preview", label: "Preview your app", icon: "visibility" },
       ],
     },
-    ...(content.length && app?.connector ? [{ label: CONTENT_LABEL[app.connector.kind] ?? "Your business", items: content }] : []),
+    ...(content ? [{ label: content.label, items: content.items }] : []),
     ...(app?.backend === "hosted"
       ? [
           {

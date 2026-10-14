@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { chooseAppTypeAction } from "@/app/actions/dashboard";
 import { Icon } from "@/components/icon";
-import type { IconName } from "@/components/icon-names";
 import { SubmitButton } from "@/components/form";
 import Link from "next/link";
 import { Notice, btn } from "@/components/ui";
@@ -9,44 +8,9 @@ import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appTypeOn, getSwitches } from "@/lib/switches";
-import type { AppType } from "@/lib/data/types";
+import { KINDS, kindOf } from "@/lib/app/kinds";
 
 export const metadata: Metadata = { title: "Choose app type" };
-
-const TYPES: { value: AppType; name: string; icon: IconName; tile: string; text: string; requires: string }[] = [
-  {
-    value: "lms",
-    name: "Academy",
-    icon: "school",
-    tile: "bg-peach",
-    text: "Courses, lessons, quizzes and certificates.",
-    requires: "Works with: Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo · Digits",
-  },
-  {
-    value: "store",
-    name: "Store",
-    icon: "shopping_bag",
-    tile: "bg-tile-1 text-[#8A5A12]",
-    text: "Products, cart, checkout and orders. Delivery date and gift messages for flower shops.",
-    requires: "Works with: WooCommerce · Digits",
-  },
-  {
-    value: "booking",
-    name: "Bookings",
-    icon: "calendar_month",
-    tile: "bg-tile-2 text-[#1D6B48]",
-    text: "Services, staff, free times and appointments, booked through your booking plugin.",
-    requires: "Works with: Amelia, BookingPress, LatePoint · Digits",
-  },
-  {
-    value: "real_estate",
-    name: "Real estate",
-    icon: "apartment",
-    tile: "bg-tile-3 text-[#3F3A6B]",
-    text: "Property listings with search and filters, favorites and messages to your office.",
-    requires: "No website needed: you add your listings here in the dashboard",
-  },
-];
 
 export default async function AppTypePage({ searchParams }: PageProps<"/dashboard/app-type">) {
   const context = await requireClient();
@@ -56,9 +20,10 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
   const app = adding ? null : context.app;
   const license = adding ? null : context.license;
   // 11.5 Switches: types the team switched off aren't offered (the app's own type stays).
+  // 20 The picker shows kinds (lib/app/kinds.ts): an engine, with a kind of business for some.
   const switches = await getSwitches(await getStore());
-  const types = TYPES.filter((t) => t.value === app?.appType || appTypeOn(switches, t.value, license?.plan ?? null));
-  const current: AppType = app?.appType ?? types[0]?.value ?? "lms";
+  const types = KINDS.filter((k) => k.engine === app?.appType || appTypeOn(switches, k.engine, license?.plan ?? null));
+  const current = app ? kindOf(app).id : (types[0]?.id ?? KINDS[0]!.id);
   const unavailable = query.unavailable === "1";
   if (adding && context.apps.length >= MAX_APPS_PER_CLIENT) {
     return (
@@ -111,7 +76,7 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
         <legend className="sr-only">App type</legend>
         {types.map((type) => (
           <label
-            key={type.value}
+            key={type.id}
             className="group flex cursor-pointer flex-col gap-3.5 rounded-[20px] border border-line bg-white p-[26px] has-[:checked]:border-2 has-[:checked]:border-midnight has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
           >
             <div className="flex items-center justify-between">
@@ -123,10 +88,10 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
               </span>
             </div>
             <span className="flex items-center gap-2 text-xl font-extrabold">
-              <input type="radio" name="appType" value={type.value} defaultChecked={type.value === current} className="sr-only" />
+              <input type="radio" name="kind" value={type.id} defaultChecked={type.id === current} className="sr-only" />
               {type.name}
             </span>
-            <span className="text-[15px] leading-relaxed text-ink-4">{type.text}</span>
+            <span className="text-[15px] leading-relaxed text-ink-4">{type.description}</span>
             <span className="text-[13px] leading-normal text-muted">{type.requires}</span>
           </label>
         ))}
