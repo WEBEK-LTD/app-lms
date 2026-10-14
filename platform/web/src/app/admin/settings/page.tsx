@@ -123,6 +123,7 @@ export default async function SettingsPage() {
             language: otpValue?.kind === "whatsapp" ? otpValue.language : "",
             url: otpValue?.kind === "webhook" ? otpValue.url : "",
             baseUrl: otpValue?.kind === "waabek" ? otpValue.baseUrl : "",
+            instanceId: otpValue?.kind === "waabek" ? (otpValue.instanceId ?? "") : "",
           }}
         />
         <TestCodeForm />

@@ -53,11 +53,17 @@ test("the team sets the sign-in code sender and goes back to the variables", asy
   await otp.getByRole("button", { name: "Save" }).click();
   await expect(otp.getByText("Paste the API key from your WABEK account.")).toBeVisible();
   await otp.getByLabel("API key").fill("wabek-test-key-0123456789");
+  await otp.getByLabel("Instance ID").fill("bad id!");
+  await otp.getByRole("button", { name: "Save" }).click();
+  await expect(otp.getByText("Paste the instance ID from WABEK › Instances.")).toBeVisible();
+  await otp.getByLabel("API key").fill("wabek-test-key-0123456789");
+  await otp.getByLabel("Instance ID").fill("8f14e45f-ceea-467f-a9e1-0b0d4c1c5a2d");
   await otp.getByRole("button", { name: "Save" }).click();
   await expect(otp.getByText("Sign-in codes setting saved.")).toBeVisible();
   await page.reload();
   await expect(otp.getByRole("radio", { name: /^WABEK/ })).toBeChecked();
   await expect(otp.getByLabel("API key")).toHaveValue("");
+  await expect(otp.getByLabel("Instance ID")).toHaveValue("8f14e45f-ceea-467f-a9e1-0b0d4c1c5a2d");
   await expect(page.locator("body")).not.toContainText("wabek-test-key-0123456789");
 
   await otp.getByRole("button", { name: "Use the Netlify variables" }).click();
@@ -82,11 +88,11 @@ test("the team sends itself a test sign-in code and checks it", async () => {
   try {
     await openSettings();
     const otp = page.getByRole("region", { name: "Sign-in codes" });
-    await otp.getByLabel("Your number").fill("123");
+    await otp.getByRole("textbox", { name: "Your number" }).fill("123");
     await otp.getByRole("button", { name: "Send a test code" }).click();
     await expect(otp.getByText("Enter your number with the country code")).toBeVisible();
 
-    await otp.getByLabel("Your number").fill("+20 100 765 4321");
+    await otp.getByRole("textbox", { name: "Your number" }).fill("+20 100 765 4321");
     await otp.getByRole("button", { name: "Send a test code" }).click();
     await expect(otp.getByText("Test code sent to +201007654321.")).toBeVisible();
     await expect.poll(() => codes.get("+201007654321")).toBeTruthy();

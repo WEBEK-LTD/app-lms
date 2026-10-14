@@ -71,7 +71,7 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
   const saved = (await platformSetting(store, "otp", { fresh: true }))?.value ?? null;
   const kind = str(formData, "kind");
   const values: Record<string, string> = { kind };
-  for (const name of ["phoneNumberId", "template", "language", "url", "baseUrl"]) values[name] = str(formData, name);
+  for (const name of ["phoneNumberId", "template", "language", "url", "baseUrl", "instanceId"]) values[name] = str(formData, name);
   const errors: Record<string, string> = {};
   let value: OtpSetting;
   if (kind === "whatsapp") {
@@ -115,11 +115,13 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
     }
     if (!baseUrl || baseUrl.protocol !== "https:") errors.baseUrl = "Enter WABEK's https address, like https://waabek.com.";
     if (!apiKey && saved?.kind !== "waabek") errors.apiKey = "Paste the API key from your WABEK account.";
+    if (values.instanceId && !/^[A-Za-z0-9_-]{1,100}$/.test(values.instanceId)) errors.instanceId = "Paste the instance ID from WABEK › Instances.";
     if (Object.keys(errors).length) return { errors, values };
     value = {
       kind,
       apiKeyEncrypted: apiKey ? encryptSetting("otp", apiKey, encryptionKey()) : (saved as Extract<OtpSetting, { kind: "waabek" }>).apiKeyEncrypted,
       baseUrl: baseUrl!.origin,
+      instanceId: values.instanceId || null,
     };
   } else if (kind === "off") {
     value = { kind };
@@ -334,14 +336,7 @@ export async function checkTestCodeAction(_: FormState, formData: FormData): Pro
     ticket = null;
   }
   if (!ticket) return { message: "Send a test code first." };
-  const sender = await otpTestSender();
-  if (!sender) return { message: "Sign-in codes are off or not set. Choose how codes are sent and save first." };
-  let result: "right" | "wrong" | "expired";
-  try {
-    result = await checkTestCode(sender, ticket, code, sessionSecret(), new Date());
-  } catch (e) {
-    return { message: `The code couldn't be checked: ${e instanceof Error ? e.message : "unknown error"}`, values: { code } };
-  }
+  const result = checkTestCode(ticket, code, sessionSecret(), new Date());
   if (result === "wrong") return { errors: { code: "That code isn't right." }, values: { code } };
   jar.delete({ name: OTP_TEST_COOKIE, path: "/admin" });
   if (result === "expired") return { message: "The test code expired. Send a new one." };

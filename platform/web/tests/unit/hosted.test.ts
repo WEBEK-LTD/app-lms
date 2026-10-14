@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, onTestFinished } from "vitest";
 import { newApp, buildConfigFor, websiteReady } from "@/lib/app/setup";
 import { decodeJwt, encodeJwt } from "@/lib/hosted/jwt";
 import { announce } from "@/lib/hosted/notify";
-import { LogSender, waabekSender, webhookSender, whatsappSender, type OtpSender } from "@/lib/hosted/otp-sender";
+import { LogSender, waabekSender, webhookSender, whatsappSender } from "@/lib/hosted/otp-sender";
 import { parseAnyPhone, parsePhone } from "@/lib/hosted/phone";
 import { parseServiceAccount } from "@/lib/hosted/push";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -167,45 +167,6 @@ describe("hosted API", () => {
     expect(late.body).toMatchObject({ code: "code_expired" });
   });
 
-  it("lets a provider that makes its own codes (WABEK) check them", async () => {
-    const checked: { phone: string; code: string }[] = [];
-    let reachable = true;
-    const provider: OtpSender = {
-      async send() {},
-      async verify(input) {
-        if (!reachable) throw new Error("down");
-        checked.push(input);
-        return input.code === "424242";
-      },
-    };
-    const request = async () => {
-      now = new Date(now.getTime() + 61_000);
-      const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5321234567" } }, { sender: provider });
-      expect(requested.status).toBe(200);
-      return (requested.body as { request_id: string }).request_id;
-    };
-    const verify = (requestId: string, code: string) =>
-      call("POST", "/auth/otp/verify", { body: { request_id: requestId, code, device: DEVICE } }, { sender: provider });
-
-    const first = await request();
-    expect((await verify(first, "111111")).body).toMatchObject({ code: "invalid_code" });
-    expect((await verify(first, "not-a-code")).body).toMatchObject({ code: "invalid_code" });
-    reachable = false;
-    expect(await verify(first, "424242")).toMatchObject({ status: 502, body: { code: "provider_error" } });
-    reachable = true;
-    expect((await verify(first, "424242")).body).toMatchObject({ signup_required: true });
-    // Only well-formed codes reach the provider, with the number in E.164.
-    expect(checked).toEqual([
-      { phone: "+905321234567", code: "111111" },
-      { phone: "+905321234567", code: "424242" },
-    ]);
-
-    // Our own limit on wrong codes still applies before the provider is asked.
-    const second = await request();
-    for (let i = 0; i < 5; i++) await verify(second, "000000");
-    expect((await verify(second, "424242")).body).toMatchObject({ code: "code_expired" });
-  });
-
   it("limits how often codes are sent", async () => {
     await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5321234567" } });
     const soon = await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5321234567" } });
@@ -365,32 +326,39 @@ describe("code senders", () => {
     await expect(webhookSender({ kind: "webhook", url: "https://sms.test/send", secret: "s" }, down).send({ phone: "+1", code: "1", appName: "R", expiresInSeconds: 1 })).rejects.toThrow();
   });
 
-  it("use WABEK's OTP API", async () => {
-    const calls: { url: string; key: string | null; body: unknown }[] = [];
+  it("send through WABEK from the chosen number", async () => {
+    const calls: { url: string; key: string | null; body: Record<string, unknown> }[] = [];
     const answers: Response[] = [];
     const fake = (async (url: string, init: RequestInit) => {
       calls.push({ url, key: new Headers(init.headers).get("x-api-key"), body: JSON.parse(String(init.body)) });
       return answers.shift()!;
     }) as unknown as typeof fetch;
-    const wabek = waabekSender({ kind: "waabek", apiKey: "wk-test", baseUrl: "https://waabek.test" }, fake);
     const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+    const input = { phone: "+201234567890", code: "481902", appName: "Nile Homes", expiresInSeconds: 300 };
 
-    answers.push(json({ success: true, expires_in: 300 }));
-    await wabek.send({ phone: "+201234567890", code: "ignored", appName: "Nile Homes", expiresInSeconds: 300 });
-    expect(calls[0]).toEqual({ url: "https://waabek.test/api/otp/send", key: "wk-test", body: { phone: "201234567890", code_length: 6 } });
+    answers.push(json({ success: true, message_id: "wamid.1" }));
+    await waabekSender({ kind: "waabek", apiKey: "wk-test", baseUrl: "https://waabek.test", instanceId: "inst-2" }, fake).send(input);
+    expect(calls[0]).toEqual({
+      url: "https://waabek.test/api/v1/send",
+      key: "wk-test",
+      body: { to: "201234567890", message: "481902 is your Nile Homes code. It expires in 5 minutes. Don't share it.", instance_id: "inst-2" },
+    });
 
+    // Without an instance, WABEK picks the account's connected number.
     answers.push(json({ success: true }));
-    expect(await wabek.verify!({ phone: "+201234567890", code: "123456" })).toBe(true);
-    expect(calls[1]).toEqual({ url: "https://waabek.test/api/otp/verify", key: "wk-test", body: { phone: "201234567890", code: "123456" } });
-    answers.push(json({ success: false }), json({ success: false, message: "Invalid code" }, 400));
-    expect(await wabek.verify!({ phone: "+201234567890", code: "000000" })).toBe(false);
-    expect(await wabek.verify!({ phone: "+201234567890", code: "000000" })).toBe(false);
+    await waabekSender({ kind: "waabek", apiKey: "wk-test", baseUrl: "https://waabek.test", instanceId: null }, fake).send(input);
+    expect(calls[1]!.body).not.toHaveProperty("instance_id");
 
-    // A refused send, a bad key, a limit or a server error is a failure, never a wrong code.
-    answers.push(json({ success: false }), json({}, 500), json({}, 401), json({}, 429), json({}, 503));
-    await expect(wabek.send({ phone: "+1", code: "", appName: "", expiresInSeconds: 1 })).rejects.toThrow();
-    await expect(wabek.send({ phone: "+1", code: "", appName: "", expiresInSeconds: 1 })).rejects.toThrow();
-    for (let i = 0; i < 3; i++) await expect(wabek.verify!({ phone: "+1", code: "123456" })).rejects.toThrow();
+    // WABEK's reason reaches the admin's test.
+    const wabek = waabekSender({ kind: "waabek", apiKey: "wk-test", baseUrl: "https://waabek.test", instanceId: "inst-2" }, fake);
+    answers.push(json({ error: "No connected WhatsApp instance" }, 404));
+    await expect(wabek.send(input)).rejects.toThrow("WABEK answered HTTP 404 (No connected WhatsApp instance).");
+    answers.push(json({ error: "Invalid API key" }, 401));
+    await expect(wabek.send(input)).rejects.toThrow("WABEK answered HTTP 401 (Invalid API key).");
+    answers.push(json({ error: "Failed to deliver message outside the 24h window", detail: "Configure OTP Template Name." }, 422));
+    await expect(wabek.send(input)).rejects.toThrow("HTTP 422 (Failed to deliver message outside the 24h window: Configure OTP Template Name.)");
+    answers.push(new Response("<html>bad gateway</html>", { status: 502 }));
+    await expect(wabek.send(input)).rejects.toThrow("WABEK answered HTTP 502.");
   });
 
   it("recognise a Firebase service account", () => {

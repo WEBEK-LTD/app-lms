@@ -478,8 +478,8 @@ export type CatalogOrderPatch = Partial<
 export type OtpSetting =
   | { kind: "whatsapp"; accessTokenEncrypted: string; phoneNumberId: string; template: string; language: string }
   | { kind: "webhook"; url: string; secretEncrypted: string }
-  /** WABEK sends the code on WhatsApp with its approved template, and checks it. */
-  | { kind: "waabek"; apiKeyEncrypted: string; baseUrl: string }
+  /** WABEK sends the code on WhatsApp from one of the account's numbers; null instance: WABEK picks one. */
+  | { kind: "waabek"; apiKeyEncrypted: string; baseUrl: string; instanceId?: string | null }
   /** No codes are sent: sign-in on the hosted API fails with provider_error. */
   | { kind: "off" };
 
