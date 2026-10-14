@@ -231,14 +231,15 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "time", description: "The time (business's time zone)", sample: "14:30" },
       { name: "timezone", description: "The business's time zone", sample: "Europe/Istanbul" },
       { name: "price", description: "The price", sample: "₺600.00" },
-      { name: "phone", description: "The customer's phone", sample: "+905321234567" },
+      { name: "contact_label", description: "“Phone”, or “Email” when the customer signed in by email", sample: "Phone" },
+      { name: "phone", description: "The customer's phone, or their email when they signed in by email", sample: "+905321234567" },
       { name: "note_line", description: "“Note: …” and a line break when the customer wrote one; empty otherwise", sample: "Note: First visit.\n" },
       { name: "approval_line", description: "A line saying it waits for approval, when it does; empty otherwise", sample: "\nIt waits for your approval.\n" },
       { name: "appointments_url", description: "The dashboard's Appointments page", sample: "https://yallapp.com.tr/dashboard/appointments" },
     ],
     subject: "New appointment: {{service}}, {{date}} {{time}}",
     body:
-      "{{customer_name}} booked {{service}} with {{staff}} in {{app_name}}.\n\nWhen: {{date}} at {{time}} ({{timezone}})\nPrice: {{price}}\nPhone: {{phone}}\n" +
+      "{{customer_name}} booked {{service}} with {{staff}} in {{app_name}}.\n\nWhen: {{date}} at {{time}} ({{timezone}})\nPrice: {{price}}\n{{contact_label}}: {{phone}}\n" +
       "{{note_line}}{{approval_line}}\nYour appointments: {{appointments_url}}",
   },
   {
