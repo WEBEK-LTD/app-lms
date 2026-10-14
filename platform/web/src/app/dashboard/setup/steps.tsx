@@ -13,11 +13,13 @@ import {
   savePublishingAction,
   saveWebsiteAction,
   uploadAssetAction,
+  type WebsiteFormState,
 } from "@/app/actions/dashboard";
 import { PhoneFrame } from "@/components/device-frame";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import type { ApiCheckResult } from "@/lib/app/api-check";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
 import type { AppType, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
@@ -153,28 +155,21 @@ function PlatformFields({
   );
 }
 
-/** The Website step of an app on the hosted API: nothing to fill in. */
-export function HostedWebsiteStep({ apiUrl, signInMethods = ["phone"] }: { apiUrl: string; signInMethods?: SignInMethod[] }) {
+/** The results of the API check, one line each. */
+function ApiCheckList({ result }: { result: ApiCheckResult }) {
   return (
-    <div className="flex flex-wrap items-start gap-6">
-      <StepCard title="Website" id="h-website">
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app runs on the Yallapp hosted API, so it doesn&apos;t need a website. Your customers sign in with{" "}
-          {codeDeliveryText(signInMethods)}, and you send them notifications from{" "}
-          <Link href="/dashboard/notifications">App notifications</Link>.
-        </p>
-        <div className="flex flex-col gap-1 rounded-xl border border-line bg-sand p-4">
-          <span className="text-sm font-semibold">Your app&apos;s API address</span>
-          <code className="text-[13px] break-all">{apiUrl}</code>
-        </div>
-        <p className="m-0 text-sm text-muted">Our team set this up for you. Message us on WhatsApp to change it.</p>
-        <div className="flex justify-end pt-1.5">
-          <Link href="/dashboard/setup?step=branding" className={`${btn.primary} h-11`}>
-            Continue
-          </Link>
-        </div>
-      </StepCard>
-    </div>
+    <ul aria-live="polite" className="m-0 flex list-none flex-col gap-1.5 p-0">
+      {result.checks.map((c) => (
+        <li key={c.id} className="flex items-start gap-2 text-sm">
+          <Icon name={c.ok ? "check_circle" : "cancel"} size={18} filled className={c.ok ? "text-success" : "text-danger"} />
+          <span>
+            <span className="font-semibold">{c.label}</span>
+            {c.detail ? <span className="text-ink-4"> · {c.detail}</span> : null}
+            <span className="sr-only">{c.ok ? " (passed)" : " (failed)"}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -197,6 +192,7 @@ export function WebsiteStep({
   hidden = [],
   signInMethods = ["phone"],
   emailOnlyUsers = 0,
+  hostedWithoutSource = false,
 }: {
   /** Choices the team switched off (11.5); the app's own choice is never in it. */
   hidden?: Backend[];
@@ -204,6 +200,8 @@ export function WebsiteStep({
   signInMethods?: SignInMethod[];
   /** 19 Customers who signed up by email: a connected platform (phone only) would lock them out. */
   emailOnlyUsers?: number;
+  /** 19 Our team moved the app to the hosted API, but nothing gives it content yet. */
+  hostedWithoutSource?: boolean;
   /** The platforms this app type can connect. */
   platforms: PlatformOption[];
   /** The connected platform: its values that aren't secret, and which secrets are saved. */
@@ -224,8 +222,11 @@ export function WebsiteStep({
   /** Whether an Admin API token (order history) is saved. */
   shopifyAdmin: boolean;
 }) {
-  const [state, action] = useActionState(saveWebsiteAction, initialFormState);
+  const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
+  // 19 The check that ran when the API was saved, unless one was run since with the button.
+  const checkResult = check.result ?? state.apiCheck ?? null;
+  const savedWithFailedCheck = Boolean(state.apiCheck && !state.apiCheck.ok);
   const offered = BACKENDS.filter(
     (b) => (!b.appTypes || b.appTypes.includes(appType)) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
   ).map((b) => b.id);
@@ -237,6 +238,14 @@ export function WebsiteStep({
       <input type="hidden" name="backend" value={choice} />
       <StepCard title="Website" id="h-website">
         <FormMessage message={state.message} />
+        {hostedWithoutSource ? (
+          <p role="status" className="m-0 flex gap-2 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
+            <Icon name="info" size={20} className="text-muted" />
+            <span>
+              Our team moved your app to the Yallapp hosted API, but nothing gives it content yet. Choose where it comes from below.
+            </span>
+          </p>
+        ) : null}
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
           <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
           {BACKENDS.filter((b) => !b.appTypes || b.appTypes.includes(appType))
@@ -309,10 +318,10 @@ export function WebsiteStep({
           <PlatformFields platforms={platforms} saved={platformSaved} state={state} />
         ) : (
           <Field
-            label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
+            label={choice === "wordpress" ? "Your WordPress website" : choice === "setup_requested" ? "Your current website (optional)" : "Your website"}
             name="siteUrl"
             type="url"
-            required
+            required={choice !== "setup_requested"}
             defaultValue={v(state, "siteUrl", siteUrl)}
             placeholder={choice === "shopify" || appType === "store" ? "https://your-shop.com" : "https://your-academy.com"}
             hint={
@@ -414,27 +423,16 @@ export function WebsiteStep({
                 </button>
               </div>
               {check.error ? <span className="text-sm text-danger">{check.error}</span> : null}
-              {check.result ? (
-                <ul aria-live="polite" className="m-0 flex list-none flex-col gap-1.5 p-0">
-                  {check.result.checks.map((c) => (
-                    <li key={c.id} className="flex items-start gap-2 text-sm">
-                      <Icon
-                        name={c.ok ? "check_circle" : "cancel"}
-                        size={18}
-                        filled
-                        className={c.ok ? "text-success" : "text-danger"}
-                      />
-                      <span>
-                        <span className="font-semibold">{c.label}</span>
-                        {c.detail ? <span className="text-ink-4"> · {c.detail}</span> : null}
-                        <span className="sr-only">{c.ok ? " (passed)" : " (failed)"}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+              {checkResult ? (
+                <ApiCheckList result={checkResult} />
               ) : (
                 <span className="text-sm text-ink-4">We call your API the way the app does and show what&apos;s missing.</span>
               )}
+              {savedWithFailedCheck ? (
+                <Link href="/dashboard/setup?step=branding" className="text-sm font-semibold">
+                  Continue the setup in the meantime
+                </Link>
+              ) : null}
             </div>
           </>
         ) : null}
@@ -480,7 +478,7 @@ export function WebsiteStep({
               <Icon name="chat" size={20} className="text-muted" />
               <span>
                 {setupRequestedAt
-                  ? `You asked us on ${setupRequestedAt}. Our team will message you on WhatsApp. When your WordPress site is ready, choose "My WordPress site" here.`
+                  ? `You asked us on ${setupRequestedAt}. Our team will message you on WhatsApp. When your WordPress site is ready, your app moves to it and we email you. You can also choose "My WordPress site" here yourself.`
                   : "Our team messages you on WhatsApp with the price and the next steps. Your first build starts once your WordPress site is ready."}
               </span>
             </div>
@@ -1169,6 +1167,20 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
   );
 }
 
+/** 19 Who publishes the app, on plans with "We publish for you". */
+const PUBLISHING_CHOICES: { id: "managed" | "self"; title: string; text: string }[] = [
+  {
+    id: "managed",
+    title: "Publish it for me",
+    text: "Our team publishes your app on the stores and keeps it there, under your own developer accounts. You create the accounts and invite us.",
+  },
+  {
+    id: "self",
+    title: "I'll publish it myself",
+    text: "Add your store keys and we upload every build you start to your own store accounts.",
+  },
+];
+
 export function PublishingStep({
   autoPublish,
   ios,
@@ -1189,6 +1201,7 @@ export function PublishingStep({
   teamPublishes?: boolean;
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
+  const [mode, setMode] = useState<"managed" | "self">(teamPublishes ? "managed" : "self");
   const teamNotice = teamPublishes ? (
     <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
       <Icon name="check_circle" size={20} filled className="text-success" />
@@ -1232,8 +1245,8 @@ export function PublishingStep({
               Your plan builds the Android app. Upgrade to get your app on the App Store too.
             </UpgradeHint>
           )}
-          <UpgradeHint title="We publish for you" to={upgrade.managed}>
-            We upload your apps and every update to the stores for you.
+          <UpgradeHint title="Publish it for me" to={upgrade.managed}>
+            Our team publishes your app on the stores for you, under your own developer accounts, and uploads every update.
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
@@ -1249,28 +1262,67 @@ export function PublishingStep({
 
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      {/* Sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="publishingMode" value={mode} />
       <StepCard title="Publishing" id="h-publishing">
-        {teamNotice}
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          We use these keys only to upload the builds you start. They&apos;re encrypted, never shown again, and you can remove them at any time.
-        </p>
         <FormMessage message={state.message} />
-
-        <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
-          <legend className="px-1 text-[15px] font-bold">Google Play</legend>
-          {saved.play ? <SavedKey title="Service account key" detail={saved.play.clientEmail ?? "JSON key"} store="google-play" /> : null}
-          <FileInput
-            name="googlePlayFile"
-            label={saved.play ? "Replace the service account key (JSON)" : "Service account key (JSON)"}
-            accept="application/json,.json"
-            hint="From Google Cloud › IAM › Service accounts › Keys. Give the account access to your app in Play Console."
-            error={state.errors?.googlePlayFile}
-          />
+        {/* 19 The same choice as on the Publishing page. */}
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="mb-2 text-sm font-semibold">Who publishes your app</legend>
+          {PUBLISHING_CHOICES.map((c) => (
+            <label
+              key={c.id}
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
+            >
+              <input
+                type="radio"
+                name="publishingModeChoice"
+                value={c.id}
+                checked={mode === c.id}
+                onChange={() => setMode(c.id)}
+                className="mt-1 h-4 w-4 accent-midnight"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{c.title}</span>
+                <span className="text-sm text-ink-4">{c.text}</span>
+              </span>
+            </label>
+          ))}
         </fieldset>
 
-        {ios ? (
-          <AppStoreKeyFields state={state} saved={saved.appStore} />
+        {mode === "managed" ? (
+          (teamNotice ?? (
+            <p className="m-0 flex gap-2 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
+              <Icon name="storefront" size={20} className="text-muted" />
+              <span>
+                No store keys needed. After this step, the <Link href="/dashboard/publishing">Publishing</Link> page shows you how to create your
+                developer accounts and invite our team. We never ask for your passwords.
+              </span>
+            </p>
+          ))
         ) : (
+          <>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+              We use these keys only to upload the builds you start. They&apos;re encrypted, never shown again, and you can remove them at any time.
+            </p>
+
+            <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+              <legend className="px-1 text-[15px] font-bold">Google Play</legend>
+              {saved.play ? <SavedKey title="Service account key" detail={saved.play.clientEmail ?? "JSON key"} store="google-play" /> : null}
+              <FileInput
+                name="googlePlayFile"
+                label={saved.play ? "Replace the service account key (JSON)" : "Service account key (JSON)"}
+                accept="application/json,.json"
+                hint="From Google Cloud › IAM › Service accounts › Keys. Give the account access to your app in Play Console."
+                error={state.errors?.googlePlayFile}
+              />
+            </fieldset>
+
+            {ios ? <AppStoreKeyFields state={state} saved={saved.appStore} /> : null}
+          </>
+        )}
+
+        {ios ? null : (
           <UpgradeHint title="iOS app" to={upgrade.ios}>
             Your plan builds the Android app. Upgrade to get your app on the App Store too.
           </UpgradeHint>

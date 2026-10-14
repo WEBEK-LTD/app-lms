@@ -6,6 +6,7 @@ import { Icon } from "@/components/icon";
 import { LinkCard } from "@/components/dashboard";
 import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
 import { hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
+import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import {
@@ -126,6 +127,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const autoPublish = currentPlan ? hasFeature(currentPlan, "auto_publish") : false;
   const keys = hasStoreKeys(app);
   const plugin = usesPlugin(app);
+  // 19 The app's own API failed its last check: builds work, but the app can't load its content.
+  const apiProblem = await failedApiCheck(store, app);
 
   // Each Download button opens a route that signs a fresh 15-minute link when clicked, so it never expires on an open page.
   const fileRow = (kind: ArtifactKind) => {
@@ -186,6 +189,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       {typeof queued === "string" && /^\d+$/.test(queued) ? (
         <Notice tone="success" icon="check_circle" role="status">
           Build #{queued} is queued. We&apos;ll email you when your files are ready.
+        </Notice>
+      ) : null}
+
+      {apiProblem ? (
+        <Notice tone="warn" icon="warning">
+          Your API didn&apos;t pass its last check: {apiProblem.body} <Link href="/dashboard/setup?step=website">Check your API</Link>
         </Notice>
       ) : null}
 

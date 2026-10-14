@@ -347,7 +347,9 @@ describe("hosted API", () => {
     });
     const config = buildConfigFor(app, { id: app.clientId }, { name: "1.0.0", code: 1 }, (id) => `https://x/${id}`);
     expect(config.api_base_url).toBe(`https://yallapp.test/api/app/${app.id}`);
-    expect(websiteReady(app)).toBe(true);
+    // 19 Moved to the hosted API by our team, but nothing serves content yet: the Website step stays open.
+    expect(websiteReady(app)).toBe(false);
+    expect(websiteReady({ ...app, connector: { kind: "catalog" } })).toBe(true);
     const valid = validateBuildConfig({ ...config, app_name: "Rose", short_name: "Rose", site_url: "https://rose.test", android_package: "com.rose.app", ios_bundle_id: "com.rose.app" });
     expect(valid.ok ? [] : valid.errors).toEqual([]);
   });

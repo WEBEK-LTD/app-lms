@@ -48,7 +48,10 @@ export default async function PagesPage() {
       ? "Your app gets published changes the next time it opens."
       : app.backend === "wordpress"
         ? "The Yallapp plugin on your site picks up published changes within 15 minutes; Refresh in the plugin settings gets them at once."
-        : null;
+        : app.backend === "setup_requested"
+          ? // 19 The pages reach the app through the plugin on the site our team sets up.
+            "Once our team has set up your WordPress site, the Yallapp plugin on it picks up what you publish here within 15 minutes."
+          : null;
 
   return (
     <div className="flex flex-col gap-6">

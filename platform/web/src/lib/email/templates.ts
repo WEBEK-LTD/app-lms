@@ -24,6 +24,7 @@ export type EmailTemplateKey =
   | "build_failed"
   | "build_failed_team"
   | "setup_request"
+  | "wordpress_ready"
   | "new_order"
   | "new_appointment"
   | "new_inquiry"
@@ -205,6 +206,23 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "{{client_name}} asked us to set up WordPress for their app.\nWebsite: {{website}}\nWhatsApp: {{whatsapp}}\nEmail: {{email}}\nApp type: {{app_type}}\n{{note_line}}\n" +
       "Requests are listed on the super admin Clients page.",
+  },
+  // 19 The answer to a set-up request.
+  {
+    key: "wordpress_ready",
+    name: "WordPress site ready",
+    description: "To a client when the WordPress site our team set up for their app is ready: the team marks it ready, or the plugin is activated on it.",
+    placeholders: [
+      NAME,
+      APP_NAME,
+      { name: "website", description: "The new WordPress site", sample: "https://academy.example" },
+      { name: "setup_url", description: "The link to the app's setup", sample: "https://yallapp.com.tr/dashboard/open/sample?to=setup" },
+    ],
+    subject: "{{app_name}}: your WordPress site is ready",
+    body:
+      "Hello {{name}},\n\nYour WordPress site is ready: {{website}}\n\n{{app_name}} now gets its content from it, through the Yallapp plugin. " +
+      "Finish the remaining setup steps and your first build starts:\n\n{{setup_url}}" +
+      SIGNATURE,
   },
   {
     key: "new_order",

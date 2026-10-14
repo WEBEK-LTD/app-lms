@@ -20,13 +20,15 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, DEFAULT_HOSTED_SETTINGS, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
-import { encryptionKey, superAdminEmails } from "@/lib/env";
+import { appUrl, encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { ShopifyConnector, ShopifyPermissionError } from "@/lib/hosted/connectors/shopify";
 import { emailOffWarning, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
 import { sendTemplate } from "@/lib/email/send";
+import { choosePublishingMode } from "@/lib/publishing/service";
+import { recordApiCheck, resolveApiCheckNotices } from "@/lib/app/api-check-notice";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
@@ -177,7 +179,12 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   redirect(stepUrl("website"));
 }
 
-export async function saveWebsiteAction(_: FormState, formData: FormData): Promise<FormState> {
+export interface WebsiteFormState extends FormState {
+  /** 19 The API check run when the owner saved their own API, when it failed. */
+  apiCheck?: ApiCheckResult;
+}
+
+export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData): Promise<WebsiteFormState> {
   const context = await requireApp();
   const values = formValues(formData);
   const parsed = websiteSchema.safeParse(Object.fromEntries(formData));
@@ -187,9 +194,13 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   const data = parsed.data;
   // 11.5 Switches: a switched-off website or platform can't be chosen; the app's current one can still be saved.
   const website = data.backend === "catalog" ? noWebsiteFor(context.app.appType) : data.backend === "platform" ? data.platform : data.backend;
-  if (!(context.app.websiteDoneAt && website === websiteOf(context.app)) && !websiteOn(await getSwitches(store), website, context.license?.plan ?? null)) {
+  // 19 An app whose WordPress site our team sets up can always move to that site.
+  const kept = (context.app.websiteDoneAt && website === websiteOf(context.app)) || (website === "wordpress" && context.app.backend === "setup_requested");
+  if (!kept && !websiteOn(await getSwitches(store), website, context.license?.plan ?? null)) {
     return { message: "This choice isn't available. Choose another one, or message us on WhatsApp.", values: { backend: data.backend } };
   }
+  // 19 A failed check of the app's own API no longer applies once it uses something else.
+  if (data.backend !== "custom_api") await resolveApiCheckNotices(store, context.app.id, now);
   if (context.app.appType === "real_estate") {
     // Real estate apps have no website: listings are managed in the dashboard and served by the hosted API.
     if (data.backend !== "catalog") return { errors: { backend: "Real estate apps run on Yallapp. Choose Listings managed in Yallapp." }, values };
@@ -287,6 +298,25 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   if (data.backend === "setup_requested") {
     revalidatePath("/dashboard", "layout");
     return { message: "Thanks! Our team will message you on WhatsApp to set up your WordPress site." };
+  }
+  if (data.backend === "custom_api" && patch.apiBaseUrl) {
+    // 19 Saved either way; a failing check is shown here and stays on the overview and Builds until it passes.
+    const limited = await hitRateLimit(store, RATE_LIMITS.apiCheck, context.client.id);
+    if (limited.allowed) {
+      const result = await checkApi(patch.apiBaseUrl, context.app.appType);
+      await recordApiCheck(store, context.app, result, new Date(), appUrl());
+      await keepApiSignIn(context.app, patch.apiBaseUrl, result, new Date());
+      if (!result.ok) {
+        await recordStaffChange(context, "Saved the Website step of the app (the API check failed)", context.app, (await store.getAppById(context.app.id)) ?? context.app);
+        revalidatePath("/dashboard", "layout");
+        return {
+          ok: true,
+          message: "Saved. Your API didn't pass every check below: your app can't load its content until it does. Fix them, then save again.",
+          values: formValues(formData),
+          apiCheck: result,
+        };
+      }
+    }
   }
   return afterStep(context, "website");
 }
@@ -395,10 +425,10 @@ async function connectPlatform(
 }
 
 /** Tells the team a client wants their WordPress site set up for them. */
-async function notifySetupRequest(context: ClientContext, siteUrl: string, note: string): Promise<void> {
+async function notifySetupRequest(context: ClientContext, siteUrl: string | null, note: string): Promise<void> {
   const values = {
     client_name: context.user.name,
-    website: siteUrl,
+    website: siteUrl ?? "None yet",
     whatsapp: context.client.whatsapp,
     email: context.user.email,
     app_type: APP_TYPE_NAMES[context.app?.appType ?? "lms"],
@@ -412,6 +442,14 @@ export interface ApiCheckState {
   error?: string;
 }
 
+/** 19 Kept for App sign-in, which shows how the API signs people in. */
+async function keepApiSignIn(app: App, address: string, result: ApiCheckResult, now: Date): Promise<void> {
+  if (!result.signIn) return;
+  const apiSignIn = { checkedAt: now.toISOString(), baseUrl: address.replace(/\/+$/, ""), ...result.signIn };
+  const current = (await (await getStore()).getAppById(app.id)) ?? app;
+  await (await getStore()).updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(current.hostedSettings ?? {}), apiSignIn } }, now);
+}
+
 /** Runs the API check against the address in the Website form, without saving it. */
 export async function checkApiAction(_: ApiCheckState, formData: FormData): Promise<ApiCheckState> {
   const context = await requireApp();
@@ -420,11 +458,11 @@ export async function checkApiAction(_: ApiCheckState, formData: FormData): Prom
   const address = String(formData.get("apiBaseUrl") ?? "").trim();
   if (!address) return { result: null, error: "Enter your API's address first." };
   const result = await checkApi(address, context.app.appType);
-  // 19 Kept for App sign-in, which shows how the API signs people in.
-  if (result.signIn) {
-    const now = new Date();
-    const apiSignIn = { checkedAt: now.toISOString(), baseUrl: address.replace(/\/+$/, ""), ...result.signIn };
-    await (await getStore()).updateApp(context.app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(context.app.hostedSettings ?? {}), apiSignIn } }, now);
+  await keepApiSignIn(context.app, address, result, new Date());
+  // 19 A check of the saved address is the app's last check: it updates the notice on the overview and Builds.
+  if (context.app.backend === "custom_api" && context.app.apiBaseUrl === address.replace(/\/+$/, "")) {
+    await recordApiCheck(await getStore(), context.app, result, new Date(), appUrl());
+    revalidatePath("/dashboard", "layout");
   }
   return { result };
 }
@@ -610,6 +648,9 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
     await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
     return afterStep(context, "publishing");
   }
+  // 19 Who publishes: "managed" (our team, through invitations) or "self" (with the store keys).
+  const mode = formData.get("publishingMode");
+  const chosen = mode === "managed" || mode === "self" ? mode : null;
 
   const playJson = (await fileText(formData.get("googlePlayFile"), 20_000)) ?? null;
   if (playJson !== null) {
@@ -621,14 +662,18 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
     }
   }
 
-  if (Object.keys(errors).length > 0) return { errors, values };
+  if (Object.keys(errors).length > 0) return { errors, values: { ...values, ...(chosen ? { publishingMode: chosen } : {}) } };
   const hasPlay = Boolean(patch.googlePlayKeyEncrypted ?? app.googlePlayKeyEncrypted);
   const hasAppStore = Boolean((patch.ascPrivateKeyEncrypted ?? app.ascPrivateKeyEncrypted) && (patch.ascKeyId ?? app.ascKeyId));
   // When our team publishes the app for them (14.1), we work through their invitations: no key needed.
-  if (!hasPlay && !hasAppStore && app.publishingMode !== "managed") {
-    return { message: "Add your Google Play key, your App Store Connect key, or both.", values };
+  if (!hasPlay && !hasAppStore && (chosen ?? app.publishingMode) !== "managed") {
+    return { message: "Add your Google Play key, your App Store Connect key, or both. Or choose “Publish it for me”.", values: { ...values, publishingMode: "self" } };
   }
   await store.updateApp(app.id, { ...patch, publishingDoneAt: now }, now);
+  // 19 "Publish it for me" or "I'll publish it myself", chosen here: the same as on the Publishing page.
+  if (chosen && chosen !== app.publishingMode) {
+    await choosePublishingMode(store, { ...context, app: (await store.getAppById(app.id)) ?? app }, chosen, now);
+  }
   return afterStep(context, "publishing");
 }
 

@@ -10,6 +10,8 @@ export interface NavItem {
   /** Also current for paths that start with this prefix. */
   prefix?: string;
   exact?: boolean;
+  /** 19 A count next to the label (things waiting), with what it counts for screen readers. */
+  badge?: { count: number; label: string };
 }
 
 /** Sidebar links; a row of pills on small screens, a column from md up. */
@@ -34,8 +36,17 @@ export function SideNavLinks({ items, dark = false }: { items: NavItem[]; dark?:
             {item.label}
           </a>
         ) : (
-          <Link key={item.href} href={item.href} aria-current={current ? "page" : undefined} className={`${base} ${style}`}>
+          <Link key={item.href} href={item.href} aria-current={current ? "page" : undefined} className={`${base} ${style} gap-2`}>
             {item.label}
+            {item.badge && item.badge.count > 0 ? (
+              <span
+                data-nav-badge=""
+                className="ml-auto inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-ember px-1.5 text-xs font-bold text-white"
+              >
+                {item.badge.count}
+                <span className="sr-only"> {item.badge.label}</span>
+              </span>
+            ) : null}
           </Link>
         );
       })}

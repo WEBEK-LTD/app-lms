@@ -19,13 +19,18 @@ import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "deviceLimit", "supportWhatsapp", "termsUrl", "reviewPhone", "reviewEmail", "reviewCode"];
 
-/** 18 App sign-in is for apps on the hosted API and WordPress apps (the methods and the WhatsApp number). */
+/**
+ * 18 App sign-in is for apps on the hosted API and WordPress apps (the methods
+ * and the WhatsApp number). 19 Also for apps waiting for the WordPress site
+ * our team sets up: their choice applies once the site is ready.
+ */
 async function signInContext(hostedOnly = false) {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;
-  if (!app || !(app.backend === "hosted" || (!hostedOnly && app.backend === "wordpress"))) redirect("/dashboard");
+  const wordpress = app?.backend === "wordpress" || app?.backend === "setup_requested";
+  if (!app || !(app.backend === "hosted" || (!hostedOnly && wordpress))) redirect("/dashboard");
   return { context, app };
 }
 
@@ -77,7 +82,9 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
   return {
     ok: true,
     message:
-      app.backend === "wordpress"
+      app.backend === "setup_requested"
+        ? "Saved. It applies as soon as your WordPress site and the Yallapp plugin are ready."
+        : app.backend === "wordpress"
         ? "Saved. Your website gets it at the plugin's next license check (within 12 hours), or at once with Check now in the plugin."
         : "Saved. The app shows it the next time it opens; no new build is needed.",
     values: { methods: choice },

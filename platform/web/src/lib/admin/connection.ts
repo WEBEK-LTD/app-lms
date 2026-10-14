@@ -44,7 +44,21 @@ export async function checkConnection(store: DataStore, app: App, key: Buffer): 
     }
   }
   if (app.backend === "hosted") return { ok: false, message: "The app is on the hosted API but nothing is connected yet.", problems: [] };
-  if (app.backend === "setup_requested") return { ok: false, message: "Waiting for our team to set up WordPress.", problems: [] };
+  if (app.backend === "setup_requested") {
+    // 19 The plugin may already be active on the new site (activated before the client asked): check that site.
+    const license = await store.getLicenseForApp(app.clientId, app.id);
+    const activation = license ? await store.getActivation(license.id) : null;
+    if (!activation) return { ok: false, message: "Waiting for our team to set up WordPress: the plugin isn't active on a site yet.", problems: [] };
+    const base = `https://${activation.siteUrl}/wp-json/yallapp/v1`;
+    const result = await checkApi(base, app.appType);
+    return {
+      ok: false,
+      message: result.ok
+        ? `The plugin is active on ${activation.siteUrl} and answers as the app expects. Use “WordPress is ready” to move the app to it.`
+        : `The plugin is active on ${activation.siteUrl}, but it doesn't answer as the app expects yet.`,
+      problems: result.checks.filter((c) => !c.ok).map((c) => (c.detail ? `${c.label}: ${c.detail}` : c.label)),
+    };
+  }
   const base = app.backend === "custom_api" ? app.apiBaseUrl : app.siteUrl ? `${app.siteUrl.replace(/\/+$/, "")}/wp-json/yallapp/v1` : null;
   if (!base) return { ok: false, message: "No website address is saved yet.", problems: [] };
   const result = await checkApi(base, app.appType);

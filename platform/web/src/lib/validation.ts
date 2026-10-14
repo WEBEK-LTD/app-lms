@@ -115,7 +115,18 @@ export const websiteSchema = z.discriminatedUnion("backend", [
   z.object({ backend: z.literal("platform"), platform: z.string().trim().min(1, "Choose a platform.").max(40) }),
   z.object({
     backend: z.literal("setup_requested"),
-    siteUrl: httpsSiteUrl,
+    // 19 Optional: clients without any website ask us too. Empty is saved as null.
+    siteUrl: z
+      .string()
+      .optional()
+      .default("")
+      .transform((value, ctx) => {
+        if (!value.trim()) return null;
+        const parsed = httpsSiteUrl.safeParse(value);
+        if (parsed.success) return parsed.data;
+        ctx.addIssue({ code: "custom", message: parsed.error.issues[0]?.message ?? "Enter a full address, e.g. https://your-academy.com." });
+        return z.NEVER;
+      }),
     setupNote: z.string().trim().max(1000, "Use at most 1000 characters.").optional().default(""),
   }),
 ]);

@@ -1167,18 +1167,27 @@ export interface PublishingRequest {
   requestedAt: Date | null;
   /** When the client finished the checklist; null while steps are open. */
   readyAt: Date | null;
+  /**
+   * 19 When the last email to the publishing team wasn't sent (SMTP missing or
+   * failing); null (or absent) once one goes out. Shown on the request in the admin.
+   */
+  teamEmailFailedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/** One status change, for the history on the dashboard and in the admin. */
+/**
+ * One status change, for the history on the dashboard and in the admin. 19 Or
+ * the client choosing how the app is published: store "mode", status the
+ * mode they chose ("managed" or "self").
+ */
 export interface PublishingEvent {
   id: number;
   appId: string;
-  store: PublishingStore;
-  status: PublishingStatus;
+  store: PublishingStore | "mode";
+  status: PublishingStatus | PublishingMode;
   note: string | null;
-  /** The team member who changed it. */
+  /** The team member who changed it (or the client, for a mode change). */
   actorEmail: string;
   at: Date;
 }
@@ -1199,7 +1208,15 @@ export interface PlatformSettingValues {
  * What the dashboard tells an app's owner, also sent by email: app users near
  * or at the plan's limit, and the plan ending in 7 days, tomorrow or today.
  */
-export type OwnerNoticeKind = "app_users_80" | "app_users_100" | "plan_ends_7" | "plan_ends_1" | "plan_ends_0";
+export type OwnerNoticeKind =
+  | "app_users_80"
+  | "app_users_100"
+  | "plan_ends_7"
+  | "plan_ends_1"
+  | "plan_ends_0"
+  // 19 The WordPress site our team set up is ready; the app's own API failed its last check.
+  | "wordpress_ready"
+  | "api_check_failed";
 
 export interface OwnerNotice {
   id: number;

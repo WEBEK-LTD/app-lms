@@ -4,11 +4,15 @@ import { SideNavLinks } from "@/components/side-nav";
 import { SignOutButton } from "@/components/sign-out";
 import { ROLE_LABELS } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
+import { getStore } from "@/lib/data";
+import { openPublishingCount } from "@/lib/publishing/steps";
 
 export const metadata: Metadata = { title: { default: "Super admin", template: "%s · Yallapp admin" }, robots: { index: false } };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin();
+  // 19 "Publish it for me" requests not live on both stores yet.
+  const openPublishing = openPublishingCount(await (await getStore()).listManagedPublishingRequests());
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
       <nav aria-label="Super admin" className="on-dark flex w-full flex-col gap-3 bg-midnight px-3.5 py-4 md:w-[240px] md:flex-none md:gap-1 md:py-[22px]">
@@ -22,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             { href: "/admin", label: "Overview", exact: true },
             { href: "/admin/clients", label: "Clients" },
             { href: "/admin/builds", label: "Build queue" },
-            { href: "/admin/publishing", label: "Publishing" },
+            { href: "/admin/publishing", label: "Publishing", badge: { count: openPublishing, label: openPublishing === 1 ? "open request" : "open requests" } },
             { href: "/admin/demos", label: "Demo apps" },
             { href: "/admin/releases", label: "App & plugin versions" },
             { href: "/admin/plans", label: "Plans" },

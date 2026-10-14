@@ -881,8 +881,9 @@ export const publishingEvents = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    store: varchar("store", { length: 8 }).notNull().$type<PublishingStore>(),
-    status: varchar("status", { length: 16 }).notNull().$type<PublishingStatus>(),
+    // 19 Also "mode" with the mode chosen ("managed" or "self") as the status.
+    store: varchar("store", { length: 8 }).notNull().$type<PublishingStore | "mode">(),
+    status: varchar("status", { length: 16 }).notNull().$type<PublishingStatus | PublishingMode>(),
     note: text("note"),
     actorEmail: varchar("actor_email", { length: 191 }).notNull(),
     at: time("at").notNull(),

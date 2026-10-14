@@ -12,11 +12,11 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinitions } from "@/lib/hosted/connectors/registry";
-import { chosenSignInMethods, emailOnlyUsersAtRisk, hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
+import { chosenSignInMethods, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
 import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
-import { BrandingStep, HostedWebsiteStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
+import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
 import { getPlans } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 
@@ -28,7 +28,7 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
   listing:
     "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
   publishing:
-    "When we publish for you: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). When you publish yourself: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or ask our team to publish it from the Publishing page.",
+    "When we publish for you: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). When you publish yourself: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or choose “Publish it for me” and our team publishes it.",
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
@@ -47,7 +47,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   // 11.5 Switches: switched-off websites and platforms aren't offered; the app's own stays, with a notice.
   const switches = await getSwitches(store);
   const currentWebsite = websiteOf(app);
-  const offered = (website: string) => (app.websiteDoneAt !== null && website === currentWebsite) || websiteOn(switches, website, plan);
+  // 19 An app waiting for the WordPress site our team sets up can always move to it.
+  const offered = (website: string) =>
+    (app.websiteDoneAt !== null && website === currentWebsite) ||
+    (website === "wordpress" && app.backend === "setup_requested") ||
+    websiteOn(switches, website, plan);
   const websiteSwitchedOff = app.websiteDoneAt !== null && !websiteOn(switches, currentWebsite, plan);
   const activation = license ? await store.getActivation(license.id) : null;
   const icon = app.iconAssetId ? await store.getAsset(app.iconAssetId) : null;
@@ -131,16 +135,14 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         })}
       </ol>
 
-      {step === "website" && app.backend === "hosted" && !app.connector ? (
-        <HostedWebsiteStep apiUrl={hostedApiUrl(appUrl(), app.id)} signInMethods={hostedSignInMethods(app)} />
-      ) : null}
       {step === "website" && websiteSwitchedOff ? (
         <Notice tone="warn" icon="info" role="status">
           What your app is connected to isn&apos;t offered to new apps anymore. Your app keeps working with it.
         </Notice>
       ) : null}
-      {step === "website" && (app.backend !== "hosted" || app.connector) ? (
+      {step === "website" ? (
         <WebsiteStep
+          hostedWithoutSource={app.backend === "hosted" && !app.connector}
           hidden={(["wordpress", "custom_api", "setup_requested", "shopify", "catalog"] as const).filter(
             (b) => !offered(b === "catalog" ? noWebsiteFor(app.appType) : b),
           )}
