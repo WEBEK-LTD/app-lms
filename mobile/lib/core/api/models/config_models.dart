@@ -118,11 +118,8 @@ class SiteInfo {
   final String? supportEmail;
 
   /// How users reach the app's owner, from this config.
-  OwnerContact get contact => OwnerContact(
-    name: name,
-    whatsapp: supportWhatsapp,
-    email: supportEmail,
-  );
+  OwnerContact get contact =>
+      OwnerContact(name: name, whatsapp: supportWhatsapp, email: supportEmail);
 }
 
 /// `OwnerContact`: how app users reach the app's owner (the business behind

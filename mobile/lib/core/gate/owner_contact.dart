@@ -51,7 +51,11 @@ OwnerContact resolveOwnerContact(WidgetRef ref, OwnerContact? fromError) {
       : (kept != null && kept.reachable ? kept : fromError);
   if (contact == null) return OwnerContact(name: name);
   return contact.name.trim().isEmpty
-      ? OwnerContact(name: name, whatsapp: contact.whatsapp, email: contact.email)
+      ? OwnerContact(
+          name: name,
+          whatsapp: contact.whatsapp,
+          email: contact.email,
+        )
       : contact;
 }
 

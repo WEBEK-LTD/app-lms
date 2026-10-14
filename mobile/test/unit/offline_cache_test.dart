@@ -75,21 +75,30 @@ void main() {
     await get('/courses');
     server.offline = true;
     await expectLater(get('/courses'), throwsA(isA<DioException>()));
-    expect(prefs.getKeys().where((k) => k.startsWith('offline.entry.')), isEmpty);
+    expect(
+      prefs.getKeys().where((k) => k.startsWith('offline.entry.')),
+      isEmpty,
+    );
   });
 
-  test('with offline mode, the last answer comes back without a connection', () async {
-    await cache.setEnabled(true);
-    final online = await get('/courses');
-    server.offline = true;
-    expect(await get('/courses'), online);
-    // Never seen before: still an error.
-    await expectLater(get('/products'), throwsA(isA<DioException>()));
-    // Sign-in calls are never kept.
-    server.offline = false;
-    await get('/auth/something');
-    expect(cache.read('GET https://x.test/api/app/1/auth/something '), isNull);
-  });
+  test(
+    'with offline mode, the last answer comes back without a connection',
+    () async {
+      await cache.setEnabled(true);
+      final online = await get('/courses');
+      server.offline = true;
+      expect(await get('/courses'), online);
+      // Never seen before: still an error.
+      await expectLater(get('/products'), throwsA(isA<DioException>()));
+      // Sign-in calls are never kept.
+      server.offline = false;
+      await get('/auth/something');
+      expect(
+        cache.read('GET https://x.test/api/app/1/auth/something '),
+        isNull,
+      );
+    },
+  );
 
   test('turning it off, or signing out, forgets everything', () async {
     await cache.setEnabled(true);
@@ -99,7 +108,10 @@ void main() {
     expect(prefs.getStringList('offline.index'), isNull);
     await get('/courses');
     await cache.setEnabled(false);
-    expect(prefs.getKeys().where((k) => k.startsWith('offline.entry.')), isEmpty);
+    expect(
+      prefs.getKeys().where((k) => k.startsWith('offline.entry.')),
+      isEmpty,
+    );
   });
 
   test('keeps at most the newest entries', () async {
@@ -107,23 +119,29 @@ void main() {
     for (var i = 0; i < OfflineCache.maxEntries + 5; i++) {
       await cache.write('GET /page/$i', {'i': i});
     }
-    expect(prefs.getStringList('offline.index'), hasLength(OfflineCache.maxEntries));
+    expect(
+      prefs.getStringList('offline.index'),
+      hasLength(OfflineCache.maxEntries),
+    );
     expect(cache.read('GET /page/0'), isNull);
-    expect(cache.read('GET /page/${OfflineCache.maxEntries + 4}'), {'i': OfflineCache.maxEntries + 4});
+    expect(cache.read('GET /page/${OfflineCache.maxEntries + 4}'), {
+      'i': OfflineCache.maxEntries + 4,
+    });
   });
 
   test('reads the owner contact and offline mode from the contract', () {
     final error = ApiException.fromResponse(503, {
       'code': 'license_inactive',
       'message': 'Rose Shop is paused right now.',
-      'contact': {'name': 'Rose Shop', 'whatsapp': '+905321112233', 'email': null},
+      'contact': {
+        'name': 'Rose Shop',
+        'whatsapp': '+905321112233',
+        'email': null,
+      },
     });
     expect(error.contact?.name, 'Rose Shop');
     expect(error.contact?.whatsapp, '+905321112233');
     expect(error.contact?.reachable, isTrue);
-    expect(
-      const OwnerContact(name: 'A').reachable,
-      isFalse,
-    );
+    expect(const OwnerContact(name: 'A').reachable, isFalse);
   });
 }

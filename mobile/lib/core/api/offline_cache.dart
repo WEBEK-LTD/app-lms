@@ -102,7 +102,10 @@ class OfflineCacheInterceptor extends Interceptor {
       !options.path.startsWith('/auth');
 
   @override
-  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     final options = response.requestOptions;
     final data = response.data;
     if (_cache.enabled &&

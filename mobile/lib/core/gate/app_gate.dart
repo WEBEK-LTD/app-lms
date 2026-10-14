@@ -62,8 +62,7 @@ GateState gateStateForConfig(AppConfig config) {
 /// Decides the gate state from an error, or null if it isn't a stop code.
 GateState? gateStateForError(ApiException error) => switch (error.code) {
   ApiException.maintenance => GateMaintenance(error.message),
-  ApiException.licenseInactive ||
-  ApiException.accountSuspended => GatePaused(
+  ApiException.licenseInactive || ApiException.accountSuspended => GatePaused(
     error.message,
     contact: error.contact,
     suspended: error.code == ApiException.accountSuspended,
