@@ -15,8 +15,9 @@ devices. Everything else is in the code. Tick each line when it's done.
 
 ## 2. Yallapp admin (`/admin`, signed in as a super admin)
 
-- [ ] **Settings › Sign-in codes:** choose WhatsApp Cloud API (phone number ID
-      and access token) or our SMS/WhatsApp gateway, then send a test code.
+- [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key), the
+      WhatsApp Cloud API (phone number ID and access token) or our SMS gateway,
+      then sign in once to a test app on the hosted API.
 - [ ] **Settings › Email (SMTP):** host, port, user, password and the sender
       address, then send the test email.
 - [ ] **Settings › Yallapp iyzico account:** live API key and secret key (keep
@@ -50,7 +51,7 @@ devices. Everything else is in the code. Tick each line when it's done.
 | 6.1, 6.2 | A client site on LearnPress or LifterLMS |
 | 6.4 | A real LearnDash site (LearnDash isn't on wordpress.org) |
 | 8.1 | A client API that passes the dashboard's live check |
-| 8.3 | Our WhatsApp Cloud API number or SMS gateway |
+| 8.3 | A WABEK API key (or our WhatsApp Cloud API number, or an SMS gateway) |
 | 8.4 | A Shopify development store (Storefront token, and an Admin API token for order history) |
 | 8.5 | A test account on each platform: ikas, Ticimax, IdeaSoft, Teachable (Growth plan), Thinkific (Grow plan), SimplyBook.me (API feature) |
 | 8.6, 9.4, 9.5 | An iyzico sandbox account, then the live account |

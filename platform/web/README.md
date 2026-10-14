@@ -135,9 +135,10 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's 10-minute schedule. |
 | `GITHUB_REPOSITORY` | no | Default `WEBEK-LTD/app-lms`. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
-| `OTP_SENDER` | for the hosted API | How sign-in codes are sent: `whatsapp`, `webhook` or `log` (local only; the default in memory mode). Unset: code requests fail with `provider_error`. The admin's Settings page can set this instead (it then replaces all `OTP_*` and `WHATSAPP_*` variables). |
+| `OTP_SENDER` | for the hosted API | How sign-in codes are sent: `whatsapp`, `webhook`, `waabek` or `log` (local only; the default in memory mode). Unset: code requests fail with `provider_error`. The admin's Settings page can set this instead (it then replaces all `OTP_*`, `WHATSAPP_*` and `WAABEK_*` variables). |
 | `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | with `whatsapp` | WhatsApp Cloud API credentials of our business number. |
 | `WHATSAPP_OTP_TEMPLATE`, `WHATSAPP_OTP_LANGUAGE` | no | The approved authentication template (default `yallapp_code`, `en`), with the code in the body and a copy-code button. |
+| `WAABEK_API_KEY`, `WAABEK_API_URL` | with `waabek` | WABEK's OTP API: the account's API key (sent as `X-API-Key`), and its address (default `https://waabek.com`). WABEK makes the code, sends it on WhatsApp with its Meta-approved template (`POST /api/otp/send`) and checks it (`POST /api/otp/verify`). |
 | `OTP_WEBHOOK_URL`, `OTP_WEBHOOK_SECRET` | with `webhook` | Our code gateway (for example an SMS provider behind our own endpoint). The body is JSON `{phone, code, app_name, expires_in_seconds}`, signed in `X-Yallapp-Signature: sha256=<base64url HMAC-SHA256 of the body>`. |
 | `IYZICO_API_URL` | tests only | A fake iyzico for end-to-end tests. Leave unset: payments go to iyzico's live or sandbox API, as each client chooses. Refused on Netlify. |
 | `FILES_SIGNING_SECRET` | for Phase 5 | 32+ random characters, the same value as on `files.yallapp.com.tr`. Signs build file download links. Without it they show "Downloads aren't configured yet". |

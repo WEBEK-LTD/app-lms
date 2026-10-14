@@ -5,12 +5,12 @@ import { saveContactAction, saveIyzicoSettingAction, saveMarketplaceAction, save
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
-type OtpKind = "whatsapp" | "webhook" | "off";
+type OtpKind = "whatsapp" | "webhook" | "waabek" | "off";
 
 export function OtpSettingForm({
   current,
 }: {
-  current: { kind: OtpKind | null; phoneNumberId: string; template: string; language: string; url: string };
+  current: { kind: OtpKind | null; phoneNumberId: string; template: string; language: string; url: string; baseUrl: string };
 }) {
   const [state, action] = useActionState(saveOtpSettingAction, initialFormState);
   const [kind, setKind] = useState<OtpKind>((state.values?.kind as OtpKind | undefined) ?? current.kind ?? "whatsapp");
@@ -19,6 +19,7 @@ export function OtpSettingForm({
   const options: { id: OtpKind; title: string; text: string }[] = [
     { id: "whatsapp", title: "WhatsApp", text: "WhatsApp Cloud API with an approved authentication template." },
     { id: "webhook", title: "Our gateway", text: "We post each code to our SMS gateway, signed with a shared secret." },
+    { id: "waabek", title: "WABEK", text: "WABEK sends the code on WhatsApp with its Meta-approved template, and checks it." },
     { id: "off", title: "Off", text: "No codes are sent; customers can't sign in to apps on the hosted API." },
   ];
   return (
@@ -55,6 +56,27 @@ export function OtpSettingForm({
             <Field label="Template" name="template" defaultValue={v("template", current.template || "yallapp_code")} error={state.errors?.template} />
             <Field label="Language" name="language" defaultValue={v("language", current.language || "en")} error={state.errors?.language} />
           </div>
+        </>
+      ) : null}
+      {kind === "waabek" ? (
+        <>
+          <Field
+            label="API key"
+            name="apiKey"
+            type="password"
+            autoComplete="off"
+            placeholder={saved ? "Saved. Paste a new one to replace it." : ""}
+            hint="From your WABEK account. Sent as X-API-Key."
+            error={state.errors?.apiKey}
+          />
+          <Field
+            label="WABEK address"
+            name="baseUrl"
+            type="url"
+            defaultValue={v("baseUrl", current.baseUrl || "https://waabek.com")}
+            hint="Codes go to /api/otp/send and are checked at /api/otp/verify."
+            error={state.errors?.baseUrl}
+          />
         </>
       ) : null}
       {kind === "webhook" ? (

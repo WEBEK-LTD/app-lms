@@ -226,6 +226,10 @@ paths:
         Returns tokens for an existing account. For a phone number with no account,
         returns a one-time `signup_token` to use with `POST /auth/register`
         (only when sign-up from the app is allowed).
+
+        Returns 502 when the code is checked by the OTP provider (on the hosted
+        API with WABEK) and the provider can't be reached; the app asks the
+        user to try again.
       security: []
       requestBody:
         required: true
@@ -250,6 +254,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/ProviderError' }
 
   /auth/register:
     post:
