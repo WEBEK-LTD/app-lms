@@ -61,8 +61,10 @@ export function webhookSender(config: Extract<OtpSenderConfig, { kind: "webhook"
 /**
  * WABEK (waabek.com): `POST /api/v1/send` with the account's key in X-API-Key,
  * from one of its numbers (`instance_id`; WABEK picks one when it's empty).
- * Outside WhatsApp's 24-hour window WABEK sends a message with a code through
- * its approved OTP template, so the code always arrives. Numbers go without "+".
+ * The send is marked as a sign-in code (`type: "otp"` and `code`), so WABEK
+ * uses its approved Authentication template, which WhatsApp delivers whether
+ * or not the person wrote to the number in the last 24 hours (plain text
+ * outside that window fails with error 131047). Numbers go without "+".
  */
 export function waabekSender(config: Extract<OtpSenderConfig, { kind: "waabek" }>, fetcher: Fetch = fetch): OtpSender {
   return {
@@ -73,6 +75,9 @@ export function waabekSender(config: Extract<OtpSenderConfig, { kind: "waabek" }
         body: JSON.stringify({
           to: phone.replace(/^\+/, ""),
           message: `${code} is your ${appName} code. It expires in ${Math.round(expiresInSeconds / 60)} minutes. Don't share it.`,
+          // A sign-in code: WABEK sends it through its approved Authentication template, inside or outside the 24-hour window.
+          type: "otp",
+          code,
           ...(config.instanceId ? { instance_id: config.instanceId } : {}),
         }),
         signal: AbortSignal.timeout(15_000),

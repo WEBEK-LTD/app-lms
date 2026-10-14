@@ -220,7 +220,7 @@ describe("the owner's own WhatsApp number", () => {
     expect(calls[0]).toEqual({
       url: "https://waabek.test/api/v1/send",
       key: "wk-live-secret-1234",
-      body: { to: "905321234567", message: "123456 is your Rose Shop code. It expires in 5 minutes. Don't share it.", instance_id: "inst-7" },
+      body: { to: "905321234567", message: "123456 is your Rose Shop code. It expires in 5 minutes. Don't share it.", type: "otp", code: "123456", instance_id: "inst-7" },
     });
     // Another app can't read it, and an app without one uses Yallapp's sender.
     expect(appOtpSender({ id: "app-2", hostedSettings: { whatsappSender: saved } as App["hostedSettings"] }, KEY, "https://waabek.test", fetcher)).toBeNull();
