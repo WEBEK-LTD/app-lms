@@ -3,7 +3,7 @@ import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
 import { LEGAL_LINE, Logo, LogoLink } from "./brand";
 
-export type SitePage = "home" | "solutions" | "features" | "integrations" | "how" | "pricing" | "docs" | "faq" | "contact";
+export type SitePage = "home" | "solutions" | "features" | "integrations" | "how" | "pricing" | "demo" | "docs" | "faq" | "contact";
 
 export const SITE_PAGES: { id: SitePage; href: string; label: string }[] = [
   { id: "home", href: "/", label: "Home" },
@@ -12,6 +12,7 @@ export const SITE_PAGES: { id: SitePage; href: string; label: string }[] = [
   { id: "integrations", href: "/integrations", label: "Integrations" },
   { id: "how", href: "/how-it-works", label: "How it works" },
   { id: "pricing", href: "/pricing", label: "Pricing" },
+  { id: "demo", href: "/demo", label: "Demo" },
   { id: "docs", href: "/docs", label: "Docs" },
   { id: "faq", href: "/faq", label: "FAQ" },
   { id: "contact", href: "/contact", label: "Contact" },

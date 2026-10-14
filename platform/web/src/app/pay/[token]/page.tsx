@@ -5,6 +5,9 @@ import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/sett
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
+import { demoPayAction } from "@/app/actions/pay";
+import { withDemoChecked } from "@/lib/demo/apps";
+import { Icon } from "@/components/icon";
 import { PayForm } from "./form";
 import { PayShell, textOn } from "./shell";
 
@@ -23,8 +26,9 @@ export default async function PayPage({
   const { payment } = await searchParams;
   const store = await getStore();
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
-  const app = order ? await store.getAppById(order.appId) : null;
-  const note = (title: string, text: string) => (
+  const found = order ? await store.getAppById(order.appId) : null;
+  const app = found ? await withDemoChecked(store, found) : null;
+  const note =(title: string, text: string) => (
     <PayShell app={app}>
       <h1 className="m-0 text-[24px] font-extrabold">{title}</h1>
       <p className="m-0 text-[16px] leading-relaxed text-ink-4">{text}</p>
@@ -34,13 +38,22 @@ export default async function PayPage({
   if (order.status === "processing" || order.status === "completed") redirect(`/pay/${token}/order-received`);
   if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
   if (payLinkExpired(order, new Date())) return note("Link expired", "This payment link has expired. Go back to the app and check out again.");
-  if (!(await checkoutAccount(store, app, encryptionKey()))) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
+  // 16 A demo app never takes a payment: the order goes through with one tap.
+  if (!app.demo && !(await checkoutAccount(store, app, encryptionKey()))) return note("Payments are off", "This shop can't take payments right now. Please try again later.");
 
   const money = (cents: number) => formatCents(cents, order.currency);
   const color = app.primaryColor;
   return (
     <PayShell app={app}>
       <h1 className="m-0 text-[24px] font-extrabold">Checkout</h1>
+      {app.demo ? (
+        <p role="note" className="m-0 flex gap-2.5 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+          <Icon name="info" size={20} className="mt-0.5" />
+          <span>
+            <b>Demo.</b> This is a demo app: no card is asked for and nothing is charged. In your own app, customers pay here by card.
+          </span>
+        </p>
+      ) : null}
       {payment === "failed" ? (
         <p role="alert" className="m-0 rounded-xl bg-danger-bg px-4 py-3 text-[15px] font-semibold text-danger">
           The payment didn&apos;t go through. Check your card details and try again.
@@ -71,14 +84,28 @@ export default async function PayPage({
           <span>{money(order.totalCents)}</span>
         </p>
       </section>
-      <PayForm
-        token={token}
-        total={money(order.totalCents)}
-        color={color}
-        textColor={textOn(color)}
-        defaults={order.customer ?? undefined}
-      />
-      <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by iyzico.</p>
+      {app.demo ? (
+        <form action={demoPayAction.bind(null, token)} className="flex flex-col gap-3">
+          <button
+            type="submit"
+            className="h-12 w-full cursor-pointer rounded-xl border-0 text-[16px] font-bold"
+            style={{ backgroundColor: color, color: textOn(color) }}
+          >
+            Place demo order
+          </button>
+        </form>
+      ) : (
+        <>
+          <PayForm
+            token={token}
+            total={money(order.totalCents)}
+            color={color}
+            textColor={textOn(color)}
+            defaults={order.customer ?? undefined}
+          />
+          <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by iyzico.</p>
+        </>
+      )}
     </PayShell>
   );
 }

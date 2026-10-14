@@ -134,6 +134,13 @@
       "when": 1791955965264,
       "tag": "0018_plan_features",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1791960186797,
+      "tag": "0019_demo_apps",
+      "breakpoints": true
     }
   ]
 }

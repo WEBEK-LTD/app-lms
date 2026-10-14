@@ -10,6 +10,19 @@ import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
 import { IyzicoError } from "@/lib/payments/iyzico";
+import { withDemoChecked } from "@/lib/demo/apps";
+import { placeDemoOrder } from "@/lib/demo/checkout";
+
+/** 16 A demo app's payment page: places the order without taking any payment. */
+export async function demoPayAction(token: string): Promise<void> {
+  const store = await getStore();
+  const order = await store.getCatalogOrderByToken(sha256Hex(token));
+  const found = order ? await store.getAppById(order.appId) : null;
+  const app = found ? await withDemoChecked(store, found) : null;
+  if (!order || !app?.demo || order.status !== "pending" || payLinkExpired(order, new Date())) redirect(`/pay/${token}`);
+  await placeDemoOrder(store, app, order, new Date());
+  redirect(`/pay/${token}/order-received`);
+}
 
 /** The payment page's form: saves the customer's details and sends them to iyzico. */
 export async function payAction(token: string, _: FormState, formData: FormData): Promise<FormState> {

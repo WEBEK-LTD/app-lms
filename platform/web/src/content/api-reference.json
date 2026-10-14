@@ -50,7 +50,7 @@
           "method": "POST",
           "path": "/auth/otp/request",
           "summary": "Send a sign-in code",
-          "description": "Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.",
+          "description": "Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.\n\nDemo apps on the hosted API (the apps on yallapp.com.tr/demo) send no code: only the public demo number signs in, with the fixed code shown on that page. Any other number is refused with 403 `demo_number_only`. The demo number is limited per IP and per app, and works in demo apps only.",
           "access": "public"
         },
         {
@@ -98,21 +98,21 @@
           "method": "PATCH",
           "path": "/me",
           "summary": "Update profile",
-          "description": null,
+          "description": "In a demo app everyone shares one account, which can't be changed (403 `feature_disabled`).",
           "access": "signed-in"
         },
         {
           "method": "DELETE",
           "path": "/me",
           "summary": "Delete account",
-          "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device.",
+          "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.",
           "access": "signed-in"
         },
         {
           "method": "GET",
           "path": "/me/devices",
           "summary": "List signed-in devices",
-          "description": null,
+          "description": "In a demo app, only the current device, and `limit` 0 (no limit).",
           "access": "signed-in"
         },
         {

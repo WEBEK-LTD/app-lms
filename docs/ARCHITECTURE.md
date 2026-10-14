@@ -439,6 +439,52 @@ mobile/
   the history (`publishing_events`) and emailed to the client. With
   "managed", the setup's Publishing step needs no store keys on Pro.
 
+## Demo apps (Phase 16)
+
+Four apps people can try before they pay, shown on yallapp.com.tr/demo:
+Nour Academy (Academy), Lale Flowers (Store), Studio Nur (Bookings) and
+Nile Homes (Real estate), on the hosted API with sample content.
+
+- **Made by the platform itself.** Admin › Demo apps (`/admin/demos`,
+  permission `demos.manage`, owners and admins) runs `setupDemoApps`
+  (`platform/web/src/lib/demo/setup.ts`): the account `demos@yallapp.com.tr`
+  (no password; the team opens it with "Open in the dashboard"), recorded in
+  the platform setting `demo`, and one app per type marked `apps.demo`, with
+  branding, store listing, published pages, a Business license to 2099 and
+  the content from `lib/demo/content.ts` through the same data the dashboard
+  edits (courses, products and categories, services, team and hours,
+  listings). Pictures are drawn in code (`lib/demo/pictures.ts`, PNG by
+  `lib/demo/art.ts`) and saved under IDs made from the drawing, so a refresh
+  reuses them. Running it again updates everything in place (products by
+  SKU, listings by reference, courses, services and staff with fixed IDs).
+  An app is a demo only when it is marked and belongs to the demo account
+  (`withDemoChecked`). Demo apps are left out of the admin overview's
+  numbers and get no owner notices or emails.
+- **Sign-in.** In a demo app only the public number +1 202 555 0123 (a
+  555-01XX number, reserved for fiction) signs in, with the code 246810 and
+  no message sent; other numbers get 403 `demo_number_only`. It is limited to
+  10 code requests an hour per IP and 300 per app. Everyone shares one
+  account ("Demo visitor"): no device limit, each visitor sees only their own
+  device, and the account can't be renamed or deleted (deleting signs out
+  this phone). The demo code is checked only when the app is a demo app, so
+  it never signs in to a client's app.
+- **No payments.** Checkout in a demo app opens the payment page with a
+  "Demo" notice and "Place demo order": the order goes through (a course
+  order enrols) without a card or a payment account. `checkoutAccount`
+  returns none for demo apps, so iyzico is never called. A Real estate demo
+  answers each new conversation once, automatically.
+- **Clean-up.** The daily job (`runDailyNotices` → `cleanDemoActivity`)
+  deletes what visitors added more than 24 hours ago in demo apps only
+  (orders, appointments, conversations, favorites, enrolments, lesson
+  progress, notifications to the account) and signs out devices idle for a
+  day (`DataStore.purgeDemoActivity`).
+- **Downloads.** Demo apps build through the normal pipeline ("Start a
+  build" on the admin page). The team picks a ready build with an APK as the
+  public download (`apps.demo_build_id`); `/demo/download/<slug>` redirects to
+  a link signed at that moment, or back to /demo, which shows "Coming soon"
+  until a download is picked. The QR codes on /demo are made on our server
+  (`lib/qr.ts`).
+
 ## Pages, looks and languages
 
 Clients build their app's pages and pick its look in the client dashboard,

@@ -49,6 +49,9 @@ export const AUDIT_ACTIONS = {
   "announcement.email": "Announcement emailed",
   "announcement.end": "Announcement ended",
   "announcement.delete": "Announcement deleted",
+  "demo.setup": "Demo apps created or refreshed",
+  "demo.build": "Demo app build started",
+  "demo.download": "Demo download changed",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

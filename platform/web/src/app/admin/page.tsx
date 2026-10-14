@@ -2,7 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Notice } from "@/components/ui";
-import { appsByState, appsByType, appsByWebsite, buildStats, clientsByState, hostedUsage, revenue, revenueWindowStart, signUpsSince } from "@/lib/admin/overview";
+import {
+  appsByState,
+  appsByType,
+  appsByWebsite,
+  buildStats,
+  clientsByState,
+  hostedUsage,
+  revenue,
+  revenueWindowStart,
+  signUpsSince,
+  withoutDemo,
+} from "@/lib/admin/overview";
+import { demoClientId } from "@/lib/demo/apps";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
@@ -64,14 +76,17 @@ export default async function OverviewPage({ searchParams }: PageProps<"/admin">
 
   const store = await getStore();
   const now = new Date();
-  const [rows, apps, builds, payments, orders, usersByApp] = await Promise.all([
+  const [allRows, allApps, builds, payments, orders, usersByApp, demoId] = await Promise.all([
     store.listClients({ filter: "all", now }),
     store.listApps(),
     store.listBuildsSince(new Date(now.getTime() - 7 * 86_400_000)),
     store.listPaidPlanPaymentsSince(revenueWindowStart(now)),
     store.listMarketplaceOrdersSince(revenueWindowStart(now)),
     store.countHostedUsersByApp(),
+    demoClientId(store),
   ]);
+  // 16 The demo apps (Admin › Demo apps) aren't clients' apps.
+  const { rows, apps } = withoutDemo(allRows, allApps, demoId);
   const states = clientsByState(rows, now);
   // 12: an account can have several apps, each on its own plan.
   const appStates = appsByState(rows, now);

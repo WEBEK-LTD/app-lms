@@ -27,6 +27,7 @@ import type {
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
+import type { DemoPurgeCounts } from "./types";
 import type {
   Activation,
   App,
@@ -1690,6 +1691,46 @@ export class MysqlStore implements DataStore {
     if (!kinds.length) return;
     const n = schema.ownerNotices;
     await this.run((db) => db.update(n).set({ resolvedAt: now }).where(and(eq(n.appId, appId), inArray(n.kind, kinds), isNull(n.resolvedAt))));
+  }
+
+  // 16 Demo apps
+  async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
+    const s = schema;
+    // Each statement is limited to the one app; messages and refresh tokens cascade.
+    const [orders] = await this.run((db) => db.delete(s.catalogOrders).where(and(eq(s.catalogOrders.appId, appId), lt(s.catalogOrders.createdAt, before))));
+    const [appointments] = await this.run((db) =>
+      db.delete(s.bookingAppointments).where(and(eq(s.bookingAppointments.appId, appId), lt(s.bookingAppointments.createdAt, before))),
+    );
+    const [inquiries] = await this.run((db) =>
+      db.delete(s.listingInquiries).where(and(eq(s.listingInquiries.appId, appId), lt(s.listingInquiries.createdAt, before))),
+    );
+    const [favorites] = await this.run((db) =>
+      db.delete(s.listingFavorites).where(and(eq(s.listingFavorites.appId, appId), lt(s.listingFavorites.createdAt, before))),
+    );
+    const [enrollments] = await this.run((db) =>
+      db.delete(s.courseEnrollments).where(and(eq(s.courseEnrollments.appId, appId), lt(s.courseEnrollments.enrolledAt, before))),
+    );
+    const [progress] = await this.run((db) =>
+      db.delete(s.lessonProgress).where(and(eq(s.lessonProgress.appId, appId), lt(s.lessonProgress.updatedAt, before))),
+    );
+    const [notifications] = await this.run((db) =>
+      db
+        .delete(s.hostedNotifications)
+        .where(and(eq(s.hostedNotifications.appId, appId), isNotNull(s.hostedNotifications.userId), lt(s.hostedNotifications.createdAt, before))),
+    );
+    const [devices] = await this.run((db) =>
+      db.delete(s.hostedDevices).where(and(eq(s.hostedDevices.appId, appId), lt(s.hostedDevices.lastSeenAt, before))),
+    );
+    return {
+      orders: orders.affectedRows,
+      appointments: appointments.affectedRows,
+      inquiries: inquiries.affectedRows,
+      favorites: favorites.affectedRows,
+      enrollments: enrollments.affectedRows,
+      progress: progress.affectedRows,
+      devices: devices.affectedRows,
+      notifications: notifications.affectedRows,
+    };
   }
 
   // 14.1 We publish for you

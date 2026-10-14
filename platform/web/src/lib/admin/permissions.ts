@@ -34,6 +34,8 @@ export const ADMIN_PERMISSIONS = [
   "releases.manage",
   /** App types, websites and features switched on or off. */
   "switches.edit",
+  /** The demo apps on /demo (roadmap 16): create or refresh them, build them, pick the public download. */
+  "demos.manage",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
@@ -51,7 +53,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings or releases.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings, releases or demo apps.",
   viewer: "Sees everything, changes nothing.",
 };
 

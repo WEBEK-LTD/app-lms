@@ -65,6 +65,7 @@ import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemp
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
+import type { DemoPurgeCounts } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -1342,5 +1343,54 @@ export class MemoryStore implements DataStore {
     for (const [id, notice] of this.ownerNotices) {
       if (notice.appId === appId && kinds.includes(notice.kind) && notice.resolvedAt === null) this.ownerNotices.set(id, { ...notice, resolvedAt: now });
     }
+  }
+
+  // 16 Demo apps
+  async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
+    const old = (date: Date) => date.getTime() < before.getTime();
+    const counts: DemoPurgeCounts = { orders: 0, appointments: 0, inquiries: 0, favorites: 0, enrollments: 0, progress: 0, devices: 0, notifications: 0 };
+    for (const [id, order] of this.catalogOrders) {
+      if (order.appId === appId && old(order.createdAt)) {
+        this.catalogOrders.delete(id);
+        counts.orders++;
+      }
+    }
+    for (const [id, appointment] of this.bookingAppointments) {
+      if (appointment.appId === appId && old(appointment.createdAt)) {
+        this.bookingAppointments.delete(id);
+        counts.appointments++;
+      }
+    }
+    for (const [id, inquiry] of this.listingInquiries) {
+      if (inquiry.appId !== appId || !old(inquiry.createdAt)) continue;
+      this.listingInquiries.delete(id);
+      for (const [messageId, message] of this.listingMessages) if (message.inquiryId === id) this.listingMessages.delete(messageId);
+      counts.inquiries++;
+    }
+    const favorites = this.listingFavorites.length;
+    this.listingFavorites = this.listingFavorites.filter((f) => !(f.appId === appId && old(f.createdAt)));
+    counts.favorites = favorites - this.listingFavorites.length;
+    const enrollments = this.courseEnrollments.length;
+    this.courseEnrollments = this.courseEnrollments.filter((e) => !(e.appId === appId && old(e.enrolledAt)));
+    counts.enrollments = enrollments - this.courseEnrollments.length;
+    for (const [key, progress] of this.lessonProgress) {
+      if (progress.appId === appId && old(progress.updatedAt)) {
+        this.lessonProgress.delete(key);
+        counts.progress++;
+      }
+    }
+    for (const [id, notification] of this.hostedNotifications) {
+      if (notification.appId === appId && notification.userId !== null && old(notification.createdAt)) {
+        this.hostedNotifications.delete(id);
+        counts.notifications++;
+      }
+    }
+    for (const device of [...this.hostedDevices.values()]) {
+      if (device.appId === appId && old(device.lastSeenAt)) {
+        await this.deleteHostedDevice(appId, device.id);
+        counts.devices++;
+      }
+    }
+    return counts;
   }
 }

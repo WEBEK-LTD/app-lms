@@ -42,6 +42,8 @@ import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemp
 import type { PublishingEvent, PublishingRequest } from "./types";
 // 13 Owner notices
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
+// 16 Demo apps
+import type { DemoPurgeCounts } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -454,4 +456,14 @@ export interface DataStore {
   updateOwnerNotice(clientId: string, id: number, patch: OwnerNoticePatch): Promise<void>;
   /** Marks the app's open notices of these kinds resolved. */
   resolveOwnerNotices(appId: string, kinds: OwnerNoticeKind[], now: Date): Promise<void>;
+
+  // 16 Demo apps
+  /**
+   * Deletes what app users did in one app before `before`: orders, appointments,
+   * conversations with the office (and their messages), favorites, enrolments,
+   * lesson progress, notifications to one user, and devices not seen since
+   * (signed out). Users, products, courses and listings stay. Only ever called
+   * for demo apps (lib/demo/cleanup.ts checks).
+   */
+  purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts>;
 }

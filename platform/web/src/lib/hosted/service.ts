@@ -17,6 +17,7 @@ import { lookAndLanguages } from "../pages/layout";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
+import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -185,9 +186,13 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
       case "GET /me":
         return ok(userJson(session.user));
       case "PATCH /me":
+        // 16 Everyone shares the demo account: nobody can rename it for the others.
+        if (ctx.app.demo) return error(403, "feature_disabled", "The demo account can't be changed. In your own app, people edit their details here.");
         return updateMe(ctx, session, record(req.body));
       case "DELETE /me":
-        await ctx.store.deleteHostedUser(ctx.app.id, session.user.id);
+        // 16 Deleting the shared demo account would sign everyone out: it signs out this phone only.
+        if (ctx.app.demo) await ctx.store.deleteHostedDevice(ctx.app.id, session.device.id);
+        else await ctx.store.deleteHostedUser(ctx.app.id, session.user.id);
         return noContent;
       case "GET /me/devices":
         return listDevices(ctx, session);
@@ -298,9 +303,47 @@ function codeHash(ctx: HostedContext, requestId: string, code: string): string {
   return hmacSha256(ctx.secret, `hosted-code:${ctx.app.id}:${requestId}:${code}`);
 }
 
+/**
+ * 16 Demo apps: only the public demo number signs in, with its fixed code and
+ * no message sent. Everyone shares it, so it's limited per IP and per app
+ * instead of per number. Other numbers are refused (no codes, no personal data).
+ */
+async function requestDemoCode(ctx: HostedContext, phone: Phone): Promise<HostedResult> {
+  if (phone.e164 !== DEMO_SIGN_IN.e164) {
+    return error(403, "demo_number_only", `This is a demo app. Sign in with the demo number ${DEMO_SIGN_IN.display} and the code shown on yallapp.com.tr/demo.`);
+  }
+  const wait = (await limited(ctx, DEMO_LIMITS.ip, ctx.ip)) ?? (await limited(ctx, DEMO_LIMITS.app, "all"));
+  if (wait) return wait;
+  const requestId = randomToken(24);
+  await ctx.store.createHostedChallenge({
+    tokenHash: sha256Hex(requestId),
+    appId: ctx.app.id,
+    kind: "otp",
+    phone: phone.e164,
+    codeHash: null,
+    attempts: 0,
+    review: true,
+    expiresAt: new Date(ctx.now.getTime() + CODE_TTL_SECONDS * 1000),
+    createdAt: ctx.now,
+  });
+  if (Math.random() < 0.05) await ctx.store.purgeHostedExpired(ctx.now);
+  return ok({ request_id: requestId, code_length: CODE_LENGTH, resend_after_seconds: RESEND_SECONDS, expires_in_seconds: CODE_TTL_SECONDS });
+}
+
+/** 16 The demo number's code was right: the shared demo account (made again if a visitor deleted it). */
+async function demoSession(ctx: HostedContext, rawDevice: Record<string, unknown>): Promise<HostedResult> {
+  const user =
+    (await ctx.store.getHostedUserByPhone(ctx.app.id, DEMO_SIGN_IN.e164)) ??
+    (await ctx.store.createHostedUser({ appId: ctx.app.id, phone: DEMO_SIGN_IN.e164, name: DEMO_USER_NAME, email: null, city: null, now: ctx.now })) ??
+    (await ctx.store.getHostedUserByPhone(ctx.app.id, DEMO_SIGN_IN.e164));
+  if (!user) return error(409, "account_exists", "Please try again.");
+  return session(ctx, user, rawDevice);
+}
+
 async function requestCode(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
   const phone = parsePhone(body.country_code, body.phone);
   if (!phone) return error(400, "invalid_phone", "Please enter a valid mobile number.");
+  if (ctx.app.demo) return requestDemoCode(ctx, phone);
   const settings = hostedSettings(ctx.app);
   const review = isReviewPhone(settings, phone);
   const wait =
@@ -361,11 +404,15 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
   }
   const code = text(body.code, 12);
   const settings = hostedSettings(ctx.app);
-  const valid = challenge.review
-    ? Boolean(settings.reviewCode) && safeEqual(code, settings.reviewCode!)
-    : challenge.codeHash !== null && safeEqual(codeHash(ctx, requestId, code), challenge.codeHash);
+  // 16 The demo code only ever works in a demo app, for the demo number; demo apps take no other code.
+  const valid = ctx.app.demo
+    ? challenge.review && challenge.phone === DEMO_SIGN_IN.e164 && safeEqual(code, DEMO_SIGN_IN.code)
+    : challenge.review
+      ? Boolean(settings.reviewCode) && safeEqual(code, settings.reviewCode!)
+      : challenge.codeHash !== null && safeEqual(codeHash(ctx, requestId, code), challenge.codeHash);
   if (!valid) return error(400, "invalid_code", "That code is not correct.");
   await ctx.store.deleteHostedChallenge(hash);
+  if (ctx.app.demo) return demoSession(ctx, record(body.device));
 
   const user = await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone);
   if (user) return session(ctx, user, record(body.device));
@@ -388,6 +435,8 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
 }
 
 async function register(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
+  // 16 Demo apps have one account, made when the demo number signs in.
+  if (ctx.app.demo) return error(403, "signup_disabled", "This is a demo app. Sign in with the demo number shown on yallapp.com.tr/demo.");
   const hash = sha256Hex(text(body.signup_token, 100));
   const challenge = await ctx.store.getHostedChallenge(hash);
   if (!challenge || challenge.appId !== ctx.app.id || challenge.kind !== "signup" || challenge.expiresAt <= ctx.now) {
@@ -455,7 +504,8 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       lastSeenAt: ctx.now,
     });
   } else {
-    const limit = hostedSettings(ctx.app).deviceLimit;
+    // 16 The shared demo account is on every visitor's phone.
+    const limit = ctx.app.demo ? 0 : hostedSettings(ctx.app).deviceLimit;
     if (limit > 0 && (await ctx.store.listHostedDevices(ctx.app.id, user.id)).length >= limit) {
       return error(
         403,
@@ -546,7 +596,8 @@ async function updateMe(ctx: HostedContext, s: Session, body: Record<string, unk
 }
 
 async function listDevices(ctx: HostedContext, s: Session): Promise<HostedResult> {
-  const devices = await ctx.store.listHostedDevices(ctx.app.id, s.user.id);
+  // 16 A visitor of a demo app sees only their own phone, not the other visitors'.
+  const devices = ctx.app.demo ? [s.device] : await ctx.store.listHostedDevices(ctx.app.id, s.user.id);
   return ok({
     items: devices.map((d) => ({
       id: d.id,
@@ -555,13 +606,13 @@ async function listDevices(ctx: HostedContext, s: Session): Promise<HostedResult
       last_seen_at: d.lastSeenAt.toISOString(),
       current: d.id === s.device.id,
     })),
-    limit: hostedSettings(ctx.app).deviceLimit,
+    limit: ctx.app.demo ? 0 : hostedSettings(ctx.app).deviceLimit,
   });
 }
 
 async function removeDevice(ctx: HostedContext, s: Session, id: string): Promise<HostedResult> {
   const device = await ctx.store.getHostedDevice(ctx.app.id, id);
-  if (!device || device.userId !== s.user.id) return error(404, "not_found", "Device not found.");
+  if (!device || device.userId !== s.user.id || (ctx.app.demo && device.id !== s.device.id)) return error(404, "not_found", "Device not found.");
   await ctx.store.deleteHostedDevice(ctx.app.id, device.id);
   return noContent;
 }

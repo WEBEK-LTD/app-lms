@@ -35,7 +35,8 @@ export class CoursesConnector implements Connector {
   }
 
   private get canSell(): boolean {
-    return this.deps.app.catalogSettings?.payment != null && this.deps.cardPayments !== false;
+    // 16 A demo academy "sells" on its payment page, which charges nothing.
+    return (this.deps.app.catalogSettings?.payment != null || this.deps.app.demo === true) && this.deps.cardPayments !== false;
   }
 
   async config() {

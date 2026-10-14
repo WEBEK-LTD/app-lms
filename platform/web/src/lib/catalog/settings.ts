@@ -76,6 +76,8 @@ export interface CheckoutAccount {
 
 /** The account a shop's payments go to; null when the shop can't take payments. */
 export async function checkoutAccount(store: DataStore, app: App, key: Buffer): Promise<CheckoutAccount | null> {
+  // 16 Demo apps never charge a card, whatever keys they have.
+  if (app.demo) return null;
   const payment = catalogSettings(app).payment;
   if (!payment) return null;
   if (payment.provider === "iyzico") {
@@ -98,6 +100,7 @@ export function commissionOf(cents: number, percent: number): number {
  * accounts since, so this follows the order, not the current settings.
  */
 export async function accountForOrder(store: DataStore, app: App, order: Pick<CatalogOrder, "commissionCents">, key: Buffer): Promise<CheckoutAccount | null> {
+  if (app.demo) return null;
   if (order.commissionCents === null) {
     const keys = paymentKeys(app, key);
     return keys ? { keys, marketplace: null } : null;
