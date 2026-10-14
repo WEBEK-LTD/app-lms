@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  ADMIN_SCOPES,
   clearShopifyCache,
   formatMoney,
+  missingScopes,
+  ShopifyPermissionError,
   normalizeShopDomain,
   orderStatus,
   SHOPIFY_API_VERSION,
@@ -110,13 +113,18 @@ function fakeShop(options: { down?: boolean } = {}) {
   const fetcher = (async (url: string, init: RequestInit) => {
     if (url.includes("/admin/api/")) return admin(url, init, calls);
     expect(url).toBe(`https://rose.myshopify.com/api/${SHOPIFY_API_VERSION}/graphql.json`);
-    expect(new Headers(init.headers).get("x-shopify-storefront-access-token")).toBe("storefront-token");
+    // "no-products-token" is a token without the product listings permission.
+    const token = new Headers(init.headers).get("x-shopify-storefront-access-token");
+    expect(["storefront-token", "no-products-token"]).toContain(token);
     if (options.down) return new Response("", { status: 503 });
     const { query, variables } = JSON.parse(String(init.body)) as Call;
     calls.push({ query, variables });
     const v = variables as { ids: string[]; id?: string; handle?: string; first: number; after: string | null; query?: string };
     let data: unknown;
-    if (query.includes("cartCreate")) {
+    if (query.includes("products(first: 1)")) {
+      if (token === "no-products-token") return Response.json({ errors: [{ message: "Access denied for products field." }] });
+      data = { products: { nodes: [{ id: PRODUCTS[0]!.id }] } };
+    } else if (query.includes("cartCreate")) {
       data = { cartCreate: { cart: { checkoutUrl: "https://rose.myshopify.com/cart/c/abc?key=1" }, userErrors: [] } };
     } else if (query.includes("shop {")) {
       data = {
@@ -164,67 +172,113 @@ function fakeShop(options: { down?: boolean } = {}) {
   return { fetcher, calls };
 }
 
-// Orders of two customers; Sara's phone also loosely matches another customer's.
+// Shopify's customers: Sara (phone and email), one whose phone only loosely matches
+// Sara's, customers without a phone, and Ela, who signs in to the app by email.
+const CUSTOMERS = [
+  { id: "gid://shopify/Customer/1", phone: "+905321234567", email: "sara@example.com" },
+  { id: "gid://shopify/Customer/3", phone: "+9053212345670", email: "other@example.com" },
+  { id: "gid://shopify/Customer/4", phone: null, email: null },
+  { id: "gid://shopify/Customer/5", phone: null, email: "ela@example.com" },
+  { id: "gid://shopify/Customer/6", phone: null, email: "ela@example.com.tr" },
+  { id: "gid://shopify/Customer/8", phone: null, email: "sara@example.com" },
+];
+
+const order = (n: number, extra: Record<string, unknown>) => ({
+  id: `gid://shopify/Order/${n}`,
+  name: `#${n - 4000}`,
+  cancelledAt: null,
+  displayFinancialStatus: "PAID",
+  displayFulfillmentStatus: "UNFULFILLED",
+  email: null,
+  phone: null,
+  customer: null,
+  shippingAddress: null,
+  currentTotalPriceSet: { shopMoney: money("100.0") },
+  lineItems: { nodes: [{ name: "Gift Card", quantity: 1, image: null, product: null }] },
+  ...extra,
+});
+const customerRef = (id: number) => ({ id: `gid://shopify/Customer/${id}` });
+
 const ORDERS = [
-  {
-    id: "gid://shopify/Order/5003",
-    customer: 1,
-    name: "#1003",
+  order(5003, {
+    customer: customerRef(1),
     createdAt: "2026-10-12T09:00:00Z",
-    cancelledAt: null,
-    displayFinancialStatus: "PAID",
-    displayFulfillmentStatus: "UNFULFILLED",
     currentTotalPriceSet: { shopMoney: money("950.0") },
     lineItems: { nodes: [{ name: "Red Roses - Large", quantity: 1, image: { url: "https://cdn.shopify.com/roses.jpg" }, product: { id: "gid://shopify/Product/101" } }] },
-  },
-  {
-    id: "gid://shopify/Order/5002",
-    customer: 2,
-    name: "#1002",
-    createdAt: "2026-10-11T09:00:00Z",
-    cancelledAt: null,
-    displayFinancialStatus: "PAID",
-    displayFulfillmentStatus: "FULFILLED",
-    currentTotalPriceSet: { shopMoney: money("100.0") },
-    lineItems: { nodes: [{ name: "Gift Card", quantity: 1, image: null, product: null }] },
-  },
-  {
-    id: "gid://shopify/Order/5001",
-    customer: 1,
-    name: "#1001",
+  }),
+  order(5002, { customer: customerRef(3), createdAt: "2026-10-11T09:00:00Z", displayFulfillmentStatus: "FULFILLED" }),
+  // Placed by a customer Shopify knows only by email, shipped to Sara's number.
+  order(5005, { customer: customerRef(9), email: "gift@example.com", shippingAddress: { phone: "+90 532 123 45 67" }, createdAt: "2026-10-05T09:00:00Z" }),
+  order(5001, {
+    customer: customerRef(1),
     createdAt: "2026-10-01T09:00:00Z",
     cancelledAt: "2026-10-02T09:00:00Z",
     displayFinancialStatus: "VOIDED",
-    displayFulfillmentStatus: "UNFULFILLED",
     currentTotalPriceSet: { shopMoney: money("400.0") },
     lineItems: { nodes: [{ name: "Red Roses - Small", quantity: 2, image: null, product: { id: "gid://shopify/Product/101" } }] },
-  },
+  }),
+  // A customer without a phone or email.
+  order(5004, { customer: customerRef(4), createdAt: "2026-10-10T09:00:00Z" }),
+  // Ela's: as a customer, and as a guest with her email.
+  order(5006, { customer: customerRef(5), email: "ela@example.com", createdAt: "2026-10-09T09:00:00Z" }),
+  order(5007, { email: "Ela@Example.com", createdAt: "2026-10-08T09:00:00Z" }),
+  // Someone else's, with an address that only loosely matches Ela's.
+  order(5008, { customer: customerRef(6), email: "ela@example.com.tr", createdAt: "2026-10-07T09:00:00Z" }),
+  // The email Sara typed in the app (not verified: she signs in by phone), used by someone else.
+  order(5009, { customer: customerRef(8), email: "sara@example.com", createdAt: "2026-10-06T09:00:00Z" }),
 ];
 
+/** The value of `field:"…"` in a search, or null. */
+const searched = (query: string, field: string) => {
+  const m = new RegExp(`${field}:("(?:[^"\\\\]|\\\\.)*"|\\S+)`).exec(query);
+  return m ? (m[1]!.startsWith('"') ? (JSON.parse(m[1]!) as string) : m[1]!) : null;
+};
+
+/**
+ * The Admin API, matching searches as loosely as Shopify may: a phone search
+ * finds every number with those digits (and `phone:null` every customer
+ * without one), an email search every address containing it, and the orders'
+ * `phone` filter is ignored (every order comes back).
+ */
 function admin(url: string, init: RequestInit, calls: Call[]): Response {
   expect(url).toBe(`https://rose.myshopify.com/admin/api/${SHOPIFY_API_VERSION}/graphql.json`);
-  if (new Headers(init.headers).get("x-shopify-access-token") !== "admin-token") return new Response("", { status: 401 });
+  const token = new Headers(init.headers).get("x-shopify-access-token");
+  const scopes: Record<string, string[]> = {
+    "admin-token": ["read_orders", "read_customers", "read_products"],
+    "orders-only-token": ["write_orders"],
+    "no-scopes-token": ["read_products"],
+  };
+  if (!token || !scopes[token]) return new Response("", { status: 401 });
   const { query, variables } = JSON.parse(String(init.body)) as Call;
   calls.push({ query, variables });
-  const v = variables as { query: string; first: number; after: string | null };
-  if (query.includes("shop {")) return Response.json({ data: { shop: { name: "Rose Shop" } } });
+  const v = variables as { query: string; first: number };
+  if (query.includes("shop {")) {
+    return Response.json({ data: { shop: { name: "Rose Shop" }, currentAppInstallation: { accessScopes: scopes[token]!.map((handle) => ({ handle })) } } });
+  }
+  const digits = (value: string | null) => (value ?? "").replace(/\D/g, "");
   if (query.includes("customers(")) {
-    expect(v.query).toBe('phone:"+905321234567"');
-    return Response.json({
-      data: {
-        customers: {
-          nodes: [
-            { id: "gid://shopify/Customer/1", phone: "+905321234567" },
-            { id: "gid://shopify/Customer/3", phone: "+9053212345670" },
-          ],
-        },
-      },
-    });
+    const phone = searched(v.query, "phone");
+    const email = searched(v.query, "email");
+    const nodes = CUSTOMERS.filter((c) =>
+      phone !== null
+        ? phone === "null"
+          ? c.phone === null
+          : digits(c.phone).includes(digits(phone))
+        : email !== null && (c.email ?? "").toLowerCase().includes(email.toLowerCase()),
+    );
+    return Response.json({ data: { customers: { nodes } } });
   }
   if (query.includes("orders(")) {
-    const ids = [...v.query.matchAll(/customer_id:(\d+)/g)].map((m) => Number(m[1]));
-    const list = ORDERS.filter((o) => ids.includes(o.customer));
-    return Response.json({ data: { orders: page(list, v.first, v.after) } });
+    expect(v.first).toBeLessThanOrEqual(250);
+    let list = ORDERS;
+    if (v.query.includes("customer_id:")) {
+      const ids = [...v.query.matchAll(/customer_id:(\d+)/g)].map((m) => `gid://shopify/Customer/${m[1]}`);
+      list = ORDERS.filter((o) => o.customer && ids.includes((o.customer as { id: string }).id));
+    } else if (searched(v.query, "email") !== null) {
+      const email = searched(v.query, "email")!.toLowerCase();
+      list = ORDERS.filter((o) => String(o.email ?? "").toLowerCase().includes(email));
+    }
+    return Response.json({ data: { orders: { nodes: list.slice(0, v.first) } } });
   }
   throw new Error(`Unexpected admin query: ${query}`);
 }
@@ -428,7 +482,8 @@ describe("Shopify connector", () => {
     expectContract("GET", "/me/orders", first!);
     expect(first!.body).toMatchObject({
       page: 1,
-      total_pages: 2,
+      total: 3,
+      total_pages: 3,
       items: [
         {
           id: 5003,
@@ -440,12 +495,64 @@ describe("Shopify connector", () => {
         },
       ],
     });
-    const second = await withAdmin.handle(request({ per_page: "1", page: "2" }, customer));
-    expect(second!.body).toMatchObject({ page: 2, total_pages: 2, total: 2, items: [{ number: "1001", status: "cancelled" }] });
+    // 19 The order shipped to Sara's number shows too; never another customer's.
+    const all = await withAdmin.handle(request({}, customer));
+    expect((all!.body as { items: { id: number }[] }).items.map((o) => o.id)).toEqual([5003, 5005, 5001]);
+    const third = await withAdmin.handle(request({ per_page: "1", page: "3" }, customer));
+    expect(third!.body).toMatchObject({ page: 3, total_pages: 3, total: 3, items: [{ number: "1001", status: "cancelled" }] });
     expect((await withAdmin.handle(request({}, null)))!.status).toBe(401);
 
     const wrong = new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token", adminToken: "nope" }, shop.fetcher);
     await expect(wrong.checkAdmin()).rejects.toThrow();
+  });
+
+  describe("19 order ownership", () => {
+    const withAdmin = () =>
+      new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token", adminToken: "admin-token" }, shop.fetcher);
+    const orderIds = async (user: HostedUser) => {
+      const result = await withAdmin().handle({ method: "GET", path: ["me", "orders"], query: new URLSearchParams(), body: undefined, user, now: NOW });
+      expectContract("GET", "/me/orders", result!);
+      return (result!.body as { items: { id: number }[] }).items.map((o) => o.id);
+    };
+    const adminQueries = () => shop.calls.filter((c) => c.query.includes("customers(") || c.query.includes("orders(")).map((c) => String(c.variables.query));
+
+    it("shows an email account the orders of its exact, verified address only", async () => {
+      const ela: HostedUser = { ...customer, id: 8, phone: null, name: "Ela", email: "ela@example.com" };
+      // Not the customer without a phone (5004), nor the look-alike address (5008).
+      expect(await orderIds(ela)).toEqual([5006, 5007]);
+      expect(adminQueries().some((q) => q.startsWith("phone:"))).toBe(false);
+    });
+
+    it("never matches an account with neither a phone nor an email", async () => {
+      expect(await orderIds({ ...customer, phone: null, email: null })).toEqual([]);
+      expect(adminQueries()).toEqual([]);
+    });
+
+    it("never finds orders by the email a phone account typed (it isn't verified)", async () => {
+      const ids = await orderIds(customer);
+      expect(ids).not.toContain(5009);
+      expect(adminQueries().some((q) => q.startsWith("email:"))).toBe(false);
+    });
+
+    it("never matches a phone account to customers or orders without a phone", async () => {
+      const ids = await orderIds({ ...customer, phone: "+905559998877", email: null });
+      expect(ids).toEqual([]);
+    });
+  });
+
+  it("19 checks the tokens' permissions and names a missing one", async () => {
+    await expect(new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token" }, shop.fetcher).check()).resolves.toBe("Rose Shop");
+    const noProducts = new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "no-products-token" }, shop.fetcher);
+    await expect(noProducts.check()).rejects.toThrow(ShopifyPermissionError);
+    await expect(noProducts.check()).rejects.toThrow(/can't read your products/);
+
+    const admin = (adminToken: string) => new ShopifyConnector({ shopDomain: "rose.myshopify.com", storefrontToken: "storefront-token", adminToken }, shop.fetcher);
+    await expect(admin("admin-token").checkAdmin()).resolves.toBeUndefined();
+    // write_orders includes read_orders; read_customers is missing.
+    await expect(admin("orders-only-token").checkAdmin()).rejects.toThrow("This Admin API token doesn't have the read_customers permission.");
+    await expect(admin("no-scopes-token").checkAdmin()).rejects.toThrow("doesn't have the read_orders and read_customers permissions");
+    await expect(admin("nope").checkAdmin()).rejects.not.toThrow(ShopifyPermissionError);
+    expect(missingScopes(["write_customers", "read_orders"], ADMIN_SCOPES)).toEqual([]);
   });
 
   it("leaves other endpoints to the hosted API", async () => {

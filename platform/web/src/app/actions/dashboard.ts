@@ -24,7 +24,7 @@ import { encryptionKey, superAdminEmails } from "@/lib/env";
 import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
 import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
-import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
+import { ShopifyConnector, ShopifyPermissionError } from "@/lib/hosted/connectors/shopify";
 import { sendTemplate } from "@/lib/email/send";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
@@ -296,20 +296,28 @@ async function connectShopify(
   if (!token) return { errors: { storefrontToken: "Paste your Storefront API access token." } };
   try {
     await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token }).check();
-  } catch {
+  } catch (e) {
+    // 19 A token without the products permission is named as such.
     return {
       errors: {
-        storefrontToken: "Shopify didn't accept this shop address and token. Check both, and that the token has the Storefront API permissions.",
+        storefrontToken:
+          e instanceof ShopifyPermissionError
+            ? e.message
+            : "Shopify didn't accept this shop address and token. Check both, and that the token is a Storefront API access token for this shop.",
       },
     };
   }
   if (adminToken) {
     try {
       await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token, adminToken }).checkAdmin();
-    } catch {
+    } catch (e) {
+      // 19 A token without read_orders or read_customers is named as such.
       return {
         errors: {
-          adminToken: "Shopify didn't accept this Admin API token. Check that it's for this shop and has the read_orders and read_customers permissions.",
+          adminToken:
+            e instanceof ShopifyPermissionError
+              ? e.message
+              : "Shopify didn't accept this Admin API token. Check that it's an Admin API access token for this shop, with the read_orders and read_customers permissions.",
         },
       };
     }

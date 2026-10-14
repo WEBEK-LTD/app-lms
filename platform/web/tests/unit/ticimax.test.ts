@@ -638,6 +638,12 @@ describe("Ticimax connector", () => {
     });
     expect(JSON.stringify(all.body)).not.toContain("TCM-OTHER");
 
+    // 19 An email account (no phone) never matches members without a phone.
+    const lookups = shop.calls.length;
+    const byEmail = await call("GET", "/me/orders", { user: { ...customer, phone: null, email: "sara@example.com" } });
+    expect(byEmail.body).toMatchObject({ total: 0, items: [] });
+    expect(shop.calls.length).toBe(lookups);
+
     expect(await call("GET", "/me/orders", { user: stranger })).toMatchObject({ status: 200, body: { total: 0, items: [] } });
     expect((await call("GET", "/me/orders")).status).toBe(401);
   });

@@ -457,6 +457,16 @@ describe("SimplyBook on the hosted API", () => {
   const book = (token: string | null, body: Record<string, unknown>, platform = "android") =>
     call("POST", "/bookings/appointments", { query: { platform }, token, body });
 
+  it("19 never matches an email account (no phone) to clients without a phone", async () => {
+    const user = { id: 99, appId: app.id, phone: null, name: "Ela", email: "ela@example.com", city: null, notificationsReadAt: null, createdAt: NOW, updatedAt: NOW };
+    const result = await connector.handle({ method: "GET", path: ["me", "appointments"], query: new URLSearchParams(), body: undefined, user, now: NOW });
+    expectContract("GET", "/me/appointments", result!);
+    expect(result!.body).toMatchObject({ total: 0, items: [] });
+    expect(fake.calls.some((c) => c.method === "getClientList" || c.method === "getBookings")).toBe(false);
+    const one = await connector.handle({ method: "GET", path: ["me", "appointments", "500"], query: new URLSearchParams(), body: undefined, user, now: NOW });
+    expect(one!.status).toBe(404);
+  });
+
   it("checks the keys through the platform definition and builds from the saved values", async () => {
     const deps = { appId: app.id, store, fetcher: fake.fetch, saveSecrets: async () => undefined };
     expect(await SIMPLYBOOK_PLATFORM.create({ ...SETTINGS }, deps).check()).toBe("Salon Lale");

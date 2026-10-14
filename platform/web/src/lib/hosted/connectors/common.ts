@@ -1,3 +1,5 @@
+import type { HostedUser } from "../../data/types";
+import { normalizeEmail } from "../sign-in-methods";
 import type { ConnectorResult } from "./types";
 
 // Helpers the connectors share.
@@ -31,4 +33,26 @@ export function cartLines(body: unknown): CartLineInput[] | null {
     out.push({ product_id: productId, variation_id: variationId, quantity });
   }
   return out;
+}
+
+/**
+ * 19 The email address a customer proved with a code, or null. Only an email
+ * account (signed up by email, so no phone) has one: the address a phone
+ * account typed at sign-up or on its profile was never checked, so it never
+ * finds anyone's orders or courses.
+ */
+export function verifiedEmail(user: Pick<HostedUser, "phone" | "email">): string | null {
+  return user.phone === null ? normalizeEmail(user.email) : null;
+}
+
+/**
+ * 19 A phone number in E.164 ("+905321234567") from how a platform stored it
+ * ("+90 532 123 45 67", "0090 532…"), or null when it isn't written with its
+ * country code. Used where only an exact match may find a customer.
+ */
+export function e164Of(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null;
+  let v = value.trim().replace(/[\s().-]/g, "");
+  if (v.startsWith("00")) v = `+${v.slice(2)}`;
+  return /^\+[1-9]\d{6,14}$/.test(v) ? v : null;
 }

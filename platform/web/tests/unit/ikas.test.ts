@@ -574,6 +574,12 @@ describe("ikas connector", () => {
     const nobody = await call("GET", "/me/orders", { user: { ...customer, phone: "+905000000000" } });
     expect(nobody.body).toMatchObject({ total: 0, items: [] });
     expect((await call("GET", "/me/orders")).status).toBe(401);
+
+    // 19 An email account (no phone) never matches customers without a phone.
+    const lookups = ikas.calls.filter((c) => c.query.includes("listCustomer(")).length;
+    const byEmail = await call("GET", "/me/orders", { user: { ...customer, phone: null, email: "sara@example.com" } });
+    expect(byEmail.body).toMatchObject({ total: 0, items: [] });
+    expect(ikas.calls.filter((c) => c.query.includes("listCustomer(")).length).toBe(lookups);
   });
 
   it("leaves other endpoints to the hosted API", async () => {

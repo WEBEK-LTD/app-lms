@@ -533,6 +533,12 @@ describe("IdeaSoft connector", () => {
     expect(searched).toEqual(expect.arrayContaining(["05321234567", "5321234567", "+905321234567"]));
     expect((await connector.handle(request({}, null)))!.status).toBe(401);
 
+    // 19 An email account (no phone) never matches orders without a phone.
+    const orderLookups = store.calls.filter((c) => c.path === "orders" || c.path === "members").length;
+    const byEmail = await connector.handle(request({}, { ...customer, id: 99, phone: null, email: "sara@example.com" }));
+    expect(byEmail!.body).toMatchObject({ total: 0, items: [] });
+    expect(store.calls.filter((c) => c.path === "orders" || c.path === "members").length).toBe(orderLookups);
+
     // Without access to members, the shipping phone alone finds them.
     clearIdeasoftCache();
     store = fakeStore({ members: "forbidden" });
