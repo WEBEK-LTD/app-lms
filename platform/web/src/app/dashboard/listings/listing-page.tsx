@@ -112,12 +112,12 @@ export async function ListingPage({ id }: { id: number | null }) {
         <Link href="/dashboard/listings" className="text-sm font-semibold">
           ← Listings
         </Link>
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">{listing ? listing.title : "New listing"}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{listing ? listing.title : "New listing"}</h1>
       </div>
       {listing ? (
         <section aria-labelledby="h-status" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 id="h-status" className="m-0 text-[19px] font-bold">
+            <h2 id="h-status" className="m-0 text-lg font-bold">
               Status
             </h2>
             <StatusBadge status={listing.status} />

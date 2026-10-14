@@ -43,7 +43,7 @@ export async function ProductPage({ id }: { id: number | null }) {
         <Link href="/dashboard/catalog" className="text-sm font-semibold">
           ← Products
         </Link>
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">{product ? product.name : "New product"}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{product ? product.name : "New product"}</h1>
         {product?.active ? (
           <p className="m-0 text-[15px] text-ink-4">
             Share it:{" "}

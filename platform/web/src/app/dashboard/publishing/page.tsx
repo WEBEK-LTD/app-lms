@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, btn, formatDateTime } from "@/components/ui";
-import { appLabel } from "@/lib/app/label";
+import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui";
+import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
@@ -42,12 +42,15 @@ function Choice({ mode, title, text, points, disabled }: { mode: "self" | "manag
       <input type="hidden" name="mode" value={mode} />
       <span className="flex items-center gap-2.5">
         <Icon name={mode === "managed" ? "storefront" : "menu_book"} size={26} />
-        <h2 className="m-0 text-[19px] font-bold">{title}</h2>
+        <h2 className="m-0 text-lg font-bold">{title}</h2>
       </span>
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">{text}</p>
-      <ul className="m-0 flex flex-col gap-1.5 pl-5 text-[15px] leading-relaxed text-ink-4">
+      <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px] leading-relaxed text-ink-4">
         {points.map((point) => (
-          <li key={point}>{point}</li>
+          <li key={point} className="flex items-start gap-2">
+            <Icon name="check" size={18} className="mt-[3px] text-success" />
+            <span>{point}</span>
+          </li>
         ))}
       </ul>
       <div className="mt-auto pt-2">
@@ -71,15 +74,10 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const teamEmail = await publishingTeamEmail(store);
   const current = await appPlan(await getStore(), license, new Date());
   const allowed = canUseManagedPublishing(current);
-  const notIncluded = allowed ? undefined : "Not included in this app's plan. Upgrade it on License & plugin.";
+  const notIncluded = allowed ? undefined : `Not included in this app's plan. Upgrade it on ${licensePageName(app)}.`;
   const autoUpload = hasFeature(current, "auto_publish");
 
-  const header = (
-    <div className="flex flex-col gap-1.5">
-      <h1 className="m-0 text-[28px] font-extrabold">Publishing</h1>
-      <span className="text-[15px] text-muted">{appLabel(app)} on Google Play and the App Store</span>
-    </div>
-  );
+  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on Google Play and the App Store.</>} />;
 
   const passwords = (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
@@ -141,10 +139,10 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           </Notice>
         ) : null}
         <section aria-labelledby="h-self" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-self" className="m-0 text-[19px] font-bold">
+          <h2 id="h-self" className="m-0 text-lg font-bold">
             You publish it yourself
           </h2>
-          <ol className="m-0 flex flex-col gap-2 pl-5 text-[15px] leading-relaxed">
+          <ol className="m-0 list-decimal space-y-2 pl-5 text-[15px] leading-relaxed marker:font-bold">
             <li>
               Download your files on <Link href="/dashboard/builds">Builds &amp; downloads</Link>: the App Bundle for Google Play, the iOS app and the store
               assets.
@@ -162,7 +160,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </section>
         <form action={choosePublishingModeAction} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="mode" value="managed" />
-          <h2 className="m-0 text-[17px] font-bold">Would you rather we publish it?</h2>
+          <h2 className="m-0 text-lg font-bold">Would you rather we publish it?</h2>
           <p className="m-0 text-[15px] text-ink-4">Our team publishes it under your own developer accounts. You only create the accounts and invite us.</p>
           <div>
             <SubmitButton variant="secondary" className="h-10" disabled={Boolean(notIncluded)} pendingText="Saving…">
@@ -200,7 +198,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       ) : null}
 
       <section aria-labelledby="h-status" className="flex flex-col gap-3">
-        <h2 id="h-status" className="m-0 text-[19px] font-bold">
+        <h2 id="h-status" className="m-0 text-lg font-bold">
           Where it stands
         </h2>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
@@ -237,7 +235,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       <section aria-labelledby="h-checklist" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
-            <h2 id="h-checklist" className="m-0 text-[19px] font-bold">
+            <h2 id="h-checklist" className="m-0 text-lg font-bold">
               Your steps
             </h2>
             <span className="text-sm text-muted">
@@ -259,7 +257,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
       <section aria-labelledby="h-listing" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
-          <h2 id="h-listing" className="m-0 text-[19px] font-bold">
+          <h2 id="h-listing" className="m-0 text-lg font-bold">
             Store listing details
           </h2>
           <span className="text-sm text-muted">What the stores show. The texts and screenshots come from your app setup.</span>
@@ -311,7 +309,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
 
       {events.length ? (
         <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
-          <h2 id="h-history" className="m-0 text-[17px] font-bold">
+          <h2 id="h-history" className="m-0 text-lg font-bold">
             History
           </h2>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">

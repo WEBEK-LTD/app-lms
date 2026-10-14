@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { setOrderStatusAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
-import { Badge, formatDateTime } from "@/components/ui";
+import { Badge, EmptyState, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
@@ -33,8 +33,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses")) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Orders</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">Orders from your app are on your website. This page is for shops without one.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Orders</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Orders from your app are on your website. This page is for shops without one.</p>
       </div>
     );
   }
@@ -46,13 +46,15 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Orders</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Orders</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Paid orders from your app, newest first. Mark them completed once they&apos;re delivered. Refunds are made in your iyzico panel.
         </p>
       </div>
       {items.length === 0 ? (
-        <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted sm:p-6">No orders yet.</p>
+        <EmptyState icon="receipt_long" title="No orders yet.">
+          Paid orders from your app show here, newest first, with the customer&apos;s details. We email you when one comes in.
+        </EmptyState>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-4 p-0">
           {items.map((order) => (

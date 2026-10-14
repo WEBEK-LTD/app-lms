@@ -27,8 +27,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
   if (!app || app.connector?.kind !== "listings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Listings</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Listings</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Listings are for Real estate apps. Choose Real estate on <Link href="/dashboard/app-type">App type</Link>, then Listings managed in
           Yallapp on the Website step.
         </p>
@@ -52,13 +52,13 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
   const unit = AREA_UNITS.find((u) => u.key === settings.areaUnit)?.symbol ?? "m²";
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Listings</h1>
-          <p className="m-0 text-[17px] leading-relaxed text-ink-4">Your properties. Published ones show in the app right away.</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Listings</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Your properties. Published ones show in the app right away.</p>
         </div>
-        <Link href="/dashboard/listings/new" className={`${btn.primary} h-[46px]`}>
+        <Link href="/dashboard/listings/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
           Add listing
         </Link>
@@ -79,7 +79,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
       ) : null}
 
       <section aria-labelledby="h-listings" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-listings" className="m-0 text-[19px] font-bold">
+        <h2 id="h-listings" className="m-0 text-lg font-bold">
           {all.length} {all.length === 1 ? "listing" : "listings"}
         </h2>
         <form method="get" className="flex flex-wrap items-end gap-3" role="search">
@@ -148,7 +148,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
 
       <section aria-labelledby="h-office" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
-          <h2 id="h-office" className="m-0 text-[19px] font-bold">
+          <h2 id="h-office" className="m-0 text-lg font-bold">
             Your office
           </h2>
           <p className="m-0 text-[15px] text-ink-4">How people reach you from the app, and how prices and areas are shown.</p>

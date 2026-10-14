@@ -27,7 +27,7 @@ export function StartBuildForm({ suggestedVersion, disabledReason }: { suggested
             aria-describedby={error ? "f-versionName-error" : undefined}
           />
         </div>
-        <SubmitButton className="h-[46px]" pendingText="Starting…" disabled={Boolean(disabledReason)} describedBy={disabledReason ? "start-build-hint" : undefined}>
+        <SubmitButton className="h-11" pendingText="Starting…" disabled={Boolean(disabledReason)} describedBy={disabledReason ? "start-build-hint" : undefined}>
           Start new build
         </SubmitButton>
       </div>

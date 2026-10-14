@@ -18,8 +18,8 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
   if (!app || app.connector?.kind !== "listings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">Inquiries</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">Inquiries are messages about your listings, for Real estate apps.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Inquiries</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Inquiries are messages about your listings, for Real estate apps.</p>
       </div>
     );
   }
@@ -39,10 +39,10 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Inquiries</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Inquiries</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Messages people sent from the app about your listings.{" "}
           {unread > 0 ? `${unread} ${unread === 1 ? "conversation has" : "conversations have"} new messages.` : "You're all caught up."}
         </p>
@@ -62,7 +62,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
       </nav>
 
       <section aria-labelledby="h-inquiries" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-inquiries" className="m-0 text-[19px] font-bold">
+        <h2 id="h-inquiries" className="m-0 text-lg font-bold">
           {total} {status === "open" ? "open" : "closed"} {total === 1 ? "conversation" : "conversations"}
         </h2>
         {items.length === 0 ? (

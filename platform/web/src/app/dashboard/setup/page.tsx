@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { Notice, formatDate } from "@/components/ui";
+import { Notice, PageHeader, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
-import { appLabel } from "@/lib/app/label";
+import { appLabel, licensePageName } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
@@ -64,17 +64,19 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
   return (
     <>
-      <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[28px] font-extrabold">App setup</h1>
-        <span className="text-[15px] text-muted">
-          Plan: {planName(plan, plans)} ·{" "}
-          {complete
-            ? builds.length
-              ? "Setup is complete. Changes apply to your next build."
-              : "Setup is complete."
-            : "Your first build starts when all steps are complete."}
-        </span>
-      </div>
+      <PageHeader
+        title="App setup"
+        description={
+          <>
+            {appLabel(app)} · Plan: {planName(plan, plans)} ·{" "}
+            {complete
+              ? builds.length
+                ? "Setup is complete. Changes apply to your next build."
+                : "Setup is complete."
+              : "Your first build starts when all steps are complete."}
+          </>
+        }
+      />
 
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
@@ -83,21 +85,25 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : state === "pending" && client.status === "active" ? (
         <Notice tone="warn" icon="hourglass_top">
           {appLabel(app)} is waiting for activation. Set it up now; its first build starts once it&apos;s active. Each app has its own plan:{" "}
-          <Link href="/dashboard/license">pay it on License &amp; plugin</Link> or message us on WhatsApp.
+          <Link href="/dashboard/license">pay it on {licensePageName(app)}</Link> or message us on WhatsApp.
         </Notice>
       ) : null}
 
-      <ol aria-label="Setup steps" className="m-0 grid list-none gap-2.5 p-0 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
+      {/* One row of steps: scrolls sideways on phones, five columns from md up. */}
+      <ol
+        aria-label="Setup steps"
+        className="relative -mx-4 my-0 flex list-none gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:-mx-8 sm:px-8 md:mx-0 md:grid md:grid-cols-5 md:gap-2.5 md:overflow-visible md:px-0 md:pb-0"
+      >
         {SETUP_STEPS.map((s, i) => {
           const current = s === step;
           const done = status[s];
           const href = s === "app-type" ? "/dashboard/app-type" : `/dashboard/setup?step=${s}`;
           return (
-            <li key={s}>
+            <li key={s} className="flex-none md:min-w-0">
               <Link
                 href={href}
                 aria-current={current ? "step" : undefined}
-                className={`flex items-center gap-2.5 rounded-xl bg-white text-midnight no-underline hover:text-midnight ${
+                className={`flex h-full items-center gap-2.5 rounded-xl bg-white text-midnight no-underline hover:text-midnight ${
                   current ? "border-2 border-midnight px-[13px] py-[11px]" : "border border-line px-3.5 py-3 hover:border-midnight"
                 }`}
               >
@@ -214,12 +220,12 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
       {upcoming.length ? (
         <section aria-labelledby="h-next" className="flex flex-col gap-3">
-          <h2 id="h-next" className="m-0 text-base font-bold text-muted">
+          <h2 id="h-next" className="m-0 text-lg font-bold">
             Coming up
           </h2>
           <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
             {upcoming.map((s) => (
-              <div key={s} className="flex flex-col gap-2 rounded-[14px] border border-line bg-white px-5 py-[18px]">
+              <div key={s} className="flex flex-col gap-2 rounded-2xl border border-dashed border-line-strong bg-sand px-5 py-[18px]">
                 <span className="text-[15px] font-bold">
                   {editableSteps.indexOf(s) + 1} · {STEP_LABEL[s]}
                 </span>

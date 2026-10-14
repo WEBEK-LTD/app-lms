@@ -13,8 +13,8 @@ export default async function AppSignInPage() {
   if (!app || app.backend !== "hosted") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[28px] font-extrabold">App sign-in</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">App sign-in</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Your app signs customers in through your website: set the rules in the Yallapp plugin in WordPress.{" "}
           <Link href="/dashboard/setup">Back to app setup</Link>
         </p>
@@ -22,10 +22,10 @@ export default async function AppSignInPage() {
     );
   }
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">App sign-in</h1>
-        <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">App sign-in</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Customers sign in to your app with their phone number and a 6-digit code. Changes apply at once, without a new build.
         </p>
       </div>

@@ -24,7 +24,7 @@ import { initialFormState, type FormState } from "@/lib/forms";
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
   return (
     <section aria-labelledby={id} className="flex min-w-0 flex-[1_1_440px] flex-col gap-[18px] rounded-2xl border border-line bg-white p-5 sm:p-6">
-      <h2 id={id} className="m-0 text-[19px] font-bold">
+      <h2 id={id} className="m-0 text-lg font-bold">
         {title}
       </h2>
       {children}
@@ -36,13 +36,13 @@ function StepActions({ back }: { back: string | null }) {
   return (
     <div className="flex justify-between gap-3 pt-1.5">
       {back ? (
-        <Link href={back} className={`${btn.secondary} h-[46px]`}>
+        <Link href={back} className={`${btn.secondary} h-11`}>
           Back
         </Link>
       ) : (
         <span />
       )}
-      <SubmitButton className="h-[46px]">Save &amp; continue</SubmitButton>
+      <SubmitButton className="h-11">Save &amp; continue</SubmitButton>
     </div>
   );
 }
@@ -166,7 +166,7 @@ export function HostedWebsiteStep({ apiUrl }: { apiUrl: string }) {
         </div>
         <p className="m-0 text-sm text-muted">Our team set this up for you. Message us on WhatsApp to change it.</p>
         <div className="flex justify-end pt-1.5">
-          <Link href="/dashboard/setup?step=branding" className={`${btn.primary} h-[46px]`}>
+          <Link href="/dashboard/setup?step=branding" className={`${btn.primary} h-11`}>
             Continue
           </Link>
         </div>
@@ -1209,10 +1209,10 @@ export function PublishingStep({
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
-            <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
+            <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
               Back
             </Link>
-            <SubmitButton className="h-[46px]">Finish setup</SubmitButton>
+            <SubmitButton className="h-11">Finish setup</SubmitButton>
           </div>
         </StepCard>
       </form>
@@ -1251,10 +1251,10 @@ export function PublishingStep({
         <FirebaseFields state={state} saved={saved.firebase} />
 
         <div className="flex justify-between gap-3 pt-1.5">
-          <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
+          <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
             Back
           </Link>
-          <SubmitButton className="h-[46px]">Save &amp; finish</SubmitButton>
+          <SubmitButton className="h-11">Save &amp; finish</SubmitButton>
         </div>
       </StepCard>
     </form>

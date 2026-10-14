@@ -38,7 +38,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
         <Link href="/dashboard/inquiries" className="text-sm font-semibold">
           ← Inquiries
         </Link>
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">{user?.name ?? "App user"}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{user?.name ?? "App user"}</h1>
         <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
           <span>
             About{" "}
@@ -61,7 +61,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
       </div>
 
       <section aria-labelledby="h-messages" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-messages" className="m-0 text-[19px] font-bold">
+        <h2 id="h-messages" className="m-0 text-lg font-bold">
           Messages
         </h2>
         <ol className="m-0 flex list-none flex-col gap-3 p-0">

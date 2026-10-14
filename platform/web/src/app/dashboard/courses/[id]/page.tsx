@@ -39,17 +39,17 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
   const students = await Promise.all(enrollments.slice(0, 50).map(async (e) => ({ ...e, user: await store.getHostedUser(app.id, e.userId) })));
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Link href="/dashboard/courses" className="flex items-center gap-1 text-sm no-underline">
           <Icon name="arrow_back" size={18} />
           Courses
         </Link>
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">{course.title}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{course.title}</h1>
       </div>
 
       <section aria-labelledby="h-details" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-details" className="m-0 text-[19px] font-bold">
+        <h2 id="h-details" className="m-0 text-lg font-bold">
           Details
         </h2>
         <CourseForm
@@ -71,7 +71,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
       </section>
 
       <section aria-labelledby="h-curriculum" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-curriculum" className="m-0 text-[19px] font-bold">
+        <h2 id="h-curriculum" className="m-0 text-lg font-bold">
           Sections and lessons
         </h2>
         {course.topics.map((t) => (
@@ -120,7 +120,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
       </section>
 
       <section aria-labelledby="h-students" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-students" className="m-0 text-[19px] font-bold">
+        <h2 id="h-students" className="m-0 text-lg font-bold">
           Students <span className="font-normal text-muted">{enrollments.length}</span>
         </h2>
         {students.length ? (

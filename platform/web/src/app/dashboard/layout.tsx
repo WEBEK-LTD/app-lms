@@ -1,22 +1,56 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { stopManagingAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { SideNavLinks } from "@/components/side-nav";
+import { APP_TYPE_ICON } from "@/components/dashboard";
+import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard-nav";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
-import { appLabel, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
+import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { APP_TYPE_NAMES } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
+import type { App } from "@/lib/data/types";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
+/** The name of the group of content pages in the sidebar. */
+const CONTENT_LABEL: Record<string, string> = { catalog: "Your shop", courses: "Your school", bookings: "Your bookings", listings: "Your properties" };
+
+/** What the app's content and customers pages are, for apps whose content is managed here. */
+function contentItems(app: App | null): DashboardNavGroup["items"] {
+  switch (app?.connector?.kind) {
+    case "catalog":
+      return [
+        { href: "/dashboard/catalog", label: "Products", icon: "inventory_2" },
+        { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
+      ];
+    case "courses":
+      return [
+        { href: "/dashboard/courses", label: "Courses", icon: "school" },
+        { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
+      ];
+    case "bookings":
+      return [
+        { href: "/dashboard/services", label: "Services & team", icon: "groups" },
+        { href: "/dashboard/appointments", label: "Appointments", icon: "event_available" },
+      ];
+    case "listings":
+      return [
+        { href: "/dashboard/listings", label: "Listings", icon: "home_work" },
+        { href: "/dashboard/inquiries", label: "Inquiries", icon: "forum" },
+      ];
+    default:
+      return [];
+  }
+}
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getContact();
-  const { user, staff, app, apps, client, licenses } = await requireClient();
+  const { user, staff, app, apps, client, licenses, state } = await requireClient();
   const now = new Date();
   // Every app of the account, each on its own plan: the switcher shows which one the dashboard works on.
   const switcherApps = apps.map((a) => ({
@@ -24,69 +58,99 @@ export default async function DashboardLayout({ children }: { children: React.Re
     label: appLabel(a),
     detail: `${APP_TYPE_NAMES[a.appType]} · ${ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]}`,
   }));
+  const currentApp = app
+    ? {
+        label: appLabel(app),
+        typeName: APP_TYPE_NAMES[app.appType],
+        typeIcon: APP_TYPE_ICON[app.appType],
+        iconUrl: app.iconAssetId ? `/api/v1/assets/${app.iconAssetId}` : null,
+        state,
+        // An app whose plan ended is paused for its users.
+        stateLabel: state === "expired" ? "Paused" : ACCOUNT_STATE_LABEL[state],
+      }
+    : null;
+
+  // Only what the current app uses: its content pages, and the app users pages on the hosted API.
+  const content = contentItems(app);
+  const groups: DashboardNavGroup[] = [
+    {
+      items: [
+        { href: "/dashboard", label: "Overview", icon: "dashboard", exact: true },
+        { href: "/dashboard/setup", label: "App setup", icon: "tune", prefix: "/dashboard/app-type" },
+        { href: "/dashboard/pages", label: "Pages & look", icon: "palette" },
+      ],
+    },
+    ...(content.length && app?.connector ? [{ label: CONTENT_LABEL[app.connector.kind] ?? "Your business", items: content }] : []),
+    ...(app?.backend === "hosted"
+      ? [
+          {
+            label: "App users",
+            items: [
+              { href: "/dashboard/notifications", label: "App notifications", icon: "notifications" as const },
+              { href: "/dashboard/app-sign-in", label: "App sign-in", icon: "login" as const },
+            ],
+          },
+        ]
+      : []),
+    {
+      label: "Publish",
+      items: [
+        { href: "/dashboard/builds", label: "Builds & downloads", icon: "build" },
+        { href: "/dashboard/publishing", label: "Publishing", icon: "publish" },
+      ],
+    },
+    {
+      label: "Account",
+      items: [
+        { href: "/dashboard/license", label: licensePageName(app), icon: "workspace_premium" },
+        { href: "/dashboard/announcements", label: "Announcements", icon: "campaign" },
+        { href: contact.whatsappUrl, label: "Support", icon: "support_agent", external: true },
+      ],
+    },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
-      <nav
-        aria-label="Dashboard"
-        className="flex w-full flex-col gap-3 border-b border-line bg-white px-3.5 py-4 md:w-[240px] md:flex-none md:gap-1 md:border-r md:border-b-0 md:py-[22px]"
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-[10px] bg-midnight px-4 py-2.5 font-semibold text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:text-white"
       >
-        <div className="flex items-center justify-between gap-3 px-2 md:pb-5">
-          <Logo />
-        </div>
-        {apps.length ? (
-          <div className="md:pb-4">
-            <AppSwitcher apps={switcherApps} current={app?.id ?? null} canAdd={apps.length < MAX_APPS_PER_CLIENT} />
+        Skip to content
+      </a>
+      <DashboardSidebar
+        logo={
+          <Link href="/dashboard" className="flex rounded-md">
+            <Logo height={28} alt="Yallapp dashboard" />
+          </Link>
+        }
+        switcher={
+          apps.length ? (
+            <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={apps.length < MAX_APPS_PER_CLIENT} />
+          ) : null
+        }
+        groups={groups}
+        footer={
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-ivory text-sm font-bold text-ink-3" aria-hidden="true">
+                {(user.name.trim()[0] ?? "?").toUpperCase()}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-sm font-semibold">{user.name}</span>
+                <span className="truncate text-xs text-muted" title={user.email}>
+                  {user.email}
+                </span>
+              </span>
+            </div>
+            <SignOutButton className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-sm font-semibold text-midnight hover:border-midnight">
+              <Icon name="logout" size={18} />
+              Sign out
+            </SignOutButton>
           </div>
-        ) : null}
-        <SideNavLinks
-          items={[
-            { href: "/dashboard", label: "Overview", exact: true },
-            { href: "/dashboard/setup", label: "App setup", prefix: "/dashboard/app-type" },
-            { href: "/dashboard/pages", label: "Pages & look" },
-            { href: "/dashboard/builds", label: "Builds & downloads" },
-            { href: "/dashboard/publishing", label: "Publishing" },
-            ...(app?.connector?.kind === "catalog"
-              ? [
-                  { href: "/dashboard/catalog", label: "Products" },
-                  { href: "/dashboard/orders", label: "Orders" },
-                ]
-              : []),
-            ...(app?.connector?.kind === "courses"
-              ? [
-                  { href: "/dashboard/courses", label: "Courses" },
-                  { href: "/dashboard/orders", label: "Orders" },
-                ]
-              : []),
-            ...(app?.connector?.kind === "bookings"
-              ? [
-                  { href: "/dashboard/services", label: "Services & team" },
-                  { href: "/dashboard/appointments", label: "Appointments" },
-                ]
-              : []),
-            ...(app?.connector?.kind === "listings"
-              ? [
-                  { href: "/dashboard/listings", label: "Listings" },
-                  { href: "/dashboard/inquiries", label: "Inquiries" },
-                ]
-              : []),
-            ...(app?.backend === "hosted"
-              ? [
-                  { href: "/dashboard/notifications", label: "App notifications" },
-                  { href: "/dashboard/app-sign-in", label: "App sign-in" },
-                ]
-              : []),
-            { href: "/dashboard/license", label: "License & plugin" },
-            { href: "/dashboard/announcements", label: "Announcements" },
-            { href: contact.whatsappUrl, label: "Support", external: true },
-          ]}
-        />
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line-soft px-2 pt-3 text-sm text-muted md:mt-auto">
-          <span className="min-w-0 break-all">{user.email}</span>
-          <SignOutButton className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-accent hover:text-accent-hover hover:underline" />
-        </div>
-      </nav>
-      <main className="min-w-0 flex-1 px-4 pt-7 pb-12 sm:px-9 sm:pt-8">
-        <div className="flex max-w-[1000px] flex-col gap-6">
+        }
+      />
+      <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-16 outline-none sm:px-8 sm:pt-8 lg:px-10">
+        <div className="mx-auto flex max-w-[1120px] flex-col gap-6">
           {staff ? (
             <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-midnight px-4 py-3 text-sm text-white">
               <span className="flex items-center gap-2">

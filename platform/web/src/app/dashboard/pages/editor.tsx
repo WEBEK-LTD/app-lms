@@ -341,7 +341,7 @@ export function PagesEditor({
           {errors.length ? (
             <div role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-[15px] text-danger">
               <p className="m-0 font-semibold">Fix these to save and publish:</p>
-              <ul className="m-0 mt-1 pl-5">
+              <ul className="m-0 mt-1 list-disc pl-5">
                 {errors.map((e, i) => (
                   <li key={i}>{e}</li>
                 ))}
@@ -374,7 +374,7 @@ export function PagesEditor({
 
         {(panel === "pages" || panel === "tabs") && !plan.pageEditor ? (
           <section role="tabpanel" id={`panel-${panel}`} aria-labelledby={`tab-${panel}`} className={sectionClass}>
-            <h2 className="m-0 text-[19px] font-bold">{panel === "pages" ? "Pages" : "Bottom tabs"}</h2>
+            <h2 className="m-0 text-lg font-bold">{panel === "pages" ? "Pages" : "Bottom tabs"}</h2>
             <p className="m-0 text-[15px] text-ink-4">
               On the {plan.name} plan your app uses ready-made pages and tabs for its type, filled with your content. Choose its template, colors and fonts
               under Look.
@@ -388,7 +388,7 @@ export function PagesEditor({
         {panel === "pages" && plan.pageEditor ? (
           <div role="tabpanel" id="panel-pages" aria-labelledby="tab-pages" className="flex flex-col gap-5">
             <section aria-labelledby="h-page-list" className={sectionClass}>
-              <h2 id="h-page-list" className="m-0 text-[19px] font-bold">
+              <h2 id="h-page-list" className="m-0 text-lg font-bold">
                 Pages
               </h2>
               <ul className="m-0 flex list-none flex-col p-0">
@@ -429,7 +429,7 @@ export function PagesEditor({
 
             {page ? (
               <section aria-labelledby="h-page" className={sectionClass}>
-                <h2 id="h-page" className="m-0 text-[19px] font-bold">
+                <h2 id="h-page" className="m-0 text-lg font-bold">
                   Page: {translated(page, lang.edit, def).title || page.slug}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -527,7 +527,7 @@ export function PagesEditor({
         {panel === "tabs" && plan.pageEditor ? (
           <section role="tabpanel" id="panel-tabs" aria-labelledby="tab-tabs" className={sectionClass}>
             <div className="flex flex-col gap-1">
-              <h2 className="m-0 text-[19px] font-bold">Bottom tabs</h2>
+              <h2 className="m-0 text-lg font-bold">Bottom tabs</h2>
               <p className="m-0 text-[15px] text-ink-4">
                 {LAYOUT_LIMITS.minTabs} to {LAYOUT_LIMITS.maxTabs} tabs, left to right. Each opens one of your pages or a screen of the app.
               </p>
@@ -598,7 +598,7 @@ export function PagesEditor({
 
         {panel === "look" ? (
           <section role="tabpanel" id="panel-look" aria-labelledby="tab-look" className={sectionClass}>
-            <h2 className="m-0 text-[19px] font-bold">Look</h2>
+            <h2 className="m-0 text-lg font-bold">Look</h2>
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
               <legend className="mb-1.5 p-0 text-sm font-semibold">Template</legend>
               <div className="grid gap-2 sm:grid-cols-3">
@@ -669,7 +669,7 @@ export function PagesEditor({
         {panel === "languages" ? (
           <section role="tabpanel" id="panel-languages" aria-labelledby="tab-languages" className={sectionClass}>
             <div className="flex flex-col gap-1">
-              <h2 className="m-0 text-[19px] font-bold">Languages</h2>
+              <h2 className="m-0 text-lg font-bold">Languages</h2>
               <p className="m-0 text-[15px] text-ink-4">
                 People pick a language in the app&apos;s settings when you turn on more than one. Arabic shows right to left. Write each text in every language with &quot;Edit texts in&quot; above;
                 empty texts show the default language.

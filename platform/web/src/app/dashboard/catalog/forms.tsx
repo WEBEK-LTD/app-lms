@@ -148,7 +148,7 @@ export function ProductForm({
         />
       </div>
       <div className="flex justify-end pt-1">
-        <SubmitButton className="h-[46px]" pendingText="Saving…">
+        <SubmitButton className="h-11" pendingText="Saving…">
           {product.id === null ? "Add product" : "Save product"}
         </SubmitButton>
       </div>
@@ -163,7 +163,7 @@ export function AddCategoryForm() {
       <FormMessage message={state.message} ok={state.ok} />
       <div className="flex items-end gap-2">
         <Field label="New category" name="name" maxLength={80} className="flex-1" defaultValue={state.ok ? "" : state.values?.name} error={state.errors?.name} />
-        <SubmitButton variant="secondary" className="h-[46px]" pendingText="Adding…">
+        <SubmitButton variant="secondary" className="h-11" pendingText="Adding…">
           Add
         </SubmitButton>
       </div>

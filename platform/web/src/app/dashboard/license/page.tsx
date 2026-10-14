@@ -5,7 +5,7 @@ import { releaseSiteAction } from "@/app/actions/dashboard";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
-import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
+import { Badge, Notice, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -20,9 +20,12 @@ import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
-import { appLabel } from "@/lib/app/label";
+import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 
-export const metadata: Metadata = { title: "License & plugin" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { app } = await requireClient();
+  return { title: licensePageName(app) };
+}
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -76,21 +79,25 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const release = latestRelease(await store.listReleases());
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;
   const active = state === "active";
+  // Apps on the hosted API or their own API have no plugin: no website activation or plugin download to show.
+  const plugin = usesPlugin(app);
 
   return (
     <>
-      <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[28px] font-extrabold">License &amp; plugin</h1>
-        <span className="text-[15px] text-muted">
-          {apps.length > 1 ? (
+      <PageHeader
+        title={licensePageName(app)}
+        description={
+          apps.length > 1 ? (
             <>
-              The license of <strong className="text-ink-2">{appLabel(app)}</strong>. Each app has its own plan, license key and website.
+              The plan and license of <strong className="text-ink-2">{appLabel(app)}</strong>. Each app has its own plan, license key and website.
             </>
-          ) : (
+          ) : plugin ? (
             "Your license connects the Yallapp plugin on your website to your plan."
-          )}
-        </span>
-      </div>
+          ) : (
+            "Your app's plan, how long it runs and how to change it."
+          )
+        }
+      />
 
       {released ? (
         <Notice tone="success" icon="check_circle" role="status">
@@ -141,7 +148,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
 
       <section aria-labelledby="h-license" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-license" className="m-0 text-[19px] font-bold">
+          <h2 id="h-license" className="m-0 text-lg font-bold">
             License
           </h2>
           <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
@@ -169,6 +176,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             ) : null}
           </Row>
           <Row label="Active until">{formatDate(license?.expiresAt)}</Row>
+          {plugin || activation ? (
           <Row label="Activated on">
             {activation ? (
               <span className="flex flex-col gap-0.5">
@@ -181,6 +189,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
               <span className="font-normal text-muted">Not activated on a website yet</span>
             )}
           </Row>
+          ) : null}
         </dl>
         {activation ? (
           <form action={releaseSiteAction} className="flex flex-wrap items-center gap-3 border-t border-line-soft pt-4">
@@ -195,7 +204,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
 
       <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
-          <h2 id="h-change-plan" className="m-0 text-[19px] font-bold">
+          <h2 id="h-change-plan" className="m-0 text-lg font-bold">
             {currentId ? "Change plan" : "Plans"}
           </h2>
           <p className="m-0 text-sm text-muted">
@@ -251,7 +260,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       <form action={scheduleDowngradeAction}>
                         <input type="hidden" name="appId" value={app?.id ?? ""} />
                         <input type="hidden" name="plan" value={id} />
-                        <SubmitButton variant="secondary" className="h-9 w-full px-3 text-sm">
+                        <SubmitButton variant="secondary" className="min-h-9 w-full px-3 py-1.5 text-sm leading-snug">
                           Switch when this period ends
                         </SubmitButton>
                       </form>
@@ -282,7 +291,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       {payable.length ? (
         <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
-            <h2 id="h-pay" className="m-0 text-[19px] font-bold">
+            <h2 id="h-pay" className="m-0 text-lg font-bold">
               {state === "pending" ? "Pay by card" : state === "expired" ? "Renew by card" : "Extend by card or change plan"}
             </h2>
             <p className="m-0 text-sm text-muted">
@@ -295,8 +304,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         </section>
       ) : null}
 
+      {plugin ? (
       <section aria-labelledby="h-plugin" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-plugin" className="m-0 text-[19px] font-bold">
+        <h2 id="h-plugin" className="m-0 text-lg font-bold">
           WordPress plugin
         </h2>
         {release ? (
@@ -321,9 +331,10 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         )}
         <p className="m-0 text-sm text-muted">
           After you install it, the plugin updates itself from WordPress like any other plugin. See{" "}
-          <Link href="/guides/install-plugin">Install the plugin</Link> and <Link href="/guides/activate-license">Activate your license</Link>.
+          <Link href="/docs/wordpress-plugin">Install the plugin</Link> and <Link href="/docs/wordpress-license">Activate your license</Link>.
         </p>
       </section>
+      ) : null}
     </>
   );
 }

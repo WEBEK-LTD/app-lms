@@ -317,15 +317,15 @@ export function ListingForm({
       <div className="flex flex-wrap justify-end gap-3 pt-1">
         {listing.id === null ? (
           <>
-            <SubmitButton variant="secondary" className="h-[46px]" name="intent" value="draft" pendingText="Saving…">
+            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText="Saving…">
               Save as draft
             </SubmitButton>
-            <SubmitButton className="h-[46px]" name="intent" value="publish" pendingText="Publishing…">
+            <SubmitButton className="h-11" name="intent" value="publish" pendingText="Publishing…">
               Publish
             </SubmitButton>
           </>
         ) : (
-          <SubmitButton className="h-[46px]" pendingText="Saving…">
+          <SubmitButton className="h-11" pendingText="Saving…">
             Save listing
           </SubmitButton>
         )}

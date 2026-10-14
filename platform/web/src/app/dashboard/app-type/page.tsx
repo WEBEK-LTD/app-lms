@@ -63,7 +63,7 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
   if (adding && context.apps.length >= MAX_APPS_PER_CLIENT) {
     return (
       <div className="flex max-w-[620px] flex-col gap-4">
-        <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Add an app</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Add an app</h1>
         <Notice tone="warn" icon="warning" role="alert">
           This account has {MAX_APPS_PER_CLIENT} apps, the most it can have. Message us on WhatsApp if you need more.
         </Notice>
@@ -76,16 +76,16 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
       <div className="flex max-w-[620px] flex-col gap-2">
         {adding ? (
           <>
-            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">Add an app</h1>
-            <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Add an app</h1>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
               A new app for this account, with its own plan, license key and builds. Pick its type first; it waits for activation
               until we activate it or you pay its plan.
             </p>
           </>
         ) : (
           <>
-            <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">What kind of app do you want?</h1>
-            <p className="m-0 text-[17px] leading-relaxed text-ink-4">
+            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">What kind of app do you want?</h1>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
               Pick the type that matches your business. You can change it later; your next build follows it.
             </p>
           </>
