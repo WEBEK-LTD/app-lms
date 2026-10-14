@@ -159,7 +159,8 @@ describe("codes that couldn't be sent", () => {
     expect(lines[1]).toContain("SMTP answered 451.");
     for (const line of lines) {
       expect(line).toContain(app.id);
-      expect(line).not.toMatch(/sara@example\.com|5321234567|\d{6}\b(?!-)/);
+      // The app's id is a random UUID that can end in six digits: only the rest may hold no code.
+      expect(line.replace(app.id, "")).not.toMatch(/sara@example\.com|5321234567|\d{6}\b(?!-)/);
     }
   });
 
