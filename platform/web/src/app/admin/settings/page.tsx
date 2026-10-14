@@ -122,6 +122,7 @@ export default async function SettingsPage() {
             template: otpValue?.kind === "whatsapp" ? otpValue.template : "",
             language: otpValue?.kind === "whatsapp" ? otpValue.language : "",
             url: otpValue?.kind === "webhook" ? otpValue.url : "",
+            baseUrl: otpValue?.kind === "waabek" ? otpValue.baseUrl : "",
           }}
         />
       </Section>

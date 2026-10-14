@@ -4,6 +4,12 @@ import type { OtpSenderConfig } from "../env";
 /** Sends a sign-in code to a phone number. Throws when the provider fails. */
 export interface OtpSender {
   send(input: { phone: string; code: string; appName: string; expiresInSeconds: number }): Promise<void>;
+  /**
+   * For providers that make and check the code themselves (WABEK): `send`
+   * ignores the code it's given, and this says whether the user's code is
+   * right. Throws when the provider can't be reached.
+   */
+  verify?(input: { phone: string; code: string }): Promise<boolean>;
 }
 
 export class OtpSendError extends Error {
@@ -58,6 +64,39 @@ export function webhookSender(config: Extract<OtpSenderConfig, { kind: "webhook"
   };
 }
 
+/**
+ * WABEK's OTP API (waabek.com): WABEK makes the code, sends it on WhatsApp with
+ * its Meta-approved template, and checks it. Numbers go without the "+".
+ */
+export function waabekSender(config: Extract<OtpSenderConfig, { kind: "waabek" }>, fetcher: Fetch = fetch): OtpSender {
+  const call = (path: string, body: Record<string, unknown>) =>
+    fetcher(new URL(path, config.baseUrl).toString(), {
+      method: "POST",
+      headers: { "x-api-key": config.apiKey, "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
+    });
+  const success = async (response: Response) => {
+    const json = (await response.json().catch(() => null)) as { success?: unknown } | null;
+    return json?.success === true;
+  };
+  return {
+    async send({ phone }) {
+      const response = await call("/api/otp/send", { phone: phone.replace(/^\+/, ""), code_length: 6 });
+      if (!response.ok) throw new OtpSendError(`WABEK answered HTTP ${response.status}.`);
+      if (!(await success(response))) throw new OtpSendError("WABEK didn't send the code.");
+    },
+    async verify({ phone, code }) {
+      const response = await call("/api/otp/verify", { phone: phone.replace(/^\+/, ""), code });
+      // A wrong or expired code is an answer; a bad key, a limit or a server error is a failure.
+      if (response.status === 401 || response.status === 403 || response.status === 429 || response.status >= 500) {
+        throw new OtpSendError(`WABEK answered HTTP ${response.status}.`);
+      }
+      return response.ok && (await success(response));
+    },
+  };
+}
+
 /** Keeps the last code per number, for local runs and tests. */
 export class LogSender implements OtpSender {
   readonly sent = new Map<string, string>();
@@ -74,6 +113,7 @@ export function otpSenderFrom(config: OtpSenderConfig | null): OtpSender | null 
   if (!config) return null;
   if (config.kind === "whatsapp") return whatsappSender(config);
   if (config.kind === "webhook") return webhookSender(config);
+  if (config.kind === "waabek") return waabekSender(config);
   return logSender;
 }
 

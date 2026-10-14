@@ -147,8 +147,10 @@ mobile/
   app contract's configuration, sign-in, account, devices, push token and
   notifications endpoints from our own database, behaving like the plugin
   (6-digit codes, 5 attempts, 15-minute access tokens, rotating 30-day
-  refresh tokens, a device limit). Codes go out through our WhatsApp Cloud
-  API number or a signed webhook to our gateway. Clients send notifications
+  refresh tokens, a device limit). Codes go out through WABEK (which makes,
+  sends on WhatsApp with its approved template, and checks the code; our
+  5-attempt limit still applies first), our WhatsApp Cloud API number, or a
+  signed webhook to our gateway. Clients send notifications
   from the dashboard; push uses the client's Firebase service account,
   stored encrypted. Content endpoints come from connectors (Shopify and
   others, 8.4 and 8.5) or the dashboard catalog (8.6); without one they

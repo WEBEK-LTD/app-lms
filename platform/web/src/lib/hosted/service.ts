@@ -263,12 +263,14 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
 
   const requestId = randomToken(24);
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
+  // A provider that checks its own codes (WABEK) keeps the code: none is stored here.
+  const providerChecks = Boolean(ctx.sender?.verify);
   await ctx.store.createHostedChallenge({
     tokenHash: sha256Hex(requestId),
     appId: ctx.app.id,
     kind: "otp",
     phone: phone.e164,
-    codeHash: review ? null : codeHash(ctx, requestId, code),
+    codeHash: review || providerChecks ? null : codeHash(ctx, requestId, code),
     attempts: 0,
     review,
     expiresAt: new Date(ctx.now.getTime() + CODE_TTL_SECONDS * 1000),
@@ -313,9 +315,16 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
   }
   const code = text(body.code, 12);
   const settings = hostedSettings(ctx.app);
-  const valid = challenge.review
-    ? Boolean(settings.reviewCode) && safeEqual(code, settings.reviewCode!)
-    : challenge.codeHash !== null && safeEqual(codeHash(ctx, requestId, code), challenge.codeHash);
+  let valid: boolean;
+  if (challenge.review) valid = Boolean(settings.reviewCode) && safeEqual(code, settings.reviewCode!);
+  else if (challenge.codeHash !== null) valid = safeEqual(codeHash(ctx, requestId, code), challenge.codeHash);
+  else if (ctx.sender?.verify && /^\d{4,8}$/.test(code)) {
+    try {
+      valid = await ctx.sender.verify({ phone: challenge.phone, code });
+    } catch {
+      return error(502, "provider_error", "We couldn't check the code. Please try again.");
+    }
+  } else valid = false;
   if (!valid) return error(400, "invalid_code", "That code is not correct.");
   await ctx.store.deleteHostedChallenge(hash);
 

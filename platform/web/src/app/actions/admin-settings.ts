@@ -5,7 +5,7 @@ import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
-import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
+import { encryptionKey, iyzicoApiUrl, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
@@ -66,7 +66,7 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
   const saved = (await platformSetting(store, "otp", { fresh: true }))?.value ?? null;
   const kind = str(formData, "kind");
   const values: Record<string, string> = { kind };
-  for (const name of ["phoneNumberId", "template", "language", "url"]) values[name] = str(formData, name);
+  for (const name of ["phoneNumberId", "template", "language", "url", "baseUrl"]) values[name] = str(formData, name);
   const errors: Record<string, string> = {};
   let value: OtpSetting;
   if (kind === "whatsapp") {
@@ -99,6 +99,22 @@ export async function saveOtpSettingAction(_: FormState, formData: FormData): Pr
       kind,
       url: url!.toString(),
       secretEncrypted: secret ? encryptSetting("otp", secret, encryptionKey()) : (saved as Extract<OtpSetting, { kind: "webhook" }>).secretEncrypted,
+    };
+  } else if (kind === "waabek") {
+    const apiKey = str(formData, "apiKey");
+    let baseUrl: URL | null = null;
+    try {
+      baseUrl = new URL(values.baseUrl || WAABEK_API_URL);
+    } catch {
+      baseUrl = null;
+    }
+    if (!baseUrl || baseUrl.protocol !== "https:") errors.baseUrl = "Enter WABEK's https address, like https://waabek.com.";
+    if (!apiKey && saved?.kind !== "waabek") errors.apiKey = "Paste the API key from your WABEK account.";
+    if (Object.keys(errors).length) return { errors, values };
+    value = {
+      kind,
+      apiKeyEncrypted: apiKey ? encryptSetting("otp", apiKey, encryptionKey()) : (saved as Extract<OtpSetting, { kind: "waabek" }>).apiKeyEncrypted,
+      baseUrl: baseUrl!.origin,
     };
   } else if (kind === "off") {
     value = { kind };

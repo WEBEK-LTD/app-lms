@@ -45,6 +45,19 @@ test("the team sets the sign-in code sender and goes back to the variables", asy
   await expect(otp.getByLabel("Signing secret")).toHaveValue("");
   await expect(page.locator("body")).not.toContainText("gateway-secret-0123456789");
 
+  // WABEK: its API key, kept encrypted and never shown again.
+  await otp.getByRole("radio", { name: /^WABEK/ }).check();
+  await expect(otp.getByLabel("WABEK address")).toHaveValue("https://waabek.com");
+  await otp.getByRole("button", { name: "Save" }).click();
+  await expect(otp.getByText("Paste the API key from your WABEK account.")).toBeVisible();
+  await otp.getByLabel("API key").fill("wabek-test-key-0123456789");
+  await otp.getByRole("button", { name: "Save" }).click();
+  await expect(otp.getByText("Sign-in codes setting saved.")).toBeVisible();
+  await page.reload();
+  await expect(otp.getByRole("radio", { name: /^WABEK/ })).toBeChecked();
+  await expect(otp.getByLabel("API key")).toHaveValue("");
+  await expect(page.locator("body")).not.toContainText("wabek-test-key-0123456789");
+
   await otp.getByRole("button", { name: "Use the Netlify variables" }).click();
   await expect(otp).toContainText("Now: Netlify variables (webhook)");
 });
