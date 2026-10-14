@@ -932,6 +932,59 @@ class FakeApi implements YallappApi {
     );
   }
 
+  // Charity & donations (29).
+
+  List<Map<String, dynamic>> campaigns = [
+    campaignSummaryJson(),
+    campaignSummaryJson(
+      id: 2,
+      title: 'School lunches for 200 children',
+      goal: '120000.00',
+      raised: '37800.00',
+      donorCount: 96,
+      featured: false,
+    ),
+    campaignSummaryJson(
+      id: 3,
+      title: 'Flood relief',
+      goal: null,
+      raised: '9100.00',
+      donorCount: 31,
+      status: 'closed',
+      featured: false,
+      endsAt: null,
+    ),
+  ];
+  Map<String, dynamic> campaign = campaignJson();
+  List<Map<String, dynamic>> donations = [donationJson()];
+
+  /// What [createDonationLink] answers: the server decides `open_in`.
+  String donationOpenIn = 'in_app';
+  final donationRequests = <DonationRequest>[];
+
+  @override
+  Future<Paged<CampaignSummary>> listCampaigns({int page = 1}) => _answer(
+    'listCampaigns',
+    () => Paged.fromJson(pageJson(campaigns), CampaignSummary.fromJson),
+  );
+
+  @override
+  Future<Campaign> getCampaign(int campaignId) =>
+      _answer('getCampaign', () => Campaign.fromJson(campaign));
+
+  @override
+  Future<CheckoutLink> createDonationLink(DonationRequest request) {
+    donationRequests.add(request);
+    return _answer(
+      'createDonationLink',
+      () => CheckoutLink.fromJson({
+        'url': 'https://yallapp.com.tr/give/token-1',
+        'expires_at': '2026-10-12T11:00:00.000Z',
+        'open_in': donationOpenIn,
+      }),
+    );
+  }
+
   @override
   Future<List<Ticket>> listMyTickets() => _answer(
     'listMyTickets',
@@ -951,4 +1004,10 @@ class FakeApi implements YallappApi {
       return Ticket.fromJson(tickets.firstWhere((t) => t['code'] == code));
     });
   }
+
+  @override
+  Future<Paged<Donation>> listMyDonations({int page = 1}) => _answer(
+    'listMyDonations',
+    () => Paged.fromJson(pageJson(donations), Donation.fromJson),
+  );
 }

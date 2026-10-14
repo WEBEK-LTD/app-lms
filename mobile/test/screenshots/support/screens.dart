@@ -22,6 +22,7 @@ const _nileBlue = '#123A5C';
 const _sand = '#C9A24B';
 const _harbour = '#1F4E5F';
 const _berry = '#B03A5B';
+const _charity = '#2F6B3A';
 
 Map<String, dynamic> _appearance({
   required String template,
@@ -386,5 +387,35 @@ final websiteShots = <Shot>[
     appType: AppType.events,
     template: AppTemplate.bold,
     location: '/ticket/K7QM4XP2HD9W',
+  ),
+  // Charity & donations, a client palette (29).
+  Shot(
+    'charity-home',
+    api: () => DemoApi.charity(
+      primary: _charity,
+      appearance: _appearance(
+        template: 'bold',
+        font: 'Manrope',
+        secondary: _sand,
+        corners: 'round',
+      ),
+    ),
+    appType: AppType.donations,
+    template: AppTemplate.bold,
+  ),
+  Shot(
+    'charity-campaign',
+    api: () => DemoApi.charity(
+      primary: _charity,
+      appearance: _appearance(
+        template: 'bold',
+        font: 'Manrope',
+        secondary: _sand,
+        corners: 'round',
+      ),
+    ),
+    appType: AppType.donations,
+    template: AppTemplate.bold,
+    location: '/campaign/1',
   ),
 ];

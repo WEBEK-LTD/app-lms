@@ -130,6 +130,10 @@ enum BuiltInScreen {
   /// 28 Events & tickets apps.
   events,
   tickets,
+
+  /// 29 Charity & donations apps.
+  campaigns,
+  myDonations,
 }
 
 enum OpenIn { inApp, browser }
@@ -191,6 +195,7 @@ enum ItemSource {
   listings,
   articles,
   events,
+  campaigns,
 }
 
 /// An entry from a list source, for `item` actions.

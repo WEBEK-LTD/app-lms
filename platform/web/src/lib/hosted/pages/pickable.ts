@@ -58,6 +58,11 @@ export async function pickableContent(
       const events = (await deps.store.listEvents(app.id)).filter((e) => e.status === "published" && e.endAt.getTime() > now.getTime()).slice(0, 200);
       out.items.events = events.map((e) => ({ id: String(e.id), title: `${e.title} (${e.startAt.toISOString().slice(0, 10)})` }));
     }
+    // 29 Campaigns that are open or closed (drafts aren't in the app).
+    if (engine.source === "campaigns") {
+      const campaigns = (await deps.store.listCampaigns(app.id)).filter((c) => c.status !== "draft").slice(0, 200);
+      out.items.campaigns = campaigns.map((c) => ({ id: String(c.id), title: c.title }));
+    }
     return out;
   }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });

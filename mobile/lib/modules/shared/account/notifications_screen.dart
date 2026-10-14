@@ -36,6 +36,7 @@ IconData _iconFor(NotificationType type) => switch (type) {
   NotificationType.qnaAnswer => AppIcons.chat,
   NotificationType.article => AppIcons.newspaper,
   NotificationType.event => AppIcons.event,
+  NotificationType.campaignUpdate => AppIcons.campaignUpdate,
   NotificationType.announcement ||
   NotificationType.unknown => AppIcons.notifications,
 };

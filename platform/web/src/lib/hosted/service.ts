@@ -319,6 +319,10 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.news
       ? { news: { ...extra.news, breaking_news_push: extra.news.breaking_news_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
       : {}),
+    // 29 Campaign updates the same way.
+    ...(extra.donations
+      ? { donations: { ...extra.donations, updates_push: extra.donations.updates_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
+      : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null)),
   });
@@ -756,7 +760,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   if (!token) return badRequest("The push token is missing.");
   const prefs = record(body.preferences);
   const preferences: Record<string, boolean> = {};
-  for (const key of ["announcements", "new_lessons", "daily_reminder", "news"]) {
+  for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations"]) {
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
   // A token moves with the install: forget it on any other device first.
@@ -777,13 +781,14 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     id: n.id,
     title: n.title,
     body: n.body,
-    // 23 Breaking news opens its article; 28 a change to an event opens the event.
-    type: n.articleId ? "article" : n.eventId ? "event" : "announcement",
+    // 23 Breaking news opens its article; 28 a change to an event opens the event; 29 a campaign update its campaign.
+    type: n.articleId ? "article" : n.eventId ? "event" : n.campaignId ? "campaign_update" : "announcement",
     course_id: null,
     lesson_id: null,
     question_id: null,
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
+    ...(n.campaignId ? { campaign_id: n.campaignId } : {}),
     created_at: n.createdAt.toISOString(),
     read: readAt !== null && n.createdAt.getTime() <= readAt.getTime(),
   };

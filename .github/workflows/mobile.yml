@@ -200,3 +200,20 @@ jobs:
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Apply the example config as a Charity & donations app
+        run: |
+          jq '.app_type = "donations" | .vertical = "charity"' config/example.json > "$RUNNER_TEMP/donations.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/donations.json"
+          grep -q 'appType: AppType.donations' lib/generated/build_config.g.dart
+
+      - name: Build Charity & donations debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Charity & donations debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-donations-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

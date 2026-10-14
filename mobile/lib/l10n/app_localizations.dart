@@ -4929,6 +4929,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QR code of the ticket for {name}'**
   String ticketQrLabel(String name);
+
+  /// No description provided for @tabCampaigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaigns'**
+  String get tabCampaigns;
+
+  /// No description provided for @tabMyDonations.
+  ///
+  /// In en, this message translates to:
+  /// **'My donations'**
+  String get tabMyDonations;
+
+  /// No description provided for @loadingCampaigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading campaigns'**
+  String get loadingCampaigns;
+
+  /// No description provided for @noCampaignsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No campaigns yet'**
+  String get noCampaignsTitle;
+
+  /// No description provided for @noCampaignsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaigns will show here.'**
+  String get noCampaignsMessage;
+
+  /// What a campaign has raised and its goal.
+  ///
+  /// In en, this message translates to:
+  /// **'{raised} of {goal}'**
+  String campaignRaisedOf(String raised, String goal);
+
+  /// What a campaign without a goal has raised.
+  ///
+  /// In en, this message translates to:
+  /// **'{raised} raised'**
+  String campaignRaised(String raised);
+
+  /// No description provided for @campaignDonors.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No donors yet} =1{1 donor} other{{count} donors}}'**
+  String campaignDonors(int count);
+
+  /// No description provided for @campaignGoalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached'**
+  String get campaignGoalReached;
+
+  /// No description provided for @campaignEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get campaignEnded;
+
+  /// No description provided for @campaignEndsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {date}'**
+  String campaignEndsOn(String date);
+
+  /// No description provided for @donateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate'**
+  String get donateTitle;
+
+  /// No description provided for @donateChooseAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an amount'**
+  String get donateChooseAmount;
+
+  /// No description provided for @donateOtherAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Other amount'**
+  String get donateOtherAmount;
+
+  /// No description provided for @donateMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'The smallest donation is {amount}.'**
+  String donateMinimum(String amount);
+
+  /// No description provided for @donateAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount, like 250.'**
+  String get donateAmountInvalid;
+
+  /// No description provided for @donateChooseOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one of the amounts.'**
+  String get donateChooseOne;
+
+  /// No description provided for @donateOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get donateOnce;
+
+  /// No description provided for @donateMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get donateMonthly;
+
+  /// No description provided for @donateAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Give anonymously'**
+  String get donateAnonymous;
+
+  /// No description provided for @donateAnonymousHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name won\'t show on the campaign.'**
+  String get donateAnonymousHint;
+
+  /// No description provided for @donateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message (optional)'**
+  String get donateMessage;
+
+  /// No description provided for @donateMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A few words shown with your donation'**
+  String get donateMessageHint;
+
+  /// No description provided for @donateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate {amount}'**
+  String donateButton(String amount);
+
+  /// The iPhone app's donate button: it opens the donation page in the browser (App Store rules).
+  ///
+  /// In en, this message translates to:
+  /// **'Donate on our website'**
+  String get donateOnWebsite;
+
+  /// No description provided for @donateOnWebsiteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your donation is made on our website, in your browser. Come back to the app when you\'re done.'**
+  String get donateOnWebsiteNote;
+
+  /// No description provided for @donateClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This campaign has ended. Thank you for your support.'**
+  String get donateClosed;
+
+  /// No description provided for @donateThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your donation!'**
+  String get donateThanks;
+
+  /// No description provided for @donateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The donation page couldn\'t open. Please try again.'**
+  String get donateFailed;
+
+  /// No description provided for @donateSignInHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in first to keep your donations and receipts in the app.'**
+  String get donateSignInHint;
+
+  /// No description provided for @recentDonations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent donations'**
+  String get recentDonations;
+
+  /// No description provided for @anonymousDonor.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymousDonor;
+
+  /// No description provided for @loadingDonations.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading donations'**
+  String get loadingDonations;
+
+  /// No description provided for @myDonationsSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your donations'**
+  String get myDonationsSignInTitle;
+
+  /// No description provided for @myDonationsSignInMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your donations and their receipts.'**
+  String get myDonationsSignInMessage;
+
+  /// No description provided for @noDonationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No donations yet'**
+  String get noDonationsTitle;
+
+  /// No description provided for @noDonationsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations you make while signed in show here, with their receipts.'**
+  String get noDonationsMessage;
+
+  /// No description provided for @donationReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get donationReceipt;
+
+  /// No description provided for @donationSeeCampaign.
+  ///
+  /// In en, this message translates to:
+  /// **'See the campaign'**
+  String get donationSeeCampaign;
+
+  /// No description provided for @notifyCampaignUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign updates'**
+  String get notifyCampaignUpdates;
 }
 
 class _AppLocalizationsDelegate

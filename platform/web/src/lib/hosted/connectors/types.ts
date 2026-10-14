@@ -32,6 +32,8 @@ export interface Connector {
     news?: { show_author: boolean; show_dates: boolean; breaking_news_push: boolean };
     /** 28 Config.events. */
     events?: unknown;
+    /** 29 Config.donations. */
+    donations?: { currency: string; ios_mode: "browser" | "off"; monthly: boolean; updates_push: boolean };
     features?: Record<string, unknown>;
     purchases?: { enroll_button: boolean; free_enrollment: boolean };
   }>;

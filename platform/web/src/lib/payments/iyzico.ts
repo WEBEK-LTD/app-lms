@@ -84,7 +84,8 @@ export interface CheckoutFormRequest {
     id: string;
     name: string;
     surname: string;
-    gsmNumber: string;
+    /** 29 Optional for iyzico: donors may leave it out. */
+    gsmNumber?: string;
     email: string;
     identityNumber: string;
     registrationAddress: string;

@@ -46,6 +46,9 @@ mobile/
       events/                Events & tickets apps (hosted API): events as a
                              list or a calendar, the event and its tickets,
                              My tickets with QR codes kept on the device
+      donations/             Charity & donations apps: campaigns with progress,
+                             the amount picker and donation page (system
+                             browser on iPhone), my donations with receipts
       shared/pages/          dashboard pages from /pages: one renderer for
                              every block in every template
   test/                      unit and widget tests with a fake API

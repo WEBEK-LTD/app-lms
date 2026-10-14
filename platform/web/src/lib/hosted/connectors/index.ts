@@ -7,6 +7,7 @@ import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
 import { CoursesConnector } from "./courses";
 import { EventsConnector } from "./events";
+import { DonationsConnector } from "./donations";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
 import "./registry";
@@ -73,6 +74,7 @@ export function connectorFor(
   if (app.connector?.kind === "listings") return new ListingsConnector({ ...deps, app });
   if (app.connector?.kind === "articles") return new ArticlesConnector({ ...deps, app });
   if (app.connector?.kind === "events") return new EventsConnector({ ...deps, app });
+  if (app.connector?.kind === "campaigns") return new DonationsConnector({ ...deps, app });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

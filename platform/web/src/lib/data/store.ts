@@ -56,6 +56,8 @@ import type { DemoPurgeCounts } from "./types";
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 28 Events & tickets
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
+// 29 Charity & donations
+import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -462,6 +464,43 @@ export interface DataStore {
   /** How events show and sell in the app; null until saved (the defaults apply). */
   getEventSettings(appId: string): Promise<EventSettings | null>;
   saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void>;
+  // 29 Charity & donations apps: campaigns and donations
+  /** Every campaign of the app, any status, newest first. */
+  listCampaigns(appId: string): Promise<Campaign[]>;
+  getCampaign(appId: string, id: number): Promise<Campaign | null>;
+  createCampaign(input: CampaignInput, now: Date): Promise<Campaign>;
+  /** Never changes what was raised: only paying a donation does. */
+  updateCampaign(appId: string, id: number, patch: Partial<CampaignInput>, now: Date): Promise<void>;
+  /** Deletes the campaign; its donations stay, with its title. */
+  deleteCampaign(appId: string, id: number): Promise<void>;
+  /** Sets what a campaign has raised outright: only for the demo apps' sample campaigns (16). */
+  setCampaignTotals(appId: string, id: number, totals: Pick<Campaign, "raisedCents" | "donorCount">): Promise<void>;
+  createDonation(input: DonationInput): Promise<Donation>;
+  getDonation(appId: string, id: number): Promise<Donation | null>;
+  getDonationByToken(tokenHash: string): Promise<Donation | null>;
+  getDonationByReceipt(receiptCode: string): Promise<Donation | null>;
+  updateDonation(appId: string, id: number, patch: DonationPatch): Promise<void>;
+  /**
+   * Marks a pending donation paid and, in the same transaction, adds it to
+   * its campaign's total, and counts the donor once per email address. With
+   * `count` false (demo donations) the campaign stays as it is. False when it
+   * wasn't pending.
+   */
+  payDonation(appId: string, id: number, paymentId: string, now: Date, options?: { count?: boolean }): Promise<boolean>;
+  /** Newest first; by campaign, app user or status. */
+  listDonations(input: {
+    appId: string;
+    campaignId?: number;
+    userId?: number;
+    statuses?: DonationStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: Donation[]; total: number }>;
+  /** App users with a paid donation to the campaign (for campaign updates). */
+  listCampaignDonorUserIds(appId: string, campaignId: number): Promise<number[]>;
+  /** How the app takes donations; null until saved (the defaults apply). */
+  getDonationSettings(appId: string): Promise<DonationSettings | null>;
+  saveDonationSettings(appId: string, settings: DonationSettings, now: Date): Promise<void>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

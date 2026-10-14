@@ -31,7 +31,7 @@ async function downloads(): Promise<Partial<Record<DemoId, boolean>>> {
   }
 }
 
-/** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic, 23 the news app, 26 the café, 27 the gym, 28 the events app too). */
+/** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic, 23 the news app, 26 the café, 27 the gym, 28 the events app, 29 the charity too). */
 export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
   const query = await searchParams;
   const [ready, contact] = await Promise.all([downloads(), getContact()]);
@@ -41,7 +41,7 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
       current="demo"
       eyebrow="Try before you pay"
       title="Try a real app on your phone"
-      intro="Nine demo apps, one for each kind of app we make: an academy, a shop, a café, a bookings app, a clinic, a gym, a real estate app, a news app and an events app. They're real apps with sample content, running the same way your app would."
+      intro="Ten demo apps, one for each kind of app we make: an academy, a shop, a café, a bookings app, a clinic, a gym, a real estate app, a news app, an events app and a charity. They're real apps with sample content, running the same way your app would."
       aside={<DeviceFrame screen="academy-home" size="md" priority />}
     >
       <Section>

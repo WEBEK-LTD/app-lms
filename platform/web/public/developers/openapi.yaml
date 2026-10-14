@@ -103,6 +103,15 @@ tags:
       iOS; tickets to online-only events (no venue) are digital content, so
       iOS never offers buying them (free tickets work everywhere). Served by
       the hosted API.
+  - name: Donations
+    description: |
+      Campaigns and donations, for Charity & donations apps (roadmap 29).
+      Campaigns are managed in the Yallapp dashboard and served by the hosted
+      API. The donation itself is paid on a web page, into the charity's own
+      payment account: in the iPhone app always in the system browser (App
+      Store guideline 3.2.2), on Android in the app or in the browser as
+      `open_in` says. A donation counts towards a campaign only after the
+      payment is confirmed.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -2424,6 +2433,138 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /donations/campaigns:
+    get:
+      tags: [Donations]
+      operationId: listCampaigns
+      summary: List campaigns
+      description: |
+        Open campaigns first (featured ones first, then the newest), then
+        campaigns that have ended. Drafts are never listed.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: status, in: query, schema: { type: string, enum: [open, closed] }, description: 'Only open or only closed campaigns.' }
+        - { name: featured, in: query, schema: { type: boolean } }
+        - { name: ids, in: query, schema: { type: string, example: '3,1' }, description: 'Comma-separated campaign IDs, returned in that order (at most 30).' }
+      responses:
+        '200':
+          description: Campaigns
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/CampaignSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /donations/campaigns/{campaign_id}:
+    get:
+      tags: [Donations]
+      operationId: getCampaign
+      summary: Get a campaign
+      description: |
+        An open or closed campaign with its story, processed like an
+        article's body, and its most recent donations (anonymous ones without
+        a name).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: The campaign
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Campaign' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /donations/checkout-link:
+    post:
+      tags: [Donations]
+      operationId: createDonationCheckoutLink
+      summary: Get a one-time link to the donation page
+      description: |
+        Starts a donation and returns the page where the donor pays. The
+        donor's name and email for the receipt are asked on that page.
+
+        `open_in` is always `browser` when `platform` is `ios`: an iPhone app
+        may not take donations itself (App Store guideline 3.2.2), so the app
+        opens the link in the system browser, never in a web view inside the
+        app, and words the button "Donate on our website". On Android it is
+        `in_app` (Google Play's billing rules don't cover donations to
+        charities; the app may still open it in the browser).
+
+        Fails with `invalid_request` (400) for an amount under the campaign's
+        `min_amount`, a custom amount the campaign doesn't allow, or
+        `recurring: monthly` when `DonationsConfig.monthly` is false; with
+        `campaign_closed` (409) when the campaign has ended; with
+        `purchase_not_allowed` (403) on iOS when `DonationsConfig.ios_mode`
+        is `off`; and with `donations_unavailable` (503) while the charity's
+        payments aren't set up.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DonationInput' }
+      responses:
+        '200':
+          description: Donation link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in:
+                    type: string
+                    enum: [in_app, browser]
+                    description: Always `browser` on iOS.
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/donations:
+    get:
+      tags: [Donations]
+      operationId: listMyDonations
+      summary: List the signed-in user's donations
+      description: Confirmed donations started from the app while signed in, newest first, each with its receipt.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Donations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Donation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2507,6 +2648,11 @@ components:
       in: path
       required: true
       schema: { type: string, pattern: '^[A-HJ-NP-Z2-9]{12}$', example: K7QM4XP2HD9W }
+    CampaignId:
+      name: campaign_id
+      in: path
+      required: true
+      schema: { type: integer }
     InquiryId:
       name: inquiry_id
       in: path
@@ -2612,6 +2758,8 @@ components:
             - event_cancelled
             - purchase_required
             - cancel_not_allowed
+            - campaign_closed
+            - donations_unavailable
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -2742,6 +2890,7 @@ components:
         listings: { $ref: '#/components/schemas/ListingsConfig' }
         news: { $ref: '#/components/schemas/NewsConfig' }
         events: { $ref: '#/components/schemas/EventsConfig' }
+        donations: { $ref: '#/components/schemas/DonationsConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, null]
@@ -2834,6 +2983,7 @@ components:
         announcements: { type: boolean }
         daily_reminder: { type: boolean }
         news: { type: boolean, description: New articles sent as push notifications (News & blog apps). }
+        donations: { type: boolean, description: "Updates about campaigns the user gave to (Charity & donations apps). Off unless the app sends true." }
 
     Category:
       type: object
@@ -3106,12 +3256,13 @@ components:
         id: { type: integer }
         title: { type: string }
         body: { type: string }
-        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer, article, event] }
+        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update] }
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
         question_id: { type: [integer, 'null'], description: "For qna_answer, the question that was answered." }
         article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
         event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
+        campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
         created_at: { type: string, format: date-time }
         read: { type: boolean }
 
@@ -3905,7 +4056,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -3921,8 +4072,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns]
 
     Item:
       type: object
@@ -4502,3 +4653,106 @@ components:
         used_at: { type: [string, 'null'], format: date-time, description: 'When it was checked in at the door.' }
         can_cancel: { type: boolean, description: 'Whether `POST /me/tickets/{ticket_code}/cancel` would work now.' }
         created_at: { type: string, format: date-time }
+
+    DonationsConfig:
+      type: object
+      description: Settings for Charity & donations apps (roadmap 29).
+      required: [currency, ios_mode, monthly, updates_push]
+      properties:
+        currency: { type: string, enum: [TRY, USD, EUR] }
+        ios_mode:
+          type: string
+          enum: [browser, 'off']
+          description: |
+            How the iPhone app handles donations. `browser`: the donate button
+            reads "Donate on our website" and opens the donation page in the
+            system browser (App Store guideline 3.2.2 allows donations in the
+            app only for Apple-approved nonprofits using Apple Pay). `off`:
+            the iPhone app shows campaigns without a donate button.
+        monthly: { type: boolean, description: "Whether monthly donations can be chosen. False while only one-off donations are taken." }
+        updates_push: { type: boolean, description: "Whether the charity sends campaign updates as push notifications; the app then offers the switch in Settings (`NotificationPreferences.donations`)." }
+
+    CampaignSummary:
+      type: object
+      required: [id, title, summary, image_url, goal, goal_formatted, raised, raised_formatted, donor_count, currency, progress, ends_at, status, featured]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        summary: { type: [string, 'null'], description: 'Plain text, a sentence or two.' }
+        image_url: { type: [string, 'null'], format: uri }
+        goal: { type: [string, 'null'], description: 'The goal as a decimal string; null for a campaign without a goal.', example: '50000.00' }
+        goal_formatted: { type: [string, 'null'], example: '₺50,000.00' }
+        raised: { type: string, description: 'Confirmed donations so far, as a decimal string.', example: '12450.00' }
+        raised_formatted: { type: string, example: '₺12,450.00' }
+        donor_count: { type: integer, description: 'People who gave, counted once per email address.' }
+        currency: { type: string, enum: [TRY, USD, EUR] }
+        progress: { type: [number, 'null'], minimum: 0, description: 'raised / goal (1 = reached, may be more than 1); null without a goal.' }
+        ends_at: { type: [string, 'null'], format: date-time }
+        status: { type: string, enum: [open, closed], description: '`closed` once the charity closes it or `ends_at` has passed: it takes no donations.' }
+        featured: { type: boolean }
+
+    Campaign:
+      allOf:
+        - $ref: '#/components/schemas/CampaignSummary'
+        - type: object
+          description: The story, processed exactly like an article's body (see `Article`), and how to give.
+          required: [images, render_mode, html, webview_url, embeds, preset_amounts, allow_custom_amount, min_amount, recent_donations]
+          properties:
+            images:
+              type: array
+              items:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+                  alt: { type: [string, 'null'] }
+            render_mode: { type: string, enum: [native, webview] }
+            html: { type: [string, 'null'], description: 'The story, cleaned, with each iframe replaced by an embed placeholder.' }
+            webview_url: { type: [string, 'null'], format: uri }
+            embeds:
+              type: array
+              items: { $ref: '#/components/schemas/Embed' }
+            preset_amounts:
+              type: array
+              maxItems: 6
+              description: Amounts to choose from, as decimal strings, smallest first.
+              items: { type: string, example: '250.00' }
+            allow_custom_amount: { type: boolean }
+            min_amount: { type: string, description: 'The smallest donation, as a decimal string.', example: '20.00' }
+            recent_donations:
+              type: array
+              maxItems: 10
+              items:
+                type: object
+                required: [name, amount_formatted, message, created_at]
+                properties:
+                  name: { type: [string, 'null'], description: "The donor's first name and initial; null when they gave anonymously." }
+                  amount_formatted: { type: string }
+                  message: { type: [string, 'null'] }
+                  created_at: { type: string, format: date-time }
+
+    DonationInput:
+      type: object
+      required: [campaign_id, amount]
+      properties:
+        campaign_id: { type: integer }
+        amount: { type: string, pattern: '^\d{1,9}(\.\d{1,2})?$', description: 'Decimal string in the campaign currency.', example: '250.00' }
+        recurring: { type: string, enum: [none, monthly], default: none, description: '`monthly` only when `DonationsConfig.monthly` is true.' }
+        anonymous: { type: boolean, default: false, description: "Leave the donor's name off the campaign's recent donations. The charity still sees it, for the receipt." }
+        message: { type: [string, 'null'], maxLength: 280, description: 'A few words shown with the donation on the campaign.' }
+
+    Donation:
+      type: object
+      required: [id, reference, campaign_id, campaign_title, amount, amount_formatted, currency, recurring, anonymous, created_at, receipt_url]
+      properties:
+        id: { type: integer }
+        reference: { type: string, description: "The receipt's reference.", example: 'D-1042' }
+        campaign_id: { type: [integer, 'null'], description: 'Null when the campaign was deleted.' }
+        campaign_title: { type: string }
+        amount: { type: string, example: '250.00' }
+        amount_formatted: { type: string, example: '₺250.00' }
+        currency: { type: string, enum: [TRY, USD, EUR] }
+        recurring: { type: string, enum: [none, monthly] }
+        anonymous: { type: boolean }
+        created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
+        receipt_url: { type: string, format: uri, description: 'The receipt as a web page, to open in the browser or share.' }

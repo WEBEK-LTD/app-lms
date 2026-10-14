@@ -1688,3 +1688,113 @@ Map<String, dynamic> ticketJson({
   'can_cancel': canCancel,
   'created_at': '2026-10-12T10:00:00Z',
 };
+
+// 29 Charity & donations.
+
+Map<String, dynamic> donationsConfigJson({
+  String iosMode = 'browser',
+  bool monthly = false,
+  bool updatesPush = true,
+}) => {
+  'currency': 'TRY',
+  'ios_mode': iosMode,
+  'monthly': monthly,
+  'updates_push': updatesPush,
+};
+
+Map<String, dynamic> campaignSummaryJson({
+  int id = 1,
+  String title = 'Winter food parcels',
+  String? summary =
+      'A parcel feeds a family of four for two weeks. Help us pack 1,000.',
+  String? goal = '250000.00',
+  String raised = '168450.00',
+  int donorCount = 412,
+  String status = 'open',
+  bool featured = true,
+  String? imageUrl,
+  String? endsAt = '2026-11-30T20:59:59.000Z',
+}) {
+  String money(String v) {
+    final n = double.parse(v)
+        .round()
+        .toString()
+        .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+    return '₺$n.00';
+  }
+
+  return {
+    'id': id,
+    'title': title,
+    'summary': summary,
+    'image_url': imageUrl,
+    'goal': goal,
+    'goal_formatted': goal == null ? null : money(goal),
+    'raised': raised,
+    'raised_formatted': money(raised),
+    'donor_count': donorCount,
+    'currency': 'TRY',
+    'progress': goal == null
+        ? null
+        : (double.parse(raised) / double.parse(goal) * 10000).round() / 10000,
+    'ends_at': endsAt,
+    'status': status,
+    'featured': featured,
+  };
+}
+
+Map<String, dynamic> campaignJson({
+  int id = 1,
+  String status = 'open',
+  List<String> presets = const ['150.00', '300.00', '600.00', '1200.00'],
+  bool allowCustom = true,
+  String min = '50.00',
+  List<Map<String, dynamic>>? recent,
+}) => {
+  ...campaignSummaryJson(id: id, status: status),
+  'images': <Map<String, dynamic>>[],
+  'render_mode': 'native',
+  'html':
+      '<p>Every winter, more families come to our centres.</p>'
+      '<h3>What a parcel holds</h3><ul><li>5 kg of rice</li>'
+      '<li>Tea, sugar and pasta</li></ul>',
+  'webview_url': null,
+  'embeds': <Map<String, dynamic>>[],
+  'preset_amounts': presets,
+  'allow_custom_amount': allowCustom,
+  'min_amount': min,
+  'recent_donations':
+      recent ??
+      [
+        {
+          'name': 'Elif Y.',
+          'amount_formatted': '₺300.00',
+          'message': 'Stay warm this winter',
+          'created_at': '2026-10-12T09:00:00.000Z',
+        },
+        {
+          'name': null,
+          'amount_formatted': '₺150.00',
+          'message': null,
+          'created_at': '2026-10-11T09:00:00.000Z',
+        },
+      ],
+};
+
+Map<String, dynamic> donationJson({
+  int id = 42,
+  String campaignTitle = 'Winter food parcels',
+  String amount = '300.00',
+}) => {
+  'id': id,
+  'reference': 'D-${1000 + id}',
+  'campaign_id': 1,
+  'campaign_title': campaignTitle,
+  'amount': amount,
+  'amount_formatted': '₺$amount',
+  'currency': 'TRY',
+  'recurring': 'none',
+  'anonymous': false,
+  'created_at': '2026-10-12T10:00:00.000Z',
+  'receipt_url': 'https://yallapp.com.tr/receipts/abc123abc123abc123abc123',
+};

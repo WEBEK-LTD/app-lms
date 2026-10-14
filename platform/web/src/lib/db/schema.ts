@@ -53,6 +53,8 @@ import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStat
 import type { ArticleStatus, NewsSettings } from "../data/types";
 // 28 Events & tickets
 import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
+// 29 Charity & donations
+import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatus } from "../data/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 
@@ -404,6 +406,8 @@ export const hostedNotifications = mysqlTable(
     articleId: varchar("article_id", { length: 64 }),
     // 28 An event that changed or was cancelled, told to its ticket holders.
     eventId: bigint("event_id", { mode: "number", unsigned: true }),
+    // 29 A campaign update: the campaign it opens.
+    campaignId: bigint("campaign_id", { mode: "number", unsigned: true }),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
@@ -841,6 +845,80 @@ export const eventSettings = mysqlTable("event_settings", {
     .primaryKey()
     .references(() => apps.id, { onDelete: "cascade" }),
   settings: jsonText<EventSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+// 29 Charity & donations apps: campaigns and donations managed in the dashboard.
+
+export const campaigns = mysqlTable(
+  "campaigns",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    summary: varchar("summary", { length: 300 }),
+    story: mediumtext("story").notNull(),
+    imageAssetIds: jsonText<string[]>("image_asset_ids").notNull(),
+    goalCents: bigint("goal_cents", { mode: "number", unsigned: true }),
+    presetCents: jsonText<number[]>("preset_cents").notNull(),
+    allowCustomAmount: boolean("allow_custom_amount").notNull(),
+    minCents: bigint("min_cents", { mode: "number", unsigned: true }).notNull(),
+    endsAt: time("ends_at"),
+    status: varchar("status", { length: 16 }).notNull().$type<CampaignStatus>(),
+    featured: boolean("featured").notNull(),
+    // Confirmed donations only, added in the same transaction that marks one paid.
+    raisedCents: bigint("raised_cents", { mode: "number", unsigned: true }).notNull().default(0),
+    donorCount: int("donor_count").notNull().default(0),
+    publishedAt: time("published_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("campaigns_app_idx").on(t.appId, t.status, t.publishedAt)],
+);
+
+export const donations = mysqlTable(
+  "donations",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    campaignId: bigint("campaign_id", { mode: "number", unsigned: true }).references(() => campaigns.id, { onDelete: "set null" }),
+    campaignTitle: varchar("campaign_title", { length: 120 }).notNull(),
+    tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+    receiptCode: varchar("receipt_code", { length: 48 }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    recurring: varchar("recurring", { length: 16 }).notNull().$type<DonationRecurring>(),
+    anonymous: boolean("anonymous").notNull(),
+    message: varchar("message", { length: 280 }),
+    donorName: varchar("donor_name", { length: 80 }),
+    donorEmail: varchar("donor_email", { length: 191 }),
+    donorPhone: varchar("donor_phone", { length: 24 }),
+    status: varchar("status", { length: 16 }).notNull().$type<DonationStatus>(),
+    paymentId: varchar("payment_id", { length: 64 }),
+    createdAt: time("created_at").notNull(),
+    paidAt: time("paid_at"),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("donations_token_unique").on(t.tokenHash),
+    uniqueIndex("donations_receipt_unique").on(t.receiptCode),
+    index("donations_app_idx").on(t.appId, t.status, t.createdAt),
+    index("donations_campaign_idx").on(t.campaignId, t.donorEmail),
+    index("donations_user_idx").on(t.appId, t.userId),
+  ],
+);
+
+/** How the app takes donations (Config.donations), one row per app. */
+export const donationSettings = mysqlTable("donation_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<DonationSettings>("settings").notNull(),
   updatedAt: time("updated_at").notNull(),
 });
 

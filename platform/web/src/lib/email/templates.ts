@@ -46,7 +46,10 @@ export type EmailTemplateKey =
   | "own_whatsapp_failed"
 
   // 24 Your app's own email
-  | "own_email_failed";
+  | "own_email_failed"
+
+  // 29 Charity & donations
+  | "donation_receipt";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -412,6 +415,27 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     body:
       "Your {{app_name}} sign-in code is {{code}}.\n\nIt expires in {{minutes}} minutes. Don't share it with anyone.\n\n" +
       "If you didn't try to sign in to {{app_name}}, you can ignore this email.",
+  },
+  {
+    // 29 No tax-deductibility claims: whether a gift is deductible depends on the charity and the donor.
+    key: "donation_receipt",
+    name: "Donation receipt",
+    description:
+      "To a donor when their donation to a charity's campaign is paid (Charity & donations apps). Sent in the charity's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The charity's name (the app's name)", sample: "Harbour Food Bank" },
+      { name: "donor_name", description: "The donor's name", sample: "Elif Yılmaz" },
+      { name: "amount", description: "The amount given", sample: "₺250.00" },
+      { name: "campaign", description: "The campaign", sample: "Winter food parcels" },
+      { name: "date", description: "The day the payment went through", sample: "14 October 2026" },
+      { name: "reference", description: "The donation's reference", sample: "D-1042" },
+      { name: "receipt_url", description: "The receipt as a web page", sample: "https://yallapp.com.tr/receipts/sample" },
+    ],
+    subject: "Your donation to {{org_name}} · {{reference}}",
+    body:
+      "Dear {{donor_name}},\n\nThank you for your donation to {{org_name}}.\n\n" +
+      "Amount: {{amount}}\nCampaign: {{campaign}}\nDate: {{date}}\nReference: {{reference}}\n\n" +
+      "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your donation, contact {{org_name}} and give the reference above.",
   },
   {
     key: "own_whatsapp_failed",

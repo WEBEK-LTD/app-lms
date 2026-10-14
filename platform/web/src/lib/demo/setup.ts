@@ -38,9 +38,11 @@ import {
   COURSE_CATEGORIES,
   COURSE_CURRENCY,
   DEMO_ARTICLES,
+  DEMO_CAMPAIGNS,
   DEMO_BRANDS,
   DEMO_EVENTS,
   EVENT_SETTINGS,
+  DONATION_CURRENCY,
   DEMO_COURSES,
   DEMO_DISHES,
   DEMO_LISTINGS,
@@ -230,6 +232,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "events") {
     // 28 Paid tickets go through the demo payment page, which charges nothing.
     patch.catalogSettings = { currency: EVENT_SETTINGS.currency, shippingCents: 0, freeShippingOverCents: null, payment: null };
+  } else if (content === "campaigns") {
+    // 29 No payment account: the demo's donation page charges nothing.
+    patch.catalogSettings = { currency: DONATION_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
   }
   await store.updateApp(app.id, patch, now);
   const saved = (await store.getAppById(app.id))!;
@@ -246,6 +251,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   // 27 The timetable's classes for the coming weeks (the daily job keeps them going).
   if (id === "fitness") await syncClassSessions(store, saved, now);
   if (content === "events") await syncEvents(deps, client.id, saved);
+  if (content === "campaigns") await syncCampaigns(deps, client.id, saved);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.
@@ -533,6 +539,38 @@ async function syncEvents(deps: DemoSetupDeps, clientId: string, app: App): Prom
   }
   const titles = new Set(DEMO_EVENTS.map((e) => e.title));
   for (const e of events) if (!titles.has(e.title) && e.status !== "draft") await store.updateEvent(app.id, e.id, { status: "draft" }, now);
+}
+
+/** 29 Campaigns by title: updated in place with the demo's totals; ones no longer in the demo go back to drafts. */
+async function syncCampaigns(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+  const { store, now } = deps;
+  await store.saveDonationSettings(app.id, { currency: DONATION_CURRENCY, iosMode: "browser" }, now);
+  const campaigns = await store.listCampaigns(app.id);
+  // Created last first, so the newest-first lists show them in the demo's order.
+  for (const [i, seed] of DEMO_CAMPAIGNS.map((c, at) => [at, c] as const).reverse()) {
+    const imageAssetIds: string[] = [];
+    for (const name of seed.pictures) imageAssetIds.push(await picture(deps, clientId, name, "course", "product_image"));
+    const input = {
+      appId: app.id,
+      title: seed.title,
+      summary: seed.summary,
+      story: seed.story,
+      imageAssetIds,
+      goalCents: seed.goalCents,
+      presetCents: seed.presetCents,
+      allowCustomAmount: true,
+      minCents: seed.minCents,
+      endsAt: new Date(now.getTime() + seed.endsInDays * 86_400_000),
+      status: "open" as const,
+      featured: seed.featured,
+      publishedAt: new Date(now.getTime() - (i + 1) * 7 * 86_400_000),
+    };
+    const found = campaigns.find((c) => c.title === seed.title);
+    const id = found ? (await store.updateCampaign(app.id, found.id, input, now), found.id) : (await store.createCampaign(input, now)).id;
+    await store.setCampaignTotals(app.id, id, { raisedCents: seed.raisedCents, donorCount: seed.donorCount });
+  }
+  const titles = new Set(DEMO_CAMPAIGNS.map((c) => c.title));
+  for (const c of campaigns) if (!titles.has(c.title) && c.status !== "draft") await store.updateCampaign(app.id, c.id, { status: "draft" }, now);
 }
 
 function escapeHtml(text: string): string {

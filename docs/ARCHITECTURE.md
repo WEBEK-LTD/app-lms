@@ -115,9 +115,11 @@ mobile/
   modules/news/    News & blog screens: home, latest, article, saved
   modules/events/  Events & tickets screens: events (list, calendar), event,
                    My tickets with QR codes
+  modules/donations/ Charity & donations screens: campaigns, campaign with
+                   the donation form, my donations
 ```
 
-- The build config's `app_type` (`lms`, `store`, `booking`, `real_estate`, `news` or `events`) picks the module's routes
+- The build config's `app_type` (`lms`, `store`, `booking`, `real_estate`, `news`, `events` or `donations`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 - App kinds (roadmap 20): `app_type` is the engine (the module); the optional
   `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
@@ -464,6 +466,31 @@ mobile/
   push type `event`). The app keeps the user's tickets on the phone, so they
   show at the door offline, and forgets them on sign-out. WordPress (The
   Events Calendar and Event Tickets) is a follow-up.
+
+- Charity & donation apps (engine `donations`, kind "Charity & donations"
+  with the vertical `charity`, roadmap 29): hosted only. Campaigns are
+  managed on the dashboard's Campaigns page (connector `campaigns`:
+  `campaigns`, `donations`, `donation_settings`); stories are cleaned like
+  articles. A donation starts with `POST /donations/checkout-link`, which
+  saves a pending donation and returns our donation page `/give/<token>`;
+  the donor gives their name and email there and pays on iyzico's page into
+  the charity's own account (own keys in `catalogSettings.payment`, never
+  Yallapp's marketplace account, so no commission). Only iyzico's answer
+  after the callback (`/api/pay/donation/<token>`) marks the donation paid,
+  and the same transaction adds it to the campaign's `raised_cents` and, for
+  a new email address, `donor_count`; then the donor gets the
+  `donation_receipt` email and a receipt page `/receipts/<code>`. App Store
+  guideline 3.2.2(iv): an iPhone app may take donations itself only for an
+  Apple-approved nonprofit using Apple Pay, so the server always answers
+  `open_in: browser` for iOS and the app opens the system browser whatever
+  it is told ("Donate on our website"); `ios_mode: off` hides the button.
+  Android opens the page in the app (Google Play's billing rules don't cover
+  donations to charities; policy-dependent). Monthly donations aren't
+  offered yet (no iyzico subscriptions): `Config.donations.monthly` is false
+  and monthly requests are refused. Campaign updates go to the inboxes of
+  the campaign's signed-in donors and only to phones that turned them on
+  (`NotificationPreferences.donations`, off by default). Demo donations
+  charge nothing and never change a campaign's totals.
 
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the

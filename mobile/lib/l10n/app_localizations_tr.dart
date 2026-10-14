@@ -2989,4 +2989,148 @@ class AppLocalizationsTr extends AppLocalizations {
   String ticketQrLabel(String name) {
     return '$name adına biletin QR kodu';
   }
+
+  @override
+  String get tabCampaigns => 'Kampanyalar';
+
+  @override
+  String get tabMyDonations => 'Bağışlarım';
+
+  @override
+  String get loadingCampaigns => 'Kampanyalar yükleniyor';
+
+  @override
+  String get noCampaignsTitle => 'Henüz kampanya yok';
+
+  @override
+  String get noCampaignsMessage => 'Kampanyalar burada görünecek.';
+
+  @override
+  String campaignRaisedOf(String raised, String goal) {
+    return '$raised toplandı · Hedef $goal';
+  }
+
+  @override
+  String campaignRaised(String raised) {
+    return '$raised toplandı';
+  }
+
+  @override
+  String campaignDonors(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bağışçı',
+      one: '1 bağışçı',
+      zero: 'Henüz bağışçı yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get campaignGoalReached => 'Hedefe ulaşıldı';
+
+  @override
+  String get campaignEnded => 'Sona erdi';
+
+  @override
+  String campaignEndsOn(String date) {
+    return 'Bitiş: $date';
+  }
+
+  @override
+  String get donateTitle => 'Bağış yap';
+
+  @override
+  String get donateChooseAmount => 'Bir tutar seçin';
+
+  @override
+  String get donateOtherAmount => 'Başka bir tutar';
+
+  @override
+  String donateMinimum(String amount) {
+    return 'En düşük bağış $amount.';
+  }
+
+  @override
+  String get donateAmountInvalid => '250 gibi bir tutar girin.';
+
+  @override
+  String get donateChooseOne => 'Tutarlardan birini seçin.';
+
+  @override
+  String get donateOnce => 'Bir kez';
+
+  @override
+  String get donateMonthly => 'Her ay';
+
+  @override
+  String get donateAnonymous => 'İsimsiz bağış yap';
+
+  @override
+  String get donateAnonymousHint => 'Adınız kampanyada görünmez.';
+
+  @override
+  String get donateMessage => 'Mesaj (isteğe bağlı)';
+
+  @override
+  String get donateMessageHint => 'Bağışınızla birlikte görünecek birkaç söz';
+
+  @override
+  String donateButton(String amount) {
+    return '$amount bağışla';
+  }
+
+  @override
+  String get donateOnWebsite => 'Web sitemizde bağış yapın';
+
+  @override
+  String get donateOnWebsiteNote =>
+      'Bağışınız tarayıcınızda, web sitemizde yapılır. İşiniz bitince uygulamaya dönün.';
+
+  @override
+  String get donateClosed =>
+      'Bu kampanya sona erdi. Desteğiniz için teşekkürler.';
+
+  @override
+  String get donateThanks => 'Bağışınız için teşekkürler!';
+
+  @override
+  String get donateFailed => 'Bağış sayfası açılamadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get donateSignInHint =>
+      'Bağışlarınızı ve makbuzlarınızı uygulamada görmek için önce giriş yapın.';
+
+  @override
+  String get recentDonations => 'Son bağışlar';
+
+  @override
+  String get anonymousDonor => 'İsimsiz';
+
+  @override
+  String get loadingDonations => 'Bağışlar yükleniyor';
+
+  @override
+  String get myDonationsSignInTitle => 'Bağışlarınız';
+
+  @override
+  String get myDonationsSignInMessage =>
+      'Bağışlarınızı ve makbuzlarını görmek için giriş yapın.';
+
+  @override
+  String get noDonationsTitle => 'Henüz bağış yok';
+
+  @override
+  String get noDonationsMessage =>
+      'Giriş yapmışken yaptığınız bağışlar makbuzlarıyla birlikte burada görünür.';
+
+  @override
+  String get donationReceipt => 'Makbuz';
+
+  @override
+  String get donationSeeCampaign => 'Kampanyayı gör';
+
+  @override
+  String get notifyCampaignUpdates => 'Kampanya haberleri';
 }

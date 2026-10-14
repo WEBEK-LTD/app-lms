@@ -41,6 +41,8 @@ export const APP_SCREENS = [
   "news-article",
   "events-list",
   "events-ticket",
+  "charity-home",
+  "charity-campaign",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -75,6 +77,8 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "news-article": "An article with its picture, author and date",
   "events-list": "An events app's list of upcoming events with dates and prices",
   "events-ticket": "A ticket with its QR code, ready to show at the door",
+  "charity-home": "A charity app's campaigns with how close each is to its goal",
+  "charity-campaign": "A campaign with its story, progress and amounts to give",
   "dashboard-pages": "The pages and look editor in the Yallapp dashboard",
   "dashboard-setup": "The app setup steps in the Yallapp dashboard",
   "dashboard-builds": "Builds and downloads in the Yallapp dashboard",
@@ -573,6 +577,48 @@ const SOLUTION_COPY: SolutionCopy[] = [
     ],
     docs: [{ href: "/docs/events", label: "Events and tickets" }],
   },
+  {
+    kind: "charity",
+    summary: "Campaigns with progress, donations and receipts.",
+    audience: "Charities, food banks, foundations, mosques and community groups.",
+    screens: ["charity-home", "charity-campaign"],
+    sources: ["No website: campaigns written in the Yallapp dashboard", "Donations paid into your own iyzico account"],
+    highlights: [
+      {
+        icon: "campaign",
+        title: "Campaigns people follow",
+        text: "Each campaign has its story, pictures, a goal and a progress bar that moves as donations are confirmed.",
+      },
+      {
+        icon: "payments",
+        title: "Every gift goes to you",
+        text: "Donations are paid on a secure page into your own iyzico account. Yallapp takes no commission on donations.",
+      },
+      {
+        icon: "receipt_long",
+        title: "Receipts without paperwork",
+        text: "Each donor gets a receipt by email and finds every donation under My donations in the app.",
+      },
+      {
+        icon: "notifications",
+        title: "Tell donors what happened",
+        text: "Send an update to the people who gave to a campaign: it lands in their app and, if they allow it, on their phone.",
+      },
+    ],
+    inTheApp: [
+      "Browse campaigns and see how close each is to its goal",
+      "Choose an amount, give anonymously and leave a message",
+      "Donate on your secure donation page (on iPhone, in the browser)",
+      "See past donations and their receipts",
+    ],
+    forYou: [
+      "Write campaigns with a goal, suggested amounts and an end date",
+      "Publish, close and feature campaigns",
+      "See every donation and export them as a spreadsheet",
+      "A donor list with what each person gave",
+    ],
+    docs: [{ href: "/docs/donations", label: "Charity and donation apps" }],
+  },
 ];
 
 /** 20 One page per kind that has copy, named and addressed by the registry. */
@@ -698,6 +744,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "Listings in Yallapp", types: ["Real estate"], text: "Properties with photos, features, a map position and messages.", docs: "/docs/real-estate" },
       { name: "Articles in Yallapp", types: ["News & blog"], text: "Articles with pictures and sections, published when you're ready, with breaking news.", docs: "/docs/news" },
       { name: "Events in Yallapp", types: ["Events & tickets"], text: "Events with ticket types, free sign-ups, paid tickets, attendees and check-in at the door.", docs: "/docs/events" },
+      { name: "Campaigns in Yallapp", types: ["Charity & donations"], text: "Campaigns with a goal and progress, donations into your own iyzico account, receipts and a donor list.", docs: "/docs/donations" },
     ],
   },
   {
@@ -706,10 +753,10 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
     text: "Your apps run on your own accounts, so your customers, payments and store listings stay yours.",
     icon: "key",
     items: [
-      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
-      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
-      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
-      { name: "iyzico", types: ["Store", "Academy", "Events & tickets"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
+      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
+      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
+      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
+      { name: "iyzico", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
     ],
   },
 ];

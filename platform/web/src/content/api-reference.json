@@ -605,6 +605,40 @@
       ]
     },
     {
+      "name": "Donations",
+      "description": "Campaigns and donations, for Charity & donations apps (roadmap 29). Campaigns are managed in the Yallapp dashboard and served by the hosted API. The donation itself is paid on a web page, into the charity's own payment account: in the iPhone app always in the system browser (App Store guideline 3.2.2), on Android in the app or in the browser as `open_in` says. A donation counts towards a campaign only after the payment is confirmed.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/donations/campaigns",
+          "summary": "List campaigns",
+          "description": "Open campaigns first (featured ones first, then the newest), then campaigns that have ended. Drafts are never listed.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/donations/campaigns/{campaign_id}",
+          "summary": "Get a campaign",
+          "description": "An open or closed campaign with its story, processed like an article's body, and its most recent donations (anonymous ones without a name).",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/donations/checkout-link",
+          "summary": "Get a one-time link to the donation page",
+          "description": "Starts a donation and returns the page where the donor pays. The donor's name and email for the receipt are asked on that page.\n\n`open_in` is always `browser` when `platform` is `ios`: an iPhone app may not take donations itself (App Store guideline 3.2.2), so the app opens the link in the system browser, never in a web view inside the app, and words the button \"Donate on our website\". On Android it is `in_app` (Google Play's billing rules don't cover donations to charities; the app may still open it in the browser).\n\nFails with `invalid_request` (400) for an amount under the campaign's `min_amount`, a custom amount the campaign doesn't allow, or `recurring: monthly` when `DonationsConfig.monthly` is false; with `campaign_closed` (409) when the campaign has ended; with `purchase_not_allowed` (403) on iOS when `DonationsConfig.ios_mode` is `off`; and with `donations_unavailable` (503) while the charity's payments aren't set up.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/me/donations",
+          "summary": "List the signed-in user's donations",
+          "description": "Confirmed donations started from the app while signed in, newest first, each with its receipt.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

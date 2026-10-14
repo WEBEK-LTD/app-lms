@@ -1,6 +1,6 @@
 import { deliverPaidOrder } from "../catalog/payment";
 import type { DataStore } from "../data/store";
-import type { App, CatalogOrder } from "../data/types";
+import type { App, CatalogOrder, Donation } from "../data/types";
 
 /** The payment ID a demo order is marked with: nothing was charged. */
 export const DEMO_PAYMENT_ID = "demo";
@@ -16,4 +16,14 @@ export async function placeDemoOrder(store: DataStore, app: App, order: CatalogO
   // A course order enrols, 27 a gym's membership starts, 28 a ticket order issues its tickets.
   if (placed) await deliverPaidOrder(store, app, order, now);
   return placed;
+}
+
+/**
+ * 29 The demo donation page's "Donate (demo)": the donation shows in the
+ * visitor's donations with its receipt, but nothing is charged and the
+ * campaign's total stays as the demo made it. Only for demo apps.
+ */
+export async function placeDemoDonation(store: DataStore, app: App, donation: Donation, now: Date): Promise<boolean> {
+  if (!app.demo || donation.appId !== app.id || donation.status !== "pending") return false;
+  return store.payDonation(app.id, donation.id, DEMO_PAYMENT_ID, now, { count: false });
 }

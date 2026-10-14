@@ -110,3 +110,56 @@ export async function announce(input: {
     return { notification, pushed: 0, pushError: e instanceof Error ? e.message : "Push failed." };
   }
 }
+
+export interface CampaignUpdate {
+  /** Donors whose inbox got the update. */
+  donors: number;
+  pushed: number;
+  pushError: string | null;
+}
+
+/**
+ * 29 A campaign update: to the inbox of each app user who gave to the
+ * campaign, and pushed only to their phones that turned campaign updates on
+ * (`NotificationPreferences.donations`, off unless the app says true). It
+ * opens the campaign.
+ */
+export async function notifyCampaignDonors(input: {
+  store: DataStore;
+  app: App;
+  campaignId: number;
+  title: string;
+  body: string;
+  account: ServiceAccount | null;
+  now: Date;
+  send?: typeof sendPush;
+}): Promise<CampaignUpdate> {
+  const userIds = await input.store.listCampaignDonorUserIds(input.app.id, input.campaignId);
+  if (userIds.length === 0) return { donors: 0, pushed: 0, pushError: null };
+  for (const userId of userIds) {
+    await input.store.createHostedNotification({
+      appId: input.app.id,
+      userId,
+      title: input.title,
+      body: input.body,
+      campaignId: input.campaignId,
+      createdAt: input.now,
+    });
+  }
+  if (!input.account) return { donors: userIds.length, pushed: 0, pushError: "Push is off: add your Firebase service account." };
+  const devices = await input.store.listHostedPushDevices(input.app.id, userIds);
+  const tokens = devices.filter((d) => d.pushPreferences?.donations === true).map((d) => d.pushToken!);
+  if (tokens.length === 0) return { donors: userIds.length, pushed: 0, pushError: null };
+  try {
+    const result = await (input.send ?? sendPush)(
+      input.account,
+      tokens,
+      { title: input.title, body: input.body, data: { type: "campaign_update", campaign_id: String(input.campaignId) } },
+      { now: input.now },
+    );
+    for (const token of result.invalidTokens) await input.store.clearHostedPushToken(input.app.id, token);
+    return { donors: userIds.length, pushed: result.sent, pushError: null };
+  } catch (e) {
+    return { donors: userIds.length, pushed: 0, pushError: e instanceof Error ? e.message : "Push failed." };
+  }
+}

@@ -12,6 +12,9 @@ enum NotificationType {
 
   /// 28 An event the user holds tickets to changed or was cancelled.
   event,
+
+  /// 29 A campaign the user gave to posted an update.
+  campaignUpdate,
   unknown,
 }
 
@@ -29,6 +32,7 @@ class InboxNotification {
     this.questionId,
     this.articleId,
     this.eventId,
+    this.campaignId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -45,6 +49,7 @@ class InboxNotification {
     questionId: optInt(json, 'question_id'),
     articleId: optString(json, 'article_id'),
     eventId: optInt(json, 'event_id'),
+    campaignId: optInt(json, 'campaign_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -62,6 +67,9 @@ class InboxNotification {
 
   /// For [NotificationType.event]: the event to open.
   final int? eventId;
+
+  /// For [NotificationType.campaignUpdate]: the campaign to open (29).
+  final int? campaignId;
   final DateTime createdAt;
   final bool read;
 
@@ -73,6 +81,7 @@ class InboxNotification {
     'question_id': ?questionId,
     'article_id': ?articleId,
     'event_id': ?eventId,
+    'campaign_id': ?campaignId,
   };
 }
 

@@ -51,6 +51,8 @@ const symbolsByName = <String, IconData>{
   'card_membership': AppIcons.membership,
   'location_on': AppIcons.location,
   'open_in_new': AppIcons.openInNew,
+  'volunteer_activism': AppIcons.campaigns,
+  'campaign': AppIcons.campaignUpdate,
   'settings': Symbols.settings_rounded,
   // Common choices for tabs and buttons.
   'account_circle': Symbols.account_circle_rounded,
