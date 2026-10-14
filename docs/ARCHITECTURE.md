@@ -333,7 +333,7 @@ mobile/
   new build is needed.
 
 - Website content (`site_content`, 11.3): the home page's texts, the
-  closing band, the page titles, the FAQ, the guides and the legal pages
+  closing band, the page titles, the FAQ, the documentation (/docs) and the legal pages
   are edited on the admin's Website content page. Each page's defaults are
   the texts in code (`src/lib/content/site.ts`, `src/content/`), so a page
   is unchanged until someone saves it; "Back to the default text" removes

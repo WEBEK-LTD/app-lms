@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: "Create an account" };
 
 const NEXT_STEPS = [
   { title: "Create your account", text: "It takes a minute." },
-  { title: "Confirm your plan on WhatsApp", text: "We activate your account and send your license key." },
-  { title: "Set up your app", text: "Add your branding and download your Android and iOS files." },
+  { title: "Confirm your plan", text: "Pay by card when it's offered, or talk to us on WhatsApp. We activate your account." },
+  { title: "Set up your app", text: "Connect your content, add your branding and download your Android and iOS files." },
 ];
 
 export default async function SignUpPage() {

@@ -66,7 +66,7 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
   await page.getByLabel("Full name").fill(client.name);
   await page.getByLabel("Email").fill(client.email);
   await page.getByLabel("WhatsApp number").fill("+90 544 000 00 02");
-  await page.getByLabel("Your WordPress website").fill(client.site);
+  await page.getByLabel("Your website (optional)").fill(client.site);
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();

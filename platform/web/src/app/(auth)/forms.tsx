@@ -59,7 +59,7 @@ export function SignUpForm() {
     <form action={action} noValidate className={`${card} min-w-0 flex-[3_1_420px] gap-[18px]`}>
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">Create your account</h1>
-        <p className="m-0 text-[15px] text-muted">Tell us about you and your academy.</p>
+        <p className="m-0 text-[15px] text-muted">Tell us about you and your business.</p>
       </div>
       <FormMessage message={state.message} />
       <Field label="Full name" name="name" autoComplete="name" required defaultValue={v.name} error={state.errors?.name} />
@@ -70,7 +70,7 @@ export function SignUpForm() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@academy.com"
+          placeholder="you@your-business.com"
           required
           defaultValue={v.email}
           error={state.errors?.email}
@@ -88,11 +88,11 @@ export function SignUpForm() {
         />
       </div>
       <Field
-        label="Your WordPress website"
+        label="Your website (optional)"
         name="siteUrl"
         type="url"
-        placeholder="https://your-academy.com"
-        required
+        placeholder="https://your-site.com"
+        hint="Apps can also come from Shopify and other platforms, or from no website at all. You choose that later."
         defaultValue={v.siteUrl}
         error={state.errors?.siteUrl}
       />

@@ -1,0 +1,560 @@
+{
+  "title": "Yallapp plugin API",
+  "version": "1.0.0",
+  "tags": [
+    {
+      "name": "App",
+      "description": "App configuration and the home screen.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/config",
+          "summary": "Get app configuration",
+          "description": "Branding, detected features and app rules set in the plugin settings. Called on every app start.",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/home",
+          "summary": "Get home screen sections",
+          "description": "Sections in the order chosen in the plugin settings. Signed-out users get the public sections only.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Pages",
+      "description": "Pages and bottom tabs built in the client dashboard.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/pages",
+          "summary": "Get the bottom tabs and the list of pages",
+          "description": "The navigation and pages the client published in the dashboard. When nothing is published yet, the server sends default pages and tabs for the app type, built from the site's content, so the answer is always a full navigation. Servers without pages (older plugins) return 404; the app then uses its built-in tabs and `/home`.\n\nSend `If-None-Match` with the last `version` to get 304 when nothing changed.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/pages/{slug}",
+          "summary": "Get one page with its blocks",
+          "description": "Blocks in the order set in the dashboard, with lists (courses, products, services, posts, listings) already resolved. Blocks meant only for signed-in or signed-out users are filtered here. On iOS, blocks and items never carry purchase actions for paid content.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Sign-in with a one-time code, tokens and sign-up.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/auth/otp/request",
+          "summary": "Send a sign-in code",
+          "description": "Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/otp/verify",
+          "summary": "Verify a sign-in code",
+          "description": "Returns tokens for an existing account. For a phone number with no account, returns a one-time `signup_token` to use with `POST /auth/register` (only when sign-up from the app is allowed).",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/register",
+          "summary": "Create an account after verification",
+          "description": "Fields required here follow the \"Required at sign-up\" plugin setting.",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/refresh",
+          "summary": "Refresh tokens",
+          "description": "Exchanges a refresh token for new tokens. The old refresh token stops working (rotation).",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/logout",
+          "summary": "Sign out this device",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "description": "The signed-in student's profile, devices and push token.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/me",
+          "summary": "Get the signed-in student",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/me",
+          "summary": "Update profile",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me",
+          "summary": "Delete account",
+          "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/devices",
+          "summary": "List signed-in devices",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me/devices/{device_id}",
+          "summary": "Sign out a device",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/push-token",
+          "summary": "Register this device for push notifications",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "description": "Categories, courses and course details.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/categories",
+          "summary": "List course categories",
+          "description": null,
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/courses",
+          "summary": "List courses",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/{course_id}",
+          "summary": "Get a course",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/{course_id}/curriculum",
+          "summary": "Get a course's topics and items",
+          "description": "Items the student can't open are returned with `locked` set and no content.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Learning",
+      "description": "Enrolled courses, lessons and progress.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/me/courses",
+          "summary": "List the student's courses",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/wishlist",
+          "summary": "List wishlisted courses",
+          "description": "Empty when the LMS has no wishlist (`features.wishlist` is false).",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/wishlist/{course_id}",
+          "summary": "Add a course to the wishlist",
+          "description": "Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me/wishlist/{course_id}",
+          "summary": "Remove a course from the wishlist",
+          "description": "Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/lessons/{lesson_id}",
+          "summary": "Get a lesson",
+          "description": "Free-preview lessons are public; everything else requires enrollment.",
+          "access": "optional"
+        },
+        {
+          "method": "PUT",
+          "path": "/lessons/{lesson_id}/progress",
+          "summary": "Save video position",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/lessons/{lesson_id}/complete",
+          "summary": "Mark a lesson as complete",
+          "description": "Fails with `watch_requirement_not_met` when the site requires a share of the video to be watched first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/certificates",
+          "summary": "List the student's certificates",
+          "description": "Empty when the LMS has no certificate feature active.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "description": "Quiz questions, attempts and results.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/quizzes/{quiz_id}",
+          "summary": "Get quiz details and the student's attempts",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/quizzes/{quiz_id}/attempts",
+          "summary": "Start an attempt",
+          "description": "Returns the questions. Questions of a type the app can't show natively are returned with `render_mode` `webview` and a signed `webview_url`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/quizzes/{quiz_id}/attempts/{attempt_id}/submit",
+          "summary": "Submit answers",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/quiz-attempts",
+          "summary": "List the student's quiz results",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Commerce",
+      "description": "Free enrollment, checkout hand-off and the student's orders.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/auth/checkout-link",
+          "summary": "Get a one-time signed-in checkout link",
+          "description": "Android only, and only when the \"Enroll now on Android\" setting is on. The link signs the student in on the website and opens the checkout for the course. It works once and expires after 5 minutes.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/orders",
+          "summary": "List the student's orders",
+          "description": "Orders from the site's checkout (the LMS's own or WooCommerce, or the hosted API's payment page for shops without a website), newest first. Empty when the site doesn't sell (`features.orders`). The Academy app on iOS doesn't show orders, as it doesn't sell courses; Store apps show them on both platforms.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/{course_id}/enroll",
+          "summary": "Enroll in a free course",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "The notifications inbox.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/me/notifications",
+          "summary": "List the student's notifications",
+          "description": "Every notification the site sent to the student, newest first, whether or not push reached a device: to everyone, to the students of a course they're enrolled in, or to them alone. Kept for 90 days.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/notifications/read",
+          "summary": "Mark every notification as read",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "description": "Course reviews and questions and answers.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/courses/{course_id}/reviews",
+          "summary": "List a course's reviews",
+          "description": "Approved reviews, newest first, with the rating summary. Signed-in students also get their own review, approved or not.",
+          "access": "optional"
+        },
+        {
+          "method": "PUT",
+          "path": "/courses/{course_id}/reviews/mine",
+          "summary": "Write or edit the student's review",
+          "description": "One review per student and course. Enrolled students only. The site may hold it for approval (`status`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/{course_id}/questions",
+          "summary": "List a course's questions",
+          "description": "Questions students asked in the course, newest first, without their answers. Enrolled students only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/{course_id}/questions",
+          "summary": "Ask a question",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/questions/{question_id}",
+          "summary": "Get a question with its answers",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/questions/{question_id}/answers",
+          "summary": "Reply to a question",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "description": "WooCommerce products, the cart and the checkout hand-off, for Store apps. The cart lives in the app; the order is placed on the site's own checkout, opened with a one-time link that fills the WooCommerce cart.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/store/home",
+          "summary": "Get the store home screen sections",
+          "description": "Sections in the order chosen in the plugin settings. Only sections with content are returned.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/categories",
+          "summary": "List product categories",
+          "description": "Categories with products, in the site's own order. `parent_id` builds the tree.",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/store/products",
+          "summary": "List products",
+          "description": "Published products the shop shows (catalog visibility \"shop\" or \"shop and search\"; \"search\" when `search` is given).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/products/{product_id}",
+          "summary": "Get a product",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/store/products/{product_id}/reviews",
+          "summary": "List a product's reviews",
+          "description": "Approved reviews, newest first, with the rating summary. Fails with `feature_disabled` when the site has reviews turned off.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/store/cart",
+          "summary": "Price the app's cart",
+          "description": "Checks the app's cart against the shop: current prices, stock and quantity limits. Nothing is saved. Shipping, taxes and coupons are added on the site's checkout.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/store/checkout-link",
+          "summary": "Get a one-time checkout link for the cart",
+          "description": "On WordPress, the link fills the site's WooCommerce cart with these lines, keeps the delivery date and gift message for the order, signs the customer in when they are signed in to the app, and opens the checkout; it works once. On the hosted API it opens the shop's checkout (Shopify's or another connected platform's, or our payment page for shops without a website). The link expires at `expires_at`. Signed-out customers get a link only when the shop allows guest checkout (`store.guest_checkout`). The checkout's last page has `order-received` or `thank_you` in its address, so the app knows the order was placed.\n\nFails with `cart_changed` (409) when a line is no longer available, with `one_product_at_a_time` (409) when the shop's checkout can only take one product from the app (show the message), and with `purchase_not_allowed` (403) for digital products on iOS.",
+          "access": "optional"
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "description": "Property listings, for Real estate apps: search with filters, a listing's details, favorites and messages to the office. Listings are managed in the Yallapp dashboard and served by the hosted API.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/listings/filters",
+          "summary": "Get the filters the search offers",
+          "description": "The property types, places and ranges that exist in the office's listings, for the search screen's filters.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/listings",
+          "summary": "Search listings",
+          "description": "Published listings matching the filters. Signed-in users get `favorited` on each.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/listings/{listing_id}",
+          "summary": "Get a listing",
+          "description": null,
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/listings/{listing_id}/inquiries",
+          "summary": "Message the office about a listing",
+          "description": "Starts a conversation with the office, or adds to the user's open one about this listing. The office answers from the dashboard.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/favorites",
+          "summary": "List the user's favorite listings",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/favorites/{listing_id}",
+          "summary": "Add a listing to favorites",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me/favorites/{listing_id}",
+          "summary": "Remove a listing from favorites",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/inquiries",
+          "summary": "List the user's conversations with the office",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/inquiries/{inquiry_id}",
+          "summary": "Get a conversation with its messages",
+          "description": "Marks the office's messages as read.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/inquiries/{inquiry_id}/messages",
+          "summary": "Reply in a conversation",
+          "description": "Writing again reopens a conversation the office closed. Refused with 403 while the office has messages turned off.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/bookings/home",
+          "summary": "Get the bookings home screen sections",
+          "description": "Sections in the order chosen in the plugin settings. Only sections with content are returned.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/bookings/categories",
+          "summary": "List service categories",
+          "description": "Categories with services customers can book, in the booking plugin's order.",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/bookings/services",
+          "summary": "List services",
+          "description": "Services customers can book online, in the booking plugin's order.",
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/bookings/services/{service_id}",
+          "summary": "Get a service and the staff who provide it",
+          "description": null,
+          "access": "public"
+        },
+        {
+          "method": "GET",
+          "path": "/bookings/availability",
+          "summary": "Free times for a service",
+          "description": "Free start times from `from` for `days` days, by the business's local date, as the booking plugin computes them (working hours, days off, breaks, existing appointments, buffers and how far ahead customers may book). Without `staff`, a time is free when any staff member who provides the service is free; `staff_ids` says who.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/bookings/appointments",
+          "summary": "Book an appointment",
+          "description": "Books a free time for the signed-in customer, through the booking plugin, so its emails, calendar sync and approval rules apply. The appointment is `approved` or `pending` as the plugin decides.\n\nFails with `slot_taken` (409) when the time is no longer free and with `invalid_request` (400) for a service, staff member or time that can't be booked.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/appointments",
+          "summary": "List the customer's appointments",
+          "description": "Upcoming ones soonest first, past ones (and cancelled ones) newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/appointments/{appointment_id}",
+          "summary": "Get one of the customer's appointments",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/appointments/{appointment_id}/cancel",
+          "summary": "Cancel one of the customer's appointments",
+          "description": "Fails with `too_late` (409) when it starts sooner than `bookings.cancel_before_minutes` allows, or when the business doesn't let customers cancel.",
+          "access": "signed-in"
+        }
+      ]
+    }
+  ]
+}

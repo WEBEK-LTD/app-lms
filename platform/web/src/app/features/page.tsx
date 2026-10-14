@@ -1,53 +1,76 @@
 import type { Metadata } from "next";
+import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
+import { CheckList, Comparison, MarketingPage, MoreLink, NumbersBand, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
-import { FEATURES, WORKS_WITH } from "@/lib/marketing";
+import { COMPARISON, DASHBOARD_SCREENS, FEATURE_GROUPS, NUMBERS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
 
 export const metadata: Metadata = {
   title: "Features",
-  description: "Branding, one-time code sign-in, protected video, HTML lessons, quizzes, push notifications and selling courses: everything in a Yallapp app.",
+  description:
+    "Your brand, a drag-and-drop page editor, 3 templates, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing for Android and iOS.",
 };
+
+const isDashboard = (screen: AppScreen | DashboardScreen): screen is DashboardScreen => (DASHBOARD_SCREENS as readonly string[]).includes(screen);
 
 export default async function FeaturesPage() {
   const text = await getSiteContent("features");
   return (
-    <MarketingPage
-      current="features"
-      eyebrow={text.eyebrow}
-      title={text.title!}
-      intro={text.intro!}
-    >
-      <Section>
-        <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))]">
-          {FEATURES.map((feature) => (
-            <article key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line p-6 sm:p-7">
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ivory text-midnight">
-                <Icon name={feature.icon} size={26} />
-              </span>
-              <h2 className="m-0 text-xl font-bold">{feature.title}</h2>
-              <p className="m-0 text-[15px] leading-relaxed text-ink-4">{feature.text}</p>
-              <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-                {feature.details.map((detail) => (
-                  <li key={detail} className="flex gap-2.5">
-                    <Icon name="check" size={20} className="flex-none text-success" />
-                    {detail}
-                  </li>
-                ))}
-              </ul>
-            </article>
+    <MarketingPage current="features" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} aside={<DeviceFrame screen="store-product" size="md" priority />}>
+      <Section label="Features at a glance">
+        <nav aria-label="Features on this page" className="flex flex-wrap gap-2.5">
+          {FEATURE_GROUPS.map((group) => (
+            <a
+              key={group.id}
+              href={`#${group.id}`}
+              className="rounded-full border border-line px-4 py-2 text-[15px] font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
+            >
+              {group.title}
+            </a>
           ))}
-        </div>
+        </nav>
+        <NumbersBand numbers={NUMBERS} />
       </Section>
-      <Section tinted>
-        <SectionTitle title="Works with the plugins you already use" text="Install the Yallapp plugin on your WordPress site. It detects your LMS, Digits and WooCommerce and connects them to your apps." />
-        <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
-          {WORKS_WITH.map((name) => (
-            <li key={name} className="rounded-full border border-line bg-white px-4 py-2 text-[15px] font-semibold">
-              {name}
-            </li>
-          ))}
-        </ul>
+
+      {FEATURE_GROUPS.map((group, index) => (
+        <Section key={group.id} id={group.id} tinted={index % 2 === 0}>
+          <SectionTitle title={group.title} text={group.text} />
+          {group.screens.length ? (
+            group.screens.every(isDashboard) ? (
+              <div className="flex flex-col gap-5">
+                {group.screens.filter(isDashboard).map((screen) => (
+                  <BrowserFrame key={screen} screen={screen} path={DASHBOARD_PATHS[screen]} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-center gap-6 sm:justify-start">
+                {group.screens
+                  .filter((s): s is AppScreen => !isDashboard(s))
+                  .map((screen) => (
+                    <DeviceFrame key={screen} screen={screen} size="sm" />
+                  ))}
+              </div>
+            )
+          ) : null}
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
+            {group.features.map((feature) => (
+              <article key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 sm:p-7">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ivory text-midnight">
+                  <Icon name={feature.icon} size={26} />
+                </span>
+                <h3 className="m-0 text-xl font-bold">{feature.title}</h3>
+                <p className="m-0 text-[15px] leading-relaxed text-ink-4">{feature.text}</p>
+                <CheckList items={feature.details} />
+              </article>
+            ))}
+          </div>
+        </Section>
+      ))}
+
+      <Section>
+        <SectionTitle title="A typical app builder, and Yallapp" text="What you often get elsewhere, next to what every Yallapp app does." />
+        <Comparison rows={COMPARISON} />
+        <MoreLink href="/integrations">See where your content can come from</MoreLink>
       </Section>
     </MarketingPage>
   );

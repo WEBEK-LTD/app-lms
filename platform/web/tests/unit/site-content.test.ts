@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { GUIDES } from "@/content/guides";
+import { readdirSync } from "node:fs";
+import path from "node:path";
+import { DOCS, GUIDE_REDIRECTS, docBySlug } from "@/content/docs";
 import { PRIVACY } from "@/content/legal";
-import { fillValues, inlineText, markdownToHtml, parseInline, parseMarkdown, safeHref } from "@/lib/content/markdown";
+import { fillValues, headingId, inlineText, markdownToHtml, parseInline, parseMarkdown, safeHref } from "@/lib/content/markdown";
 import { CONTENT_PAGES, contentPage, contentWith, faqMarkdown, parseFaq, parseGuide, readContentForm } from "@/lib/content/site";
 import { MemoryStore } from "@/lib/data/memory";
-import { FAQ } from "@/lib/marketing";
+import { APP_SCREENS, COMPARISON, DASHBOARD_SCREENS, FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, SOLUTIONS } from "@/lib/marketing";
 import { NOW } from "./helpers";
 
 describe("website content Markdown", () => {
@@ -35,6 +37,25 @@ describe("website content Markdown", () => {
     expect(safeHref("mailto:info@yallapp.com.tr")).toBe("mailto:info@yallapp.com.tr");
   });
 
+  it("keeps code blocks as they are", () => {
+    const blocks = parseMarkdown('Before\n~~~json\n{ "a": "<b>",\n  "## not": "a heading" }\n~~~\n\n```\nplain\n```\nAfter');
+    expect(blocks).toEqual([
+      { t: "p", c: [{ t: "text", v: "Before" }] },
+      { t: "pre", lang: "json", v: '{ "a": "<b>",\n  "## not": "a heading" }' },
+      { t: "pre", lang: "", v: "plain" },
+      { t: "p", c: [{ t: "text", v: "After" }] },
+    ]);
+    expect(markdownToHtml("~~~\n<script>x</script>\n~~~")).toBe("<pre><code>&lt;script&gt;x&lt;/script&gt;</code></pre>");
+    // An unclosed block runs to the end of the text.
+    expect(parseMarkdown("~~~\nopen")).toEqual([{ t: "pre", lang: "", v: "open" }]);
+  });
+
+  it("makes heading anchors from their words", () => {
+    expect(headingId("Before you start")).toBe("before-you-start");
+    expect(headingId("The sign-in flow, simply")).toBe("the-sign-in-flow-simply");
+    expect(headingId("Çağrı & Şule")).toBe("cagr-sule");
+  });
+
   it("fills only the values it's given", () => {
     expect(fillValues("Mail {{contact_email}} or {{other}}", { contact_email: "a@b.test" })).toBe("Mail a@b.test or {{other}}");
   });
@@ -60,23 +81,102 @@ describe("website content pages", () => {
     const groups = parseFaq(faqMarkdown(FAQ));
     expect(groups.map((g) => g.title)).toEqual(FAQ.map((g) => g.title));
     expect(groups.map((g) => g.items.map((i) => i.question))).toEqual(FAQ.map((g) => g.items.map((i) => i.q)));
-    expect(groups.map((g) => g.items.map((i) => i.answer.map((b) => (b.t === "p" ? inlineText(b.c) : "")).join("")))).toEqual(
-      FAQ.map((g) => g.items.map((i) => i.a)),
-    );
+    expect(groups.map((g) => g.items.map((i) => i.answer))).toEqual(FAQ.map((g) => g.items.map((i) => parseMarkdown(i.a))));
+    // Ten topics, from getting started to support.
+    expect(groups).toHaveLength(10);
+    expect(groups.flatMap((g) => g.items).length).toBeGreaterThanOrEqual(40);
   });
 
-  it("splits a guide into introduction, checklist, steps with notes, and the end", () => {
-    const doc = parseGuide(GUIDES.find((g) => g.slug === "custom-api")!.body);
+  it("splits an article into introduction, checklist, sections with notes, and the end", () => {
+    const doc = parseGuide(docBySlug("my-own-api")!.body);
     expect(doc.intro).toHaveLength(1);
     expect(doc.before?.title).toBe("Before you start");
-    expect(doc.before?.items).toHaveLength(3);
-    expect(doc.steps.map((s) => s.title)).toEqual(["Read the contract", "Start with what every app needs", "Add your app type's endpoints", "Check it from your dashboard"]);
-    expect(doc.steps[3]!.notice).toHaveLength(1);
-    expect(doc.outro.map((b) => (b.t === "p" ? inlineText(b.c) : ""))).toEqual([
-      "Your next build talks to your API. If you change the address later, the next build uses the new one.",
+    expect(doc.before?.items).toHaveLength(4);
+    expect(doc.steps.map((s) => s.title)).toEqual([
+      "What \"your website serves the Yallapp API\" means",
+      "Build the endpoints in this order",
+      "Start with GET /config",
+      "The sign-in flow, simply",
+      "Content, with an example",
+      "Errors",
+      "Images and HTML",
+      "Test it with the live check",
+      "Checklist before you submit",
     ]);
-    // A rule inside the text before any step isn't the end.
+    // Code blocks stay in their section; notes go to the section's note box.
+    expect(doc.steps[2]!.body.some((b) => b.t === "pre" && b.lang === "json" && b.v.includes('"update_required": false'))).toBe(true);
+    expect(doc.steps[1]!.notice).toHaveLength(1);
+    expect(doc.outro).toHaveLength(1);
+    // A rule inside the text before any section isn't the end.
     expect(parseGuide("Intro\n\n---\n\nMore intro\n\n## Step\n\nDo it").intro).toHaveLength(3);
+  });
+
+  it("has every documentation article in the admin, and every old guide address goes to one", () => {
+    expect(new Set(DOCS.map((d) => d.slug)).size).toBe(DOCS.length);
+    for (const article of DOCS) {
+      const page = contentPage(article.key)!;
+      expect(page.path, article.slug).toBe(`/docs/${article.slug}`);
+      expect(page.group).toBe("Guides");
+      expect(parseGuide(article.body).steps.length, article.slug).toBeGreaterThan(0);
+    }
+    for (const target of Object.values(GUIDE_REDIRECTS)) expect(docBySlug(target), target).toBeDefined();
+    // Articles that were guides keep their key, so the team's edits still show.
+    expect(docBySlug("google-play")!.key).toBe("guide-google-play");
+    expect(docBySlug("my-own-api")!.key).toBe("guide-custom-api");
+  });
+
+  it("links only to pages and articles that exist", () => {
+    const appDir = path.resolve(__dirname, "../../src/app");
+    const routes = new Set<string>();
+    const walk = (dir: string, route: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        const segment = entry.name.startsWith("(") ? "" : `/${entry.name}`;
+        const child = path.join(dir, entry.name);
+        if (readdirSync(child).some((f) => f === "page.tsx" || f === "route.ts")) routes.add(`${route}${segment}` || "/");
+        walk(child, `${route}${segment}`);
+      }
+    };
+    walk(appDir, "");
+    routes.add("/");
+    const exists = (href: string) => {
+      const [pathname] = href.split(/[?#]/);
+      if (pathname === "/developers/openapi.yaml") return true;
+      if (pathname!.startsWith("/docs/")) return Boolean(docBySlug(pathname!.slice(6)));
+      if (pathname!.startsWith("/solutions/")) return SOLUTIONS.some((s) => `/solutions/${s.id}` === pathname);
+      return routes.has(pathname!) || pathname!.startsWith("/dashboard");
+    };
+    const links = (source: string) => [...source.matchAll(/\]\((\/[^)\s]*)\)/g)].map((m) => m[1]!);
+    const all = [
+      ...DOCS.flatMap((d) => links(d.body)),
+      ...FAQ.flatMap((g) => g.items.flatMap((i) => links(i.a))),
+      ...SOLUTIONS.flatMap((s) => s.docs.map((d) => d.href)),
+      ...INTEGRATION_GROUPS.flatMap((g) => g.items.flatMap((i) => (i.docs ? [i.docs] : []))),
+    ];
+    expect(all.length).toBeGreaterThan(50);
+    expect(all.filter((href) => !exists(href))).toEqual([]);
+  });
+
+  it("names only screenshots that ship, and only true comparisons", () => {
+    const screens = new Set(readdirSync(path.resolve(__dirname, "../../public/screens")));
+    for (const name of [...APP_SCREENS, ...DASHBOARD_SCREENS]) expect(screens.has(`${name}.png`), name).toBe(true);
+    for (const group of FEATURE_GROUPS) for (const s of group.screens) expect(screens.has(`${s}.png`), s).toBe(true);
+    for (const row of COMPARISON) expect(row.yallapp.length).toBeGreaterThan(0);
+  });
+
+  it("never names the technology behind Yallapp on public pages", () => {
+    const publicText = JSON.stringify([
+      CONTENT_PAGES.filter((p) => p.group !== "Legal pages").map((p) => p.defaults),
+      SOLUTIONS,
+      INTEGRATION_GROUPS,
+      FEATURE_GROUPS,
+      COMPARISON,
+      FAQ,
+      contentPage("privacy")!.defaults,
+    ]);
+    for (const word of ["Netlify", "Next.js", "GitHub", "MySQL", "MariaDB", "cPanel", "host.webek.org", "files.yallapp", "Flutter", "Vercel", "Drizzle", "Apache"]) {
+      expect(publicText.toLowerCase(), word).not.toContain(word.toLowerCase());
+    }
   });
 
   it("checks the admin's form", () => {
@@ -94,7 +194,11 @@ describe("website content pages", () => {
       ok: false,
       errors: { entries: "Add at least one ## group with a ### question." },
     });
-    expect(readContentForm(contentPage("guide-videos")!, { title: "T", description: "D", body: "No steps" })).toMatchObject({ ok: false, errors: { body: "Add at least one ## step." } });
+    expect(readContentForm(contentPage("guide-videos")!, { title: "T", description: "D", body: "No steps" })).toMatchObject({ ok: false, errors: { body: "Add at least one ## section." } });
+    // Tags in code blocks are shown as they are; outside them they're refused.
+    const article = contentPage("doc-getting-started")!;
+    expect(readContentForm(article, { title: "T", description: "D", body: "## Example\n\n~~~html\n<div>Hi</div>\n~~~\n" }).ok).toBe(true);
+    expect(readContentForm(article, { title: "T", description: "D", body: "## Example\n\n~~~\nok\n~~~\n\n<div>Hi</div>\n" })).toMatchObject({ ok: false });
   });
 
   it("keeps the legal pages' contact details as values", () => {

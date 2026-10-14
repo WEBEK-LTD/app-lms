@@ -38,7 +38,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     id: newId(),
     clientId,
     appType,
-    siteUrl,
+    // Clients may sign up without a website (stored as ""): the app then starts without one.
+    siteUrl: siteUrl || null,
     backend: "wordpress",
     apiBaseUrl: null,
     setupRequestedAt: null,

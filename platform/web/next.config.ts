@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { GUIDE_REDIRECTS } from "./src/content/docs";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -30,6 +31,14 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  // The guides moved into the documentation (src/content/docs.ts); old links keep working.
+  async redirects() {
+    return [
+      { source: "/guides", destination: "/docs", permanent: true },
+      ...Object.entries(GUIDE_REDIRECTS).map(([guide, article]) => ({ source: `/guides/${guide}`, destination: `/docs/${article}`, permanent: true })),
+      { source: "/guides/:slug", destination: "/docs", permanent: true },
+    ];
   },
 };
 

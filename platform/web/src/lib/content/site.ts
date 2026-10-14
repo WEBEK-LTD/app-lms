@@ -1,4 +1,4 @@
-import { GUIDES, type GuideDefault } from "@/content/guides";
+import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
 import { FAQ } from "../marketing";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
@@ -21,6 +21,7 @@ export interface ContentField {
   hint?: string;
 }
 
+/** The admin's groups. "Guides" holds the documentation's articles (/docs), which replaced the guides. */
 export type ContentGroup = "Home page" | "Pages" | "Guides" | "Legal pages";
 
 export interface ContentPage {
@@ -53,25 +54,29 @@ export const GUIDE_HINT =
   "Text before the first ## heading is the introduction. A “## Before you start” section becomes the checklist box, every other ## section is a numbered step, > lines inside a step are its note, and text after a last --- line ends the guide. " +
   MARKDOWN_HINT.replace("Markdown: ", "");
 
+export const DOC_HINT =
+  "Text before the first ## heading is the introduction. A “## Before you start” section becomes the checklist box, every other ## section is a part of the article (numbered in step-by-step articles) and gets its own link, ### starts a smaller heading, > lines are notes, a line of ~~~ before and after shows code as it is, and text after a last --- line ends the article. " +
+  MARKDOWN_HINT.replace("Markdown: ", "");
+
 /** The FAQ in code, as the Markdown the admin edits. */
 export function faqMarkdown(groups: { title: string; items: { q: string; a: string }[] }[]): string {
   return groups.map((g) => [`## ${g.title}`, ...g.items.map((item) => `### ${item.q}\n\n${item.a}`)].join("\n\n")).join("\n\n") + "\n";
 }
 
-function guidePage(guide: GuideDefault): ContentPage {
+function docPage(article: DocDefault): ContentPage {
   return {
-    key: `guide-${guide.slug}`,
+    key: article.key,
     group: "Guides",
-    title: guide.title,
-    path: `/guides/${guide.slug}`,
-    // Guide titles are in every guide's menu.
-    revalidate: { path: "/guides/[slug]", type: "page" },
+    title: article.title,
+    path: `/docs/${article.slug}`,
+    // Article titles are in every documentation page's menu and in its index.
+    revalidate: { path: "/docs", type: "layout" },
     fields: [
       { name: "title", label: "Title", kind: "line", max: 120 },
-      { name: "description", label: "Description", kind: "text", max: 300, hint: "For search engines and link previews." },
-      { name: "body", label: "Guide", kind: "markdown", max: 30_000, hint: GUIDE_HINT },
+      { name: "description", label: "Description", kind: "text", max: 300, hint: "Shown in the documentation's index, to search engines and in link previews." },
+      { name: "body", label: "Article", kind: "markdown", max: 40_000, hint: DOC_HINT },
     ],
-    defaults: { title: guide.title, description: guide.description, body: guide.body },
+    defaults: { title: article.title, description: article.description, body: article.body },
   };
 }
 
@@ -91,6 +96,11 @@ function legalPage(page: LegalDefault): ContentPage {
   };
 }
 
+/** A page whose editable part is its header: the label, the title and the introduction. */
+function headerPage(key: string, title: string, path: string, defaults: { eyebrow: string; title: string; intro: string }): ContentPage {
+  return { key, group: "Pages", title, path, revalidate: { path }, fields: PAGE_HEADER, defaults };
+}
+
 export const CONTENT_PAGES: ContentPage[] = [
   {
     key: "home",
@@ -104,22 +114,39 @@ export const CONTENT_PAGES: ContentPage[] = [
       { name: "intro", label: "Introduction", kind: "text", max: 400 },
       { name: "primaryCta", label: "WhatsApp button", kind: "line", max: 40 },
       { name: "secondaryCta", label: "Second button", kind: "line", max: 40, hint: "Opens How it works." },
+      { name: "solutionsTitle", label: "App types: title", kind: "line", max: 120 },
+      { name: "solutionsText", label: "App types: text", kind: "text", max: 300 },
       { name: "featuresTitle", label: "Features: title", kind: "line", max: 120 },
       { name: "featuresText", label: "Features: text", kind: "text", max: 300 },
+      { name: "integrationsTitle", label: "Integrations: title", kind: "line", max: 120 },
+      { name: "integrationsText", label: "Integrations: text", kind: "text", max: 300 },
+      { name: "dashboardTitle", label: "Dashboard: title", kind: "line", max: 120 },
+      { name: "dashboardText", label: "Dashboard: text", kind: "text", max: 300 },
+      { name: "compareTitle", label: "Comparison: title", kind: "line", max: 120 },
+      { name: "compareText", label: "Comparison: text", kind: "text", max: 300 },
       { name: "stepsTitle", label: "Steps: title", kind: "line", max: 120 },
       { name: "plansTitle", label: "Plans: title", kind: "line", max: 120 },
       { name: "plansText", label: "Plans: text", kind: "text", max: 300 },
     ],
     defaults: {
-      badge: "For WordPress LMS academies",
-      title: "Your Tutor LMS academy, as a mobile app.",
+      badge: "Apps for academies, stores, bookings and real estate",
+      title: "Your business, as your own mobile app.",
       intro:
-        "Turn your WordPress site into branded Android and iOS apps. Students sign in with Digits OTP, watch protected lessons and track their progress, all synced with your website.",
+        "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      featuresTitle: "Everything your students need",
-      featuresText: "Branded apps that read your courses live from your website, with nothing to copy or maintain twice.",
-      stepsTitle: "From website to app stores in four steps",
+      solutionsTitle: "One platform, four kinds of apps",
+      solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
+      featuresTitle: "Everything your app needs",
+      featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",
+      integrationsTitle: "Works with what you already use",
+      integrationsText: "Your content stays where it is. The app reads it live from your website or platform, or from the Yallapp dashboard.",
+      dashboardTitle: "Run your app from one dashboard",
+      dashboardText:
+        "Set up your app step by step, build its pages with drag and drop, and download every build. No code, and no new store release for every change.",
+      compareTitle: "A typical app builder, and Yallapp",
+      compareText: "What you often get elsewhere, next to what every Yallapp app does.",
+      stepsTitle: "From sign-up to the app stores in five steps",
       plansTitle: "Two plans",
       plansText: "Publish the apps yourself with our guides, or let us publish them for you.",
     },
@@ -135,49 +162,60 @@ export const CONTENT_PAGES: ContentPage[] = [
       { name: "text", label: "Text", kind: "text", max: 300 },
     ],
     defaults: {
-      title: "Ready to put your academy in your students' pockets?",
-      text: "Tell us about your site on WhatsApp. We'll set up your account and get your apps building.",
+      title: "Ready to put your business in your customers' pockets?",
+      text: "Tell us about your business on WhatsApp, or create your account and start the setup today.",
     },
   },
-  {
-    key: "features",
-    group: "Pages",
-    title: "Features",
-    path: "/features",
-    revalidate: { path: "/features" },
-    fields: PAGE_HEADER,
-    defaults: {
-      eyebrow: "Features",
-      title: "Everything your students need, in their pocket",
-      intro: "Your courses, lessons and quizzes stay in your LMS plugin. The app reads them live, so there's nothing to copy or maintain twice.",
-    },
-  },
-  {
-    key: "how-it-works",
-    group: "Pages",
-    title: "How it works",
-    path: "/how-it-works",
-    revalidate: { path: "/how-it-works" },
-    fields: PAGE_HEADER,
-    defaults: {
-      eyebrow: "How it works",
-      title: "From website to app stores in four steps",
-      intro: "You keep running your website as you do today. Yallapp turns it into your own Android and iOS apps.",
-    },
-  },
-  {
-    key: "pricing",
-    group: "Pages",
-    title: "Pricing",
-    path: "/pricing",
-    revalidate: { path: "/pricing" },
-    fields: PAGE_HEADER,
-    defaults: {
-      eyebrow: "Pricing",
-      title: "Simple plans for your academy",
-      intro: "Payments are arranged directly with our team on WhatsApp. We activate your account as soon as your plan is confirmed.",
-    },
-  },
+  headerPage("solutions", "Solutions", "/solutions", {
+    eyebrow: "Solutions",
+    title: "An app for the way your business works",
+    intro: "Academies, stores, bookings businesses and real estate offices each get their own screens, built on the same platform, with or without a website.",
+  }),
+  headerPage("solution-academy", "Solutions: Academy", "/solutions/academy", {
+    eyebrow: "Academy apps",
+    title: "Your academy, in your students' pockets",
+    intro:
+      "Courses, protected lessons, quizzes and progress in your own app, from your WordPress LMS, Teachable, Thinkific, your own API, or courses you add in the dashboard.",
+  }),
+  headerPage("solution-store", "Solutions: Store", "/solutions/store", {
+    eyebrow: "Store apps",
+    title: "Your shop, one tap away",
+    intro:
+      "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard with card payments.",
+  }),
+  headerPage("solution-bookings", "Solutions: Bookings", "/solutions/bookings", {
+    eyebrow: "Bookings apps",
+    title: "Appointments, booked in your own app",
+    intro:
+      "Services, your team and real free times, from Amelia, BookingPress, LatePoint, SimplyBook.me, your own API, or a setup in the dashboard. Customers book in seconds and pay at your business.",
+  }),
+  headerPage("solution-real-estate", "Solutions: Real estate", "/solutions/real-estate", {
+    eyebrow: "Real estate apps",
+    title: "Your listings, with search, favorites and messages",
+    intro: "Add your properties in the dashboard. People search them with filters, save favorites and message your office, in an app with your name on it.",
+  }),
+  headerPage("features", "Features", "/features", {
+    eyebrow: "Features",
+    title: "Everything your app needs, built in",
+    intro:
+      "Your brand and pages, three languages, sign-in with a code, push notifications, payments and publishing. One app for Android and iOS, changed from your dashboard without a new release.",
+  }),
+  headerPage("integrations", "Integrations", "/integrations", {
+    eyebrow: "Integrations",
+    title: "Your content, from wherever it lives",
+    intro:
+      "WordPress with 11 supported plugins, 7 online platforms, your own API, or no website at all. Your content stays where it is, and your app reads it live.",
+  }),
+  headerPage("how-it-works", "How it works", "/how-it-works", {
+    eyebrow: "How it works",
+    title: "From sign-up to the app stores in five steps",
+    intro: "You keep running your business as you do today. Yallapp turns it into your own Android and iOS apps.",
+  }),
+  headerPage("pricing", "Pricing", "/pricing", {
+    eyebrow: "Pricing",
+    title: "Simple plans for your app",
+    intro: "Pay by card in your dashboard, or arrange it with our team on WhatsApp. We activate your account as soon as your plan is confirmed.",
+  }),
   {
     key: "faq",
     group: "Pages",
@@ -188,24 +226,31 @@ export const CONTENT_PAGES: ContentPage[] = [
     defaults: {
       eyebrow: "FAQ",
       title: "Questions, answered",
-      intro: "Can't find what you're looking for? Message us on WhatsApp and we'll answer you directly.",
+      intro: "Can't find what you're looking for? Read the documentation, or message us on WhatsApp and we'll answer you directly.",
       entries: faqMarkdown(FAQ),
     },
   },
+  headerPage("contact", "Contact", "/contact", {
+    eyebrow: "Contact",
+    title: "Talk to us",
+    intro: "Questions about Yallapp, a plan for your business, or help with your apps: we're here.",
+  }),
   {
-    key: "contact",
-    group: "Pages",
-    title: "Contact",
-    path: "/contact",
-    revalidate: { path: "/contact" },
-    fields: PAGE_HEADER,
-    defaults: {
-      eyebrow: "Contact",
-      title: "Talk to us",
-      intro: "Questions about Yallapp, a plan for your academy, or help with your apps: we're here.",
-    },
+    ...headerPage("docs", "Documentation", "/docs", {
+      eyebrow: "Documentation",
+      title: "Yallapp documentation",
+      intro: "Everything you need to set up, publish and run your app, step by step and in plain words.",
+    }),
+    // The index's title is in every article's menu.
+    revalidate: { path: "/docs", type: "layout" },
   },
-  ...GUIDES.map(guidePage),
+  headerPage("developers", "API reference", "/developers", {
+    eyebrow: "For developers",
+    title: "The Yallapp API reference",
+    intro:
+      "Every endpoint your app calls, for developers who serve the Yallapp API from their own website. Start with the step-by-step guide, then use this reference.",
+  }),
+  ...DOCS.map(docPage),
   ...[PRIVACY, TERMS, REFUND].map(legalPage),
 ];
 
@@ -304,6 +349,11 @@ export function parseGuide(source: string): GuideDoc {
 }
 
 const PLACEHOLDER_IN_TEXT = /\{\{([^{}]*)\}\}/g;
+
+/** The text without its code blocks (between ``` or ~~~ lines) and `code`, where any character is shown as it is. */
+function withoutCode(value: string): string {
+  return value.replace(/^[ \t]*(```|~~~)[^\n]*\n[\s\S]*?(^[ \t]*\1[ \t]*$|(?![\s\S]))/gm, "").replace(/`[^`\n]*`/g, "");
+}
 const CONTACT_VALUES = ["contact_email", "contact_whatsapp", "contact_whatsapp_url"];
 
 /** Checks the admin's form for a page; the fields to save, or an error per field. */
@@ -318,8 +368,8 @@ export function readContentForm(
     const value = field.kind === "markdown" ? raw.trim() + "\n" : raw.replace(/\s+/g, " ").trim();
     if (!value.trim()) errors[field.name] = `Enter the ${field.label.toLowerCase()}.`;
     else if (value.length > field.max) errors[field.name] = `Use at most ${field.max.toLocaleString("en-US")} characters.`;
-    // Tags in `code` are shown as they are.
-    else if (/<\/?[a-z][^>]*>/i.test(value.replace(/`[^`\n]*`/g, ""))) errors[field.name] = "HTML isn't allowed. Use Markdown for bold text and links.";
+    // Tags in `code` and in code blocks are shown as they are.
+    else if (/<\/?[a-z][^>]*>/i.test(withoutCode(value))) errors[field.name] = "HTML isn't allowed. Use Markdown for bold text and links.";
     else {
       const unknown = [...value.matchAll(PLACEHOLDER_IN_TEXT)].map((m) => m[1]!).find((name) => !CONTACT_VALUES.includes(name) || page.group !== "Legal pages");
       if (unknown !== undefined) errors[field.name] = `{{${unknown}}} isn't a value this page can show.`;
@@ -330,7 +380,7 @@ export function readContentForm(
     errors.entries = "Add at least one ## group with a ### question.";
   }
   if (!errors.body && page.group === "Guides" && parseGuide(fields.body!).steps.length === 0) {
-    errors.body = "Add at least one ## step.";
+    errors.body = "Add at least one ## section.";
   }
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, fields };
 }

@@ -19,7 +19,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: LEGAL_UPDATED,
+  updated: "14 October 2026",
   body: `## 1. Who we are
 
 Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. WEBEK LTD is the data controller for the personal data described here. We follow the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. When we process data of people in Türkiye or the European Union, we also follow the Turkish Personal Data Protection Law No. 6698 (KVKK) and the EU General Data Protection Regulation (GDPR). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -45,7 +45,7 @@ The Yallapp plugin runs on your WordPress website. Your students’ accounts, ph
 
 ## 5. Who we share it with
 
-We share data only with providers that help us run Yallapp: website hosting (Netlify), our own servers for the database and build files, the build service that compiles your apps, and Apple or Google when we publish for you. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
+We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database and build files, the build service that compiles your apps, and Apple or Google when we publish for you. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
 
 ## 6. International transfers
 

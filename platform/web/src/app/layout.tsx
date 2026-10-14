@@ -21,11 +21,11 @@ const icons = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "https://yallapp.com.tr"),
   title: {
-    default: "Yallapp: your WordPress academy as a mobile app",
+    default: "Yallapp: your business as your own mobile app",
     template: "%s · Yallapp",
   },
   description:
-    "Turn your WordPress LMS site into branded Android and iOS apps. Students sign in with Digits OTP, watch protected lessons and track their progress, all synced with your website.",
+    "Branded Android and iOS apps for academies, stores, bookings and real estate offices, from your WordPress site, Shopify and other platforms, your own API, or no website at all.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

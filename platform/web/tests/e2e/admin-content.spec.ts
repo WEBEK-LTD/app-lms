@@ -106,7 +106,7 @@ test("the team changes the home page's title and it shows on yallapp.com.tr", as
   await admin.goto("/admin/content");
   await admin.getByRole("link", { name: "Home page", exact: true }).click();
   await expect(admin.getByRole("heading", { level: 1, name: "Home page" })).toBeVisible();
-  await expect(admin.getByLabel("Title", { exact: true })).toHaveValue("Your Tutor LMS academy, as a mobile app.");
+  await expect(admin.getByLabel("Title", { exact: true })).toHaveValue("Your business, as your own mobile app.");
   await admin.getByLabel("Title", { exact: true }).fill("Your academy, in your students' pockets.");
   await admin.getByRole("button", { name: "Save and publish" }).click();
   await expect(admin.getByText("Home page saved. It shows on the website now.")).toBeVisible();
@@ -132,7 +132,7 @@ test("the team changes the home page's title and it shows on yallapp.com.tr", as
     await expect(admin.getByText("Back to the default text. The website shows it now.")).toBeVisible();
   }
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Your Tutor LMS academy, as a mobile app." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Your business, as your own mobile app." })).toBeVisible();
 });
 
 test("the team edits an email, and the test email and the client's email use it", async ({ page }) => {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { parseMarkdown, type Block, type Inline } from "@/lib/content/markdown";
+import { headingId, inlineText, parseMarkdown, type Block, type Inline } from "@/lib/content/markdown";
 
 /**
  * Markdown written in the admin, as React elements: text is never read as
@@ -44,7 +44,16 @@ export function InlineNodes({ nodes }: { nodes: Inline[] }): ReactNode {
 }
 
 /** Blocks with the page's own styles (DocLayout styles h2, p and ul). `quote` renders a > note. */
-export function MarkdownBlocks({ blocks, quote }: { blocks: Block[]; quote?: (children: ReactNode, key: number) => ReactNode }): ReactNode {
+export function MarkdownBlocks({
+  blocks,
+  quote,
+  anchors = false,
+}: {
+  blocks: Block[];
+  quote?: (children: ReactNode, key: number) => ReactNode;
+  /** Gives headings an id from their text, so they can be linked to (documentation). */
+  anchors?: boolean;
+}): ReactNode {
   return blocks.map((b, i) => {
     switch (b.t) {
       case "p":
@@ -56,7 +65,7 @@ export function MarkdownBlocks({ blocks, quote }: { blocks: Block[]; quote?: (ch
       case "h": {
         const Heading = `h${b.level}` as "h2" | "h3" | "h4";
         return (
-          <Heading key={i}>
+          <Heading key={i} id={anchors ? headingId(inlineText(b.c)) : undefined} className={anchors ? "scroll-mt-6" : undefined}>
             <InlineNodes nodes={b.c} />
           </Heading>
         );
@@ -82,13 +91,23 @@ export function MarkdownBlocks({ blocks, quote }: { blocks: Block[]; quote?: (ch
           </ol>
         );
       case "quote": {
-        const inner = <MarkdownBlocks blocks={b.blocks} />;
+        const inner = <MarkdownBlocks blocks={b.blocks} anchors={anchors} />;
         return quote ? quote(inner, i) : (
           <blockquote key={i} className="m-0 border-l-[3px] border-line pl-4 text-ink-3">
             {inner}
           </blockquote>
         );
       }
+      case "pre":
+        return (
+          <pre
+            key={i}
+            data-lang={b.lang || undefined}
+            className="m-0 max-w-full overflow-x-auto rounded-xl bg-midnight px-4 py-3.5 font-mono text-[13px] leading-relaxed whitespace-pre text-ivory"
+          >
+            <code>{b.v}</code>
+          </pre>
+        );
       case "hr":
         return <hr key={i} className="border-line-soft" />;
     }
