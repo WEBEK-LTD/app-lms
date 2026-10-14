@@ -157,7 +157,10 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   await expect(page.getByText("We publish the apps for you, every time")).toBeVisible();
 
   await page.goto("/admin/plans");
-  await page.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
+  const reset = page.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" });
+  await reset.click();
+  // The button goes once the default is back; on a database that takes a moment.
+  await expect(reset).toHaveCount(0);
   await page.goto("/pricing");
   await expect(page.getByText("₺4,800.00")).toHaveCount(0);
 });

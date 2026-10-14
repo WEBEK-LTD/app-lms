@@ -295,3 +295,21 @@ is in `docs/ARCHITECTURE.md` ("Sign-in for every app").
 | [x] | 18.6 The owner's own WhatsApp number (WABEK API key, encrypted, and instance) on App sign-in, with "Send a test code", for the app's phone codes on the hosted API and its WordPress site | Unit tests with a fake WABEK |
 | [x] | 18.7 App: a Phone / Email switch when both are offered, email codes, email and password with "Forgot your password?", in English, Arabic and Turkish; the preview bundle rebuilt | `flutter analyze`, `flutter test` and `build_preview.sh --check` pass |
 | [~] | 18.8 On the real client site (Digits 8.3.3.2 with Additional SMS Gateways, no REST API add-on) and on production | Waiting on WABEK and SMTP set on production and plugin 0.3.1 released (`docs/LAUNCH-CHECKLIST.md` › 7) |
+
+## Phase 19: Every app type, checked end to end
+
+A review of every kind of app (WordPress, own API, connected platforms,
+content managed in Yallapp, and "set up WordPress for me") found gaps, now
+closed. Built and tested with the in-memory store and on MariaDB 10.11.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 19.1 Connected platforms: Shopify order history never matches an empty phone and also finds orders by verified email and the order's phones; Shopify setup checks the token's permissions (read_orders, read_customers) and the Storefront token's products; every connector has a test for an account without a phone | Unit tests with fake platforms |
+| [x] | 19.2 Bookings by people who sign in by email: the email has its own column (`drizzle/0021_booking_customer_email.sql`), shown as an email on Appointments and in the owner's email | Unit tests and a browser test on both stores |
+| [x] | 19.3 Teachable and Thinkific apps offer email sign-in; an email account is the school's student with that address, so courses bought on the website show in the app (paid courses still aren't sold in the app); App sign-in explains each platform | Unit tests |
+| [x] | 19.4 Products managed in Yallapp aren't sold until card payments are set up, and the owner is told; `/config` still answers when a connected platform fails (logged); Real estate listings can be picked in the page editor | Unit tests and the catalog browser test |
+| [x] | 19.5 Store review by email (owner's review email and code, hosted API and plugin 0.3.2); a failing own WhatsApp number falls back once to Yallapp's sender, is logged and emails the owner (at most daily); switching to a phone-only source warns about customers who signed up by email | Unit tests, plugin tests and a browser test |
+| [x] | 19.6 Own API: the guide documents email sign-in; the API check validates `auth.methods` and `email_sign_in` and probes only the offered endpoints; the API is checked when saved and a failing check stays on the overview and Builds; App sign-in shows what the API offers | Unit tests |
+| [x] | 19.7 "Set up WordPress for me": the website is optional; App sign-in, preview and pages say the right thing; the team's "WordPress is ready" (or the plugin's activation on a site) moves the app to WordPress and tells the client; hosted apps without a content source choose one before they build | Unit tests and a browser test |
+| [x] | 19.8 "Publish it for me" in the setup's Publishing step; open requests counted in the admin menu; a warning when SMTP isn't set and a flag when the team's email fails; the team is told when a client publishes themselves; a new request starts the queue again | Unit tests and the publishing browser test |
+| [x] | 19.9 One phone frame for the site and the dashboard: thin, proportional bezel and corners, a camera pill, a light shadow; used by the live preview, the Branding step and the page editor | Browser tests check the proportions and that no page scrolls sideways at 360 px |

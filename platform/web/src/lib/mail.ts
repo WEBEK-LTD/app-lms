@@ -60,7 +60,8 @@ export async function smtpConfigured(store: DataStore): Promise<boolean> {
  * sendMail drops messages with only a warning.
  */
 export async function mailDelivered(store: DataStore): Promise<boolean> {
-  if (!isProduction() || process.env.YALLAPP_DATA === "memory") return true;
+  // End-to-end runs keep every email in YALLAPP_MAIL_DIR (never on Netlify), so nothing is lost there.
+  if (!isProduction() || process.env.YALLAPP_DATA === "memory" || mailCaptureDir()) return true;
   return smtpConfigured(store);
 }
 
