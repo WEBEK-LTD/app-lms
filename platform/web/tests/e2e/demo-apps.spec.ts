@@ -40,7 +40,7 @@ test("the team creates the demo apps from the admin", async () => {
   await expect(admin.getByText(DEMO.display).first()).toBeVisible();
   await admin.getByRole("button", { name: /Create the demo apps|Refresh all demo apps/ }).click();
   await expect(admin.getByRole("status")).toContainText("The demo apps are created and up to date.", { timeout: 30_000 });
-  for (const name of ["Nour Academy", "Lale Flowers", "Studio Nur", "Kardelen Clinic", "Nile Homes"]) {
+  for (const name of ["Nour Academy", "Lale Flowers", "Studio Nur", "Kardelen Clinic", "Nile Homes", "The Harbour Post"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
     appIds[name] = await admin.locator(`form:has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
@@ -103,12 +103,12 @@ test("checkout in a demo app takes no card", async ({ request, page }) => {
 test("the daily job cleans the demo apps and keeps what's newer than a day", async ({ request }) => {
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
-  expect((await daily.json()).demo).toMatchObject({ apps: 5, deleted: 0 });
+  expect((await daily.json()).demo).toMatchObject({ apps: 6, deleted: 0 });
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
   expect(orders.total).toBe(1);
 });
 
-test("/demo shows the five demos, the sign-in and Coming soon before a build is picked", async ({ page }) => {
+test("/demo shows the six demos, the sign-in and Coming soon before a build is picked", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Demo", exact: true }).click();
   await page.waitForURL("**/demo");
@@ -116,8 +116,8 @@ test("/demo shows the five demos, the sign-in and Coming soon before a build is 
   await expect(page.getByRole("heading", { name: "Try a real app on your phone" })).toBeVisible();
   await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
   await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
-  for (const name of ["Nour Academy", "Lale Flowers", "Studio Nur", "Kardelen Clinic", "Nile Homes"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
-  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(5);
+  for (const name of ["Nour Academy", "Lale Flowers", "Studio Nur", "Kardelen Clinic", "Nile Homes", "The Harbour Post"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(6);
   await expect(page.getByRole("link", { name: "Download for Android" })).toHaveCount(0);
   await expect(page.getByText("iPhone demos are available on request through TestFlight")).toBeVisible();
   const download = await page.request.get("/demo/download/store", { maxRedirects: 0 });

@@ -360,6 +360,23 @@ confirm are marked "Unverified" in the code.
 | [x] | 22.4 Registered everywhere platforms are: switches, the Store choices on the Website step, docs article "Connect your Wix store", Integrations and the marketing lists | Unit tests and the platforms browser test |
 | [~] | 22.5 Checked against a real Wix store | Waiting on a Wix test site with Wix Stores (`docs/LAUNCH-CHECKLIST.md` › 8) |
 
+## Phase 23: News and blogs
+
+A new engine, `news` (kind "News & blog"), for news sites, blogs and
+magazines: read-only articles, free to read (no paid content in v1, so no
+reader-app rules). Articles come from WordPress posts, an own API, the site's
+RSS or Atom feed, or articles written in Yallapp. Built and tested with the
+in-memory store and on MariaDB 10.11. How it works is in
+`docs/ARCHITECTURE.md` ("News & blog apps").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 23.1 Contract first: `GET /news/home`, `/news/categories`, `/news/articles` and `/news/articles/{article_id}` (bodies like lesson content: `render_mode`, `html`, `embeds`), `Config.news`, the item source `articles`, the screens `articles` and `bookmarks`, notifications of type `article` and the `news` push preference (`docs/api/openapi.yaml`); `news` in the build config schemas and the platform contract | `redocly lint` passes and responses are checked against the contract in unit tests |
+| [x] | 23.2 Plugin 0.3.6: the News endpoints from published posts (never private or password-protected), sticky posts as top stories, categories, search, featured image and author, the body through the HTML processor; "Notify app users about new posts" (off by default) with a per-post opt-out; page blocks and default pages for News & blog apps | `composer lint`, `php -l`, unit tests and the end-to-end run on a news site (CI) pass |
+| [x] | 23.3 Articles written in Yallapp (`drizzle/0024_articles.sql`): the dashboard's Articles page (write, picture, sections, publish and unpublish, top stories), "Send as breaking news" through the hosted push; "My site's RSS feed" connector with the API check's protections and a small XML reader | Unit tests for both, and a browser test of the Articles page on both stores |
+| [x] | 23.4 App: the news module (home with top stories and sections, latest by section and search, the article with the lesson renderer, saved articles on the device, sharing), the Breaking news switch in Settings, notifications that open the article; the preview bundle rebuilt | `flutter analyze`, `flutter test` and `build_preview.sh --check` pass |
+| [x] | 23.5 The registry entry (`lib/app/kinds.ts`), page sources and defaults, the demo app "The Harbour Post", the /demo card, the solution page with screenshots from the app, the docs article "News and blog apps", CI builds of a News & blog app | Unit and browser tests |
+
 ## Phase 24: Your app's own email
 
 An app's owner sends the emails that go to their app's users from their own

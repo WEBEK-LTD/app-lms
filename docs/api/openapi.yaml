@@ -1868,7 +1868,7 @@ paths:
       summary: Get the news home screen
       description: |
         Featured articles (sticky posts on WordPress, featured in the dashboard;
-        the newest on a feed), the latest articles and a rail per category with
+        the newest on a feed), the latest articles (without repeating those) and a rail per category with
         articles, newest first. Empty lists are sent as empty arrays; rails
         without articles are left out.
       security: [{}, { bearerAuth: [] }]
