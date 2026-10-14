@@ -1,5 +1,5 @@
 CREATE TABLE `booking_appointments` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`user_id` bigint unsigned,
 	`service_id` int NOT NULL,

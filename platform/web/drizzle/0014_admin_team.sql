@@ -1,5 +1,5 @@
 CREATE TABLE `admin_audit_log` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`at` datetime(3) NOT NULL,
 	`actor_id` varchar(36),
 	`actor_email` varchar(191) NOT NULL,

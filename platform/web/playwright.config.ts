@@ -54,7 +54,10 @@ export default defineConfig({
     env: {
       NODE_ENV: "production",
       APP_URL: E2E.baseURL,
-      YALLAPP_DATA: "memory",
+      // E2E_DATABASE_URL runs the suite against a MySQL or MariaDB database (migrations applied first).
+      ...(process.env.E2E_DATABASE_URL
+        ? { YALLAPP_DATA: "mysql", DATABASE_URL: process.env.E2E_DATABASE_URL, DATABASE_SSL: "disabled" }
+        : { YALLAPP_DATA: "memory" }),
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
       YALLAPP_MAIL_DIR: E2E.mailDir,

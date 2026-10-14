@@ -33,6 +33,7 @@ export async function sendMail(input: Mail): Promise<void> {
       await captureMail(mail);
     } else {
       console.warn(`[mail] SMTP is not configured; an email to ${mail.to} was not sent.`);
+      await captureMail(mail);
     }
     return;
   }
@@ -50,7 +51,7 @@ export async function sendMail(input: Mail): Promise<void> {
 /** Replaced by sendMail with the WhatsApp number set in the admin. */
 const WHATSAPP_PLACEHOLDER = "{{yallapp-whatsapp}}";
 
-/** End-to-end tests: keeps the email as a file they can read (YALLAPP_MAIL_DIR, memory mode only). */
+/** End-to-end tests: keeps the email as a file they can read (YALLAPP_MAIL_DIR, never on Netlify). */
 async function captureMail(mail: Mail): Promise<void> {
   const dir = mailCaptureDir();
   if (!dir) return;

@@ -25,7 +25,7 @@ import type { AdminRole } from "../admin/permissions";
 import {
   bigint,
   boolean,
-  serial,
+  double,
   customType,
   datetime,
   index,
@@ -37,8 +37,6 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
-// 10.7 Listings
-import { double } from "drizzle-orm/mysql-core";
 import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStatus } from "../data/types";
 
 /**
@@ -56,6 +54,11 @@ const jsonText = <T>(name: string) =>
 
 const id = (name: string) => varchar(name, { length: 36 });
 const time = (name: string) => datetime(name, { mode: "date", fsp: 3 });
+/**
+ * An auto-increment id. Not drizzle's serial(): its SQL ("serial AUTO_INCREMENT")
+ * is a syntax error on MariaDB, which the production database runs.
+ */
+const autoId = (name: string) => bigint(name, { mode: "number", unsigned: true }).autoincrement();
 
 export const users = mysqlTable(
   "users",
@@ -270,7 +273,7 @@ export const rateLimits = mysqlTable("rate_limits", {
 export const hostedUsers = mysqlTable(
   "hosted_users",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -347,7 +350,7 @@ export const hostedChallenges = mysqlTable(
 export const hostedNotifications = mysqlTable(
   "hosted_notifications",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -364,7 +367,7 @@ export const hostedNotifications = mysqlTable(
 export const catalogCategories = mysqlTable(
   "catalog_categories",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -378,7 +381,7 @@ export const catalogCategories = mysqlTable(
 export const catalogProducts = mysqlTable(
   "catalog_products",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -403,7 +406,7 @@ export const catalogProducts = mysqlTable(
 export const catalogOrders = mysqlTable(
   "catalog_orders",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -464,7 +467,7 @@ export const planPayments = mysqlTable(
 export const bookingAppointments = mysqlTable(
   "booking_appointments",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -530,7 +533,7 @@ export const lessonProgress = mysqlTable(
 export const listings = mysqlTable(
   "listings",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -595,7 +598,7 @@ export const listingFavorites = mysqlTable(
 export const listingInquiries = mysqlTable(
   "listing_inquiries",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -618,7 +621,7 @@ export const listingInquiries = mysqlTable(
 export const listingInquiryMessages = mysqlTable(
   "listing_inquiry_messages",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
@@ -668,7 +671,7 @@ export const adminMembers = mysqlTable("admin_members", {
 export const adminAuditLog = mysqlTable(
   "admin_audit_log",
   {
-    id: serial("id").primaryKey(),
+    id: autoId("id").primaryKey(),
     at: time("at").notNull(),
     actorId: id("actor_id"),
     actorEmail: varchar("actor_email", { length: 191 }).notNull(),

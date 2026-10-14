@@ -7,7 +7,7 @@ CREATE TABLE `listing_favorites` (
 );
 --> statement-breakpoint
 CREATE TABLE `listing_inquiries` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`listing_id` bigint unsigned NOT NULL,
 	`user_id` bigint unsigned NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE `listing_inquiries` (
 );
 --> statement-breakpoint
 CREATE TABLE `listing_inquiry_messages` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`inquiry_id` bigint unsigned NOT NULL,
 	`sender` varchar(8) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE `listing_settings` (
 );
 --> statement-breakpoint
 CREATE TABLE `listings` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`reference` varchar(40),
 	`title` varchar(150) NOT NULL,

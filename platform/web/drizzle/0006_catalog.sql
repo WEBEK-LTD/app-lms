@@ -1,5 +1,5 @@
 CREATE TABLE `catalog_categories` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`name` varchar(80) NOT NULL,
 	`position` int NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE `catalog_categories` (
 );
 --> statement-breakpoint
 CREATE TABLE `catalog_orders` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`token_hash` varchar(64) NOT NULL,
 	`user_id` bigint unsigned,
@@ -28,7 +28,7 @@ CREATE TABLE `catalog_orders` (
 );
 --> statement-breakpoint
 CREATE TABLE `catalog_products` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`name` varchar(120) NOT NULL,
 	`description` text NOT NULL,

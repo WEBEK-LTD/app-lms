@@ -104,7 +104,18 @@ In memory mode, emails (reset links, activation) are printed to the terminal.
 | `npm run db:migrate` | Applies migrations to `DATABASE_URL` |
 
 CI runs all of these in [`.github/workflows/platform.yml`](../../.github/workflows/platform.yml),
-plus a check that the committed migrations match the schema.
+plus a check that the committed migrations match the schema. When migrations or
+the data layer change, CI also applies every migration to MariaDB 10.11 (what
+production runs) and runs the end-to-end tests against it. To do the same
+locally, apply the migrations to an empty database and set `E2E_DATABASE_URL`:
+
+```sh
+DATABASE_URL=mysql://user:pass@127.0.0.1:3306/yallapp DATABASE_SSL=disabled npm run db:migrate
+E2E_DATABASE_URL=mysql://user:pass@127.0.0.1:3306/yallapp npm run test:e2e
+```
+
+Use `autoId()` in `src/lib/db/schema.ts` for auto-increment ids, never
+drizzle's `serial()`: its SQL doesn't run on MariaDB.
 
 ## Environment variables
 

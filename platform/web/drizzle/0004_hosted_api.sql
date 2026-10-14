@@ -28,7 +28,7 @@ CREATE TABLE `hosted_devices` (
 );
 --> statement-breakpoint
 CREATE TABLE `hosted_notifications` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`user_id` bigint unsigned,
 	`title` varchar(120) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE `hosted_refresh_tokens` (
 );
 --> statement-breakpoint
 CREATE TABLE `hosted_users` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`app_id` varchar(36) NOT NULL,
 	`phone` varchar(20) NOT NULL,
 	`name` varchar(120) NOT NULL,

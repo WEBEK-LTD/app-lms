@@ -244,9 +244,9 @@ export function resolveDatabaseCa(value: string | undefined): string | undefined
   return trimmed.replace(/\\n/g, "\n");
 }
 
-/** Password used to seed super admins in memory mode only (local runs and tests). */
+/** Password used to seed super admins in local runs and tests (never on Netlify). */
 export function memorySeedAdminPassword(): string | undefined {
-  return read("YALLAPP_SEED_ADMIN_PASSWORD");
+  return isNetlify() ? undefined : read("YALLAPP_SEED_ADMIN_PASSWORD");
 }
 
 export function blobsMode(): "netlify" | "fs" {
@@ -262,10 +262,10 @@ export function blobsDir(): string {
 // 11.4 Email templates
 
 /**
- * Memory mode only (end-to-end tests): emails that would go to the log are
+ * Local runs and tests only (never on Netlify): emails that would go to the log are
  * also written to this folder as JSON, so the tests can read what was sent.
  */
 export function mailCaptureDir(): string | undefined {
   const dir = read("YALLAPP_MAIL_DIR");
-  return dir && read("YALLAPP_DATA") === "memory" && !isNetlify() ? dir : undefined;
+  return dir && !isNetlify() ? dir : undefined;
 }
