@@ -400,7 +400,7 @@ describe("code senders", () => {
     expect(calls[0]).toEqual({
       url: "https://waabek.test/api/v1/send",
       key: "wk-test",
-      body: { to: "201234567890", message: "481902 is your Nile Homes code. It expires in 5 minutes. Don't share it.", instance_id: "inst-2" },
+      body: { to: "201234567890", message: "481902 is your Nile Homes code. It expires in 5 minutes. Don't share it.", type: "otp", code: "481902", instance_id: "inst-2" },
     });
 
     // Without an instance, WABEK picks the account's connected number.
