@@ -78,6 +78,32 @@ function avatar(skin: string, shirt: string, hair: string): Shape[] {
   return [r(24, 62, 52, 50, 24, shirt), c(50, 42, 15, skin), p([[35, 40], [38, 27], [50, 22], [62, 27], [65, 40], [60, 32], [40, 32]], hair)];
 }
 
+/** 21 Someone in a white coat over a coloured top, for the clinic's team. */
+function coat(skin: string, top: string, hair: string): Shape[] {
+  return [...avatar(skin, WHITE, hair), p([[44, 62], [56, 62], [50, 76]], top), r(49, 76, 2, 24, 1, "#D5DCE0")];
+}
+
+/** 21 A clipboard with lines, for the clinic's intake form. */
+function clipboard(board: string, paper: string, ink: string, dx = 0): Shape[] {
+  return [
+    r(30 + dx, 22, 40, 58, 5, board),
+    r(34 + dx, 28, 32, 48, 3, paper),
+    r(42 + dx, 18, 16, 9, 3, ink),
+    r(39 + dx, 40, 22, 3, 1.5, ink, 0.55),
+    r(39 + dx, 48, 18, 3, 1.5, ink, 0.55),
+    r(39 + dx, 56, 22, 3, 1.5, ink, 0.55),
+    r(39 + dx, 64, 12, 3, 1.5, ink, 0.55),
+  ];
+}
+
+function tooth(x: number, y: number, s: number, color: string): Shape[] {
+  return [
+    r(x - 12 * s, y - 10 * s, 24 * s, 18 * s, 8 * s, color),
+    p([[x - 12 * s, y], [x - 4 * s, y], [x - 6 * s, y + 18 * s], [x - 10 * s, y + 18 * s]], color),
+    p([[x + 4 * s, y], [x + 12 * s, y], [x + 10 * s, y + 18 * s], [x + 6 * s, y + 18 * s]], color),
+  ];
+}
+
 export const PICTURES = {
   // Academy (Nour Academy)
   "course-ux": {
@@ -359,6 +385,25 @@ export const PICTURES = {
     shapes: [r(104, 26, 44, 46, 6, WHITE), r(104, 26, 44, 12, 6, "#1F4D44"), r(104, 32, 44, 6, 0, "#1F4D44"), r(113, 20, 3, 12, 1.5, "#1F4D44"), r(136, 20, 3, 12, 1.5, "#1F4D44"), p([[114, 54], [120, 60], [134, 46], [137, 49], [120, 66], [111, 57]], "#2F6F62")],
   },
 
+  // Clinic (Kardelen Clinic, 21)
+  "visit-checkup": { from: "#E6F0F5", to: "#A9C9DA", shapes: clipboard("#2C6A8A", WHITE, "#2C6A8A") },
+  "visit-followup": {
+    from: "#EDF3EE",
+    to: "#B9D3BF",
+    shapes: [r(26, 28, 48, 46, 7, WHITE), r(26, 28, 48, 12, 7, "#3F7F5B"), r(26, 34, 48, 6, 0, "#3F7F5B"), p([[38, 56], [46, 64], [62, 48], [66, 52], [46, 72], [34, 60]], "#3F7F5B")],
+  },
+  "visit-dental": { from: "#EEF4FA", to: "#BFD5EA", shapes: [...tooth(50, 44, 1.3, WHITE), c(72, 30, 3, WHITE, 0.8), c(78, 38, 2, WHITE, 0.6)] },
+  "visit-children": { from: "#FFF3E2", to: "#F4C98E", shapes: [...tooth(46, 48, 1, WHITE), p([[72, 22], [75, 30], [83, 30], [77, 35], [79, 43], [72, 38], [65, 43], [67, 35], [61, 30], [69, 30]], "#E39B2E")] },
+  "visit-physio": {
+    from: "#F1ECF6",
+    to: "#C9B9DE",
+    shapes: [c(50, 54, 22, "#6A4C93"), c(50, 54, 22, WHITE, 0.15), r(30, 52, 40, 4, 2, WHITE, 0.5), c(76, 28, 7, "#6A4C93", 0.6)],
+  },
+  "doctor-ayse": { from: "#E6F0F5", to: "#A9C9DA", shapes: coat("#E9C4A8", "#2C6A8A", "#3B2A1E") },
+  "doctor-kerem": { from: "#EEF4FA", to: "#BFD5EA", shapes: coat("#C99B7D", "#5D6B66", "#2B2B2B") },
+  "doctor-leyla": { from: "#F1ECF6", to: "#C9B9DE", shapes: coat("#B98466", "#6A4C93", "#1E1A17") },
+  "banner-clinic": { from: "#E6F0F5", to: "#2C6A8A", shapes: [...clipboard(WHITE, "#F4F8FA", "#2C6A8A", 76), c(140, 30, 9, "#F2B544", 0.85)] },
+
   // Real estate (Nile Homes)
   "home-zamalek": { from: "#CFE4F3", to: "#F0D7B0", shapes: [ground("#B7C99A"), ...building(CREAM, "#7FA7C9", "#8A5A2B"), ...palm(80)] },
   "home-maadi": { from: "#D9EBDF", to: "#EFDDBE", shapes: [ground("#9DBF86"), ...house("#A0522D", CREAM, "#6B4226", "#7FA7C9"), c(86, 60, 8, "#5E8C4A"), r(85, 64, 2, 22, 1, "#8A5A22")] },
@@ -401,6 +446,7 @@ export const PICTURES = {
     shapes: [r(24, 28, 52, 48, 8, WHITE), r(24, 28, 52, 13, 8, "#CFE6E0"), r(24, 35, 52, 6, 0, "#CFE6E0"), r(34, 20, 4, 14, 2, WHITE), r(62, 20, 4, 14, 2, WHITE), p([[36, 56], [44, 64], [64, 46], [68, 50], [44, 72], [32, 60]], "#2F6F62")],
   },
   "icon-realestate": { from: "#B06A35", to: "#7A4220", shapes: [r(28, 50, 44, 30, 3, WHITE), p([[20, 52], [50, 26], [80, 52]], WHITE), r(45, 62, 10, 18, 2, "#9C5B2E")] },
+  "icon-clinic": { from: "#3A86AD", to: "#1F5672", shapes: [r(42, 22, 16, 56, 5, WHITE), r(22, 42, 56, 16, 5, WHITE)] },
 } satisfies Record<string, Art>;
 
 export type PictureName = keyof typeof PICTURES;

@@ -457,11 +457,13 @@ abstract class YallappApi {
 
   /// Books a `start` from [getAvailability]. Throws `slot_taken` (409) when
   /// someone else got it first.
+  /// [answers]: the intake form's answers by question ID, when it has questions.
   Future<Appointment> bookAppointment({
     required int serviceId,
     required DateTime start,
     int? staffId,
     String? notes,
+    Map<String, String>? answers,
   });
   Future<Paged<Appointment>> listMyAppointments({
     AppointmentsFilter filter = AppointmentsFilter.upcoming,
@@ -1136,6 +1138,7 @@ class HttpYallappApi implements YallappApi {
     required DateTime start,
     int? staffId,
     String? notes,
+    Map<String, String>? answers,
   }) => _send(
     'POST',
     '/bookings/appointments',
@@ -1146,6 +1149,7 @@ class HttpYallappApi implements YallappApi {
       'staff_id': staffId,
       'start': start.toUtc().toIso8601String(),
       if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+      if (answers != null && answers.isNotEmpty) 'answers': answers,
     },
     query: {'platform': platform.name},
   );

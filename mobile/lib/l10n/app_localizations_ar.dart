@@ -2243,4 +2243,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordingCustomer => 'العميل';
+
+  @override
+  String get wordingClinic => 'العيادة';
+
+  @override
+  String get wordingPatient => 'المريض';
+
+  @override
+  String get clinicDoctor => 'الطبيب';
+
+  @override
+  String get clinicOurDoctors => 'أطباؤنا';
+
+  @override
+  String get clinicVisits => 'الزيارات';
+
+  @override
+  String get clinicVisit => 'الزيارة';
+
+  @override
+  String get clinicBookVisit => 'احجز زيارة';
+
+  @override
+  String get clinicNextVisit => 'زيارتك القادمة';
+
+  @override
+  String get clinicNoUpcomingVisits => 'لا توجد زيارات قادمة';
+
+  @override
+  String get clinicNoUpcomingVisitsMessage => 'احجز زيارة وستظهر هنا.';
+
+  @override
+  String get clinicNoPastVisits => 'لا توجد زيارات سابقة';
+
+  @override
+  String get clinicLoadingVisits => 'جارٍ تحميل الزيارات';
+
+  @override
+  String get clinicLoadingVisit => 'جارٍ تحميل الزيارة';
+
+  @override
+  String get clinicCancelVisit => 'إلغاء الزيارة';
+
+  @override
+  String get clinicCancelVisitTitle => 'هل تريد إلغاء هذه الزيارة؟';
+
+  @override
+  String get clinicVisitCancelled => 'تم إلغاء زيارتك.';
+
+  @override
+  String get clinicVisitBooked => 'تم حجز زيارتك.';
+
+  @override
+  String get clinicAnyDoctor => 'أي طبيب';
+
+  @override
+  String get clinicAnyDoctorAvailable => 'أي طبيب متاح';
+
+  @override
+  String get clinicNoteForClinic => 'ملاحظة للعيادة (اختياري)';
+
+  @override
+  String get clinicConfirmVisit => 'أكّد زيارتك';
+
+  @override
+  String get intakeTitle => 'بعض الأسئلة';
+
+  @override
+  String intakeIntro(String business) {
+    return 'أجب عن هذه الأسئلة قبل الحجز. لا يرى إجاباتك إلا أنت و$business.';
+  }
+
+  @override
+  String get intakeOptional => 'اختياري';
+
+  @override
+  String get intakeRequired => 'يُرجى الإجابة عن هذا السؤال.';
+
+  @override
+  String get intakeChooseOne => 'يُرجى اختيار إجابة.';
+
+  @override
+  String intakeTooLong(int max) {
+    return 'يُرجى استخدام $max حرفًا على الأكثر.';
+  }
+
+  @override
+  String get intakeChooseDate => 'اختر تاريخًا';
+
+  @override
+  String get yourAnswers => 'إجاباتك';
+
+  @override
+  String answersPrivate(String business) {
+    return 'لا يرى هذه الإجابات إلا أنت و$business.';
+  }
+
+  @override
+  String get staffSpecialties => 'التخصصات';
+
+  @override
+  String get staffLanguages => 'اللغات';
+
+  @override
+  String staffAbout(String name) {
+    return 'نبذة عن $name';
+  }
+
+  @override
+  String get staffViewProfile => 'عرض الملف الشخصي';
 }

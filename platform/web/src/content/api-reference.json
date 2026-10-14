@@ -544,7 +544,7 @@
           "method": "POST",
           "path": "/bookings/appointments",
           "summary": "Book an appointment",
-          "description": "Books a free time for the signed-in customer, through the booking plugin, so its emails, calendar sync and approval rules apply. The appointment is `approved` or `pending` as the plugin decides.\n\nFails with `slot_taken` (409) when the time is no longer free and with `invalid_request` (400) for a service, staff member or time that can't be booked.",
+          "description": "Books a free time for the signed-in customer, through the booking plugin, so its emails, calendar sync and approval rules apply. The appointment is `approved` or `pending` as the plugin decides.\n\nFails with `slot_taken` (409) when the time is no longer free and with `invalid_request` (400) for a service, staff member or time that can't be booked.\n\nWhen `bookings.intake_fields` lists questions (a clinic's intake form), `answers` holds the customer's answers by field ID. Fails with `invalid_answers` (400) when a required answer is missing or an answer doesn't fit its field; `details.fields` then maps field IDs to messages safe to show. Answers are health data: only the customer (in their appointments) and the business (in its dashboard) see them, and no push, email or text message includes them.",
           "access": "signed-in"
         },
         {

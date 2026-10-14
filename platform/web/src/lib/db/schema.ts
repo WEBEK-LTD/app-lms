@@ -15,6 +15,7 @@ import type {
   BookingSetup,
   CourseSetup,
   BookingStatus,
+  IntakeAnswer,
   PushPreferences,
   AuditChanges,
   OwnerNoticeKind,
@@ -523,6 +524,8 @@ export const bookingAppointments = mysqlTable(
     priceCents: bigint("price_cents", { mode: "number", unsigned: true }).notNull(),
     currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
     notes: text("notes"),
+    // 21 A clinic's intake answers (health data): never in emails or notifications.
+    answers: jsonText<IntakeAnswer[]>("answers_json"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

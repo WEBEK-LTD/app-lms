@@ -1,9 +1,35 @@
-import { DEFAULT_BOOKING_RULES, DEFAULT_BOOKING_SETUP, type App, type BookingSetup } from "../data/types";
+import { DEFAULT_BOOKING_RULES, DEFAULT_BOOKING_SETUP, type App, type AppVertical, type BookingSetup, type IntakeField } from "../data/types";
 
-/** The app's booking setup, with rules added since it was saved filled in. */
-export function bookingSetup(app: App): BookingSetup {
+/** The app's booking setup, with rules added since it was saved filled in (21 and no questions when none were saved). */
+export function bookingSetup(app: App): BookingSetup & { intakeFields: IntakeField[] } {
   const saved = app.bookingSetup ?? DEFAULT_BOOKING_SETUP;
-  return { ...DEFAULT_BOOKING_SETUP, ...saved, rules: { ...DEFAULT_BOOKING_RULES, ...saved.rules } };
+  return { ...DEFAULT_BOOKING_SETUP, ...saved, rules: { ...DEFAULT_BOOKING_RULES, ...saved.rules }, intakeFields: saved.intakeFields ?? [] };
+}
+
+/**
+ * 21 The dashboard's words for bookings, by vertical: a clinic's doctors,
+ * patients and visits; everyone else's team, customers and appointments.
+ */
+export function bookingWords(vertical: AppVertical | null | undefined) {
+  return vertical === "clinic"
+    ? {
+        page: "Doctors & services",
+        team: "Doctors",
+        member: "doctor",
+        appointments: "Visits",
+        appointment: "visit",
+        customer: "patient",
+        intake: "Intake form",
+      }
+    : {
+        page: "Services & team",
+        team: "Team",
+        member: "team member",
+        appointments: "Appointments",
+        appointment: "appointment",
+        customer: "customer",
+        intake: "Booking questions",
+      };
 }
 
 export const BOOKING_STATUS_LABELS = {

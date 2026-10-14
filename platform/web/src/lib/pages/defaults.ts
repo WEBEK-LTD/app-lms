@@ -1,5 +1,5 @@
-import { ENGINES, isAppType } from "../app/kinds";
-import type { App } from "../data/types";
+import { ENGINES, isAppType, kindOf } from "../app/kinds";
+import type { App, AppVertical } from "../data/types";
 import { APP_FONTS, type Appearance, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutTab } from "./types";
 
 /** Used until the team sets defaults for new apps in the admin (11.9). */
@@ -47,7 +47,11 @@ function escape(text: string): string {
 const tab =(id: string, label: string, icon: string, target: LayoutTab["target"]): LayoutTab => ({ id, label, icon, target });
 
 /** A sensible first layout for the app's type: a home page and the usual tabs. */
-export function defaultLayout(app: Pick<App, "appType" | "backend" | "appName" | "template" | "font" | "brandingDoneAt">, defaults: AppDefaultsSetting, now: Date): LayoutContent {
+export function defaultLayout(
+  app: Pick<App, "appType" | "backend" | "appName" | "template" | "font" | "brandingDoneAt"> & { vertical?: AppVertical | null },
+  defaults: AppDefaultsSetting,
+  now: Date,
+): LayoutContent {
   const name = app.appName ?? "our app";
   const updated = now.toISOString();
   const home = (blocks: LayoutBlock[]) => [{ slug: "home", title: "Home", show_title: false, updated_at: updated, blocks }];
@@ -59,9 +63,12 @@ export function defaultLayout(app: Pick<App, "appType" | "backend" | "appName" |
   const accountTab = tab("account", "Account", "person", { type: "screen", screen: "account" });
   // 20 The engine's usual tabs and home blocks (lib/app/kinds.ts); an unknown type gets Home and Account.
   const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;
+  // 21 The kind's own tab names ("Visits" in a clinic's app).
+  const names = isAppType(app.appType) ? (kindOf({ appType: app.appType, vertical: app.vertical ?? null }).wording?.tabs ?? {}) : {};
+  const tabs = structuredClone(engine?.tabs ?? []).map((t) => (names[t.id] ? { ...t, label: names[t.id]! } : t));
   return {
     ...base,
-    tabs: [homeTab, ...structuredClone(engine?.tabs ?? []), accountTab],
+    tabs: [homeTab, ...tabs, accountTab],
     pages: home([welcome(name), ...structuredClone(engine?.home ?? [])]),
   };
 }

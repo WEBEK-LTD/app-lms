@@ -18,6 +18,7 @@ import '../../lms/data/lms_providers.dart' show unreadNotificationsProvider;
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// The Bookings app's Home: sections from `GET /bookings/home` in the order
 /// set in the plugin.
@@ -107,8 +108,12 @@ class _Sections extends ConsumerWidget {
       case BookingsSectionType.nextAppointment:
         final appointment = s.appointment;
         if (appointment == null) return const SizedBox.shrink();
+        final words = context.words;
         return _Block(
-          title: s.title ?? context.l10n.nextAppointment,
+          // 21 A clinic's words win over the server's ("Your next visit").
+          title: words.isClinic
+              ? words.nextAppointment
+              : s.title ?? words.nextAppointment,
           onSeeAll: () => context.go(Paths.appointments),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -166,8 +171,9 @@ class _Sections extends ConsumerWidget {
       case BookingsSectionType.staff:
         if (s.staff.isEmpty) return const SizedBox.shrink();
         final scale = MediaQuery.textScalerOf(context);
+        final words = context.words;
         return _Block(
-          title: s.title ?? context.l10n.ourTeam,
+          title: words.isClinic ? words.ourTeam : s.title ?? words.ourTeam,
           child: SizedBox(
             height: 72 + scale.scale(36),
             child: ListView.separated(
@@ -193,23 +199,31 @@ class _StaffCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 21 A staff member with a profile opens it.
+    final profile = staff.hasProfile;
     return Semantics(
       label: staff.title == null ? staff.name : '${staff.name}, ${staff.title}',
+      hint: profile ? context.l10n.staffViewProfile : null,
+      button: profile,
       excludeSemantics: true,
-      child: SizedBox(
-        width: 84,
-        child: Column(
-          children: [
-            StaffAvatar(staff: staff, size: 64),
-            const SizedBox(height: 6),
-            Text(
-              staff.name,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: p.text),
-            ),
-          ],
+      child: InkWell(
+        onTap: profile ? () => showStaffProfile(context, staff) : null,
+        borderRadius: BorderRadius.circular(context.shapes.card),
+        child: SizedBox(
+          width: 84,
+          child: Column(
+            children: [
+              StaffAvatar(staff: staff, size: 64),
+              const SizedBox(height: 6),
+              Text(
+                staff.name,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: p.text),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -291,7 +305,7 @@ class _Header extends ConsumerWidget {
             ),
             const SizedBox(height: 14),
             PrimaryButton(
-              label: context.l10n.bookAppointment,
+              label: context.words.bookAppointment,
               icon: AppIcons.book,
               onPressed: book,
             ),
@@ -351,7 +365,7 @@ class _Header extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      context.l10n.bookAppointment,
+                      context.words.bookAppointment,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

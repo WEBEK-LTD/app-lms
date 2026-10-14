@@ -19,10 +19,10 @@ import { PhoneFrame } from "@/components/device-frame";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
-import { ENGINES, ownContentTitle, type WebsiteChoice } from "@/lib/app/kinds";
+import { ENGINES, ownContentTitle, ownContentWords, type WebsiteChoice } from "@/lib/app/kinds";
 import type { ApiCheckResult } from "@/lib/app/api-check";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
-import type { AppType, SignInMethod } from "@/lib/data/types";
+import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
 
@@ -172,6 +172,7 @@ export function WebsiteStep({
   setupNote,
   setupRequestedAt,
   appType,
+  vertical = null,
   shopDomain,
   shopifyConnected,
   shopifyAdmin,
@@ -206,6 +207,8 @@ export function WebsiteStep({
   setupNote: string;
   setupRequestedAt: string | null;
   appType: AppType;
+  /** 21 The kind of business: its own words for content managed here. */
+  vertical?: AppVertical | null;
   shopDomain: string;
   shopifyConnected: boolean;
   /** Whether an Admin API token (order history) is saved. */
@@ -225,6 +228,7 @@ export function WebsiteStep({
   const checkResult = check.result ?? state.apiCheck ?? null;
   const savedWithFailedCheck = Boolean(state.apiCheck && !state.apiCheck.ok);
   const engine = ENGINES[appType];
+  const own = ownContentWords({ appType, vertical });
   const offered = BACKENDS.filter(
     (b) => engine.websites.includes(b.id) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
   ).map((b) => b.id);
@@ -249,7 +253,7 @@ export function WebsiteStep({
           {BACKENDS.filter((b) => engine.websites.includes(b.id))
             .map((b) =>
               b.id === "catalog"
-                ? { ...b, title: ownContentTitle(appType), text: engine.ownContent.choice.text }
+                ? { ...b, title: ownContentTitle(appType), text: own.text }
                 : b.id === "platform"
                   ? { ...b, ...engine.platformChoice }
                   : b,
@@ -277,7 +281,7 @@ export function WebsiteStep({
         </fieldset>
         {choice === "catalog" ? (
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
-            <Bold text={engine.ownContent.next} /> {codeDeliveryText(signInMethods)}.
+            <Bold text={own.next} /> {codeDeliveryText(signInMethods)}.
             {hostedApiUrl && backend === "catalog" ? (
               <span className="mt-2 block text-sm">
                 Your app&apos;s API address: <code className="break-all">{hostedApiUrl}</code>

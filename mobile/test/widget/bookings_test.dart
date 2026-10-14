@@ -269,6 +269,183 @@ void main() {
     expect(find.textContaining("It's too late to cancel"), findsOneWidget);
   });
 
+  group('21 clinics', () {
+    FakeApi clinicApi() {
+      final api = FakeApi(config: clinicConfigJson());
+      api.service = serviceDetailJson(
+        staff: [
+          doctorJson(),
+          staffJson(id: 2, name: 'Mehmet Demir'),
+        ],
+      );
+      return api;
+    }
+
+    testWidgets('use doctor, patient and visit words', (tester) async {
+      final app = TestApp(
+        signedIn: true,
+        appType: AppType.booking,
+        api: clinicApi(),
+      );
+      await app.pump(tester);
+      expect(find.text('Book a visit'), findsOneWidget);
+      expect(find.text('Your next visit'), findsOneWidget);
+      expect(find.text('Book an appointment'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Our doctors'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Our doctors'), findsOneWidget);
+
+      await tester.tap(find.bySemanticsLabel('Visits').last);
+      await TestApp.settle(tester);
+      expect(find.text('Visits'), findsWidgets);
+
+      app.container.read(appRouterProvider).push('/appointment/7');
+      await TestApp.settle(tester);
+      expect(find.text('Visit'), findsOneWidget);
+      expect(find.text('Cancel visit'), findsOneWidget);
+    });
+
+    testWidgets('a doctor shows their profile', (tester) async {
+      await openService(tester, api: clinicApi());
+      expect(find.text('Doctor'), findsOneWidget);
+      expect(find.text('Any doctor'), findsOneWidget);
+      expect(find.text('View profile'), findsNothing);
+
+      await tester.tap(find.text('Dr. Ayşe Demir'));
+      await TestApp.settle(tester);
+      expect(find.text('View profile'), findsOneWidget);
+      expect(
+        find.text("Dentist · Orthodontics · Children's dentistry"),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('View profile'));
+      await TestApp.settle(tester);
+      expect(find.text('Specialties'), findsOneWidget);
+      expect(find.text('Turkish · English'), findsWidgets);
+      expect(find.text('About Dr. Ayşe Demir'), findsOneWidget);
+      expect(find.textContaining('Twelve years in Istanbul'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('asks the intake questions, checks them and books with them', (
+      tester,
+    ) async {
+      final api = clinicApi();
+      final app = await openService(tester, api: api);
+      await tester.tap(find.text('09:00'));
+      await TestApp.settle(tester);
+      await tester.tap(find.textContaining(RegExp(r'^Book ')));
+      await TestApp.settle(tester);
+
+      expect(find.text('A few questions'), findsOneWidget);
+      expect(
+        find.text(
+          'Answer these before you book. Only you and Your Academy see your '
+          'answers.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Optional'), findsNothing);
+      expect(find.textContaining('Optional'), findsWidgets);
+
+      // Required questions are checked first, and nothing is booked.
+      await tester.tap(find.text('Continue'));
+      await TestApp.settle(tester);
+      expect(find.text('Please answer this.'), findsOneWidget);
+      expect(find.text('Please choose one.'), findsOneWidget);
+      expect(api.count('bookAppointment'), 0);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('intake-reason')),
+        '  Pain on the left side ',
+      );
+      await tester.tap(find.text('Yes'));
+      await tester.enterText(
+        find.byKey(const ValueKey('intake-heard')),
+        'A friend',
+      );
+      await tester.tap(find.text('Continue'));
+      await TestApp.settle(tester);
+      expect(find.text('A few questions'), findsNothing);
+      expect(find.text('Confirm your visit'), findsOneWidget);
+      expect(find.text('Any available doctor'), findsOneWidget);
+
+      await tester.tap(find.text('Confirm booking'));
+      await TestApp.settle(tester);
+      expect(api.lastBooking?.answers, {
+        'reason': 'Pain on the left side',
+        'first_visit': 'Yes',
+        'heard': 'A friend',
+      });
+      expect(location(app), '/appointment/7');
+      expect(find.text('Your visit is booked.'), findsOneWidget);
+    });
+
+    testWidgets('going back from the questions books nothing', (tester) async {
+      final api = clinicApi();
+      await openService(tester, api: api);
+      await tester.tap(find.text('09:30'));
+      await TestApp.settle(tester);
+      await tester.tap(find.textContaining(RegExp(r'^Book ')));
+      await TestApp.settle(tester);
+      await tester.tap(find.byTooltip('Close'));
+      await TestApp.settle(tester);
+      expect(find.text('A few questions'), findsNothing);
+      expect(find.text('Confirm your visit'), findsNothing);
+      expect(api.count('bookAppointment'), 0);
+    });
+
+    testWidgets('the questions fit a small phone with large text', (
+      tester,
+    ) async {
+      final api = clinicApi();
+      await openService(tester, api: api);
+      await tester.tap(find.text('09:00'));
+      await TestApp.settle(tester);
+      await tester.tap(find.textContaining(RegExp(r'^Book ')));
+      await TestApp.settle(tester);
+      tester.view
+        ..physicalSize = const Size(640, 1136)
+        ..devicePixelRatio = 2;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await TestApp.settle(tester);
+      expect(find.text('A few questions'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Continue'));
+      await TestApp.settle(tester);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets("a visit shows the patient's own answers", (tester) async {
+      final api = clinicApi()
+        ..appointment = appointmentJson(
+          answers: [
+            {
+              'id': 'reason',
+              'label': 'Reason for your visit',
+              'value': 'Pain on the left side',
+            },
+            {'id': 'birth', 'label': 'Date of birth', 'value': '1990-04-02'},
+          ],
+        );
+      final app = TestApp(signedIn: true, appType: AppType.booking, api: api);
+      await app.pump(tester);
+      app.container.read(appRouterProvider).push('/appointment/7');
+      await TestApp.settle(tester);
+      await tester.scrollUntilVisible(find.text('Your answers'), 200);
+      expect(find.text('Pain on the left side'), findsOneWidget);
+      expect(find.text('2 April 1990'), findsOneWidget);
+      expect(
+        find.text('Only you and Your Academy see these answers.'),
+        findsOneWidget,
+      );
+    });
+  });
+
   testWidgets('appointments need an account', (tester) async {
     final app = TestApp(
       guest: true,

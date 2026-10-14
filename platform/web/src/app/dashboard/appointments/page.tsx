@@ -4,13 +4,16 @@ import { setAppointmentStatusAction } from "@/app/actions/bookings";
 import { SubmitButton } from "@/components/form";
 import { Badge } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
-import { BOOKING_STATUS_LABELS, bookingSetup } from "@/lib/bookings/setup";
+import { BOOKING_STATUS_LABELS, bookingSetup, bookingWords } from "@/lib/bookings/setup";
 import { utcToLocal } from "@/lib/bookings/time";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { BookingAppointment, BookingStatus } from "@/lib/data/types";
 
-export const metadata: Metadata = { title: "Appointments" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { app } = await requireClient();
+  return { title: bookingWords(app?.vertical).appointments };
+}
 
 const PER_PAGE = 30;
 
@@ -35,13 +38,14 @@ function Action({ a, status, label, variant = "secondary" }: { a: BookingAppoint
   );
 }
 
-/** Appointments booked in the app, for Bookings apps without a website. */
+/** Appointments booked in the app, for Bookings apps without a website (21 a clinic's visits, with their intake answers). */
 export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<{ show?: string; page?: string }> }) {
   const { app } = await requireClient();
+  const words = bookingWords(app?.vertical);
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Appointments</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.appointments}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">Appointments from your app are in your booking plugin. This page is for businesses without a website.</p>
       </div>
     );
@@ -64,12 +68,12 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Appointments</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.appointments}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Booked in your app, in {rules.timezone} time. {rules.autoApprove ? "New ones are approved at once." : "Approve new ones, or reject them."}
         </p>
       </div>
-      <nav aria-label="Appointments" className="flex gap-2.5">
+      <nav aria-label={words.appointments} className="flex gap-2.5">
         <Link href="/dashboard/appointments" aria-current={past ? undefined : "page"} className={tab(!past)}>
           Upcoming
         </Link>
@@ -78,7 +82,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
         </Link>
       </nav>
       {items.length === 0 ? (
-        <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted sm:p-6">{past ? "Nothing here yet." : "No upcoming appointments."}</p>
+        <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted sm:p-6">{past ? "Nothing here yet." : `No upcoming ${words.appointments.toLowerCase()}.`}</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-3 p-0">
           {items.map((a) => {
@@ -109,6 +113,22 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
                   · with {a.staffName} · {formatCents(a.priceCents, a.currency)}
                 </span>
                 {a.notes ? <span className="rounded-xl bg-sand p-3 text-[15px] text-ink-4">{a.notes}</span> : null}
+                {/* 21 Intake answers: health data, shown here only (never emailed). */}
+                {a.answers?.length ? (
+                  <details className="rounded-xl border border-line-soft">
+                    <summary className="cursor-pointer px-3 py-2 text-[15px] font-semibold">
+                      Intake answers<span className="sr-only"> of {a.customerName}</span>
+                    </summary>
+                    <dl className="m-0 flex flex-col gap-2 border-t border-line-soft p-3 text-[15px]">
+                      {a.answers.map((x) => (
+                        <div key={x.id} className="flex flex-col gap-0.5">
+                          <dt className="text-[13px] font-semibold text-muted">{x.label}</dt>
+                          <dd className="m-0 whitespace-pre-line">{x.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
+                ) : null}
                 <div className="flex flex-wrap gap-2">
                   {a.status === "pending" ? (
                     <>

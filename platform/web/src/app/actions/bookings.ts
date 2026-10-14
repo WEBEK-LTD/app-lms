@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { parseRules, parseService, parseStaff } from "@/lib/bookings/forms";
+import { parseIntakeField, parseStaffProfile } from "@/lib/bookings/intake";
 import { bookingSetup } from "@/lib/bookings/setup";
 import { getStore } from "@/lib/data";
 import type { App, BookingSetup, BookingStatus } from "@/lib/data/types";
@@ -88,7 +89,7 @@ export async function deleteBookingServiceAction(formData: FormData): Promise<vo
   });
 }
 
-const STAFF_FIELDS = ["id", "name", "title", "daysOff", ...[0, 1, 2, 3, 4, 5, 6].flatMap((d) => [`start${d}`, `end${d}`])];
+const STAFF_FIELDS = ["id", "name", "title", "daysOff", "specialties", "languages", "bio", ...[0, 1, 2, 3, 4, 5, 6].flatMap((d) => [`start${d}`, `end${d}`])];
 
 export async function saveBookingStaffAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireBookingsApp();
@@ -102,13 +103,16 @@ export async function saveBookingStaffAction(_: FormState, formData: FormData): 
   const existing = id === null ? null : setup.staff.find((s) => s.id === id);
   if (id !== null && !existing) return { message: "This team member no longer exists." };
   const parsed = parseStaff(v, setup, serviceIds);
-  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  // 21 Their profile in the app: specialties, languages and a short introduction.
+  const profile = parseStaffProfile(v);
+  if (!parsed.ok || !profile.ok) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(profile.ok ? {} : profile.errors) }, values: v };
+  const member = { ...parsed.value, ...profile.value };
   if (existing) {
-    await saveSetup(app, { ...setup, staff: setup.staff.map((s) => (s.id === existing.id ? { ...existing, ...parsed.value, imageAssetId: existing.imageAssetId } : s)) });
-    return { ok: true, message: `Saved ${parsed.value.name}.`, values: v };
+    await saveSetup(app, { ...setup, staff: setup.staff.map((s) => (s.id === existing.id ? { ...existing, ...member, imageAssetId: existing.imageAssetId } : s)) });
+    return { ok: true, message: `Saved ${member.name}.`, values: v };
   }
-  await saveSetup(app, { ...setup, staff: [...setup.staff, { id: setup.nextId, ...parsed.value }], nextId: setup.nextId + 1 });
-  return { ok: true, message: `Added ${parsed.value.name}.` };
+  await saveSetup(app, { ...setup, staff: [...setup.staff, { id: setup.nextId, ...member }], nextId: setup.nextId + 1 });
+  return { ok: true, message: `Added ${member.name}.` };
 }
 
 export async function deleteBookingStaffAction(formData: FormData): Promise<void> {
@@ -116,6 +120,39 @@ export async function deleteBookingStaffAction(formData: FormData): Promise<void
   const id = Number(formData.get("id"));
   const setup = bookingSetup(app);
   await saveSetup(app, { ...setup, staff: setup.staff.filter((s) => s.id !== id) });
+}
+
+/** 21 Adds or edits a question of the intake form (`id` when editing). */
+export async function saveIntakeFieldAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireBookingsApp();
+  const v = values(formData, ["id", "label", "type"]);
+  v.options = String(formData.get("options") ?? "");
+  v.required = formData.get("required") === "on" ? "on" : "";
+  const setup = bookingSetup(app);
+  const editing = v.id ? (setup.intakeFields.find((f) => f.id === v.id) ?? null) : null;
+  if (v.id && !editing) return { message: "This question no longer exists." };
+  const parsed = parseIntakeField(v, setup.intakeFields, editing);
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  const intakeFields = editing ? setup.intakeFields.map((f) => (f.id === editing.id ? parsed.value : f)) : [...setup.intakeFields, parsed.value];
+  await saveSetup(app, { ...setup, intakeFields });
+  return editing ? { ok: true, message: "Question saved. The app asks it now.", values: v } : { ok: true, message: `Added “${parsed.value.label}”.` };
+}
+
+/** 21 Removes a question, or moves it up one place (`move=up`). Answers already given keep the question as asked. */
+export async function changeIntakeFieldAction(formData: FormData): Promise<void> {
+  const { app } = await requireBookingsApp();
+  const id = String(formData.get("id") ?? "");
+  const setup = bookingSetup(app);
+  const index = setup.intakeFields.findIndex((f) => f.id === id);
+  if (index < 0) return;
+  const fields = [...setup.intakeFields];
+  if (formData.get("move") === "up") {
+    if (index === 0) return;
+    [fields[index - 1], fields[index]] = [fields[index]!, fields[index - 1]!];
+  } else {
+    fields.splice(index, 1);
+  }
+  await saveSetup(app, { ...setup, intakeFields: fields });
 }
 
 /** What the business can do with an appointment in each status. */

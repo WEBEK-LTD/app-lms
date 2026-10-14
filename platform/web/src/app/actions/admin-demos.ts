@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
 import { appLabel } from "@/lib/app/label";
 import { queueBuild } from "@/lib/app/setup";
-import { ENGINES, isAppType } from "@/lib/app/kinds";
 import { assetUrl } from "@/lib/assets";
 import { requireAdmin } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
@@ -14,7 +13,7 @@ import { suggestedVersion } from "@/lib/builds/view";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { isDemoApp, isDownloadableBuild } from "@/lib/demo/apps";
-import { DEMO_TYPES } from "@/lib/demo/constants";
+import { DEMO_TYPES, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DemoSetupError, setupDemoApps } from "@/lib/demo/setup";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -36,7 +35,7 @@ function refresh(): void {
 export async function setupDemosAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const which = String(formData.get("type") ?? "all");
-  const types = which === "all" ? DEMO_TYPES : isAppType(which) ? [which] : null;
+  const types = which === "all" ? DEMO_TYPES : (DEMO_TYPES as readonly string[]).includes(which) ? [which as DemoId] : null;
   if (!types) redirect(back("error=unknown_type"));
   const store = await getStore();
   const contact = await getContact();
@@ -51,13 +50,13 @@ export async function setupDemosAction(formData: FormData): Promise<void> {
       contact: { whatsapp: contact.whatsappDisplay, email: contact.email },
       actorEmail: admin.email,
       now: new Date(),
-    });
+    }, types);
   } catch (error) {
     if (!(error instanceof DemoSetupError)) throw error;
     console.error("[demo]", error.message);
     redirect(back("error=setup"));
   }
-  const names = result.apps.map((a) => `${ENGINES[a.type].name}${a.created ? " (new)" : ""}`).join(", ");
+  const names = result.apps.map((a) => `${demoKind(a.type).name}${a.created ? " (new)" : ""}`).join(", ");
   await recordAudit({
     actor: admin,
     action: "demo.setup",

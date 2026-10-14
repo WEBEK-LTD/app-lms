@@ -690,6 +690,28 @@ export interface BookingStaff {
   /** Days off, as local dates (YYYY-MM-DD). */
   daysOff: string[];
   active: boolean;
+  /** 21 A profile shown in the app (a doctor's fields, languages and introduction); missing in setups saved before. */
+  specialties?: string[];
+  languages?: string[];
+  bio?: string | null;
+}
+
+/** 21 A question customers answer when booking (a clinic's intake form). */
+export interface IntakeField {
+  /** The key of its answer, like "reason". */
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "date" | "choice";
+  /** The choices of a "choice" field. */
+  options: string[];
+  required: boolean;
+}
+
+/** 21 An answer, with the question as it was asked when booking. Health data: never in notifications. */
+export interface IntakeAnswer {
+  id: string;
+  label: string;
+  value: string;
 }
 
 /** Everything the business sets up in the dashboard, kept with the app (small, edited by one person). */
@@ -700,6 +722,8 @@ export interface BookingSetup {
   staff: BookingStaff[];
   /** The next ID for a category, service or staff member. */
   nextId: number;
+  /** 21 Questions asked when booking, in order; missing in setups saved before (none). */
+  intakeFields?: IntakeField[];
 }
 
 export const DEFAULT_BOOKING_RULES: BookingRules = {
@@ -741,6 +765,8 @@ export interface BookingAppointment {
   priceCents: number;
   currency: CatalogCurrency;
   notes: string | null;
+  /** 21 Answers to the intake questions; null when none were asked. Shown to the customer and on the dashboard only. */
+  answers: IntakeAnswer[] | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,9 +1,18 @@
 import { freeTimes, staffFor } from "../../bookings/availability";
+import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "../../bookings/setup";
 import { addDays, isDate, utcToLocal } from "../../bookings/time";
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import type { DataStore } from "../../data/store";
-import { ACTIVE_BOOKING_STATUSES, type App, type BookingAppointment, type BookingService, type BookingSetup, type BookingStaff } from "../../data/types";
+import {
+  ACTIVE_BOOKING_STATUSES,
+  type App,
+  type BookingAppointment,
+  type BookingService,
+  type BookingSetup,
+  type BookingStaff,
+  type IntakeField,
+} from "../../data/types";
 import { descriptionHtml } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
@@ -25,7 +34,7 @@ const signIn = () => error(401, "invalid_token", "Your session has ended. Please
  * setup, appointments from booking_appointments.
  */
 export class BookingsConnector implements Connector {
-  private readonly setup: BookingSetup;
+  private readonly setup: BookingSetup & { intakeFields: IntakeField[] };
 
   constructor(private readonly deps: BookingsDeps) {
     this.setup = bookingSetup(deps.app);
@@ -44,6 +53,8 @@ export class BookingsConnector implements Connector {
         max_days_ahead: rules.maxDaysAhead,
         min_minutes_ahead: rules.minMinutesAhead,
         cancel_before_minutes: rules.cancelBeforeMinutes,
+        // 21 A clinic's intake form, when it has questions.
+        ...(this.setup.intakeFields.length ? { intake_fields: intakeFieldsJson(this.setup.intakeFields) } : {}),
       },
     };
   }
@@ -77,6 +88,11 @@ export class BookingsConnector implements Connector {
     return null;
   }
 
+  /** 21 A clinic's app: doctor and visit wording in the sections' titles. */
+  private get clinic(): boolean {
+    return this.deps.app.vertical === "clinic";
+  }
+
   // Mapping
 
   private price(cents: number) {
@@ -105,7 +121,17 @@ export class BookingsConnector implements Connector {
   }
 
   private person(s: BookingStaff) {
-    return { id: s.id, name: s.name, image_url: s.imageAssetId ? this.deps.assetUrl(s.imageAssetId) : null, title: s.title, price: null };
+    return {
+      id: s.id,
+      name: s.name,
+      image_url: s.imageAssetId ? this.deps.assetUrl(s.imageAssetId) : null,
+      title: s.title,
+      price: null,
+      // 21 A doctor's profile, when the business wrote one.
+      ...(s.specialties?.length ? { specialties: s.specialties } : {}),
+      ...(s.languages?.length ? { languages: s.languages } : {}),
+      ...(s.bio ? { bio: s.bio } : {}),
+    };
   }
 
   private detail(s: BookingService) {
@@ -144,6 +170,8 @@ export class BookingsConnector implements Connector {
       notes: a.notes,
       location: null,
       can_cancel: this.canCancel(a, now),
+      // 21 Only ever in the customer's own appointments.
+      ...(a.answers?.length ? { answers: a.answers.map((x) => ({ id: x.id, label: x.label, value: x.value })) } : {}),
     };
   }
 
@@ -159,14 +187,16 @@ export class BookingsConnector implements Connector {
         offset: 0,
         limit: 1,
       });
-      if (items[0]) sections.push({ type: "next_appointment", title: "Your next appointment", appointment: this.appointmentJson(items[0], request.now) });
+      if (items[0]) {
+        sections.push({ type: "next_appointment", title: this.clinic ? "Your next visit" : "Your next appointment", appointment: this.appointmentJson(items[0], request.now) });
+      }
     }
     const categories = this.categories();
     if (categories.length) sections.push({ type: "categories", title: "Categories", categories });
     const services = this.bookable();
     if (services.length) sections.push({ type: "services", title: "Services", services: services.slice(0, 20).map((s) => this.summary(s)) });
     const staff = this.setup.staff.filter((s) => s.active && s.serviceIds.some((id) => services.some((x) => x.id === id)));
-    if (staff.length > 1) sections.push({ type: "staff", title: "Our team", staff: staff.map((s) => this.person(s)) });
+    if (staff.length > 1) sections.push({ type: "staff", title: this.clinic ? "Our doctors" : "Our team", staff: staff.map((s) => this.person(s)) });
     return sections;
   }
 
@@ -233,6 +263,11 @@ export class BookingsConnector implements Connector {
     const start = typeof body.start === "string" ? new Date(body.start) : new Date(Number.NaN);
     if (Number.isNaN(start.getTime())) return error(400, "invalid_request", "Choose a time.");
     const notes = this.setup.rules.notes && typeof body.notes === "string" && body.notes.trim() ? body.notes.trim().slice(0, 1000) : null;
+    // 21 The intake form's answers, checked before the time so a missing answer never costs the slot.
+    const answers = checkAnswers(this.setup.intakeFields, body.answers);
+    if (!answers.ok) {
+      return { status: 400, body: { code: "invalid_answers", message: "Please check your answers to the questions.", details: { fields: answers.errors } } };
+    }
     // The time must be one the availability offers now, for someone free.
     const date = utcToLocal(start, this.setup.rules.timezone).date;
     const [day] = freeTimes({ setup: this.setup, serviceId: service.id, staffId, from: date, days: 1, now: request.now, appointments: await this.busy(date, 1) });
@@ -256,6 +291,7 @@ export class BookingsConnector implements Connector {
         priceCents: service.priceCents,
         currency: this.setup.rules.currency,
         notes,
+        answers: answers.value,
         createdAt: request.now,
         updatedAt: request.now,
       });

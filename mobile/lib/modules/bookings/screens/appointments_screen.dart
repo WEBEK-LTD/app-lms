@@ -14,7 +14,9 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../widgets/intake_form.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// The Appointments tab: upcoming ones soonest first, past and cancelled
 /// ones newest first.
@@ -33,27 +35,28 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final words = context.words;
     final filter = AppointmentsFilter.values[_tab];
     final state = ref.watch(appointmentsProvider(filter));
     final notifier = ref.read(appointmentsProvider(filter).notifier);
 
     final Widget list;
     if (state.isInitialLoading) {
-      list = SkeletonList(count: 4, label: context.l10n.loadingAppointments);
+      list = SkeletonList(count: 4, label: words.loadingAppointments);
     } else if (state.error != null && state.items.isEmpty) {
       list = ErrorView(error: state.error!, onRetry: notifier.retry);
     } else if (state.items.isEmpty) {
       list = filter == AppointmentsFilter.upcoming
           ? MessageView(
               icon: AppIcons.appointments,
-              title: context.l10n.noUpcomingAppointments,
-              message: context.l10n.noUpcomingAppointmentsMessage,
-              actionLabel: context.l10n.bookAppointment,
+              title: words.noUpcomingAppointments,
+              message: words.noUpcomingAppointmentsMessage,
+              actionLabel: words.bookAppointment,
               onAction: () => context.go(Paths.services),
             )
           : MessageView(
               icon: AppIcons.appointments,
-              title: context.l10n.noPastAppointments,
+              title: words.noPastAppointments,
             );
     } else {
       list = RefreshIndicator(
@@ -98,7 +101,7 @@ class _AppointmentsScreenState extends ConsumerState<AppointmentsScreen> {
               child: Semantics(
                 header: true,
                 child: Text(
-                  context.l10n.tabAppointments,
+                  words.appointments,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -139,9 +142,9 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   Future<void> _cancel(Appointment a) async {
     final ok = await confirmAction(
       context,
-      title: context.l10n.cancelAppointmentTitle,
+      title: context.words.cancelAppointmentTitle,
       message: '${a.serviceName}, ${appointmentWhen(a)}.',
-      confirmLabel: context.l10n.cancelAppointment,
+      confirmLabel: context.words.cancelAppointment,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -150,7 +153,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
       await ref.read(yallappApiProvider).cancelMyAppointment(a.id);
       if (!mounted) return;
       invalidateAppointments(ref);
-      showMessage(context, context.l10n.appointmentCancelled);
+      showMessage(context, context.words.appointmentCancelled);
     } catch (e) {
       if (mounted) showMessage(context, friendlyError(e));
     } finally {
@@ -161,10 +164,11 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   @override
   Widget build(BuildContext context) {
     final appointment = ref.watch(appointmentProvider(widget.appointmentId));
+    final words = context.words;
     return Scaffold(
       appBar: AppBar(
         leading: const AppBarBackButton(),
-        title: Text(context.l10n.appointment),
+        title: Text(words.appointment),
       ),
       body: switch (appointment) {
         AsyncData(:final value) => _details(value),
@@ -173,14 +177,14 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           onRetry: () =>
               ref.invalidate(appointmentProvider(widget.appointmentId)),
         ),
-        _ => LoadingView(label: context.l10n.loadingAppointment),
+        _ => LoadingView(label: words.loadingAppointment),
       },
       bottomNavigationBar: switch (appointment) {
         AsyncData(:final value) when value.canCancel => BottomActionBar(
           child: SecondaryButton(
             label: _cancelling
                 ? context.l10n.cancelling
-                : context.l10n.cancelAppointment,
+                : words.cancelAppointment,
             onPressed: _cancelling ? null : () => _cancel(value),
           ),
         ),
@@ -254,6 +258,14 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           Text(
             context.l10n.cancelUpTo(formatMinutes(rules!.cancelBeforeMinutes!)),
             style: TextStyle(fontSize: 14, color: p.textSecondary),
+          ),
+        ],
+        // 21 The customer's own intake answers.
+        if (a.answers.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          IntakeAnswersCard(
+            answers: a.answers,
+            business: ref.watch(appConfigProvider).site.name,
           ),
         ],
       ],

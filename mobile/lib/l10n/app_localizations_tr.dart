@@ -2209,4 +2209,115 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get wordingCustomer => 'Müşteri';
+
+  @override
+  String get wordingClinic => 'Klinik';
+
+  @override
+  String get wordingPatient => 'Hasta';
+
+  @override
+  String get clinicDoctor => 'Doktor';
+
+  @override
+  String get clinicOurDoctors => 'Doktorlarımız';
+
+  @override
+  String get clinicVisits => 'Ziyaretler';
+
+  @override
+  String get clinicVisit => 'Ziyaret';
+
+  @override
+  String get clinicBookVisit => 'Ziyaret randevusu al';
+
+  @override
+  String get clinicNextVisit => 'Sıradaki ziyaretiniz';
+
+  @override
+  String get clinicNoUpcomingVisits => 'Yaklaşan ziyaret yok';
+
+  @override
+  String get clinicNoUpcomingVisitsMessage =>
+      'Bir ziyaret randevusu alın, burada görünür.';
+
+  @override
+  String get clinicNoPastVisits => 'Geçmiş ziyaret yok';
+
+  @override
+  String get clinicLoadingVisits => 'Ziyaretler yükleniyor';
+
+  @override
+  String get clinicLoadingVisit => 'Ziyaret yükleniyor';
+
+  @override
+  String get clinicCancelVisit => 'Ziyareti iptal et';
+
+  @override
+  String get clinicCancelVisitTitle => 'Bu ziyaret iptal edilsin mi?';
+
+  @override
+  String get clinicVisitCancelled => 'Ziyaretiniz iptal edildi.';
+
+  @override
+  String get clinicVisitBooked => 'Ziyaret randevunuz alındı.';
+
+  @override
+  String get clinicAnyDoctor => 'Herhangi bir doktor';
+
+  @override
+  String get clinicAnyDoctorAvailable => 'Müsait herhangi bir doktor';
+
+  @override
+  String get clinicNoteForClinic => 'Klinik için not (isteğe bağlı)';
+
+  @override
+  String get clinicConfirmVisit => 'Ziyaretinizi onaylayın';
+
+  @override
+  String get intakeTitle => 'Birkaç soru';
+
+  @override
+  String intakeIntro(String business) {
+    return 'Randevu almadan önce bunları yanıtlayın. Yanıtlarınızı yalnızca siz ve $business görür.';
+  }
+
+  @override
+  String get intakeOptional => 'İsteğe bağlı';
+
+  @override
+  String get intakeRequired => 'Lütfen bunu yanıtlayın.';
+
+  @override
+  String get intakeChooseOne => 'Lütfen birini seçin.';
+
+  @override
+  String intakeTooLong(int max) {
+    return 'Lütfen en fazla $max karakter kullanın.';
+  }
+
+  @override
+  String get intakeChooseDate => 'Bir tarih seçin';
+
+  @override
+  String get yourAnswers => 'Yanıtlarınız';
+
+  @override
+  String answersPrivate(String business) {
+    return 'Bu yanıtları yalnızca siz ve $business görür.';
+  }
+
+  @override
+  String get staffSpecialties => 'Uzmanlık alanları';
+
+  @override
+  String get staffLanguages => 'Diller';
+
+  @override
+  String staffAbout(String name) {
+    return '$name hakkında';
+  }
+
+  @override
+  String get staffViewProfile => 'Profili gör';
 }

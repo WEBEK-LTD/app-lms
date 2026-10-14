@@ -1,0 +1,2 @@
+-- Clinics (roadmap 21): the answers to a clinic's intake questions, kept with the appointment as JSON. Health data, shown to the patient and on the dashboard only; null for appointments without questions.
+ALTER TABLE `booking_appointments` ADD `answers_json` longtext;

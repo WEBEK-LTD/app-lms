@@ -6,8 +6,10 @@ import {
   saveBookingRulesAction,
   saveBookingServiceAction,
   saveBookingStaffAction,
+  saveIntakeFieldAction,
 } from "@/app/actions/bookings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { INTAKE_TYPE_LABELS, INTAKE_TYPES } from "@/lib/bookings/intake";
 import { initialFormState } from "@/lib/forms";
 
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -146,10 +148,13 @@ export function StaffForm({
   current,
   services,
   submit,
+  clinic = false,
 }: {
   current: Record<string, string>;
   services: { id: number; name: string }[];
   submit: string;
+  /** 21 A clinic: a doctor's examples. */
+  clinic?: boolean;
 }) {
   const [state, action] = useActionState(saveBookingStaffAction, initialFormState);
   const v = state.values ?? current;
@@ -162,7 +167,36 @@ export function StaffForm({
       <input type="hidden" name="id" value={current.id ?? ""} />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Name" name="name" id={`${key}-name`} defaultValue={v.name} error={e.name} small />
-        <Field label="Role" name="title" id={`${key}-title`} placeholder="Stylist" defaultValue={v.title} error={e.title} small />
+        <Field label="Role" name="title" id={`${key}-title`} placeholder={clinic ? "Dentist" : "Stylist"} defaultValue={v.title} error={e.title} small />
+        {/* 21 Their profile in the app. */}
+        <Field
+          label="Specialties"
+          name="specialties"
+          id={`${key}-specialties`}
+          placeholder={clinic ? "Orthodontics, Children's dentistry" : "Colour, Curly hair"}
+          hint="Optional. Separate them with commas."
+          defaultValue={v.specialties}
+          error={e.specialties}
+          small
+        />
+        <Field
+          label="Languages"
+          name="languages"
+          id={`${key}-languages`}
+          placeholder="English, Turkish"
+          hint="Optional. Separate them with commas."
+          defaultValue={v.languages}
+          error={e.languages}
+          small
+        />
+      </div>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <label htmlFor={`${key}-bio`} className="text-sm font-semibold">
+          About them
+        </label>
+        <textarea id={`${key}-bio`} name="bio" rows={3} defaultValue={v.bio} className="input min-h-[84px] py-2.5" />
+        <span className="text-[13px] text-muted">Optional. A few lines shown on their profile in the app.</span>
+        <FieldError id={`${key}-bio-error`} error={e.bio} />
       </div>
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1.5 text-sm font-semibold">Services they provide</legend>
@@ -208,6 +242,50 @@ export function StaffForm({
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="active" label="Customers can book them" checked={v.active !== ""} />
+        <SubmitButton className="h-10" pendingText="Saving…">
+          {submit}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 21 A question of the intake form: what's asked, the kind of answer, its options and whether it must be answered. */
+export function IntakeFieldForm({ current, submit }: { current: Record<string, string>; submit: string }) {
+  const [state, action] = useActionState(saveIntakeFieldAction, initialFormState);
+  const v = state.values ?? current;
+  const e = state.errors ?? {};
+  const key = current.id ? `intake-${current.id}` : "intake-new";
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={current.id ? JSON.stringify(v) : state.ok ? state.message : "new"}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="id" value={current.id ?? ""} />
+      <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
+        <Field label="Question" name="label" id={`${key}-label`} placeholder="Reason for your visit" defaultValue={v.label} error={e.label} small />
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <label htmlFor={`${key}-type`} className="text-sm font-semibold">
+            Answer
+          </label>
+          <select id={`${key}-type`} name="type" defaultValue={v.type || "text"} className="input input-sm">
+            {INTAKE_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {INTAKE_TYPE_LABELS[t]}
+              </option>
+            ))}
+          </select>
+          <FieldError id={`${key}-type-error`} error={e.type} />
+        </div>
+      </div>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <label htmlFor={`${key}-options`} className="text-sm font-semibold">
+          Options
+        </label>
+        <textarea id={`${key}-options`} name="options" rows={3} placeholder={"Yes\nNo"} defaultValue={v.options} className="input min-h-[72px] py-2.5" />
+        <span className="text-[13px] text-muted">For “One of a list” only: one option per line.</span>
+        <FieldError id={`${key}-options-error`} error={e.options} />
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Check name="required" label="Must be answered" checked={v.required === "on"} />
         <SubmitButton className="h-10" pendingText="Saving…">
           {submit}
         </SubmitButton>

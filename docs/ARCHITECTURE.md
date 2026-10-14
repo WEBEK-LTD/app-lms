@@ -126,6 +126,13 @@ mobile/
   lives in one registry, `platform/web/src/lib/app/kinds.ts`; the platform
   reads every per-type value from it. The app's wording helper is
   `mobile/lib/core/l10n/vertical_wording.dart`.
+- Clinics (Phase 21) are the bookings engine with the `clinic` vertical:
+  doctor, patient and visit wording, doctor profiles (`StaffMember`
+  `specialties`, `languages`, `bio`) and an intake form
+  (`BookingsConfig.intake_fields`, `answers` when booking). Answers are
+  health data: kept with the appointment (`booking_appointments.answers_json`),
+  shown only to the patient and on the clinic's dashboard, never in an email,
+  push or text message. The intake form is on the hosted API only for now.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.

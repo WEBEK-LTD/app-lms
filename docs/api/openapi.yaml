@@ -1535,6 +1535,14 @@ paths:
         Fails with `slot_taken` (409) when the time is no longer free and with
         `invalid_request` (400) for a service, staff member or time that can't
         be booked.
+
+        When `bookings.intake_fields` lists questions (a clinic's intake form),
+        `answers` holds the customer's answers by field ID. Fails with
+        `invalid_answers` (400) when a required answer is missing or an answer
+        doesn't fit its field; `details.fields` then maps field IDs to messages
+        safe to show. Answers are health data: only the customer (in their
+        appointments) and the business (in its dashboard) see them, and no
+        push, email or text message includes them.
       parameters:
         - $ref: '#/components/parameters/Platform'
       requestBody:
@@ -1983,6 +1991,7 @@ components:
             - demo_number_only
             - preview_review_number_only
             - update_required
+            - invalid_answers
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -2795,6 +2804,39 @@ components:
           type: [integer, 'null']
           minimum: 0
           description: Customers can cancel up to this many minutes before the start; null when they can't cancel in the app.
+        intake_fields:
+          type: array
+          maxItems: 20
+          description: |
+            Questions the customer answers when booking (a clinic's intake
+            form), in order. Missing or empty: no questions. Apps that don't
+            know it book without answers.
+          items: { $ref: '#/components/schemas/IntakeField' }
+
+    IntakeField:
+      type: object
+      required: [id, label, type, required]
+      properties:
+        id: { type: string, pattern: '^[a-z0-9_]{1,40}$', description: The key of its answer in `AppointmentInput.answers`., example: reason }
+        label: { type: string, maxLength: 120, example: Reason for your visit }
+        type:
+          type: string
+          enum: [text, textarea, date, choice]
+          description: "`text` up to 200 characters, `textarea` up to 2000, `date` a day as YYYY-MM-DD, `choice` one of `options`. Apps show an unknown type as `text`."
+        options:
+          type: array
+          maxItems: 20
+          description: The choices of a `choice` field.
+          items: { type: string, maxLength: 80 }
+        required: { type: boolean }
+
+    IntakeAnswer:
+      type: object
+      required: [id, label, value]
+      properties:
+        id: { type: string }
+        label: { type: string, description: The question as it was asked when booking. }
+        value: { type: string }
 
     BookingsHomeSection:
       type: object
@@ -2872,6 +2914,17 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         title: { type: [string, 'null'], description: "A short description, for example their role." }
         price: { description: "Their price for the service, when it differs from the service's.", oneOf: [{ $ref: '#/components/schemas/BookingPrice' }, { type: 'null' }] }
+        specialties:
+          type: array
+          description: What they specialise in, for example a doctor's fields. Missing or empty when not given.
+          items: { type: string, maxLength: 80 }
+          example: [Orthodontics, Children's dentistry]
+        languages:
+          type: array
+          description: Languages they speak with customers. Missing or empty when not given.
+          items: { type: string, maxLength: 40 }
+          example: [English, Turkish]
+        bio: { type: [string, 'null'], maxLength: 2000, description: A short introduction in plain text. }
 
     Availability:
       type: object
@@ -2909,6 +2962,11 @@ components:
         staff_id: { type: [integer, 'null'], description: Null lets the booking plugin pick someone free. }
         start: { type: string, format: date-time, description: "A `start` from `/bookings/availability`." }
         notes: { type: [string, 'null'], maxLength: 1000 }
+        answers:
+          type: object
+          description: Answers to `bookings.intake_fields`, by field ID. Dates as YYYY-MM-DD; a choice as one of its options. Leave out fields not answered.
+          additionalProperties: { type: string, maxLength: 2000 }
+          example: { reason: Tooth pain on the left side, first_visit: 'Yes' }
 
     Appointment:
       type: object
@@ -2933,6 +2991,10 @@ components:
         notes: { type: [string, 'null'] }
         location: { type: [string, 'null'], description: "Where it takes place, when the plugin knows." }
         can_cancel: { type: boolean, description: Whether the customer can cancel it in the app now. }
+        answers:
+          type: array
+          description: The customer's own answers to the intake questions, in the order asked. Only in the customer's own appointments; missing or empty when there are none.
+          items: { $ref: '#/components/schemas/IntakeAnswer' }
 
     Appearance:
       type: object

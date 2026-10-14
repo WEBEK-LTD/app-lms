@@ -99,6 +99,18 @@ export interface KindInfo {
   marketing: { slug: string; icon: IconName };
   /** Store categories, when they differ from the engine's. */
   categories?: { play: string; appStore: string };
+  /** 21 Its own demo app on /demo (/demo/download/<slug>); the engine's default kind uses the engine's demo. */
+  demo?: { slug: string };
+  /** 21 The dashboard's words for its content and its app users, when they differ from the engine's. */
+  wording?: {
+    nav: { label: string; items: NavItem[] };
+    /** The sidebar group of the app users pages ("Patients"). */
+    users: string;
+    /** The Website step's text of the "I don't have a website" choice and what to do after it (`**Page**` is bold). */
+    ownContent: { text: string; next: string };
+    /** The first layout's tab names by tab ID, where they differ from the engine's. */
+    tabs?: Record<string, string>;
+  };
 }
 
 const tab = (id: string, label: string, icon: string, screen: string): LayoutTab => ({ id, label, icon, target: { type: "screen", screen } as LayoutTab["target"] });
@@ -353,6 +365,35 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "bookings", icon: "calendar_month" },
   },
   {
+    // 21 Clinics: the bookings engine with doctor, patient and visit wording, an intake form and doctor profiles.
+    id: "clinic",
+    engine: "booking",
+    vertical: "clinic",
+    name: "Clinic",
+    description: "Doctors, dentists, therapists: patients book visits, fill an intake form and see their visits in the app.",
+    requires: "Works with: Amelia, BookingPress, LatePoint · Digits · Intake forms without a website",
+    icon: "stethoscope",
+    tile: "bg-tile-4 text-[#7A2E55]",
+    marketing: { slug: "clinic", icon: "stethoscope" },
+    categories: { play: "Medical", appStore: "Medical" },
+    demo: { slug: "clinic" },
+    wording: {
+      nav: {
+        label: "Your clinic",
+        items: [
+          { href: "/dashboard/services", label: "Doctors & services", icon: "stethoscope" },
+          { href: "/dashboard/appointments", label: "Visits", icon: "event_available" },
+        ],
+      },
+      users: "Patients",
+      ownContent: {
+        text: "Add your services, doctors and their hours here in the dashboard, with an intake form if you like. Patients book visits in the app, and you see them here.",
+        next: "After this step, add your services, your doctors, their hours and your intake questions on the **Doctors & services** page. Your patients sign in to the app with",
+      },
+      tabs: { appointments: "Visits" },
+    },
+  },
+  {
     id: "real_estate",
     engine: "real_estate",
     vertical: null,
@@ -397,6 +438,12 @@ export function hostedOnly(appType: AppType): boolean {
   return !websites.includes("wordpress") && !websites.includes("custom_api");
 }
 
+/** 21 The Website step's text of the dashboard-managed content and what to do next, in the kind's words. */
+export function ownContentWords(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): { text: string; next: string } {
+  const engine = ENGINES[app.appType];
+  return kindOf(app).wording?.ownContent ?? { text: engine.ownContent.choice.text, next: engine.ownContent.next };
+}
+
 /** The Website step's title for the engine's dashboard-managed content. */
 export function ownContentTitle(appType: AppType): string {
   return ENGINES[appType].ownContent.choice.title ?? NO_WEBSITE;
@@ -425,6 +472,24 @@ export function appTypeName(app: Pick<App, "appType"> & { vertical?: AppVertical
 /** The engine's demo whose slug this is. */
 export function engineOfDemoSlug(slug: string): AppType | null {
   return APP_TYPES.find((type) => ENGINES[type].demo.slug === slug) ?? null;
+}
+
+/** 21 The kind's demo slug: its own, the engine's for a default kind, else none. */
+export function demoSlugOfKind(kind: KindInfo): string | null {
+  return kind.demo?.slug ?? (kind.vertical === null ? ENGINES[kind.engine].demo.slug : null);
+}
+
+/** 21 The dashboard's group for the app's content managed here: the kind's words, else the engine's. */
+export function contentNavOf(app: Pick<App, "appType" | "connector"> & { vertical?: AppVertical | null }): { label: string; items: NavItem[] } | null {
+  const engine = engineOfContent(app.connector?.kind);
+  if (!engine) return null;
+  const kind = kindOf(app);
+  return kind.engine === engine.id && kind.wording ? kind.wording.nav : engine.ownContent.nav;
+}
+
+/** 21 The sidebar group of the app users pages: "App users", or the kind's word ("Patients"). */
+export function usersLabelOf(app: (Pick<App, "appType"> & { vertical?: AppVertical | null }) | null): string {
+  return (app && kindOf(app).wording?.users) || "App users";
 }
 
 /** The store categories suggested for the app. */

@@ -109,7 +109,13 @@ class StaffAvatar extends StatelessWidget {
         ),
       );
     }
-    final initial = InitialsAvatar.initialsOf(staff.name);
+    // 21 "Dr. Kerem Aksoy" is KA, not DA.
+    final initial = InitialsAvatar.initialsOf(
+      staff.name.replaceFirst(
+        RegExp(r'^(dr|dt|prof)\.?\s+', caseSensitive: false),
+        '',
+      ),
+    );
     return Container(
       width: size,
       height: size,
@@ -241,3 +247,125 @@ class AppointmentCard extends StatelessWidget {
     return day == null ? a.localDate : shortWeekday(day);
   }
 }
+
+/// 21 A staff member's profile (a doctor's): role, specialties, the
+/// languages they speak and a few lines about them.
+class StaffProfile extends StatelessWidget {
+  const StaffProfile({super.key, required this.staff});
+
+  final StaffMember staff;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final bio = staff.bio?.trim() ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            StaffAvatar(staff: staff, size: 64),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      staff.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: p.text,
+                      ),
+                    ),
+                  ),
+                  if (staff.title != null && staff.title!.trim().isNotEmpty)
+                    Text(
+                      staff.title!,
+                      style: TextStyle(fontSize: 14, color: p.textSecondary),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (staff.specialties.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _ProfileHeading(context.l10n.staffSpecialties),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final s in staff.specialties)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: p.primarySoft,
+                    borderRadius: BorderRadius.circular(context.shapes.chip),
+                  ),
+                  child: Text(
+                    s,
+                    style: TextStyle(fontSize: 13, color: p.onPrimarySoft),
+                  ),
+                ),
+            ],
+          ),
+        ],
+        if (staff.languages.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          _ProfileHeading(context.l10n.staffLanguages),
+          const SizedBox(height: 4),
+          Text(
+            staff.languages.join(' · '),
+            style: TextStyle(fontSize: 15, color: p.text),
+          ),
+        ],
+        if (bio.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          _ProfileHeading(context.l10n.staffAbout(staff.name)),
+          const SizedBox(height: 4),
+          Text(
+            bio,
+            style: TextStyle(fontSize: 15, height: 1.45, color: p.text),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ProfileHeading extends StatelessWidget {
+  const _ProfileHeading(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: context.palette.textSecondary,
+    ),
+  );
+}
+
+/// Shows a staff member's profile in a sheet.
+Future<void> showStaffProfile(BuildContext context, StaffMember staff) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: StaffProfile(staff: staff),
+        ),
+      ),
+    );

@@ -17,7 +17,9 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../data/bookings_providers.dart';
 import '../widgets/booking_widgets.dart';
+import '../widgets/intake_form.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// The `slot_taken` error: someone booked the time first.
 const slotTaken = 'slot_taken';
@@ -71,6 +73,9 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
   String? _day;
   TimeSlot? _slot;
 
+  /// 21 The intake form's answers, kept if the time is taken meanwhile.
+  Map<String, String> _answers = const {};
+
   ServiceDetail get _service => widget.service;
 
   @override
@@ -121,6 +126,20 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
       );
       return;
     }
+    // 21 The business's questions come before confirming.
+    final fields = _rules?.intakeFields ?? const <IntakeField>[];
+    Map<String, String>? answers;
+    if (fields.isNotEmpty) {
+      answers = await IntakeFormScreen.open(
+        context,
+        fields: fields,
+        business: ref.read(appConfigProvider).site.name,
+        initial: _answers,
+      );
+      if (!mounted || answers == null) return;
+      _answers = answers;
+    }
+    if (!mounted) return;
     final result = await showModalBottomSheet<Object>(
       context: context,
       isScrollControlled: true,
@@ -132,12 +151,14 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
         price: _price,
         notes: _rules?.notes ?? false,
         when: _whenLabel(slot),
+        answers: answers,
       ),
     );
     if (!mounted || result == null) return;
     if (result is Appointment) {
+      _answers = const {};
       invalidateAppointments(ref);
-      showMessage(context, context.l10n.appointmentBooked);
+      showMessage(context, context.words.appointmentBooked);
       context.pushReplacement(Paths.appointment(result.id));
     } else if (result == slotTaken) {
       setState(() => _slot = null);
@@ -225,13 +246,18 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
                   ],
                   if (staffChoice) ...[
                     const SizedBox(height: 22),
-                    SectionHeader(title: context.l10n.withTitle),
+                    SectionHeader(title: context.words.staffHeading),
                     const SizedBox(height: 10),
                     _StaffPicker(
                       staff: service.staff,
                       selected: _staffId,
                       onChanged: _chooseStaff,
                     ),
+                  ],
+                  // 21 The chosen doctor's profile; the only one's when there's no choice.
+                  if (_profiled(staffChoice) case final staff?) ...[
+                    const SizedBox(height: 14),
+                    _ProfileCard(staff: staff),
                   ],
                   const SizedBox(height: 22),
                   SectionHeader(title: context.l10n.chooseTime),
@@ -273,6 +299,14 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
               ),
       ),
     );
+  }
+
+  /// The staff member whose profile shows: the chosen one, or the only one.
+  StaffMember? _profiled(bool staffChoice) {
+    final staff = staffChoice
+        ? _staff
+        : (_service.staff.length == 1 ? _service.staff.first : null);
+    return staff != null && staff.hasProfile ? staff : null;
   }
 
   String _whenLabel(TimeSlot slot) {
@@ -388,7 +422,7 @@ class _StaffPicker extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           _StaffChoice(
-            label: context.l10n.anyone,
+            label: context.words.anyone,
             selected: selected == null,
             onTap: () => onChanged(null),
             avatar: _AnyoneAvatar(selected: selected == null),
@@ -629,10 +663,14 @@ class _ConfirmSheet extends ConsumerStatefulWidget {
     required this.price,
     required this.notes,
     required this.when,
+    this.answers,
   });
 
   final ServiceDetail service;
   final TimeSlot slot;
+
+  /// 21 The intake form's answers, when the business asks questions.
+  final Map<String, String>? answers;
 
   /// "Monday, 19 October at 10:00".
   final String when;
@@ -668,6 +706,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             start: widget.slot.start,
             staffId: widget.staff?.id,
             notes: widget.notes ? _notes.text : null,
+            answers: widget.answers,
           );
       if (mounted) Navigator.of(context).pop(appointment);
     } catch (e) {
@@ -702,7 +741,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             Semantics(
               header: true,
               child: Text(
-                context.l10n.confirmYourBooking,
+                context.words.confirmYourBooking,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -715,7 +754,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             _Fact(icon: AppIcons.calendar, text: widget.when),
             _Fact(
               icon: AppIcons.staff,
-              text: widget.staff?.name ?? context.l10n.anyoneAvailable,
+              text: widget.staff?.name ?? context.words.anyoneAvailable,
             ),
             _Fact(
               icon: AppIcons.schedule,
@@ -732,7 +771,7 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  labelText: context.l10n.noteForBusiness,
+                  labelText: context.words.noteForBusiness,
                 ),
               ),
             ],
@@ -748,6 +787,74 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 21 A doctor's profile under the picker: specialties and languages, and
+/// the whole profile in a sheet.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({required this.staff});
+
+  final StaffMember staff;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final facts = [
+      if (staff.title != null && staff.title!.trim().isNotEmpty) staff.title!,
+      ...staff.specialties,
+    ].join(' · ');
+    return AppCard(
+      onTap: () => showStaffProfile(context, staff),
+      padding: const EdgeInsets.all(12),
+      semanticLabel: '${staff.name}. ${context.l10n.staffViewProfile}',
+      child: Row(
+        children: [
+          StaffAvatar(staff: staff, size: 44),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  staff.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+                if (facts.isNotEmpty)
+                  Text(
+                    facts,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, color: p.textSecondary),
+                  ),
+                if (staff.languages.isNotEmpty)
+                  Text(
+                    staff.languages.join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, color: p.textSecondary),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            context.l10n.staffViewProfile,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: p.link,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -4,8 +4,13 @@ import { audienceOptions, describeAudience } from "@/lib/announcements";
 import {
   APP_TYPES,
   APP_VERTICALS,
+  appTypeName,
   connectorFits,
+  contentNavOf,
   defaultKind,
+  demoSlugOfKind,
+  ownContentWords,
+  usersLabelOf,
   ENGINES,
   engineOfContent,
   engineOfDemoSlug,
@@ -157,7 +162,8 @@ const appOf = (appType: AppType, patch: Partial<App> = {}): App => ({ ...newApp(
 describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
     expect(APP_TYPES).toEqual(["lms", "store", "booking", "real_estate"]);
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "bookings", "real_estate"]);
+    // 21 Clinic is the first kind with a vertical; the four default kinds are as they were.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "bookings", "clinic", "real_estate"]);
     for (const type of APP_TYPES) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -178,12 +184,15 @@ describe("20 app kinds registry", () => {
       expect(suggestedCategories({ appType: type })).toEqual(BEFORE.categories[type]);
       expect(noWebsiteFor(type)).toBe(BEFORE.noWebsite[type]);
     }
-    expect(KINDS.map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
+    expect(KINDS.filter((k) => k.vertical === null).map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
-    expect(DEMO_TYPES).toEqual(APP_TYPES);
-    expect(DEMO_SLUGS).toEqual(BEFORE.demoSlugs);
+    // 21 One more demo: the clinic, after Bookings.
+    expect(DEMO_TYPES).toEqual(["lms", "store", "booking", "clinic", "real_estate"]);
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic" });
+    expect(demoTypeOfSlug("clinic")).toBe("clinic");
+    expect(engineOfDemoSlug("clinic")).toBeNull();
     for (const [type, slug] of Object.entries(BEFORE.demoSlugs)) {
       expect(demoTypeOfSlug(slug)).toBe(type);
       expect(engineOfDemoSlug(slug)).toBe(type);
@@ -287,6 +296,7 @@ describe("20 app kinds registry", () => {
       ["academy", "solution-academy", "Academy", "school"],
       ["store", "solution-store", "Store", "storefront"],
       ["bookings", "solution-bookings", "Bookings", "calendar_month"],
+      ["clinic", "solution-clinic", "Clinic", "stethoscope"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
     ]);
     const headers = CONTENT_PAGES.filter((p) => p.key.startsWith("solution-"));
@@ -294,10 +304,11 @@ describe("20 app kinds registry", () => {
       ["solution-academy", "Solutions: Academy", "/solutions/academy"],
       ["solution-store", "Solutions: Store", "/solutions/store"],
       ["solution-bookings", "Solutions: Bookings", "/solutions/bookings"],
+      ["solution-clinic", "Solutions: Clinic", "/solutions/clinic"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Bookings apps", "Real estate apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "4", label: "app types: academy, store, bookings and real estate" });
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Bookings apps", "Clinic apps", "Real estate apps"]);
+    expect(NUMBERS[0]).toEqual({ value: "5", label: "app types: academy, store, bookings, clinic and real estate" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
@@ -348,5 +359,43 @@ describe("20 app kinds registry", () => {
     expect(new Set(KINDS.map((k) => k.marketing.slug)).size).toBe(KINDS.length);
     expect(new Set(KINDS.map((k) => `${k.engine}:${k.vertical}`)).size).toBe(KINDS.length);
     for (const type of APP_TYPES) expect(KINDS.some((k) => k.engine === type && k.vertical === null), type).toBe(true);
+  });
+});
+
+describe("21 the Clinic kind", () => {
+  it("is the bookings engine with the clinic vertical, its own words, demo and store categories", () => {
+    const clinic = kindById("clinic")!;
+    expect(clinic).toMatchObject({ engine: "booking", vertical: "clinic", name: "Clinic", icon: "stethoscope", marketing: { slug: "clinic", icon: "stethoscope" } });
+    expect(clinic.description).toBe("Doctors, dentists, therapists: patients book visits, fill an intake form and see their visits in the app.");
+    expect(kindOf({ appType: "booking", vertical: "clinic" })).toBe(clinic);
+    expect(appTypeName({ appType: "booking", vertical: "clinic" })).toBe("Clinic");
+    expect(suggestedCategories({ appType: "booking", vertical: "clinic" })).toEqual({ play: "Medical", appStore: "Medical" });
+    // The same engine: same module, same API paths, same pages.
+    expect(ENGINES[clinic.engine].homePath).toBe("/bookings/home");
+    expect(demoSlugOfKind(clinic)).toBe("clinic");
+    expect(demoSlugOfKind(defaultKind("booking"))).toBe("bookings");
+  });
+
+  it("words the dashboard's menu, app users and Website step for clinics only", () => {
+    const hosted = { kind: "bookings" } as const;
+    const clinic = contentNavOf({ appType: "booking", vertical: "clinic", connector: hosted })!;
+    expect(clinic.label).toBe("Your clinic");
+    expect(clinic.items.map((i) => [i.href, i.label, i.icon])).toEqual([
+      ["/dashboard/services", "Doctors & services", "stethoscope"],
+      ["/dashboard/appointments", "Visits", "event_available"],
+    ]);
+    expect(contentNavOf({ appType: "booking", vertical: null, connector: hosted })!.items.map((i) => i.label)).toEqual(["Services & team", "Appointments"]);
+    // A clinic with a booking plugin has no pages for content managed here.
+    expect(contentNavOf({ appType: "booking", vertical: "clinic", connector: null })).toBeNull();
+    expect(usersLabelOf({ appType: "booking", vertical: "clinic" })).toBe("Patients");
+    expect(usersLabelOf({ appType: "booking", vertical: null })).toBe("App users");
+    expect(usersLabelOf(null)).toBe("App users");
+    expect(ownContentWords({ appType: "booking", vertical: "clinic" }).next).toContain("**Doctors & services**");
+    expect(ownContentWords({ appType: "booking" })).toEqual({ text: ENGINES.booking.ownContent.choice.text, next: ENGINES.booking.ownContent.next });
+    // The first layout's Appointments tab is Visits; the registry itself is unchanged.
+    const app = { appType: "booking" as const, backend: "hosted" as const, appName: "Kardelen", template: "classic" as const, font: "Outfit", brandingDoneAt: null };
+    expect(defaultLayout({ ...app, vertical: "clinic" }, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Book", "Visits", "Account"]);
+    expect(defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Book", "Appointments", "Account"]);
+    expect(ENGINES.booking.pages.tabs[1]!.label).toBe("Appointments");
   });
 });
