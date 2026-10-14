@@ -758,7 +758,7 @@ On **App sign-in**, under **How people sign in**, choose:
 - **Email address**: with no website or with content in the dashboard, a 6-digit code by email, sent in your app's name. New people sign up with their email address. On WordPress, the email address and password of their account on your website; WordPress checks the password, and "Forgot your password?" opens your website's reset page.
 - **Phone number or email address**: the app shows a **Phone / Email** switch.
 
-Apps connected to Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me sign in by phone: those platforms find each customer's orders and bookings by their phone number.
+Apps connected to Shopify, ikas, Ticimax, IdeaSoft or SimplyBook.me sign in by phone: those platforms find each customer's orders and bookings by their phone number. Apps connected to Teachable or Thinkific can also sign in by email: someone who signs in by email sees the courses of their school account with that address, including courses bought on your website.
 
 On WordPress, email sign-in is for people who already have an account on your website; new people sign up with their phone number or on your website. Your choice reaches your website at the plugin's next license check (within 12 hours), or at once with **Check now** in the Yallapp plugin. Until you choose here, the plugin's own **Sign-in** setting applies.
 
