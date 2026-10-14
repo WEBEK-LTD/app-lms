@@ -141,7 +141,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Bookings or Real estate: what each app type does and where its content can come from.",
+    description: "Academy, Store, Bookings, Clinic or Real estate: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -156,6 +156,10 @@ Products, a cart, checkout and orders, with delivery dates and gift messages for
 ## Bookings
 
 Services, staff, free times and appointments. Customers book a time and see or cancel their appointments; payment happens at your business. Content from Amelia, BookingPress or LatePoint on WordPress, SimplyBook.me, your own API, or services you add in the dashboard. See [the Bookings solution](/solutions/bookings).
+
+## Clinic
+
+Bookings for doctors, dentists, therapists and other clinics, in the words patients expect: doctors, patients and visits. Patients read each doctor's profile, book a visit and answer your intake questions. The intake form is for clinics without a website for now; with Amelia, BookingPress or LatePoint, patients book without it. See [Clinics: doctors, visits and the intake form](/docs/clinics) and [the Clinic solution](/solutions/clinic).
 
 ## Real estate
 
@@ -544,6 +548,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 - **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico. See [Products, orders and shipping](/docs/store-orders) and [Card payments with iyzico](/docs/card-payments).
 - **Academy**: courses, sections and lessons on the **Courses** page, and orders for paid courses. See [Courses without a website](/docs/courses).
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
+- **Clinic**: services, your doctors and your intake form on the **Doctors & services** page, and visits on the **Visits** page. See [Clinics: doctors, visits and the intake form](/docs/clinics).
 - **Real estate**: properties on the **Listings** page and messages on the **Inquiries** page. See [Listings and inquiries](/docs/real-estate).
 
 ## Sign-in, notifications and settings
@@ -1159,6 +1164,50 @@ Select **Add a team member** for each person who takes appointments, with their 
 Each new booking appears on **Appointments** and you get an email. **Approve** or **reject** bookings that need approval, **cancel** one, and mark it **done** or **no-show** afterwards. Customers see the status in the app.
 
 > Payment happens at your business. The app never takes payment for an appointment.
+`,
+  }),
+  doc({
+    slug: "clinics",
+    section: "Selling and bookings",
+    title: "Clinics: doctors, visits and the intake form",
+    description: "Run a Clinic app without a website: your doctors' profiles, the intake form patients fill in when they book, and their visits.",
+    steps: false,
+    body: `A Clinic app works like a Bookings app, in the words your patients expect: your dashboard shows **Doctors & services** and **Visits**, and the app talks about doctors and visits. Choose **Clinic** on the first page of **App setup**, then **I don't have a website** on the Website step.
+
+Services, working hours, days off and booking rules work as described in [Services, team and appointments](/docs/bookings).
+
+## Your doctors
+
+Select **Add a doctor** for each doctor or therapist who sees patients. Besides their role, services and working hours, you can add:
+
+- **Specialties**, separated by commas, for example *Orthodontics, Children's dentistry*
+- **Languages** they speak with patients
+- **About them**: a few lines shown on their profile in the app
+
+## The intake form
+
+Under **Intake form**, select **Add a question** for each thing you'd like to know before a visit. A question's answer can be:
+
+- **Short answer**: up to 200 characters
+- **Long answer**: up to 2,000 characters
+- **Date**, for example a date of birth
+- **One of a list**: write the options one per line
+
+Turn on **Must be answered** for questions patients can't skip. Use **Move up** to change the order, and **Delete question** to remove one; answers already given keep the question as it was asked. Patients answer in the app when they book a visit, and see their answers with the visit.
+
+## Visits
+
+Each new visit appears on **Visits** with the patient's name and how to reach them. Open **Intake answers** to read their answers. You get an email for each new visit; it says the answers are on your dashboard, but never includes them.
+
+## Privacy
+
+Intake answers are visible only to the patient, in their visits in the app, and to your clinic, on your dashboard. They're never put in emails, push notifications or text messages. They're kept with the visit by Yallapp, on servers hosted by webek.org. Ask only what you need before a visit.
+
+## With a WordPress booking plugin
+
+Clinics that book through Amelia, BookingPress or LatePoint get the doctor, patient and visit wording, but no intake form in the app for now: patients book the way they do in a Bookings app.
+
+> Payment happens at your clinic. The app never takes payment for a visit.
 `,
   }),
   doc({

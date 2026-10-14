@@ -5,8 +5,6 @@ import { sha256Hex } from "../crypto/tokens";
 import type { AppPatch, DataStore } from "../data/store";
 import type {
   App,
-
-  AppType,
   AssetKind,
   BookingSetup,
   Client,
@@ -22,9 +20,15 @@ import { publishLayout } from "../pages/layout";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { artPng } from "./art";
-import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME } from "./constants";
+import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoKind, type DemoId } from "./constants";
 import {
   BOOKING_RULES,
+  CLINIC_CATEGORIES,
+  CLINIC_DOCTORS,
+  CLINIC_HOURS,
+  CLINIC_INTAKE,
+  CLINIC_RULES,
+  CLINIC_SERVICES,
   COURSE_CATEGORIES,
   COURSE_CURRENCY,
   DEMO_BRANDS,
@@ -77,7 +81,7 @@ export class DemoSetupError extends Error {
 export interface DemoSetupResult {
   clientId: string;
   accountCreated: boolean;
-  apps: { type: AppType; appId: string; created: boolean }[];
+  apps: { type: DemoId; appId: string; created: boolean }[];
 }
 
 /** A UUID-shaped ID made from a hash, so the same picture of the same account is saved once. */
@@ -141,20 +145,23 @@ function hostedSettingsFor(deps: DemoSetupDeps): HostedSettings {
 }
 
 /** Sets up one demo app; returns it as saved. */
-async function setupApp(deps: DemoSetupDeps, client: Client, type: AppType): Promise<{ app: App; created: boolean }> {
+async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promise<{ app: App; created: boolean }> {
   const { store, now } = deps;
-  const existing = (await store.listAppsByClient(client.id)).find((a) => a.demo === true && a.appType === type);
+  // 21 A demo is an engine, with the vertical of its kind (a clinic runs on the bookings engine).
+  const { engine: type, vertical } = demoKind(id);
+  const existing = (await store.listAppsByClient(client.id)).find((a) => a.demo === true && demoIdOf(a) === id);
   let app = existing;
   if (!app) {
-    app = { ...newApp(client.id, null, now, type), demo: true };
+    app = { ...newApp(client.id, null, now, type, vertical), demo: true };
     await store.createApp(app);
   }
-  const brand = DEMO_BRANDS[type];
+  const brand = DEMO_BRANDS[id];
   // Every demo app's content is managed in the dashboard: its engine's own content (lib/app/kinds.ts).
   const content = ENGINES[type].ownContent.kind;
   const iconAssetId = await picture(deps, client.id, brand.icon, "icon", "icon");
   const patch: AppPatch = {
     demo: true,
+    vertical,
     backend: "hosted",
     siteUrl: null,
     connector: { kind: content },
@@ -187,7 +194,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, type: AppType): Pro
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings") {
-    patch.bookingSetup = await bookingSetupFor(deps, client.id);
+    patch.bookingSetup = await bookingSetupFor(deps, client.id, id === "clinic");
   }
   await store.updateApp(app.id, patch, now);
   const saved = (await store.getAppById(app.id))!;
@@ -237,11 +244,12 @@ async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: C
   return { currency: COURSE_CURRENCY, categories, courses, nextId: next };
 }
 
-async function bookingSetupFor(deps: DemoSetupDeps, clientId: string): Promise<BookingSetup> {
+/** The studio's services and team, or (21) the clinic's, with its doctors' profiles and intake form. */
+async function bookingSetupFor(deps: DemoSetupDeps, clientId: string, clinic: boolean): Promise<BookingSetup> {
   let next = 1;
-  const categories = SERVICE_CATEGORIES.map((name) => ({ id: next++, name }));
+  const categories = (clinic ? CLINIC_CATEGORIES : SERVICE_CATEGORIES).map((name) => ({ id: next++, name }));
   const services = [];
-  for (const seed of DEMO_SERVICES) {
+  for (const seed of clinic ? CLINIC_SERVICES : DEMO_SERVICES) {
     services.push({
       id: next++,
       categoryId: categories.find((c) => c.name === seed.category)?.id ?? null,
@@ -255,17 +263,21 @@ async function bookingSetupFor(deps: DemoSetupDeps, clientId: string): Promise<B
     });
   }
   const staff = [];
-  for (const seed of DEMO_STAFF) {
+  for (const seed of clinic ? CLINIC_DOCTORS : DEMO_STAFF) {
     staff.push({
       id: next++,
       name: seed.name,
       title: seed.title,
       imageAssetId: await picture(deps, clientId, seed.picture, "avatar", "product_image"),
       serviceIds: services.filter((s) => seed.services.includes(s.name)).map((s) => s.id),
-      hours: STUDIO_HOURS.map((ranges) => ranges.map((r) => ({ ...r }))),
+      hours: (clinic ? CLINIC_HOURS : STUDIO_HOURS).map((ranges) => ranges.map((r) => ({ ...r }))),
       daysOff: [],
       active: true,
+      ...(seed.specialties ? { specialties: [...seed.specialties], languages: [...(seed.languages ?? [])], bio: seed.bio ?? null } : {}),
     });
+  }
+  if (clinic) {
+    return { rules: { ...CLINIC_RULES }, categories, services, staff, nextId: next, intakeFields: CLINIC_INTAKE.map((f) => ({ ...f, options: [...f.options] })) };
   }
   return { rules: { ...BOOKING_RULES }, categories, services, staff, nextId: next };
 }
@@ -356,7 +368,7 @@ function escapeHtml(text: string): string {
 
 /** The demo's pages and look: the usual pages for its type, with a banner, a welcome and how to sign in. */
 export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, app: App, bannerAssetId: string): Promise<LayoutContent> {
-  const brand = DEMO_BRANDS[app.appType];
+  const brand = DEMO_BRANDS[demoIdOf(app)];
   const base = defaultLayout({ ...app, brandingDoneAt: deps.now }, BUILT_IN_APP_DEFAULTS, deps.now);
   const home = base.pages[0]!;
   const bannerUrl = deps.assetUrl(bannerAssetId);
@@ -392,14 +404,15 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
 }
 
 async function publishPages(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
-  const banner = await picture(deps, clientId, DEMO_BRANDS[app.appType].banner.picture, "banner", "product_image");
+  const brand = DEMO_BRANDS[demoIdOf(app)];
+  const banner = await picture(deps, clientId, brand.banner.picture, "banner", "product_image");
   const plans = await effectivePlans(deps.store);
   const result = await publishLayout(deps.store, app, await demoLayout(deps, app, banner), deps.actorEmail, deps.now, plans.business);
-  if (!result.ok) throw new DemoSetupError(`The ${DEMO_BRANDS[app.appType].appName} pages couldn't be published: ${result.errors.join(" ")}`);
+  if (!result.ok) throw new DemoSetupError(`The ${brand.appName} pages couldn't be published: ${result.errors.join(" ")}`);
 }
 
-/** Creates or refreshes the demo apps of these types (all four by default). */
-export async function setupDemoApps(deps: DemoSetupDeps, types: readonly AppType[] = DEMO_TYPES): Promise<DemoSetupResult> {
+/** Creates or refreshes these demo apps (all of them by default). */
+export async function setupDemoApps(deps: DemoSetupDeps, types: readonly DemoId[] = DEMO_TYPES): Promise<DemoSetupResult> {
   const { client, created } = await demoAccount(deps);
   const apps: DemoSetupResult["apps"] = [];
   for (const type of DEMO_TYPES.filter((t) => types.includes(t))) {

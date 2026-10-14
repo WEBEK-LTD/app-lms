@@ -7,25 +7,23 @@ import { QrCode } from "@/components/qr-code";
 import { Notice } from "@/components/ui";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
-import type { AppType } from "@/lib/data/types";
-import { defaultKind } from "@/lib/app/kinds";
 import { demoDownloadBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES } from "@/lib/demo/constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Try a demo app",
-  description: "Install a real Yallapp app on your Android phone: an academy, a shop, a bookings app and a real estate app, with sample content.",
+  description: "Install a real Yallapp app on your Android phone: an academy, a shop, a bookings app, a clinic and a real estate app, with sample content.",
 };
 /** Whether each download is ready comes from the admin. */
 export const dynamic = "force-dynamic";
 
-async function downloads(): Promise<Partial<Record<AppType, boolean>>> {
+async function downloads(): Promise<Partial<Record<DemoId, boolean>>> {
   try {
     const store = await getStore();
-    const out: Partial<Record<AppType, boolean>> = {};
-    for (const app of await listDemoApps(store)) out[app.appType] = (await demoDownloadBuild(store, app)) !== null;
+    const out: Partial<Record<DemoId, boolean>> = {};
+    for (const app of await listDemoApps(store)) out[demoIdOf(app)] = (await demoDownloadBuild(store, app)) !== null;
     return out;
   } catch {
     // Without the database (as during a build) every demo shows "Coming soon".
@@ -33,7 +31,7 @@ async function downloads(): Promise<Partial<Record<AppType, boolean>>> {
   }
 }
 
-/** /demo (roadmap 16): the four demo apps people can install and try before they pay. */
+/** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic too). */
 export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
   const query = await searchParams;
   const [ready, contact] = await Promise.all([downloads(), getContact()]);
@@ -43,7 +41,7 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
       current="demo"
       eyebrow="Try before you pay"
       title="Try a real app on your phone"
-      intro="Four demo apps, one for each kind of app we make: an academy, a shop, a bookings app and a real estate app. They're real apps with sample content, running the same way your app would."
+      intro="Five demo apps, one for each kind of app we make: an academy, a shop, a bookings app, a clinic and a real estate app. They're real apps with sample content, running the same way your app would."
       aside={<DeviceFrame screen="academy-home" size="md" priority />}
     >
       <Section>
@@ -85,7 +83,7 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
         const guide = DEMO_GUIDES[type];
         const brand = DEMO_BRANDS[type];
         const slug = DEMO_SLUGS[type];
-        const kind = defaultKind(type);
+        const kind = demoKind(type);
         const href = `${base}/demo/download/${slug}`;
         return (
           <Section key={type} id={slug} tinted={index % 2 === 0}>

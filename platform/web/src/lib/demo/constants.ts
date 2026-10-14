@@ -1,5 +1,5 @@
-import type { AppType } from "../data/types";
-import { APP_TYPES, ENGINES, engineOfDemoSlug } from "../app/kinds";
+import type { App, AppType, AppVertical } from "../data/types";
+import { defaultKind, demoSlugOfKind, isAppType, KINDS, type KindInfo } from "../app/kinds";
 import type { RateLimitRule } from "../rate-limit";
 
 /**
@@ -45,12 +45,29 @@ export const DEMO_ACCOUNT = { email: "demos@yallapp.com.tr", name: "Yallapp demo
 /** The demo apps never expire: their Business license runs to the end of 2099. */
 export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
 
+/**
+ * 21 Which demo: an engine's (its default kind), or a vertical's that has
+ * its own demo (a clinic, on the bookings engine).
+ */
+export type DemoId = AppType | Extract<AppVertical, "clinic">;
+
+/** The kind a demo shows. */
+export function demoKind(id: DemoId): KindInfo {
+  return isAppType(id) ? defaultKind(id) : KINDS.find((k) => k.vertical === id)!;
+}
+
+/** One demo per engine, and per kind with its own demo, in the registry's order. */
+export const DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) => (k.vertical ?? k.engine) as DemoId);
+
 /** Each demo's address on /demo and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(APP_TYPES.map((type) => [type, ENGINES[type].demo.slug])) as Record<AppType, string>;
+export const DEMO_SLUGS = Object.fromEntries(DEMO_TYPES.map((id) => [id, demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
-/** One demo per engine, in the registry's order. */
-export const DEMO_TYPES: readonly AppType[] = APP_TYPES;
+export function demoTypeOfSlug(slug: string): DemoId | null {
+  return DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
+}
 
-export function demoTypeOfSlug(slug: string): AppType | null {
-  return engineOfDemoSlug(slug);
+/** 21 Which demo an app is: its vertical's, when that has a demo, else its engine's. */
+export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): DemoId {
+  const vertical = app.vertical ?? null;
+  return vertical && (DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : app.appType;
 }

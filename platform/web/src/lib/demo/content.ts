@@ -1,11 +1,12 @@
-import type { AppTemplate, AppType, BookingRules, CatalogCurrency, ListingPurpose, ListingSettings, TimeRange } from "../data/types";
+import type { AppTemplate, BookingRules, CatalogCurrency, IntakeField, ListingPurpose, ListingSettings, TimeRange } from "../data/types";
+import type { DemoId } from "./constants";
 import type { AppFont } from "../build-config/types";
 import type { CardStyle, Corners, LanguageCode } from "../pages/types";
 import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
 
 /**
- * What the demo apps contain (roadmap 16): four made-up businesses with
+ * What the demo apps contain (roadmap 16): made-up businesses (21 five) with
  * believable names, prices and texts. People, shops and addresses are
  * invented. Pictures are drawn in lib/demo/pictures.ts.
  */
@@ -70,6 +71,10 @@ export interface DemoStaff {
   picture: PictureName;
   /** Service names. */
   services: string[];
+  /** 21 A profile, for the clinic's doctors. */
+  specialties?: string[];
+  languages?: string[];
+  bio?: string;
 }
 
 export interface DemoListing {
@@ -103,7 +108,7 @@ export interface DemoGuide {
   screens: AppScreen[];
 }
 
-export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
+export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
   lms: {
     summary: "An online academy with courses in design, business, languages and programming.",
     tryThis: [
@@ -133,6 +138,15 @@ export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
     ],
     screens: ["bookings-services", "bookings-slots"],
   },
+  clinic: {
+    summary: "A family clinic with a family doctor, a dentist and a physiotherapist, and a short intake form.",
+    tryThis: [
+      "Open a doctor's profile: specialties, languages and a few lines about them",
+      "Book a visit and fill in the intake form (use made-up answers: everyone shares this account)",
+      "Find the visit under Visits, with your answers, and cancel it",
+    ],
+    screens: ["clinic-intake", "clinic-doctor"],
+  },
   real_estate: {
     summary: "An estate agency with homes for sale and for rent, with filters, favorites and messages.",
     tryThis: [
@@ -146,7 +160,7 @@ export const DEMO_GUIDES: Record<AppType, DemoGuide> = {
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
 
-export const DEMO_BRANDS: Record<AppType, DemoBrand> = {
+export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
   lms: {
     appName: "Nour Academy",
     shortName: "Nour",
@@ -203,6 +217,25 @@ export const DEMO_BRANDS: Record<AppType, DemoBrand> = {
     shortDescription: "Book hair, spa, nails and brows at Studio Nur.",
     fullDescription: `Studio Nur is a hair and beauty studio. See every service with its price and length, choose who you'd like, and book a free time.\n\nYour appointments are in the app, where you can cancel up to a day before.\n\n${PRIVACY_NOTE}`,
     welcome: "Open Monday to Saturday, 10:00 to 19:00.",
+  },
+  clinic: {
+    appName: "Kardelen Clinic",
+    shortName: "Kardelen",
+    primaryColor: "#2C6A8A",
+    splashColor: "#E6F0F5",
+    secondaryColor: "#E39B2E",
+    template: "classic",
+    font: "Lexend",
+    corners: "soft",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-clinic",
+    banner: { picture: "banner-clinic", heading: "Book your visit in a minute", subheading: "Choose your doctor and a time. Answer a few questions before you come." },
+    androidPackage: "com.yallapp.demo.clinic",
+    storeTitle: "Kardelen Clinic",
+    shortDescription: "Book visits with our family doctor, dentist and physiotherapist.",
+    fullDescription: `Kardelen Clinic is a family clinic. See our doctors and what they do, choose a free time and answer a short intake form before your visit.\n\nYour visits are in the app, where you can cancel up to a day before. Payment is at the clinic.\n\n${PRIVACY_NOTE}`,
+    welcome: "Open Monday to Friday, 09:00 to 18:00, and Saturday mornings.",
   },
   real_estate: {
     appName: "Nile Homes",
@@ -432,6 +465,61 @@ export const DEMO_STAFF: DemoStaff[] = [
   { name: "Elif Arslan", title: "Hair stylist", picture: "staff-elif", services: ["Haircut & blow-dry", "Colour & gloss"] },
   { name: "Selin Koç", title: "Beauty therapist", picture: "staff-selin", services: ["Hydrating facial", "Gel manicure", "Brow shaping"] },
   { name: "Deniz Yıldız", title: "Massage therapist", picture: "staff-deniz", services: ["Relaxing massage", "Hydrating facial"] },
+];
+
+// Clinic (21)
+
+/** Sunday first: Saturday mornings only, closed on Sundays. */
+export const CLINIC_HOURS: TimeRange[][] = [[], day("09:00", "18:00"), day("09:00", "18:00"), day("09:00", "18:00"), day("09:00", "18:00"), day("09:00", "18:00"), day("09:00", "13:00")];
+
+export const CLINIC_RULES: BookingRules = { ...BOOKING_RULES, notes: false, slotStepMinutes: 15 };
+
+export const CLINIC_CATEGORIES = ["Family doctor", "Dentist", "Physiotherapy"];
+
+export const CLINIC_SERVICES: DemoService[] = [
+  { name: "General visit", category: "Family doctor", minutes: 30, priceCents: 1200_00, picture: "visit-checkup", color: "#2C6A8A", description: "A visit with our family doctor to talk about how you feel and any questions you have." },
+  { name: "Follow-up visit", category: "Family doctor", minutes: 15, priceCents: 600_00, picture: "visit-followup", color: "#3F7F5B", description: "A short visit after an earlier one, to see how things are going." },
+  { name: "Dental check-up", category: "Dentist", minutes: 45, priceCents: 1500_00, picture: "visit-dental", color: "#4A7FB0", description: "A check of your teeth and gums, with a cleaning." },
+  { name: "Children's dental visit", category: "Dentist", minutes: 30, priceCents: 900_00, picture: "visit-children", color: "#E39B2E", description: "A calm first visit for children, with time to get to know the dentist." },
+  { name: "Physiotherapy session", category: "Physiotherapy", minutes: 45, priceCents: 1400_00, picture: "visit-physio", color: "#6A4C93", description: "A session with our physiotherapist, with exercises to take home." },
+];
+
+export const CLINIC_DOCTORS: DemoStaff[] = [
+  {
+    name: "Dr. Ayşe Demir",
+    title: "Family doctor",
+    picture: "doctor-ayse",
+    services: ["General visit", "Follow-up visit"],
+    specialties: ["Family medicine", "Visits for children and adults"],
+    languages: ["Turkish", "English"],
+    bio: "Ayşe has been a family doctor in Istanbul for twelve years. She sees adults and children, and likes to take the time to answer every question.",
+  },
+  {
+    name: "Dr. Kerem Aksoy",
+    title: "Dentist",
+    picture: "doctor-kerem",
+    services: ["Dental check-up", "Children's dental visit"],
+    specialties: ["General dentistry", "Children's dentistry"],
+    languages: ["Turkish", "English", "German"],
+    bio: "Kerem studied in Istanbul and Berlin. Children like his visits because he shows them every tool before he uses it.",
+  },
+  {
+    name: "Leyla Haddad",
+    title: "Physiotherapist",
+    picture: "doctor-leyla",
+    services: ["Physiotherapy session"],
+    specialties: ["Back and neck", "Sports"],
+    languages: ["Arabic", "English", "Turkish"],
+    bio: "Leyla works with people of every age who want to move with more ease, from office workers to weekend runners.",
+  },
+];
+
+/** The demo's intake form. Visitors share one account, so the guide asks for made-up answers. */
+export const CLINIC_INTAKE: IntakeField[] = [
+  { id: "reason", label: "Reason for your visit", type: "textarea", options: [], required: true },
+  { id: "first_visit", label: "Is this your first visit to us?", type: "choice", options: ["Yes", "No"], required: true },
+  { id: "date_of_birth", label: "Date of birth", type: "date", options: [], required: false },
+  { id: "allergies", label: "Allergies we should know about", type: "text", options: [], required: false },
 ];
 
 // Real estate

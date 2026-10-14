@@ -116,6 +116,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     intro:
       "Services, your team and real free times, from Amelia, BookingPress, LatePoint, SimplyBook.me, your own API, or a setup in the dashboard. Customers book in seconds and pay at your business.",
   },
+  clinic: {
+    eyebrow: "Clinic apps",
+    title: "Your clinic, booked from your patients' phones",
+    intro:
+      "Patients choose a doctor and a free time, answer your intake questions and see their visits, in an app with your clinic's name. Only your clinic sees the answers.",
+  },
   real_estate: {
     eyebrow: "Real estate apps",
     title: "Your listings, with search, favorites and messages",
@@ -162,7 +168,7 @@ export const CONTENT_PAGES: ContentPage[] = [
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      solutionsTitle: "One platform, four kinds of apps",
+      solutionsTitle: "One platform, five kinds of apps",
       solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
       featuresTitle: "Everything your app needs",
       featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",

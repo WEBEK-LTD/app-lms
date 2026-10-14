@@ -102,7 +102,7 @@ export default async function LandingPage() {
               </Link>
             ))}
           </div>
-          <MoreLink href="/demo">Try the four demo apps</MoreLink>
+          <MoreLink href="/demo">Try the five demo apps</MoreLink>
         </Section>
 
         <Section>

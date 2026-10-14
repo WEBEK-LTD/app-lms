@@ -6,11 +6,10 @@ import { BuildBadge } from "@/components/build-status";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Card, Notice, formatDateTime } from "@/components/ui";
-import { APP_TYPES, ENGINES } from "@/lib/app/kinds";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { demoClient, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES } from "@/lib/demo/constants";
+import { DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 
@@ -19,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
   all: "The demo apps are created and up to date.",
-  ...Object.fromEntries(APP_TYPES.map((type) => [type, `The ${ENGINES[type].name} demo is up to date.`])),
+  ...Object.fromEntries(DEMO_TYPES.map((type) => [type, `The ${demoKind(type).name} demo is up to date.`])),
   build: "The build is queued. It shows here, and on the build queue, as it runs.",
   download: "The /demo page now offers this build for download.",
   no_download: "The /demo page shows \"Coming soon\" for this app again.",
@@ -37,7 +36,7 @@ const ERROR: Record<string, string> = {
   invalid_config: "The build config isn't valid. Refresh the demo app and try again.",
 };
 
-/** Admin › Demo apps (roadmap 16): the four apps on /demo. */
+/** Admin › Demo apps (roadmap 16): the apps on /demo (21 one per engine, and the clinic). */
 export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/demos">) {
   await requireAdmin();
   const query = await searchParams;
@@ -47,7 +46,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
   const [client, apps, may, mayEdit] = await Promise.all([demoClient(store, { fresh: true }), listDemoApps(store, { fresh: true }), adminCan("demos.manage"), adminCan("clients.edit")]);
   const rows = await Promise.all(
     DEMO_TYPES.map(async (type) => {
-      const app = apps.find((a) => a.appType === type) ?? null;
+      const app = apps.find((a) => demoIdOf(a) === type) ?? null;
       const builds = app ? await store.listBuildsByApp(app.id, 8) : [];
       return { type, app, builds, download: app ? (builds.find((b) => b.id === app.demoBuildId) ?? (app.demoBuildId ? await store.getBuild(app.demoBuildId) : null)) : null };
     }),
@@ -105,7 +104,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
                     <h2 className="m-0 text-[19px] font-bold">{DEMO_BRANDS[type].appName}</h2>
-                    <span className="text-sm text-muted">{ENGINES[type].name} demo</span>
+                    <span className="text-sm text-muted">{demoKind(type).name} demo</span>
                   </div>
                   <span className="text-sm font-semibold">{app ? (live ? "Download live" : "Coming soon on /demo") : "Not created yet"}</span>
                 </div>
