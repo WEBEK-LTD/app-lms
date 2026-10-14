@@ -31,6 +31,7 @@ import {
   STORE_TITLE,
 } from "@/lib/publishing/steps";
 import { kindOf, suggestedCategories } from "@/lib/app/kinds";
+import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
@@ -294,7 +295,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             playCategory: request.listing.playCategory ?? suggested.play,
             appStoreCategory: request.listing.appStoreCategory ?? suggested.appStore,
             contentRatingNotes: request.listing.contentRatingNotes ?? "",
-            reviewNotes: request.listing.reviewNotes ?? "",
+            reviewNotes: reviewNotesFor(app, request.listing.reviewNotes),
           }}
           playCategories={PLAY_CATEGORIES}
           appStoreCategories={APP_STORE_CATEGORIES}

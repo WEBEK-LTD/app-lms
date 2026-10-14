@@ -196,6 +196,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["events-list", "events-ticket"],
   },
+  donations: {
+    summary: "A local food bank with two campaigns, their progress and the donations people made.",
+    tryThis: [
+      "Open a campaign and read its story",
+      "Pick an amount and donate: the demo donation page charges nothing",
+      "Find your donation and its receipt under My donations",
+      "On an iPhone, see how the donation page opens in the browser",
+    ],
+    screens: ["charity-home", "charity-campaign"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -371,6 +381,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Concerts, films, workshops and talks: tickets in your pocket.",
     fullDescription: `Kuzey Culture Centre puts its programme on your phone: concerts, a film club, workshops and online talks.\n\nGet free tickets, buy paid ones and show the QR code at the door, even without a connection.\n\n${PRIVACY_NOTE}`,
     welcome: "Concerts, films, workshops and talks. Get your tickets here and show them at the door.",
+  },
+  donations: {
+    appName: "Bereket Food Bank",
+    shortName: "Bereket",
+    primaryColor: "#2F6B3A",
+    splashColor: "#EEF5EC",
+    secondaryColor: "#E39B2E",
+    template: "bold",
+    font: "Manrope",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-charity",
+    banner: { picture: "banner-charity", heading: "No family in our city goes hungry", subheading: "Food parcels, hot meals and school lunches, given by neighbours." },
+    androidPackage: "com.yallapp.demo.charity",
+    storeTitle: "Bereket Food Bank",
+    shortDescription: "Support the food bank's campaigns and see where your gift goes.",
+    fullDescription: `Bereket Food Bank collects and shares food with families in need in our city.\n\nFollow our campaigns, see how close each one is to its goal and give in a few taps. Every donation gets a receipt.\n\n${PRIVACY_NOTE}`,
+    welcome: "Every parcel is packed by volunteers and given out at our three centres.",
   },
 };
 
@@ -1218,5 +1247,58 @@ export const DEMO_EVENTS: DemoEvent[] = [
     description:
       "<p>A photographer shows how she takes pictures of the city after dark with a phone or a small camera, then looks at pictures people send in.</p>",
     ticketTypes: [{ name: "Online place", priceCents: 15000, capacity: null, maxPerOrder: 1 }],
+  },
+];
+
+// 29 Charity & donations
+
+export const DONATION_CURRENCY: CatalogCurrency = "TRY";
+
+export interface DemoCampaign {
+  /** Unique in the demo: campaigns are matched by title when the demo is refreshed. */
+  title: string;
+  summary: string;
+  pictures: PictureName[];
+  goalCents: number;
+  /** What the demo shows as already given (set by the demo; visitors' demo donations never change it). */
+  raisedCents: number;
+  donorCount: number;
+  presetCents: number[];
+  minCents: number;
+  /** Days from the demo's setup until it ends. */
+  endsInDays: number;
+  featured: boolean;
+  /** Simple HTML, as charities write it on the Campaigns page. */
+  story: string;
+}
+
+export const DEMO_CAMPAIGNS: DemoCampaign[] = [
+  {
+    title: "Winter food parcels",
+    summary: "A parcel of rice, lentils, oil, flour and tea feeds a family of four for two weeks. Help us pack 1,000 before the cold comes.",
+    pictures: ["campaign-parcels", "campaign-volunteers"],
+    goalCents: 250_000_00,
+    raisedCents: 168_450_00,
+    donorCount: 412,
+    presetCents: [150_00, 300_00, 600_00, 1200_00],
+    minCents: 50_00,
+    endsInDays: 40,
+    featured: true,
+    story:
+      "<p>Every winter, more families in our city come to our centres than in the rest of the year together. Heating bills go up, seasonal work stops, and the first thing families cut is food.</p><h3>What a parcel holds</h3><ul><li>5 kg of rice and 3 kg of lentils</li><li>2 litres of sunflower oil and 5 kg of flour</li><li>Tea, sugar, pasta and tomato paste</li></ul><p>A parcel costs us ₺600 and feeds a family of four for about two weeks. Our volunteers pack them every Saturday and give them out at our three centres.</p><blockquote>Last winter we gave out 820 parcels. This year we want to reach 1,000 families.</blockquote>",
+  },
+  {
+    title: "School lunches for 200 children",
+    summary: "A hot lunch every school day for children whose families can't pack one. ₺75 feeds a child for a day.",
+    pictures: ["campaign-lunch"],
+    goalCents: 120_000_00,
+    raisedCents: 37_800_00,
+    donorCount: 96,
+    presetCents: [75_00, 375_00, 1500_00],
+    minCents: 25_00,
+    endsInDays: 75,
+    featured: false,
+    story:
+      "<p>Teachers at two primary schools near our Karşıyaka centre told us the same thing: some children come to school without breakfast and have nothing for lunch.</p><p>With the schools' kitchens, we serve a hot lunch every school day to 200 children: soup, a main dish with bread and fruit. A day's lunch costs ₺75; a week costs ₺375.</p><p>Your donation keeps the kitchens cooking until the end of the school year.</p>",
   },
 ];

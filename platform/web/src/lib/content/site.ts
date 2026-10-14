@@ -151,6 +151,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     intro:
       "Articles, sections and breaking-news alerts in your own app, from your WordPress site, any site with an RSS feed, your own API, or articles you write in the dashboard.",
   },
+  charity: {
+    eyebrow: "Charity & donation apps",
+    title: "Your campaigns, one tap from a donation",
+    intro:
+      "Campaigns with their story and progress, donations paid into your own iyzico account and a receipt for every donor, in an app with your name on it.",
+  },
 };
 
 /** A page whose editable part is its header: the label, the title and the introduction. */

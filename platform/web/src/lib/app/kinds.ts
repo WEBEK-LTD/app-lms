@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab } from "../pages/typ
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -441,6 +441,66 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     categories: { play: "Events", appStore: "Entertainment" },
     demo: { slug: "events" },
   },
+  // 29 Charities: campaigns with progress; donations are paid on a web page into the charity's own iyzico account (in the browser on iPhone).
+  donations: {
+    id: "donations",
+    name: "Charity & donations",
+    icon: "volunteer_activism",
+    homePath: "/donations/campaigns",
+    configCheck: { label: "Config has the donation settings", fix: "Add `donations` to /config.", key: "donations", in: "root", type: "object" },
+    // Hosted only: campaigns are managed in the dashboard (a GiveWP adapter is a follow-up).
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-charity.org",
+    platformChoice: { title: "Another platform", text: "Your campaigns come from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "campaigns",
+      choice: {
+        title: "Campaigns managed in Yallapp",
+        text: "Add your campaigns here in the dashboard. Supporters follow them in the app and give on your secure donation page, paid into your own iyzico account.",
+      },
+      next: "After this step, add your iyzico keys and your first campaign on the **Campaigns** page; every gift shows on the **Donations** page. Supporters sign in to the app with",
+      switchLabel: "No website: campaigns in the dashboard",
+      adminLabel: "Charity: campaigns in the dashboard",
+      nav: {
+        label: "Your charity",
+        items: [
+          { href: "/dashboard/campaigns", label: "Campaigns", icon: "campaign" },
+          { href: "/dashboard/donations", label: "Donations", icon: "payments" },
+        ],
+      },
+    },
+    pages: {
+      source: "campaigns",
+      read: null,
+      blocks: [],
+      tabs: [tab("campaigns", "Campaigns", "volunteer_activism", "campaigns"), tab("donations", "My donations", "receipt_long", "my_donations")],
+      home: [
+        {
+          id: "featured-campaigns",
+          type: "items",
+          visibility: "everyone",
+          title: "Featured",
+          source: "campaigns",
+          layout: "carousel",
+          see_all: null,
+          query: newest(5, true),
+        },
+        {
+          id: "campaigns",
+          type: "items",
+          visibility: "everyone",
+          title: "Our campaigns",
+          source: "campaigns",
+          layout: "list",
+          see_all: { type: "screen", screen: "campaigns" },
+          query: newest(10),
+        },
+      ],
+    },
+    categories: { play: "Social", appStore: "Lifestyle" },
+    demo: { slug: "charity" },
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -609,6 +669,19 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-1 text-[#8A4B12]",
     marketing: { slug: "events", icon: "confirmation_number" },
   },
+  {
+    // 29 The donations engine's one kind: its default, with the charity vertical.
+    id: "charity",
+    engine: "donations",
+    vertical: "charity",
+    name: "Charity & donations",
+    // Monthly donations are a follow-up (roadmap 29): the picker promises what the app does today.
+    description: "Campaigns with progress, one-off donations and receipts for your supporters.",
+    requires: "No website needed: you add your campaigns here in the dashboard · Your own iyzico account",
+    icon: "volunteer_activism",
+    tile: "bg-tile-2 text-[#2F6B3A]",
+    marketing: { slug: "charity", icon: "volunteer_activism" },
+  },
 ];
 
 /** Every engine id, in order. */
@@ -679,9 +752,13 @@ export function engineOfDemoSlug(slug: string): AppType | null {
   return APP_TYPES.find((type) => ENGINES[type].demo.slug === slug) ?? null;
 }
 
-/** 21 The kind's demo slug: its own, the engine's for a default kind, else none. */
+/**
+ * 21 The kind's demo slug: its own, the engine's for a default kind, else
+ * none. 29 An engine whose only kind has a vertical (the charity) has that
+ * kind as its default.
+ */
 export function demoSlugOfKind(kind: KindInfo): string | null {
-  return kind.demo?.slug ?? (kind.vertical === null ? ENGINES[kind.engine].demo.slug : null);
+  return kind.demo?.slug ?? (defaultKind(kind.engine) === kind ? ENGINES[kind.engine].demo.slug : null);
 }
 
 /** 21 The dashboard's group for the app's content managed here: the kind's words, else the engine's. */

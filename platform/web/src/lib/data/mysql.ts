@@ -85,6 +85,8 @@ import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemp
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 28 Events & tickets
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
+// 29 Charity & donations
+import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -1779,6 +1781,174 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  // 29 Charity & donations
+
+  async listCampaigns(appId: string): Promise<Campaign[]> {
+    const t = schema.campaigns;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.createdAt), desc(t.id)));
+  }
+
+  async getCampaign(appId: string, id: number): Promise<Campaign | null> {
+    const t = schema.campaigns;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createCampaign(input: CampaignInput, now: Date): Promise<Campaign> {
+    const values = { ...input, raisedCents: 0, donorCount: 0, createdAt: now, updatedAt: now };
+    const [result] = await this.run((db) => db.insert(schema.campaigns).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async updateCampaign(appId: string, id: number, patch: Partial<CampaignInput>, now: Date): Promise<void> {
+    // Totals only change when a donation is paid (payDonation).
+    const { appId: _ignored, ...rest } = patch as Partial<Campaign>;
+    void _ignored;
+    delete rest.raisedCents;
+    delete rest.donorCount;
+    const t = schema.campaigns;
+    await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteCampaign(appId: string, id: number): Promise<void> {
+    const t = schema.campaigns;
+    // Donations keep their title; their campaign_id is set to null by the foreign key.
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async setCampaignTotals(appId: string, id: number, totals: Pick<Campaign, "raisedCents" | "donorCount">): Promise<void> {
+    const t = schema.campaigns;
+    await this.run((db) =>
+      db.update(t).set({ raisedCents: totals.raisedCents, donorCount: totals.donorCount }).where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async createDonation(input: DonationInput): Promise<Donation> {
+    const [result] = await this.run((db) => db.insert(schema.donations).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getDonation(appId: string, id: number): Promise<Donation | null> {
+    const t = schema.donations;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getDonationByToken(tokenHash: string): Promise<Donation | null> {
+    const t = schema.donations;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
+  }
+
+  async getDonationByReceipt(receiptCode: string): Promise<Donation | null> {
+    const t = schema.donations;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.receiptCode, receiptCode)).limit(1));
+    return row ?? null;
+  }
+
+  async updateDonation(appId: string, id: number, patch: DonationPatch): Promise<void> {
+    const t = schema.donations;
+    if (Object.keys(patch).length === 0) return;
+    await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async payDonation(appId: string, id: number, paymentId: string, now: Date, options: { count?: boolean } = {}): Promise<boolean> {
+    const d = schema.donations;
+    const c = schema.campaigns;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [result] = await tx
+          .update(d)
+          .set({ status: "paid", paymentId, paidAt: now, updatedAt: now })
+          .where(and(eq(d.appId, appId), eq(d.id, id), eq(d.status, "pending")));
+        if (result.affectedRows !== 1) return false;
+        const [donation] = await tx.select().from(d).where(eq(d.id, id)).limit(1);
+        if (!donation || donation.campaignId === null || options.count === false) return true;
+        // The donor counts once per campaign: unless an earlier paid donation has the same email.
+        const [earlier] =
+          donation.donorEmail === null
+            ? [{ n: 0 }]
+            : await tx
+                .select({ n: count() })
+                .from(d)
+                .where(
+                  and(
+                    eq(d.appId, appId),
+                    eq(d.campaignId, donation.campaignId),
+                    eq(d.status, "paid"),
+                    eq(d.donorEmail, donation.donorEmail),
+                    not(eq(d.id, id)),
+                  ),
+                );
+        await tx
+          .update(c)
+          .set({
+            raisedCents: sql`${c.raisedCents} + ${donation.amountCents}`,
+            ...((earlier?.n ?? 0) === 0 ? { donorCount: sql`${c.donorCount} + 1` } : {}),
+          })
+          .where(and(eq(c.appId, appId), eq(c.id, donation.campaignId)));
+        return true;
+      }),
+    );
+  }
+
+  async listDonations(input: {
+    appId: string;
+    campaignId?: number;
+    userId?: number;
+    statuses?: DonationStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: Donation[]; total: number }> {
+    const t = schema.donations;
+    const where = and(
+      eq(t.appId, input.appId),
+      input.campaignId !== undefined ? eq(t.campaignId, input.campaignId) : undefined,
+      input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+      input.statuses ? inArray(t.status, input.statuses) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(desc(sql`coalesce(${t.paidAt}, ${t.createdAt})`), desc(t.id))
+          .limit(input.limit)
+          .offset(input.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: totals[0]?.n ?? 0 };
+  }
+
+  async listCampaignDonorUserIds(appId: string, campaignId: number): Promise<number[]> {
+    const t = schema.donations;
+    const rows = await this.run((db) =>
+      db
+        .selectDistinct({ userId: t.userId })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.campaignId, campaignId), eq(t.status, "paid"), isNotNull(t.userId)))
+        .orderBy(asc(t.userId)),
+    );
+    return rows.map((r) => r.userId).filter((id): id is number => id !== null);
+  }
+
+  async getDonationSettings(appId: string): Promise<DonationSettings | null> {
+    const t = schema.donationSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveDonationSettings(appId: string, settings: DonationSettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.donationSettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
+  }
+
   // 10.7 Listings
 
   async listListings(appId: string): Promise<Listing[]> {
@@ -2309,7 +2479,9 @@ export class MysqlStore implements DataStore {
       );
     }
     const [memberships] = await this.run((db) => db.delete(s.memberships).where(and(eq(s.memberships.appId, appId), lt(s.memberships.createdAt, before))));
+    const [donations] = await this.run((db) => db.delete(s.donations).where(and(eq(s.donations.appId, appId), lt(s.donations.createdAt, before))));
     return {
+      donations: donations.affectedRows,
       orders: orders.affectedRows,
       appointments: appointments.affectedRows,
       inquiries: inquiries.affectedRows,

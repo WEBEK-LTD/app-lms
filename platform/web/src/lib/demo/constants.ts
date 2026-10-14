@@ -56,8 +56,14 @@ export function demoKind(id: DemoId): KindInfo {
   return isAppType(id) ? defaultKind(id) : KINDS.find((k) => k.vertical === id)!;
 }
 
-/** One demo per engine, and per kind with its own demo, in the registry's order. */
-export const DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) => (k.vertical ?? k.engine) as DemoId);
+/**
+ * One demo per engine, and per kind with its own demo, in the registry's
+ * order. 29 An engine's default kind is the engine's demo, even with a
+ * vertical (the charity is the donations engine's).
+ */
+export const DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) =>
+  defaultKind(k.engine) === k ? k.engine : (k.vertical as DemoId),
+);
 
 /** Each demo's address on /demo and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
 export const DEMO_SLUGS = Object.fromEntries(DEMO_TYPES.map((id) => [id, demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;

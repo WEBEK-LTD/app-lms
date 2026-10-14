@@ -27,14 +27,15 @@ const PRODUCT_IMAGES_MAX = 6;
 
 /**
  * An active client whose app sells from the dashboard (products, or with
- * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders), or a redirect.
+  * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders; 29 with `campaigns`
+  * also a charity's own iyzico keys), or a redirect.
  */
-async function requireCatalogApp(options: { courses?: boolean } = {}): Promise<ClientContext & { app: App }> {
+async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean } = {}): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const kind = context.app?.connector?.kind;
-  if (!context.app || !(kind === "catalog" || (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")))) redirect("/dashboard");
+  if (!context.app || !(kind === "catalog" || (options.courses && (kind === "courses" || kind === "bookings" || kind === "events")) || (options.campaigns && kind === "campaigns"))) redirect("/dashboard");
   return context as ClientContext & { app: App };
 }
 
@@ -45,6 +46,7 @@ function refresh() {
   revalidatePath("/dashboard/courses", "layout");
   revalidatePath("/dashboard/memberships");
   revalidatePath("/dashboard/events", "layout");
+  revalidatePath("/dashboard/campaigns", "layout");
   revalidatePath("/dashboard/orders");
 }
 
@@ -220,7 +222,7 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
 }
 
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true, campaigns: true });
   const { app } = context;
   const apiKey = str(formData, "apiKey");
   const secretKey = str(formData, "secretKey");
@@ -300,7 +302,7 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
-  const context = await requireCatalogApp({ courses: true });
+  const context = await requireCatalogApp({ courses: true, campaigns: true });
   const { app } = context;
   await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: null } }, new Date());
   await recordStaffChange(context, "Turned off the shop's card payments");

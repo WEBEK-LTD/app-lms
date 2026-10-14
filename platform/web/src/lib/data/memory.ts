@@ -75,6 +75,8 @@ import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemp
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 28 Events & tickets
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
+// 29 Charity & donations
+import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
@@ -549,6 +551,10 @@ export class MemoryStore implements DataStore {
     // 28 Tickets stay with the organiser, with their holder's name.
     for (const ticket of this.tickets.values()) {
       if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
+    }
+    // 29 So do donations, with the charity.
+    for (const donation of this.donations.values()) {
+      if (donation.appId === appId && donation.userId === id) donation.userId = null;
     }
     this.forgetListingUser(appId, id);
   }
@@ -1325,6 +1331,134 @@ export class MemoryStore implements DataStore {
     this.eventSettings.set(appId, clone(settings));
   }
 
+  // 29 Charity & donations
+
+  private campaigns = new Map<number, Campaign>();
+  private nextCampaignId = 1;
+  private donations = new Map<number, Donation>();
+  private nextDonationId = 1;
+  private donationSettings = new Map<string, DonationSettings>();
+
+  async listCampaigns(appId: string): Promise<Campaign[]> {
+    return [...this.campaigns.values()]
+      .filter((c) => c.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getCampaign(appId: string, id: number): Promise<Campaign | null> {
+    const campaign = this.campaigns.get(id);
+    return campaign && campaign.appId === appId ? clone(campaign) : null;
+  }
+
+  async createCampaign(input: CampaignInput, now: Date): Promise<Campaign> {
+    const campaign: Campaign = { ...clone(input), id: this.nextCampaignId++, raisedCents: 0, donorCount: 0, createdAt: now, updatedAt: now };
+    this.campaigns.set(campaign.id, clone(campaign));
+    return campaign;
+  }
+
+  async updateCampaign(appId: string, id: number, patch: Partial<CampaignInput>, now: Date): Promise<void> {
+    const campaign = this.campaigns.get(id);
+    if (!campaign || campaign.appId !== appId) return;
+    const { raisedCents, donorCount } = campaign;
+    this.campaigns.set(id, clone({ ...campaign, ...patch, appId, id, raisedCents, donorCount, updatedAt: now }));
+  }
+
+  async deleteCampaign(appId: string, id: number): Promise<void> {
+    if (this.campaigns.get(id)?.appId !== appId) return;
+    this.campaigns.delete(id);
+    for (const donation of this.donations.values()) if (donation.campaignId === id) donation.campaignId = null;
+  }
+
+  async setCampaignTotals(appId: string, id: number, totals: Pick<Campaign, "raisedCents" | "donorCount">): Promise<void> {
+    const campaign = this.campaigns.get(id);
+    if (campaign && campaign.appId === appId) this.campaigns.set(id, { ...campaign, raisedCents: totals.raisedCents, donorCount: totals.donorCount });
+  }
+
+  async createDonation(input: DonationInput): Promise<Donation> {
+    if ([...this.donations.values()].some((d) => d.tokenHash === input.tokenHash || d.receiptCode === input.receiptCode)) {
+      throw new Error("Duplicate donation token.");
+    }
+    const donation: Donation = { ...clone(input), id: this.nextDonationId++ };
+    this.donations.set(donation.id, clone(donation));
+    return donation;
+  }
+
+  async getDonation(appId: string, id: number): Promise<Donation | null> {
+    const donation = this.donations.get(id);
+    return donation && donation.appId === appId ? clone(donation) : null;
+  }
+
+  async getDonationByToken(tokenHash: string): Promise<Donation | null> {
+    const donation = [...this.donations.values()].find((d) => d.tokenHash === tokenHash);
+    return donation ? clone(donation) : null;
+  }
+
+  async getDonationByReceipt(receiptCode: string): Promise<Donation | null> {
+    const donation = [...this.donations.values()].find((d) => d.receiptCode === receiptCode);
+    return donation ? clone(donation) : null;
+  }
+
+  async updateDonation(appId: string, id: number, patch: DonationPatch): Promise<void> {
+    const donation = this.donations.get(id);
+    if (donation && donation.appId === appId) this.donations.set(id, clone({ ...donation, ...patch, appId, id }));
+  }
+
+  async payDonation(appId: string, id: number, paymentId: string, now: Date, options: { count?: boolean } = {}): Promise<boolean> {
+    const donation = this.donations.get(id);
+    if (!donation || donation.appId !== appId || donation.status !== "pending") return false;
+    const firstFromDonor =
+      donation.donorEmail === null ||
+      ![...this.donations.values()].some(
+        (d) => d.id !== id && d.appId === appId && d.campaignId === donation.campaignId && d.status === "paid" && d.donorEmail === donation.donorEmail,
+      );
+    this.donations.set(id, { ...donation, status: "paid", paymentId, paidAt: now, updatedAt: now });
+    const campaign = donation.campaignId !== null ? this.campaigns.get(donation.campaignId) : undefined;
+    if (campaign && options.count !== false) {
+      campaign.raisedCents += donation.amountCents;
+      if (firstFromDonor) campaign.donorCount += 1;
+    }
+    return true;
+  }
+
+  async listDonations(input: {
+    appId: string;
+    campaignId?: number;
+    userId?: number;
+    statuses?: DonationStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: Donation[]; total: number }> {
+    const all = [...this.donations.values()]
+      .filter(
+        (d) =>
+          d.appId === input.appId &&
+          (input.campaignId === undefined || d.campaignId === input.campaignId) &&
+          (input.userId === undefined || d.userId === input.userId) &&
+          (!input.statuses || input.statuses.includes(d.status)),
+      )
+      .sort((a, b) => (b.paidAt ?? b.createdAt).getTime() - (a.paidAt ?? a.createdAt).getTime() || b.id - a.id);
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async listCampaignDonorUserIds(appId: string, campaignId: number): Promise<number[]> {
+    const ids = new Set<number>();
+    for (const d of this.donations.values()) {
+      if (d.appId === appId && d.campaignId === campaignId && d.status === "paid" && d.userId !== null) ids.add(d.userId);
+    }
+    return [...ids].sort((a, b) => a - b);
+  }
+
+  async getDonationSettings(appId: string): Promise<DonationSettings | null> {
+    const settings = this.donationSettings.get(appId);
+    return settings ? clone(settings) : null;
+  }
+
+  async saveDonationSettings(appId: string, settings: DonationSettings, now: Date): Promise<void> {
+    void now;
+    this.donationSettings.set(appId, clone(settings));
+  }
+
   // 10.7 Listings
 
   private listings = new Map<number, Listing>();
@@ -1801,6 +1935,7 @@ export class MemoryStore implements DataStore {
       classBookings: 0,
       memberships: 0,
       tickets: 0,
+      donations: 0,
     };
     // 28 Tickets first: a ticket of a deleted order goes with it.
     for (const [id, ticket] of this.tickets) {
@@ -1821,6 +1956,12 @@ export class MemoryStore implements DataStore {
       if (membership.appId === appId && old(membership.createdAt)) {
         this.memberships.delete(id);
         counts.memberships++;
+      }
+    }
+    for (const [id, donation] of this.donations) {
+      if (donation.appId === appId && old(donation.createdAt)) {
+        this.donations.delete(id);
+        counts.donations++;
       }
     }
     for (const [id, order] of this.catalogOrders) {

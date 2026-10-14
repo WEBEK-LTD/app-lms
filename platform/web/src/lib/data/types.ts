@@ -91,10 +91,11 @@ export interface StoreListing {
  * The app's engine: the Flutter module its build includes. "lms" is an
  * Academy app, "store" a Store app, "booking" a Bookings app, "real_estate" a
  * Real estate app (hosted API only), "news" a News & blog app (23), "events"
- * an Events & tickets app (28, hosted API only). What each engine is and
- * offers is in lib/app/kinds.ts.
+ * an Events & tickets app (28, hosted API only), "donations" a Charity &
+ * donations app (29, hosted API only). What each engine is and offers is in
+ * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
@@ -126,6 +127,8 @@ export type ConnectorConfig =
   | { kind: "articles" }
   /** 28 Events & tickets: events, ticket types, tickets and settings in the event_* tables. */
   | { kind: "events" }
+  /** 29 Charity & donations: campaigns and donations (campaigns, donations, donation_settings), paid into the charity's own iyzico account (`catalogSettings.payment`). */
+  | { kind: "campaigns" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -400,6 +403,8 @@ export interface PushPreferences {
   daily_reminder?: boolean;
   /** 23 New articles (News & blog apps). */
   news?: boolean;
+  /** 29 Updates about campaigns the user gave to (Charity & donations apps); off unless the app says true. */
+  donations?: boolean;
 }
 
 /** A signed-in device of a hosted-API customer. */
@@ -461,6 +466,8 @@ export interface HostedNotification {
   articleId?: string | null;
   /** 28 An event that changed or was cancelled, told to its ticket holders. Missing or null otherwise. */
   eventId?: number | null;
+  /** 29 A campaign update: the campaign the notification opens. Missing or null otherwise. */
+  campaignId?: number | null;
   createdAt: Date;
 }
 
@@ -1561,6 +1568,8 @@ export interface DemoPurgeCounts {
   memberships: number;
   /** 28 Tickets of demo Events & tickets apps. */
   tickets: number;
+  /** 29 Demo donations (nothing was charged; campaign totals never counted them). */
+  donations: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard
@@ -1718,4 +1727,88 @@ export interface EventSettings {
   showMap: boolean;
   /** Free tickets can be cancelled until this many hours before the start; null: never. */
   allowCancelHours: number | null;
+}
+
+// 29 Charity & donations apps: campaigns and donations managed in the dashboard
+
+/** Drafts aren't in the app; open campaigns take donations until they're closed or their end date passes. */
+export type CampaignStatus = "draft" | "open" | "closed";
+
+export interface Campaign {
+  id: number;
+  appId: string;
+  title: string;
+  /** A sentence or two in plain text; made from the story when empty. */
+  summary: string | null;
+  /** As the charity wrote it: simple HTML, cleaned whenever it's served (lib/news/html.ts). */
+  story: string;
+  /** Pictures; the first is the cover. */
+  imageAssetIds: string[];
+  /** Null: no goal (the app shows what was raised, without a bar). */
+  goalCents: number | null;
+  /** Amounts to choose from in the app, smallest first. */
+  presetCents: number[];
+  allowCustomAmount: boolean;
+  /** The smallest donation. */
+  minCents: number;
+  /** After this moment the campaign takes no donations. */
+  endsAt: Date | null;
+  status: CampaignStatus;
+  featured: boolean;
+  /** Confirmed donations only: added when a payment is confirmed. */
+  raisedCents: number;
+  /** People who gave, counted once per email address. */
+  donorCount: number;
+  /** When it was first opened: the app's "newest" order. */
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type CampaignInput = Omit<Campaign, "id" | "createdAt" | "updatedAt" | "raisedCents" | "donorCount">;
+
+export type DonationStatus = "pending" | "paid" | "failed" | "refunded";
+
+/** One-off only for now: monthly donations need a subscription the payment integration doesn't have yet (roadmap 29). */
+export type DonationRecurring = "none" | "monthly";
+
+export interface Donation {
+  id: number;
+  appId: string;
+  /** Null once the campaign is deleted; the title stays. */
+  campaignId: number | null;
+  campaignTitle: string;
+  /** Hash of the token in the donation page link. */
+  tokenHash: string;
+  /** The receipt page's address (/receipts/<code>): random, not guessable. */
+  receiptCode: string;
+  /** The app user who started it, when signed in. */
+  userId: number | null;
+  amountCents: number;
+  currency: CatalogCurrency;
+  recurring: DonationRecurring;
+  /** Left off the campaign's recent donations; the charity still sees the name. */
+  anonymous: boolean;
+  message: string | null;
+  /** Asked on the donation page, for the receipt. */
+  donorName: string | null;
+  /** Lowercase. */
+  donorEmail: string | null;
+  donorPhone: string | null;
+  status: DonationStatus;
+  paymentId: string | null;
+  createdAt: Date;
+  paidAt: Date | null;
+  updatedAt: Date;
+}
+
+export type DonationInput = Omit<Donation, "id">;
+
+export type DonationPatch = Partial<Pick<Donation, "donorName" | "donorEmail" | "donorPhone" | "status" | "updatedAt">>;
+
+/** How the app takes donations (`Config.donations`). */
+export interface DonationSettings {
+  currency: CatalogCurrency;
+  /** "browser": the iPhone app's button opens the donation page in the browser; "off": no donate button on iPhone. */
+  iosMode: "browser" | "off";
 }

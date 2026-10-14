@@ -112,6 +112,37 @@ function coach(skin: string, top: string, hair: string, band: string): Shape[] {
   return [...avatar(skin, top, hair), r(35, 30, 30, 4, 2, band), r(36, 68, 28, 3, 1.5, WHITE, 0.6)];
 }
 
+/** 29 A heart, its top centre at (x, y), `s` times 10 units across. */
+function heart(x: number, y: number, s: number, color: string): Shape[] {
+  return [
+    c(x - 6 * s, y + 6 * s, 7 * s, color),
+    c(x + 6 * s, y + 6 * s, 7 * s, color),
+    p([[x - 12.8 * s, y + 9 * s], [x + 12.8 * s, y + 9 * s], [x, y + 24 * s]], color),
+  ];
+}
+
+/** 29 An open cardboard parcel, moved by (dx, dy) and scaled about its centre. */
+function parcel(dx: number, dy: number, s = 1): Shape[] {
+  const at = (x: number, y: number): [number, number] => [50 + (x - 50) * s + dx, 66 + (y - 66) * s + dy];
+  const box = (x: number, y: number, w: number, h: number, color: string): Shape => {
+    const [x0, y0] = at(x, y);
+    return r(x0, y0, w * s, h * s, 2 * s, color);
+  };
+  return [
+    p([at(22, 52), at(36, 44), at(50, 52)], "#B98250"),
+    p([at(50, 52), at(64, 44), at(78, 52)], "#B98250"),
+    box(22, 52, 56, 34, "#C9955B"),
+    box(22, 52, 56, 4, "#A8743F"),
+    box(44, 60, 12, 10, "#F4EFE6"),
+  ];
+}
+
+/** 29 A shape moved by (dx, dy). */
+function shift(shape: Shape, dx: number, dy: number): Shape {
+  if (shape.kind === "poly") return { ...shape, points: shape.points.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
+  return { ...shape, x: shape.x + dx, y: shape.y + dy };
+}
+
 function tooth(x: number, y: number, s: number, color: string): Shape[] {
   return [
     r(x - 12 * s, y - 10 * s, 24 * s, 18 * s, 8 * s, color),
@@ -772,6 +803,46 @@ export const PICTURES = {
       r(30, 52, 16, 3, 1.5, "#5D6B66"),
     ],
   },
+
+  // 29 Charity & donations (Bereket Food Bank)
+  "campaign-parcels": {
+    from: "#F4EEE6",
+    to: "#E7D7BF",
+    shapes: [ground("#C9A27E"), r(30, 28, 12, 26, 3, "#F4EFE6"), r(30, 34, 12, 6, 0, "#E39B2E"), r(44, 22, 7, 32, 2.5, "#F2B544"), r(53, 30, 14, 24, 3, "#3E7A4A"), ...parcel(0, 0)],
+  },
+  "campaign-volunteers": {
+    from: "#DCEBDD",
+    to: "#B9D6BE",
+    shapes: [
+      ground("#8FB89A"),
+      ...[
+        [-22, "#E8C4A0", "#2F6B3A", "#3A2A1E"],
+        [22, "#C68E63", "#E39B2E", "#1F1A17"],
+      ].flatMap(([dx, skin, shirt, hair]) => avatar(skin as string, shirt as string, hair as string).map((s) => shift(s, dx as number, 4))),
+      ...parcel(0, 16, 0.6),
+    ],
+  },
+  "campaign-lunch": {
+    from: "#FBE9D6",
+    to: "#F2D2AE",
+    shapes: [
+      r(-80, 74, 260, 30, 0, "#C9955B"),
+      ...stroke([[40, 30], [43, 24], [40, 18]], 1.6, WHITE),
+      ...stroke([[52, 30], [55, 24], [52, 18]], 1.6, WHITE),
+      p([[26, 50], [74, 50], [66, 70], [34, 70]], WHITE),
+      r(26, 45, 48, 7, 3.5, "#E0552F"),
+      r(40, 70, 20, 4, 2, WHITE),
+      r(78, 58, 16, 10, 5, "#D9A25B"),
+      c(16, 62, 7, "#C24A6B"),
+      r(15.4, 52, 1.4, 4, 0.7, "#5A361E"),
+    ],
+  },
+  "banner-charity": {
+    from: "#2F6B3A",
+    to: "#18391F",
+    shapes: [...parcel(46, 10, 0.9), ...heart(92, 20, 0.9, "#E39B2E")],
+  },
+  "icon-charity": { from: "#3A8A4A", to: "#1F4F28", shapes: heart(50, 34, 1.7, WHITE) },
 } satisfies Record<string, Art>;
 
 export type PictureName = keyof typeof PICTURES;

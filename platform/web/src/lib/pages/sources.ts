@@ -15,16 +15,22 @@ export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSourc
   return sources;
 }
 
-/** Sources with categories the app can show. */
+/** Sources with categories the app can show (29 campaigns have none). */
 export function categorySourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings");
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns");
+}
+
+/** 29 Sources the app can search: campaigns are a short list, without a search. */
+export function searchSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
+  return itemSourcesFor(app).filter((s) => s !== "campaigns");
 }
 
 /** Block types the app's pages can use. */
 export function blockTypesFor(app: Pick<App, "appType" | "backend">): BlockType[] {
   const sources = itemSourcesFor(app);
   const types: BlockType[] = ["banner", "text", "image", "video", "button"];
-  if (sources.length) types.push("items", "search");
+  if (sources.length) types.push("items");
+  if (searchSourcesFor(app).length) types.push("search");
   if (categorySourcesFor(app).length) types.push("categories");
   if (isAppType(app.appType)) types.push(...ENGINES[app.appType].pages.blocks);
   types.push("embed", "spacer");
@@ -39,4 +45,5 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   listings: "Listings",
   articles: "Articles",
   events: "Events",
+  campaigns: "Campaigns",
 };

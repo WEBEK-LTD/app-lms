@@ -114,6 +114,7 @@ export const ICON_NAMES = [
   "view_carousel",
   "visibility",
   "visibility_off",
+  "volunteer_activism",
   "warning",
   "web",
   "workspace_premium",

@@ -7,6 +7,7 @@ import { appTypeName } from "@/lib/app/kinds";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { smtpConfigured } from "@/lib/mail";
+import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   checklistProgress,
@@ -160,7 +161,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                   <dt className="text-muted">Content rating</dt>
                   <dd className="m-0 whitespace-pre-line">{request.listing.contentRatingNotes ?? "Not given"}</dd>
                   <dt className="text-muted">For reviewers</dt>
-                  <dd className="m-0 whitespace-pre-line">{request.listing.reviewNotes ?? "Nothing"}</dd>
+                  <dd className="m-0 whitespace-pre-line">{(app && reviewNotesFor(app, request.listing.reviewNotes)) || "Nothing"}</dd>
                 </dl>
               </div>
             </div>

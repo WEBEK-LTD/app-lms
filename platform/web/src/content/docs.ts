@@ -147,7 +147,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate, News & blog or Events & tickets: what each app type does and where its content can come from.",
+    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Gym & fitness, Real estate, News & blog, Events & tickets or Charity & donations: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -187,6 +187,10 @@ Articles, sections and breaking-news alerts for news sites, blogs and magazines.
 
 Event listings with a calendar, free sign-ups and paid tickets with QR codes checked at the door. People keep their tickets in the app, also offline, and hear when an event changes. Events are managed in the Yallapp dashboard, so you don't need a website. See [the Events & tickets solution](/solutions/events) and [Events and tickets](/docs/events).
 
+## Charity & donations
+
+Campaigns with their story, a goal and a progress bar, for charities, food banks, foundations and community groups. Supporters choose an amount and donate on your secure donation page, into your own iyzico account, and get a receipt by email. Campaigns are managed in the Yallapp dashboard, so you don't need a website. On iPhone, the donation page opens in the browser, as Apple requires. See [Charity and donation apps](/docs/donations) and [the Charity & donations solution](/solutions/charity).
+
 ## Changing the app type later
 
 Open **App setup** and choose another type. Your next build includes the new type's screens. Content made for the old type, such as a shop or a bookings setup, doesn't carry over: go through the **Website** step again to choose the new type's content.
@@ -214,7 +218,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
 - **My own API** (Academy, Store, Bookings and News & blog apps): for developers. See [Connect your own API](/docs/my-own-api).
 - **I don't have WordPress**: our team sets up a WordPress site for you and moves your content over.
 
-Real estate apps have one choice, **Listings managed in Yallapp**.
+Real estate apps have one choice, **Listings managed in Yallapp**, and Charity & donations apps one too, **Campaigns managed in Yallapp**.
 
 ## How people sign in to your app
 
@@ -624,7 +628,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
     slug: "no-website",
     section: "Your content",
     title: "No website: manage everything in Yallapp",
-    description: "Run a store, restaurant, academy, bookings, real estate, news or events app without a website, with your content in the Yallapp dashboard.",
+    description: "Run a store, restaurant, academy, bookings, real estate, news, events or charity app without a website, with your content in the Yallapp dashboard.",
     steps: false,
     body: `You don't need a website to have an app. Choose **I don't have a website** on the Website step (for Real estate apps, **Listings managed in Yallapp**; for Events & tickets apps, **Events managed in Yallapp**), and new pages appear in your dashboard's menu for your content.
 
@@ -639,6 +643,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 - **Real estate**: properties on the **Listings** page and messages on the **Inquiries** page. See [Listings and inquiries](/docs/real-estate).
 - **News & blog**: articles and sections on the **Articles** page, with breaking news sent to your readers' phones. See [News and blog apps](/docs/news).
 - **Events & tickets**: events, ticket types, sales and attendees on the **Events** page, and tickets checked at the door on the **Check-in** page. See [Events and tickets](/docs/events).
+- **Charity & donations**: campaigns on the **Campaigns** page, and donations and donors on the **Donations** page. See [Charity and donation apps](/docs/donations).
 
 ## Sign-in, notifications and settings
 
@@ -1285,6 +1290,10 @@ Choose **No iyzico account? Sell through Yallapp** and give the details iyzico n
 ## Paid courses
 
 Academy apps without a website sell paid courses the same way, on Android only: the student pays on the payment page and is enrolled when the payment is confirmed. The iPhone app shows no purchase buttons for paid courses, as Apple's rules require.
+
+## Donations
+
+Charity & donations apps take donations with their own iyzico account only: selling through Yallapp isn't offered for donations, and Yallapp takes no commission on them. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
 `,
   }),
   doc({
@@ -1553,6 +1562,60 @@ Open **Check-in** on a phone at the door. Tap **Scan with the camera** and point
 ## Your pages
 
 The home page starts with a search box and the events coming up. Change it on **Pages & look**: list blocks can show your next events or events you pick.
+`,
+  }),
+
+  doc({
+    slug: "donations",
+    section: "Selling and bookings",
+    title: "Charity and donation apps",
+    description: "Run a Charity & donations app: campaigns with a goal, donations into your own iyzico account, receipts, donors, and why iPhone donations open in the browser.",
+    steps: false,
+    body: `Charity & donations apps show your campaigns: what you're raising money for, its story and pictures, and how close it is to its goal. Supporters pick an amount, can give anonymously and leave a message, and donate on your secure donation page. Every donor gets a receipt, and finds their donations under **My donations** in the app.
+
+## Before your first donation
+
+1. Choose **Charity & donations** on **App type**, then **Campaigns managed in Yallapp** on the Website step.
+2. On the **Campaigns** page, under **Card payments**, paste your iyzico **API key** and **Secret key**. Donations go straight into your own iyzico merchant account; Yallapp takes no commission on them. Until your keys are saved, campaigns show in the app but nobody can donate.
+3. Under **Donations in the app**, choose your currency. It can't change after the first donation.
+
+## Campaigns
+
+Select **Add a campaign** and write:
+
+- a **title**, the **story** (paragraphs, headings, lists, links, pictures and YouTube or Vimeo videos) and an optional **summary** for its card
+- a **goal** (or none: the app then shows what was raised, without a bar)
+- the **suggested amounts** the app shows as buttons, the **smallest donation**, and whether people can type their own amount
+- an optional **end date**, after which the campaign takes no donations
+- up to 5 **pictures**; the first is the cover
+
+Save a **draft**, **publish** it when it's ready, **close** it when it's done (it stays in the app as ended) and **feature** the ones that matter most: featured campaigns come first. A campaign with donations can't be deleted, so its donors keep their receipts.
+
+The amount raised and the number of donors count **confirmed payments only**: a donation is added when iyzico confirms it, never when someone just opens the donation page.
+
+## Why iPhone donations open in the browser
+
+Apple's App Store rules (guideline 3.2.2) let an iPhone app collect donations itself only when the charity is approved by Apple as a nonprofit and takes the money with Apple Pay. For every other charity, donations must happen outside the app.
+
+So on iPhone the donate button reads **Donate on our website** and opens your donation page in Safari. The donor pays there and comes back to the app; the donation still shows under **My donations**. If you'd rather not show a donate button on iPhone at all, choose **No donations in the iPhone app** under **Donations in the app**.
+
+On Android the donation page opens inside the app. Google Play's billing rules don't cover donations to charities, so this is allowed today; Google's policy can change, and we follow it.
+
+## Receipts
+
+When a donation is confirmed, the donor gets an email in your app's name with the amount, the date, the campaign and a reference like D-1042, and a link to the receipt page. The receipt says what was given and to whom. It makes no claim about tax: if gifts to you can be deducted from tax, tell your donors in your campaign story or your own letters.
+
+## Donations and donors
+
+The **Donations** page lists every paid donation, newest first, by campaign. **Export CSV** downloads them as a spreadsheet, with the donor's name, email, phone and message. Donors who chose to give anonymously are listed too: only the app hides their name. The **Donors** page groups donations by email address, the most generous first. Refunds are made in your iyzico panel.
+
+## Updates to donors
+
+On a campaign's page, **Send an update to donors** sends a short message to everyone who gave to it while signed in to the app. It lands in their notifications inbox and opens the campaign; it's pushed to their phone only if they turned on **Campaign updates** in the app's settings. Push needs your Firebase project (see [Push notifications with Firebase](/docs/push-notifications)).
+
+## Monthly donations
+
+The app takes one-off donations. Monthly donations need a card saved for a subscription, which isn't available yet; we'll add them to the app when it is.
 `,
   }),
 
