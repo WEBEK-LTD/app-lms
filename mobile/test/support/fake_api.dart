@@ -683,4 +683,44 @@ class FakeApi implements YallappApi {
       return Inquiry.fromJson(inquiry);
     });
   }
+
+  // News & blog (23).
+
+  Map<String, dynamic> newsHome = newsHomeJson();
+  List<Map<String, dynamic>> newsCategories = [
+    newsCategoryJson(),
+    newsCategoryJson(id: '8', name: 'Sport', count: 1),
+  ];
+  List<Map<String, dynamic>> articles = [
+    articleSummaryJson(featured: true),
+    articleSummaryJson(id: '1043', title: 'A late goal wins the derby'),
+  ];
+  Map<String, dynamic> article = articleJson();
+  final articleQueries = <ArticleQuery>[];
+  String? lastArticleId;
+
+  @override
+  Future<NewsHome> getNewsHome() =>
+      _answer('getNewsHome', () => NewsHome.fromJson(newsHome));
+
+  @override
+  Future<List<NewsCategory>> listNewsCategories() => _answer(
+    'listNewsCategories',
+    () => [for (final c in newsCategories) NewsCategory.fromJson(c)],
+  );
+
+  @override
+  Future<Paged<ArticleSummary>> listArticles(ArticleQuery query) {
+    articleQueries.add(query);
+    return _answer(
+      'listArticles',
+      () => Paged.fromJson(pageJson(articles), ArticleSummary.fromJson),
+    );
+  }
+
+  @override
+  Future<Article> getArticle(String articleId) {
+    lastArticleId = articleId;
+    return _answer('getArticle', () => Article.fromJson(article));
+  }
 }

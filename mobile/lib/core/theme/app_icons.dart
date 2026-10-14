@@ -90,6 +90,10 @@ abstract final class AppIcons {
   static const level = Symbols.signal_cellular_alt_rounded;
   static const preview = Symbols.visibility_rounded;
   static const info = Symbols.info_rounded;
+  // News & blog apps (23).
+  static const newspaper = Symbols.newspaper_rounded;
+  static const bookmark = Symbols.bookmark_rounded;
+  static const share = Symbols.share_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

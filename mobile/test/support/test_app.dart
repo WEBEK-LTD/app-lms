@@ -67,7 +67,11 @@ class TestApp {
     this.preferences = const {},
     this.wrap,
     this.preview,
+    this.overrides = const [],
   }) : api = api ?? FakeApi();
+
+  /// More provider overrides (for example sharing in News & blog apps).
+  final List<Override> overrides;
 
   /// 17 Runs as the app preview on the web would.
   final PreviewSession? preview;
@@ -124,6 +128,7 @@ class TestApp {
       webViewBuilderProvider.overrideWithValue(webViews.build),
       screenSecurityProvider.overrideWithValue(security),
       framingCheckProvider.overrideWithValue((_) async => framingAllowed),
+      ...this.overrides,
     ];
     container = ProviderContainer(overrides: overrides, retry: (_, _) => null);
     addTearDown(container.dispose);

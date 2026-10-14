@@ -2317,4 +2317,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get staffViewProfile => 'View profile';
+
+  @override
+  String get tabLatest => 'Latest';
+
+  @override
+  String get tabSaved => 'Saved';
+
+  @override
+  String get newsTopStories => 'Top stories';
+
+  @override
+  String get newsLatest => 'Latest';
+
+  @override
+  String get newsAll => 'All';
+
+  @override
+  String get newsSearchHint => 'Search articles';
+
+  @override
+  String get loadingArticles => 'Loading articles';
+
+  @override
+  String get noArticlesTitle => 'No articles yet';
+
+  @override
+  String get noArticlesMessage => 'New articles will show here.';
+
+  @override
+  String get noArticlesFoundTitle => 'No articles found';
+
+  @override
+  String get noArticlesFoundMessage => 'Try other words or another section.';
+
+  @override
+  String get noSavedTitle => 'No saved articles';
+
+  @override
+  String get noSavedMessage =>
+      'Tap the bookmark on an article to keep it here and read it later, even without a connection.';
+
+  @override
+  String get articleSave => 'Save article';
+
+  @override
+  String get articleUnsave => 'Remove from saved';
+
+  @override
+  String get articleSavedMessage => 'Saved. Find it under Saved.';
+
+  @override
+  String get articleShare => 'Share';
+
+  @override
+  String articleBy(String author) {
+    return 'By $author';
+  }
+
+  @override
+  String get articleOpenOnSite => 'Read on the website';
+
+  @override
+  String get notifyBreakingNews => 'Breaking news';
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
+import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/language.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
@@ -108,6 +109,9 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     final lms = env.build.appType == AppType.lms;
+    final news =
+        env.build.appType == AppType.news &&
+        (ref.watch(appConfigProvider).news?.breakingNewsPush ?? false);
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
 
@@ -225,6 +229,13 @@ class SettingsScreen extends ConsumerWidget {
             SettingsGroup(
               title: l10n.notifications,
               children: [
+                // 23 News & blog apps that push new articles.
+                if (news)
+                  toggle(
+                    l10n.notifyBreakingNews,
+                    n.news,
+                    (v) => controller.setNotifications(n.copyWith(news: v)),
+                  ),
                 toggle(
                   l10n.newsAndOffers,
                   n.announcements,

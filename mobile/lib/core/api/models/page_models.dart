@@ -120,6 +120,8 @@ enum BuiltInScreen {
   orders,
   services,
   appointments,
+  articles,
+  bookmarks,
 }
 
 enum OpenIn { inApp, browser }
@@ -173,7 +175,7 @@ BuiltInScreen? _screenFrom(Object? wire) {
 }
 
 /// Where a list comes from.
-enum ItemSource { courses, products, services, posts, listings }
+enum ItemSource { courses, products, services, posts, listings, articles }
 
 /// An entry from a list source, for `item` actions.
 class ItemRef {

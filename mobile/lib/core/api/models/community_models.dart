@@ -2,7 +2,14 @@ import 'catalog_models.dart';
 import 'json.dart';
 
 /// What a notification is about; it decides the screen a tap opens.
-enum NotificationType { newLesson, announcement, enrolled, qnaAnswer, unknown }
+enum NotificationType {
+  newLesson,
+  announcement,
+  enrolled,
+  qnaAnswer,
+  article,
+  unknown,
+}
 
 /// A notification in the student's inbox (`GET /me/notifications`).
 class InboxNotification {
@@ -16,6 +23,7 @@ class InboxNotification {
     this.courseId,
     this.lessonId,
     this.questionId,
+    this.articleId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -30,6 +38,7 @@ class InboxNotification {
     courseId: optInt(json, 'course_id'),
     lessonId: optInt(json, 'lesson_id'),
     questionId: optInt(json, 'question_id'),
+    articleId: optString(json, 'article_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -41,6 +50,9 @@ class InboxNotification {
   final int? courseId;
   final int? lessonId;
   final int? questionId;
+
+  /// For [NotificationType.article] (breaking news): the article to open.
+  final String? articleId;
   final DateTime createdAt;
   final bool read;
 
@@ -50,6 +62,7 @@ class InboxNotification {
     'course_id': ?courseId,
     'lesson_id': ?lessonId,
     'question_id': ?questionId,
+    'article_id': ?articleId,
   };
 }
 

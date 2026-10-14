@@ -2353,4 +2353,67 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get staffViewProfile => 'عرض الملف الشخصي';
+
+  @override
+  String get tabLatest => 'الأحدث';
+
+  @override
+  String get tabSaved => 'المحفوظات';
+
+  @override
+  String get newsTopStories => 'أهم الأخبار';
+
+  @override
+  String get newsLatest => 'الأحدث';
+
+  @override
+  String get newsAll => 'الكل';
+
+  @override
+  String get newsSearchHint => 'ابحث في المقالات';
+
+  @override
+  String get loadingArticles => 'جارٍ تحميل المقالات';
+
+  @override
+  String get noArticlesTitle => 'لا توجد مقالات بعد';
+
+  @override
+  String get noArticlesMessage => 'ستظهر المقالات الجديدة هنا.';
+
+  @override
+  String get noArticlesFoundTitle => 'لم يتم العثور على مقالات';
+
+  @override
+  String get noArticlesFoundMessage => 'جرّب كلمات أخرى أو قسمًا آخر.';
+
+  @override
+  String get noSavedTitle => 'لا توجد مقالات محفوظة';
+
+  @override
+  String get noSavedMessage =>
+      'اضغط على علامة الحفظ في أي مقال للاحتفاظ به هنا وقراءته لاحقًا، حتى دون اتصال.';
+
+  @override
+  String get articleSave => 'حفظ المقال';
+
+  @override
+  String get articleUnsave => 'إزالة من المحفوظات';
+
+  @override
+  String get articleSavedMessage => 'تم الحفظ. ستجده في المحفوظات.';
+
+  @override
+  String get articleShare => 'مشاركة';
+
+  @override
+  String articleBy(String author) {
+    return 'بقلم $author';
+  }
+
+  @override
+  String get articleOpenOnSite => 'اقرأ على الموقع';
+
+  @override
+  String get notifyBreakingNews => 'الأخبار العاجلة';
 }

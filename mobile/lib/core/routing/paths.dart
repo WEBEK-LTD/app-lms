@@ -30,6 +30,10 @@ abstract final class Paths {
   static const favorites = '/favorites';
   static const messages = '/messages';
 
+  // News & blog apps (23).
+  static const articles = '/articles';
+  static const saved = '/saved';
+
   static const embed = '/embed';
   static const web = '/web';
 
@@ -47,6 +51,19 @@ abstract final class Paths {
   static String appointment(int id) => '/appointment/$id';
   static String listing(int id) => '/listing/$id';
   static String conversation(int id) => '/messages/$id';
+  static String article(String id) => '/article/${Uri.encodeComponent(id)}';
+
+  /// The Latest tab, on a section or with the search box focused.
+  static String articlesFiltered({String? category, bool focus = false}) {
+    final query = <String, String>{
+      'category': ?category,
+      if (focus) 'focus': '1',
+    };
+    return Uri(
+      path: articles,
+      queryParameters: query.isEmpty ? null : query,
+    ).toString();
+  }
 
   static String servicesFiltered({int? category}) => Uri(
     path: services,

@@ -20,6 +20,8 @@ const _forest = '#1E4D3F';
 const _coral = '#E8795C';
 const _nileBlue = '#123A5C';
 const _sand = '#C9A24B';
+const _harbour = '#1F4E5F';
+const _berry = '#B03A5B';
 
 Map<String, dynamic> _appearance({
   required String template,
@@ -283,5 +285,33 @@ final websiteShots = <Shot>[
     ),
     appType: AppType.realEstate,
     language: 'ar',
+  ),
+  // News & blog, a client palette (23).
+  Shot(
+    'news-home',
+    api: () => DemoApi.news(
+      primary: _harbour,
+      appearance: _appearance(
+        template: 'minimal',
+        font: 'Lexend',
+        secondary: _berry,
+      ),
+    ),
+    appType: AppType.news,
+    template: AppTemplate.minimal,
+  ),
+  Shot(
+    'news-article',
+    api: () => DemoApi.news(
+      primary: _harbour,
+      appearance: _appearance(
+        template: 'minimal',
+        font: 'Lexend',
+        secondary: _berry,
+      ),
+    ),
+    appType: AppType.news,
+    template: AppTemplate.minimal,
+    location: '/article/101',
   ),
 ];

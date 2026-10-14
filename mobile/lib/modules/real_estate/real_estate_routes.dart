@@ -56,7 +56,9 @@ final realEstateModule = AppModule(
     BuiltInScreen.cart ||
     BuiltInScreen.orders ||
     BuiltInScreen.services ||
-    BuiltInScreen.appointments => null,
+    BuiltInScreen.appointments ||
+    BuiltInScreen.articles ||
+    BuiltInScreen.bookmarks => null,
   },
   routes: _pushedRoutes,
   badges: (ref) => {

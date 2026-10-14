@@ -40,6 +40,9 @@ mobile/
       bookings/              Bookings apps
       real_estate/           Real estate apps (hosted API): search, filters,
                              listing page, favorites, messages to the office
+      news/                  News & blog apps: home, latest by section and
+                             search, the article (lesson renderer), saved
+                             articles on the device, sharing
       shared/pages/          dashboard pages from /pages: one renderer for
                              every block in every template
   test/                      unit and widget tests with a fake API

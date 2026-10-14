@@ -4,6 +4,7 @@ import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
+import 'news_models.dart';
 import 'store_models.dart';
 
 /// `GET /config`: branding, detected features and app rules.
@@ -21,6 +22,7 @@ class AppConfig {
     this.appearance,
     this.languages,
     this.listings,
+    this.news,
     this.vertical,
   });
 
@@ -37,6 +39,7 @@ class AppConfig {
     appearance: optObject(json, 'appearance', Appearance.fromJson),
     languages: optObject(json, 'languages', Languages.fromJson),
     listings: optObject(json, 'listings', ListingsConfig.fromJson),
+    news: optObject(json, 'news', NewsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
   );
 
@@ -63,6 +66,9 @@ class AppConfig {
 
   /// The office's settings (Real estate apps).
   final ListingsConfig? listings;
+
+  /// How articles show (News & blog apps, 23).
+  final NewsConfig? news;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

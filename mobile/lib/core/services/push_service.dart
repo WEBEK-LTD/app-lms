@@ -37,6 +37,7 @@ abstract class PushService {
 /// Where tapping a notification goes, from its `data`:
 /// - `new_lesson` opens the lesson;
 /// - `enrolled`, or `announcement` with a course, opens the course;
+/// - `article` (breaking news, 23) opens the article;
 /// - anything else opens Home.
 String pushTargetLocation(Map<String, dynamic> data) {
   int? id(String key) => int.tryParse('${data[key] ?? ''}'.trim());
@@ -54,6 +55,9 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'enrolled':
     case 'announcement':
       if (course != null) return Paths.course(course);
+    case 'article':
+      final article = '${data['article_id'] ?? ''}'.trim();
+      if (article.isNotEmpty) return Paths.article(article);
   }
   return Paths.home;
 }
