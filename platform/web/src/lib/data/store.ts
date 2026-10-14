@@ -44,6 +44,8 @@ import type { PublishingEvent, PublishingRequest } from "./types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 // 16 Demo apps
 import type { DemoPurgeCounts } from "./types";
+// 23 News & blog
+import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -365,6 +367,23 @@ export interface DataStore {
   }): Promise<{ items: ListingInquiryRow[]; total: number }>;
   /** Conversations with user messages the office hasn't read. */
   countUnreadListingInquiries(appId: string): Promise<number>;
+
+  // 23 News & blog apps: articles written in the dashboard
+  /** Every article of the app, any status, newest first. */
+  listArticles(appId: string): Promise<Article[]>;
+  getArticle(appId: string, id: number): Promise<Article | null>;
+  createArticle(input: ArticleInput, now: Date): Promise<Article>;
+  updateArticle(appId: string, id: number, patch: Partial<ArticleInput>, now: Date): Promise<void>;
+  deleteArticle(appId: string, id: number): Promise<void>;
+  /** The app's article categories, in their order. */
+  listArticleCategories(appId: string): Promise<ArticleCategory[]>;
+  createArticleCategory(input: Omit<ArticleCategory, "id">): Promise<ArticleCategory>;
+  updateArticleCategory(appId: string, id: number, patch: Partial<Pick<ArticleCategory, "name" | "position">>): Promise<void>;
+  /** Deletes the category; articles keep their other categories. */
+  deleteArticleCategory(appId: string, id: number): Promise<void>;
+  /** How articles show in the app; null until saved (the defaults apply). */
+  getNewsSettings(appId: string): Promise<NewsSettings | null>;
+  saveNewsSettings(appId: string, settings: NewsSettings, now: Date): Promise<void>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

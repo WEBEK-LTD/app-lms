@@ -154,6 +154,7 @@ async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery)
   if (source === "courses") return listCourses(pc, query);
   if (source === "products") return listProducts(pc, query);
   if (source === "services") return listServices(pc, query);
+  if (source === "articles") return listArticles(pc, query);
   const resolver = itemResolver(source);
   if (!resolver) return null;
   return resolver({ appId: pc.ctx.app.id, userId: pc.user ? String(pc.user.id) : null, lang: pc.lang, store: pc.ctx.store }, query);
@@ -270,8 +271,47 @@ async function listServices(pc: PageContext, query: ItemsQuery): Promise<Item[]>
   return services.map(serviceItem).filter((i): i is Item => i !== null);
 }
 
+/** 23 An article card: its first category (or its date) under the title; it opens in the app. */
+function articleItem(article: Record<string, unknown>): Item | null {
+  const id = typeof article.id === "string" ? article.id : null;
+  if (!id || !/^\d{1,15}$/.test(id) || typeof article.title !== "string") return null;
+  const category = Array.isArray(article.categories) ? str((article.categories[0] as { name?: unknown } | undefined)?.name) : null;
+  return {
+    source: "articles",
+    id,
+    title: article.title,
+    subtitle: category ?? str(article.author),
+    image_url: str(article.image_url),
+    price_label: null,
+    badge: null,
+    action: { type: "item", item: { source: "articles", id } },
+  };
+}
+
+async function listArticles(pc: PageContext, query: ItemsQuery): Promise<Item[]> {
+  const ids = query.ids.filter((id) => /^\d{1,15}$/.test(id));
+  if (query.ids.length && !ids.length) return [];
+  // Articles are always newest first: there are no prices, and "popular" keeps that order.
+  const params = ids.length
+    ? { ids: ids.slice(0, 30).join(","), per_page: Math.min(ids.length, 30) }
+    : { per_page: query.limit, category: query.category_id && /^\d{1,15}$/.test(query.category_id) ? query.category_id : null, featured: query.featured ? "true" : null };
+  return list(await get(pc, ["news", "articles"], params))
+    .slice(0, ids.length ? ids.length : query.limit)
+    .map(articleItem)
+    .filter((i): i is Item => i !== null);
+}
+
 async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id: number; name: string; count: number }[] | null> {
-  const path = source === "courses" ? ["categories"] : source === "products" ? ["store", "categories"] : source === "services" ? ["bookings", "categories"] : null;
+  const path =
+    source === "courses"
+      ? ["categories"]
+      : source === "products"
+        ? ["store", "categories"]
+        : source === "services"
+          ? ["bookings", "categories"]
+          : source === "articles"
+            ? ["news", "categories"]
+            : null;
   if (!path) return null;
   return list(await get(pc, path))
     .filter((c) => c.parent_id === null || c.parent_id === undefined)

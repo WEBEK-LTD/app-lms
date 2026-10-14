@@ -27,7 +27,7 @@ export const BLOCK_HINTS: Record<BlockType, string> = {
   image: "One image, optionally a link",
   video: "An MP4, YouTube or Vimeo video",
   button: "A button that opens something",
-  items: "Courses, products, services or listings",
+  items: "Courses, products, services, listings or articles",
   categories: "Category chips or tiles",
   search: "A search box",
   continue_learning: "The course a student is taking",
@@ -48,4 +48,6 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   orders: "Orders",
   services: "Services",
   appointments: "Appointments",
+  articles: "All articles",
+  bookmarks: "Saved articles",
 };

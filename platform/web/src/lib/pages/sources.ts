@@ -5,12 +5,13 @@ import type { BlockType, ItemSource } from "./types";
 /**
  * Which lists an app's pages can show: its engine's (lib/app/kinds.ts), and
  * blog posts from a WordPress site or own API (never on the hosted API, nor
- * for engines that only run there).
+ * for engines that only run there). 23 News & blog apps list their posts as
+ * articles, opened in the app, so they don't list them twice.
  */
 export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
   const known = isAppType(app.appType);
   const sources: ItemSource[] = known ? [ENGINES[app.appType].pages.source] : [];
-  if (app.backend !== "hosted" && !(known && hostedOnly(app.appType))) sources.push("posts");
+  if (app.backend !== "hosted" && !(known && hostedOnly(app.appType)) && !sources.includes("articles")) sources.push("posts");
   return sources;
 }
 
@@ -36,4 +37,5 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   services: "Services",
   posts: "Blog posts",
   listings: "Listings",
+  articles: "Articles",
 };

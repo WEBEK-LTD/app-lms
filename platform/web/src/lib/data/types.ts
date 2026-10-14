@@ -90,10 +90,10 @@ export interface StoreListing {
 /**
  * The app's engine: the Flutter module its build includes. "lms" is an
  * Academy app, "store" a Store app, "booking" a Bookings app, "real_estate" a
- * Real estate app (hosted API only). What each engine is and offers is in
- * lib/app/kinds.ts.
+ * Real estate app (hosted API only), "news" a News & blog app (23). What each
+ * engine is and offers is in lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity";
@@ -121,6 +121,8 @@ export type ConnectorConfig =
   | { kind: "courses" }
   /** Real estate: listings, the office settings, favorites and inquiries in the listing_* tables. */
   | { kind: "listings" }
+  /** 23 News & blog: articles written in the dashboard (articles, article_categories, news_settings). */
+  | { kind: "articles" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -393,6 +395,8 @@ export interface PushPreferences {
   announcements?: boolean;
   new_lessons?: boolean;
   daily_reminder?: boolean;
+  /** 23 New articles (News & blog apps). */
+  news?: boolean;
 }
 
 /** A signed-in device of a hosted-API customer. */
@@ -450,6 +454,8 @@ export interface HostedNotification {
   userId: number | null;
   title: string;
   body: string;
+  /** 23 Breaking news: the article the notification opens. Missing or null for announcements. */
+  articleId?: string | null;
   createdAt: Date;
 }
 
@@ -1354,4 +1360,46 @@ export interface DemoPurgeCounts {
   progress: number;
   devices: number;
   notifications: number;
+}
+
+// 23 News & blog apps: articles written in the dashboard
+
+export type ArticleStatus = "draft" | "published";
+
+export interface Article {
+  id: number;
+  appId: string;
+  title: string;
+  /** A short summary in plain text; made from the body when empty. */
+  excerpt: string | null;
+  /** As the editor wrote it: simple HTML, cleaned whenever it's served (lib/news/html.ts). */
+  body: string;
+  imageAssetId: string | null;
+  /** The author's name as shown in the app. */
+  author: string | null;
+  /** Categories (article_categories), in the order chosen. */
+  categoryIds: number[];
+  featured: boolean;
+  /** Only published articles are in the app. */
+  status: ArticleStatus;
+  /** When it was first published: the app's "newest" order. */
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ArticleInput = Omit<Article, "id" | "createdAt" | "updatedAt">;
+
+export interface ArticleCategory {
+  id: number;
+  appId: string;
+  name: string;
+  position: number;
+  createdAt: Date;
+}
+
+/** How articles show in the app (`Config.news`), for articles written in the dashboard or read from a feed. */
+export interface NewsSettings {
+  showAuthor: boolean;
+  showDates: boolean;
 }

@@ -22,6 +22,7 @@ import { clearPlatformSettingsCache, platformSetting } from "../settings/platfor
 import { artPng } from "./art";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoKind, type DemoId } from "./constants";
 import {
+  ARTICLE_CATEGORIES,
   BOOKING_RULES,
   CLINIC_CATEGORIES,
   CLINIC_DOCTORS,
@@ -31,6 +32,7 @@ import {
   CLINIC_SERVICES,
   COURSE_CATEGORIES,
   COURSE_CURRENCY,
+  DEMO_ARTICLES,
   DEMO_BRANDS,
   DEMO_COURSES,
   DEMO_LISTINGS,
@@ -207,6 +209,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
 
   if (content === "catalog") await syncProducts(deps, client.id, saved);
   if (content === "listings") await syncListings(deps, client.id, saved);
+  if (content === "articles") await syncArticles(deps, client.id, saved);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.
@@ -360,6 +363,46 @@ async function syncListings(deps: DemoSetupDeps, clientId: string, app: App): Pr
   }
   const references = new Set(DEMO_LISTINGS.map((l) => l.reference));
   for (const l of listings) if ((!l.reference || !references.has(l.reference)) && l.status !== "archived") await store.updateListing(app.id, l.id, { status: "archived" }, now);
+}
+
+/** 23 Sections by name and articles by title: updated in place; ones no longer in the demo are unpublished. */
+async function syncArticles(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+  const { store, now } = deps;
+  await store.saveNewsSettings(app.id, { showAuthor: true, showDates: true }, now);
+  const categories = await store.listArticleCategories(app.id);
+  const categoryIds = new Map<string, number>();
+  for (const [position, name] of ARTICLE_CATEGORIES.entries()) {
+    const found = categories.find((c) => c.name === name);
+    if (found) {
+      if (found.position !== position) await store.updateArticleCategory(app.id, found.id, { position });
+      categoryIds.set(name, found.id);
+    } else {
+      categoryIds.set(name, (await store.createArticleCategory({ appId: app.id, name, position, createdAt: now })).id);
+    }
+  }
+  for (const c of categories) if (!ARTICLE_CATEGORIES.includes(c.name)) await store.deleteArticleCategory(app.id, c.id);
+  const articles = await store.listArticles(app.id);
+  // Created oldest first, so the newest-first lists show them in the demo's order.
+  for (const seed of [...DEMO_ARTICLES].reverse()) {
+    const input = {
+      appId: app.id,
+      title: seed.title,
+      excerpt: seed.excerpt,
+      body: seed.body,
+      imageAssetId: await picture(deps, clientId, seed.picture, "course", "product_image"),
+      author: seed.author,
+      categoryIds: [categoryIds.get(seed.category)!],
+      featured: seed.featured,
+      status: "published" as const,
+      // Dated before the refresh, the way a news site's articles are.
+      publishedAt: new Date(now.getTime() - seed.hoursAgo * 3_600_000),
+    };
+    const found = articles.find((a) => a.title === seed.title);
+    if (found) await store.updateArticle(app.id, found.id, input, now);
+    else await store.createArticle(input, now);
+  }
+  const titles = new Set(DEMO_ARTICLES.map((a) => a.title));
+  for (const a of articles) if (!titles.has(a.title) && a.status !== "draft") await store.updateArticle(app.id, a.id, { status: "draft" }, now);
 }
 
 function escapeHtml(text: string): string {

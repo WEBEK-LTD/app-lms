@@ -2,6 +2,7 @@ import { decrypt, encrypt } from "../../crypto/encryption";
 import type { DataStore } from "../../data/store";
 import type { App, ConnectorConfig } from "../../data/types";
 import type { BookingAppointment } from "../../data/types";
+import { ArticlesConnector } from "./articles";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
 import { CoursesConnector } from "./courses";
@@ -67,6 +68,7 @@ export function connectorFor(
   if (app.connector?.kind === "bookings") return new BookingsConnector({ ...deps, app });
   if (app.connector?.kind === "courses") return new CoursesConnector({ ...deps, app });
   if (app.connector?.kind === "listings") return new ListingsConnector({ ...deps, app });
+  if (app.connector?.kind === "articles") return new ArticlesConnector({ ...deps, app });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

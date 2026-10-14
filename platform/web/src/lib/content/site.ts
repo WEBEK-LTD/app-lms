@@ -127,6 +127,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     title: "Your listings, with search, favorites and messages",
     intro: "Add your properties in the dashboard. People search them with filters, save favorites and message your office, in an app with your name on it.",
   },
+  news: {
+    eyebrow: "News & blog apps",
+    title: "Your stories, on your readers' home screens",
+    intro:
+      "Articles, sections and breaking-news alerts in your own app, from your WordPress site, any site with an RSS feed, your own API, or articles you write in the dashboard.",
+  },
 };
 
 /** A page whose editable part is its header: the label, the title and the introduction. */
@@ -162,7 +168,7 @@ export const CONTENT_PAGES: ContentPage[] = [
       { name: "plansText", label: "Plans: text", kind: "text", max: 300 },
     ],
     defaults: {
-      badge: "Apps for academies, stores, bookings and real estate",
+      badge: "Apps for academies, stores, bookings, real estate and news",
       title: "Your business, as your own mobile app.",
       intro:
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",

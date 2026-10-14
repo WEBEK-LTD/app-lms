@@ -169,6 +169,13 @@
       "when": 1791988355384,
       "tag": "0023_clinic_intake",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1791995890904,
+      "tag": "0024_articles",
+      "breakpoints": true
     }
   ]
 }

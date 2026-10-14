@@ -54,11 +54,24 @@ function attributeValue(attributes: string, name: string): string | null {
 
 const quote = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-export function cleanBlockHtml(html: string): string {
+/**
+ * 23 What article bodies add to a text block's allowlist: pictures (https
+ * only, with their alt text) in figures with captions, and iframes, which
+ * `embed` turns into a placeholder (or drops when it returns null).
+ */
+export interface CleanOptions {
+  images?: boolean;
+  embed?: (src: string, attributes: string) => string | null;
+}
+
+const IMAGE_TAGS = new Set(["figure", "figcaption"]);
+
+export function cleanBlockHtml(html: string, options: CleanOptions = {}): string {
   const out: string[] = [];
   const open: string[] = [];
   let dropping: string | null = null;
-  const pattern = /<!--[\s\S]*?(?:-->|$)|<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+[^\s"'>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*(\/?)>/g;
+  // 23 Attribute names and unquoted values never contain "<", so a tag that isn't closed stops at the next one (feeds are untrusted and long).
+  const pattern = /<!--[\s\S]*?(?:-->|$)|<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+[^\s"'<>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'<>]+))?)*)\s*(\/?)>/g;
   let last = 0;
   for (const match of html.matchAll(pattern)) {
     const before = html.slice(last, match.index);
@@ -71,11 +84,26 @@ export function cleanBlockHtml(html: string): string {
       if (closing && name === dropping) dropping = null;
       continue;
     }
+    if (name === "iframe" && options.embed && !closing) {
+      const src = attributeValue(match[3] ?? "", "src") ?? attributeValue(match[3] ?? "", "data-src") ?? "";
+      const placeholder = options.embed(decodeEntities(src).trim(), match[3] ?? "");
+      if (placeholder) out.push(placeholder);
+      if (match[4] !== "/") dropping = name;
+      continue;
+    }
     if (DROP_WITH_CONTENT.has(name)) {
       if (!closing && match[4] !== "/") dropping = name;
       continue;
     }
-    if (!TAGS.has(name)) continue;
+    if (name === "img" && options.images) {
+      const src = decodeEntities(attributeValue(match[3] ?? "", "src") ?? "").trim();
+      if (!closing && /^https:\/\//i.test(src) && safeHref(src)) {
+        const alt = decodeEntities(attributeValue(match[3] ?? "", "alt") ?? "").slice(0, 300);
+        out.push(`<img src="${quote(src)}" alt="${quote(alt)}">`);
+      }
+      continue;
+    }
+    if (!TAGS.has(name) && !(options.images && IMAGE_TAGS.has(name))) continue;
     if (closing) {
       const at = open.lastIndexOf(name);
       if (at === -1) continue;

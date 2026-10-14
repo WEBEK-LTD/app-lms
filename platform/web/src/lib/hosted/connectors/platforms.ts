@@ -11,7 +11,7 @@ import { ConnectorError, type Connector } from "./types";
  * together (context `app:connector:<app id>`).
  */
 
-export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook" | "wix" | "salla" | "zid";
+export type PlatformId = "ikas" | "ticimax" | "ideasoft" | "teachable" | "thinkific" | "simplybook" | "wix" | "salla" | "zid" | "rss";
 
 /**
  * 22 Keys a platform refused for a reason the client can fix (a missing
@@ -88,6 +88,8 @@ export interface PlatformDefinition {
   create(values: Record<string, string>, deps: PlatformDeps): PlatformConnector;
   /** 25 Connected with OAuth instead of fields (`fields` is then empty). */
   oauth?: PlatformOAuth;
+  /** 23 What to tell the client when `check()` failed, instead of the usual sentence; null for that sentence. */
+  explain?(error: unknown): string | null;
 }
 
 const definitions = new Map<PlatformId, PlatformDefinition>();

@@ -34,6 +34,7 @@ import {
   datetime,
   index,
   int,
+  mediumtext,
   mysqlTable,
   primaryKey,
   text,
@@ -42,6 +43,8 @@ import {
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 import type { ListingInquiryStatus, ListingPurpose, ListingSettings, ListingStatus } from "../data/types";
+// 23 News & blog
+import type { ArticleStatus, NewsSettings } from "../data/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 
@@ -389,6 +392,8 @@ export const hostedNotifications = mysqlTable(
     userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "cascade" }),
     title: varchar("title", { length: 120 }).notNull(),
     body: text("body").notNull(),
+    // 23 Breaking news: the article it opens.
+    articleId: varchar("article_id", { length: 64 }),
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("hosted_notifications_app_idx").on(t.appId, t.createdAt)],
@@ -610,6 +615,53 @@ export const listings = mysqlTable(
   },
   (t) => [index("listings_app_idx").on(t.appId, t.status, t.createdAt)],
 );
+
+// 23 News & blog apps: articles written in the dashboard.
+
+export const articleCategories = mysqlTable(
+  "article_categories",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("article_categories_app_idx").on(t.appId, t.position)],
+);
+
+export const articles = mysqlTable(
+  "articles",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    excerpt: varchar("excerpt", { length: 400 }),
+    body: mediumtext("body").notNull(),
+    imageAssetId: id("image_asset_id"),
+    author: varchar("author", { length: 80 }),
+    categoryIds: jsonText<number[]>("category_ids").notNull(),
+    featured: boolean("featured").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<ArticleStatus>(),
+    publishedAt: time("published_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("articles_app_idx").on(t.appId, t.status, t.publishedAt)],
+);
+
+/** How articles show in the app (Config.news), one row per app. */
+export const newsSettings = mysqlTable("news_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<NewsSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
 
 /** The office's settings (Config.listings), one row per app. */
 export const listingSettings = mysqlTable("listing_settings", {

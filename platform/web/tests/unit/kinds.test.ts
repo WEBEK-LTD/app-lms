@@ -83,6 +83,9 @@ const BEFORE = {
   ],
 } as const;
 
+/** 23 The engines that existed before Phase 20; News & blog (23) came after. */
+const FOUR = ["lms", "store", "booking", "real_estate"] as const;
+
 /** The default layouts as lib/pages/defaults.ts wrote them before Phase 20. */
 function layoutBefore(appType: string, name: string, now: Date): Pick<LayoutContent, "tabs" | "pages"> {
   const tab = (id: string, label: string, icon: string, target: LayoutTab["target"]): LayoutTab => ({ id, label, icon, target });
@@ -161,10 +164,10 @@ const appOf = (appType: AppType, patch: Partial<App> = {}): App => ({ ...newApp(
 
 describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
-    expect(APP_TYPES).toEqual(["lms", "store", "booking", "real_estate"]);
-    // 21 Clinic is the first kind with a vertical; the four default kinds are as they were.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "bookings", "clinic", "real_estate"]);
-    for (const type of APP_TYPES) {
+    expect(APP_TYPES).toEqual([...FOUR, "news"]);
+    // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "bookings", "clinic", "real_estate", "news"]);
+    for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
       expect(ENGINES[type].demo.slug).toBe(BEFORE.demoSlugs[type]);
@@ -184,13 +187,13 @@ describe("20 app kinds registry", () => {
       expect(suggestedCategories({ appType: type })).toEqual(BEFORE.categories[type]);
       expect(noWebsiteFor(type)).toBe(BEFORE.noWebsite[type]);
     }
-    expect(KINDS.filter((k) => k.vertical === null).map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
+    expect(KINDS.filter((k) => k.vertical === null && k.engine !== "news").map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
-    // 21 One more demo: the clinic, after Bookings.
-    expect(DEMO_TYPES).toEqual(["lms", "store", "booking", "clinic", "real_estate"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic" });
+    // 21 One more demo: the clinic, after Bookings. 23 The news app, last.
+    expect(DEMO_TYPES).toEqual(["lms", "store", "booking", "clinic", "real_estate", "news"]);
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news" });
     expect(demoTypeOfSlug("clinic")).toBe("clinic");
     expect(engineOfDemoSlug("clinic")).toBeNull();
     for (const [type, slug] of Object.entries(BEFORE.demoSlugs)) {
@@ -198,13 +201,14 @@ describe("20 app kinds registry", () => {
       expect(engineOfDemoSlug(slug)).toBe(type);
     }
     expect(demoTypeOfSlug("salon")).toBeNull();
-    expect(APP_TYPE_SWITCHES).toEqual(Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })));
+    expect(APP_TYPE_SWITCHES).toEqual([...Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })), { id: "news", label: "News & blog" }]);
     const websites = switchGroups().find((g) => g.kind === "website")!.items;
     expect(Object.fromEntries(websites.filter((w) => isOwnContent(w.id)).map((w) => [w.id, w.label]))).toEqual({
       catalog: "No website: products in the dashboard",
       bookings: "No website: bookings in the dashboard",
       courses: "No website: courses in the dashboard",
       listings: "No website: listings in the dashboard",
+      articles: "No website: articles in the dashboard",
     });
     for (const [kind, [label, ...items]] of Object.entries(BEFORE.contentNav)) {
       const nav = engineOfContent(kind)!.ownContent.nav;
@@ -225,7 +229,7 @@ describe("20 app kinds registry", () => {
   });
 
   it("gives the same default layouts, page sources and block types", () => {
-    for (const type of [...APP_TYPES, "salon"]) {
+    for (const type of [...FOUR, "salon"]) {
       const app = { appType: type as AppType, backend: "wordpress" as const, appName: "Nour", template: "classic" as const, font: "Outfit", brandingDoneAt: null };
       const layout = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
       expect({ tabs: layout.tabs, pages: layout.pages }, type).toEqual(layoutBefore(type, "Nour", NOW));
@@ -263,7 +267,7 @@ describe("20 app kinds registry", () => {
       { kind: "platform", platform: "teachable", settings: {}, secretsEncrypted: "" },
       { kind: "platform", platform: "simplybook", settings: {}, secretsEncrypted: "" },
     ];
-    for (const type of APP_TYPES) {
+    for (const type of FOUR) {
       for (const connector of connectors) {
         expect(connectorFits(type, connector, platformEngine), `${type} ${connector?.kind}`).toBe(fitsBefore(type, connector, platformEngine));
       }
@@ -298,6 +302,7 @@ describe("20 app kinds registry", () => {
       ["bookings", "solution-bookings", "Bookings", "calendar_month"],
       ["clinic", "solution-clinic", "Clinic", "stethoscope"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
+      ["news", "solution-news", "News & blog", "newspaper"],
     ]);
     const headers = CONTENT_PAGES.filter((p) => p.key.startsWith("solution-"));
     expect(headers.map((p) => [p.key, p.title, p.path])).toEqual([
@@ -306,9 +311,10 @@ describe("20 app kinds registry", () => {
       ["solution-bookings", "Solutions: Bookings", "/solutions/bookings"],
       ["solution-clinic", "Solutions: Clinic", "/solutions/clinic"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
+      ["solution-news", "Solutions: News & blog", "/solutions/news"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Bookings apps", "Clinic apps", "Real estate apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "5", label: "app types: academy, store, bookings, clinic and real estate" });
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Bookings apps", "Clinic apps", "Real estate apps", "News & blog apps"]);
+    expect(NUMBERS[0]).toEqual({ value: "6", label: "app types: academy, store, bookings, clinic, real estate and news & blog" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
@@ -320,6 +326,7 @@ describe("20 app kinds registry", () => {
       { id: "store", label: "Store" },
       { id: "booking", label: "Bookings" },
       { id: "real_estate", label: "Real estate" },
+      { id: "news", label: "News & blog" },
     ]);
     expect(describeAudience({ kind: "app_type", appTypes: ["real_estate", "store"] }, planNames)).toBe("App types: Real estate, Store");
   });

@@ -32,6 +32,8 @@ export const APP_SCREENS = [
   "realestate-search",
   "realestate-listing",
   "realestate-search-ar",
+  "news-home",
+  "news-article",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -57,6 +59,8 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "realestate-search": "Property search with filters",
   "realestate-listing": "A property listing with photos and details",
   "realestate-search-ar": "Property search in Arabic, right to left",
+  "news-home": "A news app's home screen with top stories and sections",
+  "news-article": "An article with its picture, author and date",
   "dashboard-pages": "The pages and look editor in the Yallapp dashboard",
   "dashboard-setup": "The app setup steps in the Yallapp dashboard",
   "dashboard-builds": "Builds and downloads in the Yallapp dashboard",
@@ -65,7 +69,7 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
 /** True numbers about the product, shown on the home and features pages. */
 export const NUMBERS: { value: string; label: string }[] = [
   { value: String(KINDS.length), label: `app types: ${listText(KINDS.map((k) => k.name.toLowerCase()))}` },
-  { value: "18", label: "platforms and plugins your content can come from" },
+  { value: "20", label: "platforms and plugins your content can come from" },
   { value: "3", label: "app templates: Classic, Bold and Minimal" },
   { value: "3", label: "languages: English, Arabic (right to left) and Turkish" },
   { value: "11", label: "page blocks to build your screens" },
@@ -366,6 +370,53 @@ const SOLUTION_COPY: SolutionCopy[] = [
     ],
     docs: [{ href: "/docs/real-estate", label: "Listings and inquiries" }],
   },
+  {
+    kind: "news",
+    summary: "Articles, sections, search and breaking-news alerts.",
+    audience: "News sites, local papers, magazines and blogs.",
+    screens: ["news-home", "news-article"],
+    sources: [
+      "WordPress posts, with the Yallapp plugin",
+      "Any website's RSS or Atom feed",
+      "Your own API",
+      "No website: articles written in the Yallapp dashboard",
+    ],
+    highlights: [
+      {
+        icon: "newspaper",
+        title: "A front page in your pocket",
+        text: "Top stories, the latest articles and a row per section, with search across everything you've published.",
+      },
+      {
+        icon: "notifications",
+        title: "Breaking news",
+        text: "Push the stories that matter to your readers' phones: automatically for new WordPress posts, or with one tick when you publish in the dashboard.",
+      },
+      {
+        icon: "smart_display",
+        title: "Articles that look right",
+        text: "Pictures, YouTube and Vimeo videos and embeds are sized for the phone, the same way lessons are in academy apps.",
+      },
+      {
+        icon: "bookmark",
+        title: "Saved for later",
+        text: "Readers save articles on their phone and share any of them in a tap.",
+      },
+    ],
+    inTheApp: [
+      "Read the top stories and the latest articles",
+      "Browse sections and search every article",
+      "Save articles to read later and share them",
+      "Get breaking news as notifications",
+    ],
+    forYou: [
+      "Keep publishing on WordPress or any site with a feed, or write in the dashboard",
+      "No website: drafts, pictures, sections, publish and unpublish",
+      "Choose whether articles show their author and date",
+      "Reading is free: no paywalls or in-app purchases to set up",
+    ],
+    docs: [{ href: "/docs/news", label: "News and blog apps" }],
+  },
 ];
 
 /** 20 One page per kind that has copy, named and addressed by the registry. */
@@ -421,6 +472,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "Amelia", types: ["Bookings"], text: "Services, staff, free times and appointments.", docs: "/docs/wordpress-plugin" },
       { name: "BookingPress", types: ["Bookings"], text: "Services, free times and appointments.", docs: "/docs/wordpress-plugin" },
       { name: "LatePoint", types: ["Bookings"], text: "Services, staff, free times and appointments.", docs: "/docs/wordpress-plugin" },
+      { name: "WordPress posts", types: ["News & blog"], text: "Published posts with their pictures, categories and authors, and a notification for each new post.", docs: "/docs/news" },
     ],
   },
   {
@@ -464,6 +516,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
         text: "Services, team and free times; customers book, see and cancel appointments in the app.",
         docs: "/docs/simplybook",
       },
+      { name: "RSS and Atom feeds", types: ["News & blog"], text: "The articles of any website's feed: Ghost, Blogger, Substack, Medium and most news systems.", docs: "/docs/news" },
     ],
   },
   {
@@ -474,7 +527,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
     items: [
       {
         name: "Your own API",
-        types: ["Academy", "Store", "Bookings"],
+        types: ["Academy", "Store", "Bookings", "News & blog"],
         text: "Your website serves the Yallapp API. A live check on the Website step tells you what's missing.",
         docs: "/docs/my-own-api",
       },
@@ -487,6 +540,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "Courses in Yallapp", types: ["Academy"], text: "Courses, sections and lessons with video and text; free and paid courses.", docs: "/docs/courses" },
       { name: "Services in Yallapp", types: ["Bookings", "Clinic"], text: "Services, team, working hours, days off and booking rules. Clinics add doctor profiles and an intake form.", docs: "/docs/bookings" },
       { name: "Listings in Yallapp", types: ["Real estate"], text: "Properties with photos, features, a map position and messages.", docs: "/docs/real-estate" },
+      { name: "Articles in Yallapp", types: ["News & blog"], text: "Articles with pictures and sections, published when you're ready, with breaking news.", docs: "/docs/news" },
     ],
   },
   {
@@ -495,9 +549,9 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
     text: "Your apps run on your own accounts, so your customers, payments and store listings stay yours.",
     icon: "key",
     items: [
-      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
-      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
-      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
+      { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
+      { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
+      { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
       { name: "iyzico", types: ["Store", "Academy"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
     ],
   },
