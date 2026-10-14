@@ -147,6 +147,20 @@ jobs:
         run: |
           npm run db:migrate
           npm run db:migrate
+      - name: A migration that stopped halfway finishes on the next run
+        run: |
+          # Forget the last migration as if its deploy stopped after its statements ran.
+          node -e '
+            const mysql = require("mysql2/promise");
+            (async () => {
+              const c = await mysql.createConnection(process.env.DATABASE_URL);
+              await c.query("DELETE FROM `__drizzle_migrations` ORDER BY created_at DESC LIMIT 1");
+              await c.end();
+            })();
+          '
+          npm run db:migrate | tee "$RUNNER_TEMP/resume.log"
+          grep -q "were already there" "$RUNNER_TEMP/resume.log"
+          npm run db:migrate | grep -q "up to date"
       - name: Build
         run: npm run build
       - name: Install Playwright Chromium
