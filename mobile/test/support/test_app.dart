@@ -59,6 +59,7 @@ class TestApp {
     FakeApi? api,
     this.platform = DevicePlatform.android,
     this.template = AppTemplate.classic,
+    this.appType = AppType.lms,
     this.signedIn = false,
     this.guest = false,
     this.framingAllowed = true,
@@ -68,6 +69,7 @@ class TestApp {
   final FakeApi api;
   final DevicePlatform platform;
   final AppTemplate template;
+  final AppType appType;
   final bool signedIn;
   final bool guest;
   final bool framingAllowed;
@@ -98,7 +100,7 @@ class TestApp {
       sharedPreferencesProvider.overrideWithValue(prefs),
       appEnvironmentProvider.overrideWithValue(
         AppEnvironment(
-          build: testBuild.copyWith(template: template),
+          build: testBuild.copyWith(template: template, appType: appType),
           platform: platform,
           appVersion: '1.0.0',
           deviceId: 'device-1',

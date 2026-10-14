@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { AnnouncementBanner } from "@/components/announcements";
 import { AuthShell } from "@/components/auth-shell";
-import { WHATSAPP_URL } from "@/components/brand";
 import { Icon } from "@/components/icon";
 import { SignOutButton } from "@/components/sign-out";
 import { btn } from "@/components/ui";
-import { getClientContext, getCurrentUser, isSuperAdmin } from "@/lib/auth/session";
+import { PlanPaymentForm } from "@/components/plan-payment-form";
+import { Notice } from "@/components/ui";
+import { getAdminRole, getClientContext, getCurrentUser } from "@/lib/auth/session";
+import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { getSwitches } from "@/lib/switches";
+import { getStore } from "@/lib/data";
+import { encryptionKey } from "@/lib/env";
+import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Account pending activation", robots: { index: false } };
 
-export default async function PendingPage() {
+export default async function PendingPage({ searchParams }: PageProps<"/pending">) {
+  const contact = await getContact();
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
-  if (isSuperAdmin(user)) redirect("/admin");
+  if (await getAdminRole()) redirect("/admin");
   const context = await getClientContext();
   if (!context) {
     // A user without a client profile (for example a former super admin): nowhere else to send them.
@@ -23,7 +32,7 @@ export default async function PendingPage() {
             <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px]">This account has no client profile</h1>
             <p className="m-0 text-base leading-relaxed text-ink-4">Message us on WhatsApp and we&apos;ll sort it out.</p>
             <div className="flex flex-wrap gap-3">
-              <a href={WHATSAPP_URL} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
+              <a href={contact.whatsappUrl} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
                 Message us on WhatsApp
               </a>
               <SignOutButton className={`${btn.secondary} h-[50px] w-full cursor-pointer`} />
@@ -36,7 +45,10 @@ export default async function PendingPage() {
   if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/dashboard/app-type");
 
   const suspended = context.client.status === "suspended";
-  const whatsapp = `${WHATSAPP_URL}?text=${encodeURIComponent(
+  const { payment } = await searchParams;
+  const store = await getStore();
+  const payable = !suspended && (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(await getPlans(store), await getSwitches(store)) : [];
+  const whatsapp = `${contact.whatsappUrl}?text=${encodeURIComponent(
     suspended
       ? `Hello, my Yallapp account (${user.email}) is suspended. Can you help?`
       : `Hello, I created a Yallapp account with ${user.email} and I'd like to confirm my plan.`,
@@ -64,9 +76,13 @@ export default async function PendingPage() {
             <p className="m-0 text-base leading-relaxed text-ink-4">
               {suspended
                 ? "Your apps and the plugin connection are paused. Message us on WhatsApp and we'll help you sort it out."
-                : "Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key."}
+                : payable.length
+                  ? "Pay your plan by card to start right away, or message us on WhatsApp to confirm it. Once it's confirmed, your account is active and we email your license key."
+                  : "Message us on WhatsApp to confirm your plan. Once it's confirmed, we activate your account and send your license key."}
             </p>
           </div>
+
+          <AnnouncementBanner context={context} />
 
           {suspended ? null : (
             <ol className="m-0 flex list-none flex-col gap-3 p-0 text-[15px]">
@@ -84,6 +100,18 @@ export default async function PendingPage() {
               </li>
             </ol>
           )}
+
+          {payment === "failed" ? (
+            <Notice tone="danger" icon="error" role="alert">
+              The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
+            </Notice>
+          ) : null}
+          {payable.length ? (
+            <div className="flex flex-col gap-3 border-t border-line-soft pt-5">
+              <h2 className="m-0 text-[19px] font-bold">Pay by card</h2>
+              <PlanPaymentForm plans={payable} current={null} cta="Pay and activate" />
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap gap-3">
             <a href={whatsapp} className={`${btn.primary} h-[50px] flex-[1_1_220px] text-base`}>

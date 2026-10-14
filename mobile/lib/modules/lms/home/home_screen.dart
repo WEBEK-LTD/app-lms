@@ -7,16 +7,17 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/gate/app_gate.dart';
-import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
-import '../../../core/services/push_registration.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_look.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Home, in the template chosen by the build config (designs: Home,
 /// HomeBold, HomeMinimal). Sections come from `GET /home` in the order set
@@ -29,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = template ?? ref.watch(appEnvironmentProvider).build.template;
+    final t = template ?? ref.watch(appLookProvider).template;
     final sections = ref.watch(homeSectionsProvider);
     Future<void> refresh() => ref.refresh(homeSectionsProvider.future);
 
@@ -52,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          _ => const LoadingView(label: 'Loading home'),
+          _ => LoadingView(label: context.l10n.loadingHome),
         },
       ),
     );
@@ -61,9 +62,9 @@ class HomeScreen extends ConsumerWidget {
 
 String greeting(DateTime now) {
   final h = now.hour;
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return currentL10n.goodMorning;
+  if (h < 18) return currentL10n.goodAfternoon;
+  return currentL10n.goodEvening;
 }
 
 /// The student's first name, or the site's name for guests.
@@ -88,10 +89,10 @@ String _sectionTitle(HomeSection s) {
   final title = s.title?.trim();
   if (title != null && title.isNotEmpty) return title;
   return switch (s.type) {
-    HomeSectionType.continueLearning => 'Continue learning',
-    HomeSectionType.categories => 'Categories',
-    HomeSectionType.featuredCourses => 'Featured courses',
-    HomeSectionType.latestCourses => 'Latest courses',
+    HomeSectionType.continueLearning => currentL10n.continueLearning,
+    HomeSectionType.categories => currentL10n.categories,
+    HomeSectionType.featuredCourses => currentL10n.featuredCourses,
+    HomeSectionType.latestCourses => currentL10n.latestCourses,
     HomeSectionType.banner || HomeSectionType.unknown => '',
   };
 }
@@ -110,14 +111,16 @@ class _NotificationsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final signedIn = ref.watch(authControllerProvider).isSignedIn;
-    if (!signedIn || !ref.watch(pushEnabledProvider)) {
-      return const SizedBox.shrink();
-    }
+    if (!signedIn) return const SizedBox.shrink();
+    final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     final p = context.palette;
     return SquareIconButton(
       icon: AppIcons.notifications,
-      label: 'Notification settings',
-      onPressed: () => context.push(Paths.settings),
+      label: unread > 0
+          ? context.l10n.notificationsUnread(unread)
+          : context.l10n.notifications,
+      badge: unread > 0,
+      onPressed: () => context.push(Paths.notifications),
       background: switch (style) {
         _ButtonStyle.classic => p.surface,
         _ButtonStyle.onPrimary => p.primarySoft,
@@ -150,7 +153,7 @@ class _SearchBar extends StatelessWidget {
         shape: pill
             ? const StadiumBorder()
             : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(context.shapes.r(14)),
                 side: BorderSide(color: p.border),
               ),
         clipBehavior: Clip.antiAlias,
@@ -197,12 +200,12 @@ class _BannerCard extends StatelessWidget {
     final tappable = banner.linkCourseId != null;
     return Semantics(
       button: tappable,
-      label: title?.isNotEmpty == true ? title : 'Announcement',
+      label: title?.isNotEmpty == true ? title : context.l10n.announcement,
       image: true,
       excludeSemantics: true,
       child: Material(
         color: p.placeholderFor(0),
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(context.shapes.r(radius)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: tappable ? () => _openBanner(context, banner) : null,
@@ -214,7 +217,7 @@ class _BannerCard extends StatelessWidget {
                 AppNetworkImage(url: banner.imageUrl),
                 if (title != null && title!.isNotEmpty)
                   Align(
-                    alignment: Alignment.bottomLeft,
+                    alignment: AlignmentDirectional.bottomStart,
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(18, 12, 18, 14),
@@ -254,7 +257,7 @@ class _CategoryChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           PillChip(
-            label: 'All',
+            label: context.l10n.filterAll,
             selected: true,
             onTap: () => context.go(Paths.courses),
           ),
@@ -321,7 +324,7 @@ class _ClassicHome extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        const _SearchBar(label: 'Search for a course'),
+        _SearchBar(label: context.l10n.searchForCourse),
         for (final section in sections) ..._classicSection(context, section),
       ],
     );
@@ -416,7 +419,7 @@ class _BoldHome extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Welcome back,',
+                          context.l10n.welcomeBack,
                           style: TextStyle(
                             fontSize: 14,
                             color: p.onPrimary.withValues(alpha: 0.78),
@@ -442,7 +445,7 @@ class _BoldHome extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 18),
-              const _SearchBar(label: 'What do you want to learn?', pill: true),
+              _SearchBar(label: context.l10n.whatToLearn, pill: true),
             ],
           ),
         ),
@@ -523,11 +526,11 @@ class _MinimalHome extends ConsumerStatefulWidget {
 class _MinimalHomeState extends ConsumerState<_MinimalHome> {
   _MinimalTab _tab = _MinimalTab.forYou;
 
-  static const _labels = {
-    _MinimalTab.forYou: 'For you',
-    _MinimalTab.latest: 'New',
-    _MinimalTab.free: 'Free',
-    _MinimalTab.categories: 'Categories',
+  String _label(_MinimalTab tab) => switch (tab) {
+    _MinimalTab.forYou => context.l10n.forYou,
+    _MinimalTab.latest => context.l10n.newCourses,
+    _MinimalTab.free => context.l10n.free,
+    _MinimalTab.categories => context.l10n.categories,
   };
 
   @override
@@ -547,7 +550,7 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
               child: Semantics(
                 header: true,
                 child: Text(
-                  'Learn',
+                  context.l10n.learn,
                   style: TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.w800,
@@ -559,7 +562,7 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
             ),
             SquareIconButton(
               icon: AppIcons.search,
-              label: 'Search courses',
+              label: context.l10n.searchCourses,
               background: Colors.transparent,
               bordered: false,
               onPressed: () => _openSearch(context),
@@ -578,7 +581,7 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
               children: [
                 for (final tab in _MinimalTab.values)
                   Padding(
-                    padding: const EdgeInsets.only(right: 22),
+                    padding: const EdgeInsetsDirectional.only(end: 22),
                     child: Semantics(
                       selected: tab == _tab,
                       button: true,
@@ -598,7 +601,7 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
                             ),
                           ),
                           child: Text(
-                            _labels[tab]!,
+                            _label(tab),
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: tab == _tab
@@ -667,11 +670,11 @@ class _MinimalHomeState extends ConsumerState<_MinimalHome> {
     }
     if (children.isEmpty) {
       children.add(
-        const MessageView(
+        MessageView(
           compact: true,
           icon: AppIcons.courses,
-          title: 'Nothing here yet',
-          message: 'New courses will show up here.',
+          title: context.l10n.pageEmptyTitle,
+          message: context.l10n.newCoursesShowHere,
         ),
       );
     }
@@ -695,10 +698,10 @@ class _CourseQueryList extends ConsumerWidget {
       );
     }
     if (state.items.isEmpty) {
-      return const MessageView(
+      return MessageView(
         compact: true,
         icon: AppIcons.courses,
-        title: 'No courses yet',
+        title: context.l10n.noCoursesYet,
       );
     }
     return Column(
@@ -726,7 +729,7 @@ class _CategoryRows extends ConsumerWidget {
           for (final c in value)
             Semantics(
               button: true,
-              label: '${c.name}, ${plural(c.count, 'course')}',
+              label: '${c.name}, ${context.l10n.courseCount(c.count)}',
               excludeSemantics: true,
               child: InkWell(
                 onTap: () => context.go(Paths.coursesFiltered(category: c.id)),
@@ -748,7 +751,7 @@ class _CategoryRows extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        plural(c.count, 'course'),
+                        context.l10n.courseCount(c.count),
                         style: TextStyle(fontSize: 13, color: p.textSecondary),
                       ),
                       const SizedBox(width: 4),

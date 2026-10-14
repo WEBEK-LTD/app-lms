@@ -139,7 +139,14 @@ class License_Client {
 			return $result;
 		}
 		$this->settings->update( array( 'license_key' => $key ) );
-		return $this->save_status( $result );
+		$status = $this->save_status( $result );
+		/**
+		 * Fires after a license key is activated on this site.
+		 *
+		 * @param array $status The saved status.
+		 */
+		do_action( 'yallapp_license_activated', $status );
+		return $status;
 	}
 
 	/**
@@ -187,6 +194,10 @@ class License_Client {
 		}
 		$this->settings->update( array( 'license_key' => '' ) );
 		delete_option( self::STATUS_OPTION );
+		/**
+		 * Fires after the license key is released from this site.
+		 */
+		do_action( 'yallapp_license_deactivated' );
 	}
 
 	/**
@@ -304,7 +315,7 @@ class License_Client {
 	 * @param string $key License key.
 	 * @return array
 	 */
-	private function site_info( $key ) {
+	public function site_info( $key ) {
 		$lms = $this->detector->lms();
 		return array(
 			'license_key'    => $key,
@@ -316,6 +327,15 @@ class License_Client {
 	}
 
 	/**
+	 * The platform API's base URL, without a trailing slash.
+	 *
+	 * @return string
+	 */
+	public static function base_url() {
+		return untrailingslashit( defined( 'YALLAPP_PLATFORM_URL' ) ? (string) YALLAPP_PLATFORM_URL : self::DEFAULT_URL );
+	}
+
+	/**
 	 * Calls the platform.
 	 *
 	 * @param string     $method HTTP method.
@@ -324,9 +344,8 @@ class License_Client {
 	 * @return array|WP_Error Decoded body (empty for 204), or an error.
 	 */
 	private function call( $method, $path, $body = null ) {
-		$base     = defined( 'YALLAPP_PLATFORM_URL' ) ? (string) YALLAPP_PLATFORM_URL : self::DEFAULT_URL;
 		$response = wp_remote_request(
-			untrailingslashit( $base ) . $path,
+			self::base_url() . $path,
 			array(
 				'method'  => $method,
 				'timeout' => 15,

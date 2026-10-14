@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { WHATSAPP_URL } from "@/components/brand";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
-import { PLAN_INFO } from "@/lib/plans";
+import { planPrice } from "@/lib/plans";
+import { getStore } from "@/lib/data";
+import { getPlans } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
+
+/** Plans and prices come from the admin. */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -34,14 +40,17 @@ function Mark({ on, label }: { on: boolean; label: string }) {
   );
 }
 
-export default function PricingPage() {
-  const plans = [PLAN_INFO.starter, PLAN_INFO.pro];
+export default async function PricingPage() {
+  const contact = await getContact();
+  const all = await getPlans(await getStore());
+  const plans = [all.starter, all.pro];
+  const text = await getSiteContent("pricing");
   return (
     <MarketingPage
       current="pricing"
-      eyebrow="Pricing"
-      title="Simple plans for your academy"
-      intro="Payments are arranged directly with our team on WhatsApp. We activate your account as soon as your plan is confirmed."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <div className="grid max-w-[900px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
@@ -57,8 +66,8 @@ export default function PricingPage() {
                   <span className="text-sm text-muted">{plan.tagline}</span>
                 </div>
                 <span className="text-[34px] font-extrabold">
-                  {plan.price}
-                  {plan.period ? <span className="text-[15px] font-medium text-muted"> / {plan.period}</span> : null}
+                  {planPrice(plan).price}
+                  {planPrice(plan).period ? <span className="text-[15px] font-medium text-muted"> / {planPrice(plan).period}</span> : null}
                 </span>
                 <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px]">
                   {plan.highlights.map((item) => (
@@ -69,7 +78,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <a
-                  href={WHATSAPP_URL}
+                  href={contact.whatsappUrl}
                   className={`mt-auto flex h-[50px] items-center justify-center rounded-xl text-base font-bold no-underline ${
                     featured
                       ? "bg-midnight text-white hover:bg-ink-3 hover:text-white"

@@ -2,19 +2,38 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isSetupComplete, newApp, queueBuild, type SetupStep } from "@/lib/app/setup";
+import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
+import { APP_TYPE_NAMES, isAppType, isSetupComplete, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
+import { recordStaffChange } from "@/lib/admin/audit";
+import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
+import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
-import { getClientContext, type ClientContext } from "@/lib/auth/session";
+import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { AppPatch } from "@/lib/data/store";
-import type { App, AssetKind } from "@/lib/data/types";
-import { encryptionKey } from "@/lib/env";
+import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, DEFAULT_COURSE_SETUP, type App, type AssetKind, type ConnectorConfig } from "@/lib/data/types";
+import { encryptionKey, superAdminEmails } from "@/lib/env";
+import { shopifyAdminToken, shopifyConnectorConfig, shopifyToken } from "@/lib/hosted/connectors";
+import { platformConnectorConfig, platformValues } from "@/lib/hosted/connectors/platforms";
+import { platformDefinition } from "@/lib/hosted/connectors/registry";
+import { ShopifyConnector } from "@/lib/hosted/connectors/shopify";
+import { sendTemplate } from "@/lib/email/send";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
+import {
+  checkGoogleServiceInfoPlist,
+  checkGoogleServicesJson,
+  checkScreenshot,
+  FIREBASE_MAX_BYTES,
+  SCREENSHOT_LIMITS,
+  SCREENSHOT_MAX_BYTES,
+  type ScreenshotKind,
+} from "@/lib/store-files";
 import { bumpPatch } from "@/lib/semver";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 
@@ -22,7 +41,7 @@ import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, 
 async function requireActiveClient(): Promise<ClientContext> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
-  if (context.client.status !== "active") redirect("/pending");
+  if (!mayUseDashboard(context)) redirect("/pending");
   return context;
 }
 
@@ -42,6 +61,7 @@ function stepUrl(step: SetupStep): string {
 async function afterStep(context: ClientContext & { app: App }, step: SetupStep): Promise<never> {
   const store = await getStore();
   const app = (await store.getAppById(context.app.id))!;
+  await recordStaffChange(context, `Saved the ${STEP_LABEL[step]} step of the app`, context.app, app);
   const plan = context.license?.plan ?? null;
   revalidatePath("/dashboard", "layout");
   if (isSetupComplete(app, plan)) {
@@ -53,7 +73,10 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
         new Date(),
         assetUrl,
       );
-      if (result.ok) redirect("/dashboard/builds?started=1");
+      if (result.ok) {
+        await startPipeline();
+        redirect("/dashboard/builds?started=1");
+      }
     }
     if (step === "publishing") redirect("/dashboard/builds");
   }
@@ -63,10 +86,40 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
 
 export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   const context = await requireActiveClient();
-  if (formData.get("appType") !== "lms") redirect("/dashboard/app-type");
+  const appType = formData.get("appType");
+  if (!isAppType(appType)) redirect("/dashboard/app-type");
+  const store = await getStore();
+  // 11.5 Switches: a switched-off type can't be chosen (an app keeps its own).
+  if (appType !== context.app?.appType && !appTypeOn(await getSwitches(store), appType, context.license?.plan ?? null)) {
+    redirect("/dashboard/app-type?unavailable=1");
+  }
+  const now = new Date();
+  if (context.app?.appType !== appType) {
+    await recordStaffChange(context, `Set the app type to ${APP_TYPE_NAMES[appType]}`, { appType: context.app?.appType ?? null }, { appType });
+  }
   if (!context.app) {
-    const store = await getStore();
-    await store.createApp(newApp(context.client.id, context.client.siteUrl, new Date()));
+    await store.createApp(newApp(context.client.id, context.client.siteUrl, now, appType));
+  } else if (context.app.appType !== appType) {
+    // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
+    const kind = context.app.connector?.kind;
+    const connector = context.app.connector;
+    // Real estate apps only run with listings managed in Yallapp.
+    const fits =
+      appType === "real_estate"
+        ? kind === "listings"
+        : !kind ||
+          (connector?.kind === "platform"
+            ? platformDefinition(connector.platform)?.appType === appType
+            : kind === "bookings"
+              ? appType === "booking"
+              : kind === "courses"
+                ? appType === "lms"
+                : kind !== "listings" && appType === "store");
+    await store.updateApp(
+      context.app.id,
+      fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
+      now,
+    );
   }
   redirect(stepUrl("website"));
 }
@@ -78,8 +131,223 @@ export async function saveWebsiteAction(_: FormState, formData: FormData): Promi
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const store = await getStore();
   const now = new Date();
-  await store.updateApp(context.app.id, { siteUrl: parsed.data.siteUrl, websiteDoneAt: now }, now);
+  const data = parsed.data;
+  // 11.5 Switches: a switched-off website or platform can't be chosen; the app's current one can still be saved.
+  const website = data.backend === "catalog" ? noWebsiteFor(context.app.appType) : data.backend === "platform" ? data.platform : data.backend;
+  if (!(context.app.websiteDoneAt && website === websiteOf(context.app)) && !websiteOn(await getSwitches(store), website, context.license?.plan ?? null)) {
+    return { message: "This choice isn't available. Choose another one, or message us on WhatsApp.", values: { backend: data.backend } };
+  }
+  if (context.app.appType === "real_estate") {
+    // Real estate apps have no website: listings are managed in the dashboard and served by the hosted API.
+    if (data.backend !== "catalog") return { errors: { backend: "Real estate apps run on Yallapp. Choose Listings managed in Yallapp." }, values };
+    await store.updateApp(context.app.id, { siteUrl: null, backend: "hosted", connector: { kind: "listings" }, websiteDoneAt: now }, now);
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
+  if (data.backend === "catalog" && context.app.appType === "lms") {
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "courses" },
+        courseSetup: context.app.courseSetup ?? DEFAULT_COURSE_SETUP,
+        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
+  if (data.backend === "catalog" && context.app.appType === "booking") {
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "bookings" },
+        bookingSetup: context.app.bookingSetup ?? DEFAULT_BOOKING_SETUP,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
+  if (data.backend === "catalog") {
+    if (context.app.appType !== "store") {
+      return { errors: { backend: "Choose your app type first." }, values };
+    }
+    await store.updateApp(
+      context.app.id,
+      {
+        siteUrl: null,
+        backend: "hosted",
+        connector: { kind: "catalog" },
+        catalogSettings: context.app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS,
+        websiteDoneAt: now,
+      },
+      now,
+    );
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
+  if (data.backend === "shopify") {
+    const result = await connectShopify(context.app, data);
+    if ("errors" in result) return { errors: result.errors, values: formValues(formData, ["storefrontToken", "adminToken"]) };
+    await store.updateApp(
+      context.app.id,
+      { siteUrl: data.siteUrl, backend: "hosted", connector: result.connector, websiteDoneAt: now },
+      now,
+    );
+    return afterStep(context, "website");
+  }
+  if (data.backend === "platform") {
+    const result = await connectPlatform(context.app, data.platform, formData);
+    if ("errors" in result) return { errors: result.errors, values: result.values };
+    await store.updateApp(context.app.id, { backend: "hosted", connector: result.connector, websiteDoneAt: now }, now);
+    revalidatePath("/dashboard", "layout");
+    return afterStep(context, "website");
+  }
+  const patch: AppPatch = { siteUrl: data.siteUrl, backend: data.backend, connector: null, websiteDoneAt: now };
+  if (data.backend === "custom_api") patch.apiBaseUrl = data.apiBaseUrl.replace(/\/+$/, "");
+  if (data.backend === "setup_requested") {
+    patch.setupNote = data.setupNote || null;
+    if (context.app.backend !== "setup_requested") {
+      patch.setupRequestedAt = now;
+      await notifySetupRequest(context, data.siteUrl, data.setupNote);
+    }
+  }
+  await store.updateApp(context.app.id, patch, now);
+  if (data.backend === "setup_requested") {
+    revalidatePath("/dashboard", "layout");
+    return { message: "Thanks! Our team will message you on WhatsApp to set up your WordPress site." };
+  }
   return afterStep(context, "website");
+}
+
+/**
+ * Checks the shop with its Storefront access token (or the one saved before
+ * for the same shop) and returns the connector to save.
+ */
+async function connectShopify(
+  app: App,
+  data: { shopDomain: string; storefrontToken: string; adminToken: string; removeAdminToken?: "on" },
+): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string> }> {
+  if (app.appType !== "store") return { errors: { backend: "Shopify works with Store apps. Choose Store as your app type first." } };
+  const key = encryptionKey();
+  const sameShop = app.connector?.kind === "shopify" && app.connector.shopDomain === data.shopDomain;
+  const saved = sameShop ? shopifyToken(app, key) : null;
+  const token = data.storefrontToken || saved;
+  const adminToken = data.removeAdminToken ? null : data.adminToken || (sameShop ? shopifyAdminToken(app, key) : null);
+  if (!token) return { errors: { storefrontToken: "Paste your Storefront API access token." } };
+  try {
+    await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token }).check();
+  } catch {
+    return {
+      errors: {
+        storefrontToken: "Shopify didn't accept this shop address and token. Check both, and that the token has the Storefront API permissions.",
+      },
+    };
+  }
+  if (adminToken) {
+    try {
+      await new ShopifyConnector({ shopDomain: data.shopDomain, storefrontToken: token, adminToken }).checkAdmin();
+    } catch {
+      return {
+        errors: {
+          adminToken: "Shopify didn't accept this Admin API token. Check that it's for this shop and has the read_orders and read_customers permissions.",
+        },
+      };
+    }
+  }
+  return { connector: shopifyConnectorConfig(app.id, data.shopDomain, token, key, adminToken) };
+}
+
+/**
+ * Checks the keys of a platform (fields p_<name>; an empty secret keeps the
+ * saved one) by asking the platform, and returns the connector to save.
+ */
+async function connectPlatform(
+  app: App,
+  platformId: string,
+  formData: FormData,
+): Promise<{ connector: ConnectorConfig } | { errors: Record<string, string>; values: Record<string, string> }> {
+  const definition = platformDefinition(platformId);
+  const secrets = definition?.fields.filter((f) => f.secret).map((f) => `p_${f.name}`) ?? [];
+  const values = formValues(formData, secrets);
+  if (!definition || definition.appType !== app.appType) {
+    return { errors: { platform: "This platform doesn't work with this app type. Choose another one, or change the app type." }, values };
+  }
+  const key = encryptionKey();
+  const saved = app.connector?.kind === "platform" && app.connector.platform === definition.id ? (platformValues(app, key) ?? {}) : {};
+  const typed: Record<string, string> = {};
+  const errors: Record<string, string> = {};
+  for (const field of definition.fields) {
+    const raw = formData.get(`p_${field.name}`);
+    let value = typeof raw === "string" ? raw.trim() : "";
+    if (value.length > 2000) errors[`p_${field.name}`] = "This is too long.";
+    if (!value && field.secret) value = saved[field.name] ?? "";
+    if (!value && !field.optional) errors[`p_${field.name}`] = `Enter your ${field.label.charAt(0).toLowerCase()}${field.label.slice(1)}.`;
+    typed[field.name] = value;
+  }
+  if (Object.keys(errors).length > 0) return { errors, values };
+  const normalized = definition.normalize(typed);
+  if ("errors" in normalized) {
+    return { errors: Object.fromEntries(Object.entries(normalized.errors).map(([name, message]) => [`p_${name}`, message])), values };
+  }
+  // Values the platform keeps besides its fields (OAuth tokens) stay while the account is the same.
+  const sameAccount = definition.fields.filter((f) => !f.secret).every((f) => (saved[f.name] ?? "") === normalized.values[f.name]);
+  const kept = sameAccount ? Object.fromEntries(Object.entries(saved).filter(([name]) => !definition.fields.some((f) => f.name === name))) : {};
+  const all = { ...kept, ...normalized.values };
+  let renewed: Record<string, string> = {};
+  try {
+    await definition
+      .create(all, {
+        appId: app.id,
+        store: await getStore(),
+        fetcher: fetch,
+        saveSecrets: async (secrets) => {
+          renewed = { ...renewed, ...secrets };
+        },
+      })
+      .check();
+  } catch {
+    return {
+      errors: { platform: `${definition.name} didn't accept these details. Check each one, and that the access has the permissions the hints list.` },
+      values,
+    };
+  }
+  return { connector: platformConnectorConfig(app.id, definition, { ...all, ...renewed }, key) };
+}
+
+/** Tells the team a client wants their WordPress site set up for them. */
+async function notifySetupRequest(context: ClientContext, siteUrl: string, note: string): Promise<void> {
+  const values = {
+    client_name: context.user.name,
+    website: siteUrl,
+    whatsapp: context.client.whatsapp,
+    email: context.user.email,
+    app_type: APP_TYPE_NAMES[context.app?.appType ?? "lms"],
+    note_line: note ? `Note: ${note}\n` : "",
+  };
+  await Promise.all(superAdminEmails().map((to) => sendTemplate("setup_request", to, values)));
+}
+
+export interface ApiCheckState {
+  result: ApiCheckResult | null;
+  error?: string;
+}
+
+/** Runs the API check against the address in the Website form, without saving it. */
+export async function checkApiAction(_: ApiCheckState, formData: FormData): Promise<ApiCheckState> {
+  const context = await requireApp();
+  const limited = await hitRateLimit(await getStore(), RATE_LIMITS.apiCheck, context.client.id);
+  if (!limited.allowed) return { result: null, error: "Too many checks. Try again in a few minutes." };
+  const address = String(formData.get("apiBaseUrl") ?? "").trim();
+  if (!address) return { result: null, error: "Enter your API's address first." };
+  return { result: await checkApi(address, context.app.appType) };
 }
 
 export async function saveBrandingAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -124,9 +392,75 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   const parsed = listingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const store = await getStore();
+  const screenshots = await readScreenshotIds(formData, context.client.id);
+  if (!screenshots.ok) return { errors: screenshots.errors, values };
   const now = new Date();
-  await store.updateApp(context.app.id, { ...parsed.data, listingDoneAt: now }, now);
+  const patch: AppPatch = { ...parsed.data, ...screenshots.patch, listingDoneAt: now };
+  // A Firebase file is made for one package name or bundle ID.
+  if (parsed.data.androidPackage !== context.app.androidPackage) patch.firebaseAndroidAssetId = null;
+  if (parsed.data.iosBundleId !== context.app.iosBundleId) patch.firebaseIosAssetId = null;
+  await store.updateApp(context.app.id, patch, now);
   return afterStep(context, "listing");
+}
+
+const SCREENSHOT_ASSET: Record<ScreenshotKind, { kind: AssetKind; field: "playScreenshotIds" | "iosScreenshotIds"; store: string }> = {
+  phone: { kind: "play_screenshot", field: "playScreenshotIds", store: "Google Play" },
+  iphone: { kind: "ios_screenshot", field: "iosScreenshotIds", store: "the App Store" },
+};
+
+/** The screenshots kept in the form, in order. Each must be this client's upload of the right kind. */
+async function readScreenshotIds(
+  formData: FormData,
+  clientId: string,
+): Promise<{ ok: true; patch: Pick<AppPatch, "phoneScreenshotIds" | "iphoneScreenshotIds"> } | { ok: false; errors: Record<string, string> }> {
+  const store = await getStore();
+  const errors: Record<string, string> = {};
+  const lists: Record<ScreenshotKind, string[]> = { phone: [], iphone: [] };
+  for (const kind of ["phone", "iphone"] as const) {
+    const { kind: assetKind, field, store: storeName } = SCREENSHOT_ASSET[kind];
+    const ids = [...new Set(formData.getAll(field).map(String).filter(Boolean))];
+    const { min, max } = SCREENSHOT_LIMITS[kind];
+    if (ids.length > max) errors[field] = `${storeName} takes up to ${max} screenshots.`;
+    else if (ids.length > 0 && ids.length < min) errors[field] = `${storeName} needs at least ${min} screenshots.`;
+    for (const id of ids) {
+      const asset = await store.getAsset(id);
+      if (!asset || asset.clientId !== clientId || asset.kind !== assetKind) {
+        errors[field] = "A screenshot couldn't be found. Upload it again.";
+        break;
+      }
+    }
+    lists[kind] = ids;
+  }
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  return { ok: true, patch: { phoneScreenshotIds: lists.phone, iphoneScreenshotIds: lists.iphone } };
+}
+
+async function saveAsset(clientId: string, kind: AssetKind, data: Buffer, contentType: string, extension: string): Promise<string> {
+  const id = newId();
+  const blobKey = `assets/${clientId}/${id}.${extension}`;
+  await getBlobStore().put(blobKey, data, contentType);
+  const store = await getStore();
+  await store.createAsset({ id, clientId, kind, blobKey, contentType, size: data.length, createdAt: new Date() });
+  return id;
+}
+
+/** Firebase config files for push notifications. Optional, on every plan. */
+async function readFirebaseFiles(formData: FormData, app: App, clientId: string): Promise<{ patch: AppPatch; errors: Record<string, string> }> {
+  const patch: AppPatch = {};
+  const errors: Record<string, string> = {};
+  const android = await fileText(formData.get("firebaseAndroidFile"), FIREBASE_MAX_BYTES);
+  if (android !== null) {
+    const error = android === "" ? "This file is too large for google-services.json." : checkGoogleServicesJson(android, app.androidPackage ?? "");
+    if (error) errors.firebaseAndroidFile = error;
+    else patch.firebaseAndroidAssetId = await saveAsset(clientId, "firebase_android", Buffer.from(android), "application/json", "json");
+  }
+  const ios = await fileText(formData.get("firebaseIosFile"), FIREBASE_MAX_BYTES);
+  if (ios !== null) {
+    const error = ios === "" ? "This file is too large for GoogleService-Info.plist." : checkGoogleServiceInfoPlist(ios, app.iosBundleId ?? "");
+    if (error) errors.firebaseIosFile = error;
+    else patch.firebaseIosAssetId = await saveAsset(clientId, "firebase_ios", Buffer.from(ios), "application/xml", "plist");
+  }
+  return { patch, errors };
 }
 
 async function fileText(value: FormDataEntryValue | null, maxBytes: number): Promise<string | null> {
@@ -151,10 +485,12 @@ async function readAppStoreKey(
   const errors: Record<string, string> = {};
   const patch: AppPatch = {};
   if (!issuerId && !keyId && p8 === null) return { patch, errors, values };
-  const parsed = appStoreKeySchema.safeParse({
+  // Without a new file, the saved key stays and only the IDs are checked.
+  const schema = p8 === null && app.ascPrivateKeyEncrypted ? appStoreKeySchema.omit({ privateKey: true }) : appStoreKeySchema;
+  const parsed = schema.safeParse({
     issuerId: issuerId || app.ascIssuerId || "",
     keyId: keyId || app.ascKeyId || "",
-    privateKey: p8 ?? (app.ascPrivateKeyEncrypted ? "-----BEGIN PRIVATE KEY-----kept-----END PRIVATE KEY-----" : ""),
+    privateKey: p8 ?? "",
   });
   if (!parsed.success) {
     const fields = fieldErrors(parsed.error);
@@ -183,8 +519,9 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
   const app = context.app;
   const key = encryptionKey();
   const appStore = await readAppStoreKey(formData, app, key);
-  const errors: Record<string, string> = { ...appStore.errors };
-  const patch: AppPatch = { ...appStore.patch };
+  const firebase = await readFirebaseFiles(formData, app, context.client.id);
+  const errors: Record<string, string> = { ...appStore.errors, ...firebase.errors };
+  const patch: AppPatch = { ...appStore.patch, ...firebase.patch };
   const values = appStore.values;
 
   if (context.license?.plan !== "pro") {
@@ -221,7 +558,12 @@ export async function removeStoreKeyAction(formData: FormData): Promise<void> {
     await store.updateApp(context.app.id, { googlePlayKeyEncrypted: null, googlePlayClientEmail: null }, now);
   } else if (formData.get("store") === "app-store") {
     await store.updateApp(context.app.id, { ascPrivateKeyEncrypted: null, ascIssuerId: null, ascKeyId: null }, now);
+  } else if (formData.get("store") === "firebase-android") {
+    await store.updateApp(context.app.id, { firebaseAndroidAssetId: null }, now);
+  } else if (formData.get("store") === "firebase-ios") {
+    await store.updateApp(context.app.id, { firebaseIosAssetId: null }, now);
   }
+  await recordStaffChange(context, `Removed a saved key or file (${String(formData.get("store") ?? "")})`);
   revalidatePath("/dashboard", "layout");
   redirect(stepUrl("publishing"));
 }
@@ -233,13 +575,24 @@ export interface UploadResult {
   error?: string;
 }
 
-/** Uploads an app icon (PNG, 1024 × 1024, no transparency) or a logo (PNG or SVG). */
+/**
+ * Uploads an app icon (PNG, 1024 × 1024, no transparency), a logo (PNG or SVG)
+ * or a store screenshot (PNG or JPEG, sizes the store accepts).
+ */
 export async function uploadAssetAction(formData: FormData): Promise<UploadResult> {
   const context = await requireActiveClient();
   const kind = formData.get("kind") as AssetKind | null;
   const file = formData.get("file");
-  if ((kind !== "icon" && kind !== "logo") || !file || typeof file === "string" || file.size === 0) {
+  if (!kind || !["icon", "logo", "play_screenshot", "ios_screenshot"].includes(kind) || !file || typeof file === "string" || file.size === 0) {
     return { ok: false, error: "Choose a file to upload." };
+  }
+  if (kind === "play_screenshot" || kind === "ios_screenshot") {
+    if (file.size > SCREENSHOT_MAX_BYTES) return { ok: false, error: `The file is too large. The limit is ${SCREENSHOT_MAX_BYTES / 1024 / 1024} MB.` };
+    const data = Buffer.from(await file.arrayBuffer());
+    const checked = checkScreenshot(data, kind === "play_screenshot" ? "phone" : "iphone");
+    if (!checked.ok) return { ok: false, error: checked.error };
+    const id = await saveAsset(context.client.id, kind, data, checked.contentType, checked.contentType === "image/png" ? "png" : "jpg");
+    return { ok: true, id, url: `/api/v1/assets/${id}` };
   }
   const max = kind === "icon" ? ICON_MAX_BYTES : LOGO_MAX_BYTES;
   if (file.size > max) return { ok: false, error: `The file is too large. The limit is ${max / 1024 / 1024} MB.` };
@@ -258,11 +611,7 @@ export async function uploadAssetAction(formData: FormData): Promise<UploadResul
   } else {
     return { ok: false, error: "The logo must be a PNG or SVG file." };
   }
-  const id = newId();
-  const blobKey = `assets/${context.client.id}/${id}.${contentType === "image/png" ? "png" : "svg"}`;
-  await getBlobStore().put(blobKey, data, contentType);
-  const store = await getStore();
-  await store.createAsset({ id, clientId: context.client.id, kind, blobKey, contentType, size: data.length, createdAt: new Date() });
+  const id = await saveAsset(context.client.id, kind, data, contentType, contentType === "image/png" ? "png" : "svg");
   return { ok: true, id, url: `/api/v1/assets/${id}` };
 }
 
@@ -292,6 +641,8 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
       values,
     };
   }
+  await startPipeline();
+  await recordStaffChange(context, `Started build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
   return { ok: true, message: `Build #${result.build.number} is queued.`, values: { versionName: bumpPatch(result.build.versionName) } };
 }
@@ -302,6 +653,7 @@ export async function releaseSiteAction(): Promise<void> {
   if (context.license) {
     const store = await getStore();
     await store.deleteActivation(context.license.id);
+    await recordStaffChange(context, "Released the license from its website");
   }
   revalidatePath("/dashboard", "layout");
   redirect("/dashboard/license?released=1");

@@ -1,15 +1,45 @@
 import type {
   Activation,
   App,
+  AppLayoutRecord,
   Asset,
   Build,
   BuildStatus,
+  CatalogCategory,
+  CatalogOrder,
+  CatalogOrderPatch,
+  CatalogOrderStatus,
+  PlanPayment,
+  BookingAppointment,
+  BookingAppointmentPatch,
+  BookingStatus,
+  CourseEnrollment,
+  LessonProgress,
+  CatalogProduct,
+  CatalogProductInput,
   Client,
+  HostedChallenge,
+  HostedDevice,
+  HostedNotification,
+  HostedRefreshToken,
+  HostedUser,
+  HostedUserPatch,
   License,
+  PlatformSetting,
+  PlatformSettingKey,
+  PlatformSettingValues,
   PluginRelease,
   ResetToken,
   User,
+  AdminMember,
+  AdminMemberRow,
+  AuditEntry,
+  AuditQuery,
 } from "./types";
+// 11.3, 11.4, 11.6 and 11.8
+import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
+// 10.7 Listings
+import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
 
@@ -21,12 +51,22 @@ export interface ClientRow {
   latestBuild: Build | null;
 }
 
+/** A client who asked the team to set up WordPress for their app. */
+export interface SetupRequestRow {
+  client: Client;
+  user: User;
+  app: App;
+}
+
 export class DuplicateEmailError extends Error {
   constructor() {
     super("An account with this email already exists.");
     this.name = "DuplicateEmailError";
   }
 }
+
+/** A device of a hosted-API customer: what the API may change. */
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushPreferences" | "lastSeenAt">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
@@ -61,6 +101,8 @@ export interface DataStore {
   updateClient(id: string, patch: ClientPatch, now: Date): Promise<void>;
   listClients(input: { filter: ClientFilter; query?: string; now: Date }): Promise<ClientRow[]>;
   countClients(now: Date): Promise<Record<ClientFilter, number>>;
+  /** Open WordPress set-up requests, oldest first. */
+  listSetupRequests(): Promise<SetupRequestRow[]>;
 
   // Licenses
   createLicense(license: License): Promise<void>;
@@ -113,7 +155,239 @@ export interface DataStore {
   /** Marks the token used; returns false if it was already used (single use, atomic). */
   consumeResetToken(tokenHash: string, now: Date): Promise<boolean>;
 
+  // Hosted API: an app's customers (always scoped by app)
+  /** Returns null when the app already has a customer with this phone number. */
+  createHostedUser(input: { appId: string; phone: string; name: string; email: string | null; city: string | null; now: Date }): Promise<HostedUser | null>;
+  getHostedUser(appId: string, id: number): Promise<HostedUser | null>;
+  getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null>;
+  updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void>;
+  /** Deletes the customer with their devices, sign-ins and notifications. */
+  deleteHostedUser(appId: string, id: number): Promise<void>;
+
+  createHostedDevice(device: HostedDevice): Promise<void>;
+  getHostedDevice(appId: string, id: string): Promise<HostedDevice | null>;
+  findHostedDevice(appId: string, userId: number, deviceId: string): Promise<HostedDevice | null>;
+  /** A customer's devices, most recently seen first. */
+  listHostedDevices(appId: string, userId: number): Promise<HostedDevice[]>;
+  updateHostedDevice(appId: string, id: string, patch: HostedDevicePatch): Promise<void>;
+  /** Signs the device out: deletes it and its refresh tokens. */
+  deleteHostedDevice(appId: string, id: string): Promise<void>;
+  /** Devices with a push token: every customer's, or only these customers'. */
+  listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]>;
+  /** Forgets a push token Firebase reported as no longer valid. */
+  clearHostedPushToken(appId: string, token: string): Promise<void>;
+
+  createHostedRefreshToken(token: HostedRefreshToken): Promise<void>;
+  /** Deletes and returns the token (single use, atomic); null when it was already used or never existed. */
+  takeHostedRefreshToken(tokenHash: string): Promise<HostedRefreshToken | null>;
+
+  createHostedChallenge(challenge: HostedChallenge): Promise<void>;
+  getHostedChallenge(tokenHash: string): Promise<HostedChallenge | null>;
+  /** Counts one more wrong or right attempt; returns the attempts so far. */
+  addHostedChallengeAttempt(tokenHash: string): Promise<number>;
+  deleteHostedChallenge(tokenHash: string): Promise<void>;
+  /** Drops expired challenges and refresh tokens. */
+  purgeHostedExpired(now: Date): Promise<void>;
+
+  createHostedNotification(input: Omit<HostedNotification, "id">): Promise<HostedNotification>;
+  /** The customer's notifications (their own and everyone's) since `since`, newest first. */
+  listHostedNotifications(input: {
+    appId: string;
+    userId: number;
+    since: Date;
+    page: number;
+    perPage: number;
+  }): Promise<{ items: HostedNotification[]; total: number }>;
+  countHostedNotificationsAfter(input: { appId: string; userId: number; after: Date }): Promise<number>;
+  /** Everyone's notifications of an app, newest first, for the dashboard. */
+  listHostedBroadcasts(appId: string, limit: number): Promise<HostedNotification[]>;
+  countHostedUsers(appId: string): Promise<number>;
+
+  // Platform settings (admin)
+  /**
+   * Books a time for a staff member: null when an active appointment of
+   * theirs overlaps it (checked and written as one step, so two customers
+   * can't take the same time).
+   */
+  createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null>;
+  getBookingAppointment(appId: string, id: number): Promise<BookingAppointment | null>;
+  updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void>;
+  /**
+   * An app's appointments. `scope` upcoming: active ones from `now`, soonest
+   * first; past: the rest, newest first. Without scope, every status in the
+   * window [startFrom, startBefore), soonest first.
+   */
+  listBookingAppointments(input: {
+    appId: string;
+    userId?: number;
+    scope?: { kind: "upcoming" | "past"; now: Date };
+    statuses?: BookingStatus[];
+    startFrom?: Date;
+    startBefore?: Date;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: BookingAppointment[]; total: number }>;
+  /** Enrols once; false when they already were. */
+  enrollInCourse(input: CourseEnrollment): Promise<boolean>;
+  listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]>;
+  /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */
+  saveLessonProgress(input: LessonProgress): Promise<void>;
+  listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;
+  /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
+  listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
+  createPlanPayment(payment: PlanPayment): Promise<void>;
+  getPlanPaymentByToken(tokenHash: string): Promise<PlanPayment | null>;
+  /** Pending to paid, once: false when it was no longer pending. */
+  payPlanPayment(id: string, paymentId: string, now: Date): Promise<boolean>;
+  /** Pending to failed. */
+  failPlanPayment(id: string): Promise<void>;
+  /** Newest first; one client's, or everyone's. */
+  listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]>;
+  listPlatformSettings(): Promise<PlatformSetting[]>;
+  /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
+  setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;
+
+  // Catalog (apps without a website)
+  listCatalogCategories(appId: string): Promise<CatalogCategory[]>;
+  createCatalogCategory(input: { appId: string; name: string; now: Date }): Promise<CatalogCategory>;
+  renameCatalogCategory(appId: string, id: number, name: string): Promise<void>;
+  /** Also removes the category from its products. */
+  deleteCatalogCategory(appId: string, id: number, now: Date): Promise<void>;
+  /** Every product of the app, newest first. */
+  listCatalogProducts(appId: string): Promise<CatalogProduct[]>;
+  getCatalogProduct(appId: string, id: number): Promise<CatalogProduct | null>;
+  createCatalogProduct(input: CatalogProductInput, now: Date): Promise<CatalogProduct>;
+  updateCatalogProduct(appId: string, id: number, input: Partial<CatalogProductInput>, now: Date): Promise<void>;
+  deleteCatalogProduct(appId: string, id: number): Promise<void>;
+  createCatalogOrder(input: Omit<CatalogOrder, "id">): Promise<CatalogOrder>;
+  getCatalogOrder(appId: string, id: number): Promise<CatalogOrder | null>;
+  getCatalogOrderByToken(tokenHash: string): Promise<CatalogOrder | null>;
+  updateCatalogOrder(appId: string, id: number, patch: CatalogOrderPatch): Promise<void>;
+  /**
+   * Marks a pending order paid ("processing") and takes its quantities from
+   * stock, once: false when the order wasn't pending.
+   */
+  payCatalogOrder(appId: string, id: number, paymentId: string, now: Date): Promise<boolean>;
+  /** Newest first; `statuses` limits the list (the app shows paid orders only). */
+  listCatalogOrders(input: {
+    appId: string;
+    userId?: number;
+    statuses?: CatalogOrderStatus[];
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CatalogOrder[]; total: number }>;
+
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
+
+  // 10.7 Listings (Real estate apps)
+  /** Every listing of the app, any status, newest first. */
+  listListings(appId: string): Promise<Listing[]>;
+  getListing(appId: string, id: number): Promise<Listing | null>;
+  createListing(input: ListingInput, now: Date): Promise<Listing>;
+  updateListing(appId: string, id: number, patch: Partial<ListingInput>, now: Date): Promise<void>;
+  /** The office's settings; null until saved (the defaults apply). */
+  getListingSettings(appId: string): Promise<ListingSettings | null>;
+  saveListingSettings(appId: string, settings: ListingSettings, now: Date): Promise<void>;
+  /** Adds once; adding again keeps the first date. */
+  addListingFavorite(favorite: ListingFavorite): Promise<void>;
+  removeListingFavorite(appId: string, userId: number, listingId: number): Promise<void>;
+  /** A user's favorites, newest first. */
+  listListingFavorites(appId: string, userId: number): Promise<ListingFavorite[]>;
+  createListingInquiry(input: Omit<ListingInquiry, "id">): Promise<ListingInquiry>;
+  getListingInquiry(appId: string, id: number): Promise<ListingInquiry | null>;
+  /** The user's open conversation about the listing, if any. */
+  findOpenListingInquiry(appId: string, userId: number, listingId: number): Promise<ListingInquiry | null>;
+  updateListingInquiry(appId: string, id: number, patch: Partial<Pick<ListingInquiry, "status" | "updatedAt">>): Promise<void>;
+  /** Adds a message and moves the conversation's `updatedAt` to it. */
+  addListingInquiryMessage(input: Omit<ListingInquiryMessage, "id" | "readAt">): Promise<ListingInquiryMessage>;
+  /** A conversation's messages, oldest first. */
+  listListingInquiryMessages(appId: string, inquiryId: number): Promise<ListingInquiryMessage[]>;
+  /** Marks the messages `from` one side as read by the other. */
+  markListingInquiryRead(appId: string, inquiryId: number, from: "user" | "office", now: Date): Promise<void>;
+  /** Conversations, latest message first: one user's, or the whole office's. */
+  listListingInquiries(input: {
+    appId: string;
+    userId?: number;
+    status?: ListingInquiryStatus;
+    offset: number;
+    limit: number;
+  }): Promise<{ items: ListingInquiryRow[]; total: number }>;
+  /** Conversations with user messages the office hasn't read. */
+  countUnreadListingInquiries(appId: string): Promise<number>;
+
+  // 10.4 Pages, looks and languages
+  getAppLayout(appId: string): Promise<AppLayoutRecord | null>;
+  /** Creates or replaces the app's layout. */
+  saveAppLayout(layout: AppLayoutRecord): Promise<void>;
+
+  // 11.7 Admin team and audit log
+  /** Everyone in admin_members with their user, oldest first. */
+  listAdminMembers(): Promise<AdminMemberRow[]>;
+  getAdminMember(userId: string): Promise<AdminMember | null>;
+  /** Adds the member, or replaces their role. */
+  saveAdminMember(member: AdminMember): Promise<void>;
+  deleteAdminMember(userId: string): Promise<void>;
+  createAuditEntry(entry: Omit<AuditEntry, "id">): Promise<AuditEntry>;
+  /** Newest first. */
+  listAuditEntries(query: AuditQuery): Promise<{ items: AuditEntry[]; total: number }>;
+
+  // 11.1 Overview
+  /** Every client's app. */
+  listApps(): Promise<App[]>;
+  /** Builds queued at or after `since`, newest first. */
+  listBuildsSince(since: Date): Promise<Build[]>;
+  /** Plan payments paid at or after `since`. */
+  listPaidPlanPaymentsSince(since: Date): Promise<PlanPayment[]>;
+  /** Orders sold through Yallapp's account (with a commission) paid at or after `since`. */
+  listMarketplaceOrdersSince(since: Date): Promise<CatalogOrder[]>;
+  /** Customers per hosted app, by app ID (apps without customers are left out). */
+  countHostedUsersByApp(): Promise<Record<string, number>>;
+
+  // 11.2 Client page
+  /** An app's customers, newest first; `query` matches the name, phone or email. */
+  listHostedUsers(input: { appId: string; query?: string; offset: number; limit: number }): Promise<{ items: HostedUser[]; total: number }>;
+
+
+  // 11.3 Website content
+  listSiteContent(): Promise<SiteContentRecord[]>;
+  getSiteContent(key: string): Promise<SiteContentRecord | null>;
+  /** Saves a page's texts, or removes the edit (back to the text in code) when `fields` is null. */
+  setSiteContent(key: string, fields: Record<string, string> | null, updatedBy: string, now: Date): Promise<void>;
+
+  // 11.4 Email templates
+  listEmailTemplates(): Promise<EmailTemplateRecord[]>;
+  getEmailTemplate(key: string): Promise<EmailTemplateRecord | null>;
+  /** Saves an email's subject and body, or removes the edit (back to the default) when `template` is null. */
+  setEmailTemplate(key: string, template: { subject: string; body: string } | null, updatedBy: string, now: Date): Promise<void>;
+
+  // 11.6 Coupons
+  /** False (and nothing saved) when another coupon has the same code. */
+  createCoupon(coupon: Coupon): Promise<boolean>;
+  /** False (and nothing saved) when another coupon has the new code. */
+  updateCoupon(id: string, patch: CouponPatch, now: Date): Promise<boolean>;
+  getCoupon(id: string): Promise<Coupon | null>;
+  /** `code` in upper case. */
+  getCouponByCode(code: string): Promise<Coupon | null>;
+  /** Newest first. */
+  listCoupons(): Promise<Coupon[]>;
+  createCouponRedemption(redemption: CouponRedemption): Promise<void>;
+  /** Moves a pending redemption (by its plan payment) to redeemed or failed. */
+  settleCouponRedemption(paymentId: string, status: "redeemed" | "failed", now: Date): Promise<void>;
+  /** Newest first: a coupon's, a client's, or both. */
+  listCouponRedemptions(input: { couponId?: string; clientId?: string }): Promise<CouponRedemption[]>;
+
+  // 11.8 Announcements
+  createAnnouncement(announcement: Announcement): Promise<void>;
+  updateAnnouncement(id: string, patch: AnnouncementPatch, now: Date): Promise<void>;
+  /** Also forgets who dismissed it. */
+  deleteAnnouncement(id: string): Promise<void>;
+  getAnnouncement(id: string): Promise<Announcement | null>;
+  /** Newest start first. */
+  listAnnouncements(): Promise<Announcement[]>;
+  /** Hides an announcement from a client's dashboard banner (once; again is a no-op). */
+  dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void>;
+  /** The announcements a client dismissed. */
+  listDismissedAnnouncementIds(clientId: string): Promise<string[]>;
 }

@@ -1,5 +1,5 @@
 import "server-only";
-import { dataMode, databaseConfig, memorySeedAdminPassword, superAdminEmails } from "../env";
+import { dataMode, databaseConfig, isNetlify, memorySeedAdminPassword, superAdminEmails } from "../env";
 import { hashPassword } from "../auth/password";
 import { MemoryStore } from "./memory";
 import type { DataStore } from "./store";
@@ -24,15 +24,22 @@ async function createStore(): Promise<DataStore> {
     return store;
   }
   const { MysqlStore, createPool } = await import("./mysql");
-  return new MysqlStore(createPool(databaseConfig()));
+  const store = new MysqlStore(createPool(databaseConfig()));
+  // Local test runs against a MySQL or MariaDB database (never on Netlify).
+  if (!isNetlify()) await seedMemoryAdmins(store);
+  return store;
 }
 
-/** Memory mode only: creates the super admins with a known password so local runs and tests can sign in. */
-async function seedMemoryAdmins(store: MemoryStore): Promise<void> {
+/**
+ * Local runs and tests only (YALLAPP_SEED_ADMIN_PASSWORD, never on Netlify):
+ * creates the super admins with a known password so tests can sign in.
+ */
+async function seedMemoryAdmins(store: DataStore): Promise<void> {
   const password = memorySeedAdminPassword();
   if (!password) return;
   const passwordHash = await hashPassword(password);
   for (const email of superAdminEmails()) {
+    if (await store.getUserByEmail(email)) continue;
     await store.createUser({ email, name: "Yallapp admin", passwordHash, now: new Date() });
   }
 }

@@ -4,6 +4,7 @@ import 'api_exception.dart';
 import 'http_client.dart';
 import 'models/json.dart';
 import 'models/models.dart';
+import '../l10n/l10n.dart';
 
 enum PriceFilter { all, free, paid }
 
@@ -68,6 +69,242 @@ class CourseQuery {
       Object.hash(page, perPage, search, category, price, orderBy);
 }
 
+enum AppointmentsFilter { upcoming, past }
+
+enum ProductOrder { newest, popular, rating, priceAsc, priceDesc, title }
+
+class ProductQuery {
+  const ProductQuery({
+    this.page = 1,
+    this.perPage = 20,
+    this.search,
+    this.category,
+    this.onSale = false,
+    this.featured = false,
+    this.orderBy = ProductOrder.newest,
+  });
+
+  final int page;
+  final int perPage;
+  final String? search;
+  final int? category;
+  final bool onSale;
+  final bool featured;
+  final ProductOrder orderBy;
+
+  ProductQuery copyWith({
+    int? page,
+    String? search,
+    int? category,
+    bool clearCategory = false,
+    bool? onSale,
+    ProductOrder? orderBy,
+  }) => ProductQuery(
+    page: page ?? this.page,
+    perPage: perPage,
+    search: search ?? this.search,
+    category: clearCategory ? null : (category ?? this.category),
+    onSale: onSale ?? this.onSale,
+    featured: featured,
+    orderBy: orderBy ?? this.orderBy,
+  );
+
+  Map<String, dynamic> toQuery() => {
+    'page': page,
+    'per_page': perPage,
+    if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
+    if (category != null) 'category': category,
+    if (onSale) 'on_sale': true,
+    if (featured) 'featured': true,
+    'orderby': switch (orderBy) {
+      ProductOrder.priceAsc => 'price_asc',
+      ProductOrder.priceDesc => 'price_desc',
+      _ => orderBy.name,
+    },
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is ProductQuery &&
+      other.page == page &&
+      other.perPage == perPage &&
+      other.search == search &&
+      other.category == category &&
+      other.onSale == onSale &&
+      other.featured == featured &&
+      other.orderBy == orderBy;
+
+  @override
+  int get hashCode =>
+      Object.hash(page, perPage, search, category, onSale, featured, orderBy);
+}
+
+enum ListingSort { newest, priceAsc, priceDesc, areaDesc }
+
+/// A listings search (`GET /listings`). Null filters are left out.
+class ListingQuery {
+  const ListingQuery({
+    this.page = 1,
+    this.perPage = 20,
+    this.search,
+    this.purpose,
+    this.type,
+    this.city,
+    this.district,
+    this.minPrice,
+    this.maxPrice,
+    this.minArea,
+    this.maxArea,
+    this.bedrooms,
+    this.bathrooms,
+    this.featured = false,
+    this.sort = ListingSort.newest,
+  });
+
+  final int page;
+  final int perPage;
+  final String? search;
+  final ListingPurpose? purpose;
+  final String? type;
+  final String? city;
+  final String? district;
+  final double? minPrice;
+  final double? maxPrice;
+  final double? minArea;
+  final double? maxArea;
+
+  /// At least this many.
+  final int? bedrooms;
+  final int? bathrooms;
+  final bool featured;
+  final ListingSort sort;
+
+  /// Filters set in the filter sheet (not the search words, purpose or
+  /// order), for the badge on the filter button.
+  int get filterCount => [
+    type,
+    city,
+    district,
+    minPrice ?? maxPrice,
+    minArea ?? maxArea,
+    bedrooms,
+    bathrooms,
+  ].where((v) => v != null).length;
+
+  ListingQuery copyWith({
+    int? page,
+    String? search,
+    ListingSort? sort,
+    ListingPurpose? purpose,
+    bool clearPurpose = false,
+  }) => ListingQuery(
+    page: page ?? this.page,
+    perPage: perPage,
+    search: search ?? this.search,
+    purpose: clearPurpose ? null : (purpose ?? this.purpose),
+    type: type,
+    city: city,
+    district: district,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    minArea: minArea,
+    maxArea: maxArea,
+    bedrooms: bedrooms,
+    bathrooms: bathrooms,
+    featured: featured,
+    sort: sort ?? this.sort,
+  );
+
+  /// The same search with the filter sheet's values replaced.
+  ListingQuery withFilters({
+    String? type,
+    String? city,
+    String? district,
+    double? minPrice,
+    double? maxPrice,
+    double? minArea,
+    double? maxArea,
+    int? bedrooms,
+    int? bathrooms,
+  }) => ListingQuery(
+    page: 1,
+    perPage: perPage,
+    search: search,
+    purpose: purpose,
+    type: type,
+    city: city,
+    district: city == null ? null : district,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    minArea: minArea,
+    maxArea: maxArea,
+    bedrooms: bedrooms,
+    bathrooms: bathrooms,
+    featured: featured,
+    sort: sort,
+  );
+
+  static String _number(double value) => value == value.roundToDouble()
+      ? value.toStringAsFixed(0)
+      : value.toString();
+
+  Map<String, dynamic> toQuery() => {
+    'page': page,
+    'per_page': perPage,
+    if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
+    if (purpose != null) 'purpose': purpose!.name,
+    'type': ?type,
+    'city': ?city,
+    'district': ?district,
+    if (minPrice != null) 'min_price': _number(minPrice!),
+    if (maxPrice != null) 'max_price': _number(maxPrice!),
+    if (minArea != null) 'min_area': _number(minArea!),
+    if (maxArea != null) 'max_area': _number(maxArea!),
+    'bedrooms': ?bedrooms,
+    'bathrooms': ?bathrooms,
+    if (featured) 'featured': true,
+    'sort': snake(sort),
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is ListingQuery &&
+      other.page == page &&
+      other.perPage == perPage &&
+      other.search == search &&
+      other.purpose == purpose &&
+      other.type == type &&
+      other.city == city &&
+      other.district == district &&
+      other.minPrice == minPrice &&
+      other.maxPrice == maxPrice &&
+      other.minArea == minArea &&
+      other.maxArea == maxArea &&
+      other.bedrooms == bedrooms &&
+      other.bathrooms == bathrooms &&
+      other.featured == featured &&
+      other.sort == sort;
+
+  @override
+  int get hashCode => Object.hash(
+    page,
+    perPage,
+    search,
+    purpose,
+    type,
+    city,
+    district,
+    minPrice,
+    maxPrice,
+    minArea,
+    maxArea,
+    bedrooms,
+    bathrooms,
+    featured,
+    sort,
+  );
+}
+
 class RegisterInput {
   const RegisterInput({
     required this.signupToken,
@@ -92,12 +329,19 @@ class RegisterInput {
   };
 }
 
-/// Every call the app makes to `<site_url>/wp-json/yallapp/v1`.
+/// Every call the app makes to the Yallapp API (`docs/api/openapi.yaml`),
+/// served by the WordPress plugin or by a custom or hosted API.
 ///
 /// Implementations throw [ApiException] on failure.
 abstract class YallappApi {
   Future<AppConfig> getConfig();
   Future<List<HomeSection>> getHome();
+
+  /// The published tabs and pages, or `null` when the site has none (404),
+  /// or its plugin doesn't serve `/pages` yet (404 or 501): the app then
+  /// keeps its built-in tabs and `/home`.
+  Future<Navigation?> getPages();
+  Future<AppPage> getPage(String slug);
 
   Future<OtpRequestResult> requestOtp({
     required String countryCode,
@@ -153,6 +397,82 @@ abstract class YallappApi {
   );
   Future<Paged<AttemptResult>> listMyAttempts({int page = 1});
   Future<List<Certificate>> listCertificates();
+
+  Future<NotificationPage> listNotifications({int page = 1, int perPage = 20});
+  Future<void> markNotificationsRead();
+  Future<Paged<Order>> listOrders({int page = 1});
+
+  Future<ReviewPage> listReviews(int courseId, {int page = 1});
+  Future<Review> saveMyReview(int courseId, {required int rating, String text});
+  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1});
+  Future<CourseQuestion> askQuestion(int courseId, String text);
+  Future<QuestionThread> getQuestion(int questionId);
+  Future<QuestionAnswer> answerQuestion(int questionId, String text);
+
+  Future<List<StoreHomeSection>> getStoreHome();
+  Future<List<ProductCategory>> listProductCategories();
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query);
+  Future<ProductDetail> getProduct(int productId);
+  Future<ReviewPage> listProductReviews(int productId, {int page = 1});
+
+  /// Prices the app's cart as the shop sees it now.
+  Future<CartQuote> quoteCart(List<CartLineInput> lines);
+
+  /// A one-time link that fills the shop's cart and opens its checkout.
+  /// Signed-in customers are signed in on the site; guests only when the
+  /// shop allows guest checkout.
+  Future<CheckoutLink> createStoreCheckoutLink(
+    List<CartLineInput> lines, {
+    String? deliveryDate,
+    String? giftMessage,
+  });
+
+  Future<List<BookingsHomeSection>> getBookingsHome();
+  Future<List<ServiceCategory>> listServiceCategories();
+  Future<Paged<ServiceSummary>> listServices({
+    int page = 1,
+    String? search,
+    int? category,
+  });
+  Future<ServiceDetail> getService(int serviceId);
+
+  /// Free times from [from] (the business's local date) for [days] days.
+  Future<Availability> getAvailability(
+    int serviceId, {
+    required String from,
+    int? staffId,
+    int days = 7,
+  });
+
+  /// Books a `start` from [getAvailability]. Throws `slot_taken` (409) when
+  /// someone else got it first.
+  Future<Appointment> bookAppointment({
+    required int serviceId,
+    required DateTime start,
+    int? staffId,
+    String? notes,
+  });
+  Future<Paged<Appointment>> listMyAppointments({
+    AppointmentsFilter filter = AppointmentsFilter.upcoming,
+    int page = 1,
+  });
+  Future<Appointment> getMyAppointment(int appointmentId);
+  Future<Appointment> cancelMyAppointment(int appointmentId);
+
+  Future<ListingFilters> getListingFilters();
+  Future<Paged<ListingSummary>> searchListings(ListingQuery query);
+  Future<ListingDetail> getListing(int listingId);
+
+  /// Starts a conversation with the office, or adds to the open one.
+  Future<Inquiry> sendInquiry(int listingId, String message);
+  Future<Paged<ListingSummary>> listFavorites({int page = 1});
+  Future<void> addFavorite(int listingId);
+  Future<void> removeFavorite(int listingId);
+  Future<Paged<Inquiry>> listInquiries({int page = 1});
+
+  /// Also marks the office's messages as read.
+  Future<Inquiry> getInquiry(int inquiryId);
+  Future<Inquiry> replyToInquiry(int inquiryId, String message);
 }
 
 /// [YallappApi] over HTTP.
@@ -162,9 +482,13 @@ class HttpYallappApi implements YallappApi {
     required this._refreshDio,
     required this.platform,
     required this.appVersion,
-  });
+    String Function()? language,
+  }) : _language = language ?? (() => 'en');
 
   final Dio _dio;
+
+  /// The language sent as `Accept-Language`; cached pages are per language.
+  final String Function() _language;
 
   /// Used only for `POST /auth/refresh`, without the auth interceptor.
   final Dio _refreshDio;
@@ -190,7 +514,7 @@ class HttpYallappApi implements YallappApi {
     } on FormatException catch (e) {
       throw ApiException(
         code: ApiException.invalidResponse,
-        message: "The academy sent a response the app couldn't read.",
+        message: currentL10n.errorInvalidResponse,
         statusCode: response.statusCode,
         details: {'reason': e.message},
       );
@@ -245,6 +569,65 @@ class HttpYallappApi implements YallappApi {
     (json) => reqListOf(json, 'sections', HomeSection.fromJson),
   );
 
+  Navigation? _pages;
+  String? _pagesTag;
+  String? _pagesLanguage;
+
+  static bool _pagesStatus(int? status) =>
+      status != null && ((status >= 200 && status < 300) || status == 304);
+
+  @override
+  Future<Navigation?> getPages() async {
+    final language = _language();
+    final cached = _pagesLanguage == language ? _pages : null;
+    final Response<dynamic> response;
+    try {
+      response = await _dio.get<dynamic>(
+        '/pages',
+        queryParameters: {'platform': platform.name},
+        options: authOptions(
+          _optional,
+          Options(
+            headers: {
+              if (cached != null) 'If-None-Match': _pagesTag ?? cached.version,
+            },
+            validateStatus: _pagesStatus,
+          ),
+        ),
+      );
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if (status == 404 || status == 501) {
+        _pages = null;
+        return null;
+      }
+      throw ApiException.fromDio(e);
+    }
+    if (response.statusCode == 304) {
+      if (cached != null) return cached;
+      // Nothing cached to reuse: ask again for the full answer.
+      _pagesTag = null;
+      _pages = null;
+      return getPages();
+    }
+    final navigation = await _call(
+      () async => response,
+      (data) => Navigation.fromJson(asJson(data)),
+    );
+    _pages = navigation;
+    _pagesTag = response.headers.value('etag') ?? navigation.version;
+    _pagesLanguage = language;
+    return navigation;
+  }
+
+  @override
+  Future<AppPage> getPage(String slug) => _get(
+    '/pages/${Uri.encodeComponent(slug)}',
+    _optional,
+    AppPage.fromJson,
+    query: {'platform': platform.name},
+  );
+
   @override
   Future<OtpRequestResult> requestOtp({
     required String countryCode,
@@ -296,9 +679,9 @@ class HttpYallappApi implements YallappApi {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
       return Future.error(
-        const ApiException(
+        ApiException(
           code: ApiException.purchaseNotAllowed,
-          message: "This course isn't available on your account yet.",
+          message: currentL10n.errorPurchaseNotAllowed,
         ),
       );
     }
@@ -491,5 +874,303 @@ class HttpYallappApi implements YallappApi {
     '/me/certificates',
     _required,
     (json) => reqListOf(json, 'items', Certificate.fromJson),
+  );
+
+  @override
+  Future<NotificationPage> listNotifications({
+    int page = 1,
+    int perPage = 20,
+  }) => _get(
+    '/me/notifications',
+    _required,
+    NotificationPage.fromJson,
+    query: {'page': page, 'per_page': perPage},
+  );
+
+  @override
+  Future<void> markNotificationsRead() =>
+      _send('POST', '/me/notifications/read', _required, _ignore);
+
+  @override
+  Future<Paged<Order>> listOrders({int page = 1}) => _get(
+    '/me/orders',
+    _required,
+    (json) => Paged.fromJson(json, Order.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<ReviewPage> listReviews(int courseId, {int page = 1}) => _get(
+    '/courses/$courseId/reviews',
+    _optional,
+    ReviewPage.fromJson,
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Review> saveMyReview(
+    int courseId, {
+    required int rating,
+    String text = '',
+  }) => _send(
+    'PUT',
+    '/courses/$courseId/reviews/mine',
+    _required,
+    (data) => Review.fromJson(asJson(data)),
+    body: {'rating': rating.clamp(1, 5), 'text': text.trim()},
+  );
+
+  @override
+  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1}) =>
+      _get(
+        '/courses/$courseId/questions',
+        _required,
+        (json) => Paged.fromJson(json, CourseQuestion.fromJson),
+        query: {'page': page, 'per_page': 20},
+      );
+
+  @override
+  Future<CourseQuestion> askQuestion(int courseId, String text) => _send(
+    'POST',
+    '/courses/$courseId/questions',
+    _required,
+    (data) => CourseQuestion.fromJson(asJson(data)),
+    body: {'text': text.trim()},
+  );
+
+  @override
+  Future<QuestionThread> getQuestion(int questionId) =>
+      _get('/questions/$questionId', _required, QuestionThread.fromJson);
+
+  @override
+  Future<QuestionAnswer> answerQuestion(int questionId, String text) => _send(
+    'POST',
+    '/questions/$questionId/answers',
+    _required,
+    (data) => QuestionAnswer.fromJson(asJson(data)),
+    body: {'text': text.trim()},
+  );
+
+  @override
+  Future<List<StoreHomeSection>> getStoreHome() => _get(
+    '/store/home',
+    _public,
+    (json) => reqListOf(json, 'sections', StoreHomeSection.fromJson),
+  );
+
+  @override
+  Future<List<ProductCategory>> listProductCategories() => _get(
+    '/store/categories',
+    _public,
+    (json) => reqListOf(json, 'items', ProductCategory.fromJson),
+  );
+
+  @override
+  Future<Paged<ProductSummary>> listProducts(ProductQuery query) => _get(
+    '/store/products',
+    _public,
+    (json) => Paged.fromJson(json, ProductSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<ProductDetail> getProduct(int productId) =>
+      _get('/store/products/$productId', _public, ProductDetail.fromJson);
+
+  @override
+  Future<ReviewPage> listProductReviews(int productId, {int page = 1}) => _get(
+    '/store/products/$productId/reviews',
+    _optional,
+    ReviewPage.fromJson,
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<CartQuote> quoteCart(List<CartLineInput> lines) => _send(
+    'POST',
+    '/store/cart',
+    _optional,
+    (data) => CartQuote.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<CheckoutLink> createStoreCheckoutLink(
+    List<CartLineInput> lines, {
+    String? deliveryDate,
+    String? giftMessage,
+  }) => _send(
+    'POST',
+    '/store/checkout-link',
+    _optional,
+    (data) => CheckoutLink.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+      'delivery_date': ?deliveryDate,
+      if (giftMessage != null && giftMessage.trim().isNotEmpty)
+        'gift_message': giftMessage.trim(),
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<List<BookingsHomeSection>> getBookingsHome() => _get(
+    '/bookings/home',
+    _optional,
+    (json) => reqListOf(json, 'sections', BookingsHomeSection.fromJson),
+  );
+
+  @override
+  Future<List<ServiceCategory>> listServiceCategories() => _get(
+    '/bookings/categories',
+    _public,
+    (json) => reqListOf(json, 'items', ServiceCategory.fromJson),
+  );
+
+  @override
+  Future<Paged<ServiceSummary>> listServices({
+    int page = 1,
+    String? search,
+    int? category,
+  }) => _get(
+    '/bookings/services',
+    _public,
+    (json) => Paged.fromJson(json, ServiceSummary.fromJson),
+    query: {
+      'page': page,
+      'per_page': 50,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      'category': ?category,
+    },
+  );
+
+  @override
+  Future<ServiceDetail> getService(int serviceId) =>
+      _get('/bookings/services/$serviceId', _public, ServiceDetail.fromJson);
+
+  @override
+  Future<Availability> getAvailability(
+    int serviceId, {
+    required String from,
+    int? staffId,
+    int days = 7,
+  }) => _get(
+    '/bookings/availability',
+    _optional,
+    Availability.fromJson,
+    query: {
+      'service': serviceId,
+      'staff': ?staffId,
+      'from': from,
+      'days': days,
+    },
+  );
+
+  @override
+  Future<Appointment> bookAppointment({
+    required int serviceId,
+    required DateTime start,
+    int? staffId,
+    String? notes,
+  }) => _send(
+    'POST',
+    '/bookings/appointments',
+    _required,
+    (data) => Appointment.fromJson(asJson(data)),
+    body: {
+      'service_id': serviceId,
+      'staff_id': staffId,
+      'start': start.toUtc().toIso8601String(),
+      if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+    },
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<Appointment>> listMyAppointments({
+    AppointmentsFilter filter = AppointmentsFilter.upcoming,
+    int page = 1,
+  }) => _get(
+    '/me/appointments',
+    _required,
+    (json) => Paged.fromJson(json, Appointment.fromJson),
+    query: {'status': filter.name, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Appointment> getMyAppointment(int appointmentId) =>
+      _get('/me/appointments/$appointmentId', _required, Appointment.fromJson);
+
+  @override
+  Future<Appointment> cancelMyAppointment(int appointmentId) => _send(
+    'POST',
+    '/me/appointments/$appointmentId/cancel',
+    _required,
+    (data) => Appointment.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<ListingFilters> getListingFilters() =>
+      _get('/listings/filters', _optional, ListingFilters.fromJson);
+
+  @override
+  Future<Paged<ListingSummary>> searchListings(ListingQuery query) => _get(
+    '/listings',
+    _optional,
+    (json) => Paged.fromJson(json, ListingSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<ListingDetail> getListing(int listingId) =>
+      _get('/listings/$listingId', _optional, ListingDetail.fromJson);
+
+  @override
+  Future<Inquiry> sendInquiry(int listingId, String message) => _send(
+    'POST',
+    '/listings/$listingId/inquiries',
+    _required,
+    (data) => Inquiry.fromJson(asJson(data)),
+    body: {'message': message.trim()},
+  );
+
+  @override
+  Future<Paged<ListingSummary>> listFavorites({int page = 1}) => _get(
+    '/me/favorites',
+    _required,
+    (json) => Paged.fromJson(json, ListingSummary.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<void> addFavorite(int listingId) =>
+      _send('PUT', '/me/favorites/$listingId', _required, _ignore);
+
+  @override
+  Future<void> removeFavorite(int listingId) =>
+      _send('DELETE', '/me/favorites/$listingId', _required, _ignore);
+
+  @override
+  Future<Paged<Inquiry>> listInquiries({int page = 1}) => _get(
+    '/me/inquiries',
+    _required,
+    (json) => Paged.fromJson(json, Inquiry.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Inquiry> getInquiry(int inquiryId) =>
+      _get('/me/inquiries/$inquiryId', _required, Inquiry.fromJson);
+
+  @override
+  Future<Inquiry> replyToInquiry(int inquiryId, String message) => _send(
+    'POST',
+    '/me/inquiries/$inquiryId/messages',
+    _required,
+    (data) => Inquiry.fromJson(asJson(data)),
+    body: {'message': message.trim()},
   );
 }

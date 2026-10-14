@@ -98,7 +98,15 @@ Key password:   $KEY_PASSWORD
 TXT
 (cd "$WORK/key" && zip -q -X "$WORK/android-upload-key.zip" upload-keystore.jks README.txt)
 
-ARTIFACTS=$("$SCRIPTS/upload.sh" "$BUILD_ID" apk "$APK" aab "$AAB" keystore "$WORK/android-upload-key.zip")
+# Store icons, feature graphic, the client's screenshots and the listing texts.
+FILES=(apk "$APK" aab "$AAB" keystore "$WORK/android-upload-key.zip")
+if [ -f "$WORK/icon.png" ]; then
+	platform store "$BUILD_ID" "$WORK/store.json"
+	python3 "$SCRIPTS/store_assets.py" "$WORK/config.json" "$WORK/store.json" "$WORK/icon.png" "$WORK/store-assets.zip"
+	FILES+=(store_assets "$WORK/store-assets.zip")
+fi
+
+ARTIFACTS=$("$SCRIPTS/upload.sh" "$BUILD_ID" "${FILES[@]}")
 
 PLAY=skipped
 MESSAGE=""

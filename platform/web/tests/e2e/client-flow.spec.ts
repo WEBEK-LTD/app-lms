@@ -83,8 +83,9 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.goto("/pending");
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
-  await expect(page.getByText("Coming soon")).toHaveCount(2);
-  await page.getByRole("button", { name: "Continue with Academy" }).click();
+  await expect(page.getByRole("radio", { name: "Bookings" })).toBeAttached();
+  await expect(page.getByRole("radio", { name: "Academy" })).toBeChecked();
+  await page.getByRole("button", { name: "Continue" }).click();
 
   // Website
   await expect(page.getByRole("heading", { name: "Website" })).toBeVisible();

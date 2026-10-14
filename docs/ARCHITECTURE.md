@@ -21,7 +21,8 @@ Client's WordPress site                    Yallapp (WEBEK)
 ```
 
 - The **app** only talks to the **client's own WordPress site**. Student data
-  never passes through Yallapp's servers.
+  never passes through Yallapp's servers. The exception is a hosted app for a
+  client without WordPress (the hosted API, Phase 8 below).
 - The **plugin** talks to Yallapp only for license checks and plugin updates
   (site URL, plugin version, license key).
 - The **platform** stores client accounts, plans, licenses, app settings and
@@ -101,18 +102,32 @@ refuse to be framed show an "Open" card that opens them full screen.
 ```
 mobile/
   core/            shared: config, theme, templates, auth, API client, storage
+  modules/shared/  sign-in, account, settings, orders, notifications
   modules/lms/     Academy screens
-  modules/store/   later
-  modules/booking/ later
+  modules/store/   Store screens (WooCommerce): home, shop, product, cart
+  modules/bookings/ Bookings screens (Amelia, BookingPress, LatePoint): home,
+                   services, a service's free times, appointments
 ```
+
+- The build config's `app_type` (`lms`, `store`, `booking` or `real_estate`) picks the module's routes
+  and bottom navigation; everything in `core/` and `modules/shared/` is common.
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.
-- Runtime config comes from `GET /config`: colors, home sections, features,
+- Runtime config comes from `GET /config`: colors, the look (`appearance`), home sections, features,
   checkout rules, minimum version, maintenance mode.
 - Purchases: Android opens the site's checkout with a one-time sign-in link.
   iOS shows no purchase buttons for paid courses (Apple's digital content rule);
   free enrollment works on both.
+- Store apps keep the cart on the device and price it with `POST /store/cart`.
+  Checkout opens a one-time link that fills the WooCommerce cart and signs the
+  customer in (guests when the shop allows it). Physical goods sell on both
+  platforms; iOS never offers digital products.
+- Bookings apps show free times in the business's time zone, as the booking
+  plugin computes them, and book through `POST /bookings/appointments`, which
+  runs the plugin's own booking so its emails, approvals and calendar sync
+  apply. Payment, when there is one, happens at the business; the app never
+  takes payment for an appointment.
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number.
 
@@ -128,6 +143,231 @@ mobile/
     never reached.
 - Secrets that clients give us (store API keys, signing keys) are encrypted
   with a key that never leaves the server environment.
+- Hosted API (`/api/app/{app_id}`), for apps without WordPress: it serves the
+  app contract's configuration, sign-in, account, devices, push token and
+  notifications endpoints from our own database, behaving like the plugin
+  (6-digit codes, 5 attempts, 15-minute access tokens, rotating 30-day
+  refresh tokens, a device limit). Codes go out through our WhatsApp Cloud
+  API number or a signed webhook to our gateway. Clients send notifications
+  from the dashboard; push uses the client's Firebase service account,
+  stored encrypted. Content endpoints come from connectors (Shopify and
+  others, 8.4 and 8.5) or the dashboard catalog (8.6); without one they
+  answer `not_found`. Our team switches an app to it from the admin page.
+- Shopify connector (Store apps): the client enters their `myshopify.com`
+  address and a Storefront API token on the Website step; the token is
+  checked against the shop, stored encrypted and the app moves to the
+  hosted API. Products, collections (categories, "frontpage" as featured),
+  cart pricing and checkout come from the Storefront API (GraphQL,
+  version pinned in code). Checkout creates a Shopify cart with the
+  customer's phone and email and opens its checkout page in the app; on
+  iOS, carts with digital products (no shipping) are refused. Prices use
+  the shop's money format. Shop details and collections are cached for
+  five minutes. Reviews are off for Shopify apps. Order history needs an
+  optional Admin API token (read_orders, read_customers) on the Website
+  step: the customer's orders are those of the Shopify customer with
+  exactly the phone number they signed in with.
+- Other platforms (8.5): ikas, Ticimax and IdeaSoft (Store), Teachable and
+  Thinkific (Academy) and SimplyBook.me (Bookings) are connectors that
+  register themselves with their fields in
+  `platform/web/src/lib/hosted/connectors/platforms.ts`. The Website step
+  shows one more choice per app type with the platform's fields; the keys
+  are checked with the platform before they're saved (values that aren't
+  secret as they are, secrets encrypted together, renewed OAuth tokens
+  saved back).
+- No website (Store apps): the client picks "I don't have a website" on the
+  Website step and manages products (price, sale price, stock, photos,
+  categories, digital or physical), shipping and their iyzico keys on the
+  dashboard's Products page (`catalog_*` tables, keys stored encrypted).
+  The hosted API serves them through the catalog connector. Checkout
+  creates a pending order and opens our payment page (`/pay/<token>`, in
+  the client's branding), which collects the customer's details and sends
+  them to iyzico's hosted card page with the client's own merchant keys.
+  iyzico posts back to `/api/pay/iyzico/<token>`; the order is marked paid
+  (and stock taken) only after iyzico confirms the payment for that basket
+  and amount. The customer lands on `/pay/<token>/order-received`, which
+  the app recognises as the end of checkout; the client gets an email and
+  sees the order on the Orders page. Each product also has a public page
+  (`/shop/<app>/<product>`) to share.
+
+- Platform settings (`platform_settings`): the team sets Yallapp's contact
+  details (WhatsApp number and email, shown on every page, in the dashboard
+  and in email signatures; saving rebuilds the pages made ahead of time),
+  the sign-in code sender, the email server, Yallapp's own iyzico account
+  and the marketplace commission on the admin's Settings page. A saved setting replaces the matching Netlify variables
+  (removing it brings them back); secrets inside are encrypted with the
+  context `platform:<key>` and never shown again. Each server instance
+  caches the settings for 30 seconds. The plans (names, what's included,
+  price text or card price, monthly or yearly, license features) are edited
+  on the admin's Plans page the same way; plans without edits keep the
+  defaults in `src/lib/plans.ts`. The pricing and home pages render on
+  request so they always show the current plans.
+
+- Managing a client: "Manage their app" on the admin's client panel opens
+  that client's own dashboard for the super admin (an `httpOnly` cookie with
+  the client ID, read only for super admins, 8 hours, cleared on sign-out).
+  Every dashboard page and action then works on that client, also before
+  activation or while suspended, under a bar naming the client with a way
+  back to the admin. The team can also edit a client's name, WhatsApp
+  number and website on the panel.
+
+- Bookings without a website (connector `bookings`): a Bookings app whose
+  client picks "I don't have a website" gets its services, categories,
+  team (services each person provides, working hours per weekday, days off)
+  and booking rules (time zone, currency, how often times start, how soon
+  and how far ahead, cancelling, notes, approval) from the dashboard's
+  Services & team page, kept with the app (`apps.booking_setup`). The hosted
+  API answers the plugin's bookings endpoints from them (`bookings.plugin`
+  is `yallapp`): free times are each person's hours minus their active
+  appointments, and a booking is written only if it still doesn't overlap
+  one of theirs (checked and written in one transaction, locking the app's
+  row). Appointments are in `booking_appointments`; the business sees them
+  on the Appointments page (approve or reject, cancel, done, no-show) and
+  gets an email for each new one. Payment is at the appointment.
+
+- Courses without a website (connector `courses`): an Academy app whose
+  client picks "I don't have a website" gets its courses (title,
+  description, cover image, price, instructor, level, categories, sections
+  with lessons: a YouTube, Vimeo or video file address and/or text, a
+  length and a free-preview flag) from the dashboard's Courses pages, kept
+  with the app (`apps.course_setup`). The hosted API answers the LMS
+  endpoints from them (`features.lms` is `yallapp`; no quizzes,
+  certificates, wishlist, reviews or Q&A). Free courses are enrolled in
+  from the app. Paid courses are bought on Android only (iOS shows no
+  purchase button): `/auth/checkout-link` opens the payment page with the
+  same card payments as shops (own iyzico account or Yallapp's), and the
+  paid order enrols the student. The client can also add a student by the
+  phone number they sign in with. Enrolments and lesson progress are in
+  `course_enrollments` and `lesson_progress`.
+
+- Real estate apps (connector `listings`, 10.7): the app type `real_estate`
+  has no WordPress side. On the Website step the only choice is "Listings
+  managed in Yallapp", which moves the app to the hosted API. The office adds
+  its properties on the dashboard's Listings page (`listings`: purpose, one of
+  a fixed list of property types, price and currency, rent per month or year,
+  place and map position, area, rooms, features, ordered photos, a video
+  link; draft, published or archived; featured) and sets its contact details,
+  currency, area unit and whether people can message it (`listing_settings`,
+  sent as `Config.listings`). The hosted API serves the Listings endpoints:
+  search with filters, sort and pages over published listings only, details
+  with similar listings, favorites (`listing_favorites`) and conversations
+  with the office (`listing_inquiries`, `listing_inquiry_messages`, rate
+  limited, refused while messages are off). Descriptions are cleaned to a few
+  formatting tags whenever they're served. The office gets an email for each
+  message and answers on the Inquiries page; a reply lands in the user's
+  notifications inbox and is pushed to their phones. Texts are served as the
+  office wrote them. Page list blocks get listing cards from
+  `lib/hosted/listings/page-items.ts`.
+
+- Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
+  and a plan has a card price, pending clients see "Pay by card" on the
+  waiting page and active or expired clients on License & plugin. The client
+  picks a plan and gives a billing city and address; iyzico's page takes the
+  card into Yallapp's merchant account. iyzico calls back to
+  `/api/pay/plan/<token>`; only iyzico's own answer for that payment's
+  basket and amount marks it paid (once), and then the client is activated
+  or their license is extended by the plan's period from its current end
+  date (or from today when it ended), keeping the same key. The client gets
+  the activation or renewal email; the team sees payments on the admin's
+  Payments page and on the client's panel. The iyzico keys are always read
+  from the database, never from the 30-second settings cache, so a callback
+  never misses keys saved a moment earlier.
+
+- Selling through Yallapp (iyzico marketplace): with Yallapp's iyzico
+  account and a commission set in the admin (Settings, "Shops selling
+  through Yallapp"; iyzico's marketplace must be on for the account), a
+  shop without its own iyzico account gives the details iyzico needs (who
+  gets paid, ID or tax details, IBAN) on its Products page. iyzico registers
+  it as a sub-merchant (`/onboarding/submerchant`) and the shop's payment
+  setting keeps only the sub-merchant key, the payee name and the IBAN's
+  last 4 digits. Each basket item then names the shop and its share (the
+  price minus the commission; shipping goes to the shop in full), and the
+  order records the commission and iyzico's item transactions. iyzico pays
+  the shop once its items are approved (`/payment/iyzipos/item/approve`):
+  when the shop marks the order completed, or from the admin's Payments
+  page. The callback and the approval follow the account an order started
+  with, even if the shop switched since.
+
+- App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
+  dashboard's App sign-in page sets whether new customers can sign up and
+  what they are asked, the default country code, devices per customer, the
+  support WhatsApp number, the terms page, and the app store review number
+  with its fixed code. The hosted API reads them on each request, so no
+  new build is needed.
+
+- Website content (`site_content`, 11.3): the home page's texts, the
+  closing band, the page titles, the FAQ, the guides and the legal pages
+  are edited on the admin's Website content page. Each page's defaults are
+  the texts in code (`src/lib/content/site.ts`, `src/content/`), so a page
+  is unchanged until someone saves it; "Back to the default text" removes
+  the edit. Long texts are a small Markdown (`src/lib/content/markdown.ts`)
+  rendered as React elements or escaped HTML: no raw HTML, links only to
+  http(s), mailto, tel or paths on the site. Pages stay prerendered and
+  read the content once; a save rebuilds the pages that show it.
+- Email templates (`email_templates`, 11.4): every email the platform sends
+  has a subject and a plain-text body with documented `{{placeholders}}`
+  (`src/lib/email/templates.ts`); the defaults are the emails as they were.
+  Saving refuses placeholders the email doesn't have. Sending
+  (`sendTemplate`) reads the saved template each time and adds an HTML part
+  in which every value is escaped. In memory mode `YALLAPP_MAIL_DIR` keeps
+  each email as a file for the end-to-end tests.
+- Coupons (`coupons`, `coupon_redemptions`, 11.6): a percentage or an
+  amount per currency off a plan's card payment, limited to plans, billing
+  periods, dates, uses in total and per client, or a first payment. The
+  client enters the code on the card payment form; the server works out the
+  price from the plan and the coupon each time (never below iyzico's 1.00
+  minimum) and charges that. A coupon for the whole price activates or
+  extends the plan without iyzico, recorded as a paid payment of 0. Each
+  use is recorded with its plan payment: pending on iyzico's page (holding
+  its use for an hour), then used or failed.
+- Announcements (`announcements`, `announcement_dismissals`, 11.8): the
+  team writes a title and a Markdown message for all clients or by plan,
+  app type or account state, with an optional link, a start and an end,
+  as information or a warning. Clients see the live ones above their
+  overview (and on the waiting page) until they close them, and all of
+  them on the Announcements page. The team can email one to its audience
+  with the Announcement template, in batches of 20.
+
+## Pages, looks and languages
+
+Clients build their app's pages and pick its look in the client dashboard,
+without a new build. The app renders whatever the API sends.
+
+- **Looks.** `Config.appearance` carries the template, the opening mode
+  (system, light or dark), whether students can switch it, the font, the
+  secondary color, corners and card style. The build config only sets the
+  defaults used before the first `/config` and when `appearance` is missing.
+- **Pages.** `GET /pages` returns the bottom tabs and the page list;
+  `GET /pages/{slug}` returns one page as a list of blocks: banner, text
+  (HTML), image, video, button, a list of items, categories, search,
+  continue learning, embed and spacer. Blocks stack vertically; there is no
+  free positioning. The server resolves lists (courses, products, services,
+  posts, listings) into one `Item` card shape, so the app has one renderer for all
+  of them. The app skips block types and actions it does not know, so old
+  apps keep working when new ones are added.
+- **Built-in screens stay native.** Course detail, lessons, quizzes, search
+  with filters, favorites, messages and the account are screens, not
+  blocks. Tabs, buttons and cards open them with a `screen` action.
+- **Fallback.** When nothing is published, the server builds default pages
+  and tabs for the app type from the site's content. When `/pages` returns
+  404 (an older plugin), the app uses its built-in tabs and the `/home`
+  sections.
+- **Where pages are edited.** One editor, in the client dashboard, for both
+  kinds of client. The platform keeps a draft (saved as the client edits)
+  and the published layout, which gets a new version on every publish; a
+  WordPress client's plugin fetches the published one from the platform
+  (cached, refreshed with the layout version) and serves `/pages` with its
+  own data filled in. A new app's first draft is a home page and tabs for its
+  type, with the look and languages the team set as defaults in the admin.
+- **Hosted apps.** Apps on the hosted API (Phase 8) get their pages and look
+  from the platform directly, filled from their dashboard content or their
+  connected platform (the connector's own list endpoints). Before the first
+  publish they get the default pages for their type.
+- **Languages.** Every text in the apps is English by default. A client can
+  turn on more languages (Arabic shows right to left); students pick one in
+  the app's settings, and page texts can carry a translation per language,
+  falling back to English.
+- **Purchases.** The iOS rule applies to every block: no purchase actions for
+  paid content on iOS. Prices are display text only.
 
 ## Build pipeline
 

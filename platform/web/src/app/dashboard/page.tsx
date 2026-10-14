@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { WHATSAPP_URL } from "@/components/brand";
 import { BuildBadge } from "@/components/build-status";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate } from "@/components/ui";
@@ -10,6 +9,9 @@ import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, daysUntil } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
+import { getPlans } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
+import { AnnouncementBanner } from "@/components/announcements";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -24,9 +26,11 @@ function Tile({ title, children, action }: { title: string; children: React.Reac
 }
 
 export default async function OverviewPage() {
+  const contact = await getContact();
   const { user, client, app, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
+  const plans = await getPlans(store);
   const [latest] = await store.listBuildsByClient(client.id, 1);
   const activation = license ? await store.getActivation(license.id) : null;
   const plan = license?.plan ?? null;
@@ -40,17 +44,19 @@ export default async function OverviewPage() {
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Hello, {user.name.split(" ")[0]}</h1>
         <span className="text-[15px] text-muted">
-          {app.appName ?? "Your app"} · Plan: {planName(plan)}
+          {app.appName ?? "Your app"} · Plan: {planName(plan, plans)}
         </span>
       </div>
 
+      <AnnouncementBanner context={{ client, license, app, state }} />
+
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan ended on {formatDate(license?.expiresAt)}. <a href={WHATSAPP_URL}>Message us on WhatsApp</a> to renew.
+          Your plan ended on {formatDate(license?.expiresAt)}. <a href={contact.whatsappUrl}>Message us on WhatsApp</a> to renew.
         </Notice>
       ) : daysLeft <= 14 ? (
         <Notice icon="schedule">
-          Your plan renews on {formatDate(license?.expiresAt)}. <a href={WHATSAPP_URL}>Message us on WhatsApp</a> to arrange the renewal.
+          Your plan renews on {formatDate(license?.expiresAt)}. <a href={contact.whatsappUrl}>Message us on WhatsApp</a> to arrange the renewal.
         </Notice>
       ) : null}
 
@@ -102,7 +108,7 @@ export default async function OverviewPage() {
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan)} <Badge tone={state === "active" ? "success" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+            {planName(plan, plans)} <Badge tone={state === "active" ? "success" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
           </span>
           <span className="flex items-center gap-1.5 text-sm text-muted">
             <Icon name={activation ? "link" : "link_off"} size={18} />

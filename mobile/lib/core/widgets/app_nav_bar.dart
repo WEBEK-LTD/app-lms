@@ -3,19 +3,13 @@ import 'package:flutter/material.dart';
 import '../config/build_config_data.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
+import '../l10n/l10n.dart';
 
 class NavDestination {
   const NavDestination(this.icon, this.label);
   final IconData icon;
   final String label;
 }
-
-const mainDestinations = [
-  NavDestination(AppIcons.home, 'Home'),
-  NavDestination(AppIcons.courses, 'Courses'),
-  NavDestination(AppIcons.myCourses, 'My Courses'),
-  NavDestination(AppIcons.account, 'Account'),
-];
 
 /// The bottom navigation in each template's style:
 /// Classic (icon over label), Bold (filled pill for the active tab, icons
@@ -26,13 +20,17 @@ class AppNavBar extends StatelessWidget {
     required this.template,
     required this.currentIndex,
     required this.onSelected,
-    this.destinations = mainDestinations,
+    required this.destinations,
+    this.badges = const {},
   });
 
   final AppTemplate template;
   final int currentIndex;
   final ValueChanged<int> onSelected;
   final List<NavDestination> destinations;
+
+  /// Counts shown on tabs, by index (for example items in the cart).
+  final Map<int, int> badges;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +54,7 @@ class AppNavBar extends StatelessWidget {
     };
     return Semantics(
       container: true,
-      label: 'Main navigation',
+      label: context.l10n.mainNavigation,
       explicitChildNodes: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -91,6 +89,18 @@ class AppNavBar extends StatelessWidget {
     final p = context.palette;
     final d = destinations[index];
     final selected = index == currentIndex;
+    final count = badges[index] ?? 0;
+    Widget icon(double size, Color color, {bool filled = false}) {
+      final glyph = AppIcon(d.icon, size: size, color: color, filled: filled);
+      if (count <= 0) return glyph;
+      return Badge(
+        label: Text(count > 99 ? '99+' : '$count'),
+        backgroundColor: p.accent,
+        textColor: Colors.white,
+        child: glyph,
+      );
+    }
+
     final Widget content;
     switch (template) {
       case AppTemplate.bold:
@@ -106,7 +116,7 @@ class AppNavBar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        AppIcon(d.icon, size: 20, color: p.onPrimary),
+                        icon(20, p.onPrimary),
                         const SizedBox(width: 6),
                         Text(
                           d.label,
@@ -121,7 +131,7 @@ class AppNavBar extends StatelessWidget {
                   ),
                 ),
               )
-            : Center(child: AppIcon(d.icon, size: 24, color: p.textSecondary));
+            : Center(child: icon(24, p.textSecondary));
       case AppTemplate.classic:
       case AppTemplate.minimal:
         final minimal = template == AppTemplate.minimal;
@@ -131,12 +141,7 @@ class AppNavBar extends StatelessWidget {
         content = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppIcon(
-              d.icon,
-              size: minimal ? 22 : 24,
-              color: color,
-              filled: selected,
-            ),
+            icon(minimal ? 22 : 24, color, filled: selected),
             const SizedBox(height: 4),
             Text(
               d.label,
@@ -156,7 +161,7 @@ class AppNavBar extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: d.label,
+      label: count > 0 ? context.l10n.tabWithCount(d.label, count) : d.label,
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(18),

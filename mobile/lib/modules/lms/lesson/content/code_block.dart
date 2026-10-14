@@ -30,6 +30,7 @@ import 'package:re_highlight/styles/github-dark.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/common.dart';
+import '../../../../core/l10n/l10n.dart';
 
 final Highlight _highlight = Highlight()
   ..registerLanguages({
@@ -131,6 +132,19 @@ class CodeBlock extends StatelessWidget {
       color: _codeText,
     );
     final span = highlight ? highlightCode(text, language, base) : null;
+    // Code reads left to right in every language.
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: _frame(context, text, base, span),
+    );
+  }
+
+  Widget _frame(
+    BuildContext context,
+    String text,
+    TextStyle base,
+    TextSpan? span,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
@@ -148,7 +162,7 @@ class CodeBlock extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    language ?? 'code',
+                    language ?? context.l10n.code,
                     style: const TextStyle(fontSize: 12, color: _codeMuted),
                   ),
                 ),
@@ -157,7 +171,9 @@ class CodeBlock extends StatelessWidget {
             ),
           ),
           Semantics(
-            label: 'Code${language == null ? '' : ' in $language'}',
+            label: language == null
+                ? context.l10n.code
+                : context.l10n.codeIn(language!),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.all(14),
@@ -181,13 +197,13 @@ class _CopyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: 'Copy code',
+    label: context.l10n.copyCode,
     excludeSemantics: true,
     child: InkWell(
       borderRadius: BorderRadius.circular(6),
       onTap: () async {
         await Clipboard.setData(ClipboardData(text: text));
-        if (context.mounted) showMessage(context, 'Code copied');
+        if (context.mounted) showMessage(context, context.l10n.codeCopied);
       },
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
@@ -200,12 +216,15 @@ class _CopyButton extends StatelessWidget {
               border: Border.all(color: _codeBorder),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppIcon(AppIcons.copy, size: 14, color: _codeText),
                 SizedBox(width: 6),
-                Text('Copy', style: TextStyle(fontSize: 12, color: _codeText)),
+                Text(
+                  context.l10n.copy,
+                  style: TextStyle(fontSize: 12, color: _codeText),
+                ),
               ],
             ),
           ),

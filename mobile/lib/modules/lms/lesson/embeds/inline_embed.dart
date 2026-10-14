@@ -15,6 +15,7 @@ import '../../../../core/widgets/buttons.dart';
 import 'embed_frame.dart';
 import 'embed_fullscreen_screen.dart';
 import 'embed_sizing.dart';
+import '../../../../core/l10n/l10n.dart';
 
 /// Height taken by the lesson screen's own bars (header and footer), used to
 /// work out the visible area an embed may fill.
@@ -149,7 +150,7 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
         final frame = _frameable == null
             ? Center(
                 child: CircularProgressIndicator(
-                  semanticsLabel: 'Loading embedded content',
+                  semanticsLabel: context.l10n.loadingEmbed,
                 ),
               )
             : ref.watch(webViewBuilderProvider)(
@@ -172,7 +173,7 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
         return Semantics(
           container: true,
           explicitChildNodes: true,
-          label: 'Embedded content from $host',
+          label: context.l10n.embedFrom(host),
           child: Container(
             key: ValueKey('embed-${_embed.placeholder}'),
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -193,12 +194,12 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
                       child: frame,
                     ),
                     if (showFullscreen)
-                      Positioned(
+                      PositionedDirectional(
                         top: 8,
-                        right: 8,
+                        end: 8,
                         child: SquareIconButton(
                           icon: AppIcons.fullscreen,
-                          label: 'Open full screen',
+                          label: context.l10n.openFullScreen,
                           iconSize: 18,
                           radius: 10,
                           onPressed: _openFullScreen,
@@ -226,8 +227,8 @@ class _Caption extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final kind = switch (provider) {
-      EmbedProvider.youtube || EmbedProvider.vimeo => 'Video',
-      _ => 'Interactive',
+      EmbedProvider.youtube || EmbedProvider.vimeo => context.l10n.video,
+      _ => context.l10n.interactive,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -293,7 +294,7 @@ class _OpenCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  host.isEmpty ? 'Embedded content' : host,
+                  host.isEmpty ? context.l10n.embeddedContent : host,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -304,7 +305,7 @@ class _OpenCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'This content opens in full screen.',
+                  context.l10n.opensFullScreen,
                   style: TextStyle(fontSize: 12, color: p.textSecondary),
                 ),
               ],
@@ -320,7 +321,7 @@ class _OpenCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Open'),
+            child: Text(context.l10n.open),
           ),
         ],
       ),

@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
 import {
+  checkApiAction,
   removeStoreKeyAction,
   saveBrandingAction,
   saveListingAction,
@@ -15,6 +16,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
+import type { AppType } from "@/lib/data/types";
 import { initialFormState, type FormState } from "@/lib/forms";
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
@@ -45,57 +47,415 @@ function StepActions({ back }: { back: string | null }) {
 
 const v = (state: FormState, key: string, fallback: string) => state.values?.[key] ?? fallback;
 
+type Backend = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
+
+/** A platform connected with keys, as the Website step shows it. */
+export interface PlatformOption {
+  id: string;
+  name: string;
+  summary: string;
+  fields: { name: string; label: string; hint: string; secret: boolean; placeholder?: string; optional?: boolean }[];
+}
+
+const PLATFORM_CHOICE: Record<AppType, { title: string; text: string }> = {
+  store: { title: "Another store platform", text: "Your products and checkout come from ikas, Ticimax or IdeaSoft. Customers sign in to the app with a code we send." },
+  lms: { title: "My Teachable or Thinkific school", text: "Your courses and lessons come from your online school. Students sign in to the app with a code we send." },
+  booking: { title: "My SimplyBook.me account", text: "Your services, team and free times come from SimplyBook.me. Customers sign in to the app with a code we send." },
+  real_estate: { title: "Another platform", text: "Your listings come from another platform." },
+};
+
+const BACKENDS: { id: Backend; title: string; text: string; appTypes?: AppType[] }[] = [
+  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here.", appTypes: ["lms", "store", "booking"] },
+  {
+    id: "shopify",
+    title: "My Shopify store",
+    text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send.",
+    appTypes: ["store"],
+  },
+  { id: "platform", title: "", text: "", appTypes: ["store", "lms", "booking"] },
+  {
+    id: "catalog",
+    title: "I don't have a website",
+    text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here.",
+    appTypes: ["store", "booking", "lms", "real_estate"],
+  },
+  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself.", appTypes: ["lms", "store", "booking"] },
+  {
+    id: "setup_requested",
+    title: "I don't have WordPress",
+    text: "Our team sets up WordPress for you and moves your content over.",
+    appTypes: ["lms", "store", "booking"],
+  },
+];
+
+/** The platform to connect and the keys it needs. */
+function PlatformFields({
+  platforms,
+  saved,
+  state,
+}: {
+  platforms: PlatformOption[];
+  saved: { platform: string; settings: Record<string, string>; secrets: string[] } | null;
+  state: FormState;
+}) {
+  const [selected, setSelected] = useState<string>(state.values?.platform ?? saved?.platform ?? platforms[0]?.id ?? "");
+  const platform = platforms.find((p) => p.id === selected) ?? platforms[0];
+  if (!platform) return null;
+  const same = saved?.platform === platform.id;
+  return (
+    <div className="flex flex-col gap-4">
+      <input type="hidden" name="platform" value={platform.id} />
+      {platforms.length > 1 ? (
+        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
+          <legend className="mb-2 text-sm font-semibold">Platform</legend>
+          {platforms.map((p) => (
+            <label
+              key={p.id}
+              className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-3.5 py-2.5 text-[15px] font-semibold has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:px-[13px] has-[:checked]:py-[9px]"
+            >
+              <input
+                type="radio"
+                name="platformChoice"
+                value={p.id}
+                checked={platform.id === p.id}
+                onChange={() => setSelected(p.id)}
+                className="h-4 w-4 accent-midnight"
+              />
+              {p.name}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      <p className="m-0 text-sm text-ink-4">{platform.summary}</p>
+      {platform.fields.map((field) => {
+        const kept = same && field.secret && saved.secrets.includes(field.name);
+        return (
+          <Field
+            key={`${platform.id}-${field.name}`}
+            label={field.optional ? `${field.label} (optional)` : field.label}
+            name={`p_${field.name}`}
+            type={field.secret ? "password" : "text"}
+            autoComplete="off"
+            required={!field.optional && !kept}
+            defaultValue={field.secret ? "" : v(state, `p_${field.name}`, same ? (saved.settings[field.name] ?? "") : "")}
+            placeholder={kept ? "Saved. Paste a new one to replace it." : field.placeholder}
+            hint={field.hint}
+            error={state.errors?.[`p_${field.name}`]}
+          />
+        );
+      })}
+      {state.errors?.platform ? <FieldError id="f-platform-error" error={state.errors.platform} /> : null}
+    </div>
+  );
+}
+
+/** The Website step of an app on the hosted API: nothing to fill in. */
+export function HostedWebsiteStep({ apiUrl }: { apiUrl: string }) {
+  return (
+    <div className="flex flex-wrap items-start gap-6">
+      <StepCard title="Website" id="h-website">
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+          Your app runs on the Yallapp hosted API, so it doesn&apos;t need a website. Your customers sign in with a code we send to their
+          phone, and you send them notifications from <Link href="/dashboard/notifications">App notifications</Link>.
+        </p>
+        <div className="flex flex-col gap-1 rounded-xl border border-line bg-sand p-4">
+          <span className="text-sm font-semibold">Your app&apos;s API address</span>
+          <code className="text-[13px] break-all">{apiUrl}</code>
+        </div>
+        <p className="m-0 text-sm text-muted">Our team set this up for you. Message us on WhatsApp to change it.</p>
+        <div className="flex justify-end pt-1.5">
+          <Link href="/dashboard/setup?step=branding" className={`${btn.primary} h-[46px]`}>
+            Continue
+          </Link>
+        </div>
+      </StepCard>
+    </div>
+  );
+}
+
 export function WebsiteStep({
   siteUrl,
   plugin,
   activatedSite,
   pluginVersion,
+  backend,
+  apiBaseUrl,
+  setupNote,
+  setupRequestedAt,
+  appType,
+  shopDomain,
+  shopifyConnected,
+  shopifyAdmin,
+  hostedApiUrl,
+  platforms,
+  platformSaved,
+  hidden = [],
 }: {
+  /** Choices the team switched off (11.5); the app's own choice is never in it. */
+  hidden?: Backend[];
+  /** The platforms this app type can connect. */
+  platforms: PlatformOption[];
+  /** The connected platform: its values that aren't secret, and which secrets are saved. */
+  platformSaved: { platform: string; settings: Record<string, string>; secrets: string[] } | null;
+  /** The app's address on the hosted API, once it runs there. */
+  hostedApiUrl: string | null;
   siteUrl: string;
   plugin: "none" | "connected" | "other";
   activatedSite: string | null;
   pluginVersion: string | null;
+  backend: Backend;
+  apiBaseUrl: string;
+  setupNote: string;
+  setupRequestedAt: string | null;
+  appType: AppType;
+  shopDomain: string;
+  shopifyConnected: boolean;
+  /** Whether an Admin API token (order history) is saved. */
+  shopifyAdmin: boolean;
 }) {
   const [state, action] = useActionState(saveWebsiteAction, initialFormState);
+  const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
+  const offered = BACKENDS.filter(
+    (b) => (!b.appTypes || b.appTypes.includes(appType)) && !hidden.includes(b.id) && (b.id !== "platform" || platforms.length > 0),
+  ).map((b) => b.id);
+  const initial = (state.values?.backend as Backend | undefined) ?? backend;
+  const [choice, setChoice] = useState<Backend>(offered.includes(initial) ? initial : (offered[0] ?? initial));
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      {/* Sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="backend" value={choice} />
       <StepCard title="Website" id="h-website">
         <FormMessage message={state.message} />
-        <Field
-          label="Your WordPress website"
-          name="siteUrl"
-          type="url"
-          required
-          defaultValue={v(state, "siteUrl", siteUrl)}
-          placeholder="https://your-academy.com"
-          hint="The app connects to this address. It must use https."
-          error={state.errors?.siteUrl}
-        />
-        <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
-          <span className="text-sm font-semibold">Plugin connection</span>
-          {plugin === "connected" ? (
-            <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
-              <Icon name="check_circle" size={20} filled />
-              Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
-            </span>
-          ) : plugin === "other" ? (
-            <span className="flex items-start gap-2 text-[15px] text-warn">
-              <Icon name="warning" size={20} />
-              <span>
-                Your license is active on <b>{activatedSite}</b>, which isn&apos;t this address. Check the address, or release the license on the{" "}
-                <Link href="/dashboard/license">License &amp; plugin</Link> page.
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
+          {BACKENDS.filter((b) => !b.appTypes || b.appTypes.includes(appType))
+            .map((b) =>
+              b.id === "catalog" && appType === "booking"
+                ? { ...b, text: "Add your services, team and opening hours here in the dashboard. Customers book in the app, and you see their appointments here." }
+                : b.id === "catalog" && appType === "real_estate"
+                  ? {
+                      ...b,
+                      title: "Listings managed in Yallapp",
+                      text: "Add your properties here in the dashboard. People search them in the app, save favorites and message your office.",
+                    }
+                : b.id === "catalog" && appType === "lms"
+                  ? { ...b, text: "Add your courses and lessons here in the dashboard. Students enroll in the app; paid courses are bought on Android." }
+                  : b.id === "platform"
+                    ? { ...b, ...PLATFORM_CHOICE[appType] }
+                    : b,
+            )
+            .filter((b) => offered.includes(b.id))
+            .map((b) => (
+            <label
+              key={b.id}
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white p-3.5 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[13px] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2"
+            >
+              <input
+                type="radio"
+                name="backendChoice"
+                value={b.id}
+                checked={choice === b.id}
+                onChange={() => setChoice(b.id)}
+                className="mt-1 h-4 w-4 accent-midnight"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{b.title}</span>
+                <span className="text-sm text-ink-4">{b.text}</span>
               </span>
-            </span>
-          ) : (
-            <span className="flex items-start gap-2 text-[15px] text-ink-4">
-              <Icon name="link_off" size={20} className="text-muted" />
-              <span>
-                Not connected yet. <Link href="/guides/install-plugin">Install the plugin</Link> and paste your license key from{" "}
-                <Link href="/dashboard/license">License &amp; plugin</Link>. You can continue the setup in the meantime.
+            </label>
+          ))}
+        </fieldset>
+        {choice === "catalog" ? (
+          <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
+            {appType === "lms" ? (
+              <>
+                After this step, add your courses, their sections and lessons on the <b>Courses</b> page. Your students sign in to the app with
+                a code we send to their phone.
+              </>
+            ) : appType === "real_estate" ? (
+              <>
+                After this step, set up your office and add your properties on the <b>Listings</b> page, and answer people&apos;s messages on
+                the <b>Inquiries</b> page. People sign in to the app with a code we send to their phone.
+              </>
+            ) : appType === "booking" ? (
+              <>
+                After this step, add your services, your team and their hours on the <b>Services &amp; team</b> page. Your customers sign in to
+                the app with a code we send to their phone.
+              </>
+            ) : (
+              <>
+                After this step, add your products and your iyzico payment keys on the <b>Products</b> page. Your customers sign in to the app
+                with a code we send to their phone.
+              </>
+            )}
+            {hostedApiUrl && backend === "catalog" ? (
+              <span className="mt-2 block text-sm">
+                Your app&apos;s API address: <code className="break-all">{hostedApiUrl}</code>
               </span>
-            </span>
-          )}
-        </div>
+            ) : null}
+          </p>
+        ) : choice === "platform" ? (
+          <PlatformFields platforms={platforms} saved={platformSaved} state={state} />
+        ) : (
+          <Field
+            label={choice === "wordpress" ? "Your WordPress website" : "Your website"}
+            name="siteUrl"
+            type="url"
+            required
+            defaultValue={v(state, "siteUrl", siteUrl)}
+            placeholder="https://your-academy.com"
+            hint={
+              choice === "setup_requested"
+                ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
+                : "Links in your app open this address. It must use https."
+            }
+            error={state.errors?.siteUrl}
+          />
+        )}
+        {choice === "catalog" && state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
+        {choice === "wordpress" ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
+            <span className="text-sm font-semibold">Plugin connection</span>
+            {plugin === "connected" ? (
+              <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
+                <Icon name="check_circle" size={20} filled />
+                Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
+              </span>
+            ) : plugin === "other" ? (
+              <span className="flex items-start gap-2 text-[15px] text-warn">
+                <Icon name="warning" size={20} />
+                <span>
+                  Your license is active on <b>{activatedSite}</b>, which isn&apos;t this address. Check the address, or release the license on the{" "}
+                  <Link href="/dashboard/license">License &amp; plugin</Link> page.
+                </span>
+              </span>
+            ) : (
+              <span className="flex items-start gap-2 text-[15px] text-ink-4">
+                <Icon name="link_off" size={20} className="text-muted" />
+                <span>
+                  Not connected yet. <Link href="/guides/install-plugin">Install the plugin</Link> and paste your license key from{" "}
+                  <Link href="/dashboard/license">License &amp; plugin</Link>. You can continue the setup in the meantime.
+                </span>
+              </span>
+            )}
+          </div>
+        ) : null}
+        {choice === "shopify" ? (
+          <>
+            <Field
+              label="Your Shopify address"
+              name="shopDomain"
+              required
+              defaultValue={v(state, "shopDomain", shopDomain)}
+              placeholder="your-shop.myshopify.com"
+              hint="The myshopify.com address, also when your shop uses its own domain."
+              error={state.errors?.shopDomain}
+            />
+            <Field
+              label="Storefront API access token"
+              name="storefrontToken"
+              type="password"
+              autoComplete="off"
+              required={!shopifyConnected}
+              placeholder={shopifyConnected ? "Saved. Paste a new one to replace it." : ""}
+              hint="In Shopify: Settings, Apps and sales channels, Develop apps, create an app, turn on Storefront API access with product, collection and checkout permissions, then install it and copy the Storefront API access token."
+              error={state.errors?.storefrontToken}
+            />
+            <Field
+              label="Admin API access token (optional)"
+              name="adminToken"
+              type="password"
+              autoComplete="off"
+              placeholder={shopifyAdmin ? "Saved. Paste a new one to replace it." : ""}
+              hint="Shows customers their orders in the app. In the same Shopify app, turn on Admin API access with the read_orders and read_customers permissions, then copy the Admin API access token. Orders are matched to the phone number customers sign in with."
+              error={state.errors?.adminToken}
+            />
+            {shopifyAdmin ? (
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="removeAdminToken" className="h-4 w-4 accent-midnight" />
+                Remove the Admin API token (the app stops showing orders)
+              </label>
+            ) : null}
+            {state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
+          </>
+        ) : null}
+        {choice === "custom_api" ? (
+          <>
+            <Field
+              label="Your API address"
+              name="apiBaseUrl"
+              type="url"
+              required
+              defaultValue={v(state, "apiBaseUrl", apiBaseUrl)}
+              placeholder="https://api.your-site.com/yallapp/v1"
+              hint={
+                <>
+                  The app calls the endpoints in our <Link href="/guides/custom-api">developer guide</Link> under this address.
+                </>
+              }
+              error={state.errors?.apiBaseUrl}
+            />
+            <div className="flex flex-col gap-3 rounded-xl border border-line bg-sand p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="text-sm font-semibold">Check your API</span>
+                <button type="submit" formAction={checkAction} formNoValidate className={`${btn.secondary} h-10`} disabled={checking}>
+                  {checking ? "Checking…" : "Run the check"}
+                </button>
+              </div>
+              {check.error ? <span className="text-sm text-danger">{check.error}</span> : null}
+              {check.result ? (
+                <ul aria-live="polite" className="m-0 flex list-none flex-col gap-1.5 p-0">
+                  {check.result.checks.map((c) => (
+                    <li key={c.id} className="flex items-start gap-2 text-sm">
+                      <Icon
+                        name={c.ok ? "check_circle" : "cancel"}
+                        size={18}
+                        filled
+                        className={c.ok ? "text-success" : "text-danger"}
+                      />
+                      <span>
+                        <span className="font-semibold">{c.label}</span>
+                        {c.detail ? <span className="text-ink-4"> · {c.detail}</span> : null}
+                        <span className="sr-only">{c.ok ? " (passed)" : " (failed)"}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="text-sm text-ink-4">We call your API the way the app does and show what&apos;s missing.</span>
+              )}
+            </div>
+          </>
+        ) : null}
+        {choice === "setup_requested" ? (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="f-setupNote" className="text-sm font-semibold">
+                Anything we should know? (optional)
+              </label>
+              <textarea
+                id="f-setupNote"
+                name="setupNote"
+                rows={4}
+                maxLength={1000}
+                defaultValue={v(state, "setupNote", setupNote)}
+                placeholder="Your current website platform, how many products or courses you have, where your content is today…"
+                className="input"
+                aria-invalid={state.errors?.setupNote ? true : undefined}
+                aria-describedby={state.errors?.setupNote ? "f-setupNote-error" : undefined}
+              />
+              <FieldError id="f-setupNote-error" error={state.errors?.setupNote} />
+            </div>
+            <div className="flex items-start gap-2 rounded-xl border border-line bg-sand p-4 text-sm text-ink-4">
+              <Icon name="chat" size={20} className="text-muted" />
+              <span>
+                {setupRequestedAt
+                  ? `You asked us on ${setupRequestedAt}. Our team will message you on WhatsApp. When your WordPress site is ready, choose "My WordPress site" here.`
+                  : "Our team messages you on WhatsApp with the price and the next steps. Your first build starts once your WordPress site is ready."}
+              </span>
+            </div>
+          </>
+        ) : null}
         <StepActions back="/dashboard/app-type" />
       </StepCard>
     </form>
@@ -262,6 +622,8 @@ export function BrandingStep({
 
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
+      {/* Sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="template" value={template} />
       <StepCard title="Branding" id="h-brand">
         <FormMessage message={state.message} />
         <Field
@@ -343,7 +705,7 @@ export function BrandingStep({
                 <span className={`flex items-center gap-2 text-sm ${template === t.id ? "font-bold" : "font-semibold"}`}>
                   <input
                     type="radio"
-                    name="template"
+                    name="templateChoice"
                     value={t.id}
                     checked={template === t.id}
                     onChange={() => setTemplate(t.id)}
@@ -402,8 +764,127 @@ export function BrandingStep({
   );
 }
 
+type UploadedFile = { id: string; url: string };
+
+/** Store screenshots: uploaded one by one (each request stays small), kept in upload order. */
+function ScreenshotGallery({
+  kind,
+  field,
+  label,
+  hint,
+  max,
+  initial,
+  error,
+  saved,
+}: {
+  kind: "play_screenshot" | "ios_screenshot";
+  field: string;
+  label: string;
+  hint: string;
+  max: number;
+  initial: UploadedFile[];
+  error?: string;
+  /** The form state of the last save: its error is hidden once the list changes, until the next save. */
+  saved: FormState;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  const [files, setFilesState] = useState(initial);
+  const [uploadError, setMessage] = useState<string | undefined>();
+  const [changedAfter, setChangedAfter] = useState<FormState | null>(null);
+  const message = uploadError ?? (changedAfter === saved ? undefined : error);
+  const setFiles: typeof setFilesState = (next) => {
+    setFilesState(next);
+    setChangedAfter(saved);
+  };
+  const [pending, start] = useTransition();
+  const inputId = `upload-${kind}`;
+
+  function upload(selected: File[]) {
+    start(async () => {
+      let added: UploadedFile[] = [];
+      for (const file of selected.slice(0, Math.max(0, max - files.length))) {
+        const data = new FormData();
+        data.set("kind", kind);
+        data.set("file", file);
+        const result = await uploadAssetAction(data);
+        if (result.ok && result.id && result.url) {
+          added = [...added, { id: result.id, url: result.url }];
+        } else {
+          setMessage(`${file.name}: ${result.error ?? "The upload failed. Try again."}`);
+          break;
+        }
+      }
+      if (added.length > 0) {
+        setFiles((current) => [...current, ...added].slice(0, max));
+        if (added.length === selected.length) setMessage(undefined);
+      }
+      if (selected.length > max - files.length) setMessage(`You can add up to ${max} screenshots.`);
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span id={`${inputId}-label`} className="text-sm font-semibold">
+        {label} <span className="font-normal text-muted">(optional)</span>
+      </span>
+      {files.map((file) => (
+        <input key={file.id} type="hidden" name={field} value={file.id} />
+      ))}
+      <input
+        ref={input}
+        id={inputId}
+        type="file"
+        multiple
+        accept="image/png,image/jpeg"
+        className="sr-only"
+        aria-labelledby={`${inputId}-label`}
+        aria-describedby={`${inputId}-hint${message ? ` ${inputId}-error` : ""}`}
+        onChange={(event) => {
+          const selected = Array.from(event.target.files ?? []);
+          if (selected.length > 0) upload(selected);
+          event.target.value = "";
+        }}
+      />
+      <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0" aria-label={`${label}: ${files.length} of ${max}`}>
+        {files.map((file, index) => (
+          <li key={file.id} className="relative">
+            <img src={file.url} alt={`Screenshot ${index + 1}`} className="h-36 w-auto max-w-[110px] rounded-lg border border-line bg-white object-cover" />
+            <button
+              type="button"
+              onClick={() => setFiles((current) => current.filter((f) => f.id !== file.id))}
+              aria-label={`Remove screenshot ${index + 1}`}
+              className="absolute -top-2 -right-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight"
+            >
+              <Icon name="close" size={16} />
+            </button>
+          </li>
+        ))}
+        {files.length < max ? (
+          <li>
+            <button
+              type="button"
+              onClick={() => input.current?.click()}
+              disabled={pending}
+              aria-describedby={`${inputId}-label`}
+              className="flex h-36 w-[110px] flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#9A96A6] bg-sand px-2 text-center text-xs font-semibold text-midnight hover:border-midnight"
+            >
+              {pending ? <Icon name="progress_activity" size={20} className="animate-spin" /> : <Icon name="add" size={20} />}
+              {pending ? "Uploading…" : "Add screenshots"}
+            </button>
+          </li>
+        ) : null}
+      </ul>
+      <span id={`${inputId}-hint`} className="text-xs text-muted">
+        {hint}
+      </span>
+      <FieldError id={`${inputId}-error`} error={message} />
+    </div>
+  );
+}
+
 export function ListingStep({
   values,
+  screenshots,
 }: {
   values: {
     androidPackage: string;
@@ -414,6 +895,7 @@ export function ListingStep({
     supportEmail: string;
     privacyUrl: string;
   };
+  screenshots: { phone: UploadedFile[]; iphone: UploadedFile[] };
 }) {
   const [state, action] = useActionState(saveListingAction, initialFormState);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
@@ -499,6 +981,32 @@ export function ListingStep({
             small
           />
         </div>
+        <fieldset className="m-0 flex flex-col gap-4 rounded-xl border border-line p-4">
+          <legend className="px-1 text-[15px] font-bold">Screenshots</legend>
+          <p className="m-0 text-sm leading-relaxed text-ink-4">
+            Screenshots of your app for the store pages. They go into your store assets with your icons and feature graphic. You can add them later and start a new build.
+          </p>
+          <ScreenshotGallery
+            kind="play_screenshot"
+            field="playScreenshotIds"
+            label="Google Play phone screenshots"
+            hint="2 to 8 PNG or JPEG files, no transparency. Each side 320 to 3840 pixels, the long side at most twice the short side, for example 1080 × 1920."
+            max={8}
+            initial={screenshots.phone}
+            error={state.errors?.playScreenshotIds}
+            saved={state}
+          />
+          <ScreenshotGallery
+            kind="ios_screenshot"
+            field="iosScreenshotIds"
+            label="iPhone screenshots"
+            hint="Up to 10 PNG or JPEG files, no transparency, at 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels (6.9-inch display). Don't show prices or buy buttons."
+            max={10}
+            initial={screenshots.iphone}
+            error={state.errors?.iosScreenshotIds}
+            saved={state}
+          />
+        </fieldset>
         <StepActions back="/dashboard/setup?step=branding" />
       </StepCard>
     </form>
@@ -529,7 +1037,7 @@ function FileInput({ name, label, accept, hint, error }: { name: string; label: 
   );
 }
 
-function SavedKey({ title, detail, store }: { title: string; detail: string; store: "google-play" | "app-store" }) {
+function SavedKey({ title, detail, store }: { title: string; detail: string; store: "google-play" | "app-store" | "firebase-android" | "firebase-ios" }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
       <span className="flex min-w-0 items-center gap-2 text-[15px]">
@@ -595,12 +1103,48 @@ function AppStoreKeyFields({ state, saved, optional = false }: { state: FormStat
   );
 }
 
+type SavedFirebase = { android: boolean; ios: boolean };
+
+/** Firebase config files. Optional on every plan: without them the app works, but without push notifications. */
+function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFirebase }) {
+  return (
+    <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
+      <legend className="px-1 text-[15px] font-bold">
+        Push notifications <span className="font-normal text-muted">(optional)</span>
+      </legend>
+      <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+        <Icon name="notifications" size={20} className="text-muted" />
+        <span>
+          Notifications are sent through your own Firebase project. Add your apps in Firebase with the package name and bundle ID from the previous step, then upload their config files.{" "}
+          <Link href="/guides/push-notifications">How to set up Firebase</Link>
+        </span>
+      </p>
+      {saved.android ? <SavedKey title="google-services.json" detail="Android" store="firebase-android" /> : null}
+      <FileInput
+        name="firebaseAndroidFile"
+        label={saved.android ? "Replace google-services.json" : "google-services.json (Android)"}
+        accept="application/json,.json"
+        hint="Firebase › Project settings › Your apps › Android app."
+        error={state.errors?.firebaseAndroidFile}
+      />
+      {saved.ios ? <SavedKey title="GoogleService-Info.plist" detail="iOS" store="firebase-ios" /> : null}
+      <FileInput
+        name="firebaseIosFile"
+        label={saved.ios ? "Replace GoogleService-Info.plist" : "GoogleService-Info.plist (iOS)"}
+        accept=".plist,application/xml,text/xml"
+        hint="Firebase › Project settings › Your apps › iOS app. iPhone notifications also need your APNs key in Firebase."
+        error={state.errors?.firebaseIosFile}
+      />
+    </fieldset>
+  );
+}
+
 export function PublishingStep({
   plan,
   saved,
 }: {
   plan: "starter" | "pro" | null;
-  saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey };
+  saved: { play: { clientEmail: string | null } | null; appStore: SavedAppStoreKey; firebase: SavedFirebase };
 }) {
   const [state, action] = useActionState(savePublishingAction, initialFormState);
 
@@ -624,6 +1168,7 @@ export function PublishingStep({
           <p className="m-0 text-sm text-muted">
             The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time. Want us to publish for you? Ask us about the Pro plan on WhatsApp.
           </p>
+          <FirebaseFields state={state} saved={saved.firebase} />
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>
               Back
@@ -656,6 +1201,8 @@ export function PublishingStep({
         </fieldset>
 
         <AppStoreKeyFields state={state} saved={saved.appStore} />
+
+        <FirebaseFields state={state} saved={saved.firebase} />
 
         <div className="flex justify-between gap-3 pt-1.5">
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-[46px]`}>

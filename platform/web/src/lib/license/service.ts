@@ -1,6 +1,8 @@
 import type { DataStore } from "../data/store";
 import type { Client, License, LicenseState, PluginRelease } from "../data/types";
-import { PLAN_INFO, type Plan, type PlanFeature } from "../plans";
+import type { Plan, PlanFeature, PlanInfo } from "../plans";
+import { getPlans } from "../settings/platform";
+import { getSwitches, plansWithSwitches } from "../switches";
 import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
@@ -93,11 +95,17 @@ function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-function statusBody(state: LicenseState, license: License | null, now: Date, message: string | null): LicenseStatusBody {
+function statusBody(
+  plans: Record<Plan, PlanInfo>,
+  state: LicenseState,
+  license: License | null,
+  now: Date,
+  message: string | null,
+): LicenseStatusBody {
   return {
     status: state,
     plan: license?.plan ?? null,
-    features: state === "active" && license ? [...PLAN_INFO[license.plan].features] : [],
+    features: state === "active" && license ? [...plans[license.plan].features] : [],
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -123,12 +131,13 @@ async function findLicense(store: DataStore, key: string): Promise<{ license: Li
 }
 
 export async function activateLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
+  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
   const state = licenseState(client, license, now);
   if (state !== "active") {
-    return { status: 200, body: statusBody(state, license, now, inactiveMessage(state, license)) };
+    return { status: 200, body: statusBody(plans, state, license, now, inactiveMessage(state, license)) };
   }
   const claim = await store.claimActivation({
     licenseId: license.id,
@@ -149,25 +158,26 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
       },
     };
   }
-  return { status: 200, body: statusBody("active", license, now, null) };
+  return { status: 200, body: statusBody(plans, "active", license, now, null) };
 }
 
 export async function checkLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
+  const plans = plansWithSwitches(await getPlans(store), await getSwitches(store));
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
   const state = licenseState(client, license, now);
   if (state !== "active") {
-    return { status: 200, body: statusBody(state, license, now, inactiveMessage(state, license)) };
+    return { status: 200, body: statusBody(plans, state, license, now, inactiveMessage(state, license)) };
   }
   const activation = await store.getActivation(license.id);
   if (!activation) {
-    return { status: 200, body: statusBody("invalid", license, now, "This license isn't activated on this site. Activate it in the plugin settings.") };
+    return { status: 200, body: statusBody(plans, "invalid", license, now, "This license isn't activated on this site. Activate it in the plugin settings.") };
   }
   if (activation.siteUrl !== site.siteUrl) {
     return {
       status: 200,
-      body: statusBody("invalid", license, now, `This license is active on ${activation.siteUrl}, not on this site.`),
+      body: statusBody(plans, "invalid", license, now, `This license is active on ${activation.siteUrl}, not on this site.`),
     };
   }
   await store.touchActivation(license.id, {
@@ -176,7 +186,7 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
     lms: site.lms,
     lastCheckedAt: now,
   });
-  return { status: 200, body: statusBody("active", license, now, null) };
+  return { status: 200, body: statusBody(plans, "active", license, now, null) };
 }
 
 export async function deactivateLicense(store: DataStore, body: unknown): Promise<ApiResult<never>> {

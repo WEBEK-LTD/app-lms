@@ -14,6 +14,7 @@ mobile/
   assets/fonts/              bundled fonts (SIL OFL, licence next to each font)
   lib/
     main.dart, app.dart      start-up and the app root
+    l10n/                    interface strings (ARB) and gen-l10n output
     generated/               build_config.g.dart (written by tool/apply_config.dart)
     core/                    shared by every app type
       api/                   HTTP client, typed models, ApiException
@@ -31,8 +32,12 @@ mobile/
     modules/
       lms/                   the Academy: sign-in, home (3 templates), courses,
                              course page, my courses, lessons, quizzes, account
-      store/                 later (WooCommerce)
-      booking/               later
+      store/                 Store apps (WooCommerce)
+      bookings/              Bookings apps
+      real_estate/           Real estate apps (hosted API): search, filters,
+                             listing page, favorites, messages to the office
+      shared/pages/          dashboard pages from /pages: one renderer for
+                             every block in every template
   test/                      unit and widget tests with a fake API
   android/, ios/             platform projects (screen capture channels in
                              MainActivity.kt and AppDelegate.swift)
@@ -91,7 +96,13 @@ flutter build apk --debug
 
 ## Rules this app follows
 
-- Every user-facing string is English; layout is left to right.
+- Every interface string lives in `lib/l10n/app_en.arb` (English, the
+  template) with an Arabic and a Turkish translation; widgets read them with
+  `context.l10n`, code without a context with `currentL10n`. The language
+  comes from Settings, else the device, else `Config.languages.default`, and
+  is sent as `Accept-Language`. Arabic is right to left: use
+  `EdgeInsetsDirectional`, `AlignmentDirectional` and `PositionedDirectional`
+  where a side matters.
 - Icons are Google Material Symbols, Rounded style only (`AppIcons`).
 - No imagery or wording that suggests AI.
 - iOS never shows a purchase button for paid courses and never requests

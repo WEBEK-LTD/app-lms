@@ -13,6 +13,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../lesson/content/html_content.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Answers for the questions the app shows natively. Questions answered in
 /// a web view are saved by the site itself and are not sent here.
@@ -33,9 +34,9 @@ List<QuestionOption> optionsFor(Question q) {
   if (q.options.isNotEmpty || q.type != QuestionType.trueFalse) {
     return q.options;
   }
-  return const [
-    QuestionOption(id: 'true', label: 'True'),
-    QuestionOption(id: 'false', label: 'False'),
+  return [
+    QuestionOption(id: 'true', label: currentL10n.answerTrue),
+    QuestionOption(id: 'false', label: currentL10n.answerFalse),
   ];
 }
 
@@ -114,10 +115,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       if (unanswered > 0) {
         final ok = await confirmAction(
           context,
-          title: 'Submit the quiz?',
-          message:
-              '${plural(unanswered, 'question')} ${unanswered == 1 ? 'has' : 'have'} no answer yet.',
-          confirmLabel: 'Submit',
+          title: context.l10n.submitQuizTitle,
+          message: context.l10n.unansweredQuestions(unanswered),
+          confirmLabel: context.l10n.submit,
         );
         if (!ok) return;
       }
@@ -141,7 +141,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _attempt = null;
       });
       if (timeUp) {
-        showMessage(context, "Time's up. Your answers were submitted.");
+        showMessage(context, context.l10n.timeUp);
       }
     } on ApiException catch (e) {
       if (mounted) showMessage(context, e.message);
@@ -154,9 +154,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     if (_attempt != null) {
       final leave = await confirmAction(
         context,
-        title: 'Leave the quiz?',
-        message: "Your answers won't be submitted.",
-        confirmLabel: 'Leave',
+        title: context.l10n.leaveQuizTitle,
+        message: context.l10n.leaveQuizMessage,
+        confirmLabel: context.l10n.leave,
         destructive: true,
       );
       if (!leave || !mounted) return;
@@ -183,7 +183,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   padding: const EdgeInsets.all(16),
                   child: SquareIconButton(
                     icon: AppIcons.close,
-                    label: 'Close quiz',
+                    label: context.l10n.closeQuiz,
                     onPressed: _close,
                   ),
                 ),
@@ -196,7 +196,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               ],
             ),
           ),
-          _ => const LoadingView(label: 'Loading quiz'),
+          _ => LoadingView(label: context.l10n.loadingQuiz),
         },
       ),
     );
@@ -211,7 +211,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         children: [
           SquareIconButton(
             icon: AppIcons.close,
-            label: 'Close quiz',
+            label: context.l10n.closeQuiz,
             iconSize: 20,
             onPressed: _close,
           ),
@@ -232,7 +232,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           const SizedBox(width: 12),
           if (timed)
             Semantics(
-              label: 'Time left ${formatClock(_remaining)}',
+              label: context.l10n.timeLeft(formatClock(_remaining)),
               excludeSemantics: true,
               child: Container(
                 height: 36,
@@ -273,10 +273,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         child: Column(
           children: [
             _header(context, quiz.title),
-            const Expanded(
+            Expanded(
               child: MessageView(
                 icon: AppIcons.quiz,
-                title: 'This quiz has no questions yet',
+                title: context.l10n.quizNoQuestions,
               ),
             ),
           ],
@@ -304,7 +304,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Question ${_index + 1} of ${attempt.questions.length}',
+                              context.l10n.questionPosition(
+                                _index + 1,
+                                attempt.questions.length,
+                              ),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: p.textSecondary,
@@ -343,7 +346,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             children: [
               Expanded(
                 child: SecondaryButton(
-                  label: 'Previous',
+                  label: context.l10n.previous,
                   onPressed: _index == 0
                       ? null
                       : () => setState(() => _index--),
@@ -353,7 +356,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               Expanded(
                 flex: 2,
                 child: PrimaryButton(
-                  label: last ? 'Submit quiz' : 'Next question',
+                  label: last
+                      ? context.l10n.submitQuiz
+                      : context.l10n.nextQuestion,
                   height: 54,
                   loading: _submitting,
                   onPressed: last ? _submit : () => setState(() => _index++),
@@ -369,19 +374,24 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   Widget _intro(BuildContext context, Quiz quiz) {
     final p = context.palette;
     final facts = <(IconData, String)>[
-      (AppIcons.quiz, plural(quiz.questionCount, 'question')),
+      (AppIcons.quiz, context.l10n.questionCount(quiz.questionCount)),
       if (quiz.timeLimitSeconds != null && quiz.timeLimitSeconds! > 0)
         (
           AppIcons.timer,
-          '${formatMinutes((quiz.timeLimitSeconds! / 60).ceil())} time limit',
+          context.l10n.timeLimit(
+            formatMinutes((quiz.timeLimitSeconds! / 60).ceil()),
+          ),
         ),
       if (quiz.passPercent != null)
-        (AppIcons.flag, 'Pass mark ${quiz.passPercent}%'),
+        (AppIcons.flag, context.l10n.passMark(quiz.passPercent!)),
       (
         AppIcons.replay,
         quiz.attemptsAllowed == null
-            ? 'Unlimited attempts'
-            : '${quiz.attemptsUsed} of ${quiz.attemptsAllowed} attempts used',
+            ? context.l10n.unlimitedAttempts
+            : context.l10n.attemptsUsed(
+                quiz.attemptsUsed,
+                quiz.attemptsAllowed!,
+              ),
       ),
     ];
     return Column(
@@ -422,7 +432,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       ),
                       if (quiz.lastResult != null) ...[
                         const SizedBox(height: 18),
-                        const SectionHeader(title: 'Last result', size: 16),
+                        SectionHeader(title: context.l10n.lastResult, size: 16),
                         const SizedBox(height: 8),
                         AttemptResultTile(result: quiz.lastResult!),
                       ],
@@ -437,14 +447,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           child: quiz.canStart
               ? PrimaryButton(
                   label: quiz.attemptsUsed == 0
-                      ? 'Start quiz'
-                      : 'Start a new attempt',
+                      ? context.l10n.startQuiz
+                      : context.l10n.startNewAttempt,
                   height: 54,
                   loading: _starting,
                   onPressed: _start,
                 )
               : Text(
-                  "You've used all your attempts for this quiz.",
+                  context.l10n.noAttemptsLeft,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: p.textSecondary),
                 ),
@@ -455,11 +465,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   Widget _resultView(BuildContext context, Quiz quiz, AttemptResult result) {
     final (icon, title) = switch (result.status) {
-      AttemptStatus.passed => (AppIcons.checkCircle, 'You passed'),
-      AttemptStatus.failed => (AppIcons.replay, 'Not passed this time'),
+      AttemptStatus.passed => (AppIcons.checkCircle, context.l10n.youPassed),
+      AttemptStatus.failed => (AppIcons.replay, context.l10n.notPassedThisTime),
       AttemptStatus.pendingReview => (
         AppIcons.schedule,
-        'Submitted for review',
+        context.l10n.submittedForReview,
       ),
     };
     final score = result.scorePercent;
@@ -473,10 +483,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               title: title,
               message: [
                 if (score != null)
-                  'Your score: ${score.toStringAsFixed(score % 1 == 0 ? 0 : 1)}%',
-                if (quiz.passPercent != null) 'Pass mark: ${quiz.passPercent}%',
+                  context.l10n.yourScore(
+                    score.toStringAsFixed(score % 1 == 0 ? 0 : 1),
+                  ),
+                if (quiz.passPercent != null)
+                  context.l10n.passMarkColon(quiz.passPercent!),
                 if (result.status == AttemptStatus.pendingReview)
-                  'Your instructor will review your answers.',
+                  context.l10n.instructorWillReview,
               ].join('\n'),
             ),
           ),
@@ -488,14 +501,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     (quiz.attemptsAllowed == null ||
                         quiz.attemptsUsed < quiz.attemptsAllowed!)) ...[
                   PrimaryButton(
-                    label: 'Try again',
+                    label: context.l10n.tryAgain,
                     loading: _starting,
                     onPressed: _start,
                   ),
                   const SizedBox(height: 10),
                 ],
                 SecondaryButton(
-                  label: 'Back to the course',
+                  label: context.l10n.backToCourse,
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ],
@@ -549,12 +562,12 @@ class _QuestionView extends ConsumerWidget {
           const SizedBox(height: 12),
           if (url == null)
             Text(
-              "This question can't be shown in the app.",
+              context.l10n.questionNotSupported,
               style: TextStyle(color: p.textSecondary),
             )
           else ...[
             Text(
-              'Answer below. Your answer is saved when you move on.',
+              context.l10n.answerBelow,
               style: TextStyle(fontSize: 13, color: p.textSecondary),
             ),
             const SizedBox(height: 10),
@@ -587,7 +600,7 @@ class _QuestionView extends ConsumerWidget {
         const SizedBox(height: 14),
         Semantics(
           container: true,
-          label: multiple ? 'Choose all that apply' : 'Choose one answer',
+          label: multiple ? context.l10n.chooseAll : context.l10n.chooseOne,
           child: Column(
             children: [
               for (final option in options) ...[
@@ -717,7 +730,7 @@ class AttemptResultTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  result.quizTitle ?? 'Quiz',
+                  result.quizTitle ?? context.l10n.quiz,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

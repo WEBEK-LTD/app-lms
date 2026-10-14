@@ -1,6 +1,10 @@
+import 'bookings_models.dart';
+import '../../config/build_config_data.dart';
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'listing_models.dart';
+import 'store_models.dart';
 
 /// `GET /config`: branding, detected features and app rules.
 class AppConfig {
@@ -12,6 +16,11 @@ class AppConfig {
     required this.purchases,
     required this.content,
     required this.app,
+    this.store,
+    this.bookings,
+    this.appearance,
+    this.languages,
+    this.listings,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -22,6 +31,11 @@ class AppConfig {
     purchases: PurchaseRules.fromJson(asJson(json['purchases'], 'purchases')),
     content: ContentRules.fromJson(asJson(json['content'], 'content')),
     app: AppRules.fromJson(asJson(json['app'], 'app')),
+    store: optObject(json, 'store', StoreConfig.fromJson),
+    bookings: optObject(json, 'bookings', BookingsConfig.fromJson),
+    appearance: optObject(json, 'appearance', Appearance.fromJson),
+    languages: optObject(json, 'languages', Languages.fromJson),
+    listings: optObject(json, 'listings', ListingsConfig.fromJson),
   );
 
   final SiteInfo site;
@@ -31,6 +45,48 @@ class AppConfig {
   final PurchaseRules purchases;
   final ContentRules content;
   final AppRules app;
+
+  /// The shop's settings, when WooCommerce is active (Store apps).
+  final StoreConfig? store;
+
+  /// The booking plugin's rules, when one is active (Bookings apps).
+  final BookingsConfig? bookings;
+
+  /// The look set in the client dashboard; `null` keeps the build's look.
+  final Appearance? appearance;
+
+  /// The languages the client turned on; `null` on older servers means
+  /// English only.
+  final Languages? languages;
+
+  /// The office's settings (Real estate apps).
+  final ListingsConfig? listings;
+}
+
+/// `Config.languages`. Codes the app doesn't ship are dropped.
+class Languages {
+  const Languages({required this.defaultCode, required this.available});
+
+  factory Languages.fromJson(Json json) {
+    final available = [
+      for (final code in stringList(json, 'available'))
+        if (shippedLanguages.contains(code)) code,
+    ];
+    final fallback = optString(json, 'default');
+    final defaultCode = shippedLanguages.contains(fallback)
+        ? fallback!
+        : (available.isEmpty ? 'en' : available.first);
+    return Languages(
+      defaultCode: defaultCode,
+      available: available.isEmpty ? [defaultCode] : available,
+    );
+  }
+
+  /// The interface languages this app ships translations for.
+  static const shippedLanguages = ['en', 'ar', 'tr'];
+
+  final String defaultCode;
+  final List<String> available;
 }
 
 class SiteInfo {
@@ -91,10 +147,13 @@ class SiteFeatures {
     required this.reviews,
     required this.qna,
     required this.push,
+    this.orders = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
-    lms: enumFrom(LmsKind.values, json['lms'], LmsKind.unknown),
+    lms: json['lms'] == null
+        ? null
+        : enumFrom(LmsKind.values, json['lms'], LmsKind.unknown),
     lmsVersion: reqString(json, 'lms_version'),
     pro: reqBool(json, 'pro'),
     certificates: reqBool(json, 'certificates'),
@@ -103,9 +162,11 @@ class SiteFeatures {
     reviews: reqBool(json, 'reviews'),
     qna: reqBool(json, 'qna'),
     push: reqBool(json, 'push'),
+    orders: boolOr(json, 'orders', false),
   );
 
-  final LmsKind lms;
+  /// Null on a site without an LMS (a Store app).
+  final LmsKind? lms;
   final String lmsVersion;
   final bool pro;
   final bool certificates;
@@ -114,6 +175,10 @@ class SiteFeatures {
   final bool reviews;
   final bool qna;
   final bool push;
+
+  /// Whether the site sells (courses or products), so customers have orders.
+  /// Older plugins don't send it.
+  final bool orders;
 }
 
 enum SignupField { name, email, city }
@@ -223,6 +288,45 @@ class AppRules {
   final bool updateRequired;
   final bool maintenance;
   final String? maintenanceMessage;
+}
+
+enum AppearanceMode { system, light, dark }
+
+enum CornerStyle { sharp, soft, round }
+
+enum CardStyle { flat, outlined, elevated }
+
+/// `Config.appearance`. Every value is optional here: a missing or unknown
+/// value means "use the build's default", so newer dashboards never break
+/// older apps.
+class Appearance {
+  const Appearance({
+    this.template,
+    this.themeMode,
+    this.userCanChangeMode = true,
+    this.secondaryColor,
+    this.font,
+    this.corners,
+    this.cards,
+  });
+
+  factory Appearance.fromJson(Json json) => Appearance(
+    template: enumOrNull(AppTemplate.values, json['template']),
+    themeMode: enumOrNull(AppearanceMode.values, json['theme_mode']),
+    userCanChangeMode: boolOr(json, 'user_can_change_mode', true),
+    secondaryColor: optString(json, 'secondary_color'),
+    font: optString(json, 'font'),
+    corners: enumOrNull(CornerStyle.values, json['corners']),
+    cards: enumOrNull(CardStyle.values, json['cards']),
+  );
+
+  final AppTemplate? template;
+  final AppearanceMode? themeMode;
+  final bool userCanChangeMode;
+  final String? secondaryColor;
+  final String? font;
+  final CornerStyle? corners;
+  final CardStyle? cards;
 }
 
 enum HomeSectionType {

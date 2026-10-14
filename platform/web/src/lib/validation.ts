@@ -1,7 +1,9 @@
+import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { APP_FONTS, APP_TEMPLATES, RULES } from "./build-config/types";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth/password-rules";
 import { isHttpUrl } from "./license/site-url";
+import { normalizeShopDomain } from "./hosted/connectors/shopify";
 import { PLANS } from "./plans";
 import { VERSION_PATTERN } from "./semver";
 
@@ -67,7 +69,42 @@ export const resetSchema = z
   })
   .refine((value) => value.password === value.confirm, { message: "The passwords don't match.", path: ["confirm"] });
 
-export const websiteSchema = z.object({ siteUrl: httpsSiteUrl });
+const apiBaseUrl = z
+  .string()
+  .trim()
+  .max(2048, "This address is too long.")
+  .refine((value) => RULES.httpsUrl.test(value) && !/[?#]/.test(value), "Enter your API's https address, without ? or #.");
+
+export const websiteSchema = z.discriminatedUnion("backend", [
+  z.object({ backend: z.literal("wordpress"), siteUrl: httpsSiteUrl }),
+  z.object({ backend: z.literal("custom_api"), siteUrl: httpsSiteUrl, apiBaseUrl }),
+  z.object({
+    backend: z.literal("shopify"),
+    siteUrl: httpsSiteUrl,
+    shopDomain: z
+      .string()
+      .trim()
+      .max(255)
+      .transform((value, ctx) => {
+        const domain = normalizeShopDomain(value);
+        if (!domain) ctx.addIssue({ code: "custom", message: "Enter your shop's address, like your-shop.myshopify.com." });
+        return domain ?? "";
+      }),
+    // Empty keeps the saved token.
+    storefrontToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
+    // Optional, for order history; empty keeps the saved one.
+    adminToken: z.string().trim().max(200, "This token is too long.").optional().default(""),
+    removeAdminToken: z.literal("on").optional(),
+  }),
+  z.object({ backend: z.literal("catalog") }),
+  // The platform's own fields (p_<name>) are checked against its definition.
+  z.object({ backend: z.literal("platform"), platform: z.string().trim().min(1, "Choose a platform.").max(40) }),
+  z.object({
+    backend: z.literal("setup_requested"),
+    siteUrl: httpsSiteUrl,
+    setupNote: z.string().trim().max(1000, "Use at most 1000 characters.").optional().default(""),
+  }),
+]);
 
 const color = z.string().trim().regex(RULES.color, "Use a hex color like #0E0D24.");
 
@@ -134,11 +171,19 @@ export const appStoreKeySchema = z.object({
   privateKey: z
     .string()
     .max(10_000, "This file is too large for a .p8 key.")
-    .refine(
-      (value) => /-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(value),
-      "This isn't an App Store Connect .p8 key.",
-    ),
+    .refine(isAppStoreConnectKey, "This isn't an App Store Connect .p8 key. Download it again from App Store Connect › Users and Access › Integrations."),
 });
+
+/** App Store Connect keys are P-256 elliptic-curve private keys in PEM. */
+function isAppStoreConnectKey(value: string): boolean {
+  if (!/-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(value)) return false;
+  try {
+    const key = createPrivateKey(value);
+    return key.asymmetricKeyType === "ec" && key.asymmetricKeyDetails?.namedCurve === "prime256v1";
+  } catch {
+    return false;
+  }
+}
 
 export const startBuildSchema = z.object({
   versionName: z.string().trim().regex(VERSION_PATTERN, "Use a version like 1.0.0."),
@@ -163,6 +208,10 @@ export const addClientSchema = z.object({
   siteUrl,
 });
 
+export const clientDetailsSchema = addClientSchema.omit({ email: true }).extend({
+  clientId: z.string().regex(/^[0-9a-f-]{36}$/i),
+});
+
 export const releaseSchema = z.object({
   version: z.string().trim().regex(VERSION_PATTERN, "Use a version like 0.2.0."),
   requiresWp: z.string().trim().regex(/^\d+\.\d+(\.\d+)?$/, "Use a version like 6.0."),
@@ -170,4 +219,11 @@ export const releaseSchema = z.object({
   testedWp: z.string().trim().regex(/^\d+\.\d+(\.\d+)?$/, "Use a version like 6.8."),
   changelog: z.string().trim().min(1, "Describe what changed.").max(20_000),
   published: z.union([z.literal("on"), z.literal("")]).optional().transform((value) => value === "on"),
+});
+
+// 11.7 Admin team
+export const inviteAdminSchema = z.object({
+  name: z.string().trim().min(2, "Enter their name.").max(120),
+  email,
+  role: z.enum(["owner", "admin", "support", "viewer"], { error: "Choose a role." }),
 });

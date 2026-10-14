@@ -68,6 +68,18 @@ abstract final class AppIcons {
   static const flag = Symbols.flag_rounded;
   static const timer = Symbols.timer_rounded;
   static const cart = Symbols.shopping_cart_rounded;
+  static const shop = Symbols.storefront_rounded;
+  static const add = Symbols.add_rounded;
+  static const remove = Symbols.remove_rounded;
+  static const calendar = Symbols.calendar_month_rounded;
+  static const gift = Symbols.redeem_rounded;
+  static const sort = Symbols.sort_rounded;
+  static const sale = Symbols.sell_rounded;
+  static const book = Symbols.event_available_rounded;
+  static const appointments = Symbols.event_note_rounded;
+  static const staff = Symbols.groups_rounded;
+  static const location = Symbols.location_on_rounded;
+  static const notes = Symbols.notes_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.
@@ -87,12 +99,26 @@ class AppIcon extends StatelessWidget {
   final bool filled;
   final String? semanticLabel;
 
+  /// Icons that point along the reading direction: mirrored right to left.
+  static const _directional = [
+    AppIcons.back,
+    AppIcons.forward,
+    Symbols.arrow_forward_rounded,
+    Symbols.arrow_back_rounded,
+    Symbols.send_rounded,
+  ];
+
   @override
-  Widget build(BuildContext context) => Icon(
-    icon,
-    size: size,
-    color: color,
-    fill: filled ? 1 : 0,
-    semanticLabel: semanticLabel,
-  );
+  Widget build(BuildContext context) {
+    final glyph = Icon(
+      icon,
+      size: size,
+      color: color,
+      fill: filled ? 1 : 0,
+      semanticLabel: semanticLabel,
+    );
+    final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
+    if (!rtl || !_directional.contains(icon)) return glyph;
+    return Transform.flip(flipX: true, child: glyph);
+  }
 }

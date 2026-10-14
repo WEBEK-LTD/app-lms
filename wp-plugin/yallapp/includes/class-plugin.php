@@ -30,6 +30,28 @@ class Plugin {
 	const REST_NAMESPACE = 'yallapp/v1';
 
 	/**
+	 * Adapter class for each LMS the detector reports.
+	 */
+	const LMS_ADAPTERS = array(
+		'tutor'       => Tutor_Adapter::class,
+		'learndash'   => Lms\LearnDash_Adapter::class,
+		'learnpress'  => Lms\LearnPress_Adapter::class,
+		'lifterlms'   => Lms\LifterLMS_Adapter::class,
+		'masterstudy' => Lms\MasterStudy_Adapter::class,
+		'sensei'      => Lms\Sensei_Adapter::class,
+		'masteriyo'   => Lms\Masteriyo_Adapter::class,
+	);
+
+	/**
+	 * Adapter class for each booking plugin the detector reports.
+	 */
+	const BOOKING_ADAPTERS = array(
+		'amelia'       => Bookings\Amelia_Adapter::class,
+		'bookingpress' => Bookings\BookingPress_Adapter::class,
+		'latepoint'    => Bookings\LatePoint_Adapter::class,
+	);
+
+	/**
 	 * The instance.
 	 *
 	 * @var Plugin|null
@@ -66,9 +88,12 @@ class Plugin {
 		$this->magic_links()->register();
 		$this->push()->register();
 		$this->license()->register();
+		$this->layout_client()->register();
+		$this->store_checkout()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'yallapp_daily', array( $this->tokens(), 'purge_expired' ) );
+		add_action( 'yallapp_daily', array( $this->inbox(), 'purge_old' ) );
 		if ( is_admin() ) {
 			( new Admin\Settings_Page( $this ) )->register();
 			( new Admin\Lesson_Meta_Box() )->register();
@@ -83,11 +108,16 @@ class Plugin {
 	public function register_routes() {
 		$this->media()->register_routes();
 		( new Rest\App_Controller( $this ) )->register_routes();
+		( new Rest\Pages_Controller( $this ) )->register_routes();
 		( new Rest\Auth_Controller( $this ) )->register_routes();
 		( new Rest\Account_Controller( $this ) )->register_routes();
 		( new Rest\Catalog_Controller( $this ) )->register_routes();
 		( new Rest\Learning_Controller( $this ) )->register_routes();
 		( new Rest\Quiz_Controller( $this ) )->register_routes();
+		( new Rest\Notifications_Controller( $this ) )->register_routes();
+		( new Rest\Community_Controller( $this ) )->register_routes();
+		( new Rest\Store_Controller( $this ) )->register_routes();
+		( new Rest\Bookings_Controller( $this ) )->register_routes();
 	}
 
 	/**
@@ -127,8 +157,9 @@ class Plugin {
 		if ( ! array_key_exists( 'lms', $this->services ) ) {
 			$lms     = $this->detector()->lms();
 			$adapter = null;
-			if ( $lms && $lms['supported'] && 'tutor' === $lms['id'] ) {
-				$adapter = new Tutor_Adapter();
+			if ( $lms && $lms['supported'] && isset( self::LMS_ADAPTERS[ $lms['id'] ] ) && class_exists( self::LMS_ADAPTERS[ $lms['id'] ] ) ) {
+				$class   = self::LMS_ADAPTERS[ $lms['id'] ];
+				$adapter = new $class();
 			}
 			/**
 			 * Filters the LMS adapter, so other LMS integrations can plug in.
@@ -139,6 +170,30 @@ class Plugin {
 			$this->services['lms'] = apply_filters( 'yallapp_lms_adapter', $adapter, $lms );
 		}
 		return $this->services['lms'];
+	}
+
+	/**
+	 * The booking plugin adapter, or null when the site has no supported booking plugin.
+	 *
+	 * @return Bookings\Booking_Adapter|null
+	 */
+	public function bookings() {
+		if ( ! array_key_exists( 'bookings', $this->services ) ) {
+			$booking = $this->detector()->booking();
+			$adapter = null;
+			if ( $booking && $booking['supported'] && isset( self::BOOKING_ADAPTERS[ $booking['id'] ] ) && class_exists( self::BOOKING_ADAPTERS[ $booking['id'] ] ) ) {
+				$class   = self::BOOKING_ADAPTERS[ $booking['id'] ];
+				$adapter = new $class();
+			}
+			/**
+			 * Filters the booking adapter, so other booking plugins can plug in.
+			 *
+			 * @param Bookings\Booking_Adapter|null $adapter Adapter.
+			 * @param array|null                    $booking Detected booking plugin.
+			 */
+			$this->services['bookings'] = apply_filters( 'yallapp_booking_adapter', $adapter, $booking );
+		}
+		return $this->services['bookings'];
 	}
 
 	/**
@@ -274,6 +329,34 @@ class Plugin {
 	}
 
 	/**
+	 * Notifications inbox.
+	 *
+	 * @return Push\Inbox
+	 */
+	public function inbox() {
+		return $this->service(
+			'inbox',
+			static function () {
+				return new Push\Inbox();
+			}
+		);
+	}
+
+	/**
+	 * The store's cart and checkout hand-off.
+	 *
+	 * @return Store\Checkout
+	 */
+	public function store_checkout() {
+		return $this->service(
+			'store_checkout',
+			function () {
+				return new Store\Checkout( $this->settings() );
+			}
+		);
+	}
+
+	/**
 	 * License client.
 	 *
 	 * @return License\License_Client
@@ -283,6 +366,34 @@ class Plugin {
 			'license',
 			function () {
 				return new License\License_Client( $this->settings(), $this->detector() );
+			}
+		);
+	}
+
+	/**
+	 * The app layout from the platform.
+	 *
+	 * @return Pages\Layout_Client
+	 */
+	public function layout_client() {
+		return $this->service(
+			'layout_client',
+			function () {
+				return new Pages\Layout_Client( $this->settings(), $this->license() );
+			}
+		);
+	}
+
+	/**
+	 * The app's pages, tabs, look and languages.
+	 *
+	 * @return Pages\Pages
+	 */
+	public function pages() {
+		return $this->service(
+			'pages',
+			function () {
+				return new Pages\Pages( $this );
 			}
 		);
 	}

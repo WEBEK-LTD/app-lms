@@ -2,38 +2,41 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { CONTACT_EMAIL, WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/components/brand";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section } from "@/components/marketing";
+import { getContact, type Contact } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Talk to the Yallapp team on WhatsApp or by email.",
 };
 
-const CHANNELS: { icon: IconName; title: string; text: string; href: string; label: string }[] = [
+const channels = (contact: Contact): { icon: IconName; title: string; text: string; href: string; label: string }[] => [
   {
     icon: "chat",
     title: "WhatsApp",
     text: "The fastest way to reach us: plans, payment, account activation and support.",
-    href: WHATSAPP_URL,
-    label: WHATSAPP_DISPLAY,
+    href: contact.whatsappUrl,
+    label: contact.whatsappDisplay,
   },
   {
     icon: "mail",
     title: "Email",
     text: "For anything you'd rather put in writing, including refund requests.",
-    href: `mailto:${CONTACT_EMAIL}`,
-    label: CONTACT_EMAIL,
+    href: `mailto:${contact.email}`,
+    label: contact.email,
   },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const CHANNELS = channels(await getContact());
+  const text = await getSiteContent("contact");
   return (
     <MarketingPage
       current="contact"
-      eyebrow="Contact"
-      title="Talk to us"
-      intro="Questions about Yallapp, a plan for your academy, or help with your apps: we're here."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <div className="grid max-w-[900px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">

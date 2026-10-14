@@ -86,7 +86,7 @@ class App_Controller extends Controller {
 					'primary_color' => (string) $settings->get( 'primary_color' ),
 				),
 				'features'  => array(
-					'lms'          => $lms ? $lms->id() : 'tutor',
+					'lms'          => $lms ? $lms->id() : null,
 					'lms_version'  => $lms ? $lms->version() : '',
 					'pro'          => $lms ? $lms->is_pro() : false,
 					'certificates' => ! empty( $features['certificates'] ),
@@ -95,7 +95,10 @@ class App_Controller extends Controller {
 					'reviews'      => ! empty( $features['reviews'] ),
 					'qna'          => ! empty( $features['qna'] ),
 					'push'         => $this->plugin->push()->is_configured(),
+					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
+				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
+				'bookings'  => Bookings_Controller::config( $this->plugin->bookings() ),
 				'auth'      => array(
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),
@@ -119,7 +122,22 @@ class App_Controller extends Controller {
 					'maintenance'         => null !== $blocked,
 					'maintenance_message' => $blocked ? $blocked['message'] : null,
 				),
-			)
+			) + $this->look()
+		);
+	}
+
+	/**
+	 * Config.appearance and Config.languages. Without a published look, appearance is left
+	 * out and the app keeps its build's template and font.
+	 *
+	 * @return array
+	 */
+	private function look() {
+		$pages      = $this->plugin->pages();
+		$appearance = $pages->appearance();
+		return array_merge(
+			$appearance ? array( 'appearance' => $appearance ) : array(),
+			array( 'languages' => $pages->languages() )
 		);
 	}
 

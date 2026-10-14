@@ -4,9 +4,11 @@
 import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
+  appType: AppType.lms,
   appName: 'Your Academy',
   shortName: 'Academy',
   siteUrl: 'https://your-academy.com',
+  apiBaseUrl: null,
   androidPackage: 'com.youracademy.app',
   iosBundleId: 'com.youracademy.app',
   versionName: '1.0.0',

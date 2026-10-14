@@ -75,7 +75,7 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
               {rows.map(({ build, name }) => (
                 <tr key={build.id} className="border-t border-line-soft">
                   <td className="px-4 py-3">
-                    <Link href={`/admin?client=${build.clientId}`}>{name}</Link>
+                    <Link href={`/admin/clients/${build.clientId}`}>{name}</Link>
                   </td>
                   <td className="px-4 py-3">#{build.number}{build.autoPublish ? " · auto-publish" : ""}</td>
                   <td className="px-4 py-3">

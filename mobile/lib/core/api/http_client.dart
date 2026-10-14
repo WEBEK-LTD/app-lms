@@ -25,12 +25,13 @@ Options authOptions(AuthMode mode, [Options? options]) => (options ?? Options())
 /// (`maintenance`, `license_inactive`, `update_required`).
 typedef GateErrorCallback = void Function(ApiException error);
 
-/// Builds the Dio instance for `<site_url>/wp-json/yallapp/v1`.
+/// Builds the Dio instance for the Yallapp API (see `apiUrlOf`).
 Dio createHttpClient({
   required String baseUrl,
   required TokenManager tokens,
   GateErrorCallback? onGateError,
   HttpClientAdapter? adapter,
+  String Function()? language,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -44,9 +45,24 @@ Dio createHttpClient({
     ),
   );
   if (adapter != null) dio.httpClientAdapter = adapter;
+  if (language != null) dio.interceptors.add(LanguageInterceptor(language));
   dio.interceptors.add(AuthInterceptor(dio: dio, tokens: tokens));
   if (onGateError != null) dio.interceptors.add(GateInterceptor(onGateError));
   return dio;
+}
+
+/// Sends the language the user picked as `Accept-Language`, so texts the
+/// client wrote come back translated when they can.
+class LanguageInterceptor extends Interceptor {
+  LanguageInterceptor(this._language);
+
+  final String Function() _language;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.headers['Accept-Language'] = _language();
+    handler.next(options);
+  }
 }
 
 /// Adds the bearer token and, on a 401, refreshes once and retries.

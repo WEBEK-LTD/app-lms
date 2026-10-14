@@ -14,7 +14,8 @@ use Yallapp\Crypto;
 use Yallapp\Plugin;
 
 /**
- * Sends new-lesson, announcement and enrollment notifications with the FCM HTTP v1 API.
+ * Sends new-lesson, announcement and enrollment notifications with the FCM HTTP v1 API,
+ * and saves each one to the students' inbox (Inbox), with or without Firebase.
  *
  * Sending happens in a cron event so publishing a lesson never waits on Firebase.
  */
@@ -47,8 +48,11 @@ class Push_Service {
 	 */
 	public function register() {
 		add_action( 'transition_post_status', array( $this, 'on_status_change' ), 10, 3 );
-		add_action( 'tutor_after_enrolled', array( $this, 'on_enrolled' ), 10, 2 );
 		add_action( self::SEND_HOOK, array( $this, 'send_batch' ), 10, 4 );
+		$lms = $this->plugin->lms();
+		if ( $lms ) {
+			$lms->listen( array( $this, 'on_enrolled' ), array( $this, 'on_answered' ) );
+		}
 	}
 
 	/**
@@ -69,7 +73,7 @@ class Push_Service {
 	 * @return void
 	 */
 	public function on_status_change( $new_status, $old_status, $post ) {
-		if ( 'publish' !== $new_status || 'publish' === $old_status || ! $post instanceof WP_Post || ! $this->is_configured() ) {
+		if ( 'publish' !== $new_status || 'publish' === $old_status || ! $post instanceof WP_Post ) {
 			return;
 		}
 		$lms = $this->plugin->lms();
@@ -99,15 +103,14 @@ class Push_Service {
 			/* translators: %s: course title. */
 			? sprintf( __( 'New lesson in %s', 'yallapp' ), get_the_title( $course_id ) )
 			: get_the_title( $course_id );
-		$this->queue(
-			$lms->student_ids( $course_id ),
-			$kind,
-			array(
-				'title' => wp_strip_all_tags( $title ),
-				'body'  => wp_strip_all_tags( get_the_title( $post ) ),
-			),
-			$data
+		$notification = array(
+			'title' => wp_strip_all_tags( $title ),
+			'body'  => wp_strip_all_tags( get_the_title( $post ) ),
 		);
+		$this->plugin->inbox()->add( $data['type'], Inbox::AUDIENCE_COURSE, $course_id, $notification['title'], $notification['body'], $course_id, 'new_lesson' === $data['type'] ? $post->ID : 0 );
+		if ( $this->is_configured() ) {
+			$this->queue( $lms->student_ids( $course_id ), $kind, $notification, $data );
+		}
 	}
 
 	/**
@@ -118,21 +121,90 @@ class Push_Service {
 	 * @return void
 	 */
 	public function on_enrolled( $course_id, $user_id ) {
-		if ( ! $this->plugin->settings()->get( 'notify_enrollment' ) || ! $this->is_configured() ) {
+		if ( ! $this->plugin->settings()->get( 'notify_enrollment' ) ) {
 			return;
 		}
-		$this->queue(
-			array( (int) $user_id ),
-			'',
-			array(
-				'title' => __( 'You are enrolled', 'yallapp' ),
-				'body'  => wp_strip_all_tags( get_the_title( $course_id ) ),
-			),
-			array(
-				'type'      => 'enrolled',
-				'course_id' => (string) $course_id,
-			)
+		$notification = array(
+			'title' => __( 'You are enrolled', 'yallapp' ),
+			'body'  => wp_strip_all_tags( get_the_title( $course_id ) ),
 		);
+		$this->plugin->inbox()->add( 'enrolled', Inbox::AUDIENCE_USER, $user_id, $notification['title'], $notification['body'], $course_id );
+		if ( $this->is_configured() ) {
+			$this->queue(
+				array( (int) $user_id ),
+				'',
+				$notification,
+				array(
+					'type'      => 'enrolled',
+					'course_id' => (string) $course_id,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Tells a student an instructor answered their question, on the website or in the app.
+	 * The LMS adapter calls it from its own Q&A hook.
+	 *
+	 * @param int $question_id Question ID.
+	 * @param int $asker_id    Student who asked.
+	 * @param int $course_id   Course.
+	 * @param int $replier_id  Who replied.
+	 * @return void
+	 */
+	public function on_answered( $question_id, $asker_id, $course_id, $replier_id ) {
+		if ( ! $asker_id || (int) $asker_id === (int) $replier_id || ! $this->plugin->settings()->get( 'notify_qna_answer' ) ) {
+			return;
+		}
+		$notification = array(
+			'title' => __( 'Your question was answered', 'yallapp' ),
+			'body'  => wp_strip_all_tags( get_the_title( $course_id ) ),
+		);
+		$this->plugin->inbox()->add( 'qna_answer', Inbox::AUDIENCE_USER, (int) $asker_id, $notification['title'], $notification['body'], (int) $course_id, 0, (int) $question_id );
+		if ( $this->is_configured() ) {
+			$this->queue(
+				array( (int) $asker_id ),
+				'',
+				$notification,
+				array(
+					'type'        => 'qna_answer',
+					'course_id'   => (string) $course_id,
+					'question_id' => (string) $question_id,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Sends an announcement written in the settings page: saved to the inbox,
+	 * and pushed when Firebase is set up.
+	 *
+	 * @param string $title     Title.
+	 * @param string $body      Message.
+	 * @param int    $course_id The course whose students get it, or 0 for everyone.
+	 * @return int Students it was pushed to.
+	 */
+	public function announce( $title, $body, $course_id = 0 ) {
+		$lms = $this->plugin->lms();
+		$this->plugin->inbox()->add( 'announcement', $course_id ? Inbox::AUDIENCE_COURSE : Inbox::AUDIENCE_ALL, $course_id, $title, $body, $course_id );
+		if ( ! $this->is_configured() ) {
+			return 0;
+		}
+		$users = $course_id && $lms ? $lms->student_ids( $course_id ) : $this->plugin->devices()->push_user_ids();
+		$data  = array( 'type' => 'announcement' );
+		if ( $course_id ) {
+			$data['course_id'] = (string) $course_id;
+		}
+		$this->queue(
+			$users,
+			'announcements',
+			array(
+				'title' => $title,
+				'body'  => $body,
+			),
+			$data
+		);
+		return count( $users );
 	}
 
 	/**

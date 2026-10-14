@@ -1,0 +1,176 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { recordAudit } from "@/lib/admin/audit";
+import { revealLicenseKey } from "@/lib/admin/clients";
+import { checkConnection, type ConnectionStatus } from "@/lib/admin/connection";
+import type { AdminPermission } from "@/lib/admin/permissions";
+import { queueBuild } from "@/lib/app/setup";
+import { assetUrl } from "@/lib/assets";
+import { createPasswordReset } from "@/lib/auth/reset";
+import { requireAdmin } from "@/lib/auth/session";
+import { startPipeline } from "@/lib/builds/dispatch";
+import { getStore } from "@/lib/data";
+import { appUrl, encryptionKey } from "@/lib/env";
+import type { FormState } from "@/lib/forms";
+import { announce, NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
+import { sendTemplate } from "@/lib/email/send";
+import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { getPlans } from "@/lib/settings/platform";
+import { featureOn, getSwitches } from "@/lib/switches";
+import { formatDate } from "@/components/ui";
+
+/**
+ * Actions on a client's page in the admin (roadmap 11.2), each limited by
+ * the team member's role and written to the audit log.
+ */
+
+const ID = /^[0-9a-f-]{36}$/i;
+
+async function clientFrom(formData: FormData, permission: AdminPermission) {
+  const admin = await requireAdmin(permission);
+  const clientId = String(formData.get("clientId") ?? "");
+  const store = await getStore();
+  const client = ID.test(clientId) ? await store.getClientById(clientId) : null;
+  if (!client) redirect("/admin/clients");
+  const [user, app, license] = await Promise.all([store.getUserById(client.userId), store.getAppByClientId(client.id), store.getLicenseByClientId(client.id)]);
+  return { admin, store, client, user, app, license };
+}
+
+const back = (clientId: string, query: string): never => {
+  revalidatePath(`/admin/clients/${clientId}`);
+  redirect(`/admin/clients/${clientId}?${query}`);
+};
+
+/** Queues a build again with the same version, like the client's own "Start build". */
+export async function rerunBuildAction(formData: FormData): Promise<void> {
+  const { admin, store, client, user, app, license } = await clientFrom(formData, "builds.manage");
+  const build = await store.getBuild(String(formData.get("buildId") ?? ""));
+  if (!app || !build || build.clientId !== client.id) back(client.id, "done=rerun-failed");
+  const result = await queueBuild(store, { client, app: app!, license, versionName: build!.versionName }, new Date(), assetUrl);
+  if (!result.ok) back(client.id, `rerun=${result.reason}`);
+  if (result.ok) {
+    await startPipeline();
+    await recordAudit({
+      actor: admin,
+      action: "build.rerun",
+      target: { type: "build", id: result.build.id },
+      clientId: client.id,
+      summary: `Ran ${user?.name ?? "the client"}'s build #${build!.number} (${build!.versionName}) again as #${result.build.number}`,
+    });
+  }
+  back(client.id, "done=rerun");
+}
+
+/** Signs an app customer out of every device. */
+export async function signOutAppUserAction(formData: FormData): Promise<void> {
+  const { admin, store, client, app } = await clientFrom(formData, "clients.edit");
+  const userId = Number(formData.get("userId"));
+  const customer = app && Number.isSafeInteger(userId) ? await store.getHostedUser(app.id, userId) : null;
+  if (!app || !customer) back(client.id, "");
+  const devices = await store.listHostedDevices(app!.id, customer!.id);
+  for (const device of devices) await store.deleteHostedDevice(app!.id, device.id);
+  await recordAudit({
+    actor: admin,
+    action: "client.app_users",
+    target: { type: "app", id: app!.id },
+    clientId: client.id,
+    summary: `Signed app user #${customer!.id} out of ${devices.length} ${devices.length === 1 ? "device" : "devices"}`,
+  });
+  back(client.id, "done=signed-out#app-users");
+}
+
+/** Deletes an app customer with their devices, sign-ins and notifications. */
+export async function deleteAppUserAction(formData: FormData): Promise<void> {
+  const { admin, store, client, app } = await clientFrom(formData, "clients.edit");
+  const userId = Number(formData.get("userId"));
+  const customer = app && Number.isSafeInteger(userId) ? await store.getHostedUser(app.id, userId) : null;
+  if (!app || !customer) back(client.id, "");
+  await store.deleteHostedUser(app!.id, customer!.id);
+  await recordAudit({
+    actor: admin,
+    action: "client.app_users",
+    target: { type: "app", id: app!.id },
+    clientId: client.id,
+    summary: `Deleted app user #${customer!.id} (${customer!.name})`,
+    before: { id: customer!.id, name: customer!.name, createdAt: customer!.createdAt },
+  });
+  back(client.id, "done=user-deleted#app-users");
+}
+
+/** A notification to everyone using the app, like the client sends from their dashboard. */
+export async function sendClientNotificationAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { admin, store, client, app, license } = await clientFrom(formData, "clients.edit");
+  if (!app || app.backend !== "hosted") return { message: "Notifications are sent to apps on the hosted API." };
+  const title = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const values = { title, body };
+  const errors: Record<string, string> = {};
+  if (!title) errors.title = "Enter a title.";
+  else if (title.length > NOTIFICATION_TITLE_MAX) errors.title = `Keep the title to ${NOTIFICATION_TITLE_MAX} characters.`;
+  if (!body) errors.body = "Enter a message.";
+  else if (body.length > NOTIFICATION_BODY_MAX) errors.body = `Keep the message to ${NOTIFICATION_BODY_MAX} characters.`;
+  if (Object.keys(errors).length) return { errors, values };
+  const now = new Date();
+  const limit = await hitRateLimit(store, RATE_LIMITS.hostedNotify, app.id, now);
+  if (!limit.allowed) return { message: "This app sent many notifications in a short time. Try again in an hour.", values };
+  const push = featureOn(await getSwitches(store), "push", license?.plan ?? null);
+  const result = await announce({ store, app, title, body, account: push ? serviceAccountOf(app, encryptionKey()) : null, now });
+  await recordAudit({
+    actor: admin,
+    action: "client.notification",
+    target: { type: "app", id: app.id },
+    clientId: client.id,
+    summary: `Sent "${title}" to the app's users`,
+    after: { title, body, pushed: result.pushed },
+  });
+  revalidatePath(`/admin/clients/${client.id}`);
+  if (!push) return { ok: true, message: "Added to the app users' inboxes. Push is switched off for this app's plan." };
+  if (result.pushError) return { ok: true, message: `Added to the app users' inboxes. ${result.pushError}` };
+  return { ok: true, message: `Sent. It's in the app users' inboxes and went to ${result.pushed} ${result.pushed === 1 ? "phone" : "phones"}.` };
+}
+
+/** The activation email with the license key, again. */
+export async function resendLicenseEmailAction(formData: FormData): Promise<void> {
+  const { admin, store, client, user, license } = await clientFrom(formData, "clients.email");
+  if (!user || !license) back(client.id, "");
+  const plan = (await getPlans(store))[license!.plan].name;
+  await sendTemplate("account_activated", user!.email, {
+    name: user!.name,
+    plan,
+    active_until: formatDate(license!.expiresAt),
+    license_key: revealLicenseKey(license!, encryptionKey()),
+    dashboard_url: `${appUrl()}/dashboard`,
+  }).catch((error: unknown) => console.error("[mail] license email failed", error));
+  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again` });
+  back(client.id, "done=license-sent");
+}
+
+/** A link to set or reset the client's password, by email. */
+export async function sendPasswordLinkAction(formData: FormData): Promise<void> {
+  const { admin, store, client, user } = await clientFrom(formData, "clients.email");
+  if (!user) back(client.id, "");
+  const reset = await createPasswordReset(store, user!.email, new Date(), { adminEmails: [] });
+  if (reset) {
+    const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
+    await sendTemplate(reset.isNewAccount ? "password_set" : "password_reset", reset.user.email, { name: reset.user.name, link }).catch((error: unknown) =>
+      console.error("[mail] password link failed", error),
+    );
+  }
+  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed a password link to ${user!.email}` });
+  back(client.id, "done=password-sent");
+}
+
+export interface ConnectionCheckState {
+  status: ConnectionStatus | null;
+}
+
+/** Asks the app's website or platform whether it answers now. Changes nothing. */
+export async function checkConnectionAction(_: ConnectionCheckState, formData: FormData): Promise<ConnectionCheckState> {
+  const { store, client, app } = await clientFrom(formData, "view");
+  if (!app) return { status: { ok: false, message: "This client has no app yet.", problems: [] } };
+  const limited = await hitRateLimit(store, RATE_LIMITS.apiCheck, client.id);
+  if (!limited.allowed) return { status: { ok: false, message: "Too many checks. Try again in a few minutes.", problems: [] } };
+  return { status: await checkConnection(store, app, encryptionKey()) };
+}

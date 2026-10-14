@@ -138,7 +138,10 @@ class Learning_Controller extends Controller {
 	 */
 	public function wishlist() {
 		$lms = $this->lms();
-		return $lms instanceof Lms_Adapter ? $this->ok( array( 'items' => $lms->wishlist( get_current_user_id() ) ) ) : $lms;
+		if ( ! $lms instanceof Lms_Adapter ) {
+			return $lms;
+		}
+		return $this->ok( array( 'items' => $lms->features()['wishlist'] ? $lms->wishlist( get_current_user_id() ) : array() ) );
 	}
 
 	/**
@@ -263,6 +266,9 @@ class Learning_Controller extends Controller {
 		$lms = $this->lms();
 		if ( ! $lms instanceof Lms_Adapter ) {
 			return $lms;
+		}
+		if ( ! $lms->features()['wishlist'] ) {
+			return self::error( 'feature_disabled', __( 'The wishlist is not available on this site.', 'yallapp' ), 403 );
 		}
 		$result = $lms->set_wishlist( get_current_user_id(), $course_id, $on );
 		return is_wp_error( $result ) ? self::from_wp_error( $result ) : $this->no_content();

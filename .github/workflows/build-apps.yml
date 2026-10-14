@@ -1,11 +1,12 @@
 name: Build client apps
 
 # Builds the apps clients queue in their Yallapp dashboard (build/README.md).
-# Polls the platform every 10 minutes; "Run workflow" checks the queue at once.
+# Polls the platform every hour; the platform also starts it as soon as a
+# build is queued (GITHUB_DISPATCH_TOKEN), and "Run workflow" checks the queue at once.
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -22,7 +23,7 @@ env:
 jobs:
   queue:
     name: Take queued builds
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     if: vars.PLATFORM_API_URL != ''
     outputs:
       builds: ${{ steps.take.outputs.builds }}
@@ -45,7 +46,7 @@ jobs:
     name: Android ${{ matrix.build.id }}
     needs: queue
     if: needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -64,6 +65,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Android SDK (own runners)
+        if: runner.environment == 'self-hosted'
+        uses: android-actions/setup-android@v3
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -165,7 +169,7 @@ jobs:
     name: Report ${{ matrix.build.id }}
     needs: [queue, android, ios]
     if: always() && needs.queue.outputs.builds != '[]' && needs.queue.outputs.builds != ''
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:

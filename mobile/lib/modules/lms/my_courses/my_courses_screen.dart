@@ -12,9 +12,10 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
-import '../data/paged_controller.dart';
+import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
+import '../../../core/l10n/l10n.dart';
 
 enum MyCoursesTab { inProgress, completed, wishlist }
 
@@ -67,7 +68,7 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
                   Semantics(
                     header: true,
                     child: Text(
-                      'My Courses',
+                      context.l10n.tabMyCourses,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ),
@@ -76,9 +77,9 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
                     labels: [
                       for (final t in tabs)
                         switch (t) {
-                          MyCoursesTab.inProgress => 'In progress',
-                          MyCoursesTab.completed => 'Completed',
-                          MyCoursesTab.wishlist => 'Wishlist',
+                          MyCoursesTab.inProgress => context.l10n.inProgress,
+                          MyCoursesTab.completed => context.l10n.completed,
+                          MyCoursesTab.wishlist => context.l10n.wishlist,
                         },
                     ],
                     selected: tabs.indexOf(selected),
@@ -128,12 +129,12 @@ class _EnrolledList extends ConsumerWidget {
             MessageView(
               icon: inProgress ? AppIcons.myCourses : AppIcons.certificate,
               title: inProgress
-                  ? 'No courses in progress'
-                  : 'No completed courses yet',
+                  ? context.l10n.noCoursesInProgress
+                  : context.l10n.noCompletedCourses,
               message: inProgress
-                  ? 'Courses you enroll in will show up here.'
-                  : 'Finish a course to see it here.',
-              actionLabel: inProgress ? 'Browse courses' : null,
+                  ? context.l10n.noCoursesInProgressMessage
+                  : context.l10n.noCompletedCoursesMessage,
+              actionLabel: inProgress ? context.l10n.browseCourses : null,
               onAction: inProgress ? () => context.go(Paths.courses) : null,
             ),
           ],
@@ -175,8 +176,13 @@ class _InProgressCard extends StatelessWidget {
     final percent = course.progress.percent;
     return AppCard(
       padding: const EdgeInsets.all(14),
-      semanticLabel:
-          '${course.course.title}, $percent% complete${next == null ? '' : ', next: $next'}',
+      semanticLabel: next == null
+          ? context.l10n.courseProgressLabel(course.course.title, percent)
+          : context.l10n.courseProgressNextLabel(
+              course.course.title,
+              percent,
+              next,
+            ),
       onTap: () => continueCourse(context, course),
       child: ExcludeSemantics(
         child: Column(
@@ -209,7 +215,7 @@ class _InProgressCard extends StatelessWidget {
                       if (next != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Next: $next',
+                          context.l10n.nextItem(next),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -292,7 +298,7 @@ class _CompletedCard extends StatelessWidget {
                           AppIcon(AppIcons.check, size: 14, color: p.success),
                           const SizedBox(width: 4),
                           Text(
-                            'Completed',
+                            context.l10n.completed,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -323,7 +329,7 @@ class _CompletedCard extends StatelessWidget {
                       AppIcon(AppIcons.certificate, size: 18, color: p.text),
                       const SizedBox(width: 6),
                       Text(
-                        'Certificate',
+                        context.l10n.certificate,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -350,9 +356,9 @@ class _WishlistList extends ConsumerWidget {
     return switch (ref.watch(wishlistProvider)) {
       AsyncData(:final value) when value.isEmpty => MessageView(
         icon: AppIcons.favorite,
-        title: 'Your wishlist is empty',
-        message: 'Tap the heart on a course to save it for later.',
-        actionLabel: 'Browse courses',
+        title: context.l10n.wishlistEmptyTitle,
+        message: context.l10n.wishlistEmptyMessage,
+        actionLabel: context.l10n.browseCourses,
         onAction: () => context.go(Paths.courses),
       ),
       AsyncData(:final value) => RefreshIndicator(

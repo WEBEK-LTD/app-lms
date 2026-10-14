@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Installer {
 
-	const DB_VERSION        = '1';
+	const DB_VERSION        = '2';
 	const DB_VERSION_OPTION = 'yallapp_db_version';
 
 	/**
@@ -38,6 +38,7 @@ class Installer {
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'yallapp_daily' );
 		wp_clear_scheduled_hook( 'yallapp_license_check' );
+		wp_clear_scheduled_hook( 'yallapp_layout_refresh' );
 		wp_unschedule_hook( 'yallapp_push_send' );
 	}
 
@@ -55,13 +56,14 @@ class Installer {
 	/**
 	 * Table names.
 	 *
-	 * @return array{devices: string, tokens: string}
+	 * @return array{devices: string, tokens: string, notifications: string}
 	 */
 	public static function tables() {
 		global $wpdb;
 		return array(
-			'devices' => $wpdb->prefix . 'yallapp_devices',
-			'tokens'  => $wpdb->prefix . 'yallapp_tokens',
+			'devices'       => $wpdb->prefix . 'yallapp_devices',
+			'tokens'        => $wpdb->prefix . 'yallapp_tokens',
+			'notifications' => $wpdb->prefix . 'yallapp_notifications',
 		);
 	}
 
@@ -105,6 +107,24 @@ class Installer {
 				PRIMARY KEY  (id),
 				UNIQUE KEY token_hash (token_hash),
 				KEY device_row_id (device_row_id)
+			) $charset;"
+		);
+		// One row per notification sent, with its audience: everyone, one course's students or one student.
+		dbDelta(
+			"CREATE TABLE {$tables['notifications']} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				type varchar(20) NOT NULL,
+				audience varchar(10) NOT NULL,
+				target_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				title varchar(255) NOT NULL,
+				body text NOT NULL,
+				course_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				lesson_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				question_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				created_at datetime NOT NULL,
+				PRIMARY KEY  (id),
+				KEY audience_target (audience,target_id),
+				KEY created_at (created_at)
 			) $charset;"
 		);
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );

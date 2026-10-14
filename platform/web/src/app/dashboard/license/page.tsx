@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { releaseSiteAction } from "@/app/actions/dashboard";
-import { WHATSAPP_URL } from "@/components/brand";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
@@ -13,6 +12,11 @@ import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
 import { planName } from "@/lib/plans";
+import { cardPlanOptions } from "@/lib/billing/card-plans";
+import { getSwitches } from "@/lib/switches";
+import { PlanPaymentForm } from "@/components/plan-payment-form";
+import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getContact } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "License & plugin" };
 
@@ -26,9 +30,12 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
+  const contact = await getContact();
   const { license, state } = await requireClient();
-  const { released } = await searchParams;
+  const { released, payment } = await searchParams;
   const store = await getStore();
+  const plans = await getPlans(store);
+  const payable = (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(plans, await getSwitches(store)) : [];
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;
@@ -45,9 +52,21 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           The license is released. Activate it in the plugin on your new website.
         </Notice>
       ) : null}
+      {payment === "paid" ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          Payment received. Your plan is active until {formatDate(license?.expiresAt)}, and we emailed you the details.
+        </Notice>
+      ) : null}
+      {payment === "failed" ? (
+        <Notice tone="danger" icon="error" role="alert">
+          The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
+        </Notice>
+      ) : null}
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan ended on {formatDate(license?.expiresAt)}. The plugin reports the license as expired, and your apps stop loading content. <a href={WHATSAPP_URL}>Message us on WhatsApp</a> to renew.
+          Your plan ended on {formatDate(license?.expiresAt)}. The plugin reports the license as expired, and your apps stop loading content.{" "}
+          {payable.length ? "Renew it by card below, or " : ""}
+          <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to renew.
         </Notice>
       ) : null}
 
@@ -67,7 +86,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </div>
         ) : null}
         <dl className="m-0">
-          <Row label="Plan">{planName(license?.plan)}</Row>
+          <Row label="Plan">{planName(license?.plan, plans)}</Row>
           <Row label="Active until">{formatDate(license?.expiresAt)}</Row>
           <Row label="Activated on">
             {activation ? (
@@ -92,6 +111,18 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </form>
         ) : null}
       </section>
+
+      {payable.length ? (
+        <section aria-labelledby="h-pay" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex flex-col gap-1">
+            <h2 id="h-pay" className="m-0 text-[19px] font-bold">
+              {state === "expired" ? "Renew by card" : "Extend by card"}
+            </h2>
+            <p className="m-0 text-sm text-muted">A payment adds its period to the end of your current plan, so no days are lost.</p>
+          </div>
+          <PlanPaymentForm plans={payable} current={license?.plan ?? null} cta="Pay by card" />
+        </section>
+      ) : null}
 
       <section aria-labelledby="h-plugin" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-plugin" className="m-0 text-[19px] font-bold">

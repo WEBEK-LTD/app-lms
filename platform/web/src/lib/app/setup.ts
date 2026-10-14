@@ -1,10 +1,13 @@
 import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { App, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
+import type { App, AppType, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import type { Plan } from "../plans";
 import { compareVersions } from "../semver";
+import { appUrl } from "../env";
+import { hostedApiUrl } from "../hosted/urls";
+import { featureOn, getSwitches } from "../switches";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
 export type SetupStep = (typeof SETUP_STEPS)[number];
@@ -21,12 +24,25 @@ export function isSetupStep(value: unknown): value is SetupStep {
   return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
 }
 
-export function newApp(clientId: string, siteUrl: string | null, now: Date): App {
+export const APP_TYPES: readonly AppType[] = ["lms", "store", "booking", "real_estate"];
+
+/** What clients call each app type. */
+export const APP_TYPE_NAMES: Record<AppType, string> = { lms: "Academy", store: "Store", booking: "Bookings", real_estate: "Real estate" };
+
+export function isAppType(value: unknown): value is AppType {
+  return typeof value === "string" && (APP_TYPES as readonly string[]).includes(value);
+}
+
+export function newApp(clientId: string, siteUrl: string | null, now: Date, appType: AppType = "lms"): App {
   return {
     id: newId(),
     clientId,
-    appType: "lms",
+    appType,
     siteUrl,
+    backend: "wordpress",
+    apiBaseUrl: null,
+    setupRequestedAt: null,
+    setupNote: null,
     appName: null,
     shortName: null,
     iconAssetId: null,
@@ -42,6 +58,16 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date): App
     fullDescription: null,
     supportEmail: null,
     privacyUrl: null,
+    phoneScreenshotIds: [],
+    iphoneScreenshotIds: [],
+    firebaseAndroidAssetId: null,
+    firebaseIosAssetId: null,
+    connector: null,
+    hostedSettings: null,
+    catalogSettings: null,
+    bookingSetup: null,
+    courseSetup: null,
+    firebaseServiceAccountEncrypted: null,
     googlePlayKeyEncrypted: null,
     googlePlayClientEmail: null,
     ascIssuerId: null,
@@ -72,11 +98,26 @@ export function stepStatus(app: App | null, plan: Plan | null): Record<SetupStep
   const keys = hasStoreKeys(app);
   return {
     "app-type": Boolean(app.appTypeDoneAt),
-    website: Boolean(app.websiteDoneAt && app.siteUrl),
+    website: websiteReady(app),
     branding: Boolean(app.brandingDoneAt && app.appName && app.shortName && app.iconAssetId),
     listing: Boolean(app.listingDoneAt && app.androidPackage && app.iosBundleId && app.storeTitle),
     publishing: Boolean(app.publishingDoneAt) && (plan !== "pro" || keys.play || keys.appStore),
   };
+}
+
+/**
+ * The Website step is done when the app has somewhere to get its content:
+ * a WordPress site, a custom API or the hosted API. A WordPress set-up our team hasn't
+ * finished yet keeps it open, so no build starts against a missing site.
+ */
+export function websiteReady(app: App): boolean {
+  // The hosted API needs no website: our team switches the app to it.
+  if (app.backend === "hosted") return true;
+  // Real estate apps only run on the hosted API.
+  if (app.appType === "real_estate") return false;
+  if (!app.websiteDoneAt || !app.siteUrl) return false;
+  if (app.backend === "custom_api") return Boolean(app.apiBaseUrl);
+  return app.backend === "wordpress";
 }
 
 export function isSetupComplete(app: App | null, plan: Plan | null): boolean {
@@ -89,7 +130,7 @@ export function nextStep(app: App | null, plan: Plan | null): SetupStep | null {
   return SETUP_STEPS.find((step) => !status[step]) ?? null;
 }
 
-export function storeListingOf(app: App): StoreListing | null {
+export function storeListingOf(app: App, assetUrl: (assetId: string) => string): StoreListing | null {
   if (!app.storeTitle || !app.shortDescription || !app.fullDescription || !app.supportEmail || !app.privacyUrl) return null;
   return {
     storeTitle: app.storeTitle,
@@ -97,6 +138,8 @@ export function storeListingOf(app: App): StoreListing | null {
     fullDescription: app.fullDescription,
     supportEmail: app.supportEmail,
     privacyUrl: app.privacyUrl,
+    phoneScreenshots: app.phoneScreenshotIds.map(assetUrl),
+    iphoneScreenshots: app.iphoneScreenshotIds.map(assetUrl),
   };
 }
 
@@ -115,18 +158,25 @@ export function buildConfigFor(
   };
   if (app.iconAssetId) branding.icon_url = assetUrl(app.iconAssetId);
   if (app.logoAssetId) branding.logo_url = assetUrl(app.logoAssetId);
+  const firebase: NonNullable<BuildConfig["firebase"]> = {};
+  if (app.firebaseAndroidAssetId) firebase.android_config_url = assetUrl(app.firebaseAndroidAssetId);
+  if (app.firebaseIosAssetId) firebase.ios_config_url = assetUrl(app.firebaseIosAssetId);
   return {
     schema_version: 1,
     client_id: client.id,
     app_type: app.appType,
+    ...(app.backend === "custom_api" && app.apiBaseUrl ? { api_base_url: app.apiBaseUrl } : {}),
+    ...(app.backend === "hosted" ? { api_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
     app_name: app.appName ?? "",
     short_name: app.shortName ?? "",
-    site_url: app.siteUrl ?? "",
+    // Apps without a website link to the platform.
+    site_url: app.siteUrl ?? (app.backend === "hosted" ? appUrl() : ""),
     android_package: app.androidPackage ?? "",
     ios_bundle_id: app.iosBundleId ?? "",
     version_name: version.name,
     version_code: version.code,
     branding,
+    ...(Object.keys(firebase).length > 0 ? { firebase } : {}),
   };
 }
 
@@ -166,10 +216,11 @@ export async function queueBuild(
   const config = buildConfigFor(app, client, { name: input.versionName, code: 1 }, assetUrl);
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };
-  const listing = storeListingOf(app);
+  const listing = storeListingOf(app, assetUrl);
   if (!listing) return { ok: false, reason: "setup_incomplete" };
 
-  const autoPublish = license.plan === "pro";
+  // 11.5 Switches: automatic publishing can be switched off, for everyone or per plan.
+  const autoPublish = license.plan === "pro" && featureOn(await getSwitches(store), "auto_publish", license.plan);
   const build = await store.createBuild({
     id: newId(),
     clientId: client.id,

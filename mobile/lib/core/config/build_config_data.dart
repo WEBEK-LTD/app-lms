@@ -5,6 +5,10 @@ library;
 
 enum AppTemplate { classic, bold, minimal }
 
+/// Which module the app is: an Academy (`lms`), a Store, Bookings or Real
+/// estate (`real_estate`). One app type per build.
+enum AppType { lms, store, booking, realEstate }
+
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
 class FirebaseOptionsData {
@@ -27,6 +31,7 @@ class FirebaseOptionsData {
 
 class BuildConfigData {
   const BuildConfigData({
+    this.appType = AppType.lms,
     required this.appName,
     required this.shortName,
     required this.siteUrl,
@@ -38,6 +43,7 @@ class BuildConfigData {
     required this.splashColor,
     required this.template,
     required this.font,
+    this.apiBaseUrl,
     this.clientId,
     this.iconUrl,
     this.logoUrl,
@@ -45,11 +51,16 @@ class BuildConfigData {
     this.firebaseIos,
   });
 
+  final AppType appType;
   final String appName;
   final String shortName;
 
-  /// The client's WordPress site, without a trailing slash.
+  /// The client's website, without a trailing slash.
   final String siteUrl;
+
+  /// Where the Yallapp API is when it isn't the WordPress plugin's
+  /// `<site_url>/wp-json/yallapp/v1`: a custom API or the hosted one.
+  final String? apiBaseUrl;
   final String androidPackage;
   final String iosBundleId;
   final String versionName;
@@ -68,23 +79,29 @@ class BuildConfigData {
   final FirebaseOptionsData? firebaseAndroid;
   final FirebaseOptionsData? firebaseIos;
 
-  BuildConfigData copyWith({String? siteUrl, AppTemplate? template}) =>
-      BuildConfigData(
-        appName: appName,
-        shortName: shortName,
-        siteUrl: siteUrl ?? this.siteUrl,
-        androidPackage: androidPackage,
-        iosBundleId: iosBundleId,
-        versionName: versionName,
-        versionCode: versionCode,
-        primaryColor: primaryColor,
-        splashColor: splashColor,
-        template: template ?? this.template,
-        font: font,
-        clientId: clientId,
-        iconUrl: iconUrl,
-        logoUrl: logoUrl,
-        firebaseAndroid: firebaseAndroid,
-        firebaseIos: firebaseIos,
-      );
+  BuildConfigData copyWith({
+    String? siteUrl,
+    bool clearApiBaseUrl = false,
+    AppTemplate? template,
+    AppType? appType,
+  }) => BuildConfigData(
+    appType: appType ?? this.appType,
+    appName: appName,
+    shortName: shortName,
+    siteUrl: siteUrl ?? this.siteUrl,
+    apiBaseUrl: clearApiBaseUrl ? null : apiBaseUrl,
+    androidPackage: androidPackage,
+    iosBundleId: iosBundleId,
+    versionName: versionName,
+    versionCode: versionCode,
+    primaryColor: primaryColor,
+    splashColor: splashColor,
+    template: template ?? this.template,
+    font: font,
+    clientId: clientId,
+    iconUrl: iconUrl,
+    logoUrl: logoUrl,
+    firebaseAndroid: firebaseAndroid,
+    firebaseIos: firebaseIos,
+  );
 }

@@ -3,15 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/models/models.dart';
+import '../l10n/l10n.dart';
 
 enum VideoQuality {
-  auto('Auto'),
-  p1080('1080p'),
-  p720('720p'),
-  p480('480p');
+  auto,
+  p1080,
+  p720,
+  p480;
 
-  const VideoQuality(this.label);
-  final String label;
+  /// "Auto", "1080p".
+  String get label => switch (this) {
+    auto => currentL10n.videoQualityAuto,
+    p1080 => '1080p',
+    p720 => '720p',
+    p480 => '480p',
+  };
 }
 
 const playbackSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
@@ -28,14 +34,19 @@ String speedLabel(double speed) {
 class LocalSettings {
   const LocalSettings({
     this.themeMode = ThemeMode.system,
+    this.themeModeChosen = false,
     this.videoQuality = VideoQuality.auto,
     this.playbackSpeed = 1.0,
     this.autoplayNext = true,
     this.notifications = const NotificationPreferences(),
     this.guestMode = false,
+    this.language,
   });
 
   final ThemeMode themeMode;
+
+  /// The student picked [themeMode]; until then the client's default applies.
+  final bool themeModeChosen;
   final VideoQuality videoQuality;
   final double playbackSpeed;
   final bool autoplayNext;
@@ -44,20 +55,28 @@ class LocalSettings {
   /// The student chose to browse without signing in.
   final bool guestMode;
 
+  /// The interface language the user picked (`en`, `ar`, `tr`); null until
+  /// they pick one.
+  final String? language;
+
   LocalSettings copyWith({
     ThemeMode? themeMode,
+    bool? themeModeChosen,
     VideoQuality? videoQuality,
     double? playbackSpeed,
     bool? autoplayNext,
     NotificationPreferences? notifications,
     bool? guestMode,
+    String? language,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
+    themeModeChosen: themeModeChosen ?? this.themeModeChosen,
     videoQuality: videoQuality ?? this.videoQuality,
     playbackSpeed: playbackSpeed ?? this.playbackSpeed,
     autoplayNext: autoplayNext ?? this.autoplayNext,
     notifications: notifications ?? this.notifications,
     guestMode: guestMode ?? this.guestMode,
+    language: language ?? this.language,
   );
 }
 
@@ -80,6 +99,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _announcements = 'settings.notify_announcements';
   static const _reminder = 'settings.notify_daily_reminder';
   static const _guest = 'settings.guest_mode';
+  static const _language = 'settings.language';
 
   SharedPreferences get _prefs => ref.read(sharedPreferencesProvider);
 
@@ -91,6 +111,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
     final speed = p.getDouble(_speed) ?? 1.0;
     return LocalSettings(
       themeMode: pick(ThemeMode.values, p.getString(_theme), ThemeMode.system),
+      themeModeChosen: p.getString(_theme) != null,
       videoQuality: pick(
         VideoQuality.values,
         p.getString(_quality),
@@ -104,12 +125,13 @@ class LocalSettingsController extends Notifier<LocalSettings> {
         dailyReminder: p.getBool(_reminder) ?? false,
       ),
       guestMode: p.getBool(_guest) ?? false,
+      language: p.getString(_language),
     );
   }
 
   void setThemeMode(ThemeMode mode) {
     _prefs.setString(_theme, mode.name);
-    state = state.copyWith(themeMode: mode);
+    state = state.copyWith(themeMode: mode, themeModeChosen: true);
   }
 
   void setVideoQuality(VideoQuality quality) {
@@ -138,5 +160,10 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   void setGuestMode(bool value) {
     _prefs.setBool(_guest, value);
     state = state.copyWith(guestMode: value);
+  }
+
+  void setLanguage(String code) {
+    _prefs.setString(_language, code);
+    state = state.copyWith(language: code);
   }
 }

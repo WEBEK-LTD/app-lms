@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getContact } from "@/lib/contact";
+import { getSiteContent } from "@/lib/content/get";
 import { Icon } from "./icon";
-import { WHATSAPP_URL } from "./brand";
 import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
 
 /** A public marketing page: header with `current` marked, a title band, the content and the full footer. */
@@ -68,17 +69,19 @@ export function MoreLink({ href, children }: { href: string; children: string })
 }
 
 /** The closing call to action on every marketing page. */
-export function ContactBand() {
+export async function ContactBand() {
+  const contact = await getContact();
+  const text = await getSiteContent("contact-band");
   return (
     <section className="on-dark bg-night-2 text-white">
       <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-6 px-4 py-12 sm:px-6">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">Ready to put your academy in your students&apos; pockets?</h2>
-          <p className="m-0 text-base text-night-text">Tell us about your site on WhatsApp. We&apos;ll set up your account and get your apps building.</p>
+          <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">{text.title}</h2>
+          <p className="m-0 text-base text-night-text">{text.text}</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <a
-            href={WHATSAPP_URL}
+            href={contact.whatsappUrl}
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
           >
             <Icon name="chat" size={20} />

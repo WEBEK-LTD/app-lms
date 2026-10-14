@@ -1,323 +1,222 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  regenerateKeyAction,
-  reinstateClientAction,
-  releaseClientSiteAction,
-  suspendClientAction,
-} from "@/app/actions/admin";
-import { BuildStatusText } from "@/components/build-status";
-import { SubmitButton } from "@/components/form";
-import { Icon } from "@/components/icon";
-import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
-import { revealLicenseKey } from "@/lib/admin/clients";
-import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
+import { redirect } from "next/navigation";
+import { Notice } from "@/components/ui";
+import { appsByType, appsByWebsite, buildStats, clientsByState, hostedUsage, revenue, revenueWindowStart, signUpsSince } from "@/lib/admin/overview";
 import { requireAdmin } from "@/lib/auth/session";
+import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
-import type { ClientFilter, ClientRow } from "@/lib/data/store";
-import { encryptionKey } from "@/lib/env";
-import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/license/status";
-import { planName } from "@/lib/plans";
-import { ActivateForm, AddClientForm } from "./forms";
+import type { CatalogCurrency } from "@/lib/data/types";
+import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
+import { APP_TYPE_SWITCHES, switchGroups } from "@/lib/switches";
 
-export const metadata: Metadata = { title: "Clients" };
+export const metadata: Metadata = { title: "Overview" };
+export const dynamic = "force-dynamic";
 
-const FILTERS: { id: ClientFilter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "pending", label: "Pending activation" },
-  { id: "active", label: "Active" },
-  { id: "expired", label: "Expired" },
-];
+/** Links from before the client list had its own page. */
+const CLIENT_LIST_PARAMS = ["q", "client", "filter", "add", "done"];
 
-const DONE: Record<string, string> = {
-  activated: "Activated. The license key was emailed to the client.",
-  renewed: "Saved. The client was emailed the new date.",
-  suspended: "Suspended. The plugin now reports the license as suspended.",
-  reinstated: "Reinstated.",
-  regenerated: "New license key created. The old key no longer works.",
-  released: "The license was released from its website.",
-  added: "Client added. They were emailed a link to set their password.",
-};
-
-function stateTone(state: AccountState) {
-  return state === "active" ? "success" : state === "pending" ? "warn" : "danger";
+function Stat({ label, value, href, hint }: { label: string; value: string | number; href?: string; hint?: string }) {
+  const body = (
+    <>
+      <span className="text-sm text-muted">{label}</span>
+      <span className="text-[28px] leading-tight font-extrabold">{value}</span>
+      {hint ? <span className="text-xs text-muted">{hint}</span> : null}
+    </>
+  );
+  const box = "flex min-w-0 flex-col gap-1 rounded-2xl border border-line bg-white p-5";
+  return href ? (
+    <Link href={href} className={`${box} text-midnight no-underline hover:border-midnight hover:text-midnight`}>
+      {body}
+    </Link>
+  ) : (
+    <div className={box}>{body}</div>
+  );
 }
 
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host;
-  } catch {
-    return url;
-  }
+function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={id} className="flex flex-col gap-3">
+      <h2 id={id} className="m-0 text-[19px] font-bold">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
 }
 
-function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+const grid = "grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr))]";
+
+function money(cents: number | undefined, currency: CatalogCurrency): string {
+  return formatCents(cents ?? 0, currency);
 }
 
-function query(params: Record<string, string | undefined>): string {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
-  const text = search.toString();
-  return text ? `/admin?${text}` : "/admin";
-}
-
-export default async function ClientsPage({ searchParams }: PageProps<"/admin">) {
+/** The admin's first page (roadmap 11.1): clients, revenue, builds and apps, counted from the data. */
+export default async function OverviewPage({ searchParams }: PageProps<"/admin">) {
   await requireAdmin();
   const params = await searchParams;
-  const filter = (FILTERS.find((f) => f.id === params.filter)?.id ?? "all") as ClientFilter;
-  const q = typeof params.q === "string" ? params.q.slice(0, 100) : "";
-  const selectedId = typeof params.client === "string" ? params.client : null;
-  const adding = params.add === "1";
-  const done = typeof params.done === "string" ? DONE[params.done] : undefined;
+  if (CLIENT_LIST_PARAMS.some((name) => typeof params[name] === "string")) {
+    const search = new URLSearchParams();
+    for (const name of CLIENT_LIST_PARAMS) if (typeof params[name] === "string") search.set(name, params[name] as string);
+    redirect(`/admin/clients?${search}`);
+  }
+  const denied = typeof params.denied === "string";
 
   const store = await getStore();
   const now = new Date();
-  const [rows, counts] = await Promise.all([store.listClients({ filter, query: q, now }), store.countClients(now)]);
-  let selected: ClientRow | null = rows.find((row) => row.client.id === selectedId) ?? null;
-  if (!selected && selectedId) {
-    const all = await store.listClients({ filter: "all", now });
-    selected = all.find((row) => row.client.id === selectedId) ?? null;
-  }
+  const [rows, apps, builds, payments, orders, usersByApp] = await Promise.all([
+    store.listClients({ filter: "all", now }),
+    store.listApps(),
+    store.listBuildsSince(new Date(now.getTime() - 7 * 86_400_000)),
+    store.listPaidPlanPaymentsSince(revenueWindowStart(now)),
+    store.listMarketplaceOrdersSince(revenueWindowStart(now)),
+    store.countHostedUsersByApp(),
+  ]);
+  const states = clientsByState(rows, now);
+  const money12 = revenue(payments, orders, now);
+  const buildsWeek = buildStats(builds, now, 7);
+  const hosted = hostedUsage(apps, usersByApp);
+  const typeNames = new Map(APP_TYPE_SWITCHES.map((t) => [t.id, t.label]));
+  const websiteNames = new Map(switchGroups().find((g) => g.kind === "website")!.items.map((i) => [i.id, i.label]));
+  websiteNames.set("hosted", "Hosted API, nothing connected");
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="m-0 text-[28px] font-extrabold">Clients</h1>
-        <Link href={query({ filter, q, add: "1" })} className={`${btn.primary} h-11`}>
-          <Icon name="add" size={20} />
-          Add client
-        </Link>
+      <div className="flex flex-col gap-1.5">
+        <h1 className="m-0 text-[28px] font-extrabold">Overview</h1>
+        <span className="text-[15px] text-muted">Counted from the data now. Amounts are per currency; nothing is converted.</span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5">
-        <nav aria-label="Filter clients" className="flex flex-wrap gap-2.5">
-          {FILTERS.map((f) => (
-            <Link
-              key={f.id}
-              href={query({ filter: f.id === "all" ? undefined : f.id, q })}
-              aria-current={filter === f.id ? "page" : undefined}
-              className={`flex h-9 items-center rounded-[18px] px-3.5 text-sm no-underline ${
-                filter === f.id
-                  ? "bg-midnight font-semibold text-white hover:text-white"
-                  : "border border-line bg-white text-midnight hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {f.label} <span className="ml-1.5 opacity-70">{counts[f.id]}</span>
-            </Link>
-          ))}
-        </nav>
-        <form role="search" action="/admin" className="ml-auto flex w-full max-w-[320px] flex-[1_1_240px] gap-2">
-          {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}
-          <label className="flex-1">
-            <span className="sr-only">Search clients</span>
-            <input name="q" type="search" defaultValue={q} placeholder="Search by name, phone or website" className="input input-sm" />
-          </label>
-          <button type="submit" className={`${btn.secondary} h-11 px-3`} aria-label="Search">
-            <Icon name="search" size={20} />
-          </button>
-        </form>
-      </div>
-
-      {done ? (
-        <Notice tone="success" icon="check_circle" role="status">
-          {done}
+      {denied ? (
+        <Notice tone="warn" icon="lock" role="alert">
+          Your role can&apos;t do that. Ask an owner of the team if you need it.
         </Notice>
       ) : null}
 
-      <div className="flex flex-wrap items-start gap-5">
-        <section aria-label="Client list" className="relative min-w-0 flex-[999_1_560px] overflow-x-auto rounded-2xl border border-line bg-white">
-          {rows.length === 0 ? (
-            <p className="m-0 p-6 text-[15px] text-muted">{q ? `No clients match “${q}”.` : "No clients here yet."}</p>
-          ) : (
-            <table className="w-full min-w-[640px] border-collapse text-sm">
-              <thead>
-                <tr className="bg-sand text-left text-muted">
-                  <th scope="col" className="px-4 py-3 font-semibold">Client</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Website</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Latest build</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    <span className="sr-only">Actions</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const state = accountState(row.client, row.license, now);
-                  const isSelected = selected?.client.id === row.client.id;
-                  return (
-                    <tr key={row.client.id} className={`border-t border-line-soft ${state === "pending" || isSelected ? "bg-peach-soft" : ""}`}>
-                      <td className="px-4 py-3.5">
-                        <div className="flex flex-col">
-                          <span className="font-bold">{row.user.name}</span>
-                          <span className="text-xs text-muted">{row.client.whatsapp}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5 break-all">{hostOf(row.client.siteUrl)}</td>
-                      <td className={`px-4 py-3.5 ${row.license ? "" : "text-muted"}`}>{planName(row.license?.plan)}</td>
-                      <td className="px-4 py-3.5">
-                        <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {row.latestBuild ? (
-                          <>
-                            <BuildStatusText status={row.latestBuild.status} /> · {row.latestBuild.versionName}
-                          </>
-                        ) : (
-                          <span className="text-muted">None</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Link
-                          href={query({ filter: filter === "all" ? undefined : filter, q, client: row.client.id })}
-                          aria-label={`${state === "pending" ? "Activate" : state === "expired" ? "Renew" : "Manage"} ${row.user.name}`}
-                          className={`inline-flex h-[34px] items-center rounded-lg px-3.5 text-[13px] no-underline ${
-                            state === "pending"
-                              ? "bg-midnight font-bold text-white hover:text-white"
-                              : "border border-line-strong bg-white font-semibold text-midnight hover:border-midnight hover:text-midnight"
-                          }`}
-                        >
-                          {state === "pending" ? "Activate" : state === "expired" ? "Renew" : "Manage"}
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </section>
+      <Section id="h-clients" title="Clients">
+        <div className={grid}>
+          <Stat label={ACCOUNT_STATE_LABEL.pending} value={states.pending} href="/admin/clients?filter=pending" />
+          <Stat label={ACCOUNT_STATE_LABEL.active} value={states.active} href="/admin/clients?filter=active" />
+          <Stat label={ACCOUNT_STATE_LABEL.expired} value={states.expired} href="/admin/clients?filter=expired" />
+          <Stat label={ACCOUNT_STATE_LABEL.suspended} value={states.suspended} />
+          <Stat label="New in 7 days" value={signUpsSince(rows, now, 7)} />
+          <Stat label="New in 30 days" value={signUpsSince(rows, now, 30)} />
+        </div>
+      </Section>
 
-        <aside aria-labelledby="h-panel" className="flex min-w-0 flex-[1_1_300px] flex-col gap-3.5 rounded-2xl border border-line bg-white p-5">
-          {adding ? (
-            <>
-              <h2 id="h-panel" className="m-0 text-[17px] font-bold">
-                Add a client
-              </h2>
-              <AddClientForm />
-            </>
-          ) : selected ? (
-            <ClientPanel row={selected} now={now} />
-          ) : (
-            <>
-              <h2 id="h-panel" className="m-0 text-[17px] font-bold">
-                Activate or manage
-              </h2>
-              <p className="m-0 text-sm leading-relaxed text-muted">
-                Choose a client in the list. Pending clients show up here after they sign up and message us on WhatsApp.
-              </p>
-            </>
-          )}
-        </aside>
-      </div>
+      <Section id="h-revenue" title="Revenue">
+        {money12.currencies.length === 0 ? (
+          <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted">No plan payments or commission in the last 12 months.</p>
+        ) : (
+          <>
+            <div className={grid}>
+              {money12.currencies.map((c) => (
+                <Stat
+                  key={c}
+                  label={`This month, ${c}`}
+                  value={money((money12.thisMonth[c]?.plans ?? 0) + (money12.thisMonth[c]?.commission ?? 0), c)}
+                  hint={`Plans ${money(money12.thisMonth[c]?.plans, c)} · commission ${money(money12.thisMonth[c]?.commission, c)}`}
+                />
+              ))}
+              {money12.currencies.map((c) => (
+                <Stat
+                  key={`y-${c}`}
+                  label={`Last 12 months, ${c}`}
+                  value={money((money12.last12Months[c]?.plans ?? 0) + (money12.last12Months[c]?.commission ?? 0), c)}
+                  hint={`Plans ${money(money12.last12Months[c]?.plans, c)} · commission ${money(money12.last12Months[c]?.commission, c)}`}
+                />
+              ))}
+            </div>
+            <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+              <table className="w-full min-w-[560px] border-collapse text-sm">
+                <caption className="sr-only">Revenue per month</caption>
+                <thead>
+                  <tr className="bg-sand text-left text-muted">
+                    <th scope="col" className="px-4 py-3 font-semibold">Month</th>
+                    {money12.currencies.map((c) => (
+                      <th key={c} scope="col" className="px-4 py-3 text-right font-semibold">
+                        Plans {c}
+                      </th>
+                    ))}
+                    {money12.currencies.map((c) => (
+                      <th key={`c-${c}`} scope="col" className="px-4 py-3 text-right font-semibold">
+                        Commission {c}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...money12.months].reverse().map((m) => (
+                    <tr key={m.month} className="border-t border-line-soft">
+                      <th scope="row" className="px-4 py-2.5 text-left font-semibold">
+                        {new Date(`${m.month}-01T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}
+                      </th>
+                      {money12.currencies.map((c) => (
+                        <td key={c} className="px-4 py-2.5 text-right tabular-nums">
+                          {money(m.byCurrency[c]?.plans, c)}
+                        </td>
+                      ))}
+                      {money12.currencies.map((c) => (
+                        <td key={`c-${c}`} className="px-4 py-2.5 text-right tabular-nums">
+                          {money(m.byCurrency[c]?.commission, c)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Section>
+
+      <Section id="h-builds" title="Builds in the last 7 days">
+        <div className={grid}>
+          <Stat label="Queued" value={buildsWeek.queued} href="/admin/builds?status=queued" />
+          <Stat label="Building" value={buildsWeek.running} href="/admin/builds?status=building" />
+          <Stat label="Failed" value={buildsWeek.failed} href="/admin/builds?status=failed" />
+          <Stat label="Ready" value={buildsWeek.ready} href="/admin/builds?status=ready" />
+          <Stat
+            label="Success rate"
+            value={buildsWeek.successRate === null ? "None finished" : `${buildsWeek.successRate}%`}
+            hint={`${buildsWeek.total} ${buildsWeek.total === 1 ? "build" : "builds"} queued`}
+          />
+        </div>
+      </Section>
+
+      <Section id="h-apps" title="Apps">
+        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          <Breakdown title="By type" rows={appsByType(apps).map((r) => ({ label: typeNames.get(r.key) ?? r.key, count: r.count }))} />
+          <Breakdown
+            title="By website or platform"
+            rows={appsByWebsite(apps).map((r) => ({ label: websiteNames.get(r.key) ?? r.key, count: r.count }))}
+          />
+          <div className="flex flex-col gap-3">
+            <Stat label="Apps on the hosted API" value={hosted.apps} />
+            <Stat label="Their app users" value={hosted.users} />
+          </div>
+        </div>
+      </Section>
     </>
   );
 }
 
-async function ClientPanel({ row, now }: { row: ClientRow; now: Date }) {
-  const { client, user, license, activation } = row;
-  const state = accountState(client, license, now);
-  const store = await getStore();
-  const app = await store.getAppByClientId(client.id);
-  const steps = stepStatus(app, license?.plan ?? null);
-  const stepsDone = SETUP_STEPS.filter((s) => steps[s]).length;
-  const base = license && license.expiresAt > now ? license.expiresAt : now;
-  const nextYear = new Date(base);
-  nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
-  const key = license ? revealLicenseKey(license, encryptionKey()) : null;
-  const title = state === "pending" ? "Activate" : state === "expired" ? "Renew" : "Manage";
-
+function Breakdown({ title, rows }: { title: string; rows: { label: string; count: number }[] }) {
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="h-panel" className="m-0 text-[17px] font-bold">
-          {title} {user.name}
-        </h2>
-        <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
-      </div>
-      <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
-        <dt className="text-muted">Email</dt>
-        <dd className="m-0 break-all">
-          <a href={`mailto:${user.email}`}>{user.email}</a>
-        </dd>
-        <dt className="text-muted">WhatsApp</dt>
-        <dd className="m-0">
-          <a href={`https://wa.me/${client.whatsapp.replace(/\D/g, "")}`}>{client.whatsapp}</a>
-        </dd>
-        <dt className="text-muted">Website</dt>
-        <dd className="m-0 break-all">{client.siteUrl}</dd>
-        <dt className="text-muted">Signed up</dt>
-        <dd className="m-0">{formatDate(client.createdAt)}</dd>
-        {license ? (
-          <>
-            <dt className="text-muted">Plan</dt>
-            <dd className="m-0">
-              {planName(license.plan)} until {formatDate(license.expiresAt)}
-            </dd>
-            <dt className="text-muted">License</dt>
-            <dd className="m-0 font-mono text-[13px] break-all">{key}</dd>
-            <dt className="text-muted">Site</dt>
-            <dd className="m-0 break-all">
-              {activation ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}` : "Not activated"}
-            </dd>
-          </>
-        ) : null}
-        <dt className="text-muted">App setup</dt>
-        <dd className="m-0">
-          {stepsDone} of {SETUP_STEPS.length} steps
-        </dd>
-      </dl>
-
-      {state !== "suspended" ? (
-        <div className="flex flex-col gap-3.5 border-t border-line-soft pt-3.5">
-          <ActivateForm
-            clientId={client.id}
-            plan={license?.plan ?? "pro"}
-            activeUntil={isoDate(nextYear)}
-            pending={state === "pending"}
-          />
-        </div>
-      ) : null}
-
-      {client.paymentNote ? (
-        <div className="flex flex-col gap-1 border-t border-line-soft pt-3.5">
-          <span className="text-sm font-semibold">Payment notes</span>
-          <p className="m-0 text-[13px] leading-relaxed whitespace-pre-wrap text-ink-4">{client.paymentNote}</p>
-        </div>
-      ) : null}
-
-      {state !== "pending" ? (
-        <div className="flex flex-col gap-2 border-t border-line-soft pt-3.5">
-          <span className="text-sm font-semibold">More actions</span>
-          <div className="flex flex-wrap gap-2">
-            {client.status === "suspended" ? (
-              <form action={reinstateClientAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">Reinstate</SubmitButton>
-              </form>
-            ) : (
-              <form action={suspendClientAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <SubmitButton variant="danger" className="h-9 px-3 text-sm">Suspend</SubmitButton>
-              </form>
-            )}
-            {activation ? (
-              <form action={releaseClientSiteAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">Release website</SubmitButton>
-              </form>
-            ) : null}
-            {license ? (
-              <form action={regenerateKeyAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">New license key</SubmitButton>
-              </form>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-    </>
+    <div className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
+      <h3 className="m-0 text-[15px] font-bold">{title}</h3>
+      {rows.length === 0 ? (
+        <p className="m-0 text-sm text-muted">No apps yet.</p>
+      ) : (
+        <dl className="m-0 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5 text-sm">
+          {rows.map((r) => (
+            <div key={r.label} className="contents">
+              <dt>{r.label}</dt>
+              <dd className="m-0 text-right font-semibold tabular-nums">{r.count}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
   );
 }

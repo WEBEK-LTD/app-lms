@@ -11,7 +11,10 @@ const _siteUrlOverride = String.fromEnvironment('YALLAPP_SITE_URL');
 BuildConfigData resolveBuildConfig([BuildConfigData base = buildConfig]) {
   final override = _siteUrlOverride.trim();
   if (override.isEmpty) return base;
-  return base.copyWith(siteUrl: normalizeSiteUrl(override));
+  return base.copyWith(
+    siteUrl: normalizeSiteUrl(override),
+    clearApiBaseUrl: true,
+  );
 }
 
 /// Removes trailing slashes so paths can be appended safely.
@@ -26,3 +29,12 @@ String normalizeSiteUrl(String url) {
 /// The REST base for a site: `<site_url>/wp-json/yallapp/v1`.
 String apiBaseUrl(String siteUrl) =>
     '${normalizeSiteUrl(siteUrl)}/wp-json/yallapp/v1';
+
+/// The API this build talks to: its `api_base_url`, or the WordPress
+/// plugin's on its site. A development site override always uses the plugin.
+String apiUrlOf(BuildConfigData build) {
+  final custom = build.apiBaseUrl;
+  return custom == null || custom.trim().isEmpty
+      ? apiBaseUrl(build.siteUrl)
+      : normalizeSiteUrl(custom);
+}

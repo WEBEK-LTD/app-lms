@@ -55,6 +55,7 @@ class Settings_Page {
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		add_action( 'admin_post_yallapp_save', array( $this, 'save' ) );
 		add_action( 'admin_post_yallapp_license', array( $this, 'license' ) );
+		add_action( 'admin_post_yallapp_layout', array( $this, 'layout' ) );
 		add_action( 'admin_post_yallapp_push', array( $this, 'manual_push' ) );
 		add_action( 'admin_post_yallapp_unlink', array( $this, 'unlink' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( YALLAPP_FILE ), array( $this, 'action_links' ) );
@@ -135,17 +136,26 @@ class Settings_Page {
 		echo '<header class="ya-head"><div><h1>' . esc_html__( 'Yallapp', 'yallapp' ) . '</h1><p>' . esc_html__( 'These settings apply to the app instantly, with no app store update needed.', 'yallapp' ) . '</p></div></header>';
 		$this->notice();
 		$this->license_card();
+		$this->layout_card();
 		$this->compatibility_card();
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data" class="ya-form">';
 		echo '<input type="hidden" name="action" value="yallapp_save">';
 		wp_nonce_field( 'yallapp_save' );
+		$detector = $this->plugin->detector();
+		$shop     = $detector->woocommerce()['active'];
+		$academy  = null !== $detector->lms() || ! $shop;
 		$this->general_card();
 		$this->sign_in_card();
 		$this->purchases_card();
-		$this->video_card();
-		$this->content_card();
-		$this->home_card();
+		if ( $academy ) {
+			$this->video_card();
+			$this->content_card();
+			$this->home_card();
+		}
+		if ( $shop ) {
+			$this->store_card();
+		}
 		$this->notifications_card();
 		$this->updates_card();
 		echo '<div class="ya-savebar"><button type="submit" class="button button-primary button-hero">' . esc_html__( 'Save changes', 'yallapp' ) . '</button></div>';
@@ -207,40 +217,46 @@ class Settings_Page {
 	}
 
 	/**
-	 * Queues a manual notification.
+	 * Fetches the app layout from the platform now.
+	 *
+	 * @return void
+	 */
+	public function layout() {
+		$this->guard();
+		check_admin_referer( 'yallapp_layout' );
+		$result   = $this->plugin->layout_client()->refresh();
+		$messages = array(
+			'updated'   => __( 'The app layout was updated. The app shows it on its next launch.', 'yallapp' ),
+			'unchanged' => __( 'The app layout is up to date.', 'yallapp' ),
+			'cleared'   => __( 'No pages are published in your Yallapp dashboard yet, so the app shows the default pages.', 'yallapp' ),
+		);
+		if ( is_wp_error( $result ) ) {
+			$this->redirect( 'error', $result->get_error_message() );
+		}
+		$this->redirect( 'success', $messages[ $result ] );
+	}
+
+	/**
+	 * Sends a manual notification: to the students' inbox, and by push when Firebase is set up.
 	 *
 	 * @return void
 	 */
 	public function manual_push() {
 		$this->guard();
 		check_admin_referer( 'yallapp_push' );
-		$push = $this->plugin->push();
-		if ( ! $push->is_configured() ) {
-			$this->redirect( 'error', __( 'Upload your Firebase service account file first.', 'yallapp' ) );
-		}
 		$title     = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
 		$body      = isset( $_POST['body'] ) ? sanitize_textarea_field( wp_unslash( $_POST['body'] ) ) : '';
 		$course_id = isset( $_POST['course_id'] ) ? absint( $_POST['course_id'] ) : 0;
 		if ( '' === $title || '' === $body ) {
 			$this->redirect( 'error', __( 'Enter a title and a message.', 'yallapp' ) );
 		}
-		$lms   = $this->plugin->lms();
-		$users = $course_id && $lms ? $lms->student_ids( $course_id ) : $this->plugin->devices()->push_user_ids();
-		$data  = array( 'type' => 'announcement' );
-		if ( $course_id ) {
-			$data['course_id'] = (string) $course_id;
+		$push = $this->plugin->push();
+		$sent = $push->announce( $title, $body, $course_id );
+		if ( ! $push->is_configured() ) {
+			$this->redirect( 'success', __( 'Saved to your students\' notifications in the app. Upload your Firebase service account file to also send it as a push notification.', 'yallapp' ) );
 		}
-		$push->queue(
-			$users,
-			'announcements',
-			array(
-				'title' => $title,
-				'body'  => $body,
-			),
-			$data
-		);
 		/* translators: %d: number of students. */
-		$this->redirect( 'success', sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', count( $users ), 'yallapp' ), count( $users ) ) );
+		$this->redirect( 'success', sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', $sent, 'yallapp' ), $sent ) );
 	}
 
 	/**
@@ -357,6 +373,34 @@ class Settings_Page {
 	}
 
 	/**
+	 * App layout card: the pages and look published in the Yallapp dashboard.
+	 *
+	 * @return void
+	 */
+	private function layout_card() {
+		$state     = $this->plugin->layout_client()->state();
+		$published = null !== $state['layout'];
+		$format    = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		$this->open( __( 'App pages and look', 'yallapp' ), '<span class="ya-pill ya-pill-' . ( $published ? 'ok' : 'warn' ) . '">' . esc_html( $published ? __( 'Published', 'yallapp' ) : __( 'Default pages', 'yallapp' ) ) . '</span>' );
+		echo '<p class="ya-help">' . esc_html__( 'Build your app\'s pages, tabs, look and languages in your Yallapp dashboard. This site fetches them every 15 minutes and fills them with its own content.', 'yallapp' ) . '</p>';
+		echo '<dl class="ya-facts">';
+		$this->fact( __( 'Layout version', 'yallapp' ), $published ? (string) $state['layout']['version'] : __( 'None published yet', 'yallapp' ) );
+		$this->fact( __( 'Last fetched', 'yallapp' ), $state['fetched_at'] ? (string) wp_date( $format, $state['fetched_at'] ) : '—' );
+		echo '</dl>';
+		if ( '' === (string) $this->values['license_key'] ) {
+			echo '<p class="ya-help">' . esc_html__( 'Activate your license to use the pages you publish in your Yallapp dashboard. Until then the app shows the default pages.', 'yallapp' ) . '</p>';
+		} elseif ( $state['error'] ) {
+			echo '<p class="ya-help">' . esc_html( $state['error'] ) . '</p>';
+		}
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ya-inline">';
+		echo '<input type="hidden" name="action" value="yallapp_layout">';
+		wp_nonce_field( 'yallapp_layout' );
+		echo '<div class="ya-actions"><button class="button"' . disabled( '' === (string) $this->values['license_key'], true, false ) . '>' . esc_html__( 'Refresh app layout', 'yallapp' ) . '</button></div>';
+		echo '</form>';
+		$this->close();
+	}
+
+	/**
 	 * Compatibility card.
 	 *
 	 * @return void
@@ -371,6 +415,8 @@ class Settings_Page {
 		if ( $lms ) {
 			$this->status_row( __( 'LMS plugin (detected)', 'yallapp' ), $lms['name'] . ' ' . $lms['version'], $lms['supported'], $lms['supported'] ? __( 'Compatible', 'yallapp' ) : __( 'Support is coming soon', 'yallapp' ) );
 			$this->status_row( __( 'Premium add-ons', 'yallapp' ), $lms['pro'] ? __( 'Active', 'yallapp' ) : __( 'Not installed', 'yallapp' ), true, __( 'Premium features appear when active', 'yallapp' ) );
+		} elseif ( $woo['active'] ) {
+			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), true, __( 'Not needed for a Store app', 'yallapp' ) );
 		} else {
 			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), false, __( 'Install and activate Tutor LMS', 'yallapp' ) );
 		}
@@ -386,7 +432,7 @@ class Settings_Page {
 			__( 'WooCommerce', 'yallapp' ),
 			$woo['active'] ? $woo['version'] : __( 'Not found', 'yallapp' ),
 			true,
-			$woo['active'] && $checkout ? __( 'Linked to your LMS checkout', 'yallapp' ) : __( 'Optional', 'yallapp' )
+			$woo['active'] && $checkout ? __( 'Linked to your LMS checkout', 'yallapp' ) : ( $woo['active'] && ! $lms ? __( 'Used by your Store app', 'yallapp' ) : __( 'Optional', 'yallapp' ) )
 		);
 		echo '</ul>';
 		$this->close();
@@ -605,6 +651,88 @@ class Settings_Page {
 	}
 
 	/**
+	 * Store card: home screen sections and delivery options for Store apps.
+	 *
+	 * @return void
+	 */
+	private function store_card() {
+		$labels  = array(
+			'banner'            => __( 'Promo banner', 'yallapp' ),
+			'categories'        => __( 'Categories', 'yallapp' ),
+			'featured_products' => __( 'Featured products', 'yallapp' ),
+			'sale_products'     => __( 'On sale', 'yallapp' ),
+			'new_products'      => __( 'New arrivals', 'yallapp' ),
+			'best_sellers'      => __( 'Best sellers', 'yallapp' ),
+		);
+		$enabled = (array) $this->values['store_home_sections'];
+		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
+		$this->open( __( 'Store app', 'yallapp' ) );
+		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Home sections shown (drag to reorder)', 'yallapp' ) . '</span>';
+		echo '<input type="hidden" name="yallapp[store_home_sections][]" value="">';
+		echo '<ul class="ya-sortable">';
+		foreach ( $order as $section ) {
+			if ( ! isset( $labels[ $section ] ) ) {
+				continue;
+			}
+			printf(
+				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[store_home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				esc_attr( $section ),
+				checked( in_array( $section, $enabled, true ), true, false ),
+				esc_html( $labels[ $section ] )
+			);
+		}
+		echo '</ul><span class="ya-help">' . esc_html__( 'Featured products are the ones starred in WooCommerce.', 'yallapp' ) . '</span></div>';
+		$this->image( 'store_banner_image_id', __( 'Promo banner image', 'yallapp' ) );
+		$this->select( 'store_banner_product_id', __( 'Banner opens product', 'yallapp' ), array( 0 => __( 'None', 'yallapp' ) ) + $this->product_options() );
+		$categories = array( 0 => __( 'None', 'yallapp' ) );
+		foreach ( ( new \Yallapp\Store\Catalog() )->categories() as $category ) {
+			$categories[ $category['id'] ] = $category['name'];
+		}
+		$this->select( 'store_banner_category_id', __( 'Or opens category', 'yallapp' ), $categories );
+		$this->toggle( 'store_delivery_date', __( 'Ask for a delivery date in the cart', 'yallapp' ), __( 'Saved on the order and shown in the order screen and emails. Useful for flower and gift shops.', 'yallapp' ) );
+		$this->toggle( 'store_delivery_date_required', __( 'The delivery date is required', 'yallapp' ) );
+		$this->number( 'store_delivery_min_days', __( 'Earliest delivery (days from today)', 'yallapp' ), 0, 60 );
+		$this->number( 'store_delivery_max_days', __( 'Latest delivery (days from today)', 'yallapp' ), 0, 365 );
+		$this->checks(
+			'store_closed_weekdays',
+			__( 'No deliveries on', 'yallapp' ),
+			array(
+				'1' => __( 'Monday', 'yallapp' ),
+				'2' => __( 'Tuesday', 'yallapp' ),
+				'3' => __( 'Wednesday', 'yallapp' ),
+				'4' => __( 'Thursday', 'yallapp' ),
+				'5' => __( 'Friday', 'yallapp' ),
+				'6' => __( 'Saturday', 'yallapp' ),
+				'0' => __( 'Sunday', 'yallapp' ),
+			)
+		);
+		$this->toggle( 'store_gift_message', __( 'Let customers add a gift message', 'yallapp' ) );
+		$this->number( 'store_gift_message_max', __( 'Gift message length (characters)', 'yallapp' ), 1, 500 );
+		$this->close();
+	}
+
+	/**
+	 * Published products for pickers.
+	 *
+	 * @return array<int, string>
+	 */
+	private function product_options() {
+		$list = array();
+		foreach ( get_posts(
+			array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'posts_per_page' => 200, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Admin picker.
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			)
+		) as $post ) {
+			$list[ (int) $post->ID ] = get_the_title( $post );
+		}
+		return $list;
+	}
+
+	/**
 	 * Notifications card.
 	 *
 	 * @return void
@@ -623,6 +751,7 @@ class Settings_Page {
 		$this->toggle( 'notify_new_lesson', __( 'A new lesson is added to an enrolled course', 'yallapp' ) );
 		$this->toggle( 'notify_announcement', __( 'An instructor posts an announcement', 'yallapp' ) );
 		$this->toggle( 'notify_enrollment', __( 'An enrollment is confirmed after payment', 'yallapp' ) );
+		$this->toggle( 'notify_qna_answer', __( 'An instructor answers a student\'s question', 'yallapp' ) );
 		echo '</fieldset>';
 		$this->close();
 	}
@@ -649,9 +778,7 @@ class Settings_Page {
 	private function manual_push_card() {
 		$this->open( __( 'Send a manual notification', 'yallapp' ) );
 		if ( ! $this->plugin->push()->is_configured() ) {
-			echo '<p class="ya-help">' . esc_html__( 'Upload your Firebase service account file in Notifications to send messages.', 'yallapp' ) . '</p>';
-			$this->close();
-			return;
+			echo '<p class="ya-help">' . esc_html__( 'Messages appear in the app\'s notifications. Upload your Firebase service account file in Notifications to also send them as push notifications.', 'yallapp' ) . '</p>';
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo '<input type="hidden" name="action" value="yallapp_push">';

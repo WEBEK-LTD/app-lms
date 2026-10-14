@@ -35,6 +35,7 @@ export async function hitRateLimit(
 }
 
 export const RATE_LIMITS = {
+  apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
   signInIp: { name: "sign-in:ip", limit: 30, windowSeconds: 15 * 60 },
   signInEmail: { name: "sign-in:email", limit: 8, windowSeconds: 15 * 60 },
   signUpIp: { name: "sign-up:ip", limit: 10, windowSeconds: 60 * 60 },
@@ -43,4 +44,6 @@ export const RATE_LIMITS = {
   licenseIp: { name: "license:ip", limit: 30, windowSeconds: 60 },
   updateIp: { name: "update:ip", limit: 60, windowSeconds: 60 },
   pipelineIp: { name: "pipeline:ip", limit: 600, windowSeconds: 60 },
+  hostedNotify: { name: "hosted-notify:app", limit: 10, windowSeconds: 60 * 60 },
+  planPayment: { name: "plan-payment:client", limit: 10, windowSeconds: 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

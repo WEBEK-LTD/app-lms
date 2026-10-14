@@ -1,7 +1,8 @@
+import { generateKeyPairSync } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
-import { buildConfigFor, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
+import { describe, expect, it, vi } from "vitest";
+import { APP_TYPE_NAMES, buildConfigFor, isAppType, isSetupComplete, newApp, nextStep, queueBuild, stepStatus } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import type { BuildConfig } from "@/lib/build-config/types";
 import type { App } from "@/lib/data/types";
@@ -79,10 +80,46 @@ describe("build config schema", () => {
     ["icon url", (c) => ({ ...c, branding: { ...c.branding, icon_url: "not a url" } })],
     ["extra property", (c) => ({ ...c, google_play_key: "secret" })],
     ["schema version", (c) => ({ ...c, schema_version: 2 })],
-    ["app type", (c) => ({ ...c, app_type: "store" })],
+    ["app type", (c) => ({ ...c, app_type: "salon" })],
   ])("rejects %s", (_name, change) => {
     const result = validateBuildConfig(change(validConfig()));
     expect(result.ok).toBe(false);
+  });
+
+  it("builds Store apps", () => {
+    const app = { ...completeApp("c1"), appType: "store" as const };
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.app_type).toBe("store");
+    expect(validateBuildConfig(config).ok).toBe(true);
+    expect(newApp("c1", null, NOW, "store").appType).toBe("store");
+    expect(newApp("c1", null, NOW).appType).toBe("lms");
+    expect(isAppType("store")).toBe(true);
+    expect(isAppType("salon")).toBe(false);
+  });
+
+  it("builds Bookings apps", () => {
+    const app = { ...completeApp("c1"), appType: "booking" as const };
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.app_type).toBe("booking");
+    expect(validateBuildConfig(config).ok).toBe(true);
+    expect(isAppType("booking")).toBe(true);
+    expect(APP_TYPE_NAMES.booking).toBe("Bookings");
+  });
+
+  it("builds Real estate apps, on the hosted API only", () => {
+    const wordpress = { ...completeApp("c1"), appType: "real_estate" as const };
+    // A Real estate app has no WordPress side: the Website step stays open until it runs on the hosted API.
+    expect(stepStatus(wordpress, "starter").website).toBe(false);
+    vi.stubEnv("APP_URL", "https://yallapp.com.tr");
+    const app = { ...wordpress, backend: "hosted" as const, siteUrl: null, connector: { kind: "listings" as const } };
+    expect(isSetupComplete(app, "starter")).toBe(true);
+    const config = buildConfigFor(app, { id: "c1" }, { name: "1.0.0", code: 1 }, assetUrl);
+    expect(config.app_type).toBe("real_estate");
+    expect(config).toMatchObject({ api_base_url: `https://yallapp.com.tr/api/app/${app.id}`, site_url: "https://yallapp.com.tr" });
+    expect(validateBuildConfig(config).ok).toBe(true);
+    vi.unstubAllEnvs();
+    expect(isAppType("real_estate")).toBe(true);
+    expect(APP_TYPE_NAMES.real_estate).toBe("Real estate");
   });
 
   it("builds the config from wizard data without secrets", async () => {
@@ -107,8 +144,8 @@ describe("setup wizard", () => {
   });
 
   it("validates each step with the schema's rules", () => {
-    expect(websiteSchema.safeParse({ siteUrl: "http://academy.test" }).success).toBe(false);
-    expect(websiteSchema.safeParse({ siteUrl: "academy.test" }).success).toBe(true);
+    expect(websiteSchema.safeParse({ backend: "wordpress", siteUrl: "http://academy.test" }).success).toBe(false);
+    expect(websiteSchema.safeParse({ backend: "wordpress", siteUrl: "academy.test" }).success).toBe(true);
 
     const branding = {
       appName: "Ada Academy",
@@ -146,14 +183,14 @@ describe("setup wizard", () => {
     expect(parsed.success && parsed.data.clientEmail).toBe("ci@project.iam.gserviceaccount.com");
     expect(googlePlayKeySchema.safeParse("{}").success).toBe(false);
     expect(googlePlayKeySchema.safeParse("not json").success).toBe(false);
-    expect(
-      appStoreKeySchema.safeParse({
-        issuerId: "69a6de7e-1234-47e3-e053-5b8c7c11a4d1",
-        keyId: "2X9R4HXF34",
-        privateKey: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----",
-      }).success,
-    ).toBe(true);
-    expect(appStoreKeySchema.safeParse({ issuerId: "nope", keyId: "2X9R4HXF34", privateKey: "x" }).success).toBe(false);
+    const appStore = { issuerId: "69a6de7e-1234-47e3-e053-5b8c7c11a4d1", keyId: "2X9R4HXF34" };
+    const pem = (key: ReturnType<typeof generateKeyPairSync>["privateKey"]) => String(key.export({ type: "pkcs8", format: "pem" }));
+    const p8 = pem(generateKeyPairSync("ec", { namedCurve: "prime256v1" }).privateKey);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: p8 }).success).toBe(true);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----" }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: pem(generateKeyPairSync("ec", { namedCurve: "secp384r1" }).privateKey) }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ ...appStore, privateKey: pem(generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey) }).success).toBe(false);
+    expect(appStoreKeySchema.safeParse({ issuerId: "nope", keyId: "2X9R4HXF34", privateKey: p8 }).success).toBe(false);
   });
 });
 

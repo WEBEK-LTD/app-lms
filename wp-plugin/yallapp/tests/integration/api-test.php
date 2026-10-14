@@ -260,6 +260,167 @@ $r = call( 'DELETE', '/me/wishlist/' . $seed['design'], null, $token );
 $l = call( 'GET', '/me/wishlist', null, $token );
 check( 'wishlist remove', 204 === $r['status'] && 0 === count( $l['json']['items'] ?? array( 1 ) ), $l['raw'] );
 
+echo "Pages\n";
+require_once __DIR__ . '/pages-helpers.php';
+$r = call( 'GET', '/pages?platform=android' );
+check_navigation_shape( 'default pages: navigation shape', $r['json'] );
+check( 'default pages: academy tabs', array( 'home', 'courses', 'my-courses', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && 'my_courses' === ( $r['json']['tabs'][2]['target']['screen'] ?? '' ), $r['json'] );
+check( 'default pages: version is the ETag', 0 === strpos( (string) ( $r['json']['version'] ?? '' ), 'default.' ) && strtolower( '"' . $r['json']['version'] . '"' ) === header_value( $r, 'etag' ), $r['headers'] );
+check( 'pages vary by language', false !== strpos( $r['headers'], 'vary: accept-language' ), $r['headers'] );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'If-None-Match: "' . ( $r['json']['version'] ?? '' ) . '"' ) );
+check( 'default pages: If-None-Match 304', 304 === $r['status'] && '' === $r['raw'], $r['status'] . ' ' . $r['raw'] );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'If-None-Match: other' ) );
+check( 'default pages: other version 200', 200 === $r['status'], $r['status'] );
+$r = call( 'GET', '/pages/home?platform=android' );
+$home = $r['json'];
+check( 'default home 200', 200 === $r['status'] && 'home' === ( $home['slug'] ?? '' ) && false === ( $home['show_title'] ?? null ), $r['raw'] );
+check( 'default home: search, categories and courses', 'courses' === ( page_block( $home, 'search' )['source'] ?? '' ) && ! empty( page_block( $home, 'categories' )['categories'] ) && 3 === count( page_block( $home, 'latest-courses' )['items'] ?? array() ), page_block_ids( $home ) );
+check_item_shapes( 'default home: item shapes', $home );
+check( 'default home: course item opens the course', array( 'type' => 'course', 'course_id' => $seed['english'] ) === ( page_block( $home, 'latest-courses' )['items'][0]['action'] ?? null ), page_block( $home, 'latest-courses' ) );
+check( 'default home: no continue learning signed out', null === page_block( $home, 'continue-learning' ), page_block_ids( $home ) );
+$r = call( 'GET', '/pages/home?platform=android', null, $token );
+$continue = page_block( $r['json'], 'continue-learning' );
+check( 'default home: continue learning signed in', $seed['python'] === ( $continue['course']['course']['id'] ?? 0 ) && isset( $continue['course']['progress']['percent'] ), page_block_ids( $r['json'] ) );
+set_settings( array( 'featured_course_ids' => array( $seed['design'] ) ) );
+$r = call( 'GET', '/pages/home?platform=android' );
+check( 'default home: featured courses from the settings', array( (string) $seed['design'] ) === block_item_ids( page_block( $r['json'], 'featured-courses' ) ) && null === page_block( $r['json'], 'latest-courses' ), page_block_ids( $r['json'] ) );
+set_settings( array( 'featured_course_ids' => array() ) );
+$r = call( 'GET', '/pages/missing?platform=android' );
+check( 'unknown page 404', 404 === $r['status'] && 'not_found' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/pages/Not_A_Slug?platform=android' );
+check( 'bad slug 400', 400 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/pages' );
+check( 'platform required 400', 400 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: English only, no look without a layout', array( 'default' => 'en', 'available' => array( 'en' ) ) === ( $r['json']['languages'] ?? null ) && ! array_key_exists( 'appearance', $r['json'] ?? array() ), $r['json'] );
+
+$languages = 0;
+foreach ( call( 'GET', '/categories' )['json']['items'] ?? array() as $category ) {
+	if ( 'Languages' === $category['name'] ) {
+		$languages = $category['id'];
+	}
+}
+$layout = array(
+	'version'    => '2026-10-13T18:00:00Z.4',
+	'appearance' => array( 'template' => 'bold', 'theme_mode' => 'dark', 'user_can_change_mode' => true, 'secondary_color' => '#e8b04b', 'font' => 'Outfit', 'corners' => 'round', 'cards' => 'elevated' ),
+	'languages'  => array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ),
+	'tabs'       => array(
+		array( 'id' => 'home', 'label' => 'Home', 'icon' => 'home', 'target' => array( 'type' => 'page', 'page_slug' => 'home' ), 'translations' => array( 'ar' => array( 'label' => 'الرئيسية' ) ) ),
+		array( 'id' => 'offers', 'label' => 'Offers', 'icon' => 'sell', 'target' => array( 'type' => 'page', 'page_slug' => 'offers' ) ),
+		array( 'id' => 'homes', 'label' => 'Homes', 'icon' => 'home_work', 'target' => array( 'type' => 'item', 'item' => array( 'source' => 'listings', 'id' => '1' ) ) ),
+		array( 'id' => 'account', 'label' => 'Account', 'icon' => 'person', 'target' => array( 'type' => 'screen', 'screen' => 'account' ) ),
+	),
+	'pages'      => array(
+		array(
+			'slug'         => 'home',
+			'title'        => 'Welcome',
+			'show_title'   => true,
+			'updated_at'   => '2026-10-13T18:00:00Z',
+			'translations' => array( 'ar' => array( 'title' => 'أهلا وسهلا' ) ),
+			'blocks'       => array(
+				array( 'id' => 'hero', 'type' => 'banner', 'visibility' => 'everyone', 'image_url' => 'https://example.org/hero.jpg', 'heading' => 'Learn faster', 'subheading' => 'New courses every week', 'action' => array( 'type' => 'course', 'course_id' => $seed['design'] ), 'translations' => array( 'ar' => array( 'heading' => 'تعلم أسرع' ) ) ),
+				array( 'id' => 'intro', 'type' => 'text', 'visibility' => 'everyone', 'html' => '<p onclick="steal()">Hello <strong>students</strong></p><script>alert(1)</script>', 'translations' => array( 'ar' => array( 'html' => '<p>مرحبا</p>' ) ) ),
+				array( 'id' => 'find', 'type' => 'search', 'visibility' => 'everyone', 'source' => 'courses', 'placeholder' => 'Find a course', 'translations' => array( 'ar' => array( 'placeholder' => 'ابحث عن دورة' ) ) ),
+				array( 'id' => 'picked', 'type' => 'items', 'visibility' => 'everyone', 'title' => 'Picked for you', 'source' => 'courses', 'layout' => 'grid', 'query' => array( 'ids' => array( (string) $seed['design'], (string) $seed['python'] ), 'category_id' => (string) $languages, 'limit' => 5 ), 'see_all' => array( 'type' => 'screen', 'screen' => 'courses' ) ),
+				array( 'id' => 'languages', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'list', 'query' => array( 'category_id' => (string) $languages, 'limit' => 10 ) ),
+				array( 'id' => 'newest', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'carousel', 'query' => array( 'sort' => 'newest', 'limit' => 1 ) ),
+				array( 'id' => 'featured', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'courses', 'layout' => 'carousel', 'query' => array( 'featured' => true, 'limit' => 5 ) ),
+				array( 'id' => 'news', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'posts', 'layout' => 'list', 'query' => array( 'limit' => 5 ) ),
+				array( 'id' => 'cats', 'type' => 'categories', 'visibility' => 'everyone', 'source' => 'courses', 'style' => 'tiles' ),
+				array( 'id' => 'continue', 'type' => 'continue_learning', 'visibility' => 'signed_in', 'title' => 'Continue learning' ),
+				array( 'id' => 'join', 'type' => 'button', 'visibility' => 'signed_out', 'label' => 'Sign in', 'style' => 'filled', 'icon' => 'login', 'action' => array( 'type' => 'screen', 'screen' => 'account' ) ),
+				array( 'id' => 'members', 'type' => 'text', 'visibility' => 'signed_in', 'html' => '<p>Members only</p>' ),
+				array( 'id' => 'homes', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'listings', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+				array( 'id' => 'shop', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'products', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+				array( 'id' => 'salon', 'type' => 'items', 'visibility' => 'everyone', 'source' => 'services', 'layout' => 'grid', 'query' => array( 'limit' => 6 ) ),
+				array( 'id' => 'find-home', 'type' => 'search', 'visibility' => 'everyone', 'source' => 'listings', 'placeholder' => 'Search properties' ),
+				array( 'id' => 'map', 'type' => 'map', 'visibility' => 'everyone' ),
+				array( 'id' => 'no-image', 'type' => 'banner', 'visibility' => 'everyone', 'image_url' => 'javascript:alert(1)' ),
+				array( 'id' => 'listing-button', 'type' => 'button', 'visibility' => 'everyone', 'label' => 'See homes', 'style' => 'filled', 'action' => array( 'type' => 'item', 'item' => array( 'source' => 'listings', 'id' => '4' ) ) ),
+				array( 'id' => 'hidden', 'type' => 'spacer', 'visibility' => 'admins', 'size' => 'large' ),
+				array( 'id' => 'gap', 'type' => 'spacer', 'visibility' => 'everyone', 'size' => 'large' ),
+				array( 'id' => 'tour', 'type' => 'embed', 'visibility' => 'everyone', 'url' => 'https://www.youtube.com/embed/abc', 'height' => 300 ),
+			),
+		),
+		array(
+			'slug'       => 'offers',
+			'title'      => 'Offers',
+			'show_title' => false,
+			'updated_at' => '2026-10-12T09:30:00Z',
+			'blocks'     => array(
+				array( 'id' => 'deal', 'type' => 'image', 'visibility' => 'everyone', 'image_url' => 'https://example.org/deal.png', 'aspect_ratio' => 2, 'action' => array( 'type' => 'url', 'url' => 'https://example.org/deal' ) ),
+				array( 'id' => 'clip', 'type' => 'video', 'visibility' => 'everyone', 'url' => 'https://example.org/clip.mp4' ),
+			),
+		),
+	),
+);
+store_layout( $layout );
+
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: published look', array( 'template' => 'bold', 'theme_mode' => 'dark', 'user_can_change_mode' => true, 'secondary_color' => '#E8B04B', 'font' => 'Outfit', 'corners' => 'round', 'cards' => 'elevated' ) === ( $r['json']['appearance'] ?? null ), $r['json']['appearance'] ?? null );
+check( 'config: published languages', array( 'default' => 'en', 'available' => array( 'en', 'ar' ) ) === ( $r['json']['languages'] ?? null ), $r['json']['languages'] ?? null );
+$r = call( 'GET', '/pages?platform=android' );
+check_navigation_shape( 'published pages: navigation shape', $r['json'] );
+check( 'published pages: version and ETag', '2026-10-13T18:00:00Z.4' === ( $r['json']['version'] ?? '' ) && '"2026-10-13t18:00:00z.4"' === header_value( $r, 'etag' ), $r['headers'] );
+check( 'published pages: tab the site cannot open is dropped', array( 'home', 'offers', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['json']['tabs'] ?? null );
+check( 'published pages: page list', array( 'home', 'offers' ) === array_column( $r['json']['pages'] ?? array(), 'slug' ) && 'Welcome' === $r['json']['pages'][0]['title'] && '2026-10-12T09:30:00Z' === $r['json']['pages'][1]['updated_at'], $r['json']['pages'] ?? null );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'If-None-Match: 2026-10-13T18:00:00Z.4' ) );
+check( 'published pages: If-None-Match 304', 304 === $r['status'], $r['status'] );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: ar-EG,ar;q=0.9,en;q=0.8' ) );
+check( 'arabic tabs, English fallback', 'الرئيسية' === ( $r['json']['tabs'][0]['label'] ?? '' ) && 'Offers' === ( $r['json']['tabs'][1]['label'] ?? '' ) && 'أهلا وسهلا' === ( $r['json']['pages'][0]['title'] ?? '' ), $r['json'] );
+check( 'arabic version differs', '2026-10-13T18:00:00Z.4.ar' === ( $r['json']['version'] ?? '' ), $r['json']['version'] ?? null );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: ar', 'If-None-Match: "2026-10-13T18:00:00Z.4"' ) );
+check( 'english copy not reused for arabic', 200 === $r['status'], $r['status'] );
+$r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language: fr-FR, tr;q=0.5' ) );
+check( 'language not turned on falls back to default', 'Home' === ( $r['json']['tabs'][0]['label'] ?? '' ) && '2026-10-13T18:00:00Z.4' === ( $r['json']['version'] ?? '' ), $r['json']['tabs'] ?? null );
+
+$r    = call( 'GET', '/pages/home?platform=android', null, null, array( 'Accept-Language: ar' ) );
+$page = $r['json'];
+check( 'arabic page title', 200 === $r['status'] && 'أهلا وسهلا' === ( $page['title'] ?? '' ) && true === ( $page['show_title'] ?? null ), $r['raw'] );
+$hero = page_block( $page, 'hero' );
+check( 'arabic banner heading, English subheading', 'تعلم أسرع' === ( $hero['heading'] ?? '' ) && 'New courses every week' === ( $hero['subheading'] ?? '' ) && array( 'type' => 'course', 'course_id' => $seed['design'] ) === ( $hero['action'] ?? null ), $hero );
+check( 'arabic text block', '<p>مرحبا</p>' === ( page_block( $page, 'intro' )['html'] ?? '' ), page_block( $page, 'intro' ) );
+check( 'arabic search placeholder', 'ابحث عن دورة' === ( page_block( $page, 'find' )['placeholder'] ?? '' ), page_block( $page, 'find' ) );
+check( 'texts without a translation stay English', 'Picked for you' === ( page_block( $page, 'picked' )['title'] ?? '' ), page_block( $page, 'picked' ) );
+check( 'translations are not sent', false === strpos( $r['raw'], 'translations' ) && false === strpos( $r['raw'], '"query"' ) && false === strpos( $r['raw'], 'visibility' ), $r['raw'] );
+
+$r    = call( 'GET', '/pages/home?platform=android' );
+$page = $r['json'];
+$html = (string) ( page_block( $page, 'intro' )['html'] ?? '' );
+check( 'text html cleaned like lessons', false !== strpos( $html, '<strong>students</strong>' ) && false === stripos( $html, 'script' ) && false === stripos( $html, 'onclick' ), $html );
+check( 'signed out: sign-in button, no member blocks', null !== page_block( $page, 'join' ) && null === page_block( $page, 'members' ) && null === page_block( $page, 'continue' ), page_block_ids( $page ) );
+check( 'unsupported blocks dropped', array() === array_values( array_intersect( array( 'homes', 'shop', 'salon', 'find-home', 'map', 'no-image', 'listing-button', 'hidden' ), page_block_ids( $page ) ) ), page_block_ids( $page ) );
+check( 'blocks keep their order', array( 'hero', 'intro', 'find', 'picked', 'languages', 'newest', 'news', 'cats', 'join', 'gap', 'tour' ) === page_block_ids( $page ), page_block_ids( $page ) );
+check_item_shapes( 'published home: item shapes', $page );
+$picked = page_block( $page, 'picked' );
+check( 'hand-picked courses in their order, other filters ignored', array( (string) $seed['design'], (string) $seed['python'] ) === block_item_ids( $picked ) && 'grid' === $picked['layout'] && array( 'type' => 'screen', 'screen' => 'courses' ) === ( $picked['see_all'] ?? null ), $picked );
+check( 'course item shape', 'Python Programming Basics' === ( $picked['items'][1]['title'] ?? '' ) && 'Free' === ( $picked['items'][1]['price_label'] ?? '' ) && false === ( $picked['items'][1]['favorited'] ?? null ) && 'Ayse Demir' === ( $picked['items'][1]['subtitle'] ?? '' ), $picked['items'] ?? null );
+check( 'category filter', array( (string) $seed['english'] ) === block_item_ids( page_block( $page, 'languages' ) ), page_block( $page, 'languages' ) );
+check( 'limit', 1 === count( page_block( $page, 'newest' )['items'] ?? array() ), page_block( $page, 'newest' ) );
+check( 'featured without featured courses is dropped', null === page_block( $page, 'featured' ), page_block_ids( $page ) );
+$news = page_block( $page, 'news' );
+check( 'posts open on the website', 'posts' === ( $news['items'][0]['source'] ?? '' ) && 'url' === ( $news['items'][0]['action']['type'] ?? '' ) && 0 === strpos( (string) ( $news['items'][0]['action']['url'] ?? '' ), 'http' ), $news );
+$cats = page_block( $page, 'cats' );
+check( 'categories block', 'tiles' === ( $cats['style'] ?? '' ) && 2 === count( $cats['categories'] ?? array() ) && array( 'id', 'name', 'count' ) === array_keys( $cats['categories'][0] ), $cats );
+check( 'spacer and embed', 'large' === ( page_block( $page, 'gap' )['size'] ?? '' ) && 300 === ( page_block( $page, 'tour' )['height'] ?? 0 ), $page );
+
+set_settings( array( 'featured_course_ids' => array( $seed['python'] ) ) );
+call( 'PUT', '/me/wishlist/' . $seed['design'], array(), $token );
+$r    = call( 'GET', '/pages/home?platform=android', null, $token );
+$page = $r['json'];
+check( 'signed in: member blocks, no sign-in button', null === page_block( $page, 'join' ) && null !== page_block( $page, 'members' ), page_block_ids( $page ) );
+check( 'signed in: continue learning', $seed['python'] === ( page_block( $page, 'continue' )['course']['course']['id'] ?? 0 ) && 'Continue learning' === ( page_block( $page, 'continue' )['title'] ?? '' ), page_block( $page, 'continue' ) );
+check( 'featured courses', array( (string) $seed['python'] ) === block_item_ids( page_block( $page, 'featured' ) ), page_block( $page, 'featured' ) );
+check( 'wishlisted course is favorited', true === ( page_block( $page, 'picked' )['items'][0]['favorited'] ?? null ), page_block( $page, 'picked' ) );
+call( 'DELETE', '/me/wishlist/' . $seed['design'], null, $token );
+set_settings( array( 'featured_course_ids' => array() ) );
+
+$r = call( 'GET', '/pages/offers?platform=ios' );
+check( 'second page', 200 === $r['status'] && false === $r['json']['show_title'] && 2.0 === (float) ( page_block( $r['json'], 'deal' )['aspect_ratio'] ?? 0 ) && 'https://example.org/deal' === ( page_block( $r['json'], 'deal' )['action']['url'] ?? '' ) && 'https://example.org/clip.mp4' === ( page_block( $r['json'], 'clip' )['url'] ?? '' ), $r['raw'] );
+forget_layout();
+$r = call( 'GET', '/pages?platform=android' );
+check( 'default pages again without a layout', 0 === strpos( (string) ( $r['json']['version'] ?? '' ), 'default.' ), $r['json'] );
+
 echo "Quiz\n";
 $r = call( 'GET', '/quizzes/' . $seed['quiz'], null, $token );
 check( 'quiz details', 200 === $r['status'] && 60 === (int) ( $r['json']['pass_percent'] ?? 0 ), $r['raw'] );
@@ -281,6 +442,94 @@ check( 'quiz graded', 200 === $r['status'] && isset( $r['json']['status'] ), $r[
 check( 'quiz passed with correct answers', 'passed' === ( $r['json']['status'] ?? '' ) && 100.0 === (float) $r['json']['score_percent'], $r['json'] );
 $r = call( 'GET', '/me/quiz-attempts', null, $token );
 check( 'attempt history', 200 === $r['status'] && $r['json']['total'] >= 1, $r['raw'] );
+
+echo "Notifications\n";
+/**
+ * Runs PHP in the dev site and returns what it echoes.
+ */
+function wp_eval( $php ) {
+	return trim( (string) wp_cli( 'eval ' . escapeshellarg( $php ) ) );
+}
+$me_id = (int) ( call( 'GET', '/me', null, $token )['json']['id'] ?? 0 );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'enrollment notification in the inbox', 200 === $r['status'] && 'enrolled' === ( $r['json']['items'][0]['type'] ?? '' ) && $seed['python'] === ( $r['json']['items'][0]['course_id'] ?? 0 ), $r['raw'] );
+$topic = (int) wp_eval( 'echo wp_get_post_parent_id( ' . (int) $seed['lesson_html'] . ' );' );
+$new_lesson = (int) wp_eval( 'echo wp_insert_post( array( "post_type" => tutor()->lesson_post_type, "post_status" => "publish", "post_title" => "Loops", "post_parent" => ' . $topic . ' ) );' );
+wp_eval( 'Yallapp\Plugin::instance()->push()->announce( "Exam on Friday", "Bring a pencil.", 0 );' );
+wp_eval( 'Yallapp\Plugin::instance()->push()->announce( "Design only", "Not for Python students.", ' . (int) $seed['design'] . ' );' );
+$r = call( 'GET', '/me/notifications', null, $token );
+$types = array_map( function ( $n ) { return $n['type']; }, $r['json']['items'] ?? array() );
+check( 'inbox has announcement, new lesson and enrollment, newest first', array( 'announcement', 'new_lesson', 'enrolled' ) === $types, $r['raw'] );
+check( 'new lesson notification opens the lesson', $new_lesson === ( $r['json']['items'][1]['lesson_id'] ?? 0 ), $r['json']['items'] ?? null );
+check( 'all unread', 3 === ( $r['json']['unread_count'] ?? -1 ) && false === ( $r['json']['items'][0]['read'] ?? null ), $r['json'] );
+$r = call( 'GET', '/me/notifications?per_page=1', null, $token );
+check( 'inbox pages', 3 === ( $r['json']['total'] ?? 0 ) && 3 === ( $r['json']['total_pages'] ?? 0 ) && 1 === count( $r['json']['items'] ?? array() ), $r['raw'] );
+$r = call( 'POST', '/me/notifications/read', array(), $token );
+check( 'mark read 204', 204 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'all read after marking', 0 === ( $r['json']['unread_count'] ?? -1 ) && true === ( $r['json']['items'][2]['read'] ?? null ), $r['json'] );
+$r = call( 'GET', '/me/notifications' );
+check( 'inbox needs sign-in', 401 === $r['status'], $r['raw'] );
+
+echo "Orders\n";
+$r = call( 'GET', '/me/orders', null, $token );
+check( 'no orders without a checkout', 200 === $r['status'] && 0 === $r['json']['total'], $r['raw'] );
+wp_eval( 'tutor_utils()->update_option( "monetize_by", "tutor" );' );
+$order = (int) wp_eval(
+	'global $wpdb; $now = gmdate( "Y-m-d H:i:s" );'
+	. ' $wpdb->insert( $wpdb->prefix . "tutor_orders", array( "user_id" => ' . $me_id . ', "order_type" => "single_order", "order_status" => "completed", "payment_status" => "paid", "subtotal_price" => 450, "pre_tax_price" => 450, "total_price" => 450, "net_payment" => 450, "created_at_gmt" => $now, "created_by" => ' . $me_id . ', "updated_by" => ' . $me_id . ' ) );'
+	. ' $id = $wpdb->insert_id; $wpdb->insert( $wpdb->prefix . "tutor_order_items", array( "order_id" => $id, "item_id" => ' . (int) $seed['design'] . ', "regular_price" => 450 ) ); echo $id;'
+);
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config says the site sells courses', true === ( $r['json']['features']['orders'] ?? null ), $r['json']['features'] ?? null );
+$r = call( 'GET', '/me/orders', null, $token );
+$o = $r['json']['items'][0] ?? array();
+check( 'order listed', 200 === $r['status'] && 1 === $r['json']['total'] && $order === ( $o['id'] ?? 0 ), $r['raw'] );
+check( 'order shape', 'completed' === ( $o['status'] ?? '' ) && '' !== ( $o['status_label'] ?? '' ) && false !== strpos( (string) ( $o['total'] ?? '' ), '450' ) && false === strpos( (string) ( $o['total'] ?? '' ), '<' ), $o );
+check( 'order item links the course', $seed['design'] === ( $o['items'][0]['course_id'] ?? 0 ), $o );
+wp_eval( 'tutor_utils()->update_option( "monetize_by", "free" );' );
+
+echo "Reviews\n";
+$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews', null, $token );
+check( 'no reviews yet, can review', 200 === $r['status'] && 0 === $r['json']['total'] && true === $r['json']['can_review'] && null === $r['json']['mine'], $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 4, 'text' => "Clear lessons.\nGood pace." ), $token );
+check( 'review saved', 200 === $r['status'] && 4 === ( $r['json']['rating'] ?? 0 ) && true === $r['json']['mine'] && "Clear lessons.\nGood pace." === $r['json']['text'], $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 5, 'text' => 'Even better.' ), $token );
+check( 'review edited', 200 === $r['status'] && 5 === ( $r['json']['rating'] ?? 0 ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/reviews' );
+check( 'one review, summary counts it', 1 === $r['json']['total'] && 5.0 === (float) $r['json']['summary']['rating'] && 1 === $r['json']['summary']['counts']['5'] && 0 === $r['json']['summary']['counts']['4'], $r['raw'] );
+check( 'signed out: no review form', false === $r['json']['can_review'] && null === $r['json']['mine'] && false === $r['json']['items'][0]['mine'], $r['json'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android' );
+check( 'course rating updated', 5.0 === (float) ( $r['json']['rating'] ?? 0 ) && 1 === ( $r['json']['rating_count'] ?? 0 ), $r['json'] );
+$r = call( 'PUT', '/courses/' . $seed['design'] . '/reviews/mine', array( 'rating' => 5 ), $token );
+check( 'review needs enrollment', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'PUT', '/courses/' . $seed['python'] . '/reviews/mine', array( 'rating' => 9 ), $token );
+check( 'rating out of range 400', 400 === $r['status'], $r['raw'] );
+
+echo "Questions\n";
+$r = call( 'GET', '/courses/' . $seed['python'] . '/questions', null, $token );
+check( 'q&a off for the course 403', 403 === $r['status'] && 'feature_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+wp_eval( 'update_post_meta( ' . (int) $seed['python'] . ', "_tutor_enable_qa", "yes" );' );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'course says q&a is on', true === ( $r['json']['qna'] ?? null ), $r['json'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/questions', array( 'text' => 'What does <b>range</b> return?' ), $token );
+$question = $r['json']['id'] ?? 0;
+check( 'question asked 201', 201 === $r['status'] && $question && 'What does range return?' === $r['json']['text'] && true === $r['json']['mine'] && 0 === $r['json']['answer_count'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/questions', null, $token );
+check( 'question listed', 200 === $r['status'] && 1 === $r['json']['total'] && $question === ( $r['json']['items'][0]['id'] ?? 0 ), $r['raw'] );
+$r = call( 'POST', '/questions/' . $question . '/answers', array( 'text' => 'Also: is it a list?' ), $token );
+check( 'reply 201', 201 === $r['status'] && true === ( $r['json']['mine'] ?? null ) && false === $r['json']['author']['instructor'], $r['raw'] );
+wp_eval( 'wp_set_current_user( ' . (int) $seed['instructor'] . ' ); Yallapp\Plugin::instance()->lms()->answer( ' . (int) $question . ', ' . (int) $seed['instructor'] . ', "It returns a range object." );' );
+$r = call( 'GET', '/questions/' . $question, null, $token );
+check( 'thread with answers in order', 200 === $r['status'] && 2 === count( $r['json']['answers'] ?? array() ) && true === ( $r['json']['answers'][1]['author']['instructor'] ?? null ) && 2 === $r['json']['answer_count'], $r['raw'] );
+$r = call( 'GET', '/me/notifications', null, $token );
+check( 'instructor answer notifies the asker', 'qna_answer' === ( $r['json']['items'][0]['type'] ?? '' ) && $question === ( $r['json']['items'][0]['question_id'] ?? 0 ) && 1 === $r['json']['unread_count'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['design'] . '/questions', null, $token );
+check( 'questions need enrollment', in_array( $r['json']['code'] ?? '', array( 'not_enrolled', 'feature_disabled' ), true ) && 403 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/courses/' . $seed['python'] . '/questions', array( 'text' => '   ' ), $token );
+check( 'empty question 400', 400 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/questions/999999', null, $token );
+check( 'missing question 404', 404 === $r['status'], $r['raw'] );
 
 echo "Settings\n";
 function set_settings( array $values ) {

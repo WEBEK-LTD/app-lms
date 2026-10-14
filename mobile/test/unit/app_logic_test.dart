@@ -8,7 +8,7 @@ import 'package:yallapp/core/auth/auth_controller.dart';
 import 'package:yallapp/core/gate/app_gate.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/services/push_service.dart';
-import 'package:yallapp/modules/lms/auth/country_codes.dart';
+import 'package:yallapp/modules/shared/auth/country_codes.dart';
 import 'package:yallapp/modules/lms/lesson/lesson_screen.dart';
 import 'package:yallapp/modules/lms/lesson/video/lesson_video_player.dart';
 import 'package:yallapp/modules/lms/lesson/video/watermark.dart';
@@ -128,6 +128,18 @@ void main() {
     );
     expect(
       pushTargetLocation({'type': 'announcement', 'course_id': '9'}),
+      '/course/9',
+    );
+    expect(
+      pushTargetLocation({
+        'type': 'qna_answer',
+        'course_id': '9',
+        'question_id': '31',
+      }),
+      '/question/31',
+    );
+    expect(
+      pushTargetLocation({'type': 'qna_answer', 'course_id': '9'}),
       '/course/9',
     );
     expect(pushTargetLocation({'type': 'announcement'}), '/home');

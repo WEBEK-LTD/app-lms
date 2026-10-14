@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
+import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { REQUIREMENTS, STEPS } from "@/lib/marketing";
 
@@ -8,13 +9,14 @@ export const metadata: Metadata = {
   description: "From your WordPress website to Google Play and the App Store in four steps.",
 };
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  const text = await getSiteContent("how-it-works");
   return (
     <MarketingPage
       current="how"
-      eyebrow="How it works"
-      title="From website to app stores in four steps"
-      intro="You keep running your website as you do today. Yallapp turns it into your own Android and iOS apps."
+      eyebrow={text.eyebrow}
+      title={text.title!}
+      intro={text.intro!}
     >
       <Section>
         <ol className="m-0 flex list-none flex-col gap-5 p-0">

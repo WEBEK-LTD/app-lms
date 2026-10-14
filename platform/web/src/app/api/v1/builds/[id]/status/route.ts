@@ -2,7 +2,7 @@ import { applyPipelineStatus, buildSummary, pipelineStatusSchema } from "@/lib/b
 import type { DataStore } from "@/lib/data/store";
 import { appUrl } from "@/lib/env";
 import { errorResponse, json, readJson } from "@/lib/http";
-import { sendMail } from "@/lib/mail";
+import { sendTemplate } from "@/lib/email/send";
 import { authorizePipeline } from "@/lib/pipeline-auth";
 
 /** POST /api/v1/builds/{id}/status (docs/api/pipeline.yaml): the pipeline reports progress and artifacts. */
@@ -31,11 +31,9 @@ async function notifyClient(store: DataStore, clientId: string, number: number, 
   const client = await store.getClientById(clientId);
   const user = client ? await store.getUserById(client.userId) : null;
   if (!user) return;
-  await sendMail({
-    to: user.email,
-    subject: ready ? `Build #${number} of your app is ready` : `Build #${number} of your app didn't finish`,
-    text: ready
-      ? `Hello ${user.name},\n\nBuild #${number} is ready. Your files are on the Builds & downloads page:\n${appUrl()}/dashboard/builds\n\nYallapp`
-      : `Hello ${user.name},\n\nBuild #${number} didn't finish. We've been notified and will look into it. You can follow it here:\n${appUrl()}/dashboard/builds\n\nYallapp`,
+  await sendTemplate(ready ? "build_ready" : "build_failed", user.email, {
+    name: user.name,
+    build_number: String(number),
+    builds_url: `${appUrl()}/dashboard/builds`,
   });
 }

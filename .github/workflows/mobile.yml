@@ -2,6 +2,7 @@ name: Mobile
 
 on:
   push:
+    branches: [main]
     paths:
       - 'mobile/**'
       - '.github/workflows/mobile.yml'
@@ -18,9 +19,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changed files
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      app: ${{ steps.files.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: files
+        name: Files this push changed
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Pull requests check only what their latest push changed, to save
+          # Actions minutes; main, new pull requests and force pushes check all.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BEFORE" ] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git cat-file -e "$HEAD^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only "$BEFORE" "$HEAD")"
+          else
+            files=all
+          fi
+          printf '%s\n' "$files"
+          match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
+          {
+            if match '^(mobile/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
+          } >> "$GITHUB_OUTPUT"
+
   app:
     name: Flutter app
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
     defaults:
       run:
@@ -32,6 +64,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Android SDK (own runners)
+        if: runner.environment == 'self-hosted'
+        uses: android-actions/setup-android@v3
 
       - uses: subosito/flutter-action@v2
         with:
@@ -67,6 +103,57 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: yallapp-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Apply the example config as a Store app
+        run: |
+          jq '.app_type = "store"' config/example.json > "$RUNNER_TEMP/store.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/store.json"
+          grep -q 'appType: AppType.store' lib/generated/build_config.g.dart
+
+      - name: Build Store debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Store debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-store-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Apply the example config as a Bookings app
+        run: |
+          jq '.app_type = "booking"' config/example.json > "$RUNNER_TEMP/booking.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/booking.json"
+          grep -q 'appType: AppType.booking' lib/generated/build_config.g.dart
+
+      - name: Build Bookings debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Bookings debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-booking-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Apply the example config as a Real estate app
+        run: |
+          jq '.app_type = "real_estate"' config/example.json > "$RUNNER_TEMP/real_estate.json"
+          dart run tool/apply_config.dart "$RUNNER_TEMP/real_estate.json"
+          grep -q 'appType: AppType.realEstate' lib/generated/build_config.g.dart
+
+      - name: Build Real estate debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Real estate debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: yallapp-real-estate-example-debug-apk
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7

@@ -321,6 +321,66 @@ void main() {
     });
   });
 
+  group('Community', () {
+    test('reads notifications and the unread count', () {
+      final page = NotificationPage.fromJson({
+        ...pageJson([
+          notificationJson(),
+          notificationJson(
+            id: 2,
+            type: 'qna_answer',
+            courseId: 42,
+            questionId: 3,
+            read: true,
+          ),
+          notificationJson(id: 3, type: 'something_new'),
+        ]),
+        'unread_count': 2,
+      });
+      expect(page.unreadCount, 2);
+      expect(page.page.items[1].type, NotificationType.qnaAnswer);
+      expect(page.page.items[1].target, {
+        'type': 'qna_answer',
+        'course_id': 42,
+        'question_id': 3,
+      });
+      expect(page.page.items[2].type, NotificationType.unknown);
+    });
+
+    test('reads orders', () {
+      final order = Order.fromJson(orderJson());
+      expect(order.status, OrderStatus.onHold);
+      expect(order.total, '₺450.00');
+      expect(order.items.single.courseId, 42);
+    });
+
+    test('reads reviews with the summary and the student\'s own review', () {
+      final page = ReviewPage.fromJson(
+        reviewPageJson(mine: reviewJson(id: 9, mine: true, status: 'pending')),
+      );
+      expect(page.summary.rating, 4.5);
+      expect(page.summary.counts, {1: 0, 2: 0, 3: 0, 4: 1, 5: 1});
+      expect(page.mine?.status, ReviewStatus.pending);
+      expect(page.canReview, isTrue);
+      expect(page.page.items.first.author.name, 'Ayse Demir');
+    });
+
+    test('reads a question thread', () {
+      final thread = QuestionThread.fromJson(questionThreadJson());
+      expect(thread.question.answerCount, 1);
+      expect(thread.answers.single.author.instructor, isTrue);
+    });
+
+    test('course Q&A falls back to the site setting on older plugins', () {
+      expect(CourseDetail.fromJson(courseDetailJson()).qna, isNull);
+      expect(
+        CourseDetail.fromJson({...courseDetailJson(), 'qna': false}).qna,
+        isFalse,
+      );
+      expect(AppConfig.fromJson(configJson()).features.orders, isFalse);
+    });
+  });
+
   group('Errors', () {
     test('reads the contract Error shape', () {
       final e = ApiException.fromResponse(429, {

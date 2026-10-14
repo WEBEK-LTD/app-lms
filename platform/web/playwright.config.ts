@@ -8,9 +8,26 @@ const PORT = Number(process.env.E2E_PORT ?? 3210);
 export const E2E = {
   baseURL: `http://localhost:${PORT}`,
   adminEmail: "admin@yallapp.test",
+  /** A second super admin, so the specs stay under the sign-in limit per email. */
+  settingsAdminEmail: "settings-admin@yallapp.test",
+  /** Super admin of tests/e2e/listings-hosted.spec.ts (10.7). */
+  listingsAdminEmail: "listings-admin@yallapp.test",
+  /** Super admin of tests/e2e/pages.spec.ts (10.4 and 11.9). */
+  pagesAdminEmail: "pages-admin@yallapp.test",
+  /** The owner in tests/e2e/admin-team.spec.ts (roadmap 11.7). */
+  teamAdminEmail: "team-owner@yallapp.test",
+  /** The super admin of tests/e2e/admin-content.spec.ts (11.3, 11.4, 11.6, 11.8). */
+  contentAdminEmail: "content-admin@yallapp.test",
+  /** Emails the server would send, as JSON files (YALLAPP_MAIL_DIR, memory mode only). */
+  mailDir: ".data/e2e-mail",
   adminPassword: "admin-password-for-e2e",
   pipelineToken: "pipeline-token-for-e2e-0123456789",
   filesSigningSecret: "e2e-files-signing-secret-0123456789abcdef",
+  /** The hosted API sends sign-in codes here; tests/e2e/hosted-api.spec.ts listens. */
+  otpWebhookPort: Number(process.env.E2E_OTP_PORT ?? 3299),
+  otpWebhookSecret: "e2e-otp-webhook-secret",
+  /** A fake iyzico for the payment page; tests/e2e/catalog.spec.ts runs it. */
+  iyzicoPort: Number(process.env.E2E_IYZICO_PORT ?? 3298),
 };
 
 export default defineConfig({
@@ -37,16 +54,24 @@ export default defineConfig({
     env: {
       NODE_ENV: "production",
       APP_URL: E2E.baseURL,
-      YALLAPP_DATA: "memory",
+      // E2E_DATABASE_URL runs the suite against a MySQL or MariaDB database (migrations applied first).
+      ...(process.env.E2E_DATABASE_URL
+        ? { YALLAPP_DATA: "mysql", DATABASE_URL: process.env.E2E_DATABASE_URL, DATABASE_SSL: "disabled" }
+        : { YALLAPP_DATA: "memory" }),
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
-      SUPER_ADMIN_EMAILS: E2E.adminEmail,
+      YALLAPP_MAIL_DIR: E2E.mailDir,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",
       ENCRYPTION_KEY: "1".repeat(64),
       BUILD_PIPELINE_TOKEN: E2E.pipelineToken,
       FILES_SIGNING_SECRET: E2E.filesSigningSecret,
+      OTP_SENDER: "webhook",
+      OTP_WEBHOOK_URL: `http://localhost:${E2E.otpWebhookPort}/otp`,
+      OTP_WEBHOOK_SECRET: E2E.otpWebhookSecret,
+      IYZICO_API_URL: `http://localhost:${E2E.iyzicoPort}`,
     },
   },
 });

@@ -112,6 +112,23 @@ export function trustedProxySecret(): string | undefined {
   return secret;
 }
 
+export interface GithubDispatch {
+  token: string;
+  repository: string;
+}
+
+/**
+ * Lets the platform start the build workflow as soon as a build is queued,
+ * instead of waiting for its 10-minute schedule. Unset: only the schedule runs.
+ */
+export function githubDispatch(): GithubDispatch | undefined {
+  const token = read("GITHUB_DISPATCH_TOKEN");
+  if (!token) return undefined;
+  const repository = read("GITHUB_REPOSITORY") ?? "WEBEK-LTD/app-lms";
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error("GITHUB_REPOSITORY must look like OWNER/REPO.");
+  return { token, repository };
+}
+
 export function superAdminEmails(): string[] {
   return (read("SUPER_ADMIN_EMAILS") ?? "")
     .split(/[,\s]+/)
@@ -151,6 +168,45 @@ export function smtpConfig(): SmtpConfig | null {
   };
 }
 
+/**
+ * How the hosted API sends sign-in codes:
+ * - "whatsapp": WhatsApp Cloud API with an approved authentication template.
+ * - "webhook": POSTs the code to a URL of ours (for example an SMS gateway),
+ *   signed with HMAC-SHA256 of the body.
+ * - "log": keeps codes in memory; local runs and tests only.
+ * Null when nothing is configured: requests fail with `provider_error`.
+ */
+export type OtpSenderConfig =
+  | { kind: "whatsapp"; accessToken: string; phoneNumberId: string; template: string; language: string }
+  | { kind: "webhook"; url: string; secret: string }
+  | { kind: "log" };
+
+export function otpSenderConfig(): OtpSenderConfig | null {
+  const kind = read("OTP_SENDER") ?? (dataMode() === "memory" ? "log" : undefined);
+  if (kind === "whatsapp") {
+    return {
+      kind,
+      accessToken: required("WHATSAPP_ACCESS_TOKEN"),
+      phoneNumberId: required("WHATSAPP_PHONE_NUMBER_ID"),
+      template: read("WHATSAPP_OTP_TEMPLATE") ?? "yallapp_code",
+      language: read("WHATSAPP_OTP_LANGUAGE") ?? "en",
+    };
+  }
+  if (kind === "webhook") return { kind, url: required("OTP_WEBHOOK_URL"), secret: required("OTP_WEBHOOK_SECRET") };
+  if (kind === "log") {
+    if (isNetlify()) throw new Error("OTP_SENDER=log is for local development and tests only.");
+    return { kind };
+  }
+  return null;
+}
+
+/** iyzico's address for local tests (a fake server); unset uses iyzico's live or sandbox API. */
+export function iyzicoApiUrl(): string | null {
+  const url = read("IYZICO_API_URL");
+  if (url && isNetlify()) throw new Error("IYZICO_API_URL is for local tests only.");
+  return url ?? null;
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";
@@ -188,9 +244,9 @@ export function resolveDatabaseCa(value: string | undefined): string | undefined
   return trimmed.replace(/\\n/g, "\n");
 }
 
-/** Password used to seed super admins in memory mode only (local runs and tests). */
+/** Password used to seed super admins in local runs and tests (never on Netlify). */
 export function memorySeedAdminPassword(): string | undefined {
-  return read("YALLAPP_SEED_ADMIN_PASSWORD");
+  return isNetlify() ? undefined : read("YALLAPP_SEED_ADMIN_PASSWORD");
 }
 
 export function blobsMode(): "netlify" | "fs" {
@@ -201,4 +257,15 @@ export function blobsMode(): "netlify" | "fs" {
 
 export function blobsDir(): string {
   return read("YALLAPP_BLOBS_DIR") ?? ".data/blobs";
+}
+
+// 11.4 Email templates
+
+/**
+ * Local runs and tests only (never on Netlify): emails that would go to the log are
+ * also written to this folder as JSON, so the tests can read what was sent.
+ */
+export function mailCaptureDir(): string | undefined {
+  const dir = read("YALLAPP_MAIL_DIR");
+  return dir && !isNetlify() ? dir : undefined;
 }

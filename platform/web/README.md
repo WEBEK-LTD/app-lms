@@ -13,11 +13,14 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 | Area | Routes |
 |---|---|
 | Website | `/`, `/guides/*`, `/terms`, `/privacy`, `/refund`, 404 |
-| Accounts | `/sign-up`, `/sign-in`, `/forgot-password`, `/reset-password`, `/pending` |
-| Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license` |
-| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/settings` |
+| Accounts | `/sign-up`, `/sign-in`, `/forgot-password`, `/reset-password`, `/pending` (also pay by card) |
+| Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments`; courses without a website: `/dashboard/courses`, `/dashboard/courses/<id>`, `/dashboard/orders` |
+| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
+| Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step, plus an optional Admin API token for order history); apps can also connect ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me with their keys (`src/lib/hosted/connectors/platforms.ts`), or sell without a website: products on `/dashboard/catalog`, orders on `/dashboard/orders`, payment page `/pay/<token>` with the client's iyzico keys, iyzico callback `/api/pay/iyzico/<token>`, product pages `/shop/<app>/<product>`. |
+| Marketplace | Shops without their own iyzico account sell through Yallapp's (commission in admin Settings): they register as iyzico sub-merchants on `/dashboard/catalog`; completing an order, or "Release payout" on `/admin/payments`, releases their share. |
+| Plan payments | Clients pay their plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends the license. |
 | Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/health` |
 
 ### How it fits together
@@ -101,7 +104,18 @@ In memory mode, emails (reset links, activation) are printed to the terminal.
 | `npm run db:migrate` | Applies migrations to `DATABASE_URL` |
 
 CI runs all of these in [`.github/workflows/platform.yml`](../../.github/workflows/platform.yml),
-plus a check that the committed migrations match the schema.
+plus a check that the committed migrations match the schema. When migrations or
+the data layer change, CI also applies every migration to MariaDB 10.11 (what
+production runs) and runs the end-to-end tests against it. To do the same
+locally, apply the migrations to an empty database and set `E2E_DATABASE_URL`:
+
+```sh
+DATABASE_URL=mysql://user:pass@127.0.0.1:3306/yallapp DATABASE_SSL=disabled npm run db:migrate
+E2E_DATABASE_URL=mysql://user:pass@127.0.0.1:3306/yallapp npm run test:e2e
+```
+
+Use `autoId()` in `src/lib/db/schema.ts` for auto-increment ids, never
+drizzle's `serial()`: its SQL doesn't run on MariaDB.
 
 ## Environment variables
 
@@ -118,9 +132,16 @@ plus a check that the committed migrations match the schema.
 | `TRUSTED_PROXY_SECRET` | with the proxy | 32+ characters, shared with `deploy/apache-proxy.conf` on host.webek.org. |
 | `SUPER_ADMIN_EMAILS` | yes | Comma-separated super admin emails. |
 | `BUILD_PIPELINE_TOKEN` | for Phase 5 | Bearer token of the pipeline API. Without it the pipeline API refuses every request. |
+| `GITHUB_DISPATCH_TOKEN` | no | Starts the build workflow as soon as a build is queued. A fine-grained GitHub token for this repository only, with **Actions: Read and write**. Unset: builds wait for the workflow's 10-minute schedule. |
+| `GITHUB_REPOSITORY` | no | Default `WEBEK-LTD/app-lms`. |
 | `FILES_BASE_URL` | no | Where build files are stored. Default `https://files.yallapp.com.tr`. Links on this origin are signed. |
+| `OTP_SENDER` | for the hosted API | How sign-in codes are sent: `whatsapp`, `webhook` or `log` (local only; the default in memory mode). Unset: code requests fail with `provider_error`. The admin's Settings page can set this instead (it then replaces all `OTP_*` and `WHATSAPP_*` variables). |
+| `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | with `whatsapp` | WhatsApp Cloud API credentials of our business number. |
+| `WHATSAPP_OTP_TEMPLATE`, `WHATSAPP_OTP_LANGUAGE` | no | The approved authentication template (default `yallapp_code`, `en`), with the code in the body and a copy-code button. |
+| `OTP_WEBHOOK_URL`, `OTP_WEBHOOK_SECRET` | with `webhook` | Our code gateway (for example an SMS provider behind our own endpoint). The body is JSON `{phone, code, app_name, expires_in_seconds}`, signed in `X-Yallapp-Signature: sha256=<base64url HMAC-SHA256 of the body>`. |
+| `IYZICO_API_URL` | tests only | A fake iyzico for end-to-end tests. Leave unset: payments go to iyzico's live or sandbox API, as each client chooses. Refused on Netlify. |
 | `FILES_SIGNING_SECRET` | for Phase 5 | 32+ random characters, the same value as on `files.yallapp.com.tr`. Signs build file download links. Without it they show "Downloads aren't configured yet". |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). The admin's Settings page can set this instead, with a test email. |
 | `YALLAPP_SEED_ADMIN_PASSWORD` | no | Memory mode only: password for the super admins at start-up. |
 | `YALLAPP_BLOBS`, `YALLAPP_BLOBS_DIR` | no | `netlify` or `fs`; defaults to Netlify Blobs on Netlify and `.data/blobs` elsewhere. |
 

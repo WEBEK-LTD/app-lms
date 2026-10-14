@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
 import '../theme/palette.dart';
+import '../l10n/l10n.dart';
 
 /// The 44 x 44 square icon button from the designs (back, close, wishlist).
 class SquareIconButton extends StatelessWidget {
@@ -68,9 +69,9 @@ class SquareIconButton extends StatelessWidget {
                   filled: filled,
                 ),
                 if (badge)
-                  Positioned(
+                  PositionedDirectional(
                     top: 9,
-                    right: 10,
+                    end: 10,
                     child: Container(
                       width: 8,
                       height: 8,
@@ -101,7 +102,7 @@ class AppBackButton extends StatelessWidget {
     final p = context.palette;
     return SquareIconButton(
       icon: AppIcons.back,
-      label: 'Back',
+      label: context.l10n.back,
       background: onDark ? p.primarySoft : null,
       foreground: onDark ? p.onPrimarySoft : null,
       bordered: !onDark,
@@ -137,7 +138,7 @@ class PrimaryButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
               color: p.onPrimary,
-              semanticsLabel: 'Loading',
+              semanticsLabel: context.l10n.loading,
             ),
           )
         : Row(
@@ -341,7 +342,7 @@ class SegmentedTabs extends StatelessWidget {
                 inMutuallyExclusiveGroup: radio,
                 label: radio
                     ? labels[i]
-                    : '${labels[i]}, tab ${i + 1} of ${labels.length}',
+                    : context.l10n.tabPosition(labels[i], i + 1, labels.length),
                 excludeSemantics: true,
                 child: Material(
                   color: i == selected ? p.surface : Colors.transparent,

@@ -13,6 +13,7 @@ const _topLevelKeys = {
   'app_name',
   'short_name',
   'site_url',
+  'api_base_url',
   'android_package',
   'ios_bundle_id',
   'version_name',
@@ -55,6 +56,13 @@ const fonts = [
 ];
 
 const templates = ['classic', 'bold', 'minimal'];
+
+/// App types with a module in this app (`app_type` in the schema).
+const appTypes = ['lms', 'store', 'booking', 'real_estate'];
+
+/// The Dart `AppType` value for a schema `app_type`.
+String dartAppType(String wire) =>
+    wire.replaceAllMapped(RegExp('_([a-z])'), (m) => m.group(1)!.toUpperCase());
 
 final _androidPackage = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _iosBundleId = RegExp(
@@ -146,8 +154,8 @@ ValidationResult validateBuildConfig(Object? decoded) {
   if (c.containsKey('schema_version') && c['schema_version'] != 1) {
     errors.add('"schema_version" must be 1.');
   }
-  if (c.containsKey('app_type') && c['app_type'] != 'lms') {
-    errors.add('"app_type" must be "lms".');
+  if (c.containsKey('app_type') && !appTypes.contains(c['app_type'])) {
+    errors.add('"app_type" must be one of ${appTypes.join(', ')}.');
   }
   _string(c, 'client_id', errors);
   _string(c, 'app_name', errors, min: 1, max: 30);
@@ -163,6 +171,21 @@ ValidationResult validateBuildConfig(Object? decoded) {
         uri.hasFragment) {
       errors.add(
         '"site_url" must be an https:// URL without query or fragment.',
+      );
+    }
+  }
+
+  if (c.containsKey('api_base_url')) {
+    final api = _string(c, 'api_base_url', errors);
+    final uri = api == null ? null : Uri.tryParse(api);
+    if (api != null &&
+        (!api.startsWith('https://') ||
+            uri == null ||
+            uri.host.isEmpty ||
+            uri.hasQuery ||
+            uri.hasFragment)) {
+      errors.add(
+        '"api_base_url" must be an https:// URL without query or fragment.',
       );
     }
   }
@@ -399,9 +422,11 @@ String renderDartConfig(
 import '../core/config/build_config_data.dart';
 
 const buildConfig = BuildConfigData(
+  appType: AppType.${dartAppType(c['app_type'] as String)},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},
+  apiBaseUrl: ${_dartString(c['api_base_url'] == null ? null : _trimSlash(c['api_base_url'] as String))},
   androidPackage: ${_dartString(c['android_package'] as String)},
   iosBundleId: ${_dartString(c['ios_bundle_id'] as String)},
   versionName: ${_dartString(c['version_name'] as String)},

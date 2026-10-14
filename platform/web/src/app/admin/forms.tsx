@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { activateClientAction, addClientAction, uploadReleaseAction } from "@/app/actions/admin";
+import { activateClientAction, addClientAction, saveClientDetailsAction, uploadReleaseAction } from "@/app/actions/admin";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -10,24 +10,30 @@ export function ActivateForm({
   plan,
   activeUntil,
   pending,
+  planNames,
+  from,
 }: {
   clientId: string;
   plan: "starter" | "pro";
   activeUntil: string;
   pending: boolean;
+  planNames: { starter: string; pro: string };
+  /** "client": the form is on the client's own page, which it goes back to. */
+  from?: "client";
 }) {
   const [state, action] = useActionState(activateClientAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <input type="hidden" name="clientId" value={clientId} />
+      {from ? <input type="hidden" name="from" value={from} /> : null}
       <FormMessage message={state.message} />
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-plan" className="text-sm font-semibold">
           Plan
         </label>
         <select id="f-plan" name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
-          <option value="starter">Starter</option>
-          <option value="pro">Pro</option>
+          <option value="starter">{planNames.starter}</option>
+          <option value="pro">{planNames.pro}</option>
         </select>
         <FieldError id="f-plan-error" error={state.errors?.plan} />
       </div>
@@ -66,6 +72,23 @@ export function AddClientForm() {
         Add client
       </SubmitButton>
       <span className="text-xs leading-normal text-muted">The client gets an email to set their password. Activate them after that.</span>
+    </form>
+  );
+}
+
+export function ClientDetailsForm({ clientId, name, whatsapp, siteUrl }: { clientId: string; name: string; whatsapp: string; siteUrl: string }) {
+  const [state, action] = useActionState(saveClientDetailsAction, initialFormState);
+  const v = state.values ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3.5">
+      <input type="hidden" name="clientId" value={clientId} />
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field label="Full name" name="name" required defaultValue={v.name ?? name} error={state.errors?.name} small />
+      <Field label="WhatsApp number" name="whatsapp" type="tel" required defaultValue={v.whatsapp ?? whatsapp} error={state.errors?.whatsapp} small />
+      <Field label="Website" name="siteUrl" type="url" required defaultValue={v.siteUrl ?? siteUrl} error={state.errors?.siteUrl} small />
+      <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
+        Save details
+      </SubmitButton>
     </form>
   );
 }

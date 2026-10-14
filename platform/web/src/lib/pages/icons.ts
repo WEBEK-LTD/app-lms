@@ -1,0 +1,42 @@
+/**
+ * Google Material Symbols (Rounded) names clients pick from for tabs and
+ * buttons. The API accepts any plain icon name; the dashboard offers these.
+ * Each is also in src/components/icon-names.ts so the site's font has it.
+ */
+export const PAGE_ICONS = [
+  "home",
+  "explore",
+  "search",
+  "school",
+  "menu_book",
+  "play_circle",
+  "storefront",
+  "shopping_bag",
+  "shopping_cart",
+  "local_offer",
+  "category",
+  "grid_view",
+  "apartment",
+  "location_on",
+  "map",
+  "calendar_month",
+  "event",
+  "schedule",
+  "favorite",
+  "bookmark",
+  "star",
+  "chat",
+  "mail",
+  "call",
+  "notifications",
+  "newspaper",
+  "info",
+  "help",
+  "person",
+  "account_circle",
+  "settings",
+  "workspace_premium",
+] as const;
+
+/** A Material Symbols name: lowercase letters, digits and underscores. */
+export const ICON_NAME = /^[a-z0-9_]{1,40}$/;

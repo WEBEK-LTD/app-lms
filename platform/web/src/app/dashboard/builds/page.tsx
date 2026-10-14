@@ -12,6 +12,7 @@ import { latestRelease } from "@/lib/license/service";
 import { planName } from "@/lib/plans";
 import { bumpPatch } from "@/lib/semver";
 import { StartBuildForm } from "./start-build";
+import { getPlans } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Builds & downloads" };
 
@@ -65,6 +66,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const { client, app, license, state } = await requireClient();
   const { started } = await searchParams;
   const store = await getStore();
+  const plans = await getPlans(store);
   const builds = await store.listBuildsByClient(client.id, 50);
   const current = builds[0] ?? null;
   const lastReady: Build | null = builds.find((b) => b.status === "ready") ?? null;
@@ -95,7 +97,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         <div className="flex flex-col gap-1.5">
           <h1 className="m-0 text-[28px] font-extrabold">Builds &amp; downloads</h1>
           <span className="text-[15px] text-muted">
-            {app?.appName ?? "Your app"} · Plan: {planName(plan)}
+            {app?.appName ?? "Your app"} · Plan: {planName(plan, plans)}
           </span>
         </div>
         <StartBuildForm suggestedVersion={current ? bumpPatch(current.versionName) : "1.0.0"} disabledReason={disabledReason} />
@@ -154,7 +156,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
             text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
             href={release && state === "active" ? "/api/dashboard/plugin" : null}
           />
-          <DownloadRow title={ARTIFACT_LABEL.store_assets} text="Icons in every size, feature graphic and screenshots" {...fileRow("store_assets")} last />
+          <DownloadRow title={ARTIFACT_LABEL.store_assets} text="Store icons, feature graphic, your screenshots and listing text" {...fileRow("store_assets")} last />
         </ul>
       </section>
 

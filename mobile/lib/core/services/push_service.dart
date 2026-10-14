@@ -47,6 +47,10 @@ String pushTargetLocation(Map<String, dynamic> data) {
       final lesson = id('lesson_id');
       if (lesson != null) return Paths.lesson(lesson);
       if (course != null) return Paths.course(course);
+    case 'qna_answer':
+      final question = id('question_id');
+      if (question != null) return Paths.question(question);
+      if (course != null) return Paths.course(course);
     case 'enrolled':
     case 'announcement':
       if (course != null) return Paths.course(course);

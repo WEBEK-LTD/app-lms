@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+  # "Run workflow" runs every check, whatever changed.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,9 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changed files
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    outputs:
+      plugin: ${{ steps.files.outputs.plugin }}
+      pipeline: ${{ steps.files.outputs.pipeline }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: files
+        name: Files this push changed
+        env:
+          BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Pull requests check only what their latest push changed, to save
+          # Actions minutes; main, manual runs, new pull requests and force
+          # pushes check all.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BEFORE" ] \
+            && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git cat-file -e "$HEAD^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only "$BEFORE" "$HEAD")"
+          else
+            files=all
+          fi
+          printf '%s\n' "$files"
+          match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
+          {
+            if match '^(wp-plugin/|\.github/workflows/ci\.yml$)'; then echo plugin=true; else echo plugin=false; fi
+            if match '^(build/|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
+          } >> "$GITHUB_OUTPUT"
+
   api-contract:
     name: API contract
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,7 +60,9 @@ jobs:
 
   plugin-syntax:
     name: Plugin syntax (PHP ${{ matrix.php }})
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +79,9 @@ jobs:
 
   plugin-standards:
     name: Plugin coding standards
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -60,7 +99,9 @@ jobs:
 
   plugin-package:
     name: Plugin zip
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -82,7 +123,9 @@ jobs:
 
   plugin-unit:
     name: Plugin unit tests (PHP ${{ matrix.php }})
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     strategy:
       fail-fast: false
       matrix:
@@ -104,7 +147,9 @@ jobs:
 
   plugin-integration:
     name: Plugin end-to-end (WordPress + Tutor LMS)
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:
         working-directory: wp-plugin/yallapp
@@ -123,9 +168,94 @@ jobs:
       - name: Build the dev site and run the API checks
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
 
+  adapter-integration:
+    name: Plugin end-to-end (${{ matrix.lms }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        lms: [learnpress, lifterlms, masterstudy, masteriyo, sensei]
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-${{ matrix.lms }}-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+      - name: Build the dev site with ${{ matrix.lms }} and run the API checks
+        env:
+          LMS: ${{ matrix.lms }}
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+
+  store-integration:
+    name: Plugin end-to-end (WooCommerce store)
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-store-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+      - name: Build a WooCommerce shop and run the store checks
+        env:
+          APP: store
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+
+  bookings-integration:
+    name: Plugin end-to-end (bookings on ${{ matrix.booking }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        booking: [amelia, bookingpress, latepoint]
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - name: Build a site with ${{ matrix.booking }} and run the bookings checks
+        env:
+          APP: bookings
+          BOOKING: ${{ matrix.booking }}
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+      - name: PHP log
+        if: failure()
+        run: tail -n 80 "$RUNNER_TEMP/site/wp-content/debug.log" || true
+
   build-pipeline:
     name: Build pipeline scripts
-    runs-on: ubuntu-24.04
+    needs: changes
+    if: needs.changes.outputs.pipeline == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -135,7 +265,7 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover build/tests -v
       - name: Shell scripts
-        run: shellcheck build/scripts/*.sh wp-plugin/yallapp/tests/integration/run.sh
+        run: shellcheck build/scripts/*.sh build/runner/*.sh wp-plugin/yallapp/tests/integration/run.sh
       - name: Files host
         run: php -l build/files-host/index.php
       - uses: ruby/setup-ruby@v1

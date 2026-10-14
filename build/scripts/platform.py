@@ -6,6 +6,7 @@ Environment: PLATFORM_API_URL (e.g. https://yallapp.com.tr/api/v1) and BUILD_PIP
   platform.py queue                      prints queued builds as a JSON array
   platform.py claim <id> <log-url>       marks a build as building
   platform.py config <id> <file>         saves the build config
+  platform.py store <id> <file>          saves the store listing (texts and screenshot URLs)
   platform.py secrets <id> <file>        saves the build's keys (file mode 600)
   platform.py has_ios <id>               prints yes when an App Store Connect key is saved
   platform.py signing <id> <json-file>   saves signing keys created by this build
@@ -78,6 +79,9 @@ def main():
     elif command == "config":
         with open(args[1], "w") as handle:
             json.dump(need(*call("GET", f"/builds/{args[0]}/config")), handle, indent=2)
+    elif command == "store":
+        with open(args[1], "w") as handle:
+            json.dump(need(*call("GET", f"/builds/{args[0]}/store")), handle, indent=2)
     elif command == "secrets":
         write_private(args[1], need(*call("GET", f"/builds/{args[0]}/secrets")))
     elif command == "has_ios":

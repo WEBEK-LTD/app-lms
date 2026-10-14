@@ -77,6 +77,27 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /builds/{id}/store:
+    get:
+      tags: [Builds]
+      operationId: getBuildStoreListing
+      summary: Get a build's store listing
+      description: |
+        The store listing snapshot taken when the build was queued: the texts and
+        the client's screenshots (public asset URLs, in store order). The pipeline
+        packs them with the icons and feature graphic into the `store_assets` file.
+      parameters:
+        - $ref: '#/components/parameters/BuildId'
+      responses:
+        '200':
+          description: The store listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StoreListing' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /builds/{id}/status:
     post:
       tags: [Builds]
@@ -304,6 +325,27 @@ components:
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         finished_at: { type: [string, 'null'], format: date-time }
+
+    StoreListing:
+      type: object
+      additionalProperties: false
+      required: [store_title, short_description, full_description, support_email, privacy_url, phone_screenshots, iphone_screenshots]
+      properties:
+        store_title: { type: string, maxLength: 30 }
+        short_description: { type: string, maxLength: 80 }
+        full_description: { type: string, maxLength: 4000 }
+        support_email: { type: string, format: email }
+        privacy_url: { type: string, format: uri }
+        phone_screenshots:
+          description: Google Play phone screenshots, 0 or 2 to 8.
+          type: array
+          maxItems: 8
+          items: { type: string, format: uri }
+        iphone_screenshots:
+          description: iPhone 6.9-inch screenshots, up to 10.
+          type: array
+          maxItems: 10
+          items: { type: string, format: uri }
 
     AndroidUploadKey:
       type: object

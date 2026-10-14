@@ -1,0 +1,1307 @@
+{
+  "@@locale": "en",
+  "languageName": "English",
+  "@languageName": {
+    "description": "The language's own name, shown in the language picker."
+  },
+  "tabHome": "Home",
+  "tabCourses": "Courses",
+  "tabMyCourses": "My Courses",
+  "tabAccount": "Account",
+  "tabShop": "Shop",
+  "tabCart": "Cart",
+  "tabBook": "Book",
+  "tabAppointments": "Appointments",
+  "tabFavorites": "Favorites",
+  "tabMessages": "Messages",
+  "loadingPage": "Loading page",
+  "pageEmptyTitle": "Nothing here yet",
+  "playVideo": "Play video",
+  "savedItem": "Saved",
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchListingsHint": "Search by place, title or reference",
+  "filters": "Filters",
+  "filtersActive": "{count, plural, =1{Filters, 1 active} other{Filters, {count} active}}",
+  "@filtersActive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sortBy": "Sort: {order}",
+  "@sortBy": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "sortNewest": "Newest",
+  "sortPriceLowHigh": "Price: low to high",
+  "sortPriceHighLow": "Price: high to low",
+  "sortLargest": "Largest first",
+  "filterAll": "All",
+  "filterAny": "Any",
+  "forSale": "For sale",
+  "forRent": "For rent",
+  "featured": "Featured",
+  "negotiable": "Negotiable",
+  "pricePerMonth": "{price} / month",
+  "@pricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "pricePerYear": "{price} / year",
+  "@pricePerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "areaSquareMetres": "{area} m²",
+  "@areaSquareMetres": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "areaSquareFeet": "{area} ft²",
+  "@areaSquareFeet": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "bedroomsCount": "{count, plural, =1{1 bedroom} other{{count} bedrooms}}",
+  "@bedroomsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bathroomsCount": "{count, plural, =1{1 bathroom} other{{count} bathrooms}}",
+  "@bathroomsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadingListings": "Loading listings",
+  "loadingMoreListings": "Loading more listings",
+  "noListingsTitle": "No listings found",
+  "noListingsMessage": "Try other words or fewer filters.",
+  "propertyType": "Property type",
+  "city": "City",
+  "district": "District",
+  "priceRange": "Price",
+  "areaRange": "Area",
+  "bedrooms": "Bedrooms",
+  "bathrooms": "Bathrooms",
+  "minimum": "Min",
+  "maximum": "Max",
+  "reset": "Reset",
+  "showResults": "Show results",
+  "loadingListing": "Loading listing",
+  "listingReference": "Ref. {reference}",
+  "@listingReference": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "keyFacts": "Key facts",
+  "factArea": "Area",
+  "factFloor": "Floor",
+  "factYearBuilt": "Year built",
+  "factFurnished": "Furnished",
+  "yes": "Yes",
+  "no": "No",
+  "features": "Features",
+  "description": "Description",
+  "watchVideo": "Watch the video",
+  "location": "Location",
+  "openInMaps": "Open in maps",
+  "contactOffice": "Contact the office",
+  "call": "Call",
+  "whatsapp": "WhatsApp",
+  "email": "Email",
+  "similarListings": "Similar listings",
+  "messageOffice": "Message the office",
+  "inquiryTemplate": "Hello, I am interested in \"{title}\". Is it still available?",
+  "@inquiryTemplate": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "writeMessage": "Write a message",
+  "send": "Send",
+  "photoOf": "Photo {index} of {total}",
+  "@photoOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "saveToFavorites": "Save to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "loadingFavorites": "Loading favorites",
+  "noFavoritesTitle": "No favorites yet",
+  "noFavoritesMessage": "Tap the heart on a listing to save it here.",
+  "favoritesSignInTitle": "Save the homes you like",
+  "favoritesSignInMessage": "Sign in to keep your favorites on all your devices.",
+  "messagesSignInTitle": "Talk to the office",
+  "messagesSignInMessage": "Sign in to message the office about a listing.",
+  "signIn": "Sign in",
+  "loadingMessages": "Loading messages",
+  "noMessagesTitle": "No messages yet",
+  "noMessagesMessage": "Questions you send about a listing show up here.",
+  "unreadMessages": "{count, plural, =1{1 unread message} other{{count} unread messages}}",
+  "@unreadMessages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "messageFromYou": "You: {text}",
+  "@messageFromYou": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "messageFromOffice": "Office: {text}",
+  "@messageFromOffice": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "conversationClosed": "This conversation is closed.",
+  "progress": "Progress",
+  "seeAll": "See all",
+  "loading": "Loading",
+  "offlineTitle": "You're offline",
+  "errorTitle": "Something went wrong",
+  "tryAgain": "Try again",
+  "cancel": "Cancel",
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{hours} h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "back": "Back",
+  "tabPosition": "{label}, tab {index} of {count}",
+  "@tabPosition": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mainNavigation": "Main navigation",
+  "tabWithCount": "{label}, {count}",
+  "@tabWithCount": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maintenanceTitle": "We'll be right back",
+  "maintenanceMessage": "{name} is being updated. Please try again in a little while.",
+  "@maintenanceMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "updateRequiredTitle": "Update required",
+  "updateRequiredMessage": "A new version of {name} is available. Update the app to keep learning.",
+  "@updateRequiredMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "updateNow": "Update now",
+  "unavailableTitle": "The app is unavailable",
+  "unavailableMessage": "{name} isn't available right now. Please contact the academy for help.",
+  "@unavailableMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "connectionTitle": "We couldn't connect",
+  "done": "Done",
+  "close": "Close",
+  "videoQualityAuto": "Auto",
+  "errorTimeout": "The connection timed out. Check your internet and try again.",
+  "errorCancelled": "The request was cancelled.",
+  "errorNetwork": "We couldn't connect. Check your internet and try again.",
+  "error401": "Your session has ended. Please sign in again.",
+  "error403": "You don't have access to this.",
+  "error404": "We couldn't find what you were looking for.",
+  "error429": "Too many attempts. Please wait a moment and try again.",
+  "error503": "The academy is unavailable right now. Please try again later.",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorInvalidResponse": "The academy sent a response the app couldn't read.",
+  "errorPurchaseNotAllowed": "This course isn't available on your account yet.",
+  "free": "Free",
+  "questionSingleChoice": "Single choice",
+  "questionMultipleChoice": "Multiple choice",
+  "questionTrueFalse": "True or false",
+  "questionShortAnswer": "Short answer",
+  "questionOpenEnded": "Open answer",
+  "questionFillInBlank": "Fill in the blank",
+  "questionOrdering": "Ordering",
+  "questionMatching": "Matching",
+  "questionImageAnswer": "Image answer",
+  "questionOther": "Question",
+  "attemptPassed": "Passed",
+  "attemptFailed": "Not passed",
+  "attemptPendingReview": "Waiting for review",
+  "countryName": "{code, select, AF{Afghanistan} AL{Albania} DZ{Algeria} AR{Argentina} AU{Australia} AT{Austria} AZ{Azerbaijan} BH{Bahrain} BD{Bangladesh} BE{Belgium} BA{Bosnia and Herzegovina} BR{Brazil} BG{Bulgaria} CA{Canada} CN{China} HR{Croatia} CY{Cyprus} CZ{Czechia} DK{Denmark} EG{Egypt} FI{Finland} FR{France} GE{Georgia} DE{Germany} GR{Greece} HU{Hungary} IN{India} ID{Indonesia} IR{Iran} IQ{Iraq} IE{Ireland} IT{Italy} JP{Japan} JO{Jordan} KZ{Kazakhstan} KE{Kenya} XK{Kosovo} KW{Kuwait} KG{Kyrgyzstan} LB{Lebanon} LY{Libya} MY{Malaysia} MX{Mexico} MA{Morocco} NL{Netherlands} NZ{New Zealand} NG{Nigeria} MK{North Macedonia} NO{Norway} OM{Oman} PK{Pakistan} PS{Palestine} PH{Philippines} PL{Poland} PT{Portugal} QA{Qatar} RO{Romania} RU{Russia} SA{Saudi Arabia} RS{Serbia} SG{Singapore} SO{Somalia} ZA{South Africa} KR{South Korea} ES{Spain} SD{Sudan} SE{Sweden} CH{Switzerland} SY{Syria} TN{Tunisia} TR{Turkey} TM{Turkmenistan} UA{Ukraine} AE{United Arab Emirates} GB{United Kingdom} US{United States} UZ{Uzbekistan} YE{Yemen} other{{code}}}",
+  "@countryName": {
+    "description": "A country name by ISO code, for the country code picker.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "pageNotFound": "This page doesn't exist",
+  "goHome": "Go home",
+  "profileSaved": "Profile saved",
+  "editProfile": "Edit profile",
+  "save": "Save",
+  "fullName": "Full name",
+  "enterName": "Enter your name.",
+  "emailOptional": "Email (optional)",
+  "enterValidEmail": "Enter a valid email address.",
+  "enterEmail": "Enter your email.",
+  "enterCity": "Enter your city.",
+  "cityOptional": "City (optional)",
+  "mobileNumber": "Mobile number",
+  "mobileNumberLocked": "Your mobile number is how you sign in, so it can’t be changed here.",
+  "signOutDeviceTitle": "Sign out {device}?",
+  "@signOutDeviceTitle": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "signOutDeviceMessage": "That device will need a verification code to sign in again.",
+  "signOut": "Sign out",
+  "signOutDevice": "Sign out {device}",
+  "@signOutDevice": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "registeredDevices": "Registered devices",
+  "deviceLimit": "{count, plural, =1{You can use 1 device with this account.} other{You can use {count} devices with this account.}}",
+  "@deviceLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "thisDevice": "{device} (this device)",
+  "@thisDevice": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUsed": "Last used {date}",
+  "@lastUsed": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "myCertificates": "My certificates",
+  "noCertificatesTitle": "No certificates yet",
+  "noCertificatesMessage": "Complete a course to earn its certificate.",
+  "noQuizResultsTitle": "No quiz results yet",
+  "noQuizResultsMessage": "Your quiz scores will show up here.",
+  "quizResults": "Quiz results",
+  "justNow": "Just now",
+  "minutesAgo": "{minutes} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{hours} h ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "yesterday": "Yesterday",
+  "daysAgo": "{days} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "noNotificationsTitle": "No notifications yet",
+  "noNotificationsMessage": "New lessons, announcements and answers to your questions will show up here.",
+  "notifications": "Notifications",
+  "unread": "Unread",
+  "noOrdersTitle": "No orders yet",
+  "noOrdersMessage": "Your purchases show up here.",
+  "myOrders": "My orders",
+  "orderNumber": "Order #{number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "lineQuantity": "{name} × {quantity}",
+  "@lineQuantity": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "logOutTitle": "Log out?",
+  "logOutMessage": "You'll need a verification code to sign in again.",
+  "logOut": "Log out",
+  "edit": "Edit",
+  "shopping": "Shopping",
+  "learning": "Learning",
+  "wishlist": "Wishlist",
+  "accountAndApp": "Account & app",
+  "settings": "Settings",
+  "helpAndSupport": "Help & support",
+  "privacyPolicy": "Privacy Policy",
+  "termsAndConditions": "Terms & Conditions",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountMessage": "Your account, progress and enrollments will be deleted and every device signed out. This can’t be undone.",
+  "deleteAccount": "Delete account",
+  "accountDeleted": "Your account was deleted.",
+  "display": "Display",
+  "appearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "video": "Video",
+  "defaultQuality": "Default quality",
+  "playbackSpeed": "Playback speed",
+  "autoplayNext": "Autoplay next lesson",
+  "newsAndOffers": "News and offers",
+  "notifyNewLessons": "New lessons in my courses",
+  "notifyAnnouncements": "Instructor announcements",
+  "notifyDailyReminder": "Daily study reminder",
+  "security": "Security",
+  "devicesUsed": "{used} of {limit}",
+  "@devicesUsed": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "language": "Language",
+  "notNow": "Not now",
+  "welcome": "Welcome",
+  "signInIntro": "Sign in with your mobile number and we'll send you a verification code.",
+  "chooseCountryCode": "Country code {code}. Choose country code",
+  "@chooseCountryCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCode": "Send code",
+  "signInNewHere": "New here? We'll ask for your name after verification and create your account with this number.",
+  "signInRegisteredOnly": "Use the mobile number registered with {site}.",
+  "@signInRegisteredOnly": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "tooManyAttemptsSeconds": "Too many attempts. Try again in {seconds} seconds.",
+  "@tooManyAttemptsSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "logoOf": "{name} logo",
+  "@logoOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "legalAgreeBoth": "By continuing, you agree to the {terms} and {privacy}",
+  "@legalAgreeBoth": {
+    "placeholders": {
+      "terms": {
+        "type": "String"
+      },
+      "privacy": {
+        "type": "String"
+      }
+    }
+  },
+  "legalAgreeOne": "By continuing, you agree to the {document}",
+  "@legalAgreeOne": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      }
+    }
+  },
+  "searchCountry": "Search country or code",
+  "useCode": "Use {code}",
+  "@useCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "codeExpired": "This code has expired. Request a new one.",
+  "noAccountForNumber": "There's no account with this number. Please contact the academy.",
+  "newCodeSent": "We sent you a new code.",
+  "enterCode": "Enter verification code",
+  "codeSentTo": "We sent a code to {number}",
+  "@codeSentTo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "changeNumber": "Change number",
+  "resendCodeIn": "You can request a new code in {time}",
+  "@resendCodeIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sending": "Sending…",
+  "sendNewCode": "Send a new code",
+  "verifyAndSignIn": "Verify & sign in",
+  "codeFieldLabel": "Verification code, {length} digits",
+  "@codeFieldLabel": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "createYourAccount": "Create your account",
+  "signupIntro": "Your number is verified. Tell us your name to finish joining {site}.",
+  "@signupIntro": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "createAccount": "Create account",
+  "loadingHome": "Loading home",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "continueLearning": "Continue learning",
+  "categories": "Categories",
+  "featuredCourses": "Featured courses",
+  "latestCourses": "Latest courses",
+  "notificationsUnread": "{count, plural, =1{Notifications, 1 unread} other{Notifications, {count} unread}}",
+  "@notificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "announcement": "Announcement",
+  "searchForCourse": "Search for a course",
+  "welcomeBack": "Welcome back,",
+  "whatToLearn": "What do you want to learn?",
+  "forYou": "For you",
+  "newCourses": "New",
+  "learn": "Learn",
+  "searchCourses": "Search courses",
+  "newCoursesShowHere": "New courses will show up here.",
+  "noCoursesYet": "No courses yet",
+  "courseCount": "{count, plural, =1{1 course} other{{count} courses}}",
+  "@courseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lessonCount": "{count, plural, =1{1 lesson} other{{count} lessons}}",
+  "@lessonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "questionCount": "{count, plural, =1{1 question} other{{count} questions}}",
+  "@questionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "answerCount": "{count, plural, =1{1 answer} other{{count} answers}}",
+  "@answerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingCount": "{count, plural, =1{1 rating} other{{count} ratings}}",
+  "@ratingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewCount": "{count, plural, =1{1 review} other{{count} reviews}}",
+  "@reviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starCount": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@starCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "enrolled": "Enrolled",
+  "ratedOutOf5": "Rated {rating} of 5",
+  "@ratedOutOf5": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "continueCourseLabel": "Continue {title}, {percent}% complete",
+  "@continueCourseLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "continueCourseNextLabel": "Continue {title}, {percent}% complete, next: {next}",
+  "@continueCourseNextLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "lessonsDone": "{done} of {total} lessons",
+  "@lessonsDone": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "continueAction": "Continue",
+  "sortPopular": "Popular",
+  "sortAtoZ": "A to Z",
+  "allCourses": "All courses",
+  "searchCoursesHint": "Course or instructor name",
+  "filtersAndSorting": "Filters and sorting",
+  "paid": "Paid",
+  "removeFilter": "{name}  ×",
+  "@removeFilter": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noCoursesFound": "No courses found",
+  "noCoursesFoundFiltered": "Try a different search or clear the filters.",
+  "noCoursesPublished": "Courses will show up here when they are published.",
+  "clearFilters": "Clear filters",
+  "loadMoreFailed": "Couldn't load more. Try again",
+  "loadingMoreCourses": "Loading more courses",
+  "sortByTitle": "Sort by",
+  "category": "Category",
+  "categoriesFailed": "Categories couldn't be loaded.",
+  "showCourses": "Show courses",
+  "enrollToOpen": "Enroll in this course to open this item.",
+  "assignmentsOnWebsite": "Assignments and live classes are on the website for now.",
+  "enrolledMessage": "You're enrolled. Happy learning!",
+  "checkout": "Checkout",
+  "checkoutFailed": "The checkout couldn't be opened.",
+  "loadingCourse": "Loading course",
+  "overview": "Overview",
+  "curriculum": "Curriculum",
+  "reviews": "Reviews",
+  "questionsAndAnswers": "Q&A",
+  "removeFromWishlist": "Remove from wishlist",
+  "addToWishlist": "Add to wishlist",
+  "certificate": "Certificate",
+  "instructor": "Instructor",
+  "noDescription": "No description yet.",
+  "aboutInstructor": "About the instructor",
+  "curriculumEmpty": "The curriculum will appear here.",
+  "loadingCurriculum": "Loading curriculum",
+  "freePreviewLower": "free preview",
+  "lockedLower": "locked",
+  "completedLower": "completed",
+  "freePreview": "Free preview",
+  "enrollForFree": "Enroll for free",
+  "enrollNow": "Enroll now",
+  "coursePrice": "Course price",
+  "askQuestion": "Ask a question",
+  "askQuestionHint": "What would you like to ask about this course?",
+  "sendQuestion": "Send question",
+  "loadingQuestions": "Loading questions",
+  "noQuestionsTitle": "No questions yet",
+  "noQuestionsMessage": "Ask the instructor anything about this course.",
+  "loadingEllipsis": "Loading…",
+  "showMoreQuestions": "Show more questions",
+  "noAnswersYet": "No answers yet",
+  "writeReply": "Write a reply",
+  "sendReply": "Send reply",
+  "answerNotification": "You'll get a notification when the instructor answers.",
+  "loadingQuestion": "Loading question",
+  "writeReview": "Write a review",
+  "editReview": "Edit your review",
+  "reviewHint": "What did you like? What could be better? (optional)",
+  "postReview": "Post review",
+  "chooseRating": "Choose a rating from 1 to 5 stars.",
+  "reviewPending": "Thanks! Your review will appear once the academy approves it.",
+  "reviewThanks": "Thanks for your review!",
+  "loadingReviews": "Loading reviews",
+  "noReviewsBeFirst": "No reviews yet. Be the first to share what you think.",
+  "noReviews": "No reviews yet.",
+  "showMoreReviews": "Show more reviews",
+  "starsCount": "{stars} stars: {count}",
+  "@starsCount": {
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewAwaitingApproval": "Waiting for the academy to approve it.",
+  "personYou": "{name} (you)",
+  "@personYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingOutOf5": "{rating} out of 5",
+  "@ratingOutOf5": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "inProgress": "In progress",
+  "completed": "Completed",
+  "noCoursesInProgress": "No courses in progress",
+  "noCompletedCourses": "No completed courses yet",
+  "noCoursesInProgressMessage": "Courses you enroll in will show up here.",
+  "noCompletedCoursesMessage": "Finish a course to see it here.",
+  "browseCourses": "Browse courses",
+  "courseProgressLabel": "{title}, {percent}% complete",
+  "@courseProgressLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "courseProgressNextLabel": "{title}, {percent}% complete, next: {next}",
+  "@courseProgressNextLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "nextItem": "Next: {title}",
+  "@nextItem": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "wishlistEmptyTitle": "Your wishlist is empty",
+  "wishlistEmptyMessage": "Tap the heart on a course to save it for later.",
+  "courseComplete": "Course complete. Well done!",
+  "lessonComplete": "Lesson complete · {percent}% of the course done",
+  "@lessonComplete": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "keepWatching": "Keep watching",
+  "watchMore": "Watch more of the video before marking this lesson complete.",
+  "watchAtLeast": "Watch at least {percent}% of the video before marking this lesson complete.",
+  "@watchAtLeast": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "ok": "OK",
+  "loadingLesson": "Loading lesson",
+  "lessonLocked": "This lesson is locked",
+  "lessonLockedEnroll": "Enroll in the course to open this lesson.",
+  "lessonLockedSignIn": "Sign in to open this lesson.",
+  "lessonPosition": "Lesson {index} of {total}",
+  "@lessonPosition": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "lesson": "Lesson",
+  "lessons": "Lessons",
+  "notes": "Notes",
+  "attachments": "Attachments",
+  "noAttachments": "This lesson has no attachments.",
+  "previousLesson": "Previous lesson",
+  "signInToTrack": "Sign in to track progress",
+  "markComplete": "Mark as complete",
+  "nextLesson": "Next lesson",
+  "playingNow": "playing now",
+  "sizeBytes": "{size} B",
+  "@sizeBytes": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "sizeKilobytes": "{size} KB",
+  "@sizeKilobytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeMegabytes": "{size} MB",
+  "@sizeMegabytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "videoFailed": "The video couldn't be played.",
+  "loadingVideo": "Loading video",
+  "screenRecording": "Screen recording is on. Stop recording to keep watching.",
+  "videoUnavailable": "This video isn't available.",
+  "pause": "Pause",
+  "play": "Play",
+  "playAgain": "Play again",
+  "positionOf": "{position} of {duration}",
+  "@positionOf": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "playbackSpeedIs": "Playback speed {speed}",
+  "@playbackSpeedIs": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "exitFullScreen": "Exit full screen",
+  "fullScreen": "Full screen",
+  "loadingEmbed": "Loading embedded content",
+  "embedFrom": "Embedded content from {host}",
+  "@embedFrom": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "openFullScreen": "Open full screen",
+  "interactive": "Interactive",
+  "embeddedContent": "Embedded content",
+  "opensFullScreen": "This content opens in full screen.",
+  "open": "Open",
+  "rotateScreen": "Rotate screen",
+  "code": "code",
+  "codeIn": "Code in {language}",
+  "@codeIn": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "copyCode": "Copy code",
+  "codeCopied": "Code copied",
+  "copy": "Copy",
+  "answerTrue": "True",
+  "answerFalse": "False",
+  "submitQuizTitle": "Submit the quiz?",
+  "unansweredQuestions": "{count, plural, =1{1 question has no answer yet.} other{{count} questions have no answer yet.}}",
+  "@unansweredQuestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "submit": "Submit",
+  "timeUp": "Time's up. Your answers were submitted.",
+  "leaveQuizTitle": "Leave the quiz?",
+  "leaveQuizMessage": "Your answers won't be submitted.",
+  "leave": "Leave",
+  "closeQuiz": "Close quiz",
+  "loadingQuiz": "Loading quiz",
+  "timeLeft": "Time left {time}",
+  "@timeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "quizNoQuestions": "This quiz has no questions yet",
+  "questionPosition": "Question {index} of {total}",
+  "@questionPosition": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "previous": "Previous",
+  "submitQuiz": "Submit quiz",
+  "nextQuestion": "Next question",
+  "timeLimit": "{duration} time limit",
+  "@timeLimit": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "passMark": "Pass mark {percent}%",
+  "@passMark": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "unlimitedAttempts": "Unlimited attempts",
+  "attemptsUsed": "{used} of {allowed} attempts used",
+  "@attemptsUsed": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "allowed": {
+        "type": "int"
+      }
+    }
+  },
+  "lastResult": "Last result",
+  "startQuiz": "Start quiz",
+  "startNewAttempt": "Start a new attempt",
+  "noAttemptsLeft": "You've used all your attempts for this quiz.",
+  "youPassed": "You passed",
+  "notPassedThisTime": "Not passed this time",
+  "submittedForReview": "Submitted for review",
+  "yourScore": "Your score: {score}%",
+  "@yourScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "passMarkColon": "Pass mark: {percent}%",
+  "@passMarkColon": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "instructorWillReview": "Your instructor will review your answers.",
+  "backToCourse": "Back to the course",
+  "questionNotSupported": "This question can't be shown in the app.",
+  "answerBelow": "Answer below. Your answer is saved when you move on.",
+  "chooseAll": "Choose all that apply",
+  "chooseOne": "Choose one answer",
+  "quiz": "Quiz",
+  "noDeliveryDays": "There are no delivery days available right now.",
+  "deliveryDate": "Delivery date",
+  "deliveryDateOptional": "Delivery date (optional)",
+  "emptyCartTitle": "Empty your cart?",
+  "emptyCartMessage": "Everything in your cart will be removed.",
+  "emptyCart": "Empty cart",
+  "orderPlaced": "Thank you! Your order has been placed.",
+  "shopClosedTitle": "The shop is closed right now",
+  "tryLater": "Please try again later.",
+  "cartEmptyTitle": "Your cart is empty",
+  "cartEmptyMessage": "Products you add show up here.",
+  "startShopping": "Start shopping",
+  "choose": "Choose",
+  "giftMessage": "Gift message (optional)",
+  "giftMessageHint": "We will add it to your order.",
+  "subtotal": "Subtotal",
+  "deliveryAndTaxes": "Delivery and taxes are added at checkout.",
+  "fixCartItems": "Change or remove the items marked above to continue.",
+  "chooseDeliveryDate": "Choose a delivery date to continue.",
+  "removeItem": "Remove {name}",
+  "@removeItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerReviewsShowHere": "Reviews from customers show up here.",
+  "loadingProduct": "Loading product",
+  "addedToCart": "Added to cart",
+  "cartFull": "Your cart is full.",
+  "viewCart": "View cart",
+  "cartWithItems": "{count, plural, =1{Cart, 1 item} other{Cart, {count} items}}",
+  "@cartWithItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "youMayAlsoLike": "You may also like",
+  "addToCart": "Add to cart",
+  "chooseOptions": "Choose {options}",
+  "@chooseOptions": {
+    "placeholders": {
+      "options": {
+        "type": "String"
+      }
+    }
+  },
+  "notAvailableInOptions": "Not available in these options",
+  "outOfStock": "Out of stock",
+  "notSoldInApp": "This item isn't sold in the app.",
+  "optionsLower": "options",
+  "listAnd": " and ",
+  "productPhoto": "Product photo",
+  "productPhotoOf": "Product photo {index} of {total}",
+  "@productPhotoOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quantity": "Quantity",
+  "sortBestSelling": "Best selling",
+  "sortTopRated": "Top rated",
+  "sortName": "Name",
+  "searchProducts": "Search products",
+  "onSale": "On sale",
+  "loadingProducts": "Loading products",
+  "noProductsTitle": "No products found",
+  "noProductsMessage": "Try another search or category.",
+  "loadingMoreProducts": "Loading more products",
+  "loadingShop": "Loading the shop",
+  "shopGettingReady": "The shop is getting ready",
+  "newProductsSoon": "New products will show up here soon.",
+  "newArrivals": "New arrivals",
+  "bestSellers": "Best sellers",
+  "offer": "Offer",
+  "wasPrice": "was {price}",
+  "@wasPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "inStock": "In stock",
+  "onBackorder": "Available on backorder",
+  "onSaleLower": "on sale",
+  "outOfStockLower": "out of stock",
+  "sale": "Sale",
+  "fewer": "Fewer",
+  "quantityIs": "Quantity {quantity}",
+  "@quantityIs": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "more": "More",
+  "loadingAppointments": "Loading appointments",
+  "noUpcomingAppointments": "No upcoming appointments",
+  "noUpcomingAppointmentsMessage": "Book a time and it shows up here.",
+  "bookAppointment": "Book an appointment",
+  "noPastAppointments": "No past appointments",
+  "upcoming": "Upcoming",
+  "past": "Past",
+  "cancelAppointmentTitle": "Cancel this appointment?",
+  "cancelAppointment": "Cancel appointment",
+  "appointmentCancelled": "Your appointment is cancelled.",
+  "appointment": "Appointment",
+  "loadingAppointment": "Loading appointment",
+  "cancelling": "Cancelling",
+  "withStaff": "With {name}",
+  "@withStaff": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "withStaffLower": "with {name}",
+  "@withStaffLower": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactToChange": "To change or cancel it, please contact us.",
+  "tooLateToCancel": "It's too late to cancel in the app. To change it, please contact us.",
+  "cancelUpTo": "You can cancel up to {duration} before it starts.",
+  "@cancelUpTo": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "gettingReady": "Getting ready",
+  "servicesSoon": "Services you can book will show up here soon.",
+  "nextAppointment": "Your next appointment",
+  "services": "Services",
+  "ourTeam": "Our team",
+  "loadingService": "Loading service",
+  "appointmentBooked": "Your appointment is booked.",
+  "slotTaken": "This time was just taken. Please choose another one.",
+  "withTitle": "With",
+  "chooseTime": "Choose a time",
+  "findingTimes": "Finding free times",
+  "bookSlot": "Book {time}",
+  "@bookSlot": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dayAtTime": "{day} at {time}",
+  "@dayAtTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "noTimesThisWeek": "No free times this week",
+  "tryAnotherWeek": "Try another week, or anyone available.",
+  "nextWeek": "Next week",
+  "previousWeek": "Previous week",
+  "noTimesThisDay": "No free times on this day.",
+  "timesIn": "Times are in {zone} time.",
+  "@timesIn": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "anyone": "Anyone",
+  "freeTimeCount": "{count, plural, =1{1 free time} other{{count} free times}}",
+  "@freeTimeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noFreeTimes": "no free times",
+  "confirmYourBooking": "Confirm your booking",
+  "anyoneAvailable": "Anyone available",
+  "noteForBusiness": "Note for the business (optional)",
+  "confirmBooking": "Confirm booking",
+  "loadingServices": "Loading services",
+  "noServicesYet": "No services yet",
+  "noMatches": "No matches",
+  "servicesShowHere": "Services you can book will show up here.",
+  "tryAnotherWord": "Try another word.",
+  "searchServices": "Search services"
+}
