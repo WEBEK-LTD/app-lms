@@ -103,7 +103,7 @@ test("checkout in a demo app takes no card", async ({ request, page }) => {
 test("the daily job cleans the demo apps and keeps what's newer than a day", async ({ request }) => {
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
-  expect((await daily.json()).demo).toMatchObject({ apps: 4, deleted: 0 });
+  expect((await daily.json()).demo).toMatchObject({ apps: 5, deleted: 0 });
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
   expect(orders.total).toBe(1);
 });

@@ -5,6 +5,9 @@ import { E2E } from "../../playwright.config";
 
 /** 21 A clinic without a website: doctors with profiles, an intake form, and visits with the patient's answers. */
 test.describe.configure({ mode: "serial" });
+// Its own address, so the sign-up and sign-in limits per IP don't reach the other specs.
+const extraHTTPHeaders = { "x-forwarded-for": "203.0.113.211" };
+test.use({ extraHTTPHeaders });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Kardelen Clinic", email: `kardelen-${suffix}@clinic.test`, password: "kardelen-strong-password-1" };
@@ -14,7 +17,7 @@ let own: Page;
 let api = "";
 
 test.beforeAll(async ({ browser }) => {
-  own = await browser.newPage();
+  own = await browser.newPage({ extraHTTPHeaders });
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
   await own.getByLabel("Email").fill(client.email);
@@ -25,9 +28,9 @@ test.beforeAll(async ({ browser }) => {
   await own.getByRole("button", { name: "Create account" }).click();
   await expect(own).toHaveURL(/\/pending$/);
 
-  const admin = await browser.newPage();
+  const admin = await browser.newPage({ extraHTTPHeaders });
   await admin.goto("/sign-in");
-  await admin.getByLabel("Email").fill(E2E.settingsAdminEmail);
+  await admin.getByLabel("Email").fill(E2E.clinicAdminEmail);
   await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
   await admin.getByRole("button", { name: "Sign in" }).click();
   await admin.waitForURL((url) => url.pathname.startsWith("/admin"));
