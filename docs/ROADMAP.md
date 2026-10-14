@@ -328,6 +328,22 @@ never routes. The four kinds the app type picker shows behave as before.
 | [x] | 20.3 The app reads `vertical` from its build config and `Config` (unknown values are none) and has a wording helper with the default words in English, Arabic and Turkish; the app preview is rebuilt | flutter analyze and flutter test |
 | [x] | 20.4 Plugin 0.3.3: the pages an app gets before any are published follow the app type chosen in the dashboard instead of a guess from the site's plugins; `Config.vertical` is passed on | Plugin unit tests |
 
+## Phase 21: Clinics
+
+The first kind with a vertical: Clinic, the bookings engine for doctors,
+dentists and therapists. Patients book visits, read each doctor's profile and
+answer the clinic's intake form; only the patient and the clinic see the
+answers. Payment is at the clinic, so iOS is unchanged.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 21.1 Kind `clinic` (engine `booking`, vertical `clinic`) in the registry: picker, Medical store categories, the dashboard's words (Doctors & services, Visits, Patients, the Website step) and the first layout's Visits tab | Unit tests; the four other kinds unchanged |
+| [x] | 21.2 Contract: optional `StaffMember.specialties`, `languages`, `bio`; `BookingsConfig.intake_fields`; `answers` on `AppointmentInput` and in the customer's own `Appointment`s; `invalid_answers` (400). Answers never go in push, email or text messages | Redocly lint; contract tests |
+| [x] | 21.3 Hosted bookings: intake questions in the booking setup, answers checked (required, type, length, options) and kept with the appointment (`drizzle/0023_clinic_intake.sql`), shown on the Appointments page only; the email says the answers are on the dashboard. Staff profiles on Services & team | Unit tests (checks, privacy of emails); browser test of a clinic app on the hosted API |
+| [x] | 21.4 App: doctor, patient and visit words in the bookings screens (English, Arabic, Turkish), the intake form step before confirming, the patient's answers on their visit, doctor profiles; app preview rebuilt; screenshots for the website | flutter analyze and flutter test |
+| [ ] | 21.5 The intake form for WordPress clinics (Amelia and LatePoint custom fields): hosted only for now. Until then WordPress clinics book through their plugin with the clinic's words and no intake form | The mapping is checked against the plugins' code in the integration environments (tests/integration) |
+| [x] | 21.6 A clinic demo app (Kardelen Clinic, /demo/download/clinic), the Clinic solution page and the clinics article in the docs | Unit tests; browser tests of /demo and the public pages |
+
 ## Phase 22: Wix stores
 
 Store apps take their products, categories, prices and checkout from a Wix
