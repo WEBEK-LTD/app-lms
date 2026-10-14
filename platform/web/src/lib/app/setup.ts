@@ -195,7 +195,7 @@ export type QueueBuildResult =
   | { ok: true; build: Build }
   | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config"; errors?: ConfigError[] };
 
-/** Validates the config against the schema and queues a build with a snapshot of it. */
+/** Validates the config against the schema and queues a build with a snapshot of it. `license` is the app's own. */
 export async function queueBuild(
   store: DataStore,
   input: { client: Client; app: App; license: License | null; versionName: string },
@@ -203,11 +203,18 @@ export async function queueBuild(
   assetUrl: (assetId: string) => string,
 ): Promise<QueueBuildResult> {
   const { client, app, license } = input;
-  if (client.status !== "active" || !license || license.expiresAt.getTime() <= now.getTime()) {
+  // Each app builds on its own plan: never on another app's license.
+  if (
+    client.status !== "active" ||
+    !license ||
+    (license.appId !== null && license.appId !== app.id) ||
+    app.clientId !== client.id ||
+    license.expiresAt.getTime() <= now.getTime()
+  ) {
     return { ok: false, reason: "license_inactive" };
   }
   if (!isSetupComplete(app, license.plan)) return { ok: false, reason: "setup_incomplete" };
-  const previous = await store.listBuildsByClient(client.id, 1);
+  const previous = await store.listBuildsByApp(app.id, 1);
   const last = previous[0];
   if (last && (last.status === "queued" || last.status === "building")) return { ok: false, reason: "build_running" };
   if (last && compareVersions(input.versionName, last.versionName) < 0) return { ok: false, reason: "version_too_low" };

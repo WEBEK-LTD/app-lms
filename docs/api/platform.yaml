@@ -40,7 +40,7 @@ paths:
       tags: [Licenses]
       operationId: activateLicense
       summary: Activate a license on a site
-      description: Binds the license to one site URL. A license can be active on one site at a time.
+      description: Binds the license to one site URL. A license can be active on one site at a time. Each app of a Yallapp account has its own license, plan and site.
       requestBody:
         required: true
         content:
@@ -130,8 +130,9 @@ paths:
     post:
       tags: [Layout]
       operationId: getAppLayout
-      summary: Get the published layout of the site's app
+      summary: Get the published layout of the license's app
       description: |
+        The license key names the app (each app of an account has its own key).
         Returns 204 when the client hasn't published a layout yet; the plugin
         then serves the default pages. Send the last `version` as
         `If-None-Match` to get 304 when nothing changed.

@@ -63,11 +63,11 @@ function DownloadRow({
 }
 
 export default async function BuildsPage({ searchParams }: PageProps<"/dashboard/builds">) {
-  const { client, app, license, state } = await requireClient();
+  const { app, license, state } = await requireClient();
   const { started } = await searchParams;
   const store = await getStore();
   const plans = await getPlans(store);
-  const builds = await store.listBuildsByClient(client.id, 50);
+  const builds = app ? await store.listBuildsByApp(app.id, 50) : [];
   const current = builds[0] ?? null;
   const lastReady: Build | null = builds.find((b) => b.status === "ready") ?? null;
   const release = latestRelease(await store.listReleases());
@@ -83,7 +83,9 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
 
   const setupDone = isSetupComplete(app, plan);
   const disabledReason =
-    state !== "active"
+    state === "pending"
+      ? "This app isn't activated yet. Pay its plan on License & plugin, or message us on WhatsApp."
+      : state !== "active"
       ? "Your plan has ended. Message us on WhatsApp to renew it."
       : !setupDone
         ? "Finish the app setup to start a build."

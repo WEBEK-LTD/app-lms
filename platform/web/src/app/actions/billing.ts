@@ -14,13 +14,21 @@ import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
 
-/** The client pays a plan by card: off to iyzico's payment page (or, with a coupon for the whole price, activated at once). */
+/**
+ * The client pays the current app's plan by card: off to iyzico's payment
+ * page (or, with a coupon for the whole price, activated at once). The
+ * payment activates or extends that app only.
+ */
 export async function payPlanAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
   for (const name of ["plan", "city", "address", "coupon"]) values[name] = String(formData.get(name) ?? "").trim();
+  // The form names the app it was shown for: never pay for another app because the switcher changed in another tab.
+  if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) {
+    return { message: "You switched to another app in the meantime. Reload the page and check which app you're paying for.", values };
+  }
   const store = await getStore();
   const plans = await getPlans(store);
   const plan = values.plan === "starter" || values.plan === "pro" ? plans[values.plan] : null;
@@ -40,12 +48,12 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   // The price comes from the plan and the coupon here, never from the browser.
   let coupon: Extract<CouponCheck, { ok: true }> | undefined;
   if (values.coupon) {
-    const check = await findCoupon(store, { code: values.coupon, plan, client: context.client, now });
+    const check = await findCoupon(store, { code: values.coupon, plan, client: context.client, license: context.license, now });
     if (!check.ok) return { errors: { coupon: check.error }, values };
     coupon = check;
   }
   if (coupon && coupon.amountCents === 0) {
-    const outcome = await activateWithFreeCoupon({ store, client: context.client, plan, coupon, encryptionKey: encryptionKey(), now });
+    const outcome = await activateWithFreeCoupon({ store, client: context.client, app: context.app, plan, coupon, encryptionKey: encryptionKey(), now });
     await sendPlanPaidMail(store, context.client, outcome);
     redirect("/dashboard/license?payment=paid");
   }
@@ -57,6 +65,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       baseUrl: iyzicoApiUrl(),
       now,
       client: context.client,
+      app: context.app,
       user: context.user,
       plan,
       billing: billing.billing,
@@ -95,7 +104,7 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
   const prices: NonNullable<CouponState["prices"]> = {};
   let firstError: string | undefined;
   for (const plan of plans) {
-    const check = await findCoupon(store, { code, plan, client: context.client, now });
+    const check = await findCoupon(store, { code, plan, client: context.client, license: context.license, now });
     if (!check.ok) {
       firstError ??= check.error;
       continue;

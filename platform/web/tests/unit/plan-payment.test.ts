@@ -3,7 +3,7 @@ import { cardPlans, completePlanPayment, extendedUntil, readBilling, startPlanPa
 import { sha256Hex } from "@/lib/crypto/tokens";
 import type { IyzicoKeys } from "@/lib/payments/iyzico";
 import { PLAN_INFO, plansWith } from "@/lib/plans";
-import { days, KEY, NOW, setupClient } from "./helpers";
+import { days, KEY, licenseOf, NOW, setupClient } from "./helpers";
 
 const IYZICO: IyzicoKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
 const PLANS = plansWith({ pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, currency: "TRY", billingMonths: 12 } });
@@ -78,7 +78,7 @@ describe("plan payments", () => {
     expect(outcome.activation.created).toBe(true);
     expect(outcome.activeUntil.toISOString()).toBe("2027-10-12T23:59:59.999Z");
     expect((await setup.store.getClientById(setup.client.id))?.status).toBe("active");
-    const license = await setup.store.getLicenseByClientId(setup.client.id);
+    const license = await licenseOf(setup.store, setup.client.id);
     expect(license).toMatchObject({ plan: "pro", expiresAt: outcome.activeUntil });
     expect((await setup.store.getClientById(setup.client.id))?.paymentNote).toContain("by card (iyzico 9001)");
 
@@ -88,7 +88,7 @@ describe("plan payments", () => {
     expect(
       (await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment: again, iyzicoToken: "iyzi-1", encryptionKey: KEY })).kind,
     ).toBe("already_paid");
-    expect((await setup.store.getLicenseByClientId(setup.client.id))?.expiresAt).toEqual(outcome.activeUntil);
+    expect((await licenseOf(setup.store, setup.client.id))?.expiresAt).toEqual(outcome.activeUntil);
   });
 
   it("extends an active client's license and keeps the key", async () => {
@@ -98,7 +98,7 @@ describe("plan payments", () => {
     const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
     expect(outcome.kind === "paid" && outcome.activation.created).toBe(false);
     expect(outcome.kind === "paid" && outcome.activation.licenseKey).toBe(setup.licenseKey);
-    const license = await setup.store.getLicenseByClientId(setup.client.id);
+    const license = await licenseOf(setup.store, setup.client.id);
     expect(license?.plan).toBe("pro");
     expect(license?.expiresAt.toISOString()).toBe("2027-11-01T23:59:59.999Z");
   });
@@ -116,7 +116,7 @@ describe("plan payments", () => {
       const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
       expect(outcome.kind).toBe("failed");
       expect((await setup.store.getClientById(setup.client.id))?.status).toBe("pending");
-      expect(await setup.store.getLicenseByClientId(setup.client.id)).toBeNull();
+      expect(await licenseOf(setup.store, setup.client.id)).toBeNull();
       expect((await setup.store.listPlanPayments({ clientId: setup.client.id, limit: 5 }))[0]?.status).toBe("failed");
     }
   });

@@ -5,8 +5,10 @@ import { activateClientAction, addClientAction, saveClientDetailsAction, uploadR
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
+/** Activates or extends one app's plan (each app of an account has its own). */
 export function ActivateForm({
   clientId,
+  appId = null,
   plan,
   activeUntil,
   pending,
@@ -14,6 +16,8 @@ export function ActivateForm({
   from,
 }: {
   clientId: string;
+  /** The app whose plan this is; null for a client without an app yet. */
+  appId?: string | null;
   plan: "starter" | "pro";
   activeUntil: string;
   pending: boolean;
@@ -22,23 +26,36 @@ export function ActivateForm({
   from?: "client";
 }) {
   const [state, action] = useActionState(activateClientAction, initialFormState);
+  // Unique per app: the client's page has one form per app.
+  const id = (name: string) => `f-${name}${appId ? `-${appId}` : ""}`;
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <input type="hidden" name="clientId" value={clientId} />
+      {appId ? <input type="hidden" name="appId" value={appId} /> : null}
       {from ? <input type="hidden" name="from" value={from} /> : null}
       <FormMessage message={state.message} />
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-plan" className="text-sm font-semibold">
+        <label htmlFor={id("plan")} className="text-sm font-semibold">
           Plan
         </label>
-        <select id="f-plan" name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
+        <select id={id("plan")} name="plan" className="input input-sm" defaultValue={state.values?.plan ?? plan}>
           <option value="starter">{planNames.starter}</option>
           <option value="pro">{planNames.pro}</option>
         </select>
-        <FieldError id="f-plan-error" error={state.errors?.plan} />
+        <FieldError id={`${id("plan")}-error`} error={state.errors?.plan} />
       </div>
-      <Field label="Active until" name="activeUntil" type="date" required defaultValue={state.values?.activeUntil ?? activeUntil} error={state.errors?.activeUntil} small />
       <Field
+        id={id("activeUntil")}
+        label="Active until"
+        name="activeUntil"
+        type="date"
+        required
+        defaultValue={state.values?.activeUntil ?? activeUntil}
+        error={state.errors?.activeUntil}
+        small
+      />
+      <Field
+        id={id("paymentNote")}
         label="Payment note"
         name="paymentNote"
         placeholder="e.g. paid via bank transfer"

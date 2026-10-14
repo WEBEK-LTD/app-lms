@@ -1,6 +1,7 @@
 import { applyPipelineStatus, buildSummary, pipelineStatusSchema } from "@/lib/builds/pipeline";
 import type { DataStore } from "@/lib/data/store";
 import { appUrl } from "@/lib/env";
+import { appLabel } from "@/lib/app/label";
 import { errorResponse, json, readJson } from "@/lib/http";
 import { sendTemplate } from "@/lib/email/send";
 import { authorizePipeline } from "@/lib/pipeline-auth";
@@ -23,16 +24,17 @@ export async function POST(request: Request, { params }: RouteContext<"/api/v1/b
   if (!result.ok) return errorResponse(409, result.code, result.message);
 
   const finished = result.build.status !== build.status && (result.build.status === "ready" || result.build.status === "failed");
-  if (finished) await notifyClient(store, result.build.clientId, result.build.number, result.build.status === "ready").catch(() => undefined);
+  if (finished) await notifyClient(store, result.build.clientId, result.build.appId, result.build.number, result.build.status === "ready").catch(() => undefined);
   return json(buildSummary(result.build));
 }
 
-async function notifyClient(store: DataStore, clientId: string, number: number, ready: boolean): Promise<void> {
+async function notifyClient(store: DataStore, clientId: string, appId: string, number: number, ready: boolean): Promise<void> {
   const client = await store.getClientById(clientId);
   const user = client ? await store.getUserById(client.userId) : null;
   if (!user) return;
   await sendTemplate(ready ? "build_ready" : "build_failed", user.email, {
     name: user.name,
+    app_name: appLabel(await store.getAppById(appId)),
     build_number: String(number),
     builds_url: `${appUrl()}/dashboard/builds`,
   });

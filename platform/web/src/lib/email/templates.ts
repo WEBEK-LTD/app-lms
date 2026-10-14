@@ -48,6 +48,7 @@ const SIGNATURE =
   "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp {{yallapp_whatsapp}}\nYallapp is a trading name of WEBEK LTD, registered in England and Wales, company no. 16326894.";
 
 const NAME: Placeholder = { name: "name", description: "The client's name", sample: "Ada Lovelace" };
+const APP_NAME: Placeholder = { name: "app_name", description: "The app's name (an account can have several apps)", sample: "Ada Academy" };
 
 export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
@@ -75,9 +76,10 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
     key: "account_activated",
     name: "Account activated",
-    description: "To a client when their account is activated, by the team or a card payment.",
+    description: "To a client when one of their apps is activated, by the team or a card payment.",
     placeholders: [
       NAME,
+      APP_NAME,
       { name: "plan", description: "The plan's name", sample: "Pro" },
       { name: "active_until", description: "The last day of the plan", sample: "12 Oct 2027" },
       { name: "license_key", description: "The license key", sample: "YALL-AB12-CD34-EF56" },
@@ -85,7 +87,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     ],
     subject: "Your Yallapp account is active",
     body:
-      "Hello {{name}},\n\nYour Yallapp account is active.\n\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n" +
+      "Hello {{name}},\n\nYour Yallapp account is active.\n\nApp: {{app_name}}\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n" +
       "Next steps:\n1. Install the Yallapp plugin on your WordPress site and paste your license key.\n" +
       "2. Set up your app in your dashboard: {{dashboard_url}}\n\n" +
       "You can always find your license key on the License & plugin page." +
@@ -94,15 +96,16 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
   {
     key: "plan_renewed",
     name: "Plan renewed",
-    description: "To a client whose license is extended, by the team or a card payment.",
+    description: "To a client when one of their apps' license is extended, by the team or a card payment.",
     placeholders: [
       NAME,
+      APP_NAME,
       { name: "plan", description: "The plan's name", sample: "Pro" },
       { name: "active_until", description: "The new last day of the plan", sample: "12 Oct 2027" },
       { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
     ],
     subject: "Your Yallapp plan has been renewed",
-    body: "Hello {{name}},\n\nYour {{plan}} plan is now active until {{active_until}}.\n\nDashboard: {{dashboard_url}}" + SIGNATURE,
+    body: "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} is now active until {{active_until}}.\n\nDashboard: {{dashboard_url}}" + SIGNATURE,
   },
   {
     key: "build_ready",
@@ -110,6 +113,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     description: "To a client when a build of their app finishes.",
     placeholders: [
       NAME,
+      APP_NAME,
       { name: "build_number", description: "The build's number", sample: "7" },
       { name: "builds_url", description: "The Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/builds" },
     ],
@@ -122,6 +126,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     description: "To a client when a build of their app fails.",
     placeholders: [
       NAME,
+      APP_NAME,
       { name: "build_number", description: "The build's number", sample: "7" },
       { name: "builds_url", description: "The Builds & downloads page", sample: "https://yallapp.com.tr/dashboard/builds" },
     ],

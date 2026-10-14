@@ -1,6 +1,6 @@
 import type { ClientRow } from "../data/store";
 import type { App, Build, CatalogCurrency, CatalogOrder, PlanPayment } from "../data/types";
-import { accountState, type AccountState } from "../license/status";
+import { accountState, appState, type AccountState } from "../license/status";
 import { websiteOf } from "../switches";
 
 /**
@@ -10,9 +10,19 @@ import { websiteOf } from "../switches";
 
 const DAY_MS = 86_400_000;
 
+/** Accounts by state: `license` is the account's longest one, so an account with any active app is active. */
 export function clientsByState(rows: Pick<ClientRow, "client" | "license">[], now: Date): Record<AccountState, number> {
   const counts: Record<AccountState, number> = { pending: 0, active: 0, expired: 0, suspended: 0 };
   for (const row of rows) counts[accountState(row.client, row.license, now)] += 1;
+  return counts;
+}
+
+/** Apps (not accounts) by their own state: each app has its own plan, so an account's apps can differ. */
+export function appsByState(rows: Pick<ClientRow, "client" | "apps">[], now: Date): Record<AccountState, number> {
+  const counts: Record<AccountState, number> = { pending: 0, active: 0, expired: 0, suspended: 0 };
+  for (const row of rows) {
+    for (const entry of row.apps) if (entry.app) counts[appState(row.client, entry.license, now)] += 1;
+  }
   return counts;
 }
 

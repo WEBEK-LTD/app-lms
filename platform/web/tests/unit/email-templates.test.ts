@@ -30,18 +30,18 @@ describe("email templates", () => {
         SIGNATURE,
     );
     expect(
-      renderTemplate(t("account_activated"), { name: "Ada", plan: "Pro", active_until: "1 Jan 2027", license_key: "YALL-1", dashboard_url: "https://x.test/dashboard", ...WHATSAPP }),
+      renderTemplate(t("account_activated"), { name: "Ada", app_name: "Ada Academy", plan: "Pro", active_until: "1 Jan 2027", license_key: "YALL-1", dashboard_url: "https://x.test/dashboard", ...WHATSAPP }),
     ).toMatchObject({
       subject: "Your Yallapp account is active",
       text:
-        "Hello Ada,\n\nYour Yallapp account is active.\n\nPlan: Pro\nActive until: 1 Jan 2027\nLicense key: YALL-1\n\n" +
+        "Hello Ada,\n\nYour Yallapp account is active.\n\nApp: Ada Academy\nPlan: Pro\nActive until: 1 Jan 2027\nLicense key: YALL-1\n\n" +
         "Next steps:\n1. Install the Yallapp plugin on your WordPress site and paste your license key.\n" +
         "2. Set up your app in your dashboard: https://x.test/dashboard\n\nYou can always find your license key on the License & plugin page." +
         SIGNATURE,
     });
-    expect(renderTemplate(t("plan_renewed"), { name: "Ada", plan: "Pro", active_until: "1 Jan 2027", dashboard_url: "https://x.test/dashboard", ...WHATSAPP })).toMatchObject({
+    expect(renderTemplate(t("plan_renewed"), { name: "Ada", app_name: "Ada Academy", plan: "Pro", active_until: "1 Jan 2027", dashboard_url: "https://x.test/dashboard", ...WHATSAPP })).toMatchObject({
       subject: "Your Yallapp plan has been renewed",
-      text: "Hello Ada,\n\nYour Pro plan is now active until 1 Jan 2027.\n\nDashboard: https://x.test/dashboard" + SIGNATURE,
+      text: "Hello Ada,\n\nThe Pro plan of Ada Academy is now active until 1 Jan 2027.\n\nDashboard: https://x.test/dashboard" + SIGNATURE,
     });
     expect(renderTemplate(t("build_ready"), { name: "Ada", build_number: "7", builds_url: "https://x.test/dashboard/builds" })).toEqual({
       subject: "Build #7 of your app is ready",

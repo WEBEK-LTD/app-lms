@@ -49,7 +49,7 @@ export interface HostedResult {
 export interface HostedContext {
   store: DataStore;
   app: App;
-  /** Whether the client's account is active; requests fail with license_inactive otherwise. */
+  /** Whether this app's own license is active (each app has its own plan); requests fail with license_inactive otherwise. */
   active: boolean;
   now: Date;
   ip: string;

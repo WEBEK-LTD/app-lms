@@ -9,7 +9,7 @@ import {
   type SiteInfo,
 } from "@/lib/license/service";
 import { accountState } from "@/lib/license/status";
-import { KEY, NOW, days, setupClient } from "./helpers";
+import { KEY, NOW, days, licenseOf, setupClient } from "./helpers";
 
 function site(licenseKey: string, url = "https://academy.test", extra: Record<string, unknown> = {}): SiteInfo {
   const parsed = parseSiteInfo({ license_key: licenseKey, site_url: url, plugin_version: "0.1.0", wp_version: "6.8", lms: "tutor", ...extra });
@@ -34,7 +34,7 @@ describe("license keys", () => {
 
   it("stores the key encrypted and the client can always see it", async () => {
     const { store, client, licenseKey } = await setupClient();
-    const license = await store.getLicenseByClientId(client.id);
+    const license = await licenseOf(store, client.id);
     expect(license?.keyEncrypted).not.toContain(licenseKey);
     expect(license?.keyHash).toBe(hashLicenseKey(licenseKey!));
     expect(revealLicenseKey(license!, KEY)).toBe(licenseKey);
@@ -49,7 +49,7 @@ describe("activation by the super admin", () => {
     const renewed = await activateClient(store, { clientId: client.id, plan: "pro", activeUntil: days(400), paymentNote: "renewal" }, KEY, days(29));
     expect(renewed.created).toBe(false);
     expect(renewed.licenseKey).toBe(licenseKey);
-    const license = await store.getLicenseByClientId(client.id);
+    const license = await licenseOf(store, client.id);
     expect(license?.plan).toBe("pro");
     expect(license?.expiresAt.toISOString()).toBe(days(400).toISOString());
     expect((await store.getClientById(client.id))?.paymentNote).toContain("renewal");
@@ -61,7 +61,7 @@ describe("activation by the super admin", () => {
     expect(accountState(c, null, NOW)).toBe("pending");
     await activateClient(store, { clientId: client.id, plan: "starter", activeUntil: days(1), paymentNote: "" }, KEY, NOW);
     c = (await store.getClientById(client.id))!;
-    const license = await store.getLicenseByClientId(client.id);
+    const license = await licenseOf(store, client.id);
     expect(accountState(c, license, NOW)).toBe("active");
     expect(accountState(c, license, days(2))).toBe("expired");
     await suspendClient(store, client.id, NOW);

@@ -18,10 +18,11 @@ import { can, type AdminPermission } from "@/lib/admin/permissions";
 import { APP_TYPE_NAMES, SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { ClientFilter, ClientRow } from "@/lib/data/store";
+import type { ClientAppRow, ClientFilter, ClientRow } from "@/lib/data/store";
 import type { AppBackend } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
-import { ACCOUNT_STATE_LABEL, accountState, type AccountState } from "@/lib/license/status";
+import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
+import { appLabel } from "@/lib/app/label";
 import { planName } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "../forms";
 import { getPlans } from "@/lib/settings/platform";
@@ -70,6 +71,16 @@ function hostOf(url: string): string {
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+/** The account's state, from every app's license. */
+function rowState(row: ClientRow, now: Date): AccountState {
+  return clientAccountState(row.client, row.apps.flatMap((e) => (e.license ? [e.license] : [])), now);
+}
+
+/** The newest build of any of the client's apps. */
+function latestBuildOf(row: ClientRow) {
+  return row.apps.reduce<ClientAppRow["latestBuild"]>((latest, e) => (e.latestBuild && (!latest || e.latestBuild.createdAt > latest.createdAt) ? e.latestBuild : latest), null);
 }
 
 function query(params: Record<string, string | undefined>): string {
@@ -181,11 +192,12 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
           {rows.length === 0 ? (
             <p className="m-0 p-6 text-[15px] text-muted">{q ? `No clients match “${q}”.` : "No clients here yet."}</p>
           ) : (
-            <table className="w-full min-w-[640px] border-collapse text-sm">
+            <table className="w-full min-w-[760px] border-collapse text-sm">
               <thead>
                 <tr className="bg-sand text-left text-muted">
                   <th scope="col" className="px-4 py-3 font-semibold">Client</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Website</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">Apps</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Status</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Latest build</th>
@@ -196,8 +208,11 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
               </thead>
               <tbody>
                 {rows.map((row) => {
-                  const state = accountState(row.client, row.license, now);
+                  const state = rowState(row, now);
                   const isSelected = selected?.client.id === row.client.id;
+                  const appRows = row.apps.filter((e) => e.app);
+                  const planNames = [...new Set(row.apps.flatMap((e) => (e.license ? [planName(e.license.plan, plans)] : [])))];
+                  const latestBuild = latestBuildOf(row);
                   return (
                     <tr key={row.client.id} className={`border-t border-line-soft ${state === "pending" || isSelected ? "bg-peach-soft" : ""}`}>
                       <td className="px-4 py-3.5">
@@ -209,14 +224,28 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
                         </div>
                       </td>
                       <td className="px-4 py-3.5 break-all">{hostOf(row.client.siteUrl)}</td>
-                      <td className={`px-4 py-3.5 ${row.license ? "" : "text-muted"}`}>{planName(row.license?.plan, plans)}</td>
+                      <td className="px-4 py-3.5">
+                        {appRows.length === 0 ? (
+                          <span className="text-muted">None yet</span>
+                        ) : (
+                          <div className="flex flex-col gap-0.5">
+                            {appRows.length > 1 ? <span className="font-semibold">{appRows.length} apps</span> : null}
+                            {appRows.map((e) => (
+                              <span key={e.app!.id} className="text-xs text-muted">
+                                {appLabel(e.app)} · {ACCOUNT_STATE_LABEL[appState(row.client, e.license, now)]}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className={`px-4 py-3.5 ${planNames.length ? "" : "text-muted"}`}>{planNames.length ? planNames.join(", ") : planName(null, plans)}</td>
                       <td className="px-4 py-3.5">
                         <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
                       </td>
                       <td className="px-4 py-3.5">
-                        {row.latestBuild ? (
+                        {latestBuild ? (
                           <>
-                            <BuildStatusText status={row.latestBuild.status} /> · {row.latestBuild.versionName}
+                            <BuildStatusText status={latestBuild.status} /> · {latestBuild.versionName}
                           </>
                         ) : (
                           <span className="text-muted">None</span>
@@ -274,11 +303,16 @@ export default async function ClientsPage({ searchParams }: PageProps<"/admin/cl
 }
 
 async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: { license: boolean; suspend: boolean; edit: boolean } }) {
-  const { client, user, license, activation } = row;
-  const state = accountState(client, license, now);
+  const { client, user } = row;
+  // With one app (or none yet) the panel handles its plan; several apps are each handled on the client's page.
+  const several = row.apps.filter((e) => e.app).length > 1;
+  const only = several ? null : (row.apps[0] ?? null);
+  const app = only?.app ?? null;
+  const license = only?.license ?? null;
+  const activation = only?.activation ?? null;
+  const state = several ? rowState(row, now) : appState(client, license, now);
   const store = await getStore();
   const plans = await getPlans(store);
-  const app = await store.getAppByClientId(client.id);
   const payments = await store.listPlanPayments({ clientId: client.id, limit: 5 });
   const steps = stepStatus(app, license?.plan ?? null);
   const stepsDone = SETUP_STEPS.filter((s) => steps[s]).length;
@@ -286,7 +320,8 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
   const nextYear = new Date(base);
   nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
   const key = license ? revealLicenseKey(license, encryptionKey()) : null;
-  const title = state === "pending" ? "Activate" : state === "expired" ? "Renew" : "Manage";
+  const accountWide = rowState(row, now);
+  const title = accountWide === "pending" ? "Activate" : accountWide === "expired" ? "Renew" : "Manage";
 
   return (
     <>
@@ -325,6 +360,32 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
         <dd className="m-0 break-all">{client.siteUrl}</dd>
         <dt className="text-muted">Signed up</dt>
         <dd className="m-0">{formatDate(client.createdAt)}</dd>
+        {several ? (
+          <>
+            <dt className="text-muted">Apps</dt>
+            <dd className="m-0">
+              <ul className="m-0 flex list-none flex-col gap-1 p-0">
+                {row.apps
+                  .filter((e) => e.app)
+                  .map((e) => {
+                    const appStateNow = appState(client, e.license, now);
+                    return (
+                      <li key={e.app!.id} className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-semibold">{appLabel(e.app)}</span>
+                        <Badge tone={stateTone(appStateNow)}>{ACCOUNT_STATE_LABEL[appStateNow]}</Badge>
+                        <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                      </li>
+                    );
+                  })}
+              </ul>
+            </dd>
+          </>
+        ) : app ? (
+          <>
+            <dt className="text-muted">App</dt>
+            <dd className="m-0">{appLabel(app)}</dd>
+          </>
+        ) : null}
         {license ? (
           <>
             <dt className="text-muted">Plan</dt>
@@ -361,19 +422,32 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
             </dd>
           </>
         ) : null}
-        <dt className="text-muted">App setup</dt>
-        <dd className="m-0">
-          {stepsDone} of {SETUP_STEPS.length} steps
-        </dd>
+        {several ? null : (
+          <>
+            <dt className="text-muted">App setup</dt>
+            <dd className="m-0">
+              {stepsDone} of {SETUP_STEPS.length} steps
+            </dd>
+          </>
+        )}
       </dl>
 
-      {state !== "suspended" && may.license ? (
+      {several ? (
+        <p className="m-0 border-t border-line-soft pt-3.5 text-sm leading-relaxed text-muted">
+          Each app has its own plan and license. Activate, renew or change them on{" "}
+          <Link href={`/admin/clients/${client.id}`} className="font-semibold">
+            {user.name}&apos;s page
+          </Link>
+          .
+        </p>
+      ) : state !== "suspended" && may.license ? (
         <div className="flex flex-col gap-3.5 border-t border-line-soft pt-3.5">
           <ActivateForm
             clientId={client.id}
+            appId={app?.id ?? null}
             plan={license?.plan ?? "pro"}
             activeUntil={isoDate(nextYear)}
-            pending={state === "pending"}
+            pending={!license}
             planNames={{ starter: plans.starter.name, pro: plans.pro.name }}
           />
         </div>
@@ -411,7 +485,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
         </div>
       ) : null}
 
-      {state !== "pending" && (may.license || may.suspend || may.edit) ? (
+      {accountWide !== "pending" && (may.license || may.suspend || may.edit) ? (
         <div className="flex flex-col gap-2 border-t border-line-soft pt-3.5">
           <span className="text-sm font-semibold">More actions</span>
           <div className="flex flex-wrap gap-2">
@@ -429,6 +503,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
             {app && may.edit ? (
               <form action={setHostedApiAction}>
                 <input type="hidden" name="clientId" value={client.id} />
+                <input type="hidden" name="appId" value={app.id} />
                 <input type="hidden" name="hosted" value={app.backend === "hosted" ? "0" : "1"} />
                 <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
                   {app.backend === "hosted" ? "Stop the hosted API" : "Use the hosted API"}
@@ -438,12 +513,14 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
             {activation && may.license ? (
               <form action={releaseClientSiteAction}>
                 <input type="hidden" name="clientId" value={client.id} />
+                {app ? <input type="hidden" name="appId" value={app.id} /> : null}
                 <SubmitButton variant="secondary" className="h-9 px-3 text-sm">Release website</SubmitButton>
               </form>
             ) : null}
             {license && may.license ? (
               <form action={regenerateKeyAction}>
                 <input type="hidden" name="clientId" value={client.id} />
+                {app ? <input type="hidden" name="appId" value={app.id} /> : null}
                 <SubmitButton variant="secondary" className="h-9 px-3 text-sm">New license key</SubmitButton>
               </form>
             ) : null}

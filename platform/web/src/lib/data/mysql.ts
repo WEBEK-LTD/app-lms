@@ -3,7 +3,7 @@ import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
-import { accountState } from "../license/status";
+import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AppLayoutRecord } from "./types";
@@ -11,6 +11,7 @@ import type {
   AppPatch,
   BuildPatch,
   ClaimResult,
+  ClientAppRow,
   ClientFilter,
   ClientPatch,
   ClientRow,
@@ -233,50 +234,66 @@ export class MysqlStore implements DataStore {
     );
     if (base.length === 0) return [];
     const ids = base.map((row) => row.client.id);
-    const licenseRows = await this.run((db) => db.select().from(schema.licenses).where(inArray(schema.licenses.clientId, ids)));
+    const [appRows, licenseRows] = await Promise.all([
+      this.run((db) =>
+        db.select().from(schema.apps).where(inArray(schema.apps.clientId, ids)).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
+      ),
+      this.run((db) => db.select().from(schema.licenses).where(inArray(schema.licenses.clientId, ids))),
+    ]);
     const licenseIds = licenseRows.map((l) => l.id);
-    const activationRows = licenseIds.length
-      ? await this.run((db) => db.select().from(schema.activations).where(inArray(schema.activations.licenseId, licenseIds)))
-      : [];
-    const buildRows = await this.run((db) =>
-      db
-        .select()
-        .from(schema.builds)
-        .where(
-          and(
-            inArray(schema.builds.clientId, ids),
-            eq(schema.builds.number, sql`(select max(b2.number) from builds b2 where b2.client_id = ${schema.builds.clientId})`),
-          ),
-        ),
-    );
-    const licenseByClient = new Map(licenseRows.map((l) => [l.clientId, l]));
+    const appIds = appRows.map((a) => a.id);
+    const [activationRows, buildRows] = await Promise.all([
+      licenseIds.length
+        ? this.run((db) => db.select().from(schema.activations).where(inArray(schema.activations.licenseId, licenseIds)))
+        : Promise.resolve([]),
+      appIds.length
+        ? this.run((db) =>
+            db
+              .select()
+              .from(schema.builds)
+              .where(
+                and(
+                  inArray(schema.builds.appId, appIds),
+                  eq(schema.builds.number, sql`(select max(b2.number) from builds b2 where b2.app_id = ${schema.builds.appId})`),
+                ),
+              ),
+          )
+        : Promise.resolve([]),
+    ]);
     const activationByLicense = new Map(activationRows.map((a) => [a.licenseId, a]));
-    const buildByClient = new Map(buildRows.map((b) => [b.clientId, toBuild(b)]));
+    const buildByApp = new Map(buildRows.map((b) => [b.appId, toBuild(b)]));
     return base
       .map((row) => {
-        const license = licenseByClient.get(row.client.id) ?? null;
-        return {
-          client: row.client,
-          user: row.user,
-          license,
-          activation: license ? (activationByLicense.get(license.id) ?? null) : null,
-          latestBuild: buildByClient.get(row.client.id) ?? null,
+        const licenses = licenseRows.filter((l) => l.clientId === row.client.id);
+        const entry = (app: App | null): ClientAppRow => {
+          const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
+          return {
+            app,
+            license,
+            activation: license ? (activationByLicense.get(license.id) ?? null) : null,
+            latestBuild: app ? (buildByApp.get(app.id) ?? null) : null,
+          };
         };
+        const apps = appRows.filter((a) => a.clientId === row.client.id).map(entry);
+        if (licenses.some((l) => l.appId === null)) apps.push(entry(null));
+        return { client: row.client, user: row.user, license: longestLicense(licenses), apps };
       })
-      .filter((row) => input.filter === "all" || accountState(row.client, row.license, input.now) === input.filter);
+      .filter((row) => input.filter === "all" || clientAccountState(row.client, row.license ? [row.license] : [], input.now) === input.filter);
   }
 
   async countClients(now: Date): Promise<Record<ClientFilter, number>> {
+    // One row per client, with the end of their longest license: it decides the account's state.
     const rows = await this.run((db) =>
       db
-        .select({ status: schema.clients.status, expiresAt: schema.licenses.expiresAt })
+        .select({ status: schema.clients.status, expiresAt: sql<Date | null>`max(${schema.licenses.expiresAt})`.mapWith(schema.licenses.expiresAt) })
         .from(schema.clients)
-        .leftJoin(schema.licenses, eq(schema.licenses.clientId, schema.clients.id)),
+        .leftJoin(schema.licenses, eq(schema.licenses.clientId, schema.clients.id))
+        .groupBy(schema.clients.id, schema.clients.status),
     );
     const counts: Record<ClientFilter, number> = { all: 0, pending: 0, active: 0, expired: 0 };
     for (const row of rows) {
       counts.all += 1;
-      const state = accountState({ status: row.status }, row.expiresAt ? { expiresAt: row.expiresAt } : null, now);
+      const state = clientAccountState({ status: row.status }, row.expiresAt ? [{ expiresAt: row.expiresAt }] : [], now);
       if (state !== "suspended") counts[state] += 1;
     }
     return counts;
@@ -291,11 +308,21 @@ export class MysqlStore implements DataStore {
     return rows[0] ?? null;
   }
 
-  async getLicenseByClientId(clientId: string): Promise<License | null> {
+  async getLicenseForApp(clientId: string, appId: string | null): Promise<License | null> {
     const rows = await this.run((db) =>
-      db.select().from(schema.licenses).where(eq(schema.licenses.clientId, clientId)).limit(1),
+      db
+        .select()
+        .from(schema.licenses)
+        .where(and(eq(schema.licenses.clientId, clientId), appId === null ? isNull(schema.licenses.appId) : eq(schema.licenses.appId, appId)))
+        .limit(1),
     );
     return rows[0] ?? null;
+  }
+
+  async listLicensesByClient(clientId: string): Promise<License[]> {
+    return this.run((db) =>
+      db.select().from(schema.licenses).where(eq(schema.licenses.clientId, clientId)).orderBy(asc(schema.licenses.createdAt)),
+    );
   }
 
   async getLicenseByHash(keyHash: string): Promise<License | null> {
@@ -354,12 +381,30 @@ export class MysqlStore implements DataStore {
   }
 
   async createApp(app: App): Promise<void> {
-    await this.run((db) => db.insert(schema.apps).values(app));
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        // Locks the account's row, so two apps created at once can't both be "the first".
+        await tx.select({ id: schema.clients.id }).from(schema.clients).where(eq(schema.clients.id, app.clientId)).for("update");
+        const [existing] = await tx.select({ n: count() }).from(schema.apps).where(eq(schema.apps.clientId, app.clientId));
+        await tx.insert(schema.apps).values(app);
+        if (Number(existing?.n ?? 0) > 0) return;
+        // The account's first app takes what was paid and given before it existed.
+        await tx
+          .update(schema.licenses)
+          .set({ appId: app.id })
+          .where(and(eq(schema.licenses.clientId, app.clientId), isNull(schema.licenses.appId)));
+        await tx
+          .update(schema.planPayments)
+          .set({ appId: app.id })
+          .where(and(eq(schema.planPayments.clientId, app.clientId), isNull(schema.planPayments.appId)));
+      }),
+    );
   }
 
-  async getAppByClientId(clientId: string): Promise<App | null> {
-    const rows = await this.run((db) => db.select().from(schema.apps).where(eq(schema.apps.clientId, clientId)).limit(1));
-    return rows[0] ?? null;
+  async listAppsByClient(clientId: string): Promise<App[]> {
+    return this.run((db) =>
+      db.select().from(schema.apps).where(eq(schema.apps.clientId, clientId)).orderBy(asc(schema.apps.createdAt), asc(schema.apps.id)),
+    );
   }
 
   async getAppById(id: string): Promise<App | null> {
@@ -393,7 +438,7 @@ export class MysqlStore implements DataStore {
             versionCode: sql<number | null>`max(${schema.builds.versionCode})`,
           })
           .from(schema.builds)
-          .where(eq(schema.builds.clientId, input.clientId))
+          .where(eq(schema.builds.appId, input.appId))
           .for("update");
         const number = Number(previous?.number ?? 0) + 1;
         const versionCode = Number(previous?.versionCode ?? 0) + 1;
@@ -413,9 +458,9 @@ export class MysqlStore implements DataStore {
     return rows[0] ? toBuild(rows[0]) : null;
   }
 
-  async listBuildsByClient(clientId: string, limit: number): Promise<Build[]> {
+  async listBuildsByApp(appId: string, limit: number): Promise<Build[]> {
     const rows = await this.run((db) =>
-      db.select().from(schema.builds).where(eq(schema.builds.clientId, clientId)).orderBy(desc(schema.builds.number)).limit(limit),
+      db.select().from(schema.builds).where(eq(schema.builds.appId, appId)).orderBy(desc(schema.builds.number)).limit(limit),
     );
     return rows.map(toBuild);
   }
@@ -1096,12 +1141,17 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]> {
+  async listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]> {
     return (await this.run((db) =>
       db
         .select()
         .from(schema.planPayments)
-        .where(input.clientId ? eq(schema.planPayments.clientId, input.clientId) : undefined)
+        .where(
+          and(
+            input.clientId ? eq(schema.planPayments.clientId, input.clientId) : undefined,
+            input.appId ? eq(schema.planPayments.appId, input.appId) : undefined,
+          ),
+        )
         .orderBy(desc(schema.planPayments.createdAt))
         .limit(input.limit),
     )) as PlanPayment[];
@@ -1379,7 +1429,7 @@ export class MysqlStore implements DataStore {
   // 11.1 Overview
 
   async listApps(): Promise<App[]> {
-    return this.run((db) => db.select().from(schema.apps));
+    return this.run((db) => db.select().from(schema.apps).orderBy(asc(schema.apps.createdAt)));
   }
 
   async listBuildsSince(since: Date): Promise<Build[]> {

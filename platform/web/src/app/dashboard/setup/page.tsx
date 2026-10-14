@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Notice, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
+import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
@@ -28,7 +29,7 @@ const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
 };
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
-  const { client, app, license, state } = await requireClient();
+  const { client, app, apps, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
   const plan = license?.plan ?? null;
   const status = stepStatus(app, plan);
@@ -46,7 +47,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const activation = license ? await store.getActivation(license.id) : null;
   const icon = app.iconAssetId ? await store.getAsset(app.iconAssetId) : null;
   const logo = app.logoAssetId ? await store.getAsset(app.logoAssetId) : null;
-  const builds = await store.listBuildsByClient(client.id, 1);
+  const builds = await store.listBuildsByApp(app.id, 1);
   const pluginState = !activation
     ? "none"
     : app.siteUrl && normalizeSiteUrl(app.siteUrl) === activation.siteUrl
@@ -74,6 +75,11 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
           Your plan has ended. You can still edit your app, but new builds need an active plan. Message us on WhatsApp to renew.
+        </Notice>
+      ) : state === "pending" && client.status === "active" ? (
+        <Notice tone="warn" icon="hourglass_top">
+          {appLabel(app)} is waiting for activation. Set it up now; its first build starts once it&apos;s active. Each app has its own plan:{" "}
+          <Link href="/dashboard/license">pay it on License &amp; plugin</Link> or message us on WhatsApp.
         </Notice>
       ) : null}
 
@@ -121,7 +127,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           hidden={(["wordpress", "custom_api", "setup_requested", "shopify", "catalog"] as const).filter(
             (b) => !offered(b === "catalog" ? noWebsiteFor(app.appType) : b),
           )}
-          siteUrl={app.siteUrl ?? client.siteUrl}
+          siteUrl={app.siteUrl ?? (apps[0]?.id === app.id ? client.siteUrl : "")}
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}

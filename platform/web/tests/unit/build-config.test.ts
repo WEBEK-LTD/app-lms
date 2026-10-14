@@ -8,7 +8,7 @@ import type { BuildConfig } from "@/lib/build-config/types";
 import type { App } from "@/lib/data/types";
 import { readPngInfo, isSvg } from "@/lib/png";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, websiteSchema } from "@/lib/validation";
-import { NOW, days, setupClient } from "./helpers";
+import { NOW, days, licenseOf, setupClient } from "./helpers";
 
 const assetUrl = (id: string) => `https://yallapp.com.tr/api/v1/assets/${id}`;
 
@@ -200,7 +200,7 @@ describe("queueing builds", () => {
     const app = { ...completeApp(client.id), googlePlayKeyEncrypted: "v1.x" };
     await store.createApp(app);
     const c = (await store.getClientById(client.id))!;
-    const license = await store.getLicenseByClientId(client.id);
+    const license = await licenseOf(store, client.id);
 
     const first = await queueBuild(store, { client: c, app, license, versionName: "1.0.0" }, NOW, assetUrl);
     expect(first.ok).toBe(true);
@@ -225,7 +225,7 @@ describe("queueing builds", () => {
   it("refuses when setup is incomplete or the plan expired", async () => {
     const { store, client } = await setupClient({ activeUntil: days(1) });
     const c = (await store.getClientById(client.id))!;
-    const license = await store.getLicenseByClientId(client.id);
+    const license = await licenseOf(store, client.id);
     const incomplete = newApp(client.id, "https://academy.test", NOW);
     expect(await queueBuild(store, { client: c, app: incomplete, license, versionName: "1.0.0" }, NOW, assetUrl)).toMatchObject({ reason: "setup_incomplete" });
     expect(await queueBuild(store, { client: c, app: completeApp(client.id), license, versionName: "1.0.0" }, days(2), assetUrl)).toMatchObject({ reason: "license_inactive" });

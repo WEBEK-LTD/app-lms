@@ -10,8 +10,8 @@
 // MySQL and MariaDB can't undo schema changes, so a migration that stopped
 // halfway leaves some of its tables, columns, keys or indexes behind. This
 // script runs each statement on its own and skips a statement whose object
-// already exists, so the next run finishes that migration instead of failing
-// on it forever.
+// already exists (or, for a drop, is already gone), so the next run finishes
+// that migration instead of failing on it forever.
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -61,6 +61,7 @@ function alreadyExists(error) {
     case 1060: // Duplicate column name
     case 1061: // Duplicate key (index) name
     case 1826: // Duplicate foreign key name (MySQL)
+    case 1091: // Can't DROP: the index (or column) is already gone
       return true;
     case 1005: // Can't create table: errno 121 is a duplicate foreign key name (MariaDB)
       return /errno: 121\b/.test(error.sqlMessage ?? "");

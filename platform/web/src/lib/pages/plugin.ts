@@ -6,7 +6,8 @@ import type { Layout } from "./types";
 
 /**
  * POST /apps/layout (docs/api/platform.yaml: getAppLayout): the published
- * layout of the app whose license is active on the plugin's site.
+ * layout of the app whose license is active on the plugin's site (the
+ * license key names the app: each app of an account has its own).
  */
 
 export type LayoutResult =
@@ -34,8 +35,9 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   if (!activation || activation.siteUrl !== site.siteUrl) {
     return { status: 403, body: { code: "license_inactive", message: "This license isn't active on this site." } };
   }
-  const app = await store.getAppByClientId(client.id);
-  const layout = app ? (await store.getAppLayout(app.id))?.published : null;
+  // The license's own app: each app of an account has its own key and site.
+  const app = license.appId ? await store.getAppById(license.appId) : null;
+  const layout = app && app.clientId === client.id ? (await store.getAppLayout(app.id))?.published : null;
   if (!layout) return { status: 204 };
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };
   return { status: 200, body: layout, etag: layout.version };

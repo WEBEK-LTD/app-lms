@@ -14,13 +14,13 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
 |---|---|
 | Website | `/`, `/guides/*`, `/terms`, `/privacy`, `/refund`, 404 |
 | Accounts | `/sign-up`, `/sign-in`, `/forgot-password`, `/reset-password`, `/pending` (also pay by card) |
-| Client dashboard | `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments`; courses without a website: `/dashboard/courses`, `/dashboard/courses/<id>`, `/dashboard/orders` |
-| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
+| Client dashboard | An app switcher in the header and "Add an app" (`/dashboard/app-type?new=1`): an account can have several apps, each with its own plan and license, and every page works on the current app. `/dashboard` (overview), `/dashboard/app-type`, `/dashboard/setup?step=website\|branding\|listing\|publishing`, `/dashboard/builds`, `/dashboard/license`; hosted apps: `/dashboard/notifications`, `/dashboard/app-sign-in`; shops without a website: `/dashboard/catalog`, `/dashboard/orders`; bookings without a website: `/dashboard/services`, `/dashboard/appointments`; courses without a website: `/dashboard/courses`, `/dashboard/courses/<id>`, `/dashboard/orders` |
+| Super admin | `/admin` (clients: filter, search, activate, renew, suspend, new key, release site, add client, edit details, "Manage their app" to open the client's dashboard; `/admin/clients/<id>` has a section per app with its own plan and license), `/admin/builds`, `/admin/releases` (plugin zips), `/admin/plans`, `/admin/payments`, `/admin/settings` |
 | Plugin API | `/api/v1/licenses/{activate,check,deactivate}`, `/api/v1/plugin/update`, `/api/v1/plugin/download` (signed links): [`docs/api/platform.yaml`](../../docs/api/platform.yaml) |
 | Pipeline API | `/api/v1/builds/queue`, `/api/v1/builds/{id}/config`, `/api/v1/builds/{id}/status`, `/api/v1/builds/{id}/secrets`, `/api/v1/builds/{id}/signing`: [`docs/api/pipeline.yaml`](../../docs/api/pipeline.yaml) |
 | Hosted API | `/api/app/{app_id}/…`: the app contract's config, sign-in, account, devices, push token and notifications for apps on the hosted API ([`docs/api/openapi.yaml`](../../docs/api/openapi.yaml)). Clients send notifications from `/dashboard/notifications`. Store apps can take products, cart and checkout from a Shopify store (Storefront API token entered on the Website step, plus an optional Admin API token for order history); apps can also connect ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me with their keys (`src/lib/hosted/connectors/platforms.ts`), or sell without a website: products on `/dashboard/catalog`, orders on `/dashboard/orders`, payment page `/pay/<token>` with the client's iyzico keys, iyzico callback `/api/pay/iyzico/<token>`, product pages `/shop/<app>/<product>`. |
 | Marketplace | Shops without their own iyzico account sell through Yallapp's (commission in admin Settings): they register as iyzico sub-merchants on `/dashboard/catalog`; completing an order, or "Release payout" on `/admin/payments`, releases their share. |
-| Plan payments | Clients pay their plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends the license. |
+| Plan payments | Clients pay an app's plan by card on iyzico with Yallapp's keys (admin Settings) and the card price set in admin Plans; iyzico callback `/api/pay/plan/<token>` activates or extends that app's license. |
 | Other | `/api/v1/assets/{id}` (uploaded icons and logos), `/api/dashboard/plugin` (signed download for signed-in clients), `/api/health` |
 
 ### How it fits together
@@ -44,7 +44,7 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   set-password link.
 - **Licenses:** keys look like `YALL-7K2D-9QWE-4MNB`. They are stored
   AES-256-GCM encrypted (so the client can always see theirs) plus a SHA-256
-  hash for lookups. One site per license; site URLs are normalised (scheme,
+  hash for lookups. One license per app, one site per license; site URLs are normalised (scheme,
   `www.`, ports, trailing slashes and `index.php` are ignored; subdirectory
   installs count as different sites).
 - **Setup wizard:** each step is validated with the rules of
@@ -54,7 +54,7 @@ Built in Phase 4. See [`docs/ROADMAP.md`](../../docs/ROADMAP.md).
   test fails if it drifts from `docs/`.
 - **Builds:** "Start new build" (and finishing the wizard the first time)
   stores a build record with a snapshot of the config and the store listing.
-  Version codes go up by one per build. The pipeline (Phase 5) reads queued
+  Build numbers and version codes go up by one per build of each app. The pipeline (Phase 5) reads queued
   builds and reports status and file links; until then download rows show
   "Available after your first build".
 - **Secrets clients give us** (Google Play service account JSON, App Store

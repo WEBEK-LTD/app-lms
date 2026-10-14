@@ -23,6 +23,7 @@ import type { Plan } from "../plans";
 import type { Layout, LayoutContent } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import {
+  type AnyMySqlColumn,
   bigint,
   boolean,
   double,
@@ -93,6 +94,11 @@ export const clients = mysqlTable(
   (t) => [uniqueIndex("clients_user_unique").on(t.userId), index("clients_status_idx").on(t.status)],
 );
 
+/**
+ * One license per app: its plan, end date and key (bound to one site).
+ * `app_id` is null only for a license given before the account's first app
+ * exists; creating that app takes it (and its plan payments).
+ */
 export const licenses = mysqlTable(
   "licenses",
   {
@@ -100,6 +106,7 @@ export const licenses = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
+    appId: id("app_id").references((): AnyMySqlColumn => apps.id, { onDelete: "cascade" }),
     keyHash: varchar("key_hash", { length: 64 }).notNull(),
     keyEncrypted: text("key_encrypted").notNull(),
     keyLast4: varchar("key_last4", { length: 4 }).notNull(),
@@ -108,7 +115,11 @@ export const licenses = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("licenses_client_unique").on(t.clientId), uniqueIndex("licenses_key_hash_unique").on(t.keyHash)],
+  (t) => [
+    index("licenses_client_idx").on(t.clientId),
+    uniqueIndex("licenses_app_unique").on(t.appId),
+    uniqueIndex("licenses_key_hash_unique").on(t.keyHash),
+  ],
 );
 
 export const activations = mysqlTable("license_activations", {
@@ -177,7 +188,8 @@ export const apps = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("apps_client_unique").on(t.clientId)],
+  // An account can have several apps, listed oldest first.
+  (t) => [index("apps_client_idx").on(t.clientId, t.createdAt)],
 );
 
 export const builds = mysqlTable(
@@ -207,7 +219,9 @@ export const builds = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [
-    uniqueIndex("builds_client_number_unique").on(t.clientId, t.number),
+    // Numbers and version codes go up per app.
+    uniqueIndex("builds_app_number_unique").on(t.appId, t.number),
+    index("builds_client_idx").on(t.clientId, t.createdAt),
     index("builds_status_idx").on(t.status, t.createdAt),
   ],
 );
@@ -442,7 +456,7 @@ export const platformSettings = mysqlTable("platform_settings", {
   updatedBy: varchar("updated_by", { length: 191 }).notNull(),
 });
 
-/** Clients paying their plan by card (Yallapp's iyzico account). */
+/** Clients paying an app's plan by card (Yallapp's iyzico account). */
 export const planPayments = mysqlTable(
   "plan_payments",
   {
@@ -450,6 +464,8 @@ export const planPayments = mysqlTable(
     clientId: id("client_id")
       .notNull()
       .references(() => clients.id, { onDelete: "cascade" }),
+    /** The app whose plan it pays; null for a payment before the account's first app (creating it fills this in). */
+    appId: id("app_id").references(() => apps.id, { onDelete: "set null" }),
     plan: varchar("plan", { length: 16 }).notNull().$type<"starter" | "pro">(),
     months: int("months").notNull().$type<1 | 12>(),
     amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
@@ -460,7 +476,11 @@ export const planPayments = mysqlTable(
     createdAt: time("created_at").notNull(),
     paidAt: time("paid_at"),
   },
-  (t) => [uniqueIndex("plan_payments_token_unique").on(t.tokenHash), index("plan_payments_client_idx").on(t.clientId, t.createdAt)],
+  (t) => [
+    uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
+    index("plan_payments_client_idx").on(t.clientId, t.createdAt),
+    index("plan_payments_app_idx").on(t.appId, t.createdAt),
+  ],
 );
 
 /** Appointments of apps whose bookings are managed in the dashboard. */

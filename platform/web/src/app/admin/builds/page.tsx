@@ -1,3 +1,4 @@
+import { appLabel } from "@/lib/app/label";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BuildBadge } from "@/components/build-status";
@@ -27,7 +28,8 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
     builds.map(async (build) => {
       const client = await store.getClientById(build.clientId);
       const user = client ? await store.getUserById(client.userId) : null;
-      return { build, name: user?.name ?? "Unknown client" };
+      const app = await store.getAppById(build.appId);
+      return { build, name: user?.name ?? "Unknown client", appName: appLabel(app) };
     }),
   );
   // Download links are signed for this render only (15 minutes) and never stored.
@@ -72,10 +74,11 @@ export default async function BuildQueuePage({ searchParams }: PageProps<"/admin
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ build, name }) => (
+              {rows.map(({ build, name, appName }) => (
                 <tr key={build.id} className="border-t border-line-soft">
                   <td className="px-4 py-3">
-                    <Link href={`/admin/clients/${build.clientId}`}>{name}</Link>
+                    <Link href={`/admin/clients/${build.clientId}#app-${build.appId}`}>{name}</Link>
+                    <span className="block text-xs text-muted">{appName}</span>
                   </td>
                   <td className="px-4 py-3">#{build.number}{build.autoPublish ? " · auto-publish" : ""}</td>
                   <td className="px-4 py-3">

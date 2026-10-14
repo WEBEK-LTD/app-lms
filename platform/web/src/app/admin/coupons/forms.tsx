@@ -84,7 +84,7 @@ export function CouponForm({ id, coupon, planNames }: { id?: string; coupon: Cou
       <div className="flex flex-col gap-2">
         <label className="flex cursor-pointer items-center gap-2 text-[15px]">
           <input type="checkbox" name="firstPaymentOnly" defaultChecked={checked("firstPaymentOnly")} className="h-4 w-4 accent-midnight" />
-          First payment only (clients who have never been activated)
+          First payment only (an app that has never been activated)
         </label>
         <label className="flex cursor-pointer items-center gap-2 text-[15px]">
           <input type="checkbox" name="active" defaultChecked={checked("active")} className="h-4 w-4 accent-midnight" />

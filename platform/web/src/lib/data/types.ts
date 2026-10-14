@@ -36,9 +36,15 @@ export interface Client {
   updatedAt: Date;
 }
 
+/** An app's license: its plan, end date and key. Each app of an account has its own. */
 export interface License {
   id: string;
   clientId: string;
+  /**
+   * The app it belongs to. Null only for a license given before the
+   * account's first app existed: creating that app takes it.
+   */
+  appId: string | null;
   /** SHA-256 of the normalised key, for lookups. */
   keyHash: string;
   /** The key, AES-256-GCM encrypted, so the client can always see it. */
@@ -537,10 +543,12 @@ export interface PlatformSetting<K extends PlatformSettingKey = PlatformSettingK
 
 export type PlanPaymentStatus = "pending" | "paid" | "failed";
 
-/** A client paying their Yallapp plan by card, with Yallapp's own iyzico account. */
+/** A client paying an app's Yallapp plan by card, with Yallapp's own iyzico account. */
 export interface PlanPayment {
   id: string;
   clientId: string;
+  /** The app whose plan it pays; null when paid before the account's first app existed (creating that app fills it in). */
+  appId: string | null;
   plan: Plan;
   /** How long the payment extends the license. */
   months: 1 | 12;
@@ -968,7 +976,7 @@ export interface Coupon {
   maxRedemptions: number | null;
   /** Uses per client; null for no limit. */
   maxPerClient: number | null;
-  /** Only for clients who have never been activated. */
+  /** Only for an app's first payment: an app never activated (see checkCoupon). */
   firstPaymentOnly: boolean;
   /** Off: clients can't use it anymore. */
   active: boolean;

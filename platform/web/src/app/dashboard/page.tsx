@@ -12,6 +12,7 @@ import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
 import { AnnouncementBanner } from "@/components/announcements";
+import { appLabel } from "@/lib/app/label";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -27,11 +28,12 @@ function Tile({ title, children, action }: { title: string; children: React.Reac
 
 export default async function OverviewPage() {
   const contact = await getContact();
-  const { user, client, app, license, state } = await requireClient();
+  const context = await requireClient();
+  const { user, app, license, state } = context;
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
   const plans = await getPlans(store);
-  const [latest] = await store.listBuildsByClient(client.id, 1);
+  const [latest] = await store.listBuildsByApp(app.id, 1);
   const activation = license ? await store.getActivation(license.id) : null;
   const plan = license?.plan ?? null;
   const status = stepStatus(app, plan);
@@ -48,13 +50,19 @@ export default async function OverviewPage() {
         </span>
       </div>
 
-      <AnnouncementBanner context={{ client, license, app, state }} />
+      <AnnouncementBanner context={context} />
 
-      {state === "expired" ? (
+      {state === "pending" ? (
+        <Notice tone="warn" icon="hourglass_top">
+          {appLabel(app)} is waiting for activation. Each app has its own plan: set it up now, then pay its plan on{" "}
+          <Link href="/dashboard/license">License &amp; plugin</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>. Its first build
+          starts once it&apos;s active.
+        </Notice>
+      ) : state === "expired" ? (
         <Notice tone="warn" icon="warning">
           Your plan ended on {formatDate(license?.expiresAt)}. <a href={contact.whatsappUrl}>Message us on WhatsApp</a> to renew.
         </Notice>
-      ) : daysLeft <= 14 ? (
+      ) : license && daysLeft <= 14 ? (
         <Notice icon="schedule">
           Your plan renews on {formatDate(license?.expiresAt)}. <a href={contact.whatsappUrl}>Message us on WhatsApp</a> to arrange the renewal.
         </Notice>
@@ -108,7 +116,7 @@ export default async function OverviewPage() {
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan, plans)} <Badge tone={state === "active" ? "success" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+            {planName(plan, plans)} <Badge tone={state === "active" ? "success" : state === "pending" ? "warn" : "danger"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
           </span>
           <span className="flex items-center gap-1.5 text-sm text-muted">
             <Icon name={activation ? "link" : "link_off"} size={18} />

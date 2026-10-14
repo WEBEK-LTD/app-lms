@@ -14,6 +14,7 @@ import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
+import { appLabel } from "@/lib/app/label";
 
 export const metadata: Metadata = { title: "Account pending activation", robots: { index: false } };
 
@@ -109,7 +110,12 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
           {payable.length ? (
             <div className="flex flex-col gap-3 border-t border-line-soft pt-5">
               <h2 className="m-0 text-[19px] font-bold">Pay by card</h2>
-              <PlanPaymentForm plans={payable} current={null} cta="Pay and activate" />
+              {context.app ? (
+                <p className="m-0 text-sm text-muted">
+                  For your app <strong className="text-ink-2">{appLabel(context.app)}</strong>. Each app has its own plan.
+                </p>
+              ) : null}
+              <PlanPaymentForm plans={payable} current={null} cta="Pay and activate" appId={context.app?.id ?? null} />
             </div>
           ) : null}
 

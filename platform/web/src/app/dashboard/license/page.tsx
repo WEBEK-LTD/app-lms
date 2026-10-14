@@ -17,6 +17,7 @@ import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
+import { appLabel } from "@/lib/app/label";
 
 export const metadata: Metadata = { title: "License & plugin" };
 
@@ -31,7 +32,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
   const contact = await getContact();
-  const { license, state } = await requireClient();
+  const { license, state, app, apps } = await requireClient();
   const { released, payment } = await searchParams;
   const store = await getStore();
   const plans = await getPlans(store);
@@ -44,7 +45,15 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     <>
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">License &amp; plugin</h1>
-        <span className="text-[15px] text-muted">Your license connects the Yallapp plugin on your website to your plan.</span>
+        <span className="text-[15px] text-muted">
+          {apps.length > 1 ? (
+            <>
+              The license of <strong className="text-ink-2">{appLabel(app)}</strong>. Each app has its own plan, license key and website.
+            </>
+          ) : (
+            "Your license connects the Yallapp plugin on your website to your plan."
+          )}
+        </span>
       </div>
 
       {released ? (
@@ -62,6 +71,13 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
         </Notice>
       ) : null}
+      {state === "pending" ? (
+        <Notice tone="warn" icon="hourglass_top">
+          This app isn&apos;t activated yet. {payable.length ? "Pay its plan by card below, or " : ""}
+          <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to activate it. You get its license key
+          as soon as it&apos;s active.
+        </Notice>
+      ) : null}
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
           Your plan ended on {formatDate(license?.expiresAt)}. The plugin reports the license as expired, and your apps stop loading content.{" "}
@@ -77,6 +93,11 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           </h2>
           <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
         </div>
+        {app ? (
+          <p className="m-0 text-sm text-muted">
+            App: <span className="font-semibold text-ink-2">{appLabel(app)}</span>
+          </p>
+        ) : null}
         {key ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl bg-ivory px-4 py-3">
             <code className="min-w-0 flex-1 font-mono text-lg font-bold tracking-wider break-all" aria-label="License key">
@@ -116,11 +137,15 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         <section aria-labelledby="h-pay" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 id="h-pay" className="m-0 text-[19px] font-bold">
-              {state === "expired" ? "Renew by card" : "Extend by card"}
+              {state === "pending" ? "Pay by card" : state === "expired" ? "Renew by card" : "Extend by card"}
             </h2>
-            <p className="m-0 text-sm text-muted">A payment adds its period to the end of your current plan, so no days are lost.</p>
+            <p className="m-0 text-sm text-muted">
+              {state === "pending"
+                ? `The payment activates ${appLabel(app)} on the plan you choose. Your other apps keep their own plans.`
+                : "A payment adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
+            </p>
           </div>
-          <PlanPaymentForm plans={payable} current={license?.plan ?? null} cta="Pay by card" />
+          <PlanPaymentForm plans={payable} current={license?.plan ?? null} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} />
         </section>
       ) : null}
 

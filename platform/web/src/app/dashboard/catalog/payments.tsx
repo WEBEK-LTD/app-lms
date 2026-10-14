@@ -15,7 +15,7 @@ export async function CardPayments({ app }: { app: App }) {
   const store = await getStore();
   const terms = await marketplaceTerms(store, encryptionKey());
   // 11.5 Switches: joining can be switched off, for everyone or per plan (shops that joined keep selling).
-  const license = await store.getLicenseByClientId(app.clientId);
+  const license = await store.getLicenseForApp(app.clientId, app.id);
   const joinable = terms !== null && featureOn(await getSwitches(store), "marketplace", license?.plan ?? null);
   return (
       <section aria-labelledby="h-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">

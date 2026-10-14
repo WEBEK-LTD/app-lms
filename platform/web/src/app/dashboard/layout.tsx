@@ -5,14 +5,25 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { SideNavLinks } from "@/components/side-nav";
 import { SignOutButton } from "@/components/sign-out";
+import { AppSwitcher } from "@/components/app-switcher";
+import { appLabel, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
+import { APP_TYPE_NAMES } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
+import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getContact();
-  const { user, staff, app } = await requireClient();
+  const { user, staff, app, apps, client, licenses } = await requireClient();
+  const now = new Date();
+  // Every app of the account, each on its own plan: the switcher shows which one the dashboard works on.
+  const switcherApps = apps.map((a) => ({
+    id: a.id,
+    label: appLabel(a),
+    detail: `${APP_TYPE_NAMES[a.appType]} · ${ACCOUNT_STATE_LABEL[appState(client, licenses.find((l) => l.appId === a.id) ?? null, now)]}`,
+  }));
   return (
     <div className="flex min-h-screen flex-col bg-ivory md:flex-row">
       <nav
@@ -22,6 +33,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex items-center justify-between gap-3 px-2 md:pb-5">
           <Logo />
         </div>
+        {apps.length ? (
+          <div className="md:pb-4">
+            <AppSwitcher apps={switcherApps} current={app?.id ?? null} canAdd={apps.length < MAX_APPS_PER_CLIENT} />
+          </div>
+        ) : null}
         <SideNavLinks
           items={[
             { href: "/dashboard", label: "Overview", exact: true },
@@ -75,7 +91,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <span className="flex items-center gap-2">
                 <Icon name="key" size={20} />
                 <span>
-                  You&apos;re managing <strong>{user.name}</strong>&apos;s dashboard as Yallapp staff. Changes apply to their app.
+                  You&apos;re managing <strong>{user.name}</strong>&apos;s dashboard as Yallapp staff. Changes apply to their app
+                  {app && apps.length > 1 ? (
+                    <>
+                      {" "}
+                      <strong>{appLabel(app)}</strong>
+                    </>
+                  ) : null}
+                  .
                 </span>
               </span>
               <form action={stopManagingAction}>

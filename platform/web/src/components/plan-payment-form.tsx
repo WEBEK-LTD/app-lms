@@ -15,7 +15,18 @@ export interface CardPlan {
 }
 
 /** Plan choice, billing address and an optional coupon; the card itself is entered on iyzico's page. */
-export function PlanPaymentForm({ plans, current, cta }: { plans: CardPlan[]; current: "starter" | "pro" | null; cta: string }) {
+export function PlanPaymentForm({
+  plans,
+  current,
+  cta,
+  appId,
+}: {
+  plans: CardPlan[];
+  current: "starter" | "pro" | null;
+  cta: string;
+  /** The app being paid for (the dashboard's current app); the server checks it is still the current one. */
+  appId: string | null;
+}) {
   const [state, action] = useActionState(payPlanAction, initialFormState);
   const [couponState, couponAction, couponPending] = useActionState(checkCouponAction, {} as CouponState);
   const [plan, setPlan] = useState<string>(state.values?.plan || current || plans[plans.length - 1]?.id || "");
@@ -36,6 +47,7 @@ export function PlanPaymentForm({ plans, current, cta }: { plans: CardPlan[]; cu
       <FormMessage message={state.message} />
       {/* The choice is sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="plan" value={plan} />
+      <input type="hidden" name="appId" value={appId ?? ""} />
       <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
         <legend className="mb-1.5 text-sm font-semibold">Plan</legend>
         {plans.map((p) => {

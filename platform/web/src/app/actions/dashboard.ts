@@ -8,7 +8,8 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { chooseApp, getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
 import { encrypt } from "@/lib/crypto/encryption";
@@ -65,7 +66,7 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   const plan = context.license?.plan ?? null;
   revalidatePath("/dashboard", "layout");
   if (isSetupComplete(app, plan)) {
-    const builds = await store.listBuildsByClient(context.client.id, 1);
+    const builds = await store.listBuildsByApp(app.id, 1);
     if (builds.length === 0) {
       const result = await queueBuild(
         store,
@@ -84,25 +85,59 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
   redirect(next ? stepUrl(next) : "/dashboard/setup");
 }
 
+/** The app switcher: the dashboard works on another of the client's apps from now on. */
+export async function switchAppAction(formData: FormData): Promise<void> {
+  const context = await requireActiveClient();
+  const appId = String(formData.get("appId") ?? "");
+  if (appId === "new") redirect("/dashboard/app-type?new=1");
+  // Only one of this client's own apps can be chosen.
+  const app = context.apps.find((a) => a.id === appId);
+  if (app) await chooseApp(app.id);
+  revalidatePath("/dashboard", "layout");
+  // Pages every app has stay open; the others (products, bookings…) belong to one kind of app.
+  const from = String(formData.get("from") ?? "");
+  const stays = ["/dashboard/setup", "/dashboard/pages", "/dashboard/builds", "/dashboard/license", "/dashboard/announcements"];
+  redirect(stays.includes(from) ? from : "/dashboard");
+}
+
+/**
+ * The app type step. For an account's first app, or with `new=1` ("Add an
+ * app"), it creates the app, which starts the setup steps and waits for
+ * activation (by the team, or its plan paid by card) on its own plan.
+ */
 export async function chooseAppTypeAction(formData: FormData): Promise<void> {
   const context = await requireActiveClient();
+  const adding = formData.get("new") === "1";
+  const current = adding ? null : context.app;
+  const back = adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type";
   const appType = formData.get("appType");
-  if (!isAppType(appType)) redirect("/dashboard/app-type");
+  if (!isAppType(appType)) redirect(back);
   const store = await getStore();
-  // 11.5 Switches: a switched-off type can't be chosen (an app keeps its own).
-  if (appType !== context.app?.appType && !appTypeOn(await getSwitches(store), appType, context.license?.plan ?? null)) {
-    redirect("/dashboard/app-type?unavailable=1");
+  // 11.5 Switches: a switched-off type can't be chosen (an app keeps its own). A new app has no plan yet.
+  if (appType !== current?.appType && !appTypeOn(await getSwitches(store), appType, current ? (context.license?.plan ?? null) : null)) {
+    redirect(`${back}${adding ? "&" : "?"}unavailable=1`);
   }
   const now = new Date();
-  if (context.app?.appType !== appType) {
-    await recordStaffChange(context, `Set the app type to ${APP_TYPE_NAMES[appType]}`, { appType: context.app?.appType ?? null }, { appType });
+  if (!current) {
+    if (context.apps.length >= MAX_APPS_PER_CLIENT) redirect(`${back}${adding ? "&" : "?"}limit=1`);
+    // The account's first app starts with the website given at sign-up; the next ones ask for theirs.
+    const app = newApp(context.client.id, context.apps.length ? null : context.client.siteUrl, now, appType);
+    await store.createApp(app);
+    await chooseApp(app.id);
+    await recordStaffChange(
+      { ...context, app },
+      context.apps.length ? `Added an app: ${APP_TYPE_NAMES[appType]}` : `Set the app type to ${APP_TYPE_NAMES[appType]}`,
+      { appType: null },
+      { appType },
+    );
+    revalidatePath("/dashboard", "layout");
+    redirect(stepUrl("website"));
   }
-  if (!context.app) {
-    await store.createApp(newApp(context.client.id, context.client.siteUrl, now, appType));
-  } else if (context.app.appType !== appType) {
+  if (current.appType !== appType) {
+    await recordStaffChange(context, `Set the app type to ${APP_TYPE_NAMES[appType]}`, { appType: current.appType }, { appType });
     // The next build includes the new module. Content made for the old type (a shop, bookings) needs the Website step again.
-    const kind = context.app.connector?.kind;
-    const connector = context.app.connector;
+    const kind = current.connector?.kind;
+    const connector = current.connector;
     // Real estate apps only run with listings managed in Yallapp.
     const fits =
       appType === "real_estate"
@@ -116,7 +151,7 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
                 ? appType === "lms"
                 : kind !== "listings" && appType === "store");
     await store.updateApp(
-      context.app.id,
+      current.id,
       fits ? { appType, appTypeDoneAt: now } : { appType, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
       now,
     );
@@ -630,7 +665,10 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
   if (!result.ok) {
     const messages = {
       setup_incomplete: "Finish every step of the app setup first.",
-      license_inactive: "Your plan has ended. Message us on WhatsApp to renew it, then start a new build.",
+      license_inactive:
+        context.state === "pending"
+          ? "This app isn't activated yet. Pay its plan on the License & plugin page, or message us on WhatsApp."
+          : "Your plan has ended. Message us on WhatsApp to renew it, then start a new build.",
       build_running: "A build is already in progress. You can start a new one when it finishes.",
       version_too_low: "Use the same or a higher app version than your last build.",
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
