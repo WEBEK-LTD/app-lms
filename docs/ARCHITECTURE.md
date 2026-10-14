@@ -134,6 +134,19 @@ mobile/
   health data: kept with the appointment (`booking_appointments.answers_json`),
   shown only to the patient and on the clinic's dashboard, never in an email,
   push or text message. The intake form is on the hosted API only for now.
+- Restaurants (Phase 26) are the store engine with the `restaurant` vertical:
+  the Shop tab is a menu with category tabs, dishes have option groups
+  (`ProductDetail.option_groups`; the cart sends option IDs and the server
+  checks min and max and prices them, never trusting the app), and
+  `StoreConfig.fulfilment` asks pickup or delivery, the address and when
+  (`GET /store/order-times` computes opening, closing and the times for
+  later in the kitchen's time zone; `lib/catalog/fulfilment.ts`). Paid
+  orders keep their options and fulfilment (`catalog_orders.fulfilment`,
+  `fulfilment_status`) and move forward on the dashboard's Kitchen page
+  (`lib/catalog/kitchen.ts`), each step a notification and a push with the
+  `order_id`, which opens the order's tracking screen
+  (`GET /me/orders/{order_id}`). On WordPress the step follows the
+  WooCommerce status; options there are variations (hosted first).
 
 - One codebase, one build per client. Build-time config: app name, bundle IDs,
   icons, site URL, Firebase files, default template and font.
