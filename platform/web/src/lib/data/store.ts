@@ -43,12 +43,22 @@ import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInq
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
 
-export interface ClientRow {
-  client: Client;
-  user: User;
+/** One app of a client in the admin list: its license, the site that license is on, its latest build. */
+export interface ClientAppRow {
+  /** Null for a license given before the account's first app (no app yet). */
+  app: App | null;
   license: License | null;
   activation: Activation | null;
   latestBuild: Build | null;
+}
+
+export interface ClientRow {
+  client: Client;
+  user: User;
+  /** The license that lasts longest: it decides the account's state (clientAccountState). */
+  license: License | null;
+  /** The account's apps, oldest first, then a license without an app if there is one. */
+  apps: ClientAppRow[];
 }
 
 /** A client who asked the team to set up WordPress for their app. */
@@ -104,10 +114,17 @@ export interface DataStore {
   /** Open WordPress set-up requests, oldest first. */
   listSetupRequests(): Promise<SetupRequestRow[]>;
 
-  // Licenses
+  // Licenses: one per app
+  /** Fails when the app (or, with no app, the account) already has a license, or the key is taken. */
   createLicense(license: License): Promise<void>;
   getLicenseById(id: string): Promise<License | null>;
-  getLicenseByClientId(clientId: string): Promise<License | null>;
+  /**
+   * The license of one of the client's apps; with `appId` null, the license
+   * given before the account's first app existed. Never another client's.
+   */
+  getLicenseForApp(clientId: string, appId: string | null): Promise<License | null>;
+  /** Every license of the client's apps. */
+  listLicensesByClient(clientId: string): Promise<License[]>;
   getLicenseByHash(keyHash: string): Promise<License | null>;
   updateLicense(id: string, patch: LicensePatch, now: Date): Promise<void>;
 
@@ -118,9 +135,14 @@ export interface DataStore {
   touchActivation(licenseId: string, patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "lastCheckedAt">): Promise<void>;
   deleteActivation(licenseId: string): Promise<void>;
 
-  // Apps
+  // Apps: an account can have several
+  /**
+   * Adds an app to the client's account. Their first app also takes the
+   * license and plan payments made before it existed (app ID null).
+   */
   createApp(app: App): Promise<void>;
-  getAppByClientId(clientId: string): Promise<App | null>;
+  /** The client's apps, oldest first. */
+  listAppsByClient(clientId: string): Promise<App[]>;
   getAppById(id: string): Promise<App | null>;
   updateApp(id: string, patch: AppPatch, now: Date): Promise<void>;
   /**
@@ -130,10 +152,11 @@ export interface DataStore {
   saveSigningKeys(appId: string, keys: SigningKeysPatch, now: Date): Promise<boolean>;
 
   // Builds
-  /** Assigns the next per-client build number and version code. */
+  /** Assigns the app's next build number and version code. */
   createBuild(build: Omit<Build, "number" | "versionCode">): Promise<Build>;
   getBuild(id: string): Promise<Build | null>;
-  listBuildsByClient(clientId: string, limit: number): Promise<Build[]>;
+  /** An app's builds, newest first. */
+  listBuildsByApp(appId: string, limit: number): Promise<Build[]>;
   listBuilds(input: { status?: BuildStatus; limit: number }): Promise<Build[]>;
   updateBuild(id: string, patch: BuildPatch, now: Date): Promise<void>;
 
@@ -241,8 +264,8 @@ export interface DataStore {
   payPlanPayment(id: string, paymentId: string, now: Date): Promise<boolean>;
   /** Pending to failed. */
   failPlanPayment(id: string): Promise<void>;
-  /** Newest first; one client's, or everyone's. */
-  listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]>;
+  /** Newest first; one client's, one app's, or everyone's. */
+  listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]>;
   listPlatformSettings(): Promise<PlatformSetting[]>;
   /** Saves a setting, or removes it (back to the Netlify variables) when `value` is null. */
   setPlatformSetting<K extends PlatformSettingKey>(key: K, value: PlatformSettingValues[K] | null, updatedBy: string, now: Date): Promise<void>;
@@ -334,7 +357,7 @@ export interface DataStore {
   listAuditEntries(query: AuditQuery): Promise<{ items: AuditEntry[]; total: number }>;
 
   // 11.1 Overview
-  /** Every client's app. */
+  /** Every app of every client. */
   listApps(): Promise<App[]>;
   /** Builds queued at or after `since`, newest first. */
   listBuildsSince(since: Date): Promise<Build[]>;

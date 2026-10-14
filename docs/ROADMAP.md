@@ -172,3 +172,19 @@ The WEBEK team controls every part of Yallapp from the super admin pages.
 | [x] | 11.7 Admin team with roles, and a log of every change | A support admin can't change prices; the log shows who changed what |
 | [x] | 11.8 Announcements to clients, in the dashboard and by email | Clients see an announcement |
 | [x] | 11.9 Defaults for new apps: template, look and languages | A new client starts with the defaults |
+
+## Phase 12: Several apps per account
+
+One account (one sign-in) creates and runs several apps. Each app has its own
+plan, price, license key, end date, website, payments and builds, exactly like
+a separate client. There is no bundle plan: coupons give a second app a lower
+price. Suspension stays for the whole account. Built and tested with the
+in-memory store and on MariaDB 10.11 (unit and browser tests).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 12.1 Data model and migration: several apps per account (oldest first), a license per app (`licenses.app_id`), plan payments per app (`plan_payments.app_id`), build numbers and version codes per app; existing licenses and payments backfilled from each client's single app (`drizzle/0016_several_apps.sql`) | The migration runs on MariaDB 10.11 with existing data, and again as a no-op |
+| [x] | 12.2 Dashboard: an app switcher in the dashboard header (the client's own apps, remembered in a cookie, also for the team managing a client), "Add an app" that starts with the app type, every page working on the current app | A client adds a second app and the switcher changes which app the dashboard edits |
+| [x] | 12.3 Licenses, payments and activation per app: License & plugin shows the current app's plan, key, end date and website; paying by card (with coupons) activates or extends that app only; the pending page and the activation and renewal emails name the app; an account is active while any of its apps is | A card payment for one app doesn't change the other |
+| [x] | 12.4 Admin per app: the client list shows each client's apps and their states; the client page has a section per app (plan and license, app, connection, builds, app users and notifications); activation, new key and releasing the website per app; overview counts per app; audit entries name the app; announcements by plan or app type reach an account when any of its apps matches | The team activates only a client's second app, on another plan |
+| [x] | 12.5 Plugin, hosted API and pipeline per app: a license key resolves to its own app (license API and `POST /apps/layout`), the hosted API checks that app's own license, builds and switches use the app's plan, and the pipeline API sends each build's `app_id` | Each app's key and hosted API answer for that app only |

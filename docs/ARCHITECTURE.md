@@ -209,7 +209,42 @@ mobile/
   Every dashboard page and action then works on that client, also before
   activation or while suspended, under a bar naming the client with a way
   back to the admin. The team can also edit a client's name, WhatsApp
-  number and website on the panel.
+  number and website on the panel. "Edit their app settings" on a client's
+  page opens their dashboard on that app.
+
+- Several apps per account (Phase 12): a client account (one sign-in) has
+  any number of apps (`apps.client_id` is indexed, not unique; at most 20
+  per account), listed oldest first. Each app is like a separate client:
+  - **Data model.** A license belongs to one app (`licenses.app_id`, unique,
+    cascade) and keeps its own plan, end date, key and website
+    (`license_activations`); `licenses.client_id` stays for lookups. A
+    license given before the account's first app exists has `app_id` null,
+    and creating that first app takes it, together with plan payments made
+    before it (`plan_payments.app_id`, set null if the app is deleted). Build
+    numbers and version codes go up per app (`builds_app_number_unique`).
+    Migration `0016_several_apps` backfills `app_id` from each client's
+    single app. Coupon limits per client and dismissed announcements stay
+    per account.
+  - **Dashboard.** The current app is chosen with the switcher in the
+    dashboard header and remembered in an `httpOnly` cookie
+    (`yallapp_app`), used only when it names one of the client's own apps
+    (else their first app). `getClientContext` gives the account's apps and
+    licenses, the current app and *its* license and state. "Add an app"
+    (`/dashboard/app-type?new=1`) creates an app that starts the setup steps
+    and waits for activation (the team, or its plan paid by card); every
+    page, action and build works on the current app.
+  - **States.** An app is pending until it has a license, then active or
+    expired by its own end date. The account is pending until its first
+    activation, active while any app's license is, expired when all ended;
+    suspension is for the whole account (every app and its plugin).
+  - **Everything that needs a plan uses the app's.** The plugin's license
+    key names its app (license API, `POST /apps/layout`); the hosted API
+    answers while that app's license is active; builds, switches per plan,
+    the marketplace and push use the app's plan; a card payment (and its
+    coupon, where "first payment only" means the app's first) activates or
+    extends the app it was started for, and the activation and renewal
+    emails name it (`{{app_name}}`). The admin shows a section per app on a
+    client's page, and the pipeline API sends each build's `app_id`.
 
 - Bookings without a website (connector `bookings`): a Bookings app whose
   client picks "I don't have a website" gets its services, categories,
@@ -261,13 +296,15 @@ mobile/
 
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the
-  waiting page and active or expired clients on License & plugin. The client
+  waiting page and active clients on License & plugin, for the current app
+  (pending, active or expired). The client
   picks a plan and gives a billing city and address; iyzico's page takes the
   card into Yallapp's merchant account. iyzico calls back to
   `/api/pay/plan/<token>`; only iyzico's own answer for that payment's
-  basket and amount marks it paid (once), and then the client is activated
-  or their license is extended by the plan's period from its current end
-  date (or from today when it ended), keeping the same key. The client gets
+  basket and amount marks it paid (once), and then the payment's app is
+  activated or its license is extended by the plan's period from its current
+  end date (or from today when it ended), keeping the same key; the
+  account's other apps are unchanged. The client gets
   the activation or renewal email; the team sees payments on the admin's
   Payments page and on the client's panel. The iyzico keys are always read
   from the database, never from the 30-second settings cache, so a callback

@@ -9,11 +9,12 @@ import { Markdown } from "./markdown";
 import { SubmitButton } from "./form";
 import { formatDate } from "./ui";
 
-/** A client's live announcements, and the ones still on their banner. */
-export async function clientAnnouncements(context: Pick<ClientContext, "client" | "license" | "app" | "state">) {
+/** A client's live announcements (for the whole account), and the ones still on their banner. */
+export async function clientAnnouncements(context: Pick<ClientContext, "client" | "licenses" | "apps" | "account">) {
   const store = await getStore();
   const [all, dismissed] = await Promise.all([store.listAnnouncements(), store.listDismissedAnnouncementIds(context.client.id)]);
-  return announcementsFor(all, { state: context.state, license: context.license, app: context.app }, dismissed, new Date());
+  // The whole account: a plan or app type audience matches when any of its apps does.
+  return announcementsFor(all, { state: context.account, license: null, app: null, licenses: context.licenses, apps: context.apps }, dismissed, new Date());
 }
 
 function AnnouncementLink({ announcement }: { announcement: Announcement }) {
@@ -68,7 +69,7 @@ export function AnnouncementCard({ announcement, dismissible = false }: { announ
 }
 
 /** The dashboard's banner: announcements the client hasn't closed. */
-export async function AnnouncementBanner({ context }: { context: Pick<ClientContext, "client" | "license" | "app" | "state"> }) {
+export async function AnnouncementBanner({ context }: { context: Pick<ClientContext, "client" | "licenses" | "apps" | "account"> }) {
   const { banner, live } = await clientAnnouncements(context);
   if (!banner.length) return null;
   return (

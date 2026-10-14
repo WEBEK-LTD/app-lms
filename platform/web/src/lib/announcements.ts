@@ -1,7 +1,7 @@
 import type { Announcement, AnnouncementAudience, AnnouncementSeverity, App, AppType, License } from "./data/types";
 import { safeHref } from "./content/markdown";
 import type { DataStore } from "./data/store";
-import { accountState, type AccountState } from "./license/status";
+import { clientAccountState, type AccountState } from "./license/status";
 import type { Plan } from "./plans";
 
 /**
@@ -9,21 +9,31 @@ import type { Plan } from "./plans";
  * who sees one, when, and the admin's form (roadmap 11.8).
  */
 
-/** What decides whether a client is in an announcement's audience. */
+/**
+ * What decides whether a client is in an announcement's audience: the
+ * account's state, and its apps and their licenses. An account with several
+ * apps is in a plan or app type audience when any of its apps is.
+ */
 export interface AudienceSubject {
   state: AccountState;
   license: Pick<License, "plan"> | null;
   app: Pick<App, "appType"> | null;
+  /** Every license of the account; `license` is used when left out. */
+  licenses?: Pick<License, "plan">[];
+  /** Every app of the account; `app` is used when left out. */
+  apps?: Pick<App, "appType">[];
 }
 
 export function inAudience(audience: AnnouncementAudience, subject: AudienceSubject): boolean {
+  const licenses = subject.licenses ?? (subject.license ? [subject.license] : []);
+  const apps = subject.apps ?? (subject.app ? [subject.app] : []);
   switch (audience.kind) {
     case "all":
       return true;
     case "plan":
-      return subject.license !== null && audience.plans.includes(subject.license.plan);
+      return licenses.some((l) => audience.plans.includes(l.plan));
     case "app_type":
-      return subject.app !== null && audience.appTypes.includes(subject.app.appType);
+      return apps.some((a) => audience.appTypes.includes(a.appType));
     case "state":
       return audience.states.includes(subject.state);
   }
@@ -202,14 +212,15 @@ export function readAnnouncementForm(
 
 /** The clients (their account email and name) an announcement is for, now. */
 export async function audienceRecipients(
-  store: Pick<DataStore, "listClients" | "getAppByClientId">,
+  store: Pick<DataStore, "listClients">,
   audience: AnnouncementAudience,
   now: Date,
 ): Promise<{ clientId: string; email: string; name: string }[]> {
   const recipients: { clientId: string; email: string; name: string }[] = [];
   for (const row of await store.listClients({ filter: "all", now })) {
-    const app = audience.kind === "app_type" ? await store.getAppByClientId(row.client.id) : null;
-    if (inAudience(audience, { state: accountState(row.client, row.license, now), license: row.license, app })) {
+    const licenses = row.apps.flatMap((entry) => (entry.license ? [entry.license] : []));
+    const apps = row.apps.flatMap((entry) => (entry.app ? [entry.app] : []));
+    if (inAudience(audience, { state: clientAccountState(row.client, licenses, now), license: null, app: null, licenses, apps })) {
       recipients.push({ clientId: row.client.id, email: row.user.email, name: row.user.name });
     }
   }

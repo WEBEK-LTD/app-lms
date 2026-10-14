@@ -113,6 +113,13 @@
       "when": 1791941135036,
       "tag": "0015_content_emails_coupons",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1791948266443,
+      "tag": "0016_several_apps",
+      "breakpoints": true
     }
   ]
 }

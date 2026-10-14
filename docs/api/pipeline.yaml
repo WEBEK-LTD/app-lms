@@ -307,15 +307,16 @@ components:
 
     Build:
       type: object
-      required: [id, client_id, number, version_name, version_code, status, auto_publish, stages, artifacts, created_at]
+      required: [id, client_id, app_id, number, version_name, version_code, status, auto_publish, stages, artifacts, created_at]
       properties:
         id: { type: string, format: uuid }
-        client_id: { type: string, format: uuid }
-        number: { type: integer, minimum: 1, description: Per-client build number shown in the dashboard. }
+        client_id: { type: string, format: uuid, description: The account. An account can have several apps. }
+        app_id: { type: string, format: uuid, description: "The app this build is of: its config, store keys and signing keys." }
+        number: { type: integer, minimum: 1, description: "Per-app build number shown in the dashboard. Numbers and version codes go up per app." }
         version_name: { type: string, example: 1.0.1 }
         version_code: { type: integer, minimum: 1 }
         status: { $ref: '#/components/schemas/BuildStatus' }
-        auto_publish: { type: boolean, description: True on the Pro plan. The pipeline uploads to the stores. }
+        auto_publish: { type: boolean, description: "True when the build's app is on the Pro plan. The pipeline uploads to the stores." }
         stages: { $ref: '#/components/schemas/Stages' }
         artifacts:
           type: array

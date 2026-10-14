@@ -84,6 +84,7 @@ export function buildSummary(build: Build) {
   return {
     id: build.id,
     client_id: build.clientId,
+    app_id: build.appId,
     number: build.number,
     version_name: build.versionName,
     version_code: build.versionCode,

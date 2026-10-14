@@ -7,14 +7,15 @@ import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
 
 /** A notification to everyone using the client's app, sent with the dashboard's own sender. */
-export function ClientNotificationForm({ clientId, titleMax, bodyMax }: { clientId: string; titleMax: number; bodyMax: number }) {
+export function ClientNotificationForm({ clientId, appId, titleMax, bodyMax }: { clientId: string; appId: string; titleMax: number; bodyMax: number }) {
   const [state, action] = useActionState(sendClientNotificationAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="appId" value={appId} />
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        id="f-notification-title"
+        id={`f-notification-title-${appId}`}
         label="Title"
         name="title"
         required
@@ -24,11 +25,11 @@ export function ClientNotificationForm({ clientId, titleMax, bodyMax }: { client
         small
       />
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-notification-body" className="text-sm font-semibold">
+        <label htmlFor={`f-notification-body-${appId}`} className="text-sm font-semibold">
           Message
         </label>
         <textarea
-          id="f-notification-body"
+          id={`f-notification-body-${appId}`}
           name="body"
           required
           rows={3}
@@ -36,9 +37,9 @@ export function ClientNotificationForm({ clientId, titleMax, bodyMax }: { client
           defaultValue={state.ok ? "" : state.values?.body}
           className="input min-h-20 py-3"
           aria-invalid={state.errors?.body ? true : undefined}
-          aria-describedby={state.errors?.body ? "f-notification-body-error" : undefined}
+          aria-describedby={state.errors?.body ? `f-notification-body-${appId}-error` : undefined}
         />
-        <FieldError id="f-notification-body-error" error={state.errors?.body} />
+        <FieldError id={`f-notification-body-${appId}-error`} error={state.errors?.body} />
       </div>
       <SubmitButton className="h-10 self-start px-4 text-sm" pendingText="Sending…">
         Send to the app&apos;s users
@@ -48,12 +49,13 @@ export function ClientNotificationForm({ clientId, titleMax, bodyMax }: { client
 }
 
 /** Asks the app's website or platform whether it answers now. */
-export function ConnectionCheckForm({ clientId }: { clientId: string }) {
+export function ConnectionCheckForm({ clientId, appId }: { clientId: string; appId: string }) {
   const [state, action] = useActionState(checkConnectionAction, { status: null });
   const status = state.status;
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="clientId" value={clientId} />
+      <input type="hidden" name="appId" value={appId} />
       <SubmitButton variant="secondary" className="h-9 self-start px-3 text-sm" pendingText="Checking…">
         Check the connection now
       </SubmitButton>

@@ -1,3 +1,4 @@
+import { chooseApp } from "@/lib/auth/session";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
 import { completePlanPayment } from "@/lib/billing/plan-payment";
 import { sha256Hex } from "@/lib/crypto/tokens";
@@ -11,7 +12,8 @@ import { yallappIyzicoKeys } from "@/lib/settings/platform";
  */
 export async function POST(request: Request, { params }: RouteContext<"/api/pay/plan/[token]">): Promise<Response> {
   const { token } = await params;
-  const go = (path: string) => Response.redirect(`${appUrl()}${path}`, 303);
+  // A plain Response (not Response.redirect, whose headers are read-only), so the app cookie can be added to it.
+  const go = (path: string) => new Response(null, { status: 303, headers: { location: `${appUrl()}${path}` } });
   const store = await getStore();
   const payment = await store.getPlanPaymentByToken(sha256Hex(token));
   if (!payment) return go("/pending");
@@ -32,5 +34,8 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
   });
   if (outcome.kind === "failed") return failed();
   if (outcome.kind === "paid") await sendPlanPaidMail(store, client, outcome);
+  // The dashboard opens on the app that was paid for.
+  const paidApp = outcome.kind === "paid" ? (outcome.activation.app?.id ?? null) : payment.appId;
+  if (paidApp) await chooseApp(paidApp);
   return go("/dashboard/license?payment=paid");
 }

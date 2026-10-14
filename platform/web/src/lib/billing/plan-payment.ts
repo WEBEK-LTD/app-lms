@@ -2,15 +2,17 @@ import { activateClient, type ActivationOutcome } from "../admin/clients";
 import { centsToDecimal, formatCents } from "../catalog/money";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { Client, PlanPayment, User } from "../data/types";
+import type { App, Client, PlanPayment, User } from "../data/types";
 import { initializeCheckoutForm, IyzicoError, retrieveCheckoutForm, type IyzicoKeys } from "../payments/iyzico";
 import type { Plan, PlanInfo } from "../plans";
 import type { CouponCheck } from "./coupons";
 
 /**
- * Clients pay their Yallapp plan by card on iyzico's page, into Yallapp's own
- * merchant account. A confirmed payment activates the client, or extends
- * their license from its current end date (or from today when it ended).
+ * Clients pay an app's Yallapp plan by card on iyzico's page, into Yallapp's
+ * own merchant account. Each payment is for one app (the dashboard's current
+ * app): a confirmed payment activates that app, or extends its license from
+ * its current end date (or from today when it ended). Other apps of the
+ * account are unchanged.
  */
 
 export interface BillingDetails {
@@ -57,6 +59,8 @@ interface Deps {
 export async function startPlanPayment(
   deps: Deps & {
     client: Client;
+    /** The app whose plan is paid; null before the account's first app (creating it takes the payment). */
+    app?: Pick<App, "id"> | null;
     user: User;
     plan: PlanInfo;
     billing: BillingDetails;
@@ -73,6 +77,7 @@ export async function startPlanPayment(
   const payment: PlanPayment = {
     id: newId(),
     clientId: client.id,
+    appId: deps.app?.id ?? null,
     plan: plan.id,
     months: plan.billingMonths,
     amountCents: coupon ? coupon.amountCents : plan.priceCents,
@@ -159,12 +164,14 @@ export async function completePlanPayment(
   }
   if (!(await deps.store.payPlanPayment(payment.id, result.paymentId, deps.now))) return { kind: "already_paid" };
   await deps.store.settleCouponRedemption(payment.id, "redeemed", deps.now);
-  const license = await deps.store.getLicenseByClientId(payment.clientId);
+  // The payment's app: the one it was started for (or the account's first app, which took it).
+  const license = await deps.store.getLicenseForApp(payment.clientId, payment.appId);
   const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, deps.now);
   const activation = await activateClient(
     deps.store,
     {
       clientId: payment.clientId,
+      appId: payment.appId,
       plan: payment.plan,
       activeUntil,
       paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (iyzico ${result.paymentId})`,
@@ -201,6 +208,8 @@ function redemptionOf(coupon: Extract<CouponCheck, { ok: true }>, payment: PlanP
 export async function activateWithFreeCoupon(deps: {
   store: DataStore;
   client: Client;
+  /** The app whose plan is paid; null before the account's first app. */
+  app?: Pick<App, "id"> | null;
   plan: PlanInfo;
   coupon: Extract<CouponCheck, { ok: true }>;
   encryptionKey: Buffer;
@@ -211,6 +220,7 @@ export async function activateWithFreeCoupon(deps: {
   const payment: PlanPayment = {
     id: newId(),
     clientId: client.id,
+    appId: deps.app?.id ?? null,
     plan: plan.id,
     months: plan.billingMonths,
     amountCents: 0,
@@ -224,11 +234,11 @@ export async function activateWithFreeCoupon(deps: {
   };
   await store.createPlanPayment(payment);
   await store.createCouponRedemption(redemptionOf(coupon, payment, "redeemed", now));
-  const license = await store.getLicenseByClientId(client.id);
+  const license = await store.getLicenseForApp(client.id, payment.appId);
   const activeUntil = extendedUntil(license?.expiresAt ?? null, payment.months, now);
   const activation = await activateClient(
     store,
-    { clientId: client.id, plan: plan.id, activeUntil, paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)` },
+    { clientId: client.id, appId: payment.appId, plan: plan.id, activeUntil, paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)` },
     deps.encryptionKey,
     now,
   );

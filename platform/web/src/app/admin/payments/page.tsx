@@ -1,3 +1,4 @@
+import { appLabel } from "@/lib/app/label";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { releasePayoutAction } from "@/app/actions/admin";
@@ -32,6 +33,11 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
     const user = client ? await store.getUserById(client.userId) : null;
     names.set(id, user?.name ?? "Deleted client");
   }
+  // 12: each payment pays one app's plan.
+  const appNames = new Map<string, string>();
+  for (const appId of new Set(payments.flatMap((p) => (p.appId ? [p.appId] : [])))) {
+    appNames.set(appId, appLabel(await store.getAppById(appId)));
+  }
   const paid = payments.filter((p) => p.status === "paid");
   // 11.6: the coupon each payment used.
   const coupons = new Map((await store.listCouponRedemptions({})).map((r) => [r.paymentId, r]));
@@ -41,17 +47,18 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Payments</h1>
         <span className="text-[15px] text-muted">
-          Plans paid by card into Yallapp&apos;s iyzico account. A paid one activates the client or extends their license at once.
+          Plans paid by card into Yallapp&apos;s iyzico account, each for one app. A paid one activates that app or extends its license at once.
         </span>
       </div>
       <section aria-label="Card payments" className="overflow-x-auto rounded-2xl border border-line bg-white">
         {payments.length === 0 ? (
           <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s iyzico account in Settings and a card price in Plans.</p>
         ) : (
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
               <tr className="bg-sand text-left text-muted">
                 <th scope="col" className="px-4 py-3 font-semibold">Client</th>
+                <th scope="col" className="px-4 py-3 font-semibold">App</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Amount</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Status</th>
@@ -65,6 +72,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   <td className="px-4 py-3">
                     <Link href={`/admin/clients?client=${p.clientId}`}>{names.get(p.clientId)}</Link>
                   </td>
+                  <td className="px-4 py-3">{p.appId ? appNames.get(p.appId) : <span className="text-muted">Before the first app</span>}</td>
                   <td className="px-4 py-3">
                     {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"}
                   </td>

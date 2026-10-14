@@ -8,13 +8,16 @@ import { secureCookies, sessionSecret, superAdminEmails } from "../env";
 import { can, type AdminPermission, type AdminRole } from "../admin/permissions";
 import { adminRoleOf } from "../admin/team";
 import { ipFromHeaders } from "../http";
-import { accountState, type AccountState } from "../license/status";
+import { appState, clientAccountState, type AccountState } from "../license/status";
 import { SESSION_TTL_SECONDS, sealSession, unsealSession } from "./session-token";
 
 export const SESSION_COOKIE = "yallapp_session";
 /** The client a super admin is managing from their dashboard. Only read for super admins. */
 export const MANAGE_COOKIE = "yallapp_manage";
 const MANAGE_TTL_SECONDS = 8 * 60 * 60;
+/** The app the dashboard works on, chosen with the app switcher. Only used when it is one of the client's own apps. */
+export const APP_COOKIE = "yallapp_app";
+const APP_TTL_SECONDS = 365 * 24 * 60 * 60;
 
 export async function startSession(user: Pick<User, "id" | "sessionVersion">): Promise<void> {
   const token = await sealSession({ userId: user.id, sessionVersion: user.sessionVersion }, sessionSecret());
@@ -32,10 +35,33 @@ export async function endSession(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
   jar.delete(MANAGE_COOKIE);
+  jar.delete(APP_COOKIE);
 }
 
-/** A super admin opens a client's dashboard and changes it as the client would. */
-export async function startManaging(clientId: string): Promise<void> {
+/**
+ * Makes `appId` the app the dashboard works on. Callers check that it is one
+ * of the client's apps; getClientContext checks again on every request.
+ */
+export async function chooseApp(appId: string | null): Promise<void> {
+  const jar = await cookies();
+  if (!appId) {
+    jar.delete(APP_COOKIE);
+    return;
+  }
+  jar.set(APP_COOKIE, appId, {
+    httpOnly: true,
+    secure: secureCookies(),
+    sameSite: "lax",
+    path: "/",
+    maxAge: APP_TTL_SECONDS,
+  });
+}
+
+/**
+ * A super admin opens a client's dashboard and changes it as the client
+ * would: on `appId` when given, else on the client's first app.
+ */
+export async function startManaging(clientId: string, appId: string | null = null): Promise<void> {
   const jar = await cookies();
   jar.set(MANAGE_COOKIE, clientId, {
     httpOnly: true,
@@ -44,10 +70,17 @@ export async function startManaging(clientId: string): Promise<void> {
     path: "/",
     maxAge: MANAGE_TTL_SECONDS,
   });
+  if (appId) {
+    jar.set(APP_COOKIE, appId, { httpOnly: true, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: MANAGE_TTL_SECONDS });
+  } else {
+    jar.delete(APP_COOKIE);
+  }
 }
 
 export async function stopManaging(): Promise<void> {
-  (await cookies()).delete(MANAGE_COOKIE);
+  const jar = await cookies();
+  jar.delete(MANAGE_COOKIE);
+  jar.delete(APP_COOKIE);
 }
 
 /** In SUPER_ADMIN_EMAILS: always an owner. The rest of the team has a role in the database (getAdminRole). */
@@ -79,9 +112,18 @@ export interface ClientContext {
   /** The super admin managing this client's dashboard, or null for the client themselves. */
   staff: User | null;
   client: Client;
-  license: License | null;
+  /** Every app of the account, oldest first: the app switcher's list. */
+  apps: App[];
+  /** The app the dashboard works on (the switcher's choice, else the first); null before the account's first app. */
   app: App | null;
+  /** The current app's license (before the first app: the one given for it, if any). */
+  license: License | null;
+  /** The current app's state: pending until that app is activated. */
   state: AccountState;
+  /** The whole account's state: active when at least one app has an active license. */
+  account: AccountState;
+  /** Every license of the account's apps. */
+  licenses: License[];
 }
 
 export const getClientContext = cache(async (): Promise<ClientContext | null> => {
@@ -105,8 +147,23 @@ export const getClientContext = cache(async (): Promise<ClientContext | null> =>
     client = await store.getClientByUserId(current.id);
   }
   if (!client) return null;
-  const [license, app] = await Promise.all([store.getLicenseByClientId(client.id), store.getAppByClientId(client.id)]);
-  return { user, staff, client, license, app, state: accountState(client, license, new Date()) };
+  const [apps, licenses] = await Promise.all([store.listAppsByClient(client.id), store.listLicensesByClient(client.id)]);
+  // The switcher's choice, only when it is one of this client's apps; else their first app.
+  const chosen = (await cookies()).get(APP_COOKIE)?.value;
+  const app = apps.find((a) => a.id === chosen) ?? apps[0] ?? null;
+  const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
+  const now = new Date();
+  return {
+    user,
+    staff,
+    client,
+    apps,
+    app,
+    license,
+    state: appState(client, license, now),
+    account: clientAccountState(client, licenses, now),
+    licenses,
+  };
 });
 
 /**

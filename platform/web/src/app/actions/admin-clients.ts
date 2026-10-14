@@ -6,6 +6,7 @@ import { recordAudit } from "@/lib/admin/audit";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { checkConnection, type ConnectionStatus } from "@/lib/admin/connection";
 import type { AdminPermission } from "@/lib/admin/permissions";
+import { appLabel } from "@/lib/app/label";
 import { queueBuild } from "@/lib/app/setup";
 import { assetUrl } from "@/lib/assets";
 import { createPasswordReset } from "@/lib/auth/reset";
@@ -28,15 +29,27 @@ import { formatDate } from "@/components/ui";
 
 const ID = /^[0-9a-f-]{36}$/i;
 
+/**
+ * The client of the form, and the app it acts on: the form's `appId` (one of
+ * the client's apps), or their only app. `app` is null when it isn't one of
+ * theirs, or they have several and none was named. `license` is that app's.
+ */
 async function clientFrom(formData: FormData, permission: AdminPermission) {
   const admin = await requireAdmin(permission);
   const clientId = String(formData.get("clientId") ?? "");
   const store = await getStore();
   const client = ID.test(clientId) ? await store.getClientById(clientId) : null;
   if (!client) redirect("/admin/clients");
-  const [user, app, license] = await Promise.all([store.getUserById(client.userId), store.getAppByClientId(client.id), store.getLicenseByClientId(client.id)]);
-  return { admin, store, client, user, app, license };
+  const [user, apps] = await Promise.all([store.getUserById(client.userId), store.listAppsByClient(client.id)]);
+  const appId = String(formData.get("appId") ?? "");
+  const app = appId ? (apps.find((a) => a.id === appId) ?? null) : apps.length === 1 ? apps[0]! : null;
+  // Before the account's first app, the license given for it (app ID null).
+  const license = app || (!appId && apps.length === 0) ? await store.getLicenseForApp(client.id, app?.id ?? null) : null;
+  return { admin, store, client, user, app, apps, license };
 }
+
+/** " (App name)" in audit summaries of an account with several apps. */
+const onApp = (app: { appName: string | null } | null, apps: unknown[]) => (app && apps.length > 1 ? ` (${appLabel(app)})` : "");
 
 const back = (clientId: string, query: string): never => {
   revalidatePath(`/admin/clients/${clientId}`);
@@ -45,9 +58,12 @@ const back = (clientId: string, query: string): never => {
 
 /** Queues a build again with the same version, like the client's own "Start build". */
 export async function rerunBuildAction(formData: FormData): Promise<void> {
-  const { admin, store, client, user, app, license } = await clientFrom(formData, "builds.manage");
+  const { admin, store, client, user } = await clientFrom(formData, "builds.manage");
   const build = await store.getBuild(String(formData.get("buildId") ?? ""));
-  if (!app || !build || build.clientId !== client.id) back(client.id, "done=rerun-failed");
+  // The build's own app, on that app's own plan.
+  const app = build && build.clientId === client.id ? await store.getAppById(build.appId) : null;
+  if (!app || !build) back(client.id, "done=rerun-failed");
+  const license = await store.getLicenseForApp(client.id, app!.id);
   const result = await queueBuild(store, { client, app: app!, license, versionName: build!.versionName }, new Date(), assetUrl);
   if (!result.ok) back(client.id, `rerun=${result.reason}`);
   if (result.ok) {
@@ -57,7 +73,7 @@ export async function rerunBuildAction(formData: FormData): Promise<void> {
       action: "build.rerun",
       target: { type: "build", id: result.build.id },
       clientId: client.id,
-      summary: `Ran ${user?.name ?? "the client"}'s build #${build!.number} (${build!.versionName}) again as #${result.build.number}`,
+      summary: `Ran ${user?.name ?? "the client"}'s build #${build!.number} (${build!.versionName}) again as #${result.build.number} (${appLabel(app)})`,
     });
   }
   back(client.id, "done=rerun");
@@ -65,7 +81,7 @@ export async function rerunBuildAction(formData: FormData): Promise<void> {
 
 /** Signs an app customer out of every device. */
 export async function signOutAppUserAction(formData: FormData): Promise<void> {
-  const { admin, store, client, app } = await clientFrom(formData, "clients.edit");
+  const { admin, store, client, app, apps } = await clientFrom(formData, "clients.edit");
   const userId = Number(formData.get("userId"));
   const customer = app && Number.isSafeInteger(userId) ? await store.getHostedUser(app.id, userId) : null;
   if (!app || !customer) back(client.id, "");
@@ -76,14 +92,14 @@ export async function signOutAppUserAction(formData: FormData): Promise<void> {
     action: "client.app_users",
     target: { type: "app", id: app!.id },
     clientId: client.id,
-    summary: `Signed app user #${customer!.id} out of ${devices.length} ${devices.length === 1 ? "device" : "devices"}`,
+    summary: `Signed app user #${customer!.id} out of ${devices.length} ${devices.length === 1 ? "device" : "devices"}${onApp(app, apps)}`,
   });
   back(client.id, "done=signed-out#app-users");
 }
 
 /** Deletes an app customer with their devices, sign-ins and notifications. */
 export async function deleteAppUserAction(formData: FormData): Promise<void> {
-  const { admin, store, client, app } = await clientFrom(formData, "clients.edit");
+  const { admin, store, client, app, apps } = await clientFrom(formData, "clients.edit");
   const userId = Number(formData.get("userId"));
   const customer = app && Number.isSafeInteger(userId) ? await store.getHostedUser(app.id, userId) : null;
   if (!app || !customer) back(client.id, "");
@@ -93,7 +109,7 @@ export async function deleteAppUserAction(formData: FormData): Promise<void> {
     action: "client.app_users",
     target: { type: "app", id: app!.id },
     clientId: client.id,
-    summary: `Deleted app user #${customer!.id} (${customer!.name})`,
+    summary: `Deleted app user #${customer!.id} (${customer!.name})${onApp(app, apps)}`,
     before: { id: customer!.id, name: customer!.name, createdAt: customer!.createdAt },
   });
   back(client.id, "done=user-deleted#app-users");
@@ -101,7 +117,7 @@ export async function deleteAppUserAction(formData: FormData): Promise<void> {
 
 /** A notification to everyone using the app, like the client sends from their dashboard. */
 export async function sendClientNotificationAction(_: FormState, formData: FormData): Promise<FormState> {
-  const { admin, store, client, app, license } = await clientFrom(formData, "clients.edit");
+  const { admin, store, client, app, apps, license } = await clientFrom(formData, "clients.edit");
   if (!app || app.backend !== "hosted") return { message: "Notifications are sent to apps on the hosted API." };
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -122,7 +138,7 @@ export async function sendClientNotificationAction(_: FormState, formData: FormD
     action: "client.notification",
     target: { type: "app", id: app.id },
     clientId: client.id,
-    summary: `Sent "${title}" to the app's users`,
+    summary: `Sent "${title}" to the app's users${onApp(app, apps)}`,
     after: { title, body, pushed: result.pushed },
   });
   revalidatePath(`/admin/clients/${client.id}`);
@@ -133,17 +149,18 @@ export async function sendClientNotificationAction(_: FormState, formData: FormD
 
 /** The activation email with the license key, again. */
 export async function resendLicenseEmailAction(formData: FormData): Promise<void> {
-  const { admin, store, client, user, license } = await clientFrom(formData, "clients.email");
+  const { admin, store, client, user, app, apps, license } = await clientFrom(formData, "clients.email");
   if (!user || !license) back(client.id, "");
   const plan = (await getPlans(store))[license!.plan].name;
   await sendTemplate("account_activated", user!.email, {
     name: user!.name,
+    app_name: appLabel(app),
     plan,
     active_until: formatDate(license!.expiresAt),
     license_key: revealLicenseKey(license!, encryptionKey()),
     dashboard_url: `${appUrl()}/dashboard`,
   }).catch((error: unknown) => console.error("[mail] license email failed", error));
-  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again` });
+  await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again${onApp(app, apps)}` });
   back(client.id, "done=license-sent");
 }
 

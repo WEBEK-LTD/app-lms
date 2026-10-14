@@ -5,7 +5,7 @@ import { sha256Hex } from "@/lib/crypto/tokens";
 import type { Coupon, CouponRedemption } from "@/lib/data/types";
 import type { IyzicoKeys } from "@/lib/payments/iyzico";
 import { PLAN_INFO, plansWith } from "@/lib/plans";
-import { days, KEY, NOW, setupClient } from "./helpers";
+import { days, KEY, licenseOf, NOW, setupClient } from "./helpers";
 
 const IYZICO: IyzicoKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
 const PLANS = plansWith({
@@ -227,7 +227,7 @@ describe("plan payments with a coupon", () => {
     expect(outcome.payment).toMatchObject({ amountCents: 0, status: "paid", paymentId: null, paidAt: NOW });
     expect(await setup.store.listPlanPayments({ clientId: setup.client.id, limit: 5 })).toMatchObject([{ amountCents: 0, status: "paid" }]);
     expect(await setup.store.listCouponRedemptions({ clientId: setup.client.id })).toMatchObject([{ code: "FREEPRO", status: "redeemed", discountCents: 480000 }]);
-    const license = (await setup.store.getLicenseByClientId(setup.client.id))!;
+    const license = (await licenseOf(setup.store, setup.client.id))!;
     expect(license.plan).toBe("pro");
     expect(license.expiresAt.getUTCFullYear()).toBe(NOW.getUTCFullYear() + 1);
     // The coupon was for one use per client.

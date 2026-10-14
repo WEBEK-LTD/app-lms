@@ -1,6 +1,6 @@
 import { formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption } from "../data/types";
+import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption, License } from "../data/types";
 import type { Plan, PlanInfo } from "../plans";
 import type { RateLimitRule } from "../rate-limit";
 
@@ -64,11 +64,16 @@ const PERIOD_NAME = { 1: "monthly", 12: "yearly" } as const;
  * Whether a client can use a coupon on a plan now, and the price. All the
  * rules are checked here, on the server: active, dates, plans, periods,
  * first payment only and the limits (`redemptions` are the coupon's own).
+ * "First payment only" is per app: with `license` given (the paid app's own,
+ * null while that app isn't activated yet), a second app's first payment
+ * counts too; without it, the account's first activation decides. Uses per
+ * client stay per client (account), whichever app they paid for.
  */
 export function checkCoupon(input: {
   coupon: Coupon | null;
   plan: PlanInfo;
   client: Pick<Client, "id" | "activatedAt">;
+  license?: Pick<License, "id"> | null;
   redemptions: CouponRedemption[];
   now: Date;
 }): CouponCheck {
@@ -80,7 +85,8 @@ export function checkCoupon(input: {
   if (coupon.periods && !coupon.periods.includes(plan.billingMonths)) {
     return { ok: false, error: `This coupon doesn't apply to ${PERIOD_NAME[plan.billingMonths]} billing.` };
   }
-  if (coupon.firstPaymentOnly && client.activatedAt) return { ok: false, error: "This coupon is for a first payment only." };
+  const paidBefore = input.license !== undefined ? input.license !== null : client.activatedAt !== null;
+  if (coupon.firstPaymentOnly && paidBefore) return { ok: false, error: "This coupon is for a first payment only." };
   const counted = countedRedemptions(input.redemptions, now);
   if (coupon.maxRedemptions !== null && counted.length >= coupon.maxRedemptions) return { ok: false, error: "This coupon has been used up." };
   if (coupon.maxPerClient !== null && counted.filter((r) => r.clientId === client.id).length >= coupon.maxPerClient) {
@@ -91,15 +97,15 @@ export function checkCoupon(input: {
   return { ok: true, coupon, ...price };
 }
 
-/** Looks the code up (in any case) and checks it for this client and plan. */
+/** Looks the code up (in any case) and checks it for this client, the app's license (see checkCoupon) and plan. */
 export async function findCoupon(
   store: Pick<DataStore, "getCouponByCode" | "listCouponRedemptions">,
-  input: { code: string; plan: PlanInfo; client: Pick<Client, "id" | "activatedAt">; now: Date },
+  input: { code: string; plan: PlanInfo; client: Pick<Client, "id" | "activatedAt">; license?: Pick<License, "id"> | null; now: Date },
 ): Promise<CouponCheck> {
   const code = normalizeCouponCode(input.code);
   const coupon = COUPON_CODE.test(code) ? await store.getCouponByCode(code) : null;
   const redemptions = coupon ? await store.listCouponRedemptions({ couponId: coupon.id }) : [];
-  return checkCoupon({ coupon, plan: input.plan, client: input.client, redemptions, now: input.now });
+  return checkCoupon({ coupon, plan: input.plan, client: input.client, license: input.license, redemptions, now: input.now });
 }
 
 /** The admin's coupon form: text values, checkbox groups as comma-separated values. */

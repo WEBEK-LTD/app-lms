@@ -8,7 +8,7 @@ import { serviceAccountOf } from "@/lib/hosted/notify";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
-import { accountState } from "@/lib/license/status";
+import { appState } from "@/lib/license/status";
 import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
 import type { BookingAppointment } from "@/lib/data/types";
@@ -27,7 +27,8 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
   const store = await getStore();
   const app = await store.getAppById(appId);
   if (!app) return errorResponse(404, "not_found", "Not found.");
-  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseByClientId(app.clientId)]);
+  // Each app has its own plan: the API answers while this app's license is active.
+  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const now = new Date();
   const url = new URL(request.url);
   // Logout and "mark as read" come without a body; anything else sent must be JSON.
@@ -46,7 +47,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/app/[appI
     {
       store,
       app,
-      active: client !== null && accountState(client, license, now) === "active",
+      active: client !== null && appState(client, license, now) === "active",
       now,
       ip: ipFromHeaders(request.headers),
       secret: hmacSha256(signingSecret(), "hosted-api"),

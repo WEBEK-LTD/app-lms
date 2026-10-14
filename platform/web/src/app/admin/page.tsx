@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Notice } from "@/components/ui";
-import { appsByType, appsByWebsite, buildStats, clientsByState, hostedUsage, revenue, revenueWindowStart, signUpsSince } from "@/lib/admin/overview";
+import { appsByState, appsByType, appsByWebsite, buildStats, clientsByState, hostedUsage, revenue, revenueWindowStart, signUpsSince } from "@/lib/admin/overview";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
@@ -73,6 +73,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/admin">
     store.countHostedUsersByApp(),
   ]);
   const states = clientsByState(rows, now);
+  // 12: an account can have several apps, each on its own plan.
+  const appStates = appsByState(rows, now);
   const money12 = revenue(payments, orders, now);
   const buildsWeek = buildStats(builds, now, 7);
   const hosted = hostedUsage(apps, usersByApp);
@@ -185,6 +187,13 @@ export default async function OverviewPage({ searchParams }: PageProps<"/admin">
       </Section>
 
       <Section id="h-apps" title="Apps">
+        <div className={grid}>
+          <Stat label="Apps" value={apps.length} hint={`${rows.length} ${rows.length === 1 ? "account" : "accounts"}`} />
+          <Stat label="With an active plan" value={appStates.active} />
+          <Stat label="Waiting for activation" value={appStates.pending} />
+          <Stat label="Plan ended" value={appStates.expired} />
+          <Stat label="In suspended accounts" value={appStates.suspended} />
+        </div>
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
           <Breakdown title="By type" rows={appsByType(apps).map((r) => ({ label: typeNames.get(r.key) ?? r.key, count: r.count }))} />
           <Breakdown

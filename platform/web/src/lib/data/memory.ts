@@ -1,10 +1,11 @@
-import { accountState } from "../license/status";
+import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import type { AppLayoutRecord } from "./types";
 import type {
   AppPatch,
   BuildPatch,
   ClaimResult,
+  ClientAppRow,
   ClientFilter,
   ClientPatch,
   ClientRow,
@@ -167,19 +168,30 @@ export class MemoryStore implements DataStore {
     if (client) this.clients.set(id, clone({ ...client, ...patch, updatedAt: now }));
   }
 
+  private appsOf(clientId: string): App[] {
+    return [...this.apps.values()]
+      .filter((a) => a.clientId === clientId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id));
+  }
+
   private rowFor(client: Client): ClientRow | null {
     const user = this.users.get(client.userId);
     if (!user) return null;
-    const license = [...this.licenses.values()].find((l) => l.clientId === client.id) ?? null;
-    const latestBuild =
-      [...this.builds.values()].filter((b) => b.clientId === client.id).sort((a, b) => b.number - a.number)[0] ?? null;
-    return {
-      client: clone(client),
-      user: clone(user),
-      license: license ? clone(license) : null,
-      activation: license ? clone(this.activations.get(license.id) ?? null) : null,
-      latestBuild: latestBuild ? clone(latestBuild) : null,
+    const licenses = [...this.licenses.values()].filter((l) => l.clientId === client.id);
+    const entry = (app: App | null): ClientAppRow => {
+      const license = licenses.find((l) => l.appId === (app?.id ?? null)) ?? null;
+      const latestBuild = app ? ([...this.builds.values()].filter((b) => b.appId === app.id).sort((a, b) => b.number - a.number)[0] ?? null) : null;
+      return {
+        app: app ? clone(app) : null,
+        license: license ? clone(license) : null,
+        activation: license ? clone(this.activations.get(license.id) ?? null) : null,
+        latestBuild: latestBuild ? clone(latestBuild) : null,
+      };
     };
+    const apps = this.appsOf(client.id).map(entry);
+    if (licenses.some((l) => l.appId === null)) apps.push(entry(null));
+    const longest = longestLicense(licenses);
+    return { client: clone(client), user: clone(user), license: longest ? clone(longest) : null, apps };
   }
 
   async listClients(input: { filter: ClientFilter; query?: string; now: Date }): Promise<ClientRow[]> {
@@ -188,7 +200,7 @@ export class MemoryStore implements DataStore {
     for (const client of this.clients.values()) {
       const row = this.rowFor(client);
       if (!row) continue;
-      if (input.filter !== "all" && accountState(row.client, row.license, input.now) !== input.filter) continue;
+      if (input.filter !== "all" && clientAccountState(row.client, row.license ? [row.license] : [], input.now) !== input.filter) continue;
       if (query) {
         const haystack = [row.user.name, row.user.email, row.client.whatsapp, row.client.siteUrl].join(" ").toLowerCase();
         if (!haystack.includes(query)) continue;
@@ -212,8 +224,7 @@ export class MemoryStore implements DataStore {
   async countClients(now: Date): Promise<Record<ClientFilter, number>> {
     const counts: Record<ClientFilter, number> = { all: 0, pending: 0, active: 0, expired: 0 };
     for (const client of this.clients.values()) {
-      const license = [...this.licenses.values()].find((l) => l.clientId === client.id) ?? null;
-      const state = accountState(client, license, now);
+      const state = clientAccountState(client, [...this.licenses.values()].filter((l) => l.clientId === client.id), now);
       counts.all += 1;
       if (state !== "suspended") counts[state] += 1;
     }
@@ -222,9 +233,11 @@ export class MemoryStore implements DataStore {
 
   async createLicense(license: License): Promise<void> {
     for (const existing of this.licenses.values()) {
-      if (existing.clientId === license.clientId) throw new Error("Client already has a license");
+      if (license.appId !== null && existing.appId === license.appId) throw new Error("App already has a license");
+      if (license.appId === null && existing.clientId === license.clientId && existing.appId === null) throw new Error("Client already has a license without an app");
       if (existing.keyHash === license.keyHash) throw new Error("Duplicate license key");
     }
+    if (license.appId !== null && this.apps.get(license.appId)?.clientId !== license.clientId) throw new Error("The app isn't the client's");
     this.licenses.set(license.id, clone(license));
   }
 
@@ -233,11 +246,18 @@ export class MemoryStore implements DataStore {
     return license ? clone(license) : null;
   }
 
-  async getLicenseByClientId(clientId: string): Promise<License | null> {
+  async getLicenseForApp(clientId: string, appId: string | null): Promise<License | null> {
     for (const license of this.licenses.values()) {
-      if (license.clientId === clientId) return clone(license);
+      if (license.clientId === clientId && license.appId === appId) return clone(license);
     }
     return null;
+  }
+
+  async listLicensesByClient(clientId: string): Promise<License[]> {
+    return [...this.licenses.values()]
+      .filter((l) => l.clientId === clientId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map(clone);
   }
 
   async getLicenseByHash(keyHash: string): Promise<License | null> {
@@ -287,17 +307,21 @@ export class MemoryStore implements DataStore {
   }
 
   async createApp(app: App): Promise<void> {
-    for (const existing of this.apps.values()) {
-      if (existing.clientId === app.clientId) throw new Error("Client already has an app");
-    }
+    if (this.apps.has(app.id)) throw new Error("Duplicate app ID");
+    const first = this.appsOf(app.clientId).length === 0;
     this.apps.set(app.id, clone(app));
+    if (!first) return;
+    // The account's first app takes what was paid and given before it existed.
+    for (const [id, license] of this.licenses) {
+      if (license.clientId === app.clientId && license.appId === null) this.licenses.set(id, { ...license, appId: app.id });
+    }
+    for (const [id, payment] of this.planPayments) {
+      if (payment.clientId === app.clientId && payment.appId === null) this.planPayments.set(id, { ...payment, appId: app.id });
+    }
   }
 
-  async getAppByClientId(clientId: string): Promise<App | null> {
-    for (const app of this.apps.values()) {
-      if (app.clientId === clientId) return clone(app);
-    }
-    return null;
+  async listAppsByClient(clientId: string): Promise<App[]> {
+    return this.appsOf(clientId).map(clone);
   }
 
   async getAppById(id: string): Promise<App | null> {
@@ -319,7 +343,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createBuild(input: Omit<Build, "number" | "versionCode">): Promise<Build> {
-    const previous = [...this.builds.values()].filter((b) => b.clientId === input.clientId);
+    const previous = [...this.builds.values()].filter((b) => b.appId === input.appId);
     const number = previous.reduce((max, b) => Math.max(max, b.number), 0) + 1;
     const versionCode = previous.reduce((max, b) => Math.max(max, b.versionCode), 0) + 1;
     const build: Build = {
@@ -337,9 +361,9 @@ export class MemoryStore implements DataStore {
     return build ? clone(build) : null;
   }
 
-  async listBuildsByClient(clientId: string, limit: number): Promise<Build[]> {
+  async listBuildsByApp(appId: string, limit: number): Promise<Build[]> {
     return [...this.builds.values()]
-      .filter((b) => b.clientId === clientId)
+      .filter((b) => b.appId === appId)
       .sort((a, b) => b.number - a.number)
       .slice(0, limit)
       .map(clone);
@@ -837,9 +861,9 @@ export class MemoryStore implements DataStore {
     if (payment?.status === "pending") this.planPayments.set(id, { ...payment, status: "failed" });
   }
 
-  async listPlanPayments(input: { clientId?: string; limit: number }): Promise<PlanPayment[]> {
+  async listPlanPayments(input: { clientId?: string; appId?: string; limit: number }): Promise<PlanPayment[]> {
     return [...this.planPayments.values()]
-      .filter((p) => !input.clientId || p.clientId === input.clientId)
+      .filter((p) => (!input.clientId || p.clientId === input.clientId) && (!input.appId || p.appId === input.appId))
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, input.limit)
       .map(clone);
@@ -1064,7 +1088,7 @@ export class MemoryStore implements DataStore {
 
   // 11.1 Overview
   async listApps(): Promise<App[]> {
-    return [...this.apps.values()].map(clone);
+    return [...this.apps.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).map(clone);
   }
 
   async listBuildsSince(since: Date): Promise<Build[]> {

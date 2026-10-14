@@ -1,3 +1,4 @@
+import { appLabel } from "../app/label";
 import { getStore } from "../data";
 import type { DataStore } from "../data/store";
 import type { AuditChanges, AuditEntry, User } from "../data/types";
@@ -106,10 +107,11 @@ export async function recordAudit(input: AuditInput, options: { store?: DataStor
 
 /**
  * Logs a change the team made from a client's own dashboard (staff managing
- * it); nothing for the client's own changes.
+ * it); nothing for the client's own changes. The entry names the app it was
+ * made on, since an account can have several.
  */
 export async function recordStaffChange(
-  context: { staff: Pick<User, "id" | "email"> | null; client: { id: string }; app?: { id: string } | null },
+  context: { staff: Pick<User, "id" | "email"> | null; client: { id: string }; app?: { id: string; appName?: string | null } | null },
   summary: string,
   before?: unknown,
   after?: unknown,
@@ -120,7 +122,7 @@ export async function recordStaffChange(
     action: "client.app_settings",
     target: context.app ? { type: "app", id: context.app.id } : { type: "client", id: context.client.id },
     clientId: context.client.id,
-    summary,
+    summary: context.app ? `${summary} (${appLabel(context.app)})` : summary,
     before,
     after,
   });

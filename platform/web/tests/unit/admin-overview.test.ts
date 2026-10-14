@@ -111,6 +111,7 @@ describe("admin overview numbers", () => {
     await store.createPlanPayment({
       id: "p1",
       clientId: c.id,
+      appId: null,
       plan: "pro",
       months: 12,
       amountCents: 480_000,

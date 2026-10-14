@@ -3,7 +3,8 @@
 import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, suspendClient } from "@/lib/admin/clients";
+import { activateClient, endOfDayUtc, regenerateLicenseKey, reinstateClient, resolveClientApp, suspendClient } from "@/lib/admin/clients";
+import { appLabel } from "@/lib/app/label";
 import { recordAudit } from "@/lib/admin/audit";
 import type { AdminPermission } from "@/lib/admin/permissions";
 import { registerClient } from "@/lib/auth/accounts";
@@ -46,6 +47,26 @@ async function clientName(clientId: string): Promise<string> {
   return user?.name ?? "a client";
 }
 
+/**
+ * The app a client action is for: the form's `appId` (one of the client's
+ * apps), or with none, their only app (null before their first app).
+ * Undefined when it can't be told: an unknown app, or several apps and none chosen.
+ */
+async function appFromForm(clientId: string, formData: FormData): Promise<App | null | undefined> {
+  const appId = String(formData.get("appId") ?? "");
+  if (appId && !/^[0-9a-f-]{36}$/i.test(appId)) return undefined;
+  try {
+    return await resolveClientApp(await getStore(), { id: clientId }, appId || undefined);
+  } catch {
+    return undefined;
+  }
+}
+
+/** " (App name)" for summaries in the audit log, when the action was on an app. */
+function onApp(app: App | null | undefined): string {
+  return app ? ` (${appLabel(app)})` : "";
+}
+
 /** Where an app's content comes from, for the audit log. */
 function websiteSummary(app: Pick<App, "backend" | "connector">) {
   return { backend: app.backend, connector: app.connector?.kind === "platform" ? app.connector.platform : (app.connector?.kind ?? null) };
@@ -63,11 +84,14 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
   const store = await getStore();
   const client = await store.getClientById(parsed.data.clientId);
   if (!client) return { message: "This client no longer exists." };
+  // Each app has its own plan: the form names the app it activates or extends.
+  const app = await appFromForm(client.id, formData);
+  if (app === undefined) return { message: "Choose the app to activate on the client's page.", values };
   const user = await store.getUserById(client.userId);
-  const before = await store.getLicenseByClientId(client.id);
+  const before = await store.getLicenseForApp(client.id, app?.id ?? null);
   const outcome = await activateClient(
     store,
-    { clientId: client.id, plan: parsed.data.plan, activeUntil, paymentNote: parsed.data.paymentNote },
+    { clientId: client.id, appId: app?.id ?? null, plan: parsed.data.plan, activeUntil, paymentNote: parsed.data.paymentNote },
     encryptionKey(),
     now,
   );
@@ -77,18 +101,26 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
   await recordAudit({
     actor: admin,
     action: activated ? "client.activate" : "client.renew",
-    target: { type: "client", id: client.id },
+    target: app ? { type: "app", id: app.id } : { type: "client", id: client.id },
     clientId: client.id,
-    summary: `${activated ? "Activated" : "Saved"} ${user?.name ?? "the client"} on ${planLabel} until ${until}${parsed.data.paymentNote ? ` (${parsed.data.paymentNote})` : ""}`,
+    summary: `${activated ? "Activated" : "Saved"} ${user?.name ?? "the client"} on ${planLabel} until ${until}${parsed.data.paymentNote ? ` (${parsed.data.paymentNote})` : ""}${onApp(app)}`,
     before: { status: client.status, plan: before?.plan ?? null, expiresAt: before?.expiresAt ?? null },
     after: { status: "active", plan: parsed.data.plan, expiresAt: activeUntil },
   });
   if (user) {
     const dashboard = `${appUrl()}/dashboard`;
+    const appName = appLabel(app);
     await (
       activated
-        ? sendTemplate("account_activated", user.email, { name: user.name, plan: planLabel, active_until: until, license_key: outcome.licenseKey, dashboard_url: dashboard })
-        : sendTemplate("plan_renewed", user.email, { name: user.name, plan: planLabel, active_until: until, dashboard_url: dashboard })
+        ? sendTemplate("account_activated", user.email, {
+            name: user.name,
+            app_name: appName,
+            plan: planLabel,
+            active_until: until,
+            license_key: outcome.licenseKey,
+            dashboard_url: dashboard,
+          })
+        : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard })
     ).catch((error: unknown) => console.error("[mail] activation email failed", error));
   }
   revalidateClient(client.id);
@@ -138,7 +170,7 @@ export async function reinstateClientAction(formData: FormData): Promise<void> {
 export async function setHostedApiAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.edit");
   const store = await getStore();
-  const app = await store.getAppByClientId(id);
+  const app = await appFromForm(id, formData);
   if (!app) redirect(clientUrl(id, undefined, formData));
   const now = new Date();
   const hosted = formData.get("hosted") === "1";
@@ -153,7 +185,7 @@ export async function setHostedApiAction(formData: FormData): Promise<void> {
     action: "client.hosted_api",
     target: { type: "app", id: app.id },
     clientId: id,
-    summary: hosted ? `Moved ${await clientName(id)}'s app to the hosted API` : `Moved ${await clientName(id)}'s app off the hosted API`,
+    summary: `${hosted ? `Moved ${await clientName(id)}'s app to the hosted API` : `Moved ${await clientName(id)}'s app off the hosted API`}${onApp(app)}`,
     before: websiteSummary(app),
     after: websiteSummary(after),
   });
@@ -187,14 +219,25 @@ export async function saveClientDetailsAction(_: FormState, formData: FormData):
   return { ok: true, message: "Details saved.", values };
 }
 
-/** Opens the client's own dashboard, where our team changes anything the client can. */
+/**
+ * Opens the client's own dashboard, where our team changes anything the
+ * client can: on the app the form names (`appId`), else their first app.
+ */
 export async function manageClientAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.edit");
   const store = await getStore();
   if (!(await store.getClientById(id))) redirect("/admin/clients");
-  await startManaging(id);
-  await recordAudit({ actor: admin, action: "client.manage_app", target: { type: "client", id }, clientId: id, summary: `Opened ${await clientName(id)}'s dashboard` });
-  redirect((await store.getAppByClientId(id)) ? "/dashboard" : "/dashboard/app-type");
+  const apps = await store.listAppsByClient(id);
+  const app = apps.find((a) => a.id === String(formData.get("appId") ?? "")) ?? apps[0] ?? null;
+  await startManaging(id, app?.id ?? null);
+  await recordAudit({
+    actor: admin,
+    action: "client.manage_app",
+    target: { type: "client", id },
+    clientId: id,
+    summary: `Opened ${await clientName(id)}'s dashboard${apps.length > 1 ? onApp(app) : ""}`,
+  });
+  redirect(app ? "/dashboard" : "/dashboard/app-type");
 }
 
 /** Back from a client's dashboard to their page in the admin. */
@@ -207,13 +250,16 @@ export async function stopManagingAction(): Promise<void> {
 
 export async function regenerateKeyAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.license");
-  await regenerateLicenseKey(await getStore(), id, encryptionKey(), new Date());
+  const app = await appFromForm(id, formData);
+  const store = await getStore();
+  if (app === undefined || !(await store.getLicenseForApp(id, app?.id ?? null))) redirect(clientUrl(id, undefined, formData));
+  await regenerateLicenseKey(store, id, encryptionKey(), new Date(), app?.id ?? null);
   await recordAudit({
     actor: admin,
     action: "client.license_key",
-    target: { type: "client", id },
+    target: app ? { type: "app", id: app.id } : { type: "client", id },
     clientId: id,
-    summary: `New license key for ${await clientName(id)}; the old one stopped working`,
+    summary: `New license key for ${await clientName(id)}; the old one stopped working${onApp(app)}`,
   });
   revalidateClient(id);
   redirect(clientUrl(id, "regenerated", formData));
@@ -222,15 +268,17 @@ export async function regenerateKeyAction(formData: FormData): Promise<void> {
 export async function releaseClientSiteAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.license");
   const store = await getStore();
-  const license = await store.getLicenseByClientId(id);
+  const app = await appFromForm(id, formData);
+  if (app === undefined) redirect(clientUrl(id, undefined, formData));
+  const license = await store.getLicenseForApp(id, app?.id ?? null);
   const activation = license ? await store.getActivation(license.id) : null;
   if (license) await store.deleteActivation(license.id);
   await recordAudit({
     actor: admin,
     action: "client.release_site",
-    target: { type: "client", id },
+    target: app ? { type: "app", id: app.id } : { type: "client", id },
     clientId: id,
-    summary: `Released ${await clientName(id)}'s license${activation ? ` from ${activation.siteUrl}` : ""}`,
+    summary: `Released ${await clientName(id)}'s license${activation ? ` from ${activation.siteUrl}` : ""}${onApp(app)}`,
     before: { site: activation?.siteUrl ?? null },
     after: { site: null },
   });
