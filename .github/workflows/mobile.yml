@@ -197,6 +197,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: yallapp-events-example-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Apply the example config as a Charity & donations app
         run: |
