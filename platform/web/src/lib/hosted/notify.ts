@@ -26,6 +26,47 @@ export interface Announcement {
 }
 
 /**
+ * 27 Tells each customer who had a spot that the business called a class
+ * off: a notification in their inbox, and a push to their phones when push
+ * is on. Their credits are already back. Returns the devices pushed to.
+ */
+export async function notifyClassCancelled(input: {
+  store: DataStore;
+  app: App;
+  /** The class's name, its local day and time ("Morning yoga", "Mon 20 Oct, 07:30"). */
+  className: string;
+  when: string;
+  userIds: number[];
+  account: ServiceAccount | null;
+  now: Date;
+  send?: typeof sendPush;
+}): Promise<{ notified: number; pushed: number }> {
+  const title = `${input.className} is cancelled`.slice(0, NOTIFICATION_TITLE_MAX);
+  const body = `${input.className} on ${input.when} is cancelled. Your spot is free and any class credit it used is back on your membership.`.slice(0, NOTIFICATION_BODY_MAX);
+  let pushed = 0;
+  const users = [...new Set(input.userIds)];
+  for (const userId of users) {
+    const notification = await input.store.createHostedNotification({ appId: input.app.id, userId, title, body, createdAt: input.now });
+    if (!input.account) continue;
+    const tokens = (await input.store.listHostedPushDevices(input.app.id, [userId])).map((d) => d.pushToken!);
+    if (tokens.length === 0) continue;
+    try {
+      const result = await (input.send ?? sendPush)(
+        input.account,
+        tokens,
+        { title, body, data: { type: "announcement", notification_id: String(notification.id) } },
+        { now: input.now },
+      );
+      for (const token of result.invalidTokens) await input.store.clearHostedPushToken(input.app.id, token);
+      pushed += result.sent;
+    } catch {
+      // The inbox has it either way.
+    }
+  }
+  return { notified: users.length, pushed };
+}
+
+/**
  * Adds a notification to every customer's inbox and pushes it to the devices
  * that allow announcements. The inbox keeps it even when push fails. 23 With
  * `articleId` it is breaking news: it opens the article and goes to devices

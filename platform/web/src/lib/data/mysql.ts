@@ -3,6 +3,7 @@ import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
+import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
@@ -46,6 +47,14 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  BookClassInput,
+  BookClassResult,
+  ClassBooking,
+  ClassBookingStatus,
+  ClassSession,
+  ClassSessionPatch,
+  Membership,
+  MembershipPatch,
   CourseEnrollment,
   LessonProgress,
   PlatformSettingKey,
@@ -78,6 +87,9 @@ import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./typ
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 type Db = MySql2Database<typeof schema>;
+
+/** 27 Rolls a class booking back when the class has no spot left. */
+class ClassFullError extends Error {}
 
 /**
  * Pool settings for Netlify functions talking to cPanel MySQL:
@@ -1088,6 +1100,239 @@ export class MysqlStore implements DataStore {
     return { items, total: totals[0]?.n ?? 0 };
   }
 
+  // 27 Classes and memberships
+
+  async createClassSession(input: Omit<ClassSession, "id">): Promise<ClassSession | null> {
+    // The unique key (app, timetable entry, start) makes a class once, also when two runs make the same weeks.
+    const [result] = await this.run((db) => db.insert(schema.classSessions).ignore().values(input));
+    return result.affectedRows === 1 ? { ...input, id: Number(result.insertId) } : null;
+  }
+
+  async getClassSession(appId: string, id: number): Promise<ClassSession | null> {
+    const t = schema.classSessions;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listClassSessions(input: { appId: string; startFrom?: Date; startBefore?: Date }): Promise<ClassSession[]> {
+    const t = schema.classSessions;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(eq(t.appId, input.appId), input.startFrom ? gte(t.startAt, input.startFrom) : undefined, input.startBefore ? lt(t.startAt, input.startBefore) : undefined),
+        )
+        .orderBy(asc(t.startAt), asc(t.id))
+        .limit(5000),
+    );
+  }
+
+  async updateClassSession(appId: string, id: number, patch: ClassSessionPatch): Promise<void> {
+    const t = schema.classSessions;
+    const { capacity, ...rest } = patch;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...rest, ...(capacity !== undefined ? { capacity: sql`greatest(${capacity}, ${t.bookedCount})` } : {}) })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteClassSession(appId: string, id: number): Promise<boolean> {
+    const t = schema.classSessions;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.bookedCount, 0))));
+    return result.affectedRows === 1;
+  }
+
+  async bookClass(input: BookClassInput): Promise<BookClassResult> {
+    const s = schema.classSessions;
+    const b = schema.classBookings;
+    const m = schema.memberships;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // The class's row is the lock: one booking of this class at a time.
+        const [session] = await tx
+          .select()
+          .from(s)
+          .where(and(eq(s.appId, input.appId), eq(s.id, input.sessionId)))
+          .for("update");
+        if (!session) return { ok: false, reason: "not_found" } as const;
+        const [existing] = await tx
+          .select()
+          .from(b)
+          .where(and(eq(b.sessionId, session.id), eq(b.userId, input.userId)))
+          .limit(1);
+        if (existing?.status === "booked") return { ok: true, booking: existing, session } as const;
+        if (session.status !== "scheduled") return { ok: false, reason: "cancelled" } as const;
+        if (session.startAt < input.bookableFrom) return { ok: false, reason: "too_late" } as const;
+        if (session.bookedCount >= session.capacity) return { ok: false, reason: "full" } as const;
+        let membershipId: number | null = null;
+        if (input.membershipRequired) {
+          // The customer's memberships are locked too, so two classes booked at once can't both use the last credit.
+          const mine = await tx
+            .select()
+            .from(m)
+            .where(and(eq(m.appId, input.appId), eq(m.userId, input.userId)))
+            .for("update");
+          const pick = membershipToUse(mine, input.now);
+          if (!pick.ok) return { ok: false, reason: pick.reason } as const;
+          if (pick.membership.creditsLeft !== null) {
+            const [used] = await tx
+              .update(m)
+              .set({ creditsLeft: sql`${m.creditsLeft} - 1`, updatedAt: input.now })
+              .where(and(eq(m.id, pick.membership.id), gt(m.creditsLeft, 0)));
+            if (used.affectedRows !== 1) return { ok: false, reason: "no_credits" } as const;
+          }
+          membershipId = pick.membership.id;
+        }
+        // Raised only while below the capacity, whatever happened since the read.
+        const [taken] = await tx
+          .update(s)
+          .set({ bookedCount: sql`${s.bookedCount} + 1`, updatedAt: input.now })
+          .where(and(eq(s.id, session.id), eq(s.status, "scheduled"), lt(s.bookedCount, s.capacity)));
+        // Thrown to roll back the credit used above.
+        if (taken.affectedRows !== 1) throw new ClassFullError();
+        const fields = {
+          membershipId,
+          customerName: input.customerName,
+          customerPhone: input.customerPhone,
+          customerEmail: input.customerEmail,
+          status: "booked" as const,
+          updatedAt: input.now,
+        };
+        let booking: ClassBooking;
+        if (existing) {
+          await tx.update(b).set(fields).where(eq(b.id, existing.id));
+          booking = { ...existing, ...fields };
+        } else {
+          const row = { appId: input.appId, sessionId: session.id, userId: input.userId, createdAt: input.now, ...fields };
+          const [inserted] = await tx.insert(b).values(row);
+          booking = { ...row, id: Number(inserted.insertId) };
+        }
+        return { ok: true, booking, session: { ...session, bookedCount: session.bookedCount + 1, updatedAt: input.now } } as const;
+      }),
+    ).catch((e: unknown) => {
+      if (e instanceof ClassFullError) return { ok: false, reason: "full" } as const;
+      throw e;
+    });
+  }
+
+  /** In a transaction: frees a spot and gives its credit back. */
+  private async releaseSpot(tx: Parameters<Parameters<Db["transaction"]>[0]>[0], booking: ClassBooking, now: Date): Promise<void> {
+    const s = schema.classSessions;
+    const m = schema.memberships;
+    await tx.update(schema.classBookings).set({ status: "cancelled", updatedAt: now }).where(eq(schema.classBookings.id, booking.id));
+    await tx
+      .update(s)
+      .set({ bookedCount: sql`greatest(${s.bookedCount} - 1, 0)`, updatedAt: now })
+      .where(eq(s.id, booking.sessionId));
+    if (booking.membershipId !== null) {
+      await tx
+        .update(m)
+        .set({ creditsLeft: sql`${m.creditsLeft} + 1`, updatedAt: now })
+        .where(and(eq(m.id, booking.membershipId), isNotNull(m.creditsLeft)));
+    }
+  }
+
+  async cancelClassBooking(input: { appId: string; sessionId: number; userId: number; now: Date }): Promise<ClassBooking | null> {
+    const b = schema.classBookings;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        await tx.select({ id: schema.classSessions.id }).from(schema.classSessions).where(eq(schema.classSessions.id, input.sessionId)).for("update");
+        const [booking] = await tx
+          .select()
+          .from(b)
+          .where(and(eq(b.appId, input.appId), eq(b.sessionId, input.sessionId), eq(b.userId, input.userId), eq(b.status, "booked")))
+          .for("update");
+        if (!booking) return null;
+        await this.releaseSpot(tx, booking, input.now);
+        return { ...booking, status: "cancelled" as const, updatedAt: input.now };
+      }),
+    );
+  }
+
+  async cancelClassSession(appId: string, id: number, now: Date): Promise<ClassBooking[]> {
+    const s = schema.classSessions;
+    const b = schema.classBookings;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [session] = await tx
+          .select()
+          .from(s)
+          .where(and(eq(s.appId, appId), eq(s.id, id)))
+          .for("update");
+        if (!session || session.status === "cancelled") return [];
+        await tx.update(s).set({ status: "cancelled", updatedAt: now }).where(eq(s.id, id));
+        const booked = await tx
+          .select()
+          .from(b)
+          .where(and(eq(b.sessionId, id), eq(b.status, "booked")))
+          .for("update");
+        for (const booking of booked) await this.releaseSpot(tx, booking, now);
+        return booked;
+      }),
+    );
+  }
+
+  async listClassBookings(input: { appId: string; sessionIds?: number[]; userId?: number; status?: ClassBookingStatus }): Promise<ClassBooking[]> {
+    if (input.sessionIds && input.sessionIds.length === 0) return [];
+    const b = schema.classBookings;
+    return this.run((db) =>
+      db
+        .select()
+        .from(b)
+        .where(
+          and(
+            eq(b.appId, input.appId),
+            input.sessionIds ? inArray(b.sessionId, input.sessionIds) : undefined,
+            input.userId !== undefined ? eq(b.userId, input.userId) : undefined,
+            input.status ? eq(b.status, input.status) : undefined,
+          ),
+        )
+        .orderBy(asc(b.createdAt), asc(b.id))
+        .limit(10_000),
+    );
+  }
+
+  async createMembership(input: Omit<Membership, "id">): Promise<Membership> {
+    const [result] = await this.run((db) => db.insert(schema.memberships).values(input));
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async getMembership(appId: string, id: number): Promise<Membership | null> {
+    const m = schema.memberships;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.appId, appId), eq(m.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMemberships(input: { appId: string; userId?: number; limit?: number }): Promise<Membership[]> {
+    const m = schema.memberships;
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(and(eq(m.appId, input.appId), input.userId !== undefined ? eq(m.userId, input.userId) : undefined))
+        .orderBy(desc(m.createdAt), desc(m.id))
+        .limit(input.limit ?? 500),
+    );
+  }
+
+  async updateMembership(appId: string, id: number, patch: MembershipPatch): Promise<void> {
+    const m = schema.memberships;
+    await this.run((db) => db.update(m).set(patch).where(and(eq(m.appId, appId), eq(m.id, id))));
+  }
+
+  async addMembershipCredits(appId: string, id: number, credits: number, now: Date): Promise<void> {
+    const m = schema.memberships;
+    await this.run((db) =>
+      db
+        .update(m)
+        .set({ creditsLeft: sql`greatest(${m.creditsLeft} + ${credits}, 0)`, updatedAt: now })
+        .where(and(eq(m.appId, appId), eq(m.id, id), isNotNull(m.creditsLeft))),
+    );
+  }
+
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
     const [result] = await this.run((db) => db.insert(schema.courseEnrollments).ignore().values(input));
     return result.affectedRows === 1;
@@ -1826,6 +2071,21 @@ export class MysqlStore implements DataStore {
     const [devices] = await this.run((db) =>
       db.delete(s.hostedDevices).where(and(eq(s.hostedDevices.appId, appId), lt(s.hostedDevices.lastSeenAt, before))),
     );
+    // 27 Spots taken more than a day ago are freed (the classes count what's left); memberships bought then are gone.
+    const [classBookings] = await this.run((db) =>
+      db.delete(s.classBookings).where(and(eq(s.classBookings.appId, appId), lt(s.classBookings.updatedAt, before))),
+    );
+    if (classBookings.affectedRows > 0) {
+      await this.run((db) =>
+        db
+          .update(s.classSessions)
+          .set({
+            bookedCount: sql`(select count(*) from ${s.classBookings} where ${s.classBookings.sessionId} = ${s.classSessions.id} and ${s.classBookings.status} = 'booked')`,
+          })
+          .where(eq(s.classSessions.appId, appId)),
+      );
+    }
+    const [memberships] = await this.run((db) => db.delete(s.memberships).where(and(eq(s.memberships.appId, appId), lt(s.memberships.createdAt, before))));
     return {
       orders: orders.affectedRows,
       appointments: appointments.affectedRows,
@@ -1835,6 +2095,8 @@ export class MysqlStore implements DataStore {
       progress: progress.affectedRows,
       devices: devices.affectedRows,
       notifications: notifications.affectedRows,
+      classBookings: classBookings.affectedRows,
+      memberships: memberships.affectedRows,
     };
   }
 

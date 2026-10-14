@@ -13,6 +13,14 @@ import type {
   BookingAppointment,
   BookingAppointmentPatch,
   BookingStatus,
+  BookClassInput,
+  BookClassResult,
+  ClassBooking,
+  ClassBookingStatus,
+  ClassSession,
+  ClassSessionPatch,
+  Membership,
+  MembershipPatch,
   CourseEnrollment,
   LessonProgress,
   CatalogProduct,
@@ -276,6 +284,37 @@ export interface DataStore {
     offset: number;
     limit: number;
   }): Promise<{ items: BookingAppointment[]; total: number }>;
+
+  // 27 Group classes and memberships
+  /** Adds a class; null when its timetable entry already has a class at that start. */
+  createClassSession(input: Omit<ClassSession, "id">): Promise<ClassSession | null>;
+  getClassSession(appId: string, id: number): Promise<ClassSession | null>;
+  /** An app's classes starting in [startFrom, startBefore), soonest first. */
+  listClassSessions(input: { appId: string; startFrom?: Date; startBefore?: Date }): Promise<ClassSession[]>;
+  /** Changes a class; the capacity never goes below the spots already taken. */
+  updateClassSession(appId: string, id: number, patch: ClassSessionPatch): Promise<void>;
+  /** Removes a class nobody has a spot in; false when someone has. */
+  deleteClassSession(appId: string, id: number): Promise<boolean>;
+  /**
+   * Books a spot, as one step: only while the class is on, bookable and has
+   * a spot left (never more spots than its capacity, also when many book at
+   * once), using a credit of the customer's membership when one is needed.
+   * A spot already booked is answered again without using anything.
+   */
+  bookClass(input: BookClassInput): Promise<BookClassResult>;
+  /** Gives a customer's spot back, with the credit it used; null when they have none. */
+  cancelClassBooking(input: { appId: string; sessionId: number; userId: number; now: Date }): Promise<ClassBooking | null>;
+  /** Calls a class off: every spot is given back with its credit. Returns the spots that were booked. */
+  cancelClassSession(appId: string, id: number, now: Date): Promise<ClassBooking[]>;
+  listClassBookings(input: { appId: string; sessionIds?: number[]; userId?: number; status?: ClassBookingStatus }): Promise<ClassBooking[]>;
+  createMembership(input: Omit<Membership, "id">): Promise<Membership>;
+  getMembership(appId: string, id: number): Promise<Membership | null>;
+  /** An app's memberships (or one customer's), newest first. */
+  listMemberships(input: { appId: string; userId?: number; limit?: number }): Promise<Membership[]>;
+  updateMembership(appId: string, id: number, patch: MembershipPatch): Promise<void>;
+  /** Adds classes to a membership with credits (unlimited ones stay unlimited). */
+  addMembershipCredits(appId: string, id: number, credits: number, now: Date): Promise<void>;
+
   /** Enrols once; false when they already were. */
   enrollInCourse(input: CourseEnrollment): Promise<boolean>;
   listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]>;

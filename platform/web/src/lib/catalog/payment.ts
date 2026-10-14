@@ -1,3 +1,5 @@
+import { membershipEnd } from "../bookings/memberships";
+import { bookingSetup } from "../bookings/setup";
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
 import type { DataStore } from "../data/store";
@@ -201,6 +203,38 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
 export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl: string, timezone?: string): { subject: string; text: string } {
   const { subject, text } = renderTemplate(emailTemplate("new_order")!, newOrderMailValues(order, appName, dashboardUrl, timezone));
   return { subject, text };
+}
+
+/**
+ * 27 A paid membership order starts its membership at once (apps whose
+ * bookings are managed in the dashboard: their orders are memberships).
+ * Plans are never deleted, only taken off sale, so the plan is still there.
+ */
+export async function startPaidMemberships(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<void> {
+  if (app.connector?.kind !== "bookings" || order.userId === null) return;
+  const { membershipPlans } = bookingSetup(app);
+  const started = await store.listMemberships({ appId: app.id, userId: order.userId, limit: 500 });
+  if (started.some((m) => m.orderId === order.id)) return;
+  for (const line of order.lines) {
+    const plan = membershipPlans.find((p) => p.id === line.productId);
+    if (!plan) continue;
+    await store.createMembership({
+      appId: app.id,
+      userId: order.userId,
+      planId: plan.id,
+      planName: line.name,
+      period: plan.period,
+      creditsLeft: plan.credits,
+      status: "active",
+      startsAt: now,
+      endsAt: membershipEnd(plan.period, now),
+      orderId: order.id,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+  // Nothing to deliver: the order is done once the membership runs.
+  await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
 }
 
 /** A paid course order enrols its student in its courses (apps whose courses are managed in the dashboard). */

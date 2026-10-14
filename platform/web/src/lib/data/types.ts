@@ -830,6 +830,42 @@ export interface BookingSetup {
   nextId: number;
   /** 21 Questions asked when booking, in order; missing in setups saved before (none). */
   intakeFields?: IntakeField[];
+  /** 27 The weekly class timetable (a gym's or studio's group classes); missing: none. */
+  classTemplates?: ClassTemplate[];
+  /** 27 Membership plans sold in the app, in order; missing: none. */
+  membershipPlans?: MembershipPlan[];
+  /** 27 Booking a class needs an active membership ("Classes need a membership"); missing: false. */
+  membershipRequired?: boolean;
+}
+
+/** 27 A class on the weekly timetable: the classes of the next weeks are made from it. */
+export interface ClassTemplate {
+  id: number;
+  /** The service it is (its name, picture and colour), and its coach. */
+  serviceId: number;
+  staffId: number;
+  /** 0 is Sunday. */
+  weekday: number;
+  /** The local start, like "07:30". */
+  time: string;
+  durationMinutes: number;
+  capacity: number;
+  active: boolean;
+}
+
+export type MembershipPeriod = "month" | "quarter" | "year" | "pack";
+
+/** 27 A membership plan: unlimited or a number of classes, for a period or as a pack (no end). */
+export interface MembershipPlan {
+  id: number;
+  name: string;
+  description: string;
+  priceCents: number;
+  period: MembershipPeriod;
+  /** Classes it includes; null for unlimited (never for a pack). */
+  credits: number | null;
+  /** On sale in the app. */
+  active: boolean;
 }
 
 export const DEFAULT_BOOKING_RULES: BookingRules = {
@@ -878,6 +914,95 @@ export interface BookingAppointment {
 }
 
 export type BookingAppointmentPatch = Partial<Pick<BookingAppointment, "status" | "updatedAt">>;
+
+// 27 Group classes and memberships (bookings managed in the dashboard).
+
+export type ClassSessionStatus = "scheduled" | "cancelled";
+
+/** One class on a day, made from a timetable entry; its own row so spots can be counted and locked. */
+export interface ClassSession {
+  id: number;
+  appId: string;
+  /** The timetable entry it was made from; null once that entry is gone. */
+  templateId: number | null;
+  serviceId: number;
+  staffId: number;
+  /** Names when made or last updated, so the history survives edits. */
+  serviceName: string;
+  staffName: string;
+  startAt: Date;
+  endAt: Date;
+  capacity: number;
+  /** Spots taken; never above the capacity. */
+  bookedCount: number;
+  status: ClassSessionStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ClassSessionPatch = Partial<Pick<ClassSession, "templateId" | "serviceId" | "staffId" | "serviceName" | "staffName" | "endAt" | "capacity" | "updatedAt">>;
+
+export type ClassBookingStatus = "booked" | "cancelled";
+
+/** A customer's spot in a class (one row per class and customer). */
+export interface ClassBooking {
+  id: number;
+  appId: string;
+  sessionId: number;
+  /** Null once their account is gone. */
+  userId: number | null;
+  /** The membership whose credit it used; null when none was used. */
+  membershipId: number | null;
+  customerName: string;
+  customerPhone: string | null;
+  customerEmail: string | null;
+  status: ClassBookingStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Why a spot wasn't booked. */
+export type BookClassFailure = "not_found" | "cancelled" | "too_late" | "full" | "membership_required" | "no_credits";
+
+export type BookClassResult = { ok: true; booking: ClassBooking; session: ClassSession } | { ok: false; reason: BookClassFailure };
+
+/** What booking a spot needs. */
+export interface BookClassInput {
+  appId: string;
+  sessionId: number;
+  userId: number;
+  customerName: string;
+  customerPhone: string | null;
+  customerEmail: string | null;
+  /** An active membership is needed, and a credit is used when it has credits. */
+  membershipRequired: boolean;
+  /** Classes starting before this can't be booked any more. */
+  bookableFrom: Date;
+  now: Date;
+}
+
+/** A customer's membership. "Expired" isn't stored: an active one whose end has passed. */
+export interface Membership {
+  id: number;
+  appId: string;
+  userId: number;
+  /** The plan, with its name and period when bought. */
+  planId: number;
+  planName: string;
+  period: MembershipPeriod;
+  /** Null for unlimited classes. */
+  creditsLeft: number | null;
+  status: "active" | "cancelled";
+  startsAt: Date;
+  /** Null for a pack of classes. */
+  endsAt: Date | null;
+  /** The paid order that started it; null when the business added it. */
+  orderId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MembershipPatch = Partial<Pick<Membership, "status" | "endsAt" | "updatedAt">>;
 
 // Courses managed in the dashboard (connector "courses").
 
@@ -1426,6 +1551,9 @@ export interface DemoPurgeCounts {
   progress: number;
   devices: number;
   notifications: number;
+  /** 27 Spots in classes, and memberships. */
+  classBookings: number;
+  memberships: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard

@@ -1,19 +1,25 @@
 import { freeTimes, staffFor } from "../../bookings/availability";
+import { hasClasses } from "../../bookings/classes";
 import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
-import { BOOKING_STATUS_LABELS, bookingSetup } from "../../bookings/setup";
-import { addDays, isDate, utcToLocal } from "../../bookings/time";
+import { membershipActive, membershipStatus } from "../../bookings/memberships";
+import { BOOKING_STATUS_LABELS, bookingSetup, type FullBookingSetup } from "../../bookings/setup";
+import { addDays, isDate, localToUtc, utcToLocal } from "../../bookings/time";
 import { centsToDecimal, formatCents } from "../../catalog/money";
+import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
+import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import {
   ACTIVE_BOOKING_STATUSES,
   type App,
   type BookingAppointment,
   type BookingService,
-  type BookingSetup,
   type BookingStaff,
-  type IntakeField,
+  type BookClassFailure,
+  type ClassSession,
+  type Membership,
+  type MembershipPlan,
 } from "../../data/types";
-import { descriptionHtml } from "./catalog";
+import { descriptionHtml, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
@@ -23,6 +29,10 @@ interface BookingsDeps {
   assetUrl: (assetId: string) => string;
   /** Tells the business about a new appointment (an email); failures don't fail the booking. */
   onBooked?: (appointment: BookingAppointment) => Promise<void>;
+  /** 27 The payment page's address, for memberships. */
+  platformUrl?: string;
+  /** 27 Card payments in the app are in the app's plan (default true); without them no membership is on sale. */
+  cardPayments?: boolean;
 }
 
 const slotTaken = () => error(409, "slot_taken", "This time was just taken. Please choose another one.");
@@ -34,7 +44,7 @@ const signIn = () => error(401, "invalid_token", "Your session has ended. Please
  * setup, appointments from booking_appointments.
  */
 export class BookingsConnector implements Connector {
-  private readonly setup: BookingSetup & { intakeFields: IntakeField[] };
+  private readonly setup: FullBookingSetup;
 
   constructor(private readonly deps: BookingsDeps) {
     this.setup = bookingSetup(deps.app);
@@ -55,6 +65,16 @@ export class BookingsConnector implements Connector {
         cancel_before_minutes: rules.cancelBeforeMinutes,
         // 21 A clinic's intake form, when it has questions.
         ...(this.setup.intakeFields.length ? { intake_fields: intakeFieldsJson(this.setup.intakeFields) } : {}),
+        // 27 A gym's or studio's group classes.
+        ...(hasClasses(this.setup)
+          ? {
+              classes: {
+                membership_required: this.setup.membershipRequired,
+                cancel_before_minutes: rules.cancelBeforeMinutes,
+                memberships: this.plansOnSale().length > 0,
+              },
+            }
+          : {}),
       },
     };
   }
@@ -74,11 +94,23 @@ export class BookingsConnector implements Connector {
         return this.book(request);
       case "GET /me/appointments":
         return this.appointments(request);
+      case "GET /bookings/classes":
+        return this.classes(request);
+      case "GET /memberships/plans":
+        return this.plans();
+      case "POST /memberships/checkout-link":
+        return this.membershipCheckout(request);
+      case "GET /me/memberships":
+        return this.myMemberships(request);
     }
     const [first, second, third, fourth] = request.path;
     if (request.method === "GET" && first === "bookings" && second === "services" && third && request.path.length === 3) {
       const service = this.service(Number(third));
       return service ? { status: 200, body: this.detail(service) } : error(404, "not_found", "Service not found.");
+    }
+    if (request.method === "POST" && first === "bookings" && second === "classes" && third && request.path.length === 4) {
+      if (fourth === "book") return this.bookClass(request, Number(third));
+      if (fourth === "cancel") return this.cancelClass(request, Number(third));
     }
     if (first === "me" && second === "appointments" && third) {
       const id = Number(third);
@@ -213,16 +245,21 @@ export class BookingsConnector implements Connector {
   }
 
   /** Active appointments around these local days (with a margin for any time zone and for appointments across midnight). */
-  private async busy(from: string, days: number) {
+  private async busy(from: string, days: number): Promise<Pick<BookingAppointment, "staffId" | "startAt" | "endAt">[]> {
+    const startFrom = new Date(new Date(`${addDays(from, -1)}T00:00:00Z`).getTime() - 14 * 3_600_000);
+    const startBefore = new Date(new Date(`${addDays(from, days + 1)}T00:00:00Z`).getTime() + 14 * 3_600_000);
     const { items } = await this.deps.store.listBookingAppointments({
       appId: this.deps.app.id,
       statuses: ACTIVE_BOOKING_STATUSES,
-      startFrom: new Date(new Date(`${addDays(from, -1)}T00:00:00Z`).getTime() - 14 * 3_600_000),
-      startBefore: new Date(new Date(`${addDays(from, days + 1)}T00:00:00Z`).getTime() + 14 * 3_600_000),
+      startFrom,
+      startBefore,
       offset: 0,
       limit: 5000,
     });
-    return items;
+    if (!hasClasses(this.setup)) return items;
+    // 27 A coach teaching a class isn't free for a personal session then.
+    const classes = await this.deps.store.listClassSessions({ appId: this.deps.app.id, startFrom, startBefore });
+    return [...items, ...classes.filter((c) => c.status === "scheduled")];
   }
 
   private async availability(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -345,5 +382,185 @@ export class BookingsConnector implements Connector {
     }
     await this.deps.store.updateBookingAppointment(this.deps.app.id, id, { status: "cancelled", updatedAt: request.now });
     return { status: 200, body: this.appointmentJson({ ...appointment, status: "cancelled", updatedAt: request.now }, request.now) };
+  }
+
+  // 27 Group classes and memberships
+
+  /** Memberships are sold when card payments are set up and in the app's plan (a demo's payment page charges nothing). */
+  private get canSell(): boolean {
+    return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false && Boolean(this.deps.platformUrl);
+  }
+
+  private plansOnSale(): MembershipPlan[] {
+    return this.canSell ? this.setup.membershipPlans.filter((p) => p.active) : [];
+  }
+
+  private canCancelClass(session: ClassSession, now: Date): boolean {
+    const before = this.setup.rules.cancelBeforeMinutes;
+    return session.status === "scheduled" && before !== null && session.startAt.getTime() - now.getTime() >= before * 60_000;
+  }
+
+  private classJson(session: ClassSession, booked: boolean, now: Date) {
+    const local = utcToLocal(session.startAt, this.setup.rules.timezone);
+    const service = this.setup.services.find((s) => s.id === session.serviceId);
+    const staff = this.setup.staff.find((s) => s.id === session.staffId);
+    return {
+      id: session.id,
+      status: session.status,
+      service: {
+        id: session.serviceId,
+        name: session.serviceName,
+        image_url: service?.imageAssetId ? this.deps.assetUrl(service.imageAssetId) : null,
+        color: service?.color ?? null,
+      },
+      staff: staff ? this.person(staff) : { id: session.staffId, name: session.staffName, image_url: null, title: null, price: null },
+      start: session.startAt.toISOString(),
+      end: session.endAt.toISOString(),
+      local_date: local.date,
+      local_time: local.time,
+      capacity: session.capacity,
+      spots_left: session.status === "scheduled" ? Math.max(0, session.capacity - session.bookedCount) : 0,
+      booked,
+      can_cancel: booked && this.canCancelClass(session, now),
+    };
+  }
+
+  private noClasses = () => error(404, "not_found", "This app has no classes.");
+
+  private async classes(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!hasClasses(this.setup)) return this.noClasses();
+    const from = request.query.get("from") ?? "";
+    if (!isDate(from)) return error(400, "invalid_request", "Choose a valid date.");
+    const to = request.query.get("to") ?? addDays(from, 6);
+    if (!isDate(to) || to < from || to > addDays(from, 31)) return error(400, "invalid_request", "Choose up to 31 days.");
+    const { timezone } = this.setup.rules;
+    const sessions = await this.deps.store.listClassSessions({
+      appId: this.deps.app.id,
+      startFrom: localToUtc(from, "00:00", timezone),
+      startBefore: localToUtc(addDays(to, 1), "00:00", timezone),
+    });
+    const mine = request.user
+      ? new Set(
+          (await this.deps.store.listClassBookings({ appId: this.deps.app.id, userId: request.user.id, sessionIds: sessions.map((s) => s.id), status: "booked" })).map(
+            (b) => b.sessionId,
+          ),
+        )
+      : new Set<number>();
+    return { status: 200, body: { timezone, items: sessions.map((s) => this.classJson(s, mine.has(s.id), request.now)) } };
+  }
+
+  private static readonly CLASS_ERRORS: Record<Exclude<BookClassFailure, "not_found">, [number, string, string]> = {
+    cancelled: [409, "class_cancelled", "This class was cancelled."],
+    too_late: [409, "too_late", "This class can no longer be booked in the app."],
+    full: [409, "class_full", "This class is full. Please choose another one."],
+    membership_required: [403, "membership_required", "You need a membership to book classes."],
+    no_credits: [403, "no_credits", "Your membership has no classes left."],
+  };
+
+  private async bookClass(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!hasClasses(this.setup) || !Number.isSafeInteger(id)) return error(404, "not_found", "Class not found.");
+    const result = await this.deps.store.bookClass({
+      appId: this.deps.app.id,
+      sessionId: id,
+      userId: request.user.id,
+      customerName: request.user.name,
+      customerPhone: request.user.phone,
+      customerEmail: request.user.phone ? null : request.user.email,
+      membershipRequired: this.setup.membershipRequired,
+      bookableFrom: new Date(request.now.getTime() + this.setup.rules.minMinutesAhead * 60_000),
+      now: request.now,
+    });
+    if (!result.ok) {
+      if (result.reason === "not_found") return error(404, "not_found", "Class not found.");
+      const [status, code, message] = BookingsConnector.CLASS_ERRORS[result.reason];
+      return error(status, code, message);
+    }
+    return { status: 200, body: this.classJson(result.session, true, request.now) };
+  }
+
+  private async cancelClass(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const session = hasClasses(this.setup) && Number.isSafeInteger(id) ? await this.deps.store.getClassSession(this.deps.app.id, id) : null;
+    if (!session) return error(404, "not_found", "Class not found.");
+    const [booking] = await this.deps.store.listClassBookings({ appId: this.deps.app.id, sessionIds: [id], userId: request.user.id, status: "booked" });
+    if (!booking) return error(404, "not_found", "You don't have a spot in this class.");
+    if (!this.canCancelClass(session, request.now)) return error(409, "too_late", "This class can no longer be cancelled in the app. Please contact us.");
+    if (!(await this.deps.store.cancelClassBooking({ appId: this.deps.app.id, sessionId: id, userId: request.user.id, now: request.now }))) {
+      return error(404, "not_found", "You don't have a spot in this class.");
+    }
+    const after = (await this.deps.store.getClassSession(this.deps.app.id, id)) ?? session;
+    return { status: 200, body: this.classJson(after, false, request.now) };
+  }
+
+  private planJson(p: MembershipPlan) {
+    return { id: p.id, name: p.name, price: this.price(p.priceCents), period: p.period, credits: p.credits, description: p.description || null };
+  }
+
+  private plans(): ConnectorResult {
+    if (!hasClasses(this.setup) && this.setup.membershipPlans.length === 0) return this.noClasses();
+    return { status: 200, body: { items: this.plansOnSale().map((p) => this.planJson(p)) } };
+  }
+
+  /** 27 On Android and iOS alike: a membership is a service used in person (App Store Review Guideline 3.1.3(e)). */
+  private async membershipCheckout(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const platform = request.query.get("platform");
+    if (platform !== "android" && platform !== "ios") return error(400, "invalid_request", "Unknown platform.");
+    const planId = Number((request.body as { plan_id?: unknown } | null)?.plan_id);
+    const plan = this.setup.membershipPlans.find((p) => p.id === planId && p.active);
+    if (!plan) return error(404, "not_found", "This membership isn't on sale.");
+    if (!this.canSell) return error(403, "feature_disabled", "Memberships can't be bought in the app right now.");
+    const token = randomToken(24);
+    await this.deps.store.createCatalogOrder({
+      appId: this.deps.app.id,
+      tokenHash: sha256Hex(token),
+      userId: request.user.id,
+      status: "pending",
+      lines: [{ productId: plan.id, name: plan.name, quantity: 1, unitCents: plan.priceCents, imageAssetId: null, digital: true }],
+      subtotalCents: plan.priceCents,
+      shippingCents: 0,
+      totalCents: plan.priceCents,
+      currency: this.setup.rules.currency,
+      customer: null,
+      paymentId: null,
+      createdAt: request.now,
+      paidAt: null,
+      updatedAt: request.now,
+      commissionCents: null,
+      itemTransactionIds: null,
+      payoutApprovedAt: null,
+    });
+    return {
+      status: 200,
+      body: {
+        url: payUrl(this.deps.platformUrl!, token),
+        expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(),
+        open_in: "in_app",
+      },
+    };
+  }
+
+  private membershipJson(m: Membership, now: Date) {
+    return {
+      id: m.id,
+      plan: { id: m.planId, name: m.planName, period: m.period },
+      status: membershipStatus(m, now),
+      starts_at: m.startsAt.toISOString(),
+      ends_at: m.endsAt ? m.endsAt.toISOString() : null,
+      credits_left: m.creditsLeft,
+    };
+  }
+
+  private async myMemberships(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!hasClasses(this.setup) && this.setup.membershipPlans.length === 0) return this.noClasses();
+    const all = await this.deps.store.listMemberships({ appId: this.deps.app.id, userId: request.user.id, limit: 100 });
+    const now = request.now;
+    const active = all
+      .filter((m) => membershipActive(m, now))
+      .sort((a, b) => (a.endsAt?.getTime() ?? Number.MAX_SAFE_INTEGER) - (b.endsAt?.getTime() ?? Number.MAX_SAFE_INTEGER) || a.id - b.id);
+    const ended = all.filter((m) => !membershipActive(m, now));
+    return { status: 200, body: { items: [...active, ...ended].map((m) => this.membershipJson(m, now)) } };
   }
 }

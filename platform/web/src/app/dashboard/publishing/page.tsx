@@ -30,7 +30,7 @@ import {
   stepText,
   STORE_TITLE,
 } from "@/lib/publishing/steps";
-import { suggestedCategories } from "@/lib/app/kinds";
+import { kindOf, suggestedCategories } from "@/lib/app/kinds";
 import { ChecklistForm, ListingForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
@@ -298,6 +298,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           }}
           playCategories={PLAY_CATEGORIES}
           appStoreCategories={APP_STORE_CATEGORIES}
+          reviewNote={kindOf(app).reviewNote}
         />
         {missing.length ? (
           <Notice icon="info">Still missing: {missing.join(", ")}.</Notice>

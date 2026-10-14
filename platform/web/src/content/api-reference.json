@@ -617,6 +617,54 @@
           "access": "signed-in"
         }
       ]
+    },
+    {
+      "name": "Classes",
+      "description": "Group classes and memberships, for gyms, studios and coaches (Bookings apps; the hosted API only for now). Classes come from the business's weekly timetable; each has a capacity, and a spot is booked only while one is left. When `bookings.classes.membership_required` is true, booking needs an active membership, and a plan with credits uses one per class (given back when the customer cancels in time). Memberships are paid on a web page outside the app, on Android and iOS alike: they are for a service used in person (App Store Review Guideline 3.1.3(e)).",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/bookings/classes",
+          "summary": "List classes on the timetable",
+          "description": "Classes from `from` to `to` (both included, the business's local dates), soonest first, also full and cancelled ones. Signed-in customers get `booked` for their own spots. Answers `not_found` (404) when the app has no classes.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/bookings/classes/{class_id}/book",
+          "summary": "Book a spot in a class",
+          "description": "Books one spot for the signed-in customer, only while one is left (no overbooking, also when many book at once). Booking a class already booked answers it again. Fails with `class_full` (409), `too_late` (409) once it has started or is closer than `min_minutes_ahead`, `class_cancelled` (409), `membership_required` (403) without an active membership when the business asks for one, and `no_credits` (403) when the membership's credits are used up. With a credit plan, one credit is used.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/bookings/classes/{class_id}/cancel",
+          "summary": "Cancel the customer's spot in a class",
+          "description": "Gives the spot back. A credit used for it comes back too. Fails with `too_late` (409) when the class starts sooner than `bookings.classes.cancel_before_minutes` allows, or when customers can't cancel in the app, and with `not_found` (404) when the customer has no spot in it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/memberships/plans",
+          "summary": "List the membership plans on sale",
+          "description": "Plans in the business's order. Empty when it sells none in the app.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/memberships/checkout-link",
+          "summary": "Get a payment page link for a membership",
+          "description": "Opens the business's payment page for one plan; paying starts the membership at once. The page's last address has `order-received` in it. Offered on Android and iOS: a membership is for a service used in person, not digital content. Fails with `feature_disabled` (403) when the business can't take card payments, and with `not_found` (404) for a plan not on sale.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/memberships",
+          "summary": "List the customer's memberships",
+          "description": "Active ones first (the one that ends first), then ended ones, newest first.",
+          "access": "signed-in"
+        }
+      ]
     }
   ]
 }

@@ -166,7 +166,8 @@ describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
     expect(APP_TYPES).toEqual([...FOUR, "news"]);
     // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "real_estate", "news"]);
+    // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "real_estate", "news"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -191,9 +192,10 @@ describe("20 app kinds registry", () => {
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
-    // 21 One more demo: the clinic, after Bookings. 23 The news app, last. 26 The café, after the shop.
-    expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "real_estate", "news"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant" });
+    // 21 One more demo: the clinic, after Bookings. 23 The news app, last. 26 The café, after the shop. 27 The gym, after the clinic.
+    expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news"]);
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness" });
+    expect(demoTypeOfSlug("fitness")).toBe("fitness");
     expect(demoTypeOfSlug("clinic")).toBe("clinic");
     expect(engineOfDemoSlug("clinic")).toBeNull();
     for (const [type, slug] of Object.entries(BEFORE.demoSlugs)) {
@@ -302,6 +304,7 @@ describe("20 app kinds registry", () => {
       ["restaurant", "solution-restaurant", "Restaurant & café", "restaurant"],
       ["bookings", "solution-bookings", "Bookings", "calendar_month"],
       ["clinic", "solution-clinic", "Clinic", "stethoscope"],
+      ["fitness", "solution-fitness", "Gym & fitness", "fitness_center"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
       ["news", "solution-news", "News & blog", "newspaper"],
     ]);
@@ -312,11 +315,12 @@ describe("20 app kinds registry", () => {
       ["solution-restaurant", "Solutions: Restaurant & café", "/solutions/restaurant"],
       ["solution-bookings", "Solutions: Bookings", "/solutions/bookings"],
       ["solution-clinic", "Solutions: Clinic", "/solutions/clinic"],
+      ["solution-fitness", "Solutions: Gym & fitness", "/solutions/fitness"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
       ["solution-news", "Solutions: News & blog", "/solutions/news"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Real estate apps", "News & blog apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "7", label: "app types: academy, store, restaurant & café, bookings, clinic, real estate and news & blog" });
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps"]);
+    expect(NUMBERS[0]).toEqual({ value: "8", label: "app types: academy, store, restaurant & café, bookings, clinic, gym & fitness, real estate and news & blog" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });

@@ -99,6 +99,16 @@ tags:
       LatePoint); the booking plugin's own rules decide the free times and
       whether a new appointment is approved or waits for the business.
       Appointments are paid at the business.
+  - name: Classes
+    description: |
+      Group classes and memberships, for gyms, studios and coaches (Bookings
+      apps; the hosted API only for now). Classes come from the business's
+      weekly timetable; each has a capacity, and a spot is booked only while
+      one is left. When `bookings.classes.membership_required` is true,
+      booking needs an active membership, and a plan with credits uses one
+      per class (given back when the customer cancels in time). Memberships
+      are paid on a web page outside the app, on Android and iOS alike: they
+      are for a service used in person (App Store Review Guideline 3.1.3(e)).
 
 paths:
   /config:
@@ -1709,6 +1719,181 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /bookings/classes:
+    get:
+      tags: [Classes]
+      operationId: listClasses
+      summary: List classes on the timetable
+      description: |
+        Classes from `from` to `to` (both included, the business's local
+        dates), soonest first, also full and cancelled ones. Signed-in
+        customers get `booked` for their own spots. Answers `not_found` (404)
+        when the app has no classes.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: The first day, in the business's time zone.
+          schema: { type: string, format: date, example: '2026-10-14' }
+        - name: to
+          in: query
+          description: The last day, at most 31 days after `from`. Default 6 days after it.
+          schema: { type: string, format: date, example: '2026-10-20' }
+      responses:
+        '200':
+          description: Classes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [timezone, items]
+                properties:
+                  timezone: { type: string, example: Europe/Istanbul }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ClassSession' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/classes/{class_id}/book:
+    post:
+      tags: [Classes]
+      operationId: bookClass
+      summary: Book a spot in a class
+      description: |
+        Books one spot for the signed-in customer, only while one is left (no
+        overbooking, also when many book at once). Booking a class already
+        booked answers it again. Fails with `class_full` (409), `too_late`
+        (409) once it has started or is closer than `min_minutes_ahead`,
+        `class_cancelled` (409), `membership_required` (403) without an active
+        membership when the business asks for one, and `no_credits` (403) when
+        the membership's credits are used up. With a credit plan, one credit
+        is used.
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: The class, with `booked` true
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bookings/classes/{class_id}/cancel:
+    post:
+      tags: [Classes]
+      operationId: cancelClass
+      summary: Cancel the customer's spot in a class
+      description: |
+        Gives the spot back. A credit used for it comes back too. Fails with
+        `too_late` (409) when the class starts sooner than
+        `bookings.classes.cancel_before_minutes` allows, or when customers
+        can't cancel in the app, and with `not_found` (404) when the customer
+        has no spot in it.
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: The class, with `booked` false
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /memberships/plans:
+    get:
+      tags: [Classes]
+      operationId: listMembershipPlans
+      summary: List the membership plans on sale
+      description: Plans in the business's order. Empty when it sells none in the app.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Plans
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MembershipPlan' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /memberships/checkout-link:
+    post:
+      tags: [Classes]
+      operationId: createMembershipCheckoutLink
+      summary: Get a payment page link for a membership
+      description: |
+        Opens the business's payment page for one plan; paying starts the
+        membership at once. The page's last address has `order-received` in
+        it. Offered on Android and iOS: a membership is for a service used in
+        person, not digital content. Fails with `feature_disabled` (403) when
+        the business can't take card payments, and with `not_found` (404) for
+        a plan not on sale.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: integer }
+      responses:
+        '200':
+          description: Payment link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in: { type: string, enum: [in_app, browser] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/memberships:
+    get:
+      tags: [Classes]
+      operationId: listMyMemberships
+      summary: List the customer's memberships
+      description: Active ones first (the one that ends first), then ended ones, newest first.
+      responses:
+        '200':
+          description: Memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Membership' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /listings/filters:
     get:
       tags: [Listings]
@@ -2075,6 +2260,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    ClassId:
+      name: class_id
+      in: path
+      required: true
+      schema: { type: integer }
     ListingId:
       name: listing_id
       in: path
@@ -2181,6 +2371,11 @@ components:
             - kitchen_closed
             - below_minimum
             - outside_delivery_area
+            - class_full
+            - class_cancelled
+            - membership_required
+            - no_credits
+            - too_late
         message: { type: string, description: A message safe to show to the student. }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -3144,6 +3339,78 @@ components:
             form), in order. Missing or empty: no questions. Apps that don't
             know it book without answers.
           items: { $ref: '#/components/schemas/IntakeField' }
+        classes: { $ref: '#/components/schemas/ClassesConfig' }
+
+    ClassesConfig:
+      type: object
+      description: |
+        Present when the business has group classes (a gym's or studio's
+        timetable, `GET /bookings/classes`). Missing: no classes; apps that
+        don't know it show the services only.
+      required: [membership_required, cancel_before_minutes, memberships]
+      properties:
+        membership_required: { type: boolean, description: Booking a class needs an active membership. }
+        cancel_before_minutes:
+          type: [integer, 'null']
+          minimum: 0
+          description: Customers can cancel their spot up to this many minutes before the start; null when they can't cancel in the app.
+        memberships: { type: boolean, description: "Whether membership plans are on sale in the app (`GET /memberships/plans`)." }
+
+    ClassSession:
+      type: object
+      required: [id, status, service, start, end, local_date, local_time, capacity, spots_left, booked, can_cancel]
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [scheduled, cancelled], description: "`cancelled` when the business called it off." }
+        service:
+          type: object
+          required: [id, name]
+          properties:
+            id: { type: integer }
+            name: { type: string, example: Morning yoga }
+            image_url: { type: [string, 'null'], format: uri }
+            color: { type: [string, 'null'], example: '#1D6B48' }
+        staff: { description: The coach., oneOf: [{ $ref: '#/components/schemas/StaffMember' }, { type: 'null' }] }
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time }
+        local_date: { type: string, format: date, description: In the business's time zone. }
+        local_time: { type: string, example: '07:30' }
+        capacity: { type: integer, minimum: 1 }
+        spots_left: { type: integer, minimum: 0 }
+        booked: { type: boolean, description: Whether the signed-in customer has a spot. False when signed out. }
+        can_cancel: { type: boolean, description: Whether the customer can give their spot back in the app now. }
+        waitlist: { type: boolean, description: Whether a full class takes a waiting list. Missing means no waiting list. }
+
+    MembershipPlan:
+      type: object
+      required: [id, name, price, period, credits]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Monthly unlimited }
+        price: { $ref: '#/components/schemas/BookingPrice' }
+        period:
+          type: string
+          enum: [month, quarter, year, pack]
+          description: How long it lasts from the day it's paid; a `pack` of classes has no end date.
+        credits: { type: [integer, 'null'], minimum: 1, description: Classes it includes; null for unlimited. A pack always has credits. }
+        description: { type: [string, 'null'], maxLength: 500 }
+
+    Membership:
+      type: object
+      required: [id, plan, status, starts_at, ends_at, credits_left]
+      properties:
+        id: { type: integer }
+        plan:
+          type: object
+          required: [id, name, period]
+          properties:
+            id: { type: integer }
+            name: { type: string, description: The plan's name when it was bought. }
+            period: { type: string, enum: [month, quarter, year, pack] }
+        status: { type: string, enum: [active, expired, cancelled] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time, description: Null for a pack of classes. }
+        credits_left: { type: [integer, 'null'], minimum: 0, description: Null for unlimited classes. }
 
     IntakeField:
       type: object
@@ -3400,7 +3667,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }

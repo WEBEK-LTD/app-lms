@@ -111,6 +111,10 @@ export interface KindInfo {
     /** The first layout's tab names by tab ID, where they differ from the engine's. */
     tabs?: Record<string, string>;
   };
+  /** 27 The first layout's tabs between Home and Account, when the kind has its own (a gym's Classes and Membership). */
+  tabs?: LayoutTab[];
+  /** 27 What to tell the store reviewers about this kind (Publishing › For the store reviewers). */
+  reviewNote?: string;
 }
 
 const tab = (id: string, label: string, icon: string, screen: string): LayoutTab => ({ id, label, icon, target: { type: "screen", screen } as LayoutTab["target"] });
@@ -480,6 +484,45 @@ export const KINDS: readonly KindInfo[] = [
       },
       tabs: { appointments: "Visits" },
     },
+  },
+  {
+    // 27 Gyms, studios and coaches: the bookings engine with a weekly class timetable, spots and memberships.
+    id: "fitness",
+    engine: "booking",
+    vertical: "fitness",
+    name: "Gym & fitness",
+    description: "Class timetables, booking a spot, and memberships for gyms, studios and coaches.",
+    requires: "Classes and memberships: no website needed · Appointments also with Amelia, BookingPress, LatePoint",
+    icon: "fitness_center",
+    tile: "bg-tile-1 text-[#8A3B12]",
+    marketing: { slug: "fitness", icon: "fitness_center" },
+    categories: { play: "Health & Fitness", appStore: "Health & Fitness" },
+    demo: { slug: "fitness" },
+    wording: {
+      nav: {
+        label: "Your gym",
+        items: [
+          { href: "/dashboard/services", label: "Classes & coaches", icon: "fitness_center" },
+          { href: "/dashboard/timetable", label: "Timetable", icon: "schedule" },
+          { href: "/dashboard/memberships", label: "Membership plans", icon: "card_membership" },
+          { href: "/dashboard/members", label: "Members", icon: "groups" },
+          { href: "/dashboard/appointments", label: "Personal sessions", icon: "event_available" },
+          { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
+        ],
+      },
+      users: "App users",
+      ownContent: {
+        text: "Add your classes, coaches, weekly timetable and membership plans here in the dashboard. Members book a spot in the app and buy their membership by card.",
+        next: "After this step, add your classes and coaches on the **Classes & coaches** page, then your weekly classes on the **Timetable** page and your plans on the **Membership plans** page. Your members sign in to the app with",
+      },
+    },
+    tabs: [
+      tab("classes", "Classes", "fitness_center", "classes"),
+      tab("membership", "Membership", "card_membership", "memberships"),
+      tab("appointments", "My bookings", "event", "appointments"),
+    ],
+    reviewNote:
+      "Memberships are for classes at our gym, used in person, so they are paid on our web payment page on iPhone too (App Store Review Guideline 3.1.3(e)). Nothing digital is sold in the app.",
   },
   {
     id: "real_estate",

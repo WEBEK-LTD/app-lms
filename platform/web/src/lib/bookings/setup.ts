@@ -1,16 +1,48 @@
-import { DEFAULT_BOOKING_RULES, DEFAULT_BOOKING_SETUP, type App, type AppVertical, type BookingSetup, type IntakeField } from "../data/types";
+import {
+  DEFAULT_BOOKING_RULES,
+  DEFAULT_BOOKING_SETUP,
+  type App,
+  type AppVertical,
+  type BookingSetup,
+  type ClassTemplate,
+  type IntakeField,
+  type MembershipPlan,
+} from "../data/types";
 
-/** The app's booking setup, with rules added since it was saved filled in (21 and no questions when none were saved). */
-export function bookingSetup(app: App): BookingSetup & { intakeFields: IntakeField[] } {
+/** A booking setup with every part added since it was first saved filled in. */
+export type FullBookingSetup = BookingSetup & { intakeFields: IntakeField[]; classTemplates: ClassTemplate[]; membershipPlans: MembershipPlan[]; membershipRequired: boolean };
+
+/** The app's booking setup, with rules added since it was saved filled in (21 no questions and 27 no classes or plans when none were saved). */
+export function bookingSetup(app: Pick<App, "bookingSetup">): FullBookingSetup {
   const saved = app.bookingSetup ?? DEFAULT_BOOKING_SETUP;
-  return { ...DEFAULT_BOOKING_SETUP, ...saved, rules: { ...DEFAULT_BOOKING_RULES, ...saved.rules }, intakeFields: saved.intakeFields ?? [] };
+  return {
+    ...DEFAULT_BOOKING_SETUP,
+    ...saved,
+    rules: { ...DEFAULT_BOOKING_RULES, ...saved.rules },
+    intakeFields: saved.intakeFields ?? [],
+    classTemplates: saved.classTemplates ?? [],
+    membershipPlans: saved.membershipPlans ?? [],
+    membershipRequired: saved.membershipRequired ?? false,
+  };
 }
 
 /**
  * 21 The dashboard's words for bookings, by vertical: a clinic's doctors,
- * patients and visits; everyone else's team, customers and appointments.
+ * patients and visits; 27 a gym's coaches, classes and members; everyone
+ * else's team, customers and appointments.
  */
 export function bookingWords(vertical: AppVertical | null | undefined) {
+  if (vertical === "fitness") {
+    return {
+      page: "Classes & coaches",
+      team: "Coaches",
+      member: "coach",
+      appointments: "Personal sessions",
+      appointment: "session",
+      customer: "member",
+      intake: "Booking questions",
+    };
+  }
   return vertical === "clinic"
     ? {
         page: "Doctors & services",
