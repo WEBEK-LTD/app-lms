@@ -141,6 +141,13 @@
       "when": 1791960186797,
       "tag": "0019_demo_apps",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1791975284001,
+      "tag": "0020_sign_in_methods",
+      "breakpoints": true
     }
   ]
 }

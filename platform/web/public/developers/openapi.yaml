@@ -199,7 +199,13 @@ paths:
       operationId: requestOtp
       summary: Send a sign-in code
       description: |
-        Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.
+        Sends a 6-digit code to the phone number. Rate limited per number and per IP.
+
+        On a WordPress site the plugin's settings choose who sends it: Yallapp (the
+        default: the plugin makes the code and Yallapp delivers it on WhatsApp) or
+        Digits (through the gateway set up in Digits; needs Digits' REST API add-on).
+        Either way the account is the one with that number on the site, so people who
+        signed up with Digits keep their accounts. The hosted API sends codes itself.
 
         Demo apps on the hosted API (the apps on yallapp.com.tr/demo) send no code: only the
         public demo number signs in, with the fixed code shown on that page. Any other number
@@ -240,13 +246,100 @@ paths:
         '429': { $ref: '#/components/responses/TooManyRequests' }
         '502': { $ref: '#/components/responses/ProviderError' }
 
+  /auth/email/request:
+    post:
+      tags: [Auth]
+      operationId: requestEmailCode
+      summary: Send a sign-in code by email
+      description: |
+        Sends a 6-digit code to the email address, when `Config.auth.methods` has
+        `email` and `Config.auth.email_sign_in` is `code` (the hosted API). Same
+        rules as phone codes: valid for 5 minutes, 5 attempts, a new code after a
+        minute, limited per address and per IP. Verify it with `POST /auth/otp/verify`;
+        an address with no account gets a `signup_token`, and `POST /auth/register`
+        then asks the same details as a phone sign-up (the email is already known).
+
+        Refused with 403 `method_not_allowed` when the app doesn't offer email
+        sign-in. The app preview (`preview: true`) and demo apps sign in only by
+        phone: 403 `preview_review_number_only` or `demo_number_only`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email, maxLength: 191, example: sara@example.com }
+                preview: { type: boolean, description: Sent by the app preview in the Yallapp dashboard. }
+      responses:
+        '200':
+          description: Code sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [request_id, code_length, resend_after_seconds, expires_in_seconds]
+                properties:
+                  request_id: { type: string }
+                  code_length: { type: integer, example: 6 }
+                  resend_after_seconds: { type: integer, example: 60 }
+                  expires_in_seconds: { type: integer, example: 300 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/ProviderError' }
+
+  /auth/password:
+    post:
+      tags: [Auth]
+      operationId: signInWithPassword
+      summary: Sign in with email and password
+      description: |
+        For servers whose `Config.auth.email_sign_in` is `password` (a WordPress site:
+        its own accounts and passwords, checked by WordPress with the site's own
+        rules and security plugins). Only existing accounts sign in here; people
+        without an account sign up by phone or on the website. A wrong address and
+        a wrong password get the same 400 `invalid_credentials`, so the answer never
+        tells whether an account exists. Limited per address and per IP. Devices
+        and the device limit work as for phone sign-in.
+
+        Refused with 403 `method_not_allowed` when the app doesn't offer email
+        sign-in, and with 403 `preview_review_number_only` in the app preview.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, device]
+              properties:
+                email: { type: string, maxLength: 191, description: The account's email address (a WordPress username works too)., example: sara@example.com }
+                password: { type: string, maxLength: 4096 }
+                device: { $ref: '#/components/schemas/DeviceInput' }
+                preview: { type: boolean, description: Sent by the app preview in the Yallapp dashboard. }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /auth/otp/verify:
     post:
       tags: [Auth]
       operationId: verifyOtp
       summary: Verify a sign-in code
       description: |
-        Returns tokens for an existing account. For a phone number with no account,
+        Verifies a code from `POST /auth/otp/request` or `POST /auth/email/request`.
+        Returns tokens for an existing account. For a phone number (or email address) with no account,
         returns a one-time `signup_token` to use with `POST /auth/register`
         (only when sign-up from the app is allowed).
 
@@ -1874,6 +1967,8 @@ components:
             - license_inactive
             - account_suspended
             - app_user_limit
+            - method_not_allowed
+            - invalid_credentials
             - demo_number_only
             - preview_review_number_only
             - update_required
@@ -1950,6 +2045,24 @@ components:
               type: array
               items: { type: string, enum: [name, email, city] }
             default_country_code: { type: string, example: '+90' }
+            methods:
+              type: array
+              minItems: 1
+              uniqueItems: true
+              items: { type: string, enum: [phone, email] }
+              description: |
+                How people sign in, as the app's owner chose in the Yallapp dashboard
+                (on WordPress, the plugin's setting when the dashboard has none):
+                `phone` (a code by WhatsApp or SMS), `email`, or both. Missing means
+                `[phone]`. The app shows a Phone / Email switch when there are both.
+            email_sign_in:
+              type: string
+              enum: [code, password]
+              description: |
+                How `email` works: `code` (a 6-digit code by email, `POST /auth/email/request`,
+                the hosted API) or `password` (the account's password, `POST /auth/password`,
+                WordPress). Sent when `methods` has `email`.
+            password_reset_url: { type: [string, 'null'], format: uri, description: "With `email_sign_in: password`: the website's page to reset a forgotten password." }
             preview_sign_in: { type: boolean, description: "Whether `POST /auth/otp/request` honours `preview: true` (only the store review number signs in, no code is sent). The app preview offers sign-in only when this is true. Missing means false." }
         purchases:
           type: object
@@ -2032,7 +2145,7 @@ components:
       properties:
         id: { type: integer }
         name: { type: string }
-        phone: { type: string, example: '+905321234567' }
+        phone: { type: [string, 'null'], example: '+905321234567', description: "Null (or empty on WordPress) for someone who signed up by email." }
         email: { type: [string, 'null'], format: email }
         city: { type: [string, 'null'] }
         avatar_url: { type: [string, 'null'], format: uri }

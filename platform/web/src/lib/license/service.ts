@@ -1,5 +1,6 @@
 import type { DataStore } from "../data/store";
-import type { Client, License, LicenseState, PluginRelease } from "../data/types";
+import type { Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
+import { chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans } from "../entitlements";
@@ -24,6 +25,8 @@ export interface LicenseStatusBody {
   features: PlanFeature[];
   /** 13.1 The plan's limits (null: unlimited). */
   limits: { app_users: number | null; languages: number | null; sources: number | null } | null;
+  /** 18 How people sign in, as the app's owner chose on App sign-in; null: the plugin's own setting. */
+  sign_in_methods: SignInMethod[] | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -98,6 +101,7 @@ function formatDate(date: Date): string {
 }
 
 function statusBody(
+  methods: SignInMethod[] | null,
   plans: Record<Plan, PlanInfo>,
   state: LicenseState,
   license: License | null,
@@ -110,6 +114,7 @@ function statusBody(
     plan: plan?.id ?? null,
     features: state === "active" && plan ? [...plan.features] : [],
     limits: plan ? { app_users: plan.limits.appUsers, languages: plan.limits.languages, sources: plan.limits.sources } : null,
+    sign_in_methods: methods,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -127,6 +132,12 @@ function inactiveMessage(state: LicenseState, license: License): string {
   }
 }
 
+/** 18 The owner's sign-in methods for the license's app (null until they choose). */
+async function signInMethodsOf(store: DataStore, license: License): Promise<SignInMethod[] | null> {
+  const app = license.appId ? await store.getAppById(license.appId) : null;
+  return app ? chosenSignInMethods(app) : null;
+}
+
 async function findLicense(store: DataStore, key: string): Promise<{ license: License; client: Client } | null> {
   const license = await store.getLicenseByHash(hashLicenseKey(key));
   if (!license) return null;
@@ -139,9 +150,10 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
+  const methods = await signInMethodsOf(store, license);
   const state = licenseState(client, license, now);
   if (state !== "active") {
-    return { status: 200, body: statusBody(plans, state, license, now, inactiveMessage(state, license)) };
+    return { status: 200, body: statusBody(methods, plans, state, license, now, inactiveMessage(state, license)) };
   }
   const claim = await store.claimActivation({
     licenseId: license.id,
@@ -162,7 +174,7 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
       },
     };
   }
-  return { status: 200, body: statusBody(plans, "active", license, now, null) };
+  return { status: 200, body: statusBody(methods, plans, "active", license, now, null) };
 }
 
 export async function checkLicense(store: DataStore, site: SiteInfo, now: Date): Promise<ApiResult<LicenseStatusBody>> {
@@ -170,18 +182,19 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
   const found = await findLicense(store, site.licenseKey);
   if (!found) return notFound;
   const { license, client } = found;
+  const methods = await signInMethodsOf(store, license);
   const state = licenseState(client, license, now);
   if (state !== "active") {
-    return { status: 200, body: statusBody(plans, state, license, now, inactiveMessage(state, license)) };
+    return { status: 200, body: statusBody(methods, plans, state, license, now, inactiveMessage(state, license)) };
   }
   const activation = await store.getActivation(license.id);
   if (!activation) {
-    return { status: 200, body: statusBody(plans, "invalid", license, now, "This license isn't activated on this site. Activate it in the plugin settings.") };
+    return { status: 200, body: statusBody(methods, plans, "invalid", license, now, "This license isn't activated on this site. Activate it in the plugin settings.") };
   }
   if (activation.siteUrl !== site.siteUrl) {
     return {
       status: 200,
-      body: statusBody(plans, "invalid", license, now, `This license is active on ${activation.siteUrl}, not on this site.`),
+      body: statusBody(methods, plans, "invalid", license, now, `This license is active on ${activation.siteUrl}, not on this site.`),
     };
   }
   await store.touchActivation(license.id, {
@@ -190,7 +203,7 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
     lms: site.lms,
     lastCheckedAt: now,
   });
-  return { status: 200, body: statusBody(plans, "active", license, now, null) };
+  return { status: 200, body: statusBody(methods, plans, "active", license, now, null) };
 }
 
 export async function deactivateLicense(store: DataStore, body: unknown): Promise<ApiResult<never>> {

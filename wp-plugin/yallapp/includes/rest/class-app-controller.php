@@ -74,6 +74,8 @@ class App_Controller extends Controller {
 		$terms_id   = (int) $settings->get( 'terms_page_id' );
 		$privacy_id = (int) $settings->get( 'privacy_page_id' );
 		$whatsapp   = (string) $settings->get( 'support_whatsapp' );
+		$methods    = $this->plugin->sign_in()->methods();
+		$by_email   = in_array( 'email', $methods, true );
 
 		return $this->ok(
 			array(
@@ -109,9 +111,14 @@ class App_Controller extends Controller {
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),
 					'default_country_code' => (string) $settings->get( 'default_country_code' ),
+					// Phone (a code), email (the WordPress email and password) or both.
+					'methods'              => $methods,
 					// `preview: true` at /auth/otp/request signs in only the store review number.
 					'preview_sign_in'      => true,
-				),
+				) + ( $by_email ? array(
+					'email_sign_in'      => 'password',
+					'password_reset_url' => wp_lostpassword_url(),
+				) : array() ),
 				'purchases' => array(
 					'enroll_button'     => Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),
 					'free_enrollment'   => (bool) $settings->get( 'free_enrollment' ),

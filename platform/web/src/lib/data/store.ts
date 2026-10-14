@@ -199,9 +199,12 @@ export interface DataStore {
 
   // Hosted API: an app's customers (always scoped by app)
   /** Returns null when the app already has a customer with this phone number. */
-  createHostedUser(input: { appId: string; phone: string; name: string; email: string | null; city: string | null; now: Date }): Promise<HostedUser | null>;
+  /** Null when the number (or, for an email account, the address) already has an account. */
+  createHostedUser(input: { appId: string; phone: string | null; name: string; email: string | null; city: string | null; now: Date }): Promise<HostedUser | null>;
   getHostedUser(appId: string, id: number): Promise<HostedUser | null>;
   getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null>;
+  /** 18 The account made by email sign-in with this (lowercase) address: one without a phone. */
+  getHostedEmailUser(appId: string, email: string): Promise<HostedUser | null>;
   updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void>;
   /** Deletes the customer with their devices, sign-ins and notifications. */
   deleteHostedUser(appId: string, id: number): Promise<void>;
@@ -322,6 +325,8 @@ export interface DataStore {
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
+  /** The hits recorded in the window starting at `windowStart` (0 when none), without adding one. */
+  peekRateLimit(bucket: string, windowStart: number): Promise<number>;
 
   // 10.7 Listings (Real estate apps)
   /** Every listing of the app, any status, newest first. */

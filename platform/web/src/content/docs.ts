@@ -191,7 +191,7 @@ Real estate apps have one choice, **Listings managed in Yallapp**.
 
 ## How people sign in to your app
 
-- **WordPress**: with a one-time code sent by Digits through the SMS or WhatsApp gateway set up on your website. People use the same accounts as on your website.
+- **WordPress**: with a one-time code we send on WhatsApp, through waabek.com, with your app's name. People use the same accounts as on your website, also the ones made with Digits. If you prefer, Digits can send the codes through your own gateway: see [Install the WordPress plugin](/docs/wordpress-plugin#sign-in-codes).
 - **My own API**: your API sends the code, by SMS or WhatsApp, from your own system.
 - **Every other choice**: with a one-time code we send on WhatsApp, through waabek.com. You set the sign-in rules on the dashboard's **App sign-in** page. See [App users and sign-in](/docs/app-users).
 
@@ -221,7 +221,7 @@ Open the Website step again and choose another source. Your next build uses it. 
 
 - WordPress 6.0 or later, with PHP 7.4 or later, on https
 - One of the supported plugins: Tutor LMS, LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS, Masteriyo or LearnDash for courses; WooCommerce for a shop; Amelia, BookingPress or LatePoint for bookings
-- Digits, for sign-in with a one-time code, with your SMS or WhatsApp gateway set up
+- Nothing for sign-in: we send the one-time codes on WhatsApp. Digits is optional (see [Sign-in codes](#sign-in-codes) below)
 - An active Yallapp account, with access to [License & plugin](/dashboard/license)
 
 ## Download the plugin
@@ -238,13 +238,24 @@ A **Yallapp** item appears in the WordPress admin menu. Paste your license key t
 
 ## Check what the plugin found
 
-The **Compatibility status** card shows which course, shop and booking plugins it found, with their versions, and whether Digits is active. If something you use shows **Not found**, check that it's installed and active.
+The **Compatibility status** card shows which course, shop and booking plugins it found, with their versions, who sends the sign-in codes, and whether Digits is active. If something you use shows **Not found**, check that it's installed and active.
+
+## Sign-in codes
+
+People sign in to your app with their phone number and a 6-digit code. In the plugin's **Sign-in** settings, choose who sends it:
+
+- **Sent by Yallapp (WhatsApp)**, the default: we send each code on WhatsApp, through waabek.com, with your app's name. Nothing to set up; it needs your active license. The code is made on your website and kept there only as a hash, for 5 minutes and 5 attempts. We pass the phone number and the code on to WhatsApp and keep neither.
+- **Digits**: the codes go out through the SMS or WhatsApp gateway set up in Digits. This needs Digits' **REST API** add-on; without it, the choice shows as not available.
+
+Do you use Digits without its REST API add-on, for example with only the Additional SMS Gateways add-on? Then we send the codes, and nothing changes for your members: the app finds each account by the phone number saved by Digits, so people sign in with the same number and keep their accounts, progress and orders. Your website's own Digits sign-in keeps working as before.
+
+If the choice you saved can't send codes (Digits without its REST API add-on, or no active license), the plugin uses the other one and the settings page says so, in plain words.
 
 ## Choose your settings
 
 The plugin's settings decide how your app behaves. The most important ones:
 
-- **Sign-in (Digits)**: whether new accounts can sign up from the app, what they're asked, how long people stay signed in, what happens at the device limit, and **Store review access** (a test number and fixed code for Apple and Google reviewers)
+- **Sign-in**: who sends the sign-in codes (see above), whether new accounts can sign up from the app, what they're asked, how long people stay signed in, what happens at the device limit, and **Store review access** (a test number and fixed code for Apple and Google reviewers)
 - **Purchases**: the **Enroll now** button on Android, free enrollment, and whether checkout opens inside the app or in the phone's browser
 - **Video & content protection**: blocking screenshots and screen recording, the video watermark, how long video links last, and a required watch time
 - **Lesson content (HTML & code)**: how lessons are shown, the height of embedded tools, code highlighting
@@ -735,11 +746,31 @@ People choose which notifications they get in the app's settings. If notificatio
     slug: "app-users",
     section: "Your app",
     title: "App users and sign-in",
-    description: "How people sign in to your app with a one-time code, and the sign-in rules you set.",
+    description: "How people sign in to your app: by phone, by email or both, the WhatsApp number that sends their codes, and the sign-in rules you set.",
     steps: false,
-    body: `People sign in to your app with their phone number and a one-time code. There are no passwords to remember or reset.
+    body: `People sign in to your app with their phone number and a one-time code, with their email address, or either: you choose on the dashboard's **App sign-in** page.
 
-## How sign-in works
+## Phone, email or both
+
+On **App sign-in**, under **How people sign in**, choose:
+
+- **Phone number**: a 6-digit code on WhatsApp. The default.
+- **Email address**: with no website or with content in the dashboard, a 6-digit code by email, sent in your app's name. New people sign up with their email address. On WordPress, the email address and password of their account on your website; WordPress checks the password, and "Forgot your password?" opens your website's reset page.
+- **Phone number or email address**: the app shows a **Phone / Email** switch.
+
+Apps connected to Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific or SimplyBook.me sign in by phone: those platforms find each customer's orders and bookings by their phone number.
+
+On WordPress, email sign-in is for people who already have an account on your website; new people sign up with their phone number or on your website. Your choice reaches your website at the plugin's next license check (within 12 hours), or at once with **Check now** in the Yallapp plugin. Until you choose here, the plugin's own **Sign-in** setting applies.
+
+Your store review number always signs in, also when the app signs in by email only.
+
+## The WhatsApp number that sends codes
+
+Codes go out from Yallapp's WhatsApp number, with your app's name. To send them from your own WhatsApp number instead, open a WABEK account at waabek.com, connect your number there, then on **App sign-in** paste your WABEK **API key** and the **Instance ID** of that number, and select **Send a test code**. The key is stored encrypted and never shown again. **Use Yallapp's number again** goes back to ours.
+
+On WordPress, this applies when the plugin's **Sign-in codes are sent by** setting is **Sent by Yallapp (WhatsApp)**.
+
+## How a phone sign-in works
 
 1. They enter their phone number, with the country code.
 2. We send a 6-digit code. It's valid for 5 minutes, a new one can be asked for after a minute, and a code allows a few attempts.
@@ -748,14 +779,12 @@ People choose which notifications they get in the app's settings. If notificatio
 How the code is sent depends on where your content comes from:
 
 - **Shopify, ikas, Ticimax, IdeaSoft, Teachable, Thinkific, SimplyBook.me or no website**: we send it **on WhatsApp, through waabek.com**.
-- **WordPress**: Digits sends it through the SMS or WhatsApp gateway set up on your website, and people use the same accounts as on your website.
+- **WordPress**: we send it on WhatsApp too (or Digits does, through your own gateway, if you choose it in the plugin), and people use the same accounts as on your website.
 - **Your own API**: your API sends it, from your own system.
 
 ## The sign-in rules
 
-For apps whose codes we send, the rules are on the dashboard's **App sign-in** page:
-
-On the dashboard's **App sign-in** page:
+For apps without a website, or connected to another platform, the rules are on the dashboard's **App sign-in** page:
 
 - **New customers can sign up in the app**, and whether to ask for their email or city
 - **Country code** shown first on the sign-in screen, like 90 for Turkey
@@ -763,7 +792,7 @@ On the dashboard's **App sign-in** page:
 - **Support WhatsApp** shown in the app, and your **Terms page**
 - **App store review**: a review phone number and a fixed review code for Apple and Google (see below)
 
-Changes apply right away, without a new build. On WordPress, the same rules are in the Yallapp plugin's **Sign-in (Digits)** settings.
+Changes apply right away, without a new build. On WordPress, the same rules are in the Yallapp plugin's **Sign-in** settings.
 
 ## Access for store reviewers
 
@@ -1269,13 +1298,16 @@ Send us a screenshot and the step you're on, and we'll answer you directly.
 
 People must enter their number with the right country code. Compare it with the number on their account (on WordPress, in their WordPress account).
 
-## Apps connected to a platform, or without a website: check WhatsApp
+## Codes sent by Yallapp: check WhatsApp
 
 Codes are sent on WhatsApp, through waabek.com. The number must have WhatsApp, and the phone must be online. Ask the person to look in their WhatsApp chats, including archived ones.
 
-## WordPress: try signing in on your website
+## WordPress: check who sends the codes
 
-Use the same phone number to sign in on your website. If the code doesn’t arrive there either, the problem is in Digits or your SMS or WhatsApp gateway: check its balance, your sender name or approved message template, and its delivery logs.
+In WordPress, open **Yallapp** and look at **Sign-in codes** in the **Compatibility status** card.
+
+- **Sent by Yallapp (WhatsApp)**: codes go out on WhatsApp, like for apps without a website, so the number must have WhatsApp. Your license must be active: if a code couldn't be sent, the **Sign-in** settings show why.
+- **Digits**: use the same phone number to sign in on your website. If the code doesn’t arrive there either, the problem is in Digits or your SMS or WhatsApp gateway: check its balance, your sender name or approved message template, and its delivery logs. Or choose **Sent by Yallapp (WhatsApp)** instead.
 
 ## Wait a few minutes
 

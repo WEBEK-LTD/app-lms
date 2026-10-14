@@ -24,7 +24,9 @@ Client's WordPress site                    Yallapp (WEBEK)
   never passes through Yallapp's servers. The exception is a hosted app for a
   client without WordPress (the hosted API, Phase 8 below).
 - The **plugin** talks to Yallapp only for license checks and plugin updates
-  (site URL, plugin version, license key).
+  (site URL, plugin version, license key), the app's layout, and, when
+  Yallapp sends the sign-in codes (the default), each code to deliver with
+  its phone number, which the platform passes on and doesn't keep.
 - The **platform** stores client accounts, plans, licenses, app settings and
   build records. It builds apps through CI and hands the files to the client.
 
@@ -42,7 +44,7 @@ what is installed and which version it is.
 | Interface | First implementation | Later |
 |---|---|---|
 | `LmsAdapter`: catalog, course detail, curriculum, enrollment, progress, quizzes, certificates, checkout URL | Tutor LMS (Free and Pro) | LearnDash, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo |
-| `OtpAdapter`: send code, verify code, find or create the WordPress user by phone | Digits | Other OTP plugins if clients need them |
+| `OtpAdapter`: send code, verify code, find or create the WordPress user by phone | Yallapp (codes made by the plugin, sent by the platform), Digits (its REST API add-on), development codes | Other OTP plugins if clients need them |
 | `CheckoutAdapter`: where "Enroll now" sends the student | WooCommerce, LMS built-in checkout | |
 
 Rules for adapters:
@@ -57,9 +59,12 @@ Rules for adapters:
 
 ### Authentication
 
-1. `POST /auth/otp/request`: the plugin asks Digits to send the code through
-   the gateway configured on the site (for example waabek). Requests are rate
-   limited per phone number and per IP.
+1. `POST /auth/otp/request`: the plugin sends a code through the provider
+   chosen in its settings: "Sent by Yallapp" (the default; see "Sign-in for
+   every app") or Digits, through the gateway configured on the site (needs
+   Digits' REST API add-on). Requests are rate limited per phone number and
+   per IP. With email sign-in on, `POST /auth/password` signs in with a
+   WordPress account's email and password.
 2. `POST /auth/otp/verify`: on success the plugin returns a short-lived access
    token (JWT, HS256, signed with a per-site secret) and a long-lived refresh
    token (random, stored hashed, bound to the device). A new phone number gets
@@ -438,6 +443,63 @@ mobile/
   works from the admin's Publishing queue; each new status is written to
   the history (`publishing_events`) and emailed to the client. With
   "managed", the setup's Publishing step needs no store keys on Pro.
+
+## Sign-in for every app (Phase 18)
+
+- **"Sent by Yallapp" (WordPress).** Digits' `/digits/v1/send_otp` and
+  `verify_otp` routes come from its paid REST API add-on, which most sites
+  don't have. So by default the plugin makes each code itself
+  (`Otp\Yallapp_Adapter`, `Otp\Code_Challenge`: 6 digits, kept as an HMAC with
+  the site secret in a transient named by a hash of the number, valid for 5
+  minutes, 5 attempts; a new code replaces the last one only once it was
+  sent) and asks the platform to deliver it: `POST /api/v1/sign-in-codes/send`
+  (`docs/api/platform.yaml`) with the SiteInfo, the number in E.164 and the
+  code. The platform answers only for an active license bound to that site
+  (not expired or suspended), checks the number with libphonenumber, limits
+  120 requests a minute per IP, 300 an hour and 2000 a day per license, and
+  per number (across every site) one every 30 seconds and 10 an hour, then
+  sends through the app owner's own WhatsApp number when they connected one,
+  else the platform's sign-in code sender (WABEK on production), with the
+  app's name in the message. The code isn't stored or logged; the number
+  appears only as an HMAC in the rate-limit counters. A per-license daily
+  counter shows on the admin's client page ("Sign-in codes sent today"). It
+  comes with every plan.
+- **Which provider.** Settings › Sign-in in the plugin: "Sent by Yallapp
+  (WhatsApp)" (default), Digits (shown as available only when its routes
+  exist), and development codes (123456) on local sites with
+  `YALLAPP_DEV_OTP`. When the saved choice can't send codes (no active
+  license, or Digits without its REST API add-on), `Otp\Adapter_Choice` picks
+  another that can and the settings page says why, in plain words.
+- **Same accounts.** Every provider finds and stores people by Digits' phone
+  fields (`digits_phone`, `digt_countrycode`, `digits_phone_no`), whether
+  Digits is installed or not, so Digits accounts sign in with the same number
+  and a site can switch providers at any time.
+- **Sign-in methods.** The app's owner chooses phone, email or both on the
+  dashboard's App sign-in page (`apps.hosted_settings.signInMethods`; also
+  for WordPress apps now) and the app reads `Config.auth.methods`:
+  - the hosted API emails a 6-digit code (`POST /auth/email/request`, the
+    "Sign-in code" email template, in the app's name, through the platform's
+    SMTP) with the phone codes' rules and limits; a new address signs up with
+    the same details, without being asked for its email again. Accounts made
+    by email have no phone (`hosted_users.phone` is nullable,
+    `drizzle/0020_sign_in_methods.sql`), only they are found by email (an
+    address typed at a phone sign-up was never proven), and their address
+    can't be changed from the app. Email is offered only where content is
+    managed in Yallapp: connected platforms find customers by phone;
+  - WordPress signs in with the account's email (or username) and password
+    (`POST /auth/password`, `wp_authenticate`, so the site's own rules and
+    security plugins apply), only for existing accounts, limited per IP and
+    per address, with the same answer for an unknown address and a wrong
+    password; "Forgot your password?" opens the site's reset page. The owner's
+    choice reaches the plugin with the license status (`sign_in_methods`,
+    within 12 hours or at once with "Check now") and replaces the plugin's own
+    setting.
+  With email only, the store review number still signs in by phone, for the
+  stores' reviewers and the preview. Demo apps stay on the demo number.
+- **The owner's own WhatsApp number.** Optional, on App sign-in: a WABEK API
+  key (encrypted with the context `app-whatsapp:<app id>`, never shown again)
+  and an instance ID, with "Send a test code". The app's phone codes then go
+  out from it, on the hosted API and for its WordPress site.
 
 ## Demo apps (Phase 16)
 

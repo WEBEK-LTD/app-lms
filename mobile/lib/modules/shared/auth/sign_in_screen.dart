@@ -22,7 +22,9 @@ import 'country_codes.dart';
 import 'otp_screen.dart';
 import '../../../core/l10n/l10n.dart';
 
-/// Sign in with a mobile number (design: Main).
+/// Sign in with a mobile number (design: Main), or by email when the app
+/// offers it (18: `Config.auth.methods`): a code by email, or the account's
+/// email and password on a WordPress site.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key, this.from});
 
@@ -35,24 +37,108 @@ class SignInScreen extends ConsumerStatefulWidget {
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _phone = TextEditingController();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
   late String _dialCode;
+  late SignInMethod _method;
   bool _sending = false;
   String? _error;
+
+  static final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 
   @override
   void initState() {
     super.initState();
     final config = ref.read(appConfigProvider);
     _dialCode = normalizeDialCode(config.auth.defaultCountryCode) ?? '+1';
+    _method = _methods.first;
   }
 
   @override
   void dispose() {
     _phone.dispose();
+    _email.dispose();
+    _password.dispose();
     super.dispose();
   }
 
-  bool get _valid => nationalNumber(_phone.text, _dialCode).length >= 6;
+  /// The ways to sign in. The preview signs in only the store review number.
+  List<SignInMethod> get _methods => ref.read(appEnvironmentProvider).isPreview
+      ? const [SignInMethod.phone]
+      : ref.read(appConfigProvider).auth.methods;
+
+  bool get _byPassword =>
+      _method == SignInMethod.email &&
+      ref.read(appConfigProvider).auth.emailSignIn == EmailSignIn.password;
+
+  bool get _valid => switch (_method) {
+    SignInMethod.phone => nationalNumber(_phone.text, _dialCode).length >= 6,
+    SignInMethod.email =>
+      _emailPattern.hasMatch(_email.text.trim()) &&
+          (!_byPassword || _password.text.isNotEmpty),
+  };
+
+  Future<void> _submit() {
+    if (_method == SignInMethod.phone) return _send();
+    return _byPassword ? _signInWithPassword() : _sendEmailCode();
+  }
+
+  Future<void> _sendEmailCode() async {
+    if (!_valid || _sending) return;
+    FocusScope.of(context).unfocus();
+    final email = _email.text.trim();
+    setState(() {
+      _sending = true;
+      _error = null;
+    });
+    try {
+      final result = await ref
+          .read(authControllerProvider.notifier)
+          .requestEmailCode(email: email);
+      if (!mounted) return;
+      final from = widget.from;
+      await context.push(
+        from == null
+            ? Paths.signInCode
+            : Uri(
+                path: Paths.signInCode,
+                queryParameters: {'from': from},
+              ).toString(),
+        extra: OtpArgs(email: email, request: result),
+      );
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = otpRequestError(e));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _signInWithPassword() async {
+    if (!_valid || _sending) return;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _sending = true;
+      _error = null;
+    });
+    try {
+      await ref
+          .read(authControllerProvider.notifier)
+          .signInWithPassword(
+            email: _email.text.trim(),
+            password: _password.text,
+          );
+      // Signed in: the router leaves the sign-in screens by itself.
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = otpRequestError(e);
+          _password.clear();
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
 
   Future<void> _send() async {
     if (!_valid || _sending) return;
@@ -98,6 +184,62 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     context.go(Paths.home);
   }
 
+  /// The email address, and the password on a WordPress site.
+  List<Widget> _emailFields(BuildContext context) {
+    final p = context.palette;
+    final config = ref.read(appConfigProvider);
+    final resetUrl = config.auth.passwordResetUrl;
+    final label = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: p.text,
+    );
+    return [
+      Text(context.l10n.emailAddress, style: label),
+      const SizedBox(height: 10),
+      TextField(
+        controller: _email,
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: _byPassword
+            ? TextInputAction.next
+            : TextInputAction.send,
+        autocorrect: false,
+        textDirection: TextDirection.ltr,
+        autofillHints: const [AutofillHints.email],
+        inputFormatters: [LengthLimitingTextInputFormatter(191)],
+        style: TextStyle(fontSize: 17, color: p.text),
+        decoration: InputDecoration(hintText: context.l10n.emailAddress),
+        onChanged: (_) => setState(() => _error = null),
+        onSubmitted: (_) => _byPassword ? null : _submit(),
+      ),
+      if (_byPassword) ...[
+        const SizedBox(height: 20),
+        Text(context.l10n.password, style: label),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _password,
+          obscureText: true,
+          textInputAction: TextInputAction.done,
+          autocorrect: false,
+          enableSuggestions: false,
+          autofillHints: const [AutofillHints.password],
+          style: TextStyle(fontSize: 17, color: p.text),
+          decoration: InputDecoration(hintText: context.l10n.password),
+          onChanged: (_) => setState(() => _error = null),
+          onSubmitted: (_) => _submit(),
+        ),
+        if (resetUrl != null && resetUrl.isNotEmpty)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(
+              onPressed: () => openExternal(resetUrl),
+              child: Text(context.l10n.forgotPassword),
+            ),
+          ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -108,6 +250,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     // 17 The app preview signs in only the store review number, and only
     // where the server says it can; it never sends a code.
     final previewBlocked = env.isPreview && !config.auth.previewSignIn;
+    final methods = _methods;
+    final byEmail = _method == SignInMethod.email;
 
     return Scaffold(
       body: SafeArea(
@@ -162,7 +306,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      context.l10n.signInIntro,
+                      !byEmail
+                          ? context.l10n.signInIntro
+                          : _byPassword
+                          ? context.l10n.signInIntroPassword
+                          : context.l10n.signInIntroEmail,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     if (env.isPreview) ...[
@@ -174,123 +322,160 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                     ],
                     const SizedBox(height: 32),
-                    Text(
-                      context.l10n.mobileNumber,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: p.text,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    // The code button is as tall as the number field.
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Semantics(
-                            button: true,
-                            label: context.l10n.chooseCountryCode(_dialCode),
-                            excludeSemantics: true,
-                            child: Material(
-                              color: p.surface,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  context.shapes.r(14),
-                                ),
-                                side: BorderSide(color: p.inputBorder),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: _pickCountry,
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minHeight: 56,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                    ),
-                                    child: Row(
-                                      textDirection: TextDirection.ltr,
-                                      children: [
-                                        Text(
-                                          _dialCode,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: p.text,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        AppIcon(
-                                          AppIcons.expand,
-                                          size: 18,
-                                          color: p.text,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
+                    if (methods.length > 1) ...[
+                      Semantics(
+                        label: context.l10n.signInMethodLabel,
+                        container: true,
+                        child: SegmentedButton<SignInMethod>(
+                          showSelectedIcon: false,
+                          segments: [
+                            ButtonSegment(
+                              value: SignInMethod.phone,
+                              label: Text(context.l10n.signInWithPhone),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _phone,
-                              keyboardType: TextInputType.phone,
-                              textInputAction: TextInputAction.send,
-                              // Numbers read left to right in every language.
-                              textDirection: TextDirection.ltr,
-                              autofillHints: const [
-                                AutofillHints.telephoneNumberNational,
-                              ],
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9 ]'),
-                                ),
-                                LengthLimitingTextInputFormatter(18),
-                              ],
-                              style: TextStyle(
-                                fontSize: 18,
-                                letterSpacing: 1,
-                                color: p.text,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: context.l10n.mobileNumber,
-                                enabledBorder: OutlineInputBorder(
+                            ButtonSegment(
+                              value: SignInMethod.email,
+                              label: Text(context.l10n.signInWithEmail),
+                            ),
+                          ],
+                          selected: {_method},
+                          onSelectionChanged: (selected) => setState(() {
+                            _method = selected.first;
+                            _error = null;
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (byEmail)
+                      ..._emailFields(context)
+                    else ...[
+                      Text(
+                        context.l10n.mobileNumber,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: p.text,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // The code button is as tall as the number field.
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Semantics(
+                              button: true,
+                              label: context.l10n.chooseCountryCode(_dialCode),
+                              excludeSemantics: true,
+                              child: Material(
+                                color: p.surface,
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(
                                     context.shapes.r(14),
                                   ),
-                                  borderSide: BorderSide(
-                                    color: p.text,
-                                    width: 1.5,
+                                  side: BorderSide(color: p.inputBorder),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: _pickCountry,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minHeight: 56,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                      ),
+                                      child: Row(
+                                        textDirection: TextDirection.ltr,
+                                        children: [
+                                          Text(
+                                            _dialCode,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: p.text,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          AppIcon(
+                                            AppIcons.expand,
+                                            size: 18,
+                                            color: p.text,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                              onChanged: (_) => setState(() => _error = null),
-                              onSubmitted: (_) => _send(),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _phone,
+                                keyboardType: TextInputType.phone,
+                                textInputAction: TextInputAction.send,
+                                // Numbers read left to right in every language.
+                                textDirection: TextDirection.ltr,
+                                autofillHints: const [
+                                  AutofillHints.telephoneNumberNational,
+                                ],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9 ]'),
+                                  ),
+                                  LengthLimitingTextInputFormatter(18),
+                                ],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  letterSpacing: 1,
+                                  color: p.text,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: context.l10n.mobileNumber,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      context.shapes.r(14),
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: p.text,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (_) => setState(() => _error = null),
+                                onSubmitted: (_) => _send(),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                     if (_error != null) ...[
                       const SizedBox(height: 10),
                       InlineError(_error!),
                     ],
                     const SizedBox(height: 32),
                     PrimaryButton(
-                      label: context.l10n.sendCode,
+                      label: _byPassword
+                          ? context.l10n.signIn
+                          : context.l10n.sendCode,
                       loading: _sending,
-                      onPressed: _valid && !previewBlocked ? _send : null,
+                      onPressed: _valid && !previewBlocked ? _submit : null,
                     ),
                     const SizedBox(height: 32),
                     Text(
-                      config.auth.signupAllowed
-                          ? context.l10n.signInNewHere
-                          : context.l10n.signInRegisteredOnly(config.site.name),
+                      _byPassword
+                          ? context.l10n.signInPasswordAccountsOnly(
+                              config.site.name,
+                            )
+                          : !config.auth.signupAllowed
+                          ? context.l10n.signInRegisteredOnly(config.site.name)
+                          : byEmail
+                          ? context.l10n.signInNewHereEmail
+                          : context.l10n.signInNewHere,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

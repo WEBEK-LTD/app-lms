@@ -975,6 +975,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String get changeNumber => 'تغيير الرقم';
 
   @override
+  String get signInWithPhone => 'الهاتف';
+
+  @override
+  String get signInWithEmail => 'البريد الإلكتروني';
+
+  @override
+  String get signInMethodLabel => 'تسجيل الدخول باستخدام';
+
+  @override
+  String get emailAddress => 'عنوان البريد الإلكتروني';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get forgotPassword => 'هل نسيت كلمة المرور؟';
+
+  @override
+  String get signInIntroEmail =>
+      'سجّل الدخول ببريدك الإلكتروني وسنرسل إليك رمز تحقق.';
+
+  @override
+  String get signInIntroPassword =>
+      'سجّل الدخول بالبريد الإلكتروني وكلمة المرور الخاصة بحسابك.';
+
+  @override
+  String get signInNewHereEmail =>
+      'جديد هنا؟ سنطلب اسمك بعد التحقق وننشئ حسابك بهذا البريد الإلكتروني.';
+
+  @override
+  String signInPasswordAccountsOnly(String site) {
+    return 'استخدم البريد الإلكتروني وكلمة المرور لحسابك على $site.';
+  }
+
+  @override
+  String get changeEmail => 'تغيير البريد الإلكتروني';
+
+  @override
+  String get noAccountForEmail => 'لا يوجد حساب بهذا البريد الإلكتروني.';
+
+  @override
+  String get invalidEmail => 'أدخل عنوان بريد إلكتروني صالحًا.';
+
+  @override
   String resendCodeIn(String time) {
     return 'يمكنك طلب رمز جديد بعد $time';
   }

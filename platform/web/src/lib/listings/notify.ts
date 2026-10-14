@@ -13,7 +13,7 @@ export function newInquiryMailValues(input: { listing: Listing; user: HostedUser
     listing: listing.reference ? `${listing.title} (${listing.reference})` : listing.title,
     listing_title: listing.title,
     message: input.text,
-    phone: user.phone,
+    phone: user.phone ?? "Not given (signed in by email)",
     email_line: user.email ? `Email: ${user.email}\n` : "",
     conversation_url: input.url,
   };

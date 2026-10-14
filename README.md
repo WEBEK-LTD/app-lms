@@ -1,8 +1,8 @@
 # Yallapp
 
 Yallapp turns a WordPress academy into branded Android and iOS apps.
-Clients keep running their website (WordPress + an LMS plugin + Digits for
-OTP sign-in); Yallapp provides the WordPress plugin that exposes it to the
+Clients keep running their website (WordPress + an LMS plugin, Digits
+optional: Yallapp can send the sign-in codes); Yallapp provides the WordPress plugin that exposes it to the
 app, the white-label Flutter app, and the platform that builds and delivers
 each client's apps.
 

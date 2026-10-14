@@ -353,6 +353,16 @@ abstract class YallappApi {
     required String code,
     required DeviceInput device,
   });
+
+  /// 18 A code by email (`Config.auth.email_sign_in: code`).
+  Future<OtpRequestResult> requestEmailCode({required String email});
+
+  /// 18 Email and password of an existing account (`email_sign_in: password`).
+  Future<Session> signInWithPassword({
+    required String email,
+    required String password,
+    required DeviceInput device,
+  });
   Future<Session> register(RegisterInput input);
   Future<Tokens> refreshTokens(String refreshToken);
   Future<void> logout();
@@ -672,6 +682,33 @@ class HttpYallappApi implements YallappApi {
     _public,
     (data) => VerifyResult.fromJson(asJson(data)),
     body: {'request_id': requestId, 'code': code, 'device': device.toJson()},
+  );
+
+  @override
+  Future<OtpRequestResult> requestEmailCode({required String email}) => _send(
+    'POST',
+    '/auth/email/request',
+    _public,
+    (data) => OtpRequestResult.fromJson(asJson(data)),
+    body: {'email': email, if (preview) 'preview': true},
+  );
+
+  @override
+  Future<Session> signInWithPassword({
+    required String email,
+    required String password,
+    required DeviceInput device,
+  }) => _send(
+    'POST',
+    '/auth/password',
+    _public,
+    (data) => Session.fromJson(asJson(data)),
+    body: {
+      'email': email,
+      'password': password,
+      'device': device.toJson(),
+      if (preview) 'preview': true,
+    },
   );
 
   @override

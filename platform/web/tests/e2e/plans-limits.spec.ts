@@ -194,7 +194,7 @@ test("a Starter app on the hosted API: ready-made pages, one language, usage and
   expect(api).toMatch(/\/api\/app\/[0-9a-f-]{36}$/);
   await own.goto("/dashboard/app-sign-in");
   await own.getByLabel("Support WhatsApp").fill("+90 532 111 22 33");
-  await own.getByRole("button", { name: /Save/ }).first().click();
+  await own.getByRole("button", { name: "Save", exact: true }).click();
   await expect(own.getByRole("status").first()).toBeVisible();
 
   // The overview: usage, what the plan has, and Upgrade to the plan that has the rest.

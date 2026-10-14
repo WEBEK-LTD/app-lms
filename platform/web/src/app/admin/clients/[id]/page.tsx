@@ -27,6 +27,7 @@ import type { App, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
+import { signInCodesSentToday } from "@/lib/license/sign-in-codes";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { formatLimit, planName, planNamesOf, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
@@ -381,6 +382,8 @@ async function AppEntry({
   const currentPlan = license ? effective[currentPlanId(license, now)] : null;
   const scheduled = scheduledPlan(license, now);
   const appUsers = app?.backend === "hosted" ? await store.countHostedUsers(app.id) : null;
+  // 18 Sign-in codes the plugin had Yallapp send today: an aggregate count, nothing about who.
+  const codesToday = license && activation ? await signInCodesSentToday(store, license.id, now) : null;
   const userLimit = currentPlan?.limits.appUsers ?? null;
   const base = license && license.expiresAt > now ? license.expiresAt : now;
   const nextYear = new Date(base);
@@ -421,6 +424,7 @@ async function AppEntry({
                   </span>
                 ),
               ],
+              ...(codesToday === null ? [] : [["Sign-in codes sent today", `${codesToday} by Yallapp (UTC day)`] as [string, string]]),
               ["License", license ? <span key="k" className="font-mono text-[13px] break-all">{revealLicenseKey(license, encryptionKey())}</span> : "None yet"],
               [
                 "Plugin",

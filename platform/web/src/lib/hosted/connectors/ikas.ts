@@ -1203,6 +1203,8 @@ export class IkasConnector implements PlatformConnector {
     const perPage = intParam(request.query, "per_page", 20, 50);
     const empty = { status: 200, body: { page, per_page: perPage, total: 0, total_pages: 1, items: [] } };
     const phone = request.user.phone;
+    // 18 An account without a phone (email sign-in) matches no customer.
+    if (!phone) return empty;
     const found = await this.client.query<{ listCustomer: { data: { id: string; phone: string | null }[] } }>(IKAS_QUERIES.customers, {
       phone: { in: phoneForms(phone) },
       pagination: { page: 1, limit: 50 },

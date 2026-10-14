@@ -1,8 +1,14 @@
 "use client";
 
 import { useActionState } from "react";
-import { saveAppSignInAction } from "@/app/actions/app-sign-in";
-import { Field, FormMessage, SubmitButton } from "@/components/form";
+import {
+  removeAppWhatsappAction,
+  saveAppSignInAction,
+  saveAppWhatsappAction,
+  saveSignInMethodsAction,
+  testAppWhatsappAction,
+} from "@/app/actions/app-sign-in";
+import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
@@ -11,6 +17,148 @@ function Check({ name, label, checked }: { name: string; label: string; checked:
       <input type="checkbox" name={name} defaultChecked={checked} className="h-4 w-4 accent-midnight" />
       {label}
     </label>
+  );
+}
+
+const METHODS = [
+  { value: "phone", label: "Phone number", hint: "A 6-digit code on WhatsApp." },
+  { value: "email", label: "Email address", hint: "" },
+  { value: "both", label: "Phone number or email address", hint: "The app shows a Phone / Email switch." },
+] as const;
+
+/** 18 Phone, email or both. */
+export function SignInMethodsForm({
+  current,
+  wordpress,
+  emailPossible,
+  chosen,
+}: {
+  current: "phone" | "email" | "both";
+  wordpress: boolean;
+  emailPossible: boolean;
+  chosen: boolean;
+}) {
+  const [state, action] = useActionState(saveSignInMethodsAction, initialFormState);
+  const value = state.values?.methods ?? current;
+  const error = state.errors?.methods;
+  const emailHint = wordpress
+    ? "With the email address and password of their account on your website."
+    : "A 6-digit code by email. New customers sign up with their email address.";
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={value}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={error ? "methods-error" : undefined}>
+        <legend className="sr-only">How people sign in</legend>
+        {METHODS.map((m) => {
+          const disabled = m.value !== "phone" && !emailPossible;
+          return (
+            <label key={m.value} className={`flex items-start gap-2.5 text-[15px] ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+              <input type="radio" name="methods" value={m.value} defaultChecked={value === m.value} disabled={disabled} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col">
+                <span className="font-semibold">{m.label}</span>
+                <span className="text-sm text-muted">{m.value === "email" ? emailHint : m.hint}</span>
+              </span>
+            </label>
+          );
+        })}
+        <FieldError id="methods-error" error={error} />
+      </fieldset>
+      {!emailPossible ? (
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          Your connected platform finds each customer&apos;s orders and bookings by their phone number, so this app signs in by phone.
+        </p>
+      ) : null}
+      {wordpress ? (
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          {chosen
+            ? "Your website gets this at the plugin's next license check (within 12 hours), or at once with Check now in the Yallapp plugin. It replaces the choice on the plugin's settings page."
+            : "Not chosen here yet: your website uses the choice on the Yallapp plugin's settings page (phone by default). Saving here replaces it."}{" "}
+          Email sign-in is for people who already have an account; new people sign up by phone or on your website.
+        </p>
+      ) : null}
+      <div className="flex justify-end">
+        <SubmitButton className="h-11" pendingText="Saving…">
+          Save sign-in methods
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 18 Codes from the owner's own WhatsApp number (WABEK), with a test. */
+export function AppWhatsappForms({
+  connected,
+  defaultPhone,
+  wordpress,
+}: {
+  connected: { keyLast4: string; instanceId: string | null } | null;
+  defaultPhone: string;
+  wordpress: boolean;
+}) {
+  const [state, action] = useActionState(saveAppWhatsappAction, initialFormState);
+  const [test, testAction] = useActionState(testAppWhatsappAction, initialFormState);
+  const e = state.errors ?? {};
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+        {connected
+          ? `Your app's codes go out from your own WhatsApp number on WABEK (API key ending ${connected.keyLast4}${connected.instanceId ? `, instance ${connected.instanceId}` : ""}).`
+          : "Your app's codes go out from Yallapp's WhatsApp number, with your app's name. You can send them from your own WhatsApp number instead, with a WABEK account (waabek.com)."}
+        {wordpress ? " This applies when the Yallapp plugin sends your website's codes (Sent by Yallapp)." : ""}
+      </p>
+      <form action={action} noValidate className="flex flex-col gap-4" key={state.ok ? "saved" : "form"}>
+        <FormMessage message={state.message} ok={state.ok} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="WABEK API key"
+            name="apiKey"
+            type="password"
+            autoComplete="off"
+            placeholder={connected ? `•••• ${connected.keyLast4}` : ""}
+            hint={connected ? "Paste a new key to replace the saved one. It's stored encrypted and never shown again." : "From your WABEK account. It's stored encrypted and never shown again."}
+            error={e.apiKey}
+          />
+          <Field
+            label="Instance ID"
+            name="instanceId"
+            autoComplete="off"
+            defaultValue={state.values?.instanceId ?? connected?.instanceId ?? ""}
+            hint="The WhatsApp number in WABEK that sends the codes. Optional: empty lets WABEK choose."
+            error={e.instanceId}
+          />
+        </div>
+        <div className="flex justify-end">
+          <SubmitButton className="h-11" pendingText="Saving…">
+            Save WhatsApp number
+          </SubmitButton>
+        </div>
+      </form>
+      {connected ? (
+        <>
+          <form action={testAction} noValidate className="flex flex-col gap-3 border-t border-line-soft pt-4">
+            <FormMessage message={test.message} ok={test.ok} />
+            <div className="flex flex-wrap items-end gap-3">
+              <Field
+                label="Send a test code to"
+                name="phone"
+                type="tel"
+                defaultValue={test.values?.phone ?? defaultPhone}
+                error={test.errors?.phone}
+                className="min-w-[240px] flex-1"
+              />
+              <SubmitButton variant="secondary" className="h-11" pendingText="Sending…">
+                Send a test code
+              </SubmitButton>
+            </div>
+          </form>
+          <form action={removeAppWhatsappAction} className="flex justify-end">
+            <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Removing…">
+              Use Yallapp&apos;s number again
+            </SubmitButton>
+          </form>
+        </>
+      ) : null}
+    </div>
   );
 }
 

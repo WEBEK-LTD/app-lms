@@ -247,7 +247,7 @@ export class BookingsConnector implements Connector {
         serviceName: service.name,
         staffName: member.name,
         customerName: request.user.name,
-        customerPhone: request.user.phone,
+        customerPhone: request.user.phone ?? request.user.email ?? "",
         startAt: slot.start,
         endAt: slot.end,
         status: this.setup.rules.autoApprove ? "approved" : "pending",

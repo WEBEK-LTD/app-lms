@@ -604,6 +604,26 @@
     }
   },
   "changeNumber": "Change number",
+  "signInWithPhone": "Phone",
+  "signInWithEmail": "Email",
+  "signInMethodLabel": "Sign in with",
+  "emailAddress": "Email address",
+  "password": "Password",
+  "forgotPassword": "Forgot your password?",
+  "signInIntroEmail": "Sign in with your email address and we'll send you a verification code.",
+  "signInIntroPassword": "Sign in with the email address and password of your account.",
+  "signInNewHereEmail": "New here? We'll ask for your name after verification and create your account with this email address.",
+  "signInPasswordAccountsOnly": "Use the email address and password of your account on {site}.",
+  "@signInPasswordAccountsOnly": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "changeEmail": "Change email",
+  "noAccountForEmail": "There's no account with this email address.",
+  "invalidEmail": "Enter a valid email address.",
   "resendCodeIn": "You can request a new code in {time}",
   "@resendCodeIn": {
     "placeholders": {

@@ -94,6 +94,25 @@ class AuthController extends Notifier<AuthState> {
     required String phone,
   }) => _api.requestOtp(countryCode: countryCode, phone: phone);
 
+  /// 18 Sends a sign-in code by email.
+  Future<OtpRequestResult> requestEmailCode({required String email}) =>
+      _api.requestEmailCode(email: email);
+
+  /// 18 Signs in with the email and password of an existing account.
+  Future<User> signInWithPassword({
+    required String email,
+    required String password,
+  }) async {
+    final env = ref.read(appEnvironmentProvider);
+    final session = await _api.signInWithPassword(
+      email: email,
+      password: password,
+      device: env.deviceInput,
+    );
+    await _startSession(session);
+    return session.user;
+  }
+
   Future<VerifyOutcome> verifyCode({
     required String requestId,
     required String code,

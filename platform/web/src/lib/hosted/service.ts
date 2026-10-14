@@ -18,6 +18,7 @@ import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
 import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
+import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -39,6 +40,9 @@ export const HOSTED_LIMITS = {
   phone: { name: "hosted-otp:phone", limit: 5, windowSeconds: 3600 },
   ip: { name: "hosted-otp:ip", limit: 30, windowSeconds: 3600 },
   verifyIp: { name: "hosted-verify:ip", limit: 60, windowSeconds: 900 },
+  // 18 Email codes: the same limits per address as per number.
+  emailResend: { name: "hosted-email:resend", limit: 1, windowSeconds: RESEND_SECONDS },
+  email: { name: "hosted-email:address", limit: 5, windowSeconds: 3600 },
 } satisfies Record<string, RateLimitRule>;
 
 export interface HostedResult {
@@ -67,6 +71,11 @@ export interface HostedContext {
   /** Signs access tokens and hashes codes. */
   secret: string;
   sender: OtpSender | null;
+  /**
+   * 18 Emails a sign-in code (the "Sign-in code" email template, through the
+   * platform's SMTP). Missing: email codes fail with provider_error.
+   */
+  sendEmailCode?: (input: { to: string; code: string; appName: string; minutes: number }) => Promise<void>;
   /** Whether push can be sent (a Firebase service account is saved). */
   push: boolean;
   /** Public URL of an uploaded asset. */
@@ -146,11 +155,11 @@ function userLimitError(app: App): HostedResult {
 }
 
 /** Whether a new user would go past the plan's app users (store reviewers always get in). */
-async function userLimitReached(ctx: HostedContext, phone: string): Promise<boolean> {
+async function userLimitReached(ctx: HostedContext, phone: string | null): Promise<boolean> {
   const limit = ctx.plan?.limits.appUsers ?? null;
   if (limit === null) return false;
   const settings = hostedSettings(ctx.app);
-  if (settings.reviewPhone && parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone) return false;
+  if (phone && settings.reviewPhone && parseAnyPhone(settings.reviewPhone, settings.defaultCountryCode)?.e164 === phone) return false;
   const count = await ctx.store.countHostedUsers(ctx.app.id);
   if (count < limit) return false;
   try {
@@ -171,6 +180,8 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
       return config(ctx, req);
     case "POST /auth/otp/request":
       return requestCode(ctx, record(req.body));
+    case "POST /auth/email/request":
+      return requestEmailCode(ctx, record(req.body));
     case "POST /auth/otp/verify":
       return verifyCode(ctx, record(req.body));
     case "POST /auth/register":
@@ -275,6 +286,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       signup_allowed: settings.signupAllowed,
       signup_fields: signupFields(settings),
       default_country_code: settings.defaultCountryCode,
+      // 18 Phone, email (a code by email) or both, as the owner chose.
+      methods: hostedSignInMethods(app),
+      ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
       // 17 `preview: true` at /auth/otp/request signs in only the store review number.
       preview_sign_in: true,
     },
@@ -293,8 +307,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
   });
 }
 
-function signupFields(settings: HostedSettings): ("name" | "email" | "city")[] {
-  return ["name", ...settings.signupFields.filter((f) => f === "email" || f === "city")];
+function signupFields(settings: HostedSettings, byEmail = false): ("name" | "email" | "city")[] {
+  // 18 After an email sign-in the address is known: not asked again.
+  return ["name", ...settings.signupFields.filter((f) => (f === "email" && !byEmail) || f === "city")];
 }
 
 // Sign-in
@@ -331,6 +346,7 @@ async function requestDemoCode(ctx: HostedContext, phone: Phone): Promise<Hosted
     appId: ctx.app.id,
     kind: "otp",
     phone: phone.e164,
+    email: null,
     codeHash: null,
     attempts: 0,
     review: true,
@@ -368,6 +384,10 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
   const review = isReviewPhone(settings, phone);
   // 17 The app preview never sends a code: only the store review number signs in there, with its fixed code.
   if ((ctx.preview || body.preview === true) && !review) return previewNumberOnly();
+  // 18 Email only: the store review number still signs in (reviewers and the preview use it).
+  if (!review && !hostedSignInMethods(ctx.app).includes("phone")) {
+    return error(403, "method_not_allowed", "This app signs in with your email address. Use the Email option.");
+  }
   const wait =
     (await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
     (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??
@@ -381,6 +401,7 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
     appId: ctx.app.id,
     kind: "otp",
     phone: phone.e164,
+    email: null,
     codeHash: review ? null : codeHash(ctx, requestId, code),
     attempts: 0,
     review,
@@ -410,6 +431,49 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
   });
 }
 
+/** 18 Emails a 6-digit code, when the app offers email sign-in. Same rules as phone codes. */
+async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
+  if (ctx.app.demo) {
+    return error(403, "demo_number_only", `This is a demo app. Sign in with the demo number ${DEMO_SIGN_IN.display} and the code shown on yallapp.com.tr/demo.`);
+  }
+  // 17 The preview never sends a code: only the store review number signs in there.
+  if (ctx.preview || body.preview === true) return previewNumberOnly();
+  if (!hostedSignInMethods(ctx.app).includes("email")) {
+    return error(403, "method_not_allowed", "This app doesn't offer sign-in by email. Sign in with your phone number.");
+  }
+  const email = normalizeEmail(body.email);
+  if (!email) return error(400, "invalid_email", "Please enter a valid email address.");
+  const wait =
+    (await limited(ctx, HOSTED_LIMITS.emailResend, email)) ??
+    (await limited(ctx, HOSTED_LIMITS.email, email)) ??
+    (await limited(ctx, HOSTED_LIMITS.ip, ctx.ip));
+  if (wait) return wait;
+
+  const requestId = randomToken(24);
+  const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
+  await ctx.store.createHostedChallenge({
+    tokenHash: sha256Hex(requestId),
+    appId: ctx.app.id,
+    kind: "otp",
+    phone: null,
+    email,
+    codeHash: codeHash(ctx, requestId, code),
+    attempts: 0,
+    review: false,
+    expiresAt: new Date(ctx.now.getTime() + CODE_TTL_SECONDS * 1000),
+    createdAt: ctx.now,
+  });
+  try {
+    if (!ctx.sendEmailCode) throw new Error("No email sender.");
+    await ctx.sendEmailCode({ to: email, code, appName: ctx.app.appName ?? "Yallapp", minutes: Math.round(CODE_TTL_SECONDS / 60) });
+  } catch {
+    await ctx.store.deleteHostedChallenge(sha256Hex(requestId));
+    return error(502, "provider_error", "We couldn't send the code. Please try again.");
+  }
+  if (Math.random() < 0.05) await ctx.store.purgeHostedExpired(ctx.now);
+  return ok({ request_id: requestId, code_length: CODE_LENGTH, resend_after_seconds: RESEND_SECONDS, expires_in_seconds: CODE_TTL_SECONDS });
+}
+
 async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
   const wait = await limited(ctx, HOSTED_LIMITS.verifyIp, ctx.ip);
   if (wait) return wait;
@@ -436,9 +500,14 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
   await ctx.store.deleteHostedChallenge(hash);
   if (ctx.app.demo) return demoSession(ctx, record(body.device));
 
-  const user = await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone);
+  // 18 An email sign-in finds the account made with that address (only addresses proven by a code are sign-in addresses).
+  const user = challenge.email
+    ? await ctx.store.getHostedEmailUser(ctx.app.id, challenge.email)
+    : await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone!);
   if (user) return session(ctx, user, record(body.device));
-  if (!settings.signupAllowed) return error(403, "signup_disabled", "There is no account with this number.");
+  if (!settings.signupAllowed) {
+    return error(403, "signup_disabled", challenge.email ? "There is no account with this email address." : "There is no account with this number.");
+  }
   // 13.2 Existing users keep signing in; a new one is refused past the plan's app users.
   if (await userLimitReached(ctx, challenge.phone)) return userLimitError(ctx.app);
   const signupToken = randomToken(24);
@@ -447,13 +516,14 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
     appId: ctx.app.id,
     kind: "signup",
     phone: challenge.phone,
+    email: challenge.email,
     codeHash: null,
     attempts: 0,
     review: false,
     expiresAt: new Date(ctx.now.getTime() + SIGNUP_TTL_SECONDS * 1000),
     createdAt: ctx.now,
   });
-  return ok({ signup_required: true, signup_token: signupToken, fields: signupFields(settings) });
+  return ok({ signup_required: true, signup_token: signupToken, fields: signupFields(settings, Boolean(challenge.email)) });
 }
 
 async function register(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
@@ -465,9 +535,11 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
     return error(400, "code_expired", "Your verification has expired. Please start again.");
   }
   const settings = hostedSettings(ctx.app);
-  const fields = signupFields(settings);
+  const byEmail = Boolean(challenge.email);
+  const fields = signupFields(settings, byEmail);
   const name = text(body.name, 120);
-  const email = text(body.email, 191);
+  // 18 After an email sign-in, the account's email is the address that got the code.
+  const email = challenge.email ?? text(body.email, 191);
   const city = text(body.city, 120);
   if (!name) return badRequest("Please enter your name.");
   if ((fields.includes("email") || email) && !EMAIL.test(email)) return badRequest("Please enter a valid email address.");
@@ -484,7 +556,9 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
     city: city || null,
     now: ctx.now,
   });
-  if (!user) return error(409, "account_exists", "An account with this number already exists. Please sign in.");
+  if (!user) {
+    return error(409, "account_exists", byEmail ? "An account with this email address already exists. Please sign in." : "An account with this number already exists. Please sign in.");
+  }
   await ctx.store.deleteHostedChallenge(hash);
   if (ctx.onUsersCounted && ctx.plan?.limits.appUsers != null) {
     try {
@@ -607,7 +681,10 @@ async function updateMe(ctx: HostedContext, s: Session, body: Record<string, unk
     if (!name) return badRequest("Please enter your name.");
     patch.name = name;
   }
-  if ("email" in body) {
+  if ("email" in body && s.user.phone === null) {
+    // 18 An email account signs in with its address: it changes only by signing up again.
+    if (normalizeEmail(body.email) !== s.user.email) return badRequest("You sign in with this email address, so it can't be changed here.");
+  } else if ("email" in body) {
     const email = text(body.email, 191);
     if (email && !EMAIL.test(email)) return badRequest("Please enter a valid email address.");
     patch.email = email || null;

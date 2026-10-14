@@ -302,7 +302,8 @@ export const hostedUsers = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    phone: varchar("phone", { length: 20 }).notNull(),
+    // 18 Null for someone who signed up by email.
+    phone: varchar("phone", { length: 20 }),
     name: varchar("name", { length: 120 }).notNull(),
     email: varchar("email", { length: 191 }),
     city: varchar("city", { length: 120 }),
@@ -310,7 +311,7 @@ export const hostedUsers = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone)],
+  (t) => [uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone), index("hosted_users_email_idx").on(t.appId, t.email)],
 );
 
 export const hostedDevices = mysqlTable(
@@ -362,7 +363,9 @@ export const hostedChallenges = mysqlTable(
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
     kind: varchar("kind", { length: 8 }).notNull().$type<"otp" | "signup">(),
-    phone: varchar("phone", { length: 20 }).notNull(),
+    phone: varchar("phone", { length: 20 }),
+    // 18 Email sign-in.
+    email: varchar("email", { length: 191 }),
     codeHash: varchar("code_hash", { length: 64 }),
     attempts: int("attempts").notNull(),
     review: boolean("review").notNull(),

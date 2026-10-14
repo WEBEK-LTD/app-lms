@@ -885,11 +885,14 @@ export class SimplyBookConnector implements PlatformConnector {
    * exact matches only.
    */
   private clientIds(user: HostedUser): Promise<number[]> {
-    const digits = digitsOf(user.phone);
+    // 18 An account without a phone (email sign-in) matches no client.
+    if (!user.phone) return Promise.resolve([]);
+    const phone = user.phone;
+    const digits = digitsOf(phone);
     return this.cached(`client|${digits}`, CLIENT_MS, async () => {
       const result = await this.client.call("admin", "getClientList", [digits.slice(-10), 50]);
       return itemsOf(result)
-        .filter((c) => samePhone(text(c.phone), user.phone))
+        .filter((c) => samePhone(text(c.phone), phone))
         .map((c) => idOf(c.id))
         .filter((id): id is number => id !== null)
         .sort((a, b) => a - b)
@@ -906,10 +909,11 @@ export class SimplyBookConnector implements PlatformConnector {
   private async clientFor(user: HostedUser): Promise<number> {
     const [existing] = await this.clientIds(user);
     if (existing !== undefined) return existing;
-    const email = user.email ?? ((await this.requiresEmail()) ? `${digitsOf(user.phone)}@phone.yallapp.invalid` : "");
-    const id = idOf(await this.client.call("admin", "addClient", [{ name: user.name, email, phone: user.phone }]));
+    const phone = user.phone ?? "";
+    const email = user.email ?? ((await this.requiresEmail()) ? `${digitsOf(phone) || user.id}@phone.yallapp.invalid` : "");
+    const id = idOf(await this.client.call("admin", "addClient", [{ name: user.name, email, phone }]));
     if (id === null) throw new ConnectorError("SimplyBook sent no client.");
-    cache.set(`${this.key}|client|${digitsOf(user.phone)}`, { until: Date.now() + CLIENT_MS, value: Promise.resolve([id]) });
+    if (phone) cache.set(`${this.key}|client|${digitsOf(phone)}`, { until: Date.now() + CLIENT_MS, value: Promise.resolve([id]) });
     return id;
   }
 

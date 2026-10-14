@@ -563,6 +563,49 @@ $r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' 
 check( 'preview: the store review number gets in', 200 === $r['status'] && ! empty( $r['json']['request_id'] ), $r['raw'] );
 set_settings( array( 'review_access_enabled' => false ) );
 
+echo "Sign-in codes sent by Yallapp\n";
+// Inside the site, with the platform replaced by a pre_http_request filter (sign-in-codes-check.php).
+$out    = (string) wp_cli( 'eval-file ' . escapeshellarg( __DIR__ . '/sign-in-codes-check.php' ) );
+$result = json_decode( trim( $out ), true );
+if ( ! is_array( $result ) || empty( $result['checks'] ) ) {
+	check( 'sign-in code checks ran', false, $out );
+} else {
+	foreach ( $result['checks'] as $entry ) {
+		check( $entry[0], $entry[1], $entry[2] );
+	}
+}
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'codes: the development code is back for the checks below', 200 === $r['status'], $r['raw'] );
+
+echo "Sign-in by email and password\n";
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: phone sign-in by default', array( 'phone' ) === ( $r['json']['auth']['methods'] ?? null ) && ! isset( $r['json']['auth']['email_sign_in'] ), $r['json']['auth'] ?? null );
+$member = 'member' . random_int( 1000, 9999 ) . '@example.org';
+wp_cli( 'user create ' . escapeshellarg( 'm' . md5( $member ) ) . ' ' . escapeshellarg( $member ) . ' --user_pass=' . escapeshellarg( 'Correct horse 7' ) . ' --role=subscriber' );
+$r = call( 'POST', '/auth/password', array( 'email' => $member, 'password' => 'Correct horse 7', 'device' => device( 'pw-1' ) ) );
+check( 'password: refused while the app signs in by phone', 403 === $r['status'] && 'method_not_allowed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'sign_in_methods' => 'both' ) );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'config: both methods, email with the password', array( 'phone', 'email' ) === ( $r['json']['auth']['methods'] ?? null ) && 'password' === ( $r['json']['auth']['email_sign_in'] ?? '' ) && false !== strpos( (string) ( $r['json']['auth']['password_reset_url'] ?? '' ), 'lostpassword' ), $r['json']['auth'] ?? null );
+$wrong   = call( 'POST', '/auth/password', array( 'email' => $member, 'password' => 'wrong', 'device' => device( 'pw-1' ) ) );
+$unknown = call( 'POST', '/auth/password', array( 'email' => 'nobody' . random_int( 1000, 9999 ) . '@example.org', 'password' => 'wrong', 'device' => device( 'pw-1' ) ) );
+check( 'password: a wrong password and an unknown address get the same answer', 400 === $wrong['status'] && 400 === $unknown['status'] && 'invalid_credentials' === ( $wrong['json']['code'] ?? '' ) && $wrong['json'] === $unknown['json'], array( $wrong['raw'], $unknown['raw'] ) );
+$r = call( 'POST', '/auth/password', array( 'email' => $member, 'password' => 'Correct horse 7', 'device' => device( 'pw-1' ) ) );
+check( 'password: the WordPress account signs in', 200 === $r['status'] && ! empty( $r['json']['access_token'] ) && $member === ( $r['json']['user']['email'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/me', null, $r['json']['access_token'] ?? '' );
+check( 'password: the session works', 200 === $r['status'] && $member === ( $r['json']['email'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/auth/password', array( 'email' => $member, 'password' => 'Correct horse 7', 'device' => device( 'pw-2' ), 'preview' => true ) );
+check( 'password: not in the app preview', 403 === $r['status'] && 'preview_review_number_only' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+for ( $i = 0; $i < 6; $i++ ) {
+	$r = call( 'POST', '/auth/password', array( 'email' => $member, 'password' => 'wrong ' . $i, 'device' => device( 'pw-1' ) ) );
+}
+check( 'password: limited per address', 429 === $r['status'] && 'rate_limited' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'sign_in_methods' => 'email' ) );
+$r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => '53' . str_pad( (string) random_int( 0, 99999999 ), 8, '0', STR_PAD_LEFT ) ) );
+check( 'email only: phone codes refused', 403 === $r['status'] && 'method_not_allowed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'sign_in_methods' => 'phone' ) );
+wp_cli( 'eval \'global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE \"%yallapp_rl_%\"" );\'' );
+
 set_settings( array( 'device_limit_action' => 'replace_oldest' ) );
 wp_cli( 'eval \'global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE \"%yallapp_rl_%\"" );\'' );
 $d = sign_in( $phone, device( 'dev-d' ) );

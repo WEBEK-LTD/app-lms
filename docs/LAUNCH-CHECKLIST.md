@@ -116,11 +116,38 @@ Nothing to set on Netlify: the preview is served from the site's own files
 - [ ] After a change to the app (`mobile/`), run `mobile/tool/build_preview.sh`
       and commit `platform/web/public/preview-app`; CI fails until it's done.
 
-## 7. Accounts the remaining roadmap steps wait on
+## 7. Sign-in for every app (Phase 18)
+
+- [ ] **Production must have a sign-in code sender.** Settings › Sign-in codes
+      (step 2) set to WABEK on yallapp.com.tr: WordPress sites now send their
+      codes through it by default ("Sent by Yallapp"), and without it every
+      code fails with "We could not send a code". Send a test code after
+      saving.
+- [ ] **Production must have SMTP** (Settings › Email, step 2): apps on the
+      hosted API that offer email sign-in send their codes by email.
+- [ ] **Emails › Sign-in code:** read it once. It goes to app users in the
+      app's name, without Yallapp's signature.
+- [ ] **Release plugin 0.3.1** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`. Sites update from the
+      WordPress updater.
+- [ ] On the client site with Digits 8.3.3.2 and Additional SMS Gateways (no
+      REST API add-on): update the plugin, check that the Compatibility card
+      says codes are sent by Yallapp, sign in to the app with an existing
+      Digits number, and see the count on the admin's client page ("Sign-in
+      codes sent today").
+- [ ] Try **App sign-in** on a test WordPress app: choose "Phone number or
+      email address", press **Check now** in the plugin, and sign in to the
+      app with a WordPress email and password.
+- [ ] Optional, for a client who wants codes from their own number: their
+      WABEK API key and instance ID on **App sign-in**, then **Send a test
+      code**.
+
+## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
 |---|---|
-| 0.5, 2.x, 3.x | A staging WordPress site with Tutor LMS, Digits (waabek), WooCommerce and sample lessons, and an Android phone to install the test APK |
+| 0.5, 2.x, 3.x | A staging WordPress site with Tutor LMS, WooCommerce and sample lessons (Digits optional), and an Android phone to install the test APK |
+| 18.x | The client site with Digits 8.3.3.2 (no REST API add-on), WABEK set as the production code sender, and SMTP |
 | 4.5 | A test client going from sign-up to activation on the live site |
 | 5.2–5.4, 7.3, 7.6 | A real build of each app type: Apple Developer and App Store Connect, Google Play Console |
 | 6.1, 6.2 | A client site on LearnPress or LifterLMS |

@@ -962,6 +962,50 @@ class AppLocalizationsTr extends AppLocalizations {
   String get changeNumber => 'Numarayı değiştir';
 
   @override
+  String get signInWithPhone => 'Telefon';
+
+  @override
+  String get signInWithEmail => 'E-posta';
+
+  @override
+  String get signInMethodLabel => 'Giriş yöntemi';
+
+  @override
+  String get emailAddress => 'E-posta adresi';
+
+  @override
+  String get password => 'Şifre';
+
+  @override
+  String get forgotPassword => 'Şifrenizi mi unuttunuz?';
+
+  @override
+  String get signInIntroEmail =>
+      'E-posta adresinizle giriş yapın, size bir doğrulama kodu gönderelim.';
+
+  @override
+  String get signInIntroPassword =>
+      'Hesabınızın e-posta adresi ve şifresiyle giriş yapın.';
+
+  @override
+  String get signInNewHereEmail =>
+      'Yeni misiniz? Doğrulamadan sonra adınızı soracak ve hesabınızı bu e-posta adresiyle oluşturacağız.';
+
+  @override
+  String signInPasswordAccountsOnly(String site) {
+    return '$site üzerindeki hesabınızın e-posta adresini ve şifresini kullanın.';
+  }
+
+  @override
+  String get changeEmail => 'E-postayı değiştir';
+
+  @override
+  String get noAccountForEmail => 'Bu e-posta adresiyle kayıtlı bir hesap yok.';
+
+  @override
+  String get invalidEmail => 'Geçerli bir e-posta adresi girin.';
+
+  @override
   String resendCodeIn(String time) {
     return '$time sonra yeni kod isteyebilirsiniz';
   }
