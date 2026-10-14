@@ -2,6 +2,7 @@ import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
 import 'catalog_models.dart';
 import 'event_models.dart';
+import 'donation_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import 'listing_models.dart';
@@ -25,6 +26,7 @@ class AppConfig {
     this.listings,
     this.news,
     this.events,
+    this.donations,
     this.vertical,
   });
 
@@ -43,6 +45,7 @@ class AppConfig {
     listings: optObject(json, 'listings', ListingsConfig.fromJson),
     news: optObject(json, 'news', NewsConfig.fromJson),
     events: optObject(json, 'events', EventsConfig.fromJson),
+    donations: optObject(json, 'donations', DonationsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
   );
 
@@ -75,6 +78,9 @@ class AppConfig {
 
   /// Events & tickets apps' settings (28).
   final EventsConfig? events;
+
+  /// How donations work (Charity & donations apps, 29).
+  final DonationsConfig? donations;
 
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.

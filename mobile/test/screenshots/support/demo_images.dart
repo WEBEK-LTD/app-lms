@@ -287,6 +287,22 @@ const demoArt = <String, DemoArt>{
     Color(0xFF9CC3DD),
     Symbols.photo_camera_rounded,
   ),
+  // Charity & donations (a food bank, 29).
+  'campaign-parcels': DemoArt(
+    Color(0xFFF4EEE6),
+    Color(0xFFC9955B),
+    Symbols.inventory_2_rounded,
+  ),
+  'campaign-lunch': DemoArt(
+    Color(0xFFFBE9D6),
+    Color(0xFFE0552F),
+    Symbols.restaurant_rounded,
+  ),
+  'campaign-coats': DemoArt(
+    Color(0xFFDCEBDD),
+    Color(0xFF2F6B3A),
+    Symbols.checkroom_rounded,
+  ),
 };
 
 /// Paints every demo picture and stores it in the image cache under its

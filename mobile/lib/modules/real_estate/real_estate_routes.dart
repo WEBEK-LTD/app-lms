@@ -61,6 +61,7 @@ final realEstateModule = AppModule(
     BuiltInScreen.bookmarks => null,
     BuiltInScreen.classes || BuiltInScreen.memberships => null,
     BuiltInScreen.events || BuiltInScreen.tickets => null,
+    BuiltInScreen.campaigns || BuiltInScreen.myDonations => null,
   },
   routes: _pushedRoutes,
   badges: (ref) => {

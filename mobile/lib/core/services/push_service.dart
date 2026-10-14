@@ -40,6 +40,7 @@ abstract class PushService {
 /// - `article` (breaking news, 23) opens the article;
 /// - 26 one with an `order_id` (a restaurant's order moved on) opens the order;
 /// - `event` (a change to an event the user holds tickets to, 28) opens it;
+/// - `campaign_update` (29) opens the campaign;
 /// - anything else opens Home.
 String pushTargetLocation(Map<String, dynamic> data) {
   int? id(String key) => int.tryParse('${data[key] ?? ''}'.trim());
@@ -65,6 +66,9 @@ String pushTargetLocation(Map<String, dynamic> data) {
     case 'event':
       final event = id('event_id');
       if (event != null) return Paths.event(event);
+    case 'campaign_update':
+      final campaign = id('campaign_id');
+      if (campaign != null) return Paths.campaign(campaign);
   }
   return Paths.home;
 }

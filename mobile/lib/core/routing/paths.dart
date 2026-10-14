@@ -42,6 +42,10 @@ abstract final class Paths {
   static const events = '/events';
   static const tickets = '/tickets';
 
+  // Charity & donations apps (29).
+  static const campaigns = '/campaigns';
+  static const myDonations = '/my-donations';
+
   static const embed = '/embed';
   static const web = '/web';
 
@@ -77,6 +81,8 @@ abstract final class Paths {
       queryParameters: query.isEmpty ? null : query,
     ).toString();
   }
+
+  static String campaign(int id) => '/campaign/$id';
 
   /// The Latest tab, on a section or with the search box focused.
   static String articlesFiltered({String? category, bool focus = false}) {

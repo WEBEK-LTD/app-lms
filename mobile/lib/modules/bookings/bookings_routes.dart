@@ -51,6 +51,7 @@ final bookingsModule = AppModule(
     BuiltInScreen.bookmarks ||
     BuiltInScreen.events ||
     BuiltInScreen.tickets => null,
+    BuiltInScreen.campaigns || BuiltInScreen.myDonations => null,
   },
   routes: _pushedRoutes,
 );

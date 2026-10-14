@@ -644,6 +644,15 @@ abstract class YallappApi {
   });
   Future<List<Ticket>> listMyTickets();
   Future<Ticket> cancelMyTicket(String code);
+
+  // 29 Charity & donations apps.
+  Future<Paged<CampaignSummary>> listCampaigns({int page = 1});
+  Future<Campaign> getCampaign(int campaignId);
+
+  /// The donation page. On iOS its `openIn` is always browser (App Store
+  /// guideline 3.2.2): the app never opens it in a web view there.
+  Future<CheckoutLink> createDonationLink(DonationRequest request);
+  Future<Paged<Donation>> listMyDonations({int page = 1});
 }
 
 /// [YallappApi] over HTTP.
@@ -1551,6 +1560,30 @@ class HttpYallappApi implements YallappApi {
         );
 
   @override
+  Future<Paged<CampaignSummary>> listCampaigns({int page = 1}) => _get(
+    '/donations/campaigns',
+    _optional,
+    (json) => Paged.fromJson(json, CampaignSummary.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<Campaign> getCampaign(int campaignId) =>
+      _get('/donations/campaigns/$campaignId', _optional, Campaign.fromJson);
+
+  @override
+  Future<CheckoutLink> createDonationLink(DonationRequest request) => preview
+      ? _noCheckoutInPreview()
+      : _send(
+          'POST',
+          '/donations/checkout-link',
+          _optional,
+          (data) => CheckoutLink.fromJson(asJson(data)),
+          body: request.toJson(),
+          query: {'platform': platform.name},
+        );
+
+  @override
   Future<List<Ticket>> listMyTickets() => _get(
     '/me/tickets',
     _required,
@@ -1563,5 +1596,13 @@ class HttpYallappApi implements YallappApi {
     '/me/tickets/${Uri.encodeComponent(code)}/cancel',
     _required,
     (data) => Ticket.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<Paged<Donation>> listMyDonations({int page = 1}) => _get(
+    '/me/donations',
+    _required,
+    (json) => Paged.fromJson(json, Donation.fromJson),
+    query: {'page': page, 'per_page': 20},
   );
 }

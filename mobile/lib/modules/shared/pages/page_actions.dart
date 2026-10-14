@@ -72,6 +72,7 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.products, AppType.store) => Paths.product(id),
     (ItemSource.services, AppType.booking) => Paths.service(id),
     (ItemSource.listings, AppType.realEstate) => Paths.listing(id),
+    (ItemSource.campaigns, AppType.donations) => Paths.campaign(id),
     _ => null,
   };
 }

@@ -114,6 +114,12 @@ abstract final class AppIcons {
   static const online = Symbols.videocam_rounded;
   static const list = Symbols.view_list_rounded;
   static const eventBusy = Symbols.event_busy_rounded;
+
+  // Charity & donations apps (29).
+  static const campaigns = Symbols.volunteer_activism_rounded;
+  static const campaignUpdate = Symbols.campaign_rounded;
+  static const receipt = Symbols.receipt_long_rounded;
+  static const donate = Symbols.favorite_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

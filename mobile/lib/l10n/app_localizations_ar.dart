@@ -3034,4 +3034,149 @@ class AppLocalizationsAr extends AppLocalizations {
   String ticketQrLabel(String name) {
     return 'رمز QR لتذكرة $name';
   }
+
+  @override
+  String get tabCampaigns => 'الحملات';
+
+  @override
+  String get tabMyDonations => 'تبرعاتي';
+
+  @override
+  String get loadingCampaigns => 'جارٍ تحميل الحملات';
+
+  @override
+  String get noCampaignsTitle => 'لا توجد حملات بعد';
+
+  @override
+  String get noCampaignsMessage => 'ستظهر الحملات هنا.';
+
+  @override
+  String campaignRaisedOf(String raised, String goal) {
+    return '$raised من $goal';
+  }
+
+  @override
+  String campaignRaised(String raised) {
+    return 'تم جمع $raised';
+  }
+
+  @override
+  String campaignDonors(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count متبرع',
+      many: '$count متبرعًا',
+      few: '$count متبرعين',
+      two: 'متبرعان',
+      one: 'متبرع واحد',
+      zero: 'لا يوجد متبرعون بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get campaignGoalReached => 'تم بلوغ الهدف';
+
+  @override
+  String get campaignEnded => 'انتهت';
+
+  @override
+  String campaignEndsOn(String date) {
+    return 'تنتهي في $date';
+  }
+
+  @override
+  String get donateTitle => 'تبرّع';
+
+  @override
+  String get donateChooseAmount => 'اختر مبلغًا';
+
+  @override
+  String get donateOtherAmount => 'مبلغ آخر';
+
+  @override
+  String donateMinimum(String amount) {
+    return 'أقل تبرع هو $amount.';
+  }
+
+  @override
+  String get donateAmountInvalid => 'أدخل مبلغًا، مثل 250.';
+
+  @override
+  String get donateChooseOne => 'اختر أحد المبالغ.';
+
+  @override
+  String get donateOnce => 'مرة واحدة';
+
+  @override
+  String get donateMonthly => 'شهريًا';
+
+  @override
+  String get donateAnonymous => 'تبرّع دون ذكر اسمك';
+
+  @override
+  String get donateAnonymousHint => 'لن يظهر اسمك في الحملة.';
+
+  @override
+  String get donateMessage => 'رسالة (اختيارية)';
+
+  @override
+  String get donateMessageHint => 'كلمات قليلة تظهر مع تبرعك';
+
+  @override
+  String donateButton(String amount) {
+    return 'تبرّع بمبلغ $amount';
+  }
+
+  @override
+  String get donateOnWebsite => 'تبرّع عبر موقعنا';
+
+  @override
+  String get donateOnWebsiteNote =>
+      'يتم تبرعك على موقعنا في المتصفح. عد إلى التطبيق عند الانتهاء.';
+
+  @override
+  String get donateClosed => 'انتهت هذه الحملة. شكرًا لدعمك.';
+
+  @override
+  String get donateThanks => 'شكرًا لتبرعك!';
+
+  @override
+  String get donateFailed => 'تعذر فتح صفحة التبرع. حاول مرة أخرى.';
+
+  @override
+  String get donateSignInHint =>
+      'سجّل الدخول أولًا لتحتفظ بتبرعاتك وإيصالاتها في التطبيق.';
+
+  @override
+  String get recentDonations => 'أحدث التبرعات';
+
+  @override
+  String get anonymousDonor => 'متبرع مجهول';
+
+  @override
+  String get loadingDonations => 'جارٍ تحميل التبرعات';
+
+  @override
+  String get myDonationsSignInTitle => 'تبرعاتك';
+
+  @override
+  String get myDonationsSignInMessage => 'سجّل الدخول لترى تبرعاتك وإيصالاتها.';
+
+  @override
+  String get noDonationsTitle => 'لا توجد تبرعات بعد';
+
+  @override
+  String get noDonationsMessage =>
+      'تظهر هنا التبرعات التي تقدمها وأنت مسجل الدخول، مع إيصالاتها.';
+
+  @override
+  String get donationReceipt => 'الإيصال';
+
+  @override
+  String get donationSeeCampaign => 'عرض الحملة';
+
+  @override
+  String get notifyCampaignUpdates => 'أخبار الحملات';
 }

@@ -2184,5 +2184,95 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tabCampaigns": "Campaigns",
+  "tabMyDonations": "My donations",
+  "loadingCampaigns": "Loading campaigns",
+  "noCampaignsTitle": "No campaigns yet",
+  "noCampaignsMessage": "Campaigns will show here.",
+  "campaignRaisedOf": "{raised} of {goal}",
+  "@campaignRaisedOf": {
+    "description": "What a campaign has raised and its goal.",
+    "placeholders": {
+      "raised": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "campaignRaised": "{raised} raised",
+  "@campaignRaised": {
+    "description": "What a campaign without a goal has raised.",
+    "placeholders": {
+      "raised": {
+        "type": "String"
+      }
+    }
+  },
+  "campaignDonors": "{count, plural, =0{No donors yet} =1{1 donor} other{{count} donors}}",
+  "@campaignDonors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "campaignGoalReached": "Goal reached",
+  "campaignEnded": "Ended",
+  "campaignEndsOn": "Ends {date}",
+  "@campaignEndsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "donateTitle": "Donate",
+  "donateChooseAmount": "Choose an amount",
+  "donateOtherAmount": "Other amount",
+  "donateMinimum": "The smallest donation is {amount}.",
+  "@donateMinimum": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "donateAmountInvalid": "Enter an amount, like 250.",
+  "donateChooseOne": "Choose one of the amounts.",
+  "donateOnce": "Once",
+  "donateMonthly": "Monthly",
+  "donateAnonymous": "Give anonymously",
+  "donateAnonymousHint": "Your name won't show on the campaign.",
+  "donateMessage": "Message (optional)",
+  "donateMessageHint": "A few words shown with your donation",
+  "donateButton": "Donate {amount}",
+  "@donateButton": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "donateOnWebsite": "Donate on our website",
+  "@donateOnWebsite": {
+    "description": "The iPhone app's donate button: it opens the donation page in the browser (App Store rules)."
+  },
+  "donateOnWebsiteNote": "Your donation is made on our website, in your browser. Come back to the app when you're done.",
+  "donateClosed": "This campaign has ended. Thank you for your support.",
+  "donateThanks": "Thank you for your donation!",
+  "donateFailed": "The donation page couldn't open. Please try again.",
+  "donateSignInHint": "Sign in first to keep your donations and receipts in the app.",
+  "recentDonations": "Recent donations",
+  "anonymousDonor": "Anonymous",
+  "loadingDonations": "Loading donations",
+  "myDonationsSignInTitle": "Your donations",
+  "myDonationsSignInMessage": "Sign in to see your donations and their receipts.",
+  "noDonationsTitle": "No donations yet",
+  "noDonationsMessage": "Donations you make while signed in show here, with their receipts.",
+  "donationReceipt": "Receipt",
+  "donationSeeCampaign": "See the campaign",
+  "notifyCampaignUpdates": "Campaign updates"
 }

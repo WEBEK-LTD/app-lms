@@ -166,6 +166,7 @@ void main() {
         'announcements': true,
         'daily_reminder': true,
         'news': true,
+        'donations': false,
       });
     });
   });

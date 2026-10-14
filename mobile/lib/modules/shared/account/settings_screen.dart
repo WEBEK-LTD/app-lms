@@ -112,6 +112,9 @@ class SettingsScreen extends ConsumerWidget {
     final news =
         env.build.appType == AppType.news &&
         (ref.watch(appConfigProvider).news?.breakingNewsPush ?? false);
+    final campaignUpdates =
+        env.build.appType == AppType.donations &&
+        (ref.watch(appConfigProvider).donations?.updatesPush ?? false);
     final languages = ref.watch(availableLanguagesProvider);
     final language = ref.watch(appLanguageProvider);
 
@@ -235,6 +238,14 @@ class SettingsScreen extends ConsumerWidget {
                     l10n.notifyBreakingNews,
                     n.news,
                     (v) => controller.setNotifications(n.copyWith(news: v)),
+                  ),
+                // 29 Charity apps that send campaign updates (off until turned on).
+                if (campaignUpdates)
+                  toggle(
+                    l10n.notifyCampaignUpdates,
+                    n.donations,
+                    (v) =>
+                        controller.setNotifications(n.copyWith(donations: v)),
                   ),
                 toggle(
                   l10n.newsAndOffers,

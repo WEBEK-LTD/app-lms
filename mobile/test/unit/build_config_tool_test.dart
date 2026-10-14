@@ -53,7 +53,7 @@ void main() {
     expect(validateBuildConfig(c).isValid, isFalse);
   });
 
-  test('app types: Academy, Store, Bookings, Real estate, News & blog and Events & tickets', () {
+  test('app types: Academy, Store, Bookings, Real estate, News & blog, Events & tickets and Charity & donations', () {
     expect(
       validateBuildConfig(example()..['app_type'] = 'store').isValid,
       isTrue,
@@ -61,7 +61,7 @@ void main() {
     expect(
       validateBuildConfig(example()..['app_type'] = 'salon').errors.join(),
       contains(
-        '"app_type" must be one of lms, store, booking, real_estate, news, events.',
+        '"app_type" must be one of lms, store, booking, real_estate, news, events, donations.',
       ),
     );
     expect(
@@ -83,6 +83,18 @@ void main() {
     expect(
       renderDartConfig(example()..['app_type'] = 'events'),
       contains('appType: AppType.events,'),
+    );
+    // 29 Charity & donations apps, with their vertical.
+    final charity = example()
+      ..['app_type'] = 'donations'
+      ..['vertical'] = 'charity';
+    expect(validateBuildConfig(charity).isValid, isTrue);
+    expect(
+      renderDartConfig(charity),
+      allOf(
+        contains('appType: AppType.donations,'),
+        contains('vertical: AppVertical.charity,'),
+      ),
     );
   });
 

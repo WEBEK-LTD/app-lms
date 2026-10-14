@@ -2983,4 +2983,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String ticketQrLabel(String name) {
     return 'QR code of the ticket for $name';
   }
+
+  @override
+  String get tabCampaigns => 'Campaigns';
+
+  @override
+  String get tabMyDonations => 'My donations';
+
+  @override
+  String get loadingCampaigns => 'Loading campaigns';
+
+  @override
+  String get noCampaignsTitle => 'No campaigns yet';
+
+  @override
+  String get noCampaignsMessage => 'Campaigns will show here.';
+
+  @override
+  String campaignRaisedOf(String raised, String goal) {
+    return '$raised of $goal';
+  }
+
+  @override
+  String campaignRaised(String raised) {
+    return '$raised raised';
+  }
+
+  @override
+  String campaignDonors(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count donors',
+      one: '1 donor',
+      zero: 'No donors yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get campaignGoalReached => 'Goal reached';
+
+  @override
+  String get campaignEnded => 'Ended';
+
+  @override
+  String campaignEndsOn(String date) {
+    return 'Ends $date';
+  }
+
+  @override
+  String get donateTitle => 'Donate';
+
+  @override
+  String get donateChooseAmount => 'Choose an amount';
+
+  @override
+  String get donateOtherAmount => 'Other amount';
+
+  @override
+  String donateMinimum(String amount) {
+    return 'The smallest donation is $amount.';
+  }
+
+  @override
+  String get donateAmountInvalid => 'Enter an amount, like 250.';
+
+  @override
+  String get donateChooseOne => 'Choose one of the amounts.';
+
+  @override
+  String get donateOnce => 'Once';
+
+  @override
+  String get donateMonthly => 'Monthly';
+
+  @override
+  String get donateAnonymous => 'Give anonymously';
+
+  @override
+  String get donateAnonymousHint => 'Your name won\'t show on the campaign.';
+
+  @override
+  String get donateMessage => 'Message (optional)';
+
+  @override
+  String get donateMessageHint => 'A few words shown with your donation';
+
+  @override
+  String donateButton(String amount) {
+    return 'Donate $amount';
+  }
+
+  @override
+  String get donateOnWebsite => 'Donate on our website';
+
+  @override
+  String get donateOnWebsiteNote =>
+      'Your donation is made on our website, in your browser. Come back to the app when you\'re done.';
+
+  @override
+  String get donateClosed =>
+      'This campaign has ended. Thank you for your support.';
+
+  @override
+  String get donateThanks => 'Thank you for your donation!';
+
+  @override
+  String get donateFailed =>
+      'The donation page couldn\'t open. Please try again.';
+
+  @override
+  String get donateSignInHint =>
+      'Sign in first to keep your donations and receipts in the app.';
+
+  @override
+  String get recentDonations => 'Recent donations';
+
+  @override
+  String get anonymousDonor => 'Anonymous';
+
+  @override
+  String get loadingDonations => 'Loading donations';
+
+  @override
+  String get myDonationsSignInTitle => 'Your donations';
+
+  @override
+  String get myDonationsSignInMessage =>
+      'Sign in to see your donations and their receipts.';
+
+  @override
+  String get noDonationsTitle => 'No donations yet';
+
+  @override
+  String get noDonationsMessage =>
+      'Donations you make while signed in show here, with their receipts.';
+
+  @override
+  String get donationReceipt => 'Receipt';
+
+  @override
+  String get donationSeeCampaign => 'See the campaign';
+
+  @override
+  String get notifyCampaignUpdates => 'Campaign updates';
 }

@@ -1,6 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app_environment.dart';
+
+/// [openExternal], as screens that must leave the app read it (29 the
+/// donation page in the system browser). Replaced in tests.
+final openExternalProvider = Provider<Future<bool> Function(String url)>(
+  (ref) => openExternal,
+);
 
 /// Opens [url] outside the app (browser, WhatsApp, store). Returns false when
 /// nothing could open it.

@@ -395,6 +395,65 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// A local food bank (29).
+  factory DemoApi.charity({Map<String, dynamic>? appearance, String? primary}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Bereket Food Bank'),
+        'branding': {'logo_url': null, 'primary_color': primary ?? '#0E0D24'},
+        'vertical': 'charity',
+        'donations': donationsConfigJson(),
+        'appearance': ?appearance,
+      },
+    );
+    final parcels = campaignSummaryJson(
+      imageUrl: demoImage('campaign-parcels'),
+      endsAt: '2026-11-30T20:59:59Z',
+    );
+    api
+      ..campaigns = [
+        parcels,
+        campaignSummaryJson(
+          id: 2,
+          title: 'School lunches for 200 children',
+          summary:
+              'A hot lunch every school day for children whose families '
+              "can't pack one. ₺75 feeds a child for a day.",
+          goal: '120000.00',
+          raised: '37800.00',
+          donorCount: 96,
+          featured: false,
+          imageUrl: demoImage('campaign-lunch'),
+        ),
+        campaignSummaryJson(
+          id: 3,
+          title: 'Warm coats for winter',
+          summary: 'Every child at our centres went home with a warm coat.',
+          goal: '40000.00',
+          raised: '41250.00',
+          donorCount: 158,
+          status: 'closed',
+          featured: false,
+          imageUrl: demoImage('campaign-coats'),
+          endsAt: '2026-03-01T20:59:59Z',
+        ),
+      ]
+      ..campaign = {
+        ...campaignJson(),
+        ...parcels,
+        'images': [
+          {'url': demoImage('campaign-parcels'), 'alt': null},
+        ],
+        'html':
+            '<p>Every winter, more families in our city come to our centres than in the rest of the year together.</p>'
+            '<h3>What a parcel holds</h3>'
+            '<ul><li>5 kg of rice and 3 kg of lentils</li><li>Oil, flour, tea and sugar</li></ul>'
+            '<p>A parcel costs us ₺600 and feeds a family of four for about two weeks.</p>',
+      };
+    return api;
+  }
+
   final bool arabic;
 
   static const _languages = {
