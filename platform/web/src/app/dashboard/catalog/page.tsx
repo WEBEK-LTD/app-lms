@@ -7,7 +7,7 @@ import { Badge, EmptyState, Notice, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
-import { catalogSettings } from "@/lib/catalog/settings";
+import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
 import { AddCategoryForm, ShopSettingsForm } from "./forms";
@@ -54,9 +54,9 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           Saved “{saved}”.
         </p>
       ) : null}
-      {!settings.payment ? (
+      {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
-          Your app can&apos;t take orders until you set up <a href="#h-payments">Card payments</a> below.
+          Customers can see your products in the app but can&apos;t pay for them until you set up <a href="#h-payments">Card payments</a> below.
         </Notice>
       ) : null}
 

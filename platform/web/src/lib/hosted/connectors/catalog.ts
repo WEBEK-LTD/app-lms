@@ -1,5 +1,5 @@
 import { centsToDecimal, formatCents } from "../../catalog/money";
-import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, shippingFor } from "../../catalog/settings";
+import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings } from "../../data/types";
@@ -60,6 +60,16 @@ export class CatalogConnector implements Connector {
 
   private money(cents: number): string {
     return formatCents(cents, this.settings.currency);
+  }
+
+  /**
+   * 19 Whether customers can buy in the app: card payments in the plan and
+   * set up for the shop (a demo shop's payment page charges nothing), the
+   * same rule as courses. Otherwise products show without a cart, like
+   * products the app doesn't sell.
+   */
+  private get canSell(): boolean {
+    return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
   async config() {
@@ -130,7 +140,7 @@ export class CatalogConnector implements Connector {
       rating: null,
       rating_count: 0,
       stock_status: inStock ? "in_stock" : "out_of_stock",
-      purchasable: inStock && this.deps.cardPayments !== false,
+      purchasable: inStock && this.canSell,
       digital: p.digital,
     };
   }
