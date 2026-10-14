@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# 17 The app preview, built from mobile/ by mobile/tool/build_preview.sh: no diffs in reviews.
+platform/web/public/preview-app/** -diff linguist-generated=true

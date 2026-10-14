@@ -4,7 +4,9 @@ info:
   version: 1.0.0
   summary: What the Yallapp WordPress plugin calls on yallapp.com.tr.
   description: |
-    Served by the Yallapp platform on Netlify. The plugin is the only client.
+    Served by the Yallapp platform on Netlify. The plugin is the only client,
+    except for the app preview's config (tag Preview), which the app reads
+    when it runs as the preview in the Yallapp dashboard.
 
     - The plugin checks its license on activation, then every 12 hours.
     - If the platform can't be reached, the plugin keeps its last known status
@@ -33,6 +35,11 @@ tags:
       copy it got, and serves it to the app as `GET /pages` and
       `Config.appearance`. Lists in a page are filled by the plugin from the
       site's own courses, products and posts.
+  - name: Preview
+    description: |
+      The app preview: the client's app running in a browser, in the Yallapp
+      dashboard ("Preview your app") or on a phone through its QR code. The
+      dashboard makes a preview token for one app; it expires after an hour.
 
 paths:
   /licenses/activate:
@@ -168,6 +175,51 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /preview/{token}/config:
+    servers:
+      - url: https://yallapp.com.tr/api
+    get:
+      tags: [Preview]
+      operationId: getPreviewConfig
+      summary: Get the app preview's build config
+      description: |
+        The app's build config (`docs/build-config.schema.json`) as a build
+        would get it from the app's current setup, also before the setup is
+        complete: values it doesn't have yet are placeholders, listed in
+        `preview.placeholders`. No Firebase files: the preview has no push
+        notifications. The token is the only access: it names one app and
+        reads nothing else. Rate limited per IP. Cross-origin requests are
+        allowed from the platform's own addresses only.
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: The preview token the dashboard put in the preview link.
+          schema: { type: string }
+      responses:
+        '200':
+          description: The preview config
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreviewConfig' }
+        '403':
+          description: The token isn't valid (`invalid_token`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: The app doesn't exist anymore.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '410':
+          description: The token expired (`preview_expired`). The client opens the preview again from the dashboard.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 components:
   responses:
     BadRequest:
@@ -198,7 +250,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, license_not_found, license_in_use, rate_limited]
+          examples: [invalid_request, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired]
         message: { type: string }
 
     SiteInfo:
@@ -334,6 +386,63 @@ components:
               description: Hand-picked entries, in this order. Overrides the other filters.
               items: { type: string }
         translations: { $ref: '#/components/schemas/Translations' }
+
+    PreviewConfig:
+      type: object
+      required: [config, preview]
+      properties:
+        config:
+          type: object
+          description: The build config, `docs/build-config.schema.json`, with placeholders where the setup has no value yet.
+          required: [schema_version, app_type, app_name, short_name, site_url, android_package, ios_bundle_id, version_name, version_code, branding]
+          properties:
+            schema_version: { const: 1 }
+            app_type: { type: string, enum: [lms, store, booking, real_estate] }
+            app_name: { type: string, minLength: 1 }
+            short_name: { type: string, minLength: 1 }
+            site_url: { type: string, format: uri }
+            api_base_url: { type: string, format: uri }
+            android_package: { type: string }
+            ios_bundle_id: { type: string }
+            version_name: { type: string, example: 1.0.0 }
+            version_code: { type: integer }
+            branding:
+              type: object
+              required: [primary_color, splash_color, template, font]
+              properties:
+                primary_color: { type: string, example: '#0E0D24' }
+                splash_color: { type: string, example: '#F4EFE6' }
+                template: { type: string, enum: [classic, bold, minimal] }
+                font: { type: string, example: Bricolage Grotesque }
+                icon_url: { type: string, format: uri }
+                logo_url: { type: string, format: uri }
+        preview:
+          type: object
+          required: [app_id, expires_at, content_source, draft, api_token, placeholders, missing_steps]
+          properties:
+            app_id: { type: string, format: uuid }
+            expires_at: { type: string, format: date-time, description: When the token stops working. }
+            content_source:
+              type: string
+              enum: [wordpress, custom_api, hosted, none]
+              description: Where the app's content comes from; `none` until the Website step chose it. The app then shows how to connect it.
+            draft: { type: boolean, description: "The preview shows the Pages & look draft (hosted API only); otherwise the published pages." }
+            api_token:
+              type: [string, 'null']
+              description: For the hosted API only. The app sends it as `X-Yallapp-Preview` with every request to the hosted API.
+            placeholders:
+              type: array
+              description: Build config fields filled with placeholders, e.g. `app_name`, `short_name`, `android_package`, `site_url`, `branding.icon_url`.
+              items: { type: string }
+            missing_steps:
+              type: array
+              description: Setup steps that aren't complete yet.
+              items:
+                type: object
+                required: [step, label]
+                properties:
+                  step: { type: string, enum: [app-type, website, branding, listing, publishing] }
+                  label: { type: string, example: Branding }
 
     Translations:
       type: object

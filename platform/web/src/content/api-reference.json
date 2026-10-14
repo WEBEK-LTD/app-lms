@@ -50,7 +50,7 @@
           "method": "POST",
           "path": "/auth/otp/request",
           "summary": "Send a sign-in code",
-          "description": "Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.\n\nDemo apps on the hosted API (the apps on yallapp.com.tr/demo) send no code: only the public demo number signs in, with the fixed code shown on that page. Any other number is refused with 403 `demo_number_only`. The demo number is limited per IP and per app, and works in demo apps only.",
+          "description": "Asks the site's OTP provider (Digits) to send a code to the phone number. Rate limited per number and per IP.\n\nDemo apps on the hosted API (the apps on yallapp.com.tr/demo) send no code: only the public demo number signs in, with the fixed code shown on that page. Any other number is refused with 403 `demo_number_only`. The demo number is limited per IP and per app, and works in demo apps only.\n\nThe app preview in the Yallapp dashboard sends `preview: true`, and only when `Config.auth.preview_sign_in` is true. Such a request never sends a code: only the store review number signs in, with its fixed code. Any other number is refused with 403 `preview_review_number_only`.",
           "access": "public"
         },
         {

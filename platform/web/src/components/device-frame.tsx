@@ -14,6 +14,22 @@ const PHONE_SIZES = {
   lg: "w-[272px]",
 } as const;
 
+/**
+ * The phone frame on its own, around any screen: a screenshot, or the live
+ * app preview (17). `screenClassName` sizes the screen; the frame grows
+ * around it.
+ */
+export function PhoneFrame({ children, className = "", screenClassName = "aspect-[1080/2340]" }: { children: React.ReactNode; className?: string; screenClassName?: string }) {
+  return (
+    <div className={`relative max-w-full rounded-[38px] bg-midnight p-[9px] shadow-[0_24px_48px_-28px_rgba(14,13,36,0.55)] ${className}`}>
+      {/* Side buttons. */}
+      <span aria-hidden="true" className="absolute top-[22%] -left-[3px] h-[9%] w-[3px] rounded-l bg-night-3" />
+      <span aria-hidden="true" className="absolute top-[18%] -right-[3px] h-[13%] w-[3px] rounded-r bg-night-3" />
+      <div className={`relative overflow-hidden rounded-[30px] bg-ivory ${screenClassName}`}>{children}</div>
+    </div>
+  );
+}
+
 export function DeviceFrame({
   screen,
   size = "md",
@@ -30,14 +46,8 @@ export function DeviceFrame({
 }) {
   return (
     <figure className={`m-0 flex max-w-full flex-none flex-col items-center gap-3 ${className}`}>
-      <div
-        className={`relative max-w-full rounded-[38px] bg-midnight p-[9px] shadow-[0_24px_48px_-28px_rgba(14,13,36,0.55)] ${PHONE_SIZES[size]}`}
-        data-screen={screen}
-      >
-        {/* Side buttons. */}
-        <span aria-hidden="true" className="absolute top-[22%] -left-[3px] h-[9%] w-[3px] rounded-l bg-night-3" />
-        <span aria-hidden="true" className="absolute top-[18%] -right-[3px] h-[13%] w-[3px] rounded-r bg-night-3" />
-        <div className="relative aspect-[1080/2340] overflow-hidden rounded-[30px] bg-ivory">
+      <div className={`max-w-full ${PHONE_SIZES[size]}`} data-screen={screen}>
+        <PhoneFrame>
           <Image
             src={`/screens/${screen}.png`}
             alt={SCREEN_ALT[screen]}
@@ -48,7 +58,7 @@ export function DeviceFrame({
           />
           {/* The camera. */}
           <span aria-hidden="true" className="absolute top-[1.6%] left-1/2 h-[2.6%] w-[28%] -translate-x-1/2 rounded-full bg-midnight" />
-        </div>
+        </PhoneFrame>
       </div>
       {caption ? <figcaption className="text-center text-sm font-semibold text-ink-4">{caption}</figcaption> : null}
     </figure>

@@ -9,6 +9,7 @@ import 'package:yallapp/core/app_environment.dart';
 import 'package:yallapp/core/auth/token_manager.dart';
 import 'package:yallapp/core/auth/token_store.dart';
 import 'package:yallapp/core/config/build_config.dart';
+import 'package:yallapp/core/preview/preview.dart';
 import 'package:yallapp/core/providers.dart';
 import 'package:yallapp/core/services/screen_security.dart';
 import 'package:yallapp/core/storage/local_settings.dart';
@@ -65,7 +66,11 @@ class TestApp {
     this.framingAllowed = true,
     this.preferences = const {},
     this.wrap,
+    this.preview,
   }) : api = api ?? FakeApi();
+
+  /// 17 Runs as the app preview on the web would.
+  final PreviewSession? preview;
 
   final FakeApi api;
   final DevicePlatform platform;
@@ -109,6 +114,7 @@ class TestApp {
           appVersion: '1.0.0',
           deviceId: 'device-1',
           deviceName: 'Test phone',
+          preview: preview,
         ),
       ),
       yallappApiProvider.overrideWithValue(api),

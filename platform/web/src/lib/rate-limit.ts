@@ -47,4 +47,6 @@ export const RATE_LIMITS = {
   hostedNotify: { name: "hosted-notify:app", limit: 10, windowSeconds: 60 * 60 },
   planPayment: { name: "plan-payment:client", limit: 10, windowSeconds: 60 * 60 },
   otpTest: { name: "otp-test:admin", limit: 5, windowSeconds: 10 * 60 },
+  // 17 The app preview reads its config once per load (and on "Reload after changes").
+  previewIp: { name: "preview:ip", limit: 120, windowSeconds: 10 * 60 },
 } satisfies Record<string, RateLimitRule>;

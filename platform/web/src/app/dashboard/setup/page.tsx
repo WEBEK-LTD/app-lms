@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { Notice, PageHeader, formatDate } from "@/components/ui";
+import { Notice, PageHeader, btn, formatDate } from "@/components/ui";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
@@ -66,6 +66,12 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
     <>
       <PageHeader
         title="App setup"
+        actions={
+          <Link href="/dashboard/preview" className={`${btn.secondary} h-10 px-4 text-sm`}>
+            <Icon name="visibility" size={18} />
+            Preview your app
+          </Link>
+        }
         description={
           <>
             {appLabel(app)} · Plan: {planName(plan, plans)} ·{" "}

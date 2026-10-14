@@ -167,10 +167,16 @@ export default async function OverviewPage() {
             </div>
           </div>
         </div>
-        <Link href={primary.href} className={`${btn.primary} h-11 w-full sm:w-auto`}>
-          {primary.label}
-          <Icon name={primary.icon} size={20} />
-        </Link>
+        <div className="flex w-full flex-wrap gap-2.5 sm:w-auto">
+          <Link href="/dashboard/preview" className={`${btn.secondary} h-11 w-full sm:w-auto`}>
+            <Icon name="visibility" size={20} />
+            Preview your app
+          </Link>
+          <Link href={primary.href} className={`${btn.primary} h-11 w-full sm:w-auto`}>
+            {primary.label}
+            <Icon name={primary.icon} size={20} />
+          </Link>
+        </div>
       </section>
 
       <div className="grid gap-4 md:grid-cols-2">

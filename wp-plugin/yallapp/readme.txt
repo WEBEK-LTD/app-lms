@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,12 @@ send only the license key, site URL, plugin version, WordPress version and LMS n
 to yallapp.com.tr. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.0 =
+* WooCommerce stores and bookings (Amelia, LatePoint, BookingPress) in the app.
+* The app names its owner when it's paused, with a contact button; plan features follow the app's plan.
+* Preview your app from the Yallapp dashboard before it's built (CORS for the preview, preview sign-in with the review number).
+* Digits is found by its plugin details, also in a renamed folder or when network-activated; its add-ons, such as Additional SMS Gateways, are listed on the settings page.
 
 = 0.2.0 =
 * LearnPress, LifterLMS, MasterStudy LMS, Sensei LMS and Masteriyo support.

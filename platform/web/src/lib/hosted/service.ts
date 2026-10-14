@@ -13,7 +13,7 @@ import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import { ConnectorError, type Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
-import { lookAndLanguages } from "../pages/layout";
+import { draftLayout, lookAndLanguages } from "../pages/layout";
 import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
@@ -75,6 +75,14 @@ export interface HostedContext {
   platformUrl: string;
   /** Serves the content endpoints (Shopify for Store apps); null until one is connected. */
   connector?: Connector | null;
+  /**
+   * 17 The request comes from the app preview in the dashboard, with a valid
+   * preview token for this app (`X-Yallapp-Preview`). The API then answers
+   * while the app isn't active yet (never while the account is suspended),
+   * signs in only the store review number, and with `draft` serves the Pages
+   * & look draft instead of the published pages.
+   */
+  preview?: { draft: boolean } | null;
 }
 
 export interface HostedRequest {
@@ -155,7 +163,8 @@ async function userLimitReached(ctx: HostedContext, phone: string): Promise<bool
 
 export async function handleHosted(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   if (ctx.app.backend !== "hosted") return notFound();
-  if (!ctx.active || ctx.suspended) return pausedError(ctx.app, Boolean(ctx.suspended));
+  // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
+  if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
   const route = `${req.method} /${req.path.join("/")}`;
   switch (route) {
     case "GET /config":
@@ -266,6 +275,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       signup_allowed: settings.signupAllowed,
       signup_fields: signupFields(settings),
       default_country_code: settings.defaultCountryCode,
+      // 17 `preview: true` at /auth/otp/request signs in only the store review number.
+      preview_sign_in: true,
     },
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
     purchases: {
@@ -277,8 +288,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.store ? { store: extra.store } : {}),
     ...(extra.bookings ? { bookings: extra.bookings } : {}),
     ...(extra.listings ? { listings: extra.listings } : {}),
-    // 10.6 Looks and languages
-    ...(await lookAndLanguages(ctx.store, app, undefined, ctx.plan ?? null)),
+    // 10.6 Looks and languages (17: the draft's, in a draft preview)
+    ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null)),
   });
 }
 
@@ -330,6 +341,15 @@ async function requestDemoCode(ctx: HostedContext, phone: Phone): Promise<Hosted
   return ok({ request_id: requestId, code_length: CODE_LENGTH, resend_after_seconds: RESEND_SECONDS, expires_in_seconds: CODE_TTL_SECONDS });
 }
 
+/** 17 A number other than the store review number, in the app preview. */
+function previewNumberOnly(): HostedResult {
+  return error(
+    403,
+    "preview_review_number_only",
+    "This is a preview, and it never sends codes. Sign in with your app's store review number and its code, set on App sign-in in your Yallapp dashboard.",
+  );
+}
+
 /** 16 The demo number's code was right: the shared demo account (made again if a visitor deleted it). */
 async function demoSession(ctx: HostedContext, rawDevice: Record<string, unknown>): Promise<HostedResult> {
   const user =
@@ -346,6 +366,8 @@ async function requestCode(ctx: HostedContext, body: Record<string, unknown>): P
   if (ctx.app.demo) return requestDemoCode(ctx, phone);
   const settings = hostedSettings(ctx.app);
   const review = isReviewPhone(settings, phone);
+  // 17 The app preview never sends a code: only the store review number signs in there, with its fixed code.
+  if ((ctx.preview || body.preview === true) && !review) return previewNumberOnly();
   const wait =
     (await limited(ctx, HOSTED_LIMITS.resend, phone.e164)) ??
     (await limited(ctx, HOSTED_LIMITS.phone, phone.e164)) ??

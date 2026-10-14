@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'api_exception.dart';
 import 'http_client.dart';
@@ -483,7 +484,12 @@ class HttpYallappApi implements YallappApi {
     required this.platform,
     required this.appVersion,
     String Function()? language,
+    this.preview = false,
   }) : _language = language ?? (() => 'en');
+
+  /// 17 The app preview on the web: sign-in asks for the store review number
+  /// only (`preview: true`) and checkout never opens.
+  final bool preview;
 
   final Dio _dio;
 
@@ -589,7 +595,10 @@ class HttpYallappApi implements YallappApi {
           _optional,
           Options(
             headers: {
-              if (cached != null) 'If-None-Match': _pagesTag ?? cached.version,
+              // In a browser (the app preview) the browser's own cache
+              // revalidates; this header would need the site's permission.
+              if (cached != null && !kIsWeb)
+                'If-None-Match': _pagesTag ?? cached.version,
             },
             validateStatus: _pagesStatus,
           ),
@@ -637,7 +646,19 @@ class HttpYallappApi implements YallappApi {
     '/auth/otp/request',
     _public,
     (data) => OtpRequestResult.fromJson(asJson(data)),
-    body: {'country_code': countryCode, 'phone': phone},
+    body: {
+      'country_code': countryCode,
+      'phone': phone,
+      if (preview) 'preview': true,
+    },
+  );
+
+  /// 17 What the preview shows instead of opening a checkout.
+  Future<CheckoutLink> _noCheckoutInPreview() => Future.error(
+    ApiException(
+      code: ApiException.previewUnavailable,
+      message: currentL10n.previewCheckoutNote,
+    ),
   );
 
   @override
@@ -685,6 +706,7 @@ class HttpYallappApi implements YallappApi {
         ),
       );
     }
+    if (preview) return _noCheckoutInPreview();
     return _send(
       'POST',
       '/auth/checkout-link',
@@ -1002,19 +1024,21 @@ class HttpYallappApi implements YallappApi {
     List<CartLineInput> lines, {
     String? deliveryDate,
     String? giftMessage,
-  }) => _send(
-    'POST',
-    '/store/checkout-link',
-    _optional,
-    (data) => CheckoutLink.fromJson(asJson(data)),
-    body: {
-      'lines': [for (final l in lines) l.toJson()],
-      'delivery_date': ?deliveryDate,
-      if (giftMessage != null && giftMessage.trim().isNotEmpty)
-        'gift_message': giftMessage.trim(),
-    },
-    query: {'platform': platform.name},
-  );
+  }) => preview
+      ? _noCheckoutInPreview()
+      : _send(
+          'POST',
+          '/store/checkout-link',
+          _optional,
+          (data) => CheckoutLink.fromJson(asJson(data)),
+          body: {
+            'lines': [for (final l in lines) l.toJson()],
+            'delivery_date': ?deliveryDate,
+            if (giftMessage != null && giftMessage.trim().isNotEmpty)
+              'gift_message': giftMessage.trim(),
+          },
+          query: {'platform': platform.name},
+        );
 
   @override
   Future<List<BookingsHomeSection>> getBookingsHome() => _get(

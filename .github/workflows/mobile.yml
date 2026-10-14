@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - 'mobile/**'
+      - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
   pull_request:
     paths:
       - 'mobile/**'
+      - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
 
 permissions:
@@ -45,7 +47,7 @@ jobs:
           printf '%s\n' "$files"
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
-            if match '^(mobile/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
+            if match '^(mobile/|platform/web/public/preview-app/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
           } >> "$GITHUB_OUTPUT"
 
   app:
@@ -95,6 +97,13 @@ jobs:
 
       - name: Test
         run: flutter test
+
+      # 17 The app preview: the web build the platform serves at /preview-app/.
+      - name: App preview is up to date
+        run: tool/build_preview.sh --check
+
+      - name: Build the app preview (web)
+        run: flutter build web --release --base-href /preview-app/ --no-wasm-dry-run
 
       - name: Build debug APK
         run: flutter build apk --debug

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api/models/models.dart';
 import 'config/build_config.dart';
+import 'preview/preview.dart';
 
 /// Facts about this build and this install that don't change while the app
 /// runs.
@@ -17,12 +18,14 @@ class AppEnvironment {
     required this.appVersion,
     required this.deviceId,
     required this.deviceName,
+    this.preview,
   });
 
   /// Reads the platform, version and device facts once at start-up.
   static Future<AppEnvironment> load({
     required BuildConfigData build,
     required SharedPreferences preferences,
+    PreviewSession? preview,
   }) async {
     final platform = defaultTargetPlatform == TargetPlatform.iOS
         ? DevicePlatform.ios
@@ -39,11 +42,18 @@ class AppEnvironment {
       platform: platform,
       appVersion: version,
       deviceId: deviceIdFor(preferences),
-      deviceName: await _deviceName(platform),
+      // 17 The app preview runs in a browser, which has no phone model.
+      deviceName: kIsWeb ? 'App preview' : await _deviceName(platform),
+      preview: preview,
     );
   }
 
   final BuildConfigData build;
+
+  /// 17 Set when this is the app preview on the web (the dashboard's
+  /// "Preview your app"); null in every installed app.
+  final PreviewSession? preview;
+  bool get isPreview => preview != null;
   final DevicePlatform platform;
   final String appVersion;
 

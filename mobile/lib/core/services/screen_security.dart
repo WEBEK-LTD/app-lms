@@ -25,7 +25,7 @@ class ScreenSecurity {
 
   /// True while the screen is being recorded or mirrored (iOS).
   Stream<bool> captureChanges() {
-    if (defaultTargetPlatform != TargetPlatform.iOS) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
       return Stream<bool>.value(false);
     }
     return _events

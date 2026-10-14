@@ -109,6 +109,8 @@ class App_Controller extends Controller {
 					'signup_allowed'       => (bool) $settings->get( 'signup_allowed' ),
 					'signup_fields'        => $this->plugin->sign_in()->signup_fields(),
 					'default_country_code' => (string) $settings->get( 'default_country_code' ),
+					// `preview: true` at /auth/otp/request signs in only the store review number.
+					'preview_sign_in'      => true,
 				),
 				'purchases' => array(
 					'enroll_button'     => Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),

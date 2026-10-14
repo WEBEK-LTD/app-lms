@@ -1334,5 +1334,25 @@
   "noMatches": "No matches",
   "servicesShowHere": "Services you can book will show up here.",
   "tryAnotherWord": "Try another word.",
-  "searchServices": "Search services"
+  "searchServices": "Search services",
+  "previewTitle": "App preview",
+  "previewInstalledAppOnly": "Available in the installed app",
+  "previewWebPageNote": "Pages from the web, such as embedded videos and payment pages, open in the installed app.",
+  "previewOpenInNewTab": "Open in a new tab",
+  "previewCheckoutNote": "Checkout and payments work in the installed app. The preview never takes payments.",
+  "previewSignInNote": "This is a preview. Sign in with your app's store review number and its code. The preview never sends sign-in codes.",
+  "previewSignInUnavailable": "Signing in works in the installed app. Your app's server can't sign people in from the preview yet.",
+  "previewNoLink": "Open the preview from your Yallapp dashboard.",
+  "previewExpired": "This preview link has expired. Open the preview again from your Yallapp dashboard.",
+  "previewInvalid": "This preview link isn't valid. Open the preview from your Yallapp dashboard.",
+  "previewUnreachable": "The preview couldn't load. Check your connection and try again.",
+  "previewNoContent": "Choose where your app's content comes from on the Website step of your setup, then reload the preview.",
+  "previewApiBlocked": "The preview couldn't reach your app's content. If your site or API blocks requests from other addresses, allow {origin}. The guide Connect your own API in the Yallapp docs shows how.",
+  "@previewApiBlocked": {
+    "placeholders": {
+      "origin": {
+        "type": "String"
+      }
+    }
+  }
 }

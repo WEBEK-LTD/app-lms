@@ -228,17 +228,24 @@ class AuthRules {
     required this.signupAllowed,
     required this.signupFields,
     required this.defaultCountryCode,
+    this.previewSignIn = false,
   });
 
   factory AuthRules.fromJson(Json json) => AuthRules(
     signupAllowed: reqBool(json, 'signup_allowed'),
     signupFields: parseSignupFields(json, 'signup_fields'),
     defaultCountryCode: reqString(json, 'default_country_code'),
+    previewSignIn: boolOr(json, 'preview_sign_in', false),
   );
 
   final bool signupAllowed;
   final List<SignupField> signupFields;
   final String defaultCountryCode;
+
+  /// The server signs in only the store review number when the app preview
+  /// asks with `preview: true` (and never sends a code). Missing on older
+  /// servers: the preview then doesn't offer sign-in.
+  final bool previewSignIn;
 }
 
 List<SignupField> parseSignupFields(Json json, String key) => [

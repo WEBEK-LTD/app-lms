@@ -602,6 +602,57 @@ Course pages, lessons, quizzes, product pages, the cart, booking a time, listing
 `,
   }),
   doc({
+    slug: "preview-your-app",
+    section: "Your app",
+    title: "Preview your app",
+    description: "Try your real app in your browser or on your phone before you build it, with your current setup, content and pages.",
+    steps: false,
+    body: `**Preview your app** in your dashboard runs your real app in your browser, with your current setup and content, before you start a build. Use it to check that the app type, the content, the branding, the template and font, the pages, the bottom tabs and the languages are right. Nothing in the preview is published or sent to the people who use your app.
+
+## Open the preview
+
+1. In your dashboard, select **Preview your app** in the menu. The overview, every setup step and **Pages & look** have the same button.
+2. Your app opens in a phone frame. Use **Light** and **Dark** to see both looks, and **Language** to switch between your app's languages.
+3. After you change something, select **Reload after changes**.
+
+## Open it on your phone
+
+Scan the QR code next to the preview with your phone's camera. The link works for an hour: open the preview again in the dashboard for a new one. On an iPhone the preview follows the iPhone rules, so paid courses show no purchase button.
+
+## Before your setup is complete
+
+The preview works from the moment you choose your app type. Until a step is done, it uses placeholders, such as "Your app" for the name, and the page lists what's still missing. Until you choose where your content comes from on the **Website** step, the preview shows only that.
+
+## Published pages and drafts
+
+- Apps whose content is managed in Yallapp or comes from a connected platform can show the draft from **Pages & look**: select **Draft from Pages & look** above the phone.
+- WordPress sites and your own API get pages only once you publish them, so their preview shows the published pages.
+
+## Signing in
+
+The preview never sends sign-in codes. To try the screens people see once they're signed in, sign in with your **store review number** and its fixed code:
+
+- Content managed in Yallapp or a connected platform: set them on **App sign-in**.
+- WordPress: set them in the Yallapp plugin's settings, under store review access. If the preview says signing in works only in the installed app, update the Yallapp plugin.
+- Your own API: see [Connect your own API](/docs/my-own-api#let-the-app-preview-reach-your-api).
+
+## What works only in the installed app
+
+- Push notifications
+- Pages from the web inside the app, such as lessons shown as web pages, embedded videos, checkout and payment pages. The preview shows a short note there and can open the page in a new tab.
+- Checkout and payments: the preview never takes a payment
+- Protected videos and screen capture protection
+
+Your app's name under the icon, its icon and its store listing come with a build.
+
+## If the preview can't reach your content
+
+- **WordPress:** a security plugin or your host may block requests from other addresses. Allow https://yallapp.com.tr, or ask your host to.
+- **Your own API:** allow requests from https://yallapp.com.tr, as [Connect your own API](/docs/my-own-api#let-the-app-preview-reach-your-api) shows.
+- **A WordPress app that isn't active yet:** your site answers the preview once the Yallapp plugin is connected and the app's plan is active. Apps without a website can be previewed at any time.
+`,
+  }),
+  doc({
     slug: "languages",
     section: "Your app",
     title: "Languages",

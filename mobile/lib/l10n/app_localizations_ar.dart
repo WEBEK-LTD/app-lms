@@ -2144,4 +2144,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchServices => 'ابحث في الخدمات';
+
+  @override
+  String get previewTitle => 'معاينة التطبيق';
+
+  @override
+  String get previewInstalledAppOnly => 'متاح في التطبيق المثبّت';
+
+  @override
+  String get previewWebPageNote =>
+      'صفحات الويب، مثل الفيديوهات المضمّنة وصفحات الدفع، تُفتح في التطبيق المثبّت.';
+
+  @override
+  String get previewOpenInNewTab => 'افتح في علامة تبويب جديدة';
+
+  @override
+  String get previewCheckoutNote =>
+      'إتمام الشراء والدفع يعملان في التطبيق المثبّت. المعاينة لا تأخذ أي مدفوعات.';
+
+  @override
+  String get previewSignInNote =>
+      'هذه معاينة. سجّل الدخول برقم مراجعة المتجر الخاص بتطبيقك ورمزه. المعاينة لا ترسل رموز تسجيل الدخول أبدًا.';
+
+  @override
+  String get previewSignInUnavailable =>
+      'تسجيل الدخول يعمل في التطبيق المثبّت. خادم تطبيقك لا يدعم تسجيل الدخول من المعاينة بعد.';
+
+  @override
+  String get previewNoLink => 'افتح المعاينة من لوحة تحكم Yallapp.';
+
+  @override
+  String get previewExpired =>
+      'انتهت صلاحية رابط المعاينة. افتح المعاينة مرة أخرى من لوحة تحكم Yallapp.';
+
+  @override
+  String get previewInvalid =>
+      'رابط المعاينة غير صالح. افتح المعاينة من لوحة تحكم Yallapp.';
+
+  @override
+  String get previewUnreachable =>
+      'تعذّر تحميل المعاينة. تحقّق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String get previewNoContent =>
+      'اختر مصدر محتوى تطبيقك في خطوة الموقع ضمن الإعداد، ثم أعد تحميل المعاينة.';
+
+  @override
+  String previewApiBlocked(String origin) {
+    return 'تعذّر على المعاينة الوصول إلى محتوى تطبيقك. إذا كان موقعك أو واجهتك البرمجية يحظر الطلبات من عناوين أخرى، فاسمح بـ $origin. يشرح دليل ربط واجهتك البرمجية في مستندات Yallapp الطريقة.';
+  }
 }

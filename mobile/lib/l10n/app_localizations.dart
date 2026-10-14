@@ -3447,6 +3447,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search services'**
   String get searchServices;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App preview'**
+  String get previewTitle;
+
+  /// No description provided for @previewInstalledAppOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Available in the installed app'**
+  String get previewInstalledAppOnly;
+
+  /// No description provided for @previewWebPageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages from the web, such as embedded videos and payment pages, open in the installed app.'**
+  String get previewWebPageNote;
+
+  /// No description provided for @previewOpenInNewTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in a new tab'**
+  String get previewOpenInNewTab;
+
+  /// No description provided for @previewCheckoutNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout and payments work in the installed app. The preview never takes payments.'**
+  String get previewCheckoutNote;
+
+  /// No description provided for @previewSignInNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a preview. Sign in with your app\'s store review number and its code. The preview never sends sign-in codes.'**
+  String get previewSignInNote;
+
+  /// No description provided for @previewSignInUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in works in the installed app. Your app\'s server can\'t sign people in from the preview yet.'**
+  String get previewSignInUnavailable;
+
+  /// No description provided for @previewNoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the preview from your Yallapp dashboard.'**
+  String get previewNoLink;
+
+  /// No description provided for @previewExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This preview link has expired. Open the preview again from your Yallapp dashboard.'**
+  String get previewExpired;
+
+  /// No description provided for @previewInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This preview link isn\'t valid. Open the preview from your Yallapp dashboard.'**
+  String get previewInvalid;
+
+  /// No description provided for @previewUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The preview couldn\'t load. Check your connection and try again.'**
+  String get previewUnreachable;
+
+  /// No description provided for @previewNoContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where your app\'s content comes from on the Website step of your setup, then reload the preview.'**
+  String get previewNoContent;
+
+  /// No description provided for @previewApiBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The preview couldn\'t reach your app\'s content. If your site or API blocks requests from other addresses, allow {origin}. The guide Connect your own API in the Yallapp docs shows how.'**
+  String previewApiBlocked(String origin);
 }
 
 class _AppLocalizationsDelegate

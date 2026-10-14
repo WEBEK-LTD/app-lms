@@ -99,7 +99,11 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _announcements = 'settings.notify_announcements';
   static const _reminder = 'settings.notify_daily_reminder';
   static const _guest = 'settings.guest_mode';
-  static const _language = 'settings.language';
+  static const _language = languageKey;
+
+  /// Where the language the user picked is kept (the app preview sets it
+  /// from its link, 17).
+  static const languageKey = 'settings.language';
 
   SharedPreferences get _prefs => ref.read(sharedPreferencesProvider);
 

@@ -44,6 +44,10 @@ class Auth_Controller extends Controller {
 						'type'     => 'string',
 						'required' => true,
 					),
+					'preview'      => array(
+						'type'     => 'boolean',
+						'required' => false,
+					),
 				),
 			)
 		);
@@ -131,7 +135,9 @@ class Auth_Controller extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function request_code( WP_REST_Request $request ) {
-		return $this->result( $this->plugin->sign_in()->request( (string) $request['country_code'], (string) $request['phone'] ) );
+		// The app preview in the Yallapp dashboard signs in only the store review number.
+		$preview = true === $request['preview'];
+		return $this->result( $this->plugin->sign_in()->request( (string) $request['country_code'], (string) $request['phone'], $preview ) );
 	}
 
 	/**
