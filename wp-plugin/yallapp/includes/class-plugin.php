@@ -17,10 +17,12 @@ use Yallapp\Content\Magic_Links;
 use Yallapp\Content\Media;
 use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Tutor_Adapter;
+use Yallapp\Otp\Adapter_Choice;
 use Yallapp\Otp\Dev_Adapter;
 use Yallapp\Otp\Digits_Adapter;
 use Yallapp\Otp\Otp_Adapter;
 use Yallapp\Otp\Sign_In;
+use Yallapp\Otp\Yallapp_Adapter;
 
 /**
  * Creates the plugin's services once and wires them into WordPress.
@@ -199,21 +201,54 @@ class Plugin {
 	}
 
 	/**
-	 * The one-time code provider.
+	 * The one-time code provider: the one chosen in the settings ("Sent by Yallapp" by default),
+	 * or another that works when the chosen one can't send codes on this site.
 	 *
 	 * @return Otp_Adapter
 	 */
 	public function otp() {
 		return $this->service(
 			'otp',
-			static function () {
-				$adapter = Dev_Adapter::allowed() ? new Dev_Adapter() : new Digits_Adapter();
+			function () {
+				$adapters = $this->otp_adapters();
+				$adapter  = $adapters[ $this->otp_choice()['id'] ];
 				/**
 				 * Filters the one-time code provider.
 				 *
 				 * @param Otp_Adapter $adapter Adapter.
 				 */
 				return apply_filters( 'yallapp_otp_adapter', $adapter );
+			}
+		);
+	}
+
+	/**
+	 * Which provider sends codes, and whether it replaces the saved choice (see Adapter_Choice::resolve()).
+	 *
+	 * @return array{id: string, saved: string, fallback: bool, available: bool}
+	 */
+	public function otp_choice() {
+		$available = array();
+		foreach ( $this->otp_adapters() as $id => $adapter ) {
+			$available[ $id ] = $adapter->is_available();
+		}
+		return Adapter_Choice::resolve( (string) $this->settings()->get( 'otp_provider' ), $available );
+	}
+
+	/**
+	 * Every code provider, by ID.
+	 *
+	 * @return array<string, Otp_Adapter>
+	 */
+	public function otp_adapters() {
+		return $this->service(
+			'otp_adapters',
+			function () {
+				return array(
+					Adapter_Choice::YALLAPP => new Yallapp_Adapter( $this->license() ),
+					Adapter_Choice::DIGITS  => new Digits_Adapter(),
+					Adapter_Choice::DEV     => new Dev_Adapter(),
+				);
 			}
 		);
 	}
@@ -269,7 +304,7 @@ class Plugin {
 		return $this->service(
 			'sign_in',
 			function () {
-				return new Sign_In( $this->settings(), $this->otp(), $this->devices(), $this->tokens() );
+				return new Sign_In( $this->settings(), $this->otp(), $this->devices(), $this->tokens(), $this->license() );
 			}
 		);
 	}

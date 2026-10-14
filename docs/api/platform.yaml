@@ -12,7 +12,9 @@ info:
     - If the platform can't be reached, the plugin keeps its last known status
       for a 72-hour grace period before treating the license as inactive.
     - Only the site URL, plugin version, WordPress version and LMS are sent.
-      No student data ever reaches the platform.
+      No student data ever reaches the platform, except for sign-in codes sent
+      by Yallapp (tag Sign-in codes): the phone number and the code pass
+      through to be delivered, and neither is stored.
   license:
     name: Proprietary, WEBEK LTD
     url: https://yallapp.com.tr
@@ -35,6 +37,16 @@ tags:
       copy it got, and serves it to the app as `GET /pages` and
       `Config.appearance`. Lists in a page are filled by the plugin from the
       site's own courses, products and posts.
+  - name: Sign-in codes
+    description: |
+      "Sent by Yallapp": the plugin makes each sign-in code itself (6 digits,
+      kept hashed on the site, valid for 5 minutes, at most 5 attempts) and
+      asks the platform to deliver it on WhatsApp through Yallapp's own
+      sender, with the app's name in the message. So a WordPress site needs no
+      SMS gateway and no Digits REST API add-on. The platform keeps neither
+      the number nor the code; it counts requests per license and per number
+      (as a one-way hash) to stop abuse, and keeps a daily count of codes sent
+      per license for the Yallapp team.
   - name: Preview
     description: |
       The app preview: the client's app running in a browser, in the Yallapp
@@ -175,6 +187,49 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /sign-in-codes/send:
+    post:
+      tags: [Sign-in codes]
+      operationId: sendSignInCode
+      summary: Send a sign-in code made by the plugin
+      description: |
+        Delivers `code` to `phone` on WhatsApp, in a message with the app's
+        name (the app the license key names; `app_name` only when that app has
+        no name yet). It goes out from the app owner's own WhatsApp number when
+        they connected one (WABEK, on the dashboard's App sign-in page), else
+        through the platform's sign-in code sender. The license
+        must be active on this site (not expired, suspended or bound to
+        another site). Available on every plan.
+
+        Limits: 120 requests a minute per IP; per license 300 an hour and
+        2000 a day; per phone number (across all sites) one every 30 seconds
+        and 10 an hour. A request over a limit gets 429 with
+        `retry_after_seconds` and a `Retry-After` header.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SignInCodeRequest' }
+      responses:
+        '204': { description: The code was handed to the sender. }
+        '400':
+          description: The request is invalid (`invalid_request`), or the phone number isn't a valid mobile number (`invalid_phone`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The license isn't active on this site (`license_inactive`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The message couldn't be sent, or no sender is set up (`provider_error`). The plugin tells the person to try again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /preview/{token}/config:
     servers:
       - url: https://yallapp.com.tr/api
@@ -250,8 +305,9 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired]
+          examples: [invalid_request, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
         message: { type: string }
+        retry_after_seconds: { type: integer, minimum: 1, description: 'With `rate_limited`: seconds until another request can succeed.' }
 
     SiteInfo:
       type: object
@@ -262,6 +318,16 @@ components:
         plugin_version: { type: string, example: 0.1.0 }
         wp_version: { type: string, example: 7.1.3 }
         lms: { type: string, example: tutor }
+
+    SignInCodeRequest:
+      allOf:
+        - $ref: '#/components/schemas/SiteInfo'
+        - type: object
+          required: [phone, code]
+          properties:
+            phone: { type: string, pattern: '^\+[1-9][0-9]{6,14}$', description: The person's mobile number in E.164., example: '+905321234567' }
+            code: { type: string, pattern: '^[0-9]{6}$', description: The code the plugin made. Sent once and never stored., example: '482913' }
+            app_name: { type: string, maxLength: 60, description: "The app's name on the site, used only when the license's app has no name on the platform yet.", example: Nour Academy }
 
     LicenseStatus:
       type: object
@@ -289,6 +355,16 @@ components:
             app_users: { type: [integer, 'null'], description: "App users on the hosted API. A WordPress site keeps its own users: no limit applies there." }
             languages: { type: [integer, 'null'], description: "App languages, English included. The layout endpoint already sends at most this many." }
             sources: { type: [integer, 'null'], description: "Connected content sources the app's pages can list (the app's main content, plus blog posts on WordPress). The layout endpoint already leaves out blocks beyond it." }
+        sign_in_methods:
+          type: [array, 'null']
+          items: { type: string, enum: [phone, email] }
+          description: |
+            How people sign in to the app, as its owner chose on the dashboard's
+            App sign-in page: `phone`, `email` or both. Null when the owner hasn't
+            chosen: the plugin's own setting applies. The plugin serves it as
+            `Config.auth.methods` (email signs in with the WordPress password);
+            a change reaches the site at its next check (every 12 hours) or at once
+            with "Check now". Missing on older platforms.
         expires_at: { type: [string, 'null'], format: date-time }
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }

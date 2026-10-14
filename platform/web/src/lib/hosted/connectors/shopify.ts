@@ -844,7 +844,7 @@ export class ShopifyConnector implements Connector {
     const user = request.user;
     const buyerIdentity: Record<string, string> = {};
     if (user) {
-      buyerIdentity.phone = user.phone;
+      if (user.phone) buyerIdentity.phone = user.phone;
       if (user.email) buyerIdentity.email = user.email;
     }
     const data = await this.client.query<{

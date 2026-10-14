@@ -16,8 +16,9 @@ use Yallapp\Settings;
 /**
  * Talks to the platform API in docs/api/platform.yaml.
  *
- * Only the site URL, plugin version, WordPress version and LMS are sent. Enforcement is off until
- * the platform is live: define YALLAPP_ENFORCE_LICENSE as true to turn it on.
+ * Only the site URL, plugin version, WordPress version and LMS are sent, plus, for sign-in codes
+ * sent by Yallapp, the phone number and the code to deliver (the platform keeps neither).
+ * Enforcement is off until the platform is live: define YALLAPP_ENFORCE_LICENSE as true to turn it on.
  */
 class License_Client {
 
@@ -80,6 +81,48 @@ class License_Client {
 	}
 
 	/**
+	 * Whether a license key is saved.
+	 *
+	 * @return bool
+	 */
+	public function has_key() {
+		return '' !== (string) $this->settings->get( 'license_key' );
+	}
+
+	/**
+	 * Asks the platform to deliver a sign-in code on WhatsApp (docs/api/platform.yaml, sendSignInCode).
+	 *
+	 * @param string $phone Phone number (E.164).
+	 * @param string $code  The code this site made.
+	 * @return true|WP_Error Error codes from the platform: `rate_limited` (with `retry_after_seconds`),
+	 *                       `license_inactive`, `license_not_found`, `invalid_phone`, `provider_error`, …
+	 */
+	public function send_code( $phone, $code ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'license_missing', __( 'Activate your Yallapp license to send sign-in codes.', 'yallapp' ) );
+		}
+		// The platform names the app the license belongs to; this name is used only until that app has one.
+		$name = trim( (string) $this->settings->get( 'app_name' ) );
+		if ( '' === $name ) {
+			$name = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+		}
+		$result = $this->call(
+			'POST',
+			'/sign-in-codes/send',
+			array_merge(
+				$this->site_info( $key ),
+				array(
+					'phone'    => (string) $phone,
+					'code'     => (string) $code,
+					'app_name' => mb_substr( $name, 0, 60 ),
+				)
+			)
+		);
+		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * Whether license checks block the app API.
 	 *
 	 * @return bool
@@ -124,19 +167,20 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
 		return array_merge(
 			array(
-				'status'       => '' === (string) $this->settings->get( 'license_key' ) ? 'none' : 'invalid',
-				'plan'         => null,
-				'features'     => array(),
-				'expires_at'   => null,
-				'checked_at'   => null,
-				'message'      => null,
-				'contacted_at' => 0,
+				'status'          => '' === (string) $this->settings->get( 'license_key' ) ? 'none' : 'invalid',
+				'plan'            => null,
+				'features'        => array(),
+				'sign_in_methods' => null,
+				'expires_at'      => null,
+				'checked_at'      => null,
+				'message'         => null,
+				'contacted_at'    => 0,
 			),
 			is_array( $stored ) ? $stored : array()
 		);
@@ -314,14 +358,17 @@ class License_Client {
 	private function save_status( array $result ) {
 		$allowed  = array( 'active', 'expired', 'suspended', 'invalid' );
 		$features = array_values( array_intersect( (array) ( $result['features'] ?? array() ), self::FEATURES ) );
+		$methods  = isset( $result['sign_in_methods'] ) && is_array( $result['sign_in_methods'] ) ? array_values( array_intersect( array( 'phone', 'email' ), $result['sign_in_methods'] ) ) : array();
 		$status   = array(
-			'status'       => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
-			'plan'         => in_array( $result['plan'] ?? null, array( 'starter', 'growth', 'pro', 'business' ), true ) ? $result['plan'] : null,
-			'features'     => $features,
-			'expires_at'   => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
-			'checked_at'   => gmdate( 'c' ),
-			'message'      => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
-			'contacted_at' => time(),
+			'status'          => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
+			'plan'            => in_array( $result['plan'] ?? null, array( 'starter', 'growth', 'pro', 'business' ), true ) ? $result['plan'] : null,
+			'features'        => $features,
+			// How people sign in, as the owner chose on the dashboard; null: the plugin setting applies.
+			'sign_in_methods' => $methods ? $methods : null,
+			'expires_at'      => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
+			'checked_at'      => gmdate( 'c' ),
+			'message'         => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
+			'contacted_at'    => time(),
 		);
 		update_option( self::STATUS_OPTION, $status, false );
 		delete_transient( 'yallapp_release' );
@@ -388,6 +435,10 @@ class License_Client {
 			$error_code = 'license_not_found';
 		}
 		$message = is_array( $data ) && ! empty( $data['message'] ) ? (string) $data['message'] : __( 'The license server returned an error.', 'yallapp' );
-		return new WP_Error( $error_code, sanitize_text_field( $message ), array( 'status' => $code ) );
+		$extra   = array( 'status' => $code );
+		if ( is_array( $data ) && isset( $data['retry_after_seconds'] ) ) {
+			$extra['retry_after_seconds'] = max( 1, (int) $data['retry_after_seconds'] );
+		}
+		return new WP_Error( $error_code, sanitize_text_field( $message ), $extra );
 	}
 }

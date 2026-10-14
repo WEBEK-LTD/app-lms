@@ -36,7 +36,10 @@ export type EmailTemplateKey =
   | "app_users_100"
   | "plan_ends_in_7_days"
   | "plan_ends_tomorrow"
-  | "plan_ends_today";
+  | "plan_ends_today"
+
+  // 18 Sign-in for every app
+  | "sign_in_code";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -363,6 +366,21 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} ends today, {{end_date}}. The app pauses when it ends and comes back as soon as you renew.\n\n" +
       "Renew by card: {{renew_url}}" +
       SIGNATURE,
+  },
+  // 18 To an app's users, in the app's name: no Yallapp signature.
+  {
+    key: "sign_in_code",
+    name: "Sign-in code",
+    description: "To someone signing in to a client's app by email (apps on the hosted API that offer email sign-in). Sent in the app's name.",
+    placeholders: [
+      { name: "app_name", description: "The app's name", sample: "Nour Academy" },
+      { name: "code", description: "The 6-digit code", sample: "482913" },
+      { name: "minutes", description: "How long the code works, in minutes", sample: "5" },
+    ],
+    subject: "{{code}} is your {{app_name}} code",
+    body:
+      "Your {{app_name}} sign-in code is {{code}}.\n\nIt expires in {{minutes}} minutes. Don't share it with anyone.\n\n" +
+      "If you didn't try to sign in to {{app_name}}, you can ignore this email.",
   },
 ];
 

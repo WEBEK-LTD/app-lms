@@ -133,6 +133,26 @@ export interface HostedSettings {
   /** App store review access: this number signs in with `reviewCode`, no message sent. */
   reviewPhone: string | null;
   reviewCode: string | null;
+  /**
+   * 18 How people sign in, as the owner chose on App sign-in (hosted and
+   * WordPress apps). Missing until they choose: phone on the hosted API, the
+   * plugin's own setting on WordPress.
+   */
+  signInMethods?: SignInMethod[];
+  /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
+  whatsappSender?: AppWhatsappSender | null;
+}
+
+export type SignInMethod = "phone" | "email";
+
+/** The owner's WABEK account: the API key encrypted (context `app-whatsapp:<app id>`), never shown again. */
+export interface AppWhatsappSender {
+  apiKeyEncrypted: string;
+  /** The WABEK instance (number) that sends; WABEK picks one when null. */
+  instanceId: string | null;
+  /** The key's last 4 characters, to recognise it. */
+  keyLast4: string;
+  savedAt: string;
 }
 
 export const DEFAULT_HOSTED_SETTINGS: HostedSettings = {
@@ -291,9 +311,10 @@ export interface ResetToken {
 export interface HostedUser {
   id: number;
   appId: string;
-  /** E.164, for example +905321234567. */
-  phone: string;
+  /** E.164, for example +905321234567. Null for someone who signed up by email (18). */
+  phone: string | null;
   name: string;
+  /** Lowercase. For an account made by email sign-in (no phone), the address it signs in with. */
   email: string | null;
   city: string | null;
   /** Notifications created up to then count as read. */
@@ -345,7 +366,10 @@ export interface HostedChallenge {
   tokenHash: string;
   appId: string;
   kind: "otp" | "signup";
-  phone: string;
+  /** The number, or null for an email sign-in (18). */
+  phone: string | null;
+  /** 18 The email address of an email sign-in, lowercase. */
+  email: string | null;
   /** HMAC of the code ("otp" only). */
   codeHash: string | null;
   attempts: number;

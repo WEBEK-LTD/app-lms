@@ -1540,6 +1540,84 @@ abstract class AppLocalizations {
   /// **'Change number'**
   String get changeNumber;
 
+  /// No description provided for @signInWithPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get signInWithPhone;
+
+  /// No description provided for @signInWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get signInWithEmail;
+
+  /// No description provided for @signInMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with'**
+  String get signInMethodLabel;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get emailAddress;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPassword;
+
+  /// No description provided for @signInIntroEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your email address and we\'ll send you a verification code.'**
+  String get signInIntroEmail;
+
+  /// No description provided for @signInIntroPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the email address and password of your account.'**
+  String get signInIntroPassword;
+
+  /// No description provided for @signInNewHereEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? We\'ll ask for your name after verification and create your account with this email address.'**
+  String get signInNewHereEmail;
+
+  /// No description provided for @signInPasswordAccountsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the email address and password of your account on {site}.'**
+  String signInPasswordAccountsOnly(String site);
+
+  /// No description provided for @changeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get changeEmail;
+
+  /// No description provided for @noAccountForEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no account with this email address.'**
+  String get noAccountForEmail;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get invalidEmail;
+
   /// No description provided for @resendCodeIn.
   ///
   /// In en, this message translates to:

@@ -25,6 +25,26 @@ void main() {
       expect(c.app.maintenance, isFalse);
     });
 
+    test('reads the sign-in methods (18), phone when missing', () {
+      expect(AppConfig.fromJson(configJson()).auth.methods, [
+        SignInMethod.phone,
+      ]);
+      final json = configJson();
+      json['auth'] = {
+        ...json['auth'] as Map<String, dynamic>,
+        'methods': ['email', 'phone', 'fax'],
+        'email_sign_in': 'password',
+        'password_reset_url':
+            'https://academy.test/wp-login.php?action=lostpassword',
+      };
+      final auth = AppConfig.fromJson(json).auth;
+      expect(auth.methods, [SignInMethod.phone, SignInMethod.email]);
+      expect(auth.emailSignIn, EmailSignIn.password);
+      expect(auth.passwordResetUrl, contains('lostpassword'));
+      final user = User.fromJson({'id': 1, 'name': 'Sara', 'phone': null});
+      expect(user.phone, '');
+    });
+
     test('maps snake_case enums', () {
       final c = AppConfig.fromJson(
         configJson(watermark: 'name_and_phone', embedHeight: 'fit_screen'),

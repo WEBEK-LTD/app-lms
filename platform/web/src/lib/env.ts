@@ -191,6 +191,11 @@ export function smtpConfig(): SmtpConfig | null {
 /** WABEK's API address, unless WAABEK_API_URL or the admin's setting says otherwise. */
 export const WAABEK_API_URL = "https://waabek.com";
 
+/** 18 WABEK's address for an app owner's own WhatsApp number: WAABEK_API_URL (local tests with a fake WABEK) or waabek.com. */
+export function waabekApiUrl(): string {
+  return read("WAABEK_API_URL") ?? WAABEK_API_URL;
+}
+
 export type OtpSenderConfig =
   | { kind: "whatsapp"; accessToken: string; phoneNumberId: string; template: string; language: string }
   | { kind: "webhook"; url: string; secret: string }

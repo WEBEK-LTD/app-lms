@@ -15,6 +15,12 @@ export interface RateLimitResult {
   retryAfter: number;
 }
 
+function windowOf(rule: RateLimitRule, subject: string, now: Date): { bucket: string; windowStart: number; windowMs: number } {
+  const windowMs = rule.windowSeconds * 1000;
+  const windowStart = Math.floor(now.getTime() / windowMs) * windowMs;
+  return { bucket: `${rule.name}:${rule.windowSeconds}:${subject}`.slice(0, 191), windowStart, windowMs };
+}
+
 /** Fixed-window counter stored in the data store, so it holds across function instances. */
 export async function hitRateLimit(
   store: Pick<DataStore, "hitRateLimit">,
@@ -22,9 +28,7 @@ export async function hitRateLimit(
   subject: string,
   now: Date = new Date(),
 ): Promise<RateLimitResult> {
-  const windowMs = rule.windowSeconds * 1000;
-  const windowStart = Math.floor(now.getTime() / windowMs) * windowMs;
-  const bucket = `${rule.name}:${rule.windowSeconds}:${subject}`.slice(0, 191);
+  const { bucket, windowStart, windowMs } = windowOf(rule, subject, now);
   const hits = await store.hitRateLimit(bucket, windowStart, now);
   return {
     allowed: hits <= rule.limit,
@@ -32,6 +36,17 @@ export async function hitRateLimit(
     limit: rule.limit,
     retryAfter: Math.max(1, Math.ceil((windowStart + windowMs - now.getTime()) / 1000)),
   };
+}
+
+/** The hits so far in the current window, without adding one (counters shown to the team). */
+export async function rateLimitHits(
+  store: Pick<DataStore, "peekRateLimit">,
+  rule: RateLimitRule,
+  subject: string,
+  now: Date = new Date(),
+): Promise<number> {
+  const { bucket, windowStart } = windowOf(rule, subject, now);
+  return store.peekRateLimit(bucket, windowStart);
 }
 
 export const RATE_LIMITS = {
@@ -49,4 +64,15 @@ export const RATE_LIMITS = {
   otpTest: { name: "otp-test:admin", limit: 5, windowSeconds: 10 * 60 },
   // 17 The app preview reads its config once per load (and on "Reload after changes").
   previewIp: { name: "preview:ip", limit: 120, windowSeconds: 10 * 60 },
+  // 18 Sign-in codes WordPress sites send through Yallapp (POST /api/v1/sign-in-codes/send).
+  // Per license (its ID), and per phone number as a keyed hash, across every site.
+  signInCodeIp: { name: "codes:ip", limit: 120, windowSeconds: 60 },
+  signInCodeLicenseHour: { name: "codes:license", limit: 300, windowSeconds: 60 * 60 },
+  signInCodeLicenseDay: { name: "codes:license-day", limit: 2000, windowSeconds: 24 * 60 * 60 },
+  signInCodePhoneResend: { name: "codes:phone-resend", limit: 1, windowSeconds: 30 },
+  signInCodePhoneHour: { name: "codes:phone", limit: 10, windowSeconds: 60 * 60 },
+  // The owner's test of their own WhatsApp number (App sign-in), per app.
+  appWhatsappTest: { name: "app-whatsapp-test:app", limit: 5, windowSeconds: 10 * 60 },
+  // Not a limit: the codes a license sent today (UTC), for the admin's client page.
+  signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

@@ -91,7 +91,8 @@ class User {
   factory User.fromJson(Json json) => User(
     id: reqInt(json, 'id'),
     name: reqString(json, 'name'),
-    phone: reqString(json, 'phone'),
+    // 18 Null (or empty) for someone who signed up by email.
+    phone: optString(json, 'phone') ?? '',
     email: optString(json, 'email'),
     city: optString(json, 'city'),
     avatarUrl: optString(json, 'avatar_url'),

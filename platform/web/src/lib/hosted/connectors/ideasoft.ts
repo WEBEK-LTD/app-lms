@@ -985,7 +985,9 @@ export class IdeasoftConnector implements PlatformConnector {
     const page = intParam(request.query, "page", 1, 10_000);
     const perPage = intParam(request.query, "per_page", 20, 50);
     const user = request.user;
-    const all = await this.cached(`orders:${user.id}:${user.phone}`, LIST_CACHE_MS, () => this.customerOrders(user.phone));
+    const phone = user.phone;
+    // 18 An account without a phone (email sign-in) matches no customer.
+    const all = phone ? await this.cached(`orders:${user.id}:${phone}`, LIST_CACHE_MS, () => this.customerOrders(phone)) : [];
     const slice = all.slice((page - 1) * perPage, page * perPage);
     const map = await this.mapper();
     const items = await Promise.all(

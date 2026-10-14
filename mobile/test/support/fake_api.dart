@@ -78,6 +78,34 @@ class FakeApi implements YallappApi {
     );
   }
 
+  String? lastEmail;
+  String? lastPassword;
+
+  @override
+  Future<OtpRequestResult> requestEmailCode({required String email}) {
+    lastEmail = email;
+    return _answer(
+      'requestEmailCode',
+      () => OtpRequestResult.fromJson({
+        'request_id': 'req-email-1',
+        'code_length': 6,
+        'resend_after_seconds': 45,
+        'expires_in_seconds': 300,
+      }),
+    );
+  }
+
+  @override
+  Future<Session> signInWithPassword({
+    required String email,
+    required String password,
+    required DeviceInput device,
+  }) {
+    lastEmail = email;
+    lastPassword = password;
+    return _answer('signInWithPassword', () => Session.fromJson(sessionJson()));
+  }
+
   RegisterInput? lastRegister;
 
   @override

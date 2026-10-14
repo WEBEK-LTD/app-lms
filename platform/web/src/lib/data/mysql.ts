@@ -554,7 +554,7 @@ export class MysqlStore implements DataStore {
 
   async createHostedUser(input: {
     appId: string;
-    phone: string;
+    phone: string | null;
     name: string;
     email: string | null;
     city: string | null;
@@ -570,6 +570,8 @@ export class MysqlStore implements DataStore {
       createdAt: input.now,
       updatedAt: input.now,
     };
+    // 18 An email account: one per address (no unique index, so emails typed at phone sign-up never clash).
+    if (input.phone === null && (!input.email || (await this.getHostedEmailUser(input.appId, input.email)))) return null;
     try {
       const [result] = await this.run((db) => db.insert(schema.hostedUsers).values(row));
       return { id: Number(result.insertId), ...row };
@@ -597,6 +599,14 @@ export class MysqlStore implements DataStore {
         .from(schema.hostedUsers)
         .where(and(eq(schema.hostedUsers.appId, appId), eq(schema.hostedUsers.phone, phone)))
         .limit(1),
+    );
+    return rows[0] ?? null;
+  }
+
+  async getHostedEmailUser(appId: string, email: string): Promise<HostedUser | null> {
+    const t = schema.hostedUsers;
+    const rows = await this.run((db) =>
+      db.select().from(t).where(and(eq(t.appId, appId), isNull(t.phone), eq(t.email, email))).orderBy(asc(t.id)).limit(1),
     );
     return rows[0] ?? null;
   }
@@ -1206,6 +1216,14 @@ export class MysqlStore implements DataStore {
       db.select({ hits: schema.rateLimits.hits }).from(schema.rateLimits).where(eq(schema.rateLimits.bucket, bucket)).limit(1),
     );
     return rows[0]?.hits ?? 1;
+  }
+
+  async peekRateLimit(bucket: string, windowStart: number): Promise<number> {
+    const t = schema.rateLimits;
+    const rows = await this.run((db) =>
+      db.select({ hits: t.hits }).from(t).where(and(eq(t.bucket, bucket), eq(t.windowStart, windowStart))).limit(1),
+    );
+    return rows[0]?.hits ?? 0;
   }
 
   // 10.7 Listings

@@ -455,15 +455,21 @@ export class MemoryStore implements DataStore {
     return entry.hits;
   }
 
+  async peekRateLimit(bucket: string, windowStart: number): Promise<number> {
+    const entry = this.rateLimits.get(bucket);
+    return entry && entry.windowStart === windowStart ? entry.hits : 0;
+  }
+
   async createHostedUser(input: {
     appId: string;
-    phone: string;
+    phone: string | null;
     name: string;
     email: string | null;
     city: string | null;
     now: Date;
   }): Promise<HostedUser | null> {
-    if (await this.getHostedUserByPhone(input.appId, input.phone)) return null;
+    if (input.phone !== null && (await this.getHostedUserByPhone(input.appId, input.phone))) return null;
+    if (input.phone === null && (!input.email || (await this.getHostedEmailUser(input.appId, input.email)))) return null;
     const user: HostedUser = {
       id: this.nextHostedUserId++,
       appId: input.appId,
@@ -487,6 +493,13 @@ export class MemoryStore implements DataStore {
   async getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null> {
     for (const user of this.hostedUsers.values()) {
       if (user.appId === appId && user.phone === phone) return clone(user);
+    }
+    return null;
+  }
+
+  async getHostedEmailUser(appId: string, email: string): Promise<HostedUser | null> {
+    for (const user of this.hostedUsers.values()) {
+      if (user.appId === appId && user.phone === null && user.email === email) return clone(user);
     }
     return null;
   }
@@ -1127,7 +1140,7 @@ export class MemoryStore implements DataStore {
       .filter(
         (u) =>
           u.appId === input.appId &&
-          (!q || u.name.toLowerCase().includes(q) || u.phone.includes(q) || (u.email ?? "").toLowerCase().includes(q)),
+          (!q || u.name.toLowerCase().includes(q) || (u.phone ?? "").includes(q) || (u.email ?? "").toLowerCase().includes(q)),
       )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
     return { items: matches.slice(input.offset, input.offset + input.limit).map(clone), total: matches.length };

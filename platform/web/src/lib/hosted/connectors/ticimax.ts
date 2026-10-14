@@ -1145,10 +1145,13 @@ export class TicimaxConnector implements PlatformConnector {
    * loose match never shows someone else's orders.
    */
   private members(user: HostedUser): Promise<number[]> {
-    const wanted = phoneKey(user.phone);
+    // 18 An account without a phone (email sign-in) matches no member.
+    if (!user.phone) return Promise.resolve([]);
+    const phone = user.phone;
+    const wanted = phoneKey(phone);
     return this.cached(`members:${wanted}`, async () => {
       const found = await Promise.all(
-        phoneCandidates(user.phone).map((tel) => this.client.call("UyeServis", "SelectUyeIdByMailOrTel", [["tel", tel]])),
+        phoneCandidates(phone).map((tel) => this.client.call("UyeServis", "SelectUyeIdByMailOrTel", [["tel", tel]])),
       );
       const ids = [...new Set(found.flatMap((r) => ints(r?.children ?? [])))].slice(0, MEMBER_CHECK_LIMIT);
       const checked = await mapLimit(ids, 5, async (id) => {

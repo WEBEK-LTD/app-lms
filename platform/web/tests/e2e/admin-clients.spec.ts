@@ -73,10 +73,10 @@ test("the team sets up a pending client's app from their dashboard", async () =>
   await page.getByLabel("Devices per customer").fill("3");
   await page.getByLabel("Review phone number").fill("555 000 00 01");
   await page.getByLabel("Review code").fill("12");
-  await page.getByRole("button", { name: "Save" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Enter the 6-digit code reviewers type.")).toBeVisible();
   await page.getByLabel("Review code").fill("246810");
-  await page.getByRole("button", { name: "Save" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved. The app uses these rules now")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Review phone number")).toHaveValue("+905550000001");

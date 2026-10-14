@@ -223,24 +223,53 @@ class SiteFeatures {
 
 enum SignupField { name, email, city }
 
+/// 18 How people sign in: a code to their phone, or by email.
+enum SignInMethod { phone, email }
+
+/// 18 How email sign-in works on this server: a code by email (the hosted
+/// API) or the account's password (a WordPress site).
+enum EmailSignIn { code, password }
+
 class AuthRules {
   const AuthRules({
     required this.signupAllowed,
     required this.signupFields,
     required this.defaultCountryCode,
     this.previewSignIn = false,
+    this.methods = const [SignInMethod.phone],
+    this.emailSignIn = EmailSignIn.code,
+    this.passwordResetUrl,
   });
 
-  factory AuthRules.fromJson(Json json) => AuthRules(
-    signupAllowed: reqBool(json, 'signup_allowed'),
-    signupFields: parseSignupFields(json, 'signup_fields'),
-    defaultCountryCode: reqString(json, 'default_country_code'),
-    previewSignIn: boolOr(json, 'preview_sign_in', false),
-  );
+  factory AuthRules.fromJson(Json json) {
+    final methods = [
+      for (final method in SignInMethod.values)
+        if (stringList(json, 'methods').contains(method.name)) method,
+    ];
+    return AuthRules(
+      signupAllowed: reqBool(json, 'signup_allowed'),
+      signupFields: parseSignupFields(json, 'signup_fields'),
+      defaultCountryCode: reqString(json, 'default_country_code'),
+      previewSignIn: boolOr(json, 'preview_sign_in', false),
+      // Missing on older servers: phone only.
+      methods: methods.isEmpty ? const [SignInMethod.phone] : methods,
+      emailSignIn: optString(json, 'email_sign_in') == 'password'
+          ? EmailSignIn.password
+          : EmailSignIn.code,
+      passwordResetUrl: optString(json, 'password_reset_url'),
+    );
+  }
 
   final bool signupAllowed;
   final List<SignupField> signupFields;
   final String defaultCountryCode;
+
+  /// Phone, email or both, in the order the server sends them.
+  final List<SignInMethod> methods;
+  final EmailSignIn emailSignIn;
+
+  /// With [EmailSignIn.password]: the website's page for a forgotten password.
+  final String? passwordResetUrl;
 
   /// The server signs in only the store review number when the app preview
   /// asks with `preview: true` (and never sends a code). Missing on older

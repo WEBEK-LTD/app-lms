@@ -276,3 +276,22 @@ compiled one. How it works is in `docs/ARCHITECTURE.md` ("App preview").
 | [x] | 17.5 WordPress plugin: CORS headers the app needs (`Accept-Language`, `If-None-Match`, `X-Yallapp-Preview`; `ETag` and the plugin version readable), `preview: true` signs in only the store review number, `auth.preview_sign_in` in `/config` (PHP 7.4, WordPress 6.0) | `composer lint`, `php -l` and the plugin's unit tests pass; the integration test checks preview sign-in |
 | [x] | 17.6 Dashboard › Preview your app (App group of the sidebar; buttons on the overview's app card, the setup steps and Pages & look): the live app in a phone frame, Light / Dark, the app's languages, "Reload after changes", "Open on your phone" with a QR code made on our server for the same link, what's missing next to it, published pages or the draft (hosted apps), how to sign in; docs article "Preview your app", an FAQ entry and "Let the app preview reach your API" in "Connect your own API" | A browser test opens the Preview page of a shop that isn't set up and sees the app read its config and the hosted API in the frame |
 | [~] | 17.7 Tried on a real WordPress site and on phones (Android and iPhone, through the QR code) | Code done and tested; waiting on a WordPress test site with the new plugin (`docs/LAUNCH-CHECKLIST.md` › 6) |
+
+## Phase 18: Sign-in for every app
+
+Sign-in codes work on every WordPress site, with or without Digits and its
+paid REST API add-on, and every app's owner chooses how people sign in:
+phone, email or both. Built and tested with the in-memory store and on
+MariaDB 10.11 (unit, browser, plugin integration and app tests). How it works
+is in `docs/ARCHITECTURE.md` ("Sign-in for every app").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 18.1 Contract first: `POST /sign-in-codes/send` and `LicenseStatus.sign_in_methods` (`docs/api/platform.yaml`); `Config.auth.methods`, `email_sign_in`, `password_reset_url`, `POST /auth/email/request`, `POST /auth/password` and a nullable `User.phone` (`docs/api/openapi.yaml`) | `redocly lint` passes and responses are checked against the contracts in unit tests |
+| [x] | 18.2 "Sent by Yallapp": the plugin makes each code (6 digits, kept as an HMAC, 5 minutes, 5 attempts) and the platform delivers it on WhatsApp with the app's name, for active licenses on their own site only, limited per IP, per license (300 an hour, 2000 a day) and per number (one every 30 seconds, 10 an hour, across sites, as a keyed hash); nothing personal kept; available on every plan | Unit tests (license, limits, phone, fake sender) and the plugin's integration test with the platform stubbed |
+| [x] | 18.3 Plugin 0.3.1: Settings › Sign-in chooses "Sent by Yallapp (WhatsApp)" (default) or Digits (only with its REST API add-on), development codes on local sites; another provider steps in when the saved one can't send, and the page says why; accounts are still found by Digits' phone fields; the compatibility card explains Digits without its REST API add-on | `composer lint`, `php -l`, unit tests and the integration test pass |
+| [x] | 18.4 Admin: "Sign-in codes sent today" per app on the client page (an aggregate count) | The count follows the codes sent |
+| [x] | 18.5 Sign-in methods per app on the dashboard's App sign-in page (now also for WordPress apps): phone, email or both; the hosted API emails 6-digit codes (template "Sign-in code") with the same limits, for apps whose content is managed in Yallapp (connected platforms find customers by phone); WordPress signs in with the account's email and password (`wp_authenticate`, limited, the same answer for an unknown address); the plugin gets the owner's choice with the license status | Unit tests, the plugin's integration test and a browser test |
+| [x] | 18.6 The owner's own WhatsApp number (WABEK API key, encrypted, and instance) on App sign-in, with "Send a test code", for the app's phone codes on the hosted API and its WordPress site | Unit tests with a fake WABEK |
+| [x] | 18.7 App: a Phone / Email switch when both are offered, email codes, email and password with "Forgot your password?", in English, Arabic and Turkish; the preview bundle rebuilt | `flutter analyze`, `flutter test` and `build_preview.sh --check` pass |
+| [~] | 18.8 On the real client site (Digits 8.3.3.2 with Additional SMS Gateways, no REST API add-on) and on production | Waiting on WABEK and SMTP set on production and plugin 0.3.1 released (`docs/LAUNCH-CHECKLIST.md` › 7) |

@@ -962,6 +962,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeNumber => 'Change number';
 
   @override
+  String get signInWithPhone => 'Phone';
+
+  @override
+  String get signInWithEmail => 'Email';
+
+  @override
+  String get signInMethodLabel => 'Sign in with';
+
+  @override
+  String get emailAddress => 'Email address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get forgotPassword => 'Forgot your password?';
+
+  @override
+  String get signInIntroEmail =>
+      'Sign in with your email address and we\'ll send you a verification code.';
+
+  @override
+  String get signInIntroPassword =>
+      'Sign in with the email address and password of your account.';
+
+  @override
+  String get signInNewHereEmail =>
+      'New here? We\'ll ask for your name after verification and create your account with this email address.';
+
+  @override
+  String signInPasswordAccountsOnly(String site) {
+    return 'Use the email address and password of your account on $site.';
+  }
+
+  @override
+  String get changeEmail => 'Change email';
+
+  @override
+  String get noAccountForEmail =>
+      'There\'s no account with this email address.';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address.';
+
+  @override
   String resendCodeIn(String time) {
     return 'You can request a new code in $time';
   }

@@ -10,7 +10,10 @@ namespace Yallapp\Admin;
 defined( 'ABSPATH' ) || exit;
 
 use Yallapp\Auth\Devices;
+use Yallapp\Otp\Adapter_Choice;
+use Yallapp\Otp\Dev_Adapter;
 use Yallapp\Otp\Phone;
+use Yallapp\Otp\Yallapp_Adapter;
 use Yallapp\Plugin;
 use Yallapp\Settings;
 
@@ -420,20 +423,25 @@ class Settings_Page {
 		} else {
 			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), false, __( 'Install and activate Tutor LMS', 'yallapp' ) );
 		}
-		$dev_codes = \Yallapp\Otp\Dev_Adapter::allowed();
-		if ( $dev_codes ) {
-			$digits_note = __( 'Development codes are on (123456)', 'yallapp' );
-		} elseif ( $digits['api'] ) {
-			$digits_note = __( 'Compatible', 'yallapp' );
+		$choice = $this->plugin->otp_choice();
+		$notice = $this->otp_notice( $choice, $digits );
+		$this->status_row(
+			__( 'Sign-in codes', 'yallapp' ),
+			self::provider_names()[ $choice['id'] ],
+			$choice['available'],
+			'' !== $notice ? $notice : __( 'Ready', 'yallapp' )
+		);
+		if ( $digits['api'] ) {
+			$digits_note = __( 'Its REST API add-on is installed, so you can choose Digits to send sign-in codes. Its accounts sign in with the same number either way.', 'yallapp' );
 		} elseif ( $digits['active'] ) {
-			$digits_note = __( 'Digits is active, but its sign-in API (/digits/v1/send_otp) is not available. Update Digits to its latest version and check that its API is turned on.', 'yallapp' );
+			$digits_note = __( 'Digits\' REST API add-on isn\'t installed, so Yallapp sends the sign-in codes on WhatsApp. Digits accounts still sign in with the same number, and your website\'s sign-in keeps working as before.', 'yallapp' );
 		} else {
-			$digits_note = __( 'Install and activate Digits to send sign-in codes', 'yallapp' );
+			$digits_note = __( 'Optional: Yallapp sends the sign-in codes on WhatsApp', 'yallapp' );
 		}
 		$this->status_row(
 			__( 'Digits', 'yallapp' ),
 			$digits['active'] ? ( '' !== $digits['version'] ? $digits['version'] : __( 'Active', 'yallapp' ) ) : __( 'Not found', 'yallapp' ),
-			$digits['api'] || $dev_codes,
+			true,
 			$digits_note
 		);
 		if ( $digits['addons'] ) {
@@ -441,7 +449,12 @@ class Settings_Page {
 			foreach ( $digits['addons'] as $addon ) {
 				$names[] = trim( $addon['name'] . ' ' . $addon['version'] );
 			}
-			$this->status_row( __( 'Digits add-ons', 'yallapp' ), implode( ', ', $names ), true, __( 'Codes go out through the gateway you choose in Digits', 'yallapp' ) );
+			$this->status_row(
+				__( 'Digits add-ons', 'yallapp' ),
+				implode( ', ', $names ),
+				true,
+				Adapter_Choice::DIGITS === $choice['id'] ? __( 'Codes go out through the gateway you choose in Digits', 'yallapp' ) : __( 'Used by your website\'s own sign-in; the app\'s codes are sent by Yallapp', 'yallapp' )
+			);
 		}
 		$checkout = $lms && 'tutor' === $lms['id'] && function_exists( 'tutor_utils' ) && 'wc' === tutor_utils()->get_option( 'monetize_by' );
 		$this->status_row(
@@ -478,7 +491,31 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function sign_in_card() {
-		$this->open( __( 'Sign-in (Digits)', 'yallapp' ) );
+		$this->open( __( 'Sign-in', 'yallapp' ) );
+		$this->radios(
+			'sign_in_methods',
+			__( 'People sign in with', 'yallapp' ),
+			array(
+				'phone' => __( 'Their phone number and a code', 'yallapp' ),
+				'email' => __( 'Their email address and password on this website', 'yallapp' ),
+				'both'  => __( 'Either: the app shows a Phone / Email switch', 'yallapp' ),
+			)
+		);
+		$platform = $this->plugin->license()->status()['sign_in_methods'];
+		if ( \Yallapp\Otp\Methods::from_platform( $platform ) && $this->plugin->license()->has_key() ) {
+			$names  = array(
+				'phone' => __( 'phone number', 'yallapp' ),
+				'email' => __( 'email and password', 'yallapp' ),
+			);
+			$chosen = array();
+			foreach ( $this->plugin->sign_in()->methods() as $method ) {
+				$chosen[] = $names[ $method ];
+			}
+			/* translators: %s: sign-in methods, such as "phone number, email and password". */
+			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( sprintf( __( 'Chosen on your Yallapp dashboard\'s App sign-in page: %s. That choice replaces this setting.', 'yallapp' ), implode( ', ', $chosen ) ) ) . '</span></p>';
+		}
+		echo '<p class="ya-help">' . esc_html__( 'Email sign-in is for people who already have an account on this website; new people sign up with their phone number or on the website. WordPress checks the password, with your security plugins.', 'yallapp' ) . '</p>';
+		$this->provider_choice();
 		$this->toggle( 'signup_allowed', __( 'Allow new accounts to sign up from the app', 'yallapp' ) );
 		$this->checks(
 			'signup_fields',
@@ -520,12 +557,115 @@ class Settings_Page {
 			)
 		);
 		echo '<fieldset class="ya-sub"><legend>' . esc_html__( 'Store review access', 'yallapp' ) . '</legend>';
-		echo '<p class="ya-help">' . esc_html__( 'Apple and Google reviewers need to sign in. This number skips the SMS and accepts the fixed code. Keep it on while your app is in review.', 'yallapp' ) . '</p>';
+		echo '<p class="ya-help">' . esc_html__( 'Apple and Google reviewers need to sign in. This number gets no code and accepts the fixed code. Keep it on while your app is in review.', 'yallapp' ) . '</p>';
 		$this->toggle( 'review_access_enabled', __( 'Turn on store review access', 'yallapp' ) );
 		$this->text( 'review_phone', __( 'Test number', 'yallapp' ), '+90 500 000 00 00' );
 		$this->text( 'review_code', __( 'Fixed code', 'yallapp' ), '000000' );
 		echo '</fieldset>';
 		$this->close();
+	}
+
+	/**
+	 * Who sends sign-in codes: Yallapp (default), Digits, or development codes on a local site.
+	 *
+	 * @return void
+	 */
+	private function provider_choice() {
+		$adapters = $this->plugin->otp_adapters();
+		$choice   = $this->plugin->otp_choice();
+		$digits   = $this->plugin->detector()->digits();
+		$options  = array(
+			Adapter_Choice::YALLAPP => array(
+				self::provider_names()[ Adapter_Choice::YALLAPP ] . ' ' . __( '(recommended)', 'yallapp' ),
+				$adapters[ Adapter_Choice::YALLAPP ]->is_available()
+					? __( 'Yallapp sends each code on WhatsApp with your app\'s name. Nothing to set up.', 'yallapp' )
+					: __( 'Yallapp sends each code on WhatsApp with your app\'s name. Needs an active license.', 'yallapp' ),
+			),
+			Adapter_Choice::DIGITS  => array(
+				self::provider_names()[ Adapter_Choice::DIGITS ],
+				$adapters[ Adapter_Choice::DIGITS ]->is_available()
+					? __( 'Available: codes go out through the SMS or WhatsApp gateway set up in Digits.', 'yallapp' )
+					: ( $digits['active']
+						? __( 'Not available: needs Digits\' REST API add-on, which isn\'t installed.', 'yallapp' )
+						: __( 'Not available: needs Digits and its REST API add-on.', 'yallapp' ) ),
+			),
+		);
+		if ( Dev_Adapter::allowed() || Adapter_Choice::DEV === $this->values['otp_provider'] ) {
+			$options[ Adapter_Choice::DEV ] = array(
+				self::provider_names()[ Adapter_Choice::DEV ],
+				Dev_Adapter::allowed()
+					? __( 'For testing on this site only: every code is 123456 and nothing is sent.', 'yallapp' )
+					: __( 'Not available: only on a local or development site that defines YALLAPP_DEV_OTP.', 'yallapp' ),
+			);
+		}
+		echo '<div class="ya-row" role="radiogroup" aria-labelledby="ya-otp-provider"><span class="ya-label" id="ya-otp-provider">' . esc_html__( 'Sign-in codes are sent by', 'yallapp' ) . '</span><div class="ya-choices">';
+		foreach ( $options as $value => $option ) {
+			printf(
+				'<label><input type="radio" name="%1$s" value="%2$s"%3$s> %4$s<br><span class="ya-help">%5$s</span></label>',
+				esc_attr( self::name( 'otp_provider' ) ),
+				esc_attr( $value ),
+				checked( (string) $this->values['otp_provider'], $value, false ),
+				esc_html( $option[0] ),
+				esc_html( $option[1] )
+			);
+		}
+		echo '</div></div>';
+		$notice = $this->otp_notice( $choice, $digits );
+		if ( '' !== $notice ) {
+			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $notice ) . '</span></p>';
+		}
+		$error = Adapter_Choice::YALLAPP === $choice['id'] ? Yallapp_Adapter::last_error() : null;
+		if ( $error ) {
+			/* translators: 1: date and time, 2: reason. */
+			echo '<p class="ya-help">' . esc_html( sprintf( __( 'The last code that couldn\'t be sent (%1$s): %2$s', 'yallapp' ), wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $error['at'] ), $error['message'] ) ) . '</p>';
+		}
+		echo '<p class="ya-help">' . esc_html__( 'Whoever sends the codes, people sign in to the same account with the same number, also the accounts made with Digits.', 'yallapp' ) . '</p>';
+	}
+
+	/**
+	 * Names of the code providers.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function provider_names() {
+		return array(
+			Adapter_Choice::YALLAPP => __( 'Sent by Yallapp (WhatsApp)', 'yallapp' ),
+			Adapter_Choice::DIGITS  => __( 'Digits', 'yallapp' ),
+			Adapter_Choice::DEV     => __( 'Development codes (123456)', 'yallapp' ),
+		);
+	}
+
+	/**
+	 * In plain words, why the saved choice isn't the one sending codes, or why nothing can. Empty when all is well.
+	 *
+	 * @param array $choice Adapter_Choice::resolve() result.
+	 * @param array $digits Detector::digits().
+	 * @return string
+	 */
+	private function otp_notice( array $choice, array $digits ) {
+		if ( ! $choice['fallback'] && $choice['available'] ) {
+			return '';
+		}
+		$why     = array(
+			Adapter_Choice::YALLAPP => __( 'your Yallapp license isn\'t active on this site', 'yallapp' ),
+			Adapter_Choice::DIGITS  => $digits['active'] ? __( 'Digits\' REST API add-on isn\'t installed', 'yallapp' ) : __( 'Digits isn\'t installed', 'yallapp' ),
+			Adapter_Choice::DEV     => __( 'development codes work only on a local or development site that defines YALLAPP_DEV_OTP', 'yallapp' ),
+		);
+		$instead = array(
+			Adapter_Choice::YALLAPP => __( 'Yallapp sends the codes on WhatsApp instead', 'yallapp' ),
+			Adapter_Choice::DIGITS  => __( 'Digits sends the codes instead', 'yallapp' ),
+			Adapter_Choice::DEV     => __( 'the development code 123456 is used instead', 'yallapp' ),
+		);
+		$names   = self::provider_names();
+		if ( $choice['fallback'] ) {
+			/* translators: 1: chosen provider, 2: why it can't send codes, 3: who sends them instead. */
+			return sprintf( __( 'You chose %1$s, but %2$s, so %3$s.', 'yallapp' ), $names[ $choice['saved'] ], $why[ $choice['saved'] ], $instead[ $choice['id'] ] );
+		}
+		if ( Adapter_Choice::YALLAPP === $choice['saved'] ) {
+			return __( 'Nobody can sign in to the app yet: activate your Yallapp license above, and Yallapp sends the sign-in codes on WhatsApp.', 'yallapp' );
+		}
+		/* translators: 1: chosen provider, 2: why it can't send codes. */
+		return sprintf( __( '%1$s can\'t send sign-in codes because %2$s, and nothing else can either. Activate your Yallapp license above to have Yallapp send them.', 'yallapp' ), $names[ $choice['saved'] ], $why[ $choice['saved'] ] );
 	}
 
 	/**

@@ -36,11 +36,11 @@ Yallapp is a trading name of WEBEK LTD, a company registered in England and Wale
 
 How your app users' data is handled depends on where the app gets its content:
 
-- **Your WordPress website (Yallapp plugin):** your users' accounts, phone numbers, progress and orders stay in your website's database, and Yallapp does not receive them. License checks send only your website address, plugin version and license key.
+- **Your WordPress website (Yallapp plugin):** your users' accounts, phone numbers, progress and orders stay in your website's database, and Yallapp does not receive them. License checks send only your website address, plugin version and license key. When Yallapp sends your app's sign-in codes, your website sends us the phone number and the code for that one message; we pass them on to WhatsApp and keep neither, only a one-way, keyed fingerprint of the number for a day, to limit abuse.
 - **Another platform or your own API:** the app talks to that platform or API directly. We store only the connection details you give us, encrypted.
 - **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and WEBEK LTD is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
 
-In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com. If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
+In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server. If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
 ## 4. Why we use your data, and our legal basis
 

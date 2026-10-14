@@ -71,6 +71,29 @@ class Auth_Controller extends Controller {
 			)
 		);
 		$this->route(
+			'/auth/password',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'password' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'email'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'password' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'device'   => $device,
+					'preview'  => array(
+						'type'     => 'boolean',
+						'required' => false,
+					),
+				),
+			)
+		);
+		$this->route(
 			'/auth/register',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -148,6 +171,16 @@ class Auth_Controller extends Controller {
 	 */
 	public function verify_code( WP_REST_Request $request ) {
 		return $this->result( $this->plugin->sign_in()->verify( (string) $request['request_id'], (string) $request['code'], (array) $request['device'] ) );
+	}
+
+	/**
+	 * POST /auth/password: email (or username) and password of a WordPress account.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function password( WP_REST_Request $request ) {
+		return $this->result( $this->plugin->sign_in()->password( (string) $request['email'], (string) $request['password'], (array) $request['device'], true === $request['preview'] ) );
 	}
 
 	/**

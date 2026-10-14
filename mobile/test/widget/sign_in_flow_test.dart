@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/auth/auth_controller.dart';
 
 import '../support/fake_api.dart';
+import '../support/fixtures.dart';
 import '../support/test_app.dart';
 
 void main() {
@@ -92,6 +93,80 @@ void main() {
     expect(app.api.lastRegister?.signupToken, 'signup-1');
     expect(app.container.read(authControllerProvider).isSignedIn, isTrue);
     expect(find.text('Create your account'), findsNothing);
+  });
+
+  Map<String, dynamic> configWith(Map<String, dynamic> auth) {
+    final config = configJson();
+    config['auth'] = {...config['auth'] as Map<String, dynamic>, ...auth};
+    return config;
+  }
+
+  testWidgets('with both methods, signs in with a code by email', (
+    tester,
+  ) async {
+    final app = TestApp(
+      api: FakeApi(
+        config: configWith({
+          'methods': ['phone', 'email'],
+          'email_sign_in': 'code',
+        }),
+      ),
+    );
+    await app.pump(tester);
+
+    expect(find.text('Phone'), findsOneWidget);
+    await tester.tap(find.text('Email'));
+    await TestApp.settle(tester);
+    expect(
+      find.text(
+        "Sign in with your email address and we'll send you a verification code.",
+      ),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byType(TextField), 'sara@example.com');
+    await tester.pump();
+    await tester.tap(find.text('Send code'));
+    await TestApp.settle(tester);
+
+    expect(app.api.lastEmail, 'sara@example.com');
+    expect(app.api.calls, isNot(contains('requestOtp')));
+    expect(find.textContaining('sara@example.com'), findsOneWidget);
+    expect(find.text('Change email'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '481902');
+    await TestApp.settle(tester);
+    expect(app.api.lastCode, '481902');
+    expect(app.container.read(authControllerProvider).isSignedIn, isTrue);
+  });
+
+  testWidgets('on WordPress, signs in with the email and password', (
+    tester,
+  ) async {
+    final app = TestApp(
+      api: FakeApi(
+        config: configWith({
+          'methods': ['email'],
+          'email_sign_in': 'password',
+          'password_reset_url':
+              'https://your-academy.com/wp-login.php?action=lostpassword',
+        }),
+      ),
+    );
+    await app.pump(tester);
+
+    expect(find.text('Phone'), findsNothing, reason: 'one method: no switch');
+    expect(find.text('Forgot your password?'), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(2));
+    await tester.enterText(find.byType(TextField).at(0), 'sara@example.com');
+    await tester.enterText(find.byType(TextField).at(1), 'secret words');
+    await tester.pump();
+    await tester.tap(find.text('Sign in'));
+    await TestApp.settle(tester);
+
+    expect(app.api.lastEmail, 'sara@example.com');
+    expect(app.api.lastPassword, 'secret words');
+    expect(app.container.read(authControllerProvider).isSignedIn, isTrue);
+    expect(find.text('Continue learning'), findsOneWidget);
   });
 
   testWidgets('"Not now" browses as a guest', (tester) async {

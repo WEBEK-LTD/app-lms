@@ -21,13 +21,17 @@ import '../../../core/l10n/l10n.dart';
 
 class OtpArgs {
   const OtpArgs({
-    required this.countryCode,
-    required this.phone,
+    this.countryCode = '',
+    this.phone = '',
+    this.email,
     required this.request,
   });
 
   final String countryCode;
   final String phone;
+
+  /// 18 Set when the code went to this email address instead of a phone.
+  final String? email;
   final OtpRequestResult request;
 }
 
@@ -123,7 +127,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       }
       setState(() {
         _error = e.code == 'signup_disabled'
-            ? context.l10n.noAccountForNumber
+            ? (widget.args.email != null
+                  ? context.l10n.noAccountForEmail
+                  : context.l10n.noAccountForNumber)
             : e.message;
         _code.clear();
       });
@@ -140,12 +146,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       _error = null;
     });
     try {
-      final result = await ref
-          .read(authControllerProvider.notifier)
-          .requestCode(
-            countryCode: widget.args.countryCode,
-            phone: widget.args.phone,
-          );
+      final auth = ref.read(authControllerProvider.notifier);
+      final email = widget.args.email;
+      final result = email != null
+          ? await auth.requestEmailCode(email: email)
+          : await auth.requestCode(
+              countryCode: widget.args.countryCode,
+              phone: widget.args.phone,
+            );
       if (!mounted) return;
       setState(() {
         _start(result);
@@ -162,8 +170,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final email = widget.args.email;
     final number = ltrIsolate(
-      formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
+      email ??
+          formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
     );
     final resendIn = _resendIn;
     final sentTo = parts(context.l10n.codeSentTo);
@@ -214,7 +224,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         padding: EdgeInsets.zero,
                         alignment: AlignmentDirectional.centerStart,
                       ),
-                      child: Text(context.l10n.changeNumber),
+                      child: Text(
+                        email != null
+                            ? context.l10n.changeEmail
+                            : context.l10n.changeNumber,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     _CodeBoxes(

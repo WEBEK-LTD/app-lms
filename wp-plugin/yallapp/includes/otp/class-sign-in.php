@@ -14,6 +14,7 @@ use Yallapp\Auth\Devices;
 use Yallapp\Auth\Rate_Limiter;
 use Yallapp\Auth\Tokens;
 use Yallapp\Crypto;
+use Yallapp\License\License_Client;
 use Yallapp\Settings;
 
 /**
@@ -21,14 +22,17 @@ use Yallapp\Settings;
  */
 class Sign_In {
 
-	const REQUEST_TTL      = 600;
-	const SIGNUP_TTL       = 900;
-	const MAX_ATTEMPTS     = 5;
-	const IP_LIMIT_PER_H   = 30;
-	const CODE_LENGTH      = 6;
-	const CODE_EXPIRES_IN  = 300;
-	const USER_META_CITY   = 'yallapp_city';
-	const USER_META_SOURCE = 'yallapp_signed_up_in_app';
+	const REQUEST_TTL          = 600;
+	const SIGNUP_TTL           = 900;
+	const MAX_ATTEMPTS         = 5;
+	const IP_LIMIT_PER_H       = 30;
+	const CODE_LENGTH          = 6;
+	const CODE_EXPIRES_IN      = 300;
+	const USER_META_CITY       = 'yallapp_city';
+	const USER_META_SOURCE     = 'yallapp_signed_up_in_app';
+	const PASSWORD_IP_LIMIT    = 20;
+	const PASSWORD_LOGIN_LIMIT = 5;
+	const PASSWORD_WINDOW      = 900;
 
 	/**
 	 * Settings.
@@ -59,18 +63,92 @@ class Sign_In {
 	private $tokens;
 
 	/**
+	 * License client, for the sign-in methods the app's owner chose on the Yallapp dashboard.
+	 *
+	 * @var License_Client|null
+	 */
+	private $license;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Settings    $settings Settings.
-	 * @param Otp_Adapter $otp      Code provider.
-	 * @param Devices     $devices  Devices.
-	 * @param Tokens      $tokens   Tokens.
+	 * @param Settings            $settings Settings.
+	 * @param Otp_Adapter         $otp      Code provider.
+	 * @param Devices             $devices  Devices.
+	 * @param Tokens              $tokens   Tokens.
+	 * @param License_Client|null $license  License client.
 	 */
-	public function __construct( Settings $settings, Otp_Adapter $otp, Devices $devices, Tokens $tokens ) {
+	public function __construct( Settings $settings, Otp_Adapter $otp, Devices $devices, Tokens $tokens, $license = null ) {
 		$this->settings = $settings;
 		$this->otp      = $otp;
 		$this->devices  = $devices;
 		$this->tokens   = $tokens;
+		$this->license  = $license instanceof License_Client ? $license : null;
+	}
+
+	/**
+	 * How people sign in: the owner's choice on the Yallapp dashboard, else the plugin setting.
+	 *
+	 * @return string[] `phone` and/or `email`.
+	 */
+	public function methods() {
+		$platform = $this->license && $this->license->has_key() ? ( $this->license->status()['sign_in_methods'] ?? null ) : null;
+		return Methods::resolve( $platform, (string) $this->settings->get( 'sign_in_methods' ) );
+	}
+
+	/**
+	 * Signs in with the email address (or username) and password of a WordPress account. WordPress
+	 * checks them (wp_authenticate), so the site's own rules and security plugins apply. Only
+	 * existing accounts sign in; a wrong address and a wrong password get the same answer.
+	 *
+	 * @param string $login    Email address or username.
+	 * @param string $password Password.
+	 * @param array  $device   DeviceInput.
+	 * @param bool   $preview  The app preview in the Yallapp dashboard asks.
+	 * @return array|WP_Error Session.
+	 */
+	public function password( $login, $password, array $device, $preview = false ) {
+		if ( $preview ) {
+			return new WP_Error(
+				'preview_review_number_only',
+				__( 'This is a preview. Sign in with the store review number and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
+				array( 'status' => 403 )
+			);
+		}
+		if ( ! in_array( Methods::EMAIL, $this->methods(), true ) ) {
+			return new WP_Error( 'method_not_allowed', __( 'This app doesn\'t offer sign-in by email. Sign in with your phone number.', 'yallapp' ), array( 'status' => 403 ) );
+		}
+		$login    = trim( (string) $login );
+		$password = (string) $password;
+		$wrong    = new WP_Error( 'invalid_credentials', __( 'The email or password is not correct.', 'yallapp' ), array( 'status' => 400 ) );
+		if ( '' === $login || '' === $password || strlen( $login ) > 191 || strlen( $password ) > 4096 ) {
+			return $wrong;
+		}
+		$bucket = 'password|' . strtolower( $login );
+		$wait   = Rate_Limiter::hit( 'password-ip|' . Rate_Limiter::client_ip(), self::PASSWORD_IP_LIMIT, self::PASSWORD_WINDOW );
+		if ( ! $wait ) {
+			$wait = Rate_Limiter::hit( $bucket, self::PASSWORD_LOGIN_LIMIT, self::PASSWORD_WINDOW );
+		}
+		if ( $wait ) {
+			return new WP_Error(
+				'rate_limited',
+				__( 'Too many attempts. Please wait a few minutes and try again.', 'yallapp' ),
+				array(
+					'status'              => 429,
+					'retry_after_seconds' => (int) $wait,
+				)
+			);
+		}
+		$user = wp_authenticate( $login, $password );
+		if ( is_wp_error( $user ) || ! $user instanceof \WP_User ) {
+			// About as slow for an address with no account as for a wrong password.
+			if ( ! get_user_by( 'email', $login ) && ! get_user_by( 'login', $login ) ) {
+				wp_hash_password( $password );
+			}
+			return $wrong;
+		}
+		Rate_Limiter::clear( $bucket );
+		return $this->session( (int) $user->ID, $device );
 	}
 
 	/**
@@ -92,6 +170,10 @@ class Sign_In {
 				__( 'This is a preview, and it never sends codes. Sign in with the store review number and code set in the Yallapp plugin\'s settings.', 'yallapp' ),
 				array( 'status' => 403 )
 			);
+		}
+		// Email only: the store review number still signs in (reviewers and the preview use it).
+		if ( ! in_array( Methods::PHONE, $this->methods(), true ) && ! $this->is_review_phone( $phone ) ) {
+			return new WP_Error( 'method_not_allowed', __( 'This app signs in with your email address and password.', 'yallapp' ), array( 'status' => 403 ) );
 		}
 
 		$resend = (int) $this->settings->get( 'resend_seconds' );

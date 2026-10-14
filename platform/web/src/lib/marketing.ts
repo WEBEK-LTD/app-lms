@@ -540,7 +540,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
       {
         icon: "lock",
         title: "One-time codes",
-        text: "Apps connected to a platform, or without a website, get the code on WhatsApp through waabek.com. WordPress sites send it through Digits and your own SMS or WhatsApp gateway.",
+        text: "We send the code on WhatsApp through waabek.com, with your app's name, also for WordPress sites. No SMS gateway or extra plugin to set up; a WordPress site can use Digits instead.",
         details: [
           "Sign-up from the app, with the details you ask for",
           "A limit on devices per person, set by you",
@@ -761,7 +761,19 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "I use WordPress. What do I install?",
-        a: "The Yallapp plugin, from your dashboard's **License & plugin** page. It finds your LMS, WooCommerce or booking plugin and connects them to your app. Sign-in codes on WordPress go through Digits and your own SMS or WhatsApp gateway. See [Install the WordPress plugin](/docs/wordpress-plugin).",
+        a: "The Yallapp plugin, from your dashboard's **License & plugin** page. It finds your LMS, WooCommerce or booking plugin and connects them to your app. We send the sign-in codes on WhatsApp, with your app's name. See [Install the WordPress plugin](/docs/wordpress-plugin).",
+      },
+      {
+        q: "Can people sign in with their email address?",
+        a: "Yes. On your dashboard's **App sign-in** page, choose phone, email or both. Without a website, we send a code by email in your app's name; on WordPress, people use the email and password of their account on your website. Apps connected to another platform sign in by phone. See [App users and sign-in](/docs/app-users).",
+      },
+      {
+        q: "Can the codes come from my own WhatsApp number?",
+        a: "Yes, with a WABEK account (waabek.com): add its API key and your number's instance ID on **App sign-in** and send a test code. Otherwise the codes come from our WhatsApp number, with your app's name.",
+      },
+      {
+        q: "Do I need Digits?",
+        a: "No. Digits is optional. We send your app's sign-in codes on WhatsApp, so you need no SMS gateway and no extra plugin. If your website already uses Digits, people sign in to the app with the same number and keep their accounts. You can also choose Digits to send the codes when its REST API add-on is installed. See [Install the WordPress plugin](/docs/wordpress-plugin#sign-in-codes).",
       },
       {
         q: "I use Shopify or another store platform. How do I connect it?",
@@ -916,7 +928,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "How are sign-in codes sent?",
-        a: "For apps connected to a platform, or without a website, codes are sent on WhatsApp through waabek.com. On WordPress, through Digits and your own gateway; with your own API, by your own system. Codes are short-lived and limited in attempts.",
+        a: "On WhatsApp through waabek.com, with your app's name: for WordPress sites, apps connected to a platform and apps without a website. A WordPress site can choose Digits and its own gateway instead. With your own API, your own system sends them. Codes are short-lived and limited in attempts.",
       },
       {
         q: "Can people delete their account?",
