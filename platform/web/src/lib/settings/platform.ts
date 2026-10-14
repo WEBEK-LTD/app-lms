@@ -70,7 +70,7 @@ export async function resolvedOtpSenderConfig(store: DataStore, encryptionKey: B
     };
   }
   if (otp.kind === "waabek") {
-    return { kind: "waabek", apiKey: decryptSetting("otp", otp.apiKeyEncrypted, encryptionKey), baseUrl: otp.baseUrl };
+    return { kind: "waabek", apiKey: decryptSetting("otp", otp.apiKeyEncrypted, encryptionKey), baseUrl: otp.baseUrl, instanceId: otp.instanceId ?? null };
   }
   return { kind: "webhook", url: otp.url, secret: decryptSetting("otp", otp.secretEncrypted, encryptionKey) };
 }

@@ -19,7 +19,7 @@ type OtpKind = "whatsapp" | "webhook" | "waabek" | "off";
 export function OtpSettingForm({
   current,
 }: {
-  current: { kind: OtpKind | null; phoneNumberId: string; template: string; language: string; url: string; baseUrl: string };
+  current: { kind: OtpKind | null; phoneNumberId: string; template: string; language: string; url: string; baseUrl: string; instanceId: string };
 }) {
   const [state, action] = useActionState(saveOtpSettingAction, initialFormState);
   const [kind, setKind] = useState<OtpKind>((state.values?.kind as OtpKind | undefined) ?? current.kind ?? "whatsapp");
@@ -28,7 +28,7 @@ export function OtpSettingForm({
   const options: { id: OtpKind; title: string; text: string }[] = [
     { id: "whatsapp", title: "WhatsApp", text: "WhatsApp Cloud API with an approved authentication template." },
     { id: "webhook", title: "Our gateway", text: "We post each code to our SMS gateway, signed with a shared secret." },
-    { id: "waabek", title: "WABEK", text: "WABEK sends the code on WhatsApp with its Meta-approved template, and checks it." },
+    { id: "waabek", title: "WABEK", text: "WABEK sends the code on WhatsApp from one of your numbers, through its approved OTP template when needed." },
     { id: "off", title: "Off", text: "No codes are sent; customers can't sign in to apps on the hosted API." },
   ];
   return (
@@ -79,11 +79,18 @@ export function OtpSettingForm({
             error={state.errors?.apiKey}
           />
           <Field
+            label="Instance ID"
+            name="instanceId"
+            defaultValue={v("instanceId", current.instanceId)}
+            hint="The WhatsApp number that sends the codes, from WABEK › Instances. Empty: WABEK uses your first connected number."
+            error={state.errors?.instanceId}
+          />
+          <Field
             label="WABEK address"
             name="baseUrl"
             type="url"
             defaultValue={v("baseUrl", current.baseUrl || "https://waabek.com")}
-            hint="Codes go to /api/otp/send and are checked at /api/otp/verify."
+            hint="Codes are sent with POST /api/v1/send."
             error={state.errors?.baseUrl}
           />
         </>

@@ -15,7 +15,7 @@ devices. Everything else is in the code. Tick each line when it's done.
 
 ## 2. Yallapp admin (`/admin`, signed in as a super admin)
 
-- [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key), the
+- [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key and the instance ID of the number that sends codes), the
       WhatsApp Cloud API (phone number ID and access token) or our SMS gateway,
       save, then **Send a test code** to your own number and **Check the code**.
 - [ ] **Settings › Email (SMTP):** host, port, user, password and the sender

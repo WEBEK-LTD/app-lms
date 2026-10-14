@@ -173,7 +173,8 @@ export function smtpConfig(): SmtpConfig | null {
  * - "whatsapp": WhatsApp Cloud API with an approved authentication template.
  * - "webhook": POSTs the code to a URL of ours (for example an SMS gateway),
  *   signed with HMAC-SHA256 of the body.
- * - "waabek": WABEK's OTP API on WhatsApp; WABEK makes and checks the code.
+ * - "waabek": WABEK (waabek.com) sends the code on WhatsApp from one of the
+ *   account's numbers (instance), through its approved OTP template when needed.
  * - "log": keeps codes in memory; local runs and tests only.
  * Null when nothing is configured: requests fail with `provider_error`.
  */
@@ -183,7 +184,7 @@ export const WAABEK_API_URL = "https://waabek.com";
 export type OtpSenderConfig =
   | { kind: "whatsapp"; accessToken: string; phoneNumberId: string; template: string; language: string }
   | { kind: "webhook"; url: string; secret: string }
-  | { kind: "waabek"; apiKey: string; baseUrl: string }
+  | { kind: "waabek"; apiKey: string; baseUrl: string; instanceId: string | null }
   | { kind: "log" };
 
 export function otpSenderConfig(): OtpSenderConfig | null {
@@ -198,7 +199,9 @@ export function otpSenderConfig(): OtpSenderConfig | null {
     };
   }
   if (kind === "webhook") return { kind, url: required("OTP_WEBHOOK_URL"), secret: required("OTP_WEBHOOK_SECRET") };
-  if (kind === "waabek") return { kind, apiKey: required("WAABEK_API_KEY"), baseUrl: read("WAABEK_API_URL") ?? WAABEK_API_URL };
+  if (kind === "waabek") {
+    return { kind, apiKey: required("WAABEK_API_KEY"), baseUrl: read("WAABEK_API_URL") ?? WAABEK_API_URL, instanceId: read("WAABEK_INSTANCE_ID") ?? null };
+  }
   if (kind === "log") {
     if (isNetlify()) throw new Error("OTP_SENDER=log is for local development and tests only.");
     return { kind };
