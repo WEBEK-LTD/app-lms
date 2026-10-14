@@ -550,6 +550,61 @@
       ]
     },
     {
+      "name": "Events",
+      "description": "Events and tickets, for Events & tickets apps (roadmap 28): events with their days and times, a venue or an online link, and ticket types. Free tickets are taken in the app; paid tickets are bought on the web payment page and issued only once the payment is confirmed. Each ticket has a random code and a signed QR payload, checked once at the door. Tickets to events at a venue are physical-world services, bought on Android and iOS; tickets to online-only events (no venue) are digital content, so iOS never offers buying them (free tickets work everywhere). Served by the hosted API.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/events/filters",
+          "summary": "Get the filters the events list offers",
+          "description": "The categories of upcoming published events, with how many each has, and the days of the first and last upcoming event, for the list's filters and the calendar.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/events",
+          "summary": "List events",
+          "description": "Published events, soonest first. Without `from`, events that haven't ended yet; a cancelled event stays in the list with `status: cancelled` until it would have ended. `from` and `to` are days in `EventsConfig.time_zone`, both included.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/events/{event_id}",
+          "summary": "Get an event",
+          "description": "A published event with its description (processed like a lesson's content), pictures, venue, ticket types and what each ticket type's button does on this platform (`TicketType.action`). The online link is sent only to people holding a ticket. Signed-in users get `my_tickets`.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/events/{event_id}/register",
+          "summary": "Get free tickets",
+          "description": "Free ticket types only, on every platform. One ticket per name in `attendee_names` (the signed-in user's name for the rest), at most the ticket type's `max_per_order`. Places are taken atomically: fails with `sold_out` (409) when there aren't that many left, with `sales_ended` (409) after the ticket type's sales end or once the event started, with `event_cancelled` (409), and with `purchase_required` (403) for a paid ticket type.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/events/checkout-link",
+          "summary": "Get a one-time link to buy paid tickets",
+          "description": "Holds the places and opens the web payment page; the tickets are issued only once the payment is confirmed, and show in `GET /me/tickets` then. Places that aren't paid for are freed after the link expires. Fails with `purchase_not_allowed` (403) on iOS for online-only events (no venue: digital content) and when the organiser can't take card payments, and with `sold_out`, `sales_ended` or `event_cancelled` (409) like `register`. The payment page's last page has `order-received` in its address.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/tickets",
+          "summary": "List the user's tickets",
+          "description": "Every ticket issued to the signed-in user, upcoming events first (soonest first), then past ones. The app keeps the last answer on the device, so tickets and their QR codes show without a connection.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/tickets/{ticket_code}/cancel",
+          "summary": "Cancel one of the user's tickets",
+          "description": "Free tickets only, when the organiser allows it (`EventsConfig.allow_cancel_hours`) and the event starts at least that many hours later; the place goes back on sale. Fails with `cancel_not_allowed` (403) otherwise, and with a conflict (409) for a ticket already used or cancelled. Paid tickets are refunded by the organiser.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [
