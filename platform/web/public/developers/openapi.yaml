@@ -4396,7 +4396,7 @@ components:
 
     EventSummary:
       type: object
-      required: [id, title, category, image_url, starts_at, ends_at, time_zone, venue, online, price_label, status, spots_left, sold_out]
+      required: [id, title, category, image_url, starts_at, ends_at, starts_local, ends_local, time_zone, venue, online, price_label, status, spots_left, sold_out]
       properties:
         id: { type: integer }
         title: { type: string }
@@ -4407,6 +4407,8 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         starts_at: { type: string, format: date-time }
         ends_at: { type: string, format: date-time }
+        starts_local: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', example: '2026-10-20T20:30', description: 'When it starts on the clock in `time_zone`: the day and time the app shows (apps carry no time zone database).' }
+        ends_local: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', example: '2026-10-20T22:30' }
         time_zone: { type: string, example: Europe/Istanbul }
         venue:
           description: Where it happens; null for an online-only event.

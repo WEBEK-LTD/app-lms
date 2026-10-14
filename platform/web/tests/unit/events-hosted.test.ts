@@ -165,6 +165,8 @@ describe("28 events and tickets on the hosted API", () => {
       ["Online masterclass", "Free · from ₺150.00", null],
     ]);
     expect(summary.items[2]!.venue).toBeNull();
+    // The organiser's clock (Istanbul is UTC+3): NOW is 10:00 UTC.
+    expect((summary.items[0] as unknown as { starts_local: string }).starts_local).toBe(`${days(2).toISOString().slice(0, 10)}T13:00`);
   });
 
   it("serves an event with what each ticket's button does on each platform", async () => {

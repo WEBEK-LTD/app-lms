@@ -132,6 +132,12 @@ export function priceLabel(types: TicketType[], currency: CatalogCurrency): stri
   return new Set(paid).size === 1 ? lowest : `From ${lowest}`;
 }
 
+/** "2026-10-20T20:30": an instant on the clock of the time zone. */
+export function localClock(at: Date, timeZone: string): string {
+  const local = utcToLocal(at, timeZone);
+  return `${local.date}T${local.time}`;
+}
+
 export interface JsonDeps {
   assetUrl: (assetId: string) => string;
 }
@@ -147,6 +153,9 @@ export function eventSummaryJson(data: EventsData, event: EventRecord, deps: Jso
     image_url: event.imageAssetIds[0] ? deps.assetUrl(event.imageAssetIds[0]) : null,
     starts_at: event.startAt.toISOString(),
     ends_at: event.endAt.toISOString(),
+    // The organiser's clock: apps carry no time zone database.
+    starts_local: localClock(event.startAt, data.settings.timeZone),
+    ends_local: localClock(event.endAt, data.settings.timeZone),
     time_zone: data.settings.timeZone,
     venue: event.venueName
       ? { name: event.venueName, address: event.venueAddress, latitude: event.latitude, longitude: event.longitude }
