@@ -475,3 +475,28 @@ How it works is in `docs/ARCHITECTURE.md` ("Events & tickets apps").
 | [x] | 28.4 App: the events module (a list and a month calendar, categories and search, the event with Open in maps, Add to calendar and Share, free tickets, the payment page for paid ones), My tickets with QR codes kept on the phone for offline use, cancelling a free ticket; notifications that open the event; the preview bundle rebuilt; screenshots for the website | `flutter analyze`, `flutter test` and `build_preview.sh --check` pass |
 | [x] | 28.5 The registry entry (`lib/app/kinds.ts`), page sources and defaults, the demo app "Kuzey Culture Centre" (free and paid events, an online one), the /demo card, the solution page, the docs article "Events and tickets", CI builds of an Events & tickets app | Unit and browser tests |
 | [ ] | 28.6 WordPress: The Events Calendar (`tribe_get_events`) and Event Tickets (RSVP for free tickets, WooCommerce tickets through the checkout hand-off) in the plugin. Follow-up: the integration environment couldn't install either plugin, so nothing could be checked against their code | An integration matrix entry with both plugins passes in CI |
+
+## Phase 29: Charities and donations
+
+A new engine, `donations` (kind "Charity & donations", vertical `charity`),
+for charities, food banks and community groups: campaigns with a goal and
+progress, donations paid on Yallapp's donation page into the charity's own
+iyzico account (no Yallapp commission, never the marketplace account), and a
+receipt for every donor. Apple's App Store guideline 3.2.2(iv) lets an iPhone
+app take donations itself only for Apple-approved nonprofits using Apple Pay,
+so the iPhone app always opens the donation page in the system browser
+("Donate on our website"); Android opens it in the app (Google Play's billing
+rules don't cover donations to charities today; policy-dependent). Hosted
+only for now. Built and tested with the in-memory store and on MariaDB 10.11.
+How it works is in `docs/ARCHITECTURE.md` ("Charity & donation apps").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 29.1 Contract first: `GET /donations/campaigns`, `/donations/campaigns/{campaign_id}` (goal, raised, donor count, progress, the story processed like an article, preset amounts, minimum, recent donations), `POST /donations/checkout-link` (`open_in` always `browser` on iOS), `GET /me/donations` with receipt links, `Config.donations` (`currency`, `ios_mode`, `monthly`, `updates_push`), the `donations` push preference, notifications of type `campaign_update`, the item source `campaigns`, the screens `campaigns` and `my_donations`; `donations` in the build config schemas and the platform contract | `redocly lint` passes and responses are checked against the contract in unit tests |
+| [x] | 29.2 Campaigns and donations (`drizzle/0028_donations.sql`): the donations connector, the donation page `/give/<token>` and its iyzico callback (a donation counts towards its campaign only once iyzico confirms it, in one transaction; each donor counted once by email), the `donation_receipt` email (no tax claims) and the receipt page; unit tests that iOS never gets `in_app` | Unit tests, migrations applied twice on MariaDB 10.11, browser tests on both stores |
+| [x] | 29.3 Dashboard: Campaigns (own iyzico keys as a setup step, create, edit, publish, close, reopen, feature, delete only without donations, goal, suggested amounts, minimum, end date, pictures, currency, iPhone mode, updates to donors pushed only to phones that turned them on), Donations with CSV export, Donors; store review notes say donations happen in the browser | Unit tests and the donations browser test |
+| [x] | 29.4 App: the donations module (campaigns with progress bars, the campaign with its story, amount picker with presets, own amount and minimum, anonymous and message, the donate button in the system browser on iPhone and in the app on Android, My donations with receipts), Campaign updates in Settings, notifications that open the campaign; the preview bundle rebuilt | `flutter analyze`, `flutter test` (with the iPhone browser rule) and `build_preview.sh --check` pass |
+| [x] | 29.5 The registry entry, page source `campaigns` and default pages, the demo app "Bereket Food Bank" with two campaigns (its donation page charges nothing and never changes the totals), the /demo card, the solution page with screenshots from the app, the docs article "Charity and donation apps", CI builds of a Charity & donations app | Unit and browser tests |
+| [ ] | 29.6 Monthly donations: needs iyzico subscriptions (a stored card and recurring charges), which the integration doesn't have; until then `Config.donations.monthly` is false and monthly requests are refused, never charged once | A subscription integration tested against iyzico's sandbox |
+| [ ] | 29.7 GiveWP on WordPress (forms as campaigns, totals, donor history by email or phone, hand-off to the GiveWP form page) | Not verifiable in the CI integration environment yet (the dev site runs on SQLite, GiveWP needs MySQL tables); hosted first |
+| [ ] | 29.8 A progress block for pages | List blocks show campaigns with what was raised and the percent; a dedicated block needs contract, editor and app renderer work |
