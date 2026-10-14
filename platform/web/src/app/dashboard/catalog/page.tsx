@@ -7,23 +7,58 @@ import { Badge, EmptyState, Notice, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
+import { DEFAULT_FULFILMENT, fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
+import { catalogWords } from "@/lib/catalog/words";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
-import { AddCategoryForm, ShopSettingsForm } from "./forms";
+import type { FulfilmentSettings } from "@/lib/data/types";
+import { AddCategoryForm, FulfilmentForm, ShopSettingsForm } from "./forms";
 import { CardPayments } from "./payments";
 
-export const metadata: Metadata = { title: "Products" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { app } = await requireClient();
+  return { title: catalogWords(app?.vertical).page };
+}
 
-/** Products, categories and shop settings for apps without a website. */
+const TIMEZONES = ["Europe/Istanbul", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Dubai", "Asia/Riyadh", "Africa/Cairo", "America/New_York"];
+
+/** 26 The Pickup and delivery form's values. */
+function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
+  const on = (b: boolean) => (b ? "on" : "");
+  const values: Record<string, string> = {
+    pickup: on(f.pickup),
+    delivery: on(f.delivery),
+    pickupAddress: f.pickupAddress ?? "",
+    deliveryFee: f.deliveryFeeCents ? centsToDecimal(f.deliveryFeeCents) : "",
+    minOrder: f.minOrderCents !== null ? centsToDecimal(f.minOrderCents) : "",
+    deliveryAreas: f.deliveryAreas.join("\n"),
+    deliveryNote: f.deliveryNote ?? "",
+    prepMinutes: String(f.prepMinutes),
+    timezone: f.timezone,
+    asap: on(f.asap),
+    scheduled: on(f.scheduled),
+    slotStep: String(f.slotStepMinutes),
+    maxDaysAhead: String(f.maxDaysAhead),
+  };
+  f.hours.forEach((ranges, d) => {
+    values[`open${d}`] = on(ranges.length > 0);
+    values[`start${d}`] = ranges[0]?.start ?? DEFAULT_FULFILMENT.hours[d]![0]!.start;
+    values[`end${d}`] = ranges[0]?.end ?? DEFAULT_FULFILMENT.hours[d]![0]!.end;
+  });
+  return values;
+}
+
+/** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { app } = await requireClient();
+  const words = catalogWords(app?.vertical);
   if (!app || app.connector?.kind !== "catalog") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Products</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app gets its products from your website. To add products here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
+          Your app gets its {words.items} from your website. To add {words.items} here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
           <Link href="/dashboard/setup?step=website">Website step</Link>.
         </p>
       </div>
@@ -35,17 +70,18 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const settings = catalogSettings(app);
   const money = (cents: number) => formatCents(cents, settings.currency);
   const categoryName = new Map(categories.map((c) => [c.id, c.name]));
+  const fulfilment = fulfilmentOf(app);
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Products</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">What your app sells. Changes show in the app right away.</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{words.intro}</p>
         </div>
         <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
-          Add product
+          {words.add}
         </Link>
       </div>
 
@@ -56,17 +92,17 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       ) : null}
       {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
-          Customers can see your products in the app but can&apos;t pay for them until you set up <a href="#h-payments">Card payments</a> below.
+          Customers can see your {words.items} in the app but can&apos;t pay for them until you set up <a href="#h-payments">Card payments</a> below.
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-products" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-products" className="m-0 text-lg font-bold">
-          {products.length} {products.length === 1 ? "product" : "products"}
+          {products.length} {products.length === 1 ? words.item : words.items}
         </h2>
         {products.length === 0 ? (
-          <EmptyState icon="inventory_2" title="No products yet.">
-            Choose Add product to add your first one: its name, price, photos and stock. It shows in your app right away.
+          <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={words.none}>
+            {words.noneText}
           </EmptyState>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
@@ -78,13 +114,18 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
                     <img src={assetUrl(p.imageAssetIds[0])} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                   ) : (
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-sand text-muted">
-                      <Icon name="shopping_bag" size={22} />
+                      <Icon name={fulfilment ? "restaurant_menu" : "shopping_bag"} size={22} />
                     </span>
                   )}
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate text-[15px] font-bold">{p.name}</span>
                     <span className="truncate text-[13px] text-muted">
-                      {[money(priceOf(p)), p.stock === null ? null : `${p.stock} in stock`, ...p.categoryIds.map((c) => categoryName.get(c))]
+                      {[
+                        money(priceOf(p)),
+                        p.stock === null ? null : `${p.stock} in stock`,
+                        p.optionGroups?.length ? `${p.optionGroups.length} ${p.optionGroups.length === 1 ? "option group" : "option groups"}` : null,
+                        ...p.categoryIds.map((c) => categoryName.get(c)),
+                      ]
                         .filter(Boolean)
                         .join(" · ")}
                     </span>
@@ -102,7 +143,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
           <h2 id="h-categories" className="m-0 text-lg font-bold">
             Categories
           </h2>
-          {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">Group your products, like &quot;Bouquets&quot; or &quot;Gifts&quot;.</p> : null}
+          {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">{words.categoriesHint}</p> : null}
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {categories.map((c) => (
               <li key={c.id} className="flex items-center gap-2">
@@ -130,16 +171,33 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
 
         <section aria-labelledby="h-shop" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-shop" className="m-0 text-lg font-bold">
-            Shop settings
+            {fulfilment ? "Currency" : "Shop settings"}
           </h2>
           <ShopSettingsForm
             currency={settings.currency}
             currencies={CATALOG_CURRENCIES}
             shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents) : ""}
             freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents) : ""}
+            shippingFields={!fulfilment}
           />
         </section>
       </div>
+
+      {fulfilment ? (
+        <section aria-labelledby="h-fulfilment" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex flex-col gap-1">
+            <h2 id="h-fulfilment" className="m-0 text-lg font-bold">
+              Pickup and delivery
+            </h2>
+            <p className="m-0 text-[15px] text-ink-4">How customers get their order, and when your kitchen takes orders. Orders show on the Kitchen page.</p>
+          </div>
+          <FulfilmentForm
+            current={fulfilmentValues(fulfilment)}
+            timezones={TIMEZONES.includes(fulfilment.timezone) ? TIMEZONES : [fulfilment.timezone, ...TIMEZONES]}
+            currency={settings.currency}
+          />
+        </section>
+      ) : null}
 
       <CardPayments app={app} />
     </div>

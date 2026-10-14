@@ -1,4 +1,5 @@
 import { completePayment, enrollPaidCourses, newOrderMailValues } from "@/lib/catalog/payment";
+import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { accountForOrder } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -27,7 +28,7 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
     const owner = client ? await store.getUserById(client.userId) : null;
     const paid = await store.getCatalogOrder(app.id, order.id);
     if (owner && paid) {
-      await sendTemplate("new_order", owner.email, newOrderMailValues(paid, app.appName ?? "your app", `${appUrl()}/dashboard/orders`)).catch(() => {
+      await sendTemplate("new_order", owner.email, newOrderMailValues(paid, app.appName ?? "your app", `${appUrl()}/dashboard/orders`, fulfilmentOf(app)?.timezone)).catch(() => {
         // The order is paid either way; the dashboard lists it.
       });
     }

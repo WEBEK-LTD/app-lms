@@ -1,4 +1,4 @@
-import type { AppTemplate, BookingRules, CatalogCurrency, IntakeField, ListingPurpose, ListingSettings, TimeRange } from "../data/types";
+import type { AppTemplate, BookingRules, CatalogCurrency, CatalogOptionGroup, FulfilmentSettings, IntakeField, ListingPurpose, ListingSettings, TimeRange } from "../data/types";
 import type { DemoId } from "./constants";
 import type { AppFont } from "../build-config/types";
 import type { CardStyle, Corners, LanguageCode } from "../pages/types";
@@ -6,7 +6,7 @@ import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
 
 /**
- * What the demo apps contain (roadmap 16): made-up businesses (21 five) with
+ * What the demo apps contain (roadmap 16): made-up businesses (21 five, 26 six) with
  * believable names, prices and texts. People, shops and addresses are
  * invented. Pictures are drawn in lib/demo/pictures.ts.
  */
@@ -53,6 +53,8 @@ export interface DemoProduct {
   picture: PictureName;
   featured: boolean;
   description: string;
+  /** 26 A dish's options. */
+  optionGroups?: CatalogOptionGroup[];
 }
 
 export interface DemoService {
@@ -128,6 +130,15 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Find the order under Account › Orders",
     ],
     screens: ["store-home", "store-product", "store-cart"],
+  },
+  restaurant: {
+    summary: "A neighbourhood café with breakfast, mains, desserts and drinks, for pickup or delivery.",
+    tryThis: [
+      "Open the menu and pick a dish with options: a size, a side, extras",
+      "Choose pickup or delivery and a time, then check out: the demo checkout takes no card",
+      "Follow the order's steps under Account › Orders",
+    ],
+    screens: ["restaurant-menu", "restaurant-dish", "restaurant-order"],
   },
   booking: {
     summary: "A hair and beauty studio with services, a team of three and their working hours.",
@@ -208,6 +219,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Fresh flowers, gift boxes and sweets, delivered in Istanbul.",
     fullDescription: `Lale Flowers is a flower and gift shop: bouquets, potted plants, gift boxes, Turkish delight and candles.\n\nOrder in a few taps and follow your orders in the app.\n\n${PRIVACY_NOTE}`,
     welcome: "Bouquets made this morning, gift boxes and little treats.",
+  },
+  restaurant: {
+    appName: "Defne Café",
+    shortName: "Defne",
+    primaryColor: "#B5552A",
+    splashColor: "#FBEADB",
+    secondaryColor: "#3E7A4A",
+    template: "bold",
+    font: "Outfit",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "tr"],
+    icon: "icon-restaurant",
+    banner: { picture: "banner-restaurant", heading: "Breakfast all day, coffee all night", subheading: "Order ahead for pickup, or have it delivered in Moda." },
+    androidPackage: "com.yallapp.demo.restaurant",
+    storeTitle: "Defne Café",
+    shortDescription: "Order breakfast, lunch and coffee from Defne Café, for pickup or delivery.",
+    fullDescription: `Defne Café is a neighbourhood café: Turkish breakfast, wraps and burgers, soup, desserts and coffee.\n\nChoose your dish the way you like it, order for pickup or delivery, now or for later, and follow your order in the app.\n\n${PRIVACY_NOTE}`,
+    welcome: "Open every day from 08:00 to 23:00. Pickup in Moda, delivery in Kadıköy.",
   },
   booking: {
     appName: "Studio Nur",
@@ -460,6 +490,161 @@ export const DEMO_PRODUCTS: DemoProduct[] = [
   { sku: "LALE-301", name: "Rose Turkish Delight Box", category: "Sweets", priceCents: 520_00, salePriceCents: 420_00, picture: "product-delight", featured: false, description: "Soft rose and pistachio Turkish delight, dusted with powdered sugar. 500 g." },
   { sku: "LALE-302", name: "Linden Tea Tin", category: "Sweets", priceCents: 280_00, salePriceCents: null, picture: "product-tea", featured: false, description: "Dried linden flowers in a tin you'll want to keep. Calming, lightly sweet. 80 g." },
   { sku: "LALE-401", name: "Fig & Cedar Candle", category: "Home", priceCents: 560_00, salePriceCents: null, picture: "product-candle", featured: false, description: "A soy wax candle with notes of ripe fig and cedar wood. Burns for about 40 hours." },
+];
+
+// Restaurant (26)
+
+const one = (id: string, name: string, options: [string, string, number][]): CatalogOptionGroup => ({
+  id,
+  name,
+  min: 1,
+  max: 1,
+  options: options.map(([oid, oname, delta]) => ({ id: oid, name: oname, priceDeltaCents: delta })),
+});
+const some = (id: string, name: string, max: number, options: [string, string, number][]): CatalogOptionGroup => ({ ...one(id, name, options), min: 0, max });
+
+export const MENU_CATEGORIES = ["Breakfast", "Mains", "Desserts", "Drinks"];
+
+/** The café's kitchen: open every day, pickup in Moda, delivery in Kadıköy with a fee and a minimum. */
+export const RESTAURANT_FULFILMENT: FulfilmentSettings = {
+  pickup: true,
+  delivery: true,
+  pickupAddress: "Moda Caddesi 41, Kadıköy",
+  minOrderCents: 250_00,
+  deliveryFeeCents: 35_00,
+  deliveryAreas: ["Moda", "Caferağa", "Osmanağa", "Rasimpaşa", "Fenerbahçe"],
+  deliveryNote: "We deliver in Kadıköy, within about 3 km of the café.",
+  prepMinutes: 20,
+  timezone: "Europe/Istanbul",
+  hours: Array.from({ length: 7 }, () => [{ start: "08:00", end: "23:00" }]),
+  asap: true,
+  scheduled: true,
+  slotStepMinutes: 15,
+  maxDaysAhead: 2,
+};
+
+export const DEMO_DISHES: DemoProduct[] = [
+  {
+    sku: "DEFNE-101",
+    name: "Turkish Breakfast Plate",
+    category: "Breakfast",
+    priceCents: 420_00,
+    salePriceCents: null,
+    picture: "dish-breakfast",
+    featured: true,
+    description: "White cheese, kaşar, olives, tomato, cucumber, honey and kaymak, with bread from the bakery next door.",
+    optionGroups: [
+      one("eggs", "Eggs", [["fried", "Fried", 0], ["boiled", "Boiled", 0], ["menemen", "Menemen", 40_00]]),
+      some("extras", "Extras", 3, [["sucuk", "Sucuk", 60_00], ["avocado", "Avocado", 55_00], ["cheese", "More cheese", 45_00]]),
+    ],
+  },
+  {
+    sku: "DEFNE-102",
+    name: "Simit with Cheese",
+    category: "Breakfast",
+    priceCents: 120_00,
+    salePriceCents: null,
+    picture: "dish-simit",
+    featured: false,
+    description: "A warm sesame simit with white cheese and a few slices of tomato.",
+    optionGroups: [some("add", "Add", 2, [["honey", "Honey & kaymak", 50_00], ["olives", "Olives", 20_00]])],
+  },
+  {
+    sku: "DEFNE-201",
+    name: "Grilled Chicken Wrap",
+    category: "Mains",
+    priceCents: 340_00,
+    salePriceCents: null,
+    picture: "dish-wrap",
+    featured: true,
+    description: "Grilled chicken thigh, peppers, onion and garlic yoghurt in a warm lavaş.",
+    optionGroups: [
+      one("side", "Side", [["fries", "Fries", 0], ["salad", "Salad", 0], ["rice", "Rice", 0]]),
+      some("sauce", "Sauces", 2, [["garlic", "Garlic yoghurt", 0], ["spicy", "Spicy", 0], ["smoky", "Smoky", 0]]),
+    ],
+  },
+  {
+    sku: "DEFNE-202",
+    name: "Defne Burger",
+    category: "Mains",
+    priceCents: 460_00,
+    salePriceCents: null,
+    picture: "dish-burger",
+    featured: true,
+    description: "A beef patty, lettuce, tomato and our house sauce in a brioche bun.",
+    optionGroups: [
+      one("size", "Size", [["single", "Single", 0], ["double", "Double", 150_00]]),
+      some("extras", "Extras", 3, [["cheddar", "Cheddar", 40_00], ["onion", "Caramelised onion", 30_00], ["pickles", "Pickles", 0]]),
+      one("side", "Side", [["fries2", "Fries", 0], ["salad2", "Salad", 0]]),
+    ],
+  },
+  {
+    sku: "DEFNE-203",
+    name: "Lentil Soup",
+    category: "Mains",
+    priceCents: 160_00,
+    salePriceCents: 140_00,
+    picture: "dish-soup",
+    featured: false,
+    description: "Red lentil soup with a squeeze of lemon and a little chilli butter.",
+  },
+  {
+    sku: "DEFNE-301",
+    name: "San Sebastian Cheesecake",
+    category: "Desserts",
+    priceCents: 220_00,
+    salePriceCents: null,
+    picture: "dish-cheesecake",
+    featured: false,
+    description: "Burnt on top, soft in the middle.",
+    optionGroups: [some("topping", "Topping", 1, [["chocolate", "Chocolate sauce", 25_00], ["berries", "Berries", 35_00]])],
+  },
+  {
+    sku: "DEFNE-302",
+    name: "Baklava (4 pieces)",
+    category: "Desserts",
+    priceCents: 260_00,
+    salePriceCents: null,
+    picture: "dish-baklava",
+    featured: false,
+    description: "Pistachio baklava from Gaziantep, with a spoon of kaymak on the side.",
+  },
+  {
+    sku: "DEFNE-401",
+    name: "Turkish Coffee",
+    category: "Drinks",
+    priceCents: 90_00,
+    salePriceCents: null,
+    picture: "drink-coffee",
+    featured: false,
+    description: "Made in a copper cezve and served with a piece of Turkish delight.",
+    optionGroups: [one("sugar", "Sugar", [["none", "No sugar", 0], ["little", "A little", 0], ["medium", "Medium", 0], ["sweet", "Sweet", 0]])],
+  },
+  {
+    sku: "DEFNE-402",
+    name: "Fresh Orange Juice",
+    category: "Drinks",
+    priceCents: 120_00,
+    salePriceCents: null,
+    picture: "drink-juice",
+    featured: false,
+    description: "Squeezed when you order.",
+    optionGroups: [one("size", "Size", [["small", "Small", 0], ["large", "Large", 40_00]])],
+  },
+  {
+    sku: "DEFNE-403",
+    name: "Iced Latte",
+    category: "Drinks",
+    priceCents: 140_00,
+    salePriceCents: null,
+    picture: "drink-latte",
+    featured: false,
+    description: "A double shot over ice with cold milk.",
+    optionGroups: [
+      one("milk", "Milk", [["regular", "Regular", 0], ["oat", "Oat", 20_00], ["almond", "Almond", 20_00]]),
+      some("shot", "Extra shot", 1, [["shot", "Extra shot", 30_00]]),
+    ],
+  },
 ];
 
 // Bookings

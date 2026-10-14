@@ -1,3 +1,4 @@
+import { lineOptionIds } from "../../catalog/options";
 import type { HostedUser } from "../../data/types";
 import { normalizeEmail } from "../sign-in-methods";
 import type { ConnectorResult } from "./types";
@@ -15,6 +16,8 @@ export interface CartLineInput {
   product_id: number;
   variation_id: number | null;
   quantity: number;
+  /** 26 The IDs of the chosen options of the product's option groups (empty for none). */
+  options?: string[];
 }
 
 /** The lines of a cart request, or null when they aren't valid. */
@@ -30,7 +33,9 @@ export function cartLines(body: unknown): CartLineInput[] | null {
     if (!Number.isSafeInteger(productId) || productId < 1) return null;
     if (variationId !== null && (!Number.isSafeInteger(variationId) || variationId < 1)) return null;
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > 9999) return null;
-    out.push({ product_id: productId, variation_id: variationId, quantity });
+    const options = lineOptionIds(line?.options);
+    if (options === null) return null;
+    out.push({ product_id: productId, variation_id: variationId, quantity, ...(options.length > 0 ? { options } : {}) });
   }
   return out;
 }

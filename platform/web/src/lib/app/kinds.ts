@@ -413,6 +413,35 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "store", icon: "storefront" },
   },
   {
+    // 26 Restaurants and cafés: the store engine with a menu, a dish's options, pickup or delivery and order tracking.
+    id: "restaurant",
+    engine: "store",
+    vertical: "restaurant",
+    name: "Restaurant & café",
+    description: "Your menu in an app: dishes with options, pickup or delivery, and order tracking.",
+    requires: "Works with: WooCommerce · Digits · Options, pickup, delivery and the kitchen without a website",
+    icon: "restaurant",
+    tile: "bg-tile-5 text-[#8A3B12]",
+    marketing: { slug: "restaurant", icon: "restaurant" },
+    categories: { play: "Food & Drink", appStore: "Food & Drink" },
+    demo: { slug: "restaurant" },
+    wording: {
+      nav: {
+        label: "Your restaurant",
+        items: [
+          { href: "/dashboard/catalog", label: "Menu", icon: "restaurant_menu" },
+          { href: "/dashboard/orders", label: "Kitchen", icon: "skillet" },
+        ],
+      },
+      users: "Customers",
+      ownContent: {
+        text: "Add your menu here in the dashboard: dishes with their options, opening hours, pickup and delivery. Customers order and pay by card in the app, and your kitchen follows the orders here.",
+        next: "After this step, add your dishes, opening hours, pickup and delivery and your iyzico payment keys on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
+      },
+      tabs: { shop: "Menu" },
+    },
+  },
+  {
     id: "bookings",
     engine: "booking",
     vertical: null,

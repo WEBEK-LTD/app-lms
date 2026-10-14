@@ -32,7 +32,7 @@ export function PayForm({
   total: string;
   color: string;
   textColor: string;
-  defaults?: CatalogCustomer;
+  defaults?: Partial<CatalogCustomer>;
 }) {
   const [state, action] = useActionState(payAction.bind(null, token), initialFormState);
   const value = (name: keyof CatalogCustomer) => state.values?.[name] ?? defaults?.[name] ?? "";

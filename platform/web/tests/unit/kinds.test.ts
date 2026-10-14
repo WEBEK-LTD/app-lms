@@ -165,8 +165,8 @@ const appOf = (appType: AppType, patch: Partial<App> = {}): App => ({ ...newApp(
 describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
     expect(APP_TYPES).toEqual([...FOUR, "news"]);
-    // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "bookings", "clinic", "real_estate", "news"]);
+    // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "real_estate", "news"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -191,9 +191,9 @@ describe("20 app kinds registry", () => {
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
-    // 21 One more demo: the clinic, after Bookings. 23 The news app, last.
-    expect(DEMO_TYPES).toEqual(["lms", "store", "booking", "clinic", "real_estate", "news"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news" });
+    // 21 One more demo: the clinic, after Bookings. 23 The news app, last. 26 The café, after the shop.
+    expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "real_estate", "news"]);
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant" });
     expect(demoTypeOfSlug("clinic")).toBe("clinic");
     expect(engineOfDemoSlug("clinic")).toBeNull();
     for (const [type, slug] of Object.entries(BEFORE.demoSlugs)) {
@@ -299,6 +299,7 @@ describe("20 app kinds registry", () => {
     expect(SOLUTIONS.map((s) => [s.id, s.contentKey, s.name, s.icon])).toEqual([
       ["academy", "solution-academy", "Academy", "school"],
       ["store", "solution-store", "Store", "storefront"],
+      ["restaurant", "solution-restaurant", "Restaurant & café", "restaurant"],
       ["bookings", "solution-bookings", "Bookings", "calendar_month"],
       ["clinic", "solution-clinic", "Clinic", "stethoscope"],
       ["real-estate", "solution-real-estate", "Real estate", "apartment"],
@@ -308,13 +309,14 @@ describe("20 app kinds registry", () => {
     expect(headers.map((p) => [p.key, p.title, p.path])).toEqual([
       ["solution-academy", "Solutions: Academy", "/solutions/academy"],
       ["solution-store", "Solutions: Store", "/solutions/store"],
+      ["solution-restaurant", "Solutions: Restaurant & café", "/solutions/restaurant"],
       ["solution-bookings", "Solutions: Bookings", "/solutions/bookings"],
       ["solution-clinic", "Solutions: Clinic", "/solutions/clinic"],
       ["solution-real-estate", "Solutions: Real estate", "/solutions/real-estate"],
       ["solution-news", "Solutions: News & blog", "/solutions/news"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Bookings apps", "Clinic apps", "Real estate apps", "News & blog apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "6", label: "app types: academy, store, bookings, clinic, real estate and news & blog" });
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Real estate apps", "News & blog apps"]);
+    expect(NUMBERS[0]).toEqual({ value: "7", label: "app types: academy, store, restaurant & café, bookings, clinic, real estate and news & blog" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
@@ -360,7 +362,8 @@ describe("20 app kinds registry", () => {
     expect(isAppType("real_estate")).toBe(true);
     expect(isAppType("toString")).toBe(false);
     // An app whose vertical has no kind (yet) is its engine's default kind.
-    expect(kindOf({ appType: "store", vertical: "restaurant" }).id).toBe("store");
+    expect(kindOf({ appType: "store", vertical: "fitness" }).id).toBe("store");
+    expect(kindOf({ appType: "booking", vertical: "restaurant" }).id).toBe("bookings");
     // Kind ids, slugs and engines' demo slugs are unique.
     expect(new Set(KINDS.map((k) => k.id)).size).toBe(KINDS.length);
     expect(new Set(KINDS.map((k) => k.marketing.slug)).size).toBe(KINDS.length);
@@ -404,5 +407,35 @@ describe("21 the Clinic kind", () => {
     expect(defaultLayout({ ...app, vertical: "clinic" }, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Book", "Visits", "Account"]);
     expect(defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Book", "Appointments", "Account"]);
     expect(ENGINES.booking.pages.tabs[1]!.label).toBe("Appointments");
+  });
+});
+
+describe("26 the Restaurant & café kind", () => {
+  it("is the store engine with the restaurant vertical, its own words, demo and store categories", () => {
+    const restaurant = kindById("restaurant")!;
+    expect(restaurant).toMatchObject({ engine: "store", vertical: "restaurant", name: "Restaurant & café", icon: "restaurant", marketing: { slug: "restaurant", icon: "restaurant" } });
+    expect(restaurant.description).toBe("Your menu in an app: dishes with options, pickup or delivery, and order tracking.");
+    expect(kindOf({ appType: "store", vertical: "restaurant" })).toBe(restaurant);
+    expect(appTypeName({ appType: "store", vertical: "restaurant" })).toBe("Restaurant & café");
+    expect(suggestedCategories({ appType: "store", vertical: "restaurant" })).toEqual({ play: "Food & Drink", appStore: "Food & Drink" });
+    expect(ENGINES[restaurant.engine].homePath).toBe("/store/home");
+    expect(demoSlugOfKind(restaurant)).toBe("restaurant");
+    expect(demoTypeOfSlug("restaurant")).toBe("restaurant");
+  });
+
+  it("words the dashboard's menu, the Website step and the first layout for restaurants only", () => {
+    const hosted = { kind: "catalog" } as const;
+    const restaurant = contentNavOf({ appType: "store", vertical: "restaurant", connector: hosted })!;
+    expect(restaurant.label).toBe("Your restaurant");
+    expect(restaurant.items.map((i) => [i.href, i.label, i.icon])).toEqual([
+      ["/dashboard/catalog", "Menu", "restaurant_menu"],
+      ["/dashboard/orders", "Kitchen", "skillet"],
+    ]);
+    expect(contentNavOf({ appType: "store", vertical: null, connector: hosted })!.items.map((i) => i.label)).toEqual(["Products", "Orders"]);
+    expect(usersLabelOf({ appType: "store", vertical: "restaurant" })).toBe("Customers");
+    expect(ownContentWords({ appType: "store", vertical: "restaurant" }).next).toContain("**Menu**");
+    const app = { appType: "store" as const, backend: "hosted" as const, appName: "Defne", template: "bold" as const, font: "Outfit", brandingDoneAt: null };
+    expect(defaultLayout({ ...app, vertical: "restaurant" }, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Menu", "Cart", "Account"]);
+    expect(defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Shop", "Cart", "Account"]);
   });
 });

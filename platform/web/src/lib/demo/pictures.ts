@@ -104,6 +104,21 @@ function tooth(x: number, y: number, s: number, color: string): Shape[] {
   ];
 }
 
+/** 26 A plate seen from above, for the café's dishes. */
+function plate(rim: string, inner: string, dx = 0, dy = 0): Shape[] {
+  return [c(50 + dx, 54 + dy, 34, rim), c(50 + dx, 54 + dy, 27, inner)];
+}
+
+/** 26 A cup on a saucer, for the café's drinks and its banner. */
+function cup(color: string, drink: string, dx = 0, dy = 0): Shape[] {
+  return [
+    r(22 + dx, 74 + dy, 56, 6, 3, "#E9E2D6"),
+    r(30 + dx, 42 + dy, 36, 34, 8, color),
+    r(32 + dx, 42 + dy, 32, 6, 3, drink),
+    ...stroke([[66 + dx, 50 + dy], [74 + dx, 52 + dy], [74 + dx, 60 + dy], [66 + dx, 64 + dy]], 3.5, color),
+  ];
+}
+
 export const PICTURES = {
   // Academy (Nour Academy)
   "course-ux": {
@@ -548,6 +563,88 @@ export const PICTURES = {
     from: "#2E5A86",
     to: "#1A3655",
     shapes: [r(24, 26, 52, 50, 5, WHITE), r(30, 32, 40, 7, 1.5, "#24476B"), r(30, 44, 17, 15, 1.5, "#9CC3DD"), r(51, 44, 19, 3, 1.5, "#5D6B66"), r(51, 50, 19, 3, 1.5, "#5D6B66"), r(51, 56, 19, 3, 1.5, "#5D6B66"), r(30, 64, 40, 3, 1.5, "#5D6B66")],
+  },
+  // Restaurant (Defne Café, 26)
+  "dish-breakfast": {
+    from: "#FBF0DC",
+    to: "#E8B66A",
+    shapes: [
+      ...plate(WHITE, "#F7F1E6"),
+      c(40, 46, 9, WHITE),
+      c(40, 46, 4, "#F2B544"),
+      r(53, 38, 16, 10, 3, "#F4E3B0"),
+      c(62, 62, 5, "#C8423B"),
+      c(52, 66, 5, "#C8423B"),
+      ...[0, 1, 2].map((i) => c(36 + i * 6, 64 + (i % 2) * 3, 2.6, "#3B3B32")),
+      r(56, 50, 12, 5, 2.5, "#6E9E4F"),
+    ],
+  },
+  "dish-simit": {
+    from: "#FBEEDB",
+    to: "#D59A55",
+    shapes: [c(50, 52, 28, "#B66A2A"), c(50, 52, 13, "#F6E6CC"), ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => c(50 + 21 * Math.cos(i * 0.785), 52 + 21 * Math.sin(i * 0.785), 1.3, CREAM)), r(18, 80, 64, 6, 3, "#8A5A2B", 0.4)],
+  },
+  "dish-wrap": {
+    from: "#EEF4E2",
+    to: "#9DBB6E",
+    shapes: [
+      ...plate(WHITE, "#F5F6EF"),
+      p([[28, 62], [60, 30], [74, 44], [42, 76]], "#E9C98A"),
+      p([[60, 30], [74, 44], [70, 30]], "#6E9E4F"),
+      c(66, 37, 3, "#C8423B"),
+      ...[0, 1, 2].map((i) => r(30 + i * 5, 34 - i * 2, 3, 14, 1.5, "#F2C14E")),
+    ],
+  },
+  "dish-burger": {
+    from: "#FCEBDC",
+    to: "#E08E52",
+    shapes: [
+      p([[24, 48], [30, 32], [50, 26], [70, 32], [76, 48]], "#D58A3C"),
+      ...[0, 1, 2, 3].map((i) => c(38 + i * 8, 36 - (i % 2) * 3, 1.1, CREAM)),
+      r(22, 48, 56, 5, 2.5, "#6E9E4F"),
+      r(24, 53, 52, 4, 2, "#F2B544"),
+      r(23, 57, 54, 9, 4, "#5A3220"),
+      r(25, 66, 50, 10, 4, "#D58A3C"),
+    ],
+  },
+  "dish-soup": {
+    from: "#FCEADB",
+    to: "#E39A5F",
+    shapes: [...plate(WHITE, "#F7F0E6"), c(50, 54, 21, "#E08A3C"), c(44, 50, 2, "#B5552A"), c(56, 58, 2, "#B5552A"), r(60, 46, 10, 3, 1.5, "#6E9E4F"), p([[70, 80], [86, 64], [89, 67], [74, 83]], "#C9C2B6")],
+  },
+  "dish-cheesecake": {
+    from: "#F7EEE6",
+    to: "#C99A7A",
+    shapes: [r(18, 76, 64, 6, 3, WHITE), p([[24, 74], [76, 74], [76, 50], [24, 40]], "#F2DDB4"), p([[24, 40], [76, 50], [76, 46], [30, 36]], "#6B3E22"), c(64, 42, 4, "#9C2F3E"), c(56, 40, 3, "#B03A5B")],
+  },
+  "dish-baklava": {
+    from: "#F3EEDC",
+    to: "#B9A55E",
+    shapes: [
+      ...plate(WHITE, "#F6F2E6"),
+      ...[0, 1].flatMap((i) => [0, 1].flatMap((j) => [p([[32 + i * 20, 44 + j * 20], [48 + i * 20, 40 + j * 20], [52 + i * 20, 52 + j * 20], [36 + i * 20, 56 + j * 20]], "#D9A441"), c(42 + i * 20, 48 + j * 20, 2.6, "#5E8C3A")])),
+    ],
+  },
+  "drink-coffee": { from: "#F1E4D6", to: "#A87650", shapes: [...cup(WHITE, "#5A361E"), c(48, 34, 2, "#A87650", 0.5), c(54, 28, 1.6, "#A87650", 0.4)] },
+  "drink-juice": {
+    from: "#FFF1D6",
+    to: "#F2A93B",
+    shapes: [p([[34, 26], [66, 26], [62, 82], [38, 82]], "#FFFFFF", 0.7), p([[36, 36], [64, 36], [61, 80], [39, 80]], "#F5A524"), c(66, 28, 9, "#F7B733"), c(66, 28, 6, "#FBD27A"), r(52, 14, 3, 30, 1.5, "#3E7A4A")],
+  },
+  "drink-latte": {
+    from: "#EFE6DC",
+    to: "#9C7A5C",
+    shapes: [p([[36, 24], [64, 24], [61, 82], [39, 82]], "#FFFFFF", 0.65), p([[37, 30], [63, 30], [62, 50], [38, 50]], "#F4EDE2"), p([[38, 50], [62, 50], [61, 80], [39, 80]], "#9C6B43"), r(42, 34, 6, 6, 1, WHITE, 0.8), r(51, 40, 6, 6, 1, WHITE, 0.8), r(56, 12, 3, 26, 1.5, "#2F6F62")],
+  },
+  "banner-restaurant": {
+    from: "#FBEADB",
+    to: "#B5552A",
+    shapes: [...plate(WHITE, "#F7F1E6", 62, 0), c(102, 46, 9, WHITE), c(102, 46, 4, "#F2B544"), r(115, 38, 16, 10, 3, "#F4E3B0"), c(124, 62, 5, "#C8423B"), c(114, 66, 5, "#C8423B"), r(118, 50, 12, 5, 2.5, "#6E9E4F")],
+  },
+  "icon-restaurant": {
+    from: "#C9693A",
+    to: "#8A3B12",
+    shapes: [c(50, 52, 24, WHITE), c(50, 52, 17, "#F6E0D2"), r(19, 26, 3, 50, 1.5, WHITE), r(14, 26, 2, 14, 1, WHITE), r(24, 26, 2, 14, 1, WHITE), p([[80, 26], [86, 30], [86, 50], [82, 50], [82, 76], [79, 76]], WHITE)],
   },
 } satisfies Record<string, Art>;
 

@@ -5,11 +5,17 @@ import { SubmitButton } from "@/components/form";
 import { Badge, EmptyState, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
+import { fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
+import { catalogWords } from "@/lib/catalog/words";
 import { getStore } from "@/lib/data";
 import type { CatalogOrder, CatalogOrderStatus } from "@/lib/data/types";
+import { KitchenView } from "./kitchen";
 
-export const metadata: Metadata = { title: "Orders" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { app } = await requireClient();
+  return { title: catalogWords(app?.vertical).orders };
+}
 
 const PER_PAGE = 25;
 const PAID: CatalogOrderStatus[] = ["processing", "completed", "cancelled", "refunded"];
@@ -39,6 +45,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     );
   }
   const page = Math.max(1, Number.parseInt((await searchParams).page ?? "1", 10) || 1);
+  // 26 A restaurant's orders are its kitchen.
+  const kitchen = app.connector.kind === "catalog" ? fulfilmentOf(app) : null;
+  if (kitchen) return <KitchenView app={app} kitchen={kitchen} page={page} />;
   const store = await getStore();
   const { items, total } = await store.listCatalogOrders({ appId: app.id, statuses: PAID, offset: (page - 1) * PER_PAGE, limit: PER_PAGE });
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));

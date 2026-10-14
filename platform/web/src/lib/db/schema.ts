@@ -4,10 +4,13 @@ import type {
   AppVertical,
   AssetKind,
   CatalogCurrency,
+  CatalogFulfilment,
+  CatalogOptionGroup,
   CatalogCustomer,
   CatalogOrderLine,
   CatalogOrderStatus,
   CatalogSettings,
+  FulfilmentStatus,
   ConnectorConfig,
   HostedSettings,
   PlatformSettingKey,
@@ -433,6 +436,8 @@ export const catalogProducts = mysqlTable(
     featured: boolean("featured").notNull(),
     active: boolean("active").notNull(),
     sku: varchar("sku", { length: 64 }),
+    // 26 A dish's choices (size, extras), as JSON; null for none.
+    optionGroups: jsonText<CatalogOptionGroup[]>("option_groups"),
     salesCount: int("sales_count").notNull().default(0),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
@@ -463,6 +468,9 @@ export const catalogOrders = mysqlTable(
     commissionCents: bigint("commission_cents", { mode: "number", unsigned: true }),
     itemTransactionIds: jsonText<string[]>("item_transaction_ids"),
     payoutApprovedAt: time("payout_approved_at"),
+    // 26 A restaurant's order: pickup or delivery (JSON) and where it is in the kitchen; null for other orders.
+    fulfilment: jsonText<CatalogFulfilment>("fulfilment"),
+    fulfilmentStatus: varchar("fulfilment_status", { length: 24 }).$type<FulfilmentStatus>(),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),

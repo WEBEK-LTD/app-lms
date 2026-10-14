@@ -1,9 +1,10 @@
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
 import type { DataStore } from "../data/store";
-import type { App, CatalogCustomer, CatalogOrder } from "../data/types";
+import type { App, CatalogCustomer, CatalogFulfilment, CatalogOrder } from "../data/types";
 import { approvePaymentItem, initializeCheckoutForm, IyzicoError, retrieveCheckoutForm } from "../payments/iyzico";
 import { centsToDecimal, formatCents } from "./money";
+import { optionsText } from "./options";
 import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
 
@@ -159,8 +160,26 @@ export async function approvePayout(deps: PaymentDeps & { order: CatalogOrder })
   return true;
 }
 
+/** 26 "Pickup at 13:30 on Tue 13 Oct", "Delivery as soon as possible: Moda Cd. 12, Moda": how a restaurant's order is collected. */
+export function fulfilmentLine(fulfilment: CatalogFulfilment, timezone: string): string {
+  const how = fulfilment.type === "delivery" ? "Delivery" : "Pickup";
+  const at = fulfilment.scheduledFor ? scheduledText(fulfilment.scheduledFor, timezone) : "as soon as possible";
+  const address = fulfilment.address ? `: ${[fulfilment.address.address, fulfilment.address.district].filter(Boolean).join(", ")}${fulfilment.address.notes ? ` (${fulfilment.address.notes})` : ""}` : "";
+  return `${how} ${at}${address}`;
+}
+
+/** 26 "at 13:30 on Tue 13 Oct", in the kitchen's time zone. */
+export function scheduledText(iso: string, timezone: string): string {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", { timeZone: timezone, hour: "2-digit", minute: "2-digit", hourCycle: "h23", weekday: "short", day: "numeric", month: "short" })
+      .formatToParts(new Date(iso))
+      .map((p) => [p.type, p.value]),
+  );
+  return `at ${parts.hour}:${parts.minute} on ${parts.weekday} ${parts.day} ${parts.month}`;
+}
+
 /** The values of the shop owner's "New order" email (lib/email/templates.ts) for a paid order. */
-export function newOrderMailValues(order: CatalogOrder, appName: string, dashboardUrl: string): Record<string, string> {
+export function newOrderMailValues(order: CatalogOrder, appName: string, dashboardUrl: string, timezone = "Europe/Istanbul"): Record<string, string> {
   const money = (cents: number) => formatCents(cents, order.currency);
   const c = order.customer;
   return {
@@ -168,8 +187,10 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
     order_number: orderNumber(order),
     total: money(order.totalCents),
     order_lines: [
-      ...order.lines.map((l) => `${l.name} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
-      ...(order.shippingCents > 0 ? [`Shipping: ${money(order.shippingCents)}`] : []),
+      // 26 A dish's options in brackets, and how a restaurant's order is collected.
+      ...order.lines.map((l) => `${l.name}${l.options?.length ? ` (${optionsText(l)})` : ""} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
+      ...(order.shippingCents > 0 ? [`${order.fulfilment ? "Delivery fee" : "Shipping"}: ${money(order.shippingCents)}`] : []),
+      ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone)] : []),
     ].join("\n"),
     customer: c ? `${[c.name, c.phone, c.email, `${c.address}, ${c.city}`].join("\n")}\n\n` : "",
     orders_url: dashboardUrl,
@@ -177,8 +198,8 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
 }
 
 /** The email telling the shop owner about a paid order, with the default template (sending uses the team's edit). */
-export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl: string): { subject: string; text: string } {
-  const { subject, text } = renderTemplate(emailTemplate("new_order")!, newOrderMailValues(order, appName, dashboardUrl));
+export function newOrderMail(order: CatalogOrder, appName: string, dashboardUrl: string, timezone?: string): { subject: string; text: string } {
+  const { subject, text } = renderTemplate(emailTemplate("new_order")!, newOrderMailValues(order, appName, dashboardUrl, timezone));
   return { subject, text };
 }
 

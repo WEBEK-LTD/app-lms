@@ -14,7 +14,7 @@ import { appUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Try a demo app",
-  description: "Install a real Yallapp app on your Android phone: an academy, a shop, a bookings app, a clinic and a real estate app, with sample content.",
+  description: "Install a real Yallapp app on your Android phone: an academy, a shop, a café, a bookings app, a clinic, a real estate app and a news app, with sample content.",
 };
 /** Whether each download is ready comes from the admin. */
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ async function downloads(): Promise<Partial<Record<DemoId, boolean>>> {
   }
 }
 
-/** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic, 23 the news app too). */
+/** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic, 23 the news app, 26 the café too). */
 export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
   const query = await searchParams;
   const [ready, contact] = await Promise.all([downloads(), getContact()]);
@@ -41,7 +41,7 @@ export default async function DemoPage({ searchParams }: PageProps<"/demo">) {
       current="demo"
       eyebrow="Try before you pay"
       title="Try a real app on your phone"
-      intro="Six demo apps, one for each kind of app we make: an academy, a shop, a bookings app, a clinic, a real estate app and a news app. They're real apps with sample content, running the same way your app would."
+      intro="Seven demo apps, one for each kind of app we make: an academy, a shop, a café, a bookings app, a clinic, a real estate app and a news app. They're real apps with sample content, running the same way your app would."
       aside={<DeviceFrame screen="academy-home" size="md" priority />}
     >
       <Section>

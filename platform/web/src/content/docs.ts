@@ -147,7 +147,7 @@ We email you when your account is active.
     slug: "app-types",
     section: "Getting started",
     title: "Choose your app type",
-    description: "Academy, Store, Bookings, Clinic, Real estate or News & blog: what each app type does and where its content can come from.",
+    description: "Academy, Store, Restaurant & café, Bookings, Clinic, Real estate or News & blog: what each app type does and where its content can come from.",
     steps: false,
     body: `The app type decides your app's screens and its bottom tabs. You choose it once, on the first page of **App setup**, and you can change it later.
 
@@ -158,6 +158,10 @@ Courses, lessons, quizzes, progress and certificates. Students browse courses, c
 ## Store
 
 Products, a cart, checkout and orders, with delivery dates and gift messages for flower and gift shops. Content from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, your own API, or products you add in the dashboard. See [the Store solution](/solutions/store).
+
+## Restaurant & café
+
+A store for food: your menu with its categories as tabs, dishes with options (a size, a side, extras), pickup or delivery, now or for later, and order tracking with a notification at each step. Customers pay by card in the app, on Android and iPhone. Options, opening hours, pickup, delivery and the kitchen are for restaurants without a website for now; with WooCommerce, dishes use product variations. See [Restaurants and cafés](/docs/restaurants) and [the Restaurant & café solution](/solutions/restaurant).
 
 ## Bookings
 
@@ -612,13 +616,14 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
     slug: "no-website",
     section: "Your content",
     title: "No website: manage everything in Yallapp",
-    description: "Run a store, academy, bookings, real estate or news app without a website, with your content in the Yallapp dashboard.",
+    description: "Run a store, restaurant, academy, bookings, real estate or news app without a website, with your content in the Yallapp dashboard.",
     steps: false,
     body: `You don't need a website to have an app. Choose **I don't have a website** on the Website step (for Real estate apps, **Listings managed in Yallapp**), and new pages appear in your dashboard's menu for your content.
 
 ## What you manage, by app type
 
 - **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico. See [Products, orders and shipping](/docs/store-orders) and [Card payments with iyzico](/docs/card-payments).
+- **Restaurant & café**: dishes, their options, opening hours, pickup and delivery on the **Menu** page, and orders on the **Kitchen** page. See [Restaurants and cafés](/docs/restaurants).
 - **Academy**: courses, sections and lessons on the **Courses** page, and orders for paid courses. See [Courses without a website](/docs/courses).
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
 - **Clinic**: services, your doctors and your intake form on the **Doctors & services** page, and visits on the **Visits** page. See [Clinics: doctors, visits and the intake form](/docs/clinics).
@@ -1196,6 +1201,53 @@ Customers pay by card on a secure iyzico page. Add your own iyzico keys, or sell
 ## Orders
 
 Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **refunded** or **cancelled** when needed. Customers see their orders and their status in the app.
+`,
+  }),
+  doc({
+    slug: "restaurants",
+    section: "Selling and bookings",
+    title: "Restaurants and cafés: menu, pickup, delivery and the kitchen",
+    description: "Run a Restaurant & café app without a website: dishes with options, opening hours, pickup and delivery, and the Kitchen page.",
+    steps: false,
+    body: `A Restaurant & café app is a store for food, in the words your customers expect: your dashboard shows **Menu** and **Kitchen**, and the app shows your **Menu**. Choose **Restaurant & café** on the first page of **App setup**, then **I don't have a website** on the Website step.
+
+## Dishes and categories
+
+On the **Menu** page, select **Add dish** and fill in its name, description, price and photos, as for any product (see [Products, orders and shipping](/docs/store-orders)). Categories, like *Breakfast*, *Mains* and *Drinks*, become the tabs at the top of your menu in the app.
+
+## Options
+
+Under **Options**, select **Add an option group** for each choice a customer makes, for example:
+
+- **Size**: Small, or Large for 20 more. Customers choose **at least 1** and **at most 1**.
+- **Extras**: Cheese for 15 more, Bacon for 25 more. Customers choose **at least 0** (optional) and **at most 3**.
+
+Each option can cost more than the dish, or nothing extra. The app asks for the groups that must be chosen and shows the price as it changes. Prices are always worked out by our server, never by the phone, so the price you set is the price paid.
+
+## Pickup and delivery
+
+Under **Pickup and delivery**:
+
+- **Pickup**, with the address where customers collect their order, and **Delivery**, with a **delivery fee**, a **minimum order** for delivery and the **districts or postcodes** you deliver to (one per line; customers pick one). A short note like *Within 3 km of Moda* tells customers where you deliver.
+- **Opening hours** for each weekday and your **time zone**. Closed days are left unticked.
+- **Preparation time**: how long an order takes. Customers can't choose a time sooner than this.
+- **As soon as possible** orders while you're open, and **orders for later**, every 15 minutes for example, up to a few days ahead.
+
+When you're closed, the app says **Closed now** and when you open. Orders as soon as possible wait until you open; orders for later still work when you allow them.
+
+## The Kitchen page
+
+Paid orders appear on **Kitchen** with what was chosen, pickup or delivery, the time and the address. You also get an email for each one. Move each order on with one button: **Preparing**, **Ready**, **Out for delivery** (deliveries only) and **Completed**, or **Cancel order**. An order only moves forward. Each step reaches the customer as a notification, and their order in the app shows where it is. The page refreshes by itself every 30 seconds.
+
+> Cancelled orders aren't refunded automatically: refund them in your iyzico panel.
+
+## Payments
+
+Customers sign in, then pay by card on a secure iyzico page, on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own iyzico keys, or sell through Yallapp's account: see [Card payments with iyzico](/docs/card-payments).
+
+## With WooCommerce
+
+Restaurants that sell with WooCommerce get the menu wording, and their product variations work as options. In the app, an order's step follows its WooCommerce status: processing is **Preparing**, completed and cancelled are themselves. Option groups with extra prices, opening hours, pickup and delivery are in the Yallapp dashboard only for now.
 `,
   }),
   doc({

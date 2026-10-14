@@ -110,6 +110,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     intro:
       "Products, a cart and your own checkout in a branded app, from WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, your own API, or products you add in the dashboard with card payments.",
   },
+  restaurant: {
+    eyebrow: "Restaurant & café apps",
+    title: "Your menu, ordered from your customers' phones",
+    intro:
+      "Dishes with their options, pickup or delivery, now or for later, card payments and a kitchen screen that tells customers where their order is, in an app with your restaurant's name.",
+  },
   bookings: {
     eyebrow: "Bookings apps",
     title: "Appointments, booked in your own app",
@@ -174,7 +180,7 @@ export const CONTENT_PAGES: ContentPage[] = [
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      solutionsTitle: "One platform, five kinds of apps",
+      solutionsTitle: "One platform, seven kinds of apps",
       solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
       featuresTitle: "Everything your app needs",
       featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",

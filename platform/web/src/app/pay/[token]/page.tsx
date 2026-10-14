@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/catalog/money";
+import { fulfilmentOf } from "@/lib/catalog/fulfilment";
+import { optionsText } from "@/lib/catalog/options";
+import { scheduledText } from "@/lib/catalog/payment";
 import { checkoutAccount, orderNumber, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -68,13 +71,14 @@ export default async function PayPage({
             <li key={i} className="flex justify-between gap-3 text-[15px]">
               <span className="min-w-0">
                 {line.name} <span className="text-muted">× {line.quantity}</span>
+                {line.options?.length ? <span className="block text-[13px] text-muted">{optionsText(line)}</span> : null}
               </span>
               <span className="shrink-0">{money(line.unitCents * line.quantity)}</span>
             </li>
           ))}
           {order.shippingCents > 0 ? (
             <li className="flex justify-between gap-3 text-[15px]">
-              <span>Shipping</span>
+              <span>{order.fulfilment ? "Delivery fee" : "Shipping"}</span>
               <span>{money(order.shippingCents)}</span>
             </li>
           ) : null}
@@ -83,6 +87,17 @@ export default async function PayPage({
           <span>Total</span>
           <span>{money(order.totalCents)}</span>
         </p>
+        {order.fulfilment ? (
+          <p className="m-0 border-t border-line-soft pt-2 text-[15px] text-ink-4">
+            {order.fulfilment.type === "delivery" ? "Delivery" : "Pickup"}{" "}
+            {order.fulfilment.scheduledFor ? scheduledText(order.fulfilment.scheduledFor, fulfilmentOf(app)?.timezone ?? "Europe/Istanbul") : "as soon as possible"}
+            {order.fulfilment.address
+              ? ` to ${[order.fulfilment.address.address, order.fulfilment.address.district].filter(Boolean).join(", ")}`
+              : fulfilmentOf(app)?.pickupAddress
+                ? ` at ${fulfilmentOf(app)!.pickupAddress}`
+                : ""}
+          </p>
+        ) : null}
       </section>
       {app.demo ? (
         <form action={demoPayAction.bind(null, token)} className="flex flex-col gap-3">
@@ -101,7 +116,7 @@ export default async function PayPage({
             total={money(order.totalCents)}
             color={color}
             textColor={textOn(color)}
-            defaults={order.customer ?? undefined}
+            defaults={order.customer ?? (order.fulfilment?.address ? { address: order.fulfilment.address.address, city: order.fulfilment.address.district ?? "" } : undefined)}
           />
           <p className="m-0 text-center text-[13px] text-muted">Card payments are processed securely by iyzico.</p>
         </>
