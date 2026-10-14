@@ -113,9 +113,11 @@ mobile/
   modules/bookings/ Bookings screens (Amelia, BookingPress, LatePoint): home,
                    services, a service's free times, appointments
   modules/news/    News & blog screens: home, latest, article, saved
+  modules/events/  Events & tickets screens: events (list, calendar), event,
+                   My tickets with QR codes
 ```
 
-- The build config's `app_type` (`lms`, `store`, `booking`, `real_estate` or `news`) picks the module's routes
+- The build config's `app_type` (`lms`, `store`, `booking`, `real_estate`, `news` or `events`) picks the module's routes
   and bottom navigation; everything in `core/` and `modules/shared/` is common.
 - App kinds (roadmap 20): `app_type` is the engine (the module); the optional
   `vertical` (`restaurant`, `clinic`, `fitness`, `charity`; `apps.vertical`,
@@ -432,6 +434,36 @@ mobile/
   everyone and the phones of signed-in users that allow news
   (`NotificationPreferences.news`); the notification opens the article.
   Saved articles stay on the device.
+
+- Events & tickets apps (engine `events`, roadmap 28, hosted only for now):
+  the organiser manages events (`events`), their ticket types
+  (`event_ticket_types`) and settings (`event_settings`: currency, time
+  zone, map link, how long before the start free tickets can be cancelled)
+  on the dashboard's Events page; the hosted API serves the Events endpoints
+  (`lib/events/service.ts`, connector `events`). A ticket (`event_tickets`)
+  has a code of 12 random characters (32 letters and digits that can't be
+  confused, 60 bits) and a QR payload `YT1.<code>.<HMAC>` signed with a key
+  per app made from `SIGNING_SECRET`, so a QR code can't be made up offline
+  and never checks in at another app's door. Places: a ticket holds one while
+  valid or used, and a pending one (bought, not paid yet) until its hold ends
+  (the payment link's hour plus iyzico's page, so a confirmed payment always
+  finds its places); `claimTickets` counts and writes in one transaction that
+  locks the event's row, so the last place is never given twice. Free
+  tickets are issued at once; paid ones go through the payment page like paid
+  courses (own iyzico account or the marketplace, with its commission) and
+  become valid only when iyzico confirms the payment (or a demo order is
+  placed). Apple's rule: a ticket to an event at a venue is a physical-world
+  service, sold on both platforms; an online-only event (no venue) is digital
+  content, so on iOS its paid tickets have no button and the checkout link is
+  refused (the app checks again). The online link is sent to ticket holders
+  only. Check-in (dashboard, on a phone) reads a scanned QR code (the
+  browser's BarcodeDetector) or a typed code and marks a valid ticket used
+  in one conditional update: a second scan answers "Already used" with the
+  time. Changing an event's time, place or link, or cancelling it (which
+  cancels its tickets), notifies the holders (`hosted_notifications.event_id`,
+  push type `event`). The app keeps the user's tickets on the phone, so they
+  show at the door offline, and forgets them on sign-out. WordPress (The
+  Events Calendar and Event Tickets) is a follow-up.
 
 - Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
   and a plan has a card price, pending clients see "Pay by card" on the
