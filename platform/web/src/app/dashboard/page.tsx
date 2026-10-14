@@ -24,6 +24,7 @@ import { isInProgress, statusExplanation } from "@/lib/builds/view";
 import { dashboardFileHref, fileLink } from "@/lib/files";
 import { CLIENT_STATUS_LABEL, PUBLISHING_STORES, statusTone, STORE_TITLE } from "@/lib/publishing/steps";
 import type { App } from "@/lib/data/types";
+import { paymentsSetUp } from "@/lib/catalog/settings";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -137,6 +138,14 @@ export default async function OverviewPage() {
           Your plan ends on {formatDate(license?.expiresAt)}
           {scheduled ? ` and moves to ${effective[scheduled.plan].name}` : ""}. <Link href="/dashboard/license#renew">Renew by card</Link> or{" "}
           <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
+        </Notice>
+      ) : null}
+
+      {/* 19 Products managed here show without a cart until the shop can take card payments. */}
+      {app.connector?.kind === "catalog" && !paymentsSetUp(app) ? (
+        <Notice tone="warn" icon="warning">
+          Customers can see your products in the app but can&apos;t pay for them until you set up{" "}
+          <Link href="/dashboard/catalog#h-payments">Card payments</Link> on the Products page.
         </Notice>
       ) : null}
 

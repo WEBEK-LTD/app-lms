@@ -238,6 +238,27 @@ describe("bookings on the hosted API", () => {
     expect(mail.subject).toBe("New appointment: Massage, 2026-10-19 11:00");
     expect(mail.text).toContain("Elif Şahin booked Massage with Mehmet Demir in Salon Lale.");
     expect(mail.text).toContain("It waits for your approval.");
+    expect(mail.text).toContain("Phone: +905321234567");
+  });
+
+  it("19 keeps the email of someone who signed in by email in its own field", async () => {
+    const email = `${"a".repeat(60)}@a-rather-long-company-name.example.com`;
+    const ela = await store.createHostedUser({ appId: app.id, phone: null, name: "Ela", email, city: null, now: NOW });
+    const connector = context().connector!;
+    const request = (method: string, path: string[], body?: unknown) =>
+      connector.handle({ method, path, query: new URLSearchParams({ platform: "android" }), body, user: ela, now: NOW });
+    const result = await request("POST", ["bookings", "appointments"], { service_id: 10, start: "2026-10-19T08:00:00.000Z" });
+    expect(result!.status).toBe(201);
+    expect(booked[0]).toMatchObject({ customerPhone: null, customerEmail: email, userId: ela!.id });
+    const mail = newAppointmentMail(booked[0]!, "Europe/Istanbul", "Salon Lale", "https://yallapp.test/dashboard/appointments");
+    expect(mail.text).toContain(`Email: ${email}`);
+    expect(mail.text).not.toContain("Phone:");
+    // Only Ela's own appointments; nobody else's without a phone.
+    const mine = await connector.handle({ method: "GET", path: ["me", "appointments"], query: new URLSearchParams(), body: undefined, user: ela, now: NOW });
+    expect(mine!.body).toMatchObject({ total: 1 });
+    const other = await store.createHostedUser({ appId: app.id, phone: null, name: "Can", email: "can@example.com", city: null, now: NOW });
+    const theirs = await connector.handle({ method: "GET", path: ["me", "appointments"], query: new URLSearchParams(), body: undefined, user: other, now: NOW });
+    expect(theirs!.body).toMatchObject({ total: 0, items: [] });
   });
 });
 

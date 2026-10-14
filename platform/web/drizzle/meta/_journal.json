@@ -148,6 +148,13 @@
       "when": 1791975284001,
       "tag": "0020_sign_in_methods",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1791982202496,
+      "tag": "0021_booking_customer_email",
+      "breakpoints": true
     }
   ]
 }

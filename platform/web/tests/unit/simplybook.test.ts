@@ -457,6 +457,16 @@ describe("SimplyBook on the hosted API", () => {
   const book = (token: string | null, body: Record<string, unknown>, platform = "android") =>
     call("POST", "/bookings/appointments", { query: { platform }, token, body });
 
+  it("19 never matches an email account (no phone) to clients without a phone", async () => {
+    const user = { id: 99, appId: app.id, phone: null, name: "Ela", email: "ela@example.com", city: null, notificationsReadAt: null, createdAt: NOW, updatedAt: NOW };
+    const result = await connector.handle({ method: "GET", path: ["me", "appointments"], query: new URLSearchParams(), body: undefined, user, now: NOW });
+    expectContract("GET", "/me/appointments", result!);
+    expect(result!.body).toMatchObject({ total: 0, items: [] });
+    expect(fake.calls.some((c) => c.method === "getClientList" || c.method === "getBookings")).toBe(false);
+    const one = await connector.handle({ method: "GET", path: ["me", "appointments", "500"], query: new URLSearchParams(), body: undefined, user, now: NOW });
+    expect(one!.status).toBe(404);
+  });
+
   it("checks the keys through the platform definition and builds from the saved values", async () => {
     const deps = { appId: app.id, store, fetcher: fake.fetch, saveSecrets: async () => undefined };
     expect(await SIMPLYBOOK_PLATFORM.create({ ...SETTINGS }, deps).check()).toBe("Salon Lale");
@@ -711,7 +721,10 @@ describe("SimplyBook on the hosted API", () => {
     expect((await call("GET", "/bookings/availability", { query: { service: "1", from: MONDAY } })).status).toBe(503);
     expect((await book(token, { service_id: 1, start: localToUtc(MONDAY, "10:00", TZ).toISOString() })).status).toBe(503);
     expect((await call("GET", "/me/appointments", { token })).status).toBe(503);
-    expect((await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).status).toBe(503);
+    // 19 The app still opens: the config comes without the bookings part.
+    const config = await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } });
+    expect(config.status).toBe(200);
+    expect((config.body as Record<string, unknown>).bookings).toBeUndefined();
   });
 
   it("keeps the home screen when the admin access fails", async () => {

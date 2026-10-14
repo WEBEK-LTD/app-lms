@@ -1,5 +1,5 @@
 import type { HostedUser } from "../../data/types";
-import { error, intParam } from "./common";
+import { error, intParam, verifiedEmail } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition, type PlatformDeps } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
@@ -9,12 +9,15 @@ import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./t
  * Teachable Public API (v1) with the school owner's API key (Growth plan or
  * higher). Courses, sections and lectures keep Teachable's numeric IDs.
  *
- * Students sign in to the app with their phone; Teachable knows students by
- * e-mail only. The e-mail a student gives the app isn't verified, so it's
- * never used to find a Teachable account (anyone could type another
- * student's): each student is found or created in Teachable only by the
- * stable address `u<user id>.<first 8 characters of the app ID>@students.yallapp.com.tr`
- * (a domain we control), with `src` "yallapp".
+ * Teachable knows students by e-mail only. The e-mail a student who signs
+ * in by phone gives the app isn't verified, so it's never used to find a
+ * Teachable account (anyone could type another student's): such a student is
+ * found or created in Teachable only by the stable address
+ * `u<user id>.<first 8 characters of the app ID>@students.yallapp.com.tr`
+ * (a domain we control), with `src` "yallapp". 19 A student who signs in by
+ * email proved their address with a code: they are the Teachable student
+ * with that address (found, or created with it), so courses they bought on
+ * the school's website show in the app.
  *
  * Teachable allows 100 API requests per minute per school, and lecture titles
  * need one request per lecture, so the catalog is cached for 10 minutes and
@@ -639,9 +642,13 @@ export class TeachableConnector implements PlatformConnector {
 
   // Students
 
-  /** The student's address in Teachable. Never the e-mail they gave the app: it isn't verified. */
+  /**
+   * The student's address in Teachable. Never an e-mail a phone account typed
+   * in the app: it isn't verified. 19 An email account proved its address
+   * with a code: it's the Teachable student with that address.
+   */
   private emailOf(user: HostedUser): string {
-    return `u${user.id}.${this.deps.appId.slice(0, 8).toLowerCase()}@${STUDENT_DOMAIN}`;
+    return verifiedEmail(user) ?? `u${user.id}.${this.deps.appId.slice(0, 8).toLowerCase()}@${STUDENT_DOMAIN}`;
   }
 
   /** The student's Teachable user ID: found by their stable address, or created with it. */

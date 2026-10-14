@@ -1,7 +1,7 @@
 import { createHash, createHmac } from "node:crypto";
 import type { HostedUser } from "../../data/types";
 import { descriptionHtml } from "./catalog";
-import { error, intParam } from "./common";
+import { error, intParam, verifiedEmail } from "./common";
 import { registerPlatform, type PlatformConnector, type PlatformDefinition } from "./platforms";
 import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./types";
 
@@ -19,12 +19,15 @@ import { ConnectorError, type ConnectorRequest, type ConnectorResult } from "./t
  * enrollment's `percentage_completed`, which Thinkific's player keeps up to
  * date.
  *
- * Each app user has their own Thinkific student, linked by the external ID
- * `yallapp-<first 8 characters of the app ID>-<user ID>` (provider SSO) and
- * the address `u<user ID>.<first 8 characters of the app ID>@students.yallapp.com.tr`.
- * The e-mail a user gave the app is never used: it isn't verified (phones
- * are), so matching or creating by it would let anyone who types another
- * student's address take over their Thinkific account.
+ * Each app user who signs in by phone has their own Thinkific student,
+ * linked by the external ID `yallapp-<first 8 characters of the app ID>-<user ID>`
+ * (provider SSO) and the address `u<user ID>.<first 8 characters of the app ID>@students.yallapp.com.tr`.
+ * The e-mail such a user typed in the app is never used: it isn't verified,
+ * so matching or creating by it would let anyone who types another
+ * student's address take over their Thinkific account. 19 Someone who signs
+ * in by email proved their address with a code: they are the Thinkific
+ * student with that address (found, or created with it), so courses bought
+ * on the school's website show in the app.
  */
 
 export const THINKIFIC_API = "https://api.thinkific.com/api/public/v1";
@@ -535,13 +538,18 @@ export class ThinkificConnector implements PlatformConnector {
     return new Map(entries.map((e, i) => [e.course.id, counts[i]!]));
   }
 
-  private externalId(user: HostedUser): string {
-    return `yallapp-${this.appId.slice(0, 8)}-${user.id}`;
+  /** Our external ID for a phone account; null for an email account (19), which is its address. */
+  private externalId(user: HostedUser): string | null {
+    return verifiedEmail(user) ? null : `yallapp-${this.appId.slice(0, 8)}-${user.id}`;
   }
 
-  /** The student's address on Thinkific: stable, derived from the app and user, on a domain Yallapp controls. */
+  /**
+   * The student's address on Thinkific: 19 the address an email account
+   * signed in with (proved by a code), else a stable one derived from the
+   * app and user, on a domain Yallapp controls.
+   */
   private studentEmail(user: HostedUser): string {
-    return `u${user.id}.${this.appId.slice(0, 8)}@${STUDENT_EMAIL_DOMAIN}`;
+    return verifiedEmail(user) ?? `u${user.id}.${this.appId.slice(0, 8)}@${STUDENT_EMAIL_DOMAIN}`;
   }
 
   private toStudent(user: HostedUser, found: ThinkificUser): Student {
@@ -551,8 +559,10 @@ export class ThinkificConnector implements PlatformConnector {
 
   /**
    * The user's Thinkific student, found by our external ID or our own
-   * address only (never by the e-mail the user gave the app), and created
-   * with them when `create` is set.
+   * address only (never by an e-mail the user typed in the app), and created
+   * with them when `create` is set. 19 An email account is the Thinkific
+   * student with its verified address, so courses bought on the school's
+   * website with it show in the app.
    */
   private async student(user: HostedUser, create: boolean): Promise<Student | null> {
     const key = `${this.cachePrefix}:${this.appId}:${user.id}`;
@@ -567,8 +577,11 @@ export class ThinkificConnector implements PlatformConnector {
 
   private async findStudent(user: HostedUser): Promise<Student | null> {
     const own = this.studentEmail(user);
-    const byId = await this.client.request<ThinkificUser>("GET", `/users/${encodeURIComponent(this.externalId(user))}`, { query: { provider: "SSO" }, allow: [404] });
-    if (byId.status === 200 && byId.data?.id) return this.toStudent(user, byId.data);
+    const externalId = this.externalId(user);
+    if (externalId) {
+      const byId = await this.client.request<ThinkificUser>("GET", `/users/${encodeURIComponent(externalId)}`, { query: { provider: "SSO" }, allow: [404] });
+      if (byId.status === 200 && byId.data?.id) return this.toStudent(user, byId.data);
+    }
     const byEmail = await this.client.get<Paged<ThinkificUser>>("/users", { "query[email]": own });
     const match = byEmail.items?.find((u) => u.email?.toLowerCase() === own);
     return match ? this.toStudent(user, match) : null;
@@ -579,8 +592,7 @@ export class ThinkificConnector implements PlatformConnector {
       body: {
         ...splitName(user.name),
         email: this.studentEmail(user),
-        external_id: this.externalId(user),
-        provider: "SSO",
+        ...(this.externalId(user) ? { external_id: this.externalId(user), provider: "SSO" } : {}),
         send_welcome_email: false,
         skip_custom_fields_validation: true,
       },
@@ -735,7 +747,8 @@ export class ThinkificConnector implements PlatformConnector {
         first_name: student.first_name,
         last_name: student.last_name,
         iat: Math.floor(now.getTime() / 1000),
-        external_id: this.externalId(user),
+        // 19 An email account is known to Thinkific by its address alone.
+        ...(this.externalId(user) ? { external_id: this.externalId(user) } : {}),
       },
       this.settings.ssoSecret,
     );

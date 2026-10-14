@@ -721,7 +721,10 @@ export interface BookingAppointment {
   serviceName: string;
   staffName: string;
   customerName: string;
-  customerPhone: string;
+  /** E.164; null for someone who signed in by email (19). */
+  customerPhone: string | null;
+  /** 19 The address of someone who signed in by email; null otherwise. */
+  customerEmail: string | null;
   startAt: Date;
   endAt: Date;
   status: BookingStatus;

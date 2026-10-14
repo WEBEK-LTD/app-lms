@@ -93,7 +93,20 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
                   <Badge tone={TONES[a.status]}>{BOOKING_STATUS_LABELS[a.status]}</Badge>
                 </div>
                 <span className="text-[15px]">
-                  {a.customerName} · <a href={`tel:${a.customerPhone}`}>{a.customerPhone}</a> · with {a.staffName} · {formatCents(a.priceCents, a.currency)}
+                  {a.customerName}
+                  {/* 19 Someone who signed in by email is reached by email. */}
+                  {a.customerPhone ? (
+                    <>
+                      {" "}
+                      · <a href={`tel:${a.customerPhone}`}>{a.customerPhone}</a>
+                    </>
+                  ) : a.customerEmail ? (
+                    <>
+                      {" "}
+                      · <a href={`mailto:${a.customerEmail}`}>{a.customerEmail}</a>
+                    </>
+                  ) : null}{" "}
+                  · with {a.staffName} · {formatCents(a.priceCents, a.currency)}
                 </span>
                 {a.notes ? <span className="rounded-xl bg-sand p-3 text-[15px] text-ink-4">{a.notes}</span> : null}
                 <div className="flex flex-wrap gap-2">

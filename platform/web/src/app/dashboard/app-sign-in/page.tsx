@@ -8,7 +8,7 @@ import { failureDate } from "@/lib/hosted/app-sender";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
-import { chosenSignInMethods, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
+import { chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { AppSignInForm, AppWhatsappForms, SignInMethodsForm } from "./forms";
 
 export const metadata: Metadata = { title: "App sign-in" };
@@ -135,6 +135,7 @@ export default async function AppSignInPage() {
           current={signInMethodsChoice(methods)}
           wordpress={wordpress}
           emailPossible={emailSignInPossible(app)}
+          note={emailSignInNote(app)}
           chosen={wordpress ? chosenSignInMethods(app) !== null : true}
         />
       </section>

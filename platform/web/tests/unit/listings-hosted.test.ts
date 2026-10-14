@@ -12,7 +12,8 @@ import { formatListingPrice } from "@/lib/listings/json";
 import { newInquiryMail, notifyInquiryReply } from "@/lib/listings/notify";
 import { fold } from "@/lib/listings/search";
 import { expectContract } from "./contract";
-import { NOW, days, setupClient } from "./helpers";
+import { KEY, NOW, days, setupClient } from "./helpers";
+import { pickableContent } from "@/lib/hosted/pages/pickable";
 
 const ASSETS = (id: string) => `https://yallapp.test/api/v1/assets/${id}`;
 
@@ -195,6 +196,17 @@ describe("listings on the hosted API", () => {
       contact: { name: "Nile Homes Maadi", phone: "+201001234567", whatsapp: "+201001234567", email: "office@nile.test" },
       messages: false,
     });
+  });
+
+  it("19 offers the published listings to pick in the page editor", async () => {
+    const pickable = await pickableContent(app, { store, key: KEY, assetUrl: (id) => id, platformUrl: "https://yallapp.test" }, NOW);
+    const listed = await store.listListings(app.id);
+    const published = listed.filter((l) => l.status === "published");
+    expect(pickable.items.listings).toEqual(published.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title })));
+    expect(pickable.items.listings).toContainEqual({ id: String(ids.nile), title: "Bright apartment with a Nile view (NH-1042)" });
+    expect(pickable.items.listings!.map((l) => l.id)).not.toContain(String(ids.draft));
+    expect(pickable.items.listings!.map((l) => l.id)).not.toContain(String(ids.archived));
+    expect(pickable.categories).toEqual({});
   });
 
   it("offers filters from the published listings only", async () => {

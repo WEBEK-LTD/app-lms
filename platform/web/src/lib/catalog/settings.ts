@@ -10,6 +10,16 @@ export function catalogSettings(app: App): CatalogSettings {
   return { ...DEFAULT_CATALOG_SETTINGS, ...(app.catalogSettings ?? {}) };
 }
 
+/**
+ * 19 Whether the app's payment page can take a card payment: Card payments
+ * are set up (the owner's iyzico keys or a marketplace account), or it's a
+ * demo, whose payment page charges nothing. Products and paid courses aren't
+ * offered for sale without it.
+ */
+export function paymentsSetUp(app: Pick<App, "catalogSettings" | "demo">): boolean {
+  return app.catalogSettings?.payment != null || app.demo === true;
+}
+
 export function encryptPaymentKeys(appId: string, apiKey: string, secretKey: string, sandbox: boolean, key: Buffer): OwnIyzicoPayment {
   return {
     provider: "iyzico",

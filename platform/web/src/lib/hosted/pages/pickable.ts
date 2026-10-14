@@ -30,7 +30,7 @@ export function ownApiBase(app: Pick<App, "backend" | "siteUrl" | "apiBaseUrl">)
 }
 
 /**
- * The courses, products or services and their categories, read the way the
+ * The courses, products, services or listings and their categories, read the way the
  * app reads them: from the connected platform on the hosted API, or from the
  * client's WordPress site or own API.
  */
@@ -43,6 +43,12 @@ export async function pickableContent(
   const base = ownApiBase(app);
   if (base) return ownApiPickable(app, base, deps.readList ?? readApiList);
   if (app.backend !== "hosted") return out;
+  // 19 Real estate: the published listings (a list block shows only those), from the dashboard's own data.
+  if (app.appType === "real_estate") {
+    const listings = (await deps.store.listListings(app.id)).filter((l) => l.status === "published").slice(0, 200);
+    out.items.listings = listings.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title }));
+    return out;
+  }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
   if (!connector) return out;
   if (app.appType === "lms") {

@@ -1,5 +1,5 @@
 import { centsToDecimal, formatCents } from "../../catalog/money";
-import { PAY_LINK_MINUTES } from "../../catalog/settings";
+import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
@@ -36,7 +36,7 @@ export class CoursesConnector implements Connector {
 
   private get canSell(): boolean {
     // 16 A demo academy "sells" on its payment page, which charges nothing.
-    return (this.deps.app.catalogSettings?.payment != null || this.deps.app.demo === true) && this.deps.cardPayments !== false;
+    return paymentsSetUp(this.deps.app) && this.deps.cardPayments !== false;
   }
 
   async config() {

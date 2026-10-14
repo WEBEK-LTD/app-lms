@@ -10,7 +10,7 @@ import {
   type HostedUser,
 } from "../data/types";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
-import { ConnectorError, type Connector } from "./connectors/types";
+import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
 import { handlePages } from "./pages";
 import { draftLayout, lookAndLanguages } from "../pages/layout";
@@ -242,6 +242,11 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
 
 // Configuration
 
+/** An error for the server log: its kind and message only (never a request, headers or keys). */
+export function errorText(e: unknown): string {
+  return e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 300) : "unknown error";
+}
+
 async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   const platform = req.query.get("platform");
   if (platform !== "android" && platform !== "ios") return badRequest("Unknown platform.");
@@ -252,8 +257,10 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
   try {
     extra = ctx.connector ? await ctx.connector.config() : {};
   } catch (e) {
-    if (!(e instanceof ConnectorError)) throw e;
-    return error(503, "shop_unavailable", "The shop can't be reached right now. Please try again in a moment.");
+    // 19 One platform failing doesn't keep the app from opening: the config is
+    // served without what the platform adds (its screens say it can't be reached).
+    console.error(`[hosted] app ${app.id}: the connected platform's config failed: ${errorText(e)}`);
+    extra = {};
   }
   return ok({
     site: {
