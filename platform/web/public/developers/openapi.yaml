@@ -84,6 +84,14 @@ tags:
       Property listings, for Real estate apps: search with filters, a
       listing's details, favorites and messages to the office. Listings are
       managed in the Yallapp dashboard and served by the hosted API.
+  - name: News
+    description: |
+      Articles and categories, for News & blog apps (roadmap 23). Read-only
+      and free to read: there is no paid content. WordPress serves the site's
+      published posts (never private or password-protected ones); the hosted
+      API serves articles written in the Yallapp dashboard or read from the
+      site's RSS or Atom feed. An article's body is processed like lesson
+      content (`render_mode`, `html` with embed placeholders, `embeds`).
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -1853,6 +1861,98 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /news/home:
+    get:
+      tags: [News]
+      operationId: getNewsHome
+      summary: Get the news home screen
+      description: |
+        Featured articles (sticky posts on WordPress, featured in the dashboard;
+        the newest on a feed), the latest articles and a rail per category with
+        articles, newest first. Empty lists are sent as empty arrays; rails
+        without articles are left out.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: The home screen
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NewsHome' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /news/categories:
+    get:
+      tags: [News]
+      operationId: listNewsCategories
+      summary: List article categories
+      description: Categories with published articles, in the site's own order.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/NewsCategory' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /news/articles:
+    get:
+      tags: [News]
+      operationId: listArticles
+      summary: List articles
+      description: Published articles, newest first (or in the order of `ids`).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: category, in: query, schema: { type: string, maxLength: 64 }, description: 'A `NewsCategory.id`.' }
+        - { name: search, in: query, schema: { type: string, maxLength: 100 }, description: 'Words in the title, excerpt or body.' }
+        - { name: featured, in: query, schema: { type: boolean } }
+        - { name: ids, in: query, schema: { type: string, example: '12,40,7' }, description: 'Comma-separated article IDs, returned in that order (at most 30).' }
+      responses:
+        '200':
+          description: Articles
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/ArticleSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /news/articles/{article_id}:
+    get:
+      tags: [News]
+      operationId: getArticle
+      summary: Get an article
+      description: A published article with its body, processed like a lesson's content.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ArticleId'
+      responses:
+        '200':
+          description: The article
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Article' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1915,6 +2015,12 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    ArticleId:
+      name: article_id
+      in: path
+      required: true
+      description: Numeric on WordPress and for articles written in Yallapp; a short code for articles from a feed.
+      schema: { type: string, pattern: '^[A-Za-z0-9_-]{1,64}$', example: '1042' }
     InquiryId:
       name: inquiry_id
       in: path
@@ -2130,6 +2236,7 @@ components:
         appearance: { $ref: '#/components/schemas/Appearance' }
         languages: { $ref: '#/components/schemas/Languages' }
         listings: { $ref: '#/components/schemas/ListingsConfig' }
+        news: { $ref: '#/components/schemas/NewsConfig' }
         vertical:
           type: [string, 'null']
           enum: [restaurant, clinic, fitness, charity, null]
@@ -2221,6 +2328,7 @@ components:
         new_lessons: { type: boolean }
         announcements: { type: boolean }
         daily_reminder: { type: boolean }
+        news: { type: boolean, description: New articles sent as push notifications (News & blog apps). }
 
     Category:
       type: object
@@ -2493,10 +2601,11 @@ components:
         id: { type: integer }
         title: { type: string }
         body: { type: string }
-        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer] }
+        type: { type: string, enum: [new_lesson, announcement, enrolled, qna_answer, article] }
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
         question_id: { type: [integer, 'null'], description: "For qna_answer, the question that was answered." }
+        article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
         created_at: { type: string, format: date-time }
         read: { type: boolean }
 
@@ -3081,7 +3190,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -3097,8 +3206,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only.
-      enum: [courses, products, services, posts, listings]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website.
+      enum: [courses, products, services, posts, listings, articles]
 
     Item:
       type: object
@@ -3442,3 +3551,85 @@ components:
               from: { type: string, enum: [user, office] }
               text: { type: string }
               created_at: { type: string, format: date-time }
+
+    NewsConfig:
+      type: object
+      description: Settings for News & blog apps.
+      required: [show_author, show_dates, breaking_news_push]
+      properties:
+        show_author: { type: boolean, description: Whether articles show their author. }
+        show_dates: { type: boolean, description: Whether articles show when they were published. }
+        breaking_news_push: { type: boolean, description: "Whether the site sends new articles as push notifications to people signed in to the app; the app then offers the News switch in Settings (`NotificationPreferences.news`)." }
+
+    NewsCategory:
+      type: object
+      required: [id, name, count]
+      properties:
+        id: { type: string, example: '7' }
+        name: { type: string, example: Economy }
+        count: { type: integer, description: Published articles in it. }
+
+    ArticleSummary:
+      type: object
+      required: [id, title, excerpt, author, published_at, image_url, categories, url]
+      properties:
+        id: { type: string, example: '1042' }
+        title: { type: string }
+        excerpt: { type: [string, 'null'], description: 'Plain text, a few sentences at most.' }
+        author: { type: [string, 'null'], description: "The author's display name. Null when `NewsConfig.show_author` is off or it is unknown." }
+        published_at: { type: [string, 'null'], format: date-time }
+        image_url: { type: [string, 'null'], format: uri }
+        categories:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: string }
+              name: { type: string }
+        url: { type: [string, 'null'], format: uri, description: 'The article on the website, for sharing. Null when it has no public page.' }
+        featured: { type: boolean }
+
+    Article:
+      allOf:
+        - $ref: '#/components/schemas/ArticleSummary'
+        - type: object
+          description: The body, processed exactly like a lesson's content (see `Lesson`).
+          required: [render_mode, html, webview_url, embeds]
+          properties:
+            render_mode: { type: string, enum: [native, webview] }
+            html:
+              type: [string, 'null']
+              description: >-
+                Cleaned body for native mode. Each iframe is replaced by exactly
+                `<div data-yallapp-embed="yallapp-embed-N"></div>`, where the attribute value is the
+                `placeholder` of the matching item in `embeds`.
+            webview_url: { type: [string, 'null'], format: uri, description: The article's page for web view mode. }
+            embeds:
+              type: array
+              items: { $ref: '#/components/schemas/Embed' }
+
+    NewsHome:
+      type: object
+      required: [featured, latest, rails]
+      properties:
+        featured:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/ArticleSummary' }
+        latest:
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/ArticleSummary' }
+        rails:
+          type: array
+          description: A rail per category with articles, in the categories' order.
+          items:
+            type: object
+            required: [category, articles]
+            properties:
+              category: { $ref: '#/components/schemas/NewsCategory' }
+              articles:
+                type: array
+                maxItems: 10
+                items: { $ref: '#/components/schemas/ArticleSummary' }
