@@ -1,5 +1,6 @@
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
+import 'package:yallapp/core/format/dates.dart';
 
 import '../../support/fake_api.dart';
 import '../../support/fixtures.dart';
@@ -121,6 +122,72 @@ class DemoApi extends FakeApi {
     };
     final api = DemoApi._(config: config);
     api.service = _clinicService();
+    return api;
+  }
+
+  /// 27 A yoga, spin and strength studio: today's classes and memberships.
+  factory DemoApi.fitness() {
+    final config = {
+      ...configJson(lms: null, bookings: true, languages: _languages),
+      'site': _site('Pulse Studio'),
+      'branding': {'logo_url': null, 'primary_color': '#B5471B'},
+      'vertical': 'fitness',
+    };
+    config['bookings'] = {
+      ...(config['bookings'] as Map<String, dynamic>),
+      'classes': classesConfigJson(),
+    };
+    final today = isoDate(DateTime.now());
+    Map<String, dynamic> c(
+      int id,
+      String time,
+      String name,
+      String coach,
+      String color,
+      int capacity,
+      int left, {
+      bool booked = false,
+    }) => {
+      ...classJson(
+        id: id,
+        name: name,
+        localDate: today,
+        localTime: time,
+        capacity: capacity,
+        spotsLeft: left,
+        booked: booked,
+        canCancel: booked,
+        coach: coach,
+      ),
+      'service': {'id': id, 'name': name, 'image_url': null, 'color': color},
+    };
+    final api = DemoApi._(config: config)
+      ..classes = [
+        c(1, '07:00', 'Spin', 'Can Yılmaz', '#B5471B', 12, 0),
+        c(2, '07:30', 'Yoga flow', 'Selin Aydın', '#2E7D5B', 14, 6),
+        c(3, '12:15', 'HIIT', 'Mira Haddad', '#C98A16', 10, 3),
+        c(4, '18:30', 'Spin', 'Can Yılmaz', '#B5471B', 12, 5, booked: true),
+        c(5, '19:30', 'Mat pilates', 'Selin Aydın', '#5B4A9E', 12, 8),
+      ]
+      ..memberships = [membershipJson(creditsLeft: 7)]
+      ..plans = [
+        planJson(),
+        planJson(
+          id: 31,
+          name: '10-class pack',
+          period: 'pack',
+          credits: 10,
+          amount: '1500.00',
+          description: 'Ten classes, no end date.',
+        ),
+        planJson(
+          id: 32,
+          name: 'Three months unlimited',
+          period: 'quarter',
+          amount: '4800.00',
+          description: 'Every class for three months, at a better price.',
+        ),
+      ];
     return api;
   }
 

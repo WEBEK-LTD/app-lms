@@ -529,6 +529,23 @@ abstract class YallappApi {
   Future<Appointment> getMyAppointment(int appointmentId);
   Future<Appointment> cancelMyAppointment(int appointmentId);
 
+  /// 27 Classes on the timetable from [from] to [to] (the business's local
+  /// dates, both included).
+  Future<ClassList> listClasses({required String from, String? to});
+
+  /// Books a spot. Throws `class_full` (409), `membership_required` or
+  /// `no_credits` (403) and `too_late` (409).
+  Future<ClassSession> bookClass(int classId);
+
+  /// Gives the spot back (and its credit). Throws `too_late` (409).
+  Future<ClassSession> cancelClass(int classId);
+  Future<List<MembershipPlan>> listMembershipPlans();
+  Future<List<Membership>> listMyMemberships();
+
+  /// The payment page for a plan. On iOS too: a membership is a service
+  /// used in person (App Store Review Guideline 3.1.3(e)).
+  Future<CheckoutLink> createMembershipCheckoutLink(int planId);
+
   Future<ListingFilters> getListingFilters();
   Future<Paged<ListingSummary>> searchListings(ListingQuery query);
   Future<ListingDetail> getListing(int listingId);
@@ -1256,6 +1273,56 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => Appointment.fromJson(asJson(data)),
   );
+
+  @override
+  Future<ClassList> listClasses({required String from, String? to}) => _get(
+    '/bookings/classes',
+    _optional,
+    ClassList.fromJson,
+    query: {'from': from, 'to': ?to},
+  );
+
+  @override
+  Future<ClassSession> bookClass(int classId) => _send(
+    'POST',
+    '/bookings/classes/$classId/book',
+    _required,
+    (data) => ClassSession.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<ClassSession> cancelClass(int classId) => _send(
+    'POST',
+    '/bookings/classes/$classId/cancel',
+    _required,
+    (data) => ClassSession.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<List<MembershipPlan>> listMembershipPlans() => _get(
+    '/memberships/plans',
+    _optional,
+    (json) => reqListOf(json, 'items', MembershipPlan.fromJson),
+  );
+
+  @override
+  Future<List<Membership>> listMyMemberships() => _get(
+    '/me/memberships',
+    _required,
+    (json) => reqListOf(json, 'items', Membership.fromJson),
+  );
+
+  @override
+  Future<CheckoutLink> createMembershipCheckoutLink(int planId) => preview
+      ? _noCheckoutInPreview()
+      : _send(
+          'POST',
+          '/memberships/checkout-link',
+          _required,
+          (data) => CheckoutLink.fromJson(asJson(data)),
+          body: {'plan_id': planId},
+          query: {'platform': platform.name},
+        );
 
   @override
   Future<ListingFilters> getListingFilters() =>

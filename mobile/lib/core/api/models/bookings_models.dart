@@ -1,3 +1,4 @@
+import 'class_models.dart';
 import 'json.dart';
 
 /// `Config.bookings`: the booking plugin's rules, for Bookings apps.
@@ -12,6 +13,7 @@ class BookingsConfig {
     required this.minMinutesAhead,
     this.cancelBeforeMinutes,
     this.intakeFields = const [],
+    this.classes,
   });
 
   factory BookingsConfig.fromJson(Json json) => BookingsConfig(
@@ -24,6 +26,7 @@ class BookingsConfig {
     minMinutesAhead: intOr(json, 'min_minutes_ahead', 0),
     cancelBeforeMinutes: optInt(json, 'cancel_before_minutes'),
     intakeFields: listOf(json, 'intake_fields', IntakeField.fromJson),
+    classes: optObject(json, 'classes', ClassesConfig.fromJson),
   );
 
   final String plugin;
@@ -45,6 +48,9 @@ class BookingsConfig {
 
   /// Questions asked when booking (a clinic's intake form); empty for none.
   final List<IntakeField> intakeFields;
+
+  /// 27 A gym's or studio's group classes; null when it has none.
+  final ClassesConfig? classes;
 }
 
 enum IntakeFieldType { text, textarea, date, choice }

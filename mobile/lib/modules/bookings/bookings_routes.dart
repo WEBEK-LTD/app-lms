@@ -11,20 +11,33 @@ import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'screens/appointments_screen.dart';
 import 'screens/bookings_home_screen.dart';
+import 'screens/classes_screen.dart';
+import 'screens/membership_screen.dart';
 import 'screens/service_screen.dart';
 import 'screens/services_screen.dart';
 
 /// The Bookings module: home, services, appointments and the account as
-/// tabs, and the service and appointment pages.
+/// tabs, and the service and appointment pages. 27 A gym's or studio's
+/// classes and membership are tabs too when it has a timetable.
 final bookingsModule = AppModule(
-  tabPaths: {Paths.home, Paths.services, Paths.appointments, Paths.account},
+  tabPaths: {
+    Paths.home,
+    Paths.services,
+    Paths.appointments,
+    Paths.classes,
+    Paths.memberships,
+    Paths.account,
+  },
   screens: _screens,
-  defaultTabs: (_) => _defaultTabs,
+  defaultTabs: (config) =>
+      config?.bookings?.classes == null ? _defaultTabs : _classTabs,
   screenLocation: (screen, config) => switch (screen) {
     BuiltInScreen.courses ||
     BuiltInScreen.search ||
     BuiltInScreen.services => Paths.services,
     BuiltInScreen.appointments => Paths.appointments,
+    BuiltInScreen.classes => Paths.classes,
+    BuiltInScreen.memberships => Paths.memberships,
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,
@@ -64,6 +77,22 @@ final _defaultTabs = [
   ),
 ];
 
+/// 27 A gym's or studio's: Classes and Membership instead of Book.
+final _classTabs = [
+  _defaultTabs.first,
+  ShellTab(
+    icon: AppIcons.fitness,
+    label: (c) => c.words.classes,
+    location: Paths.classes,
+  ),
+  ShellTab(
+    icon: AppIcons.membership,
+    label: (c) => c.l10n.membershipTitle,
+    location: Paths.memberships,
+  ),
+  ..._defaultTabs.skip(2),
+];
+
 List<TabScreen> _screens() => [
   TabScreen(Paths.home, (state) => const BookingsHomeScreen()),
   TabScreen(
@@ -82,6 +111,11 @@ List<TabScreen> _screens() => [
       initialTab: state.uri.queryParameters['tab'] == 'past' ? 1 : 0,
     ),
   ),
+  TabScreen(
+    Paths.classes,
+    (state) => const ClassesScreen(key: ValueKey('classes')),
+  ),
+  TabScreen(Paths.memberships, (state) => const MembershipScreen()),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),

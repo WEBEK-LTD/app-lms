@@ -2572,4 +2572,203 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get loadingOrder => 'Siparişiniz yükleniyor';
+
+  @override
+  String get wordingGym => 'Spor salonu';
+
+  @override
+  String get wordingMember => 'Üye';
+
+  @override
+  String get fitnessCoach => 'Antrenör';
+
+  @override
+  String get fitnessOurCoaches => 'Antrenörlerimiz';
+
+  @override
+  String get fitnessAnyCoach => 'Fark etmez';
+
+  @override
+  String get fitnessAnyCoachAvailable => 'Müsait olan bir antrenör';
+
+  @override
+  String get classesTitle => 'Dersler';
+
+  @override
+  String get classesLoading => 'Dersler yükleniyor';
+
+  @override
+  String get classesNone => 'Bu gün ders yok';
+
+  @override
+  String get classesNoneMessage =>
+      'Derslerini görmek için başka bir gün seçin.';
+
+  @override
+  String get classesNoTimetable => 'Henüz ders yok';
+
+  @override
+  String classesNoTimetableMessage(String business) {
+    return '$business derslerini henüz uygulamaya eklemedi.';
+  }
+
+  @override
+  String classSpotsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yer kaldı',
+      one: '1 yer kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classFull => 'Dolu';
+
+  @override
+  String get classCancelledLabel => 'İptal edildi';
+
+  @override
+  String get classBookedLabel => 'Yeriniz ayrıldı';
+
+  @override
+  String get classBook => 'Yer ayırt';
+
+  @override
+  String get classCancel => 'İptal et';
+
+  @override
+  String classBookName(String name) {
+    return '$name için yer ayırt';
+  }
+
+  @override
+  String classCancelName(String name) {
+    return '$name dersindeki yerinizi iptal edin';
+  }
+
+  @override
+  String get classCancelTitle => 'Yerinizi bırakmak istiyor musunuz?';
+
+  @override
+  String classCancelMessage(String name, String when) {
+    return '$when tarihindeki $name. Yerinizi başka biri alabilir.';
+  }
+
+  @override
+  String get classKeepSpot => 'Yerimi koru';
+
+  @override
+  String classBooked(String name) {
+    return '$name için yeriniz ayrıldı.';
+  }
+
+  @override
+  String get classSpotCancelled => 'Yeriniz artık boş.';
+
+  @override
+  String classWith(String name) {
+    return '$name ile';
+  }
+
+  @override
+  String get classSignInToBook => 'Yer ayırtmak için giriş yapın.';
+
+  @override
+  String get membershipTitle => 'Üyelik';
+
+  @override
+  String get membershipLoading => 'Üyeliğiniz yükleniyor';
+
+  @override
+  String get membershipMine => 'Üyeliğim';
+
+  @override
+  String get membershipNone => 'Henüz üyeliğiniz yok';
+
+  @override
+  String get membershipNoneMessage => 'Ders ayırtmak için bir plan seçin.';
+
+  @override
+  String get membershipSignIn =>
+      'Üyeliğinizi görmek ve plan almak için giriş yapın.';
+
+  @override
+  String get membershipUnlimited => 'Sınırsız ders';
+
+  @override
+  String membershipClassesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders kaldı',
+      one: '1 ders kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders',
+      one: '1 ders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipUntil(String date) {
+    return '$date tarihine kadar';
+  }
+
+  @override
+  String get membershipNoEnd => 'Bitiş tarihi yok';
+
+  @override
+  String get membershipEnded => 'Sona erdi';
+
+  @override
+  String get membershipCancelled => 'İptal edildi';
+
+  @override
+  String get membershipActive => 'Aktif';
+
+  @override
+  String get membershipPlans => 'Planlar';
+
+  @override
+  String get membershipNoPlans =>
+      'Planlar şu anda uygulamada satışta değil. Geldiğinizde bize sorun.';
+
+  @override
+  String get membershipBuy => 'Satın al';
+
+  @override
+  String membershipBuyName(String name) {
+    return '$name satın al';
+  }
+
+  @override
+  String get membershipPerMonth => 'aylık';
+
+  @override
+  String get membershipPerQuarter => '3 ayda bir';
+
+  @override
+  String get membershipPerYear => 'yıllık';
+
+  @override
+  String get membershipPack => 'ders paketi';
+
+  @override
+  String get membershipBought => 'Üyeliğiniz aktif.';
+
+  @override
+  String get membershipSeePlans => 'Planları gör';
+
+  @override
+  String get classGiveBack => 'Yerimi bırak';
 }

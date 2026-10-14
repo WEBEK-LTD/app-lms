@@ -47,6 +47,8 @@ const symbolsByName = <String, IconData>{
   'event_available': AppIcons.book,
   'event_note': AppIcons.appointments,
   'groups': AppIcons.staff,
+  'fitness_center': AppIcons.fitness,
+  'card_membership': AppIcons.membership,
   'location_on': AppIcons.location,
   'open_in_new': AppIcons.openInNew,
   'settings': Symbols.settings_rounded,

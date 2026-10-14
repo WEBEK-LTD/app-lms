@@ -274,6 +274,19 @@ final websiteShots = <Shot>[
       FocusManager.instance.primaryFocus?.unfocus();
     },
   ),
+  // 27 Gym & fitness: the day's classes and the membership.
+  Shot(
+    'fitness-timetable',
+    api: DemoApi.fitness,
+    appType: AppType.booking,
+    after: (tester, router) async => router.go('/classes'),
+  ),
+  Shot(
+    'fitness-membership',
+    api: DemoApi.fitness,
+    appType: AppType.booking,
+    after: (tester, router) async => router.go('/memberships'),
+  ),
   // Real estate, a client palette.
   Shot(
     'realestate-search',

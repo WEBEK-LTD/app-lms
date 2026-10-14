@@ -122,6 +122,10 @@ enum BuiltInScreen {
   appointments,
   articles,
   bookmarks,
+
+  /// 27 A gym's class timetable and membership (Bookings apps).
+  classes,
+  memberships,
 }
 
 enum OpenIn { inApp, browser }

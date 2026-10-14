@@ -102,6 +102,8 @@ abstract final class AppIcons {
   static const preparing = Symbols.skillet_rounded;
   static const ready = Symbols.room_service_rounded;
   static const closed = Symbols.door_front_rounded;
+  static const fitness = Symbols.fitness_center_rounded;
+  static const membership = Symbols.card_membership_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

@@ -2603,4 +2603,212 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loadingOrder => 'جارٍ تحميل طلبك';
+
+  @override
+  String get wordingGym => 'النادي';
+
+  @override
+  String get wordingMember => 'العضو';
+
+  @override
+  String get fitnessCoach => 'المدرب';
+
+  @override
+  String get fitnessOurCoaches => 'مدربونا';
+
+  @override
+  String get fitnessAnyCoach => 'أي مدرب';
+
+  @override
+  String get fitnessAnyCoachAvailable => 'أي مدرب متاح';
+
+  @override
+  String get classesTitle => 'الحصص';
+
+  @override
+  String get classesLoading => 'جارٍ تحميل الحصص';
+
+  @override
+  String get classesNone => 'لا حصص في هذا اليوم';
+
+  @override
+  String get classesNoneMessage => 'اختر يومًا آخر لرؤية حصصه.';
+
+  @override
+  String get classesNoTimetable => 'لا توجد حصص بعد';
+
+  @override
+  String classesNoTimetableMessage(String business) {
+    return 'لم يضف $business حصصه إلى التطبيق بعد.';
+  }
+
+  @override
+  String classSpotsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مكان متبقٍ',
+      many: '$count مكانًا متبقيًا',
+      few: '$count أماكن متبقية',
+      two: 'مكانان متبقيان',
+      one: 'مكان واحد متبقٍ',
+      zero: 'لا أماكن متبقية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classFull => 'مكتملة';
+
+  @override
+  String get classCancelledLabel => 'أُلغيت';
+
+  @override
+  String get classBookedLabel => 'حجزت مكانك';
+
+  @override
+  String get classBook => 'احجز';
+
+  @override
+  String get classCancel => 'إلغاء';
+
+  @override
+  String classBookName(String name) {
+    return 'احجز $name';
+  }
+
+  @override
+  String classCancelName(String name) {
+    return 'ألغِ مكانك في $name';
+  }
+
+  @override
+  String get classCancelTitle => 'هل تريد التخلي عن مكانك؟';
+
+  @override
+  String classCancelMessage(String name, String when) {
+    return '$name في $when. يمكن لشخص آخر أن يأخذ مكانك.';
+  }
+
+  @override
+  String get classKeepSpot => 'أبقِ مكاني';
+
+  @override
+  String classBooked(String name) {
+    return 'حجزت مكانك في $name.';
+  }
+
+  @override
+  String get classSpotCancelled => 'أصبح مكانك متاحًا من جديد.';
+
+  @override
+  String classWith(String name) {
+    return 'مع $name';
+  }
+
+  @override
+  String get classSignInToBook => 'سجّل الدخول لحجز مكان.';
+
+  @override
+  String get membershipTitle => 'العضوية';
+
+  @override
+  String get membershipLoading => 'جارٍ تحميل عضويتك';
+
+  @override
+  String get membershipMine => 'عضويتي';
+
+  @override
+  String get membershipNone => 'لا عضوية بعد';
+
+  @override
+  String get membershipNoneMessage => 'اختر خطة لحجز الحصص.';
+
+  @override
+  String get membershipSignIn => 'سجّل الدخول لرؤية عضويتك وشراء خطة.';
+
+  @override
+  String get membershipUnlimited => 'حصص غير محدودة';
+
+  @override
+  String membershipClassesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حصة متبقية',
+      many: '$count حصة متبقية',
+      few: '$count حصص متبقية',
+      two: 'حصتان متبقيتان',
+      one: 'حصة واحدة متبقية',
+      zero: 'لا حصص متبقية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حصة',
+      many: '$count حصة',
+      few: '$count حصص',
+      two: 'حصتان',
+      one: 'حصة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membershipUntil(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String get membershipNoEnd => 'بلا تاريخ انتهاء';
+
+  @override
+  String get membershipEnded => 'انتهت';
+
+  @override
+  String get membershipCancelled => 'أُلغيت';
+
+  @override
+  String get membershipActive => 'سارية';
+
+  @override
+  String get membershipPlans => 'الخطط';
+
+  @override
+  String get membershipNoPlans =>
+      'الخطط غير معروضة للبيع في التطبيق حاليًا. اسألنا عند زيارتك.';
+
+  @override
+  String get membershipBuy => 'اشترِ';
+
+  @override
+  String membershipBuyName(String name) {
+    return 'اشترِ $name';
+  }
+
+  @override
+  String get membershipPerMonth => 'شهريًا';
+
+  @override
+  String get membershipPerQuarter => 'كل 3 أشهر';
+
+  @override
+  String get membershipPerYear => 'سنويًا';
+
+  @override
+  String get membershipPack => 'باقة حصص';
+
+  @override
+  String get membershipBought => 'عضويتك سارية الآن.';
+
+  @override
+  String get membershipSeePlans => 'اعرض الخطط';
+
+  @override
+  String get classGiveBack => 'تخلَّ عن مكاني';
 }

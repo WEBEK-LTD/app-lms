@@ -649,6 +649,84 @@ Map<String, dynamic> cartQuoteJson({bool problem = false}) => {
   'currency': 'TRY',
 };
 
+/// 27 `BookingsConfig.classes`: a gym's timetable.
+Map<String, dynamic> classesConfigJson({
+  bool membershipRequired = true,
+  bool memberships = true,
+  int? cancelBeforeMinutes = 120,
+}) => {
+  'membership_required': membershipRequired,
+  'cancel_before_minutes': cancelBeforeMinutes,
+  'memberships': memberships,
+};
+
+/// 27 A class on the timetable (`ClassSession`).
+Map<String, dynamic> classJson({
+  int id = 11,
+  String name = 'Yoga flow',
+  String localDate = '2026-10-19',
+  String localTime = '18:00',
+  int capacity = 12,
+  int spotsLeft = 4,
+  bool booked = false,
+  bool canCancel = false,
+  String status = 'scheduled',
+  String coach = 'Selin Aydın',
+}) => {
+  'id': id,
+  'status': status,
+  'service': {'id': 1, 'name': name, 'image_url': null, 'color': '#2E7D5B'},
+  'staff': {
+    'id': 3,
+    'name': coach,
+    'image_url': null,
+    'title': 'Yoga coach',
+    'price': null,
+  },
+  'start': '${localDate}T15:00:00Z',
+  'end': '${localDate}T16:00:00Z',
+  'local_date': localDate,
+  'local_time': localTime,
+  'capacity': capacity,
+  'spots_left': spotsLeft,
+  'booked': booked,
+  'can_cancel': canCancel,
+};
+
+/// 27 A membership plan (`MembershipPlan`).
+Map<String, dynamic> planJson({
+  int id = 30,
+  String name = 'Monthly unlimited',
+  String period = 'month',
+  int? credits,
+  String amount = '1800.00',
+  String? description = 'Every class, every day.',
+}) => {
+  'id': id,
+  'name': name,
+  'price': bookingPriceJson(amount),
+  'period': period,
+  'credits': credits,
+  'description': description,
+};
+
+/// 27 One of the member's memberships (`Membership`).
+Map<String, dynamic> membershipJson({
+  int id = 5,
+  String name = '10-class pack',
+  String period = 'pack',
+  String status = 'active',
+  int? creditsLeft = 4,
+  String? endsAt,
+}) => {
+  'id': id,
+  'plan': {'id': 31, 'name': name, 'period': period},
+  'status': status,
+  'starts_at': '2026-10-01T09:00:00Z',
+  'ends_at': endsAt,
+  'credits_left': creditsLeft,
+};
+
 Map<String, dynamic> bookingsConfigJson({
   bool staffChoice = true,
   int? cancelBeforeMinutes = 60,

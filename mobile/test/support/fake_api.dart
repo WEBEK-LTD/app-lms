@@ -610,6 +610,77 @@ class FakeApi implements YallappApi {
         return Appointment.fromJson(appointment);
       });
 
+  // 27 A gym's classes and memberships.
+
+  /// The timetable `GET /bookings/classes` answers with (every day).
+  List<Map<String, dynamic>> classes = [];
+  List<Map<String, dynamic>> plans = [];
+  List<Map<String, dynamic>> memberships = [];
+  ({String from, String? to})? lastClassesQuery;
+  int? lastPlanBought;
+
+  @override
+  Future<ClassList> listClasses({required String from, String? to}) {
+    lastClassesQuery = (from: from, to: to);
+    return _answer(
+      'listClasses',
+      () =>
+          ClassList.fromJson({'timezone': 'Europe/Istanbul', 'items': classes}),
+    );
+  }
+
+  /// Books like the server: the spot is the member's and one fewer is left.
+  @override
+  Future<ClassSession> bookClass(int classId) => _answer('bookClass', () {
+    final i = classes.indexWhere((c) => c['id'] == classId);
+    final booked = {
+      ...classes[i],
+      'booked': true,
+      'can_cancel': true,
+      'spots_left': (classes[i]['spots_left'] as int) - 1,
+    };
+    classes = [...classes]..[i] = booked;
+    return ClassSession.fromJson(booked);
+  });
+
+  @override
+  Future<ClassSession> cancelClass(int classId) => _answer('cancelClass', () {
+    final i = classes.indexWhere((c) => c['id'] == classId);
+    final freed = {
+      ...classes[i],
+      'booked': false,
+      'can_cancel': false,
+      'spots_left': (classes[i]['spots_left'] as int) + 1,
+    };
+    classes = [...classes]..[i] = freed;
+    return ClassSession.fromJson(freed);
+  });
+
+  @override
+  Future<List<MembershipPlan>> listMembershipPlans() => _answer(
+    'listMembershipPlans',
+    () => [for (final p in plans) MembershipPlan.fromJson(p)],
+  );
+
+  @override
+  Future<List<Membership>> listMyMemberships() => _answer(
+    'listMyMemberships',
+    () => [for (final m in memberships) Membership.fromJson(m)],
+  );
+
+  @override
+  Future<CheckoutLink> createMembershipCheckoutLink(int planId) {
+    lastPlanBought = planId;
+    return _answer(
+      'createMembershipCheckoutLink',
+      () => CheckoutLink.fromJson({
+        'url': 'https://yallapp.com.tr/pay/token-1',
+        'expires_at': '2026-10-12T11:00:00Z',
+        'open_in': 'in_app',
+      }),
+    );
+  }
+
   /// `GET /pages`: null answers like a site without pages (404).
   Map<String, dynamic>? navigation;
 
