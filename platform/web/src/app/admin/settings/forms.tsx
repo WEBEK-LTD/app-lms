@@ -1,7 +1,16 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveContactAction, saveIyzicoSettingAction, saveMarketplaceAction, saveOtpSettingAction, saveSmtpSettingAction, sendTestEmailAction } from "@/app/actions/admin-settings";
+import {
+  checkTestCodeAction,
+  saveContactAction,
+  saveIyzicoSettingAction,
+  saveMarketplaceAction,
+  saveOtpSettingAction,
+  saveSmtpSettingAction,
+  sendTestCodeAction,
+  sendTestEmailAction,
+} from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -138,6 +147,56 @@ export function SmtpSettingForm({
         </SubmitButton>
       </div>
     </form>
+  );
+}
+
+/** Sends a real code to the admin's number with the saved setting, then checks it like the hosted API. */
+export function TestCodeForm() {
+  const [sent, send] = useActionState(sendTestCodeAction, initialFormState);
+  const [checked, check] = useActionState(checkTestCodeAction, initialFormState);
+  return (
+    <div className="flex flex-col gap-3 border-t border-line pt-4">
+      <p className="m-0 text-sm font-semibold">Test it</p>
+      <form action={send} noValidate className="flex flex-col gap-3">
+        <FormMessage message={sent.message} ok={sent.ok} />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-0 flex-1">
+            <Field
+              label="Your number"
+              name="phone"
+              type="tel"
+              defaultValue={sent.values?.phone ?? ""}
+              placeholder="+20 100 123 4567"
+              hint="A real code goes to this number with the saved setting."
+              error={sent.errors?.phone}
+            />
+          </div>
+          <SubmitButton variant="secondary" className="h-10" pendingText="Sending…">
+            Send a test code
+          </SubmitButton>
+        </div>
+      </form>
+      {sent.ok || checked.message || checked.errors ? (
+        <form action={check} noValidate className="flex flex-col gap-3">
+          <FormMessage message={checked.message} ok={checked.ok} />
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="min-w-0 flex-1">
+              <Field
+                label="The code you got"
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                defaultValue={checked.values?.code ?? ""}
+                error={checked.errors?.code}
+              />
+            </div>
+            <SubmitButton variant="secondary" className="h-10" pendingText="Checking…">
+              Check the code
+            </SubmitButton>
+          </div>
+        </form>
+      ) : null}
+    </div>
   );
 }
 

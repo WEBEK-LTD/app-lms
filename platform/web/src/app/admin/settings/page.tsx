@@ -10,7 +10,7 @@ import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
-import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestEmailForm } from "./forms";
+import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
 import { AppDefaultsForm } from "./app-defaults-form";
@@ -125,6 +125,7 @@ export default async function SettingsPage() {
             baseUrl: otpValue?.kind === "waabek" ? otpValue.baseUrl : "",
           }}
         />
+        <TestCodeForm />
       </Section>
 
       <Section id="h-email" title="Email" text="Password links, activations, build results and new-order emails go out through this server.">

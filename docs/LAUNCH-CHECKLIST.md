@@ -17,7 +17,7 @@ devices. Everything else is in the code. Tick each line when it's done.
 
 - [ ] **Settings › Sign-in codes:** choose WABEK (the account's API key), the
       WhatsApp Cloud API (phone number ID and access token) or our SMS gateway,
-      then sign in once to a test app on the hosted API.
+      save, then **Send a test code** to your own number and **Check the code**.
 - [ ] **Settings › Email (SMTP):** host, port, user, password and the sender
       address, then send the test email.
 - [ ] **Settings › Yallapp iyzico account:** live API key and secret key (keep
