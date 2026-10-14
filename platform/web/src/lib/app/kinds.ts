@@ -370,7 +370,7 @@ export const KINDS: readonly KindInfo[] = [
     engine: "booking",
     vertical: "clinic",
     name: "Clinic",
-    description: "Doctors, dentists, therapists: patients book visits, fill an intake form and get reminders.",
+    description: "Doctors, dentists, therapists: patients book visits, fill an intake form and see their visits in the app.",
     requires: "Works with: Amelia, BookingPress, LatePoint · Digits · Intake forms without a website",
     icon: "stethoscope",
     tile: "bg-tile-4 text-[#7A2E55]",

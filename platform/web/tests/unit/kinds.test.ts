@@ -366,7 +366,7 @@ describe("21 the Clinic kind", () => {
   it("is the bookings engine with the clinic vertical, its own words, demo and store categories", () => {
     const clinic = kindById("clinic")!;
     expect(clinic).toMatchObject({ engine: "booking", vertical: "clinic", name: "Clinic", icon: "stethoscope", marketing: { slug: "clinic", icon: "stethoscope" } });
-    expect(clinic.description).toBe("Doctors, dentists, therapists: patients book visits, fill an intake form and get reminders.");
+    expect(clinic.description).toBe("Doctors, dentists, therapists: patients book visits, fill an intake form and see their visits in the app.");
     expect(kindOf({ appType: "booking", vertical: "clinic" })).toBe(clinic);
     expect(appTypeName({ appType: "booking", vertical: "clinic" })).toBe("Clinic");
     expect(suggestedCategories({ appType: "booking", vertical: "clinic" })).toEqual({ play: "Medical", appStore: "Medical" });
