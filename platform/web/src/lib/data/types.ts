@@ -475,6 +475,53 @@ export interface CatalogSettings {
    * gets each sale minus Yallapp's commission).
    */
   payment: OwnIyzicoPayment | MarketplacePayment | null;
+  /** 26 Pickup and delivery of a restaurant or café (vertical restaurant); missing until saved (the defaults apply). */
+  fulfilment?: FulfilmentSettings | null;
+}
+
+/** 26 How a restaurant's orders are collected, and when its kitchen takes them. */
+export interface FulfilmentSettings {
+  pickup: boolean;
+  delivery: boolean;
+  pickupAddress: string | null;
+  /** The smallest subtotal for a delivery; null for none. */
+  minOrderCents: number | null;
+  /** Added to deliveries. */
+  deliveryFeeCents: number;
+  /** Districts or postcodes it delivers to; empty: anywhere. */
+  deliveryAreas: string[];
+  /** Where it delivers, in the owner's words ("Within 3 km of Moda"). */
+  deliveryNote: string | null;
+  prepMinutes: number;
+  /** The kitchen's IANA time zone. */
+  timezone: string;
+  /** Opening hours per weekday, Sunday first (7 entries), as bookings' working hours. */
+  hours: TimeRange[][];
+  /** Orders "as soon as possible" while open. */
+  asap: boolean;
+  /** Orders for a later time, every `slotStepMinutes`, up to `maxDaysAhead` days ahead (0: today). */
+  scheduled: boolean;
+  slotStepMinutes: number;
+  maxDaysAhead: number;
+}
+
+/** 26 A choice made before adding a product to the cart (a dish's size or extras). */
+export interface CatalogOptionGroup {
+  /** Unique within the product. */
+  id: string;
+  name: string;
+  /** At least this many options (0: optional). */
+  min: number;
+  max: number;
+  options: CatalogOption[];
+}
+
+export interface CatalogOption {
+  /** Unique within the product. */
+  id: string;
+  name: string;
+  /** Added to the unit price. */
+  priceDeltaCents: number;
 }
 
 export interface OwnIyzicoPayment {
@@ -534,6 +581,8 @@ export interface CatalogProduct {
   /** Hidden from the app when false. */
   active: boolean;
   sku: string | null;
+  /** 26 Options chosen before adding to the cart; null or missing for none. */
+  optionGroups?: CatalogOptionGroup[] | null;
   salesCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -550,6 +599,8 @@ export interface CatalogOrderLine {
   unitCents: number;
   imageAssetId: string | null;
   digital: boolean;
+  /** 26 The options chosen, as priced when ordered (in `unitCents`). */
+  options?: { group: string; name: string; priceDeltaCents: number }[];
 }
 
 export interface CatalogCustomer {
@@ -588,10 +639,25 @@ export interface CatalogOrder {
   itemTransactionIds: string[] | null;
   /** When the shop's share was approved for payout. */
   payoutApprovedAt: Date | null;
+  /** 26 How a restaurant's order is collected; null or missing for other orders. */
+  fulfilment?: CatalogFulfilment | null;
+  /** 26 Where a restaurant's order is; null or missing for other orders. */
+  fulfilmentStatus?: FulfilmentStatus | null;
+}
+
+/** 26 Where a restaurant's order is: forward only, or cancelled. */
+export type FulfilmentStatus = "received" | "preparing" | "ready" | "out_for_delivery" | "completed" | "cancelled";
+
+/** 26 How the customer gets a restaurant's order. The delivery fee is the order's `shippingCents`. */
+export interface CatalogFulfilment {
+  type: "pickup" | "delivery";
+  /** Null: as soon as possible. */
+  scheduledFor: string | null;
+  address: { address: string; district: string | null; notes: string | null } | null;
 }
 
 export type CatalogOrderPatch = Partial<
-  Pick<CatalogOrder, "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt">
+  Pick<CatalogOrder, "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus">
 >;
 
 // Platform settings the team edits in the admin (secrets encrypted with context `platform:<key>`).

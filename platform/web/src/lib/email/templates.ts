@@ -235,7 +235,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "app_name", description: "The app's name", sample: "Tulip Store" },
       { name: "order_number", description: "The order's number", sample: "#1024" },
       { name: "total", description: "The order's total", sample: "₺450.00" },
-      { name: "order_lines", description: "One line per product, and shipping", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
+      { name: "order_lines", description: "One line per product with its options, shipping (a restaurant's delivery fee), and how a restaurant's order is collected", sample: "Tulip vase × 1: ₺400.00\nShipping: ₺50.00" },
       { name: "customer", description: "The customer's name, phone, email and address, then a blank line; empty without them", sample: "Elif Yılmaz\n+905321234567\nelif@example.com\nBağdat Caddesi 1, Istanbul\n\n" },
       { name: "orders_url", description: "The dashboard's Orders page", sample: "https://yallapp.com.tr/dashboard/orders" },
     ],

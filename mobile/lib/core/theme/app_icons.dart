@@ -94,6 +94,14 @@ abstract final class AppIcons {
   static const newspaper = Symbols.newspaper_rounded;
   static const bookmark = Symbols.bookmark_rounded;
   static const share = Symbols.share_rounded;
+
+  // 26 Restaurants and cafés.
+  static const menu = Symbols.restaurant_menu_rounded;
+  static const pickup = Symbols.takeout_dining_rounded;
+  static const delivery = Symbols.delivery_dining_rounded;
+  static const preparing = Symbols.skillet_rounded;
+  static const ready = Symbols.room_service_rounded;
+  static const closed = Symbols.door_front_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

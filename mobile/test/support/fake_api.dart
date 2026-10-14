@@ -318,6 +318,18 @@ class FakeApi implements YallappApi {
     () => Paged.fromJson(pageJson([orderJson()]), Order.fromJson),
   );
 
+  Map<String, dynamic> order = orderJson();
+
+  @override
+  Future<Order> getOrder(int orderId) =>
+      _answer('getOrder', () => Order.fromJson(order));
+
+  Map<String, dynamic> orderTimes = orderTimesJson();
+
+  @override
+  Future<OrderTimes> getOrderTimes() =>
+      _answer('getOrderTimes', () => OrderTimes.fromJson(orderTimes));
+
   Map<String, dynamic> reviews = reviewPageJson();
 
   @override
@@ -435,13 +447,30 @@ class FakeApi implements YallappApi {
 
   ({String? deliveryDate, String? giftMessage})? lastStoreCheckout;
 
+  /// 26 How the last restaurant checkout wanted the order.
+  ({
+    FulfilmentType? fulfilment,
+    DeliveryAddress? address,
+    DateTime? scheduledFor,
+  })?
+  lastFulfilment;
+
   @override
   Future<CheckoutLink> createStoreCheckoutLink(
     List<CartLineInput> lines, {
     String? deliveryDate,
     String? giftMessage,
+    FulfilmentType? fulfilment,
+    DeliveryAddress? deliveryAddress,
+    DateTime? scheduledFor,
   }) {
+    lastCartLines = lines;
     lastStoreCheckout = (deliveryDate: deliveryDate, giftMessage: giftMessage);
+    lastFulfilment = (
+      fulfilment: fulfilment,
+      address: deliveryAddress,
+      scheduledFor: scheduledFor,
+    );
     return _answer(
       'createStoreCheckoutLink',
       () => CheckoutLink.fromJson({

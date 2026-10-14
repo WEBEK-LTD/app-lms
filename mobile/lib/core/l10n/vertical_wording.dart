@@ -31,7 +31,7 @@ extension VerticalWordingContext on BuildContext {
 }
 
 /// Words that change with the kind of business (a clinic's patients,
-/// doctors and visits). Kinds without words of their own use the default
+/// doctors and visits; 26 a restaurant's menu). Kinds without words of their own use the default
 /// words; a kind's own words go in the ARB files and in the getters below.
 class VerticalWording {
   const VerticalWording(this.l10n, this.vertical);
@@ -42,10 +42,18 @@ class VerticalWording {
   /// 21 A clinic: doctors, patients and visits on the bookings screens.
   bool get isClinic => vertical == AppVertical.clinic;
 
+  /// 26 A restaurant or café: the menu on the store screens.
+  bool get isRestaurant => vertical == AppVertical.restaurant;
+
   String _pick(String clinic, String other) => isClinic ? clinic : other;
 
+  String _food(String restaurant, String other) =>
+      isRestaurant ? restaurant : other;
+
   /// The business that owns the app.
-  String get business => _pick(l10n.wordingClinic, l10n.wordingBusiness);
+  String get business => isRestaurant
+      ? l10n.wordingRestaurant
+      : _pick(l10n.wordingClinic, l10n.wordingBusiness);
 
   /// The business's customers.
   String get customer => _pick(l10n.wordingPatient, l10n.wordingCustomer);
@@ -92,4 +100,16 @@ class VerticalWording {
       _pick(l10n.clinicNoteForClinic, l10n.noteForBusiness);
   String get confirmYourBooking =>
       _pick(l10n.clinicConfirmVisit, l10n.confirmYourBooking);
+
+  // Store screens (26).
+
+  /// The shop tab and screen ("Shop", "Menu").
+  String get shop => _food(l10n.menuTitle, l10n.tabShop);
+  String get searchProducts => _food(l10n.menuSearch, l10n.searchProducts);
+  String get startShopping => _food(l10n.menuBrowse, l10n.startShopping);
+  String get noProductsTitle =>
+      _food(l10n.menuEmptyTitle, l10n.noProductsTitle);
+  String get noProductsMessage =>
+      _food(l10n.menuEmptyMessage, l10n.noProductsMessage);
+  String get loadingProducts => _food(l10n.menuLoading, l10n.loadingProducts);
 }

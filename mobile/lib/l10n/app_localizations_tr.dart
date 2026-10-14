@@ -2385,4 +2385,191 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notifyBreakingNews => 'Son dakika haberleri';
+
+  @override
+  String get wordingRestaurant => 'Restoran';
+
+  @override
+  String get menuTitle => 'Menü';
+
+  @override
+  String get menuSearch => 'Menüde ara';
+
+  @override
+  String get menuBrowse => 'Menüye bak';
+
+  @override
+  String get menuEmptyTitle => 'Henüz yemek yok';
+
+  @override
+  String get menuEmptyMessage => 'Menü yakında burada olacak.';
+
+  @override
+  String get menuLoading => 'Menü yükleniyor';
+
+  @override
+  String get menuMore => 'Diğer';
+
+  @override
+  String get optionsRequired => 'Zorunlu';
+
+  @override
+  String get optionsOptional => 'İsteğe bağlı';
+
+  @override
+  String get optionsChooseOne => '1 tane seçin';
+
+  @override
+  String optionsChooseUpTo(int count) {
+    return 'En fazla $count tane seçin';
+  }
+
+  @override
+  String optionsChooseAtLeast(int count) {
+    return 'En az $count tane seçin';
+  }
+
+  @override
+  String optionsAddToCart(String price) {
+    return 'Sepete ekle · $price';
+  }
+
+  @override
+  String optionsMissing(String group) {
+    return 'Seçin: $group';
+  }
+
+  @override
+  String get optionsPriceNote => 'Son fiyat sepette onaylanır.';
+
+  @override
+  String get fulfilmentHow => 'Gel al veya teslimat';
+
+  @override
+  String get fulfilmentPickup => 'Gel al';
+
+  @override
+  String get fulfilmentDelivery => 'Teslimat';
+
+  @override
+  String fulfilmentPickupAt(String address) {
+    return 'Teslim alma adresi: $address';
+  }
+
+  @override
+  String get deliveryAddress => 'Teslimat adresi';
+
+  @override
+  String get deliveryAddressHint => 'Sokak, bina ve daire';
+
+  @override
+  String get deliveryDistrict => 'Semt';
+
+  @override
+  String get deliveryNotes => 'Kurye için not (isteğe bağlı)';
+
+  @override
+  String get deliveryFee => 'Teslimat ücreti';
+
+  @override
+  String deliveryMinimum(String amount) {
+    return 'Teslimat için en az sipariş tutarı $amount.';
+  }
+
+  @override
+  String get deliveryEnterAddress => 'Teslimat adresinizi girin.';
+
+  @override
+  String get orderTimeTitle => 'Ne zaman';
+
+  @override
+  String get orderAsap => 'En kısa sürede';
+
+  @override
+  String orderReadyIn(int minutes) {
+    return 'Yaklaşık $minutes dakikada hazır';
+  }
+
+  @override
+  String get orderLater => 'Daha sonraya planla';
+
+  @override
+  String get orderChooseTime => 'Bir saat seçin';
+
+  @override
+  String orderToday(String time) {
+    return 'Bugün $time';
+  }
+
+  @override
+  String orderTomorrow(String time) {
+    return 'Yarın $time';
+  }
+
+  @override
+  String closedNowOpensAt(String time) {
+    return 'Şu an kapalı — $time açılıyor';
+  }
+
+  @override
+  String get closedNow => 'Şu an kapalı';
+
+  @override
+  String get closedOrderLater => 'Daha sonrası için sipariş verebilirsiniz.';
+
+  @override
+  String get closedComeBack => 'Lütfen açık olduğumuzda sipariş verin.';
+
+  @override
+  String get fulfilmentReceived => 'Alındı';
+
+  @override
+  String get fulfilmentPreparing => 'Hazırlanıyor';
+
+  @override
+  String get fulfilmentReady => 'Hazır';
+
+  @override
+  String get fulfilmentReadyPickup => 'Teslim almaya hazır';
+
+  @override
+  String get fulfilmentOutForDelivery => 'Yolda';
+
+  @override
+  String get fulfilmentCompleted => 'Tamamlandı';
+
+  @override
+  String get fulfilmentCancelled => 'İptal edildi';
+
+  @override
+  String get orderCancelledMessage =>
+      'Bu sipariş iptal edildi. Sorunuz varsa lütfen bizimle iletişime geçin.';
+
+  @override
+  String get orderPickupAsap => 'Gel al, en kısa sürede';
+
+  @override
+  String get orderDeliveryAsap => 'Teslimat, en kısa sürede';
+
+  @override
+  String orderPickupAt(String time) {
+    return 'Gel al: $time';
+  }
+
+  @override
+  String orderDeliveryAt(String time) {
+    return 'Teslimat: $time';
+  }
+
+  @override
+  String get orderUpdatesNote => 'Her adımda size bildirim göndereceğiz.';
+
+  @override
+  String get orderYourOrder => 'Siparişiniz';
+
+  @override
+  String get orderTotal => 'Toplam';
+
+  @override
+  String get loadingOrder => 'Siparişiniz yükleniyor';
 }

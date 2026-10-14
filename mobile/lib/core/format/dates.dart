@@ -49,3 +49,33 @@ String shortDate(DateTime time) => _format('d MMM y', time.toLocal());
 
 /// "2 April 1990": a calendar day with its year (an intake form's date).
 String longDate(DateTime day) => _format('d MMMM y', day);
+
+/// 26 "13:30": a time on the phone's clock.
+String clockTime(DateTime time) => _format('HH:mm', time.toLocal());
+
+/// 26 "Today 13:30", "Tomorrow 09:00", "Mon 12 Oct 09:00": when an order is for.
+String whenLabel(DateTime time, {DateTime? now}) {
+  final local = time.toLocal();
+  final today = (now ?? DateTime.now()).toLocal();
+  final day = DateTime(local.year, local.month, local.day);
+  final days = day
+      .difference(DateTime(today.year, today.month, today.day))
+      .inDays;
+  final clock = clockTime(local);
+  if (days == 0) return currentL10n.orderToday(clock);
+  if (days == 1) return currentL10n.orderTomorrow(clock);
+  return '${shortDayLabel(day)} $clock';
+}
+
+/// 26 "09:00" today, else "Tue 09:00": when a closed kitchen opens.
+String opensLabel(DateTime time, {DateTime? now}) {
+  final local = time.toLocal();
+  final today = (now ?? DateTime.now()).toLocal();
+  final sameDay =
+      local.year == today.year &&
+      local.month == today.month &&
+      local.day == today.day;
+  return sameDay
+      ? clockTime(local)
+      : '${shortWeekday(local)} ${clockTime(local)}';
+}

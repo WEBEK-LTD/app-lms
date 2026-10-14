@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api/models/models.dart';
+import '../../core/config/build_config_data.dart';
 import '../../core/l10n/l10n.dart';
+import '../../core/l10n/vertical_wording.dart';
 import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
@@ -10,6 +13,7 @@ import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'data/cart_controller.dart';
 import 'screens/cart_screen.dart';
+import 'screens/menu_screen.dart';
 import 'screens/product_reviews_screen.dart';
 import 'screens/product_screen.dart';
 import 'screens/shop_screen.dart';
@@ -23,7 +27,11 @@ final storeModule = AppModule(
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
     BuiltInScreen.courses => Paths.shop,
-    BuiltInScreen.search => '${Paths.shop}?focus=1',
+    // 26 A restaurant's Menu tab (the layout's search screen) opens its menu.
+    BuiltInScreen.search =>
+      config?.vertical == AppVertical.restaurant
+          ? Paths.shop
+          : '${Paths.shop}?focus=1',
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,
@@ -49,7 +57,7 @@ final _defaultTabs = [
   ),
   ShellTab(
     icon: AppIcons.shop,
-    label: (c) => c.l10n.tabShop,
+    label: (c) => c.words.shop,
     location: Paths.shop,
   ),
   ShellTab(
@@ -68,6 +76,8 @@ List<TabScreen> _screens() => [
   TabScreen(Paths.home, (state) => const StoreHomeScreen()),
   TabScreen(Paths.shop, (state) {
     final q = state.uri.queryParameters;
+    // 26 A restaurant's Shop tab is its menu; search and filters stay the shop's.
+    if (q.isEmpty) return const _MenuOrShop();
     return ShopScreen(
       key: const ValueKey('shop'),
       initialCategory: int.tryParse(q['category'] ?? ''),
@@ -83,6 +93,17 @@ List<TabScreen> _screens() => [
     routes: accountSubRoutes(),
   ),
 ];
+
+/// 26 The Shop tab: a restaurant's menu, or the shop.
+class _MenuOrShop extends ConsumerWidget {
+  const _MenuOrShop();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      ref.watch(appVerticalProvider) == AppVertical.restaurant
+      ? const MenuScreen()
+      : const ShopScreen(key: ValueKey('shop'));
+}
 
 List<RouteBase> _pushedRoutes() => [
   GoRoute(

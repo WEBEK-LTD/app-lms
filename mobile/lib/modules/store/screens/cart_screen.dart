@@ -19,8 +19,10 @@ import '../../../core/widgets/common.dart';
 import '../../lms/data/lms_providers.dart' show ordersProvider;
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
+import '../widgets/fulfilment_widgets.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// The shop's order received page, reached at the end of the checkout:
 /// WooCommerce's and the hosted payment page's `order-received`, Shopify's
@@ -31,7 +33,8 @@ bool isOrderReceived(Uri url) =>
     url.queryParameters.containsKey('order-received');
 
 /// The Cart tab: lines priced by the shop, the delivery date and gift
-/// message, and the checkout on the website.
+/// message, and the checkout on the website. 26 A restaurant's cart also
+/// asks pickup or delivery, the address and when.
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
@@ -44,11 +47,60 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   final _gift = TextEditingController();
   bool _busy = false;
 
+  // 26 A restaurant's pickup or delivery.
+  FulfilmentType? _type;
+  final _address = TextEditingController();
+  final _notes = TextEditingController();
+  String? _district;
+  bool _later = false;
+  DateTime? _slot;
+
+  @override
+  void initState() {
+    super.initState();
+    _address.addListener(_changed);
+  }
+
+  void _changed() => setState(() {});
+
   @override
   void dispose() {
     _gift.dispose();
+    _address.dispose();
+    _notes.dispose();
     super.dispose();
   }
+
+  /// Why a restaurant's order can't be placed yet; null when it can.
+  String? _fulfilmentProblem(
+    FulfilmentConfig config,
+    OrderTimes? times,
+    CartQuote? quote,
+  ) {
+    final l10n = context.l10n;
+    final type = _type ?? config.types.firstOrNull;
+    if (type == null || times == null) return '';
+    if (type == FulfilmentType.delivery) {
+      if (_address.text.trim().length < 5) return l10n.deliveryEnterAddress;
+      if (config.deliveryAreas.isNotEmpty && _district == null) {
+        return l10n.optionsMissing(l10n.deliveryDistrict);
+      }
+      final min = centsOf(config.minOrder);
+      if (quote != null && min > 0 && centsOf(quote.subtotalAmount) < min) {
+        return l10n.deliveryMinimum(config.minOrderFormatted ?? '');
+      }
+    }
+    if (_laterChosen(config, times)) {
+      if (_slot == null) return l10n.orderChooseTime;
+    } else if (!times.asap) {
+      return times.openNow ? l10n.orderChooseTime : l10n.closedNow;
+    }
+    return null;
+  }
+
+  /// A time for later: chosen, or the only way when as soon as possible isn't taken now.
+  bool _laterChosen(FulfilmentConfig config, OrderTimes times) =>
+      _later || (!times.asap && config.scheduled && times.slots.isNotEmpty);
 
   Future<void> _pickDate(DeliveryDateRules rules) async {
     final today = DateTime.now();
@@ -98,6 +150,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     try {
       final items = ref.read(cartProvider);
       final date = _deliveryDate;
+      final fulfilment = store.fulfilment;
+      final times = fulfilment != null
+          ? ref.read(orderTimesProvider).value
+          : null;
+      final type = _type ?? fulfilment?.types.firstOrNull;
+      final later =
+          fulfilment != null &&
+          times != null &&
+          _laterChosen(fulfilment, times);
       final link = await ref
           .read(yallappApiProvider)
           .createStoreCheckoutLink(
@@ -106,6 +167,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 ? isoDate(date)
                 : null,
             giftMessage: store.giftMessage.enabled ? _gift.text : null,
+            fulfilment: fulfilment != null ? type : null,
+            deliveryAddress: type == FulfilmentType.delivery
+                ? DeliveryAddress(
+                    address: _address.text,
+                    district: _district,
+                    notes: _notes.text,
+                  )
+                : null,
+            scheduledFor: later ? _slot : null,
           );
       if (!mounted) return;
       final inApp =
@@ -132,6 +202,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       if (e.code == ApiException.cartChanged) {
         ref.invalidate(cartQuoteProvider);
       }
+      // 26 The kitchen closed, or a time went: ask for the times again.
+      if (store.fulfilment != null) ref.invalidate(orderTimesProvider);
       showMessage(context, e.message);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -139,13 +211,18 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   }
 
   void _ordered() {
+    final restaurant = ref.read(appConfigProvider).store?.fulfilment != null;
     ref.read(cartProvider.notifier).clear();
     ref.invalidate(ordersProvider);
     setState(() {
       _deliveryDate = null;
       _gift.clear();
+      _slot = null;
+      _later = false;
     });
     showMessage(context, context.l10n.orderPlaced);
+    // 26 A restaurant's customer follows the order from their orders.
+    if (restaurant) context.push(Paths.orders);
   }
 
   @override
@@ -202,7 +279,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   icon: AppIcons.cart,
                   title: context.l10n.cartEmptyTitle,
                   message: context.l10n.cartEmptyMessage,
-                  actionLabel: context.l10n.startShopping,
+                  actionLabel: context.words.startShopping,
                   onAction: () => context.go(Paths.shop),
                 ),
               ),
@@ -217,7 +294,26 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final blocked = lines.any((l) => !l.available);
     final rules = store.deliveryDate;
     final needsDate = rules.enabled && rules.required && _deliveryDate == null;
-    final ready = value != null && !quote.isLoading && !blocked && !needsDate;
+    // 26 A restaurant: pickup or delivery, the address and when.
+    final fulfilment = store.fulfilment;
+    final times = fulfilment != null
+        ? ref.watch(orderTimesProvider).value
+        : null;
+    final type = _type ?? fulfilment?.types.firstOrNull;
+    final fulfilmentProblem = fulfilment != null
+        ? _fulfilmentProblem(fulfilment, times, value)
+        : null;
+    final deliveryFee =
+        type == FulfilmentType.delivery &&
+            fulfilment?.deliveryFeeFormatted != null
+        ? fulfilment!.deliveryFeeFormatted
+        : null;
+    final ready =
+        value != null &&
+        !quote.isLoading &&
+        !blocked &&
+        !needsDate &&
+        fulfilmentProblem == null;
 
     return Scaffold(
       body: SafeArea(
@@ -244,6 +340,33 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         error: quote.error!,
                         onRetry: () => ref.invalidate(cartQuoteProvider),
                       ),
+                    if (fulfilment != null && type != null) ...[
+                      if (times != null && !times.openNow) ...[
+                        const SizedBox(height: 4),
+                        ClosedNotice(
+                          times: times,
+                          later: fulfilment.scheduled && times.slots.isNotEmpty,
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      FulfilmentPanel(
+                        config: fulfilment,
+                        type: type,
+                        onType: (t) => setState(() => _type = t),
+                        address: _address,
+                        notes: _notes,
+                        district: _district,
+                        onDistrict: (d) => setState(() => _district = d),
+                        times: times,
+                        later: times != null && _laterChosen(fulfilment, times),
+                        onLater: (v) => setState(() => _later = v),
+                        slot: _slot,
+                        onSlot: (s) => setState(() {
+                          _later = true;
+                          _slot = s;
+                        }),
+                      ),
+                    ],
                     if (rules.enabled) ...[
                       const SizedBox(height: 8),
                       AppCard(
@@ -307,14 +430,36 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            context.l10n.deliveryAndTaxes,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: p.textSecondary,
+                          if (deliveryFee != null) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    context.l10n.deliveryFee,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: p.text,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  deliveryFee,
+                                  style: TextStyle(fontSize: 14, color: p.text),
+                                ),
+                              ],
                             ),
-                          ),
+                          ],
+                          if (fulfilment == null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              context.l10n.deliveryAndTaxes,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: p.textSecondary,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -330,13 +475,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (blocked || needsDate)
+            if (blocked ||
+                needsDate ||
+                (fulfilmentProblem != null && fulfilmentProblem.isNotEmpty))
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   blocked
                       ? context.l10n.fixCartItems
-                      : context.l10n.chooseDeliveryDate,
+                      : needsDate
+                      ? context.l10n.chooseDeliveryDate
+                      : fulfilmentProblem!,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
@@ -368,6 +517,9 @@ class _LineCard extends ConsumerWidget {
     final quoted = line;
     final max =
         quoted?.maxQuantity ?? item.maxQuantity ?? CartController.maxQuantity;
+    final options = quoted != null && quoted.options.isNotEmpty
+        ? [for (final o in quoted.options) o.name]
+        : item.optionNames;
     return AppCard(
       padding: const EdgeInsets.all(10),
       onTap: () => context.push(Paths.product(item.productId)),
@@ -413,6 +565,12 @@ class _LineCard extends ConsumerWidget {
                     ),
                   ],
                 ),
+                // 26 The chosen options, as the shop priced them.
+                if (options.isNotEmpty)
+                  Text(
+                    options.join(', '),
+                    style: TextStyle(fontSize: 13, color: p.text),
+                  ),
                 Text(
                   quoted?.unitPrice ?? item.price ?? '',
                   style: TextStyle(fontSize: 13, color: p.textSecondary),

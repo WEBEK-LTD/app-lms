@@ -1277,3 +1277,191 @@ Map<String, dynamic> newsHomeJson() => {
     },
   ],
 };
+
+// 26 Restaurants and cafés.
+
+/// `StoreConfig.fulfilment`: pickup and delivery to two districts.
+Map<String, dynamic> fulfilmentConfigJson({
+  bool pickup = true,
+  bool delivery = true,
+  bool scheduled = true,
+}) => {
+  'pickup': pickup,
+  'delivery': delivery,
+  'pickup_address': 'Moda Caddesi 41, Kadıköy',
+  'min_order': '150.00',
+  'min_order_formatted': '₺150.00',
+  'delivery_fee': '30.00',
+  'delivery_fee_formatted': '₺30.00',
+  'delivery_areas': ['Moda', 'Caferağa'],
+  'delivery_note': 'Within 3 km of the café.',
+  'prep_minutes': 20,
+  'timezone': 'Europe/Istanbul',
+  'hours': [
+    for (var d = 0; d < 7; d++)
+      [
+        {'start': '08:00', 'end': '23:00'},
+      ],
+  ],
+  'asap': true,
+  'scheduled_slots': {
+    'enabled': scheduled,
+    'step_minutes': 15,
+    'max_days_ahead': 1,
+  },
+};
+
+/// A restaurant's config: the restaurant vertical, sign-in to order.
+Map<String, dynamic> restaurantConfigJson({bool scheduled = true}) {
+  final config = configJson(lms: null, store: true, orders: true);
+  config['vertical'] = 'restaurant';
+  config['store'] = {
+    ...storeConfigJson(
+      guestCheckout: false,
+      deliveryDate: false,
+      giftMessage: false,
+    ),
+    'fulfilment': fulfilmentConfigJson(scheduled: scheduled),
+  };
+  return config;
+}
+
+/// `GET /store/order-times`: open, or closed until 08:00 tomorrow.
+Map<String, dynamic> orderTimesJson({bool open = true}) => {
+  'open_now': open,
+  'opens_at': open ? null : '2030-01-02T05:00:00Z',
+  'closes_at': open ? '2030-01-01T20:00:00Z' : null,
+  'asap': open,
+  'ready_in_minutes': 20,
+  'slots': [
+    '2030-01-02T05:30:00Z',
+    '2030-01-02T05:45:00Z',
+    '2030-01-02T06:00:00Z',
+  ],
+};
+
+/// A dish with a required size and optional extras.
+Map<String, dynamic> dishJson() => {
+  ...productSummaryJson(
+    id: 31,
+    name: 'Defne Burger',
+    price: priceJson('460.00'),
+  ),
+  'description_html': '<p>A beef patty in a brioche bun.</p>',
+  'short_description_html': null,
+  'images': <Object>[],
+  'sku': null,
+  'max_quantity': null,
+  'attributes': <Object>[],
+  'variations': <Object>[],
+  'categories': [productCategoryJson(id: 2, name: 'Mains')],
+  'related': <Object>[],
+  'external_url': null,
+  'permalink': 'https://yallapp.com.tr/shop/app/31',
+  'option_groups': [
+    {
+      'id': 'size',
+      'name': 'Size',
+      'min': 1,
+      'max': 1,
+      'options': [
+        {
+          'id': 'single',
+          'name': 'Single',
+          'price_delta': '0.00',
+          'price_delta_formatted': null,
+        },
+        {
+          'id': 'double',
+          'name': 'Double',
+          'price_delta': '150.00',
+          'price_delta_formatted': '+₺150.00',
+        },
+      ],
+    },
+    {
+      'id': 'extras',
+      'name': 'Extras',
+      'min': 0,
+      'max': 2,
+      'options': [
+        {
+          'id': 'cheddar',
+          'name': 'Cheddar',
+          'price_delta': '40.00',
+          'price_delta_formatted': '+₺40.00',
+        },
+        {
+          'id': 'onion',
+          'name': 'Caramelised onion',
+          'price_delta': '30.00',
+          'price_delta_formatted': '+₺30.00',
+        },
+        {
+          'id': 'pickles',
+          'name': 'Pickles',
+          'price_delta': '0.00',
+          'price_delta_formatted': null,
+        },
+      ],
+    },
+  ],
+};
+
+/// The cart of one burger, as the server priced it.
+Map<String, dynamic> dishCartQuoteJson() => {
+  'lines': [
+    {
+      'product_id': 31,
+      'variation_id': null,
+      'quantity': 1,
+      'name': 'Defne Burger',
+      'image_url': null,
+      'unit_price': '₺650.00',
+      'line_total': '₺650.00',
+      'available': true,
+      'problem': null,
+      'max_quantity': null,
+      'digital': false,
+      'options': [
+        {'id': 'double', 'name': 'Double', 'group': 'Size'},
+        {'id': 'cheddar', 'name': 'Cheddar', 'group': 'Extras'},
+      ],
+    },
+  ],
+  'item_count': 1,
+  'subtotal': '₺650.00',
+  'subtotal_amount': '650.00',
+  'currency': 'TRY',
+};
+
+/// A restaurant's order on its way.
+Map<String, dynamic> restaurantOrderJson({
+  String status = 'preparing',
+  String type = 'delivery',
+}) => {
+  'id': 7,
+  'number': '1007',
+  'status': status == 'completed' ? 'completed' : 'processing',
+  'status_label': 'Preparing',
+  'total': '₺680.00',
+  'created_at': '2026-10-01T10:00:00Z',
+  'items': [
+    {
+      'name': 'Defne Burger',
+      'product_id': 31,
+      'quantity': 1,
+      'image_url': null,
+      'options': ['Double', 'Cheddar'],
+    },
+  ],
+  'fulfilment_status': status,
+  'fulfilment': {
+    'type': type,
+    'scheduled_for': null,
+    'delivery_address': type == 'delivery'
+        ? {'address': 'Moda Cd. 12, flat 3', 'district': 'Moda', 'notes': null}
+        : null,
+    'delivery_fee': type == 'delivery' ? '₺30.00' : null,
+  },
+};

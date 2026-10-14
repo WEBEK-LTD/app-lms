@@ -461,6 +461,9 @@ abstract class YallappApi {
   Future<void> markNotificationsRead();
   Future<Paged<Order>> listOrders({int page = 1});
 
+  /// 26 One of the customer's orders, for following it.
+  Future<Order> getOrder(int orderId);
+
   Future<ReviewPage> listReviews(int courseId, {int page = 1});
   Future<Review> saveMyReview(int courseId, {required int rating, String text});
   Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1});
@@ -484,7 +487,13 @@ abstract class YallappApi {
     List<CartLineInput> lines, {
     String? deliveryDate,
     String? giftMessage,
+    FulfilmentType? fulfilment,
+    DeliveryAddress? deliveryAddress,
+    DateTime? scheduledFor,
   });
+
+  /// 26 Whether a restaurant's kitchen is open and when an order can be for.
+  Future<OrderTimes> getOrderTimes();
 
   Future<List<BookingsHomeSection>> getBookingsHome();
   Future<List<ServiceCategory>> listServiceCategories();
@@ -1015,6 +1024,10 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
+  Future<Order> getOrder(int orderId) =>
+      _get('/me/orders/$orderId', _required, Order.fromJson);
+
+  @override
   Future<ReviewPage> listReviews(int courseId, {int page = 1}) => _get(
     '/courses/$courseId/reviews',
     _optional,
@@ -1117,6 +1130,9 @@ class HttpYallappApi implements YallappApi {
     List<CartLineInput> lines, {
     String? deliveryDate,
     String? giftMessage,
+    FulfilmentType? fulfilment,
+    DeliveryAddress? deliveryAddress,
+    DateTime? scheduledFor,
   }) => preview
       ? _noCheckoutInPreview()
       : _send(
@@ -1129,9 +1145,19 @@ class HttpYallappApi implements YallappApi {
             'delivery_date': ?deliveryDate,
             if (giftMessage != null && giftMessage.trim().isNotEmpty)
               'gift_message': giftMessage.trim(),
+            if (fulfilment != null) 'fulfilment': fulfilment.name,
+            if (fulfilment == FulfilmentType.delivery &&
+                deliveryAddress != null)
+              'delivery_address': deliveryAddress.toJson(),
+            if (scheduledFor != null)
+              'scheduled_for': scheduledFor.toUtc().toIso8601String(),
           },
           query: {'platform': platform.name},
         );
+
+  @override
+  Future<OrderTimes> getOrderTimes() =>
+      _get('/store/order-times', _public, OrderTimes.fromJson);
 
   @override
   Future<List<BookingsHomeSection>> getBookingsHome() => _get(

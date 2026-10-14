@@ -1,15 +1,19 @@
+import { checkFulfilment, FULFILMENT_LABELS, fulfilmentConfigJson, fulfilmentOf, orderTimesJson } from "../../catalog/fulfilment";
 import { centsToDecimal, formatCents } from "../../catalog/money";
+import { checkOptions, optionGroupsJson, optionGroupsOf, type ChosenOption } from "../../catalog/options";
 import { catalogSettings, ORDER_STATUS_LABELS, orderNumber, PAY_LINK_MINUTES, paymentsSetUp, shippingFor } from "../../catalog/settings";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings } from "../../data/types";
+import type { App, CatalogCategory, CatalogOrder, CatalogOrderLine, CatalogProduct, CatalogSettings, FulfilmentSettings } from "../../data/types";
 import { cartLines, error, intParam, type CartLineInput } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
 /**
  * The shop of an app without a website: products, categories and orders the
  * client manages in the dashboard, paid on our payment page (iyzico). Only
- * simple products; no variations or reviews.
+ * simple products; no variations or reviews. 26 Products may have option
+ * groups (priced here, never by the app), and a restaurant's orders are for
+ * pickup or delivery, at a time its kitchen takes them, and followed in the app.
  */
 
 export interface CatalogDeps {
@@ -53,9 +57,12 @@ export function descriptionHtml(text: string): string {
 
 export class CatalogConnector implements Connector {
   private readonly settings: CatalogSettings;
+  /** 26 A restaurant's pickup and delivery; null for other shops. */
+  private readonly fulfilment: FulfilmentSettings | null;
 
   constructor(private readonly deps: CatalogDeps) {
     this.settings = catalogSettings(deps.app);
+    this.fulfilment = fulfilmentOf(deps.app);
   }
 
   private money(cents: number): string {
@@ -76,11 +83,13 @@ export class CatalogConnector implements Connector {
     return {
       store: {
         currency: this.settings.currency,
-        guest_checkout: true,
+        // 26 A restaurant's customers sign in to order, so they can follow it.
+        guest_checkout: this.fulfilment === null,
         checkout_opens_in: "in_app",
         reviews: false,
         delivery_date: { enabled: false, required: false, min_days: 0, max_days: 0, closed_weekdays: [] },
         gift_message: { enabled: false, max_length: 200 },
+        ...(this.fulfilment ? { fulfilment: fulfilmentConfigJson(this.fulfilment, this.settings.currency) } : {}),
       },
       features: { orders: true },
     };
@@ -101,6 +110,11 @@ export class CatalogConnector implements Connector {
         return this.checkoutLink(request);
       case "GET /me/orders":
         return this.orders(request);
+      case "GET /store/order-times":
+        return this.fulfilment ? { status: 200, body: orderTimesJson(this.fulfilment, request.now) } : error(404, "not_found", "Not found.");
+    }
+    if (request.method === "GET" && request.path.length === 3 && request.path[0] === "me" && request.path[1] === "orders") {
+      return this.order(request, Number(request.path[2]));
     }
     if (request.method === "GET" && request.path[0] === "store" && request.path[1] === "products" && request.path[2]) {
       const id = Number(request.path[2]);
@@ -257,6 +271,7 @@ export class CatalogConnector implements Connector {
         related: related.map((p) => this.summary(p)),
         external_url: null,
         permalink: productUrl(this.deps.platformUrl, app.id, product.id),
+        option_groups: optionGroupsJson(optionGroupsOf(product), this.settings.currency),
       },
     };
   }
@@ -285,12 +300,17 @@ export class CatalogConnector implements Connector {
             digital: false,
           },
           product: null,
+          unit: 0,
+          chosen: [] as ChosenOption[],
         };
       }
       const max = product.stock !== null ? product.stock : null;
-      const available = max === null || max > 0;
+      // 26 The options are checked and priced here; prices from the app are never used.
+      const options = checkOptions(optionGroupsOf(product), line.options ?? []);
+      const available = (max === null || max > 0) && options.ok;
       const quantity = max !== null && max > 0 ? Math.min(line.quantity, max) : line.quantity;
-      const unit = priceOf(product);
+      const unit = priceOf(product) + (options.ok ? options.deltaCents : 0);
+      const chosen = options.ok ? options.chosen : [];
       if (available) {
         subtotal += unit * quantity;
         count += quantity;
@@ -305,11 +325,20 @@ export class CatalogConnector implements Connector {
           unit_price: this.money(unit),
           line_total: this.money(unit * quantity),
           available,
-          problem: !available ? "Out of stock." : quantity < line.quantity ? `Only ${quantity} left in stock.` : null,
+          problem: !options.ok
+            ? options.problem
+            : !available
+              ? "Out of stock."
+              : quantity < line.quantity
+                ? `Only ${quantity} left in stock.`
+                : null,
           max_quantity: max !== null && max > 0 ? max : null,
           digital: product.digital,
+          ...(chosen.length > 0 ? { options: chosen.map((o) => ({ id: o.id, name: o.name, group: o.group })) } : {}),
         },
         product,
+        unit,
+        chosen,
       };
     });
     return {
@@ -337,6 +366,7 @@ export class CatalogConnector implements Connector {
     const lines = cartLines(request.body);
     if (!lines) return error(400, "invalid_request", "The cart is empty or invalid.");
     if (this.deps.cardPayments === false) return error(403, "feature_disabled", "Ordering isn't available in this app.");
+    if (this.fulfilment && !request.user) return error(401, "unauthorized", "Please sign in to order.");
     // 16 A demo shop takes orders without a payment account: its payment page charges nothing.
     if (!this.settings.payment && !this.deps.app.demo) {
       return error(503, "shop_unavailable", "This shop can't take orders yet. Please try again later.");
@@ -348,15 +378,26 @@ export class CatalogConnector implements Connector {
     if (platform === "ios" && priced.out.some((o) => o.line.digital)) {
       return error(403, "purchase_not_allowed", "Digital products can't be bought in the iPhone app.");
     }
-    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product }) => ({
+    const orderLines: CatalogOrderLine[] = priced.out.map(({ line, product, unit, chosen }) => ({
       productId: product!.id,
       name: product!.name,
       quantity: line.quantity,
-      unitCents: priceOf(product!),
+      unitCents: unit,
       imageAssetId: product!.imageAssetIds[0] ?? null,
       digital: product!.digital,
+      ...(chosen.length > 0 ? { options: chosen.map((o) => ({ group: o.group, name: o.name, priceDeltaCents: o.priceDeltaCents })) } : {}),
     }));
-    const shipping = shippingFor(this.settings, priced.subtotal, orderLines.some((l) => !l.digital));
+    // 26 A restaurant's order: pickup or delivery at a time its kitchen takes it; the delivery fee is its shipping.
+    let fulfilment: CatalogOrder["fulfilment"] = null;
+    let shipping: number;
+    if (this.fulfilment) {
+      const checked = checkFulfilment(this.fulfilment, request.body, priced.subtotal, this.settings.currency, request.now);
+      if (!checked.ok) return error(checked.status, checked.code, checked.message);
+      fulfilment = checked.fulfilment;
+      shipping = checked.feeCents;
+    } else {
+      shipping = shippingFor(this.settings, priced.subtotal, orderLines.some((l) => !l.digital));
+    }
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       appId: this.deps.app.id,
@@ -376,6 +417,8 @@ export class CatalogConnector implements Connector {
       commissionCents: null,
       itemTransactionIds: null,
       payoutApprovedAt: null,
+      fulfilment,
+      fulfilmentStatus: fulfilment ? "received" : null,
     });
     return {
       status: 200,
@@ -403,8 +446,30 @@ export class CatalogConnector implements Connector {
         product_id: l.productId,
         quantity: l.quantity,
         image_url: l.imageAssetId ? this.deps.assetUrl(l.imageAssetId) : null,
+        ...(l.options?.length ? { options: l.options.map((o) => o.name) } : {}),
       })),
+      // 26 A restaurant's order: how it's collected and where it is.
+      ...(order.fulfilment
+        ? {
+            status_label: order.fulfilmentStatus ? FULFILMENT_LABELS[order.fulfilmentStatus] : ORDER_STATUS_LABELS[order.status],
+            fulfilment: {
+              type: order.fulfilment.type,
+              scheduled_for: order.fulfilment.scheduledFor,
+              delivery_address: order.fulfilment.address,
+              delivery_fee: order.shippingCents > 0 ? formatCents(order.shippingCents, order.currency) : null,
+            },
+            fulfilment_status: order.fulfilmentStatus ?? null,
+          }
+        : {}),
     };
+  }
+
+  /** 26 One of the customer's own paid orders, for following it. */
+  private async order(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    if (!request.user) return error(401, "invalid_token", "Your session has ended. Please sign in again.");
+    const order = Number.isSafeInteger(id) && id > 0 ? await this.deps.store.getCatalogOrder(this.deps.app.id, id) : null;
+    if (!order || order.userId !== request.user.id || !LISTED_STATUSES.includes(order.status)) return error(404, "not_found", "Order not found.");
+    return { status: 200, body: this.orderJson(order) };
   }
 
   private async orders(request: ConnectorRequest): Promise<ConnectorResult> {

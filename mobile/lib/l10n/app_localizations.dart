@@ -3939,6 +3939,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Breaking news'**
   String get notifyBreakingNews;
+
+  /// What a restaurant app calls the business that owns it (vertical_wording.dart).
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get wordingRestaurant;
+
+  /// The tab and screen with a restaurant's dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant) instead of Shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menuTitle;
+
+  /// Search box hint on a restaurant's menu. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant).
+  ///
+  /// In en, this message translates to:
+  /// **'Search the menu'**
+  String get menuSearch;
+
+  /// Button of an empty cart in a restaurant app. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant).
+  ///
+  /// In en, this message translates to:
+  /// **'See the menu'**
+  String get menuBrowse;
+
+  /// The menu has no dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant).
+  ///
+  /// In en, this message translates to:
+  /// **'No dishes yet'**
+  String get menuEmptyTitle;
+
+  /// The menu has no dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant).
+  ///
+  /// In en, this message translates to:
+  /// **'The menu will be here soon.'**
+  String get menuEmptyMessage;
+
+  /// Screen reader label while the menu loads. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant).
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the menu'**
+  String get menuLoading;
+
+  /// The menu's last section: dishes without a category.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get menuMore;
+
+  /// An option group the customer must choose from.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get optionsRequired;
+
+  /// An option group the customer may skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optionsOptional;
+
+  /// How many options of a group to choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose 1'**
+  String get optionsChooseOne;
+
+  /// How many options of a group to choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose up to {count}'**
+  String optionsChooseUpTo(int count);
+
+  /// How many options of a group to choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least {count}'**
+  String optionsChooseAtLeast(int count);
+
+  /// The option sheet's button, with the price of the chosen dish and quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart · {price}'**
+  String optionsAddToCart(String price);
+
+  /// The option sheet's button while a required group has no choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose: {group}'**
+  String optionsMissing(String group);
+
+  /// Under the option sheet's price.
+  ///
+  /// In en, this message translates to:
+  /// **'The final price is confirmed in the cart.'**
+  String get optionsPriceNote;
+
+  /// Heading of the cart's choice between pickup and delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup or delivery'**
+  String get fulfilmentHow;
+
+  /// The customer collects the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get fulfilmentPickup;
+
+  /// The order is delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get fulfilmentDelivery;
+
+  /// Where pickup orders are collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up at {address}'**
+  String fulfilmentPickupAt(String address);
+
+  /// Field for the delivery address.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address'**
+  String get deliveryAddress;
+
+  /// Hint of the delivery address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Street, building and flat'**
+  String get deliveryAddressHint;
+
+  /// The district the order goes to.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get deliveryDistrict;
+
+  /// Field for a note to the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the courier (optional)'**
+  String get deliveryNotes;
+
+  /// The delivery fee line in the cart and on an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery fee'**
+  String get deliveryFee;
+
+  /// Shown when a delivery's subtotal is below the minimum.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum order for delivery is {amount}.'**
+  String deliveryMinimum(String amount);
+
+  /// Why checkout is blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your delivery address.'**
+  String get deliveryEnterAddress;
+
+  /// Heading of the cart's time choice.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get orderTimeTitle;
+
+  /// An order without a chosen time.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get orderAsap;
+
+  /// Under As soon as possible.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready in about {minutes} min'**
+  String orderReadyIn(int minutes);
+
+  /// Choose a time for the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule for later'**
+  String get orderLater;
+
+  /// Title of the time picker and why checkout is blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a time'**
+  String get orderChooseTime;
+
+  /// A time today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today {time}'**
+  String orderToday(String time);
+
+  /// A time tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow {time}'**
+  String orderTomorrow(String time);
+
+  /// Shown when the kitchen is closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed now — opens at {time}'**
+  String closedNowOpensAt(String time);
+
+  /// Shown when the kitchen is closed and no opening is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed now'**
+  String get closedNow;
+
+  /// Under Closed now, when scheduled orders are allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You can order for later.'**
+  String get closedOrderLater;
+
+  /// Under Closed now, when only orders as soon as possible are taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Please order when we\'re open.'**
+  String get closedComeBack;
+
+  /// An order's step: received by the kitchen.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get fulfilmentReceived;
+
+  /// An order's step.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get fulfilmentPreparing;
+
+  /// An order's step.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get fulfilmentReady;
+
+  /// An order's step, for pickup orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for pickup'**
+  String get fulfilmentReadyPickup;
+
+  /// An order's step, for deliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get fulfilmentOutForDelivery;
+
+  /// An order's step.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get fulfilmentCompleted;
+
+  /// An order's state.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get fulfilmentCancelled;
+
+  /// On a cancelled order.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled. Please contact us if you have any questions.'**
+  String get orderCancelledMessage;
+
+  /// How an order is collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup, as soon as possible'**
+  String get orderPickupAsap;
+
+  /// How an order is collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery, as soon as possible'**
+  String get orderDeliveryAsap;
+
+  /// How an order is collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup at {time}'**
+  String orderPickupAt(String time);
+
+  /// How an order is collected.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery at {time}'**
+  String orderDeliveryAt(String time);
+
+  /// On an order's tracking screen.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send you a notification at each step.'**
+  String get orderUpdatesNote;
+
+  /// Heading of an order's items.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get orderYourOrder;
+
+  /// An order's total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get orderTotal;
+
+  /// Screen reader label while an order loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your order'**
+  String get loadingOrder;
 }
 
 class _AppLocalizationsDelegate

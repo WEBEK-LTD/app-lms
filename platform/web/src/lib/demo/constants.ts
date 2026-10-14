@@ -47,9 +47,9 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
 
 /**
  * 21 Which demo: an engine's (its default kind), or a vertical's that has
- * its own demo (a clinic, on the bookings engine).
+ * its own demo (a clinic, on the bookings engine; 26 a café, on the store engine).
  */
-export type DemoId = AppType | Extract<AppVertical, "clinic">;
+export type DemoId = AppType | Extract<AppVertical, "clinic" | "restaurant">;
 
 /** The kind a demo shows. */
 export function demoKind(id: DemoId): KindInfo {

@@ -9,6 +9,8 @@ const PAGES: { path: string; heading: RegExp; footer: boolean }[] = [
   { path: "/solutions/bookings", heading: /Appointments, booked in your own app/, footer: true },
   { path: "/solutions/clinic", heading: /Your clinic, booked from your patients. phones/, footer: true },
   { path: "/docs/clinics", heading: /Clinics: doctors, visits and the intake form/, footer: true },
+  { path: "/solutions/restaurant", heading: /Your menu, ordered from your customers. phones/, footer: true },
+  { path: "/docs/restaurants", heading: /Restaurants and cafés: menu, pickup, delivery and the kitchen/, footer: true },
   { path: "/solutions/real-estate", heading: /Your listings, with search, favorites and messages/, footer: true },
   { path: "/features", heading: /Everything your app needs, built in/, footer: true },
   { path: "/integrations", heading: /Your content, from wherever it lives/, footer: true },
@@ -111,6 +113,7 @@ test("the home page shows the app types, the screens and the comparison", async 
   for (const [name, path] of [
     ["Academy apps", "/solutions/academy"],
     ["Store apps", "/solutions/store"],
+    ["Restaurant & café apps", "/solutions/restaurant"],
     ["Bookings apps", "/solutions/bookings"],
     ["Clinic apps", "/solutions/clinic"],
     ["Real estate apps", "/solutions/real-estate"],

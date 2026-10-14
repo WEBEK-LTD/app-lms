@@ -1,8 +1,16 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { addCategoryAction, joinMarketplaceAction, savePaymentKeysAction, saveProductAction, saveShopSettingsAction } from "@/app/actions/catalog";
+import {
+  addCategoryAction,
+  joinMarketplaceAction,
+  saveFulfilmentAction,
+  savePaymentKeysAction,
+  saveProductAction,
+  saveShopSettingsAction,
+} from "@/app/actions/catalog";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { btn } from "@/components/ui";
 import { initialFormState } from "@/lib/forms";
 
 export interface ProductFormValues {
@@ -18,6 +26,17 @@ export interface ProductFormValues {
   digital: boolean;
   featured: boolean;
   active: boolean;
+  /** 26 The option groups as the editor keeps them (prices as typed). */
+  optionGroups: EditorGroup[];
+}
+
+/** 26 One option group in the editor; `id`s are kept so carts still match after an edit. */
+export interface EditorGroup {
+  id?: string;
+  name: string;
+  min: string;
+  max: string;
+  options: { id?: string; name: string; price: string }[];
 }
 
 function Check({ name, label, hint, defaultChecked }: { name: string; label: string; hint: string; defaultChecked: boolean }) {
@@ -36,10 +55,16 @@ export function ProductForm({
   product,
   categories,
   currency,
+  words = { add: "Add product", save: "Save product" },
+  restaurant = false,
 }: {
   product: ProductFormValues;
   categories: { id: number; name: string }[];
   currency: string;
+  /** 26 "Add dish" and "Save dish" for restaurants. */
+  words?: { add: string; save: string };
+  /** 26 Food is never a digital product. */
+  restaurant?: boolean;
 }) {
   const [state, action] = useActionState(saveProductAction, initialFormState);
   const v = (key: keyof ProductFormValues & string, fallback: string) => state.values?.[key] ?? fallback;
@@ -137,19 +162,250 @@ export function ProductForm({
         </span>
         <FieldError id="f-images-error" error={state.errors?.images} />
       </fieldset>
+      <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={state.errors?.optionGroups} />
       <div className="flex flex-col gap-3">
         <Check name="active" label="Show in the app" hint="Turn off to hide the product without deleting it." defaultChecked={product.active} />
         <Check name="featured" label="Featured" hint="Shown first on the app's home screen." defaultChecked={product.featured} />
-        <Check
-          name="digital"
-          label="Digital product"
-          hint="Nothing to ship, like a gift card or a file. No shipping is charged, and the iPhone app doesn't sell it (Apple's rules)."
-          defaultChecked={product.digital}
-        />
+        {restaurant ? null : (
+          <Check
+            name="digital"
+            label="Digital product"
+            hint="Nothing to ship, like a gift card or a file. No shipping is charged, and the iPhone app doesn't sell it (Apple's rules)."
+            defaultChecked={product.digital}
+          />
+        )}
       </div>
       <div className="flex justify-end pt-1">
         <SubmitButton className="h-11" pendingText="Saving…">
-          {product.id === null ? "Add product" : "Save product"}
+          {product.id === null ? words.add : words.save}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+const blankOption = () => ({ name: "", price: "" });
+
+/**
+ * 26 A product's option groups: each with a name, how many options customers
+ * choose (at least and at most) and its options with an extra price. Sent as
+ * one JSON field and checked on the server (lib/catalog/options.ts).
+ */
+function OptionGroupsEditor({ initial, currency, restaurant, error }: { initial: EditorGroup[]; currency: string; restaurant: boolean; error?: string }) {
+  const [groups, setGroups] = useState<EditorGroup[]>(initial);
+  const update = (i: number, patch: Partial<EditorGroup>) => setGroups((all) => all.map((g, j) => (j === i ? { ...g, ...patch } : g)));
+  const updateOption = (i: number, k: number, patch: Partial<EditorGroup["options"][number]>) =>
+    setGroups((all) => all.map((g, j) => (j === i ? { ...g, options: g.options.map((o, l) => (l === k ? { ...o, ...patch } : o)) } : g)));
+  return (
+    <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby="f-options-hint">
+      <legend className="mb-1.5 text-sm font-semibold">Options</legend>
+      <input type="hidden" name="optionGroups" value={JSON.stringify(groups)} />
+      <span id="f-options-hint" className="text-[13px] text-muted">
+        {restaurant
+          ? "Choices customers make before adding the dish, like a size, a side or extras, each with its own extra price."
+          : "Choices customers make before adding the product to the cart, like a size or a gift wrap, each with its own extra price."}{" "}
+        &quot;At least 0&quot; makes a group optional.
+      </span>
+      {groups.map((group, i) => {
+        const n = i + 1;
+        return (
+          <div key={i} role="group" aria-label={`Option group ${n}`} className="flex flex-col gap-3 rounded-xl border border-line p-4">
+            <div className="grid gap-3 sm:grid-cols-[1fr_120px_120px]">
+              <label className="flex flex-col gap-1.5 text-sm font-semibold">
+                Group name
+                <input
+                  className="input input-sm font-normal"
+                  value={group.name}
+                  maxLength={60}
+                  placeholder="Size"
+                  aria-label={`Group ${n} name`}
+                  onChange={(e) => update(i, { name: e.target.value })}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm font-semibold">
+                At least
+                <input
+                  className="input input-sm font-normal"
+                  inputMode="numeric"
+                  value={group.min}
+                  aria-label={`Group ${n} at least`}
+                  onChange={(e) => update(i, { min: e.target.value })}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm font-semibold">
+                At most
+                <input
+                  className="input input-sm font-normal"
+                  inputMode="numeric"
+                  value={group.max}
+                  aria-label={`Group ${n} at most`}
+                  onChange={(e) => update(i, { max: e.target.value })}
+                />
+              </label>
+            </div>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              {group.options.map((option, k) => (
+                <li key={k} className="flex flex-wrap items-center gap-2">
+                  <input
+                    className="input input-sm min-w-0 flex-[1_1_180px]"
+                    value={option.name}
+                    maxLength={60}
+                    placeholder="Option"
+                    aria-label={`Group ${n} option ${k + 1}`}
+                    onChange={(e) => updateOption(i, k, { name: e.target.value })}
+                  />
+                  <input
+                    className="input input-sm w-[140px]"
+                    inputMode="decimal"
+                    value={option.price}
+                    placeholder={`+ ${currency}`}
+                    aria-label={`Group ${n} option ${k + 1} extra price`}
+                    onChange={(e) => updateOption(i, k, { price: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="cursor-pointer border-0 bg-transparent p-1 text-sm font-semibold text-danger"
+                    onClick={() => update(i, { options: group.options.filter((_, l) => l !== k) })}
+                  >
+                    Remove<span className="sr-only"> option {k + 1} of group {n}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => update(i, { options: [...group.options, blankOption()] })}>
+                Add option<span className="sr-only"> to group {n}</span>
+              </button>
+              <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => setGroups((all) => all.filter((_, j) => j !== i))}>
+                Remove group<span className="sr-only"> {n}</span>
+              </button>
+            </div>
+          </div>
+        );
+      })}
+      <div>
+        <button
+          type="button"
+          className={`${btn.secondary} h-9 px-3 text-sm`}
+          onClick={() => setGroups((all) => [...all, { name: "", min: "1", max: "1", options: [blankOption(), blankOption()] }])}
+        >
+          Add an option group
+        </button>
+      </div>
+      <FieldError id="f-options-error" error={error} />
+    </fieldset>
+  );
+}
+
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** 26 A restaurant's pickup and delivery, opening hours and order times. */
+export function FulfilmentForm({ current, timezones, currency }: { current: Record<string, string>; timezones: string[]; currency: string }) {
+  const [state, action] = useActionState(saveFulfilmentAction, initialFormState);
+  const v = state.values ?? current;
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-5" key={JSON.stringify(v)}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex flex-col gap-3">
+        <Check name="pickup" label="Pickup" hint="Customers collect their order." defaultChecked={v.pickup === "on"} />
+        <Check name="delivery" label="Delivery" hint="You bring the order to the customer." defaultChecked={v.delivery === "on"} />
+        <FieldError id="f-pickup-error" error={e.pickup} />
+      </div>
+      <Field label="Pickup address" name="pickupAddress" maxLength={200} defaultValue={v.pickupAddress} hint="Shown to customers who pick up." error={e.pickupAddress} small />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={`Delivery fee (${currency})`} name="deliveryFee" inputMode="decimal" defaultValue={v.deliveryFee} hint="Leave empty for free delivery." error={e.deliveryFee} small />
+        <Field
+          label={`Minimum order for delivery (${currency})`}
+          name="minOrder"
+          inputMode="decimal"
+          defaultValue={v.minOrder}
+          hint="Optional."
+          error={e.minOrder}
+          small
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-deliveryAreas" className="text-sm font-semibold">
+          Delivery areas
+        </label>
+        <textarea
+          id="f-deliveryAreas"
+          name="deliveryAreas"
+          rows={3}
+          defaultValue={v.deliveryAreas}
+          className="input min-h-20 py-2.5"
+          aria-describedby="f-deliveryAreas-hint"
+        />
+        <span id="f-deliveryAreas-hint" className="text-[13px] text-muted">
+          Districts or postcodes, one per line. Customers pick one. Leave empty to deliver anywhere.
+        </span>
+        <FieldError id="f-deliveryAreas-error" error={e.deliveryAreas} />
+      </div>
+      <Field
+        label="Where you deliver"
+        name="deliveryNote"
+        maxLength={200}
+        defaultValue={v.deliveryNote}
+        hint='In your words, like "Within 3 km of Moda". Optional.'
+        error={e.deliveryNote}
+        small
+      />
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1.5 text-sm font-semibold">Opening hours</legend>
+        {WEEKDAYS.map((day, d) => (
+          <div key={day} className="flex flex-wrap items-center gap-3 text-[15px]">
+            <label className="flex w-[130px] cursor-pointer items-center gap-2">
+              <input type="checkbox" name={`open${d}`} defaultChecked={v[`open${d}`] === "on"} className="h-4 w-4 accent-midnight" aria-label={`Open on ${day}`} />
+              {day}
+            </label>
+            <input type="time" name={`start${d}`} defaultValue={v[`start${d}`] || "09:00"} aria-label={`${day} opens at`} className="input input-sm w-[120px]" />
+            <span className="text-muted">to</span>
+            <input type="time" name={`end${d}`} defaultValue={v[`end${d}`] || "22:00"} aria-label={`${day} closes at`} className="input input-sm w-[120px]" />
+          </div>
+        ))}
+        <FieldError id="f-hours-error" error={e.hours} />
+      </fieldset>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <label htmlFor="f-timezone" className="text-sm font-semibold">
+            Time zone
+          </label>
+          <select id="f-timezone" name="timezone" defaultValue={v.timezone} className="input input-sm">
+            {timezones.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <FieldError id="f-timezone-error" error={e.timezone} />
+        </div>
+        <Field label="Preparation time (minutes)" name="prepMinutes" inputMode="numeric" defaultValue={v.prepMinutes} error={e.prepMinutes} small />
+      </div>
+      <div className="flex flex-col gap-3">
+        <Check name="asap" label="Orders as soon as possible" hint="While you're open. When you're closed, the app says when you open." defaultChecked={v.asap === "on"} />
+        <Check name="scheduled" label="Orders for later" hint="Customers choose a time, from your preparation time on." defaultChecked={v.scheduled === "on"} />
+        <FieldError id="f-asap-error" error={e.asap} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <label htmlFor="f-slotStep" className="text-sm font-semibold">
+            Times for later every
+          </label>
+          <select id="f-slotStep" name="slotStep" defaultValue={v.slotStep} className="input input-sm">
+            {["10", "15", "20", "30", "60"].map((m) => (
+              <option key={m} value={m}>
+                {m} minutes
+              </option>
+            ))}
+          </select>
+          <FieldError id="f-slotStep-error" error={e.slotStep} />
+        </div>
+        <Field label="Orders for later, up to (days ahead)" name="maxDaysAhead" inputMode="numeric" defaultValue={v.maxDaysAhead} hint="0: today only." error={e.maxDaysAhead} small />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save pickup and delivery
         </SubmitButton>
       </div>
     </form>
@@ -176,11 +432,14 @@ export function ShopSettingsForm({
   shipping,
   freeOver,
   currencies,
+  shippingFields = true,
 }: {
   currency: string;
   shipping: string;
   freeOver: string;
   currencies: string[];
+  /** 26 Restaurants charge a delivery fee instead (Pickup and delivery). */
+  shippingFields?: boolean;
 }) {
   const [state, action] = useActionState(saveShopSettingsAction, initialFormState);
   return (
@@ -199,22 +458,26 @@ export function ShopSettingsForm({
         </select>
         <FieldError id="f-currency-error" error={state.errors?.currency} />
       </div>
-      <Field
-        label="Shipping fee"
-        name="shipping"
-        inputMode="decimal"
-        defaultValue={state.values?.shipping ?? shipping}
-        hint="Added to orders with physical products. Leave empty for free shipping."
-        error={state.errors?.shipping}
-      />
-      <Field
-        label="Free shipping from"
-        name="freeOver"
-        inputMode="decimal"
-        defaultValue={state.values?.freeOver ?? freeOver}
-        hint="Orders of this amount or more ship free. Optional."
-        error={state.errors?.freeOver}
-      />
+      {shippingFields ? (
+        <>
+          <Field
+            label="Shipping fee"
+            name="shipping"
+            inputMode="decimal"
+            defaultValue={state.values?.shipping ?? shipping}
+            hint="Added to orders with physical products. Leave empty for free shipping."
+            error={state.errors?.shipping}
+          />
+          <Field
+            label="Free shipping from"
+            name="freeOver"
+            inputMode="decimal"
+            defaultValue={state.values?.freeOver ?? freeOver}
+            hint="Orders of this amount or more ship free. Optional."
+            error={state.errors?.freeOver}
+          />
+        </>
+      ) : null}
       <div className="flex justify-end">
         <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
           Save settings

@@ -35,12 +35,15 @@ import {
   DEMO_ARTICLES,
   DEMO_BRANDS,
   DEMO_COURSES,
+  DEMO_DISHES,
   DEMO_LISTINGS,
   DEMO_PRODUCTS,
   DEMO_SERVICES,
   DEMO_STAFF,
   LISTING_SETTINGS,
+  MENU_CATEGORIES,
   PRODUCT_CATEGORIES,
+  RESTAURANT_FULFILMENT,
   SERVICE_CATEGORIES,
   STORE_CURRENCY,
   STORE_FREE_SHIPPING_OVER_CENTS,
@@ -193,6 +196,15 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
     patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup);
+  } else if (content === "catalog" && id === "restaurant") {
+    // 26 The café: pickup and delivery, its hours and delivery areas.
+    patch.catalogSettings = {
+      currency: STORE_CURRENCY,
+      shippingCents: 0,
+      freeShippingOverCents: null,
+      payment: null,
+      fulfilment: { ...RESTAURANT_FULFILMENT, hours: RESTAURANT_FULFILMENT.hours.map((d) => d.map((r) => ({ ...r }))), deliveryAreas: [...RESTAURANT_FULFILMENT.deliveryAreas] },
+    };
   } else if (content === "catalog") {
     patch.catalogSettings = { currency: STORE_CURRENCY, shippingCents: STORE_SHIPPING_CENTS, freeShippingOverCents: STORE_FREE_SHIPPING_OVER_CENTS, payment: null };
   } else if (content === "bookings") {
@@ -207,7 +219,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     await activateClient(store, { clientId: client.id, appId: saved.id, plan: "business", activeUntil: DEMO_LICENSE_UNTIL, paymentNote: "" }, deps.encryptionKey, now);
   }
 
-  if (content === "catalog") await syncProducts(deps, client.id, saved);
+  if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   if (content === "listings") await syncListings(deps, client.id, saved);
   if (content === "articles") await syncArticles(deps, client.id, saved);
   await publishPages(deps, client.id, saved);
@@ -285,19 +297,21 @@ async function bookingSetupFor(deps: DemoSetupDeps, clientId: string, clinic: bo
   return { rules: { ...BOOKING_RULES }, categories, services, staff, nextId: next };
 }
 
-/** Products by SKU and categories by name: updated in place; ones no longer in the demo are removed. */
-async function syncProducts(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
+/** Products by SKU and categories by name: updated in place; ones no longer in the demo are removed. 26 The café's dishes, with their options. */
+async function syncProducts(deps: DemoSetupDeps, clientId: string, app: App, menu: boolean): Promise<void> {
   const { store, now } = deps;
+  const names = menu ? MENU_CATEGORIES : PRODUCT_CATEGORIES;
+  const seeds = menu ? DEMO_DISHES : DEMO_PRODUCTS;
   const categories = await store.listCatalogCategories(app.id);
   const categoryIds = new Map<string, number>();
-  for (const name of PRODUCT_CATEGORIES) {
+  for (const name of names) {
     const found = categories.find((c) => c.name === name);
     categoryIds.set(name, found ? found.id : (await store.createCatalogCategory({ appId: app.id, name, now })).id);
   }
-  for (const c of categories) if (!PRODUCT_CATEGORIES.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
+  for (const c of categories) if (!names.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
   const products = await store.listCatalogProducts(app.id);
   // Created last to first, so the newest-first lists show them in the demo's order.
-  for (const seed of [...DEMO_PRODUCTS].reverse()) {
+  for (const seed of [...seeds].reverse()) {
     const input = {
       appId: app.id,
       name: seed.name,
@@ -311,12 +325,13 @@ async function syncProducts(deps: DemoSetupDeps, clientId: string, app: App): Pr
       featured: seed.featured,
       active: true,
       sku: seed.sku,
+      optionGroups: seed.optionGroups ? structuredClone(seed.optionGroups) : null,
     };
     const found = products.find((p) => p.sku === seed.sku);
     if (found) await store.updateCatalogProduct(app.id, found.id, input, now);
     else await store.createCatalogProduct(input, now);
   }
-  const skus = new Set(DEMO_PRODUCTS.map((p) => p.sku));
+  const skus = new Set(seeds.map((p) => p.sku));
   for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
 }
 

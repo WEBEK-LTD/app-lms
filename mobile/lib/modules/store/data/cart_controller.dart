@@ -21,6 +21,8 @@ class CartItem {
     this.imageUrl,
     this.price,
     this.maxQuantity,
+    this.options = const [],
+    this.optionNames = const [],
   });
 
   factory CartItem.fromJson(Json json) => CartItem(
@@ -36,6 +38,14 @@ class CartItem {
     imageUrl: optString(json, 'image_url'),
     price: optString(json, 'price'),
     maxQuantity: optInt(json, 'max_quantity'),
+    options: [
+      for (final o in (json['options'] as List? ?? const []))
+        if (o is String) o,
+    ],
+    optionNames: [
+      for (final o in (json['option_names'] as List? ?? const []))
+        if (o is String) o,
+    ],
   );
 
   final int productId;
@@ -49,13 +59,21 @@ class CartItem {
   final String? price;
   final int? maxQuantity;
 
+  /// 26 The IDs of the chosen options of the product's option groups.
+  final List<String> options;
+
+  /// Their names, as chosen ("Double, Cheddar"); the cart shows the server's.
+  final List<String> optionNames;
+
   /// Lines with the same product, variation and options merge.
   String get key {
-    final options = attributes.keys.toList()..sort();
+    final keys = attributes.keys.toList()..sort();
+    final chosen = [...options]..sort();
     return [
       productId,
       variationId ?? 0,
-      for (final k in options) '$k=${attributes[k]}',
+      for (final k in keys) '$k=${attributes[k]}',
+      if (chosen.isNotEmpty) 'o=${chosen.join(',')}',
     ].join('|');
   }
 
@@ -68,6 +86,8 @@ class CartItem {
     imageUrl: imageUrl,
     price: price,
     maxQuantity: maxQuantity,
+    options: options,
+    optionNames: optionNames,
   );
 
   CartLineInput toInput() => CartLineInput(
@@ -75,6 +95,7 @@ class CartItem {
     variationId: variationId,
     quantity: quantity,
     attributes: attributes,
+    options: options,
   );
 
   Json toJson() => {
@@ -86,6 +107,8 @@ class CartItem {
     'image_url': imageUrl,
     'price': price,
     'max_quantity': maxQuantity,
+    if (options.isNotEmpty) 'options': options,
+    if (optionNames.isNotEmpty) 'option_names': optionNames,
   };
 }
 

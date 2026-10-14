@@ -2380,4 +2380,191 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifyBreakingNews => 'Breaking news';
+
+  @override
+  String get wordingRestaurant => 'Restaurant';
+
+  @override
+  String get menuTitle => 'Menu';
+
+  @override
+  String get menuSearch => 'Search the menu';
+
+  @override
+  String get menuBrowse => 'See the menu';
+
+  @override
+  String get menuEmptyTitle => 'No dishes yet';
+
+  @override
+  String get menuEmptyMessage => 'The menu will be here soon.';
+
+  @override
+  String get menuLoading => 'Loading the menu';
+
+  @override
+  String get menuMore => 'More';
+
+  @override
+  String get optionsRequired => 'Required';
+
+  @override
+  String get optionsOptional => 'Optional';
+
+  @override
+  String get optionsChooseOne => 'Choose 1';
+
+  @override
+  String optionsChooseUpTo(int count) {
+    return 'Choose up to $count';
+  }
+
+  @override
+  String optionsChooseAtLeast(int count) {
+    return 'Choose at least $count';
+  }
+
+  @override
+  String optionsAddToCart(String price) {
+    return 'Add to cart · $price';
+  }
+
+  @override
+  String optionsMissing(String group) {
+    return 'Choose: $group';
+  }
+
+  @override
+  String get optionsPriceNote => 'The final price is confirmed in the cart.';
+
+  @override
+  String get fulfilmentHow => 'Pickup or delivery';
+
+  @override
+  String get fulfilmentPickup => 'Pickup';
+
+  @override
+  String get fulfilmentDelivery => 'Delivery';
+
+  @override
+  String fulfilmentPickupAt(String address) {
+    return 'Pick up at $address';
+  }
+
+  @override
+  String get deliveryAddress => 'Delivery address';
+
+  @override
+  String get deliveryAddressHint => 'Street, building and flat';
+
+  @override
+  String get deliveryDistrict => 'District';
+
+  @override
+  String get deliveryNotes => 'Note for the courier (optional)';
+
+  @override
+  String get deliveryFee => 'Delivery fee';
+
+  @override
+  String deliveryMinimum(String amount) {
+    return 'The minimum order for delivery is $amount.';
+  }
+
+  @override
+  String get deliveryEnterAddress => 'Enter your delivery address.';
+
+  @override
+  String get orderTimeTitle => 'When';
+
+  @override
+  String get orderAsap => 'As soon as possible';
+
+  @override
+  String orderReadyIn(int minutes) {
+    return 'Ready in about $minutes min';
+  }
+
+  @override
+  String get orderLater => 'Schedule for later';
+
+  @override
+  String get orderChooseTime => 'Choose a time';
+
+  @override
+  String orderToday(String time) {
+    return 'Today $time';
+  }
+
+  @override
+  String orderTomorrow(String time) {
+    return 'Tomorrow $time';
+  }
+
+  @override
+  String closedNowOpensAt(String time) {
+    return 'Closed now — opens at $time';
+  }
+
+  @override
+  String get closedNow => 'Closed now';
+
+  @override
+  String get closedOrderLater => 'You can order for later.';
+
+  @override
+  String get closedComeBack => 'Please order when we\'re open.';
+
+  @override
+  String get fulfilmentReceived => 'Received';
+
+  @override
+  String get fulfilmentPreparing => 'Preparing';
+
+  @override
+  String get fulfilmentReady => 'Ready';
+
+  @override
+  String get fulfilmentReadyPickup => 'Ready for pickup';
+
+  @override
+  String get fulfilmentOutForDelivery => 'Out for delivery';
+
+  @override
+  String get fulfilmentCompleted => 'Completed';
+
+  @override
+  String get fulfilmentCancelled => 'Cancelled';
+
+  @override
+  String get orderCancelledMessage =>
+      'This order was cancelled. Please contact us if you have any questions.';
+
+  @override
+  String get orderPickupAsap => 'Pickup, as soon as possible';
+
+  @override
+  String get orderDeliveryAsap => 'Delivery, as soon as possible';
+
+  @override
+  String orderPickupAt(String time) {
+    return 'Pickup at $time';
+  }
+
+  @override
+  String orderDeliveryAt(String time) {
+    return 'Delivery at $time';
+  }
+
+  @override
+  String get orderUpdatesNote => 'We\'ll send you a notification at each step.';
+
+  @override
+  String get orderYourOrder => 'Your order';
+
+  @override
+  String get orderTotal => 'Total';
+
+  @override
+  String get loadingOrder => 'Loading your order';
 }

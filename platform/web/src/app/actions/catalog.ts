@@ -4,19 +4,23 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
+import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
+import { moveOrder } from "@/lib/catalog/kitchen";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { parseOptionGroups } from "@/lib/catalog/options";
 import { parseSubMerchantForm } from "@/lib/catalog/marketplace";
 import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder, catalogSettings, encryptPaymentKeys, marketplaceTerms } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput } from "@/lib/data/types";
+import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput, FulfilmentStatus } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { checkIyzicoKeys, createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { featureOn, getSwitches } from "@/lib/switches";
+import { serviceAccountOf } from "@/lib/hosted/notify";
 
 const PRODUCT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 const PRODUCT_IMAGES_MAX = 6;
@@ -101,6 +105,10 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     if (!Number.isInteger(stock) || stock < 0 || stock > 1_000_000) errors.stock = "Enter a whole number, or leave it empty.";
   }
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
+  // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
+  values.optionGroups = String(formData.get("optionGroups") ?? "");
+  const optionGroups = parseOptionGroups(values.optionGroups);
+  if (!optionGroups.ok) errors.optionGroups = optionGroups.error;
 
   const categories = new Set((await store.listCatalogCategories(app.id)).map((c) => c.id));
   const categoryIds = formData
@@ -157,6 +165,7 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     featured: formData.get("featured") === "on",
     active: formData.get("active") === "on",
     sku: values.sku || null,
+    optionGroups: optionGroups.ok && optionGroups.value.length > 0 ? optionGroups.value : null,
   };
   if (existing) await store.updateCatalogProduct(app.id, existing.id, input, now);
   else await store.createCatalogProduct(input, now);
@@ -193,6 +202,19 @@ export async function saveShopSettingsAction(_: FormState, formData: FormData): 
   );
   refresh();
   return { ok: true, message: "Shop settings saved.", values };
+}
+
+/** 26 A restaurant's pickup and delivery: hours, fees, areas and order times. */
+export async function saveFulfilmentAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCatalogApp();
+  const values: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) if (typeof value === "string" && !key.startsWith("$")) values[key] = value;
+  if (app.vertical !== "restaurant") return { message: "Pickup and delivery are for restaurants and cafés.", values };
+  const parsed = parseFulfilmentForm(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), fulfilment: parsed.value } }, new Date());
+  refresh();
+  return { ok: true, message: "Pickup and delivery saved.", values };
 }
 
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -297,11 +319,34 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   const status = String(formData.get("status")) as CatalogOrderStatus;
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
-  if (order && NEXT_STATUSES[order.status]?.includes(status)) {
+  // 26 A restaurant's order in the kitchen moves with the kitchen's steps (moveOrderAction).
+  if (order && !(order.fulfilment && order.status === "processing") && NEXT_STATUSES[order.status]?.includes(status)) {
     const now = new Date();
     await store.updateCatalogOrder(app.id, order.id, { status, updatedAt: now });
     // A completed marketplace order releases the shop's share; our team can also do it from the admin.
     if (status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
+      const account = await accountForOrder(store, app, order, encryptionKey());
+      if (account) await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now, order });
+    }
+  }
+  refresh();
+}
+
+/**
+ * 26 The Kitchen page's buttons: a restaurant's order moves forward
+ * (preparing, ready, out for delivery, completed) or is cancelled, and the
+ * customer is told. Completing a marketplace order releases the shop's share.
+ */
+export async function moveOrderAction(formData: FormData): Promise<void> {
+  const { app } = await requireCatalogApp();
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const to = String(formData.get("to")) as FulfilmentStatus;
+  const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
+  if (order) {
+    const now = new Date();
+    const { moved } = await moveOrder({ store, app, order, to, account: serviceAccountOf(app, encryptionKey()), now });
+    if (moved && to === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
       const account = await accountForOrder(store, app, order, encryptionKey());
       if (account) await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now, order });
     }

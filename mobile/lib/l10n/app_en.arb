@@ -1557,5 +1557,281 @@
     }
   },
   "articleOpenOnSite": "Read on the website",
-  "notifyBreakingNews": "Breaking news"
+  "notifyBreakingNews": "Breaking news",
+  "wordingRestaurant": "Restaurant",
+  "@wordingRestaurant": {
+    "description": "What a restaurant app calls the business that owns it (vertical_wording.dart)."
+  },
+  "menuTitle": "Menu",
+  "@menuTitle": {
+    "description": "The tab and screen with a restaurant's dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant) instead of Shop."
+  },
+  "menuSearch": "Search the menu",
+  "@menuSearch": {
+    "description": "Search box hint on a restaurant's menu. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant)."
+  },
+  "menuBrowse": "See the menu",
+  "@menuBrowse": {
+    "description": "Button of an empty cart in a restaurant app. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant)."
+  },
+  "menuEmptyTitle": "No dishes yet",
+  "@menuEmptyTitle": {
+    "description": "The menu has no dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant)."
+  },
+  "menuEmptyMessage": "The menu will be here soon.",
+  "@menuEmptyMessage": {
+    "description": "The menu has no dishes. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant)."
+  },
+  "menuLoading": "Loading the menu",
+  "@menuLoading": {
+    "description": "Screen reader label while the menu loads. lib/core/l10n/vertical_wording.dart uses it in restaurant apps (Config.vertical restaurant)."
+  },
+  "menuMore": "More",
+  "@menuMore": {
+    "description": "The menu's last section: dishes without a category."
+  },
+  "optionsRequired": "Required",
+  "@optionsRequired": {
+    "description": "An option group the customer must choose from."
+  },
+  "optionsOptional": "Optional",
+  "@optionsOptional": {
+    "description": "An option group the customer may skip."
+  },
+  "optionsChooseOne": "Choose 1",
+  "@optionsChooseOne": {
+    "description": "How many options of a group to choose."
+  },
+  "optionsChooseUpTo": "Choose up to {count}",
+  "@optionsChooseUpTo": {
+    "description": "How many options of a group to choose.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optionsChooseAtLeast": "Choose at least {count}",
+  "@optionsChooseAtLeast": {
+    "description": "How many options of a group to choose.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "optionsAddToCart": "Add to cart · {price}",
+  "@optionsAddToCart": {
+    "description": "The option sheet's button, with the price of the chosen dish and quantity.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "optionsMissing": "Choose: {group}",
+  "@optionsMissing": {
+    "description": "The option sheet's button while a required group has no choice.",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "optionsPriceNote": "The final price is confirmed in the cart.",
+  "@optionsPriceNote": {
+    "description": "Under the option sheet's price."
+  },
+  "fulfilmentHow": "Pickup or delivery",
+  "@fulfilmentHow": {
+    "description": "Heading of the cart's choice between pickup and delivery."
+  },
+  "fulfilmentPickup": "Pickup",
+  "@fulfilmentPickup": {
+    "description": "The customer collects the order."
+  },
+  "fulfilmentDelivery": "Delivery",
+  "@fulfilmentDelivery": {
+    "description": "The order is delivered."
+  },
+  "fulfilmentPickupAt": "Pick up at {address}",
+  "@fulfilmentPickupAt": {
+    "description": "Where pickup orders are collected.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryAddress": "Delivery address",
+  "@deliveryAddress": {
+    "description": "Field for the delivery address."
+  },
+  "deliveryAddressHint": "Street, building and flat",
+  "@deliveryAddressHint": {
+    "description": "Hint of the delivery address field."
+  },
+  "deliveryDistrict": "District",
+  "@deliveryDistrict": {
+    "description": "The district the order goes to."
+  },
+  "deliveryNotes": "Note for the courier (optional)",
+  "@deliveryNotes": {
+    "description": "Field for a note to the courier."
+  },
+  "deliveryFee": "Delivery fee",
+  "@deliveryFee": {
+    "description": "The delivery fee line in the cart and on an order."
+  },
+  "deliveryMinimum": "The minimum order for delivery is {amount}.",
+  "@deliveryMinimum": {
+    "description": "Shown when a delivery's subtotal is below the minimum.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deliveryEnterAddress": "Enter your delivery address.",
+  "@deliveryEnterAddress": {
+    "description": "Why checkout is blocked."
+  },
+  "orderTimeTitle": "When",
+  "@orderTimeTitle": {
+    "description": "Heading of the cart's time choice."
+  },
+  "orderAsap": "As soon as possible",
+  "@orderAsap": {
+    "description": "An order without a chosen time."
+  },
+  "orderReadyIn": "Ready in about {minutes} min",
+  "@orderReadyIn": {
+    "description": "Under As soon as possible.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "orderLater": "Schedule for later",
+  "@orderLater": {
+    "description": "Choose a time for the order."
+  },
+  "orderChooseTime": "Choose a time",
+  "@orderChooseTime": {
+    "description": "Title of the time picker and why checkout is blocked."
+  },
+  "orderToday": "Today {time}",
+  "@orderToday": {
+    "description": "A time today.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTomorrow": "Tomorrow {time}",
+  "@orderTomorrow": {
+    "description": "A time tomorrow.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "closedNowOpensAt": "Closed now — opens at {time}",
+  "@closedNowOpensAt": {
+    "description": "Shown when the kitchen is closed.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "closedNow": "Closed now",
+  "@closedNow": {
+    "description": "Shown when the kitchen is closed and no opening is known."
+  },
+  "closedOrderLater": "You can order for later.",
+  "@closedOrderLater": {
+    "description": "Under Closed now, when scheduled orders are allowed."
+  },
+  "closedComeBack": "Please order when we're open.",
+  "@closedComeBack": {
+    "description": "Under Closed now, when only orders as soon as possible are taken."
+  },
+  "fulfilmentReceived": "Received",
+  "@fulfilmentReceived": {
+    "description": "An order's step: received by the kitchen."
+  },
+  "fulfilmentPreparing": "Preparing",
+  "@fulfilmentPreparing": {
+    "description": "An order's step."
+  },
+  "fulfilmentReady": "Ready",
+  "@fulfilmentReady": {
+    "description": "An order's step."
+  },
+  "fulfilmentReadyPickup": "Ready for pickup",
+  "@fulfilmentReadyPickup": {
+    "description": "An order's step, for pickup orders."
+  },
+  "fulfilmentOutForDelivery": "Out for delivery",
+  "@fulfilmentOutForDelivery": {
+    "description": "An order's step, for deliveries."
+  },
+  "fulfilmentCompleted": "Completed",
+  "@fulfilmentCompleted": {
+    "description": "An order's step."
+  },
+  "fulfilmentCancelled": "Cancelled",
+  "@fulfilmentCancelled": {
+    "description": "An order's state."
+  },
+  "orderCancelledMessage": "This order was cancelled. Please contact us if you have any questions.",
+  "@orderCancelledMessage": {
+    "description": "On a cancelled order."
+  },
+  "orderPickupAsap": "Pickup, as soon as possible",
+  "@orderPickupAsap": {
+    "description": "How an order is collected."
+  },
+  "orderDeliveryAsap": "Delivery, as soon as possible",
+  "@orderDeliveryAsap": {
+    "description": "How an order is collected."
+  },
+  "orderPickupAt": "Pickup at {time}",
+  "@orderPickupAt": {
+    "description": "How an order is collected.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orderDeliveryAt": "Delivery at {time}",
+  "@orderDeliveryAt": {
+    "description": "How an order is collected.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orderUpdatesNote": "We'll send you a notification at each step.",
+  "@orderUpdatesNote": {
+    "description": "On an order's tracking screen."
+  },
+  "orderYourOrder": "Your order",
+  "@orderYourOrder": {
+    "description": "Heading of an order's items."
+  },
+  "orderTotal": "Total",
+  "@orderTotal": {
+    "description": "An order's total."
+  },
+  "loadingOrder": "Loading your order",
+  "@loadingOrder": {
+    "description": "Screen reader label while an order loads."
+  }
 }

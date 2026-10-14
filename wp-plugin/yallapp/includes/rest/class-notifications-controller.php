@@ -14,7 +14,7 @@ use WP_REST_Server;
 use Yallapp\Lms\Lms_Adapter;
 
 /**
- * /me/notifications, /me/notifications/read and /me/orders.
+ * /me/notifications, /me/notifications/read, /me/orders and (26) /me/orders/{id}.
  */
 class Notifications_Controller extends Controller {
 
@@ -49,6 +49,14 @@ class Notifications_Controller extends Controller {
 				'callback'            => array( $this, 'orders' ),
 				'permission_callback' => $auth,
 				'args'                => self::page_args(),
+			)
+		);
+		$this->route(
+			'/me/orders/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'order' ),
+				'permission_callback' => $auth,
 			)
 		);
 	}
@@ -102,7 +110,8 @@ class Notifications_Controller extends Controller {
 				(int) $request['per_page'],
 				static function () {
 					return 0;
-				}
+				},
+				true
 			);
 		} else {
 			$result = array(
@@ -111,6 +120,29 @@ class Notifications_Controller extends Controller {
 			);
 		}
 		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $result['items'] ) ) );
+	}
+
+	/**
+	 * 26 GET /me/orders/{id}: one of a Store app customer's WooCommerce orders, for following it.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function order( WP_REST_Request $request ) {
+		$order = null;
+		if ( ! $this->plugin->lms() ) {
+			$order = \Yallapp\Commerce\Woo_Orders::for_order(
+				get_current_user_id(),
+				(int) $request['id'],
+				static function () {
+					return 0;
+				}
+			);
+		}
+		if ( null === $order ) {
+			return new \WP_Error( 'not_found', __( 'Order not found.', 'yallapp' ), array( 'status' => 404 ) );
+		}
+		return $this->ok( $order );
 	}
 
 	/**

@@ -38,11 +38,14 @@ abstract class PushService {
 /// - `new_lesson` opens the lesson;
 /// - `enrolled`, or `announcement` with a course, opens the course;
 /// - `article` (breaking news, 23) opens the article;
+/// - 26 one with an `order_id` (a restaurant's order moved on) opens the order;
 /// - anything else opens Home.
 String pushTargetLocation(Map<String, dynamic> data) {
   int? id(String key) => int.tryParse('${data[key] ?? ''}'.trim());
   final type = data['type'];
   final course = id('course_id');
+  final order = id('order_id');
+  if (order != null) return Paths.order(order);
   switch (type) {
     case 'new_lesson':
       final lesson = id('lesson_id');

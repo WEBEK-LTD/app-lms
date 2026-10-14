@@ -41,6 +41,7 @@
   --color-tile-2: #d7ebe2;
   --color-tile-3: #e6e3ef;
   --color-tile-4: #eedde8;
+  --color-tile-5: #f6e0d2;
 
   /* 19 The phone frame around app screens (components/device-frame.tsx). */
   --color-phone: #16161a;

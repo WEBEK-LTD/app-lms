@@ -18,6 +18,7 @@ import '../../lms/data/lms_providers.dart' show unreadNotificationsProvider;
 import '../data/store_providers.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/vertical_wording.dart';
 
 /// The Store app's Home: sections from `GET /store/home` in the order set in
 /// the plugin, in the look of the app's template.
@@ -357,7 +358,7 @@ class _MinimalHeader extends StatelessWidget {
           ),
           SquareIconButton(
             icon: AppIcons.search,
-            label: context.l10n.searchProducts,
+            label: context.words.searchProducts,
             background: Colors.transparent,
             bordered: false,
             onPressed: () => context.go(_shopSearch),
@@ -506,7 +507,7 @@ class _SearchField extends StatelessWidget {
     final p = context.palette;
     return Semantics(
       button: true,
-      label: context.l10n.searchProducts,
+      label: context.words.searchProducts,
       excludeSemantics: true,
       child: Material(
         color: p.surface,
@@ -529,7 +530,7 @@ class _SearchField extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      context.l10n.searchProducts,
+                      context.words.searchProducts,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 15, color: p.textSecondary),

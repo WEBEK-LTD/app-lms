@@ -15,6 +15,7 @@ import '../lms/lesson/embeds/embed_fullscreen_screen.dart';
 import 'account/edit_profile_screen.dart';
 import 'account/lists_screens.dart';
 import 'account/notifications_screen.dart';
+import 'account/order_screen.dart';
 import 'account/settings_screen.dart';
 import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
@@ -91,7 +92,25 @@ List<RouteBase> accountSubRoutes({List<RouteBase> extra = const []}) => [
     pageBuilder: (context, state) => appPage(state, const SettingsScreen()),
     routes: [_rootPage('devices', () => const DevicesScreen())],
   ),
-  _rootPage('orders', () => const OrdersScreen()),
+  GoRoute(
+    path: 'orders',
+    parentNavigatorKey: rootNavigatorKey,
+    pageBuilder: (context, state) => appPage(state, const OrdersScreen()),
+    routes: [
+      // 26 A restaurant's order, followed step by step.
+      GoRoute(
+        path: ':id',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final id = intParam(state, 'id');
+          return appPage(
+            state,
+            id == null ? const NotFoundScreen() : OrderScreen(orderId: id),
+          );
+        },
+      ),
+    ],
+  ),
   ...extra,
 ];
 

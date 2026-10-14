@@ -2416,4 +2416,191 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notifyBreakingNews => 'الأخبار العاجلة';
+
+  @override
+  String get wordingRestaurant => 'المطعم';
+
+  @override
+  String get menuTitle => 'القائمة';
+
+  @override
+  String get menuSearch => 'ابحث في القائمة';
+
+  @override
+  String get menuBrowse => 'تصفح القائمة';
+
+  @override
+  String get menuEmptyTitle => 'لا توجد أطباق بعد';
+
+  @override
+  String get menuEmptyMessage => 'ستظهر القائمة هنا قريبًا.';
+
+  @override
+  String get menuLoading => 'جارٍ تحميل القائمة';
+
+  @override
+  String get menuMore => 'المزيد';
+
+  @override
+  String get optionsRequired => 'مطلوب';
+
+  @override
+  String get optionsOptional => 'اختياري';
+
+  @override
+  String get optionsChooseOne => 'اختر واحدًا';
+
+  @override
+  String optionsChooseUpTo(int count) {
+    return 'اختر حتى $count';
+  }
+
+  @override
+  String optionsChooseAtLeast(int count) {
+    return 'اختر $count على الأقل';
+  }
+
+  @override
+  String optionsAddToCart(String price) {
+    return 'أضف إلى السلة · $price';
+  }
+
+  @override
+  String optionsMissing(String group) {
+    return 'اختر: $group';
+  }
+
+  @override
+  String get optionsPriceNote => 'يتم تأكيد السعر النهائي في السلة.';
+
+  @override
+  String get fulfilmentHow => 'استلام أو توصيل';
+
+  @override
+  String get fulfilmentPickup => 'استلام';
+
+  @override
+  String get fulfilmentDelivery => 'توصيل';
+
+  @override
+  String fulfilmentPickupAt(String address) {
+    return 'الاستلام من $address';
+  }
+
+  @override
+  String get deliveryAddress => 'عنوان التوصيل';
+
+  @override
+  String get deliveryAddressHint => 'الشارع والمبنى والشقة';
+
+  @override
+  String get deliveryDistrict => 'الحي';
+
+  @override
+  String get deliveryNotes => 'ملاحظة لعامل التوصيل (اختياري)';
+
+  @override
+  String get deliveryFee => 'رسوم التوصيل';
+
+  @override
+  String deliveryMinimum(String amount) {
+    return 'الحد الأدنى للطلب مع التوصيل هو $amount.';
+  }
+
+  @override
+  String get deliveryEnterAddress => 'أدخل عنوان التوصيل.';
+
+  @override
+  String get orderTimeTitle => 'متى';
+
+  @override
+  String get orderAsap => 'في أقرب وقت ممكن';
+
+  @override
+  String orderReadyIn(int minutes) {
+    return 'جاهز خلال $minutes دقيقة تقريبًا';
+  }
+
+  @override
+  String get orderLater => 'جدولة لوقت لاحق';
+
+  @override
+  String get orderChooseTime => 'اختر وقتًا';
+
+  @override
+  String orderToday(String time) {
+    return 'اليوم $time';
+  }
+
+  @override
+  String orderTomorrow(String time) {
+    return 'غدًا $time';
+  }
+
+  @override
+  String closedNowOpensAt(String time) {
+    return 'مغلق الآن — يفتح $time';
+  }
+
+  @override
+  String get closedNow => 'مغلق الآن';
+
+  @override
+  String get closedOrderLater => 'يمكنك الطلب لوقت لاحق.';
+
+  @override
+  String get closedComeBack => 'يرجى الطلب عندما نكون مفتوحين.';
+
+  @override
+  String get fulfilmentReceived => 'تم الاستلام';
+
+  @override
+  String get fulfilmentPreparing => 'قيد التحضير';
+
+  @override
+  String get fulfilmentReady => 'جاهز';
+
+  @override
+  String get fulfilmentReadyPickup => 'جاهز للاستلام';
+
+  @override
+  String get fulfilmentOutForDelivery => 'في الطريق إليك';
+
+  @override
+  String get fulfilmentCompleted => 'مكتمل';
+
+  @override
+  String get fulfilmentCancelled => 'أُلغي';
+
+  @override
+  String get orderCancelledMessage =>
+      'تم إلغاء هذا الطلب. يرجى التواصل معنا إذا كانت لديك أسئلة.';
+
+  @override
+  String get orderPickupAsap => 'استلام، في أقرب وقت ممكن';
+
+  @override
+  String get orderDeliveryAsap => 'توصيل، في أقرب وقت ممكن';
+
+  @override
+  String orderPickupAt(String time) {
+    return 'استلام في $time';
+  }
+
+  @override
+  String orderDeliveryAt(String time) {
+    return 'توصيل في $time';
+  }
+
+  @override
+  String get orderUpdatesNote => 'سنرسل إليك إشعارًا في كل خطوة.';
+
+  @override
+  String get orderYourOrder => 'طلبك';
+
+  @override
+  String get orderTotal => 'المجموع';
+
+  @override
+  String get loadingOrder => 'جارٍ تحميل طلبك';
 }
