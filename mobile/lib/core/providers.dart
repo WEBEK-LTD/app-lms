@@ -62,6 +62,7 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     appVersion: env.appVersion,
     language: language,
     preview: env.isPreview,
+    appType: env.build.appType,
   );
   ref.onDispose(() {
     dio.close();

@@ -34,6 +34,18 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	/**
+	 * Minimal stand-in for WordPress's tag stripper.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function wp_strip_all_tags( $text ) {
+		return trim( strip_tags( (string) preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', (string) $text ) ) );
+	}
+}
+
 require_once YALLAPP_DIR . 'vendor/autoload.php';
 require_once YALLAPP_DIR . 'includes/class-autoloader.php';
 Yallapp\Autoloader::register();

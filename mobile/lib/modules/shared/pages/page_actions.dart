@@ -55,6 +55,28 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
   }
 }
 
+/// 30 Whether this app type can follow [action]: an Academy app's course in a
+/// Store app (a site whose plugins don't match the app's type) can't, and
+/// shows nothing rather than a card that does nothing when tapped. Pages,
+/// screens and links are checked where they're opened.
+bool canFollowAction(
+  PageAction action,
+  AppType appType,
+) => switch (action.type) {
+  PageActionType.course => action.courseId != null && appType == AppType.lms,
+  PageActionType.item =>
+    action.item != null && itemLocation(action.item!, appType) != null,
+  PageActionType.page || PageActionType.screen || PageActionType.url => true,
+};
+
+/// A list's entries this app can open, and the ones meant only to be read
+/// (no action).
+List<PageItem> followableItems(List<PageItem> items, AppType appType) => [
+  for (final item in items)
+    if (item.tapAction == null || canFollowAction(item.tapAction!, appType))
+      item,
+];
+
 /// The detail screen of a list entry, when this app type has one.
 String? itemLocation(ItemRef item, AppType appType) {
   // 23 Articles keep their ID as it is (a feed's are long numbers).

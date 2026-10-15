@@ -175,6 +175,8 @@ class CourseDetail extends CourseSummary {
     this.hasCertificate = false,
     this.categories = const [],
     this.qna,
+    this.studentCount,
+    this.about = CourseAbout.empty,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -199,6 +201,10 @@ class CourseDetail extends CourseSummary {
       categories: listOf(json, 'categories', Category.fromJson),
       qna: json['qna'] is bool ? json['qna'] as bool : null,
       purchaseAction: purchaseActionFromWire(purchase['action']),
+      studentCount: optInt(json, 'student_count'),
+      about: json['about'] is Map
+          ? CourseAbout.fromJson(asJson(json['about']))
+          : CourseAbout.empty,
     );
   }
 
@@ -213,6 +219,44 @@ class CourseDetail extends CourseSummary {
   /// Whether the course has Q&A on. Null from older plugins, which only
   /// report the site-wide `features.qna`.
   final bool? qna;
+
+  /// Students enrolled; null when the LMS (or an older plugin) doesn't say.
+  final int? studentCount;
+
+  /// 30 The lists the LMS keeps beside the description.
+  final CourseAbout about;
+}
+
+/// 30 What students learn, the requirements, who the course is for and what
+/// it includes (`CourseDetail.about`). Each list is empty when the course
+/// has none.
+class CourseAbout {
+  const CourseAbout({
+    this.learn = const [],
+    this.requirements = const [],
+    this.audience = const [],
+    this.includes = const [],
+  });
+
+  factory CourseAbout.fromJson(Json json) => CourseAbout(
+    learn: stringList(json, 'learn'),
+    requirements: stringList(json, 'requirements'),
+    audience: stringList(json, 'audience'),
+    includes: stringList(json, 'includes'),
+  );
+
+  static const empty = CourseAbout();
+
+  final List<String> learn;
+  final List<String> requirements;
+  final List<String> audience;
+  final List<String> includes;
+
+  bool get isEmpty =>
+      learn.isEmpty &&
+      requirements.isEmpty &&
+      audience.isEmpty &&
+      includes.isEmpty;
 }
 
 enum VideoSource { upload, youtube, vimeo, external, embed }

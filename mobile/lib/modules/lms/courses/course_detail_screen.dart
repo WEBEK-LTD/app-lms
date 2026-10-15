@@ -39,7 +39,8 @@ class CourseDetailScreen extends ConsumerStatefulWidget {
 
 class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     with WidgetsBindingObserver {
-  int _tab = 1;
+  /// The open tab; null until the student picks one.
+  int? _tab;
   bool? _wishlisted;
   bool _busy = false;
   bool _awaitingCheckout = false;
@@ -207,7 +208,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       if (config.features.reviews) _CourseTab.reviews,
       if (showQna) _CourseTab.qna,
     ];
-    final tab = _tab.clamp(0, tabs.length - 1);
+    // 30 Students start on the curriculum; visitors on the overview when it
+    // says what the course teaches.
+    final first = course.enrolled || course.about.isEmpty ? 1 : 0;
+    final tab = (_tab ?? first).clamp(0, tabs.length - 1);
 
     return Scaffold(
       body: Column(
@@ -293,6 +297,11 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                               _MetaChip(
                                 formatMinutes(course.durationMinutes!),
                                 icon: AppIcons.schedule,
+                              ),
+                            if ((course.studentCount ?? 0) > 0)
+                              _MetaChip(
+                                l10n.studentCount(course.studentCount!),
+                                icon: AppIcons.group,
                               ),
                             if (course.level != null &&
                                 course.level!.isNotEmpty)
@@ -446,7 +455,9 @@ class _Overview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = context.l10n;
     final bio = course.instructor?.bio;
+    final about = course.about;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -457,6 +468,16 @@ class _Overview extends StatelessWidget {
           )
         else
           HtmlContent(html: course.descriptionHtml),
+        for (final (title, lines, icon) in [
+          (l10n.courseLearn, about.learn, AppIcons.checkCircle),
+          (l10n.courseIncludes, about.includes, AppIcons.check),
+          (l10n.courseRequirements, about.requirements, null),
+          (l10n.courseAudience, about.audience, null),
+        ])
+          if (lines.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            _AboutList(title: title, lines: lines, icon: icon),
+          ],
         if (bio != null && bio.trim().isNotEmpty) ...[
           const SizedBox(height: 20),
           SectionHeader(title: context.l10n.aboutInstructor, size: 16),
@@ -466,6 +487,50 @@ class _Overview extends StatelessWidget {
             style: TextStyle(fontSize: 15, height: 1.6, color: p.textBody),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// 30 One of the course's lists (what you'll learn, requirements...): a
+/// heading, then one line per item with a tick or a bullet.
+class _AboutList extends StatelessWidget {
+  const _AboutList({required this.title, required this.lines, this.icon});
+
+  final String title;
+  final List<String> lines;
+
+  /// The mark before each line; a bullet without one.
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final style = TextStyle(fontSize: 15, height: 1.5, color: p.textBody);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: title, size: 16),
+        const SizedBox(height: 8),
+        for (final line in lines)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: icon == null
+                      ? Text('•', style: style.copyWith(color: p.textSecondary))
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: AppIcon(icon!, size: 18, color: p.success),
+                        ),
+                ),
+                Expanded(child: Text(line, style: style)),
+              ],
+            ),
+          ),
       ],
     );
   }

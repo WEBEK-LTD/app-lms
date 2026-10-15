@@ -500,3 +500,22 @@ How it works is in `docs/ARCHITECTURE.md` ("Charity & donation apps").
 | [ ] | 29.6 Monthly donations: needs iyzico subscriptions (a stored card and recurring charges), which the integration doesn't have; until then `Config.donations.monthly` is false and monthly requests are refused, never charged once | A subscription integration tested against iyzico's sandbox |
 | [ ] | 29.7 GiveWP on WordPress (forms as campaigns, totals, donor history by email or phone, hand-off to the GiveWP form page) | Not verifiable in the CI integration environment yet (the dev site runs on SQLite, GiveWP needs MySQL tables); hosted first |
 | [ ] | 29.8 A progress block for pages | List blocks show campaigns with what was raised and the percent; a dedicated block needs contract, editor and app renderer work |
+
+## Phase 30: WordPress apps follow their type
+
+A client's WordPress app (Tutor LMS and WooCommerce on the site) was made as a
+Store app. Until the plugin's next license check (up to 12 hours) the plugin
+built its default pages from the site's plugins, so the app got course lists
+it couldn't open (tapping did nothing) and a "Courses" tab that opened an empty
+shop. Now the app tells the plugin its type, the app leaves out what it can't
+open, the dashboard says what the site runs and when the type doesn't fit, and
+the course page shows the lists Tutor LMS and LearnPress keep beside the
+description. Reproduced and checked with the app preview against a local
+WordPress 7.1.3 site with Tutor LMS 4.1.1 and WooCommerce 11.2.0.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 30.1 Contract first: `app_type` on `GET /pages` and `/pages/{slug}` (the default pages are built for it; unknown values ignored), `CourseDetail.student_count` and `about` (`learn`, `requirements`, `audience`, `includes`), `SiteInfo.store` and `bookings` in the platform contract | `redocly lint` passes |
+| [x] | 30.2 Plugin 0.3.8: default pages for the asking app's type, then the type from the license status, then a guess; the course lists from Tutor LMS and LearnPress and the student count; the shop and booking plugins in the license check; `/home` shows the latest courses when none are featured | Unit tests, `composer lint`, the integration suites on Tutor LMS (229 checks) and LearnPress (106) |
+| [x] | 30.3 App: sends its type with `/pages`; lists and categories it can't open are left out instead of doing nothing when tapped; the course page shows the student count and the four lists, and opens on the overview for visitors when the course has them; the preview bundle rebuilt | `flutter analyze`, `flutter test`, `build_preview.sh --check`, and the preview against the local site |
+| [x] | 30.4 Dashboard: the Website step, the overview and the license page say what the site runs ("Your website runs: Tutor LMS, WooCommerce"); a warning, with the type that fits and a link to change it, when the app's type doesn't fit the site; the same facts on the admin client page (`drizzle/0029_site_plugins.sql`) | Unit tests and the client-flow browser test |

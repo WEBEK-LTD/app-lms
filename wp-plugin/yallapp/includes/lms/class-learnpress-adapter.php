@@ -197,11 +197,34 @@ class LearnPress_Adapter extends Base_Adapter {
 				'duration_minutes' => $minutes > 0 ? $minutes : null,
 				'level'            => '' !== $level ? ( $levels[ $level ] ?? ucwords( str_replace( '_', ' ', $level ) ) ) : null,
 				'has_certificate'  => $this->features()['certificates'],
+				'student_count'    => self::student_count( $post->ID ),
+				'about'            => Course_About::shape(
+					get_post_meta( $post->ID, '_lp_key_features', true ),
+					get_post_meta( $post->ID, '_lp_requirements', true ),
+					get_post_meta( $post->ID, '_lp_target_audiences', true )
+				),
 				'categories'       => $this->terms( 'course_category', $post->ID ),
 				'has_checkout'     => ! $course->is_free() && '' === $course->get_external_link(),
 				'qna'              => false,
 			)
 		);
+	}
+
+	/**
+	 * Students enrolled in a course (or finished it), or null when LearnPress can't say.
+	 *
+	 * @param int $course_id Course ID.
+	 * @return int|null
+	 */
+	private static function student_count( $course_id ) {
+		if ( ! class_exists( 'LP_Course_DB' ) || ! method_exists( 'LP_Course_DB', 'get_total_user_enrolled' ) ) {
+			return null;
+		}
+		try {
+			return (int) \LP_Course_DB::getInstance()->get_total_user_enrolled( (int) $course_id );
+		} catch ( \Throwable $e ) {
+			return null;
+		}
 	}
 
 	/**

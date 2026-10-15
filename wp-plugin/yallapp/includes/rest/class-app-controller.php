@@ -249,6 +249,17 @@ class App_Controller extends Controller {
 				}
 			}
 		}
+		// 30 A home without a course list (no featured courses picked yet) shows the latest ones.
+		if ( ! array_intersect( array( 'featured_courses', 'latest_courses' ), array_column( $sections, 'type' ) ) ) {
+			$courses = $lms->courses( array( 'per_page' => 10 ), $user_id );
+			if ( $courses['items'] ) {
+				$sections[] = array(
+					'type'    => 'latest_courses',
+					'title'   => __( 'Latest courses', 'yallapp' ),
+					'courses' => $courses['items'],
+				);
+			}
+		}
 		return $this->ok( array( 'sections' => $sections ) );
 	}
 }

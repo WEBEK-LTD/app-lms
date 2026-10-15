@@ -63,6 +63,13 @@ class AppTypeTest extends TestCase {
 		$this->assertSame( 'news', Default_Layout::chosen_type( array( 'app_type' => 'news' ) ) );
 	}
 
+	public function test_the_asking_app_s_type_wins() {
+		$plugin = $this->createMock( \Yallapp\Plugin::class );
+		$plugin->expects( $this->never() )->method( 'license' );
+		$this->assertSame( 'store', ( new Default_Layout( $plugin, 'store' ) )->app_type() );
+		$this->assertSame( 'bookings', ( new Default_Layout( $plugin, 'booking' ) )->app_type() );
+	}
+
 	public function test_without_a_chosen_type_the_plugin_guesses() {
 		$this->assertNull( Default_Layout::chosen_type( array( 'app_type' => null ) ) );
 		$this->assertNull( Default_Layout::chosen_type( array() ) );

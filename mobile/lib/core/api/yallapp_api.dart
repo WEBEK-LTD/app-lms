@@ -5,6 +5,7 @@ import 'api_exception.dart';
 import 'http_client.dart';
 import 'models/json.dart';
 import 'models/models.dart';
+import '../config/build_config_data.dart';
 import '../l10n/l10n.dart';
 
 enum PriceFilter { all, free, paid }
@@ -664,7 +665,12 @@ class HttpYallappApi implements YallappApi {
     required this.appVersion,
     String Function()? language,
     this.preview = false,
+    this.appType,
   }) : _language = language ?? (() => 'en');
+
+  /// 30 Sent with `/pages`, so a site's default pages are built for this
+  /// app's type (not for whatever plugins the site has).
+  final AppType? appType;
 
   /// 17 The app preview on the web: sign-in asks for the store review number
   /// only (`preview: true`) and checkout never opens.
@@ -769,7 +775,7 @@ class HttpYallappApi implements YallappApi {
     try {
       response = await _dio.get<dynamic>(
         '/pages',
-        queryParameters: {'platform': platform.name},
+        queryParameters: _pagesQuery,
         options: authOptions(
           _optional,
           Options(
@@ -813,8 +819,13 @@ class HttpYallappApi implements YallappApi {
     '/pages/${Uri.encodeComponent(slug)}',
     _optional,
     AppPage.fromJson,
-    query: {'platform': platform.name},
+    query: _pagesQuery,
   );
+
+  Map<String, String> get _pagesQuery => {
+    'platform': platform.name,
+    if (appType != null) 'app_type': appType!.wire,
+  };
 
   @override
   Future<OtpRequestResult> requestOtp({

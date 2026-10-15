@@ -1309,6 +1309,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutInstructor => 'About the instructor';
 
   @override
+  String get courseLearn => 'What you\'ll learn';
+
+  @override
+  String get courseRequirements => 'Requirements';
+
+  @override
+  String get courseAudience => 'Who this course is for';
+
+  @override
+  String get courseIncludes => 'This course includes';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get curriculumEmpty => 'The curriculum will appear here.';
 
   @override

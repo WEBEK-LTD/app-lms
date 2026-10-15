@@ -1350,6 +1350,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aboutInstructor => 'عن المدرّب';
 
   @override
+  String get courseLearn => 'ماذا ستتعلّم';
+
+  @override
+  String get courseRequirements => 'المتطلبات';
+
+  @override
+  String get courseAudience => 'لمن هذه الدورة';
+
+  @override
+  String get courseIncludes => 'تتضمّن هذه الدورة';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get curriculumEmpty => 'سيظهر المنهج هنا.';
 
   @override

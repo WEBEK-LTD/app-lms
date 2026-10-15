@@ -2056,6 +2056,36 @@ abstract class AppLocalizations {
   /// **'About the instructor'**
   String get aboutInstructor;
 
+  /// No description provided for @courseLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'What you\'ll learn'**
+  String get courseLearn;
+
+  /// No description provided for @courseRequirements.
+  ///
+  /// In en, this message translates to:
+  /// **'Requirements'**
+  String get courseRequirements;
+
+  /// No description provided for @courseAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Who this course is for'**
+  String get courseAudience;
+
+  /// No description provided for @courseIncludes.
+  ///
+  /// In en, this message translates to:
+  /// **'This course includes'**
+  String get courseIncludes;
+
+  /// No description provided for @studentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String studentCount(int count);
+
   /// No description provided for @curriculumEmpty.
   ///
   /// In en, this message translates to:
