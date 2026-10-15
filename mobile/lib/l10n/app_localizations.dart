@@ -5199,6 +5199,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Campaign updates'**
   String get notifyCampaignUpdates;
+
+  /// Opening hours block: the business is open at this moment.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now'**
+  String get pageOpenNow;
+
+  /// Opening hours block: a weekday without opening hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get pageClosedDay;
+
+  /// Opening hours block: marks today's row.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get pageToday;
+
+  /// Contact block: opens the address in the phone's maps.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get pageDirections;
+
+  /// Contact block: opens the business's website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get pageWebsite;
+
+  /// No description provided for @countdownDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get countdownDays;
+
+  /// No description provided for @countdownHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get countdownHours;
+
+  /// Countdown block: short for minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get countdownMinutes;
+
+  /// Countdown block: short for seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Sec'**
+  String get countdownSeconds;
+
+  /// No description provided for @socialWhatsappChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp channel'**
+  String get socialWhatsappChannel;
+
+  /// No description provided for @ratingOutOfFive.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} out of 5 stars'**
+  String ratingOutOfFive(int count);
+
+  /// Slider block: which slide is shown, for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide {index} of {count}'**
+  String slideOf(int index, int count);
 }
 
 class _AppLocalizationsDelegate

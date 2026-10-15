@@ -46,6 +46,8 @@ import {
   type ScreenshotKind,
 } from "@/lib/store-files";
 import { bumpPatch } from "@/lib/semver";
+import { designById, designFits } from "@/lib/pages/designs";
+import { saveDesignDraft } from "@/lib/pages/layout";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
@@ -520,22 +522,29 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
       return { errors: { [field]: "Upload the file again." }, values };
     }
   }
+  // 33 A ready-made design for the app's kind, or "" to keep the pages as they are.
+  const designId = String(formData.get("design") ?? "");
+  const design = designId ? designById(designId) : null;
+  if (designId && (!design || !designFits(design, context.app))) return { errors: { design: "Choose one of the designs shown." }, values };
   const now = new Date();
-  await store.updateApp(
-    context.app.id,
-    {
-      appName: parsed.data.appName,
-      shortName: parsed.data.shortName,
-      primaryColor: parsed.data.primaryColor.toUpperCase(),
-      splashColor: parsed.data.splashColor.toUpperCase(),
-      template: parsed.data.template,
-      font: parsed.data.font,
-      iconAssetId: parsed.data.iconAssetId,
-      logoAssetId: parsed.data.logoAssetId,
-      brandingDoneAt: now,
-    },
-    now,
-  );
+  const patch: AppPatch = {
+    appName: parsed.data.appName,
+    shortName: parsed.data.shortName,
+    primaryColor: parsed.data.primaryColor.toUpperCase(),
+    splashColor: parsed.data.splashColor.toUpperCase(),
+    template: parsed.data.template,
+    font: parsed.data.font,
+    iconAssetId: parsed.data.iconAssetId,
+    logoAssetId: parsed.data.logoAssetId,
+    brandingDoneAt: now,
+  };
+  await store.updateApp(context.app.id, patch, now);
+  // A newly chosen design becomes the Pages & look draft, with this template and font; what's published stays.
+  if (design && design.id !== context.app.design) {
+    const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, font: parsed.data.font });
+    if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
+    revalidatePath("/dashboard/pages");
+  }
   return afterStep(context, "branding");
 }
 

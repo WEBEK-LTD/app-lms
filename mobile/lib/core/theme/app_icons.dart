@@ -120,6 +120,19 @@ abstract final class AppIcons {
   static const campaignUpdate = Symbols.campaign_rounded;
   static const receipt = Symbols.receipt_long_rounded;
   static const donate = Symbols.favorite_rounded;
+
+  // 33 Page blocks: contact, notices, quotes and social profiles (no brand
+  // logos: Material Symbols has none, so each profile also shows its name).
+  static const call = Symbols.call_rounded;
+  static const directions = Symbols.directions_rounded;
+  static const warning = Symbols.warning_rounded;
+  static const quote = Symbols.format_quote_rounded;
+  static const photo = Symbols.photo_camera_rounded;
+  static const people = Symbols.group_rounded;
+  static const video = Symbols.smart_display_rounded;
+  static const work = Symbols.work_rounded;
+  static const music = Symbols.music_note_rounded;
+  static const forum = Symbols.forum_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

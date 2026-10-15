@@ -23,7 +23,19 @@ class Translator {
 	/**
 	 * Fields a translation may replace.
 	 */
-	const TEXT_FIELDS = array( 'title', 'label', 'heading', 'subheading', 'html', 'placeholder' );
+	const TEXT_FIELDS = array( 'title', 'label', 'heading', 'subheading', 'html', 'placeholder', 'text', 'ended_text', 'note', 'address' );
+
+	/**
+	 * 33 A block's lists whose entries carry their own `translations`, and the fields those may replace.
+	 */
+	const ENTRY_FIELDS = array(
+		'slides'    => array( 'heading', 'subheading' ),
+		'links'     => array( 'label' ),
+		'quotes'    => array( 'text', 'name', 'role' ),
+		'questions' => array( 'question', 'answer' ),
+		'people'    => array( 'name', 'role', 'bio' ),
+		'stats'     => array( 'value', 'label' ),
+	);
 
 	/**
 	 * The language to answer in.
@@ -94,9 +106,32 @@ class Translator {
 	 * @return array
 	 */
 	public static function apply( array $entry, $language ) {
+		$entry = self::texts( $entry, $language, self::TEXT_FIELDS );
+		// 33 The entries of a block's lists (slides, quotes, ...) have their own translations.
+		foreach ( self::ENTRY_FIELDS as $list => $fields ) {
+			if ( isset( $entry[ $list ] ) && is_array( $entry[ $list ] ) ) {
+				foreach ( $entry[ $list ] as $i => $item ) {
+					if ( is_array( $item ) ) {
+						$entry[ $list ][ $i ] = self::texts( $item, $language, $fields );
+					}
+				}
+			}
+		}
+		return $entry;
+	}
+
+	/**
+	 * An entry with the given fields in a language, without its `translations`.
+	 *
+	 * @param array    $entry    Entry.
+	 * @param string   $language Language code.
+	 * @param string[] $fields   Fields a translation may replace.
+	 * @return array
+	 */
+	private static function texts( array $entry, $language, array $fields ) {
 		$texts = isset( $entry['translations'][ $language ] ) && is_array( $entry['translations'][ $language ] ) ? $entry['translations'][ $language ] : array();
 		unset( $entry['translations'] );
-		foreach ( self::TEXT_FIELDS as $field ) {
+		foreach ( $fields as $field ) {
 			if ( isset( $texts[ $field ] ) && is_string( $texts[ $field ] ) && '' !== trim( $texts[ $field ] ) ) {
 				$entry[ $field ] = $texts[ $field ];
 			}

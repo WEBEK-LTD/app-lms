@@ -29,6 +29,8 @@ import { APP_FONTS, RULES } from "@/lib/build-config/types";
 import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
+import type { Appearance, LayoutContent } from "@/lib/pages/types";
+import { DesignThumb } from "../pages/preview";
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
   return (
@@ -578,51 +580,11 @@ export function WebsiteStep({
   );
 }
 
+// 33 The templates, now a choice under the designs (a design sets one).
 const TEMPLATES = [
-  {
-    id: "classic",
-    label: "Classic",
-    thumb: (
-      <div className="flex h-[150px] flex-col gap-1.5 rounded-xl bg-ivory p-2.5">
-        <span className="h-2.5 w-1/2 rounded-[3px] bg-midnight" />
-        <span className="h-[34px] rounded-md bg-midnight" />
-        <span className="flex gap-1">
-          <span className="h-[50px] flex-1 rounded-md bg-tile-1" />
-          <span className="h-[50px] flex-1 rounded-md bg-tile-2" />
-        </span>
-      </div>
-    ),
-  },
-  {
-    id: "bold",
-    label: "Bold",
-    thumb: (
-      <div className="flex h-[150px] flex-col gap-1.5 overflow-hidden rounded-xl bg-ivory">
-        <span className="h-10 rounded-b-[10px] bg-midnight" />
-        <span className="mx-2.5 h-8 rounded-lg bg-tile-1" />
-        <span className="mx-2.5 h-[50px] rounded-lg bg-tile-2" />
-      </div>
-    ),
-  },
-  {
-    id: "minimal",
-    label: "Minimal",
-    thumb: (
-      <div className="flex h-[150px] flex-col gap-2 rounded-xl bg-white p-2.5">
-        <span className="h-3 w-2/5 rounded-[3px] bg-midnight" />
-        <span className="h-[22px] rounded-md bg-ivory" />
-        <span className="h-px bg-line" />
-        <span className="flex items-center gap-1.5">
-          <span className="h-[18px] w-[18px] rounded bg-tile-1" />
-          <span className="h-1.5 flex-1 rounded-[3px] bg-line-strong" />
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-[18px] w-[18px] rounded bg-tile-2" />
-          <span className="h-1.5 flex-1 rounded-[3px] bg-line-strong" />
-        </span>
-      </div>
-    ),
-  },
+  { id: "classic", label: "Classic", text: "a colored top bar and soft cards" },
+  { id: "bold", label: "Bold", text: "big headings and full-width images" },
+  { id: "minimal", label: "Minimal", text: "white space and thin lines" },
 ] as const;
 
 function Upload({
@@ -719,19 +681,40 @@ function Upload({
   );
 }
 
+/** 33 The ready-made designs the Branding step offers, each as the draft it makes. */
+export interface BrandingDesigns {
+  designs: { id: string; name: string; description: string; layout: LayoutContent }[];
+  /** The draft as it is, for "Keep my pages". */
+  current: LayoutContent;
+  /** The design the app last started from. */
+  design: string | null;
+}
+
 export function BrandingStep({
   values,
   icon,
   logo,
+  ...designs
 }: {
   values: { appName: string; shortName: string; primaryColor: string; splashColor: string; template: string; font: string };
   icon: { id: string; url: string } | null;
   logo: { id: string; url: string } | null;
-}) {
+} & BrandingDesigns) {
   const [state, action] = useActionState(saveBrandingAction, initialFormState);
   const [primary, setPrimary] = useState(v(state, "primaryColor", values.primaryColor));
   const [splash, setSplash] = useState(v(state, "splashColor", values.splashColor));
   const [template, setTemplate] = useState(v(state, "template", values.template));
+  const [font, setFont] = useState(v(state, "font", values.font));
+  const [design, setDesign] = useState(v(state, "design", designs.design ?? ""));
+  // A design brings its template and font; both can still be changed below.
+  function chooseDesign(id: string) {
+    setDesign(id);
+    const chosen = designs.designs.find((d) => d.id === id);
+    if (chosen) {
+      setTemplate(chosen.layout.appearance.template);
+      setFont(chosen.layout.appearance.font);
+    }
+  }
   const [logoFile, setLogoFile] = useState(logo);
   const [iconFile, setIconFile] = useState(icon);
   const [name, setName] = useState(v(state, "appName", values.appName));
@@ -740,6 +723,7 @@ export function BrandingStep({
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
+      <input type="hidden" name="design" value={design} />
       <StepCard title="Branding" id="h-brand">
         <FormMessage message={state.message} />
         <Field
@@ -807,43 +791,65 @@ export function BrandingStep({
             small
           />
         </div>
-        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm font-semibold">Template</legend>
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {TEMPLATES.map((t) => (
-              <label key={t.id} className="flex min-w-0 cursor-pointer flex-col gap-2">
-                <div
-                  className={`rounded-xl ${template === t.id ? "outline-2 outline-midnight" : "outline-1 outline-line"} outline`}
-                  aria-hidden="true"
-                >
-                  {t.thumb}
-                </div>
-                <span className={`flex items-center gap-2 text-sm ${template === t.id ? "font-bold" : "font-semibold"}`}>
-                  <input
-                    type="radio"
-                    name="templateChoice"
-                    value={t.id}
-                    checked={template === t.id}
-                    onChange={() => setTemplate(t.id)}
-                    className="m-0 h-[18px] w-[18px] flex-none accent-midnight"
-                  />
-                  {t.label}
-                </span>
-              </label>
-            ))}
+        {/* 33 Ready-made designs for this kind of app instead of three bare templates: each sets the pages, tabs and look. */}
+        <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0" aria-describedby="f-design-hint">
+          <legend className="mb-1 p-0 text-sm font-semibold">Design</legend>
+          <p id="f-design-hint" className="m-0 text-[13px] leading-normal text-muted">
+            Start from a ready-made design for your kind of app: its home page, tabs and look go to your draft in Pages &amp; look, where you change anything you like. Your
+            published pages stay until you publish.
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
+            {[{ id: "", name: "Keep my pages", description: "Your pages and tabs stay as they are.", layout: designs.current }, ...designs.designs].map((d) => {
+              const checked = design === d.id;
+              const layout = d.id ? d.layout : { ...d.layout, appearance: { ...d.layout.appearance, template: template as Appearance["template"] } };
+              return (
+                <label key={d.id || "keep"} className="flex min-w-0 cursor-pointer flex-col gap-1.5">
+                  <div className={`overflow-hidden rounded-xl ${checked ? "outline-2 outline-midnight" : "outline-1 outline-line"} bg-ivory outline`}>
+                    <DesignThumb layout={{ ...layout, appearance: { ...layout.appearance, theme_mode: "light" } }} app={{ name: name || "Your app", primaryColor: primary }} />
+                  </div>
+                  <span className={`flex items-center gap-2 text-sm ${checked ? "font-bold" : "font-semibold"}`}>
+                    <input
+                      type="radio"
+                      name="designChoice"
+                      value={d.id}
+                      checked={checked}
+                      onChange={() => chooseDesign(d.id)}
+                      className="m-0 h-[18px] w-[18px] flex-none accent-midnight"
+                    />
+                    {d.name}
+                  </span>
+                  <span className="text-xs leading-snug text-muted">{d.description}</span>
+                </label>
+              );
+            })}
           </div>
-          <FieldError id="f-template-error" error={state.errors?.template} />
+          <FieldError id="f-design-error" error={state.errors?.design} />
         </fieldset>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-font" className="text-sm font-semibold">
-            Font
-          </label>
-          <select id="f-font" name="font" className="input input-sm" defaultValue={v(state, "font", values.font)}>
-            {APP_FONTS.map((font) => (
-              <option key={font}>{font}</option>
-            ))}
-          </select>
-          <FieldError id="f-font-error" error={state.errors?.font} />
+        <div className="flex flex-wrap gap-3.5">
+          <div className="flex flex-[1_1_180px] flex-col gap-1.5">
+            <label htmlFor="f-template" className="text-sm font-semibold">
+              Template
+            </label>
+            <select id="f-template" className="input input-sm" value={template} onChange={(e) => setTemplate(e.target.value)}>
+              {TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}: {t.text}
+                </option>
+              ))}
+            </select>
+            <FieldError id="f-template-error" error={state.errors?.template} />
+          </div>
+          <div className="flex flex-[1_1_180px] flex-col gap-1.5">
+            <label htmlFor="f-font" className="text-sm font-semibold">
+              Font
+            </label>
+            <select id="f-font" name="font" className="input input-sm" value={font} onChange={(e) => setFont(e.target.value)}>
+              {APP_FONTS.map((f) => (
+                <option key={f}>{f}</option>
+              ))}
+            </select>
+            <FieldError id="f-font-error" error={state.errors?.font} />
+          </div>
         </div>
         <StepActions back="/dashboard/setup?step=website" />
       </StepCard>

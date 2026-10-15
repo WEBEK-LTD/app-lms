@@ -494,6 +494,16 @@ components:
         carry no `categories`, and `continue_learning` carries no `course`.
         The plugin drops blocks whose source it can't serve (for example
         `listings`) and blocks hidden from the current user by `visibility`.
+
+        The blocks `slider`, `quick_links`, `testimonials`, `faq`,
+        `countdown`, `contact`, `hours`, `social`, `team`, `stats` and
+        `notice` have the same fields as in the app API. Entries of their
+        lists (`slides`, `links`, `quotes`, `questions`, `people`, `stats`)
+        carry their own `translations`, like blocks; the plugin applies them
+        and removes them. It drops entries whose action it can't follow
+        (quick links), actions it can't follow elsewhere, and a countdown that
+        has ended without an `ended_text`. A block type the plugin doesn't
+        know is left out, never sent unchecked.
       required: [id, type, visibility]
       additionalProperties: true
       properties:
@@ -514,6 +524,25 @@ components:
               description: Hand-picked entries, in this order. Overrides the other filters.
               items: { type: string }
         translations: { $ref: '#/components/schemas/Translations' }
+        slides: { $ref: '#/components/schemas/LayoutBlockEntries' }
+        links: { $ref: '#/components/schemas/LayoutBlockEntries' }
+        quotes: { $ref: '#/components/schemas/LayoutBlockEntries' }
+        questions: { $ref: '#/components/schemas/LayoutBlockEntries' }
+        people: { $ref: '#/components/schemas/LayoutBlockEntries' }
+        stats: { $ref: '#/components/schemas/LayoutBlockEntries' }
+
+    LayoutBlockEntries:
+      type: array
+      description: |
+        A block's list (`SliderBlock.slides`, `QuickLinksBlock.links`,
+        `TestimonialsBlock.quotes`, `FaqBlock.questions`, `TeamBlock.people`,
+        `StatsBlock.stats` in the app API), each entry with its texts in other
+        languages.
+      items:
+        type: object
+        additionalProperties: true
+        properties:
+          translations: { $ref: '#/components/schemas/Translations' }
 
     PreviewConfig:
       type: object

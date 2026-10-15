@@ -558,6 +558,30 @@ sitemap, robots.txt, canonical addresses, link previews or structured data.
 | [x] | 32.6 SEO: /sitemap.xml with every public page and solution and article (legal pages with their dates), /robots.txt keeping the private areas out, canonical addresses and Open Graph and Twitter cards on every public page, share images in Yallapp's colors and Bricolage Grotesque (site, pricing, each solution, each article), noindex on sign-in, payment, donation, receipt and shop pages; JSON-LD: Organization (Cairo, contact details from Settings), WebSite, SoftwareApplication with offers only for priced plans, FAQPage, BreadcrumbList on solutions and articles | Unit tests and the search engines browser test |
 | [ ] | 32.7 Legal pages saved in the admin before this phase keep their old text until the team edits them or uses "Back to the default text"; the design files under `docs/design` still say WEBEK LTD (no UK details). The plugin's author and the API contracts' licence now say Yallapp | The team's review |
 
+## Phase 33: More page blocks and ready-made designs for every app type
+
+The owner found "Add a block" thin and the three looks (Classic, Bold,
+Minimal) too bare: they only changed fonts and corners. Pages & look now has
+eleven more blocks whose content the owner writes, in groups, and every kind
+of app has three or four ready-made designs: tabs, a home page of blocks
+with the app's own lists, and a look. A design replaces the draft only;
+existing apps keep their pages until they pick one. Migration
+`drizzle/0033_designs.sql` (`apps.design`, the design the owner last
+started from). How it works is in `docs/ARCHITECTURE.md` (Pages, looks and
+languages).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 33.1 Contract first: `SliderBlock`, `QuickLinksBlock`, `TestimonialsBlock`, `FaqBlock`, `CountdownBlock`, `ContactBlock`, `HoursBlock`, `SocialBlock`, `TeamBlock`, `StatsBlock` and `NoticeBlock` in the app API; their entries' `translations` and what the plugin drops in the platform contract | `redocly lint` passes; the copy on /developers updated |
+| [x] | 33.2 Platform: the blocks' types, validation (errors that say which slide, link, quote or time), translations of every entry (also when the default language changes), quick links to the app's screens, page renames, the plan's sources and the "Needs a fix" check through entries' actions; the hosted API serves them in the asked language and leaves out a countdown that has ended without a text | Unit tests (`blocks.test.ts`), checked against the contract |
+| [x] | 33.3 Editor: "Add a block" in Content, Lists, Engage, Contact and Layout, each block with an icon and what it's for; settings with entries to add, move and remove; the phone preview draws them | The pages browser tests |
+| [x] | 33.4 Designs as data (`lib/pages/designs`): Academy (Classic academy, Online courses, Coaching, Kids academy), Store (Fashion, Grocery, Electronics), Restaurant (Menu first, Delivery, Café), Bookings (Salon, Wellness studio, Consulting), Clinic (Family clinic, Dental clinic, Therapy practice), Gym (Gym, Yoga studio, Personal coach), Real estate (Agency, Rentals, Luxury homes), News (Daily news, Magazine, Blog), Events (Venue, Festival, Workshops), Charity (Charity, Urgent appeal, Community); the app's name in texts, Contact blocks with the details the app already has (left out without any) | `designs.test.ts`: every design valid for its engine on the hosted API and WordPress, every block, list, order, screen and icon one the app has |
+| [x] | 33.5 Picking a design: the Branding step shows the kind's designs with a picture drawn from each (or "Keep my pages"), and a design brings its template and font; Pages & look has "Start from a design" (after a confirm; never what's published); blocks that still have a design's sample texts are marked "Sample text" | `designs.spec.ts` on the memory store and MariaDB: a design in setup, its blocks, one of each new block, publish, the hosted `/pages` |
+| [x] | 33.6 Plugin: `Rich_Blocks` checks and cleans the new blocks (actions the site can't follow, tiles it can't open, an ended countdown), the translator applies entries' texts | `RichBlocksTest`, `composer lint`, the Tutor LMS integration suite (252 checks: the new blocks from `/pages/home`, in English and Arabic) |
+| [x] | 33.7 App: the eleven blocks in the three templates, right to left, "Open now" in the phone's time (breaks, after midnight, holidays), a countdown that hides or says it ended, contact and social buttons that open the phone's apps (no brand logos: each network's name); a block whose list has nothing usable is skipped; the preview bundle rebuilt | `flutter analyze`, `flutter test` (each block in each template, light and dark, on a small phone and a tablet; Arabic for the slider, hours and contact), `build_preview.sh --check` |
+| [ ] | 33.8 Pictures for designs: slides, people and quotes start without photos (the app's colors and initials instead); a picture library to choose from | Owner's review |
+| [ ] | 33.9 A Social links block in the designs: Yallapp doesn't know the business's profiles, so designs leave it out and the owner adds it | The profiles in the app's settings |
+
 ## Phase 34: Yallapp sign-in for apps on their own API
 
 An app whose content comes from the client's own API had to serve every

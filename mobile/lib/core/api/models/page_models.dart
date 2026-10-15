@@ -360,6 +360,89 @@ sealed class PageBlock {
           title: title,
           size: enumFrom(SpacerSize.values, json['size'], SpacerSize.medium),
         ),
+        // 33 Blocks whose content the owner writes.
+        'slider' => SliderBlock(
+          id: id,
+          title: title,
+          autoAdvance: boolOr(json, 'auto_advance', true),
+          slides: _entries(json, 'slides', Slide.tryParse),
+        ).orNull,
+        'quick_links' => QuickLinksBlock(
+          id: id,
+          title: title,
+          style: enumFrom(
+            QuickLinksStyle.values,
+            json['style'],
+            QuickLinksStyle.grid,
+          ),
+          links: _entries(json, 'links', QuickLink.tryParse),
+        ).orNull,
+        'testimonials' => TestimonialsBlock(
+          id: id,
+          title: title,
+          quotes: _entries(json, 'quotes', Testimonial.tryParse),
+        ).orNull,
+        'faq' => FaqBlock(
+          id: id,
+          title: title,
+          questions: _entries(json, 'questions', FaqEntry.tryParse),
+        ).orNull,
+        'countdown' => CountdownBlock(
+          id: id,
+          title: title,
+          heading: reqString(json, 'heading'),
+          subheading: optString(json, 'subheading'),
+          endsAt: reqDate(json, 'ends_at'),
+          endedText: optString(json, 'ended_text'),
+          label: optString(json, 'label'),
+          action: PageAction.tryParse(json['action']),
+        ),
+        'contact' => ContactBlock(
+          id: id,
+          title: title,
+          phone: optString(json, 'phone'),
+          whatsapp: optString(json, 'whatsapp'),
+          email: optString(json, 'email'),
+          website: optString(json, 'website'),
+          address: optString(json, 'address'),
+          latitude: optDouble(json, 'latitude'),
+          longitude: optDouble(json, 'longitude'),
+        ).orNull,
+        'hours' => HoursBlock(
+          id: id,
+          title: title,
+          hours: _entries(json, 'hours', OpeningPeriod.tryParse),
+          closedDates: stringList(json, 'closed_dates'),
+          note: optString(json, 'note'),
+        ),
+        'social' => SocialBlock(
+          id: id,
+          title: title,
+          profiles: _entries(json, 'profiles', SocialProfile.tryParse),
+        ).orNull,
+        'team' => TeamBlock(
+          id: id,
+          title: title,
+          layout: enumFrom(
+            ItemsLayout.values,
+            json['layout'],
+            ItemsLayout.carousel,
+          ),
+          people: _entries(json, 'people', TeamMember.tryParse),
+        ).orNull,
+        'stats' => StatsBlock(
+          id: id,
+          title: title,
+          stats: _entries(json, 'stats', StatEntry.tryParse),
+        ).orNull,
+        'notice' => NoticeBlock(
+          id: id,
+          title: title,
+          tone: enumFrom(NoticeTone.values, json['tone'], NoticeTone.info),
+          text: reqString(json, 'text'),
+          label: optString(json, 'label'),
+          action: PageAction.tryParse(json['action']),
+        ),
         _ => null,
       };
     } on FormatException {
@@ -369,6 +452,12 @@ sealed class PageBlock {
 
   final String id;
   final String? title;
+
+  /// 33 False for a block whose list came without a usable entry.
+  bool get hasContent => true;
+
+  /// This block, or null when it has nothing to show.
+  PageBlock? get orNull => hasContent ? this : null;
 }
 
 class BannerBlock extends PageBlock {
@@ -522,4 +611,431 @@ class SpacerBlock extends PageBlock {
   const SpacerBlock({required super.id, super.title, required this.size});
 
   final SpacerSize size;
+}
+
+// ------------------------------------------------- 33 Blocks with content
+
+/// A block's list: entries that can't be read are skipped, not the block.
+List<T> _entries<T>(Json json, String key, T? Function(Json item) parse) {
+  final value = json[key];
+  if (value is! List) return <T>[];
+  return [
+    for (final item in value)
+      if (item is Map) ?parse(asJson(item, key)),
+  ];
+}
+
+/// A slide: an image, a heading, or both.
+class Slide {
+  const Slide({this.imageUrl, this.heading, this.subheading, this.action});
+
+  static Slide? tryParse(Json json) {
+    final slide = Slide(
+      imageUrl: optString(json, 'image_url'),
+      heading: optString(json, 'heading'),
+      subheading: optString(json, 'subheading'),
+      action: PageAction.tryParse(json['action']),
+    );
+    return (slide.imageUrl ?? slide.heading) == null ? null : slide;
+  }
+
+  final String? imageUrl;
+  final String? heading;
+  final String? subheading;
+  final PageAction? action;
+}
+
+class SliderBlock extends PageBlock {
+  const SliderBlock({
+    required super.id,
+    super.title,
+    required this.slides,
+    this.autoAdvance = true,
+  });
+
+  final List<Slide> slides;
+
+  /// Moves to the next slide every few seconds until the user touches it.
+  final bool autoAdvance;
+
+  @override
+  bool get hasContent => slides.isNotEmpty;
+}
+
+enum QuickLinksStyle { grid, row }
+
+class QuickLink {
+  const QuickLink({
+    required this.icon,
+    required this.label,
+    required this.action,
+  });
+
+  /// Null without a label or an action this app knows.
+  static QuickLink? tryParse(Json json) {
+    final action = PageAction.tryParse(json['action']);
+    final label = optString(json, 'label');
+    if (action == null || label == null || label.trim().isEmpty) return null;
+    return QuickLink(
+      icon: optString(json, 'icon') ?? 'apps',
+      label: label,
+      action: action,
+    );
+  }
+
+  /// A Google Material Symbols (Rounded) name.
+  final String icon;
+  final String label;
+  final PageAction action;
+}
+
+class QuickLinksBlock extends PageBlock {
+  const QuickLinksBlock({
+    required super.id,
+    super.title,
+    required this.links,
+    this.style = QuickLinksStyle.grid,
+  });
+
+  final QuickLinksStyle style;
+  final List<QuickLink> links;
+
+  @override
+  bool get hasContent => links.isNotEmpty;
+}
+
+class Testimonial {
+  const Testimonial({
+    required this.text,
+    required this.name,
+    this.role,
+    this.photoUrl,
+    this.rating,
+  });
+
+  static Testimonial? tryParse(Json json) {
+    final text = optString(json, 'text');
+    final name = optString(json, 'name');
+    if (text == null || name == null) return null;
+    final rating = optInt(json, 'rating');
+    return Testimonial(
+      text: text,
+      name: name,
+      role: optString(json, 'role'),
+      photoUrl: optString(json, 'photo_url'),
+      rating: rating != null && rating >= 1 && rating <= 5 ? rating : null,
+    );
+  }
+
+  final String text;
+  final String name;
+  final String? role;
+  final String? photoUrl;
+
+  /// Stars out of five.
+  final int? rating;
+}
+
+class TestimonialsBlock extends PageBlock {
+  const TestimonialsBlock({
+    required super.id,
+    super.title,
+    required this.quotes,
+  });
+
+  final List<Testimonial> quotes;
+
+  @override
+  bool get hasContent => quotes.isNotEmpty;
+}
+
+class FaqEntry {
+  const FaqEntry({required this.question, required this.answer});
+
+  static FaqEntry? tryParse(Json json) {
+    final question = optString(json, 'question');
+    final answer = optString(json, 'answer');
+    if (question == null || answer == null) return null;
+    return FaqEntry(question: question, answer: answer);
+  }
+
+  final String question;
+
+  /// Plain text; line breaks are kept.
+  final String answer;
+}
+
+class FaqBlock extends PageBlock {
+  const FaqBlock({required super.id, super.title, required this.questions});
+
+  final List<FaqEntry> questions;
+
+  @override
+  bool get hasContent => questions.isNotEmpty;
+}
+
+/// Time left until [endsAt], counted on the phone; after the end it shows
+/// [endedText], or nothing when that is null.
+class CountdownBlock extends PageBlock {
+  const CountdownBlock({
+    required super.id,
+    super.title,
+    required this.heading,
+    required this.endsAt,
+    this.subheading,
+    this.endedText,
+    this.label,
+    this.action,
+  });
+
+  final String heading;
+  final String? subheading;
+  final DateTime endsAt;
+  final String? endedText;
+
+  /// The button's text, shown with [action].
+  final String? label;
+  final PageAction? action;
+}
+
+/// A button for each way to reach the business.
+class ContactBlock extends PageBlock {
+  const ContactBlock({
+    required super.id,
+    super.title,
+    this.phone,
+    this.whatsapp,
+    this.email,
+    this.website,
+    this.address,
+    this.latitude,
+    this.longitude,
+  });
+
+  final String? phone;
+  final String? whatsapp;
+  final String? email;
+  final String? website;
+  final String? address;
+  final double? latitude;
+  final double? longitude;
+
+  /// Directions: to the coordinates when set, else the address.
+  bool get hasPlace =>
+      (latitude != null && longitude != null) ||
+      (address?.trim().isNotEmpty ?? false);
+
+  @override
+  bool get hasContent =>
+      [
+        phone,
+        whatsapp,
+        email,
+        website,
+      ].any((v) => v?.trim().isNotEmpty ?? false) ||
+      hasPlace;
+}
+
+enum Weekday { mon, tue, wed, thu, fri, sat, sun }
+
+/// An opening period: [closes] at or before [opens] ends the next day.
+class OpeningPeriod {
+  const OpeningPeriod({
+    required this.day,
+    required this.opens,
+    required this.closes,
+  });
+
+  static OpeningPeriod? tryParse(Json json) {
+    final day = enumOrNull(Weekday.values, json['day']);
+    final opens = _minutes(optString(json, 'opens'));
+    final closes = _minutes(optString(json, 'closes'));
+    if (day == null || opens == null || closes == null) return null;
+    return OpeningPeriod(day: day, opens: opens, closes: closes);
+  }
+
+  final Weekday day;
+
+  /// Minutes after midnight.
+  final int opens;
+  final int closes;
+
+  bool get overnight => closes <= opens;
+}
+
+int? _minutes(String? clock) {
+  final match = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').firstMatch(clock ?? '');
+  if (match == null) return null;
+  return int.parse(match.group(1)!) * 60 + int.parse(match.group(2)!);
+}
+
+class HoursBlock extends PageBlock {
+  const HoursBlock({
+    required super.id,
+    super.title,
+    required this.hours,
+    this.closedDates = const [],
+    this.note,
+  });
+
+  final List<OpeningPeriod> hours;
+
+  /// Days closed although the weekday has hours, as `2026-12-31`.
+  final List<String> closedDates;
+  final String? note;
+
+  @override
+  bool get hasContent => hours.isNotEmpty || (note?.trim().isNotEmpty ?? false);
+
+  /// Whether the business is open at [now], in the phone's local time.
+  bool isOpenAt(DateTime now) {
+    final minute = now.hour * 60 + now.minute;
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    for (final p in hours) {
+      // Today's periods, and the part of last night's after midnight.
+      if (_isDay(today, p.day) && minute >= p.opens) {
+        if (p.overnight || minute < p.closes) return true;
+      }
+      if (p.overnight && _isDay(yesterday, p.day) && minute < p.closes) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Whether [date] is [day] and not one of [closedDates].
+  bool _isDay(DateTime date, Weekday day) =>
+      Weekday.values[date.weekday - 1] == day &&
+      !closedDates.contains(_isoDate(date));
+}
+
+String _isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
+enum SocialNetwork {
+  instagram,
+  facebook,
+  x,
+  tiktok,
+  youtube,
+  linkedin,
+  snapchat,
+  telegram,
+  whatsappChannel,
+}
+
+class SocialProfile {
+  const SocialProfile({required this.network, required this.url});
+
+  static SocialProfile? tryParse(Json json) {
+    final wire = json['network'];
+    final url = optString(json, 'url');
+    for (final network in SocialNetwork.values) {
+      if (snake(network) == wire && url != null) {
+        return SocialProfile(network: network, url: url);
+      }
+    }
+    return null;
+  }
+
+  final SocialNetwork network;
+  final String url;
+}
+
+class SocialBlock extends PageBlock {
+  const SocialBlock({required super.id, super.title, required this.profiles});
+
+  final List<SocialProfile> profiles;
+
+  @override
+  bool get hasContent => profiles.isNotEmpty;
+}
+
+class TeamMember {
+  const TeamMember({
+    required this.name,
+    this.role,
+    this.bio,
+    this.photoUrl,
+    this.action,
+  });
+
+  static TeamMember? tryParse(Json json) {
+    final name = optString(json, 'name');
+    if (name == null || name.trim().isEmpty) return null;
+    return TeamMember(
+      name: name,
+      role: optString(json, 'role'),
+      bio: optString(json, 'bio'),
+      photoUrl: optString(json, 'photo_url'),
+      action: PageAction.tryParse(json['action']),
+    );
+  }
+
+  final String name;
+  final String? role;
+  final String? bio;
+  final String? photoUrl;
+  final PageAction? action;
+}
+
+class TeamBlock extends PageBlock {
+  const TeamBlock({
+    required super.id,
+    super.title,
+    required this.people,
+    this.layout = ItemsLayout.carousel,
+  });
+
+  final ItemsLayout layout;
+  final List<TeamMember> people;
+
+  @override
+  bool get hasContent => people.isNotEmpty;
+}
+
+class StatEntry {
+  const StatEntry({required this.value, required this.label});
+
+  static StatEntry? tryParse(Json json) {
+    final value = optString(json, 'value');
+    final label = optString(json, 'label');
+    if (value == null || label == null) return null;
+    return StatEntry(value: value, label: label);
+  }
+
+  final String value;
+  final String label;
+}
+
+class StatsBlock extends PageBlock {
+  const StatsBlock({required super.id, super.title, required this.stats});
+
+  final List<StatEntry> stats;
+
+  @override
+  bool get hasContent => stats.isNotEmpty;
+}
+
+enum NoticeTone { info, success, warning }
+
+class NoticeBlock extends PageBlock {
+  const NoticeBlock({
+    required super.id,
+    super.title,
+    required this.tone,
+    required this.text,
+    this.label,
+    this.action,
+  });
+
+  final NoticeTone tone;
+  final String text;
+
+  /// The link's text, shown with [action].
+  final String? label;
+  final PageAction? action;
 }

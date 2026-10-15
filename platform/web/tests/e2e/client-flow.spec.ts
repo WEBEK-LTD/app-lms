@@ -106,7 +106,9 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await expect(page.getByText("The icon must be 1024 × 1024 pixels.")).toBeVisible();
   await page.locator("#upload-icon").setInputFiles({ name: "icon.png", mimeType: "image/png", buffer: solidPng(1024, 1024, [14, 13, 36]) });
   await expect(page.getByText("Replace file")).toBeVisible();
-  await page.getByRole("radio", { name: "Bold" }).check();
+  // 33 The template is a choice under the designs; this client keeps its pages.
+  await expect(page.getByRole("radio", { name: /^Keep my pages/ })).toBeChecked();
+  await page.getByLabel("Template").selectOption("bold");
   await page.getByLabel("Font").selectOption("Outfit");
   await page.getByRole("button", { name: "Save & continue" }).click();
 

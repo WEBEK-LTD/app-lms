@@ -26,6 +26,18 @@ export const BLOCK_TYPES = [
   "continue_learning",
   "embed",
   "spacer",
+  // 33 More blocks.
+  "slider",
+  "quick_links",
+  "testimonials",
+  "faq",
+  "countdown",
+  "contact",
+  "hours",
+  "social",
+  "team",
+  "stats",
+  "notice",
 ] as const;
 export const VISIBILITIES = ["everyone", "signed_in", "signed_out"] as const;
 export const ACTION_TYPES = ["page", "screen", "course", "item", "url"] as const;
@@ -57,6 +69,11 @@ export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as c
 export const BUTTON_STYLES = ["filled", "outlined", "text"] as const;
 export const CATEGORY_STYLES = ["chips", "tiles"] as const;
 export const SPACER_SIZES = ["small", "medium", "large"] as const;
+// 33
+export const QUICK_LINK_STYLES = ["grid", "row"] as const;
+export const NOTICE_TONES = ["info", "success", "warning"] as const;
+export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+export const SOCIAL_NETWORKS = ["instagram", "facebook", "x", "tiktok", "youtube", "linkedin", "snapchat", "telegram", "whatsapp_channel"] as const;
 
 export type AppTemplateName = (typeof APP_TEMPLATES)[number];
 export type ThemeMode = (typeof THEME_MODES)[number];
@@ -68,6 +85,9 @@ export type BlockType = (typeof BLOCK_TYPES)[number];
 export type Visibility = (typeof VISIBILITIES)[number];
 export type ScreenName = (typeof SCREENS)[number];
 export type ItemsSort = (typeof ITEMS_SORTS)[number];
+export type Weekday = (typeof WEEKDAYS)[number];
+export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
+export type NoticeTone = (typeof NOTICE_TONES)[number];
 
 export const LANGUAGE_NAMES: Record<LanguageCode, string> = { en: "English", ar: "Arabic", tr: "Turkish" };
 /** Languages written right to left. */
@@ -115,6 +135,65 @@ export interface ItemsQuery {
   ids: string[];
 }
 
+// 33 Entries of a block's list, each with its own translations.
+
+export interface Slide {
+  image_url: string | null;
+  heading: string | null;
+  subheading: string | null;
+  action: Action | null;
+  translations?: Translations;
+}
+
+export interface QuickLink {
+  icon: string;
+  label: string;
+  action: Action;
+  translations?: Translations;
+}
+
+export interface Quote {
+  text: string;
+  name: string;
+  role: string | null;
+  photo_url: string | null;
+  rating: number | null;
+  translations?: Translations;
+}
+
+export interface FaqEntry {
+  question: string;
+  answer: string;
+  translations?: Translations;
+}
+
+export interface Person {
+  name: string;
+  role: string | null;
+  bio: string | null;
+  photo_url: string | null;
+  action: Action | null;
+  translations?: Translations;
+}
+
+export interface Stat {
+  value: string;
+  label: string;
+  translations?: Translations;
+}
+
+/** An opening period: `closes` earlier than `opens` ends the next day. */
+export interface HoursPeriod {
+  day: Weekday;
+  opens: string;
+  closes: string;
+}
+
+export interface SocialProfile {
+  network: SocialNetwork;
+  url: string;
+}
+
 /**
  * A block as the dashboard stores it and the plugin receives it
  * (`LayoutBlock`): the app's `Block` without the parts filled in per request.
@@ -149,6 +228,39 @@ export interface LayoutBlock {
   placeholder?: string;
   // spacer
   size?: (typeof SPACER_SIZES)[number];
+  // 33 slider
+  slides?: Slide[];
+  auto_advance?: boolean;
+  // quick_links (and `style`: grid or row)
+  links?: QuickLink[];
+  // testimonials
+  quotes?: Quote[];
+  // faq
+  questions?: FaqEntry[];
+  // countdown (and heading, subheading, label, action)
+  ends_at?: string;
+  ended_text?: string | null;
+  // contact
+  phone?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  website?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  // hours
+  hours?: HoursPeriod[];
+  closed_dates?: string[];
+  note?: string | null;
+  // social
+  profiles?: SocialProfile[];
+  // team (and `layout`)
+  people?: Person[];
+  // stats
+  stats?: Stat[];
+  // notice (and label, action)
+  tone?: NoticeTone;
+  text?: string;
 }
 
 export interface LayoutTab {
@@ -187,6 +299,16 @@ export const LAYOUT_LIMITS = {
   maxTabs: 5,
   maxPages: 20,
   maxBlocks: 40,
+  // 33 Entries in a block's list.
+  maxSlides: 8,
+  maxLinks: 12,
+  maxQuotes: 10,
+  maxQuestions: 20,
+  maxPeople: 20,
+  minStats: 2,
+  maxStats: 4,
+  maxHours: 21,
+  maxClosedDates: 30,
   maxItems: 30,
   maxHandPicked: 30,
   /** The whole layout as JSON. */
@@ -198,8 +320,20 @@ export const LAYOUT_LIMITS = {
 export const TRANSLATABLE = {
   page: ["title"],
   tab: ["label"],
-  block: ["title", "heading", "subheading", "html", "label", "placeholder"],
+  block: ["title", "heading", "subheading", "html", "label", "placeholder", "text", "ended_text", "note", "address"],
 } as const;
+
+/** 33 A block's lists whose entries have texts, and those texts. */
+export const TRANSLATABLE_ENTRIES = {
+  slides: ["heading", "subheading"],
+  links: ["label"],
+  quotes: ["text", "name", "role"],
+  questions: ["question", "answer"],
+  people: ["name", "role", "bio"],
+  stats: ["value", "label"],
+} as const;
+export type EntryList = keyof typeof TRANSLATABLE_ENTRIES;
+export const ENTRY_LISTS = Object.keys(TRANSLATABLE_ENTRIES) as EntryList[];
 
 // 11.9 Defaults for new apps
 

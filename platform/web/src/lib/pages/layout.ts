@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App, AppLayoutRecord } from "../data/types";
 import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
+import { applyDesign, contactFacts, designById, designFits, sampleTexts, type Design } from "./designs";
 import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, LayoutPage } from "./types";
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
@@ -117,6 +118,43 @@ export async function publishLayout(
   };
   await store.saveAppLayout(published);
   return { ok: true, value: published };
+}
+
+/**
+ * 33 The draft a ready-made design makes for this app: the design on top of
+ * the draft's look and languages, `look` (the Branding step's template and
+ * font) last.
+ */
+export function designLayout(app: App, design: Design, current: Pick<LayoutContent, "appearance" | "languages">, now: Date, look: Partial<Appearance> = {}): LayoutContent {
+  const layout = applyDesign(design, { appName: app.appName, facts: contactFacts(app), current, now });
+  return { ...layout, appearance: { ...layout.appearance, ...look } };
+}
+
+/**
+ * 33 Replaces the draft with a design (never what's published) and
+ * remembers it on the app. `samples`: the texts of the blocks the design
+ * wrote samples in, which the editor marks until the owner changes them.
+ */
+export async function saveDesignDraft(
+  store: DataStore,
+  app: App,
+  design: Design,
+  now: Date,
+  look: Partial<Appearance> = {},
+): Promise<ParseResult<{ record: AppLayoutRecord; samples: Record<string, string> }>> {
+  const record = await loadLayout(store, app, now);
+  const layout = designLayout(app, design, record.draft, now, look);
+  const saved = await saveDraft(store, app, layout, now);
+  if (!saved.ok) return saved;
+  await store.updateApp(app.id, { design: design.id }, now);
+  return { ok: true, value: { record: saved.value, samples: sampleTexts(layout) } };
+}
+
+/** 33 The sample texts of the app's design, as it applies to the app now; none without a design. */
+export function designSamples(app: App, now: Date): Record<string, string> {
+  const design = designById(app.design);
+  if (!design || !designFits(design, app)) return {};
+  return sampleTexts(designLayout(app, design, { appearance: { ...BUILT_IN_APP_DEFAULTS.appearance, secondary_color: null }, languages: BUILT_IN_APP_DEFAULTS.languages }, now));
 }
 
 /** Back to what's published, or to the defaults when nothing is. */

@@ -145,8 +145,9 @@ class Block_Resolver {
 				$fields = array( 'size' => self::choice( $raw['size'] ?? null, array( 'small', 'medium', 'large' ), 'medium' ) );
 				break;
 			default:
-				// A block type this plugin doesn't know yet can't be checked, so it isn't sent.
-				$fields = null;
+				// 33 Slider, quick links, testimonials, ... (content the owner wrote); a block type
+				// this plugin doesn't know yet can't be checked, so it isn't sent.
+				$fields = Rich_Blocks::handles( $type ) ? Rich_Blocks::fields( $type, $raw, array( $this, 'action' ), time() ) : null;
 		}
 		return null === $fields ? null : array_merge( $base, $fields );
 	}

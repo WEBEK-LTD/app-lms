@@ -849,5 +849,17 @@
   "noDonationsMessage": "Giriş yapmışken yaptığınız bağışlar makbuzlarıyla birlikte burada görünür.",
   "donationReceipt": "Makbuz",
   "donationSeeCampaign": "Kampanyayı gör",
-  "notifyCampaignUpdates": "Kampanya haberleri"
+  "notifyCampaignUpdates": "Kampanya haberleri",
+  "pageOpenNow": "Şu an açık",
+  "pageClosedDay": "Kapalı",
+  "pageToday": "Bugün",
+  "pageDirections": "Yol tarifi",
+  "pageWebsite": "Web sitesi",
+  "countdownDays": "Gün",
+  "countdownHours": "Saat",
+  "countdownMinutes": "Dk",
+  "countdownSeconds": "Sn",
+  "socialWhatsappChannel": "WhatsApp kanalı",
+  "ratingOutOfFive": "5 üzerinden {count} yıldız",
+  "slideOf": "Slayt {index}/{count}"
 }

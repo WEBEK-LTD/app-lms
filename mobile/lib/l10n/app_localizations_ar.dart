@@ -3206,4 +3206,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notifyCampaignUpdates => 'أخبار الحملات';
+
+  @override
+  String get pageOpenNow => 'مفتوح الآن';
+
+  @override
+  String get pageClosedDay => 'مغلق';
+
+  @override
+  String get pageToday => 'اليوم';
+
+  @override
+  String get pageDirections => 'الاتجاهات';
+
+  @override
+  String get pageWebsite => 'الموقع الإلكتروني';
+
+  @override
+  String get countdownDays => 'أيام';
+
+  @override
+  String get countdownHours => 'ساعات';
+
+  @override
+  String get countdownMinutes => 'دقائق';
+
+  @override
+  String get countdownSeconds => 'ثوانٍ';
+
+  @override
+  String get socialWhatsappChannel => 'قناة واتساب';
+
+  @override
+  String ratingOutOfFive(int count) {
+    return '$count من 5 نجوم';
+  }
+
+  @override
+  String slideOf(int index, int count) {
+    return 'الشريحة $index من $count';
+  }
 }

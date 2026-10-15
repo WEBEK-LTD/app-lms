@@ -46,6 +46,44 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	/**
+	 * Minimal stand-in for WordPress's single-line text cleaner: no tags, no line breaks.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function sanitize_text_field( $text ) {
+		return trim( (string) preg_replace( '/\s+/', ' ', wp_strip_all_tags( (string) $text ) ) );
+	}
+}
+
+if ( ! function_exists( 'sanitize_textarea_field' ) ) {
+	/**
+	 * Minimal stand-in for WordPress's multi-line text cleaner: no tags, line breaks kept.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function sanitize_textarea_field( $text ) {
+		return trim( wp_strip_all_tags( (string) $text ) );
+	}
+}
+
+if ( ! function_exists( 'esc_url_raw' ) ) {
+	/**
+	 * Minimal stand-in for WordPress's URL cleaner: only the given schemes.
+	 *
+	 * @param string   $url       URL.
+	 * @param string[] $protocols Allowed schemes.
+	 * @return string
+	 */
+	function esc_url_raw( $url, $protocols = array( 'http', 'https' ) ) {
+		$scheme = strtolower( (string) parse_url( (string) $url, PHP_URL_SCHEME ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		return in_array( $scheme, $protocols, true ) && false === strpbrk( (string) $url, " \t\n<>\"" ) ? (string) $url : '';
+	}
+}
+
 require_once YALLAPP_DIR . 'vendor/autoload.php';
 require_once YALLAPP_DIR . 'includes/class-autoloader.php';
 Yallapp\Autoloader::register();

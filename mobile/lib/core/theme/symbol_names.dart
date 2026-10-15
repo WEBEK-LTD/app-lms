@@ -107,6 +107,18 @@ const symbolsByName = <String, IconData>{
   'trending_up': Symbols.trending_up_rounded,
   'videocam': Symbols.videocam_rounded,
   'villa': Symbols.villa_rounded,
+  // 33 What quick links offer (platform/web/src/lib/pages/icons.ts).
+  'checkroom': Symbols.checkroom_rounded,
+  'child_care': Symbols.child_care_rounded,
+  'content_cut': Symbols.content_cut_rounded,
+  'directions': Symbols.directions_rounded,
+  'grocery': Symbols.grocery_rounded,
+  'home_work': Symbols.home_work_rounded,
+  'payments': Symbols.payments_rounded,
+  'photo_camera': Symbols.photo_camera_rounded,
+  'restaurant_menu': Symbols.restaurant_menu_rounded,
+  'spa': Symbols.spa_rounded,
+  'stethoscope': Symbols.stethoscope_rounded,
 };
 
 /// Shown for a name the app doesn't have.

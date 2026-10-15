@@ -18,7 +18,11 @@ import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
-import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
+import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns } from "./steps";
+import type { DataStore } from "@/lib/data/store";
+import type { App } from "@/lib/data/types";
+import { designById, designFits, designsFor } from "@/lib/pages/designs";
+import { designLayout, loadLayout } from "@/lib/pages/layout";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 
@@ -216,6 +220,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           }}
           icon={icon ? { id: icon.id, url: `/api/v1/assets/${icon.id}` } : null}
           logo={logo ? { id: logo.id, url: `/api/v1/assets/${logo.id}` } : null}
+          {...await brandingDesigns(store, app)}
         />
       ) : null}
       {step === "listing" ? (
@@ -273,4 +278,16 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
     </>
   );
+}
+
+/** 33 The Branding step's designs for the app's kind, each as the draft it makes, and the draft as it is for "Keep my pages". */
+async function brandingDesigns(store: DataStore, app: App): Promise<Pick<BrandingDesigns, "designs" | "current" | "design">> {
+  const now = new Date();
+  const record = await loadLayout(store, app, now);
+  const chosen = designById(app.design);
+  return {
+    designs: designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) })),
+    current: record.draft,
+    design: chosen && designFits(chosen, app) ? chosen.id : null,
+  };
 }

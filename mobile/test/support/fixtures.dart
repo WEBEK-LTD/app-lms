@@ -1135,6 +1135,175 @@ List<Map<String, dynamic>> allBlocksJson({String layout = 'carousel'}) => [
 ];
 
 /// `GET /pages/{slug}`.
+/// 33 One of each block whose content the owner writes, as the API sends
+/// them (already in the request's language).
+List<Map<String, dynamic>> contentBlocksJson({
+  String teamLayout = 'carousel',
+  String linksStyle = 'grid',
+  String countdownEnds = '2099-01-01T00:00:00Z',
+}) => [
+  {
+    'id': 'c1',
+    'type': 'slider',
+    'auto_advance': true,
+    'slides': [
+      {
+        'heading': 'New term, new courses',
+        'subheading': 'Enroll before the 1st of the month',
+        'action': {'type': 'screen', 'screen': 'courses'},
+      },
+      {
+        'image_url': 'https://cdn.example.com/slide.jpg',
+        'heading': 'Learn on your phone',
+        'subheading': null,
+      },
+      // Neither an image nor a heading: skipped.
+      {'subheading': 'Nothing to show'},
+    ],
+  },
+  {
+    'id': 'c2',
+    'type': 'quick_links',
+    'style': linksStyle,
+    'links': [
+      {
+        'icon': 'school',
+        'label': 'All courses',
+        'action': {'type': 'screen', 'screen': 'courses'},
+      },
+      {
+        'icon': 'menu_book',
+        'label': 'My learning',
+        'action': {'type': 'screen', 'screen': 'my_courses'},
+      },
+      {
+        'icon': 'favorite',
+        'label': 'Wishlist',
+        'action': {'type': 'screen', 'screen': 'favorites'},
+      },
+      {
+        'icon': 'not_an_icon_we_ship',
+        'label': 'Notifications and announcements',
+        'action': {'type': 'screen', 'screen': 'notifications'},
+      },
+      // An action this app doesn't know: the tile is skipped.
+      {
+        'icon': 'rocket',
+        'label': 'Teleport',
+        'action': {'type': 'teleport'},
+      },
+    ],
+  },
+  {
+    'id': 'c3',
+    'type': 'stats',
+    'title': 'In numbers',
+    'stats': [
+      {'value': '12k+', 'label': 'Students'},
+      {'value': '4.9', 'label': 'Average rating'},
+      {'value': '120', 'label': 'Courses'},
+      {'value': '24/7', 'label': 'Access'},
+    ],
+  },
+  {
+    'id': 'c4',
+    'type': 'testimonials',
+    'title': 'What students say',
+    'quotes': [
+      {
+        'text': 'The lessons are short and clear. I learn on the bus.',
+        'name': 'Leyla Aydin',
+        'role': 'Student',
+        'rating': 5,
+      },
+      {'text': 'Friendly teachers.', 'name': 'Omar', 'rating': null},
+    ],
+  },
+  {
+    'id': 'c5',
+    'type': 'faq',
+    'title': 'Questions',
+    'questions': [
+      {
+        'question': 'How do I start a course?',
+        'answer': 'Open the course and choose Enroll.\nIt starts at once.',
+      },
+      {'question': 'Can I learn offline?', 'answer': 'Yes, download lessons.'},
+    ],
+  },
+  {
+    'id': 'c6',
+    'type': 'countdown',
+    'heading': 'Term starts in',
+    'subheading': 'Places are limited',
+    'ends_at': countdownEnds,
+    'ended_text': null,
+    'label': 'See courses',
+    'action': {'type': 'screen', 'screen': 'courses'},
+  },
+  {
+    'id': 'c7',
+    'type': 'contact',
+    'title': 'Contact us',
+    'phone': '+20 100 123 4567',
+    'whatsapp': '+201001234567',
+    'email': 'hello@academy.example',
+    'website': 'https://academy.example',
+    'address': '12 Road 9, Maadi, Cairo',
+    'latitude': 29.96,
+    'longitude': 31.25,
+  },
+  {
+    'id': 'c8',
+    'type': 'hours',
+    'title': 'Opening hours',
+    'hours': [
+      {'day': 'mon', 'opens': '09:00', 'closes': '17:00'},
+      {'day': 'tue', 'opens': '09:00', 'closes': '17:00'},
+      {'day': 'fri', 'opens': '18:00', 'closes': '02:00'},
+      {'day': 'sat', 'opens': '10:00', 'closes': '13:00'},
+      {'day': 'sat', 'opens': '15:00', 'closes': '19:00'},
+    ],
+    'closed_dates': ['2026-12-25'],
+    'note': 'Closed on public holidays.',
+  },
+  {
+    'id': 'c9',
+    'type': 'social',
+    'title': 'Follow us',
+    'profiles': [
+      {'network': 'instagram', 'url': 'https://instagram.com/academy'},
+      {'network': 'youtube', 'url': 'https://youtube.com/@academy'},
+      {'network': 'whatsapp_channel', 'url': 'https://whatsapp.com/channel/1'},
+      {'network': 'myspace', 'url': 'https://myspace.com/academy'},
+    ],
+  },
+  {
+    'id': 'c10',
+    'type': 'team',
+    'title': 'Our teachers',
+    'layout': teamLayout,
+    'people': [
+      {
+        'name': 'Ayse Demir',
+        'role': 'Python teacher',
+        'bio': 'Ten years of teaching programming to beginners.',
+        'action': {'type': 'course', 'course_id': 1},
+      },
+      {'name': 'Mehmet Kaya', 'role': 'Design teacher'},
+      {'name': 'محمد علي', 'role': null},
+    ],
+  },
+  {
+    'id': 'c11',
+    'type': 'notice',
+    'tone': 'warning',
+    'text': 'The campus is closed on Friday for the holiday.',
+    'label': 'See the hours',
+    'action': {'type': 'page', 'page_slug': 'home'},
+  },
+];
+
 Map<String, dynamic> appPageJson({
   String slug = 'home',
   String title = 'Discover',

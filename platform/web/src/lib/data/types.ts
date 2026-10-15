@@ -291,6 +291,8 @@ export interface App {
   splashColor: string;
   template: AppTemplate;
   font: string;
+  /** 33 The ready-made design (lib/pages/designs) the owner last started from; null for none. */
+  design?: string | null;
   androidPackage: string | null;
   iosBundleId: string | null;
   storeTitle: string | null;

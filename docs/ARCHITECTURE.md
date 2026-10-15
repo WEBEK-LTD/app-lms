@@ -908,11 +908,25 @@ without a new build. The app renders whatever the API sends.
 - **Pages.** `GET /pages` returns the bottom tabs and the page list;
   `GET /pages/{slug}` returns one page as a list of blocks: banner, text
   (HTML), image, video, button, a list of items, categories, search,
-  continue learning, embed and spacer. Blocks stack vertically; there is no
-  free positioning. The server resolves lists (courses, products, services,
-  posts, listings) into one `Item` card shape, so the app has one renderer for all
-  of them. The app skips block types and actions it does not know, so old
-  apps keep working when new ones are added.
+  continue learning, embed and spacer, and (Phase 33) blocks whose content
+  the owner writes: slider, quick links, testimonials, questions, countdown,
+  contact, opening hours, social links, team, numbers and notice. Blocks
+  stack vertically; there is no free positioning. The server resolves lists
+  (courses, products, services, posts, listings) into one `Item` card shape,
+  so the app has one renderer for all of them. Entries of a block's own
+  lists (slides, quotes, people...) carry their own translations; the
+  platform's validator (`lib/pages/validate.ts`), the hosted API and the
+  plugin (`Rich_Blocks`) each check them, drop what the app can't open and
+  leave out a countdown that has ended without a text for it. The app works
+  out "Open now" and the countdown on the phone's clock. The app skips block
+  types, entries and actions it does not know, so old apps keep working
+  when new ones are added.
+- **Ready-made designs.** `lib/pages/designs` holds three or four designs
+  for each kind of app (tabs, a home page of blocks and a look), as data.
+  The owner picks one in the Branding step or in Pages & look; it replaces
+  the draft (never the published layout), and `apps.design` remembers it so
+  the editor can mark the blocks that still have the design's sample texts.
+  A unit test checks every design with the same validator publishing uses.
 - **Built-in screens stay native.** Course detail, lessons, quizzes, search
   with filters, favorites, messages and the account are screens, not
   blocks. Tabs, buttons and cards open them with a `screen` action.

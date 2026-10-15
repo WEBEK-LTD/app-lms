@@ -1,20 +1,29 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
+import { NOTICE_TONE_LABELS, SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
+import { emptyPerson, emptyQuote, emptySlide, emptyStat, moveItem } from "@/lib/pages/model";
 import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
 import {
   BUTTON_STYLES,
   CATEGORY_STYLES,
   ITEMS_LAYOUTS,
   LAYOUT_LIMITS,
+  NOTICE_TONES,
+  QUICK_LINK_STYLES,
+  SOCIAL_NETWORKS,
   SPACER_SIZES,
   VISIBILITIES,
+  WEEKDAYS,
   type ItemSource,
   type ItemsQuery,
   type ItemsSort,
+  type HoursPeriod,
   type LayoutBlock,
+  type QuickLink,
 } from "@/lib/pages/types";
-import { ActionEditor, Check, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 
 export interface BlockContext {
   lang: Lang;
@@ -108,6 +117,357 @@ function QueryEditor({ id, block, ctx, onChange }: { id: string; block: LayoutBl
       )}
     </div>
   );
+}
+
+// 33 The settings of the new blocks: lists of entries, each in its own box.
+
+const entryBtn = "inline-flex h-9 items-center gap-1 rounded-lg border border-line-strong bg-white px-2.5 text-sm font-semibold text-midnight hover:border-midnight disabled:cursor-not-allowed disabled:opacity-40";
+
+/** A block's list (slides, links, quotes...): each entry with its fields, moved, removed or added. */
+function Entries<T>({
+  id,
+  name,
+  items,
+  min = 1,
+  max,
+  make,
+  onChange,
+  children,
+}: {
+  id: string;
+  /** "Slide": "Slide 2", "Add a slide". */
+  name: string;
+  items: T[];
+  min?: number;
+  max: number;
+  make: () => T;
+  onChange: (items: T[]) => void;
+  children: (item: T, set: (next: T) => void, index: number) => ReactNode;
+}) {
+  const lower = name.toLowerCase();
+  return (
+    <div className="flex flex-col gap-2.5">
+      <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
+        {items.map((item, i) => (
+          <li key={i}>
+            <fieldset className="m-0 flex min-w-0 flex-col gap-3 rounded-xl border border-line p-3" id={`${id}-${i}`}>
+              <legend className="px-1 text-sm font-bold">
+                {name} {i + 1}
+              </legend>
+              {children(item, (next) => onChange(items.map((x, j) => (j === i ? next : x))), i)}
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className={entryBtn} aria-label={`Move ${lower} ${i + 1} up`} disabled={i === 0} onClick={() => onChange(moveItem(items, i, i - 1))}>
+                  <IconGlyph name="arrow_upward" size={18} /> Up
+                </button>
+                <button type="button" className={entryBtn} aria-label={`Move ${lower} ${i + 1} down`} disabled={i === items.length - 1} onClick={() => onChange(moveItem(items, i, i + 1))}>
+                  <IconGlyph name="arrow_downward" size={18} /> Down
+                </button>
+                <button type="button" className={entryBtn} aria-label={`Remove ${lower} ${i + 1}`} disabled={items.length <= min} onClick={() => onChange(items.filter((_, j) => j !== i))}>
+                  <IconGlyph name="delete" size={18} /> Remove
+                </button>
+              </div>
+            </fieldset>
+          </li>
+        ))}
+      </ol>
+      <div>
+        <button type="button" className={entryBtn} disabled={items.length >= max} onClick={() => onChange([...items, make()])}>
+          <IconGlyph name="add" size={18} /> Add {/^[aeiou]/.test(lower) ? "an" : "a"} {lower}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** `2026-11-01T18:00:00Z` as the local `2026-11-01T21:00` a date-time field shows, and back. */
+function toLocalInput(iso: string | undefined): string {
+  const date = iso ? new Date(iso) : null;
+  if (!date || Number.isNaN(date.getTime())) return "";
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
+function fromLocalInput(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+const TONE_OPTIONS = NOTICE_TONES.map((value) => ({ value, label: NOTICE_TONE_LABELS[value] }));
+const DAY_OPTIONS = WEEKDAYS.map((value) => ({ value, label: WEEKDAY_LABELS[value] }));
+const SOCIAL_OPTIONS = SOCIAL_NETWORKS.map((value) => ({ value, label: SOCIAL_LABELS[value] }));
+const RATING_OPTIONS = [{ value: "", label: "No stars" }, ...[5, 4, 3, 2, 1].map((n) => ({ value: String(n), label: `${n} star${n === 1 ? "" : "s"}` }))];
+const QUICK_STYLE_LABELS: Record<(typeof QUICK_LINK_STYLES)[number], string> = { grid: "Tiles in rows", row: "One row to swipe" };
+
+function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: BlockContext; onChange: (block: LayoutBlock) => void }) {
+  const id = `blk-${block.id}`;
+  const set = (patch: Partial<LayoutBlock>) => onChange({ ...block, ...patch });
+  const { lang } = ctx;
+  const actionProps = { pages: ctx.pages, sources: ctx.sources, screens: ctx.screens, courses: ctx.pickable.items.courses };
+  switch (block.type) {
+    case "slider":
+      return (
+        <>
+          <Check label="Move to the next slide on its own" checked={block.auto_advance !== false} onChange={(auto_advance) => set({ auto_advance })} />
+          <Entries id={`${id}-slides`} name="Slide" items={block.slides ?? []} max={LAYOUT_LIMITS.maxSlides} make={emptySlide} onChange={(slides) => set({ slides })}>
+            {(s, setSlide, i) => (
+              <>
+                <TextInput
+                  id={`${id}-s${i}-image`}
+                  label="Image address"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  hint="Optional. Without one, the slide shows your app's colors."
+                  value={s.image_url ?? ""}
+                  onChange={(v) => setSlide({ ...s, image_url: v || null })}
+                />
+                <LangText id={`${id}-s${i}-heading`} label="Heading" value={s} field="heading" lang={lang} onChange={setSlide} />
+                <LangText id={`${id}-s${i}-subheading`} label="Text under the heading" value={s} field="subheading" lang={lang} onChange={setSlide} />
+                <ActionEditor id={`${id}-s${i}-action`} label="On tap" action={s.action} optional onChange={(action) => setSlide({ ...s, action })} {...actionProps} />
+              </>
+            )}
+          </Entries>
+        </>
+      );
+    case "quick_links":
+      return (
+        <>
+          <SelectInput
+            id={`${id}-style`}
+            label="Look"
+            value={(block.style ?? "grid") as (typeof QUICK_LINK_STYLES)[number]}
+            options={opts(QUICK_LINK_STYLES, QUICK_STYLE_LABELS)}
+            onChange={(style) => set({ style })}
+          />
+          <Entries
+            id={`${id}-links`}
+            name="Link"
+            items={block.links ?? []}
+            max={LAYOUT_LIMITS.maxLinks}
+            make={(): QuickLink => ({ icon: "star", label: "", action: { type: "screen", screen: firstScreen(ctx.screens) } })}
+            onChange={(links) => set({ links })}
+          >
+            {(l, setLink, i) => (
+              <>
+                <LangText id={`${id}-l${i}-label`} label="Label" value={l} field="label" lang={lang} onChange={setLink} />
+                <IconPicker id={`${id}-l${i}-icon`} label="Icon" value={l.icon} onChange={(icon) => setLink({ ...l, icon: icon ?? l.icon })} />
+                <ActionEditor id={`${id}-l${i}-action`} label="Opens" action={l.action} optional={false} onChange={(action) => action && setLink({ ...l, action })} {...actionProps} />
+              </>
+            )}
+          </Entries>
+        </>
+      );
+    case "testimonials":
+      return (
+        <Entries id={`${id}-quotes`} name="Quote" items={block.quotes ?? []} max={LAYOUT_LIMITS.maxQuotes} make={emptyQuote} onChange={(quotes) => set({ quotes })}>
+          {(q, setQuote, i) => (
+            <>
+              <LangText id={`${id}-q${i}-text`} label="What they said" value={q} field="text" lang={lang} rows={3} onChange={setQuote} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <LangText id={`${id}-q${i}-name`} label="Name" value={q} field="name" lang={lang} onChange={setQuote} />
+                <LangText id={`${id}-q${i}-role`} label="Role" value={q} field="role" lang={lang} onChange={setQuote} hint="Optional, like Student." />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <TextInput
+                  id={`${id}-q${i}-photo`}
+                  label="Photo address"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  hint="Optional."
+                  value={q.photo_url ?? ""}
+                  onChange={(v) => setQuote({ ...q, photo_url: v || null })}
+                />
+                <SelectInput id={`${id}-q${i}-rating`} label="Stars" value={q.rating ? String(q.rating) : ""} options={RATING_OPTIONS} onChange={(v) => setQuote({ ...q, rating: v ? Number(v) : null })} />
+              </div>
+            </>
+          )}
+        </Entries>
+      );
+    case "faq":
+      return (
+        <Entries
+          id={`${id}-questions`}
+          name="Question"
+          items={block.questions ?? []}
+          max={LAYOUT_LIMITS.maxQuestions}
+          make={() => ({ question: "", answer: "" })}
+          onChange={(questions) => set({ questions })}
+        >
+          {(q, setQuestion, i) => (
+            <>
+              <LangText id={`${id}-f${i}-question`} label="Question" value={q} field="question" lang={lang} onChange={setQuestion} />
+              <LangText id={`${id}-f${i}-answer`} label="Answer" value={q} field="answer" lang={lang} rows={3} onChange={setQuestion} />
+            </>
+          )}
+        </Entries>
+      );
+    case "countdown":
+      return (
+        <>
+          <LangText id={`${id}-heading`} label="Heading" value={block} field="heading" lang={lang} onChange={onChange} hint="Like: The sale ends in" />
+          <LangText id={`${id}-subheading`} label="Text under the heading" value={block} field="subheading" lang={lang} onChange={onChange} hint="Optional." />
+          <TextInput
+            id={`${id}-ends`}
+            label="Ends at"
+            type="datetime-local"
+            value={toLocalInput(block.ends_at)}
+            hint="In your computer's time zone. The app counts down on each phone."
+            onChange={(v) => set({ ends_at: fromLocalInput(v) })}
+          />
+          <LangText id={`${id}-ended`} label="Text after the end" value={block} field="ended_text" lang={lang} onChange={onChange} hint="Empty hides the block when the time is up." />
+          <LangText id={`${id}-label`} label="Button text" value={block} field="label" lang={lang} onChange={onChange} hint="Optional, with what it opens below." />
+          <ActionEditor id={`${id}-action`} label="The button opens" action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
+        </>
+      );
+    case "contact":
+      return (
+        <>
+          <p className="m-0 text-sm text-muted">Fill in the ways people can reach you. Each one shows as a button; empty ones are left out.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextInput id={`${id}-phone`} label="Phone number" inputMode="numeric" placeholder="+20 100 123 4567" value={block.phone ?? ""} onChange={(v) => set({ phone: v || null })} />
+            <TextInput id={`${id}-whatsapp`} label="WhatsApp number" inputMode="numeric" placeholder="+20 100 123 4567" value={block.whatsapp ?? ""} onChange={(v) => set({ whatsapp: v || null })} />
+            <TextInput id={`${id}-email`} label="Email address" type="email" value={block.email ?? ""} onChange={(v) => set({ email: v || null })} />
+            <TextInput id={`${id}-website`} label="Website" type="url" inputMode="url" placeholder="https://" value={block.website ?? ""} onChange={(v) => set({ website: v || null })} />
+          </div>
+          <LangText id={`${id}-address`} label="Address" value={block} field="address" lang={lang} onChange={onChange} hint="Directions open it in the phone's maps." />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextInput
+              id={`${id}-lat`}
+              label="Latitude"
+              inputMode="decimal"
+              placeholder="30.0444"
+              hint="Optional, for exact directions."
+              value={block.latitude === null || block.latitude === undefined ? "" : String(block.latitude)}
+              onChange={(v) => set({ latitude: v.trim() === "" ? null : Number(v.replace(",", ".")) })}
+            />
+            <TextInput
+              id={`${id}-lng`}
+              label="Longitude"
+              inputMode="decimal"
+              placeholder="31.2357"
+              value={block.longitude === null || block.longitude === undefined ? "" : String(block.longitude)}
+              onChange={(v) => set({ longitude: v.trim() === "" ? null : Number(v.replace(",", ".")) })}
+            />
+          </div>
+        </>
+      );
+    case "hours":
+      return (
+        <>
+          <Entries
+            id={`${id}-hours`}
+            name="Opening time"
+            min={0}
+            items={block.hours ?? []}
+            max={LAYOUT_LIMITS.maxHours}
+            make={(): HoursPeriod => ({ day: "mon", opens: "09:00", closes: "17:00" })}
+            onChange={(hours) => set({ hours })}
+          >
+            {(h, setHours, i) => (
+              <div className="grid gap-3 sm:grid-cols-3">
+                <SelectInput id={`${id}-h${i}-day`} label="Day" value={h.day} options={DAY_OPTIONS} onChange={(day) => setHours({ ...h, day })} />
+                <TextInput id={`${id}-h${i}-opens`} label="Opens" type="time" value={h.opens} onChange={(opens) => setHours({ ...h, opens })} />
+                <TextInput id={`${id}-h${i}-closes`} label="Closes" type="time" value={h.closes} onChange={(closes) => setHours({ ...h, closes })} />
+              </div>
+            )}
+          </Entries>
+          <p className="m-0 text-xs text-muted">Days without a time show as closed. Add a day twice for a break, and a closing time earlier than the opening time for after midnight.</p>
+          <TextInput
+            id={`${id}-closed`}
+            label="Closed on"
+            placeholder="2026-12-31, 2027-01-01"
+            hint="Optional: holidays, as dates separated by commas."
+            value={(block.closed_dates ?? []).join(", ")}
+            onChange={(v) =>
+              set({
+                closed_dates: v
+                  .split(",")
+                  .map((d) => d.trim())
+                  .filter(Boolean),
+              })
+            }
+          />
+          <LangText id={`${id}-note`} label="Note" value={block} field="note" lang={lang} onChange={onChange} hint="Optional, like: Closed on public holidays." />
+        </>
+      );
+    case "social":
+      return (
+        <Entries
+          id={`${id}-profiles`}
+          name="Profile"
+          items={block.profiles ?? []}
+          max={SOCIAL_NETWORKS.length}
+          make={() => ({ network: SOCIAL_NETWORKS.find((n) => !(block.profiles ?? []).some((p) => p.network === n)) ?? "instagram", url: "" })}
+          onChange={(profiles) => set({ profiles })}
+        >
+          {(p, setProfile, i) => (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <SelectInput id={`${id}-p${i}-network`} label="Network" value={p.network} options={SOCIAL_OPTIONS} onChange={(network) => setProfile({ ...p, network })} />
+              <TextInput id={`${id}-p${i}-url`} label="Profile address" type="url" inputMode="url" placeholder="https://" value={p.url} onChange={(url) => setProfile({ ...p, url })} />
+            </div>
+          )}
+        </Entries>
+      );
+    case "team":
+      return (
+        <>
+          <SelectInput id={`${id}-layout`} label="Look" value={block.layout ?? "carousel"} options={opts(ITEMS_LAYOUTS, LAYOUT_LABELS)} onChange={(layout) => set({ layout })} />
+          <Entries id={`${id}-people`} name="Person" items={block.people ?? []} max={LAYOUT_LIMITS.maxPeople} make={emptyPerson} onChange={(people) => set({ people })}>
+            {(p, setPerson, i) => (
+              <>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <LangText id={`${id}-m${i}-name`} label="Name" value={p} field="name" lang={lang} onChange={setPerson} />
+                  <LangText id={`${id}-m${i}-role`} label="Role" value={p} field="role" lang={lang} onChange={setPerson} hint="Optional, like Head coach." />
+                </div>
+                <LangText id={`${id}-m${i}-bio`} label="A few words" value={p} field="bio" lang={lang} rows={2} onChange={setPerson} hint="Optional." />
+                <TextInput
+                  id={`${id}-m${i}-photo`}
+                  label="Photo address"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://"
+                  hint="Optional. Without one, their initials show."
+                  value={p.photo_url ?? ""}
+                  onChange={(v) => setPerson({ ...p, photo_url: v || null })}
+                />
+                <ActionEditor id={`${id}-m${i}-action`} label="On tap" action={p.action} optional onChange={(action) => setPerson({ ...p, action })} {...actionProps} />
+              </>
+            )}
+          </Entries>
+        </>
+      );
+    case "stats":
+      return (
+        <Entries
+          id={`${id}-stats`}
+          name="Number"
+          min={LAYOUT_LIMITS.minStats}
+          items={block.stats ?? []}
+          max={LAYOUT_LIMITS.maxStats}
+          make={emptyStat}
+          onChange={(stats) => set({ stats })}
+        >
+          {(s, setStat, i) => (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <LangText id={`${id}-n${i}-value`} label="Number" value={s} field="value" lang={lang} onChange={setStat} hint="Short, like 12k+ or 24/7." />
+              <LangText id={`${id}-n${i}-label`} label="Label" value={s} field="label" lang={lang} onChange={setStat} />
+            </div>
+          )}
+        </Entries>
+      );
+    case "notice":
+      return (
+        <>
+          <SelectInput id={`${id}-tone`} label="Color" value={block.tone ?? "info"} options={TONE_OPTIONS} onChange={(tone) => set({ tone })} />
+          <LangText id={`${id}-text`} label="Text" value={block} field="text" lang={lang} rows={2} onChange={onChange} />
+          <LangText id={`${id}-label`} label="Link text" value={block} field="label" lang={lang} onChange={onChange} hint="Optional, with what it opens below." />
+          <ActionEditor id={`${id}-action`} label="The link opens" action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
+        </>
+      );
+    default:
+      return null;
+  }
 }
 
 /** The settings of one block, in the language being edited. */
@@ -215,6 +575,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
         </>
       ) : null}
       {block.type === "spacer" ? <SelectInput id={`${id}-size`} label="Size" value={block.size ?? "medium"} options={opts(SPACER_SIZES, SIZE_LABELS)} onChange={(size) => set({ size })} /> : null}
+      <MoreBlockSettings block={block} ctx={ctx} onChange={onChange} />
       <SelectInput id={`${id}-visibility`} label="Who sees it" value={block.visibility} options={opts(VISIBILITIES, VISIBILITY_LABELS)} onChange={(visibility) => set({ visibility })} />
     </div>
   );

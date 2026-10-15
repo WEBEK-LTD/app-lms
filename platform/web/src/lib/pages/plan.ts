@@ -1,6 +1,7 @@
 import { sha256Hex } from "../crypto/tokens";
 import type { App } from "../data/types";
 import { hasFeature, type PlanInfo } from "../plans";
+import { blockActions, mapBlockActions } from "./block-actions";
 import { defaultLayout } from "./defaults";
 import { itemSourcesFor } from "./sources";
 import type { Action, AppDefaultsSetting, ItemSource, Languages, Layout, LayoutBlock, LayoutContent } from "./types";
@@ -37,10 +38,9 @@ function blockAllowed(block: LayoutBlock, sources: ItemSource[]): boolean {
 }
 
 function cleanBlock(block: LayoutBlock, sources: ItemSource[]): LayoutBlock {
-  const out = { ...block };
-  if (!actionAllowed(out.action, sources)) out.action = null;
-  if (!actionAllowed(out.see_all, sources)) out.see_all = null;
-  return out;
+  // 33 Entries' actions too; a quick link to an entry the plan leaves out goes.
+  if (blockActions(block).every((a) => actionAllowed(a, sources))) return block;
+  return mapBlockActions(block, (a) => (actionAllowed(a, sources) ? a : null));
 }
 
 /**

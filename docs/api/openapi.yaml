@@ -4293,6 +4293,17 @@ components:
         - $ref: '#/components/schemas/ContinueLearningBlock'
         - $ref: '#/components/schemas/EmbedBlock'
         - $ref: '#/components/schemas/SpacerBlock'
+        - $ref: '#/components/schemas/SliderBlock'
+        - $ref: '#/components/schemas/QuickLinksBlock'
+        - $ref: '#/components/schemas/TestimonialsBlock'
+        - $ref: '#/components/schemas/FaqBlock'
+        - $ref: '#/components/schemas/CountdownBlock'
+        - $ref: '#/components/schemas/ContactBlock'
+        - $ref: '#/components/schemas/HoursBlock'
+        - $ref: '#/components/schemas/SocialBlock'
+        - $ref: '#/components/schemas/TeamBlock'
+        - $ref: '#/components/schemas/StatsBlock'
+        - $ref: '#/components/schemas/NoticeBlock'
       discriminator:
         propertyName: type
         mapping:
@@ -4307,6 +4318,17 @@ components:
           continue_learning: '#/components/schemas/ContinueLearningBlock'
           embed: '#/components/schemas/EmbedBlock'
           spacer: '#/components/schemas/SpacerBlock'
+          slider: '#/components/schemas/SliderBlock'
+          quick_links: '#/components/schemas/QuickLinksBlock'
+          testimonials: '#/components/schemas/TestimonialsBlock'
+          faq: '#/components/schemas/FaqBlock'
+          countdown: '#/components/schemas/CountdownBlock'
+          contact: '#/components/schemas/ContactBlock'
+          hours: '#/components/schemas/HoursBlock'
+          social: '#/components/schemas/SocialBlock'
+          team: '#/components/schemas/TeamBlock'
+          stats: '#/components/schemas/StatsBlock'
+          notice: '#/components/schemas/NoticeBlock'
       description: One block on a page. The app skips block types it does not know, so older apps keep working when new types are added.
 
     BlockBase:
@@ -4437,6 +4459,232 @@ components:
           properties:
             type: { const: spacer }
             size: { type: string, enum: [small, medium, large] }
+
+    # 33 More page blocks. Their texts are already in the request's language.
+    SliderBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Banner slides the user swipes through, with dots under them.
+          required: [slides]
+          properties:
+            type: { const: slider }
+            auto_advance: { type: boolean, default: true, description: Moves to the next slide every few seconds until the user touches it. }
+            slides:
+              type: array
+              minItems: 1
+              maxItems: 8
+              items:
+                type: object
+                description: A slide without an image shows the app's colors behind its text.
+                properties:
+                  image_url: { type: [string, 'null'], format: uri }
+                  heading: { type: [string, 'null'] }
+                  subheading: { type: [string, 'null'] }
+                  action: { $ref: '#/components/schemas/Action' }
+
+    QuickLinksBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Tiles with an icon and a label, each opening something.
+          required: [links]
+          properties:
+            type: { const: quick_links }
+            style: { type: string, enum: [grid, row], default: grid, description: '`grid`: rows of up to four tiles; `row`: one row that scrolls sideways.' }
+            links:
+              type: array
+              minItems: 1
+              maxItems: 12
+              items:
+                type: object
+                required: [icon, label, action]
+                properties:
+                  icon: { type: string, description: A Google Material Symbols (Rounded) name., example: restaurant_menu }
+                  label: { type: string, example: Menu }
+                  action: { $ref: '#/components/schemas/Action' }
+
+    TestimonialsBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: What customers say, as cards with their name, role, photo and stars.
+          required: [quotes]
+          properties:
+            type: { const: testimonials }
+            quotes:
+              type: array
+              minItems: 1
+              maxItems: 10
+              items:
+                type: object
+                required: [text, name]
+                properties:
+                  text: { type: string }
+                  name: { type: string }
+                  role: { type: [string, 'null'], example: Student }
+                  photo_url: { type: [string, 'null'], format: uri }
+                  rating: { type: [integer, 'null'], minimum: 1, maximum: 5, description: Stars out of five. }
+
+    FaqBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Questions that open to show their answer.
+          required: [questions]
+          properties:
+            type: { const: faq }
+            questions:
+              type: array
+              minItems: 1
+              maxItems: 20
+              items:
+                type: object
+                required: [question, answer]
+                properties:
+                  question: { type: string }
+                  answer: { type: string, description: Plain text; line breaks are kept. }
+
+    CountdownBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: |
+            Days, hours, minutes and seconds left until `ends_at`, counted on
+            the phone. After the end the app shows `ended_text`, or hides the
+            block when it is null; the server leaves such a block out once it
+            has ended.
+          required: [heading, ends_at]
+          properties:
+            type: { const: countdown }
+            heading: { type: string, example: Summer sale ends in }
+            subheading: { type: [string, 'null'] }
+            ends_at: { type: string, format: date-time }
+            ended_text: { type: [string, 'null'], example: The sale has ended. }
+            label: { type: [string, 'null'], description: "The button's text, shown with `action`.", example: Shop the sale }
+            action: { $ref: '#/components/schemas/Action' }
+
+    ContactBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: |
+            A button for each way to reach the business: a call, a WhatsApp
+            chat, an email, directions (to the latitude and longitude when
+            set, else the address, in the phone's maps) and the website. At
+            least one is set.
+          properties:
+            type: { const: contact }
+            phone: { type: [string, 'null'], example: '+201001234567' }
+            whatsapp: { type: [string, 'null'], example: '+201001234567' }
+            email: { type: [string, 'null'], format: email }
+            website: { type: [string, 'null'], format: uri }
+            address: { type: [string, 'null'], example: '12 Road 9, Maadi, Cairo' }
+            latitude: { type: [number, 'null'], minimum: -90, maximum: 90 }
+            longitude: { type: [number, 'null'], minimum: -180, maximum: 180 }
+
+    HoursBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: |
+            Opening hours per weekday, with "Open now" or "Closed" worked out
+            in the phone's local time. Days without hours are closed; a day can
+            have more than one period. A period whose `closes` is earlier than
+            its `opens` ends the next day.
+          required: [hours]
+          properties:
+            type: { const: hours }
+            hours:
+              type: array
+              maxItems: 21
+              items:
+                type: object
+                required: [day, opens, closes]
+                properties:
+                  day: { type: string, enum: [mon, tue, wed, thu, fri, sat, sun] }
+                  opens: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '09:00' }
+                  closes: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '18:00' }
+            closed_dates:
+              type: array
+              maxItems: 30
+              description: Days the business is closed although the weekday has hours (holidays).
+              items: { type: string, format: date }
+            note: { type: [string, 'null'], example: Closed on public holidays. }
+
+    SocialBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Buttons that open the business's social profiles, each labelled with the network's name.
+          required: [profiles]
+          properties:
+            type: { const: social }
+            profiles:
+              type: array
+              minItems: 1
+              maxItems: 9
+              items:
+                type: object
+                required: [network, url]
+                properties:
+                  network: { type: string, enum: [instagram, facebook, x, tiktok, youtube, linkedin, snapchat, telegram, whatsapp_channel] }
+                  url: { type: string, format: uri }
+
+    TeamBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: People as cards (instructors, doctors, trainers, staff).
+          required: [people]
+          properties:
+            type: { const: team }
+            layout: { type: string, enum: [carousel, grid, list], default: carousel }
+            people:
+              type: array
+              minItems: 1
+              maxItems: 20
+              items:
+                type: object
+                required: [name]
+                properties:
+                  name: { type: string }
+                  role: { type: [string, 'null'], example: Head coach }
+                  bio: { type: [string, 'null'] }
+                  photo_url: { type: [string, 'null'], format: uri }
+                  action: { $ref: '#/components/schemas/Action' }
+
+    StatsBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: Two to four big numbers with a label each.
+          required: [stats]
+          properties:
+            type: { const: stats }
+            stats:
+              type: array
+              minItems: 2
+              maxItems: 4
+              items:
+                type: object
+                required: [value, label]
+                properties:
+                  value: { type: string, example: 12k+ }
+                  label: { type: string, example: Students }
+
+    NoticeBlock:
+      allOf:
+        - $ref: '#/components/schemas/BlockBase'
+        - type: object
+          description: A colored announcement bar.
+          required: [tone, text]
+          properties:
+            type: { const: notice }
+            tone: { type: string, enum: [info, success, warning] }
+            text: { type: string, example: We're closed on Friday for the holiday. }
+            label: { type: [string, 'null'], description: "The link's text, shown with `action`." }
+            action: { $ref: '#/components/schemas/Action' }
 
     Languages:
       type: object
