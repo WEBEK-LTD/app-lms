@@ -188,11 +188,17 @@ paths:
         is always a full navigation. Servers without pages (older plugins)
         return 404; the app then uses its built-in tabs and `/home`.
 
+        The default pages follow `app_type`, the type of the app asking, so
+        they match its screens from the first start. Without it the server uses
+        the type the owner chose in the dashboard, else a guess from the site's
+        plugins. Published pages don't depend on it.
+
         Send `If-None-Match` with the last `version` to get 304 when
         nothing changed.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/Platform'
+        - $ref: '#/components/parameters/AppType'
       responses:
         '200':
           description: Navigation and pages
@@ -222,6 +228,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/PageSlug'
         - $ref: '#/components/parameters/Platform'
+        - $ref: '#/components/parameters/AppType'
       responses:
         '200':
           description: The page
@@ -2579,6 +2586,14 @@ components:
       required: true
       description: The app's platform. Purchase rules depend on it.
       schema: { type: string, enum: [android, ios] }
+    AppType:
+      name: app_type
+      in: query
+      required: false
+      description: >-
+        The type of the app asking (its build config's `app_type`). Default pages are built
+        for it. Unknown values are ignored.
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
     Page:
       name: page
       in: query
@@ -3038,6 +3053,18 @@ components:
             duration_minutes: { type: [integer, 'null'] }
             level: { type: [string, 'null'], example: Beginner }
             has_certificate: { type: boolean }
+            student_count: { type: [integer, 'null'], description: Students enrolled. Null when the LMS doesn't say. }
+            about:
+              type: object
+              description: >-
+                The lists an LMS keeps beside the description (Tutor LMS: what you'll learn,
+                requirements, target audience, materials included). Each is empty when the course
+                has none. Missing on older plugins.
+              properties:
+                learn: { type: array, items: { type: string }, example: [Plan a treatment, Read an X-ray] }
+                requirements: { type: array, items: { type: string } }
+                audience: { type: array, items: { type: string } }
+                includes: { type: array, items: { type: string }, example: [12 hours of video, A certificate] }
             qna: { type: boolean, description: "Whether students can ask questions in this course: features.qna and the course's own setting. Missing on older plugins means features.qna." }
             categories:
               type: array

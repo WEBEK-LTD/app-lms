@@ -30,7 +30,10 @@ class Pages_Controller extends Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'navigation' ),
 				'permission_callback' => '__return_true',
-				'args'                => array( 'platform' => self::platform_arg() ),
+				'args'                => array(
+					'platform' => self::platform_arg(),
+					'app_type' => self::app_type_arg(),
+				),
 			)
 		);
 		$this->route(
@@ -46,8 +49,23 @@ class Pages_Controller extends Controller {
 						'required' => true,
 					),
 					'platform' => self::platform_arg(),
+					'app_type' => self::app_type_arg(),
 				),
 			)
+		);
+	}
+
+	/**
+	 * The `app_type` argument: the type of the app asking. Any string is accepted, so an
+	 * app type this plugin doesn't know yet is ignored rather than refused.
+	 *
+	 * @return array
+	 */
+	private static function app_type_arg() {
+		return array(
+			'type'              => 'string',
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_key',
 		);
 	}
 
@@ -58,7 +76,8 @@ class Pages_Controller extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function navigation( WP_REST_Request $request ) {
-		$pages      = $this->plugin->pages();
+		$pages = $this->plugin->pages();
+		$pages->for_app_type( (string) $request['app_type'] );
 		$language   = $pages->language( $request->get_header( 'accept_language' ) );
 		$navigation = $pages->navigation( $language, (string) $request['platform'] );
 		$etag       = '"' . $navigation['version'] . '"';
@@ -77,7 +96,8 @@ class Pages_Controller extends Controller {
 	 * @return \WP_REST_Response
 	 */
 	public function page( WP_REST_Request $request ) {
-		$pages    = $this->plugin->pages();
+		$pages = $this->plugin->pages();
+		$pages->for_app_type( (string) $request['app_type'] );
 		$language = $pages->language( $request->get_header( 'accept_language' ) );
 		$page     = $pages->page( (string) $request['slug'], $language, (string) $request['platform'], get_current_user_id() );
 		$response = $page ? $this->ok( $page ) : self::error( 'not_found', __( 'This page does not exist.', 'yallapp' ), 404 );
