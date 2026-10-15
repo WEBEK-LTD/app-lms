@@ -168,3 +168,49 @@ class StoreAssetsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AppStoreKeyTest(unittest.TestCase):
+    """The App Store Connect key reaches fastlane in a shape OpenSSL reads ("invalid curve name")."""
+
+    @classmethod
+    def setUpClass(cls):
+        import subprocess
+
+        cls.pem = subprocess.run(
+            ["openssl", "genpkey", "-algorithm", "EC", "-pkeyopt", "ec_paramgen_curve:P-256"],
+            capture_output=True, text=True, check=True,
+        ).stdout
+
+    def secrets(self, key):
+        folder = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, folder)
+        path = Path(folder) / "secrets.json"
+        path.write_text(json.dumps({"app_store_connect": {"key_id": "ABC123DEFG", "issuer_id": "x", "private_key": key}}))
+        return path
+
+    def test_keys_that_lost_their_shape_are_rewrapped(self):
+        import p8_key
+
+        for key in (
+            self.pem,
+            self.pem.replace("\n", " "),
+            self.pem.replace("\n", "\r\n"),
+            "﻿" + self.pem,
+            "\n".join("  " + line for line in self.pem.split("\n")),
+        ):
+            path = self.secrets(key)
+            self.assertEqual(0, p8_key.main(str(path)))
+            self.assertEqual(self.pem, json.loads(path.read_text())["app_store_connect"]["private_key"])
+
+    def test_an_unreadable_key_is_refused(self):
+        import p8_key
+
+        broken = self.pem.replace(self.pem.split("\n")[1], "AAAA" * 16)
+        self.assertEqual(1, p8_key.main(str(self.secrets(broken))))
+        self.assertEqual(1, p8_key.main(str(self.secrets("not a key"))))
+
+    def test_no_key(self):
+        import p8_key
+
+        self.assertEqual(2, p8_key.main(str(self.secrets(""))))

@@ -32,6 +32,12 @@ if [ "$HAS_ASC" != "yes" ]; then
 	exit 0
 fi
 
+# The key as fastlane's OpenSSL reads it; a key it can't read gets a plain message, not a stack trace.
+if ! python3 "$SCRIPTS/p8_key.py" "$WORK/secrets.json"; then
+	result '{"ios":"failed"}' '[]' "Your App Store Connect key can't be read. Download the .p8 file again from App Store Connect › Users and Access › Integrations, and upload it in App setup › Publishing."
+	exit 1
+fi
+
 platform status "$BUILD_ID" '{"stages":{"ios":"running"}}'
 platform config "$BUILD_ID" "$WORK/config.json"
 (cd "$MOBILE" && dart run tool/apply_config.dart "$WORK/config.json")

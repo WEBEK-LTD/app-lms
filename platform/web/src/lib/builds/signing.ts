@@ -1,5 +1,7 @@
+import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { decrypt, encrypt } from "../crypto/encryption";
+import { rewrapPem } from "../crypto/pem";
 import type { DataStore, SigningKeysPatch } from "../data/store";
 import type { App, Build } from "../data/types";
 
@@ -91,7 +93,7 @@ export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; au
         ? {
             issuer_id: app.ascIssuerId,
             key_id: app.ascKeyId,
-            private_key: decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id)),
+            private_key: canonicalPrivateKey(decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id))),
           }
         : null,
     galaxy_store:
@@ -148,4 +150,16 @@ export async function saveSigningKeys(
     code: "key_exists",
     message: `This app already has ${names.join(" and ") || "this key"}. Saved keys are never replaced.`,
   };
+}
+
+/**
+ * The App Store Connect key as OpenSSL writes it (PKCS#8 PEM), so fastlane can read it whatever
+ * shape it was saved in. Anything Node can't read is sent as it was, and the build says so.
+ */
+export function canonicalPrivateKey(pem: string): string {
+  try {
+    return createPrivateKey(rewrapPem(pem)).export({ type: "pkcs8", format: "pem" }).toString();
+  } catch {
+    return pem;
+  }
 }
