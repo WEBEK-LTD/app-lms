@@ -24,7 +24,11 @@ val hmsAppId: String = (groovy.json.JsonSlurper().parse(agconnect) as Map<String
         ?: throw GradleException("agconnect-services.json has no app ID.")
 }
 
-val agconnectAssets = layout.buildDirectory.dir("generated/agconnect")
+// The file goes into this module's assets. It is copied while Gradle reads
+// the build, and the folder is given as a plain path: Android Gradle Plugin 9
+// refuses a Provider in the source sets.
+val agconnectAssets: File = layout.buildDirectory.dir("generated/agconnect").get().asFile
+agconnect.copyTo(File(agconnectAssets, "agconnect-services.json"), overwrite = true)
 
 android {
     namespace = "com.yallapp.hms"
@@ -43,12 +47,6 @@ android {
 
     sourceSets.getByName("main").assets.srcDir(agconnectAssets)
 }
-
-val copyAgconnect = tasks.register<Copy>("copyAgconnect") {
-    from(agconnect)
-    into(agconnectAssets)
-}
-tasks.named("preBuild") { dependsOn(copyAgconnect) }
 
 dependencies {
     implementation("com.huawei.hms:push:6.13.0.300")
