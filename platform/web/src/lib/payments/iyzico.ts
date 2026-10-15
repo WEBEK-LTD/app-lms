@@ -1,4 +1,5 @@
 import { createHmac, randomBytes } from "node:crypto";
+import { PaymentError } from "./errors";
 
 /**
  * iyzico's hosted checkout form: the customer pays on iyzico's page, into
@@ -14,7 +15,7 @@ export interface IyzicoKeys {
   sandbox: boolean;
 }
 
-export class IyzicoError extends Error {
+export class IyzicoError extends PaymentError {
   constructor(message: string) {
     super(message);
     this.name = "IyzicoError";
@@ -130,6 +131,8 @@ export interface CheckoutFormResult {
   paymentId: string | null;
   paidCents: number;
   basketId: string | null;
+  /** 37 The currency iyzico took it in; null when its answer doesn't say. */
+  currency: string | null;
   message: string | null;
   /** iyzico's transaction per basket item (marketplace payouts are approved per item). */
   transactionIds: string[];
@@ -148,6 +151,7 @@ export async function retrieveCheckoutForm(
     paymentId: typeof result.paymentId === "string" || typeof result.paymentId === "number" ? String(result.paymentId) : null,
     paidCents: Math.round(Number(result.paidPrice ?? 0) * 100),
     basketId: typeof result.basketId === "string" ? result.basketId : null,
+    currency: typeof result.currency === "string" ? result.currency : null,
     message: typeof result.errorMessage === "string" ? result.errorMessage : null,
     transactionIds: Array.isArray(result.itemTransactions)
       ? (result.itemTransactions as { paymentTransactionId?: unknown }[])

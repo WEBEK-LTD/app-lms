@@ -19,6 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const PER_PAGE = 25;
 const PAID: CatalogOrderStatus[] = ["processing", "completed", "cancelled", "refunded"];
+/** 37 Who pays a marketplace order's share: iyzico itself, or Yallapp's team (Kashier, Fawaterk). */
+const payer = (order: Pick<CatalogOrder, "paymentProvider">) => (!order.paymentProvider || order.paymentProvider === "iyzico" ? "iyzico pays" : "Yallapp transfers");
 const TONES = { processing: "info", completed: "success", cancelled: "neutral", refunded: "neutral", pending: "warn", failed: "danger" } as const;
 
 function StatusButton({ order, status, label }: { order: CatalogOrder; status: CatalogOrderStatus; label: string }) {
@@ -58,7 +60,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
       <div className="flex max-w-[620px] flex-col gap-2">
         <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Orders</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Paid orders from your app, newest first. Mark them completed once they&apos;re delivered. Refunds are made in your iyzico panel.
+          Paid orders from your app, newest first. Mark them completed once they&apos;re delivered. Refunds are made in your payment provider&apos;s panel.
         </p>
       </div>
       {items.length === 0 ? (
@@ -89,9 +91,9 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   Sold through Yallapp: commission {formatCents(order.commissionCents, order.currency)}, your share{" "}
                   <strong>{formatCents(order.totalCents - order.commissionCents, order.currency)}</strong>.{" "}
                   {order.payoutApprovedAt
-                    ? `Released for payout on ${formatDateTime(order.payoutApprovedAt)}; iyzico pays it to your IBAN.`
+                    ? `Released for payout on ${formatDateTime(order.payoutApprovedAt)}; ${payer(order)} it to your IBAN.`
                     : order.status === "processing"
-                      ? "iyzico pays it to your IBAN after you mark the order completed."
+                      ? `${payer(order)} it to your IBAN after you mark the order completed.`
                       : "Not released yet; message us on WhatsApp if it's late."}
                 </p>
               ) : null}

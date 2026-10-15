@@ -1,5 +1,6 @@
 import type { ClientRow } from "../data/store";
 import type { App, Build, CatalogCurrency, CatalogOrder, PlanPayment } from "../data/types";
+import { CATALOG_CURRENCIES } from "../catalog/money";
 import { accountState, appState, type AccountState } from "../license/status";
 import { websiteOf } from "../switches";
 
@@ -89,7 +90,7 @@ export function revenue(
   };
   for (const p of payments) if (p.status === "paid") add(p.paidAt, p.currency, "plans", p.amountCents);
   for (const o of orders) if (o.commissionCents !== null && o.status !== "refunded") add(o.paidAt, o.currency, "commission", o.commissionCents);
-  const order: CatalogCurrency[] = ["TRY", "USD", "EUR"];
+  const order: CatalogCurrency[] = CATALOG_CURRENCIES;
   return {
     currencies: order.filter((c) => last12[c]),
     thisMonth: months[months.length - 1]!.byCurrency,

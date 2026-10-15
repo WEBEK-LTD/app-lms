@@ -1,8 +1,18 @@
 import { decrypt, encrypt } from "../crypto/encryption";
 import type { DataStore } from "../data/store";
-import { DEFAULT_CATALOG_SETTINGS, type App, type CatalogOrder, type CatalogSettings, type OwnIyzicoPayment } from "../data/types";
+import {
+  DEFAULT_CATALOG_SETTINGS,
+  type App,
+  type CatalogOrder,
+  type CatalogSettings,
+  type MarketplacePayment,
+  type OwnIyzicoPayment,
+  type OwnPayment,
+} from "../data/types";
 import type { IyzicoKeys } from "../payments/iyzico";
-import { platformSetting, yallappIyzicoKeys } from "../settings/platform";
+import type { PaymentAccount } from "../payments/provider";
+import type { PayoutDetails } from "./marketplace";
+import { platformSetting, yallappAccountFor, yallappPaymentAccount } from "../settings/platform";
 
 const paymentContext = (appId: string) => `app:payment:${appId}`;
 
@@ -12,7 +22,7 @@ export function catalogSettings(app: App): CatalogSettings {
 
 /**
  * 19 Whether the app's payment page can take a card payment: Card payments
- * are set up (the owner's iyzico keys or a marketplace account), or it's a
+ * are set up (the owner's own keys, 37 iyzico, Kashier or Fawaterk, or a marketplace account), or it's a
  * demo, whose payment page charges nothing. Products and paid courses aren't
  * offered for sale without it.
  */
@@ -29,19 +39,71 @@ export function encryptPaymentKeys(appId: string, apiKey: string, secretKey: str
   };
 }
 
-/** The client's own iyzico keys, decrypted (server only); null when they don't use their own account. */
-export function paymentKeys(app: App, key: Buffer): IyzicoKeys | null {
+/** 37 What the owner enters for their own account, per provider. */
+export type OwnPaymentInput =
+  | { provider: "iyzico"; apiKey: string; secretKey: string; sandbox: boolean }
+  | { provider: "kashier"; merchantId: string; apiKey: string; secretKey: string; sandbox: boolean }
+  | { provider: "fawaterk"; apiKey: string; sandbox: boolean };
+
+/** 37 The client's own account with its keys encrypted (context `app:payment:<app id>`, as iyzico's always were). */
+export function encryptOwnPayment(appId: string, input: OwnPaymentInput, key: Buffer): OwnPayment {
+  const seal = (value: string) => encrypt(value, key, paymentContext(appId));
+  if (input.provider === "iyzico") return encryptPaymentKeys(appId, input.apiKey, input.secretKey, input.sandbox, key);
+  if (input.provider === "kashier") {
+    return { provider: "kashier", merchantId: input.merchantId, apiKeyEncrypted: seal(input.apiKey), secretKeyEncrypted: seal(input.secretKey), sandbox: input.sandbox };
+  }
+  return { provider: "fawaterk", apiKeyEncrypted: seal(input.apiKey), sandbox: input.sandbox };
+}
+
+/** 37 Whether the payment settings are the client's own account (not selling through Yallapp's). */
+export function isOwnPayment(payment: CatalogSettings["payment"] | undefined): payment is OwnPayment {
+  return payment != null && payment.provider !== "yallapp";
+}
+
+/** 37 The client's own account with its keys decrypted (server only); null when they don't use their own account. */
+export function ownPaymentAccount(app: App, key: Buffer): PaymentAccount | null {
   const payment = catalogSettings(app).payment;
-  if (!payment || payment.provider !== "iyzico") return null;
+  if (!isOwnPayment(payment)) return null;
+  const open = (value: string) => decrypt(value, key, paymentContext(app.id));
   try {
-    return {
-      apiKey: decrypt(payment.apiKeyEncrypted, key, paymentContext(app.id)),
-      secretKey: decrypt(payment.secretKeyEncrypted, key, paymentContext(app.id)),
-      sandbox: payment.sandbox,
-    };
+    if (payment.provider === "kashier") {
+      return {
+        provider: "kashier",
+        keys: { merchantId: payment.merchantId, apiKey: open(payment.apiKeyEncrypted), secretKey: open(payment.secretKeyEncrypted), sandbox: payment.sandbox },
+      };
+    }
+    if (payment.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: open(payment.apiKeyEncrypted), sandbox: payment.sandbox } };
+    return { provider: "iyzico", keys: { apiKey: open(payment.apiKeyEncrypted), secretKey: open(payment.secretKeyEncrypted), sandbox: payment.sandbox } };
   } catch {
     return null;
   }
+}
+
+/** The client's own iyzico keys, decrypted (server only); null when they don't use their own iyzico account. */
+export function paymentKeys(app: App, key: Buffer): IyzicoKeys | null {
+  const account = ownPaymentAccount(app, key);
+  return account?.provider === "iyzico" ? account.keys : null;
+}
+
+/** 37 The payee's details for the team's transfers (Kashier or Fawaterk), encrypted like the keys. */
+export function encryptPayout(appId: string, details: PayoutDetails, key: Buffer): string {
+  return encrypt(JSON.stringify(details), key, paymentContext(appId));
+}
+
+/** 37 Who the team pays a marketplace shop's share to (Kashier or Fawaterk); null for iyzico, which pays the shop itself. */
+export function payoutDetails(app: App, key: Buffer): PayoutDetails | null {
+  const payment = catalogSettings(app).payment;
+  if (payment?.provider !== "yallapp" || !payment.payoutEncrypted) return null;
+  try {
+    return JSON.parse(decrypt(payment.payoutEncrypted, key, paymentContext(app.id))) as PayoutDetails;
+  } catch {
+    return null;
+  }
+}
+
+/** 37 The provider of Yallapp's account a marketplace shop joined with. */
+export function marketplaceVia(payment: MarketplacePayment): PaymentAccount["provider"] {
+  return payment.via ?? "iyzico";
 }
 
 /** Shipping for a subtotal: flat, free over the threshold, none for digital-only orders. */
@@ -72,15 +134,16 @@ export const ORDER_STATUS_LABELS: Record<CatalogOrder["status"], string> = {
   refunded: "Refunded",
 };
 
-/** Whether shops can sell through Yallapp's account, and Yallapp's commission. */
-export async function marketplaceTerms(store: DataStore, key: Buffer): Promise<{ keys: IyzicoKeys; commissionPercent: number } | null> {
-  const [keys, setting] = await Promise.all([yallappIyzicoKeys(store, key), platformSetting(store, "marketplace", { fresh: true })]);
-  return keys && setting ? { keys, commissionPercent: setting.value.commissionPercent } : null;
+/** Whether shops can sell through Yallapp's account (37 the provider the team chose), and Yallapp's commission. */
+export async function marketplaceTerms(store: DataStore, key: Buffer): Promise<{ account: PaymentAccount; commissionPercent: number } | null> {
+  const [account, setting] = await Promise.all([yallappPaymentAccount(store, key), platformSetting(store, "marketplace", { fresh: true })]);
+  return account && setting ? { account, commissionPercent: setting.value.commissionPercent } : null;
 }
 
 export interface CheckoutAccount {
-  keys: IyzicoKeys;
-  /** Set when the shop sells through Yallapp's account. */
+  /** 37 The merchant account and its provider. */
+  account: PaymentAccount;
+  /** Set when the shop sells through Yallapp's account (subMerchantKey: iyzico only, empty otherwise). */
   marketplace: { subMerchantKey: string; commissionPercent: number } | null;
 }
 
@@ -90,13 +153,14 @@ export async function checkoutAccount(store: DataStore, app: App, key: Buffer): 
   if (app.demo) return null;
   const payment = catalogSettings(app).payment;
   if (!payment) return null;
-  if (payment.provider === "iyzico") {
-    const keys = paymentKeys(app, key);
-    return keys ? { keys, marketplace: null } : null;
+  if (isOwnPayment(payment)) {
+    const account = ownPaymentAccount(app, key);
+    return account ? { account, marketplace: null } : null;
   }
+  // 37 A shop joined with the provider Yallapp used then; it sells through Yallapp only while that is still Yallapp's provider.
   const terms = await marketplaceTerms(store, key);
-  if (!terms || terms.keys.sandbox !== payment.sandbox) return null;
-  return { keys: terms.keys, marketplace: { subMerchantKey: payment.subMerchantKey, commissionPercent: terms.commissionPercent } };
+  if (!terms || terms.account.provider !== marketplaceVia(payment) || terms.account.keys.sandbox !== payment.sandbox) return null;
+  return { account: terms.account, marketplace: { subMerchantKey: payment.subMerchantKey, commissionPercent: terms.commissionPercent } };
 }
 
 /** Yallapp's commission on an amount, rounded to the cent. */
@@ -109,13 +173,20 @@ export function commissionOf(cents: number, percent: number): number {
  * (they carry a commission), else the shop's own. The shop may have switched
  * accounts since, so this follows the order, not the current settings.
  */
-export async function accountForOrder(store: DataStore, app: App, order: Pick<CatalogOrder, "commissionCents">, key: Buffer): Promise<CheckoutAccount | null> {
+export async function accountForOrder(
+  store: DataStore,
+  app: App,
+  order: Pick<CatalogOrder, "commissionCents" | "paymentProvider">,
+  key: Buffer,
+): Promise<CheckoutAccount | null> {
   if (app.demo) return null;
+  // 37 The provider the payment started with (none recorded: iyzico).
+  const provider = order.paymentProvider ?? "iyzico";
   if (order.commissionCents === null) {
-    const keys = paymentKeys(app, key);
-    return keys ? { keys, marketplace: null } : null;
+    const account = ownPaymentAccount(app, key);
+    return account && account.provider === provider ? { account, marketplace: null } : null;
   }
-  const keys = await yallappIyzicoKeys(store, key);
+  const account = await yallappAccountFor(store, provider, key);
   const payment = catalogSettings(app).payment;
-  return keys ? { keys, marketplace: payment?.provider === "yallapp" ? { subMerchantKey: payment.subMerchantKey, commissionPercent: 0 } : null } : null;
+  return account ? { account, marketplace: payment?.provider === "yallapp" ? { subMerchantKey: payment.subMerchantKey, commissionPercent: 0 } : null } : null;
 }

@@ -501,8 +501,9 @@ mobile/
   (`NotificationPreferences.donations`, off by default). Demo donations
   charge nothing and never change a campaign's totals.
 
-- Plans paid by card (`plan_payments`): when Yallapp's iyzico account is set
-  and a plan has a card price, pending clients see "Pay by card" on the
+- Plans paid by card (`plan_payments`): when Yallapp's account with the
+  chosen provider is set (37 iyzico, Kashier or Fawaterk; only plans
+  priced in a currency it takes) and a plan has a card price, pending clients see "Pay by card" on the
   waiting page and active clients on License & plugin, for the current app
   (pending, active or expired). The client
   picks a plan and gives a billing city and address; iyzico's page takes the
@@ -530,7 +531,53 @@ mobile/
   the shop once its items are approved (`/payment/iyzipos/item/approve`):
   when the shop marks the order completed, or from the admin's Payments
   page. The callback and the approval follow the account an order started
-  with, even if the shop switched since.
+  with, even if the shop switched since. 37 When Yallapp's provider is
+  Kashier or Fawaterk, a joining shop gives who gets paid and its IBAN
+  (kept encrypted, `payoutEncrypted`); the whole payment goes to Yallapp's
+  account, the order still records the commission, and releasing the
+  payout records it for the team, who transfer the share (the admin's
+  Payments page shows the payee). A shop sells through Yallapp only while
+  Yallapp's provider is the one it joined with.
+
+- Card payment providers (Phase 37, `src/lib/payments/`): iyzico (Türkiye),
+  Kashier and Fawaterk (Egypt) behind one interface (`provider.ts`):
+  `startCheckout` (amount, currency, our reference, the customer, return
+  and webhook addresses) gives the provider's hosted page and its own
+  reference (iyzico's token, Kashier's session, Fawaterk's invoice), kept on
+  the payment (`payment_provider`, `provider_ref` on `plan_payments`,
+  `catalog_orders` and `donations`; null means iyzico, as before);
+  `confirmCheckout` reads the payment back from the provider with our keys
+  and accepts it only when it is paid, ours (iyzico's basket; Kashier's
+  merchant order; Fawaterk's `payLoad.reference`), for the exact amount
+  (iyzico: at least it) and the same currency; `checkAccount` is the
+  harmless "Test connection" call (iyzico: a BIN lookup; Kashier: the
+  merchant; Fawaterk: the payment methods). Amounts go out as decimal
+  strings in major units ("450.00"). Each provider takes its own
+  currencies: iyzico TRY, USD, EUR; Kashier EGP, USD, EUR; Fawaterk EGP,
+  USD, SAR, AED, EUR. Kashier: `POST /v3/payment/sessions` with the secret
+  key as `Authorization` and the Payment API key as `api-key`, read back
+  with `GET /v3/payment/sessions/{id}/payment`; its webhook is signed in
+  `x-kashier-signature` (HMAC-SHA256 with the Payment API key over the
+  `signatureKeys` of `data` as a query string). Fawaterk: API v2 with the
+  vendor key as a Bearer token, `createInvoiceLink`, read back with
+  `getInvoiceData/{id}`; its webhook's `hashKey` is HMAC-SHA256 of
+  `InvoiceId=…&InvoiceKey=…&PaymentMethod=…` with the same key.
+  Callbacks: iyzico posts to `/api/pay/plan|iyzico|donation/<token>`;
+  Kashier and Fawaterk send the customer back (GET) and post their webhook
+  (POST) to `/api/pay/<provider>/<plan|order|donation>/<token>`. Every
+  trigger goes through `settle.ts`, which takes the account the payment
+  started with, verifies a webhook's signature, reads the payment back and
+  marks it paid with a conditional update (pending only), so a webhook and
+  a redirect arriving together deliver once. A Kashier or Fawaterk payment
+  that isn't confirmed stays pending (the customer sees "not confirmed
+  yet") rather than failing. Yallapp's own accounts are platform settings
+  (`iyzico`, `kashier`, `fawaterk`, secrets encrypted as `platform:<key>`)
+  with `paymentProvider` choosing which takes new plan payments and
+  marketplace sales; a client's own keys stay in `catalogSettings.payment`
+  (provider `iyzico`, `kashier` or `fawaterk`, encrypted as
+  `app:payment:<app id>`). Refunds are made in each provider's panel.
+  Test runs point `IYZICO_API_URL`, `KASHIER_API_URL` and
+  `FAWATERK_API_URL` at fake servers (refused on Netlify).
 
 - App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
   dashboard's App sign-in page sets whether new customers can sign up and

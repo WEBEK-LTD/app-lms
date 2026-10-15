@@ -1,6 +1,7 @@
 import type { CatalogCurrency } from "../data/types";
 
-export const CATALOG_CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR"];
+/** 37 EGP, SAR and AED for Kashier and Fawaterk (each provider takes some: lib/payments/provider.ts). */
+export const CATALOG_CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR", "EGP", "SAR", "AED"];
 
 const formatters = new Map<CatalogCurrency, Intl.NumberFormat>();
 

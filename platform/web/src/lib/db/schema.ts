@@ -15,6 +15,7 @@ import type {
   HostedSettings,
   PlatformSettingKey,
   PlanPaymentStatus,
+  PaymentProviderId,
   BookingSetup,
   CourseSetup,
   BookingStatus,
@@ -485,6 +486,9 @@ export const catalogOrders = mysqlTable(
     // 26 A restaurant's order: pickup or delivery (JSON) and where it is in the kitchen; null for other orders.
     fulfilment: jsonText<CatalogFulfilment>("fulfilment"),
     fulfilmentStatus: varchar("fulfilment_status", { length: 24 }).$type<FulfilmentStatus>(),
+    // 37 Who takes the payment (null: iyzico) and its reference there (Kashier's session, Fawaterk's invoice).
+    paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
+    providerRef: varchar("provider_ref", { length: 191 }),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -501,7 +505,7 @@ export const platformSettings = mysqlTable("platform_settings", {
   updatedBy: varchar("updated_by", { length: 191 }).notNull(),
 });
 
-/** Clients paying an app's plan by card (Yallapp's iyzico account). */
+/** Clients paying an app's plan by card (Yallapp's account: iyzico, 37 Kashier or Fawaterk). */
 export const planPayments = mysqlTable(
   "plan_payments",
   {
@@ -520,6 +524,9 @@ export const planPayments = mysqlTable(
     paymentId: varchar("payment_id", { length: 64 }),
     createdAt: time("created_at").notNull(),
     paidAt: time("paid_at"),
+    // 37 Who takes the payment (null: iyzico) and its reference there.
+    paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
+    providerRef: varchar("provider_ref", { length: 191 }),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -906,6 +913,9 @@ export const donations = mysqlTable(
     createdAt: time("created_at").notNull(),
     paidAt: time("paid_at"),
     updatedAt: time("updated_at").notNull(),
+    // 37 Who takes the payment (null: iyzico) and its reference there.
+    paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
+    providerRef: varchar("provider_ref", { length: 191 }),
   },
   (t) => [
     uniqueIndex("donations_token_unique").on(t.tokenHash),

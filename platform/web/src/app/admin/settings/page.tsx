@@ -10,7 +10,22 @@ import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
 import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
-import { ContactForm, IyzicoSettingForm, MarketplaceForm, OtpSettingForm, PartnerAppForm, PublishingSettingForm, SmtpSettingForm, TestCodeForm, TestEmailForm } from "./forms";
+import {
+  ContactForm,
+  FawaterkSettingForm,
+  IyzicoSettingForm,
+  KashierSettingForm,
+  MarketplaceForm,
+  OtpSettingForm,
+  PartnerAppForm,
+  PaymentProviderForm,
+  PublishingSettingForm,
+  SmtpSettingForm,
+  TestCodeForm,
+  TestEmailForm,
+  TestPaymentAccountForm,
+} from "./forms";
+import { isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
 import { resetAppDefaultsAction } from "@/app/actions/app-defaults";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
 import { AppDefaultsForm } from "./app-defaults-form";
@@ -71,6 +86,12 @@ export default async function SettingsPage() {
   const otp = settings.get("otp") as PlatformSetting<"otp"> | undefined;
   const smtp = settings.get("smtp") as PlatformSetting<"smtp"> | undefined;
   const iyzico = settings.get("iyzico") as PlatformSetting<"iyzico"> | undefined;
+  // 37 Kashier and Fawaterk, and which account takes payments (iyzico until set).
+  const kashier = settings.get("kashier") as PlatformSetting<"kashier"> | undefined;
+  const fawaterk = settings.get("fawaterk") as PlatformSetting<"fawaterk"> | undefined;
+  const paymentProvider = settings.get("paymentProvider") as PlatformSetting<"paymentProvider"> | undefined;
+  const provider = paymentProvider && isPaymentProvider(paymentProvider.value.provider) ? paymentProvider.value.provider : "iyzico";
+  const accounts = { iyzico: Boolean(iyzico), kashier: Boolean(kashier), fawaterk: Boolean(fawaterk) };
   const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
@@ -205,10 +226,24 @@ export default async function SettingsPage() {
         <TestEmailForm />
       </Section>
 
+      {/* 37 Which of Yallapp's accounts takes payments: iyzico, Kashier or Fawaterk. */}
+      <Section
+        id="h-payment-provider"
+        title="Yallapp's payment provider"
+        text="Which of Yallapp's merchant accounts below takes clients' plan payments and shop sales through Yallapp. Payments already started finish with the account they started with. Plans are paid by card only when priced in a currency the provider takes (set it on the Plans page)."
+      >
+        <p className="m-0 text-sm text-muted">
+          Now: {PROVIDER_NAME[provider]}
+          {paymentProvider ? `, set by ${paymentProvider.updatedBy}, ${formatDateTime(paymentProvider.updatedAt)}` : " (the default)"}.
+          {accounts[provider] ? "" : ` Yallapp's ${PROVIDER_NAME[provider]} account isn't set: card payments are off.`}
+        </p>
+        <PaymentProviderForm provider={provider} />
+      </Section>
+
       <Section
         id="h-iyzico"
         title="Yallapp's iyzico account"
-        text="Yallapp's own merchant account: clients paying their plan by card, and shops selling through Yallapp. Clients with their own iyzico account add their keys on their Products page."
+        text="Yallapp's own iyzico merchant account (Türkiye), for plan payments and shops selling through Yallapp while iyzico is the provider above. Clients with their own account add their keys on their Products page."
       >
         {iyzico ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -226,17 +261,66 @@ export default async function SettingsPage() {
           <p className="m-0 text-sm text-muted">Now: not set.</p>
         )}
         <IyzicoSettingForm sandbox={iyzico?.value.sandbox ?? true} />
+        {iyzico ? <TestPaymentAccountForm provider="iyzico" /> : null}
+      </Section>
+
+      <Section
+        id="h-kashier"
+        title="Yallapp's Kashier account"
+        text={`Yallapp's own Kashier account (Egypt): its merchant ID, and the Payment API key and secret key from Kashier's dashboard (test and live keys differ). Payments come back to ${appUrl()}/api/pay/kashier/… and are confirmed by reading them back from Kashier.`}
+      >
+        {kashier ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              {kashier.value.sandbox ? "Test" : "Live"} keys for {kashier.value.merchantId} saved by {kashier.updatedBy}, {formatDateTime(kashier.updatedAt)}.
+            </p>
+            <form action={resetPlatformSettingAction}>
+              <input type="hidden" name="key" value="kashier" />
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Remove keys
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: not set.</p>
+        )}
+        <KashierSettingForm merchantId={kashier?.value.merchantId ?? ""} sandbox={kashier?.value.sandbox ?? true} />
+        {kashier ? <TestPaymentAccountForm provider="kashier" /> : null}
+      </Section>
+
+      <Section
+        id="h-fawaterk"
+        title="Yallapp's Fawaterk account"
+        text={`Yallapp's own Fawaterk account (Egypt): the API key from Fawaterk's dashboard (staging and live keys differ). Payments come back to ${appUrl()}/api/pay/fawaterk/… and are confirmed by reading the invoice back from Fawaterk.`}
+      >
+        {fawaterk ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              {fawaterk.value.sandbox ? "Staging" : "Live"} key saved by {fawaterk.updatedBy}, {formatDateTime(fawaterk.updatedAt)}.
+            </p>
+            <form action={resetPlatformSettingAction}>
+              <input type="hidden" name="key" value="fawaterk" />
+              <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                Remove key
+              </SubmitButton>
+            </form>
+          </div>
+        ) : (
+          <p className="m-0 text-sm text-muted">Now: not set.</p>
+        )}
+        <FawaterkSettingForm sandbox={fawaterk?.value.sandbox ?? true} />
+        {fawaterk ? <TestPaymentAccountForm provider="fawaterk" /> : null}
       </Section>
 
       <Section
         id="h-marketplace"
         title="Shops selling through Yallapp"
-        text="Shops without their own iyzico account can sell through Yallapp's: iyzico registers each one as a sub-merchant (iyzico's marketplace must be on for Yallapp's account) and pays it each sale minus this commission once the order is completed."
+        text="Shops without their own payment account can sell through Yallapp's, with the provider above. With iyzico, iyzico registers each one as a sub-merchant (iyzico's marketplace must be on for Yallapp's account) and pays it each sale minus this commission once the order is completed. With Kashier or Fawaterk, the whole payment comes to Yallapp's account and the team transfers each released share to the shop's IBAN (listed on the Payments page)."
       >
         {marketplace ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="m-0 text-sm text-muted">
-              On at {marketplace.value.commissionPercent}%{iyzico ? "" : ", but it needs Yallapp's iyzico account above"}. Set by {marketplace.updatedBy},{" "}
+              On at {marketplace.value.commissionPercent}%{accounts[provider] ? "" : `, but it needs Yallapp's ${PROVIDER_NAME[provider]} account above`}. Set by {marketplace.updatedBy},{" "}
               {formatDateTime(marketplace.updatedAt)}.
             </p>
             <form action={resetPlatformSettingAction}>
@@ -247,7 +331,7 @@ export default async function SettingsPage() {
             </form>
           </div>
         ) : (
-          <p className="m-0 text-sm text-muted">Now: off. Shops can only use their own iyzico account.</p>
+          <p className="m-0 text-sm text-muted">Now: off. Shops can only use their own payment account.</p>
         )}
         <MarketplaceForm commission={marketplace ? String(marketplace.value.commissionPercent) : ""} />
       </Section>

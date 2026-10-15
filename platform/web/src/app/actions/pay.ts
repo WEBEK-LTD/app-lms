@@ -6,10 +6,12 @@ import { readCustomer, startPayment } from "@/lib/catalog/payment";
 import { checkoutAccount, payLinkExpired } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
+import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
-import { IyzicoError } from "@/lib/payments/iyzico";
+import { PaymentError } from "@/lib/payments/errors";
+import { callbackUrls } from "@/lib/payments/routes";
+import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 
@@ -24,7 +26,7 @@ export async function demoPayAction(token: string): Promise<void> {
   redirect(`/pay/${token}/order-received`);
 }
 
-/** The payment page's form: saves the customer's details and sends them to iyzico. */
+/** The payment page's form: saves the customer's details and sends them to the provider's page (37 iyzico, Kashier or Fawaterk). */
 export async function payAction(token: string, _: FormState, formData: FormData): Promise<FormState> {
   const values = Object.fromEntries(["name", "phone", "email", "city", "address"].map((k) => [k, String(formData.get(k) ?? "")]));
   const store = await getStore();
@@ -38,21 +40,26 @@ export async function payAction(token: string, _: FormState, formData: FormData)
   if (!app || !account) return { message: "This shop can't take payments right now. Please try again later.", values };
   const checked = readCustomer(app, values);
   if (!checked.ok) return { errors: checked.errors, values };
+  // 37 A Kashier or Fawaterk payment started earlier may have gone through without its redirect or webhook: read it back before starting another.
+  if (order.providerRef && order.paymentProvider && order.paymentProvider !== "iyzico") {
+    const earlier = await settleOrderPayment(token, { provider: order.paymentProvider });
+    if (earlier.status === "paid" || earlier.status === "already_paid") redirect(earlier.path);
+  }
   let pageUrl: string;
   try {
     pageUrl = await startPayment({
       store,
       app,
       account,
-      baseUrl: iyzicoApiUrl(),
+      urls: paymentApiUrls(),
       now,
       order,
       customer: checked.customer,
       ip: ipFromHeaders(await headers()),
-      callbackUrl: `${appUrl()}/api/pay/iyzico/${token}`,
+      callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),
     });
   } catch (e) {
-    if (!(e instanceof IyzicoError)) throw e;
+    if (!(e instanceof PaymentError)) throw e;
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
   redirect(pageUrl);

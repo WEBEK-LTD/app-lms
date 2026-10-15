@@ -109,7 +109,7 @@ export default async function CoursesPage() {
         </section>
       </div>
 
-      <CardPayments app={app} />
+      <CardPayments app={app} currency={setup.currency} />
     </div>
   );
 }

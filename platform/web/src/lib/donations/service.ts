@@ -6,7 +6,7 @@ import { articleBody, excerptOf, plainText } from "../news/html";
  * 29 Charity & donations apps: campaigns as the app reads them (tag
  * Donations in docs/api/openapi.yaml) and the rules of a donation. The
  * donation is paid on our donation page (/give/<token>) into the charity's
- * own iyzico account; it counts towards its campaign only once iyzico
+ * own account (37 iyzico, Kashier or Fawaterk); it counts towards its campaign only once the provider
  * confirms it (lib/donations/payment.ts).
  */
 
@@ -16,7 +16,7 @@ export const DEFAULT_DONATION_SETTINGS: DonationSettings = { currency: "TRY", io
 export const DONATION_LINK_MINUTES = 60;
 
 /**
- * Monthly donations need a card stored for a subscription, which our iyzico
+ * Monthly donations need a card stored for a subscription, which our payment
  * integration (checkout form only) doesn't do yet: the app offers one-off
  * donations only (`Config.donations.monthly`), and a request for a monthly
  * one is refused rather than charged once.
@@ -73,9 +73,10 @@ export function receiptUrl(platformUrl: string, code: string): string {
   return `${platformUrl.replace(/\/+$/, "")}/receipts/${code}`;
 }
 
-/** Whether the app's donation page can take a card payment: the charity's own iyzico keys (never Yallapp's account), or a demo. */
+/** Whether the app's donation page can take a card payment: the charity's own keys (37 iyzico, Kashier or Fawaterk; never Yallapp's account), or a demo. */
 export function donationsSetUp(app: Pick<App, "catalogSettings" | "demo">): boolean {
-  return app.catalogSettings?.payment?.provider === "iyzico" || app.demo === true;
+  const provider = app.catalogSettings?.payment?.provider;
+  return (provider !== undefined && provider !== "yallapp") || app.demo === true;
 }
 
 /** `Config.donations`. */

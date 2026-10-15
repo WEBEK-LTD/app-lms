@@ -223,7 +223,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     ownContent: {
       kind: "catalog",
       choice: { text: "Add your products here in the dashboard. Customers pay by card in the app, and you see their orders here." },
-      next: "After this step, add your products and your iyzico payment keys on the **Products** page. Your customers sign in to the app with",
+      next: "After this step, add your products and your payment keys (iyzico, Kashier or Fawaterk) on the **Products** page. Your customers sign in to the app with",
       switchLabel: "No website: products in the dashboard",
       adminLabel: "No website: products in the dashboard",
       nav: {
@@ -522,7 +522,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     },
     demo: { slug: "events" },
   },
-  // 29 Charities: campaigns with progress; donations are paid on a web page into the charity's own iyzico account (in the browser on iPhone).
+  // 29 Charities: campaigns with progress; donations are paid on a web page into the charity's own iyzico, Kashier or Fawaterk account (in the browser on iPhone).
   donations: {
     id: "donations",
     name: "Charity & donations",
@@ -538,9 +538,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       kind: "campaigns",
       choice: {
         title: "Campaigns managed in Yallapp",
-        text: "Add your campaigns here in the dashboard. Supporters follow them in the app and give on your secure donation page, paid into your own iyzico account.",
+        text: "Add your campaigns here in the dashboard. Supporters follow them in the app and give on your secure donation page, paid into your own iyzico, Kashier or Fawaterk account.",
       },
-      next: "After this step, add your iyzico keys and your first campaign on the **Campaigns** page; every gift shows on the **Donations** page. Supporters sign in to the app with",
+      next: "After this step, add your payment keys (iyzico, Kashier or Fawaterk) and your first campaign on the **Campaigns** page; every gift shows on the **Donations** page. Supporters sign in to the app with",
       switchLabel: "No website: campaigns in the dashboard",
       adminLabel: "Charity: campaigns in the dashboard",
       nav: {
@@ -641,7 +641,7 @@ export const KINDS: readonly KindInfo[] = [
       users: "Customers",
       ownContent: {
         text: "Add your menu here in the dashboard: dishes with their options, opening hours, pickup and delivery. Customers order and pay by card in the app, and your kitchen follows the orders here.",
-        next: "After this step, add your dishes, opening hours, pickup and delivery and your iyzico payment keys on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
+        next: "After this step, add your dishes, opening hours, pickup and delivery and your payment keys (iyzico, Kashier or Fawaterk) on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
       },
       tabs: { shop: "Menu" },
     },
@@ -767,7 +767,7 @@ export const KINDS: readonly KindInfo[] = [
     name: "Charity & donations",
     // Monthly donations are a follow-up (roadmap 29): the picker promises what the app does today.
     description: "Campaigns with progress, one-off donations and receipts for your supporters.",
-    requires: "No website needed: you add your campaigns here in the dashboard · Your own iyzico account",
+    requires: "No website needed: you add your campaigns here in the dashboard · Your own iyzico, Kashier or Fawaterk account",
     icon: "volunteer_activism",
     tile: "bg-tile-2 text-[#2F6B3A]",
     marketing: { slug: "charity", icon: "volunteer_activism" },

@@ -1,18 +1,20 @@
-import { centsToDecimal, formatCents } from "../catalog/money";
-import { paymentKeys } from "../catalog/settings";
+import { formatCents } from "../catalog/money";
+import { ownPaymentAccount } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, Donation } from "../data/types";
 import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
-import { initializeCheckoutForm, IyzicoError, retrieveCheckoutForm, type IyzicoKeys } from "../payments/iyzico";
+import { PaymentError } from "../payments/errors";
+import { confirmCheckout, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import { DONATION_LINK_MINUTES, donationReference } from "./service";
 
 /**
  * 29 Paying a donation on our donation page (/give/<token>), the same way a
- * shop's order is paid (lib/catalog/payment.ts): iyzico's checkout form, then
- * iyzico's own answer after its callback. Always into the charity's own
- * iyzico account: Yallapp takes no commission on donations, so the
- * marketplace account is never used.
+ * shop's order is paid (lib/catalog/payment.ts): the provider's page, then
+ * the provider's own answer, read back after its callback, redirect or
+ * webhook. Always into the charity's own account (37 iyzico, Kashier or
+ * Fawaterk): Yallapp takes no commission on donations, so the marketplace
+ * account is never used.
  */
 
 export interface Donor {
@@ -22,10 +24,10 @@ export interface Donor {
   city: string;
 }
 
-/** The charity's iyzico keys; null when it has none (or it's a demo, which never charges a card). */
-export function donationKeys(app: App, key: Buffer): IyzicoKeys | null {
+/** 37 The charity's own account; null when it has none (or it's a demo, which never charges a card). */
+export function donationAccount(app: App, key: Buffer): PaymentAccount | null {
   if (app.demo) return null;
-  return app.catalogSettings?.payment?.provider === "iyzico" ? paymentKeys(app, key) : null;
+  return ownPaymentAccount(app, key);
 }
 
 export function donationLinkExpired(donation: Pick<Donation, "createdAt">, now: Date): boolean {
@@ -49,92 +51,104 @@ export function readDonor(app: App, input: Record<string, unknown>): { ok: true;
   return { ok: true, donor: { name, email, phone: phone?.e164 ?? null, city } };
 }
 
-/** Saves the donor on the donation and starts the card payment; returns iyzico's payment page. */
+/** Saves the donor on the donation and starts the card payment; returns the provider's payment page. */
 export async function startDonationPayment(deps: {
   store: DataStore;
   app: App;
-  keys: IyzicoKeys;
+  /** 37 The charity's own account. */
+  account: PaymentAccount;
   donation: Donation;
   donor: Donor;
   ip: string;
-  callbackUrl: string;
+  /** Where the provider sends the donor back, and posts its webhook (lib/payments/routes.ts). */
+  callbackUrls: { returnUrl: string; webhookUrl: string | null };
   now: Date;
   fetcher?: typeof fetch;
-  baseUrl?: string | null;
+  urls?: ProviderUrls;
 }): Promise<string> {
-  const { donation, donor } = deps;
-  await deps.store.updateDonation(donation.appId, donation.id, { donorName: donor.name, donorEmail: donor.email, donorPhone: donor.phone, updatedAt: deps.now });
-  const [first, ...rest] = donor.name.split(/\s+/);
-  const amount = centsToDecimal(donation.amountCents);
-  const { paymentPageUrl } = await initializeCheckoutForm(
-    deps.keys,
+  const { donation, donor, account } = deps;
+  const name = `Donation: ${donation.campaignTitle}`.slice(0, 120);
+  const started = await startCheckout(
+    account,
     {
-      conversationId: `donation-${donationReference(donation)}`,
-      price: amount,
-      paidPrice: amount,
+      reference: `donation-${donation.id}`,
+      amountCents: donation.amountCents,
       currency: donation.currency,
-      basketId: `donation-${donation.id}`,
-      callbackUrl: deps.callbackUrl,
-      buyer: {
+      description: name,
+      lines: [{ id: `campaign-${donation.campaignId ?? 0}`, name, cents: donation.amountCents, category: "Donations", digital: true }],
+      customer: {
         id: donation.userId !== null ? `supporter-${donation.userId}` : `guest-donation-${donation.id}`,
-        name: first!,
-        surname: rest.join(" ") || first!,
-        ...(donor.phone ? { gsmNumber: donor.phone } : {}),
+        name: donor.name,
         email: donor.email,
-        // iyzico asks for a Turkish ID number and an address; a donation needs neither, so these are placeholders.
-        identityNumber: "11111111111",
-        registrationAddress: donor.city,
-        ip: deps.ip,
+        phone: donor.phone,
         city: donor.city,
-        country: "Turkey",
+        // A donation needs no address: the city stands in where a provider asks for one.
+        address: null,
+        ip: deps.ip,
       },
-      billingAddress: { contactName: donor.name, city: donor.city, country: "Turkey", address: donor.city },
-      basketItems: [
-        {
-          id: `campaign-${donation.campaignId ?? 0}`,
-          name: `Donation: ${donation.campaignTitle}`.slice(0, 120),
-          category1: "Donations",
-          itemType: "VIRTUAL",
-          price: amount,
-        },
-      ],
+      returnUrl: deps.callbackUrls.returnUrl,
+      webhookUrl: deps.callbackUrls.webhookUrl,
+      iyzico: { conversationId: `donation-${donationReference(donation)}`, basketId: `donation-${donation.id}`, shipping: false },
     },
-    { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    { fetcher: deps.fetcher, urls: deps.urls },
   );
-  return paymentPageUrl;
+  await deps.store.updateDonation(donation.appId, donation.id, {
+    donorName: donor.name,
+    donorEmail: donor.email,
+    donorPhone: donor.phone,
+    paymentProvider: account.provider,
+    providerRef: started.providerRef.slice(0, 191),
+    updatedAt: deps.now,
+  });
+  return started.url;
 }
 
-export type DonationOutcome = "paid" | "already_paid" | "failed";
+/** 37 "pending": Kashier or Fawaterk haven't confirmed it (yet); their webhook may still do. */
+export type DonationOutcome = "paid" | "already_paid" | "pending" | "failed";
 
 /**
- * Checks a donation with iyzico after its callback and marks it paid, which
- * adds it to its campaign. The callback proves nothing by itself: only
- * iyzico's answer to our signed request does, for this donation's basket and
- * at least its amount.
+ * Reads a donation back from the provider after its callback, redirect or
+ * webhook and marks it paid, which adds it to its campaign. The trigger
+ * proves nothing by itself: only the provider's answer to our own
+ * authenticated request does, for this donation's reference, amount and
+ * currency. payDonation only changes a pending donation, so it counts once.
  */
 export async function completeDonationPayment(deps: {
   store: DataStore;
-  keys: IyzicoKeys;
+  account: PaymentAccount;
   donation: Donation;
-  iyzicoToken: string;
+  /** iyzico: the token its callback posted. */
+  iyzicoToken?: string;
+  /** 37 Kashier's session or Fawaterk's invoice named by a webhook; the one kept on the donation otherwise. */
+  providerRef?: string | null;
   now: Date;
   fetcher?: typeof fetch;
-  baseUrl?: string | null;
+  urls?: ProviderUrls;
 }): Promise<DonationOutcome> {
-  const { donation } = deps;
+  const { donation, account } = deps;
   if (donation.status !== "pending") return donation.status === "paid" ? "already_paid" : "failed";
+  const provider = donation.paymentProvider ?? "iyzico";
+  if (account.provider !== provider) return "failed";
   let result;
   try {
-    result = await retrieveCheckoutForm(
-      deps.keys,
-      { token: deps.iyzicoToken, conversationId: `donation-${donationReference(donation)}` },
-      { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    result = await confirmCheckout(
+      account,
+      {
+        reference: `donation-${donation.id}`,
+        amountCents: donation.amountCents,
+        currency: donation.currency,
+        providerRef: deps.providerRef ?? donation.providerRef ?? null,
+        ...(deps.iyzicoToken
+          ? { iyzico: { token: deps.iyzicoToken, conversationId: `donation-${donationReference(donation)}`, basketId: `donation-${donation.id}` } }
+          : {}),
+      },
+      { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
-    if (e instanceof IyzicoError) return "failed";
+    if (e instanceof PaymentError) return provider === "iyzico" ? "failed" : "pending";
     throw e;
   }
-  if (!result.paid || result.basketId !== `donation-${donation.id}` || result.paidCents < donation.amountCents || !result.paymentId) return "failed";
+  if (!result.paid) return provider === "iyzico" ? "failed" : "pending";
   const changed = await deps.store.payDonation(donation.appId, donation.id, result.paymentId, deps.now);
   return changed ? "paid" : "already_paid";
 }

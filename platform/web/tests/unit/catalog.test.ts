@@ -314,13 +314,13 @@ describe("catalog shop on the hosted API", () => {
       const page = await startPayment({
         store,
         app,
-        account: { keys, marketplace: null },
+        account: { account: { provider: "iyzico", keys }, marketplace: null },
         fetcher: iyzico(paid()),
         now,
         order,
         customer,
         ip: "203.0.113.9",
-        callbackUrl: `https://yallapp.test/api/pay/iyzico/${token}`,
+        callbackUrls: { returnUrl: `https://yallapp.test/api/pay/iyzico/${token}`, webhookUrl: null },
       });
       expect(page).toBe("https://sandbox-cpp.iyzipay.com?token=iyzi-token");
       const sent = iyzicoCalls[0]!;
@@ -341,12 +341,12 @@ describe("catalog shop on the hosted API", () => {
       expect((await store.getCatalogOrder(app.id, order.id))!.customer).toEqual(customer);
 
       order = (await store.getCatalogOrder(app.id, order.id))!;
-      expect(await completePayment({ store, app, account: { keys, marketplace: null }, fetcher: iyzico(paid()), now, order, iyzicoToken: "iyzi-token" })).toBe("paid");
+      expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher: iyzico(paid()), now, order, iyzicoToken: "iyzi-token" })).toBe("paid");
       expect(iyzicoCalls[1]).toMatchObject({ path: "/payment/iyzipos/checkoutform/auth/ecom/detail", body: { token: "iyzi-token" } });
       const after = (await store.getCatalogOrder(app.id, order.id))!;
       expect(after).toMatchObject({ status: "processing", paymentId: "2500001", paidAt: now });
       expect(await store.getCatalogProduct(app.id, ids.roses!)).toMatchObject({ stock: 1, salesCount: 2 });
-      expect(await completePayment({ store, app, account: { keys, marketplace: null }, fetcher: iyzico(paid()), now, order: after, iyzicoToken: "iyzi-token" })).toBe("already_paid");
+      expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher: iyzico(paid()), now, order: after, iyzicoToken: "iyzi-token" })).toBe("already_paid");
 
       const mail = newOrderMail(after, "Rose Shop", "https://yallapp.test/dashboard/orders");
       expect(mail.subject).toBe(`New order ${1000 + order.id} · ₺950.00`);
@@ -372,10 +372,10 @@ describe("catalog shop on the hosted API", () => {
       expect(await checkoutAccount(store, shop, KEY)).toBeNull();
       await store.setPlatformSetting("marketplace", { commissionPercent: 10 }, "admin@yallapp.test", now);
       const account = (await checkoutAccount(store, shop, KEY))!;
-      expect(account).toEqual({ keys: { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true }, marketplace: { subMerchantKey: "sub-rose", commissionPercent: 10 } });
+      expect(account).toEqual({ account: { provider: "iyzico", keys: { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true } }, marketplace: { subMerchantKey: "sub-rose", commissionPercent: 10 } });
 
       const customer = { name: "Sara Yilmaz", phone: "+905321234567", email: "sara@example.com", city: "Istanbul", address: "Moda Cd. 12" };
-      await startPayment({ store, app: shop, account, fetcher: iyzico(paid()), now, order, customer, ip: "203.0.113.9", callbackUrl: "https://yallapp.test/cb" });
+      await startPayment({ store, app: shop, account, fetcher: iyzico(paid()), now, order, customer, ip: "203.0.113.9", callbackUrls: { returnUrl: "https://yallapp.test/cb", webhookUrl: null } });
       expect(iyzicoCalls[0]!.body).toMatchObject({
         price: "950.00",
         basketItems: [
@@ -413,7 +413,7 @@ describe("catalog shop on the hosted API", () => {
         { ...paid(), basketId: "999" },
         { ...paid(), paidPrice: 9.5 },
       ]) {
-        expect(await completePayment({ store, app, account: { keys, marketplace: null }, fetcher: iyzico(detail), now, order, iyzicoToken: "iyzi-token" })).toBe("failed");
+        expect(await completePayment({ store, app, account: { account: { provider: "iyzico", keys }, marketplace: null }, fetcher: iyzico(detail), now, order, iyzicoToken: "iyzi-token" })).toBe("failed");
       }
       expect((await store.getCatalogOrder(app.id, order.id))!.status).toBe("pending");
     });
@@ -421,7 +421,7 @@ describe("catalog shop on the hosted API", () => {
     it("lists the customer's paid orders", async () => {
       const list = () => call("GET", "/me/orders", { token: accessToken });
       expect((await list()).body).toMatchObject({ total: 0, items: [] });
-      await completePayment({ store, app, account: { keys: IYZICO, marketplace: null }, fetcher: iyzico(paid()), now, order, iyzicoToken: "iyzi-token" });
+      await completePayment({ store, app, account: { account: { provider: "iyzico", keys: IYZICO }, marketplace: null }, fetcher: iyzico(paid()), now, order, iyzicoToken: "iyzi-token" });
       expect((await list()).body).toMatchObject({
         total: 1,
         items: [

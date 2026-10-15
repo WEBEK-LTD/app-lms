@@ -51,7 +51,7 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
         <div className="flex max-w-[620px] flex-col gap-2">
           <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donations</h1>
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            Donations from your app, newest first. Each donor gets a receipt by email. Refunds are made in your iyzico panel.
+            Donations from your app, newest first. Each donor gets a receipt by email. Refunds are made in your payment provider&apos;s panel.
           </p>
         </div>
         <a href={`/api/dashboard/donations?${filter}`} className={`${btn.secondary} h-11`} download>

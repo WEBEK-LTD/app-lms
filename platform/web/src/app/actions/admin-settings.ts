@@ -5,16 +5,18 @@ import { cookies } from "next/headers";
 import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
+import type { CatalogCurrency, OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
-import { appUrl, encryptionKey, iyzicoApiUrl, sessionSecret, WAABEK_API_URL } from "@/lib/env";
+import { appUrl, encryptionKey, iyzicoApiUrl, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
-import { parsePrice } from "@/lib/catalog/money";
+import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket } from "@/lib/hosted/otp-test";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
+import { validKashierMerchantId } from "@/lib/payments/kashier";
+import { checkAccount, currencyList, isPaymentProvider, PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import {
   isPlan,
   PLAN_FEATURE_IDS,
@@ -29,7 +31,7 @@ import {
   type SupportLevel,
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { clearPlatformSettingsCache, encryptSetting, platformSetting, resolvedOtpSenderConfig } from "@/lib/settings/platform";
+import { clearPlatformSettingsCache, encryptSetting, getPlans, platformSetting, resolvedOtpSenderConfig, yallappAccountFor } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
 
@@ -37,6 +39,9 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   otp: "sign-in codes",
   smtp: "email server",
   iyzico: "Yallapp's iyzico account",
+  kashier: "Yallapp's Kashier account",
+  fawaterk: "Yallapp's Fawaterk account",
+  paymentProvider: "payment provider",
   marketplace: "marketplace commission",
   contact: "contact details",
   plans: "plans",
@@ -72,8 +77,10 @@ async function save<K extends PlatformSettingKey>(
 /** Back to the Netlify variables for this setting. */
 export async function resetPlatformSettingAction(formData: FormData): Promise<void> {
   const key = String(formData.get("key")) as PlatformSettingKey;
-  const admin = await requireAdmin(key === "iyzico" || key === "marketplace" ? "payments.manage" : "settings.edit");
-  if (key === "otp" || key === "smtp" || key === "iyzico" || key === "marketplace") await save(key, null, admin);
+  // 37 Yallapp's payment accounts and its provider choice are payments settings too.
+  const payments = ["iyzico", "kashier", "fawaterk", "paymentProvider", "marketplace"].includes(key);
+  const admin = await requireAdmin(payments ? "payments.manage" : "settings.edit");
+  if (key === "otp" || key === "smtp" || payments) await save(key, null, admin);
   if (key === "contact") {
     await save(key, null, admin);
     revalidatePath("/", "layout");
@@ -250,6 +257,88 @@ export async function saveIyzicoSettingAction(_: FormState, formData: FormData):
   return { ok: true, message: accepted ? "iyzico account saved." : "Saved. iyzico couldn't be reached to check the keys." };
 }
 
+/** 37 A key as pasted: no spaces, not too long; null otherwise. */
+const pastedKey = (formData: FormData, name: string) => {
+  const value = str(formData, name);
+  return value && value.length <= 300 && !/\s/.test(value) ? value : null;
+};
+
+/** 37 Yallapp's Kashier account: merchant ID, Payment API key and secret key (test or live). */
+export async function saveKashierSettingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("payments.manage");
+  const merchantId = str(formData, "merchantId");
+  const apiKey = pastedKey(formData, "apiKey");
+  const secretKey = pastedKey(formData, "secretKey");
+  const sandbox = formData.get("sandbox") === "on";
+  const values = { merchantId, sandbox: sandbox ? "on" : "" };
+  const errors: Record<string, string> = {};
+  if (!validKashierMerchantId(merchantId)) errors.merchantId = "Enter the merchant ID, like MID-1234-567.";
+  if (!apiKey) errors.apiKey = "Paste the Payment API key.";
+  if (!secretKey) errors.secretKey = "Paste the secret key.";
+  if (Object.keys(errors).length) return { errors, values };
+  const accepted = await checkAccount({ provider: "kashier", keys: { merchantId, apiKey: apiKey!, secretKey: secretKey!, sandbox } }, { urls: paymentApiUrls() });
+  if (accepted === false) return { errors: { secretKey: `Kashier didn't accept this ${sandbox ? "test" : "live"} secret key.` }, values };
+  const key = encryptionKey();
+  await save(
+    "kashier",
+    { merchantId, apiKeyEncrypted: encryptSetting("kashier", apiKey!, key), secretKeyEncrypted: encryptSetting("kashier", secretKey!, key), sandbox },
+    admin,
+  );
+  return { ok: true, message: accepted ? "Kashier account saved." : "Saved. Kashier couldn't be reached to check the keys." };
+}
+
+/** 37 Yallapp's Fawaterk account: the vendor's API key (staging or live). */
+export async function saveFawaterkSettingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("payments.manage");
+  const apiKey = pastedKey(formData, "apiKey");
+  const sandbox = formData.get("sandbox") === "on";
+  const values = { sandbox: sandbox ? "on" : "" };
+  if (!apiKey) return { errors: { apiKey: "Paste the API key." }, values };
+  const accepted = await checkAccount({ provider: "fawaterk", keys: { apiKey, sandbox } }, { urls: paymentApiUrls() });
+  if (accepted === false) return { errors: { apiKey: `Fawaterk didn't accept this ${sandbox ? "staging" : "live"} key.` }, values };
+  await save("fawaterk", { apiKeyEncrypted: encryptSetting("fawaterk", apiKey, encryptionKey()), sandbox }, admin);
+  return { ok: true, message: accepted ? "Fawaterk account saved." : "Saved. Fawaterk couldn't be reached to check the key." };
+}
+
+/** 37 "Test connection": a call that changes nothing, with the saved keys of one of Yallapp's accounts. */
+export async function testPaymentAccountAction(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin("payments.manage");
+  const provider = str(formData, "provider");
+  if (!isPaymentProvider(provider)) return { message: "Unknown provider." };
+  const name = PROVIDER_NAME[provider];
+  const account = await yallappAccountFor(await getStore(), provider, encryptionKey()).catch(() => null);
+  if (!account) return { message: `Save Yallapp's ${name} account first.` };
+  const accepted = await checkAccount(account, { urls: paymentApiUrls() });
+  if (accepted === null) return { message: `${name} couldn't be reached. Try again in a moment.` };
+  return accepted
+    ? { ok: true, message: `Connected: ${name} accepts the saved ${account.keys.sandbox ? "test" : "live"} keys.` }
+    : { message: `${name} didn't accept the saved keys. Save them again.` };
+}
+
+/**
+ * 37 Which of Yallapp's accounts takes new plan payments and marketplace
+ * sales. Payments already started finish with the account they started
+ * with; shops that joined the marketplace with another provider stop
+ * selling through Yallapp until they join again.
+ */
+export async function savePaymentProviderAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("payments.manage");
+  const provider = str(formData, "provider");
+  if (!isPaymentProvider(provider)) return { errors: { provider: "Choose a provider." }, values: { provider } };
+  const store = await getStore();
+  await save("paymentProvider", { provider }, admin);
+  const name = PROVIDER_NAME[provider];
+  const ready = await yallappAccountFor(store, provider, encryptionKey()).catch(() => null);
+  const plans = Object.values(await getPlans(store)).filter((p) => p.priceCents !== null && p.priceCents > 0);
+  const unpaid = plans.filter((p) => !providerTakes(provider, p.currency)).map((p) => p.name);
+  const notes = [
+    ready ? null : `Add Yallapp's ${name} account below: until then, card payments are off.`,
+    unpaid.length ? `${unpaid.join(" and ")} can't be paid by card until priced in ${currencyList(provider)} on the Plans page.` : null,
+  ].filter(Boolean);
+  revalidatePath("/dashboard", "layout");
+  return { ok: true, message: `Payments go to Yallapp's ${name} account.${notes.length ? ` ${notes.join(" ")}` : ""}`, values: { provider } };
+}
+
 /** The plan as it is now (defaults with the team's edits), to save a full edit from. */
 async function currentPlan(plan: Plan): Promise<{ saved: Partial<Record<Plan, PlanSetting>>; info: PlanInfo }> {
   const store = await getStore();
@@ -280,7 +369,7 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   if (!values.price || values.price.length > 30) errors.price = "Enter what the pricing page shows without a card price, like On request.";
   const priceCents = values.cardPrice ? parsePrice(values.cardPrice) : null;
   if (values.cardPrice && (priceCents === null || priceCents === 0)) errors.cardPrice = "Enter a price, like 4800, or leave it empty.";
-  if (!["TRY", "USD", "EUR"].includes(values.currency!)) errors.currency = "Choose a currency.";
+  if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
   if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);

@@ -158,7 +158,8 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/admin.ts", "activateClientAction"],
     ["app/actions/admin.ts", "suspendClientAction"],
     ["app/actions/admin.ts", "reinstateClientAction"],
-    ["app/api/pay/plan/[token]/route.ts", "POST"],
+    // 37 Every provider's plan payment settles here (iyzico, Kashier, Fawaterk).
+    ["lib/payments/settle.ts", "settlePlanPayment"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });

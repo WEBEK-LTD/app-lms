@@ -111,7 +111,7 @@ test("the charity picks Charity & donations and adds its own iyzico keys", async
 
   await own.getByRole("link", { name: "Campaigns", exact: true }).click();
   // Before the keys: a setup step, and no "sell through Yallapp" for donations.
-  await expect(own.getByText("nobody can donate until your iyzico keys are saved")).toBeVisible();
+  await expect(own.getByText("nobody can donate until your payment keys are saved")).toBeVisible();
   await expect(own.getByText("Sell through Yallapp")).toHaveCount(0);
   await own.getByLabel("API key").fill("sandbox-api-key");
   await own.getByLabel("Secret key").fill("sandbox-secret-key");

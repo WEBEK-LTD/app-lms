@@ -67,7 +67,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
         </p>
       ) : null}
 
-      {!ready ? <DonationPayments app={app} /> : null}
+      {!ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
 
       <section aria-labelledby="h-campaigns" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-campaigns" className="m-0 text-lg font-bold">
@@ -106,7 +106,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
         )}
       </section>
 
-      {ready ? <DonationPayments app={app} /> : null}
+      {ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
 
       <section aria-labelledby="h-donation-settings" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">

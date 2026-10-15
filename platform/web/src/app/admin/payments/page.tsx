@@ -4,7 +4,10 @@ import Link from "next/link";
 import { releasePayoutAction } from "@/app/actions/admin";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, formatDateTime } from "@/components/ui";
-import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
+import type { PayoutDetails } from "@/lib/catalog/marketplace";
+import { ORDER_STATUS_LABELS, orderNumber, payoutDetails } from "@/lib/catalog/settings";
+import { encryptionKey } from "@/lib/env";
+import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -23,9 +26,13 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
   const store = await getStore();
   const [payments, plans, sales] = await Promise.all([store.listPlanPayments({ limit: 100 }), getPlans(store), store.listMarketplaceOrders(100)]);
   const shops = new Map<string, string>();
+  // 37 Who the team transfers a share to (Kashier or Fawaterk), for those allowed to manage payments.
+  const payees = new Map<string, PayoutDetails>();
   for (const appId of new Set(sales.map((o) => o.appId))) {
     const app = await store.getAppById(appId);
     shops.set(appId, app?.appName ?? "Deleted app");
+    const payee = app && can(adminRole, "payments.manage") ? payoutDetails(app, encryptionKey()) : null;
+    if (payee) payees.set(appId, payee);
   }
   const names = new Map<string, string>();
   for (const id of new Set(payments.map((p) => p.clientId))) {
@@ -47,12 +54,12 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Payments</h1>
         <span className="text-[15px] text-muted">
-          Plans paid by card into Yallapp&apos;s iyzico account, each for one app. A paid one activates that app or extends its license at once.
+          Plans paid by card into Yallapp&apos;s account (iyzico, Kashier or Fawaterk), each for one app. A paid one activates that app or extends its license at once.
         </span>
       </div>
       <section aria-label="Card payments" className="overflow-x-auto rounded-2xl border border-line bg-white">
         {payments.length === 0 ? (
-          <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s iyzico account in Settings and a card price in Plans.</p>
+          <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s payment account in Settings and a card price in Plans.</p>
         ) : (
           <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
@@ -63,7 +70,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                 <th scope="col" className="px-4 py-3 font-semibold">Amount</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Status</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Date</th>
-                <th scope="col" className="px-4 py-3 font-semibold">iyzico payment</th>
+                <th scope="col" className="px-4 py-3 font-semibold">Payment</th>
               </tr>
             </thead>
             <tbody>
@@ -88,7 +95,9 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                     <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                   </td>
                   <td className="px-4 py-3">{formatDateTime(p.paidAt ?? p.createdAt)}</td>
-                  <td className="px-4 py-3 font-mono text-[13px]">{p.paymentId ?? "—"}</td>
+                  <td className="px-4 py-3 text-[13px]">
+                    {PROVIDER_NAME[p.paymentProvider ?? "iyzico"]} <span className="font-mono">{p.paymentId ?? "—"}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -97,20 +106,20 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
       </section>
       {paid.length ? (
         <p className="m-0 text-sm text-muted">
-          {paid.length} paid in this list. Refunds are made in the iyzico merchant panel; then shorten the client&apos;s plan on the Clients page.
+          {paid.length} paid in this list. Refunds are made in the provider&apos;s merchant panel; then shorten the client&apos;s plan on the Clients page.
         </p>
       ) : null}
 
       <div className="flex flex-col gap-1.5 pt-4">
         <h2 className="m-0 text-[22px] font-extrabold">Shop sales through Yallapp</h2>
         <span className="text-[15px] text-muted">
-          Orders paid into Yallapp&apos;s account by shops without their own iyzico account. iyzico pays each shop its share once the payout
-          is released: when the shop completes the order, or here.
+          Orders paid into Yallapp&apos;s account by shops without their own payment account. The payout is released when the shop completes
+          the order, or here. With iyzico, iyzico then pays each shop its share; with Kashier or Fawaterk, transfer the share to the IBAN shown.
         </span>
       </div>
       {done === "payout-released" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Payout released. iyzico pays the shop its share.
+          Payout released. With iyzico, iyzico pays the shop its share; with Kashier or Fawaterk, transfer it to the shop&apos;s IBAN.
         </Notice>
       ) : null}
       {done === "payout-failed" ? (
@@ -137,7 +146,16 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
             <tbody>
               {sales.map((o) => (
                 <tr key={o.id} className="border-t border-line-soft">
-                  <td className="px-4 py-3">{shops.get(o.appId)}</td>
+                  <td className="px-4 py-3">
+                    {shops.get(o.appId)}
+                    {/* 37 Kashier or Fawaterk: the team transfers the share, to this payee. */}
+                    {o.paymentProvider && o.paymentProvider !== "iyzico" ? (
+                      <span className="block text-xs text-muted">
+                        {PROVIDER_NAME[o.paymentProvider]}
+                        {payees.get(o.appId) ? ` · ${payees.get(o.appId)!.name}, IBAN ${payees.get(o.appId)!.iban}` : ""}
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3">
                     {orderNumber(o)} · {formatDateTime(o.paidAt)}
                   </td>

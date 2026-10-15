@@ -203,7 +203,7 @@ describe("licenses and plans per app", () => {
     let token = "";
     await startPlanPayment({
       store,
-      keys: IYZICO,
+      account: { provider: "iyzico", keys: IYZICO },
       fetcher,
       now: NOW,
       client: (await store.getClientById(client.id))!,
@@ -212,15 +212,15 @@ describe("licenses and plans per app", () => {
       plan: PLANS.starter,
       billing: { city: "Istanbul", address: "Bağdat Caddesi 1, Kadıköy" },
       ip: "203.0.113.5",
-      callbackUrl: (t) => {
+      callbackUrls: (t) => {
         token = t;
-        return `https://yallapp.test/api/pay/plan/${t}`;
+        return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
       },
     });
     const payment = (await store.getPlanPaymentByToken(sha256Hex(token)))!;
     expect(payment).toMatchObject({ appId: second.id, plan: "starter" });
 
-    const outcome = await completePlanPayment({ store, keys: IYZICO, fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
+    const outcome = await completePlanPayment({ store, account: { provider: "iyzico", keys: IYZICO }, fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
     expect(outcome.kind).toBe("paid");
     if (outcome.kind !== "paid") return;
     expect(outcome.activation).toMatchObject({ created: true, app: { id: second.id } });

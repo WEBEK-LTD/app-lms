@@ -4749,7 +4749,7 @@ components:
       description: Settings for Charity & donations apps (roadmap 29).
       required: [currency, ios_mode, monthly, updates_push]
       properties:
-        currency: { type: string, enum: [TRY, USD, EUR] }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
         ios_mode:
           type: string
           enum: [browser, 'off']
@@ -4775,7 +4775,7 @@ components:
         raised: { type: string, description: 'Confirmed donations so far, as a decimal string.', example: '12450.00' }
         raised_formatted: { type: string, example: '₺12,450.00' }
         donor_count: { type: integer, description: 'People who gave, counted once per email address.' }
-        currency: { type: string, enum: [TRY, USD, EUR] }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
         progress: { type: [number, 'null'], minimum: 0, description: 'raised / goal (1 = reached, may be more than 1); null without a goal.' }
         ends_at: { type: [string, 'null'], format: date-time }
         status: { type: string, enum: [open, closed], description: '`closed` once the charity closes it or `ends_at` has passed: it takes no donations.' }
@@ -4841,7 +4841,7 @@ components:
         campaign_title: { type: string }
         amount: { type: string, example: '250.00' }
         amount_formatted: { type: string, example: '₺250.00' }
-        currency: { type: string, enum: [TRY, USD, EUR] }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED], description: "EGP, SAR and AED are for charities paid through Kashier or Fawaterk (roadmap 37)." }
         recurring: { type: string, enum: [none, monthly] }
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }

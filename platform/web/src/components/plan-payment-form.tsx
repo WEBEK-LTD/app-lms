@@ -17,18 +17,21 @@ export interface CardPlan {
   note?: string | null;
 }
 
-/** Plan choice, billing address and an optional coupon; the card itself is entered on iyzico's page. */
+/** Plan choice, billing address and an optional coupon; the card itself is entered on the provider's page (37 iyzico, Kashier or Fawaterk). */
 export function PlanPaymentForm({
   plans,
   current,
   cta,
   appId,
+  provider,
 }: {
   plans: CardPlan[];
   current: Plan | null;
   cta: string;
   /** The app being paid for (the dashboard's current app); the server checks it is still the current one. */
   appId: string | null;
+  /** 37 The name of the provider taking the payment: "iyzico", "Kashier" or "Fawaterk". */
+  provider: string;
 }) {
   const [state, action] = useActionState(payPlanAction, initialFormState);
   const [couponState, couponAction, couponPending] = useActionState(checkCouponAction, {} as CouponState);
@@ -128,7 +131,7 @@ export function PlanPaymentForm({
       <span className="text-xs leading-normal text-muted">
         {free
           ? "The coupon covers the whole price, so there's no card payment."
-          : "You enter your card on iyzico's secure page. Your plan starts as soon as the payment is confirmed."}
+          : `You enter your card on ${provider}'s secure page. Your plan starts as soon as the payment is confirmed.`}
       </span>
     </form>
   );

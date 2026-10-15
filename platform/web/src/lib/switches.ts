@@ -41,7 +41,7 @@ export type FeatureSwitch = PlanFeature | "marketplace" | "plan_card_payments";
 export const FEATURE_SWITCHES: { id: FeatureSwitch; label: string }[] = [
   // 13.1 Every plan feature can be switched off for everyone; per plan, the plan editor sets them.
   ...PLAN_FEATURES.map((f) => ({ id: f.id, label: f.label })),
-  { id: "marketplace", label: "Selling through Yallapp's iyzico account" },
+  { id: "marketplace", label: "Selling through Yallapp's payment account" },
   { id: "plan_card_payments", label: "Paying plans by card" },
 ];
 

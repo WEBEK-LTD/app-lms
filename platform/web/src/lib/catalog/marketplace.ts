@@ -3,7 +3,7 @@ import { parseAnyPhone } from "../hosted/phone";
 import type { SubMerchantInput } from "../payments/iyzico";
 
 /**
- * Shops selling through Yallapp's iyzico account (iyzico marketplace): the
+ * Shops selling through Yallapp's account. With iyzico (iyzico marketplace): the
  * details iyzico needs to register a shop as a sub-merchant and pay it.
  */
 
@@ -34,6 +34,38 @@ export function validTurkishId(id: string): boolean {
 }
 
 export type SubMerchantDetails = Omit<SubMerchantInput, "conversationId" | "subMerchantExternalId" | "currency">;
+
+/** 37 Who the team pays a shop's share to, when Yallapp's account is with Kashier or Fawaterk. */
+export interface PayoutDetails {
+  /** The shop's name, as the payee. */
+  name: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  address: string;
+  /** Any country's IBAN (Egyptian ones start with EG), without spaces. */
+  iban: string;
+}
+
+/** 37 The payee form for Kashier or Fawaterk: no ID or tax numbers, as no provider registers the shop. */
+export function parsePayeeForm(values: Record<string, string>): { ok: true; payee: PayoutDetails } | { ok: false; errors: Record<string, string> } {
+  const v = (name: string) => (values[name] ?? "").trim();
+  const errors: Record<string, string> = {};
+  const name = v("payeeName");
+  if (name.length < 2 || name.length > 100) errors.payeeName = "Enter your shop's name.";
+  const contactName = v("contactName");
+  if (contactName.split(/\s+/).filter(Boolean).length < 2 || contactName.length > 100) errors.contactName = "Enter your first and last name.";
+  const email = v("email");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";
+  const phone = parseAnyPhone(v("phone"), "+20");
+  if (!phone) errors.phone = "Enter a valid mobile number.";
+  const address = v("address");
+  if (address.length < 8 || address.length > 300) errors.address = "Enter your full address.";
+  const iban = v("iban").replace(/\s+/g, "").toUpperCase();
+  if (!validIban(iban)) errors.iban = "Enter your IBAN, like EG38 0019 0005 0000 0000 2631 8000 2.";
+  if (Object.keys(errors).length) return { ok: false, errors };
+  return { ok: true, payee: { name, contactName, email, phone: phone!.e164, address, iban } };
+}
 
 export function parseSubMerchantForm(
   values: Record<string, string>,

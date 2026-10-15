@@ -5,9 +5,10 @@ import { formatCents } from "@/lib/catalog/money";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { withDemoChecked } from "@/lib/demo/apps";
-import { donationKeys, donationLinkExpired } from "@/lib/donations/payment";
+import { donationAccount, donationLinkExpired } from "@/lib/donations/payment";
 import { campaignOpen } from "@/lib/donations/service";
 import { encryptionKey } from "@/lib/env";
+import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { PayShell, textOn } from "@/app/pay/[token]/shell";
 import { GiveForm } from "./form";
 
@@ -18,7 +19,7 @@ export const dynamic = "force-dynamic";
  * 29 The donation page a Charity & donations app opens: in the system
  * browser on iPhone (App Store guideline 3.2.2), inside the app on Android.
  * The donor gives their name and email for the receipt, then pays on
- * iyzico's page into the charity's own account.
+ * the provider's page (37 iyzico, Kashier or Fawaterk) into the charity's own account.
  */
 export default async function GivePage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ payment?: string }> }) {
   const { token } = await params;
@@ -40,7 +41,8 @@ export default async function GivePage({ params, searchParams }: { params: Promi
   if (donationLinkExpired(donation, now)) return note("Link expired", "This donation link has expired. Go back to the app and donate again.");
   const campaign = donation.campaignId !== null ? await store.getCampaign(app.id, donation.campaignId) : null;
   if (!campaign || !campaignOpen(campaign, now)) return note("Campaign ended", "This campaign has ended and takes no more donations. Thank you for your support.");
-  if (!app.demo && !donationKeys(app, encryptionKey())) return note("Donations are off", "This charity can't take donations right now. Please try again later.");
+  const account = app.demo ? null : donationAccount(app, encryptionKey());
+  if (!app.demo && !account) return note("Donations are off", "This charity can't take donations right now. Please try again later.");
 
   const user = donation.userId !== null ? await store.getHostedUser(app.id, donation.userId) : null;
   const amount = formatCents(donation.amountCents, donation.currency);
@@ -53,13 +55,19 @@ export default async function GivePage({ params, searchParams }: { params: Promi
           <Icon name="info" size={20} className="mt-0.5" />
           <span>
             <b>Demo.</b> This is a demo app: no card is asked for and nothing is charged. In your own app, supporters pay here by card, into your
-            own iyzico account.
+            own account with iyzico, Kashier or Fawaterk.
           </span>
         </p>
       ) : null}
       {payment === "failed" ? (
         <p role="alert" className="m-0 rounded-xl bg-danger-bg px-4 py-3 text-[15px] font-semibold text-danger">
           The payment didn&apos;t go through. Check your card details and try again.
+        </p>
+      ) : null}
+      {payment === "pending" ? (
+        <p role="status" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] font-semibold">
+          Your payment isn&apos;t confirmed yet. If you paid, it&apos;s confirmed within a few minutes and your receipt comes by email; otherwise, try
+          again.
         </p>
       ) : null}
       <section aria-labelledby="h-gift" className="flex flex-col gap-2 rounded-xl border border-line p-4">
@@ -81,7 +89,7 @@ export default async function GivePage({ params, searchParams }: { params: Promi
         defaults={{ name: donation.donorName ?? user?.name ?? "", email: donation.donorEmail ?? user?.email ?? "", phone: donation.donorPhone ?? user?.phone ?? "", city: user?.city ?? "" }}
       />
       <p className="m-0 text-center text-[13px] text-muted">
-        {app.demo ? "Nothing is charged in a demo." : `Card payments are processed securely by iyzico and go to ${app.appName ?? "the charity"}.`}
+        {app.demo ? "Nothing is charged in a demo." : `Card payments are processed securely by ${account ? PROVIDER_NAME[account.provider] : "the payment provider"} and go to ${app.appName ?? "the charity"}.`}
       </p>
     </PayShell>
   );

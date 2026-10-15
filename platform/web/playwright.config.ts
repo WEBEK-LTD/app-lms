@@ -50,6 +50,11 @@ export const E2E = {
   otpWebhookSecret: "e2e-otp-webhook-secret",
   /** A fake iyzico for the payment page; tests/e2e/catalog.spec.ts runs it. */
   iyzicoPort: Number(process.env.E2E_IYZICO_PORT ?? 3298),
+  /** 37 Fake Kashier and Fawaterk APIs; tests/e2e/egypt-payments.spec.ts runs them. */
+  kashierPort: Number(process.env.E2E_KASHIER_PORT ?? 3297),
+  fawaterkPort: Number(process.env.E2E_FAWATERK_PORT ?? 3296),
+  /** The super admin of tests/e2e/egypt-payments.spec.ts (roadmap 37). */
+  paymentsAdminEmail: "payments-admin@yallapp.test",
 };
 
 export default defineConfig({
@@ -83,7 +88,7 @@ export default defineConfig({
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
       YALLAPP_MAIL_DIR: E2E.mailDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: "e2e-signing-secret-0123456789abcdef0123456789",
@@ -95,6 +100,8 @@ export default defineConfig({
       OTP_WEBHOOK_URL: `http://localhost:${E2E.otpWebhookPort}/otp`,
       OTP_WEBHOOK_SECRET: E2E.otpWebhookSecret,
       IYZICO_API_URL: `http://localhost:${E2E.iyzicoPort}`,
+      KASHIER_API_URL: `http://localhost:${E2E.kashierPort}`,
+      FAWATERK_API_URL: `http://localhost:${E2E.fawaterkPort}`,
     },
   },
 });

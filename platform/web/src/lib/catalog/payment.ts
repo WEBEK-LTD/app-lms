@@ -4,8 +4,10 @@ import { parseAnyPhone } from "../hosted/phone";
 import { hostedSettings } from "../hosted/service";
 import type { DataStore } from "../data/store";
 import type { App, CatalogCustomer, CatalogFulfilment, CatalogOrder } from "../data/types";
-import { approvePaymentItem, initializeCheckoutForm, IyzicoError, retrieveCheckoutForm } from "../payments/iyzico";
-import { centsToDecimal, formatCents } from "./money";
+import { PaymentError } from "../payments/errors";
+import { approvePaymentItem, IyzicoError } from "../payments/iyzico";
+import { confirmCheckout, startCheckout, type CheckoutLine, type ProviderUrls } from "../payments/provider";
+import { formatCents } from "./money";
 import { optionsText } from "./options";
 import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
@@ -34,103 +36,119 @@ export function readCustomer(
 interface PaymentDeps {
   store: DataStore;
   app: App;
-  /** The shop's own iyzico account, or Yallapp's with the shop as a sub-merchant. */
+  /** The shop's own account (37 iyzico, Kashier or Fawaterk), or Yallapp's (with iyzico, the shop is a sub-merchant). */
   account: CheckoutAccount;
   fetcher?: typeof fetch;
-  /** iyzico's address in tests. */
-  baseUrl?: string | null;
+  /** The providers' addresses in tests. */
+  urls?: ProviderUrls;
   now: Date;
 }
 
-/** Saves the customer on the order and starts the card payment; returns iyzico's payment page. */
+/** Saves the customer on the order and starts the card payment; returns the provider's payment page. */
 export async function startPayment(
-  deps: PaymentDeps & { order: CatalogOrder; customer: CatalogCustomer; ip: string; callbackUrl: string },
+  deps: PaymentDeps & {
+    order: CatalogOrder;
+    customer: CatalogCustomer;
+    ip: string;
+    /** Where the provider sends the customer back, and posts its webhook (lib/payments/routes.ts). */
+    callbackUrls: { returnUrl: string; webhookUrl: string | null };
+  },
 ): Promise<string> {
   const { order, customer } = deps;
-  const marketplace = deps.account.marketplace;
-  // Yallapp's commission is on the products; shipping goes to the shop in full.
+  const { account, marketplace } = deps.account;
+  // Yallapp's commission is on the products; shipping goes to the shop in full. Only iyzico splits the payment (sub-merchants).
+  const split = marketplace && account.provider === "iyzico" ? marketplace : null;
   const share = (cents: number, commissioned: boolean) =>
-    marketplace
-      ? { subMerchantKey: marketplace.subMerchantKey, subMerchantPrice: centsToDecimal(cents - (commissioned ? commissionOf(cents, marketplace.commissionPercent) : 0)) }
-      : {};
+    split ? { subMerchant: { key: split.subMerchantKey, cents: cents - (commissioned ? commissionOf(cents, split.commissionPercent) : 0) } } : {};
   const commissionCents = marketplace
     ? order.lines.reduce((sum, l) => sum + commissionOf(l.unitCents * l.quantity, marketplace.commissionPercent), 0)
     : null;
-  await deps.store.updateCatalogOrder(order.appId, order.id, { customer, commissionCents, updatedAt: deps.now });
-  const [first, ...rest] = customer.name.split(/\s+/);
-  const address = { contactName: customer.name, city: customer.city, country: "Turkey", address: customer.address };
-  const items = order.lines.map((l, i) => ({
+  const lines: CheckoutLine[] = order.lines.map((l, i) => ({
     id: `${l.productId}-${i}`,
-    name: l.name,
-    category1: "Products",
-    itemType: (l.digital ? "VIRTUAL" : "PHYSICAL") as "VIRTUAL" | "PHYSICAL",
-    price: centsToDecimal(l.unitCents * l.quantity),
+    name: l.quantity > 1 && account.provider !== "iyzico" ? `${l.name} × ${l.quantity}` : l.name,
+    cents: l.unitCents * l.quantity,
+    category: "Products",
+    digital: l.digital,
     ...share(l.unitCents * l.quantity, true),
   }));
   if (order.shippingCents > 0) {
-    items.push({
-      id: "shipping",
-      name: "Shipping",
-      category1: "Shipping",
-      itemType: "VIRTUAL",
-      price: centsToDecimal(order.shippingCents),
-      ...share(order.shippingCents, false),
-    });
+    lines.push({ id: "shipping", name: "Shipping", cents: order.shippingCents, category: "Shipping", digital: true, ...share(order.shippingCents, false) });
   }
-  const total = centsToDecimal(order.totalCents);
-  const { paymentPageUrl } = await initializeCheckoutForm(
-    deps.account.keys,
+  const started = await startCheckout(
+    account,
     {
-      conversationId: `order-${orderNumber(order)}`,
-      price: total,
-      paidPrice: total,
+      reference: `order-${order.id}`,
+      amountCents: order.totalCents,
       currency: order.currency,
-      basketId: String(order.id),
-      callbackUrl: deps.callbackUrl,
-      buyer: {
+      description: `Order ${orderNumber(order)}${deps.app.appName ? ` from ${deps.app.appName}` : ""}`,
+      lines,
+      customer: {
         id: order.userId !== null ? `customer-${order.userId}` : `guest-${order.id}`,
-        name: first!,
-        surname: rest.join(" ") || first!,
-        gsmNumber: customer.phone,
+        name: customer.name,
         email: customer.email,
-        // iyzico asks for a Turkish ID number; shops that don't collect it send this placeholder.
-        identityNumber: "11111111111",
-        registrationAddress: customer.address,
-        ip: deps.ip,
+        phone: customer.phone,
         city: customer.city,
-        country: "Turkey",
+        address: customer.address,
+        ip: deps.ip,
       },
-      billingAddress: address,
-      ...(order.lines.some((l) => !l.digital) ? { shippingAddress: address } : {}),
-      basketItems: items,
+      returnUrl: deps.callbackUrls.returnUrl,
+      webhookUrl: deps.callbackUrls.webhookUrl,
+      iyzico: { conversationId: `order-${orderNumber(order)}`, basketId: String(order.id), shipping: order.lines.some((l) => !l.digital) },
     },
-    { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    { fetcher: deps.fetcher, urls: deps.urls },
   );
-  return paymentPageUrl;
+  // 37 The provider and its reference stay on the order: the payment is read back from that provider.
+  await deps.store.updateCatalogOrder(order.appId, order.id, {
+    customer,
+    commissionCents,
+    paymentProvider: account.provider,
+    providerRef: started.providerRef.slice(0, 191),
+    updatedAt: deps.now,
+  });
+  return started.url;
 }
 
-export type PaymentOutcome = "paid" | "already_paid" | "failed";
+/** 37 "pending": Kashier or Fawaterk haven't confirmed it (yet); their webhook may still do. */
+export type PaymentOutcome = "paid" | "already_paid" | "pending" | "failed";
 
 /**
- * Checks a payment with iyzico after its callback and marks the order paid.
- * The callback itself proves nothing: only iyzico's answer to our signed
- * request does, and only for this order's basket and total.
+ * Reads the payment back from the provider after its callback, redirect or
+ * webhook, and marks the order paid. The trigger itself proves nothing:
+ * only the provider's answer to our own authenticated request does, and
+ * only for this order's reference, total and currency. payCatalogOrder only
+ * changes a pending order, so the order is paid (and delivered) once.
  */
-export async function completePayment(deps: PaymentDeps & { order: CatalogOrder; iyzicoToken: string }): Promise<PaymentOutcome> {
+export async function completePayment(
+  deps: PaymentDeps & {
+    order: CatalogOrder;
+    /** iyzico: the token its callback posted. */
+    iyzicoToken?: string;
+    /** 37 Kashier's session or Fawaterk's invoice named by a webhook; the one kept on the order otherwise. */
+    providerRef?: string | null;
+  },
+): Promise<PaymentOutcome> {
   const { order } = deps;
   if (order.status !== "pending") return order.status === "failed" || order.status === "cancelled" ? "failed" : "already_paid";
+  const provider = order.paymentProvider ?? "iyzico";
+  if (deps.account.account.provider !== provider) return "failed";
   let result;
   try {
-    result = await retrieveCheckoutForm(
-      deps.account.keys,
-      { token: deps.iyzicoToken, conversationId: `order-${orderNumber(order)}` },
-      { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    result = await confirmCheckout(
+      deps.account.account,
+      {
+        reference: `order-${order.id}`,
+        amountCents: order.totalCents,
+        currency: order.currency,
+        providerRef: deps.providerRef ?? order.providerRef ?? null,
+        ...(deps.iyzicoToken ? { iyzico: { token: deps.iyzicoToken, conversationId: `order-${orderNumber(order)}`, basketId: String(order.id) } } : {}),
+      },
+      { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
-    if (e instanceof IyzicoError) return "failed";
+    if (e instanceof PaymentError) return provider === "iyzico" ? "failed" : "pending";
     throw e;
   }
-  if (!result.paid || result.basketId !== String(order.id) || result.paidCents < order.totalCents || !result.paymentId) return "failed";
+  if (!result.paid) return provider === "iyzico" ? "failed" : "pending";
   const changed = await deps.store.payCatalogOrder(order.appId, order.id, result.paymentId, deps.now);
   if (changed && order.commissionCents !== null) {
     await deps.store.updateCatalogOrder(order.appId, order.id, { itemTransactionIds: result.transactionIds, updatedAt: deps.now });
@@ -139,19 +157,28 @@ export async function completePayment(deps: PaymentDeps & { order: CatalogOrder;
 }
 
 /**
- * Releases the shop's share of a marketplace order: iyzico pays each
- * approved item to the shop, minus Yallapp's commission. Done when the shop
- * completes the order, or by our team. True once every item is approved.
+ * Releases the shop's share of a marketplace order. Done when the shop
+ * completes the order, or by our team. With iyzico, iyzico pays each
+ * approved item to the shop, minus Yallapp's commission: true once every
+ * item is approved. 37 With Kashier or Fawaterk the whole payment is in
+ * Yallapp's account: the release is recorded, and the team transfers the
+ * share to the shop's IBAN.
  */
 export async function approvePayout(deps: PaymentDeps & { order: CatalogOrder }): Promise<boolean> {
   const { order } = deps;
-  if (order.commissionCents === null || order.payoutApprovedAt || !order.itemTransactionIds?.length) return Boolean(order.payoutApprovedAt);
+  if (order.commissionCents === null || order.payoutApprovedAt) return Boolean(order.payoutApprovedAt);
+  const account = deps.account.account;
+  if (account.provider !== "iyzico") {
+    await deps.store.updateCatalogOrder(order.appId, order.id, { payoutApprovedAt: deps.now, updatedAt: deps.now });
+    return true;
+  }
+  if (!order.itemTransactionIds?.length) return false;
   try {
     for (const id of order.itemTransactionIds) {
       await approvePaymentItem(
-        deps.account.keys,
+        account.keys,
         { conversationId: `order-${orderNumber(order)}`, paymentTransactionId: id },
-        { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+        { fetcher: deps.fetcher, baseUrl: deps.urls?.iyzico },
       );
     }
   } catch (e) {
