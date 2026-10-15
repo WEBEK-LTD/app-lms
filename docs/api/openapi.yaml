@@ -33,7 +33,7 @@ info:
     owner while the app isn't active yet, signs in only the store review
     number, and serves the Pages & look draft when the preview asks for it.
   license:
-    name: Proprietary, WEBEK LTD
+    name: Proprietary, Yallapp
     url: https://yallapp.com.tr
   contact:
     name: Yallapp
