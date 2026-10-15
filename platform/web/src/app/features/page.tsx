@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { CheckList, Comparison, MarketingPage, MoreLink, NumbersBand, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
 import { COMPARISON, DASHBOARD_SCREENS, FEATURE_GROUPS, NUMBERS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Features",
   description:
-    "Your brand, a drag-and-drop page editor, 3 templates, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing for Android and iOS.",
-};
+    "Your brand, a drag-and-drop page editor, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing for Android and iOS.",
+  path: "/features",
+});
 
 const isDashboard = (screen: AppScreen | DashboardScreen): screen is DashboardScreen => (DASHBOARD_SCREENS as readonly string[]).includes(screen);
 

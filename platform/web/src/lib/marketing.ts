@@ -1,9 +1,22 @@
 import type { IconName } from "@/components/icon-names";
 import { KINDS, kindById } from "./app/kinds";
+import { BLOCK_TYPES, LANGUAGE_CODES } from "./pages/types";
 
-/** "a, b and c". */
-function listText(items: string[]): string {
-  return items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : (items[0] ?? "");
+/** "a, b and c" (or "a, b or c"). */
+function listText(items: string[], last = "and"): string {
+  return items.length > 1 ? `${items.slice(0, -1).join(", ")} ${last} ${items[items.length - 1]}` : (items[0] ?? "");
+}
+
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"];
+
+/** 32 "ten" for 10, so counts in sentences follow the registries; digits from 16 up. */
+export function numberWord(n: number): string {
+  return NUMBER_WORDS[n] ?? String(n);
+}
+
+/** 32 "20+" for 23: a count that stays true as more are added. */
+export function countAtLeast(n: number): string {
+  return n >= 10 ? `${Math.floor(n / 10) * 10}+` : String(n);
 }
 
 /**
@@ -83,16 +96,6 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "dashboard-setup": "The app setup steps in the Yallapp dashboard",
   "dashboard-builds": "Builds and downloads in the Yallapp dashboard",
 };
-
-/** True numbers about the product, shown on the home and features pages. */
-export const NUMBERS: { value: string; label: string }[] = [
-  { value: String(KINDS.length), label: `app types: ${listText(KINDS.map((k) => k.name.toLowerCase()))}` },
-  { value: "20", label: "platforms and plugins your content can come from" },
-  { value: "3", label: "app templates: Classic, Bold and Minimal" },
-  { value: "3", label: "languages: English, Arabic (right to left) and Turkish" },
-  { value: "11", label: "page blocks to build your screens" },
-  { value: "2", label: "stores: Google Play and the App Store, under your own name" },
-];
 
 // ---------------------------------------------------------------------------
 // Solutions: one page per app type.
@@ -761,6 +764,26 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
   },
 ];
 
+/**
+ * 32 What the integrations add up to: the WordPress plugins the Yallapp plugin
+ * reads (WordPress posts are the site itself) and the online platforms
+ * (RSS feeds aren't one).
+ */
+export const INTEGRATION_COUNTS = {
+  plugins: INTEGRATION_GROUPS.find((g) => g.id === "wordpress")!.items.filter((i) => i.docs === "/docs/wordpress-plugin").length,
+  platforms: INTEGRATION_GROUPS.find((g) => g.id === "platforms")!.items.filter((i) => i.docs !== "/docs/news").length,
+};
+
+/** 32 True numbers about the product, shown as a strip on the home and features pages: a figure and a short label, counted from the registries. */
+export const NUMBERS: { value: string; label: string }[] = [
+  { value: String(KINDS.length), label: "app types" },
+  { value: countAtLeast(INTEGRATION_COUNTS.plugins + INTEGRATION_COUNTS.platforms), label: "integrations" },
+  { value: String(LANGUAGE_CODES.length), label: "app languages" },
+  // Google Play and the App Store.
+  { value: "2", label: "app stores" },
+  { value: String(BLOCK_TYPES.length), label: "page blocks" },
+];
+
 /** The names in the "works with" strip on the home page. */
 export const WORKS_WITH = [
   "WordPress",
@@ -1013,6 +1036,9 @@ export const COMPARISON: { topic: string; typical: string; yallapp: string }[] =
 
 export interface Step {
   title: string;
+  /** 32 One short sentence, for the home page's timeline. */
+  short: string;
+  icon: IconName;
   text: string;
   details: string[];
 }
@@ -1020,30 +1046,40 @@ export interface Step {
 export const STEPS: Step[] = [
   {
     title: "Create your account",
+    short: "Sign up in a minute and pick a plan.",
+    icon: "account_circle",
     text: "Sign up in a minute. Pay your plan by card or arrange it with our team on WhatsApp, and we activate your account.",
     details: ["Sign up on yallapp.com.tr, with or without a website", "Choose Starter, Growth, Pro or Business for each app", "Pay by card, or talk to us on WhatsApp"],
   },
   {
     title: "Connect your content",
+    short: "Your website, a platform you use, or no website at all.",
+    icon: "link",
     text: "Choose your app type and where its content comes from: your website, an online platform, your own API, or nothing at all.",
     details: [
-      "Academy, Store, Bookings or Real estate",
+      listText(KINDS.map((k) => k.name), "or"),
       "WordPress plugin, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific or SimplyBook.me",
       "No website? Add products, courses, services or listings in the dashboard",
     ],
   },
   {
     title: "Brand it and build your pages",
+    short: "Your logo, colors, pages and languages.",
+    icon: "palette",
     text: "Upload your icon and logo, pick your colors and template, then build your pages and turn on languages.",
     details: ["App name, icon, logo and colors", "Pages, tabs and look in the editor", "English, Arabic and Turkish"],
   },
   {
     title: "Add your store details",
+    short: "Store texts, screenshots and notifications.",
+    icon: "storefront",
     text: "Package name, bundle ID, store texts and screenshots. Add Firebase for push notifications whenever you're ready.",
     details: ["Store title and descriptions", "Phone and iPhone screenshots", "Firebase files for push notifications"],
   },
   {
     title: "Build and publish",
+    short: "Download your apps, or we publish them for you.",
+    icon: "publish",
     text: "Your apps build as soon as the setup is complete. Download them and publish with our guides, or let us publish them for you.",
     details: ["Starter and Growth: download your files and follow the step-by-step guides", "Pro and Business: we publish every new version on Google Play and the App Store"],
   },
@@ -1071,7 +1107,7 @@ export const FAQ: FaqGroup[] = [
     items: [
       {
         q: "What does Yallapp do?",
-        a: "Yallapp builds branded Android and iOS apps for academies, stores, bookings businesses and real estate offices. Your app gets its content from your website, an online platform you already use, your own API, or from the Yallapp dashboard if you have no website. We build the apps, and you publish them under your own name, or we publish them for you.",
+        a: "Yallapp builds branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, real estate offices, news sites, events, charities and more. Your app gets its content from your website, an online platform you already use, your own API, or from the Yallapp dashboard if you have no website. We build the apps, and you publish them under your own name, or we publish them for you.",
       },
       {
         q: "Do I need a website?",
@@ -1079,7 +1115,8 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Which kinds of apps can I build?",
-        a: "Four: Academy (courses, lessons, quizzes), Store (products, cart, checkout, orders), Bookings (services, staff, free times, appointments) and Real estate (listings with search, favorites and messages to your office).",
+        // 32 Counted and named from the kinds registry.
+        a: `${numberWord(SOLUTIONS.length).replace(/^./, (c) => c.toUpperCase())}, each with its own screens: ${listText(SOLUTIONS.map((s) => s.name))}. See [Solutions](/solutions) for what each one does.`,
       },
       {
         q: "How long until my apps are ready?",

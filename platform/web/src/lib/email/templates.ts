@@ -67,8 +67,8 @@ export const GLOBAL_PLACEHOLDERS: Placeholder[] = [
   { name: "yallapp_email", description: "Yallapp's email address (Settings)", sample: "info@yallapp.com.tr" },
 ];
 
-const SIGNATURE =
-  "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp {{yallapp_whatsapp}}\nYallapp is a trading name of WEBEK LTD, registered in England and Wales, company no. 16326894.";
+// 32 Yallapp's name and city; no registration number or street address.
+const SIGNATURE = "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp {{yallapp_whatsapp}}\nYallapp · Cairo, Egypt";
 
 const NAME: Placeholder = { name: "name", description: "The client's name", sample: "Ada Lovelace" };
 const APP_NAME: Placeholder = { name: "app_name", description: "The app's name (an account can have several apps)", sample: "Ada Academy" };

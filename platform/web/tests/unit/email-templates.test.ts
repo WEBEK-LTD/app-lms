@@ -10,8 +10,7 @@ import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { NOW } from "./helpers";
 
 const t = (key: string) => emailTemplate(key)!;
-const SIGNATURE =
-  "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp +90 544 673 19 42\nYallapp is a trading name of WEBEK LTD, registered in England and Wales, company no. 16326894.";
+const SIGNATURE = "\n\nYallapp\nhttps://yallapp.com.tr · WhatsApp +90 544 673 19 42\nYallapp · Cairo, Egypt";
 const WHATSAPP = { yallapp_whatsapp: "+90 544 673 19 42" };
 
 describe("email templates", () => {

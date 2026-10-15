@@ -10,6 +10,8 @@ import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
+import { breadcrumbLd, pageMetadata, siteUrl } from "@/lib/seo";
+import { JsonLdScript } from "@/components/json-ld";
 
 // Unknown articles get notFound() below. (dynamicParams = false would 404 every article once
 // the contact details change and the pages are rebuilt.)
@@ -22,7 +24,7 @@ export async function generateMetadata({ params }: PageProps<"/docs/[slug]">): P
   const article = docBySlug((await params).slug);
   if (!article) return {};
   const text = await getSiteContent(article.key);
-  return { title: text.title, description: text.description };
+  return pageMetadata({ title: text.title!, description: text.description!, path: `/docs/${article.slug}`, image: `/docs/${article.slug}/opengraph-image` });
 }
 
 function Notice({ children }: { children: ReactNode }) {
@@ -48,6 +50,12 @@ export default async function DocPage({ params }: PageProps<"/docs/[slug]">) {
 
   return (
     <DocsShell current={`/docs/${article.slug}`}>
+      <JsonLdScript
+        data={breadcrumbLd(siteUrl(), [
+          { name: "Docs", path: "/docs" },
+          { name: text.title!, path: `/docs/${article.slug}` },
+        ])}
+      />
       <DocArticle>
         <nav aria-label="Breadcrumb" className="text-sm text-muted">
           <Link href="/docs" className="text-muted">

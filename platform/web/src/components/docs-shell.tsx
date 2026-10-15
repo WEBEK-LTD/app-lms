@@ -25,7 +25,7 @@ export async function DocsShell({ current, children }: { current: string; childr
   const groups = await docsNavGroups();
   return (
     <div className="bg-ivory">
-      <SiteHeader current="docs" />
+      <SiteHeader current={current === "/developers" ? "developers" : "docs"} />
       <main className="mx-auto flex max-w-[1160px] flex-col gap-8 px-4 pt-8 pb-20 sm:px-6 lg:flex-row lg:items-start lg:gap-10 lg:pt-12">
         <div className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[260px] lg:flex-none lg:overflow-y-auto lg:pb-6">
           <DocsNav groups={groups} current={current} />

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { blocksText, faqLd, pageMetadata } from "@/lib/seo";
+import { JsonLdScript } from "@/components/json-ld";
 import { Icon } from "@/components/icon";
 import { MarkdownBlocks } from "@/components/markdown";
 import { MarketingPage, MoreLink, Section } from "@/components/marketing";
@@ -6,17 +8,19 @@ import { getSiteContent } from "@/lib/content/get";
 import { headingId } from "@/lib/content/markdown";
 import { parseFaq } from "@/lib/content/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "FAQ",
+  path: "/faq",
   description:
     "Answers about getting started, content sources, publishing on Google Play and the App Store, push notifications, payments, languages, plans, several apps per account, security and support.",
-};
+});
 
 export default async function FaqPage() {
   const text = await getSiteContent("faq");
   const groups = parseFaq(text.entries!);
   return (
     <MarketingPage current="faq" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!}>
+      <JsonLdScript data={faqLd(groups.flatMap((g) => g.items.map((item) => ({ question: item.question, answer: blocksText(item.answer) }))))} />
       <Section narrow>
         <nav aria-label="Topics" className="flex flex-wrap gap-2">
           {groups.map((group, i) => (

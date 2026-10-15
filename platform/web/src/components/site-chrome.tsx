@@ -1,56 +1,20 @@
 import Link from "next/link";
 import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
-import { LEGAL_LINE, Logo, LogoLink } from "./brand";
+import { legalLine } from "@/lib/company";
+import { PRODUCT_LINKS, type SitePage } from "@/lib/site-nav";
+import { Logo, LogoLink } from "./brand";
+import { SiteNav } from "./site-nav";
 
-export type SitePage = "home" | "solutions" | "features" | "integrations" | "how" | "pricing" | "demo" | "docs" | "faq" | "contact";
+export type { SitePage };
 
-export const SITE_PAGES: { id: SitePage; href: string; label: string }[] = [
-  { id: "home", href: "/", label: "Home" },
-  { id: "solutions", href: "/solutions", label: "Solutions" },
-  { id: "features", href: "/features", label: "Features" },
-  { id: "integrations", href: "/integrations", label: "Integrations" },
-  { id: "how", href: "/how-it-works", label: "How it works" },
-  { id: "pricing", href: "/pricing", label: "Pricing" },
-  { id: "demo", href: "/demo", label: "Demo" },
-  { id: "docs", href: "/docs", label: "Docs" },
-  { id: "faq", href: "/faq", label: "FAQ" },
-  { id: "contact", href: "/contact", label: "Contact" },
-];
-
-/** Header of the public website. Every link is its own page; `current` marks where the visitor is. */
-export async function SiteHeader({ current, white = true }: { current?: SitePage; white?: boolean }) {
-  const contact = await getContact();
+/** 32 Header of the public website: Product and Resources lists, the other pages, Sign in and Get started; `current` marks where the visitor is. */
+export function SiteHeader({ current, white = true }: { current?: SitePage; white?: boolean }) {
   return (
-    <header className={`border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
-      <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-6 gap-y-3 px-4 py-[18px] sm:px-6">
+    <header className={`relative z-30 border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
+      <div className="mx-auto flex max-w-[1160px] items-center gap-4 px-4 py-3.5 sm:px-6 lg:gap-6">
         <LogoLink href="/" />
-        <div className="order-2 ml-auto flex items-center gap-2.5 lg:order-3 lg:ml-0">
-          <Link href="/sign-in" className="flex h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline sm:px-4">
-            Sign in
-          </Link>
-          <a href={contact.whatsappUrl} className="flex h-[42px] items-center rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white">
-            Contact us
-          </a>
-        </div>
-        <nav aria-label="Main" className="order-3 flex w-full flex-1 flex-wrap items-center gap-x-5 gap-y-2 text-[15px] lg:order-2 lg:w-auto">
-          {SITE_PAGES.map((page) =>
-            page.id === current ? (
-              <Link
-                key={page.id}
-                href={page.href}
-                aria-current="page"
-                className="border-b-2 border-ember py-1 font-bold text-midnight no-underline hover:text-midnight"
-              >
-                {page.label}
-              </Link>
-            ) : (
-              <Link key={page.id} href={page.href} className="text-ink-3 no-underline hover:text-midnight hover:underline">
-                {page.label}
-              </Link>
-            ),
-          )}
-        </nav>
+        <SiteNav current={current} />
       </div>
     </header>
   );
@@ -74,8 +38,8 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
               <Logo height={36} reversed />
             </div>
             <p className="m-0 max-w-[340px] text-[15px] leading-relaxed">
-              Branded Android and iOS apps for academies, stores, bookings, real estate offices, news sites, events and charities, from the website you already run, or
-              from no website at all.
+              Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, from the website you already run, or from
+              no website at all.
             </p>
             {full ? (
               <a
@@ -89,7 +53,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
           </div>
           <nav aria-label="Product" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>PRODUCT</FooterHeading>
-            {SITE_PAGES.filter((page) => !["home", "docs", "faq", "contact"].includes(page.id)).map((page) => (
+            {[...PRODUCT_LINKS, { id: "pricing", href: "/pricing", label: "Pricing" }, { id: "demo", href: "/demo", label: "Demo" }].map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}
               </Link>
@@ -130,7 +94,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
           ) : null}
         </div>
         <div className="flex flex-wrap justify-between gap-3 border-t border-night-line pt-6 text-sm">
-          <span>{LEGAL_LINE}</span>
+          <span>{legalLine()}</span>
           {full ? (
             <span>WordPress, Shopify and the other names on this site are trademarks of their owners. Yallapp is not affiliated with the platforms it connects to.</span>
           ) : (
@@ -149,7 +113,7 @@ export async function MiniFooter() {
   const contact = await getContact();
   return (
     <footer className="mx-auto flex w-full max-w-[1160px] flex-wrap justify-between gap-x-6 gap-y-3 px-4 py-5 text-sm text-muted sm:px-6">
-      <span>© 2026 WEBEK LTD · Registered in England and Wales, company no. 16326894</span>
+      <span>{legalLine()}</span>
       <span className="flex gap-5">
         <Link href="/terms" className="text-muted">Terms</Link>
         <Link href="/privacy" className="text-muted">Privacy</Link>

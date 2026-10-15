@@ -20,7 +20,7 @@ info:
       `failed` when the client starts a new build or the team marks it in the
       admin. A later report on it gets `409 build_finished`.
   license:
-    name: Proprietary, WEBEK LTD
+    name: Proprietary, Yallapp
     url: https://yallapp.com.tr
   contact:
     name: Yallapp

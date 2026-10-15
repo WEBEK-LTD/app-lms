@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section } from "@/components/marketing";
+import { COMPANY, COMPANY_PLACE } from "@/lib/company";
 import { getContact, type Contact } from "@/lib/contact";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
-  description: "Talk to the Yallapp team on WhatsApp or by email.",
-};
+  description: "Talk to the Yallapp team on WhatsApp or by email. Yallapp is based in Cairo, Egypt, and works with businesses in many countries.",
+  path: "/contact",
+});
 
 const channels = (contact: Contact): { icon: IconName; title: string; text: string; href: string; label: string }[] => [
   {
@@ -57,19 +60,11 @@ export default async function ContactPage() {
       <Section tinted>
         <div className="flex max-w-[900px] flex-wrap gap-5">
           <div className="flex flex-[1_1_320px] gap-4 rounded-2xl border border-line bg-white p-6">
-            <Icon name="apartment" size={26} className="flex-none" />
-            <div className="flex flex-col gap-1 text-[15px]">
-              <h2 className="m-0 text-lg font-bold">WEBEK LTD</h2>
-              <span>Registered in England and Wales</span>
-              <span>Company no. 16326894</span>
-            </div>
-          </div>
-          <div className="flex flex-[1_1_320px] gap-4 rounded-2xl border border-line bg-white p-6">
             <Icon name="location_on" size={26} className="flex-none" />
             <div className="flex flex-col gap-1 text-[15px]">
-              <h2 className="m-0 text-lg font-bold">Registered office</h2>
-              <span>71-75 Shelton Street, Covent Garden</span>
-              <span>London, United Kingdom, WC2H 9JQ</span>
+              <h2 className="m-0 text-lg font-bold">{COMPANY.name}</h2>
+              <span>Based in {COMPANY_PLACE}</span>
+              <span className="text-ink-4">We work with businesses in many countries, online.</span>
             </div>
           </div>
         </div>

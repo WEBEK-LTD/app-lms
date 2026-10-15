@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/icon-names";
+
 /**
  * Yallapp's plans (roadmap 9.2 and 13.1): four tiers, each with features and
  * limits. Every app has its own plan (Phase 12). The team edits names, prices,
@@ -11,6 +13,9 @@
 
 export const PLANS = ["starter", "growth", "pro", "business"] as const;
 export type Plan = (typeof PLANS)[number];
+
+/** 32 The plan most clients pick, marked "Most popular" on the pricing and home pages. */
+export const FEATURED_PLAN: Plan = "growth";
 
 /** Lower to higher: an upgrade moves up, a downgrade down. */
 export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, business: 3 };
@@ -310,6 +315,17 @@ export function planPrice(plan: PlanInfo): { price: string; period: string | nul
   if (plan.priceCents === null) return { price: plan.price, period: null };
   const price = new Intl.NumberFormat("en-US", { style: "currency", currency: plan.currency, currencyDisplay: "narrowSymbol" }).format(plan.priceCents / 100);
   return { price, period: plan.billingMonths === 1 ? "month" : "year" };
+}
+
+/** 32 A plan's key limits, in a few words each: app users, languages and the platforms its apps run on. */
+export function planLimitLines(plan: PlanInfo): { icon: IconName; text: string }[] {
+  const users = plan.limits.appUsers;
+  const languages = plan.limits.languages;
+  return [
+    { icon: "group", text: users === null ? "Unlimited users" : `Up to ${formatLimit(users)} users` },
+    { icon: "language", text: languages === null ? "All languages" : `${languages} ${languages === 1 ? "language" : "languages"}` },
+    { icon: "smartphone", text: hasFeature(plan, "ios") ? "Android and iOS" : "Android" },
+  ];
 }
 
 /** "1,000", or the limit's word for unlimited. */

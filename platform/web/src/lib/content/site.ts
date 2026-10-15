@@ -1,6 +1,6 @@
 import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
-import { FAQ, SOLUTIONS } from "../marketing";
+import { FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
 
 /**
@@ -164,6 +164,10 @@ function headerPage(key: string, title: string, path: string, defaults: { eyebro
   return { key, group: "Pages", title, path, revalidate: { path }, fields: PAGE_HEADER, defaults };
 }
 
+/** 32 Counts in the default texts follow the registries (lib/app/kinds.ts, lib/marketing.ts). */
+const KIND_COUNT = numberWord(SOLUTIONS.length);
+const STEPS_TITLE = `From sign-up to the app stores in ${numberWord(STEPS.length)} steps`;
+
 export const CONTENT_PAGES: ContentPage[] = [
   {
     key: "home",
@@ -192,13 +196,13 @@ export const CONTENT_PAGES: ContentPage[] = [
       { name: "plansText", label: "Plans: text", kind: "text", max: 300 },
     ],
     defaults: {
-      badge: "Apps for academies, stores, bookings, real estate and news",
+      badge: `Android and iOS apps for ${KIND_COUNT} kinds of business`,
       title: "Your business, as your own mobile app.",
       intro:
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
       secondaryCta: "See how it works",
-      solutionsTitle: "One platform, nine kinds of apps",
+      solutionsTitle: `One platform, ${KIND_COUNT} kinds of apps`,
       solutionsText: "Pick the app that fits your business. Each one has its own screens, built for what your customers do.",
       featuresTitle: "Everything your app needs",
       featuresText: "Your brand, your pages and your languages, with sign-in, notifications and payments that follow the store rules.",
@@ -209,9 +213,9 @@ export const CONTENT_PAGES: ContentPage[] = [
         "Set up your app step by step, build its pages with drag and drop, and download every build. No code, and no new store release for every change.",
       compareTitle: "A typical app builder, and Yallapp",
       compareText: "What you often get elsewhere, next to what every Yallapp app does.",
-      stepsTitle: "From sign-up to the app stores in five steps",
-      plansTitle: "Two plans",
-      plansText: "Publish the apps yourself with our guides, or let us publish them for you.",
+      stepsTitle: STEPS_TITLE,
+      plansTitle: "A plan for every app",
+      plansText: "Start with Android, add iOS when you're ready, and let us publish your apps for you when you'd rather not do it yourself.",
     },
   },
   {
@@ -232,7 +236,7 @@ export const CONTENT_PAGES: ContentPage[] = [
   headerPage("solutions", "Solutions", "/solutions", {
     eyebrow: "Solutions",
     title: "An app for the way your business works",
-    intro: "Academies, stores, bookings businesses and real estate offices each get their own screens, built on the same platform, with or without a website.",
+    intro: "Academies, shops, restaurants, clinics, gyms, events, charities and more each get their own screens, built on the same platform, with or without a website.",
   }),
   ...SOLUTIONS.map((solution) =>
     headerPage(solution.contentKey, `Solutions: ${solution.name}`, `/solutions/${solution.id}`, SOLUTION_HEADERS[solution.kind] ?? { eyebrow: `${solution.name} apps`, title: solution.name, intro: solution.summary }),
@@ -247,11 +251,11 @@ export const CONTENT_PAGES: ContentPage[] = [
     eyebrow: "Integrations",
     title: "Your content, from wherever it lives",
     intro:
-      "WordPress with 11 supported plugins, 7 online platforms, your own API, or no website at all. Your content stays where it is, and your app reads it live.",
+      `WordPress with ${INTEGRATION_COUNTS.plugins} supported plugins, ${INTEGRATION_COUNTS.platforms} online platforms, RSS feeds, your own API, or no website at all. Your content stays where it is, and your app reads it live.`,
   }),
   headerPage("how-it-works", "How it works", "/how-it-works", {
     eyebrow: "How it works",
-    title: "From sign-up to the app stores in five steps",
+    title: STEPS_TITLE,
     intro: "You keep running your business as you do today. Yallapp turns it into your own Android and iOS apps.",
   }),
   headerPage("pricing", "Pricing", "/pricing", {
