@@ -38,7 +38,7 @@ const siteUrl = z
   .min(1, "Enter your website address.")
   .max(255, "This address is too long.")
   .transform((value) => (/^https?:\/\//i.test(value) ? value : `https://${value}`))
-  .refine((value) => isHttpUrl(value), "Enter a full address, e.g. https://your-academy.com.");
+  .refine((value) => isHttpUrl(value), "Enter a full address, e.g. https://your-website.com.");
 
 const httpsSiteUrl = siteUrl.refine(
   (value) => RULES.httpsUrl.test(value),
@@ -124,7 +124,7 @@ export const websiteSchema = z.discriminatedUnion("backend", [
         if (!value.trim()) return null;
         const parsed = httpsSiteUrl.safeParse(value);
         if (parsed.success) return parsed.data;
-        ctx.addIssue({ code: "custom", message: parsed.error.issues[0]?.message ?? "Enter a full address, e.g. https://your-academy.com." });
+        ctx.addIssue({ code: "custom", message: parsed.error.issues[0]?.message ?? "Enter a full address, e.g. https://your-website.com." });
         return z.NEVER;
       }),
     setupNote: z.string().trim().max(1000, "Use at most 1000 characters.").optional().default(""),

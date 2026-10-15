@@ -8,6 +8,7 @@ import type { App, AppLayoutRecord } from "@/lib/data/types";
 import { discardDraft, hasUnpublishedChanges, publishLayout, saveDraft } from "@/lib/pages/layout";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan } from "@/lib/entitlements";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
 // 10.4 The page and look editor's saves: the draft, publishing and discarding it.
 
@@ -65,6 +66,11 @@ export async function publishLayoutAction(json: string): Promise<LayoutSaveResul
   const published = await publishLayout(store, app, parseJson(json), (staff ?? user).email, now, await appPlan(store, license, now));
   if (!published.ok) return published;
   revalidatePath("/dashboard/pages");
+  // 31 A WordPress site fetches the layout when asked, instead of within 15 minutes.
+  if (app.backend === "wordpress") {
+    refreshSitesSoon([app.id]);
+    return result(published.value, "Published. Your website gets the new pages within a minute when it can be reached (otherwise within 15 minutes), and your app shows them the next time it opens.");
+  }
   return result(published.value, "Published. Your app shows the new pages the next time it opens.");
 }
 

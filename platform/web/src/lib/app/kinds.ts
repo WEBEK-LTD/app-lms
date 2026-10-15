@@ -1,6 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import type { App, AppType, AppVertical, ConnectorConfig } from "../data/types";
-import type { BlockType, ItemSource, LayoutBlock, LayoutTab } from "../pages/types";
+import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "../pages/types";
 
 /**
  * 20 The one registry of what Yallapp makes. An app has two things that used
@@ -72,12 +72,36 @@ export interface EngineInfo {
     read: { items: string; categories: string; title: "title" | "name" } | null;
     /** Block types only this engine has. */
     blocks: BlockType[];
+    /**
+     * 31 The built-in screens its Flutter module opens (`screenLocation` in
+     * mobile/lib/modules/<module>/<module>_routes.dart maps them to a route),
+     * in the order the page editor lists them. tests/unit/kinds.test.ts reads
+     * the Dart files to keep them the same.
+     */
+    screens: ScreenName[];
+    /** 31 Other screen names the module opens as one of `screens` (older layouts use them); never offered. */
+    aliases: Partial<Record<ScreenName, ScreenName>>;
+    /** 31 The editor's names for screens that mean something else in this engine ("All products"). */
+    screenLabels?: Partial<Record<ScreenName, string>>;
     /** The first layout: tabs between Home and Account, blocks after the welcome text. */
     tabs: LayoutTab[];
     home: LayoutBlock[];
   };
   /** The store categories suggested in Publishing. */
   categories: { play: string; appStore: string };
+  /** 31 The dashboard's words where a sentence names this engine's content or what it sells. */
+  words: {
+    /** Its content, in a sentence: "courses", "products". */
+    items: string;
+    /** Publishing: the hint under the store description. */
+    storeDescription: string;
+    /** Publishing: the example for the content rating questions. */
+    ratingExample: string;
+    /** What Apple's rules mean for this app, or null when it sells nothing. */
+    iphone: string | null;
+    /** The plan feature "Card payments in the app", for this engine; null where it doesn't apply. */
+    cardPayments: string | null;
+  };
   /** The demo app on /demo: /demo/download/<slug>. */
   demo: { slug: string };
 }
@@ -153,6 +177,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "courses",
       read: { items: "courses", categories: "categories", title: "title" },
       blocks: ["continue_learning"],
+      screens: ["courses", "my_courses", "search", "favorites", "orders", "account", "settings", "notifications"],
+      aliases: {},
+      screenLabels: { favorites: "Wishlist" },
       tabs: [tab("courses", "Courses", "school", "courses"), tab("learning", "My courses", "menu_book", "my_courses")],
       home: [
         { id: "search", type: "search", visibility: "everyone", title: null, source: "courses", placeholder: "Search courses" },
@@ -171,6 +198,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "Education", appStore: "Education" },
+    words: {
+      items: "courses",
+      storeDescription: "Describe your courses and what students can do in the app.",
+      ratingExample: "For example: online courses for adults. No violence, gambling or dating. Students can't message each other. No ads.",
+      iphone: "Apple's rule: the iPhone app never shows buy buttons for paid courses; free enrolment works on both phones. Your Android app opens your checkout as usual.",
+      cardPayments: "Sell courses by card in the app, through our payment page.",
+    },
     demo: { slug: "academy" },
   },
   store: {
@@ -204,6 +238,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "products",
       read: { items: "store/products", categories: "store/categories", title: "name" },
       blocks: [],
+      screens: ["courses", "search", "cart", "orders", "account", "settings", "notifications"],
+      aliases: {},
+      screenLabels: { courses: "All products" },
       tabs: [tab("shop", "Shop", "storefront", "search"), tab("cart", "Cart", "shopping_cart", "cart")],
       home: [
         { id: "search", type: "search", visibility: "everyone", title: null, source: "products", placeholder: "Search products" },
@@ -231,6 +268,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "Shopping", appStore: "Shopping" },
+    words: {
+      items: "products",
+      storeDescription: "Describe your shop, what you sell and how ordering in the app works.",
+      ratingExample: "For example: a flower shop. No violence, gambling or dating. Customers can't message each other. No ads.",
+      iphone: "Apple's rule: physical products are bought on both phones; the iPhone app never sells digital products (downloads and virtual products).",
+      cardPayments: "Sell products by card in the app, through our payment page.",
+    },
     demo: { slug: "store" },
   },
   booking: {
@@ -240,7 +284,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     homePath: "/bookings/home",
     configCheck: { label: "Config has the bookings settings", fix: "Add `bookings` to /config.", key: "bookings", in: "root", type: "object" },
     websites: ["wordpress", "platform", "catalog", "custom_api", "setup_requested"],
-    sitePlaceholder: "https://your-academy.com",
+    sitePlaceholder: "https://your-business.com",
     platformChoice: {
       title: "My SimplyBook.me account",
       text: "Your services, team and free times come from SimplyBook.me. Customers sign in to the app with a code we send.",
@@ -264,6 +308,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "services",
       read: { items: "bookings/services", categories: "bookings/categories", title: "name" },
       blocks: [],
+      screens: ["services", "appointments", "classes", "memberships", "orders", "account", "settings", "notifications"],
+      aliases: { courses: "services", search: "services" },
       tabs: [tab("book", "Book", "calendar_month", "services"), tab("appointments", "Appointments", "event", "appointments")],
       home: [
         {
@@ -279,6 +325,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "Lifestyle", appStore: "Lifestyle" },
+    words: {
+      items: "services",
+      storeDescription: "Describe your business, your services and what customers can book in the app.",
+      ratingExample: "For example: bookings for a hair salon. No violence, gambling or dating. Customers can't message each other. No ads.",
+      iphone: "Appointments are booked on both phones. Memberships for classes used in person are paid on our web payment page, on iPhone too.",
+      cardPayments: "Sell memberships by card in the app, through our payment page.",
+    },
     demo: { slug: "bookings" },
   },
   real_estate: {
@@ -289,7 +342,7 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     configCheck: { label: "Config has the office settings", fix: "Add `listings` to /config.", key: "listings", in: "root", type: "object" },
     // Hosted only: listings are managed in the dashboard.
     websites: ["catalog"],
-    sitePlaceholder: "https://your-academy.com",
+    sitePlaceholder: "https://your-agency.com",
     platformChoice: { title: "Another platform", text: "Your listings come from another platform." },
     platformPhoneNote: null,
     ownContent: {
@@ -313,6 +366,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "listings",
       read: null,
       blocks: [],
+      screens: ["courses", "search", "favorites", "messages", "account", "settings", "notifications"],
+      aliases: {},
+      screenLabels: { courses: "All listings" },
       tabs: [tab("search", "Search", "search", "search"), tab("favorites", "Favorites", "favorite", "favorites"), tab("messages", "Messages", "chat", "messages")],
       home: [
         { id: "search", type: "search", visibility: "everyone", title: null, source: "listings", placeholder: "Search properties" },
@@ -329,6 +385,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "House & Home", appStore: "Lifestyle" },
+    words: {
+      items: "listings",
+      storeDescription: "Describe your agency, the properties you list and how people reach you from the app.",
+      ratingExample: "For example: property listings. No violence, gambling or dating. People can message the office only. No ads.",
+      iphone: null,
+      cardPayments: null,
+    },
     demo: { slug: "real-estate" },
   },
   // 23 News sites, blogs and magazines: read-only articles, no paid content.
@@ -361,6 +424,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "articles",
       read: { items: "news/articles", categories: "news/categories", title: "title" },
       blocks: [],
+      screens: ["articles", "search", "bookmarks", "account", "settings", "notifications"],
+      aliases: { courses: "articles", favorites: "bookmarks" },
       tabs: [tab("articles", "Latest", "newspaper", "articles"), tab("saved", "Saved", "bookmark", "bookmarks")],
       home: [
         { id: "search", type: "search", visibility: "everyone", title: null, source: "articles", placeholder: "Search articles" },
@@ -388,6 +453,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "News & Magazines", appStore: "News" },
+    words: {
+      items: "articles",
+      storeDescription: "Describe what you publish and what readers can do in the app.",
+      ratingExample: "For example: local news and opinion. No violence, gambling or dating. No comments or chat. No ads.",
+      iphone: null,
+      cardPayments: null,
+    },
     demo: { slug: "news" },
   },
   // 28 Events & tickets: event listings, free sign-ups and paid tickets with QR codes checked at the door.
@@ -423,6 +495,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "events",
       read: null,
       blocks: [],
+      screens: ["events", "search", "tickets", "account", "settings", "notifications"],
+      aliases: { courses: "events", orders: "tickets" },
       tabs: [tab("events", "Events", "event", "events"), tab("tickets", "My tickets", "confirmation_number", "tickets")],
       home: [
         { id: "search", type: "search", visibility: "everyone", title: null, source: "events", placeholder: "Search events" },
@@ -439,6 +513,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "Events", appStore: "Entertainment" },
+    words: {
+      items: "events",
+      storeDescription: "Describe your events and what people can do in the app, like getting tickets.",
+      ratingExample: "For example: concerts and workshops for all ages. No violence, gambling or dating. No chat. No ads.",
+      iphone: "Apple's rule: tickets to events at a venue are sold on both phones; the iPhone app never sells paid tickets to online-only events.",
+      cardPayments: "Sell tickets by card in the app, through our payment page.",
+    },
     demo: { slug: "events" },
   },
   // 29 Charities: campaigns with progress; donations are paid on a web page into the charity's own iyzico account (in the browser on iPhone).
@@ -474,6 +555,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       source: "campaigns",
       read: null,
       blocks: [],
+      screens: ["campaigns", "my_donations", "account", "settings", "notifications"],
+      aliases: { courses: "campaigns", orders: "my_donations" },
       tabs: [tab("campaigns", "Campaigns", "volunteer_activism", "campaigns"), tab("donations", "My donations", "receipt_long", "my_donations")],
       home: [
         {
@@ -499,6 +582,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       ],
     },
     categories: { play: "Social", appStore: "Lifestyle" },
+    words: {
+      items: "campaigns",
+      storeDescription: "Describe your charity, your campaigns and how people can give in the app.",
+      ratingExample: "For example: a food bank's campaigns. No violence, gambling or dating. No chat. No ads.",
+      iphone: "Apple's rule: on iPhone, donations open your donation page in the browser; on Android they're made in the app.",
+      cardPayments: "Take donations by card, through your donation page.",
+    },
     demo: { slug: "charity" },
   },
 };
@@ -767,6 +857,11 @@ export function contentNavOf(app: Pick<App, "appType" | "connector"> & { vertica
   if (!engine) return null;
   const kind = kindOf(app);
   return kind.engine === engine.id && kind.wording ? kind.wording.nav : engine.ownContent.nav;
+}
+
+/** 31 The dashboard's words for the app's engine: its content, what it sells and Apple's rules for it. */
+export function wordsOf(app: Pick<App, "appType">): EngineInfo["words"] {
+  return ENGINES[isAppType(app.appType) ? app.appType : "lms"].words;
 }
 
 /** 21 The sidebar group of the app users pages: "App users", or the kind's word ("Patients"). */

@@ -35,6 +35,7 @@ class License_Client {
 
 	const STATUS_OPTION = 'yallapp_license';
 	const CHECK_HOOK    = 'yallapp_license_check';
+	const REFRESH_HOOK  = 'yallapp_license_refresh';
 	const GRACE         = 259200;
 	const DEFAULT_URL   = 'https://yallapp.com.tr/api/v1';
 
@@ -70,6 +71,7 @@ class License_Client {
 	 */
 	public function register() {
 		add_action( self::CHECK_HOOK, array( $this, 'check' ) );
+		add_action( self::REFRESH_HOOK, array( $this, 'refresh_now' ) );
 		add_action( 'init', array( $this, 'schedule' ) );
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 10, 3 );
@@ -274,6 +276,24 @@ class License_Client {
 			return $result;
 		}
 		return $this->save_status( $result );
+	}
+
+	/**
+	 * 31 Checks the license now because the platform asked (`POST /license/refresh`, or the
+	 * check a nudge scheduled when it came too soon after the last one), then lets the layout
+	 * client fetch the published pages.
+	 *
+	 * @return array|WP_Error Status.
+	 */
+	public function refresh_now() {
+		$result = $this->check();
+		/**
+		 * Fires after the platform asked the site to check its license and the check ran.
+		 *
+		 * @param array|WP_Error $result The check's result.
+		 */
+		do_action( 'yallapp_license_refreshed', $result );
+		return $result;
 	}
 
 	/**

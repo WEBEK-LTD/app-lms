@@ -22,6 +22,7 @@ import { accountForOrder, orderNumber } from "@/lib/catalog/settings";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { sendTemplate } from "@/lib/email/send";
 import { getPlans } from "@/lib/settings/platform";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { formatDate } from "@/components/ui";
 import { activateSchema, addClientSchema, clientDetailsSchema, releaseSchema } from "@/lib/validation";
 
@@ -124,6 +125,8 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
         : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard })
     ).catch((error: unknown) => console.error("[mail] activation email failed", error));
   }
+  // 31 The plan and its features reach the app's WordPress site at once.
+  refreshSitesSoon([app?.id ?? outcome.license.appId]);
   revalidateClient(client.id);
   redirect(clientUrl(client.id, outcome.created ? "activated" : "renewed", formData));
 }
@@ -137,7 +140,10 @@ async function clientIdFrom(formData: FormData, permission: AdminPermission): Pr
 
 export async function suspendClientAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.suspend");
-  await suspendClient(await getStore(), id, new Date());
+  const store = await getStore();
+  await suspendClient(store, id, new Date());
+  // 31 Each app's WordPress site learns it at once.
+  refreshSitesSoon((await store.listAppsByClient(id)).map((a) => a.id));
   await recordAudit({
     actor: admin,
     action: "client.suspend",
@@ -153,7 +159,9 @@ export async function suspendClientAction(formData: FormData): Promise<void> {
 
 export async function reinstateClientAction(formData: FormData): Promise<void> {
   const { id, admin } = await clientIdFrom(formData, "clients.suspend");
-  await reinstateClient(await getStore(), id, new Date());
+  const store = await getStore();
+  await reinstateClient(store, id, new Date());
+  refreshSitesSoon((await store.listAppsByClient(id)).map((a) => a.id));
   await recordAudit({
     actor: admin,
     action: "client.reinstate",

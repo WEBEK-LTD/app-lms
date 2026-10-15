@@ -29,6 +29,15 @@ Client's WordPress site                    Yallapp (WEBEK)
   its phone number, which the platform passes on and doesn't keep.
 - The **platform** stores client accounts, plans, licenses, app settings and
   build records. It builds apps through CI and hands the files to the client.
+  It calls a WordPress site only to nudge it (Phase 31): after the owner
+  saves something the license status carries (app type, sign-in choices,
+  plan, account status) or publishes pages, `POST /license/refresh` on the
+  plugin, signed with an HMAC of the time keyed with the license key, sent
+  after the response (`after()`), 5 seconds at most, https only, never to a
+  private address. The plugin accepts it within 5 minutes of its clock, at
+  most once every 30 seconds (a nudge too soon schedules one check for when
+  the 30 seconds are over), and then runs its usual license check and layout
+  fetch: nothing in the nudge is trusted.
 
 ## WordPress plugin
 

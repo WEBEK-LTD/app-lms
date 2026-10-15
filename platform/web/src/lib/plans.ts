@@ -210,6 +210,15 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   },
 ];
 
+/**
+ * 31 The features as an app's owner reads them: card payments in the words of
+ * what the app sells (lib/app/kinds.ts, `words.cardPayments`), and left out
+ * where the app sells nothing (null).
+ */
+export function planFeaturesFor(cardPayments: string | null): PlanFeatureDef[] {
+  return PLAN_FEATURES.flatMap((f) => (f.id !== "card_payments" ? [f] : cardPayments ? [{ ...f, description: cardPayments }] : []));
+}
+
 export type PlanLimitId = "appUsers" | "languages" | "sources";
 
 export const PLAN_LIMITS: { id: PlanLimitId; label: string; unlimited: string; enforced: string }[] = [

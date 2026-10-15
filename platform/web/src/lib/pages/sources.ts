@@ -1,6 +1,7 @@
 import { ENGINES, hostedOnly, isAppType } from "../app/kinds";
 import type { App } from "../data/types";
-import type { BlockType, ItemSource } from "./types";
+import { SCREEN_LABELS } from "./labels";
+import { SCREENS, type Action, type BlockType, type ItemSource, type ItemsSort, type LayoutBlock, type ScreenName } from "./types";
 
 /**
  * Which lists an app's pages can show: its engine's (lib/app/kinds.ts), and
@@ -47,3 +48,80 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   events: "Events",
   campaigns: "Campaigns",
 };
+
+// 31 Screens and orders per app
+
+/** A screen the editor offers, by its name in this app. `alias`: an older name the app opens as another screen, kept when a layout has it. */
+export interface ScreenOption {
+  value: ScreenName;
+  label: string;
+  alias?: true;
+}
+
+/** The screens the app opens (lib/app/kinds.ts, from its Flutter module), then the older names it also opens. */
+export function screenOptionsFor(app: Pick<App, "appType">): ScreenOption[] {
+  if (!isAppType(app.appType)) return SCREENS.map((value) => ({ value, label: SCREEN_LABELS[value] }));
+  const pages = ENGINES[app.appType].pages;
+  const label = (screen: ScreenName) => pages.screenLabels?.[screen] ?? SCREEN_LABELS[screen];
+  return [
+    ...pages.screens.map((value) => ({ value, label: label(value) })),
+    ...(Object.entries(pages.aliases) as [ScreenName, ScreenName][]).map(([value, to]) => ({ value, label: label(to), alias: true as const })),
+  ];
+}
+
+/** Whether the app can open a screen. */
+export function appOpensScreen(app: Pick<App, "appType">, screen: unknown): screen is ScreenName {
+  return screenOptionsFor(app).some((o) => o.value === screen);
+}
+
+/** A screen's name for messages, also for one the app doesn't have. */
+export function screenName(screen: string): string {
+  return (SCREEN_LABELS as Record<string, string>)[screen] ?? screen;
+}
+
+/**
+ * What's wrong with a tap action in this app, as the editor shows it next to
+ * the tab or block (a layout from before the app's type changed still loads),
+ * or null. Publishing refuses the same (lib/pages/validate.ts).
+ */
+export function actionProblem(action: Action | null | undefined, screens: readonly ScreenOption[], sources: readonly ItemSource[]): string | null {
+  if (action?.type === "screen" && !screens.some((s) => s.value === action.screen)) {
+    return `This app has no "${screenName(action.screen ?? "")}" screen. Choose another screen.`;
+  }
+  if (action?.type === "course" && !sources.includes("courses")) return "This app has no courses. Choose what happens on tap.";
+  return null;
+}
+
+/** The first problem with a block's tap actions, or null. */
+export function blockProblem(block: Pick<LayoutBlock, "action" | "see_all">, screens: readonly ScreenOption[], sources: readonly ItemSource[]): string | null {
+  return actionProblem(block.action, screens, sources) ?? actionProblem(block.see_all, screens, sources);
+}
+
+/**
+ * The orders a list block offers for each source, as the plugin and the
+ * hosted API sort them: by price only where entries have one; articles and
+ * blog posts newest or most read; events always soonest first and campaigns
+ * in the dashboard's order, so those offer no choice.
+ */
+export const SOURCE_SORTS: Record<ItemSource, readonly ItemsSort[]> = {
+  courses: ["newest", "popular", "price_asc", "price_desc"],
+  products: ["newest", "popular", "price_asc", "price_desc"],
+  services: ["newest", "price_asc", "price_desc"],
+  posts: ["newest", "popular"],
+  listings: ["newest", "price_asc", "price_desc"],
+  articles: ["newest", "popular"],
+  events: ["newest"],
+  campaigns: ["newest"],
+};
+
+/** The list's order, or the first one when the source can't be sorted that way. */
+export function sortFor(source: ItemSource, sort: ItemsSort): ItemsSort {
+  return SOURCE_SORTS[source].includes(sort) ? sort : "newest";
+}
+
+/** What a List block can show in this app, for the block picker: "Courses or blog posts". */
+export function listHint(sources: readonly ItemSource[]): string {
+  const names = sources.map((s, i) => (i === 0 ? SOURCE_NAMES[s] : SOURCE_NAMES[s].toLowerCase()));
+  if (names.length === 0) return "Entries from your app";
+  return names.length === 1 ? names[0]! : `${names.slice(0, -1).join(", ")} or ${names[names.length - 1]}`;
+}

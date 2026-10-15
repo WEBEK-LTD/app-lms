@@ -1,7 +1,7 @@
 import type { App } from "../data/types";
 import { cleanBlockHtml, safeHref } from "./html";
 import { ICON_NAME } from "./icons";
-import { blockTypesFor, categorySourcesFor, itemSourcesFor } from "./sources";
+import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
 import {
   ACTION_TYPES,
   APP_FONTS,
@@ -172,6 +172,8 @@ export function parseAppDefaults(value: unknown): ParseResult<AppDefaultsSetting
 
 interface Context {
   c: Checker;
+  /** 31 The app whose screens actions may open. */
+  app: ParseOptions["app"];
   sources: ItemSource[];
   categorySources: ItemSource[];
   slugs: Set<string>;
@@ -198,8 +200,11 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
     }
     case "screen":
       if (!oneOf(SCREENS, v.screen)) c.fail(where, "choose a screen.");
+      // 31 Only screens the app's module opens: anything else would do nothing when tapped.
+      else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(v.screen)}" screen. Choose another screen.`);
       return { type: "screen", screen: v.screen as Action["screen"] };
     case "course": {
+      if (!ctx.sources.includes("courses")) c.fail(where, "this app has no courses. Choose what happens on tap.");
       const id = Number(v.course_id);
       if (!Number.isSafeInteger(id) || id < 1) c.fail(where, "enter the course ID.");
       return { type: "course", course_id: Number.isSafeInteger(id) ? id : null };
@@ -248,7 +253,7 @@ function parseTranslations(ctx: Context, where: string, value: unknown, fields: 
 
 const BLOCK_TEXT_LIMITS = { title: 80, heading: 120, subheading: 200, html: LAYOUT_LIMITS.htmlChars, label: 40, placeholder: 60 };
 
-function parseQuery(ctx: Context, where: string, value: unknown): ItemsQuery {
+function parseQuery(ctx: Context, where: string, value: unknown, source: unknown): ItemsQuery {
   const { c } = ctx;
   const v = record(value) ?? {};
   const limit = Number(v.limit ?? 10);
@@ -265,10 +270,12 @@ function parseQuery(ctx: Context, where: string, value: unknown): ItemsQuery {
   if (ids.length > LAYOUT_LIMITS.maxHandPicked) c.fail(where, `choose at most ${LAYOUT_LIMITS.maxHandPicked} entries.`);
   const sort = v.sort ?? "newest";
   if (!oneOf(ITEMS_SORTS, sort)) c.fail(where, "choose the order.");
+  const known = oneOf(ITEMS_SORTS, sort) ? sort : "newest";
   return {
     category_id: category,
     featured: v.featured === true,
-    sort: oneOf(ITEMS_SORTS, sort) ? sort : "newest",
+    // 31 An order the source has no data for (prices of articles) is the first one, as the app gets it.
+    sort: oneOf(ctx.sources, source) ? sortFor(source, known) : known,
     limit: Number.isInteger(limit) ? Math.min(Math.max(limit, 1), LAYOUT_LIMITS.maxItems) : 10,
     ids: ids.slice(0, LAYOUT_LIMITS.maxHandPicked),
   };
@@ -336,7 +343,7 @@ function parseBlock(ctx: Context, where: string, value: unknown, allowed: string
       if (!oneOf(ITEMS_LAYOUTS, v.layout)) c.fail(at, "choose how the list looks.");
       block.layout = oneOf(ITEMS_LAYOUTS, v.layout) ? v.layout : "carousel";
       block.see_all = parseAction(ctx, `${at} "See all"`, v.see_all, false);
-      block.query = parseQuery(ctx, at, v.query);
+      block.query = parseQuery(ctx, at, v.query, v.source);
       break;
     case "categories":
       if (!oneOf(ctx.categorySources, v.source)) c.fail(at, "choose whose categories to show.");
@@ -439,6 +446,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   }
   const ctx: Context = {
     c,
+    app: options.app,
     sources: itemSourcesFor(options.app),
     categorySources: categorySourcesFor(options.app),
     slugs,

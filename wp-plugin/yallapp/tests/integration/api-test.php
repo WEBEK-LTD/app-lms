@@ -596,6 +596,22 @@ if ( ! is_array( $result ) || empty( $result['checks'] ) ) {
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'codes: the development code is back for the checks below', 200 === $r['status'], $r['raw'] );
 
+echo "Settings reach the site at once (31)\n";
+$r = call( 'POST', '/license/refresh', array( 'timestamp' => time(), 'signature' => str_repeat( 'a', 64 ) ) );
+check( 'refresh: an unsigned nudge over HTTP 401', 401 === $r['status'] && 'invalid_signature' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+// Inside the site, with the platform replaced by a pre_http_request filter.
+foreach ( array( 'license-refresh-check.php', 'settings-page-check.php' ) as $file ) {
+	$out    = (string) wp_cli( 'eval-file ' . escapeshellarg( __DIR__ . '/' . $file ) );
+	$result = json_decode( trim( $out ), true );
+	if ( ! is_array( $result ) || empty( $result['checks'] ) ) {
+		check( $file . ' ran', false, $out );
+		continue;
+	}
+	foreach ( $result['checks'] as $entry ) {
+		check( $entry[0], $entry[1], $entry[2] );
+	}
+}
+
 echo "Sign-in by email and password\n";
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'config: phone sign-in by default', array( 'phone' ) === ( $r['json']['auth']['methods'] ?? null ) && ! isset( $r['json']['auth']['email_sign_in'] ), $r['json']['auth'] ?? null );

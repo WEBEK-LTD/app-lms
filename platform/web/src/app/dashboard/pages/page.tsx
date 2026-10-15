@@ -8,7 +8,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
-import { blockTypesFor, categorySourcesFor, itemSourcesFor } from "@/lib/pages/sources";
+import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
@@ -47,7 +47,7 @@ export default async function PagesPage() {
     app.backend === "hosted"
       ? "Your app gets published changes the next time it opens."
       : app.backend === "wordpress"
-        ? "The Yallapp plugin on your site picks up published changes within 15 minutes; Refresh in the plugin settings gets them at once."
+        ? "The Yallapp plugin on your site gets published changes within a minute when your site can be reached, otherwise within 15 minutes; Refresh in the plugin settings gets them at once."
         : app.backend === "setup_requested"
           ? // 19 The pages reach the app through the plugin on the site our team sets up.
             "Once our team has set up your WordPress site, the Yallapp plugin on it picks up what you publish here within 15 minutes."
@@ -98,6 +98,7 @@ export default async function PagesPage() {
         }}
         sources={sources}
         categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
+        screens={screenOptionsFor(app)}
         blockTypes={blockTypesFor(app)}
         pickable={pickable}
         reach={reach}

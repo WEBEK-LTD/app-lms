@@ -15,7 +15,8 @@ use Yallapp\Settings;
 
 /**
  * Fetches the layout (POST /apps/layout in docs/api/platform.yaml) when the license is
- * activated, every 15 minutes and when the site admin asks, and keeps the last copy.
+ * activated, every 15 minutes, when the site admin asks and (31) when the platform asks the
+ * site to check its license now, and keeps the last copy.
  *
  * 200 replaces the copy, 304 keeps it, 204 clears it (the app gets the default pages).
  * Failures keep the last copy. Only the site details in SiteInfo are sent.
@@ -65,6 +66,8 @@ class Layout_Client {
 		add_action( self::HOOK, array( $this, 'refresh' ) );
 		add_action( 'init', array( $this, 'schedule' ) );
 		add_action( 'yallapp_license_activated', array( $this, 'refresh' ) );
+		// 31 The platform asked the site to check now (the owner published or changed a setting).
+		add_action( 'yallapp_license_refreshed', array( $this, 'refresh' ) );
 		add_action( 'yallapp_license_deactivated', array( $this, 'forget' ) );
 	}
 

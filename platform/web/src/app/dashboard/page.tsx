@@ -7,13 +7,13 @@ import { AppStateBadge, LinkCard } from "@/components/dashboard";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Badge, Notice, PageHeader, ProgressBar, btn, formatDate } from "@/components/ui";
-import { kindOf } from "@/lib/app/kinds";
+import { kindOf, wordsOf } from "@/lib/app/kinds";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { daysUntil } from "@/lib/license/status";
-import { formatLimit, hasFeature, lowestPlanWith, PLAN_FEATURES, planName } from "@/lib/plans";
+import { formatLimit, hasFeature, lowestPlanWith, planFeaturesFor, planName } from "@/lib/plans";
 import { OwnerNotices } from "@/components/owner-notices";
 import { UpgradeHint, UsageMeter, upgradeHref } from "@/components/upgrade";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
@@ -93,6 +93,8 @@ export default async function OverviewPage() {
   const done = SETUP_STEPS.filter((step) => status[step]).length;
   const next = nextStep(app, plan, effective);
   const daysLeft = license ? daysUntil(license.expiresAt, now) : 0;
+  // 31 The plan's features in the words of what this app sells.
+  const features = planFeaturesFor(wordsOf(app).cardPayments);
   // 13.2 App users count on the hosted API only: a WordPress site keeps its own users.
   const hosted = app.backend === "hosted";
   const users = hosted ? await store.countHostedUsers(app.id) : 0;
@@ -392,17 +394,17 @@ export default async function OverviewPage() {
               <Icon name="check" size={18} className="text-success" />
               {formatLimit(current.limits.languages, "All")} app language{current.limits.languages === 1 ? "" : "s"}
             </li>
-            {PLAN_FEATURES.filter((f) => hasFeature(current, f.id)).map((f) => (
+            {features.filter((f) => hasFeature(current, f.id)).map((f) => (
               <li key={f.id} className="flex items-center gap-2">
                 <Icon name="check" size={18} className="text-success" />
                 {f.label}
               </li>
             ))}
           </ul>
-          {PLAN_FEATURES.some((f) => !hasFeature(current, f.id)) ? (
+          {features.some((f) => !hasFeature(current, f.id)) ? (
             <div className="flex flex-col gap-2 border-t border-line-soft pt-4">
               <span className="text-sm font-semibold text-muted">Not in your plan</span>
-              {PLAN_FEATURES.filter((f) => !hasFeature(current, f.id)).map((f) => (
+              {features.filter((f) => !hasFeature(current, f.id)).map((f) => (
                 <UpgradeHint key={f.id} title={f.label} to={lowestPlanWith(effective, (p) => hasFeature(p, f.id), plan)} compact>
                   {f.description}
                 </UpgradeHint>

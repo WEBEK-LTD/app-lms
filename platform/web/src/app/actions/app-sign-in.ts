@@ -17,6 +17,7 @@ import { parseAnyPhone } from "@/lib/hosted/phone";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
 import { emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
 const FIELDS = ["signupAllowed", "askEmail", "askCity", "defaultCountryCode", "deviceLimit", "supportWhatsapp", "termsUrl", "reviewPhone", "reviewEmail", "reviewCode"];
 
@@ -51,6 +52,9 @@ function auditable(settings: HostedSettings | null | undefined): unknown {
     mailServer: mailServer ? `${mailServer.username} at ${mailServer.host}:${mailServer.port} (${mailServer.security}), from ${mailServer.fromName} <${mailServer.fromAddress}>` : null,
   };
 }
+
+/** 31 What a WordPress app's owner is told after a save the plugin reads from its license check. */
+const WORDPRESS_SAVED = "Saved. Your website gets it within a minute when it can be reached, otherwise at its next check (twice a day). Check now in the Yallapp plugin gets it at once.";
 
 /** Sign-in rules of an app on the hosted API. */
 export async function saveAppSignInAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -96,6 +100,8 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
     { signInMethods: app.hostedSettings?.signInMethods ?? null, emailSignIn: app.hostedSettings?.emailSignIn ?? null },
     { signInMethods: methods, emailSignIn: next.emailSignIn ?? null },
   );
+  // 31 The plugin reads these from its license status: ask the site to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   revalidatePath("/dashboard/app-sign-in");
   return {
     ok: true,
@@ -103,7 +109,7 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
       app.backend === "setup_requested"
         ? "Saved. It applies as soon as your WordPress site and the Yallapp plugin are ready."
         : app.backend === "wordpress"
-        ? "Saved. Your website picks it up within 12 hours, or right away when you click Check now in the Yallapp plugin."
+        ? WORDPRESS_SAVED
         : "Saved. The app shows it the next time it opens; no new build is needed.",
     values: { methods: choice, emailSignIn: next.emailSignIn ?? "" },
   };

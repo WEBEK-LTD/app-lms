@@ -145,32 +145,125 @@ class Settings_Page {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" enctype="multipart/form-data" class="ya-form">';
 		echo '<input type="hidden" name="action" value="yallapp_save">';
 		wp_nonce_field( 'yallapp_save' );
-		$detector = $this->plugin->detector();
-		$shop     = $detector->woocommerce()['active'];
-		$news     = 'news' === \Yallapp\Pages\Default_Layout::chosen_type( $this->plugin->license()->status() );
-		$academy  = null !== $detector->lms() || ( ! $shop && ! $news );
-		$this->general_card();
-		$this->sign_in_card();
-		$this->purchases_card();
-		if ( $academy ) {
-			$this->video_card();
-			$this->content_card();
-			$this->home_card();
+		// 31 Only what fits the app: the type chosen in the dashboard, else what the site's plugins suggest.
+		$type = $this->app_type();
+		foreach ( self::cards_for( $type ) as $card ) {
+			$this->card( $card, $type );
 		}
-		if ( $shop ) {
-			$this->store_card();
-		}
-		if ( $news ) {
-			$this->news_card();
-		}
-		$this->notifications_card();
-		$this->updates_card();
 		echo '<div class="ya-savebar"><button type="submit" class="button button-primary button-hero">' . esc_html__( 'Save changes', 'yallapp' ) . '</button></div>';
 		echo '</form>';
 
-		$this->manual_push_card();
-		$this->devices_card();
+		$this->manual_push_card( $type );
+		$this->devices_card( $type );
 		echo '</div>';
+	}
+
+	/**
+	 * 31 The app type the page shows settings for: the one chosen in the Yallapp dashboard (the
+	 * license status), else the one the site's plugins suggest, as the default pages do.
+	 *
+	 * @return string|null lms, store, bookings, news, or null when nothing fits.
+	 */
+	private function app_type() {
+		return self::app_type_for(
+			\Yallapp\Pages\Default_Layout::chosen_type( $this->plugin->license()->status() ),
+			null !== $this->plugin->lms(),
+			\Yallapp\Store\Catalog::available(),
+			null !== $this->plugin->bookings()
+		);
+	}
+
+	/**
+	 * 31 The chosen type, else the first that the site's plugins fit (an LMS, a shop, a booking
+	 * plugin); null when there's no choice and nothing fits. Pure.
+	 *
+	 * @param string|null $chosen       Default_Layout::chosen_type() of the license status.
+	 * @param bool        $has_lms      A supported LMS is active.
+	 * @param bool        $has_shop     WooCommerce is active.
+	 * @param bool        $has_bookings A supported booking plugin is active.
+	 * @return string|null
+	 */
+	public static function app_type_for( $chosen, $has_lms, $has_shop, $has_bookings ) {
+		if ( in_array( $chosen, array( 'lms', 'store', 'bookings', 'news' ), true ) ) {
+			return $chosen;
+		}
+		if ( $has_lms ) {
+			return 'lms';
+		}
+		if ( $has_shop ) {
+			return 'store';
+		}
+		return $has_bookings ? 'bookings' : null;
+	}
+
+	/**
+	 * 31 The cards of the settings form for an app type, in order: course settings only for
+	 * Academy apps, the shop's for Store apps, and so on. Without a type, a note instead. Pure.
+	 *
+	 * @param string|null $type app_type_for().
+	 * @return string[] general, sign_in, purchases, video, content, home, checkout, store, bookings, news, no_type, notifications, updates.
+	 */
+	public static function cards_for( $type ) {
+		$own = array(
+			'lms'      => array( 'purchases', 'video', 'content', 'home' ),
+			'store'    => array( 'checkout', 'store' ),
+			'bookings' => array( 'bookings' ),
+			'news'     => array( 'news' ),
+		);
+		return array_merge( array( 'general', 'sign_in' ), $own[ (string) $type ] ?? array( 'no_type' ), array( 'notifications', 'updates' ) );
+	}
+
+	/**
+	 * 31 The notifications sent automatically for an app type (settings keys). Pure.
+	 *
+	 * @param string|null $type app_type_for().
+	 * @return string[]
+	 */
+	public static function automatic_notifications_for( $type ) {
+		if ( 'lms' === $type ) {
+			return array( 'notify_new_lesson', 'notify_announcement', 'notify_enrollment', 'notify_qna_answer' );
+		}
+		return 'news' === $type ? array( 'notify_new_post' ) : array();
+	}
+
+	/**
+	 * Renders one card of the settings form.
+	 *
+	 * @param string      $card Card name from cards_for().
+	 * @param string|null $type App type.
+	 * @return void
+	 */
+	private function card( $card, $type ) {
+		$cards = array(
+			'general'   => 'general_card',
+			'sign_in'   => 'sign_in_card',
+			'purchases' => 'purchases_card',
+			'video'     => 'video_card',
+			'content'   => 'content_card',
+			'home'      => 'home_card',
+			'checkout'  => 'checkout_card',
+			'store'     => 'store_card',
+			'bookings'  => 'bookings_card',
+			'news'      => 'news_card',
+			'no_type'   => 'no_type_card',
+			'updates'   => 'updates_card',
+		);
+		if ( 'notifications' === $card ) {
+			$this->notifications_card( $type );
+		} elseif ( isset( $cards[ $card ] ) ) {
+			$this->{$cards[ $card ]}();
+		}
+	}
+
+	/**
+	 * 31 Instead of another type's settings: what to do so this app's appear.
+	 *
+	 * @return void
+	 */
+	private function no_type_card() {
+		$this->open( __( 'Your app', 'yallapp' ) );
+		echo '<p class="ya-help">' . esc_html__( 'Choose your app type in your Yallapp dashboard, then activate your license above (or click Check now). The settings for that kind of app then appear here. Until then, only the settings every app has are shown.', 'yallapp' ) . '</p>';
+		$this->close();
 	}
 
 	/**
@@ -257,13 +350,17 @@ class Settings_Page {
 		if ( '' === $title || '' === $body ) {
 			$this->redirect( 'error', __( 'Enter a title and a message.', 'yallapp' ) );
 		}
-		$push = $this->plugin->push();
-		$sent = $push->announce( $title, $body, $course_id );
+		$push    = $this->plugin->push();
+		$sent    = $push->announce( $title, $body, $course_id );
+		$academy = 'lms' === $this->app_type();
 		if ( ! $push->is_configured() ) {
-			$this->redirect( 'success', __( 'Saved to your students\' notifications in the app. Upload your Firebase service account file to also send it as a push notification.', 'yallapp' ) );
+			$this->redirect( 'success', $academy ? __( 'Saved to your students\' notifications in the app. Upload your Firebase service account file to also send it as a push notification.', 'yallapp' ) : __( 'Saved to the notifications in the app. Upload your Firebase service account file to also send it as a push notification.', 'yallapp' ) );
 		}
 		/* translators: %d: number of students. */
-		$this->redirect( 'success', sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', $sent, 'yallapp' ), $sent ) );
+		$students = sprintf( _n( 'Sending to %d student.', 'Sending to %d students.', $sent, 'yallapp' ), $sent );
+		/* translators: %d: number of people. */
+		$people = sprintf( _n( 'Sending to %d person.', 'Sending to %d people.', $sent, 'yallapp' ), $sent );
+		$this->redirect( 'success', $academy ? $students : $people );
 	}
 
 	/**
@@ -278,7 +375,7 @@ class Settings_Page {
 		$row_id  = isset( $_POST['row_id'] ) ? absint( $_POST['row_id'] ) : 0;
 		$search  = isset( $_POST['device_search'] ) ? sanitize_text_field( wp_unslash( $_POST['device_search'] ) ) : '';
 		$this->plugin->devices()->remove( $user_id, $row_id );
-		$this->redirect( 'success', __( 'Device unlinked. The student is signed out on it.', 'yallapp' ), array( 'device_search' => $search ) );
+		$this->redirect( 'success', __( 'Device unlinked. Whoever used it is signed out on it.', 'yallapp' ), array( 'device_search' => $search ) );
 	}
 
 	/**
@@ -422,8 +519,9 @@ class Settings_Page {
 		if ( $lms ) {
 			$this->status_row( __( 'LMS plugin (detected)', 'yallapp' ), $lms['name'] . ' ' . $lms['version'], $lms['supported'], $lms['supported'] ? __( 'Compatible', 'yallapp' ) : __( 'Support is coming soon', 'yallapp' ) );
 			$this->status_row( __( 'Premium add-ons', 'yallapp' ), $lms['pro'] ? __( 'Active', 'yallapp' ) : __( 'Not installed', 'yallapp' ), true, __( 'Premium features appear when active', 'yallapp' ) );
-		} elseif ( $woo['active'] ) {
-			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), true, __( 'Not needed for a Store app', 'yallapp' ) );
+		} elseif ( 'lms' !== $this->app_type() ) {
+			// 31 Only Academy apps need one.
+			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), true, __( 'Needed only for an Academy app', 'yallapp' ) );
 		} else {
 			$this->status_row( __( 'LMS plugin', 'yallapp' ), __( 'Not found', 'yallapp' ), false, __( 'Install and activate Tutor LMS', 'yallapp' ) );
 		}
@@ -557,7 +655,7 @@ class Settings_Page {
 		$this->number( 'max_code_requests_per_hour', __( 'Max code requests per hour', 'yallapp' ), 1, 20 );
 		$this->select(
 			'session_days',
-			__( 'Keep students signed in for', 'yallapp' ),
+			__( 'Keep people signed in for', 'yallapp' ),
 			array(
 				7  => __( '7 days', 'yallapp' ),
 				30 => __( '30 days', 'yallapp' ),
@@ -567,7 +665,7 @@ class Settings_Page {
 		$this->number( 'device_limit', __( 'Devices per account', 'yallapp' ), 1, 10 );
 		$this->radios(
 			'device_limit_action',
-			__( 'When a student reaches the device limit', 'yallapp' ),
+			__( 'When someone reaches the device limit', 'yallapp' ),
 			array(
 				'block'          => __( 'Block the new device until an admin unlinks one', 'yallapp' ),
 				'replace_oldest' => __( 'Sign out the oldest device automatically', 'yallapp' ),
@@ -705,6 +803,78 @@ class Settings_Page {
 			)
 		);
 		$this->toggle( 'hide_site_chrome_in_app', __( 'Hide site header & footer on in-app checkout', 'yallapp' ) );
+		$this->close();
+	}
+
+	/**
+	 * 31 Checkout card, for Store apps: where the site's checkout opens.
+	 *
+	 * @return void
+	 */
+	private function checkout_card() {
+		$this->open( __( 'Checkout', 'yallapp' ) );
+		$this->radios(
+			'checkout_opens_in',
+			__( 'Where checkout opens', 'yallapp' ),
+			array(
+				'in_app'  => __( 'Inside the app, with the customer signed in automatically', 'yallapp' ),
+				'browser' => __( 'In the phone\'s browser', 'yallapp' ),
+			)
+		);
+		$this->toggle( 'hide_site_chrome_in_app', __( 'Hide site header & footer on in-app checkout', 'yallapp' ) );
+		echo '<p class="ya-help">' . esc_html__( 'Physical products are bought on both phones. The iPhone app never sells virtual or downloadable products.', 'yallapp' ) . '</p>';
+		$this->close();
+	}
+
+	/**
+	 * 31 Bookings card, for Bookings apps: the app's home screen and cancelling in the app.
+	 *
+	 * @return void
+	 */
+	private function bookings_card() {
+		$labels  = array(
+			'banner'           => __( 'Promo banner', 'yallapp' ),
+			'next_appointment' => __( 'The customer\'s next appointment', 'yallapp' ),
+			'categories'       => __( 'Categories', 'yallapp' ),
+			'services'         => __( 'Services', 'yallapp' ),
+			'staff'            => __( 'Staff', 'yallapp' ),
+		);
+		$enabled = (array) $this->values['bookings_home_sections'];
+		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
+		$this->open( __( 'Bookings app', 'yallapp' ) );
+		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Home sections shown (drag to reorder)', 'yallapp' ) . '</span>';
+		echo '<input type="hidden" name="yallapp[bookings_home_sections][]" value="">';
+		echo '<ul class="ya-sortable">';
+		foreach ( $order as $section ) {
+			if ( ! isset( $labels[ $section ] ) ) {
+				continue;
+			}
+			printf(
+				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[bookings_home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				esc_attr( $section ),
+				checked( in_array( $section, $enabled, true ), true, false ),
+				esc_html( $labels[ $section ] )
+			);
+		}
+		echo '</ul></div>';
+		$this->image( 'bookings_banner_image_id', __( 'Promo banner image', 'yallapp' ) );
+		$services = array( 0 => __( 'None', 'yallapp' ) );
+		$adapter  = $this->plugin->bookings();
+		if ( $adapter ) {
+			$list = $adapter->services(
+				array(
+					'page'     => 1,
+					'per_page' => 100,
+					'search'   => '',
+					'category' => 0,
+				)
+			);
+			foreach ( $list['items'] as $service ) {
+				$services[ (int) $service['id'] ] = (string) $service['name'];
+			}
+		}
+		$this->select( 'bookings_banner_service_id', __( 'Banner opens service', 'yallapp' ), $services );
+		$this->toggle( 'bookings_cancel', __( 'Customers can cancel appointments in the app', 'yallapp' ), __( 'Only while your booking plugin\'s own rules allow it.', 'yallapp' ) );
 		$this->close();
 	}
 
@@ -908,11 +1078,12 @@ class Settings_Page {
 	}
 
 	/**
-	 * Notifications card.
+	 * Notifications card: the Firebase file, and (31) the notifications the app's type sends by itself.
 	 *
+	 * @param string|null $type App type.
 	 * @return void
 	 */
-	private function notifications_card() {
+	private function notifications_card( $type ) {
 		$this->open( __( 'Notifications (Firebase)', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Firebase service account file', 'yallapp' ) . '</span><div>';
 		if ( $this->plugin->push()->is_configured() ) {
@@ -922,17 +1093,24 @@ class Settings_Page {
 		echo '<input type="file" name="yallapp_firebase" accept="application/json,.json">';
 		echo '<p class="ya-help">' . esc_html__( 'Firebase > Project settings > Service accounts > Generate new private key. The file is stored encrypted.', 'yallapp' ) . '</p>';
 		echo '</div></div>';
-		echo '<fieldset class="ya-sub"><legend>' . esc_html__( 'Send a notification automatically when', 'yallapp' ) . '</legend>';
-		$this->toggle( 'notify_new_lesson', __( 'A new lesson is added to an enrolled course', 'yallapp' ) );
-		$this->toggle( 'notify_announcement', __( 'An instructor posts an announcement', 'yallapp' ) );
-		$this->toggle( 'notify_enrollment', __( 'An enrollment is confirmed after payment', 'yallapp' ) );
-		$this->toggle( 'notify_qna_answer', __( 'An instructor answers a student\'s question', 'yallapp' ) );
-		$this->toggle(
-			'notify_new_post',
-			__( 'Notify app users about new posts', 'yallapp' ),
-			__( 'News & blog apps: each new post goes to the notifications inbox and, with Firebase, to the phones of people signed in to the app. Untick it for one post in its "In the app" box.', 'yallapp' )
-		);
-		echo '</fieldset>';
+		$toggles = self::automatic_notifications_for( $type );
+		if ( $toggles ) {
+			$labels = array(
+				'notify_new_lesson'   => array( __( 'A new lesson is added to an enrolled course', 'yallapp' ), '' ),
+				'notify_announcement' => array( __( 'An instructor posts an announcement', 'yallapp' ), '' ),
+				'notify_enrollment'   => array( __( 'An enrollment is confirmed after payment', 'yallapp' ), '' ),
+				'notify_qna_answer'   => array( __( 'An instructor answers a student\'s question', 'yallapp' ), '' ),
+				'notify_new_post'     => array(
+					__( 'Notify app users about new posts', 'yallapp' ),
+					__( 'Each new post goes to the notifications inbox and, with Firebase, to the phones of people signed in to the app. Untick it for one post in its "In the app" box.', 'yallapp' ),
+				),
+			);
+			echo '<fieldset class="ya-sub"><legend>' . esc_html__( 'Send a notification automatically when', 'yallapp' ) . '</legend>';
+			foreach ( $toggles as $key ) {
+				$this->toggle( $key, $labels[ $key ][0], $labels[ $key ][1] );
+			}
+			echo '</fieldset>';
+		}
 		$this->close();
 	}
 
@@ -966,9 +1144,10 @@ class Settings_Page {
 	/**
 	 * Manual notification card.
 	 *
+	 * @param string|null $type App type.
 	 * @return void
 	 */
-	private function manual_push_card() {
+	private function manual_push_card( $type ) {
 		$this->open( __( 'Send a manual notification', 'yallapp' ) );
 		if ( ! $this->plugin->push()->is_configured() ) {
 			echo '<p class="ya-help">' . esc_html__( 'Messages appear in the app\'s notifications. Upload your Firebase service account file in Notifications to also send them as push notifications.', 'yallapp' ) . '</p>';
@@ -977,7 +1156,8 @@ class Settings_Page {
 		echo '<input type="hidden" name="action" value="yallapp_push">';
 		wp_nonce_field( 'yallapp_push' );
 		echo '<label class="ya-row"><span class="ya-label">' . esc_html__( 'Send to', 'yallapp' ) . '</span><select name="course_id"><option value="0">' . esc_html__( 'Everyone with the app', 'yallapp' ) . '</option>';
-		foreach ( $this->course_options() as $id => $title ) {
+		// 31 Sending to one course's students is for Academy apps.
+		foreach ( 'lms' === $type ? $this->course_options() : array() as $id => $title ) {
 			/* translators: %s: course title. */
 			printf( '<option value="%1$d">%2$s</option>', (int) $id, esc_html( sprintf( __( 'Students of %s', 'yallapp' ), $title ) ) );
 		}
@@ -990,13 +1170,14 @@ class Settings_Page {
 	}
 
 	/**
-	 * Student devices card.
+	 * Devices card: who is signed in on which phone.
 	 *
+	 * @param string|null $type App type.
 	 * @return void
 	 */
-	private function devices_card() {
+	private function devices_card( $type ) {
 		$search = isset( $_GET['device_search'] ) ? sanitize_text_field( wp_unslash( $_GET['device_search'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search.
-		$this->open( __( 'Student devices', 'yallapp' ) );
+		$this->open( 'lms' === $type ? __( 'Student devices', 'yallapp' ) : __( 'App user devices', 'yallapp' ) );
 		echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '" class="ya-inline">';
 		echo '<input type="hidden" name="page" value="' . esc_attr( self::SLUG ) . '">';
 		echo '<input type="search" name="device_search" value="' . esc_attr( $search ) . '" class="regular-text" placeholder="' . esc_attr__( 'Search by mobile number', 'yallapp' ) . '">';
@@ -1004,7 +1185,7 @@ class Settings_Page {
 		if ( '' !== $search ) {
 			$user = $this->find_student( $search );
 			if ( ! $user ) {
-				echo '<p class="ya-help">' . esc_html__( 'No student uses this number.', 'yallapp' ) . '</p>';
+				echo '<p class="ya-help">' . esc_html( 'lms' === $type ? __( 'No student uses this number.', 'yallapp' ) : __( 'Nobody uses this number in the app.', 'yallapp' ) ) . '</p>';
 			} else {
 				$rows = $this->plugin->devices()->for_user( $user->ID );
 				echo '<p><strong>' . esc_html( $user->display_name ) . '</strong></p>';

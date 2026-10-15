@@ -32,6 +32,7 @@ import { sendTemplate } from "@/lib/email/send";
 import { choosePublishingMode } from "@/lib/publishing/service";
 import { recordApiCheck, resolveApiCheckNotices } from "@/lib/app/api-check-notice";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { isSvg, readPngInfo } from "@/lib/png";
 import {
@@ -169,10 +170,13 @@ export async function chooseAppTypeAction(formData: FormData): Promise<void> {
       fits ? { appType, vertical, appTypeDoneAt: now } : { appType, vertical, appTypeDoneAt: now, backend: "wordpress", connector: null, websiteDoneAt: null },
       now,
     );
+    // 31 The plugin reads the type from its license status: ask the site to check now.
+    refreshSitesSoon([current.id]);
   } else if ((current.vertical ?? null) !== vertical) {
     // 20 The same engine for another kind of business: only the wording and defaults change.
     await recordStaffChange(context, `Set the app type to ${kind.name}`, { vertical: current.vertical ?? null }, { vertical });
     await store.updateApp(current.id, { vertical, appTypeDoneAt: now }, now);
+    refreshSitesSoon([current.id]);
   }
   redirect(stepUrl("website"));
 }

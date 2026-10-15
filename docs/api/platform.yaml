@@ -9,6 +9,14 @@ info:
     when it runs as the preview in the Yallapp dashboard.
 
     - The plugin checks its license on activation, then every 12 hours.
+      When the app's owner saves something the license status carries
+      (the app type, how people sign in, the plan) or publishes the app's
+      pages, the platform asks the site to check now (`POST /license/refresh`
+      on the plugin, docs/api/openapi.yaml, signed with the license key): a
+      request of at most 5 seconds that never holds up the owner's save, sent
+      only to the https address of the site the license is active on, never
+      to a private network. The site then calls `/licenses/check` and
+      `/apps/layout` as usual (roadmap 31).
     - If the platform can't be reached, the plugin keeps its last known status
       for a 72-hour grace period before treating the license as inactive.
     - Only the site URL, plugin version, WordPress version and LMS are sent.

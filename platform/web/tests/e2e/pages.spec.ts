@@ -160,3 +160,38 @@ test("the client writes Arabic texts and the app gets them in Arabic", async ({ 
   expect(nav.version).toMatch(/\.2\.ar$/);
   expect(nav.pages[0].title).toBe("الرئيسية");
 });
+
+test("31 the editor offers only what the app's type has, and flags what a type change left behind", async () => {
+  await own.goto("/dashboard/pages");
+  await own.getByLabel("Edit texts in").selectOption("en");
+  // An Academy app lists courses, and its tabs open only the screens its module has.
+  await expect(own.getByRole("button", { name: "Add List block" })).toContainText("Courses");
+  await expect(own.getByRole("button", { name: "Add List block" })).not.toContainText("products");
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  const second = own.getByRole("group", { name: /^Tab 2/ });
+  const offered = await second.getByLabel("Screen").locator("option").allTextContents();
+  expect(offered).toContain("All courses");
+  expect(offered).not.toContain("Cart");
+  expect(offered).not.toContain("Appointments");
+  await expect(own.getByText("Needs a fix")).toHaveCount(0);
+
+  // The owner makes it a Store app: the "My courses" tab now opens nothing, so it says so.
+  await own.goto("/dashboard/app-type");
+  await own.getByText("Store", { exact: true }).click();
+  await own.getByRole("button", { name: "Continue" }).click();
+  await own.waitForURL(/step=website/);
+  await own.goto("/dashboard/pages");
+  await expect(own.getByRole("button", { name: "Add List block" })).toContainText("Products");
+  await expect(own.getByRole("button", { name: "Add List block" })).not.toContainText("Courses");
+  await own.getByRole("tab", { name: "Tabs" }).click();
+  const third = own.getByRole("group", { name: /^Tab 3/ });
+  await expect(third).toContainText("Needs a fix");
+  await expect(third.getByRole("alert")).toContainText('This app has no "My courses" screen. Choose another screen.');
+  const now = await third.getByLabel("Screen").locator("option").allTextContents();
+  expect(now).toContain("Cart");
+  expect(now).toContain("All products");
+  expect(now).not.toContain("All courses");
+  await third.getByLabel("Screen").selectOption("cart");
+  await expect(third.getByRole("alert")).toHaveCount(0);
+  await expect(third).not.toContainText("Needs a fix");
+});

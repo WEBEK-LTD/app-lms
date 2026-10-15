@@ -19,6 +19,8 @@ import { pickLanguage, translated } from "@/lib/pages/translate";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import type { LayoutBlock, LayoutContent } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
+import { APP_TYPES, hostedOnly, KINDS } from "@/lib/app/kinds";
+import { appOpensScreen, itemSourcesFor, listHint, screenOptionsFor, SOURCE_SORTS } from "@/lib/pages/sources";
 import { expectContract } from "./contract";
 import { NOW, days, setupClient } from "./helpers";
 import { expectPlatformContract } from "./platform-contract";
@@ -128,6 +130,90 @@ describe("layout validation", () => {
       'Page "Home", block 2: two blocks have the same ID.',
     );
     expect(errorsOf(layoutWith([], { appearance: { template: "fancy" } })).length).toBeGreaterThan(3);
+  });
+});
+
+describe("31 only what the app's type has", () => {
+  const tabsTo = (screen: string) => ({
+    tabs: [
+      { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
+      { id: "x", label: "X", icon: "star", target: { type: "screen", screen } },
+    ],
+  });
+  const app = (appType: AppType, backend: App["backend"] = "hosted") => ({ appType, backend });
+
+  it("accepts the default layout of every kind", () => {
+    for (const kind of KINDS) {
+      for (const backend of hostedOnly(kind.engine) ? (["hosted"] as const) : (["hosted", "wordpress"] as const)) {
+        const made = { ...newApp("c", null, NOW, kind.engine, kind.vertical), backend };
+        const result = parse(defaultLayout(made, BUILT_IN_APP_DEFAULTS, NOW), made);
+        expect(result.ok, `${kind.id} ${backend}: ${JSON.stringify(result)}`).toBe(true);
+      }
+    }
+  });
+
+  it("refuses screens the app can't open, saying which", () => {
+    expect(errorsOf(layoutWith([], tabsTo("cart")), app("news"))).toEqual(['Tab 2: this app has no "Cart" screen. Choose another screen.']);
+    expect(errorsOf(layoutWith([], tabsTo("my_courses")), app("store", "wordpress"))).toEqual(['Tab 2: this app has no "My courses" screen. Choose another screen.']);
+    expect(errorsOf(layoutWith([], tabsTo("appointments")), lmsHosted)).toEqual(['Tab 2: this app has no "Appointments" screen. Choose another screen.']);
+    expect(errorsOf(layoutWith([{ id: "b", type: "button", visibility: "everyone", label: "Go", style: "filled", action: { type: "screen", screen: "tickets" } }]), app("donations"))).toEqual([
+      'Page "Home", block 1 (Button): this app has no "My tickets" screen. Choose another screen.',
+    ]);
+    expect(errorsOf(layoutWith([], tabsTo("nowhere")), app("news"))).toEqual(["Tab 2: choose a screen."]);
+  });
+
+  it("keeps the older names a module still opens", () => {
+    // News apps opened "courses" as the articles and "favorites" as the saved ones before Phase 31.
+    expect(errorsOf(layoutWith([], tabsTo("courses")), app("news"))).toEqual([]);
+    expect(errorsOf(layoutWith([], tabsTo("favorites")), app("news"))).toEqual([]);
+    expect(errorsOf(layoutWith([], tabsTo("orders")), app("events"))).toEqual([]);
+    expect(errorsOf(layoutWith([], tabsTo("search")), app("booking"))).toEqual([]);
+  });
+
+  it("opens courses only in Academy apps", () => {
+    const button = { id: "b", type: "button", visibility: "everyone", label: "Go", style: "filled", action: { type: "course", course_id: 12 } };
+    expect(errorsOf(layoutWith([button]), lmsHosted)).toEqual([]);
+    expect(errorsOf(layoutWith([button]), storeWp)).toEqual(['Page "Home", block 1 (Button): this app has no courses. Choose what happens on tap.']);
+  });
+
+  it("sorts each list only the ways its entries can be sorted", () => {
+    const list = (source: string, sort: string) => ({ id: "l", type: "items", visibility: "everyone", source, layout: "grid", query: { limit: 5, sort } });
+    const sortOf = (source: string, sort: string, appType: AppType, backend: App["backend"] = "hosted") => {
+      const result = parse(layoutWith([list(source, sort)]), app(appType, backend));
+      if (!result.ok) throw new Error(result.errors.join(" "));
+      return result.value.pages[0]!.blocks[0]!.query!.sort;
+    };
+    expect(sortOf("articles", "price_asc", "news")).toBe("newest");
+    expect(sortOf("articles", "popular", "news")).toBe("popular");
+    expect(sortOf("posts", "price_desc", "lms", "wordpress")).toBe("newest");
+    expect(sortOf("events", "popular", "events")).toBe("newest");
+    expect(sortOf("campaigns", "price_asc", "donations")).toBe("newest");
+    expect(sortOf("listings", "price_asc", "real_estate")).toBe("price_asc");
+    expect(sortOf("services", "popular", "booking")).toBe("newest");
+    expect(sortOf("courses", "price_desc", "lms")).toBe("price_desc");
+    expect(sortOf("products", "popular", "store")).toBe("popular");
+    expect(SOURCE_SORTS.articles).not.toContain("price_asc");
+  });
+
+  it("offers the screens each engine has, in its words", () => {
+    const offered = (appType: AppType) => screenOptionsFor({ appType }).filter((o) => !o.alias);
+    expect(offered("store").map((o) => o.value)).not.toContain("my_courses");
+    expect(offered("store").find((o) => o.value === "courses")?.label).toBe("All products");
+    expect(offered("real_estate").find((o) => o.value === "courses")?.label).toBe("All listings");
+    expect(offered("news").map((o) => o.value)).toEqual(["articles", "search", "bookmarks", "account", "settings", "notifications"]);
+    expect(screenOptionsFor({ appType: "news" }).find((o) => o.value === "courses")).toEqual({ value: "courses", label: "All articles", alias: true });
+    for (const appType of APP_TYPES) {
+      // Every app has an Account screen: what a new tab or button opens first.
+      expect(offered(appType).map((o) => o.value), appType).toContain("account");
+      expect(appOpensScreen({ appType }, "account")).toBe(true);
+    }
+  });
+
+  it("names only this app's content in the List block's hint", () => {
+    expect(listHint(itemSourcesFor({ appType: "store", backend: "hosted" }))).toBe("Products");
+    expect(listHint(itemSourcesFor({ appType: "lms", backend: "wordpress" }))).toBe("Courses or blog posts");
+    expect(listHint(itemSourcesFor({ appType: "booking", backend: "wordpress" }))).toBe("Services or blog posts");
+    expect(listHint(["courses", "products", "posts"])).toBe("Courses, products or blog posts");
   });
 });
 

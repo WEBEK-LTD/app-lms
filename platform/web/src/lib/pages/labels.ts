@@ -27,7 +27,8 @@ export const BLOCK_HINTS: Record<BlockType, string> = {
   image: "One image, optionally a link",
   video: "An MP4, YouTube or Vimeo video",
   button: "A button that opens something",
-  items: "Courses, products, services, listings, articles, events or campaigns",
+  // 31 The editor names this app's own lists instead (lib/pages/sources.ts, listHint).
+  items: "Entries from your app",
   categories: "Category chips or tiles",
   search: "A search box",
   continue_learning: "The course a student is taking",

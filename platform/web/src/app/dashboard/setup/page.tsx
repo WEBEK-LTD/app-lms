@@ -7,6 +7,7 @@ import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, 
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { appLabel, licensePageName } from "@/lib/app/label";
+import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
@@ -219,6 +220,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
       {step === "listing" ? (
         <ListingStep
+          descriptionHint={wordsOf(app).storeDescription}
           values={{
             androidPackage: app.androidPackage ?? "",
             iosBundleId: app.iosBundleId ?? "",

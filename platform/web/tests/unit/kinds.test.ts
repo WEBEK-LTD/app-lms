@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { contentSource } from "@/lib/admin/labels";
 import { audienceOptions, describeAudience } from "@/lib/announcements";
@@ -31,7 +33,7 @@ import { emailSignInNote } from "@/lib/hosted/sign-in-methods";
 import { INTEGRATION_GROUPS, NUMBERS, SOLUTIONS } from "@/lib/marketing";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { blockTypesFor, itemSourcesFor } from "@/lib/pages/sources";
-import type { LayoutBlock, LayoutContent, LayoutTab } from "@/lib/pages/types";
+import { SCREENS, type LayoutBlock, type LayoutContent, type LayoutTab } from "@/lib/pages/types";
 import { previewContentSource } from "@/lib/preview/config";
 import { APP_TYPE_SWITCHES, noWebsiteFor, switchGroups } from "@/lib/switches";
 import { activateLicense, checkLicense, parseSiteInfo } from "@/lib/license/service";
@@ -459,5 +461,60 @@ describe("26 the Restaurant & café kind", () => {
     const app = { appType: "store" as const, backend: "hosted" as const, appName: "Defne", template: "bold" as const, font: "Outfit", brandingDoneAt: null };
     expect(defaultLayout({ ...app, vertical: "restaurant" }, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Menu", "Cart", "Account"]);
     expect(defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW).tabs.map((t) => t.label)).toEqual(["Home", "Shop", "Cart", "Account"]);
+  });
+});
+
+describe("31 each engine's screens match its Flutter module", () => {
+  const MODULES: Record<AppType, string> = {
+    lms: "lms",
+    store: "store",
+    booking: "bookings",
+    real_estate: "real_estate",
+    news: "news",
+    events: "events",
+    donations: "donations",
+  };
+  const snake = (name: string) => name.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+
+  /** The screens `screenLocation` maps to a route (a conditional route counts: the app opens it when the site has it). */
+  function screensOpenedBy(module: string): { opened: string[]; all: string[] } {
+    const dart = readFileSync(path.resolve(__dirname, `../../../../mobile/lib/modules/${module}/${module}_routes.dart`), "utf8");
+    const start = dart.indexOf("screenLocation: (screen, config) => switch (screen) {");
+    expect(start, module).toBeGreaterThanOrEqual(0);
+    const body = dart.slice(start, dart.indexOf("\n  },", start)).replace(/\/\/.*$/gm, "");
+    const opened: string[] = [];
+    const all: string[] = [];
+    for (const arm of body.matchAll(/((?:BuiltInScreen\.\w+\s*\|\|\s*)*BuiltInScreen\.\w+)\s*=>\s*([\s\S]*?),\s*(?=BuiltInScreen\.|$)/g)) {
+      const names = [...arm[1]!.matchAll(/BuiltInScreen\.(\w+)/g)].map((m) => snake(m[1]!));
+      all.push(...names);
+      if (arm[2]!.trim() !== "null") opened.push(...names);
+    }
+    return { opened: opened.sort(), all: all.sort() };
+  }
+
+  it.each(APP_TYPES)("%s", (appType) => {
+    const { opened, all } = screensOpenedBy(MODULES[appType]);
+    // The switch covers every screen of the contract.
+    expect(all).toEqual([...SCREENS].sort());
+    const pages = ENGINES[appType].pages;
+    expect([...pages.screens, ...Object.keys(pages.aliases)].sort()).toEqual(opened);
+    expect(pages.screens.filter((s) => s in pages.aliases)).toEqual([]);
+    for (const to of Object.values(pages.aliases)) expect(pages.screens).toContain(to);
+  });
+});
+
+describe("31 words per app type", () => {
+  it("names each engine's own content in placeholders and plan texts", () => {
+    for (const appType of APP_TYPES) {
+      const engine = ENGINES[appType];
+      if (appType === "lms") continue;
+      expect(engine.sitePlaceholder, appType).not.toContain("academy");
+      for (const text of [engine.words.storeDescription, engine.words.ratingExample, engine.words.iphone ?? "", engine.words.cardPayments ?? ""]) {
+        expect(text, appType).not.toMatch(/course|student/i);
+      }
+    }
+    expect(ENGINES.store.words.cardPayments).toBe("Sell products by card in the app, through our payment page.");
+    expect(ENGINES.lms.words.cardPayments).toContain("courses");
+    expect(ENGINES.news.words.cardPayments).toBeNull();
   });
 });

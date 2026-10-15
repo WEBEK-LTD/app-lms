@@ -1,17 +1,17 @@
 "use client";
 
 import type { Pickable } from "@/lib/hosted/pages/pickable";
-import { SOURCE_NAMES } from "@/lib/pages/sources";
+import { SOURCE_NAMES, SOURCE_SORTS, sortFor, type ScreenOption } from "@/lib/pages/sources";
 import {
   BUTTON_STYLES,
   CATEGORY_STYLES,
   ITEMS_LAYOUTS,
-  ITEMS_SORTS,
   LAYOUT_LIMITS,
   SPACER_SIZES,
   VISIBILITIES,
   type ItemSource,
   type ItemsQuery,
+  type ItemsSort,
   type LayoutBlock,
 } from "@/lib/pages/types";
 import { ActionEditor, Check, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
@@ -21,6 +21,8 @@ export interface BlockContext {
   pages: { slug: string; title: string }[];
   sources: ItemSource[];
   categorySources: ItemSource[];
+  /** 31 The screens this app's type opens. */
+  screens: ScreenOption[];
   pickable: Pickable;
 }
 
@@ -30,7 +32,7 @@ const VISIBILITY_LABELS: Record<(typeof VISIBILITIES)[number], string> = {
   signed_out: "Only people who aren't signed in",
 };
 const LAYOUT_LABELS: Record<(typeof ITEMS_LAYOUTS)[number], string> = { carousel: "Side-scrolling row", grid: "Grid", list: "List" };
-const SORT_LABELS: Record<(typeof ITEMS_SORTS)[number], string> = { newest: "Newest first", popular: "Most popular first", price_asc: "Lowest price first", price_desc: "Highest price first" };
+const SORT_LABELS: Record<ItemsSort, string> = { newest: "Newest first", popular: "Most popular first", price_asc: "Lowest price first", price_desc: "Highest price first" };
 const BUTTON_LABELS: Record<(typeof BUTTON_STYLES)[number], string> = { filled: "Filled", outlined: "Outlined", text: "Text only" };
 const SIZE_LABELS: Record<(typeof SPACER_SIZES)[number], string> = { small: "Small", medium: "Medium", large: "Large" };
 const CATEGORY_STYLE_LABELS: Record<(typeof CATEGORY_STYLES)[number], string> = { chips: "Chips", tiles: "Tiles" };
@@ -58,7 +60,10 @@ function QueryEditor({ id, block, ctx, onChange }: { id: string; block: LayoutBl
         ) : (
           <TextInput id={`${id}-category`} label="Category ID" value={query.category_id ?? ""} hint="Empty for any category." onChange={(v) => set({ category_id: v.trim() || null })} />
         )}
-        <SelectInput id={`${id}-sort`} label="Order" value={query.sort} options={opts(ITEMS_SORTS, SORT_LABELS)} onChange={(sort) => set({ sort })} />
+        {/* 31 Only the orders this kind of entry has: no prices for articles; events are always soonest first. */}
+        {SOURCE_SORTS[source].length > 1 ? (
+          <SelectInput id={`${id}-sort`} label="Order" value={sortFor(source, query.sort)} options={opts(SOURCE_SORTS[source], SORT_LABELS)} onChange={(sort) => set({ sort })} />
+        ) : null}
         <TextInput
           id={`${id}-limit`}
           label="How many"
@@ -110,7 +115,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
   const id = `blk-${block.id}`;
   const set = (patch: Partial<LayoutBlock>) => onChange({ ...block, ...patch });
   const { lang } = ctx;
-  const actionProps = { pages: ctx.pages, sources: ctx.sources, courses: ctx.pickable.items.courses };
+  const actionProps = { pages: ctx.pages, sources: ctx.sources, screens: ctx.screens, courses: ctx.pickable.items.courses };
   const sourceOptions = (list: ItemSource[]) => list.map((s) => ({ value: s, label: SOURCE_NAMES[s] }));
   return (
     <div className="flex flex-col gap-3">
@@ -172,7 +177,10 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
               label="Shows"
               value={block.source ?? ctx.sources[0] ?? "courses"}
               options={sourceOptions(ctx.sources)}
-              onChange={(source) => set({ source, query: { ...(block.query ?? { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] }), category_id: null, ids: [] } })}
+              onChange={(source) => {
+                const query = block.query ?? { category_id: null, featured: false, sort: "newest" as const, limit: 10, ids: [] };
+                set({ source, query: { ...query, sort: sortFor(source, query.sort), category_id: null, ids: [] } });
+              }}
             />
             <SelectInput id={`${id}-layout`} label="Look" value={block.layout ?? "carousel"} options={opts(ITEMS_LAYOUTS, LAYOUT_LABELS)} onChange={(layout) => set({ layout })} />
           </div>
