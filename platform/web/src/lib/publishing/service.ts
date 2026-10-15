@@ -9,7 +9,7 @@ import { sendTemplate } from "../email/send";
 import { appUrl } from "../env";
 import { mailDelivered } from "../mail";
 import { platformSetting } from "../settings/platform";
-import { CLIENT_STATUS_LABEL, newPublishingRequest, STORE_TITLE, statusText } from "./steps";
+import { CLIENT_STATUS_LABEL, newPublishingRequest, STORE_TITLE, statusText, trackOf } from "./steps";
 
 /**
  * The address clients invite to their store and Firebase accounts, and where
@@ -111,7 +111,7 @@ export async function notifyPublishingStatus(store: DataStore, request: Publishi
     const [client, app] = await Promise.all([store.getClientById(request.clientId), store.getAppById(request.appId)]);
     const user = client ? await store.getUserById(client.userId) : null;
     if (!user) return;
-    const track = request[which];
+    const track = trackOf(request, which);
     await sendTemplate("publishing_status", user.email, {
       name: user.name,
       app_name: appLabel(app),

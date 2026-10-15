@@ -379,7 +379,7 @@ describe("28 events and tickets on the hosted API", () => {
     expect(eventChange(online, moved)).toBe("time");
     expect(eventChange(online, { ...online, onlineUrl: "https://meet.test/new" })).toBe("link");
     expect(eventChange(online, { ...online, title: "Renamed" })).toBeNull();
-    const pushed: { tokens: string[]; data: Record<string, string> }[] = [];
+    const pushed: { tokens: unknown[]; data: Record<string, string> }[] = [];
     const holders = await ticketHolders(store, app, online.id);
     expect(holders.sort()).toEqual([user.id, other.id].sort());
     const result = await notifyTicketHolders({

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { choosePublishingModeAction } from "@/app/actions/publishing";
+import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/actions/publishing";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui";
@@ -12,7 +12,6 @@ import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
-import type { PublishingStore } from "@/lib/data/types";
 import { publishingTeamEmail } from "@/lib/publishing/service";
 import {
   APP_STORE_CATEGORIES,
@@ -20,15 +19,18 @@ import {
   checklistProgress,
   CLIENT_STATUS_LABEL,
   listingMissing,
+  MORE_STORES,
   PLAY_CATEGORIES,
-  PUBLISHING_STEPS,
-  PUBLISHING_STORES,
   publishingEventLabel,
+  requestStores,
   statusText,
   statusTone,
   stepDone,
+  stepsFor,
   stepText,
+  STORE_ICON,
   STORE_TITLE,
+  trackOf,
 } from "@/lib/publishing/steps";
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
@@ -36,7 +38,13 @@ import { ChecklistForm, ListingForm } from "./forms";
 
 export const metadata: Metadata = { title: "Publishing" };
 
-const GROUP: Record<string, string> = { android: "Google Play", ios: "App Store", both: "Push notifications" };
+const GROUP: Record<string, string> = { android: "Google Play", ios: "App Store", both: "Push notifications", galaxy: "Galaxy Store", huawei: "AppGallery" };
+
+/** 35, 36 What the extra stores are, on the Publishing page. */
+const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], string> = {
+  galaxy: "Samsung's own app store, on every Samsung Galaxy phone and tablet.",
+  huawei: "Huawei's app store, for Huawei phones without Google Play.",
+};
 
 function Choice({ mode, title, text, points, disabled }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string }) {
   return (
@@ -152,6 +160,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             <li>
               Follow our guides: <Link href="/guides/google-play">Publish on Google Play</Link> and <Link href="/guides/app-store">Publish on the App Store</Link>.
             </li>
+            <li>
+              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store and Huawei AppGallery</Link>, with their guides.
+            </li>
             {autoUpload ? (
               <li>
                 With your store keys in <Link href="/dashboard/setup?step=publishing">App setup › Publishing</Link>, we upload every new build for you.
@@ -180,7 +191,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const progress = checklistProgress(request, app);
   const missing = listingMissing(app, request.listing);
   const suggested = suggestedCategories(app);
-  const steps = PUBLISHING_STEPS.map((step) => ({
+  const steps = stepsFor(request).map((step) => ({
     id: step.id,
     title: step.title,
     text: stepText(step, teamEmail),
@@ -204,13 +215,13 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           Where it stands
         </h2>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-          {PUBLISHING_STORES.map((which: PublishingStore) => {
-            const track = request[which];
+          {requestStores(request).map((which) => {
+            const track = trackOf(request, which);
             return (
               <section key={which} aria-label={STORE_TITLE[which]} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="flex items-center gap-2 text-base font-bold">
-                    <Icon name={which === "android" ? "android" : "phone_iphone"} size={22} />
+                    <Icon name={STORE_ICON[which]} size={22} />
                     {STORE_TITLE[which]}
                   </span>
                   <Badge tone={statusTone(track.status)}>{CLIENT_STATUS_LABEL[track.status]}</Badge>
@@ -233,6 +244,33 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           })}
         </div>
       </section>
+
+      {/* 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants them too. */}
+      <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <h2 id="h-more-stores" className="m-0 text-lg font-bold">
+          More Android stores
+        </h2>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+          We can publish your Android app on these stores too, under your own accounts. Each one adds two steps to your list below.
+        </p>
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="sr-only">Also publish on</legend>
+          {MORE_STORES.map((which) => (
+            <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
+              <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
+                <span className="text-sm text-ink-4">{MORE_STORE_TEXT[which]}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <div>
+          <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
+            Save stores
+          </SubmitButton>
+        </div>
+      </form>
 
       <section aria-labelledby="h-checklist" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

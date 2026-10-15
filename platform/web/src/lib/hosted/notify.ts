@@ -1,17 +1,33 @@
+import { keyContext } from "../builds/signing";
 import { decrypt } from "../crypto/encryption";
 import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
-import { parseServiceAccount, sendPush, type ServiceAccount } from "./push";
+import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
 
 export const SERVICE_ACCOUNT_CONTEXT = "app:firebase-service-account";
 export const NOTIFICATION_TITLE_MAX = 65;
 export const NOTIFICATION_BODY_MAX = 240;
 
-/** The app's Firebase service account, or null when none is saved (push is off). */
+/**
+ * The app's Firebase service account, or null when none is saved (push is
+ * off). 36 With Huawei Push Kit's app ID and app secret saved, it carries
+ * them too, for the tokens of Huawei phones without Google Play.
+ */
 export function serviceAccountOf(app: App, key: Buffer): ServiceAccount | null {
   if (!app.firebaseServiceAccountEncrypted) return null;
   try {
-    return parseServiceAccount(decrypt(app.firebaseServiceAccountEncrypted, key, `${SERVICE_ACCOUNT_CONTEXT}:${app.id}`));
+    const account = parseServiceAccount(decrypt(app.firebaseServiceAccountEncrypted, key, `${SERVICE_ACCOUNT_CONTEXT}:${app.id}`));
+    return account ? { ...account, hms: hmsCredentialsOf(app, key) } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 36 Huawei Push Kit's credentials, or null when they aren't saved. */
+export function hmsCredentialsOf(app: App, key: Buffer): HmsCredentials | null {
+  if (!app.huaweiAppId || !app.huaweiPushSecretEncrypted) return null;
+  try {
+    return { app_id: app.huaweiAppId, app_secret: decrypt(app.huaweiPushSecretEncrypted, key, keyContext.huaweiPush(app.id)) };
   } catch {
     return null;
   }
@@ -48,7 +64,7 @@ export async function notifyClassCancelled(input: {
   for (const userId of users) {
     const notification = await input.store.createHostedNotification({ appId: input.app.id, userId, title, body, createdAt: input.now });
     if (!input.account) continue;
-    const tokens = (await input.store.listHostedPushDevices(input.app.id, [userId])).map((d) => d.pushToken!);
+    const tokens = (await input.store.listHostedPushDevices(input.app.id, [userId])).map(pushTarget);
     if (tokens.length === 0) continue;
     try {
       const result = await (input.send ?? sendPush)(
@@ -93,7 +109,7 @@ export async function announce(input: {
   });
   if (!input.account) return { notification, pushed: 0, pushError: "Push is off: add your Firebase service account." };
   const devices = await input.store.listHostedPushDevices(input.app.id, null);
-  const tokens = devices.filter((d) => (articleId ? d.pushPreferences?.news : d.pushPreferences?.announcements) !== false).map((d) => d.pushToken!);
+  const tokens = devices.filter((d) => (articleId ? d.pushPreferences?.news : d.pushPreferences?.announcements) !== false).map(pushTarget);
   const data: Record<string, string> = articleId
     ? { type: "article", article_id: articleId, notification_id: String(notification.id) }
     : { type: "announcement", notification_id: String(notification.id) };
@@ -148,7 +164,7 @@ export async function notifyCampaignDonors(input: {
   }
   if (!input.account) return { donors: userIds.length, pushed: 0, pushError: "Push is off: add your Firebase service account." };
   const devices = await input.store.listHostedPushDevices(input.app.id, userIds);
-  const tokens = devices.filter((d) => d.pushPreferences?.donations === true).map((d) => d.pushToken!);
+  const tokens = devices.filter((d) => d.pushPreferences?.donations === true).map(pushTarget);
   if (tokens.length === 0) return { donors: userIds.length, pushed: 0, pushError: null };
   try {
     const result = await (input.send ?? sendPush)(

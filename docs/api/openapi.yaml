@@ -641,7 +641,16 @@ paths:
               type: object
               required: [token]
               properties:
-                token: { type: string, description: Firebase Cloud Messaging token. }
+                token: { type: string, description: "The device's push token: from Firebase Cloud Messaging, or from Huawei Push Kit when `provider` is `hms`." }
+                provider:
+                  type: string
+                  enum: [fcm, hms]
+                  default: fcm
+                  description: >-
+                    Where the token is from. `fcm` (Firebase Cloud Messaging) for iPhones and Android
+                    phones with Google Play services; `hms` (Huawei Push Kit) for Huawei phones without
+                    them, in apps built with Huawei push. The server sends each token through its own
+                    service, and skips `hms` tokens when it has no Push Kit credentials.
                 preferences: { $ref: '#/components/schemas/NotificationPreferences' }
       responses:
         '204': { description: Saved }

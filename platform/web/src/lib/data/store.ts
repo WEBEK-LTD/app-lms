@@ -104,7 +104,7 @@ export class DuplicateEmailError extends Error {
 }
 
 /** A device of a hosted-API customer: what the API may change. */
-export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushPreferences" | "lastSeenAt">>;
+export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" | "appVersion" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt">>;
 
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 

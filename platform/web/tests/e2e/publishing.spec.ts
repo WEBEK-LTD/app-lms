@@ -1,3 +1,4 @@
+import { generateKeyPairSync } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
@@ -210,6 +211,31 @@ test("the team moves each store along, and the client is emailed", async () => {
   await expect(own.locator("body")).not.toContainText("WhatsApp in the mornings");
 });
 
+test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along", async () => {
+  await own.goto("/dashboard/publishing");
+  const more = own.getByRole("form", { name: "More Android stores" });
+  await more.getByRole("checkbox", { name: /Samsung Galaxy Store/ }).check();
+  await more.getByRole("button", { name: "Save stores" }).click();
+  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Waiting for you");
+  await expect(own.getByRole("region", { name: "Huawei AppGallery" })).toHaveCount(0);
+  const steps = own.getByRole("region", { name: "Your steps" });
+  await expect(steps.getByText(`invite ${teamEmail} as a manager for applications`)).toBeVisible();
+  await expect(steps.getByText("6 of 8 done")).toBeVisible();
+  await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Samsung Galaxy Store too`);
+
+  await admin.goto("/admin/publishing");
+  const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
+  await expect(card).toContainText("Invite our team to Seller Portal");
+  await card.getByLabel("Samsung Galaxy Store status").selectOption("in_review");
+  await card.getByRole("button", { name: "Save Samsung Galaxy Store" }).click();
+  await expect(card.getByText("Samsung Galaxy Store is now “In review”. The client has been emailed.")).toBeVisible();
+  await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Franklin Lab on Samsung Galaxy Store: In review");
+
+  await own.goto("/dashboard/publishing");
+  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Samsung is reviewing your app.");
+  await expect(own.getByRole("region", { name: "History" })).toContainText("Samsung Galaxy Store: In review");
+});
+
 test("a build that didn't finish says why, and Try again builds the same version", async ({ request }) => {
   const first = (await queued(request, "1.0.0"))!;
   await request.post(`/api/v1/builds/${first.id}/status`, { headers: pipeline, data: { status: "building", stages: { android: "running" }, log_url: "https://github.com/WEBEK-LTD/app-lms/actions/runs/7" } });
@@ -318,4 +344,74 @@ test("publishing yourself after all tells the team, and the setup's Publishing s
   await expect(card).toContainText("Asked us to publish the app");
   await own.goto("/dashboard/publishing");
   await expect(own.getByRole("region", { name: "History" })).toContainText("You chose to publish your app yourself");
+});
+
+test("35, 36 More Android stores: Galaxy Store keys and Huawei push reach the next build", async ({ request }) => {
+  const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048, privateKeyEncoding: { type: "pkcs8", format: "pem" }, publicKeyEncoding: { type: "spki", format: "pem" } });
+  const androidPackage = `com.franklin${suffix}.app`;
+  await own.goto("/dashboard/publishing/more-stores");
+  await expect(own.getByRole("heading", { name: "More Android stores", level: 1 })).toBeVisible();
+  // Our team publishes this app: nothing is required here.
+  await expect(own.getByText(`invite ${teamEmail}: you don't need to add anything here`)).toBeVisible();
+
+  const galaxy = own.getByRole("region", { name: "Samsung Galaxy Store" });
+  await galaxy.getByLabel("Content ID").fill("12");
+  await galaxy.getByLabel("Service account ID").fill("sa-franklin-01");
+  await galaxy.getByLabel("Private key", { exact: true }).fill("not a key");
+  await galaxy.getByRole("button", { name: "Save Galaxy Store keys" }).click();
+  await expect(galaxy.getByText("The content ID is the number Seller Portal shows for your app")).toBeVisible();
+  await expect(galaxy.getByText("This isn't the service account's private key.")).toBeVisible();
+  await galaxy.getByLabel("Content ID").fill("000001234567");
+  await galaxy.getByLabel("Private key", { exact: true }).fill(privateKey);
+  await galaxy.getByRole("button", { name: "Save Galaxy Store keys" }).click();
+  await expect(galaxy.getByText("Saved. Every new build is uploaded to Galaxy Store and sent for review.")).toBeVisible();
+  await own.reload();
+  await expect(galaxy.getByText("Galaxy Store keys saved")).toBeVisible();
+  // The key is never shown again.
+  await expect(own.locator("body")).not.toContainText("BEGIN PRIVATE KEY-----M");
+
+  const huawei = own.getByRole("region", { name: "Huawei AppGallery" });
+  const agconnect = (pkg: string) => ({
+    name: "agconnect-services.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify({ client: { app_id: "104123456", package_name: pkg }, app_info: { app_id: "104123456", package_name: pkg } })),
+  });
+  await huawei.getByLabel("agconnect-services.json").setInputFiles(agconnect("com.someone.else"));
+  await huawei.getByRole("button", { name: "Save Huawei settings" }).click();
+  await expect(huawei.getByText(`This file is for com.someone.else, not ${androidPackage}.`)).toBeVisible();
+  await huawei.getByLabel("agconnect-services.json").setInputFiles(agconnect(androidPackage));
+  await huawei.getByLabel("App secret").fill("0123456789abcdef0123456789abcdef");
+  await huawei.getByRole("button", { name: "Save Huawei settings" }).click();
+  await expect(huawei.getByText("Saved. Your next build includes Huawei push.")).toBeVisible();
+  await own.reload();
+  await expect(huawei.getByText("agconnect-services.json saved")).toBeVisible();
+  await expect(huawei.getByLabel("App ID")).toHaveAttribute("placeholder", "104123456");
+
+  // A new build: its config has the Huawei file, its keys the Galaxy Store ones.
+  const queue = async () =>
+    ((await (await request.get("/api/v1/builds/queue?limit=100", { headers: pipeline })).json()).builds as { id: string; app_id: string; stages: Record<string, string> }[]).filter(
+      (b) => b.app_id === appId,
+    );
+  for (const old of await queue()) {
+    await request.post(`/api/v1/builds/${old.id}/status`, { headers: pipeline, data: { status: "failed", stages: { android: "failed" } } });
+  }
+  await own.goto("/dashboard/builds");
+  await own.getByRole("button", { name: "Start new build" }).click();
+  await expect(own.getByText(/Build #\d+ is queued\./)).toBeVisible();
+  await expect(own.getByText("Upload to Galaxy Store").first()).toBeVisible();
+  const [build] = await queue();
+  expect(build!.stages).toMatchObject({ upload_galaxy: "pending", upload_appgallery: "skipped" });
+  await request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "building" } });
+  const config = await (await request.get(`/api/v1/builds/${build!.id}/config`, { headers: pipeline })).json();
+  expect(config.huawei.agconnect_config_url).toMatch(/\/api\/v1\/assets\/[0-9a-f-]{36}$/);
+  const file = await (await request.get(new URL(config.huawei.agconnect_config_url).pathname)).json();
+  expect(file.app_info.package_name).toBe(androidPackage);
+  const keys = await (await request.get(`/api/v1/builds/${build!.id}/secrets`, { headers: pipeline })).json();
+  expect(keys.galaxy_store).toEqual({ content_id: "000001234567", service_account_id: "sa-franklin-01", private_key: privateKey.trim() });
+  expect(keys.huawei_appgallery).toBeNull();
+
+  // The pipeline reports the upload.
+  await request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "ready", stages: { android: "done", upload_galaxy: "done" } } });
+  await own.goto("/dashboard/builds");
+  await expect(own.getByText("Upload to Galaxy Store").first()).toBeVisible();
 });

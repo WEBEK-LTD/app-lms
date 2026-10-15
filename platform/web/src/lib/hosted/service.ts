@@ -763,9 +763,12 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   for (const key of ["announcements", "new_lessons", "daily_reminder", "news", "donations"]) {
     if (typeof prefs[key] === "boolean") preferences[key] = prefs[key] as boolean;
   }
+  // 36 Firebase (the default) or Huawei Push Kit, for phones without Google Play.
+  const provider = body.provider ?? "fcm";
+  if (provider !== "fcm" && provider !== "hms") return badRequest("The push provider must be fcm or hms.");
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
-  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, { pushToken: token, pushPreferences: preferences });
+  await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, { pushToken: token, pushProvider: provider, pushPreferences: preferences });
   return noContent;
 }
 

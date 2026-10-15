@@ -102,6 +102,11 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] Our own Apple Account for the publishing team email, with two-factor
       authentication on a team phone (App Store Connect invitations need it).
 - [ ] Never accept a client's Google or Apple password: only invitations.
+- [ ] 35 A Samsung account for the publishing team email, so we can accept
+      Galaxy Store Seller Portal manager invitations (clients invite it as a
+      manager for applications).
+- [ ] 36 A HUAWEI ID for the publishing team email, so we can join clients'
+      AppGallery Connect teams (App administrator and Operations roles).
 
 ## 5. Demo apps on yallapp.com.tr/demo (Phase 16)
 
@@ -219,6 +224,18 @@ Nothing to set on Netlify: the preview is served from the site's own files
       Store app on a site that only runs Tutor LMS); **Change the app type**
       fixes it.
 
+## 7e. Samsung Galaxy Store and Huawei AppGallery (Phases 35, 36)
+
+- [ ] Apply migration `0031_more_android_stores.sql` (store keys on apps,
+      the push provider of hosted devices, the extra stores of publishing
+      requests).
+- [ ] **Release the next plugin version** with Huawei Push Kit (the devices
+      table gets `push_provider`, database version 4): WordPress clients with
+      Huawei push enter the app ID and app secret on the plugin's settings page.
+- [ ] Before telling clients: one real Galaxy Store update and one real
+      AppGallery update through the pipeline (section 8), and one push to a
+      Huawei phone without Google Play from the hosted API and from WordPress.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
@@ -239,4 +256,6 @@ Nothing to set on Netlify: the preview is served from the site's own files
 | 14.2, 14.3 | A first client who asks us to publish: their Google Play and Apple developer accounts inviting the publishing team email |
 | 17.7 | A WordPress test site with the new plugin, and a phone, to try the preview of a WordPress app and its QR code |
 | 22.5 | A Wix test site with Wix Stores (Catalog V3): a Headless OAuth app's client ID, and an account API key that reads orders and contacts with the site ID |
+| 35.4 | A Galaxy Store Seller Portal account (commercial seller) with a test app already on sale, and a service account with the Publishing scope: one build uploaded and submitted by the pipeline |
+| 36.5, 36.6 | An AppGallery Connect account with a test app (first version submitted by hand), a Connect API client (App administrator), Push Kit on, and a Huawei phone without Google Play to install the build and receive a push |
 | 25.5 | Yallapp's partner apps: a Salla Partners app (custom mode, callback `/oauth/salla`, webhook `/api/webhooks/salla`) and a Zid Partner Dashboard app (redirect `/oauth/zid`), saved in admin Settings, plus a Salla demo store and a Zid test store to connect |

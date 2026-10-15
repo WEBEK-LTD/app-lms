@@ -212,7 +212,7 @@ describe("23 articles written in the dashboard, on the hosted API", () => {
     const token = (registered.body as { access_token: string }).access_token;
     expect((await call("PUT", "/me/push-token", { token, body: { token: "fcm-news", preferences: { announcements: true, news: true } } })).status).toBe(204);
 
-    const pushed: { tokens: string[]; data: Record<string, string> }[] = [];
+    const pushed: { tokens: unknown[]; data: Record<string, string> }[] = [];
     const text = breakingNewsText({ title: "Night ferries return", excerpt: "Every 40 minutes.", body: "" });
     const sent = await announce({
       store,
@@ -235,7 +235,7 @@ describe("23 articles written in the dashboard, on the hosted API", () => {
     // A phone that turned news off gets no breaking news, but still gets announcements.
     expect((await call("PUT", "/me/push-token", { token, body: { token: "fcm-news", preferences: { announcements: true, news: false } } })).status).toBe(204);
     pushed.length = 0;
-    const send = async (_account: unknown, tokens: string[]) => {
+    const send = async (_account: unknown, tokens: unknown[]) => {
       pushed.push({ tokens, data: {} });
       return { sent: tokens.length, invalidTokens: [] };
     };

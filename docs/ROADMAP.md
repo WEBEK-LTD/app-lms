@@ -558,6 +558,51 @@ sitemap, robots.txt, canonical addresses, link previews or structured data.
 | [x] | 32.6 SEO: /sitemap.xml with every public page and solution and article (legal pages with their dates), /robots.txt keeping the private areas out, canonical addresses and Open Graph and Twitter cards on every public page, share images in Yallapp's colors and Bricolage Grotesque (site, pricing, each solution, each article), noindex on sign-in, payment, donation, receipt and shop pages; JSON-LD: Organization (Cairo, contact details from Settings), WebSite, SoftwareApplication with offers only for priced plans, FAQPage, BreadcrumbList on solutions and articles | Unit tests and the search engines browser test |
 | [ ] | 32.7 Legal pages saved in the admin before this phase keep their old text until the team edits them or uses "Back to the default text"; the design files under `docs/design` still say WEBEK LTD (no UK details). The plugin's author and the API contracts' licence now say Yallapp | The team's review |
 
+## Phase 35: Samsung Galaxy Store
+
+Android apps on Galaxy Store too, the app store on every Samsung phone, under
+the client's own seller account. As with Google Play, the client (or our
+team, through a manager invitation) publishes the first version by hand in
+Seller Portal; after that, on plans with "We publish for you", every build's
+APK is uploaded and submitted through the Galaxy Store Developer API (Content
+Publish API). Galaxy Store gets the APK, signed with the app's upload key: an
+App Bundle would need Samsung to manage the signing key. Built and tested
+against a local mock of the API; nothing has been sent to Samsung yet (the
+docs pages couldn't be fetched from here, so the API details come from
+Samsung's documentation as search results quote it). Migration
+`drizzle/0031_more_android_stores.sql` (shared with Phase 36).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 35.1 Contract first: `galaxy_store` in `BuildSecrets` (content ID, service account ID, private key; only for builds whose plan uploads) and the `upload_galaxy` stage in `docs/api/pipeline.yaml` | `redocly lint` passes |
+| [x] | 35.2 Platform: the keys on the app (private key encrypted with its own context), `upload_galaxy` started as pending only with "We publish for you" and the keys, the stage on Builds & downloads and a plain failure reason | Unit tests (keys never sent to builds that don't upload, can't be moved to another app) |
+| [x] | 35.3 Dashboard: Publishing › More Android stores with the Samsung Galaxy Store section (content ID, service account ID, private key pasted or as a file, checked as an RSA key) and a short guide; "Publish it for me" can add Galaxy Store: two more checklist steps (the seller account, and inviting the team email as a manager for applications), a Galaxy Store track with its statuses and store link (`galaxystore.samsung.com`) in Admin › Publishing, status emails; the docs article "Publish on Samsung Galaxy Store" | Unit tests and the publishing browser test |
+| [x] | 35.4 Pipeline: `build/scripts/galaxy_store.py` after the Android build (JWT with RS256 and the `publishing` scope, the app must be FOR_SALE, upload session, APK upload, contentUpdate, `/seller/v2/content/binary`, contentSubmit); a failed upload leaves the build ready with a message; no secret in the output | `python3 -m unittest discover build/tests` against a mock Galaxy Store, `shellcheck` |
+| [ ] | 35.5 A real update through Seller Portal: the request formats Samsung's reference and guides disagree on (body or query for `/seller/v2/content/binary`, which contentUpdate fields it needs), whether the old binary must be removed, and the manager-invitation menu names | One build uploaded and submitted to a test app on sale (LAUNCH-CHECKLIST, section 8) |
+
+## Phase 36: Huawei AppGallery and Huawei push
+
+Huawei phones come without Google Play, so their owners use AppGallery and
+Firebase push doesn't reach them. Clients can now publish on AppGallery (by
+hand the first time, then every build uploaded on plans with "We publish for
+you") and add Huawei Push Kit on every plan: the app then registers with Push
+Kit on phones without Google Play services and the servers send those tokens
+through Huawei. The app includes Huawei's SDK only in builds with the client's
+agconnect-services.json; `flutter build apk` without it is unchanged (CI
+builds both). The `huawei_push` Flutter plugin isn't used: it would put
+Huawei's SDK and its image library into every build and make every build
+depend on Huawei's Maven repository, and Flutter can't leave a plugin out per
+build. A small Android module (`android/hms_push`) and channel do the same.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 36.1 Contract first: `provider` (`fcm` or `hms`, default `fcm`) on `PUT /me/push-token` in `docs/api/openapi.yaml`; `huawei_appgallery` in `BuildSecrets`, the `upload_appgallery` stage, `huawei.agconnect_config_url` in the build config schema | `redocly lint` passes |
+| [x] | 36.2 App: `huaweiAppId` in the build config (from agconnect-services.json, downloaded by `tool/apply_config.dart` like the Firebase files); `android/hms_push` and `android/app/src/huawei` built in only with that file; at start-up Push Kit on phones without Google Play that have Huawei Mobile Services, Firebase everywhere else; the token registered with its provider; tapped Huawei notifications open the same screens | `flutter analyze`, `flutter test` (provider choice, the channel, the registration payload), `build_preview.sh --check` |
+| [x] | 36.3 Hosted API: the provider kept per device (`hosted_devices.push_provider`); `hms` tokens sent through Push Kit (server API v1, OAuth client credentials with the app ID and app secret, batches of 1,000, refused tokens forgotten), the others through FCM | Unit tests with a mocked Push Kit |
+| [x] | 36.4 Plugin: `push_provider` on the devices table (database version 4), `provider` on `PUT /me/push-token`, Huawei Push Kit's app ID and app secret (encrypted) on the settings page, `Push\Hms_Sender` for `hms` tokens | `composer lint`, phpunit, the Tutor LMS integration suite (237 checks, Push Kit answered by a request filter) |
+| [x] | 36.5 Dashboard: the Huawei AppGallery section (app ID, agconnect-services.json checked against the package name, the Push Kit app secret on every plan, the Connect API client ID and key with "We publish for you"); "Publish it for me" can add AppGallery (account and team-invitation steps, its track in Admin › Publishing); the docs article "Publish on Huawei AppGallery"; `build/scripts/appgallery.py` (token, `upload-url/for-obs`, the upload, `app-file-info`, `app-submit` tried again while Huawei parses the package) | Unit tests, the publishing browser test, build script tests against a mock AppGallery |
+| [ ] | 36.6 A real AppGallery update and a push to a Huawei phone: the Android module and channel couldn't be compiled here (Huawei's Maven repository and the Android SDK aren't reachable), so CI's "debug APK with Huawei push" is the first build; Push Kit's notification data on tap and the v1 answers need a real phone | CI builds the Huawei APK; one update submitted and one push received (LAUNCH-CHECKLIST, section 8) |
+
 ## Phase 37: Kashier and Fawaterk payments
 
 Yallapp is now based in Cairo, and its clients there pay with Egyptian

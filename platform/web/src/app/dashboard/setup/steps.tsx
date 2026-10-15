@@ -1258,6 +1258,18 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
   );
 }
 
+/** 35, 36 Samsung Galaxy Store and Huawei AppGallery (and Huawei push) have their own page. */
+function MoreStoresLink() {
+  return (
+    <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
+      <Icon name="storefront" size={20} className="text-muted" />
+      <span>
+        Samsung Galaxy Store and Huawei AppGallery, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
+      </span>
+    </p>
+  );
+}
+
 /** 19 Who publishes the app, on plans with "We publish for you". */
 const PUBLISHING_CHOICES: { id: "managed" | "self"; title: string; text: string }[] = [
   {
@@ -1340,6 +1352,7 @@ export function PublishingStep({
             Our team publishes your app on the stores for you, under your own developer accounts, and uploads every update.
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
+        <MoreStoresLink />
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
               Back
@@ -1420,6 +1433,7 @@ export function PublishingStep({
         )}
 
         <FirebaseFields state={state} saved={saved.firebase} />
+        <MoreStoresLink />
 
         <div className="flex justify-between gap-3 pt-1.5">
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>

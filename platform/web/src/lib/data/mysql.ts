@@ -8,7 +8,7 @@ import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AppLayoutRecord } from "./types";
-import type { PublishingEvent, PublishingRequest } from "./types";
+import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -69,8 +69,7 @@ import type {
   License,
   PluginRelease,
   ResetToken,
-  StageKey,
-  StageStatus,
+  BuildStages,
   StoreListing,
   User,
   AdminMember,
@@ -2549,12 +2548,25 @@ function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect)
     listing: row.listing,
     android: { status: row.androidStatus, note: row.androidNote, storeUrl: row.androidStoreUrl, updatedAt: row.androidUpdatedAt },
     ios: { status: row.iosStatus, note: row.iosNote, storeUrl: row.iosStoreUrl, updatedAt: row.iosUpdatedAt },
+    ...moreStoresFromRow(row.moreStores),
     teamNotes: row.teamNotes,
     requestedAt: row.requestedAt,
     readyAt: row.readyAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+}
+
+/** 35, 36 The Galaxy Store and AppGallery tracks, kept as JSON. */
+function moreStoresFromRow(row: MoreStoresRow | null): Pick<PublishingRequest, MoreStore> {
+  const track = (value: MoreStoresRow[MoreStore]) => (value ? { ...value, updatedAt: value.updatedAt ? new Date(value.updatedAt) : null } : null);
+  return { galaxy: track(row?.galaxy), huawei: track(row?.huawei) };
+}
+
+function moreStoresToRow(request: PublishingRequest): MoreStoresRow | null {
+  const track = (value: PublishingTrack | null | undefined) => (value ? { ...value, updatedAt: value.updatedAt?.toISOString() ?? null } : null);
+  if (!request.galaxy && !request.huawei) return null;
+  return { galaxy: track(request.galaxy), huawei: track(request.huawei) };
 }
 
 function fromPublishingRequest(request: PublishingRequest): typeof schema.publishingRequests.$inferInsert {
@@ -2573,6 +2585,7 @@ function fromPublishingRequest(request: PublishingRequest): typeof schema.publis
     iosNote: request.ios.note,
     iosStoreUrl: request.ios.storeUrl,
     iosUpdatedAt: request.ios.updatedAt,
+    moreStores: moreStoresToRow(request),
     teamNotes: request.teamNotes,
     requestedAt: request.requestedAt,
     readyAt: request.readyAt,
@@ -2584,7 +2597,7 @@ function fromPublishingRequest(request: PublishingRequest): typeof schema.publis
 function toBuild(row: typeof schema.builds.$inferSelect): Build {
   return {
     ...row,
-    stages: row.stages as Record<StageKey, StageStatus>,
+    stages: row.stages as BuildStages,
     config: row.config as unknown as BuildConfig,
     storeListing: row.storeListing as unknown as StoreListing,
     artifacts: row.artifacts as Artifact[],

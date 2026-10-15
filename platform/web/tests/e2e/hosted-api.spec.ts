@@ -118,6 +118,9 @@ test("the app signs a customer in and receives notifications", async ({ page, re
   const auth = { authorization: `Bearer ${session.access_token}` };
 
   expect(await (await request.get(`${api}/me`, { headers: auth })).json()).toMatchObject({ name: "Sara Yilmaz", phone: "+905321234567" });
+  // 36 A Huawei phone without Google Play registers its Push Kit token; an unknown provider is refused.
+  expect((await request.put(`${api}/me/push-token`, { headers: auth, data: { token: "hms-e2e", provider: "huawei" } })).status()).toBe(400);
+  expect((await request.put(`${api}/me/push-token`, { headers: auth, data: { token: "hms-e2e", provider: "hms" } })).status()).toBe(204);
   expect((await request.put(`${api}/me/push-token`, { headers: auth, data: { token: "fcm-e2e" } })).status()).toBe(204);
 
   await signIn(page, client.email, client.password);

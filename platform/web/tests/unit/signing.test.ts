@@ -100,7 +100,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
     const response = await secrets(build.id);
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null });
+    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null, galaxy_store: null, huawei_appgallery: null });
   });
 
   it("decrypts the store keys the client uploaded", async () => {
@@ -119,6 +119,29 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       ios_distribution: null,
       google_play: { service_account_json: serviceAccount },
       app_store_connect: { issuer_id: "69a6de7e-0000-4000-8000-000000000000", key_id: "2X9R4HXF34", private_key: p8 },
+      // 35, 36 Only for builds that upload (auto_publish): this one doesn't.
+      galaxy_store: null,
+      huawei_appgallery: null,
+    });
+  });
+
+  it("35, 36 sends the Galaxy Store and AppGallery keys to builds that upload", async () => {
+    const appId = newId();
+    const key = encryptionKey();
+    const { build } = await appWithBuild("building", {
+      id: appId,
+      galaxyContentId: "000001234567",
+      galaxyServiceAccountId: "sa-123456",
+      galaxyKeyEncrypted: encrypt("-----BEGIN PRIVATE KEY-----\nGALAXY\n-----END PRIVATE KEY-----", key, keyContext.galaxyStore(appId)),
+      huaweiAppId: "104123456",
+      huaweiClientId: "client-777",
+      huaweiClientSecretEncrypted: encrypt("connect-secret-0123456789", key, keyContext.appGallery(appId)),
+    });
+    // A build whose plan includes "We publish for you" (builds keep it from when they were queued).
+    await store.updateBuild(build.id, { autoPublish: true } as never, NOW);
+    expect(await (await secrets(build.id)).json()).toMatchObject({
+      galaxy_store: { content_id: "000001234567", service_account_id: "sa-123456", private_key: "-----BEGIN PRIVATE KEY-----\nGALAXY\n-----END PRIVATE KEY-----" },
+      huawei_appgallery: { app_id: "104123456", client_id: "client-777", client_secret: "connect-secret-0123456789" },
     });
   });
 

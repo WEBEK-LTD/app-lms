@@ -2,7 +2,7 @@ import { utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type { App, EventRecord } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
-import { sendPush, type ServiceAccount } from "../hosted/push";
+import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 
 /**
  * 28 Ticket holders hear about their event: when its time, place or online
@@ -64,7 +64,7 @@ export async function notifyTicketHolders(input: {
     await store.createHostedNotification({ appId: app.id, userId, title: input.title, body: input.body, eventId: event.id, createdAt: input.now });
   }
   if (!input.account || input.userIds.length === 0) return { notified: input.userIds.length, pushed: 0 };
-  const tokens = (await store.listHostedPushDevices(app.id, input.userIds)).map((d) => d.pushToken!);
+  const tokens = (await store.listHostedPushDevices(app.id, input.userIds)).map(pushTarget);
   if (tokens.length === 0) return { notified: input.userIds.length, pushed: 0 };
   try {
     const result = await (input.send ?? sendPush)(

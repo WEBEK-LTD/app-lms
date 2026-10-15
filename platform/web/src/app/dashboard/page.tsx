@@ -24,7 +24,7 @@ import { AnnouncementBanner } from "@/components/announcements";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { isInProgress, statusExplanation } from "@/lib/builds/view";
 import { dashboardFileHref, fileLink } from "@/lib/files";
-import { CLIENT_STATUS_LABEL, isLiveSomewhere, PUBLISHING_STORES, statusTone, STORE_TITLE } from "@/lib/publishing/steps";
+import { CLIENT_STATUS_LABEL, isLiveSomewhere, requestStores, statusTone, STORE_ICON, STORE_TITLE, trackOf } from "@/lib/publishing/steps";
 import type { App } from "@/lib/data/types";
 import { paymentsSetUp } from "@/lib/catalog/settings";
 
@@ -294,13 +294,13 @@ export default async function OverviewPage() {
             <>
               <span className="text-sm text-muted">{teamOnIt ? "Our team is on it: it isn't live on a store yet." : "Our team publishes it for you."}</span>
               <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-                {PUBLISHING_STORES.map((which) => (
+                {requestStores(publishing).map((which) => (
                   <li key={which} className="flex flex-wrap items-center justify-between gap-2">
                     <span className="flex items-center gap-2 font-semibold">
-                      <Icon name={which === "android" ? "android" : "phone_iphone"} size={20} className="text-muted" />
+                      <Icon name={STORE_ICON[which]} size={20} className="text-muted" />
                       {STORE_TITLE[which]}
                     </span>
-                    <Badge tone={statusTone(publishing[which].status)}>{CLIENT_STATUS_LABEL[publishing[which].status]}</Badge>
+                    <Badge tone={statusTone(trackOf(publishing, which).status)}>{CLIENT_STATUS_LABEL[trackOf(publishing, which).status]}</Badge>
                   </li>
                 ))}
               </ul>
