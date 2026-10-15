@@ -57,13 +57,15 @@ const STAGE_FAILED: Partial<Record<StageKey, string>> = {
   ios: "The iOS app couldn't be built.",
   upload_play: "The upload to Google Play didn't work.",
   upload_testflight: "The upload to TestFlight didn't work.",
+  upload_galaxy: "The upload to Galaxy Store didn't work.",
+  upload_appgallery: "The upload to AppGallery didn't work.",
 };
 
 /** Why a build didn't finish, in plain words: the pipeline's message, or what its stages say. */
 export function failureReason(build: Pick<Build, "message" | "stages">): string {
   const message = build.message?.trim();
   if (message) return message;
-  for (const stage of ["android", "ios", "upload_play", "upload_testflight"] as const) {
+  for (const stage of ["android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery"] as const) {
     if (build.stages[stage] === "failed") return STAGE_FAILED[stage]!;
   }
   return "The build didn't finish.";

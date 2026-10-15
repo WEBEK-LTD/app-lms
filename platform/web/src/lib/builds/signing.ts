@@ -1,5 +1,7 @@
+import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { decrypt, encrypt } from "../crypto/encryption";
+import { rewrapPem } from "../crypto/pem";
 import type { DataStore, SigningKeysPatch } from "../data/store";
 import type { App, Build } from "../data/types";
 
@@ -44,6 +46,10 @@ export interface BuildSecrets {
   ios_distribution: IosDistribution | null;
   google_play: { service_account_json: string } | null;
   app_store_connect: { issuer_id: string; key_id: string; private_key: string } | null;
+  /** 35 Samsung Galaxy Store (Content Publish API). */
+  galaxy_store: { content_id: string; service_account_id: string; private_key: string } | null;
+  /** 36 Huawei AppGallery Connect (Publishing API). */
+  huawei_appgallery: { app_id: string; client_id: string; client_secret: string } | null;
 }
 
 /** Encryption contexts (AAD) per app and kind, so a value can't be moved to another column or app. */
@@ -52,6 +58,10 @@ export const keyContext = {
   appStore: (appId: string) => `app:${appId}:app-store`,
   androidUploadKey: (appId: string) => `app:${appId}:android-upload-key`,
   iosDistribution: (appId: string) => `app:${appId}:ios-distribution`,
+  // 35, 36
+  galaxyStore: (appId: string) => `app:${appId}:galaxy-store`,
+  appGallery: (appId: string) => `app:${appId}:appgallery`,
+  huaweiPush: (appId: string) => `app:${appId}:huawei-push`,
 };
 
 /** Signing and store keys only go out while the build is running. */
@@ -62,9 +72,12 @@ export function isBuilding(build: Build): boolean {
 /**
  * Decrypts everything the pipeline needs for a build. Store keys are returned
  * on every plan, except the App Store Connect key for a build without iOS
- * (its plan has no iOS app, 13.1): the pipeline then skips iOS.
+ * (its plan has no iOS app, 13.1): the pipeline then skips iOS. 35, 36 The
+ * Galaxy Store and AppGallery keys only upload, so they go only to builds
+ * whose plan includes "We publish for you" (`autoPublish`).
  */
-export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean } = {}): BuildSecrets {
+export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; autoPublish?: boolean } = {}): BuildSecrets {
+  const uploads = options.autoPublish === true;
   return {
     android_upload_key: app.androidUploadKeyEncrypted
       ? (JSON.parse(decrypt(app.androidUploadKeyEncrypted, key, keyContext.androidUploadKey(app.id))) as AndroidUploadKey)
@@ -80,7 +93,23 @@ export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean } =
         ? {
             issuer_id: app.ascIssuerId,
             key_id: app.ascKeyId,
-            private_key: decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id)),
+            private_key: canonicalPrivateKey(decrypt(app.ascPrivateKeyEncrypted, key, keyContext.appStore(app.id))),
+          }
+        : null,
+    galaxy_store:
+      uploads && app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId
+        ? {
+            content_id: app.galaxyContentId,
+            service_account_id: app.galaxyServiceAccountId,
+            private_key: decrypt(app.galaxyKeyEncrypted, key, keyContext.galaxyStore(app.id)),
+          }
+        : null,
+    huawei_appgallery:
+      uploads && app.huaweiClientSecretEncrypted && app.huaweiClientId && app.huaweiAppId
+        ? {
+            app_id: app.huaweiAppId,
+            client_id: app.huaweiClientId,
+            client_secret: decrypt(app.huaweiClientSecretEncrypted, key, keyContext.appGallery(app.id)),
           }
         : null,
   };
@@ -121,4 +150,16 @@ export async function saveSigningKeys(
     code: "key_exists",
     message: `This app already has ${names.join(" and ") || "this key"}. Saved keys are never replaced.`,
   };
+}
+
+/**
+ * The App Store Connect key as OpenSSL writes it (PKCS#8 PEM), so fastlane can read it whatever
+ * shape it was saved in. Anything Node can't read is sent as it was, and the build says so.
+ */
+export function canonicalPrivateKey(pem: string): string {
+  try {
+    return createPrivateKey(rewrapPem(pem)).export({ type: "pkcs8", format: "pem" }).toString().trimEnd();
+  } catch {
+    return pem;
+  }
 }

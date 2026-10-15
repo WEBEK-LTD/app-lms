@@ -1,7 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, CatalogOrder, FulfilmentStatus, HostedNotification } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
-import { sendPush, type ServiceAccount } from "../hosted/push";
+import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 import { canMoveTo, fulfilmentMessage } from "./fulfilment";
 import { orderNumber } from "./settings";
 
@@ -37,7 +37,7 @@ export async function moveOrder(input: {
   const body = message.body.slice(0, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId: order.userId, title, body, createdAt: now });
   if (!input.account) return { moved: true, notification, pushed: 0 };
-  const tokens = (await store.listHostedPushDevices(app.id, [order.userId])).map((d) => d.pushToken!);
+  const tokens = (await store.listHostedPushDevices(app.id, [order.userId])).map(pushTarget);
   if (tokens.length === 0) return { moved: true, notification, pushed: 0 };
   try {
     const result = await (input.send ?? sendPush)(

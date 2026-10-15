@@ -6,10 +6,14 @@ import type { AdminRole } from "../admin/permissions";
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
 export type BuildStatus = "queued" | "building" | "ready" | "failed";
-export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight";
+export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage;
+/** 35, 36 Uploads to Samsung Galaxy Store and Huawei AppGallery: builds queued before them don't have these stages. */
+export type MoreStoreStage = "upload_galaxy" | "upload_appgallery";
+/** A build's stages. */
+export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
 export type ArtifactKind = "apk" | "aab" | "ipa" | "keystore" | "store_assets";
-export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios" | "product_image";
+export type AssetKind = "icon" | "logo" | "play_screenshot" | "ios_screenshot" | "firebase_android" | "firebase_ios" | "product_image" | "huawei_agconnect";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -300,6 +304,24 @@ export interface App {
   androidUploadKeyEncrypted: string | null;
   /** Encrypted JSON of the iOS distribution certificate (IosDistribution in docs/api/pipeline.yaml). Set once, never replaced. */
   iosDistributionEncrypted: string | null;
+  /**
+   * 35 Samsung Galaxy Store: the app's content ID in Seller Portal and the
+   * Seller Portal service account (its private key encrypted). Used to upload
+   * builds on plans with "We publish for you".
+   */
+  galaxyContentId?: string | null;
+  galaxyServiceAccountId?: string | null;
+  galaxyKeyEncrypted?: string | null;
+  /**
+   * 36 Huawei AppGallery: the app ID, the Connect API client for uploads (its
+   * secret encrypted), agconnect-services.json (an asset, like the Firebase
+   * files) and the app secret Huawei Push Kit sends with (encrypted).
+   */
+  huaweiAppId?: string | null;
+  huaweiClientId?: string | null;
+  huaweiClientSecretEncrypted?: string | null;
+  huaweiAgconnectAssetId?: string | null;
+  huaweiPushSecretEncrypted?: string | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -338,7 +360,7 @@ export interface Build {
   versionName: string;
   versionCode: number;
   status: BuildStatus;
-  stages: Record<StageKey, StageStatus>;
+  stages: BuildStages;
   config: BuildConfig;
   storeListing: StoreListing;
   autoPublish: boolean;
@@ -423,10 +445,15 @@ export interface HostedDevice {
   name: string;
   appVersion: string;
   pushToken: string | null;
+  /** 36 Where the token is from: Firebase ("fcm", the default) or Huawei Push Kit ("hms"). */
+  pushProvider?: PushProvider;
   pushPreferences: PushPreferences | null;
   createdAt: Date;
   lastSeenAt: Date;
 }
+
+/** 36 The push service a device token belongs to. */
+export type PushProvider = "fcm" | "hms";
 
 /** A refresh token (stored hashed). Single use: rotating deletes it. */
 export interface HostedRefreshToken {
@@ -1465,8 +1492,11 @@ export type AnnouncementPatch = Partial<Omit<Announcement, "id" | "createdAt" | 
 
 export type PublishingMode = "self" | "managed";
 
-/** The two stores, as the publishing service tracks them. */
-export type PublishingStore = "android" | "ios";
+/** The stores, as the publishing service tracks them: Google Play, the App Store and (35, 36) the extra Android stores. */
+export type PublishingStore = "android" | "ios" | MoreStore;
+
+/** 35, 36 Samsung Galaxy Store and Huawei AppGallery: only when the client asks for them. */
+export type MoreStore = "galaxy" | "huawei";
 
 /** Where publishing on one store stands, as the team moves it along. */
 export type PublishingStatus = "waiting_client" | "accounts_ready" | "submitted" | "in_review" | "live" | "rejected";
@@ -1485,6 +1515,9 @@ export interface PublishingListing {
   /** For the stores' reviewers, like how to sign in. */
   reviewNotes: string | null;
 }
+
+/** 35, 36 How the extra stores' tracks are kept (publishing_requests.more_stores): dates as ISO strings. */
+export type MoreStoresRow = Partial<Record<MoreStore, (Omit<PublishingTrack, "updatedAt"> & { updatedAt: string | null }) | null>>;
 
 /** Publishing on one store. */
 export interface PublishingTrack {
@@ -1512,6 +1545,9 @@ export interface PublishingRequest {
   listing: PublishingListing;
   android: PublishingTrack;
   ios: PublishingTrack;
+  /** 35, 36 Galaxy Store and AppGallery: null (or absent) when the client doesn't want the app there. */
+  galaxy?: PublishingTrack | null;
+  huawei?: PublishingTrack | null;
   /** The team's own notes, never shown to the client. */
   teamNotes: string | null;
   /** When the client chose "Publish it for me" (the queue's order). */

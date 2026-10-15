@@ -124,5 +124,32 @@ if [ "$AUTO_PUBLISH" = "true" ] && [ "$HAS_PLAY" = "yes" ]; then
 	fi
 fi
 
-result "{\"android\":\"done\",\"upload_play\":\"$PLAY\"}" "$ARTIFACTS" "$MESSAGE"
-platform status "$BUILD_ID" "{\"stages\":{\"android\":\"done\",\"upload_play\":\"$PLAY\"}}"
+# 35, 36 Samsung Galaxy Store and Huawei AppGallery: the APK (signed with the upload key),
+# only on plans with "We publish for you" and with the client's keys (the secrets send
+# null otherwise). The first version of each is published by hand.
+store_upload() { # stage script secrets-key failure-message
+	local stage=$1 script=$2 key=$3 failure=$4 has
+	has=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1])).get(sys.argv[2]) else "no")' "$WORK/secrets.json" "$key")
+	if [ "$AUTO_PUBLISH" != "true" ] || [ "$has" != "yes" ]; then
+		echo skipped
+		return
+	fi
+	platform status "$BUILD_ID" "{\"stages\":{\"$stage\":\"running\"}}" >&2
+	if python3 "$SCRIPTS/$script" "$WORK/secrets.json" "$APK" >&2; then
+		echo "done"
+	else
+		MESSAGE="${MESSAGE:+$MESSAGE }$failure"
+		echo failed
+	fi
+}
+GALAXY_FAILED="The upload to Samsung Galaxy Store didn't work. Galaxy Store needs the first version published by hand in Seller Portal, and no other update in review; download the APK below and see the Galaxy Store guide."
+APPGALLERY_FAILED="The upload to Huawei AppGallery didn't work. AppGallery needs the first version submitted by hand in AppGallery Connect; download the APK below and see the AppGallery guide."
+# Run in this shell (not in $(...)) so a failure's message is kept.
+store_upload upload_galaxy galaxy_store.py galaxy_store "$GALAXY_FAILED" > "$WORK/galaxy.stage"
+GALAXY=$(cat "$WORK/galaxy.stage")
+store_upload upload_appgallery appgallery.py huawei_appgallery "$APPGALLERY_FAILED" > "$WORK/appgallery.stage"
+APPGALLERY=$(cat "$WORK/appgallery.stage")
+
+STAGES="{\"android\":\"done\",\"upload_play\":\"$PLAY\",\"upload_galaxy\":\"$GALAXY\",\"upload_appgallery\":\"$APPGALLERY\"}"
+result "$STAGES" "$ARTIFACTS" "$MESSAGE"
+platform status "$BUILD_ID" "{\"stages\":$STAGES}"

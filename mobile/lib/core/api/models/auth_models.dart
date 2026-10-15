@@ -117,6 +117,11 @@ class User {
 
 enum DevicePlatform { android, ios }
 
+/// 36 Where a device's push token is from: Firebase Cloud Messaging, or
+/// Huawei Push Kit on Huawei phones without Google Play services. Sent as
+/// `provider` with `PUT /me/push-token`.
+enum PushProvider { fcm, hms }
+
 class DeviceInput {
   const DeviceInput({
     required this.id,

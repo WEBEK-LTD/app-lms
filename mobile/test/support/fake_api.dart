@@ -170,8 +170,14 @@ class FakeApi implements YallappApi {
   @override
   Future<void> setPushToken(
     String token,
-    NotificationPreferences preferences,
-  ) => _answer('setPushToken', () {});
+    NotificationPreferences preferences, {
+    PushProvider provider = PushProvider.fcm,
+  }) => _answer('setPushToken', () {
+    pushTokens.add((token: token, provider: provider));
+  });
+
+  /// 36 The push tokens the app registered, with their provider.
+  final pushTokens = <({String token, PushProvider provider})>[];
 
   @override
   Future<List<Category>> listCategories() => _answer(

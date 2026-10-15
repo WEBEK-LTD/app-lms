@@ -218,6 +218,13 @@
       "when": 1792055466656,
       "tag": "0030_payment_providers",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1792060296409,
+      "tag": "0031_more_android_stores",
+      "breakpoints": true
     }
   ]
 }

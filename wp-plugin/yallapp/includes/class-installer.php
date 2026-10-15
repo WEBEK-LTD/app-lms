@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Installer {
 
-	const DB_VERSION        = '3';
+	const DB_VERSION        = '4';
 	const DB_VERSION_OPTION = 'yallapp_db_version';
 
 	/**
@@ -89,6 +89,7 @@ class Installer {
 				name varchar(100) NOT NULL DEFAULT '',
 				app_version varchar(20) NOT NULL DEFAULT '',
 				push_token text,
+				push_provider varchar(4) NOT NULL DEFAULT 'fcm',
 				push_prefs text,
 				created_at datetime NOT NULL,
 				last_seen_at datetime NOT NULL,

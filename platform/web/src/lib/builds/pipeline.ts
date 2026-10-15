@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { DataStore } from "../data/store";
-import type { Artifact, Build, BuildStatus, StageKey, StageStatus } from "../data/types";
+import type { Artifact, Build, BuildStages, BuildStatus, StageKey } from "../data/types";
 
 /** What the build pipeline may report: see docs/api/pipeline.yaml. */
 const stageStatus = z.enum(["pending", "running", "done", "failed", "skipped"]);
@@ -15,6 +15,9 @@ export const pipelineStatusSchema = z
         ios: stageStatus.optional(),
         upload_play: stageStatus.optional(),
         upload_testflight: stageStatus.optional(),
+        // 35, 36
+        upload_galaxy: stageStatus.optional(),
+        upload_appgallery: stageStatus.optional(),
       })
       .strict()
       .optional(),
@@ -61,7 +64,7 @@ export async function applyPipelineStatus(
     return { ok: false, code: "build_finished", message: `Build ${build.id} is already ${build.status}.` };
   }
   const status = update.status ?? build.status;
-  const stages = { ...build.stages } as Record<StageKey, StageStatus>;
+  const stages: BuildStages = { ...build.stages };
   for (const [key, value] of Object.entries(update.stages ?? {})) {
     if (value) stages[key as StageKey] = value;
   }

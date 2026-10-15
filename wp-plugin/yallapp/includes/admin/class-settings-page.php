@@ -276,7 +276,14 @@ class Settings_Page {
 		check_admin_referer( 'yallapp_save' );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each value is sanitized by Settings::sanitize().
 		$raw     = isset( $_POST['yallapp'] ) && is_array( $_POST['yallapp'] ) ? wp_unslash( $_POST['yallapp'] ) : array();
-		$changes = array_diff_key( $raw, array_flip( array( 'license_key', 'firebase_service_account' ) ) );
+		$changes = array_diff_key( $raw, array_flip( array( 'license_key', 'firebase_service_account', 'huawei_push_app_secret' ) ) );
+		// 36 Huawei Push Kit: an empty secret field keeps the saved one.
+		if ( ! empty( $_POST['yallapp_huawei_remove'] ) ) {
+			$changes['huawei_push_app_id']     = '';
+			$changes['huawei_push_app_secret'] = '';
+		} elseif ( isset( $raw['huawei_push_app_secret'] ) && '' !== trim( (string) $raw['huawei_push_app_secret'] ) ) {
+			$changes['huawei_push_app_secret'] = trim( (string) $raw['huawei_push_app_secret'] );
+		}
 
 		if ( ! empty( $_POST['yallapp_firebase_remove'] ) ) {
 			$changes['firebase_service_account'] = '';
@@ -1086,13 +1093,14 @@ class Settings_Page {
 	private function notifications_card( $type ) {
 		$this->open( __( 'Notifications (Firebase)', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Firebase service account file', 'yallapp' ) . '</span><div>';
-		if ( $this->plugin->push()->is_configured() ) {
+		if ( '' !== (string) $this->plugin->settings()->get( 'firebase_service_account' ) ) {
 			echo '<p><span class="ya-pill ya-pill-ok">' . esc_html__( 'Connected', 'yallapp' ) . '</span></p>';
 			echo '<label><input type="checkbox" name="yallapp_firebase_remove" value="1"> ' . esc_html__( 'Remove the saved file', 'yallapp' ) . '</label><br>';
 		}
 		echo '<input type="file" name="yallapp_firebase" accept="application/json,.json">';
 		echo '<p class="ya-help">' . esc_html__( 'Firebase > Project settings > Service accounts > Generate new private key. The file is stored encrypted.', 'yallapp' ) . '</p>';
 		echo '</div></div>';
+		$this->huawei_push_fields();
 		$toggles = self::automatic_notifications_for( $type );
 		if ( $toggles ) {
 			$labels = array(
@@ -1112,6 +1120,26 @@ class Settings_Page {
 			echo '</fieldset>';
 		}
 		$this->close();
+	}
+
+	/**
+	 * 36 Huawei Push Kit: Huawei phones without Google Play get notifications through it,
+	 * in apps built with Huawei push (agconnect-services.json in the Yallapp dashboard).
+	 *
+	 * @return void
+	 */
+	private function huawei_push_fields() {
+		$settings = $this->plugin->settings();
+		$saved    = '' !== (string) $settings->get( 'huawei_push_app_id' ) && '' !== (string) $settings->get( 'huawei_push_app_secret' );
+		echo '<div class="ya-row"><label class="ya-label" for="ya-huawei-app-id">' . esc_html__( 'Huawei Push Kit (optional)', 'yallapp' ) . '</label><div>';
+		if ( $saved ) {
+			echo '<p><span class="ya-pill ya-pill-ok">' . esc_html__( 'Connected', 'yallapp' ) . '</span></p>';
+			echo '<label><input type="checkbox" name="yallapp_huawei_remove" value="1"> ' . esc_html__( 'Remove the Huawei details', 'yallapp' ) . '</label><br>';
+		}
+		echo '<input type="text" id="ya-huawei-app-id" name="yallapp[huawei_push_app_id]" inputmode="numeric" autocomplete="off" placeholder="' . esc_attr__( 'App ID', 'yallapp' ) . '" value="' . esc_attr( (string) $settings->get( 'huawei_push_app_id' ) ) . '"> ';
+		echo '<input type="password" name="yallapp[huawei_push_app_secret]" autocomplete="off" placeholder="' . esc_attr( $saved ? __( 'App secret (saved)', 'yallapp' ) : __( 'App secret', 'yallapp' ) ) . '" aria-label="' . esc_attr__( 'App secret', 'yallapp' ) . '">';
+		echo '<p class="ya-help">' . esc_html__( 'For Huawei phones without Google Play. AppGallery Connect > Project settings > App information: the app ID and the app secret. The secret is stored encrypted; leave it empty to keep the saved one.', 'yallapp' ) . '</p>';
+		echo '</div></div>';
 	}
 
 	/**

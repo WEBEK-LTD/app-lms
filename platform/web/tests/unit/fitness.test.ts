@@ -427,7 +427,7 @@ describe("classes and memberships on the hosted API", () => {
     expect((await syncClassSessions(store, app, now)).created).toBe(0);
 
     expect((await call("PUT", "/me/push-token", { token, body: { token: "fcm-token-1" } })).status).toBe(204);
-    const pushes: { tokens: string[]; title: string; body: string }[] = [];
+    const pushes: { tokens: unknown[]; title: string; body: string }[] = [];
     const account: ServiceAccount = { project_id: "p", client_email: "c@p.iam", private_key: "-----BEGIN PRIVATE KEY-----" };
     const result = await notifyClassCancelled({
       store,

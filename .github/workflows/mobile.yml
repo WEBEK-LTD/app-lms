@@ -217,3 +217,11 @@ jobs:
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+      # 36 A build with an agconnect-services.json includes Huawei push
+      # (android/hms_push); the ones above, without it, have nothing from Huawei.
+      - name: Build a debug APK with Huawei push
+        run: |
+          cp config/example-agconnect-services.json android/app/agconnect-services.json
+          flutter build apk --debug
+          rm android/app/agconnect-services.json

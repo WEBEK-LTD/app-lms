@@ -16,11 +16,13 @@ import {
   publishingEventLabel,
   PUBLISHING_STATUS_LABEL,
   PUBLISHING_STATUSES,
-  PUBLISHING_STEPS,
-  PUBLISHING_STORES,
+  requestStores,
   statusTone,
   stepDone,
+  stepsFor,
+  STORE_ICON,
   STORE_TITLE,
+  trackOf,
 } from "@/lib/publishing/steps";
 import { SmtpMissingNotice } from "../smtp-notice";
 import { TeamNotesForm, TrackForm } from "./forms";
@@ -30,7 +32,7 @@ export const dynamic = "force-dynamic";
 
 const TABS = [
   { id: "open", label: "In progress" },
-  { id: "live", label: "Live on both stores" },
+  { id: "live", label: "Live everywhere" },
   { id: "all", label: "All" },
 ] as const;
 
@@ -111,9 +113,9 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
                 {request.teamEmailFailedAt ? (
                   <Badge tone="danger">Email to the team failed · {formatDateTime(request.teamEmailFailedAt)}</Badge>
                 ) : null}
-                {PUBLISHING_STORES.map((which) => (
-                  <Badge key={which} tone={statusTone(request[which].status)}>
-                    {STORE_TITLE[which]}: {PUBLISHING_STATUS_LABEL[request[which].status]}
+                {requestStores(request).map((which) => (
+                  <Badge key={which} tone={statusTone(trackOf(request, which).status)}>
+                    {STORE_TITLE[which]}: {PUBLISHING_STATUS_LABEL[trackOf(request, which).status]}
                   </Badge>
                 ))}
               </div>
@@ -123,7 +125,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
               <div className="flex flex-col gap-2">
                 <h3 className="m-0 text-[15px] font-bold">Client&apos;s steps</h3>
                 <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm">
-                  {PUBLISHING_STEPS.map((step) => {
+                  {stepsFor(request).map((step) => {
                     const done = stepDone(request, step.id);
                     return (
                       <li key={step.id} className="flex items-start gap-2">
@@ -167,23 +169,26 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
             </div>
 
             <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-              {PUBLISHING_STORES.map((which) => (
-                <div key={which} className="flex flex-col gap-2 rounded-xl border border-line p-4">
-                  <span className="flex items-center gap-2 text-[15px] font-bold">
-                    <Icon name={which === "android" ? "android" : "phone_iphone"} size={20} />
-                    {STORE_TITLE[which]}
-                    {request[which].updatedAt ? <span className="text-xs font-normal text-muted">since {formatDateTime(request[which].updatedAt)}</span> : null}
-                  </span>
-                  <TrackForm
-                    appId={request.appId}
-                    store={which}
-                    storeTitle={STORE_TITLE[which]}
-                    statuses={statuses}
-                    disabled={!mayManage}
-                    current={{ status: request[which].status, note: request[which].note ?? "", storeUrl: request[which].storeUrl ?? "" }}
-                  />
-                </div>
-              ))}
+              {requestStores(request).map((which) => {
+                const track = trackOf(request, which);
+                return (
+                  <div key={which} className="flex flex-col gap-2 rounded-xl border border-line p-4">
+                    <span className="flex items-center gap-2 text-[15px] font-bold">
+                      <Icon name={STORE_ICON[which]} size={20} />
+                      {STORE_TITLE[which]}
+                      {track.updatedAt ? <span className="text-xs font-normal text-muted">since {formatDateTime(track.updatedAt)}</span> : null}
+                    </span>
+                    <TrackForm
+                      appId={request.appId}
+                      store={which}
+                      storeTitle={STORE_TITLE[which]}
+                      statuses={statuses}
+                      disabled={!mayManage}
+                      current={{ status: track.status, note: track.note ?? "", storeUrl: track.storeUrl ?? "" }}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
             <TeamNotesForm appId={request.appId} current={request.teamNotes ?? ""} disabled={!mayManage} />

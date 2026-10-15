@@ -309,7 +309,7 @@ describe("hosted API", () => {
   it("delivers notifications to the inbox and by push", async () => {
     const session = await signUp();
     expect((await call("PUT", "/me/push-token", { token: session.access_token, body: { token: "fcm-1", preferences: { announcements: true } } })).status).toBe(204);
-    const pushed: string[][] = [];
+    const pushed: unknown[][] = [];
     const sent = await announce({
       store,
       app,
@@ -335,6 +335,31 @@ describe("hosted API", () => {
 
     const withoutPush = await announce({ store, app, title: "Hi", body: "There", account: null, now });
     expect(withoutPush.pushError).toMatch(/Push is off/);
+  });
+
+  it("36 keeps where a push token is from and sends Huawei tokens as Huawei's", async () => {
+    const session = await signUp();
+    const bad = await call("PUT", "/me/push-token", { token: session.access_token, body: { token: "hms-1", provider: "apns" } });
+    expect(bad.status).toBe(400);
+    expect((await call("PUT", "/me/push-token", { token: session.access_token, body: { token: "hms-1", provider: "hms", preferences: { announcements: true } } })).status).toBe(204);
+    expect((await store.listHostedPushDevices(app.id, null)).map((d) => [d.pushToken, d.pushProvider])).toEqual([["hms-1", "hms"]]);
+    const pushed: unknown[][] = [];
+    await announce({
+      store,
+      app,
+      title: "New arrivals",
+      body: "Fresh tulips today.",
+      account: { project_id: "rose", client_email: "push@rose.iam", private_key: "-----BEGIN PRIVATE KEY-----" },
+      now: new Date(NOW.getTime() + 1000),
+      send: async (_account, targets) => {
+        pushed.push(targets);
+        return { sent: 1, invalidTokens: [] };
+      },
+    });
+    expect(pushed).toEqual([[{ token: "hms-1", provider: "hms" }]]);
+    // Without a provider (older apps) the token is Firebase's again.
+    expect((await call("PUT", "/me/push-token", { token: session.access_token, body: { token: "fcm-9" } })).status).toBe(204);
+    expect((await store.listHostedPushDevices(app.id, null)).map((d) => [d.pushToken, d.pushProvider])).toEqual([["fcm-9", "fcm"]]);
   });
 
   it("deletes the account", async () => {

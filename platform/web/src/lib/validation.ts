@@ -1,5 +1,6 @@
 import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
+import { rewrapPem } from "./crypto/pem";
 import { APP_FONTS, APP_TEMPLATES, RULES } from "./build-config/types";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "./auth/password-rules";
 import { isHttpUrl } from "./license/site-url";
@@ -203,7 +204,8 @@ export const appStoreKeySchema = z.object({
 function isAppStoreConnectKey(value: string): boolean {
   if (!/-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/.test(value)) return false;
   try {
-    const key = createPrivateKey(value);
+    // A key whose line breaks were lost or spaced out is read the way it will be sent (lib/builds/signing.ts).
+    const key = createPrivateKey(rewrapPem(value));
     return key.asymmetricKeyType === "ec" && key.asymmetricKeyDetails?.namedCurve === "prime256v1";
   } catch {
     return false;

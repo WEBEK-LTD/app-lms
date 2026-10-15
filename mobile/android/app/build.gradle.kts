@@ -75,3 +75,15 @@ flutter {
 if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
+
+// 36 Huawei push for phones without Google Play services: only when the
+// client's agconnect-services.json is present (downloaded by
+// tool/apply_config.dart, never committed). The channel to Dart
+// (src/huawei) and Huawei's SDK (../hms_push) are then built in; without the
+// file the build has nothing from Huawei.
+if (file("agconnect-services.json").exists()) {
+    android.sourceSets.getByName("main").java.srcDir("src/huawei/java")
+    dependencies {
+        implementation(project(":hms_push"))
+    }
+}

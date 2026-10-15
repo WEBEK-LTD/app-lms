@@ -35,7 +35,10 @@ final pushRegistrationProvider = Provider<void>((ref) {
   Future<void> send(String? token) async {
     if (token == null || token.isEmpty) return;
     try {
-      await ref.read(yallappApiProvider).setPushToken(token, preferences);
+      // 36 With where the token is from: Firebase or Huawei Push Kit.
+      await ref
+          .read(yallappApiProvider)
+          .setPushToken(token, preferences, provider: push.provider);
     } on ApiException {
       // Tried again on the next start or preference change.
     }

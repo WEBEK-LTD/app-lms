@@ -890,6 +890,23 @@ without a new build. The app renders whatever the API sends.
 - Outputs: APK, AAB, IPA, signing key (encrypted), store assets, stored on
   `files.yallapp.com.tr` and listed in the client's dashboard.
 - Pro plan: upload to Google Play and TestFlight with the client's API keys.
+- 35, 36 Pro plan, optional: the APK (signed with the upload key) to Samsung
+  Galaxy Store (Content Publish API: a JWT signed with the Seller Portal
+  service account's key, an upload session, the binary added to a new
+  version, submitted) and to Huawei AppGallery (Publishing API: client
+  credentials, an upload URL, the app's file information, submitted). Each
+  store's first version is published by hand. The keys are on the dashboard's
+  Publishing › More Android stores page, encrypted like the other store keys,
+  and `/builds/{id}/secrets` sends them only to builds whose plan uploads.
+- 36 Huawei push: with the client's agconnect-services.json in the build
+  config, the Android build includes `android/hms_push` (Huawei's Push Kit
+  SDK) and the app's channel to it (`android/app/src/huawei`); builds without
+  the file have nothing from Huawei. At start-up the app uses Push Kit only on
+  phones without Google Play services that have Huawei Mobile Services, and
+  registers that token with `provider: hms` (`PUT /me/push-token`). The
+  hosted API (`lib/hosted/push.ts`) and the plugin (`Push\Hms_Sender`) send
+  `hms` tokens through Push Kit (server API v1, the app ID and app secret,
+  encrypted) and the others through FCM as before.
 - A build is ready when its Android app was built (an iOS app that couldn't
   be built shows as a failed stage, with a message, and the team is
   emailed); it fails when the Android app couldn't be built. Messages are

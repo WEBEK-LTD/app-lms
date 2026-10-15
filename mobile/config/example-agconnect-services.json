@@ -1,0 +1,27 @@
+{
+  "agcgw": {
+    "url": "connect-drcn.dbankcloud.cn",
+    "backurl": "connect-drcn.hispace.hicloud.com"
+  },
+  "client": {
+    "cp_id": "0000000000000000000",
+    "product_id": "000000000000000000",
+    "client_id": "000000000000000000",
+    "client_secret": "EXAMPLE-NOT-A-REAL-VALUE",
+    "project_id": "000000000000000000",
+    "app_id": "100000001",
+    "api_key": "EXAMPLE-NOT-A-REAL-VALUE",
+    "package_name": "com.youracademy.app"
+  },
+  "oauth_client": {
+    "client_id": "100000001",
+    "client_type": 1
+  },
+  "app_info": {
+    "app_id": "100000001",
+    "package_name": "com.youracademy.app"
+  },
+  "service": {},
+  "region": "DE",
+  "configuration_version": "3.0"
+}

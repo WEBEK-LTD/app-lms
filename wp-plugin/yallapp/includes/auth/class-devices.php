@@ -190,23 +190,35 @@ class Devices {
 	}
 
 	/**
-	 * Saves the device's push token and notification preferences.
+	 * Saves the device's push token, where it's from and the notification preferences.
 	 *
 	 * @param int    $row_id      Device row ID.
-	 * @param string $token       FCM token.
+	 * @param string $token       Push token.
 	 * @param array  $preferences Notification preferences.
+	 * @param string $provider    36 "fcm" (Firebase) or "hms" (Huawei Push Kit).
 	 * @return void
 	 */
-	public function set_push( $row_id, $token, array $preferences ) {
+	public function set_push( $row_id, $token, array $preferences, $provider = 'fcm' ) {
 		global $wpdb;
 		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			Installer::tables()['devices'],
 			array(
-				'push_token' => $token,
-				'push_prefs' => wp_json_encode( $preferences ),
+				'push_token'    => $token,
+				'push_provider' => self::provider( $provider ),
+				'push_prefs'    => wp_json_encode( $preferences ),
 			),
 			array( 'id' => $row_id )
 		);
+	}
+
+	/**
+	 * 36 A push provider as stored: "hms" for Huawei Push Kit, else "fcm". Pure.
+	 *
+	 * @param mixed $provider Provider from the app.
+	 * @return string
+	 */
+	public static function provider( $provider ) {
+		return 'hms' === $provider ? 'hms' : 'fcm';
 	}
 
 	/**
@@ -222,9 +234,9 @@ class Devices {
 	}
 
 	/**
-	 * Clears a push token Firebase reported as no longer registered.
+	 * Clears a push token Firebase or Huawei Push Kit reported as no longer registered.
 	 *
-	 * @param string $token FCM token.
+	 * @param string $token Push token.
 	 * @return void
 	 */
 	public function forget_push_token( $token ) {
@@ -240,6 +252,18 @@ class Devices {
 	 * @return string[]
 	 */
 	public function push_tokens( array $user_ids, $kind = '' ) {
+		return array_values( array_unique( array_column( $this->push_targets( $user_ids, $kind ), 'token' ) ) );
+	}
+
+	/**
+	 * 36 Push tokens for users with the service each one is from ("fcm" or "hms"),
+	 * honoring each device's preference for the notification kind.
+	 *
+	 * @param int[]  $user_ids User IDs.
+	 * @param string $kind     Preference key, or empty for always.
+	 * @return array<int, array{token: string, provider: string}>
+	 */
+	public function push_targets( array $user_ids, $kind = '' ) {
 		global $wpdb;
 		$user_ids = array_filter( array_map( 'absint', $user_ids ) );
 		if ( ! $user_ids ) {
@@ -248,15 +272,18 @@ class Devices {
 		$table        = Installer::tables()['devices'];
 		$placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Plugin table, placeholders built above.
-		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT push_token, push_prefs FROM {$table} WHERE push_token IS NOT NULL AND push_token <> '' AND user_id IN ({$placeholders})", $user_ids ) );
-		$tokens = array();
+		$rows    = $wpdb->get_results( $wpdb->prepare( "SELECT push_token, push_provider, push_prefs FROM {$table} WHERE push_token IS NOT NULL AND push_token <> '' AND user_id IN ({$placeholders})", $user_ids ) );
+		$targets = array();
 		foreach ( (array) $rows as $row ) {
 			$prefs = json_decode( (string) $row->push_prefs, true );
 			if ( '' === $kind || ! is_array( $prefs ) || ! array_key_exists( $kind, $prefs ) || $prefs[ $kind ] ) {
-				$tokens[] = $row->push_token;
+				$targets[ (string) $row->push_token ] = array(
+					'token'    => (string) $row->push_token,
+					'provider' => self::provider( $row->push_provider ?? 'fcm' ),
+				);
 			}
 		}
-		return array_values( array_unique( $tokens ) );
+		return array_values( $targets );
 	}
 
 	/**

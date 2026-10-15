@@ -1,5 +1,7 @@
 package com.yallapp.app
 
+import android.app.Activity
+import android.content.Intent
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -13,6 +15,8 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // 36 Huawei push: only builds with the client's agconnect-services.json have it.
+        hmsPush?.getMethod("attach", Activity::class.java, FlutterEngine::class.java)?.invoke(null, this, flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -34,7 +38,21 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // 36 A Huawei push notification tapped while the app runs.
+        hmsPush?.getMethod("onNewIntent", Intent::class.java)?.invoke(null, intent)
+    }
+
     private companion object {
         const val CHANNEL = "yallapp/screen_security"
+
+        /** 36 android/app/src/huawei, compiled in only with Huawei push (app/build.gradle.kts). */
+        val hmsPush: Class<*>? =
+            try {
+                Class.forName("com.yallapp.app.HmsPushChannel")
+            } catch (e: ClassNotFoundException) {
+                null
+            }
     }
 }

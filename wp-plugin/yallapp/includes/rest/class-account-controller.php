@@ -201,7 +201,12 @@ class Account_Controller extends Controller {
 				$preferences[ $key ] = (bool) $request['preferences'][ $key ];
 			}
 		}
-		$this->plugin->devices()->set_push( $device, substr( sanitize_text_field( (string) $request['token'] ), 0, 4096 ), $preferences );
+		// 36 Firebase (the default) or Huawei Push Kit, for Huawei phones without Google Play.
+		$provider = null === $request['provider'] ? 'fcm' : $request['provider'];
+		if ( ! in_array( $provider, array( 'fcm', 'hms' ), true ) ) {
+			return self::error( 'invalid_request', __( 'The push provider must be fcm or hms.', 'yallapp' ), 400 );
+		}
+		$this->plugin->devices()->set_push( $device, substr( sanitize_text_field( (string) $request['token'] ), 0, 4096 ), $preferences, $provider );
 		return $this->no_content();
 	}
 }

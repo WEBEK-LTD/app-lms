@@ -1,5 +1,5 @@
 import { hasFeature, type PlanInfo } from "../plans";
-import type { App, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
+import type { App, MoreStore, PublishingEvent, PublishingListing, PublishingRequest, PublishingStatus, PublishingStore, PublishingTrack } from "../data/types";
 
 /**
  * 14.1 We publish for you: the client's checklist, the store statuses and
@@ -27,10 +27,21 @@ export interface PublishingStep {
   store: PublishingStore | "both";
 }
 
-export const PUBLISHING_STEP_IDS = ["play_account", "play_invite", "apple_account", "apple_invite", "firebase"] as const;
+export const PUBLISHING_STEP_IDS = [
+  "play_account",
+  "play_invite",
+  "apple_account",
+  "apple_invite",
+  "firebase",
+  // 35, 36 Only when the client wants the app on that store too.
+  "galaxy_account",
+  "galaxy_invite",
+  "huawei_account",
+  "huawei_invite",
+] as const;
 export type PublishingStepId = (typeof PUBLISHING_STEP_IDS)[number];
 
-/** Official Google, Apple and Firebase pages only. */
+/** Official Google, Apple, Firebase, Samsung and Huawei pages only. */
 export const PUBLISHING_STEPS: PublishingStep[] = [
   {
     id: "play_account",
@@ -84,7 +95,50 @@ export const PUBLISHING_STEPS: PublishingStep[] = [
       { label: "Firebase's guide to project members", href: "https://firebase.google.com/docs/projects/iam/overview" },
     ],
   },
+  {
+    id: "galaxy_account",
+    store: "galaxy",
+    title: "Create your Samsung Galaxy Store seller account",
+    text:
+      "Sign up for Galaxy Store Seller Portal with your own Samsung account, in your name or your company's. Samsung charges no registration fee. A company applies for commercial seller status in Seller Portal, with its company documents.",
+    links: [
+      { label: "Galaxy Store Seller Portal", href: "https://seller.samsungapps.com/" },
+      { label: "Samsung's guide to Seller Portal", href: "https://developer.samsung.com/galaxy-store/learn-about-seller-portal.html" },
+    ],
+  },
+  {
+    id: "galaxy_invite",
+    store: "galaxy",
+    title: "Invite our team to Seller Portal",
+    text:
+      "In Seller Portal, open your account's manager accounts and invite {team_email} as a manager for applications. Samsung emails us the invitation, and we accept it with our own Samsung account.",
+    links: [{ label: "Galaxy Store Seller Portal", href: "https://seller.samsungapps.com/" }],
+  },
+  {
+    id: "huawei_account",
+    store: "huawei",
+    title: "Create your Huawei developer account",
+    text:
+      "Register on HUAWEI Developers with your own HUAWEI ID and complete the identity verification, as a company or as an individual. Huawei charges no registration fee; verification can take a few days.",
+    links: [
+      { label: "HUAWEI Developers", href: "https://developer.huawei.com/consumer/en/" },
+      { label: "AppGallery Connect", href: "https://developer.huawei.com/consumer/en/service/josp/agc/index.html" },
+    ],
+  },
+  {
+    id: "huawei_invite",
+    store: "huawei",
+    title: "Invite our team to AppGallery Connect",
+    text:
+      "In AppGallery Connect, open Users and permissions › Team account › Member and add {team_email} with the App administrator and Operations roles. Huawei emails us the invitation.",
+    links: [{ label: "AppGallery Connect", href: "https://developer.huawei.com/consumer/en/service/josp/agc/index.html" }],
+  },
 ];
+
+/** 35, 36 The steps for the stores a request covers: Google Play, the App Store, push, and the extra stores the client asked for. */
+export function stepsFor(request: Pick<PublishingRequest, MoreStore>): PublishingStep[] {
+  return PUBLISHING_STEPS.filter((step) => step.store === "android" || step.store === "ios" || step.store === "both" || Boolean(request[step.store]));
+}
 
 /** The step's text with the team email in it. */
 export function stepText(step: PublishingStep, teamEmail: string): string {
@@ -92,8 +146,37 @@ export function stepText(step: PublishingStep, teamEmail: string): string {
 }
 
 export const PUBLISHING_STORES: PublishingStore[] = ["android", "ios"];
-export const STORE_NAME: Record<PublishingStore, string> = { android: "Google Play", ios: "the App Store" };
-export const STORE_TITLE: Record<PublishingStore, string> = { android: "Google Play", ios: "App Store" };
+/** 35, 36 Stores the client may add to "Publish it for me". */
+export const MORE_STORES: MoreStore[] = ["galaxy", "huawei"];
+export const STORE_NAME: Record<PublishingStore, string> = { android: "Google Play", ios: "the App Store", galaxy: "Galaxy Store", huawei: "AppGallery" };
+export const STORE_TITLE: Record<PublishingStore, string> = { android: "Google Play", ios: "App Store", galaxy: "Samsung Galaxy Store", huawei: "Huawei AppGallery" };
+/** Material Symbols for each store's card. */
+export const STORE_ICON: Record<PublishingStore, "android" | "phone_iphone" | "storefront"> = { android: "android", ios: "phone_iphone", galaxy: "storefront", huawei: "storefront" };
+
+export function isMoreStore(value: unknown): value is MoreStore {
+  return value === "galaxy" || value === "huawei";
+}
+
+/** 35, 36 The stores a request covers: Google Play, the App Store and the extra stores the client asked for. */
+export function requestStores(request: Pick<PublishingRequest, MoreStore>): PublishingStore[] {
+  return [...PUBLISHING_STORES, ...MORE_STORES.filter((which) => Boolean(request[which]))];
+}
+
+/** One store's track (a fresh one for an extra store the request doesn't cover). */
+export function trackOf(request: Pick<PublishingRequest, PublishingStore>, which: PublishingStore): PublishingTrack {
+  return request[which] ?? { ...EMPTY_TRACK };
+}
+
+/**
+ * 35, 36 The client picks the extra stores: a newly wanted store starts
+ * waiting for them, a store they no longer want is dropped (its history stays).
+ */
+export function withMoreStores<T extends Pick<PublishingRequest, MoreStore>>(request: T, wanted: Iterable<string>): T {
+  const set = new Set(wanted);
+  const next = { ...request };
+  for (const which of MORE_STORES) next[which] = set.has(which) ? (request[which] ?? { ...EMPTY_TRACK }) : null;
+  return next;
+}
 
 export const PUBLISHING_STATUSES: PublishingStatus[] = ["waiting_client", "accounts_ready", "submitted", "in_review", "live", "rejected"];
 
@@ -114,14 +197,14 @@ export function isPublishingStatus(value: unknown): value is PublishingStatus {
   return typeof value === "string" && (PUBLISHING_STATUSES as string[]).includes(value);
 }
 
-/** Live on both stores: the request is no longer open for the team. */
-export function isLiveEverywhere(request: Pick<PublishingRequest, "android" | "ios">): boolean {
-  return request.android.status === "live" && request.ios.status === "live";
+/** Live on every store it covers: the request is no longer open for the team. */
+export function isLiveEverywhere(request: Pick<PublishingRequest, PublishingStore>): boolean {
+  return requestStores(request).every((which) => trackOf(request, which).status === "live");
 }
 
 /** Live on at least one store. */
-export function isLiveSomewhere(request: Pick<PublishingRequest, "android" | "ios">): boolean {
-  return request.android.status === "live" || request.ios.status === "live";
+export function isLiveSomewhere(request: Pick<PublishingRequest, PublishingStore>): boolean {
+  return requestStores(request).some((which) => trackOf(request, which).status === "live");
 }
 
 /** 19 The requests the team still works on ("Publish it for me", not live everywhere): the admin's Publishing badge. */
@@ -144,7 +227,7 @@ export function publishingEventLabel(event: Pick<PublishingEvent, "store" | "sta
 
 /** What a status means for the client, in plain words. */
 export function statusText(store: PublishingStore, status: PublishingStatus): string {
-  const reviewer = store === "android" ? "Google" : "Apple";
+  const reviewer = { android: "Google", ios: "Apple", galaxy: "Samsung", huawei: "Huawei" }[store];
   switch (status) {
     case "waiting_client":
       return `We start on ${STORE_NAME[store]} once you've ticked its steps below and we've accepted your invitation.`;
@@ -241,6 +324,8 @@ export function newPublishingRequest(app: Pick<App, "id" | "clientId">, mode: Pu
     listing: { ...EMPTY_LISTING },
     android: { ...EMPTY_TRACK },
     ios: { ...EMPTY_TRACK },
+    galaxy: null,
+    huawei: null,
     teamNotes: null,
     requestedAt: mode === "managed" ? now : null,
     readyAt: null,
@@ -274,9 +359,11 @@ export function listingMissing(
 
 /** How far the client is: steps done (with the listing as one more step). */
 export function checklistProgress(request: PublishingRequest, app: Parameters<typeof listingMissing>[0]): { done: number; total: number; complete: boolean } {
-  const steps = PUBLISHING_STEP_IDS.filter((id) => stepDone(request, id)).length;
+  // 35, 36 Only the steps of the stores this request covers.
+  const ids = stepsFor(request).map((step) => step.id);
+  const steps = ids.filter((id) => stepDone(request, id)).length;
   const listing = listingMissing(app, request.listing).length === 0 ? 1 : 0;
-  const total = PUBLISHING_STEP_IDS.length + 1;
+  const total = ids.length + 1;
   return { done: steps + listing, total, complete: steps + listing === total };
 }
 
@@ -303,6 +390,8 @@ export function storeUrlProblem(store: PublishingStore, value: string): string |
   if (url.protocol !== "https:") return "Paste the full link to the app's store page.";
   if (store === "android" && url.hostname !== "play.google.com") return "A Google Play link starts with https://play.google.com/.";
   if (store === "ios" && url.hostname !== "apps.apple.com") return "An App Store link starts with https://apps.apple.com/.";
+  if (store === "galaxy" && url.hostname !== "galaxystore.samsung.com") return "A Galaxy Store link starts with https://galaxystore.samsung.com/.";
+  if (store === "huawei" && url.hostname !== "appgallery.huawei.com") return "An AppGallery link starts with https://appgallery.huawei.com/.";
   return null;
 }
 

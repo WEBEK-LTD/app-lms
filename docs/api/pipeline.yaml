@@ -139,8 +139,11 @@ paths:
       description: |
         Only while the build is `building`. Signing keys the pipeline created on
         an earlier build, and the store keys the client uploaded in the dashboard
-        (decrypted). `null` when there is none. Store keys are returned on every
-        plan: on Starter the App Store Connect key only signs the iOS app.
+        (decrypted). `null` when there is none. The Google Play and App Store
+        Connect keys are returned on every plan: on Starter the App Store Connect
+        key only signs the iOS app. 35, 36 The Samsung Galaxy Store and Huawei
+        AppGallery keys are only used for uploading, so they are returned only
+        when the build's plan includes "We publish for you" (`auto_publish`).
       parameters:
         - $ref: '#/components/parameters/BuildId'
       responses:
@@ -259,7 +262,11 @@ components:
         has no key for that store. `ios` and `upload_testflight` start as
         `skipped` when the app's plan has no iOS app (`ios: false`) or the app
         has no App Store Connect key; the pipeline may still build it, and
-        report `running` and `done`, if a key was added since.
+        report `running` and `done`, if a key was added since. 35, 36
+        `upload_galaxy` (Samsung Galaxy Store) and `upload_appgallery` (Huawei
+        AppGallery) start as `skipped` unless the plan includes "We publish for
+        you" and the client saved that store's keys; builds queued before these
+        stages existed don't have them.
       additionalProperties: false
       properties:
         queued: { $ref: '#/components/schemas/StageStatus' }
@@ -267,6 +274,8 @@ components:
         ios: { $ref: '#/components/schemas/StageStatus' }
         upload_play: { $ref: '#/components/schemas/StageStatus' }
         upload_testflight: { $ref: '#/components/schemas/StageStatus' }
+        upload_galaxy: { $ref: '#/components/schemas/StageStatus' }
+        upload_appgallery: { $ref: '#/components/schemas/StageStatus' }
 
     Artifact:
       type: object
@@ -300,8 +309,8 @@ components:
           description: >-
             Shown to the client and put in their email, so it must be plain words without
             technical details: why a build failed, or a note on a ready build (for example
-            that the Google Play upload didn't work). Without one, the platform says which
-            stage failed.
+            that the Google Play, Galaxy Store or AppGallery upload didn't work). Without
+            one, the platform says which stage failed.
         log_url:
           type: [string, 'null']
           format: uri
@@ -393,7 +402,7 @@ components:
 
     BuildSecrets:
       type: object
-      required: [android_upload_key, ios_distribution, google_play, app_store_connect]
+      required: [android_upload_key, ios_distribution, google_play, app_store_connect, galaxy_store, huawei_appgallery]
       properties:
         android_upload_key:
           oneOf:
@@ -419,4 +428,34 @@ components:
                 issuer_id: { type: string }
                 key_id: { type: string }
                 private_key: { type: string, description: The .p8 file. }
+            - { type: 'null' }
+        galaxy_store:
+          description: >-
+            35 Samsung Galaxy Store (Content Publish API). Null when the client saved no
+            Galaxy Store keys, or when the build's plan doesn't include "We publish for
+            you". The app must already be for sale in Galaxy Store: its first version is
+            registered by hand in Seller Portal.
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [content_id, service_account_id, private_key]
+              properties:
+                content_id: { type: string, pattern: '^[0-9]{6,20}$', description: The app's content ID in Seller Portal. }
+                service_account_id: { type: string, description: "The service account ID (Seller Portal › Assistance › API Service), the JWT's `iss`." }
+                private_key: { type: string, description: "The service account's private key (PEM), which signs the JWT (RS256)." }
+            - { type: 'null' }
+        huawei_appgallery:
+          description: >-
+            36 Huawei AppGallery Connect (Publishing API). Null when the client saved no
+            AppGallery keys, or when the build's plan doesn't include "We publish for
+            you". The app must already exist in AppGallery Connect with the same package
+            name, and its first version is submitted by hand.
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [app_id, client_id, client_secret]
+              properties:
+                app_id: { type: string, pattern: '^[0-9]{6,20}$', description: The app ID in AppGallery Connect. }
+                client_id: { type: string, description: "The Connect API client ID (Users and permissions › API key › Connect API, App administrator role)." }
+                client_secret: { type: string, description: The Connect API client's key. }
             - { type: 'null' }

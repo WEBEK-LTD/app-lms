@@ -322,7 +322,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
     await give(giver.user.id, ids.parcels, "giver@example.com");
     await give(third.user.id, ids.parcels, "third@example.com");
     await give(other.user.id, ids.lunch, "other@example.com");
-    const pushes: { tokens: string[]; data: Record<string, string> }[] = [];
+    const pushes: { tokens: unknown[]; data: Record<string, string> }[] = [];
     const result = await notifyCampaignDonors({
       store, app, campaignId: ids.parcels, title: "We reached 1,000 parcels", body: "Thank you!", account: {} as ServiceAccount, now,
       send: async (_account, tokens, message) => {

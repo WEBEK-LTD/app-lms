@@ -13,7 +13,8 @@ import { DEVELOPER_GUIDE } from "./docs-developer";
  * Written for people who aren't technical. Never name the technology or the
  * services Yallapp runs on; the only ones to name are webek.org (hosting),
  * waabek.com (WhatsApp codes), the platforms clients connect, Firebase,
- * Google Play Console, App Store Connect and iyzico.
+ * Google Play Console, App Store Connect, Galaxy Store Seller Portal,
+ * AppGallery Connect (and Huawei Push Kit) and iyzico.
  */
 
 export type DocSection =
@@ -1081,6 +1082,91 @@ Answer the App Privacy questions (your app collects phone numbers for sign-in, p
 ## Submit for review
 
 Choose the build, select **Add for Review** and submit. Your iOS app shows no purchase buttons for paid courses or digital products, as Apple's rules require, so don't mention prices or buying them in the iOS description.
+`,
+  }),
+  // 35 Samsung Galaxy Store
+  doc({
+    slug: "galaxy-store",
+    section: "Publishing",
+    title: "Publish on Samsung Galaxy Store",
+    description: "Put your Android app on Galaxy Store, the app store on every Samsung phone, under your own seller account.",
+    steps: true,
+    body: `Put your Android app on Galaxy Store, the app store on every Samsung Galaxy phone and tablet, under your own seller account. It's the same Android app as on Google Play. You upload the first version yourself; on the Pro and Business plans we upload every version after that.
+
+## Before you start
+
+- A Samsung account, and a seller account in Galaxy Store Seller Portal
+- Your Android app (.apk) from [Builds & downloads](/dashboard/builds)
+- Your store assets: icon, screenshots and the listing texts
+- A privacy policy page on your website, or anywhere public
+
+## Create your seller account
+
+Sign in to Galaxy Store Seller Portal (seller.samsungapps.com) with your Samsung account and complete your profile. Samsung charges no registration fee. A company applies for commercial seller status in Seller Portal with its company documents; Samsung checks them before you can sell paid apps.
+
+## Add your app and upload the first version
+
+In Seller Portal, choose **Add New Application**, select **Android**, and enter your app's default language and name. Under **Binary**, upload the .apk file from Builds & downloads. Samsung doesn't let any tool register a new app, so this first upload is always done by hand.
+
+> Upload the .apk, not the App Bundle. The .apk is signed with your app's upload key, the same key every later version uses.
+
+## Fill in the listing and submit
+
+Add the description, icon (512 × 512) and screenshots from your store assets, your privacy policy link and the age rating. Under **Country/Region**, choose where to sell it. Then select **Submit**. Samsung reviews the app, usually within a few days.
+
+> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+
+## Pro and Business: let us upload every update
+
+Once your app is on sale, open **Assistance › API Service** in Seller Portal and choose **Create Service Account**, with the **Publishing** scope. Copy the service account ID and its private key. Then open **Publishing › More Android stores** in your dashboard and enter them with your app's **content ID** (the number Seller Portal shows for your app). From then on, every build you start is uploaded to Galaxy Store and sent for review.
+
+## When our team publishes for you
+
+With **Publish it for me**, tick Samsung Galaxy Store on the **Publishing** page. Then, in Seller Portal, invite our team email as a manager for your applications (from your account's manager accounts). Samsung sends us the invitation and we do the rest. You never share your password.
+`,
+  }),
+  // 36 Huawei AppGallery
+  doc({
+    slug: "huawei-appgallery",
+    section: "Publishing",
+    title: "Publish on Huawei AppGallery",
+    description: "Put your Android app on AppGallery for Huawei phones, with push notifications through Huawei Push Kit.",
+    steps: true,
+    body: `Huawei phones sold in recent years come without Google Play, so their owners install apps from AppGallery. Publish your Android app there under your own developer account, and add Huawei Push Kit so those phones get your notifications too. You submit the first version yourself; on the Pro and Business plans we upload every version after that.
+
+## Before you start
+
+- A HUAWEI ID, and a verified developer account on HUAWEI Developers
+- Your Android app (.apk) from [Builds & downloads](/dashboard/builds)
+- Your store assets and a privacy policy page
+
+## Create your developer account
+
+Register on HUAWEI Developers with your HUAWEI ID and complete the identity verification, as a company or as an individual. Huawei charges no registration fee; the check can take a few days.
+
+## Add your app in AppGallery Connect
+
+In AppGallery Connect, open **My projects**, create a project, and add an Android app with your app's package name (from your Store listing step). The package name can't be changed later.
+
+## Turn on push for Huawei phones
+
+In the project, open **Grow › Push Kit** and turn it on. Then open **Project settings › App information**: download **agconnect-services.json** and copy the **App secret**. In your dashboard, open **Publishing › More Android stores** and add both under Huawei AppGallery. Your next build includes Huawei push: on Huawei phones without Google Play, the app registers with Huawei Push Kit, and your notifications reach them like any other phone.
+
+> Phones with Google Play keep using Firebase, as before. Huawei push only adds the phones that can't.
+
+## Upload the first version and submit
+
+In AppGallery Connect, open **My apps**, choose your app and **Version information**. Upload the .apk file from Builds & downloads, fill in the description, icon, screenshots, privacy policy link and age rating, and select **Submit**. Huawei reviews the app, usually within a few days.
+
+> Add your review phone number and fixed code in the notes for the review, so the reviewers can sign in.
+
+## Pro and Business: let us upload every update
+
+In AppGallery Connect, open **Users and permissions › API key › Connect API** and create an API client with the **App administrator** role. Copy its client ID and key into **Publishing › More Android stores**. From then on, every build you start is uploaded to AppGallery and submitted for review.
+
+## When our team publishes for you
+
+With **Publish it for me**, tick Huawei AppGallery on the **Publishing** page. Then, in AppGallery Connect, open **Users and permissions** and add our team email as a team member with the **App administrator** and **Operations** roles. Huawei sends us the invitation; you never share your password.
 `,
   }),
   doc({

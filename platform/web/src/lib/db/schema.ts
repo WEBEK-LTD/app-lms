@@ -24,6 +24,8 @@ import type {
   ClassSessionStatus,
   MembershipPeriod,
   PushPreferences,
+  PushProvider,
+  MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
 } from "../data/types";
@@ -207,6 +209,16 @@ export const apps = mysqlTable(
     ascPrivateKeyEncrypted: text("asc_private_key_encrypted"),
     androidUploadKeyEncrypted: text("android_upload_key_encrypted"),
     iosDistributionEncrypted: text("ios_distribution_encrypted"),
+    // 35 Samsung Galaxy Store: content ID and Seller Portal service account (private key encrypted).
+    galaxyContentId: varchar("galaxy_content_id", { length: 20 }),
+    galaxyServiceAccountId: varchar("galaxy_service_account_id", { length: 64 }),
+    galaxyKeyEncrypted: text("galaxy_key_encrypted"),
+    // 36 Huawei AppGallery: app ID, Connect API client (secret encrypted), agconnect-services.json, Push Kit app secret (encrypted).
+    huaweiAppId: varchar("huawei_app_id", { length: 20 }),
+    huaweiClientId: varchar("huawei_client_id", { length: 64 }),
+    huaweiClientSecretEncrypted: text("huawei_client_secret_encrypted"),
+    huaweiAgconnectAssetId: id("huawei_agconnect_asset_id"),
+    huaweiPushSecretEncrypted: text("huawei_push_secret_encrypted"),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -350,6 +362,8 @@ export const hostedDevices = mysqlTable(
     name: varchar("name", { length: 100 }).notNull(),
     appVersion: varchar("app_version", { length: 20 }).notNull(),
     pushToken: varchar("push_token", { length: 512 }),
+    // 36 Which service the token is from: Firebase ("fcm") or Huawei Push Kit ("hms").
+    pushProvider: varchar("push_provider", { length: 4 }).notNull().default("fcm").$type<PushProvider>(),
     pushPreferences: jsonText<PushPreferences>("push_preferences"),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
@@ -1194,6 +1208,8 @@ export const publishingRequests = mysqlTable(
     iosNote: text("ios_note"),
     iosStoreUrl: varchar("ios_store_url", { length: 2048 }),
     iosUpdatedAt: time("ios_updated_at"),
+    // 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants the app there too.
+    moreStores: jsonText<MoreStoresRow>("more_stores"),
     teamNotes: text("team_notes"),
     requestedAt: time("requested_at"),
     readyAt: time("ready_at"),

@@ -8,7 +8,7 @@ import { getStore } from "@/lib/data";
 import type { PublishingRequest, PublishingStatus, PublishingStore } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
 import { notifyPublishingStatus } from "@/lib/publishing/service";
-import { PUBLISHING_STATUS_LABEL, STORE_TITLE, trackChangeProblems } from "@/lib/publishing/steps";
+import { PUBLISHING_STATUS_LABEL, requestStores, STORE_TITLE, trackChangeProblems, trackOf } from "@/lib/publishing/steps";
 
 const ID = /^[0-9a-f-]{36}$/i;
 
@@ -27,18 +27,21 @@ async function requestFrom(formData: FormData) {
  */
 export async function updatePublishingTrackAction(_: FormState, formData: FormData): Promise<FormState> {
   const { admin, store, request } = await requestFrom(formData);
-  const which = formData.get("store") === "ios" ? "ios" : ("android" as PublishingStore);
+  const asked = String(formData.get("store") ?? "");
+  // 35, 36 Also Galaxy Store and AppGallery, when the request covers them.
+  const which: PublishingStore = asked === "ios" || asked === "galaxy" || asked === "huawei" ? asked : "android";
   const values = {
     status: String(formData.get("status") ?? ""),
     note: String(formData.get("note") ?? "").trim(),
     storeUrl: String(formData.get("storeUrl") ?? "").trim(),
   };
   if (!request || request.mode !== "managed") return { message: "This app's publishing request isn't open any more.", values };
+  if (!requestStores(request).includes(which)) return { message: `The client no longer wants the app on ${STORE_TITLE[which]}.`, values };
   const errors = trackChangeProblems(which, values);
   if (Object.keys(errors).length) return { errors, values };
 
   const now = new Date();
-  const before = request[which];
+  const before = trackOf(request, which);
   const status = values.status as PublishingStatus;
   const changed = status !== before.status;
   const track = { status, note: values.note || null, storeUrl: values.storeUrl || null, updatedAt: changed ? now : before.updatedAt };

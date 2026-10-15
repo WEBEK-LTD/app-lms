@@ -13,7 +13,7 @@ import type { DataStore } from "@/lib/data/store";
 import type { App, PublishingRequest } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
 import { choosePublishingMode, notifyPublishingTeam } from "@/lib/publishing/service";
-import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, PLAY_CATEGORIES } from "@/lib/publishing/steps";
+import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklistProgress, MORE_STORES, PLAY_CATEGORIES, STORE_TITLE, withMoreStores } from "@/lib/publishing/steps";
 
 /** The dashboard's current app, for an active client (or our team managing them). */
 async function requireApp(): Promise<ClientContext & { app: App }> {
@@ -84,6 +84,37 @@ export async function savePublishingChecklistAction(_: FormState, formData: Form
     ok: true,
     message: saved.readyAt ? "Saved. Everything is ready: our team takes it from here." : "Saved. Tick the other steps when they're done.",
   };
+}
+
+/**
+ * 35, 36 "Publish it for me" on Samsung Galaxy Store and Huawei AppGallery
+ * too: the client ticks the extra stores. A new store starts waiting for the
+ * client's steps (in the checklist) and the team is told.
+ */
+export async function chooseMoreStoresAction(formData: FormData): Promise<void> {
+  const context = await requireApp();
+  const store = await getStore();
+  const request = await store.getPublishingRequest(context.app.id);
+  if (!request || request.mode !== "managed") redirect(PAGE);
+  const now = new Date();
+  const next = withMoreStores(request, formData.getAll("store").map(String));
+  const added = MORE_STORES.filter((which) => next[which] && !request[which]);
+  const removed = MORE_STORES.filter((which) => !next[which] && request[which]);
+  if (added.length || removed.length) {
+    await saveWithReadiness(store, context, next, now);
+    const names = (list: typeof added) => list.map((which) => STORE_TITLE[which]).join(" and ");
+    await recordStaffChange(
+      context,
+      [added.length ? `Asked us to publish on ${names(added)}` : "", removed.length ? `No longer wants ${names(removed)}` : ""].filter(Boolean).join("; "),
+      { stores: MORE_STORES.filter((which) => request[which]) },
+      { stores: MORE_STORES.filter((which) => next[which]) },
+    );
+    if (added.length) {
+      await notifyPublishingTeam(store, { user: context.user, client: context.client, app: context.app, event: `asked us to publish their app on ${names(added)} too` });
+    }
+  }
+  revalidatePath("/dashboard", "layout");
+  redirect(`${PAGE}#h-more-stores`);
 }
 
 const TEXT_MAX = 2000;

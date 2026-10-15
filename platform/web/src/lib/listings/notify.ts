@@ -2,7 +2,7 @@ import { emailTemplate, renderTemplate } from "../email/templates";
 import type { DataStore } from "../data/store";
 import type { App, HostedNotification, HostedUser, Listing, ListingInquiry } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
-import { sendPush, type ServiceAccount } from "../hosted/push";
+import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
 
 /** The values of the office's "New message to the office" email (lib/email/templates.ts). */
 export function newInquiryMailValues(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string }): Record<string, string> {
@@ -47,7 +47,7 @@ export async function notifyInquiryReply(input: {
   const body = clip(input.listing ? `${input.listing.title}: ${input.text}` : input.text, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId: inquiry.userId, title, body, createdAt: input.now });
   if (!input.account) return { notification, pushed: 0 };
-  const tokens = (await store.listHostedPushDevices(app.id, [inquiry.userId])).map((d) => d.pushToken!);
+  const tokens = (await store.listHostedPushDevices(app.id, [inquiry.userId])).map(pushTarget);
   if (tokens.length === 0) return { notification, pushed: 0 };
   try {
     const result = await (input.send ?? sendPush)(

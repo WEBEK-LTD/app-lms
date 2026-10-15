@@ -443,7 +443,7 @@ describe("listings on the hosted API", () => {
     const { access_token: token, user } = await signUp();
     await call("PUT", "/me/push-token", { token, body: { token: "fcm-mona", preferences: { announcements: false } } });
     const inquiry = await store.createListingInquiry({ appId: app.id, listingId: ids.nile!, userId: user.id, status: "open", createdAt: NOW, updatedAt: NOW });
-    const pushed: { tokens: string[]; data: Record<string, string> }[] = [];
+    const pushed: { tokens: unknown[]; data: Record<string, string> }[] = [];
     const result = await notifyInquiryReply({
       store,
       app,

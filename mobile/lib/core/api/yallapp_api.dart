@@ -479,7 +479,11 @@ abstract class YallappApi {
   Future<void> deleteMe();
   Future<DeviceList> listDevices();
   Future<void> removeDevice(String deviceId);
-  Future<void> setPushToken(String token, NotificationPreferences preferences);
+  Future<void> setPushToken(
+    String token,
+    NotificationPreferences preferences, {
+    PushProvider provider = PushProvider.fcm,
+  });
 
   Future<List<Category>> listCategories();
   Future<Paged<CourseSummary>> listCourses(CourseQuery query);
@@ -964,13 +968,19 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<void> setPushToken(
     String token,
-    NotificationPreferences preferences,
-  ) => _send(
+    NotificationPreferences preferences, {
+    PushProvider provider = PushProvider.fcm,
+  }) => _send(
     'PUT',
     '/me/push-token',
     _required,
     _ignore,
-    body: {'token': token, 'preferences': preferences.toJson()},
+    body: {
+      'token': token,
+      // 36 fcm or hms: the site sends each token through its own service.
+      'provider': provider.name,
+      'preferences': preferences.toJson(),
+    },
   );
 
   @override

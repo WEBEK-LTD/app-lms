@@ -1,7 +1,7 @@
 import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
-import type { App, AppType, AppVertical, Build, Client, License, StageKey, StageStatus, StoreListing } from "../data/types";
+import type { App, AppType, AppVertical, Build, BuildStages, Client, License, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
 import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plans";
@@ -82,10 +82,13 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
   };
 }
 
-export function hasStoreKeys(app: App): { play: boolean; appStore: boolean } {
+export function hasStoreKeys(app: App): { play: boolean; appStore: boolean; galaxy: boolean; appGallery: boolean } {
   return {
     play: Boolean(app.googlePlayKeyEncrypted),
     appStore: Boolean(app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId),
+    // 35, 36 Samsung Galaxy Store and Huawei AppGallery upload keys.
+    galaxy: Boolean(app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId),
+    appGallery: Boolean(app.huaweiClientSecretEncrypted && app.huaweiClientId && app.huaweiAppId),
   };
 }
 
@@ -169,6 +172,8 @@ export function buildConfigFor(
   const firebase: NonNullable<BuildConfig["firebase"]> = {};
   if (app.firebaseAndroidAssetId) firebase.android_config_url = assetUrl(app.firebaseAndroidAssetId);
   if (app.firebaseIosAssetId) firebase.ios_config_url = assetUrl(app.firebaseIosAssetId);
+  // 36 Huawei Push Kit, for phones without Google Play services.
+  const huawei = app.huaweiAgconnectAssetId ? { agconnect_config_url: assetUrl(app.huaweiAgconnectAssetId) } : null;
   return {
     schema_version: 1,
     client_id: client.id,
@@ -187,11 +192,12 @@ export function buildConfigFor(
     version_code: version.code,
     branding,
     ...(Object.keys(firebase).length > 0 ? { firebase } : {}),
+    ...(huawei ? { huawei } : {}),
   };
 }
 
 /** The stages a new build starts with. Without iOS on the app's plan (13.1), the iOS stages are skipped from the start. */
-export function initialStages(autoPublish: boolean, app: App, ios = true): Record<StageKey, StageStatus> {
+export function initialStages(autoPublish: boolean, app: App, ios = true): BuildStages {
   const keys = hasStoreKeys(app);
   return {
     queued: "done",
@@ -200,6 +206,9 @@ export function initialStages(autoPublish: boolean, app: App, ios = true): Recor
     ios: ios && keys.appStore ? "pending" : "skipped",
     upload_play: autoPublish && keys.play ? "pending" : "skipped",
     upload_testflight: ios && autoPublish && keys.appStore ? "pending" : "skipped",
+    // 35, 36 Only with "We publish for you" and the store's keys, like Google Play.
+    upload_galaxy: autoPublish && keys.galaxy ? "pending" : "skipped",
+    upload_appgallery: autoPublish && keys.appGallery ? "pending" : "skipped",
   };
 }
 

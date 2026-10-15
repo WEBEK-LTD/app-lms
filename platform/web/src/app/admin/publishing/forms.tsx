@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { savePublishingTeamNotesAction, updatePublishingTrackAction } from "@/app/actions/admin-publishing";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import type { PublishingStore } from "@/lib/data/types";
 import { initialFormState } from "@/lib/forms";
 
 /** One store's status, the note to the client and the store link. */
@@ -15,7 +16,7 @@ export function TrackForm({
   disabled,
 }: {
   appId: string;
-  store: "android" | "ios";
+  store: PublishingStore;
   storeTitle: string;
   current: { status: string; note: string; storeUrl: string };
   statuses: { id: string; label: string }[];

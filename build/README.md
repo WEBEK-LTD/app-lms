@@ -13,7 +13,10 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    builds and marks them `building`, with a link to the run.
 3. **Android** (Ubuntu), per build:
    - Applies the build config to `mobile/` (`tool/apply_config.dart`) and
-     writes the client's launcher icons (`scripts/make_icons.py`).
+     writes the client's launcher icons (`scripts/make_icons.py`). With the
+     client's `agconnect-services.json` in the config (36), the build adds
+     Huawei's push SDK for phones without Google Play; without it the build
+     has nothing from Huawei.
    - Creates the app's upload key on its first build and saves it on the
      platform before building. Every later build reuses that key, and the
      platform never replaces a saved key.
@@ -21,6 +24,15 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
      (zip) and the store assets (zip: store icons, a feature graphic, the
      client's screenshots and the listing texts), to `files.yallapp.com.tr`.
    - **Pro:** uploads the App Bundle to the Google Play internal track.
+   - **Pro, 35:** with the client's Galaxy Store keys, uploads the APK to
+     Samsung Galaxy Store and submits it for review
+     (`scripts/galaxy_store.py`, Galaxy Store Developer API).
+   - **Pro, 36:** with the client's AppGallery Connect API client, uploads
+     the APK to Huawei AppGallery and submits it for review
+     (`scripts/appgallery.py`, AppGallery Connect Publishing API).
+   - Both stores get the APK, signed with the app's upload key: an App
+     Bundle would need the store to manage the signing key. A failed upload
+     to either store leaves the build `ready` with a message for the client.
 4. **iOS** (macOS), per build, only when the client added an App Store Connect
    key:
    - Registers the App ID (with push when the app has Firebase).
@@ -110,6 +122,16 @@ and the team publishes from the admin's Publishing page.
   the setup wizard. Apple doesn't let any tool create apps. Then add an App
   Store Connect API key (App Manager role) in the dashboard. On Starter the key
   is only used to sign the IPA, which the client uploads with Transporter.
+- **Samsung Galaxy Store (Pro, optional):** add the app in Seller Portal and
+  upload the first APK by hand; the Content Publish API only updates apps that
+  are on sale. Then create a service account (Assistance › API Service, the
+  Publishing scope) and enter its ID, private key and the app's content ID in
+  the dashboard (Publishing › More Android stores).
+- **Huawei AppGallery (optional):** add the app in AppGallery Connect with the
+  same package name, turn on Push Kit and upload `agconnect-services.json` and
+  the app secret in the dashboard (every plan: push on Huawei phones). On Pro,
+  submit the first APK by hand, then add a Connect API client (App
+  administrator role) for the uploads.
 
 ## Files
 
@@ -118,12 +140,14 @@ and the team publishes from the admin's Publishing page.
 | `scripts/platform.py` | Calls the pipeline API |
 | `scripts/android.sh`, `scripts/ios.sh` | Build, sign and upload one app |
 | `scripts/upload.sh` | Uploads files over FTPS and prints their artifact list |
+| `scripts/galaxy_store.py` | Uploads the APK to Samsung Galaxy Store and submits it (35) |
+| `scripts/appgallery.py` | Uploads the APK to Huawei AppGallery and submits it (36) |
 | `scripts/report.py` | Sends the final status |
 | `scripts/make_icons.py` | Writes launcher icons from the client's 1024 px icon |
 | `scripts/store_assets.py` | Packs the store assets zip: icons, feature graphic, screenshots, listing |
 | `fastlane/Fastfile` | iOS signing, Google Play and TestFlight uploads (fastlane 2.240.1, `Gemfile.lock`) |
 | `files-host/` | The download gate on `files.yallapp.com.tr` |
-| `tests/` | Unit tests: `python3 -m unittest discover build/tests` |
+| `tests/` | Unit tests: `python3 -m unittest discover build/tests` (the store uploads against a local mock of each store's API) |
 
 Secrets never reach the logs. Passwords are masked, and keys from the
 platform are only written to a private temporary folder that is deleted when

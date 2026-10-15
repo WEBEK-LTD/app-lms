@@ -42,6 +42,10 @@ export interface BuildConfig {
     android_config_url?: string;
     ios_config_url?: string;
   };
+  /** 36 Huawei Push Kit (agconnect-services.json), for phones without Google Play services. */
+  huawei?: {
+    agconnect_config_url?: string;
+  };
 }
 
 /** Field rules, kept identical to the patterns in the schema. */

@@ -152,6 +152,9 @@ test("the App Store Connect key is optional on Growth and reaches the pipeline",
     ios_distribution: null,
     google_play: null,
     app_store_connect: { issuer_id: "69a6de7e-1234-4bcd-8ef0-123456789abc", key_id: "2X9R4HXF34", private_key: p8.trim() },
+    // 35, 36 Only for plans with "We publish for you", and this app has none.
+    galaxy_store: null,
+    huawei_appgallery: null,
   });
 
   // The pipeline gets the Firebase files in the config, and the screenshots for the store assets.
