@@ -69,14 +69,27 @@ class AppNavBar extends StatelessWidget {
             height: height,
             child: Padding(
               padding: padding,
-              child: Row(
-                children: [
-                  for (var i = 0; i < destinations.length; i++) ...[
-                    if (template == AppTemplate.bold && i > 0)
-                      const SizedBox(width: 6),
-                    Expanded(child: _item(context, i)),
-                  ],
-                ],
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  // 38 Bold on a phone: when the tabs are narrow the active
+                  // pill gets twice the room, so its label fits
+                  // ("Membership"); a tablet's tabs are wide enough.
+                  final widen =
+                      template == AppTemplate.bold &&
+                      box.maxWidth / destinations.length < 110;
+                  return Row(
+                    children: [
+                      for (var i = 0; i < destinations.length; i++) ...[
+                        if (template == AppTemplate.bold && i > 0)
+                          const SizedBox(width: 6),
+                        Expanded(
+                          flex: widen && i == currentIndex ? 2 : 1,
+                          child: _item(context, i),
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -110,23 +123,28 @@ class AppNavBar extends StatelessWidget {
                   color: p.primary,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        icon(20, p.onPrimary),
-                        const SizedBox(width: 6),
-                        Text(
-                          d.label,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: p.onPrimary,
+                // 38 Room between the label and the pill's edges.
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          icon(20, p.onPrimary),
+                          // A count's badge reaches past the icon.
+                          SizedBox(width: count > 0 ? 12 : 6),
+                          Text(
+                            d.label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: p.onPrimary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

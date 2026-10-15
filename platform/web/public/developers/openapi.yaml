@@ -4267,7 +4267,7 @@ components:
 
     Item:
       type: object
-      description: One card in a list block, the same shape for every source.
+      description: One card in a list block, the same shape for every source. Its texts (`subtitle`, `price_label`, `badge`) are display text in the language the app asked for with `Accept-Language`, like the page's own texts.
       required: [source, id, title]
       properties:
         source: { $ref: '#/components/schemas/ItemSource' }

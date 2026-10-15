@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @tabMyCourses.
   ///
   /// In en, this message translates to:
-  /// **'My Courses'**
+  /// **'My courses'**
   String get tabMyCourses;
 
   /// No description provided for @tabAccount.
@@ -1095,6 +1095,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{You can use 1 device with this account.} other{You can use {count} devices with this account.}}'**
   String deviceLimit(int count);
+
+  /// Registered devices when the app has no device limit (limit 0).
+  ///
+  /// In en, this message translates to:
+  /// **'You can use this account on as many devices as you like.'**
+  String get deviceNoLimit;
+
+  /// Settings › Registered devices when the app has no device limit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 device} other{{count} devices}}'**
+  String devicesCount(int count);
 
   /// No description provided for @thisDevice.
   ///

@@ -7,6 +7,7 @@ import { pickLanguage, translated, translatedBlock } from "../../pages/translate
 import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
+import { durationLabel, itemWords } from "./item-words";
 import { itemResolver, type Item } from "./items";
 import "./sources";
 
@@ -178,7 +179,7 @@ async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery)
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
 const amount = (price: unknown): number => Number((price as { amount?: unknown } | null)?.amount ?? 0) || 0;
 
-function courseItem(course: Record<string, unknown>): Item | null {
+function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item | null {
   const id = Number(course.id);
   if (!Number.isSafeInteger(id) || typeof course.title !== "string") return null;
   const price = (course.price ?? {}) as { is_free?: boolean; formatted?: string | null };
@@ -189,7 +190,8 @@ function courseItem(course: Record<string, unknown>): Item | null {
     subtitle: str((course.instructor as { name?: unknown } | undefined)?.name),
     image_url: str(course.image_url),
     // Display text only: there's never a purchase action in a list.
-    price_label: price.is_free ? "Free" : str(price.formatted),
+    // 38 In the app's language, like every word on a card.
+    price_label: price.is_free ? itemWords(lang).free : str(price.formatted),
     badge: null,
     action: { type: "course", course_id: id },
   };
@@ -213,10 +215,10 @@ async function listCourses(pc: PageContext, query: ItemsQuery): Promise<Item[]> 
     if (byPrice) courses.sort((a, b) => (query.sort === "price_asc" ? 1 : -1) * (amount(a.price) - amount(b.price)));
     courses = courses.slice(0, query.limit);
   }
-  return courses.map(courseItem).filter((i): i is Item => i !== null);
+  return courses.map((c) => courseItem(c, pc.lang)).filter((i): i is Item => i !== null);
 }
 
-function productItem(product: Record<string, unknown>): Item | null {
+function productItem(product: Record<string, unknown>, lang: LanguageCode): Item | null {
   const id = Number(product.id);
   if (!Number.isSafeInteger(id) || typeof product.name !== "string") return null;
   const price = (product.price ?? {}) as { formatted?: string; on_sale?: boolean };
@@ -227,7 +229,7 @@ function productItem(product: Record<string, unknown>): Item | null {
     subtitle: null,
     image_url: str(product.image_url),
     price_label: str(price.formatted),
-    badge: product.stock_status === "out_of_stock" ? "Sold out" : price.on_sale ? "Sale" : null,
+    badge: product.stock_status === "out_of_stock" ? itemWords(lang).outOfStock : price.on_sale ? itemWords(lang).sale : null,
     action: { type: "item", item: { source: "products", id: String(id) } },
   };
 }
@@ -245,11 +247,11 @@ async function listProducts(pc: PageContext, query: ItemsQuery): Promise<Item[]>
   if (query.ids.length && !ids.length) return [];
   return list(await get(pc, ["store", "products"], params))
     .slice(0, ids.length ? ids.length : query.limit)
-    .map(productItem)
+    .map((p) => productItem(p, pc.lang))
     .filter((i): i is Item => i !== null);
 }
 
-function serviceItem(service: Record<string, unknown>): Item | null {
+function serviceItem(service: Record<string, unknown>, lang: LanguageCode): Item | null {
   const id = Number(service.id);
   if (!Number.isSafeInteger(id) || typeof service.name !== "string") return null;
   const price = (service.price ?? {}) as { formatted?: string; free?: boolean };
@@ -258,9 +260,10 @@ function serviceItem(service: Record<string, unknown>): Item | null {
     source: "services",
     id: String(id),
     title: service.name,
-    subtitle: Number.isInteger(minutes) && minutes > 0 ? `${minutes} min` : null,
+    // 38 "1 h" as on the service's own screen, not "60 min".
+    subtitle: Number.isInteger(minutes) && minutes > 0 ? durationLabel(minutes, lang) : null,
     image_url: str(service.image_url),
-    price_label: price.free ? "Free" : str(price.formatted),
+    price_label: price.free ? itemWords(lang).free : str(price.formatted),
     badge: null,
     action: { type: "item", item: { source: "services", id: String(id) } },
   };
@@ -283,7 +286,7 @@ async function listServices(pc: PageContext, query: ItemsQuery): Promise<Item[]>
     if (byPrice) services.sort((a, b) => (query.sort === "price_asc" ? 1 : -1) * (amount(a.price) - amount(b.price)));
     services = services.slice(0, query.limit);
   }
-  return services.map(serviceItem).filter((i): i is Item => i !== null);
+  return services.map((s) => serviceItem(s, pc.lang)).filter((i): i is Item => i !== null);
 }
 
 /** 23 An article card: its first category (or its date) under the title; it opens in the app. */

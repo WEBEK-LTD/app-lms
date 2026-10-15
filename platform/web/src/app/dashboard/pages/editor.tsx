@@ -457,7 +457,8 @@ export function PagesEditor({
                           {currentDesign === d.id ? <Badge tone="neutral">Your design</Badge> : null}
                         </span>
                         <span className="text-xs text-muted">{d.description}</span>
-                        <button type="button" className={`${smallBtn} mt-auto`} disabled={busy} aria-label={`Use the ${d.name} design`} onClick={() => void chooseDesign(d.id, d.name)}>
+                        {/* 38 Grows with its text: in four narrow columns "Use this design" takes two lines. */}
+                        <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={`Use the ${d.name} design`} onClick={() => void chooseDesign(d.id, d.name)}>
                           Use this design
                         </button>
                       </li>

@@ -4,6 +4,7 @@ import { PAY_LINK_MINUTES } from "../catalog/settings";
 import type { DataStore } from "../data/store";
 import type { App, CatalogCurrency, EventRecord, EventSettings, EventTicket, HostedUser, TicketType } from "../data/types";
 import { error, intParam } from "../hosted/connectors/common";
+import { itemWords, type ItemWords } from "../hosted/pages/item-words";
 import type { ConnectorRequest, ConnectorResult } from "../hosted/connectors/types";
 import { fold } from "../listings/search";
 import { articleBody, plainText } from "../news/html";
@@ -124,14 +125,17 @@ export function price(cents: number, currency: CatalogCurrency) {
   return { is_free: false, amount: centsToDecimal(cents), sale_amount: null, currency, formatted: formatCents(cents, currency) };
 }
 
-/** "Free", "₺150", "From ₺150", "Free · from ₺150", or null without ticket types. Display text only. */
-export function priceLabel(types: TicketType[], currency: CatalogCurrency): string | null {
+/**
+ * "Free", "₺150", "From ₺150", "Free · from ₺150", or null without ticket
+ * types. Display text only, 38 in the app's language ([words]).
+ */
+export function priceLabel(types: TicketType[], currency: CatalogCurrency, words: ItemWords = itemWords("en")): string | null {
   if (types.length === 0) return null;
   const paid = types.filter((t) => t.priceCents > 0).map((t) => t.priceCents);
-  if (paid.length === 0) return "Free";
+  if (paid.length === 0) return words.free;
   const lowest = formatCents(Math.min(...paid), currency);
-  if (paid.length < types.length) return `Free · from ${lowest}`;
-  return new Set(paid).size === 1 ? lowest : `From ${lowest}`;
+  if (paid.length < types.length) return words.freeFrom(lowest);
+  return new Set(paid).size === 1 ? lowest : words.from(lowest);
 }
 
 /** "2026-10-20T20:30": an instant on the clock of the time zone. */

@@ -552,7 +552,7 @@ describe("pages on the hosted API", () => {
     const page = (await call("/pages/{slug}", { params: ["home"] })).body as { blocks: Record<string, unknown>[] };
     expect(page.blocks[0]).toMatchObject({
       items: [
-        { source: "services", id: "11", title: "Colouring", subtitle: "90 min", action: { type: "item", item: { source: "services", id: "11" } } },
+        { source: "services", id: "11", title: "Colouring", subtitle: "1 h 30 min", action: { type: "item", item: { source: "services", id: "11" } } },
         { id: "10", title: "Haircut", subtitle: "30 min" },
       ],
     });

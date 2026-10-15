@@ -21,6 +21,9 @@ class FakeApi implements YallappApi {
   Map<String, dynamic> lesson;
   Map<String, dynamic>? verifyResult;
 
+  /// `DeviceList.limit` (0: no limit).
+  int deviceLimit = 2;
+
   final calls = <String>[];
 
   /// Thrown by the next call with this name, then cleared.
@@ -160,7 +163,7 @@ class FakeApi implements YallappApi {
           'current': true,
         },
       ],
-      'limit': 2,
+      'limit': deviceLimit,
     }),
   );
 

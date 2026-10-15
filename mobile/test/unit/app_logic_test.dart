@@ -161,11 +161,15 @@ void main() {
   test('watermark text follows the site setting', () {
     final user = User.fromJson(userJson());
     expect(watermarkText(WatermarkMode.off, user), isNull);
-    expect(watermarkText(WatermarkMode.phone, user), '+905321234567');
+    // 38 The number kept left to right (an Arabic app showed "…532 90+").
+    expect(
+      watermarkText(WatermarkMode.phone, user),
+      '\u2066+905321234567\u2069',
+    );
     expect(watermarkText(WatermarkMode.name, user), 'Sara Yilmaz');
     expect(
       watermarkText(WatermarkMode.nameAndPhone, user),
-      'Sara Yilmaz · +905321234567',
+      'Sara Yilmaz · \u2066+905321234567\u2069',
     );
     expect(watermarkText(WatermarkMode.phone, null), isNull);
   });

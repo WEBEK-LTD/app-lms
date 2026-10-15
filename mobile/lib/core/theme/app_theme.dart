@@ -190,7 +190,9 @@ ThemeData buildAppTheme({
     titleLarge: s(22, FontWeight.w700, height: 1.3),
     titleMedium: s(18, FontWeight.w700, height: 1.3),
     titleSmall: s(15, FontWeight.w700, height: 1.4),
-    bodyLarge: s(16, FontWeight.w400, height: 1.6, color: p.textSecondary),
+    // 38 Also what people type in a field (Material uses bodyLarge there):
+    // the text color, so a value never looks like its hint.
+    bodyLarge: s(16, FontWeight.w400, height: 1.6),
     bodyMedium: s(15, FontWeight.w400, height: 1.5),
     bodySmall: s(13, FontWeight.w400, height: 1.5, color: p.textSecondary),
     labelLarge: s(17, FontWeight.w600),

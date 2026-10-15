@@ -85,7 +85,7 @@ void main() {
           await app.pump(tester);
           expect(tester.takeException(), isNull, reason: 'home');
 
-          for (final tab in ['Courses', 'My Courses', 'Account']) {
+          for (final tab in ['Courses', 'My courses', 'Account']) {
             await tester.tap(find.bySemanticsLabel(tab).last);
             await TestApp.settle(tester);
             expect(tester.takeException(), isNull, reason: tab);

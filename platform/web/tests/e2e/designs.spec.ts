@@ -179,6 +179,11 @@ test("starting from another design replaces the draft, not what's published", as
   const designs = own.getByRole("region", { name: "Start from a design" });
   await designs.getByText("Show designs").click();
   await expect(designs.getByText("Your design")).toBeVisible();
+  // 38 "Use this design" fits its button, also in four narrow columns.
+  await own.setViewportSize({ width: 1360, height: 900 });
+  for (const button of await designs.getByRole("button", { name: /^Use the / }).all()) {
+    expect(await button.evaluate((b) => b.scrollHeight <= b.clientHeight + 1 && b.scrollWidth <= b.clientWidth + 1)).toBe(true);
+  }
   own.once("dialog", (dialog) => void dialog.accept());
   await designs.getByRole("button", { name: "Use the Coaching design" }).click();
   await expect(own.getByText("Your draft now uses the Coaching design.")).toBeVisible();

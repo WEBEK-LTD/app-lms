@@ -69,6 +69,25 @@ bool canFollowAction(
   PageActionType.page || PageActionType.screen || PageActionType.url => true,
 };
 
+/// 38 Whether tapping [action] opens something: also a built-in screen this
+/// app has with its site's features (a Wishlist tile in an academy without
+/// a wishlist would do nothing).
+bool canOpenAction(WidgetRef ref, PageAction action) {
+  if (action.type != PageActionType.screen) {
+    return canFollowAction(
+      action,
+      ref.read(appEnvironmentProvider).build.appType,
+    );
+  }
+  final screen = action.screen;
+  if (screen == null) return false;
+  final gate = ref.watch(appGateProvider);
+  return ref
+          .read(appModuleProvider)
+          .screenLocation(screen, gate is GateReady ? gate.config : null) !=
+      null;
+}
+
 /// A list's entries this app can open, and the ones meant only to be read
 /// (no action).
 List<PageItem> followableItems(List<PageItem> items, AppType appType) => [

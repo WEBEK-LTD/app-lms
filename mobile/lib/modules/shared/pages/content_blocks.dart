@@ -279,6 +279,12 @@ class QuickLinksView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scale = MediaQuery.textScalerOf(context);
+    // 38 Only tiles that open something here.
+    final links = [
+      for (final link in block.links)
+        if (canOpenAction(ref, link.action)) link,
+    ];
+    if (links.isEmpty) return const SizedBox.shrink();
     Widget tile(QuickLink link, double width) => SizedBox(
       width: width,
       child: _QuickLinkTile(
@@ -292,9 +298,9 @@ class QuickLinksView extends ConsumerWidget {
         height: 60 + 8 + scale.scale(36),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: block.links.length,
+          itemCount: links.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
-          itemBuilder: (context, i) => tile(block.links[i], 76),
+          itemBuilder: (context, i) => tile(links[i], 76),
         ),
       );
     }
@@ -307,7 +313,7 @@ class QuickLinksView extends ConsumerWidget {
         return Wrap(
           spacing: spacing,
           runSpacing: 14,
-          children: [for (final link in block.links) tile(link, width)],
+          children: [for (final link in links) tile(link, width)],
         );
       },
     );
@@ -357,23 +363,63 @@ class _QuickLinkTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              link.label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.5,
-                height: 1.25,
-                fontWeight: FontWeight.w600,
-                color: p.text,
-              ),
+            LayoutBuilder(
+              builder: (context, box) {
+                final style = DefaultTextStyle.of(context).style.merge(
+                  TextStyle(
+                    fontSize: 12.5,
+                    height: 1.25,
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                  ),
+                );
+                return Text(
+                  link.label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: style.copyWith(
+                    fontSize: fitWordsFontSize(
+                      link.label,
+                      style,
+                      box.maxWidth,
+                      MediaQuery.textScalerOf(context),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
     );
   }
+}
+
+/// 38 The font size, at most [style]'s, at which the longest word of [text]
+/// fits [width]: a narrow tile otherwise breaks it ("Membershi" / "p").
+double fitWordsFontSize(
+  String text,
+  TextStyle style,
+  double width,
+  TextScaler scaler,
+) {
+  final size = style.fontSize ?? 14;
+  if (!width.isFinite || width <= 0) return size;
+  var widest = 0.0;
+  for (final word in text.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    if (painter.width > widest) widest = painter.width;
+    painter.dispose();
+  }
+  if (widest <= width) return size;
+  return (size * width / widest * 0.97).clamp(9.0, size);
 }
 
 // ----------------------------------------------------------- Testimonials

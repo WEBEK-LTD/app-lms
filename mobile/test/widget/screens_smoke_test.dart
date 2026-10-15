@@ -63,7 +63,7 @@ void main() {
       clean('courses');
       expect(find.text('All courses'), findsOneWidget);
 
-      await tester.tap(find.bySemanticsLabel('My Courses').last);
+      await tester.tap(find.bySemanticsLabel('My courses').last);
       await TestApp.settle(tester);
       clean('my courses');
       expect(

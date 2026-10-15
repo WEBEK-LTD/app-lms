@@ -311,7 +311,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           : _byPassword
                           ? context.l10n.signInIntroPassword
                           : context.l10n.signInIntroEmail,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      style: Theme.of(context).textTheme.bodyLarge
+                          ?.copyWith(color: context.palette.textSecondary),
                     ),
                     if (env.isPreview) ...[
                       const SizedBox(height: 16),

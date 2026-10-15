@@ -91,7 +91,7 @@ void main() {
     // The tab with a target this app doesn't know is left out, and the
     // built-in tabs are replaced.
     expect(find.text('Later'), findsNothing);
-    expect(find.text('My Courses'), findsNothing);
+    expect(find.text('My courses'), findsNothing);
     // The native home isn't shown.
     expect(find.text('Search for a course'), findsNothing);
 
@@ -144,7 +144,7 @@ void main() {
     expect(api.count('getPages'), 1);
     expect(api.count('getHome'), 1);
     expect(find.text('Search for a course'), findsOneWidget);
-    for (final tab in ['Home', 'Courses', 'My Courses', 'Account']) {
+    for (final tab in ['Home', 'Courses', 'My courses', 'Account']) {
       expect(find.text(tab), findsWidgets, reason: tab);
     }
   });
@@ -169,7 +169,7 @@ void main() {
     final app = TestApp(signedIn: true, api: api);
     await app.pump(tester);
     expect(find.text('Search for a course'), findsOneWidget);
-    expect(find.text('My Courses'), findsWidgets);
+    expect(find.text('My courses'), findsWidgets);
   });
 
   testWidgets('a page that is missing shows an error, not a crash', (

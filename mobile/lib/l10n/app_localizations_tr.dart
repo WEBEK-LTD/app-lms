@@ -699,6 +699,21 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get deviceNoLimit =>
+      'Bu hesabı istediğiniz kadar cihazda kullanabilirsiniz.';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cihaz',
+      one: '1 cihaz',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String thisDevice(String device) {
     return '$device (bu cihaz)';
   }

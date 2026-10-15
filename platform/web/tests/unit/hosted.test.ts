@@ -262,6 +262,30 @@ describe("hosted API", () => {
     expect(verified.body).toMatchObject({ signup_required: true });
   });
 
+  it("38 never locks the store review account out at the device limit: its oldest device is signed out", async () => {
+    const settings = { ...app.hostedSettings, reviewPhone: "+905550000000", reviewCode: "246810", deviceLimit: 2 } as App["hostedSettings"];
+    app = { ...app, hostedSettings: settings };
+    const review = async (id: string) => {
+      now = new Date(now.getTime() + 61_000);
+      const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+90", phone: "5550000000" } });
+      const device = { ...DEVICE, id };
+      const verified = await call("POST", "/auth/otp/verify", { body: { request_id: (requested.body as { request_id: string }).request_id, code: "246810", device } });
+      const token = (verified.body as { signup_token?: string }).signup_token;
+      return token ? call("POST", "/auth/register", { body: { signup_token: token, name: "App Review", device } }) : verified;
+    };
+    expect((await review("reviewer-1")).status).toBe(201);
+    expect((await review("reviewer-2")).status).toBe(200);
+    // A third reviewer's phone (or the owner's preview in another browser).
+    const third = await review("reviewer-3");
+    expect(third.status).toBe(200);
+    const devices = await call("GET", "/me/devices", { token: (third.body as { access_token: string }).access_token });
+    expect((devices.body as { items: { name: string }[] }).items).toHaveLength(2);
+    // Anyone else still meets the limit.
+    await signUp();
+    await signIn("5321234567", { ...DEVICE, id: "install-2" });
+    expect(await signIn("5321234567", { ...DEVICE, id: "install-3" })).toMatchObject({ status: 403, body: { code: "device_limit_reached" } });
+  });
+
   it("keeps the account, devices and limit", async () => {
     const session = await signUp();
     const me = await call("GET", "/me", { token: session.access_token });

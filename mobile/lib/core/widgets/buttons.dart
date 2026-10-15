@@ -72,6 +72,9 @@ class SquareIconButton extends StatelessWidget {
     final enabled = onPressed != null;
     final fg = foreground ?? p.text;
     return Semantics(
+      // 38 Its own node: alone on a picture, it would otherwise take the
+      // picture's whole area (a screen reader's "Back" covering the hero).
+      container: true,
       button: true,
       label: label,
       enabled: enabled,

@@ -66,10 +66,18 @@ export function defaultLayout(
   // 21 The kind's own tab names ("Visits" in a clinic's app); 27 or its own tabs (a gym's Classes and Membership).
   const kind = isAppType(app.appType) ? kindOf({ appType: app.appType, vertical: app.vertical ?? null }) : null;
   const names = kind?.wording?.tabs ?? {};
-  const tabs = structuredClone(kind?.tabs ?? engine?.tabs ?? []).map((t) => (names[t.id] ? { ...t, label: names[t.id]! } : t));
+  const icons = kind?.wording?.tabIcons ?? {};
+  const tabs = structuredClone(kind?.tabs ?? engine?.tabs ?? []).map((t) => ({
+    ...t,
+    ...(names[t.id] ? { label: names[t.id]! } : {}),
+    ...(icons[t.id] ? { icon: icons[t.id]! } : {}),
+  }));
+  // 38 A café's search box says "Search the menu", not "Search products".
+  const placeholders = kind?.wording?.searchPlaceholders ?? {};
+  const blocks = structuredClone(engine?.home ?? []).map((b) => (b.type === "search" && placeholders[b.id] ? { ...b, placeholder: placeholders[b.id]! } : b));
   return {
     ...base,
     tabs: [homeTab, ...tabs, accountTab],
-    pages: home([welcome(name), ...structuredClone(engine?.home ?? [])]),
+    pages: home([welcome(name), ...blocks]),
   };
 }
