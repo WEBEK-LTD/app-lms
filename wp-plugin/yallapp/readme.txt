@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.8
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,14 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.4.0 =
+* Settings show only what fits the app type you chose in the Yallapp dashboard: a Store app sees the shop's options, an academy the course options, and so on.
+* Changes you save in the Yallapp dashboard reach your site at once: Yallapp asks the plugin to check its license again, with a signed request the plugin verifies. Before, they waited for the next check, up to 12 hours later.
+* Eleven new page blocks work on your site: slider, quick links, testimonials, questions and answers, countdown, contact, opening hours, social links, team, numbers and notice. The plugin leaves out what your site can't open and a countdown that has ended, and translates every entry.
+* Huawei push: apps built with Huawei push reach Huawei phones without Google Play services. Add your Huawei Push Kit details in Settings › Notifications.
+* The store review account is never locked out by the device limit: its oldest device is signed out instead, so app reviewers and your own previews always get in.
+* "My Courses" now reads "My courses".
 
 = 0.3.8 =
 * The app's home and tabs match the app type you chose in the Yallapp dashboard from the first start: a Store app on a site that also runs Tutor LMS shows the shop, not course lists it can't open. (The app tells the plugin its type; before, the plugin learned it at its next license check, up to 12 hours later.)
