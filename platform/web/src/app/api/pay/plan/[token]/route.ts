@@ -5,6 +5,7 @@ import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
 import { yallappIyzicoKeys } from "@/lib/settings/platform";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
 /**
  * Where iyzico sends a client back after paying their plan, with its token.
@@ -37,5 +38,7 @@ export async function POST(request: Request, { params }: RouteContext<"/api/pay/
   // The dashboard opens on the app that was paid for.
   const paidApp = outcome.kind === "paid" ? (outcome.activation.app?.id ?? null) : payment.appId;
   if (paidApp) await chooseApp(paidApp);
+  // 31 A new plan's features reach the app's WordPress site at once.
+  if (outcome.kind === "paid") refreshSitesSoon([paidApp]);
   return go("/dashboard/license?payment=paid");
 }

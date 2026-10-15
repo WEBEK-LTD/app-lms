@@ -555,7 +555,7 @@ export function WebsiteStep({
                 rows={4}
                 maxLength={1000}
                 defaultValue={v(state, "setupNote", setupNote)}
-                placeholder="Your current website platform, how many products or courses you have, where your content is today…"
+                placeholder={`Your current website platform, how many ${engine.words.items} you have, where your content is today…`}
                 className="input"
                 aria-invalid={state.errors?.setupNote ? true : undefined}
                 aria-describedby={state.errors?.setupNote ? "f-setupNote-error" : undefined}
@@ -1001,7 +1001,10 @@ function ScreenshotGallery({
 export function ListingStep({
   values,
   screenshots,
+  descriptionHint,
 }: {
+  /** 31 What to describe, for this app's type. */
+  descriptionHint: string;
   values: {
     androidPackage: string;
     iosBundleId: string;
@@ -1070,7 +1073,7 @@ export function ListingStep({
             aria-describedby={`f-fullDescription-hint${state.errors?.fullDescription ? " f-fullDescription-error" : ""}`}
           />
           <span id="f-fullDescription-hint" className="text-xs text-muted">
-            50 to 4000 characters. Describe your courses and what students can do in the app.
+            50 to 4000 characters. {descriptionHint}
           </span>
           <FieldError id="f-fullDescription-error" error={state.errors?.fullDescription} />
         </div>
@@ -1092,7 +1095,7 @@ export function ListingStep({
             type="url"
             required
             defaultValue={value("privacyUrl")}
-            placeholder="https://your-academy.com/privacy"
+            placeholder="https://your-website.com/privacy"
             error={state.errors?.privacyUrl}
             small
           />

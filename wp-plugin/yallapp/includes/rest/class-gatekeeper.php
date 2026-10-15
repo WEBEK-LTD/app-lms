@@ -16,7 +16,8 @@ use Yallapp\Plugin;
 
 /**
  * Blocks the app API during maintenance, when it is switched off or the license is
- * inactive (`/config` stays reachable so the app can explain why), and adds the plugin
+ * inactive (`/config` stays reachable so the app can explain why, and 31 the platform's
+ * `/license/refresh` so a renewed plan reaches the site), and adds the plugin
  * version header to every response.
  */
 class Gatekeeper {
@@ -24,7 +25,7 @@ class Gatekeeper {
 	/**
 	 * Routes that stay reachable.
 	 */
-	const ALWAYS_OPEN = array( '/yallapp/v1/config' );
+	const ALWAYS_OPEN = array( '/yallapp/v1/config', '/yallapp/v1/license/refresh' );
 
 	/**
 	 * Plugin.

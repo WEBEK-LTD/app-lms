@@ -157,10 +157,13 @@ export function ListingForm({
   playCategories,
   appStoreCategories,
   reviewNote,
+  ratingExample,
 }: {
   current: { playCategory: string; appStoreCategory: string; contentRatingNotes: string; reviewNotes: string };
   playCategories: readonly string[];
   appStoreCategories: readonly string[];
+  /** 31 The content rating example for this app's type. */
+  ratingExample: string;
   /** 27 What the kind's apps should tell the reviewers (a gym's memberships paid outside the app). */
   reviewNote?: string;
 }) {
@@ -177,7 +180,7 @@ export function ListingForm({
         name="contentRatingNotes"
         label="For the content rating questions"
         value={v.contentRatingNotes}
-        placeholder="For example: online courses for adults. No violence, gambling or dating. Students can't message each other. No ads."
+        placeholder={ratingExample}
         hint="Both stores ask about what's in the app. Tell us about anything for adults only, violence, chat or user posts, ads, purchases and the personal data you collect. We answer the questionnaires with this."
         error={e.contentRatingNotes}
       />

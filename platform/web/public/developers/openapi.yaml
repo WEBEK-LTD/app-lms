@@ -129,6 +129,11 @@ tags:
       per class (given back when the customer cancels in time). Memberships
       are paid on a web page outside the app, on Android and iOS alike: they
       are for a service used in person (App Store Review Guideline 3.1.3(e)).
+  - name: Platform
+    description: |
+      Calls from the Yallapp platform to a client's WordPress site (roadmap
+      31), never from the app. Only the Yallapp plugin serves them; the hosted
+      API and a client's own API don't.
 
 paths:
   /config:
@@ -2572,6 +2577,63 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /license/refresh:
+    post:
+      tags: [Platform]
+      operationId: refreshLicense
+      summary: Check the license now
+      description: |
+        Sent by the Yallapp platform, a few seconds after the app's owner saves
+        something the plugin reads from its license status (the app type, how
+        people sign in, the plan) or publishes the app's pages. The plugin
+        then checks its license with the platform and fetches the published
+        pages, as it does on its own twice a day and every 15 minutes. It
+        trusts nothing in this request: it only learns that it should ask now.
+
+        The request is signed with the site's license key, which both sides
+        know: `signature` is the lowercase hex HMAC-SHA256 of
+        `yallapp-license-refresh:<timestamp>` keyed with the license key in
+        capitals (`YALL-XXXX-XXXX-XXXX`). The plugin refuses a wrong signature,
+        a site without a license key and a timestamp more than 5 minutes away
+        from its clock (`invalid_signature`, 401). It checks at most once every
+        30 seconds: a nudge within 30 seconds of the last one gets 429 and the
+        plugin checks once when the 30 seconds are over, so the last change
+        still arrives. Reachable during maintenance and while the app API is
+        paused, so a renewed or reactivated plan reaches the site.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timestamp, signature]
+              properties:
+                timestamp:
+                  type: integer
+                  description: Unix time in seconds when the platform sent it.
+                  examples: [1792000000]
+                signature:
+                  type: string
+                  pattern: '^[0-9a-f]{64}$'
+                  description: HMAC-SHA256 of `yallapp-license-refresh:<timestamp>`, keyed with the license key, in lowercase hex.
+      responses:
+        '202':
+          description: The license was checked (and the layout fetched); `status` is the license status the site now has.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [active, expired, suspended, invalid, none, unreachable]
+                    description: '`unreachable`: the platform didn''t answer; the site keeps its last status.'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2758,6 +2820,7 @@ components:
             - invalid_credentials
             - demo_number_only
             - preview_review_number_only
+            - invalid_signature
             - update_required
             - invalid_answers
             - kitchen_closed

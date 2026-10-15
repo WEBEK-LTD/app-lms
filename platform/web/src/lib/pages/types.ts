@@ -67,6 +67,7 @@ export type ItemSource = (typeof ITEM_SOURCES)[number];
 export type BlockType = (typeof BLOCK_TYPES)[number];
 export type Visibility = (typeof VISIBILITIES)[number];
 export type ScreenName = (typeof SCREENS)[number];
+export type ItemsSort = (typeof ITEMS_SORTS)[number];
 
 export const LANGUAGE_NAMES: Record<LanguageCode, string> = { en: "English", ar: "Arabic", tr: "Turkish" };
 /** Languages written right to left. */

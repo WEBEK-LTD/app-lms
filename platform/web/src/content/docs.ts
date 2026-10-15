@@ -322,7 +322,7 @@ In WordPress admin, open **Yallapp**, paste the key into the license field and s
 
 ## Check the status
 
-The plugin shows **Active** with your plan and renewal date, and your dashboard shows the connected website. The plugin checks the license every 12 hours. If it can’t reach us for a while, your app keeps working for 72 hours.
+The plugin shows **Active** with your plan and renewal date, and your dashboard shows the connected website. The plugin checks the license every 12 hours, and within a minute of a change in your dashboard (your app type, how people sign in, your plan or your published pages) when your website can be reached. If it can’t reach us for a while, your app keeps working for 72 hours.
 
 > Moving to a new domain? Deactivate the license in the plugin on the old site, or release it from **License & plugin** in your dashboard. Then activate it on the new site. A website at a different folder of the same domain counts as a different site.
 `,
@@ -907,7 +907,7 @@ On WordPress, choose how email sign-in works:
 - **With a code by email: anyone can sign up.** People get a 6-digit code by email. Someone without an account on your website gets one, with the details you ask for, when the plugin's **Allow new accounts to sign up from the app** is on. Accounts that can edit your website (staff) never sign in by code: they sign in on the website. Needs version 0.3.5 or later of the Yallapp plugin.
 - **With their password: existing accounts only.** The email address and password of their account on your website; WordPress checks the password, and "Forgot your password?" opens your website's reset page. New people sign up by phone or on your website.
 
-Your website picks up your choices within 12 hours, or right away when you click **Check now** in the Yallapp plugin. They override the plugin's own **Sign-in** settings; until you choose here, those apply.
+Your website gets your choices within a minute when it can be reached, otherwise at its next check (twice a day). **Check now** in the Yallapp plugin gets them at once. They override the plugin's own **Sign-in** settings; until you choose here, those apply.
 
 Your store review number always signs in, also when the app signs in by email only. When it signs in by email only, the app shows no phone field, so also set a store review email address (see below).
 

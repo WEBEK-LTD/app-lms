@@ -2,10 +2,9 @@
 
 import type { ReactNode } from "react";
 import { PAGE_ICONS } from "@/lib/pages/icons";
-import { SCREEN_LABELS } from "@/lib/pages/labels";
 import { textIn, withText } from "@/lib/pages/model";
-import { SOURCE_NAMES } from "@/lib/pages/sources";
-import { LANGUAGE_NAMES, RTL_LANGUAGES, SCREENS, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
+import { actionProblem, screenName, SOURCE_NAMES, type ScreenOption } from "@/lib/pages/sources";
+import { LANGUAGE_NAMES, RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
 
 /** Form controls of the page and look editor. Every one has a visible label. */
 
@@ -195,7 +194,12 @@ export function IconPicker({ id, label, value, onChange, optional = false }: { i
 
 type ActionKind = "none" | Action["type"];
 
-/** What happens on tap: a page, a built-in screen, a course or a web address. */
+/** The screen a new tap action opens: Account, which every app has (31), else the app's first screen. */
+export function firstScreen(screens: readonly ScreenOption[]): Action["screen"] {
+  return screens.some((s) => s.value === "account") ? "account" : (screens.find((s) => !s.alias)?.value ?? "account");
+}
+
+/** What happens on tap: a page, a screen the app has, (Academy apps) a course, or a web address. */
 export function ActionEditor({
   id,
   label,
@@ -204,6 +208,7 @@ export function ActionEditor({
   onChange,
   pages,
   sources,
+  screens,
   courses,
 }: {
   id: string;
@@ -213,21 +218,29 @@ export function ActionEditor({
   onChange: (action: Action | null) => void;
   pages: { slug: string; title: string }[];
   sources: ItemSource[];
+  /** 31 The screens this app's type opens (lib/pages/sources.ts). */
+  screens: ScreenOption[];
   courses: { id: string; title: string }[] | undefined;
 }) {
   const kind: ActionKind = action?.type ?? "none";
+  // 31 A layout from before the app's type changed may open what this app doesn't have: it shows, with what to fix.
+  const problem = actionProblem(action, screens, sources);
+  const screenOptions = [
+    ...screens.filter((s) => !s.alias || s.value === action?.screen),
+    ...(action?.type === "screen" && action.screen && !screens.some((s) => s.value === action.screen) ? [{ value: action.screen, label: `${screenName(action.screen)} (not in this app)` }] : []),
+  ];
   const options: { value: ActionKind; label: string }[] = [
     ...(optional ? [{ value: "none" as const, label: "Nothing" }] : []),
     { value: "page", label: "Opens a page" },
     { value: "screen", label: "Opens a screen of the app" },
-    ...(sources.includes("courses") ? [{ value: "course" as const, label: "Opens a course" }] : []),
+    ...(kind === "course" || sources.includes("courses") ? [{ value: "course" as const, label: "Opens a course" }] : []),
     { value: "url", label: "Opens a web address" },
     ...(kind === "item" || sources.some((s) => s !== "courses" && s !== "posts") ? [{ value: "item" as const, label: "Opens an entry" }] : []),
   ];
   const change = (next: ActionKind) => {
     if (next === "none") onChange(null);
     else if (next === "page") onChange({ type: "page", page_slug: pages[0]?.slug ?? "" });
-    else if (next === "screen") onChange({ type: "screen", screen: "account" });
+    else if (next === "screen") onChange({ type: "screen", screen: firstScreen(screens) });
     else if (next === "course") onChange({ type: "course", course_id: Number(courses?.[0]?.id ?? 0) || null });
     else if (next === "url") onChange({ type: "url", url: "", open_in: "in_app" });
     else onChange({ type: "item", item: { source: sources.find((s) => s !== "courses" && s !== "posts") ?? sources[0] ?? "products", id: "" } });
@@ -235,6 +248,12 @@ export function ActionEditor({
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-ivory/60 p-3">
       <SelectInput id={`${id}-type`} label={label} value={kind} options={options} onChange={change} />
+      {problem ? (
+        <p role="alert" className="m-0 flex items-start gap-1.5 rounded-lg bg-warn-bg px-3 py-2 text-sm font-semibold text-warn">
+          <IconGlyph name="warning" size={18} />
+          {problem}
+        </p>
+      ) : null}
       {action?.type === "page" ? (
         <SelectInput
           id={`${id}-page`}
@@ -248,8 +267,8 @@ export function ActionEditor({
         <SelectInput
           id={`${id}-screen`}
           label="Screen"
-          value={action.screen ?? "account"}
-          options={SCREENS.map((s) => ({ value: s, label: SCREEN_LABELS[s] }))}
+          value={action.screen ?? firstScreen(screens) ?? "account"}
+          options={screenOptions}
           onChange={(screen) => onChange({ type: "screen", screen })}
         />
       ) : null}

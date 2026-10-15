@@ -30,7 +30,7 @@ import {
   stepText,
   STORE_TITLE,
 } from "@/lib/publishing/steps";
-import { kindOf, suggestedCategories } from "@/lib/app/kinds";
+import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
 
@@ -300,6 +300,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           playCategories={PLAY_CATEGORIES}
           appStoreCategories={APP_STORE_CATEGORIES}
           reviewNote={kindOf(app).reviewNote}
+          ratingExample={wordsOf(app).ratingExample}
         />
         {missing.length ? (
           <Notice icon="info">Still missing: {missing.join(", ")}.</Notice>

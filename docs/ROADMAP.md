@@ -520,6 +520,25 @@ WordPress 7.1.3 site with Tutor LMS 4.1.1 and WooCommerce 11.2.0.
 | [x] | 30.3 App: sends its type with `/pages`; lists and categories it can't open are left out instead of doing nothing when tapped; the course page shows the student count and the four lists, and opens on the overview for visitors when the course has them; the preview bundle rebuilt | `flutter analyze`, `flutter test`, `build_preview.sh --check`, and the preview against the local site |
 | [x] | 30.4 Dashboard: the Website step, the overview and the license page say what the site runs ("Your website runs: Tutor LMS, WooCommerce"); a warning, with the type that fits and a link to change it, when the app's type doesn't fit the site; the same facts on the admin client page (`drizzle/0029_site_plugins.sql`) | Unit tests and the client-flow browser test |
 
+## Phase 31: Every option fits the app type
+
+An app owner only sees options, screens and wording that fit their app's
+type, and what they save in the dashboard reaches their WordPress site within
+seconds instead of at the plugin's next license check (up to 12 hours). The
+platform nudges the site (`POST /license/refresh`, signed with the license
+key) and the plugin pulls its status and pages as usual, trusting nothing in
+the nudge. No database migration. How it works is in `docs/ARCHITECTURE.md`
+(the platform's part in the overview).
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 31.1 Contract first: `POST /license/refresh` on the plugin (`timestamp`, `signature`: HMAC-SHA256 keyed with the license key; 202 with the new status, 401 `invalid_signature`, 429 with `retry_after_seconds`), tag Platform; the nudge in the platform contract's overview | `redocly lint` passes; the reference on /developers regenerated |
+| [x] | 31.2 Plugin: the endpoint (reachable in maintenance and while the API is paused), timestamps within 5 minutes, one check every 30 seconds (a nudge too soon schedules one check for later), then the license check and the layout fetch; the settings page for the type chosen in the dashboard, else the site's plugins: course settings and notifications only for Academy apps, Checkout and Store for Store apps, a new Bookings card (home sections, banner, cancelling), News for News apps, a note instead of the Academy cards when nothing fits; neutral wording where every app sees it | Unit tests (`RefreshSignatureTest`, `SettingsCardsTest`), `composer lint`, the Tutor LMS integration suite (247 checks: the nudge over HTTP and in the site, the settings page per type) |
+| [x] | 31.3 Platform: `lib/license/refresh.ts` (signature, https only, never a private address, no redirects, 5 seconds, never throws) run after the response for the app type, sign-in methods, publishing pages, a plan paid by card, and the team's activate, suspend and reinstate; "within a minute when your site can be reached" instead of "within 12 hours" | Unit tests with a fake site (signature shared with the plugin's test, private addresses, timeouts, which apps) and a check that those saves ask the site |
+| [x] | 31.4 Pages & look: each engine's screens in `lib/app/kinds.ts`, checked against the Flutter modules' `screenLocation`; the screen picker offers only those, in the engine's words ("All products"); publishing refuses a screen or a course the app can't open, saying which; a layout from before a type change still loads, with "Needs a fix" on the tab or block; orders per list source (no prices for articles, posts, events or campaigns); the List hint names this app's lists | Unit tests and the pages browser test (on the memory store and MariaDB) |
+| [x] | 31.5 Wording per type: the Website step's placeholder, the plan's card payments on the overview (left out for News and Real estate), Apple's rules on Builds and the preview, the store description hint and the content rating example | Unit tests |
+| [ ] | 31.6 The team's edits to what a plan includes (`savePlanLimitsAction`) nudge every WordPress site on that plan | Rare; until then they reach sites at their next check |
+
 ## Phase 32: The website, the company details and SEO
 
 The owner reviewed yallapp.com.tr: the header had ten links and wrapped into

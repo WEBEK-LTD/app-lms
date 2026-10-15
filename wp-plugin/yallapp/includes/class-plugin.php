@@ -125,6 +125,7 @@ class Plugin {
 		( new Rest\Store_Controller( $this ) )->register_routes();
 		( new Rest\Bookings_Controller( $this ) )->register_routes();
 		( new Rest\News_Controller( $this ) )->register_routes();
+		( new Rest\License_Controller( $this ) )->register_routes();
 	}
 
 	/**

@@ -5,6 +5,7 @@ import { Icon } from "@/components/icon";
 import { QrCode } from "@/components/qr-code";
 import { Notice, PageHeader, Section, btn } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
+import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { getStore } from "@/lib/data";
@@ -166,7 +167,10 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
             <div className="flex flex-wrap items-center gap-4">
               <QrCode value={phoneUrl} label={`QR code that opens the preview of ${name}`} size={152} />
               <div className="flex min-w-0 flex-[1_1_200px] flex-col gap-2 text-sm leading-relaxed text-ink-4">
-                <span>On a phone the preview fills the screen. Opened on an iPhone, it follows the iPhone rules: no purchase buttons for paid courses.</span>
+                <span>
+                  On a phone the preview fills the screen.{" "}
+                  {wordsOf(app).iphone ? `Opened on an iPhone, it follows the iPhone rules. ${wordsOf(app).iphone}` : "Opened on an iPhone, it shows what the iPhone app shows."}
+                </span>
                 <a href={path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold">
                   Open in a new tab
                   <Icon name="open_in_new" size={16} />

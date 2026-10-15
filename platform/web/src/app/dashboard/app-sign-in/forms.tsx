@@ -105,7 +105,7 @@ export function SignInMethodsForm({
       {wordpress ? (
         <p className="m-0 text-sm leading-relaxed text-muted">
           {chosen
-            ? "Your website picks this up within 12 hours, or right away when you click Check now in the Yallapp plugin. It overrides the sign-in choice in the plugin's settings."
+            ? "Your website gets this within a minute when it can be reached, otherwise at its next check (twice a day); Check now in the Yallapp plugin gets it at once. It overrides the sign-in choice in the plugin's settings."
             : "Not chosen here yet, so your website uses the plugin's own setting (phone by default). Saving here overrides it."}
           {chosen && !emailWayChosen ? " Email sign-in uses passwords until you save a choice here." : ""}
         </p>

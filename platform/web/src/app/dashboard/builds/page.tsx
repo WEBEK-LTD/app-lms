@@ -8,6 +8,7 @@ import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } f
 import { hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
+import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import {
   failureReason,
@@ -295,10 +296,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </ul>
       </Section>
 
-      <Notice tone="neutral" icon="phone_iphone">
-        Apple&apos;s rule: the iPhone app never shows buy buttons for paid courses or digital products; free enrolment works on both phones. Your Android
-        app opens your checkout as usual.
-      </Notice>
+      {/* 31 Apple's rules for what this app sells; nothing for apps that sell nothing. */}
+      {wordsOf(app).iphone ? (
+        <Notice tone="neutral" icon="phone_iphone">
+          {wordsOf(app).iphone}
+        </Notice>
+      ) : null}
 
       <section aria-labelledby="h-next" className="flex flex-col gap-3">
         <h2 id="h-next" className="m-0 text-lg font-bold">

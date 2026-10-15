@@ -7,6 +7,7 @@ import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
 import { BLOCK_HINTS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
+import { actionProblem, blockProblem, listHint, type ScreenOption } from "@/lib/pages/sources";
 import { translated } from "@/lib/pages/translate";
 import {
   APP_FONTS,
@@ -26,7 +27,7 @@ import {
   type LayoutPage,
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
-import { ActionEditor, Check, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 import { PhonePreview } from "./preview";
 import { UpgradeHint } from "@/components/upgrade";
 import type { Plan } from "@/lib/plans";
@@ -75,6 +76,7 @@ export function PagesEditor({
   app,
   sources,
   categorySources,
+  screens,
   blockTypes,
   pickable,
   reach,
@@ -85,6 +87,8 @@ export function PagesEditor({
   app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
   sources: ItemSource[];
   categorySources: ItemSource[];
+  /** 31 The screens this app's type opens. */
+  screens: ScreenOption[];
   blockTypes: BlockType[];
   pickable: Pickable;
   reach: string | null;
@@ -117,7 +121,7 @@ export function PagesEditor({
   const lang: Lang = { edit: layout.languages.available.includes(editLang) ? editLang : def, default: def };
   const page = layout.pages.find((p) => p.slug === pageSlug) ?? layout.pages[0] ?? null;
   const pages = layout.pages.map((p) => ({ slug: p.slug, title: p.title }));
-  const blockCtx: BlockContext = { lang, pages, sources, categorySources, pickable };
+  const blockCtx: BlockContext = { lang, pages, sources, categorySources, screens, pickable };
 
   const applied = useCallback((r: LayoutSaveResult, sent: number, replace: boolean) => {
     if (!r.ok) {
@@ -276,7 +280,7 @@ export function PagesEditor({
     if (layout.tabs.length >= LAYOUT_LIMITS.maxTabs) return;
     update((l) => ({
       ...l,
-      tabs: [...l.tabs, { id: newBlockId("t"), label: "", icon: "star", target: l.pages[0] ? { type: "page", page_slug: l.pages[0].slug } : { type: "screen", screen: "account" } }],
+      tabs: [...l.tabs, { id: newBlockId("t"), label: "", icon: "star", target: l.pages[0] ? { type: "page", page_slug: l.pages[0].slug } : { type: "screen", screen: firstScreen(screens) } }],
     }));
   }
 
@@ -444,6 +448,7 @@ export function PagesEditor({
                     {page.blocks.map((block, i) => {
                       const open = openBlock === block.id;
                       const name = `${BLOCK_LABELS[block.type]}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
+                      const problem = blockProblem(block, screens, sources);
                       return (
                         <li
                           key={block.id}
@@ -472,6 +477,11 @@ export function PagesEditor({
                             >
                               <span className="truncate">{name}</span>
                               {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? "Signed in" : "Signed out"}</Badge> : null}
+                              {problem ? (
+                                <span title={problem}>
+                                  <Badge tone="warn">Needs a fix</Badge>
+                                </span>
+                              ) : null}
                             </button>
                             <button type="button" className={iconBtn} aria-label={`Move block ${i + 1} up`} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i - 1))}>
                               <IconGlyph name="arrow_upward" size={20} />
@@ -513,7 +523,7 @@ export function PagesEditor({
                       className="flex cursor-pointer flex-col items-start gap-0.5 rounded-xl border border-line bg-white px-3 py-2.5 text-left hover:border-midnight"
                     >
                       <span className="text-[15px] font-semibold text-midnight">{BLOCK_LABELS[type]}</span>
-                      <span className="text-xs text-muted">{BLOCK_HINTS[type]}</span>
+                      <span className="text-xs text-muted">{type === "items" ? listHint(sources) : BLOCK_HINTS[type]}</span>
                     </button>
                   ))}
                 </div>
@@ -536,7 +546,10 @@ export function PagesEditor({
               {layout.tabs.map((tab, i) => (
                 <li key={tab.id}>
                   <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-3">
-                    <legend className="px-1 text-sm font-bold">Tab {i + 1}</legend>
+                    <legend className="flex items-center gap-2 px-1 text-sm font-bold">
+                      Tab {i + 1}
+                      {actionProblem(tab.target, screens, sources) ? <Badge tone="warn">Needs a fix</Badge> : null}
+                    </legend>
                     <LangText
                       id={`tab-${tab.id}-label`}
                       label="Label"
@@ -558,6 +571,7 @@ export function PagesEditor({
                       optional={false}
                       pages={pages}
                       sources={sources}
+                      screens={screens}
                       courses={pickable.items.courses}
                       onChange={(target) => target && update((l) => ({ ...l, tabs: l.tabs.map((t) => (t.id === tab.id ? { ...t, target } : t)) }))}
                     />
