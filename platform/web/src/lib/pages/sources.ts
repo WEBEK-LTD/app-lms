@@ -1,5 +1,6 @@
 import { ENGINES, hostedOnly, isAppType } from "../app/kinds";
 import type { App } from "../data/types";
+import { blockActions } from "./block-actions";
 import { SCREEN_LABELS } from "./labels";
 import { SCREENS, type Action, type BlockType, type ItemSource, type ItemsSort, type LayoutBlock, type ScreenName } from "./types";
 
@@ -29,12 +30,13 @@ export function searchSourcesFor(app: Pick<App, "appType" | "backend">): ItemSou
 /** Block types the app's pages can use. */
 export function blockTypesFor(app: Pick<App, "appType" | "backend">): BlockType[] {
   const sources = itemSourcesFor(app);
-  const types: BlockType[] = ["banner", "text", "image", "video", "button"];
+  const types: BlockType[] = ["banner", "slider", "text", "image", "video", "button", "notice"];
   if (sources.length) types.push("items");
   if (searchSourcesFor(app).length) types.push("search");
   if (categorySourcesFor(app).length) types.push("categories");
   if (isAppType(app.appType)) types.push(...ENGINES[app.appType].pages.blocks);
-  types.push("embed", "spacer");
+  // 33 The general blocks every app has: none of them reads the app's content.
+  types.push("quick_links", "team", "stats", "testimonials", "faq", "countdown", "contact", "hours", "social", "embed", "spacer");
   return types;
 }
 
@@ -92,9 +94,13 @@ export function actionProblem(action: Action | null | undefined, screens: readon
   return null;
 }
 
-/** The first problem with a block's tap actions, or null. */
-export function blockProblem(block: Pick<LayoutBlock, "action" | "see_all">, screens: readonly ScreenOption[], sources: readonly ItemSource[]): string | null {
-  return actionProblem(block.action, screens, sources) ?? actionProblem(block.see_all, screens, sources);
+/** The first problem with a block's tap actions (33 its entries' too), or null. */
+export function blockProblem(block: LayoutBlock, screens: readonly ScreenOption[], sources: readonly ItemSource[]): string | null {
+  for (const action of blockActions(block)) {
+    const problem = actionProblem(action, screens, sources);
+    if (problem) return problem;
+  }
+  return null;
 }
 
 /**

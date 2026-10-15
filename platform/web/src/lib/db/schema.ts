@@ -186,6 +186,8 @@ export const apps = mysqlTable(
     splashColor: varchar("splash_color", { length: 7 }).notNull(),
     template: varchar("template", { length: 16 }).notNull().$type<"classic" | "bold" | "minimal">(),
     font: varchar("font", { length: 64 }).notNull(),
+    // 33 The ready-made design the owner last started from (lib/pages/designs); null for none.
+    design: varchar("design", { length: 40 }),
     androidPackage: varchar("android_package", { length: 150 }),
     iosBundleId: varchar("ios_bundle_id", { length: 155 }),
     storeTitle: varchar("store_title", { length: 60 }),

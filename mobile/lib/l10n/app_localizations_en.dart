@@ -3151,4 +3151,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifyCampaignUpdates => 'Campaign updates';
+
+  @override
+  String get pageOpenNow => 'Open now';
+
+  @override
+  String get pageClosedDay => 'Closed';
+
+  @override
+  String get pageToday => 'Today';
+
+  @override
+  String get pageDirections => 'Directions';
+
+  @override
+  String get pageWebsite => 'Website';
+
+  @override
+  String get countdownDays => 'Days';
+
+  @override
+  String get countdownHours => 'Hours';
+
+  @override
+  String get countdownMinutes => 'Min';
+
+  @override
+  String get countdownSeconds => 'Sec';
+
+  @override
+  String get socialWhatsappChannel => 'WhatsApp channel';
+
+  @override
+  String ratingOutOfFive(int count) {
+    return '$count out of 5 stars';
+  }
+
+  @override
+  String slideOf(int index, int count) {
+    return 'Slide $index of $count';
+  }
 }

@@ -118,6 +118,27 @@ export const ICON_NAMES = [
   "warning",
   "web",
   "workspace_premium",
+  // 33 Page blocks and the icons quick links offer.
+  "apps",
+  "checkroom",
+  "child_care",
+  "content_cut",
+  "devices",
+  "directions",
+  "emoji_events",
+  "format_quote",
+  "grocery",
+  "live_tv",
+  "local_shipping",
+  "monitoring",
+  "percent",
+  "photo_library",
+  "quiz",
+  "redeem",
+  "sell",
+  "share",
+  "spa",
+  "timer",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

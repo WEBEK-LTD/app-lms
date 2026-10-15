@@ -395,6 +395,19 @@ $layout = array(
 				array( 'id' => 'hidden', 'type' => 'spacer', 'visibility' => 'admins', 'size' => 'large' ),
 				array( 'id' => 'gap', 'type' => 'spacer', 'visibility' => 'everyone', 'size' => 'large' ),
 				array( 'id' => 'tour', 'type' => 'embed', 'visibility' => 'everyone', 'url' => 'https://www.youtube.com/embed/abc', 'height' => 300 ),
+				// 33 Blocks whose content the owner writes.
+				array( 'id' => 'slides', 'type' => 'slider', 'visibility' => 'everyone', 'auto_advance' => false, 'slides' => array( array( 'heading' => 'Autumn intake', 'action' => array( 'type' => 'screen', 'screen' => 'courses' ), 'translations' => array( 'ar' => array( 'heading' => 'التسجيل مفتوح' ) ) ), array( 'image_url' => 'https://example.org/s.jpg', 'action' => array( 'type' => 'item', 'item' => array( 'source' => 'listings', 'id' => '1' ) ) ) ) ),
+				array( 'id' => 'links', 'type' => 'quick_links', 'visibility' => 'everyone', 'style' => 'row', 'links' => array( array( 'icon' => 'school', 'label' => 'Courses', 'action' => array( 'type' => 'screen', 'screen' => 'courses' ), 'translations' => array( 'ar' => array( 'label' => 'الدورات' ) ) ), array( 'icon' => 'home', 'label' => 'Homes', 'action' => array( 'type' => 'item', 'item' => array( 'source' => 'listings', 'id' => '1' ) ) ) ) ),
+				array( 'id' => 'quotes', 'type' => 'testimonials', 'visibility' => 'everyone', 'quotes' => array( array( 'text' => 'Great teachers.', 'name' => 'Leyla', 'rating' => 5 ) ) ),
+				array( 'id' => 'questions', 'type' => 'faq', 'visibility' => 'everyone', 'questions' => array( array( 'question' => 'How do I start?', 'answer' => "Enroll.\nThen learn.", 'translations' => array( 'ar' => array( 'question' => 'كيف أبدأ؟' ) ) ) ) ),
+				array( 'id' => 'soon', 'type' => 'countdown', 'visibility' => 'everyone', 'heading' => 'Term starts in', 'ends_at' => '2099-01-01T00:00:00Z', 'label' => 'See courses', 'action' => array( 'type' => 'screen', 'screen' => 'courses' ) ),
+				array( 'id' => 'over', 'type' => 'countdown', 'visibility' => 'everyone', 'heading' => 'Ended', 'ends_at' => '2020-01-01T00:00:00Z' ),
+				array( 'id' => 'reach', 'type' => 'contact', 'visibility' => 'everyone', 'phone' => '+20 100 123 4567', 'email' => 'hi@example.org', 'address' => '12 Road 9, Maadi', 'translations' => array( 'ar' => array( 'address' => 'المعادي' ) ) ),
+				array( 'id' => 'open', 'type' => 'hours', 'visibility' => 'everyone', 'hours' => array( array( 'day' => 'sat', 'opens' => '10:00', 'closes' => '14:00' ), array( 'day' => 'mon', 'opens' => '09:00', 'closes' => '17:00' ) ), 'note' => 'Closed on holidays.' ),
+				array( 'id' => 'follow', 'type' => 'social', 'visibility' => 'everyone', 'profiles' => array( array( 'network' => 'instagram', 'url' => 'https://instagram.com/academy' ) ) ),
+				array( 'id' => 'teachers', 'type' => 'team', 'visibility' => 'everyone', 'people' => array( array( 'name' => 'Ayse Demir', 'role' => 'Teacher', 'translations' => array( 'ar' => array( 'role' => 'معلمة' ) ) ) ) ),
+				array( 'id' => 'numbers', 'type' => 'stats', 'visibility' => 'everyone', 'stats' => array( array( 'value' => '12k+', 'label' => 'Students' ), array( 'value' => '40', 'label' => 'Courses' ) ) ),
+				array( 'id' => 'news-bar', 'type' => 'notice', 'visibility' => 'everyone', 'tone' => 'success', 'text' => 'Enrollment is open.', 'translations' => array( 'ar' => array( 'text' => 'التسجيل مفتوح.' ) ) ),
 			),
 		),
 		array(
@@ -438,6 +451,8 @@ check( 'arabic text block', '<p>مرحبا</p>' === ( page_block( $page, 'intro'
 check( 'arabic search placeholder', 'ابحث عن دورة' === ( page_block( $page, 'find' )['placeholder'] ?? '' ), page_block( $page, 'find' ) );
 check( 'texts without a translation stay English', 'Picked for you' === ( page_block( $page, 'picked' )['title'] ?? '' ), page_block( $page, 'picked' ) );
 check( 'translations are not sent', false === strpos( $r['raw'], 'translations' ) && false === strpos( $r['raw'], '"query"' ) && false === strpos( $r['raw'], 'visibility' ), $r['raw'] );
+// 33 The entries of the new blocks come in Arabic too.
+check( 'arabic slide, quick link, question, role and notice', 'التسجيل مفتوح' === ( page_block( $page, 'slides' )['slides'][0]['heading'] ?? '' ) && 'الدورات' === ( page_block( $page, 'links' )['links'][0]['label'] ?? '' ) && 'كيف أبدأ؟' === ( page_block( $page, 'questions' )['questions'][0]['question'] ?? '' ) && "Enroll.\nThen learn." === ( page_block( $page, 'questions' )['questions'][0]['answer'] ?? '' ) && 'معلمة' === ( page_block( $page, 'teachers' )['people'][0]['role'] ?? '' ) && 'التسجيل مفتوح.' === ( page_block( $page, 'news-bar' )['text'] ?? '' ) && 'المعادي' === ( page_block( $page, 'reach' )['address'] ?? '' ), $page );
 
 $r    = call( 'GET', '/pages/home?platform=android' );
 $page = $r['json'];
@@ -445,7 +460,13 @@ $html = (string) ( page_block( $page, 'intro' )['html'] ?? '' );
 check( 'text html cleaned like lessons', false !== strpos( $html, '<strong>students</strong>' ) && false === stripos( $html, 'script' ) && false === stripos( $html, 'onclick' ), $html );
 check( 'signed out: sign-in button, no member blocks', null !== page_block( $page, 'join' ) && null === page_block( $page, 'members' ) && null === page_block( $page, 'continue' ), page_block_ids( $page ) );
 check( 'unsupported blocks dropped', array() === array_values( array_intersect( array( 'homes', 'shop', 'salon', 'find-home', 'map', 'no-image', 'listing-button', 'hidden' ), page_block_ids( $page ) ) ), page_block_ids( $page ) );
-check( 'blocks keep their order', array( 'hero', 'intro', 'find', 'picked', 'languages', 'newest', 'news', 'cats', 'join', 'gap', 'tour' ) === page_block_ids( $page ), page_block_ids( $page ) );
+check( 'blocks keep their order', array( 'hero', 'intro', 'find', 'picked', 'languages', 'newest', 'news', 'cats', 'join', 'gap', 'tour', 'slides', 'links', 'quotes', 'questions', 'soon', 'reach', 'open', 'follow', 'teachers', 'numbers', 'news-bar' ) === page_block_ids( $page ), page_block_ids( $page ) );
+// 33 The new blocks come back checked: what the site can't open is left out, an ended countdown goes.
+$slides = page_block( $page, 'slides' );
+check( 'slider: slides, without an action the site cannot follow', false === ( $slides['auto_advance'] ?? null ) && 2 === count( $slides['slides'] ?? array() ) && array( 'type' => 'screen', 'screen' => 'courses' ) === ( $slides['slides'][0]['action'] ?? null ) && ! isset( $slides['slides'][1]['action'] ) && 'https://example.org/s.jpg' === ( $slides['slides'][1]['image_url'] ?? '' ), $slides );
+check( 'quick links: tiles the site cannot open are dropped', 'row' === ( page_block( $page, 'links' )['style'] ?? '' ) && array( 'Courses' ) === array_column( page_block( $page, 'links' )['links'] ?? array(), 'label' ), page_block( $page, 'links' ) );
+check( 'testimonials and countdown', 5 === ( page_block( $page, 'quotes' )['quotes'][0]['rating'] ?? 0 ) && '2099-01-01T00:00:00Z' === ( page_block( $page, 'soon' )['ends_at'] ?? '' ) && 'See courses' === ( page_block( $page, 'soon' )['label'] ?? '' ) && null === page_block( $page, 'over' ), $page );
+check( 'contact, hours, social, team, numbers, notice', '+20 100 123 4567' === ( page_block( $page, 'reach' )['phone'] ?? '' ) && array_key_exists( 'website', page_block( $page, 'reach' ) ?? array() ) && null === page_block( $page, 'reach' )['website'] && array( 'mon', 'sat' ) === array_column( page_block( $page, 'open' )['hours'] ?? array(), 'day' ) && 'instagram' === ( page_block( $page, 'follow' )['profiles'][0]['network'] ?? '' ) && 'Ayse Demir' === ( page_block( $page, 'teachers' )['people'][0]['name'] ?? '' ) && 'carousel' === ( page_block( $page, 'teachers' )['layout'] ?? '' ) && 2 === count( page_block( $page, 'numbers' )['stats'] ?? array() ) && 'success' === ( page_block( $page, 'news-bar' )['tone'] ?? '' ), $page );
 check_item_shapes( 'published home: item shapes', $page );
 $picked = page_block( $page, 'picked' );
 check( 'hand-picked courses in their order, other filters ignored', array( (string) $seed['design'], (string) $seed['python'] ) === block_item_ids( $picked ) && 'grid' === $picked['layout'] && array( 'type' => 'screen', 'screen' => 'courses' ) === ( $picked['see_all'] ?? null ), $picked );

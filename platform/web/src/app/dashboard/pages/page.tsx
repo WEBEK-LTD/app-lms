@@ -7,7 +7,8 @@ import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
-import { hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
+import { designById, designFits, designsFor } from "@/lib/pages/designs";
+import { designLayout, designSamples, hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -89,7 +90,10 @@ export default async function PagesPage() {
           savedAt: record.draftUpdatedAt.toISOString(),
           published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
           changes: hasUnpublishedChanges(record),
+          design: designById(app.design) && designFits(designById(app.design)!, app) ? app.design! : null,
+          samples: designSamples(app, now),
         }}
+        designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
         app={{
           appType: app.appType,
           name: app.appName ?? "Your app",

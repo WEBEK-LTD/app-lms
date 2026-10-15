@@ -716,21 +716,50 @@ When you finish, your first build is queued. Follow it on [Builds & downloads](/
     steps: false,
     body: `The **Pages & look** editor in your dashboard is where you build your app's screens, like a site builder. When you publish, your app shows the new pages the next time it opens, without a new build or a store update.
 
+## Start from a design
+
+Every kind of app has three or four ready-made designs, such as Classic academy, Online courses, Coaching and Kids academy for an academy, or Fashion, Grocery and Electronics for a shop. A design is a whole starting point: the bottom tabs, a home page of blocks with your own lists in them, and a look (template, corners, cards, font and a secondary color).
+
+- In the **Branding** step, choose a design under **Design**, or **Keep my pages**.
+- In **Pages & look**, open **Start from a design** and select **Use this design**.
+
+A design replaces your draft, never what your app shows: your published pages stay until you publish. Its blocks come with sample texts, marked **Sample text** in the editor until you change them. Write your own before you publish. A Contact block gets the website, email and WhatsApp number you gave us, and is left out when there are none.
+
 ## Pages and blocks
 
-A page is a stack of blocks. Add a block from **Add a block**, then drag it up or down to change the order. The blocks:
+A page is a stack of blocks. Add a block from **Add a block**, then drag it up or down to change the order. The blocks, in the groups the editor shows them:
 
+**Content**
 - **Banner**: a wide image with a heading
+- **Slider**: banners people swipe through, moving on their own if you like, with dots. A slide without an image shows your colors behind its text
 - **Text**: paragraphs, headings and links
 - **Image** and **Video**
 - **Button**: opens a page, a screen, a course or product, or a web address
+- **Notice**: a colored bar for news, good news or a warning, with an optional link
+
+**Lists**
 - **List**: your own courses, products, services, posts or listings, as cards
 - **Categories** and **Search box**
 - **Continue learning**: the student's current course (Academy apps)
+- **Quick links**: tiles with an icon and a label, in rows or in one row to swipe
+- **Team**: people with a photo (or their initials), a role and a few words: teachers, doctors, coaches or staff
+- **Numbers**: two to four big numbers with a label
+
+**Engage**
+- **Testimonials**: what customers say, with their name, role, photo and stars
+- **Questions**: questions whose answers open on tap
+- **Countdown**: the days, hours, minutes and seconds left until a date. After the end it shows the text you wrote for it, or hides itself
+
+**Contact**
+- **Contact**: buttons to call, chat on WhatsApp, email, get directions (to your address or exact map position) and open your website. Fill in only the ones you want
+- **Opening hours**: your hours for each day, with **Open now** or **Closed now** in the phone's time. Add a day twice for a break, list your holidays and add a note
+- **Social links**: buttons to your Instagram, Facebook, X, TikTok, YouTube, LinkedIn, Snapchat, Telegram or WhatsApp channel, each with its name
+
+**Layout**
 - **Web page**: a page of a website, inside the app
 - **Space**: room between blocks
 
-Each block can show to everyone, only to people who are signed in, or only to people who aren't.
+Each block can show to everyone, only to people who are signed in, or only to people who aren't. Texts in blocks, also each slide's, quote's, question's and person's, can be written in every language your app has.
 
 ## Bottom tabs
 

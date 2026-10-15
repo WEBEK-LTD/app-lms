@@ -138,6 +138,99 @@ void main() {
       expect(few.usable, isFalse);
     });
 
+    test('33 the blocks with content parse, skipping entries the app '
+        "can't use", () {
+      final page = AppPage.fromJson(appPageJson(blocks: contentBlocksJson()));
+      expect(page.blocks.map((b) => b.runtimeType.toString()), [
+        'SliderBlock',
+        'QuickLinksBlock',
+        'StatsBlock',
+        'TestimonialsBlock',
+        'FaqBlock',
+        'CountdownBlock',
+        'ContactBlock',
+        'HoursBlock',
+        'SocialBlock',
+        'TeamBlock',
+        'NoticeBlock',
+      ]);
+      final slider = page.blocks.whereType<SliderBlock>().single;
+      expect(slider.slides, hasLength(2));
+      expect(slider.slides.first.action!.screen, BuiltInScreen.courses);
+      final links = page.blocks.whereType<QuickLinksBlock>().single;
+      expect(links.links.map((l) => l.label), isNot(contains('Teleport')));
+      expect(
+        page.blocks.whereType<SocialBlock>().single.profiles.map(
+          (p) => p.network,
+        ),
+        [
+          SocialNetwork.instagram,
+          SocialNetwork.youtube,
+          SocialNetwork.whatsappChannel,
+        ],
+      );
+      final hours = page.blocks.whereType<HoursBlock>().single;
+      expect(hours.hours.last.opens, 15 * 60);
+      expect(
+        hours.hours.firstWhere((h) => h.day == Weekday.fri).overnight,
+        isTrue,
+      );
+      expect(
+        page.blocks.whereType<CountdownBlock>().single.endsAt.isUtc,
+        isTrue,
+      );
+      expect(
+        page.blocks.whereType<NoticeBlock>().single.tone,
+        NoticeTone.warning,
+      );
+      expect(page.blocks.whereType<TeamBlock>().single.people, hasLength(3));
+    });
+
+    test('33 a block whose list has nothing usable is skipped', () {
+      final page = AppPage.fromJson(
+        appPageJson(
+          blocks: [
+            {'id': 'a', 'type': 'slider', 'slides': []},
+            {
+              'id': 'b',
+              'type': 'quick_links',
+              'links': [
+                {
+                  'icon': 'home',
+                  'label': 'Nowhere',
+                  'action': {'type': 'warp'},
+                },
+              ],
+            },
+            {'id': 'c', 'type': 'contact'},
+            {'id': 'd', 'type': 'stats', 'stats': 'many'},
+            {'id': 'e', 'type': 'notice', 'tone': 'loud', 'text': 'Hello'},
+            {'id': 'f', 'type': 'countdown', 'heading': 'Soon'},
+          ],
+        ),
+      );
+      final notice = page.blocks.single as NoticeBlock;
+      expect(notice.tone, NoticeTone.info);
+    });
+
+    test('opening hours: open now in the phone time, across midnight', () {
+      const hours = HoursBlock(
+        id: 'h',
+        hours: [
+          OpeningPeriod(day: Weekday.mon, opens: 9 * 60, closes: 17 * 60),
+          OpeningPeriod(day: Weekday.sun, opens: 20 * 60, closes: 2 * 60),
+        ],
+        closedDates: ['2026-10-19'],
+      );
+      // 12 October 2026 is a Monday.
+      expect(hours.isOpenAt(DateTime(2026, 10, 12, 9)), isTrue);
+      expect(hours.isOpenAt(DateTime(2026, 10, 12, 17)), isFalse);
+      expect(hours.isOpenAt(DateTime(2026, 10, 12, 1, 59)), isTrue);
+      expect(hours.isOpenAt(DateTime(2026, 10, 12, 2)), isFalse);
+      // A closed Monday.
+      expect(hours.isOpenAt(DateTime(2026, 10, 19, 10)), isFalse);
+    });
+
     test('icons by Material Symbols name, with a fallback', () {
       expect(symbolByName('home'), AppIcons.home);
       expect(symbolByName('home_rounded'), AppIcons.home);

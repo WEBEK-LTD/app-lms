@@ -1,5 +1,24 @@
+import { blockActions, mapBlockActions } from "./block-actions";
 import { newBlockId } from "./defaults";
-import { TRANSLATABLE, type BlockType, type ItemSource, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage, type Translations } from "./types";
+import type { ScreenOption } from "./sources";
+import {
+  ENTRY_LISTS,
+  TRANSLATABLE,
+  TRANSLATABLE_ENTRIES,
+  type BlockType,
+  type ItemSource,
+  type LanguageCode,
+  type LayoutBlock,
+  type LayoutContent,
+  type LayoutPage,
+  type Person,
+  type QuickLink,
+  type Quote,
+  type ScreenName,
+  type Slide,
+  type Stat,
+  type Translations,
+} from "./types";
 
 /** Changes the page and look editor makes to a layout; pure, so the dashboard and tests share them. */
 
@@ -58,7 +77,15 @@ export function switchDefaultLanguage(layout: LayoutContent, to: LanguageCode): 
     tabs: layout.tabs.map((t) => swapTexts(t, TRANSLATABLE.tab, from, to)),
     pages: layout.pages.map((p) => ({
       ...swapTexts(p, TRANSLATABLE.page, from, to),
-      blocks: p.blocks.map((b) => swapTexts(b, TRANSLATABLE.block, from, to)),
+      blocks: p.blocks.map((b) => {
+        const block = swapTexts(b, TRANSLATABLE.block, from, to);
+        // 33 The entries of its lists too.
+        for (const list of ENTRY_LISTS) {
+          const entries = block[list] as ({ translations?: Translations } & object)[] | undefined;
+          if (entries) (block as unknown as Record<string, unknown>)[list] = entries.map((e) => swapTexts(e, TRANSLATABLE_ENTRIES[list], from, to));
+        }
+        return block;
+      }),
     })),
   };
 }
@@ -81,7 +108,7 @@ export function uniqueSlug(title: string, taken: string[]): string {
 }
 
 /** A block of `type` with sensible starting settings. */
-export function newBlock(type: BlockType, sources: ItemSource[]): LayoutBlock {
+export function newBlock(type: BlockType, sources: ItemSource[], screens: readonly ScreenOption[] = []): LayoutBlock {
   const id = newBlockId();
   const source = sources[0] ?? "courses";
   const base: LayoutBlock = { id, type, visibility: "everyone", title: null };
@@ -116,7 +143,78 @@ export function newBlock(type: BlockType, sources: ItemSource[]): LayoutBlock {
       return { ...base, url: "", height: null };
     case "spacer":
       return { ...base, size: "medium" };
+    // 33 The new blocks start with empty texts to fill in, like the others; lists start with entries to fill.
+    case "slider":
+      return { ...base, auto_advance: true, slides: [emptySlide(), emptySlide()] };
+    case "quick_links":
+      return { ...base, style: "grid", links: quickLinksFor(screens) };
+    case "testimonials":
+      return { ...base, title: "", quotes: [emptyQuote()] };
+    case "faq":
+      return { ...base, title: "", questions: [{ question: "", answer: "" }] };
+    case "countdown": {
+      // A week from now, on the hour.
+      const ends = new Date(Date.now() + 7 * 86_400_000);
+      ends.setUTCMinutes(0, 0, 0);
+      return { ...base, heading: "", subheading: null, ends_at: ends.toISOString().replace(/\.000Z$/, "Z"), ended_text: null, action: null };
+    }
+    case "contact":
+      return { ...base, title: "", phone: null, whatsapp: null, email: null, website: null, address: null, latitude: null, longitude: null };
+    case "hours":
+      return {
+        ...base,
+        title: "",
+        hours: (["mon", "tue", "wed", "thu", "fri"] as const).map((day) => ({ day, opens: "09:00", closes: "17:00" })),
+        closed_dates: [],
+        note: null,
+      };
+    case "social":
+      return { ...base, profiles: [{ network: "instagram", url: "" }] };
+    case "team":
+      return { ...base, title: "", layout: "carousel", people: [emptyPerson()] };
+    case "stats":
+      return { ...base, stats: [emptyStat(), emptyStat(), emptyStat()] };
+    case "notice":
+      return { ...base, tone: "info", text: "", action: null };
   }
+}
+
+// 33 Empty entries the editor adds to a block's list.
+export const emptySlide = (): Slide => ({ image_url: null, heading: "", subheading: null, action: null });
+export const emptyQuote = (): Quote => ({ text: "", name: "", role: null, photo_url: null, rating: 5 });
+export const emptyPerson = (): Person => ({ name: "", role: null, bio: null, photo_url: null, action: null });
+export const emptyStat = (): Stat => ({ value: "", label: "" });
+
+/** The icon a quick link to a screen starts with. */
+export const SCREEN_ICONS: Partial<Record<ScreenName, string>> = {
+  courses: "school",
+  my_courses: "menu_book",
+  search: "search",
+  favorites: "favorite",
+  messages: "chat",
+  account: "person",
+  settings: "settings",
+  notifications: "notifications",
+  cart: "shopping_cart",
+  orders: "receipt_long",
+  services: "calendar_month",
+  appointments: "event_available",
+  articles: "newspaper",
+  bookmarks: "bookmark",
+  classes: "fitness_center",
+  memberships: "card_membership",
+  events: "event",
+  tickets: "confirmation_number",
+  campaigns: "volunteer_activism",
+  my_donations: "receipt_long",
+};
+
+/** Four quick links to the app's first screens, named as the editor names them. */
+export function quickLinksFor(screens: readonly ScreenOption[]): QuickLink[] {
+  return screens
+    .filter((s) => !s.alias && s.value !== "settings")
+    .slice(0, 4)
+    .map((s) => ({ icon: SCREEN_ICONS[s.value] ?? "apps", label: s.label.slice(0, 24), action: { type: "screen", screen: s.value } }));
 }
 
 export function moveItem<T>(list: T[], from: number, to: number): T[] {
@@ -141,15 +239,15 @@ export function duplicatePage(page: LayoutPage, taken: string[], now: Date): Lay
 
 /** Points tabs, buttons and banners that opened `from` to `to` (a renamed page address). */
 export function renamePageLinks(layout: LayoutContent, from: string, to: string): LayoutContent {
-  const fix = <A extends { type: string; page_slug?: string | null } | null | undefined>(action: A): A =>
-    action && action.type === "page" && action.page_slug === from ? { ...action, page_slug: to } : action;
+  const fix = <A extends { type: string; page_slug?: string | null }>(action: A): A => (action.type === "page" && action.page_slug === from ? { ...action, page_slug: to } : action);
   return {
     ...layout,
     tabs: layout.tabs.map((t) => ({ ...t, target: fix(t.target) })),
     pages: layout.pages.map((p) => ({
       ...p,
       slug: p.slug === from ? to : p.slug,
-      blocks: p.blocks.map((b) => ({ ...b, ...(b.action !== undefined ? { action: fix(b.action) } : {}), ...(b.see_all !== undefined ? { see_all: fix(b.see_all) } : {}) })),
+      // 33 The actions of slides, quick links and people too.
+      blocks: p.blocks.map((b) => mapBlockActions(b, fix)),
     })),
   };
 }
@@ -160,7 +258,7 @@ export function pageLinks(layout: LayoutContent, slug: string): string[] {
   const links = layout.tabs.filter((t) => opens(t.target)).map((t) => `the ${t.label || "untitled"} tab`);
   for (const page of layout.pages) {
     if (page.slug === slug) continue;
-    if (page.blocks.some((b) => opens(b.action) || opens(b.see_all))) links.push(`a block on ${page.title || page.slug}`);
+    if (page.blocks.some((b) => blockActions(b).some(opens))) links.push(`a block on ${page.title || page.slug}`);
   }
   return links;
 }

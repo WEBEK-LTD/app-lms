@@ -3156,4 +3156,44 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notifyCampaignUpdates => 'Kampanya haberleri';
+
+  @override
+  String get pageOpenNow => 'Şu an açık';
+
+  @override
+  String get pageClosedDay => 'Kapalı';
+
+  @override
+  String get pageToday => 'Bugün';
+
+  @override
+  String get pageDirections => 'Yol tarifi';
+
+  @override
+  String get pageWebsite => 'Web sitesi';
+
+  @override
+  String get countdownDays => 'Gün';
+
+  @override
+  String get countdownHours => 'Saat';
+
+  @override
+  String get countdownMinutes => 'Dk';
+
+  @override
+  String get countdownSeconds => 'Sn';
+
+  @override
+  String get socialWhatsappChannel => 'WhatsApp kanalı';
+
+  @override
+  String ratingOutOfFive(int count) {
+    return '5 üzerinden $count yıldız';
+  }
+
+  @override
+  String slideOf(int index, int count) {
+    return 'Slayt $index/$count';
+  }
 }

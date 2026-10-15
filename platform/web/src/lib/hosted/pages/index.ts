@@ -3,8 +3,8 @@ import type { App, HostedUser } from "../../data/types";
 import { servedLayout } from "../../pages/layout";
 import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
-import { pickLanguage, translated } from "../../pages/translate";
-import type { ItemSource, ItemsQuery, LanguageCode, Layout, LayoutBlock } from "../../pages/types";
+import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
+import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { itemResolver, type Item } from "./items";
@@ -97,17 +97,19 @@ function servable(app: App, connector: Connector | null | undefined, source: Ite
 async function resolveBlock(pc: PageContext, block: LayoutBlock): Promise<Record<string, unknown> | null> {
   const { ctx, user } = pc;
   if (!visible(block, user)) return null;
-  const text = translated(block, pc.lang, pc.layout.languages.default);
+  // 33 With the texts of its entries (slides, quotes, ...) in the language too.
+  const text = translatedBlock(block, pc.lang, pc.layout.languages.default);
   const { visibility: _v, query, ...rest } = text;
   void _v;
-  const out: Record<string, unknown> = {};
-  // Missing actions are left out: `Action` isn't nullable.
-  for (const [key, value] of Object.entries(rest)) {
-    if (value === undefined || ((key === "action" || key === "see_all") && value === null)) continue;
-    out[key] = value;
-  }
+  const out = withoutMissingActions(rest);
   try {
     switch (block.type) {
+      // 33 A countdown that has ended goes, unless it says so.
+      case "countdown": {
+        const ends = Date.parse(block.ends_at ?? "");
+        if (!Number.isFinite(ends)) return null;
+        return ends <= ctx.now.getTime() && !out.ended_text ? null : out;
+      }
       case "items": {
         if (!servable(ctx.app, ctx.connector, block.source) || !query) return null;
         const items = await listItems(pc, block.source!, query);
@@ -134,6 +136,19 @@ async function resolveBlock(pc: PageContext, block: LayoutBlock): Promise<Record
     if (e instanceof ConnectorError) return null;
     throw e;
   }
+}
+
+/**
+ * The block's fields without empty ones; missing actions are left out
+ * (`Action` isn't nullable), also in its entries (33 slides, people).
+ */
+function withoutMissingActions(fields: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === undefined || ((key === "action" || key === "see_all") && value === null)) continue;
+    out[key] = Array.isArray(value) && ENTRY_LISTS.includes(key as EntryList) ? value.map((entry: Record<string, unknown>) => withoutMissingActions(entry)) : value;
+  }
+  return out;
 }
 
 /** A connector's answer to a GET, or null when it has none. */

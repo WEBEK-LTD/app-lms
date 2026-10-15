@@ -2286,5 +2286,56 @@
   "noDonationsMessage": "Donations you make while signed in show here, with their receipts.",
   "donationReceipt": "Receipt",
   "donationSeeCampaign": "See the campaign",
-  "notifyCampaignUpdates": "Campaign updates"
+  "notifyCampaignUpdates": "Campaign updates",
+  "pageOpenNow": "Open now",
+  "@pageOpenNow": {
+    "description": "Opening hours block: the business is open at this moment."
+  },
+  "pageClosedDay": "Closed",
+  "@pageClosedDay": {
+    "description": "Opening hours block: a weekday without opening hours."
+  },
+  "pageToday": "Today",
+  "@pageToday": {
+    "description": "Opening hours block: marks today's row."
+  },
+  "pageDirections": "Directions",
+  "@pageDirections": {
+    "description": "Contact block: opens the address in the phone's maps."
+  },
+  "pageWebsite": "Website",
+  "@pageWebsite": {
+    "description": "Contact block: opens the business's website."
+  },
+  "countdownDays": "Days",
+  "countdownHours": "Hours",
+  "countdownMinutes": "Min",
+  "@countdownMinutes": {
+    "description": "Countdown block: short for minutes."
+  },
+  "countdownSeconds": "Sec",
+  "@countdownSeconds": {
+    "description": "Countdown block: short for seconds."
+  },
+  "socialWhatsappChannel": "WhatsApp channel",
+  "ratingOutOfFive": "{count} out of 5 stars",
+  "@ratingOutOfFive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slideOf": "Slide {index} of {count}",
+  "@slideOf": {
+    "description": "Slider block: which slide is shown, for screen readers.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

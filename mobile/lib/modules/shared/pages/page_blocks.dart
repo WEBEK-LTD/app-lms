@@ -21,6 +21,7 @@ import '../../lms/lesson/embeds/embed_frame.dart';
 import '../../lms/lesson/embeds/inline_embed.dart';
 import '../../lms/navigation.dart';
 import '../../lms/widgets/course_cards.dart';
+import 'content_blocks.dart';
 import 'page_actions.dart';
 
 /// Spacing and type for pages in each template.
@@ -94,7 +95,12 @@ class PageBlockView extends ConsumerWidget {
       SearchBlock(:final source) => searchLocation(source, appType) != null,
       ContinueLearningBlock() => appType == AppType.lms,
       TextBlock(:final html) => html.trim().isNotEmpty,
-      _ => true,
+      // 33 A countdown that has ended without a text for after the end.
+      final CountdownBlock b => countdownShows(
+        b,
+        ref.read(pageClockProvider)(),
+      ),
+      _ => block.hasContent,
     };
   }
 
@@ -120,6 +126,18 @@ class PageBlockView extends ConsumerWidget {
           SpacerSize.large => 48,
         },
       ),
+      // 33 Blocks whose content the owner writes (content_blocks.dart).
+      final SliderBlock b => SliderView(block: b, style: style),
+      final QuickLinksBlock b => QuickLinksView(block: b, style: style),
+      final TestimonialsBlock b => TestimonialsView(block: b, style: style),
+      final FaqBlock b => FaqView(block: b, style: style),
+      final CountdownBlock b => CountdownView(block: b, style: style),
+      final ContactBlock b => ContactView(block: b, style: style),
+      final HoursBlock b => HoursView(block: b, style: style),
+      final SocialBlock b => SocialView(block: b, style: style),
+      final TeamBlock b => TeamView(block: b, style: style),
+      final StatsBlock b => StatsView(block: b, style: style),
+      final NoticeBlock b => NoticeView(block: b, style: style),
     };
     // Lists carry their own header (with "See all"); banners show their
     // heading on the image.

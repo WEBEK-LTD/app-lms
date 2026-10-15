@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
-import { discardLayoutDraftAction, publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
 import { Badge, btn, formatDateTime } from "@/components/ui";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { newBlockId } from "@/lib/pages/defaults";
-import { BLOCK_HINTS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
+import { blockTexts } from "@/lib/pages/designs/texts";
+import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
 import { actionProblem, blockProblem, listHint, type ScreenOption } from "@/lib/pages/sources";
 import { translated } from "@/lib/pages/translate";
@@ -28,7 +29,7 @@ import {
 } from "@/lib/pages/types";
 import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
-import { PhonePreview } from "./preview";
+import { DesignThumb, PhonePreview } from "./preview";
 import { UpgradeHint } from "@/components/upgrade";
 import type { Plan } from "@/lib/plans";
 
@@ -62,7 +63,7 @@ const TEMPLATE_TEXT: Record<(typeof APP_TEMPLATES)[number], string> = {
 const AUTOSAVE_MS = 1200;
 
 function summary(block: LayoutBlock): string {
-  const text = block.heading || block.label || block.title || block.placeholder || (block.html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const text = block.heading || block.text || block.label || block.title || block.placeholder || (block.html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   return text ? text.slice(0, 48) : "";
 }
 
@@ -82,8 +83,17 @@ export function PagesEditor({
   reach,
   plan,
   ready,
+  designs,
 }: {
-  initial: { draft: LayoutContent; savedAt: string; published: { version: string; at: string } | null; changes: boolean };
+  initial: {
+    draft: LayoutContent;
+    savedAt: string;
+    published: { version: string; at: string } | null;
+    changes: boolean;
+    /** 33 The design the app last started from, and the sample texts it wrote (`page/block` IDs). */
+    design: string | null;
+    samples: Record<string, string>;
+  };
   app: { appType: string; name: string; primaryColor: string; logoUrl: string | null };
   sources: ItemSource[];
   categorySources: ItemSource[];
@@ -95,6 +105,8 @@ export function PagesEditor({
   plan: EditorPlan;
   /** The ready-made pages and tabs the app gets without the full page editor. */
   ready: Pick<LayoutContent, "pages" | "tabs">;
+  /** 33 The ready-made designs for the app's kind, each as the draft it would make. */
+  designs: { id: string; name: string; description: string; layout: LayoutContent }[];
 }) {
   const [layout, setLayout] = useState<LayoutContent>(initial.draft);
   const [published, setPublished] = useState(initial.published);
@@ -110,6 +122,10 @@ export function PagesEditor({
   const [openBlock, setOpenBlock] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [samples, setSamples] = useState(initial.samples);
+  const [currentDesign, setCurrentDesign] = useState(initial.design);
+  // Open for an app that hasn't started from a design yet.
+  const [designsOpen, setDesignsOpen] = useState(initial.design === null && !initial.published);
   /** Edits not saved yet; each save only clears the edits it sent. */
   const edits = useRef(0);
   const dirty = useRef(false);
@@ -211,6 +227,33 @@ export function PagesEditor({
     }
   }
 
+  // 33 Ready-made designs
+
+  async function chooseDesign(id: string, name: string) {
+    if (!window.confirm(`Replace your draft with the ${name} design? Your pages, tabs and look in the draft are replaced; what's published stays until you publish.`)) return;
+    setBusy(true);
+    edits.current += 1;
+    const sent = edits.current;
+    try {
+      const r = await applyDesignAction(id);
+      applied(r, sent, true);
+      if (r.ok) {
+        setSamples(r.samples ?? {});
+        setCurrentDesign(id);
+        setPageSlug(r.draft.pages[0]?.slug ?? null);
+        setOpenBlock(null);
+        setDesignsOpen(false);
+        setMessage({ text: r.message ?? "Design applied.", ok: true });
+      } else {
+        setMessage({ text: r.errors[0] ?? "The design couldn't be applied.", ok: false });
+      }
+    } catch {
+      setMessage({ text: "Couldn't apply the design. Check your connection and try again.", ok: false });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // Pages
 
   function addPage() {
@@ -263,7 +306,7 @@ export function PagesEditor({
       setMessage({ text: `A page can have at most ${LAYOUT_LIMITS.maxBlocks} blocks.`, ok: false });
       return;
     }
-    const block = newBlock(type, sources);
+    const block = newBlock(type, sources, screens);
     updateBlocks(page.slug, (blocks) => [...blocks, block]);
     setOpenBlock(block.id);
   }
@@ -391,6 +434,38 @@ export function PagesEditor({
 
         {panel === "pages" && plan.pageEditor ? (
           <div role="tabpanel" id="panel-pages" aria-labelledby="tab-pages" className="flex flex-col gap-5">
+            {designs.length ? (
+              <section aria-labelledby="h-designs" className={sectionClass}>
+                <details open={designsOpen} onToggle={(e) => setDesignsOpen(e.currentTarget.open)}>
+                  <summary className="cursor-pointer list-none">
+                    <span className="flex flex-wrap items-center justify-between gap-2">
+                      <h2 id="h-designs" className="m-0 text-lg font-bold">
+                        Start from a design
+                      </h2>
+                      <span className={smallBtn}>{designsOpen ? "Hide designs" : "Show designs"}</span>
+                    </span>
+                    <span className="mt-1 block text-[15px] text-ink-4">
+                      Ready-made pages, tabs and a look for your kind of app. A design replaces your draft; your published pages stay until you publish.
+                    </span>
+                  </summary>
+                  <ul className="m-0 mt-4 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-4">
+                    {designs.map((d) => (
+                      <li key={d.id} className={`flex flex-col gap-2 rounded-xl border p-3 ${currentDesign === d.id ? "border-2 border-midnight" : "border-line"}`}>
+                        <DesignThumb layout={{ ...d.layout, appearance: { ...d.layout.appearance, theme_mode: "light" } }} app={app} />
+                        <span className="flex items-center gap-2 text-[15px] font-bold">
+                          {d.name}
+                          {currentDesign === d.id ? <Badge tone="neutral">Your design</Badge> : null}
+                        </span>
+                        <span className="text-xs text-muted">{d.description}</span>
+                        <button type="button" className={`${smallBtn} mt-auto`} disabled={busy} aria-label={`Use the ${d.name} design`} onClick={() => void chooseDesign(d.id, d.name)}>
+                          Use this design
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </section>
+            ) : null}
             <section aria-labelledby="h-page-list" className={sectionClass}>
               <h2 id="h-page-list" className="m-0 text-lg font-bold">
                 Pages
@@ -482,6 +557,11 @@ export function PagesEditor({
                                   <Badge tone="warn">Needs a fix</Badge>
                                 </span>
                               ) : null}
+                              {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
+                                <span title="This block still has the design's sample text. Write your own before you publish.">
+                                  <Badge tone="neutral">Sample text</Badge>
+                                </span>
+                              ) : null}
                             </button>
                             <button type="button" className={iconBtn} aria-label={`Move block ${i + 1} up`} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i - 1))}>
                               <IconGlyph name="arrow_upward" size={20} />
@@ -513,20 +593,37 @@ export function PagesEditor({
                 )}
 
                 <h3 className="m-0 text-base font-bold">Add a block</h3>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {blockTypes.map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      aria-label={`Add ${BLOCK_LABELS[type]} block`}
-                      onClick={() => addBlock(type)}
-                      className="flex cursor-pointer flex-col items-start gap-0.5 rounded-xl border border-line bg-white px-3 py-2.5 text-left hover:border-midnight"
-                    >
-                      <span className="text-[15px] font-semibold text-midnight">{BLOCK_LABELS[type]}</span>
-                      <span className="text-xs text-muted">{type === "items" ? listHint(sources) : BLOCK_HINTS[type]}</span>
-                    </button>
-                  ))}
-                </div>
+                {/* 33 In groups, each block with its icon and what it's for. */}
+                {BLOCK_GROUPS.map((group) => {
+                  const types = group.types.filter((t) => blockTypes.includes(t));
+                  if (!types.length) return null;
+                  return (
+                    <div key={group.name} role="group" aria-labelledby={`add-${group.name}`} className="flex flex-col gap-2">
+                      <h4 id={`add-${group.name}`} className="m-0 text-xs font-bold tracking-[0.06em] text-muted uppercase">
+                        {group.name}
+                      </h4>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {types.map((type) => (
+                          <button
+                            key={type}
+                            type="button"
+                            aria-label={`Add ${BLOCK_LABELS[type]} block`}
+                            onClick={() => addBlock(type)}
+                            className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-left hover:border-midnight"
+                          >
+                            <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-ivory text-midnight">
+                              <IconGlyph name={BLOCK_ICONS[type]} size={20} />
+                            </span>
+                            <span className="flex min-w-0 flex-col gap-0.5">
+                              <span className="text-[15px] font-semibold text-midnight">{BLOCK_LABELS[type]}</span>
+                              <span className="text-xs text-muted">{type === "items" ? listHint(sources) : BLOCK_HINTS[type]}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </section>
             ) : (
               <p className="m-0 text-[15px] text-muted">Add a page to start.</p>

@@ -849,5 +849,17 @@
   "noDonationsMessage": "تظهر هنا التبرعات التي تقدمها وأنت مسجل الدخول، مع إيصالاتها.",
   "donationReceipt": "الإيصال",
   "donationSeeCampaign": "عرض الحملة",
-  "notifyCampaignUpdates": "أخبار الحملات"
+  "notifyCampaignUpdates": "أخبار الحملات",
+  "pageOpenNow": "مفتوح الآن",
+  "pageClosedDay": "مغلق",
+  "pageToday": "اليوم",
+  "pageDirections": "الاتجاهات",
+  "pageWebsite": "الموقع الإلكتروني",
+  "countdownDays": "أيام",
+  "countdownHours": "ساعات",
+  "countdownMinutes": "دقائق",
+  "countdownSeconds": "ثوانٍ",
+  "socialWhatsappChannel": "قناة واتساب",
+  "ratingOutOfFive": "{count} من 5 نجوم",
+  "slideOf": "الشريحة {index} من {count}"
 }
