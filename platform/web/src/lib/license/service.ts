@@ -61,6 +61,10 @@ export interface SiteInfo {
   pluginVersion: string;
   wpVersion: string | null;
   lms: string | null;
+  /** 30 "woocommerce", or "" when the site has no shop; null: the plugin didn't say (before Phase 30). */
+  store: string | null;
+  /** 30 The booking plugin the plugin reads, or "" for none; null: the plugin didn't say. */
+  bookings: string | null;
 }
 
 const bad = (message: string): { status: 400; body: ApiError } => ({
@@ -76,6 +80,13 @@ const notFound: { status: 404; body: ApiError } = {
 function optionalString(value: unknown, max: number): string | null | undefined {
   if (value === undefined || value === null || value === "") return null;
   if (typeof value !== "string" || value.length > max) return undefined;
+  return value.trim();
+}
+
+/** 30 A plugin the site may run: "" is none, null (missing) is not reported, undefined is not a string. */
+function reportedPlugin(value: unknown): string | null | undefined {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "string" || value.length > 64) return undefined;
   return value.trim();
 }
 
@@ -98,9 +109,13 @@ export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { 
   const lms = optionalString(input.lms, 64);
   if (wpVersion === undefined) return { ok: false, result: bad("wp_version must be a string.") };
   if (lms === undefined) return { ok: false, result: bad("lms must be a string.") };
+  const store = reportedPlugin(input.store);
+  const bookings = reportedPlugin(input.bookings);
+  if (store === undefined) return { ok: false, result: bad("store must be a string.") };
+  if (bookings === undefined) return { ok: false, result: bad("bookings must be a string.") };
   return {
     ok: true,
-    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms },
+    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings },
   };
 }
 
@@ -192,6 +207,8 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
     pluginVersion: site.pluginVersion,
     wpVersion: site.wpVersion,
     lms: site.lms,
+    store: site.store,
+    bookings: site.bookings,
     activatedAt: now,
     lastCheckedAt: now,
   });
@@ -242,6 +259,8 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
     pluginVersion: site.pluginVersion,
     wpVersion: site.wpVersion,
     lms: site.lms,
+    store: site.store,
+    bookings: site.bookings,
     lastCheckedAt: now,
   });
   return { status: 200, body: statusBody(facts, plans, "active", license, now, null) };

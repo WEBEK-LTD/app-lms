@@ -204,6 +204,13 @@
       "when": 1792016475348,
       "tag": "0028_donations",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1792044146406,
+      "tag": "0029_site_plugins",
+      "breakpoints": true
     }
   ]
 }

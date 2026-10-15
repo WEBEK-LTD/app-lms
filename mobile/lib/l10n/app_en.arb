@@ -821,6 +821,18 @@
   "instructor": "Instructor",
   "noDescription": "No description yet.",
   "aboutInstructor": "About the instructor",
+  "courseLearn": "What you'll learn",
+  "courseRequirements": "Requirements",
+  "courseAudience": "Who this course is for",
+  "courseIncludes": "This course includes",
+  "studentCount": "{count, plural, =1{1 student} other{{count} students}}",
+  "@studentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "curriculumEmpty": "The curriculum will appear here.",
   "loadingCurriculum": "Loading curriculum",
   "freePreviewLower": "free preview",

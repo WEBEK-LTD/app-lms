@@ -312,6 +312,8 @@ export class MemoryStore implements DataStore {
           pluginVersion: activation.pluginVersion,
           wpVersion: activation.wpVersion,
           lms: activation.lms,
+          store: activation.store,
+          bookings: activation.bookings,
           lastCheckedAt: activation.lastCheckedAt,
         }
       : activation;
@@ -321,7 +323,7 @@ export class MemoryStore implements DataStore {
 
   async touchActivation(
     licenseId: string,
-    patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "lastCheckedAt">,
+    patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "store" | "bookings" | "lastCheckedAt">,
   ): Promise<void> {
     const activation = this.activations.get(licenseId);
     if (activation) this.activations.set(licenseId, clone({ ...activation, ...patch }));

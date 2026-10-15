@@ -27,21 +27,36 @@ class Default_Layout {
 	private $plugin;
 
 	/**
+	 * The type of the app asking (`app_type` on /pages), or ''.
+	 *
+	 * @var string
+	 */
+	private $requested;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param Plugin $plugin Plugin.
+	 * @param Plugin $plugin    Plugin.
+	 * @param string $requested The type of the app asking (its build config's app_type), or ''.
 	 */
-	public function __construct( Plugin $plugin ) {
-		$this->plugin = $plugin;
+	public function __construct( Plugin $plugin, $requested = '' ) {
+		$this->plugin    = $plugin;
+		$this->requested = (string) $requested;
 	}
 
 	/**
-	 * The kind of app the site serves: the type the owner chose in the Yallapp dashboard
-	 * (sent with the license status), else a guess from the plugins the site has.
+	 * The kind of app the site serves: the type of the app asking, so its tabs and lists
+	 * are ones it can open; else the type the owner chose in the Yallapp dashboard (sent
+	 * with the license status, so up to a license check late); else a guess from the
+	 * plugins the site has.
 	 *
 	 * @return string lms, store, bookings, news or site.
 	 */
 	public function app_type() {
+		$asked = self::chosen_type( array( 'app_type' => $this->requested ) );
+		if ( null !== $asked ) {
+			return $asked;
+		}
 		$chosen = self::chosen_type( $this->plugin->license()->status() );
 		return null !== $chosen ? $chosen : $this->guessed_type();
 	}

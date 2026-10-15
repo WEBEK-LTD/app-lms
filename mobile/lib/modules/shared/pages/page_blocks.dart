@@ -86,8 +86,11 @@ class PageBlockView extends ConsumerWidget {
   static bool shows(PageBlock block, WidgetRef ref) {
     final appType = ref.read(appEnvironmentProvider).build.appType;
     return switch (block) {
-      ItemsBlock(:final items) => items.isNotEmpty,
-      CategoriesBlock(:final categories) => categories.isNotEmpty,
+      ItemsBlock(:final items) => followableItems(items, appType).isNotEmpty,
+      // 30 Categories this app type can't filter by (courses in a Store app).
+      CategoriesBlock(:final categories, :final source) =>
+        categories.isNotEmpty &&
+            (source == null || categoryLocation(source, appType, 0) != null),
       SearchBlock(:final source) => searchLocation(source, appType) != null,
       ContinueLearningBlock() => appType == AppType.lms,
       TextBlock(:final html) => html.trim().isNotEmpty,
@@ -400,11 +403,15 @@ class _Items extends ConsumerWidget {
     final title = block.title?.trim() ?? '';
     final seeAll = block.seeAll;
     void open(PageItem item) => runPageAction(context, ref, item.tapAction);
+    final items = followableItems(
+      block.items,
+      ref.watch(appEnvironmentProvider).build.appType,
+    );
     final Widget list = switch (block.layout) {
-      ItemsLayout.carousel => _Carousel(items: block.items, onTap: open),
-      ItemsLayout.grid => _Grid(items: block.items, onTap: open),
+      ItemsLayout.carousel => _Carousel(items: items, onTap: open),
+      ItemsLayout.grid => _Grid(items: items, onTap: open),
       ItemsLayout.list => _ItemList(
-        items: block.items,
+        items: items,
         onTap: open,
         minimal: style.template == AppTemplate.minimal,
       ),

@@ -50,6 +50,13 @@ class Pages {
 	private $layout = null;
 
 	/**
+	 * The type of the app asking (`app_type` on /pages), or ''.
+	 *
+	 * @var string
+	 */
+	private $app_type = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -60,6 +67,19 @@ class Pages {
 	}
 
 	/**
+	 * Sets the type of the app asking, which the default pages follow.
+	 *
+	 * @param string $app_type The app's build config `app_type`, or ''.
+	 * @return void
+	 */
+	public function for_app_type( $app_type ) {
+		if ( (string) $app_type !== $this->app_type ) {
+			$this->app_type = (string) $app_type;
+			$this->layout   = null;
+		}
+	}
+
+	/**
 	 * The published layout, or the default one.
 	 *
 	 * @return array Layout shape.
@@ -67,7 +87,7 @@ class Pages {
 	public function layout() {
 		if ( null === $this->layout ) {
 			$stored       = $this->plugin->layout_client()->layout();
-			$this->layout = $stored ? $stored : ( new Default_Layout( $this->plugin ) )->build();
+			$this->layout = $stored ? $stored : ( new Default_Layout( $this->plugin, $this->app_type ) )->build();
 		}
 		return $this->layout;
 	}
@@ -157,7 +177,7 @@ class Pages {
 		if ( count( $tabs ) < 2 ) {
 			// A layout whose tabs can't be shown on this site gets the default tabs.
 			$tabs = array();
-			foreach ( ( new Default_Layout( $this->plugin ) )->build()['tabs'] as $raw ) {
+			foreach ( ( new Default_Layout( $this->plugin, $this->app_type ) )->build()['tabs'] as $raw ) {
 				$tabs[] = $this->tab( $raw );
 			}
 		}

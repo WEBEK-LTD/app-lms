@@ -61,6 +61,10 @@ $python = yallapp_seed_post(
 );
 update_post_meta( $python, '_tutor_course_price_type', 'free' );
 update_post_meta( $python, '_tutor_course_level', 'beginner' );
+update_post_meta( $python, '_tutor_course_benefits', "Write small programs\nRead other people's code" );
+update_post_meta( $python, '_tutor_course_requirements', 'A computer' );
+update_post_meta( $python, '_tutor_course_target_audience', 'Beginners' );
+update_post_meta( $python, '_tutor_course_material_includes', "4 lessons\nA quiz" );
 update_post_meta(
 	$python,
 	'_course_duration',

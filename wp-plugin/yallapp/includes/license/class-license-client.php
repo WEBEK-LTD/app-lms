@@ -442,13 +442,17 @@ class License_Client {
 	 * @return array
 	 */
 	public function site_info( $key ) {
-		$lms = $this->detector->lms();
+		$lms     = $this->detector->lms();
+		$booking = $this->detector->booking();
+		// What the site has, so the dashboard can say when the app's type doesn't match it.
 		return array(
 			'license_key'    => $key,
 			'site_url'       => home_url( '/' ),
 			'plugin_version' => YALLAPP_VERSION,
 			'wp_version'     => get_bloginfo( 'version' ),
 			'lms'            => $lms ? $lms['id'] : '',
+			'store'          => $this->detector->woocommerce()['active'] ? 'woocommerce' : '',
+			'bookings'       => $booking ? $booking['id'] : '',
 		);
 	}
 

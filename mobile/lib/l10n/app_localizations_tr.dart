@@ -1307,6 +1307,29 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aboutInstructor => 'Eğitmen hakkında';
 
   @override
+  String get courseLearn => 'Neler öğreneceksiniz';
+
+  @override
+  String get courseRequirements => 'Gereksinimler';
+
+  @override
+  String get courseAudience => 'Bu kurs kimler için';
+
+  @override
+  String get courseIncludes => 'Bu kursun içeriği';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+      one: '1 öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get curriculumEmpty => 'Müfredat burada görünecek.';
 
   @override

@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.7
+Stable tag: 0.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,12 @@ WhatsApp and keeps neither. Codes are made on your site and kept there only as a
 hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
+
+= 0.3.8 =
+* The app's home and tabs match the app type you chose in the Yallapp dashboard from the first start: a Store app on a site that also runs Tutor LMS shows the shop, not course lists it can't open. (The app tells the plugin its type; before, the plugin learned it at its next license check, up to 12 hours later.)
+* The course page shows what students will learn, what the course includes, its requirements and who it is for (Tutor LMS and LearnPress), and how many students take it.
+* The plugin tells the Yallapp dashboard which shop and booking plugins the site runs, so the dashboard can say when the app type doesn't fit the site.
+* The app's built-in home (older apps) shows the latest courses when no featured courses are picked.
 
 = 0.3.7 =
 * Restaurant and café apps follow their orders: each WooCommerce order tells the app where it is (processing is "Preparing", completed and cancelled are themselves), and the app opens one order with `GET /me/orders/{id}`. The customer only ever sees their own orders.

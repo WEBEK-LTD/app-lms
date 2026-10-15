@@ -327,6 +327,8 @@ components:
         plugin_version: { type: string, example: 0.1.0 }
         wp_version: { type: string, example: 7.1.3 }
         lms: { type: string, example: tutor }
+        store: { type: string, description: 'The shop plugin the site runs (woocommerce), or empty.', example: woocommerce }
+        bookings: { type: string, description: 'The booking plugin the plugin reads (amelia, bookly, latepoint...), or empty.', example: '' }
 
     SignInCodeRequest:
       allOf:

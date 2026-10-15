@@ -223,6 +223,13 @@ class Tutor_Adapter implements Lms_Adapter {
 				'duration_minutes' => $minutes > 0 ? $minutes : null,
 				'level'            => '' !== $level ? ucwords( str_replace( '_', ' ', $level ) ) : null,
 				'has_certificate'  => $this->features()['certificates'] && 'none' !== get_post_meta( $post->ID, 'tutor_course_certificate_template', true ),
+				'student_count'    => (int) tutor_utils()->count_enrolled_users_by_course( $post->ID ),
+				'about'            => Course_About::shape(
+					get_post_meta( $post->ID, '_tutor_course_benefits', true ),
+					get_post_meta( $post->ID, '_tutor_course_requirements', true ),
+					get_post_meta( $post->ID, '_tutor_course_target_audience', true ),
+					get_post_meta( $post->ID, '_tutor_course_material_includes', true )
+				),
 				'categories'       => is_array( $terms ) ? array_map( array( $this, 'category_shape' ), $terms ) : array(),
 				'has_checkout'     => ! $this->is_free( $post->ID ),
 				'qna'              => $this->qna_enabled( $post->ID ),

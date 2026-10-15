@@ -382,6 +382,8 @@ export class MysqlStore implements DataStore {
       pluginVersion: activation.pluginVersion,
       wpVersion: activation.wpVersion,
       lms: activation.lms,
+      store: activation.store,
+      bookings: activation.bookings,
       lastCheckedAt: activation.lastCheckedAt,
     };
     await this.run((db) =>
@@ -392,7 +394,7 @@ export class MysqlStore implements DataStore {
 
   async touchActivation(
     licenseId: string,
-    patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "lastCheckedAt">,
+    patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "store" | "bookings" | "lastCheckedAt">,
   ): Promise<void> {
     await this.run((db) => db.update(schema.activations).set(patch).where(eq(schema.activations.licenseId, licenseId)));
   }

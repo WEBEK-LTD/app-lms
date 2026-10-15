@@ -152,6 +152,9 @@ export const activations = mysqlTable("license_activations", {
   pluginVersion: varchar("plugin_version", { length: 32 }).notNull(),
   wpVersion: varchar("wp_version", { length: 32 }),
   lms: varchar("lms", { length: 64 }),
+  // 30 "" when the site has none, null when the plugin didn't say (before Phase 30).
+  store: varchar("store", { length: 64 }),
+  bookings: varchar("bookings", { length: 64 }),
   activatedAt: time("activated_at").notNull(),
   lastCheckedAt: time("last_checked_at").notNull(),
 });

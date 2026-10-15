@@ -139,6 +139,8 @@ describe("the WordPress site is ready", () => {
       pluginVersion: "0.3.0",
       wpVersion: null,
       lms: null,
+      store: null,
+      bookings: null,
       activatedAt: NOW,
       lastCheckedAt: NOW,
     });

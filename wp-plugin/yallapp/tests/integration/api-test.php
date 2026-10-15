@@ -176,6 +176,16 @@ $r = call( 'GET', '/courses/' . $seed['design'] . '?platform=ios', null, $token 
 check( 'paid course on ios: none', 200 === $r['status'] && 'none' === $r['json']['purchase']['action'], $r['raw'] );
 $r = call( 'GET', '/courses/' . $seed['python'] . '?platform=ios', null, $token );
 check( 'free course on ios: enroll_free', 200 === $r['status'] && 'enroll_free' === $r['json']['purchase']['action'], $r['raw'] );
+check(
+	'course about: the lists beside the description',
+	array(
+		'learn'        => array( 'Write small programs', "Read other people's code" ),
+		'requirements' => array( 'A computer' ),
+		'audience'     => array( 'Beginners' ),
+		'includes'     => array( '4 lessons', 'A quiz' ),
+	) === ( $r['json']['about'] ?? null ) && is_int( $r['json']['student_count'] ?? null ),
+	$r['json']
+);
 $r = call( 'GET', '/courses/999999?platform=android' );
 check( 'missing course 404', 404 === $r['status'], $r['raw'] );
 $r = call( 'GET', '/courses/' . $seed['design'] . '/curriculum', null, $token );
@@ -285,6 +295,15 @@ set_settings( array( 'featured_course_ids' => array( $seed['design'] ) ) );
 $r = call( 'GET', '/pages/home?platform=android' );
 check( 'default home: featured courses from the settings', array( (string) $seed['design'] ) === block_item_ids( page_block( $r['json'], 'featured-courses' ) ) && null === page_block( $r['json'], 'latest-courses' ), page_block_ids( $r['json'] ) );
 set_settings( array( 'featured_course_ids' => array() ) );
+// 30 The default pages follow the type of the app asking, whatever plugins the site has.
+$r = call( 'GET', '/pages?platform=android&app_type=store' );
+check( 'default pages for a Store app: store tabs', array( 'home', 'shop', 'cart', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['json'] );
+$r = call( 'GET', '/pages/home?platform=android&app_type=store' );
+check( 'default home for a Store app: no course lists', ! in_array( 'courses', array_column( $r['json']['blocks'] ?? array(), 'source' ), true ), $r['json'] );
+$r = call( 'GET', '/pages?platform=android&app_type=lms' );
+check( 'default pages for an Academy app: academy tabs', array( 'home', 'courses', 'my-courses', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['json'] );
+$r = call( 'GET', '/pages?platform=android&app_type=hovercraft' );
+check( 'an unknown app type is ignored', 200 === $r['status'] && array( 'home', 'courses', 'my-courses', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ), $r['raw'] );
 $r = call( 'GET', '/pages/missing?platform=android' );
 check( 'unknown page 404', 404 === $r['status'] && 'not_found' === ( $r['json']['code'] ?? '' ), $r['raw'] );
 $r = call( 'GET', '/pages/Not_A_Slug?platform=android' );
