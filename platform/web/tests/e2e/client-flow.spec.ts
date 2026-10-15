@@ -256,6 +256,36 @@ test("the plugin activates and checks the license through the API", async ({ req
   await page.goto("/dashboard/license");
   await expect(page.getByLabel("License key")).toHaveText(licenseKey);
   await expect(page.getByText(new URL(client.site).host)).toBeVisible();
+  // 30 A plugin before 30 doesn't say what else the site runs: nothing is shown.
+  await expect(page.getByText("Your website runs")).toHaveCount(0);
+
+  // 30 The plugin says what the site runs: Tutor LMS, no shop, no booking plugin. An Academy app fits it.
+  expect((await request.post("/api/v1/licenses/check", { data: { ...site, plugin_version: "0.5.0", store: "", bookings: "" } })).status()).toBe(200);
+  expect((await request.post("/api/v1/licenses/check", { data: { ...site, store: 1 } })).status()).toBe(400);
+  await page.goto("/dashboard/setup?step=website");
+  const website = page.getByRole("region", { name: "Website" });
+  await expect(website).toContainText("Your website runs: Tutor LMS");
+  await expect(website.getByRole("alert")).toHaveCount(0);
+
+  // A Store app on the same site shows nothing it can sell: the dashboard says so and names the type that fits.
+  await page.goto("/dashboard/app-type");
+  await page.getByText("Store", { exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("heading", { name: "Website" })).toBeVisible();
+  await expect(website).toContainText("Your website runs: Tutor LMS");
+  const warning = website.getByRole("alert");
+  await expect(warning).toContainText("Your website has no shop plugin the app can read. Install WooCommerce, or change the app type.");
+  await expect(warning).toContainText("Your website runs Tutor LMS: an Academy app shows its courses and lessons.");
+  await page.goto("/dashboard");
+  await expect(page.getByRole("alert").filter({ hasText: "no shop plugin" })).toBeVisible();
+  await expect(page.getByText("Your website runs: Tutor LMS")).toBeVisible();
+  await page.getByRole("alert").filter({ hasText: "no shop plugin" }).getByRole("link", { name: "Change the app type" }).click();
+  await expect(page).toHaveURL(/\/dashboard\/app-type$/);
+  await page.getByText("Academy", { exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("heading", { name: "Website" })).toBeVisible();
+  await expect(website).toContainText("Your website runs: Tutor LMS");
+  await expect(website.getByRole("alert")).toHaveCount(0);
 
   const release = await request.post("/api/v1/licenses/deactivate", { data: { license_key: licenseKey, site_url: client.site } });
   expect(release.status()).toBe(204);

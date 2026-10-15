@@ -185,7 +185,7 @@ describe("13.1 license API", () => {
   it("reports the plan's features and limits to the plugin", async () => {
     const { store, licenseKey } = await setupClient({ plan: "starter" });
     const { activateLicense } = await import("@/lib/license/service");
-    const site = { licenseKey: licenseKey!, siteUrlRaw: "https://academy.test", siteUrl: "academy.test", pluginVersion: "0.4.0", wpVersion: "7.1", lms: "tutor" };
+    const site = { licenseKey: licenseKey!, siteUrlRaw: "https://academy.test", siteUrl: "academy.test", pluginVersion: "0.4.0", wpVersion: "7.1", lms: "tutor", store: null, bookings: null };
     await activateLicense(store, site, NOW);
     const result = await checkLicense(store, site, NOW);
     expect(result.status === 200 && result.body).toMatchObject({ plan: "starter", features: ["push"], limits: { app_users: 1000, languages: 1, sources: 1 } });

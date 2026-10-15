@@ -35,6 +35,7 @@ import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
 import { appTypeName } from "@/lib/app/kinds";
+import { siteMatch } from "@/lib/app/site-match";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
@@ -386,6 +387,8 @@ async function AppEntry({
   const appUsers = app?.backend === "hosted" ? await store.countHostedUsers(app.id) : null;
   // 18 Sign-in codes the plugin had Yallapp send today: an aggregate count, nothing about who.
   const codesToday = license && activation ? await signInCodesSentToday(store, license.id, now) : null;
+  // 30 What the site runs, when its plugin reports it, and whether the app's type fits it.
+  const site = activation && app ? siteMatch(app, activation) : null;
   const userLimit = currentPlan?.limits.appUsers ?? null;
   const base = license && license.expiresAt > now ? license.expiresAt : now;
   const nextYear = new Date(base);
@@ -434,6 +437,15 @@ async function AppEntry({
                   ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}`
                   : "Not activated on a website",
               ],
+              // 30 What the site runs beside the plugin, when the plugin reports it.
+              ...(site?.reported
+                ? [
+                    [
+                      "Website runs",
+                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}`,
+                    ] as [string, string],
+                  ]
+                : []),
             ]}
           />
           {state !== "suspended" && may.license ? (

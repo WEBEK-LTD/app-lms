@@ -8,6 +8,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Badge, Notice, PageHeader, ProgressBar, btn, formatDate } from "@/components/ui";
 import { kindOf } from "@/lib/app/kinds";
+import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -84,6 +85,8 @@ export default async function OverviewPage() {
   const publishing = app.publishingMode === "managed" ? await store.getPublishingRequest(app.id) : null;
   const plugin = usesPlugin(app);
   const activation = license && plugin ? await store.getActivation(license.id) : null;
+  // 30 What the WordPress site runs, and whether the app's type can show it.
+  const site = activation && app.backend === "wordpress" ? siteMatch(app, activation) : null;
   const status = stepStatus(app, plan, effective);
   // 19 "Publish it for me" until a store is live: the Publishing step is done, our team isn't yet.
   const teamOnIt = publishing !== null && status.publishing && !isLiveSomewhere(publishing);
@@ -149,6 +152,13 @@ export default async function OverviewPage() {
         <Notice tone="warn" icon="warning">
           Customers can see your products in the app but can&apos;t pay for them until you set up{" "}
           <Link href="/dashboard/catalog#h-payments">Card payments</Link> on the Products page.
+        </Notice>
+      ) : null}
+
+      {site?.warning ? (
+        <Notice tone="warn" icon="warning" role="alert">
+          {site.warning}
+          {site.suggestion ? ` ${site.suggestion}` : ""} <Link href="/dashboard/app-type">Change the app type</Link>
         </Notice>
       ) : null}
 
@@ -345,6 +355,7 @@ export default async function OverviewPage() {
               {activation ? `Connected to ${activation.siteUrl}` : "Plugin not connected yet"}
             </span>
           ) : null}
+          {site?.reported ? <span className="text-sm text-muted">{siteRunsLine(site)}</span> : null}
           {/* 13.2 App users against the plan's limit, for apps on the hosted API. */}
           {current && hosted ? (
             <div className="mt-2 flex flex-col gap-1.5 border-t border-line-soft pt-3">

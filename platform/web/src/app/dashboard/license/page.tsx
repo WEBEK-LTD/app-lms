@@ -21,6 +21,7 @@ import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
+import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient();
@@ -81,6 +82,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const active = state === "active";
   // Apps on the hosted API or their own API have no plugin: no website activation or plugin download to show.
   const plugin = usesPlugin(app);
+  // 30 What the site runs, as its plugin reports it.
+  const site = activation && app ? siteMatch(app, activation) : null;
 
   return (
     <>
@@ -184,6 +187,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 <span className="text-[13px] font-normal text-muted">
                   Plugin {activation.pluginVersion} · last check {formatDateTime(activation.lastCheckedAt)}
                 </span>
+                {site?.reported ? <span className="text-[13px] font-normal text-muted">{siteRunsLine(site)}</span> : null}
               </span>
             ) : (
               <span className="font-normal text-muted">Not activated on a website yet</span>

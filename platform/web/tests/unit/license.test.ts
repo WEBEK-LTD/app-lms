@@ -11,6 +11,8 @@ import {
 import { accountState } from "@/lib/license/status";
 import { KEY, NOW, days, licenseOf, setupClient } from "./helpers";
 
+const KEY_SAMPLE = "YALL-7K2D-9QWE-4MNB";
+
 function site(licenseKey: string, url = "https://academy.test", extra: Record<string, unknown> = {}): SiteInfo {
   const parsed = parseSiteInfo({ license_key: licenseKey, site_url: url, plugin_version: "0.1.0", wp_version: "6.8", lms: "tutor", ...extra });
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.result));
@@ -184,6 +186,37 @@ describe("license API", () => {
     expect(activation).toMatchObject({ pluginVersion: "0.3.1", lms: "tutor", siteUrl: "academy.test" });
     expect(activation?.lastCheckedAt.toISOString()).toBe(days(1).toISOString());
     expect(activation?.activatedAt.toISOString()).toBe(NOW.toISOString());
+  });
+
+  it("30 reads the shop and booking plugins the site runs; plugins before 30 don't say", () => {
+    expect(site(KEY_SAMPLE, undefined, { store: "woocommerce", bookings: "" })).toMatchObject({ lms: "tutor", store: "woocommerce", bookings: "" });
+    expect(site(KEY_SAMPLE, undefined, { store: " woocommerce ", bookings: "amelia" })).toMatchObject({ store: "woocommerce", bookings: "amelia" });
+    // Not reported (null) is not "none" ("").
+    expect(site(KEY_SAMPLE)).toMatchObject({ store: null, bookings: null });
+    expect(site(KEY_SAMPLE, undefined, { store: null })).toMatchObject({ store: null, bookings: null });
+    const body = { license_key: KEY_SAMPLE, site_url: "https://academy.test", plugin_version: "0.5.0" };
+    for (const [field, value] of [
+      ["store", 1],
+      ["store", true],
+      ["bookings", ["amelia"]],
+      ["bookings", { id: "amelia" }],
+      ["store", "w".repeat(65)],
+    ] as const) {
+      const parsed = parseSiteInfo({ ...body, [field]: value });
+      expect(parsed.ok).toBe(false);
+      if (!parsed.ok) expect(parsed.result).toMatchObject({ status: 400, body: { code: "invalid_request", message: `${field} must be a string.` } });
+    }
+  });
+
+  it("30 records what the site runs on activation and on each check", async () => {
+    const { store, licenseKey, license } = await setupClient();
+    await activateLicense(store, site(licenseKey!, "https://academy.test", { store: "", bookings: "" }), NOW);
+    expect(await store.getActivation(license!.id)).toMatchObject({ lms: "tutor", store: "", bookings: "" });
+    await checkLicense(store, site(licenseKey!, "https://academy.test", { store: "woocommerce", bookings: "latepoint" }), days(1));
+    expect(await store.getActivation(license!.id)).toMatchObject({ lms: "tutor", store: "woocommerce", bookings: "latepoint" });
+    // An older plugin on the same site: unknown again.
+    await checkLicense(store, site(licenseKey!, "https://academy.test"), days(2));
+    expect(await store.getActivation(license!.id)).toMatchObject({ store: null, bookings: null });
   });
 
   it("regenerating a key invalidates the old one and releases the site", async () => {

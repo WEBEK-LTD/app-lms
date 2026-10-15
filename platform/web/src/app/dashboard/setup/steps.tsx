@@ -22,6 +22,8 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import { ENGINES, ownContentTitle, ownContentWords, type WebsiteChoice } from "@/lib/app/kinds";
+import type { SiteMatch } from "@/lib/app/site-match";
+import { SiteMatchNote } from "@/components/site-match";
 import type { ApiCheckResult } from "@/lib/app/api-check";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
 import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
@@ -260,6 +262,7 @@ export function WebsiteStep({
   plugin,
   activatedSite,
   pluginVersion,
+  site = null,
   backend,
   apiBaseUrl,
   setupNote,
@@ -298,6 +301,8 @@ export function WebsiteStep({
   plugin: "none" | "connected" | "other";
   activatedSite: string | null;
   pluginVersion: string | null;
+  /** 30 What the connected site runs, and whether the app's type fits it. */
+  site?: SiteMatch | null;
   backend: Backend;
   apiBaseUrl: string;
   setupNote: string;
@@ -417,10 +422,13 @@ export function WebsiteStep({
           <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
             <span className="text-sm font-semibold">Plugin connection</span>
             {plugin === "connected" ? (
-              <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
-                <Icon name="check_circle" size={20} filled />
-                Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
-              </span>
+              <>
+                <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
+                  <Icon name="check_circle" size={20} filled />
+                  Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
+                </span>
+                <SiteMatchNote match={site} />
+              </>
             ) : plugin === "other" ? (
               <span className="flex items-start gap-2 text-[15px] text-warn">
                 <Icon name="warning" size={20} />

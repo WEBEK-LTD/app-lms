@@ -15,6 +15,7 @@ import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { chosenSignInMethods, emailOnlyUsersAtRisk } from "@/lib/hosted/sign-in-methods";
 import { hostedApiUrl } from "@/lib/hosted/urls";
 import { normalizeSiteUrl } from "@/lib/license/site-url";
+import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { BrandingStep, ListingStep, PublishingStep, WebsiteStep } from "./steps";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
@@ -150,6 +151,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           plugin={pluginState}
           activatedSite={activation?.siteUrl ?? null}
           pluginVersion={activation?.pluginVersion ?? null}
+          site={activation && pluginState === "connected" ? siteMatch(app, activation) : null}
           backend={
             app.backend === "hosted" ? (app.connector?.kind === "shopify" ? "shopify" : app.connector?.kind === "platform" ? "platform" : "catalog") : app.backend
           }

@@ -72,6 +72,10 @@ export interface Activation {
   pluginVersion: string;
   wpVersion: string | null;
   lms: string | null;
+  /** 30 The shop plugin the site runs ("woocommerce") or "" for none; null: not reported (plugins before Phase 30). */
+  store: string | null;
+  /** 30 The booking plugin the plugin reads ("amelia", "latepoint"…) or "" for none; null: not reported. */
+  bookings: string | null;
   activatedAt: Date;
   lastCheckedAt: Date;
 }

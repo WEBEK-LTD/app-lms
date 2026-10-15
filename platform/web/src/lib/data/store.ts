@@ -160,7 +160,7 @@ export interface DataStore {
   getActivation(licenseId: string): Promise<Activation | null>;
   /** Binds the license to a site unless it is bound to another one. Atomic. */
   claimActivation(activation: Activation): Promise<ClaimResult>;
-  touchActivation(licenseId: string, patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "lastCheckedAt">): Promise<void>;
+  touchActivation(licenseId: string, patch: Pick<Activation, "pluginVersion" | "wpVersion" | "lms" | "store" | "bookings" | "lastCheckedAt">): Promise<void>;
   deleteActivation(licenseId: string): Promise<void>;
 
   // Apps: an account can have several
