@@ -23,6 +23,7 @@ code only. GALAXY_API_URL overrides https://devapi.samsungapps.com (tests).
 """
 import base64
 import json
+import secrets
 import os
 import subprocess
 import sys
@@ -31,7 +32,6 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import uuid
 
 API = os.environ.get("GALAXY_API_URL", "https://devapi.samsungapps.com").rstrip("/")
 
@@ -98,7 +98,8 @@ def answer_code(raw):
 
 
 def multipart(fields, file_field, file_path):
-    boundary = uuid.uuid4().hex
+    # Not uuid: on some Pythons it imports `platform`, which this folder's platform.py shadows in the tests.
+    boundary = secrets.token_hex(16)
     parts = []
     for name, value in fields.items():
         parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode())
