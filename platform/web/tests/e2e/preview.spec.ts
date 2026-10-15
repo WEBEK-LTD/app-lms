@@ -13,6 +13,8 @@ test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.171" } });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Peony Corner", email: `peony-${suffix}@shop.test`, password: "peony-strong-password-1" };
+/** The QR code's preview link, for opening the preview outside the dashboard. */
+let previewLink = "";
 
 async function signIn(page: Page, email: string, password: string) {
   await page.context().clearCookies();
@@ -64,6 +66,7 @@ test("the app preview runs a shop that isn't set up yet", async ({ page }) => {
   // The same short-lived link for a phone, as a QR code made here.
   const qr = page.getByRole("img", { name: /QR code that opens the preview/ });
   await expect(qr).toHaveAttribute("data-qr", new RegExp(`^${E2E.baseURL}/preview-app/index\\.html\\?token=p1\\.`));
+  previewLink = (await qr.getAttribute("data-qr"))!;
 
   // The app itself in the frame: it reads its config, then the hosted API answers its preview (the app isn't set up yet).
   const frame = page.locator("iframe[data-testid=app-preview]");
@@ -89,6 +92,25 @@ test("the app preview runs a shop that isn't set up yet", async ({ page }) => {
   // Hosted apps can preview the Pages & look draft.
   await page.getByRole("link", { name: "Draft from Pages & look" }).click();
   await expect(page.getByRole("link", { name: "Draft from Pages & look" })).toHaveAttribute("aria-current", "page");
+});
+
+// 38 Some systems give the browser a language tag that isn't one ("en-US@posix"): the app
+// still starts, in English, instead of stopping on "Incorrect locale information provided".
+test("the preview starts whatever language tag the browser has", async ({ browser }) => {
+  const context = await browser.newContext({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.172" } });
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "languages", { configurable: true, get: () => ["en-US@posix"] });
+    Object.defineProperty(navigator, "language", { configurable: true, get: () => "en-US@posix" });
+  });
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const configRead = page.waitForResponse((r) => /\/api\/preview\/p1\.[^/]+\/config$/.test(new URL(r.url()).pathname), { timeout: 45_000 });
+  await page.goto(previewLink);
+  expect((await configRead).status()).toBe(200);
+  await expect(page.locator("flutter-view, flt-glass-pane").first()).toBeAttached();
+  expect(errors.filter((m) => m.includes("locale"))).toEqual([]);
+  await context.close();
 });
 
 test("preview links can't be used for anything else", async ({ request }) => {

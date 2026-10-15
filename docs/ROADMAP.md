@@ -684,3 +684,44 @@ in `docs/ARCHITECTURE.md` ("Card payment providers").
 | [ ] | 37.9 Refunds from the dashboard: iyzico's flows never had them (refunds are made in each provider's panel); Kashier has a refund call, Fawaterk's isn't documented | A refund action tested against each provider's sandbox |
 | [ ] | 37.10 Ticket holds and long-lived pages: places are held for the payment link's hour plus iyzico's 30-minute page; Kashier's session and Fawaterk's invoice may stay payable longer (an expiry field isn't confirmed for either) | The session and invoice expire within the hold, confirmed on each provider |
 | [ ] | 37.11 Kashier's connected accounts (marketplace payouts by Kashier itself, like iyzico's sub-merchants) | Kashier's marketplace API confirmed and tested |
+
+## Phase 38: Every app type tried like a demanding user
+
+The owner asked for every option in every app to be opened, the way a
+demanding customer would, with screenshots. All ten demo apps (academy,
+store, restaurant, bookings, clinic, gym, real estate, news, events,
+charity) were used in the app preview on the hosted API, and WordPress
+sites with Tutor LMS, WooCommerce and posts: every tab and list, search
+with nonsense and Arabic, filters, details, wishlist and saved, cart and
+options, quantity limits, checkout, booking and cancelling, the intake
+form, tickets, donations (presets, own amount, the minimum), enrolling,
+lessons, the quiz, sign-in with the review and demo numbers and a wrong
+code, sign-out, deleting the account, settings, Arabic (right to left),
+Turkish, dark mode, a small phone (360 by 640) and a tablet (1024), and one
+ready-made design per type started from Pages & look and opened in the
+preview. About 530 screenshots; what was found is below. No migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 38.1 Right to left: every Back, Next, Previous and Send arrow pointed the wrong way (the Material Symbols arrows mirror themselves, and the app mirrored them again) | `phase38_test.dart`: each arrow mirrored once |
+| [x] | 38.2 Right to left: English content in an Arabic app (lessons, page texts, descriptions) is laid out in its own direction, so its full stops stay at the end; an Arabic text in an English app reads right to left | `phase38_test.dart` (a text block in an Arabic app) |
+| [x] | 38.3 The hosted API wrote list cards in English whatever the app's language ("Free", "60 min", "₺120 of ₺250", "For rent", "Negotiable", "/ month", "Sold out", "3 left", "Online", "From", event dates): now in Arabic and Turkish too, with amounts kept left to right in Arabic, and a service's hour as "1 h" like its own screen (`lib/hosted/pages/item-words.ts`); `Item` in the contract says so | `phase38.test.ts`: every demo app's cards in Arabic and Turkish, `pages.test.ts`; `redocly lint`, the API reference regenerated |
+| [x] | 38.4 Bold template: the active tab's pill gets twice the room when the tabs are narrow (five tabs, "Membership", "My donations"), its label no longer touches the pill's edges, and the cart's count no longer covers the label | `phase38_test.dart` (five and four tabs on a 360 point phone) |
+| [x] | 38.5 Quick links: a tile to a screen the app doesn't have with its site's features (a Wishlist tile in an academy without a wishlist, from a design) is left out instead of doing nothing; a long label ("Membership", "Appointments") is made smaller instead of being broken inside the word | `phase38_test.dart` |
+| [x] | 38.6 A list row's small picture showed its badge as an empty white label: the badge now sits under the row's text ("For rent", "67%") | `phase38_test.dart` |
+| [x] | 38.7 What people type in a field was the grey of its hint (the edit profile name, the prefilled message to an office, a ticket's name) | `phase38_test.dart` |
+| [x] | 38.8 An icon button alone on a picture (the course page's Back) took the whole picture for screen readers | `phase38_test.dart` (its semantics node is the button's size) |
+| [x] | 38.9 No device limit (0, as in the demo apps) showed "1 of 0" and "You can use 0 devices": now "1 device" and "as many devices as you like" | `phase38_test.dart` |
+| [x] | 38.10 The video watermark's number read "…532 90+" in Arabic: kept left to right | `app_logic_test.dart` |
+| [x] | 38.11 "My Courses" next to the "My courses" tab: sentence case in the app and in the plugin's default tabs | `pages_test.dart`, the Tutor LMS integration suite |
+| [x] | 38.12 The store review account was refused at the device limit: reviewers on several phones, and the owner opening the preview in another browser or by its QR code (the preview signs in only that number), were locked out. Its oldest device is now signed out instead, on the hosted API and in the plugin | `hosted.test.ts`; the Tutor LMS integration suite (263 checks: a third review device gets in, its oldest is signed out) |
+| [x] | 38.13 The preview never started in a browser whose language tag isn't one ("en-US@posix" from some systems): the page keeps the valid tags, or English | `preview.spec.ts` on the memory store and MariaDB |
+| [x] | 38.14 Dashboard: "Use this design" overflowed its button in four narrow columns | `designs.spec.ts` on the memory store and MariaDB |
+| [x] | 38.15 A café's first pages: "Search the menu" (not "Search products") and a menu icon on the Menu tab; the demo's "Saturday Film Club" fell on a Sunday (renamed "Film Club") | `phase38.test.ts` |
+| [x] | 38.16 The preview bundle rebuilt | `build_preview.sh --check` |
+| [ ] | 38.17 Tab names, page titles and design sample texts that Yallapp writes are English only: an app offering Arabic or Turkish shows "Home", "Courses" and "Account" until the owner translates them. Shipping Yallapp's own translations of its default names is a product decision | Owner's decision |
+| [ ] | 38.18 A course with every lesson done still says "Continue learning" and opens the first lesson; no "completed" state or certificate prompt on hosted academies | Owner's decision on the wording |
+| [ ] | 38.19 Demo previews: the sign-in note says "your app's store review number" (the dashboard next to it gives the demo number), and a gym's classes can't be booked without a membership, which the preview can't buy, so class booking can't be tried in the demo | Owner's decision (a demo membership, a demo note) |
+| [ ] | 38.20 The events list's `price_label` and server error messages are English in Arabic and Turkish apps (the content API doesn't receive the language); a WordPress site's labels follow the site's language | When the content API gets the language |
+| [ ] | 38.21 Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
+| [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |

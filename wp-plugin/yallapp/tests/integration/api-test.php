@@ -311,6 +311,7 @@ require_once __DIR__ . '/pages-helpers.php';
 $r = call( 'GET', '/pages?platform=android' );
 check_navigation_shape( 'default pages: navigation shape', $r['json'] );
 check( 'default pages: academy tabs', array( 'home', 'courses', 'my-courses', 'account' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && 'my_courses' === ( $r['json']['tabs'][2]['target']['screen'] ?? '' ), $r['json'] );
+check( 'default pages: "My courses" as the app and the dashboard write it (38)', 'My courses' === ( $r['json']['tabs'][2]['label'] ?? '' ), $r['json']['tabs'] ?? null );
 check( 'default pages: version is the ETag', 0 === strpos( (string) ( $r['json']['version'] ?? '' ), 'default.' ) && strtolower( '"' . $r['json']['version'] . '"' ) === header_value( $r, 'etag' ), $r['headers'] );
 check( 'pages vary by language', false !== strpos( $r['headers'], 'vary: accept-language' ), $r['headers'] );
 $r = call( 'GET', '/pages?platform=android', null, null, array( 'If-None-Match: "' . ( $r['json']['version'] ?? '' ) . '"' ) );
@@ -631,6 +632,20 @@ set_settings( array( 'review_access_enabled' => true, 'review_phone' => '+90' . 
 $r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => $review ) );
 $v = call( 'POST', '/auth/otp/verify', array( 'request_id' => $r['json']['request_id'] ?? '', 'code' => '424242', 'device' => device( 'review-1', 'ios' ) ) );
 check( 'store review number accepts fixed code', 200 === $v['status'] && ( ! empty( $v['json']['signup_token'] ) || ! empty( $v['json']['access_token'] ) ), $v['raw'] );
+// 38 Reviewers (and the owner's previews) sign in on new devices: the review account is never
+// refused at the device limit, its oldest device is signed out instead.
+set_settings( array( 'device_limit' => 2, 'device_limit_action' => 'block' ) );
+if ( ! empty( $v['json']['signup_token'] ) ) {
+	call( 'POST', '/auth/register', array( 'signup_token' => $v['json']['signup_token'], 'name' => 'App Review', 'device' => device( 'review-1', 'ios' ) ) );
+}
+foreach ( array( 'review-2', 'review-3' ) as $review_device ) {
+	wp_cli( 'eval \'foreach ( array( "yallapp_cooldown_", "yallapp_rl_" ) as $p ) { global $wpdb; $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", "%" . $wpdb->esc_like( $p ) . "%" ) ); }\'' );
+	$r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => $review ) );
+	$v = call( 'POST', '/auth/otp/verify', array( 'request_id' => $r['json']['request_id'] ?? '', 'code' => '424242', 'device' => device( $review_device ) ) );
+}
+check( 'store review number: a third device gets in', 200 === $v['status'] && ! empty( $v['json']['access_token'] ), $v['raw'] );
+$r = call( 'GET', '/me/devices', null, $v['json']['access_token'] ?? '' );
+check( 'store review number: its oldest device is signed out', 2 === count( $r['json']['items'] ?? array() ) && ! in_array( 'review-1', array_column( $r['json']['items'] ?? array(), 'id' ), true ), $r['raw'] );
 // The app preview in the Yallapp dashboard never sends a code: only the store review number gets in.
 $r = call( 'POST', '/auth/otp/request', array( 'country_code' => '+90', 'phone' => '5321234567', 'preview' => true ) );
 check( 'preview: other numbers refused', 403 === $r['status'] && 'preview_review_number_only' === ( $r['json']['code'] ?? '' ), $r['raw'] );

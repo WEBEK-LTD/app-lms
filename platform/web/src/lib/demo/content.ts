@@ -1193,7 +1193,8 @@ export const DEMO_EVENTS: DemoEvent[] = [
     ],
   },
   {
-    title: "Saturday Film Club: harbour classics",
+    // 38 Its day changes with the demo's dates: no weekday in the name.
+    title: "Film Club: harbour classics",
     category: "Film",
     picture: "event-film",
     daysAhead: 3,

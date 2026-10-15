@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:intl/intl.dart' as intl;
 
 import '../../../../core/api/models/models.dart';
 import '../../../../core/gate/app_gate.dart';
@@ -57,7 +58,10 @@ class _HtmlContentState extends ConsumerState<HtmlContent> {
         ? widget.html
         : prepareLessonHtml(widget.html, widget.embeds);
     _byPlaceholder = {for (final e in widget.embeds) e.placeholder: e};
+    _direction = contentDirection(widget.html);
   }
+
+  TextDirection? _direction;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +70,16 @@ class _HtmlContentState extends ConsumerState<HtmlContent> {
       appConfigProvider.select((c) => c.content.codeHighlighting),
     );
 
+    // 38 Text in the language it's written in: an English lesson in an
+    // Arabic app reads left to right (its full stops at the end), and an
+    // Arabic one in an English app right to left.
+    return Directionality(
+      textDirection: _direction ?? Directionality.of(context),
+      child: _html(context, p, highlight),
+    );
+  }
+
+  Widget _html(BuildContext context, AppPalette p, bool highlight) {
     return HtmlWidget(
       _prepared,
       textStyle: TextStyle(fontSize: 15, height: 1.7, color: p.textBody),
@@ -146,6 +160,15 @@ class _HtmlContentState extends ConsumerState<HtmlContent> {
     );
   }
 }
+
+/// 38 The direction [html]'s text is written in, or null when it can't
+/// tell (no words, or as much of both).
+TextDirection? contentDirection(String html) =>
+    switch (intl.Bidi.estimateDirectionOfText(html, isHtml: true)) {
+      intl.TextDirection.RTL => TextDirection.rtl,
+      intl.TextDirection.LTR => TextDirection.ltr,
+      _ => null,
+    };
 
 EmbedProvider _guessProvider(String src) {
   final host = Uri.tryParse(src)?.host ?? '';

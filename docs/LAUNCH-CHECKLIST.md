@@ -215,8 +215,9 @@ Nothing to set on Netlify: the preview is served from the site's own files
 
 ## 7d. WordPress apps follow their type (Phase 30)
 
-- [ ] **Release plugin 0.3.8** (Admin › App & plugin versions) with the
-      changelog from `wp-plugin/yallapp/readme.txt`. Clients whose app type
+- [ ] **Release plugin 0.4.0** (Admin › App & plugin versions; it
+      includes 0.3.8) with the changelog from `wp-plugin/yallapp/readme.txt`.
+      Clients whose app type
       doesn't match the plugins on their site need it for the right tabs and
       home, and the dashboard needs it to say what their site runs.
 - [ ] Ask clients with a WordPress app to open **Set up › Website**: a

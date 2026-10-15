@@ -457,15 +457,23 @@ class _Items extends ConsumerWidget {
 /// The image of an item card, with its badge and a filled heart when the
 /// user saved it.
 class _ItemImage extends StatelessWidget {
-  const _ItemImage({required this.item, required this.radius});
+  const _ItemImage({
+    required this.item,
+    required this.radius,
+    this.showBadge = true,
+  });
 
   final PageItem item;
   final double radius;
 
+  /// 38 False on a list row's small picture, which has no room for it (an
+  /// empty white label): the row's text shows the badge instead.
+  final bool showBadge;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final badge = item.badge?.trim();
+    final badge = showBadge ? item.badge?.trim() : null;
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: Stack(
@@ -531,16 +539,24 @@ class _ItemImage extends StatelessWidget {
 /// Title, subtitle and price label. The price is display text only: no
 /// purchase button, on any platform.
 class _ItemText extends StatelessWidget {
-  const _ItemText({required this.item, this.titleLines = 2});
+  const _ItemText({
+    required this.item,
+    this.titleLines = 2,
+    this.showBadge = false,
+  });
 
   final PageItem item;
   final int titleLines;
+
+  /// 38 The badge under the text (list rows, whose picture is too small).
+  final bool showBadge;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final subtitle = item.subtitle?.trim();
     final price = item.priceLabel?.trim();
+    final badge = showBadge ? item.badge?.trim() : null;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,6 +591,26 @@ class _ItemText extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: p.text,
+            ),
+          ),
+        ],
+        if (badge != null && badge.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: p.accentSoft,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              badge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: p.text,
+              ),
             ),
           ),
         ],
@@ -706,12 +742,16 @@ class _ItemList extends StatelessWidget {
           SizedBox(
             width: 76,
             height: 76,
-            child: _ItemImage(item: item, radius: context.shapes.r(12)),
+            child: _ItemImage(
+              item: item,
+              radius: context.shapes.r(12),
+              showBadge: false,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: ExcludeSemantics(
-              child: _ItemText(item: item, titleLines: 2),
+              child: _ItemText(item: item, titleLines: 2, showBadge: true),
             ),
           ),
         ],

@@ -171,7 +171,11 @@ class AppIcon extends StatelessWidget {
       semanticLabel: semanticLabel,
     );
     final rtl = Directionality.maybeOf(context) == TextDirection.rtl;
-    if (!rtl || !_directional.contains(icon)) return glyph;
+    // 38 Material Symbols' arrows mirror themselves (matchTextDirection):
+    // flipping them again pointed every Back and Next the wrong way.
+    if (!rtl || icon.matchTextDirection || !_directional.contains(icon)) {
+      return glyph;
+    }
     return Transform.flip(flipX: true, child: glyph);
   }
 }

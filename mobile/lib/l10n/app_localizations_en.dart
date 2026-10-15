@@ -19,7 +19,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabCourses => 'Courses';
 
   @override
-  String get tabMyCourses => 'My Courses';
+  String get tabMyCourses => 'My courses';
 
   @override
   String get tabAccount => 'Account';
@@ -694,6 +694,21 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: 'You can use $count devices with this account.',
       one: 'You can use 1 device with this account.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deviceNoLimit =>
+      'You can use this account on as many devices as you like.';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
     );
     return '$_temp0';
   }

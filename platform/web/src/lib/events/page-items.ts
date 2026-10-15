@@ -3,6 +3,7 @@ import { utcToLocal } from "../bookings/time";
 import { getStore } from "../data";
 import type { DataStore } from "../data/store";
 import type { EventRecord } from "../data/types";
+import { itemWords, type ItemWords } from "../hosted/pages/item-words";
 import { categoryId, loadEvents, placesLeft, priceLabel } from "./service";
 
 /** One card of a list block (`Item` in docs/api/openapi.yaml), from the "events" source. */
@@ -26,13 +27,13 @@ export interface EventItemsQuery {
 }
 
 const MAX_ITEMS = 30;
-const DAY = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 
-/** "Sat 18 Oct, 20:30 · Main Hall", in the organiser's time zone. */
-function subtitle(e: EventRecord, timeZone: string): string {
+/** "Sat 18 Oct, 20:30 · Main Hall", in the organiser's time zone (38: and the app's language). */
+function subtitle(e: EventRecord, timeZone: string, words: ItemWords): string {
   const local = utcToLocal(e.startAt, timeZone);
-  const day = DAY.format(new Date(`${local.date}T12:00:00Z`));
-  return [`${day}, ${local.time}`, e.venueName ?? (e.onlineUrl ? "Online" : null)].filter(Boolean).join(" · ");
+  const format = new Intl.DateTimeFormat(words.locale, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const day = format.format(new Date(`${local.date}T12:00:00Z`)).replace(/,/g, "");
+  return [`${day}, ${local.time}`, e.venueName ?? (e.onlineUrl ? words.online : null)].filter(Boolean).join(" · ");
 }
 
 /**
@@ -43,8 +44,9 @@ function subtitle(e: EventRecord, timeZone: string): string {
 export async function eventPageItems(
   appId: string,
   query: EventItemsQuery,
-  deps: { store?: DataStore; assetUrl?: (assetId: string) => string; now?: Date } = {},
+  deps: { store?: DataStore; assetUrl?: (assetId: string) => string; now?: Date; lang?: string } = {},
 ): Promise<EventItem[]> {
+  const words = itemWords(deps.lang);
   const store = deps.store ?? (await getStore());
   const assetUrl = deps.assetUrl ?? publicAssetUrl;
   const app = await store.getAppById(appId);
@@ -67,10 +69,10 @@ export async function eventPageItems(
       source: "events",
       id,
       title: e.title,
-      subtitle: subtitle(e, data.settings.timeZone),
+      subtitle: subtitle(e, data.settings.timeZone, words),
       image_url: e.imageAssetIds[0] ? assetUrl(e.imageAssetIds[0]) : null,
-      price_label: priceLabel(types, data.settings.currency),
-      badge: left === 0 ? "Sold out" : left !== null && left <= 10 ? `${left} left` : null,
+      price_label: priceLabel(types, data.settings.currency, words),
+      badge: left === 0 ? words.soldOut : left !== null && left <= 10 ? words.left(left) : null,
       action: { type: "item", item: { source: "events", id } },
     };
   });

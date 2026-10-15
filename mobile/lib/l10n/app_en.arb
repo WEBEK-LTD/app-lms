@@ -6,7 +6,7 @@
   },
   "tabHome": "Home",
   "tabCourses": "Courses",
-  "tabMyCourses": "My Courses",
+  "tabMyCourses": "My courses",
   "tabAccount": "Account",
   "tabShop": "Shop",
   "tabCart": "Cart",
@@ -396,6 +396,19 @@
   "registeredDevices": "Registered devices",
   "deviceLimit": "{count, plural, =1{You can use 1 device with this account.} other{You can use {count} devices with this account.}}",
   "@deviceLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deviceNoLimit": "You can use this account on as many devices as you like.",
+  "@deviceNoLimit": {
+    "description": "Registered devices when the app has no device limit (limit 0)."
+  },
+  "devicesCount": "{count, plural, =1{1 device} other{{count} devices}}",
+  "@devicesCount": {
+    "description": "Settings › Registered devices when the app has no device limit.",
     "placeholders": {
       "count": {
         "type": "int"

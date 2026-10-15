@@ -715,6 +715,24 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get deviceNoLimit => 'يمكنك استخدام هذا الحساب على أي عدد من الأجهزة.';
+
+  @override
+  String devicesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جهاز',
+      many: '$count جهازًا',
+      few: '$count أجهزة',
+      two: 'جهازان',
+      one: 'جهاز واحد',
+      zero: 'لا أجهزة',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String thisDevice(String device) {
     return '$device (هذا الجهاز)';
   }

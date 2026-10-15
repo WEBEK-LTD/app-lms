@@ -51,7 +51,10 @@ class DevicesScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              context.l10n.deviceLimit(value.limit),
+              // 38 Limit 0 is no limit (demo apps, or none set).
+              value.limit > 0
+                  ? context.l10n.deviceLimit(value.limit)
+                  : context.l10n.deviceNoLimit,
               style: TextStyle(fontSize: 14, color: p.textSecondary),
             ),
             const SizedBox(height: 12),

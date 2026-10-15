@@ -9,7 +9,10 @@ import '../../../../core/api/models/models.dart';
 String? watermarkText(WatermarkMode mode, User? user) {
   if (user == null) return null;
   final name = user.name.trim();
-  final phone = user.phone.trim();
+  // 38 Left to right even in an Arabic app: "+90 532…", never "…532 90+".
+  final phone = user.phone.trim().isEmpty
+      ? ''
+      : '\u2066${user.phone.trim()}\u2069';
   return switch (mode) {
     WatermarkMode.off => null,
     WatermarkMode.phone => phone.isEmpty ? null : phone,

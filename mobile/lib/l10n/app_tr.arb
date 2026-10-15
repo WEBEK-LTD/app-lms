@@ -166,6 +166,8 @@
   "signOutDevice": "{device} cihazından çıkış yap",
   "registeredDevices": "Kayıtlı cihazlar",
   "deviceLimit": "{count, plural, =1{Bu hesapla 1 cihaz kullanabilirsiniz.} other{Bu hesapla {count} cihaz kullanabilirsiniz.}}",
+  "deviceNoLimit": "Bu hesabı istediğiniz kadar cihazda kullanabilirsiniz.",
+  "devicesCount": "{count, plural, =1{1 cihaz} other{{count} cihaz}}",
   "thisDevice": "{device} (bu cihaz)",
   "lastUsed": "Son kullanım {date}",
   "myCertificates": "Sertifikalarım",

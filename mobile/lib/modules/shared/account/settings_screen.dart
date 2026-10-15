@@ -290,7 +290,10 @@ class SettingsScreen extends ConsumerWidget {
                 title: l10n.registeredDevices,
                 value: devices == null
                     ? null
-                    : l10n.devicesUsed(devices.items.length, devices.limit),
+                    // 38 Limit 0 is no limit: never "1 of 0".
+                    : devices.limit > 0
+                    ? l10n.devicesUsed(devices.items.length, devices.limit)
+                    : l10n.devicesCount(devices.items.length),
                 onTap: () => context.push(Paths.devices),
               ),
               SettingsTile(

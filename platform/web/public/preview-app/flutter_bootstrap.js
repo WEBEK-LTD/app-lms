@@ -41,6 +41,30 @@ if (!window._flutter) {
 _flutter.buildConfig = {"engineRevision":"af7e796e161ae0bb1ff0758c71a7105418bd9ded","wasmHashes":{"skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c"},"builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}],"useLocalCanvasKit":true};
 
 
+// 38 Flutter reads the browser's languages with Intl.Locale, which throws on
+// a tag that isn't one ("en-US@posix" from some systems, or an empty one),
+// and the app never starts. Keep the valid tags, or English without any.
+(function () {
+  try {
+    var tags = Array.prototype.slice.call(navigator.languages || []);
+    var valid = tags.filter(function (tag) {
+      try {
+        return Boolean(tag) && Boolean(new Intl.Locale(tag).language);
+      } catch (e) {
+        return false;
+      }
+    });
+    var changed = valid.length !== tags.length || tags.length === 0;
+    if (valid.length === 0) valid = ["en"];
+    if (changed) {
+      Object.defineProperty(navigator, "languages", { configurable: true, get: function () { return valid; } });
+      Object.defineProperty(navigator, "language", { configurable: true, get: function () { return valid[0]; } });
+    }
+  } catch (e) {
+    // Leave the browser's languages as they are.
+  }
+})();
+
 // The app preview (roadmap 17): no service worker, so a new deploy of the
 // platform always serves the new app, and nothing stays in the browser.
 _flutter.loader.load();

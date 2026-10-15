@@ -37,11 +37,13 @@ class Devices {
 	/**
 	 * Registers (or refreshes) a device for a user, applying the device limit.
 	 *
-	 * @param int   $user_id User ID.
-	 * @param array $device  DeviceInput from the API: id, platform, name, app_version.
+	 * @param int   $user_id        User ID.
+	 * @param array $device         DeviceInput from the API: id, platform, name, app_version.
+	 * @param bool  $replace_oldest At the limit, sign out the oldest devices instead of refusing
+	 *                              (the store review account: reviewers and previews sign in on new devices).
 	 * @return int|WP_Error Device row ID.
 	 */
-	public function register( $user_id, array $device ) {
+	public function register( $user_id, array $device, $replace_oldest = false ) {
 		global $wpdb;
 		$table     = Installer::tables()['devices'];
 		$device_id = substr( sanitize_text_field( (string) ( $device['id'] ?? '' ) ), 0, 64 );
@@ -68,7 +70,7 @@ class Devices {
 		if ( $limit > 0 ) {
 			$others = $this->for_user( $user_id );
 			if ( count( $others ) >= $limit ) {
-				if ( 'replace_oldest' !== $this->settings->get( 'device_limit_action' ) ) {
+				if ( ! $replace_oldest && 'replace_oldest' !== $this->settings->get( 'device_limit_action' ) ) {
 					return new WP_Error(
 						'device_limit_reached',
 						__( 'This account is already signed in on the maximum number of devices. Sign out on another device or contact support.', 'yallapp' ),

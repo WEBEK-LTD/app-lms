@@ -6,6 +6,7 @@ import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/owner_contact.dart';
 import '../../../core/gate/app_gate.dart';
+import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import 'sign_in_screen.dart';
 import '../../../core/l10n/l10n.dart';
@@ -108,7 +109,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       const SizedBox(height: 8),
                       Text(
                         context.l10n.signupIntro(site),
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: Theme.of(context).textTheme.bodyLarge
+                            ?.copyWith(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 28),
                       _Field(

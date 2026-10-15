@@ -134,6 +134,10 @@ export interface KindInfo {
     ownContent: { text: string; next: string };
     /** The first layout's tab names by tab ID, where they differ from the engine's. */
     tabs?: Record<string, string>;
+    /** 38 And their icons ("Menu" with a menu, not a shop front). */
+    tabIcons?: Record<string, string>;
+    /** 38 The first home page's search box texts by block ID ("Search the menu"). */
+    searchPlaceholders?: Record<string, string>;
   };
   /** 27 The first layout's tabs between Home and Account, when the kind has its own (a gym's Classes and Membership). */
   tabs?: LayoutTab[];
@@ -644,6 +648,8 @@ export const KINDS: readonly KindInfo[] = [
         next: "After this step, add your dishes, opening hours, pickup and delivery and your payment keys (iyzico, Kashier or Fawaterk) on the **Menu** page, and follow orders on the **Kitchen** page. Your customers sign in to the app with",
       },
       tabs: { shop: "Menu" },
+      tabIcons: { shop: "restaurant_menu" },
+      searchPlaceholders: { search: "Search the menu" },
     },
   },
   {

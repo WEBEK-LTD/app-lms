@@ -218,7 +218,7 @@ class Sign_In {
 		delete_transient( $key );
 
 		if ( $user instanceof \WP_User ) {
-			return $this->session( (int) $user->ID, $device );
+			return $this->session( (int) $user->ID, $device, ! empty( $state['review'] ) );
 		}
 		if ( ! $this->settings->get( 'signup_allowed' ) ) {
 			return new WP_Error( 'signup_disabled', __( 'There is no account with this email address.', 'yallapp' ), array( 'status' => 403 ) );
@@ -404,7 +404,7 @@ class Sign_In {
 			return $wrong;
 		}
 		Rate_Limiter::clear( $bucket );
-		return $this->session( (int) $user->ID, $device );
+		return $this->session( (int) $user->ID, $device, true );
 	}
 
 	/**
@@ -514,7 +514,7 @@ class Sign_In {
 		delete_transient( $key );
 
 		if ( $user_id ) {
-			return $this->session( $user_id, $device );
+			return $this->session( $user_id, $device, ! empty( $state['review'] ) );
 		}
 		if ( ! $this->settings->get( 'signup_allowed' ) ) {
 			return new WP_Error( 'signup_disabled', __( 'There is no account with this number.', 'yallapp' ), array( 'status' => 403 ) );
@@ -613,10 +613,12 @@ class Sign_In {
 	 *
 	 * @param int   $user_id User ID.
 	 * @param array $device  DeviceInput.
+	 * @param bool  $review  Signed in with the store review number or address: never refused at
+	 *                       the device limit (its oldest device is signed out instead).
 	 * @return array|WP_Error
 	 */
-	public function session( $user_id, array $device ) {
-		$row_id = $this->devices->register( $user_id, $device );
+	public function session( $user_id, array $device, $review = false ) {
+		$row_id = $this->devices->register( $user_id, $device, (bool) $review );
 		if ( is_wp_error( $row_id ) ) {
 			return $row_id;
 		}

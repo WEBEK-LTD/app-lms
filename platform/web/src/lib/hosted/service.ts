@@ -407,6 +407,12 @@ function isReviewEmail(settings: HostedSettings, email: string): boolean {
   return normalizeEmail(settings.reviewEmail) === email;
 }
 
+/** 38 The account of the store review number or address. */
+function isReviewUser(settings: HostedSettings, user: HostedUser): boolean {
+  const phone = user.phone ? parseAnyPhone(user.phone, settings.defaultCountryCode) : null;
+  return (phone !== null && isReviewPhone(settings, phone)) || (user.email !== null && isReviewEmail(settings, user.email));
+}
+
 /** 19 Why a code wasn't sent, for the logs: the provider's answer, never the code or the address. */
 function logSendFailure(kind: "phone" | "email", app: App, e: unknown): void {
   const reason = e instanceof Error ? e.message : String(e);
@@ -696,12 +702,19 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
   } else {
     // 16 The shared demo account is on every visitor's phone.
     const limit = ctx.app.demo ? 0 : hostedSettings(ctx.app).deviceLimit;
-    if (limit > 0 && (await ctx.store.listHostedDevices(ctx.app.id, user.id)).length >= limit) {
-      return error(
-        403,
-        "device_limit_reached",
-        "This account is already signed in on the maximum number of devices. Sign out on another device or contact support.",
-      );
+    const devices = limit > 0 ? await ctx.store.listHostedDevices(ctx.app.id, user.id) : [];
+    if (limit > 0 && devices.length >= limit) {
+      // 38 The store review account is never locked out (reviewers and the
+      // owner's previews each sign in on new devices): its oldest are signed out.
+      if (!isReviewUser(hostedSettings(ctx.app), user)) {
+        return error(
+          403,
+          "device_limit_reached",
+          "This account is already signed in on the maximum number of devices. Sign out on another device or contact support.",
+        );
+      }
+      const oldest = [...devices].sort((a, b) => a.lastSeenAt.getTime() - b.lastSeenAt.getTime());
+      for (const old of oldest.slice(0, devices.length - limit + 1)) await ctx.store.deleteHostedDevice(ctx.app.id, old.id);
     }
     device = {
       id: newId(),

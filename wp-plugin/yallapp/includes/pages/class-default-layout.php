@@ -149,7 +149,7 @@ class Default_Layout {
 		$tabs = array( self::tab( 'home', __( 'Home', 'yallapp' ), 'home', self::page_action( 'home' ) ) );
 		if ( 'lms' === $type ) {
 			$tabs[] = self::tab( 'courses', __( 'Courses', 'yallapp' ), 'menu_book', self::screen( 'courses' ) );
-			$tabs[] = self::tab( 'my-courses', __( 'My Courses', 'yallapp' ), 'play_circle', self::screen( 'my_courses' ) );
+			$tabs[] = self::tab( 'my-courses', __( 'My courses', 'yallapp' ), 'play_circle', self::screen( 'my_courses' ) );
 		} elseif ( 'store' === $type ) {
 			$tabs[] = self::tab( 'shop', __( 'Shop', 'yallapp' ), 'storefront', self::screen( 'search' ) );
 			$tabs[] = self::tab( 'cart', __( 'Cart', 'yallapp' ), 'shopping_cart', self::screen( 'cart' ) );
