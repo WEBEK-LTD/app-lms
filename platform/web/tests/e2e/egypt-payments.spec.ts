@@ -12,6 +12,9 @@ import { solidPng } from "./png";
  * browser back; our server reads the payment back before marking it paid.
  */
 test.describe.configure({ mode: "serial" });
+// Its own address, so its sign-ups never use up the shared sign-up limit of the other specs.
+const extraHTTPHeaders = { "x-forwarded-for": "203.0.113.237" };
+test.use({ extraHTTPHeaders });
 
 const suffix = Date.now().toString(36);
 const client = { name: "Nile Academy", email: `nile-${suffix}@academy.test`, password: "nile-strong-password-1" };
@@ -45,9 +48,9 @@ async function signUp(page: Page, who: { name: string; email: string; password: 
 test.beforeAll(async ({ browser }) => {
   kashier = await startFakeKashier(E2E.kashierPort);
   fawaterk = await startFakeFawaterk(E2E.fawaterkPort);
-  admin = await browser.newPage();
+  admin = await browser.newPage({ extraHTTPHeaders });
   await signIn(admin, E2E.paymentsAdminEmail, E2E.adminPassword);
-  own = await browser.newPage();
+  own = await browser.newPage({ extraHTTPHeaders });
 });
 
 test.afterAll(async () => {
