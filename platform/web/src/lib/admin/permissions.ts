@@ -26,7 +26,7 @@ export const ADMIN_PERMISSIONS = [
   "publishing.manage",
   /** Plans, prices and what each plan offers. */
   "plans.edit",
-  /** Yallapp's iyzico account, the marketplace commission and payouts. */
+  /** Yallapp's payment accounts (iyzico, Kashier, Fawaterk), the marketplace commission and payouts. */
   "payments.manage",
   /** Platform settings: sign-in codes, email, contact details. */
   "settings.edit",

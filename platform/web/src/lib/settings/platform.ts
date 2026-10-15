@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { PlatformSetting, PlatformSettingKey, PlatformSettingValues } from "../data/types";
 import { otpSenderConfig, smtpConfig, type OtpSenderConfig, type SmtpConfig } from "../env";
 import type { IyzicoKeys } from "../payments/iyzico";
+import { isPaymentProvider, type PaymentAccount, type PaymentProviderId } from "../payments/provider";
 import { plansWith, type Plan, type PlanInfo } from "../plans";
 
 /**
@@ -100,6 +101,45 @@ export async function yallappIyzicoKeys(store: DataStore, encryptionKey: Buffer)
     secretKey: decryptSetting("iyzico", saved.value.secretKeyEncrypted, encryptionKey),
     sandbox: saved.value.sandbox,
   };
+}
+
+/** 37 Which of Yallapp's accounts takes new plan payments and marketplace sales: the team's choice, iyzico until set. */
+export async function yallappProvider(store: DataStore): Promise<PaymentProviderId> {
+  const saved = await platformSetting(store, "paymentProvider", { fresh: true });
+  return saved && isPaymentProvider(saved.value.provider) ? saved.value.provider : "iyzico";
+}
+
+/**
+ * 37 Yallapp's account with this provider, or null until the team adds it.
+ * A payment is confirmed with the account it started with, even after the
+ * team chose another provider.
+ */
+export async function yallappAccountFor(store: DataStore, provider: PaymentProviderId, encryptionKey: Buffer): Promise<PaymentAccount | null> {
+  if (provider === "iyzico") {
+    const keys = await yallappIyzicoKeys(store, encryptionKey);
+    return keys ? { provider, keys } : null;
+  }
+  if (provider === "kashier") {
+    const saved = await platformSetting(store, "kashier", { fresh: true });
+    if (!saved) return null;
+    return {
+      provider,
+      keys: {
+        merchantId: saved.value.merchantId,
+        apiKey: decryptSetting("kashier", saved.value.apiKeyEncrypted, encryptionKey),
+        secretKey: decryptSetting("kashier", saved.value.secretKeyEncrypted, encryptionKey),
+        sandbox: saved.value.sandbox,
+      },
+    };
+  }
+  const saved = await platformSetting(store, "fawaterk", { fresh: true });
+  if (!saved) return null;
+  return { provider, keys: { apiKey: decryptSetting("fawaterk", saved.value.apiKeyEncrypted, encryptionKey), sandbox: saved.value.sandbox } };
+}
+
+/** 37 Yallapp's account that takes new payments (the chosen provider's), or null until it is set. */
+export async function yallappPaymentAccount(store: DataStore, encryptionKey: Buffer): Promise<PaymentAccount | null> {
+  return yallappAccountFor(store, await yallappProvider(store), encryptionKey);
 }
 
 /** The plans as the team set them in the admin. */

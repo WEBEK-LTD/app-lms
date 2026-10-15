@@ -477,7 +477,11 @@ export interface HostedNotification {
 
 // Catalog: products managed in the dashboard for apps without a website.
 
-export type CatalogCurrency = "TRY" | "USD" | "EUR";
+/** 37 EGP, SAR and AED for the Egyptian providers; each provider takes some of these (lib/payments/provider.ts). */
+export type CatalogCurrency = "TRY" | "USD" | "EUR" | "EGP" | "SAR" | "AED";
+
+/** 37 Who takes a card payment: iyzico, Kashier or Fawaterk. */
+export type PaymentProviderId = "iyzico" | "kashier" | "fawaterk";
 
 export interface CatalogSettings {
   currency: CatalogCurrency;
@@ -486,11 +490,11 @@ export interface CatalogSettings {
   /** Orders at or above this subtotal ship free; null means never. */
   freeShippingOverCents: number | null;
   /**
-   * Card payments: through the client's own iyzico merchant account, or
-   * through Yallapp's (marketplace: the shop is an iyzico sub-merchant and
-   * gets each sale minus Yallapp's commission).
+   * Card payments: through the client's own merchant account (37 iyzico,
+   * Kashier or Fawaterk), or through Yallapp's (marketplace: the shop gets
+   * each sale minus Yallapp's commission; with iyzico it's a sub-merchant).
    */
-  payment: OwnIyzicoPayment | MarketplacePayment | null;
+  payment: OwnPayment | MarketplacePayment | null;
   /** 26 Pickup and delivery of a restaurant or café (vertical restaurant); missing until saved (the defaults apply). */
   fulfilment?: FulfilmentSettings | null;
 }
@@ -548,16 +552,46 @@ export interface OwnIyzicoPayment {
   sandbox: boolean;
 }
 
+/** 37 The client's own Kashier account: its merchant ID, Payment API key and secret key (encrypted like iyzico's). */
+export interface OwnKashierPayment {
+  provider: "kashier";
+  /** MID-XXXX-XXXX; not a secret. */
+  merchantId: string;
+  apiKeyEncrypted: string;
+  secretKeyEncrypted: string;
+  /** Test keys (Kashier's test API). */
+  sandbox: boolean;
+}
+
+/** 37 The client's own Fawaterk account: its API key (encrypted like iyzico's). */
+export interface OwnFawaterkPayment {
+  provider: "fawaterk";
+  apiKeyEncrypted: string;
+  /** A staging key (Fawaterk's staging API). */
+  sandbox: boolean;
+}
+
+/** The client's own merchant account. */
+export type OwnPayment = OwnIyzicoPayment | OwnKashierPayment | OwnFawaterkPayment;
+
 export type SubMerchantType = "PERSONAL" | "PRIVATE_COMPANY" | "LIMITED_OR_JOINT_STOCK_COMPANY";
 
 export interface MarketplacePayment {
   provider: "yallapp";
-  /** iyzico's key for the shop as a sub-merchant of Yallapp's account. */
+  /**
+   * 37 The provider of Yallapp's account the shop joined with; missing:
+   * iyzico. Only iyzico pays shops itself (sub-merchants); with Kashier or
+   * Fawaterk the team transfers each released share to the shop's IBAN.
+   */
+  via?: PaymentProviderId;
+  /** iyzico's key for the shop as a sub-merchant of Yallapp's account; empty with Kashier or Fawaterk. */
   subMerchantKey: string;
   subMerchantType: SubMerchantType;
   /** Who gets paid, as shown to the shop and the team. */
   payeeName: string;
   ibanLast4: string;
+  /** 37 Kashier or Fawaterk: the payee's details for the team's transfers (PayoutDetails as JSON, encrypted with context `app:payment:<app id>`). */
+  payoutEncrypted?: string;
   /** Whether the sub-merchant was made with Yallapp's sandbox keys. */
   sandbox: boolean;
   joinedAt: string;
@@ -659,6 +693,10 @@ export interface CatalogOrder {
   fulfilment?: CatalogFulfilment | null;
   /** 26 Where a restaurant's order is; null or missing for other orders. */
   fulfilmentStatus?: FulfilmentStatus | null;
+  /** 37 Who takes the payment, set when it starts; null or missing: iyzico. */
+  paymentProvider?: PaymentProviderId | null;
+  /** 37 The provider's own reference for the started payment (Kashier's session, Fawaterk's invoice), read back to confirm it. */
+  providerRef?: string | null;
 }
 
 /** 26 Where a restaurant's order is: forward only, or cancelled. */
@@ -673,7 +711,10 @@ export interface CatalogFulfilment {
 }
 
 export type CatalogOrderPatch = Partial<
-  Pick<CatalogOrder, "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus">
+  Pick<
+    CatalogOrder,
+    "status" | "customer" | "updatedAt" | "commissionCents" | "itemTransactionIds" | "payoutApprovedAt" | "fulfilmentStatus" | "paymentProvider" | "providerRef"
+  >
 >;
 
 // Platform settings the team edits in the admin (secrets encrypted with context `platform:<key>`).
@@ -702,10 +743,33 @@ export interface YallappIyzicoSetting {
   sandbox: boolean;
 }
 
+/** 37 Yallapp's own Kashier account. */
+export interface YallappKashierSetting {
+  merchantId: string;
+  apiKeyEncrypted: string;
+  secretKeyEncrypted: string;
+  sandbox: boolean;
+}
+
+/** 37 Yallapp's own Fawaterk account. */
+export interface YallappFawaterkSetting {
+  apiKeyEncrypted: string;
+  sandbox: boolean;
+}
+
+/** 37 Which of Yallapp's accounts takes plan payments and marketplace sales; unset: iyzico. */
+export interface PaymentProviderSetting {
+  provider: PaymentProviderId;
+}
+
 export interface PlatformSettingValues {
   otp: OtpSetting;
   smtp: SmtpSetting;
   iyzico: YallappIyzicoSetting;
+  /** 37 Yallapp's Kashier and Fawaterk accounts, and which of its accounts takes payments. */
+  kashier: YallappKashierSetting;
+  fawaterk: YallappFawaterkSetting;
+  paymentProvider: PaymentProviderSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
   /** Shops selling through Yallapp's iyzico account; off until set. */
@@ -740,7 +804,7 @@ export interface PlatformSetting<K extends PlatformSettingKey = PlatformSettingK
 
 export type PlanPaymentStatus = "pending" | "paid" | "failed";
 
-/** A client paying an app's Yallapp plan by card, with Yallapp's own iyzico account. */
+/** A client paying an app's Yallapp plan by card, with Yallapp's own account (37 iyzico, Kashier or Fawaterk). */
 export interface PlanPayment {
   id: string;
   clientId: string;
@@ -754,10 +818,14 @@ export interface PlanPayment {
   status: PlanPaymentStatus;
   /** SHA-256 of the token in the callback address. */
   tokenHash: string;
-  /** iyzico's payment ID once paid. */
+  /** The provider's payment ID once paid. */
   paymentId: string | null;
   createdAt: Date;
   paidAt: Date | null;
+  /** 37 Who takes the payment; null or missing: iyzico (every payment before Phase 37). */
+  paymentProvider?: PaymentProviderId | null;
+  /** 37 The provider's own reference for the started payment, read back to confirm it. */
+  providerRef?: string | null;
 }
 
 // Bookings managed in the dashboard (connector "bookings").
@@ -1804,11 +1872,15 @@ export interface Donation {
   createdAt: Date;
   paidAt: Date | null;
   updatedAt: Date;
+  /** 37 Who takes the payment; null or missing: iyzico. */
+  paymentProvider?: PaymentProviderId | null;
+  /** 37 The provider's own reference for the started payment, read back to confirm it. */
+  providerRef?: string | null;
 }
 
 export type DonationInput = Omit<Donation, "id">;
 
-export type DonationPatch = Partial<Pick<Donation, "donorName" | "donorEmail" | "donorPhone" | "status" | "updatedAt">>;
+export type DonationPatch = Partial<Pick<Donation, "donorName" | "donorEmail" | "donorPhone" | "status" | "updatedAt" | "paymentProvider" | "providerRef">>;
 
 /** How the app takes donations (`Config.donations`). */
 export interface DonationSettings {

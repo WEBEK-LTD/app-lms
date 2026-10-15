@@ -9,6 +9,7 @@ import {
   saveIntakeFieldAction,
 } from "@/app/actions/bookings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { INTAKE_TYPE_LABELS, INTAKE_TYPES } from "@/lib/bookings/intake";
 import { initialFormState } from "@/lib/forms";
 
@@ -50,7 +51,7 @@ export function RulesForm({ current, timezones }: { current: Record<string, stri
       <FormMessage message={state.message} ok={state.ok} />
       <div className="grid gap-4 sm:grid-cols-3">
         <Select label="Time zone" name="timezone" value={v.timezone ?? ""} options={timezones.map((t) => ({ value: t, label: t }))} error={e.timezone} />
-        <Select label="Currency" name="currency" value={v.currency ?? "TRY"} options={["TRY", "USD", "EUR"].map((c) => ({ value: c, label: c }))} error={e.currency} />
+        <Select label="Currency" name="currency" value={v.currency ?? "TRY"} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} error={e.currency} />
         <Select
           label="Times start every"
           name="slotStep"

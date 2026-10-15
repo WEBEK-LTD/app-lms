@@ -7,11 +7,12 @@ import { COUPON_CHECK_LIMIT, findCoupon, type CouponCheck } from "@/lib/billing/
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
-import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
+import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { IyzicoError } from "@/lib/payments/iyzico";
+import { PaymentError } from "@/lib/payments/errors";
+import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getPlans, yallappPaymentAccount, yallappProvider } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -19,7 +20,7 @@ import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-chang
 import { isPlan } from "@/lib/plans";
 
 /**
- * The client pays the current app's plan by card: off to iyzico's payment
+ * The client pays the current app's plan by card: off to the provider's payment
  * page (or, with a coupon for the whole price, activated at once). The
  * payment activates or extends that app only.
  */
@@ -43,8 +44,12 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   }
   const billing = readBilling(values);
   if (!billing.ok) return { errors: billing.errors, values };
-  const keys = await yallappIyzicoKeys(store, encryptionKey());
-  if (!keys) return { message: "Card payments aren't available right now. Message us on WhatsApp to pay.", values };
+  // 37 Yallapp's account with the provider the team chose (iyzico, Kashier or Fawaterk).
+  const account = await yallappPaymentAccount(store, encryptionKey());
+  if (!account) return { message: "Card payments aren't available right now. Message us on WhatsApp to pay.", values };
+  if (!cardPlans(plans, account.provider).some((p) => p.id === plan.id)) {
+    return { message: "This plan can't be paid by card right now. Message us on WhatsApp to pay.", values };
+  }
   const now = new Date();
   if (!(await hitRateLimit(store, RATE_LIMITS.planPayment, context.client.id, now)).allowed) {
     return { message: "Too many payment attempts. Try again in an hour, or message us on WhatsApp.", values };
@@ -65,8 +70,8 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   try {
     url = await startPlanPayment({
       store,
-      keys,
-      baseUrl: iyzicoApiUrl(),
+      account,
+      urls: paymentApiUrls(),
       now,
       client: context.client,
       app: context.app,
@@ -74,11 +79,11 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       plan,
       billing: billing.billing,
       ip: await requestIp(),
-      callbackUrl: (token) => `${appUrl()}/api/pay/plan/${encodeURIComponent(token)}`,
+      callbackUrls: (token) => callbackUrls(appUrl(), "plan", account.provider, token),
       coupon,
     });
   } catch (e) {
-    if (e instanceof IyzicoError) return { message: `The payment couldn't start: ${e.message}`, values };
+    if (e instanceof PaymentError) return { message: `The payment couldn't start: ${e.message}`, values };
     throw e;
   }
   redirect(url);
@@ -104,7 +109,7 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
   if (!(await hitRateLimit(store, COUPON_CHECK_LIMIT, context.client.id, now)).allowed) {
     return { error: "Too many coupon codes tried. Try again in an hour." };
   }
-  const plans = cardPlans(await getPlans(store));
+  const plans = cardPlans(await getPlans(store), await yallappProvider(store));
   const prices: NonNullable<CouponState["prices"]> = {};
   let firstError: string | undefined;
   for (const plan of plans) {

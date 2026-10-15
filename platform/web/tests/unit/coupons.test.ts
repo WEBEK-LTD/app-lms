@@ -192,7 +192,7 @@ describe("plan payments with a coupon", () => {
     let token = "";
     await startPlanPayment({
       store: setup.store,
-      keys: IYZICO,
+      account: { provider: "iyzico", keys: IYZICO },
       fetcher: iyzico.fetcher,
       now: NOW,
       client: setup.client,
@@ -200,9 +200,9 @@ describe("plan payments with a coupon", () => {
       plan: PLANS.pro,
       billing: { city: "Istanbul", address: "Bağdat Caddesi 1, Kadıköy" },
       ip: "203.0.113.5",
-      callbackUrl: (t) => {
+      callbackUrls: (t) => {
         token = t;
-        return `https://yallapp.test/api/pay/plan/${t}`;
+        return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
       },
       coupon: check,
     });
@@ -211,7 +211,7 @@ describe("plan payments with a coupon", () => {
     expect(payment.amountCents).toBe(384000);
     expect(await setup.store.listCouponRedemptions({ couponId: coupon().id })).toMatchObject([{ paymentId: payment.id, status: "pending", fullCents: 480000, discountCents: 96000 }]);
 
-    const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
+    const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
     expect(outcome.kind).toBe("paid");
     expect(await setup.store.listCouponRedemptions({ clientId: setup.client.id })).toMatchObject([{ status: "redeemed", redeemedAt: NOW }]);
     expect((await setup.store.getClientById(setup.client.id))!.status).toBe("active");

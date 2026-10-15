@@ -231,6 +231,24 @@ export function iyzicoApiUrl(): string | null {
   return url ?? null;
 }
 
+/** 37 Kashier's and Fawaterk's addresses for local tests (fake servers); unset uses their live or test APIs. */
+export function kashierApiUrl(): string | null {
+  const url = read("KASHIER_API_URL");
+  if (url && isNetlify()) throw new Error("KASHIER_API_URL is for local tests only.");
+  return url ?? null;
+}
+
+export function fawaterkApiUrl(): string | null {
+  const url = read("FAWATERK_API_URL");
+  if (url && isNetlify()) throw new Error("FAWATERK_API_URL is for local tests only.");
+  return url ?? null;
+}
+
+/** 37 Every payment provider's test address (lib/payments/provider.ts). */
+export function paymentApiUrls(): { iyzico: string | null; kashier: string | null; fawaterk: string | null } {
+  return { iyzico: iyzicoApiUrl(), kashier: kashierApiUrl(), fawaterk: fawaterkApiUrl() };
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";

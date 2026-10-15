@@ -1,17 +1,19 @@
 import { activateClient, type ActivationOutcome } from "../admin/clients";
-import { centsToDecimal, formatCents } from "../catalog/money";
+import { formatCents } from "../catalog/money";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, Client, PlanPayment, User } from "../data/types";
-import { initializeCheckoutForm, IyzicoError, retrieveCheckoutForm, type IyzicoKeys } from "../payments/iyzico";
+import { PaymentError } from "../payments/errors";
+import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import type { Plan, PlanInfo } from "../plans";
 import { getPlans } from "../settings/platform";
 import type { CouponCheck } from "./coupons";
 import { planChangeFor, type PlanChange } from "./plan-change";
 
 /**
- * Clients pay an app's Yallapp plan by card on iyzico's page, into Yallapp's
- * own merchant account. Each payment is for one app (the dashboard's current
+ * Clients pay an app's Yallapp plan by card on the provider's page (37
+ * iyzico, Kashier or Fawaterk, as the team chose), into Yallapp's own
+ * merchant account. Each payment is for one app (the dashboard's current
  * app): a confirmed payment activates that app, or extends its license from
  * its current end date (or from today when it ended). Other apps of the
  * account are unchanged.
@@ -22,9 +24,9 @@ export interface BillingDetails {
   address: string;
 }
 
-/** Plans with a card price, the ones clients can pay online. */
-export function cardPlans(plans: Record<Plan, PlanInfo>): PlanInfo[] {
-  return Object.values(plans).filter((p) => p.priceCents !== null && p.priceCents > 0);
+/** Plans with a card price, the ones clients can pay online; 37 with a provider, only those in a currency it takes. */
+export function cardPlans(plans: Record<Plan, PlanInfo>, provider?: PaymentAccount["provider"]): PlanInfo[] {
+  return Object.values(plans).filter((p) => p.priceCents !== null && p.priceCents > 0 && (!provider || providerTakes(provider, p.currency)));
 }
 
 export function readBilling(input: Record<string, unknown>): { ok: true; billing: BillingDetails } | { ok: false; errors: Record<string, string> } {
@@ -41,14 +43,15 @@ export { extendedUntil } from "./plan-change";
 
 interface Deps {
   store: DataStore;
-  keys: IyzicoKeys;
+  /** 37 Yallapp's account: for a new payment the chosen provider's, for a started one the provider it started with. */
+  account: PaymentAccount;
   fetcher?: typeof fetch;
-  /** iyzico's address in tests. */
-  baseUrl?: string | null;
+  /** The providers' addresses in tests. */
+  urls?: ProviderUrls;
   now: Date;
 }
 
-/** Records the payment and starts it on iyzico; returns the page to send the client to. */
+/** Records the payment and starts it on the provider's page; returns the page to send the client to. */
 export async function startPlanPayment(
   deps: Deps & {
     client: Client;
@@ -58,14 +61,15 @@ export async function startPlanPayment(
     plan: PlanInfo;
     billing: BillingDetails;
     ip: string;
-    callbackUrl: (token: string) => string;
+    /** Where the provider sends the client back, and posts its webhook (lib/payments/routes.ts). */
+    callbackUrls: (token: string) => { returnUrl: string; webhookUrl: string | null };
     /** 11.6: a coupon checked for this client and plan (checkCoupon); the payment is its lowered price. */
     coupon?: Extract<CouponCheck, { ok: true }>;
   },
 ): Promise<string> {
-  const { client, user, plan, coupon } = deps;
+  const { client, user, plan, coupon, account } = deps;
   if (plan.priceCents === null) throw new Error("This plan has no card price");
-  if (coupon && coupon.amountCents === 0) throw new Error("A free payment doesn't go to iyzico");
+  if (coupon && coupon.amountCents === 0) throw new Error("A free payment doesn't go to the provider");
   const token = randomToken(24);
   const payment: PlanPayment = {
     id: newId(),
@@ -80,77 +84,89 @@ export async function startPlanPayment(
     paymentId: null,
     createdAt: deps.now,
     paidAt: null,
+    paymentProvider: account.provider,
+    providerRef: null,
   };
-  await deps.store.createPlanPayment(payment);
-  if (coupon) await deps.store.createCouponRedemption(redemptionOf(coupon, payment, "pending", deps.now));
-  const [first, ...rest] = user.name.trim().split(/\s+/);
-  const address = { contactName: user.name, city: deps.billing.city, country: "Turkey", address: deps.billing.address };
-  const price = centsToDecimal(payment.amountCents);
-  const { paymentPageUrl } = await initializeCheckoutForm(
-    deps.keys,
+  const name = `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`;
+  const { returnUrl, webhookUrl } = deps.callbackUrls(token);
+  // 37 The payment is recorded once the provider has started it, with the provider's reference to read it back.
+  const started = await startCheckout(
+    account,
     {
-      conversationId: `plan-${payment.id}`,
-      price,
-      paidPrice: price,
+      reference: `plan-${payment.id}`,
+      amountCents: payment.amountCents,
       currency: payment.currency,
-      basketId: payment.id,
-      callbackUrl: deps.callbackUrl(token),
-      buyer: {
+      description: name,
+      lines: [{ id: `plan-${plan.id}`, name, cents: payment.amountCents, category: "Subscription", digital: true }],
+      customer: {
         id: `client-${client.id}`,
-        name: first || user.name,
-        surname: rest.join(" ") || first || user.name,
-        gsmNumber: client.whatsapp.startsWith("+") ? client.whatsapp : `+${client.whatsapp}`,
+        name: user.name,
         email: user.email,
-        // iyzico asks for a Turkish ID number; Yallapp doesn't collect it, so it sends this placeholder.
-        identityNumber: "11111111111",
-        registrationAddress: deps.billing.address,
-        ip: deps.ip,
+        phone: client.whatsapp.startsWith("+") ? client.whatsapp : `+${client.whatsapp}`,
         city: deps.billing.city,
-        country: "Turkey",
+        address: deps.billing.address,
+        ip: deps.ip,
       },
-      billingAddress: address,
-      basketItems: [
-        {
-          id: `plan-${plan.id}`,
-          name: `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`,
-          category1: "Subscription",
-          itemType: "VIRTUAL",
-          price,
-        },
-      ],
+      returnUrl,
+      webhookUrl,
+      iyzico: { conversationId: `plan-${payment.id}`, basketId: payment.id, shipping: false },
     },
-    { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    { fetcher: deps.fetcher, urls: deps.urls },
   );
-  return paymentPageUrl;
+  await deps.store.createPlanPayment({ ...payment, providerRef: started.providerRef.slice(0, 191) });
+  if (coupon) await deps.store.createCouponRedemption(redemptionOf(coupon, payment, "pending", deps.now));
+  return started.url;
 }
 
 export type PlanPaymentOutcome =
   | { kind: "paid"; activation: ActivationOutcome; activeUntil: Date; payment: PlanPayment; change: PlanChange }
   | { kind: "already_paid" }
+  /** 37 Kashier or Fawaterk haven't confirmed it (yet): it stays pending, and their webhook may still confirm it. */
+  | { kind: "pending" }
   | { kind: "failed" };
 
 /**
- * Checks the payment with iyzico after its callback, then activates or
- * extends the license. The callback proves nothing by itself: only iyzico's
- * answer to our signed request does, for this payment's basket and amount.
+ * Reads the payment back from the provider after its callback, redirect or
+ * webhook, then activates or extends the license. The trigger proves
+ * nothing by itself: only the provider's answer to our own authenticated
+ * request does, for this payment's reference, amount and currency. The
+ * payment turns paid once (payPlanPayment only changes a pending one), so
+ * a webhook and a redirect arriving together activate the plan once.
  */
 export async function completePlanPayment(
-  deps: Deps & { payment: PlanPayment; iyzicoToken: string; encryptionKey: Buffer },
+  deps: Deps & {
+    payment: PlanPayment;
+    /** iyzico: the token its callback posted. */
+    iyzicoToken?: string;
+    /** 37 Kashier's session or Fawaterk's invoice named by a webhook; the one kept on the payment otherwise. */
+    providerRef?: string | null;
+    encryptionKey: Buffer;
+  },
 ): Promise<PlanPaymentOutcome> {
-  const { payment } = deps;
+  const { payment, account } = deps;
   if (payment.status !== "pending") return payment.status === "paid" ? { kind: "already_paid" } : { kind: "failed" };
+  const provider = payment.paymentProvider ?? "iyzico";
+  if (account.provider !== provider) return { kind: "failed" };
   let result;
   try {
-    result = await retrieveCheckoutForm(
-      deps.keys,
-      { token: deps.iyzicoToken, conversationId: `plan-${payment.id}` },
-      { fetcher: deps.fetcher, baseUrl: deps.baseUrl },
+    result = await confirmCheckout(
+      account,
+      {
+        reference: `plan-${payment.id}`,
+        amountCents: payment.amountCents,
+        currency: payment.currency,
+        providerRef: deps.providerRef ?? payment.providerRef ?? null,
+        ...(deps.iyzicoToken ? { iyzico: { token: deps.iyzicoToken, conversationId: `plan-${payment.id}`, basketId: payment.id } } : {}),
+      },
+      { fetcher: deps.fetcher, urls: deps.urls },
     );
   } catch (e) {
-    if (e instanceof IyzicoError) return { kind: "failed" };
+    if (e instanceof PaymentError) return { kind: provider === "iyzico" ? "failed" : "pending" };
     throw e;
   }
-  if (!result.paid || result.basketId !== payment.id || result.paidCents < payment.amountCents || !result.paymentId) {
+  if (!result.paid) {
+    // iyzico's answer to its callback is final. Kashier's and Fawaterk's payment may still complete (their webhook tells us).
+    if (provider !== "iyzico") return { kind: "pending" };
     await deps.store.failPlanPayment(payment.id);
     await deps.store.settleCouponRedemption(payment.id, "failed", deps.now);
     return { kind: "failed" };
@@ -171,7 +187,7 @@ export async function completePlanPayment(
       activeUntil: change.activeUntil,
       nextPlan: change.nextPlan,
       nextPlanAt: change.nextPlanAt,
-      paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (iyzico ${result.paymentId})${noteFor(change, plans)}`,
+      paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (${PROVIDER_NAME[provider]} ${result.paymentId})${noteFor(change, plans)}`,
     },
     deps.encryptionKey,
     deps.now,

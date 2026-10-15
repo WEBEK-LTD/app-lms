@@ -4,7 +4,10 @@ import { useActionState, useState } from "react";
 import {
   checkTestCodeAction,
   saveContactAction,
+  saveFawaterkSettingAction,
   saveIyzicoSettingAction,
+  saveKashierSettingAction,
+  savePaymentProviderAction,
   savePublishingSettingAction,
   saveMarketplaceAction,
   saveOtpSettingAction,
@@ -12,6 +15,7 @@ import {
   saveSmtpSettingAction,
   sendTestCodeAction,
   sendTestEmailAction,
+  testPaymentAccountAction,
 } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
@@ -239,6 +243,92 @@ export function IyzicoSettingForm({ sandbox }: { sandbox: boolean }) {
           Save keys
         </SubmitButton>
       </div>
+    </form>
+  );
+}
+
+/** 37 Which of Yallapp's accounts takes plan payments and marketplace sales. */
+export function PaymentProviderForm({ provider }: { provider: "iyzico" | "kashier" | "fawaterk" }) {
+  const [state, action] = useActionState(savePaymentProviderAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-payment-provider" className="text-sm font-semibold">
+          Provider
+        </label>
+        <select id="f-payment-provider" name="provider" defaultValue={state.values?.provider ?? provider} className="input">
+          <option value="iyzico">iyzico (TRY, USD, EUR)</option>
+          <option value="kashier">Kashier (EGP, USD, EUR)</option>
+          <option value="fawaterk">Fawaterk (EGP, USD, SAR, AED, EUR)</option>
+        </select>
+        <FieldError id="f-payment-provider-error" error={state.errors?.provider} />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save provider
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 37 Yallapp's Kashier account. */
+export function KashierSettingForm({ merchantId, sandbox }: { merchantId: string; sandbox: boolean }) {
+  const [state, action] = useActionState(saveKashierSettingAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field id="f-kashier-merchantId" label="Merchant ID" name="merchantId" autoComplete="off" placeholder="MID-1234-567" defaultValue={state.values?.merchantId ?? merchantId} error={state.errors?.merchantId} />
+      <Field id="f-kashier-apiKey" label="Payment API key" name="apiKey" autoComplete="off" error={state.errors?.apiKey} />
+      <Field id="f-kashier-secretKey" label="Secret key" name="secretKey" type="password" autoComplete="off" error={state.errors?.secretKey} />
+      <label className="flex cursor-pointer items-center gap-2 text-[15px]">
+        <input type="checkbox" name="sandbox" defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} className="h-4 w-4 accent-midnight" />
+        Test mode keys (test payments)
+      </label>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Checking…">
+          Save keys
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 37 Yallapp's Fawaterk account. */
+export function FawaterkSettingForm({ sandbox }: { sandbox: boolean }) {
+  const [state, action] = useActionState(saveFawaterkSettingAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <Field id="f-fawaterk-apiKey" label="API key" name="apiKey" type="password" autoComplete="off" error={state.errors?.apiKey} />
+      <label className="flex cursor-pointer items-center gap-2 text-[15px]">
+        <input type="checkbox" name="sandbox" defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} className="h-4 w-4 accent-midnight" />
+        Staging key (test payments)
+      </label>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Checking…">
+          Save key
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 37 "Test connection" with the saved keys: a call that changes nothing. */
+export function TestPaymentAccountForm({ provider }: { provider: "iyzico" | "kashier" | "fawaterk" }) {
+  const [state, action] = useActionState(testPaymentAccountAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-wrap items-center justify-end gap-3">
+      <input type="hidden" name="provider" value={provider} />
+      {state.message ? (
+        <p role={state.ok ? "status" : "alert"} className={`m-0 flex-1 text-sm font-semibold ${state.ok ? "text-success" : "text-danger"}`}>
+          {state.message}
+        </p>
+      ) : null}
+      <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Testing…">
+        Test connection
+      </SubmitButton>
     </form>
   );
 }

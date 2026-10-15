@@ -22,8 +22,39 @@ devices. Everything else is in the code. Tick each line when it's done.
       address, then send the test email.
 - [ ] **Settings › Yallapp iyzico account:** live API key and secret key (keep
       sandbox on until a test payment works).
+- [ ] **Kashier account (Egypt):** open a merchant account at kashier.io
+      (company documents, the bank account payouts go to). In the Kashier
+      dashboard copy the merchant ID (MID-…) and create a Payment API key and
+      a secret key, once in test mode and once in live mode (they differ).
+      Never paste them anywhere but the Yallapp admin.
+- [ ] **Settings › Yallapp's Kashier account:** merchant ID, Payment API key
+      and secret key with **Test mode keys** on, then **Test connection**.
+- [ ] **Fawaterk account (Egypt):** open a vendor account at fawaterk.com
+      and copy the API key from the dashboard (Integrations), on staging
+      first, then live (staging and live keys differ).
+- [ ] **Settings › Yallapp's Fawaterk account:** the API key with
+      **Staging key** on, then **Test connection**.
+- [ ] **Settings › Yallapp's payment provider:** choose iyzico, Kashier or
+      Fawaterk for plan payments and shop sales through Yallapp. With Kashier
+      or Fawaterk, price the plans in EGP on **Plans** (plans in another
+      currency can't be paid by card then).
+- [ ] **Kashier and Fawaterk test payments, before going live:** with test
+      keys, pay a plan and a shop order with their test cards and check that
+      each is confirmed (the plan activates, the order shows on **Orders**).
+      Our server confirms a payment only from the provider's own answer
+      (Kashier: the session's payment; Fawaterk: getInvoiceData); if a paid
+      test payment stays "not confirmed yet", send us what the provider's
+      dashboard shows for it. Then save the live keys and turn the test
+      switch off.
+- [ ] **Kashier and Fawaterk webhooks:** nothing to set: each payment tells
+      the provider its own webhook address
+      (`/api/pay/kashier/…` and `/api/pay/fawaterk/…`). If Fawaterk's
+      dashboard asks for a webhook address, leave it empty: each invoice
+      carries its own, and the customer's return confirms the payment too.
 - [ ] **Settings › Marketplace:** the commission percent Yallapp keeps from
-      shops that sell through Yallapp's iyzico account.
+      shops that sell through Yallapp's account. With Kashier or Fawaterk,
+      the team transfers each released share to the shop's IBAN (listed on
+      **Payments**).
 - [ ] **Settings › Contact:** WhatsApp number and email shown on the website.
 - [ ] **Settings › Publishing service:** the publishing team email clients
       invite to their store accounts ("Publish it for me"). Use a mailbox the
@@ -203,6 +234,7 @@ Nothing to set on Netlify: the preview is served from the site's own files
 | 8.4 | A Shopify development store (Storefront token, and an Admin API token for order history) |
 | 8.5 | A test account on each platform: ikas, Ticimax, IdeaSoft, Teachable (Growth plan), Thinkific (Grow plan), SimplyBook.me (API feature) |
 | 8.6, 9.4, 9.5 | An iyzico sandbox account, then the live account |
+| 37 | Kashier and Fawaterk test accounts (then live ones): a plan payment and a shop order paid with each provider's test card, confirmed on the live site |
 | 10.5–10.7 | A WordPress test site and a Real estate test app built on the hosted API, to see published pages, languages and listings on a phone |
 | 14.2, 14.3 | A first client who asks us to publish: their Google Play and Apple developer accounts inviting the publishing team email |
 | 17.7 | A WordPress test site with the new plugin, and a phone, to try the preview of a WordPress app and its QR code |

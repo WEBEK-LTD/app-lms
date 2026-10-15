@@ -8,16 +8,18 @@ import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
 import { moveOrder } from "@/lib/catalog/kitchen";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
 import { parseOptionGroups } from "@/lib/catalog/options";
-import { parseSubMerchantForm } from "@/lib/catalog/marketplace";
+import { parsePayeeForm, parseSubMerchantForm } from "@/lib/catalog/marketplace";
 import { approvePayout } from "@/lib/catalog/payment";
-import { accountForOrder, catalogSettings, encryptPaymentKeys, marketplaceTerms } from "@/lib/catalog/settings";
+import { accountForOrder, catalogSettings, encryptOwnPayment, encryptPayout, marketplaceTerms, type OwnPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput, FulfilmentStatus } from "@/lib/data/types";
-import { encryptionKey, iyzicoApiUrl } from "@/lib/env";
+import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput, FulfilmentStatus, MarketplacePayment } from "@/lib/data/types";
+import { encryptionKey, iyzicoApiUrl, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { checkIyzicoKeys, createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
+import { createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
+import { validKashierMerchantId } from "@/lib/payments/kashier";
+import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { serviceAccountOf } from "@/lib/hosted/notify";
@@ -28,7 +30,7 @@ const PRODUCT_IMAGES_MAX = 6;
 /**
  * An active client whose app sells from the dashboard (products, or with
   * `courses` also paid courses, 27 memberships and 28 paid tickets: card payments and orders; 29 with `campaigns`
-  * also a charity's own iyzico keys), or a redirect.
+  * also a charity's own payment keys), or a redirect.
  */
 async function requireCatalogApp(options: { courses?: boolean; campaigns?: boolean } = {}): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
@@ -221,40 +223,76 @@ export async function saveFulfilmentAction(_: FormState, formData: FormData): Pr
   return { ok: true, message: "Pickup and delivery saved.", values };
 }
 
+/**
+ * The owner's own merchant account: 37 iyzico (API key, secret key),
+ * Kashier (merchant ID, Payment API key, secret key) or Fawaterk (API key),
+ * each with its test switch. The keys are checked with the provider by a
+ * call that changes nothing, then kept encrypted.
+ */
 export async function savePaymentKeysAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp({ courses: true, campaigns: true });
   const { app } = context;
-  const apiKey = str(formData, "apiKey");
-  const secretKey = str(formData, "secretKey");
+  const provider = str(formData, "provider") || "iyzico";
   const sandbox = formData.get("sandbox") === "on";
-  const errors: Record<string, string> = {};
-  if (!apiKey || apiKey.length > 200) errors.apiKey = "Paste your iyzico API key.";
-  if (!secretKey || secretKey.length > 200) errors.secretKey = "Paste your iyzico secret key.";
-  if (Object.keys(errors).length > 0) return { errors, values: { apiKey: "", sandbox: sandbox ? "on" : "" } };
-  const accepted = await checkIyzicoKeys({ apiKey, secretKey, sandbox }, { baseUrl: iyzicoApiUrl() });
+  const values = { provider, merchantId: str(formData, "merchantId"), sandbox: sandbox ? "on" : "" };
+  if (!isPaymentProvider(provider)) return { errors: { provider: "Choose your payment provider." }, values };
+  const read = readOwnKeys(provider, formData, sandbox);
+  if (!read.ok) return { errors: read.errors, values };
+  const name = PROVIDER_NAME[provider];
+  const accepted = await checkAccount(accountOf(read.input), { urls: paymentApiUrls() });
   if (accepted === false) {
     return {
-      errors: { apiKey: `iyzico didn't accept these keys. Check them, and that they're your ${sandbox ? "sandbox" : "live"} keys.` },
-      values: { sandbox: sandbox ? "on" : "" },
+      errors: { apiKey: `${name} didn't accept these keys. Check them, and that they're your ${sandbox ? "test" : "live"} keys.` },
+      values,
     };
   }
   const now = new Date();
-  await (await getStore()).updateApp(
-    app.id,
-    { catalogSettings: { ...catalogSettings(app), payment: encryptPaymentKeys(app.id, apiKey, secretKey, sandbox, encryptionKey()) } },
-    now,
-  );
-  await recordStaffChange(context, `Saved the shop's own iyzico keys (${sandbox ? "sandbox" : "live"})`);
+  await (await getStore()).updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment: encryptOwnPayment(app.id, read.input, encryptionKey()) } }, now);
+  await recordStaffChange(context, `Saved the shop's own ${name} keys (${sandbox ? "test" : "live"})`);
   refresh();
   return {
     ok: true,
-    message: accepted ? "iyzico keys saved. Your app can take payments." : "Keys saved. We couldn't reach iyzico to check them; try a test order.",
+    message: accepted ? `${name} keys saved. Your app can take payments.` : `Keys saved. We couldn't reach ${name} to check them; try a test order.`,
   };
+}
+
+/** 37 The keys a provider needs, from the form. */
+function readOwnKeys(
+  provider: OwnPaymentInput["provider"],
+  formData: FormData,
+  sandbox: boolean,
+): { ok: true; input: OwnPaymentInput } | { ok: false; errors: Record<string, string> } {
+  const key = (name: string) => {
+    const value = str(formData, name);
+    return value && value.length <= 300 && !/\s/.test(value) ? value : null;
+  };
+  const errors: Record<string, string> = {};
+  const name = PROVIDER_NAME[provider];
+  const apiKey = key("apiKey");
+  if (!apiKey) errors.apiKey = provider === "kashier" ? "Paste your Kashier Payment API key." : `Paste your ${name} API key.`;
+  if (provider === "fawaterk") return apiKey ? { ok: true, input: { provider, apiKey, sandbox } } : { ok: false, errors };
+  const secretKey = key("secretKey");
+  if (!secretKey) errors.secretKey = `Paste your ${name} secret key.`;
+  if (provider === "iyzico") return apiKey && secretKey ? { ok: true, input: { provider, apiKey, secretKey, sandbox } } : { ok: false, errors };
+  const merchantId = str(formData, "merchantId");
+  if (!validKashierMerchantId(merchantId)) errors.merchantId = "Enter your merchant ID, like MID-1234-567.";
+  return apiKey && secretKey && !errors.merchantId ? { ok: true, input: { provider, merchantId, apiKey, secretKey, sandbox } } : { ok: false, errors };
+}
+
+function accountOf(input: OwnPaymentInput): PaymentAccount {
+  if (input.provider === "kashier") return { provider: "kashier", keys: { merchantId: input.merchantId, apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
+  if (input.provider === "fawaterk") return { provider: "fawaterk", keys: { apiKey: input.apiKey, sandbox: input.sandbox } };
+  return { provider: "iyzico", keys: { apiKey: input.apiKey, secretKey: input.secretKey, sandbox: input.sandbox } };
 }
 
 const SUB_MERCHANT_FIELDS = ["type", "payeeName", "contactName", "email", "phone", "address", "iban", "identityNumber", "taxOffice", "legalCompanyTitle", "taxNumber"];
 
-/** The shop sells through Yallapp's account: iyzico registers it as a sub-merchant that gets each sale minus the commission. */
+/**
+ * The shop sells through Yallapp's account. With iyzico, iyzico registers it
+ * as a sub-merchant that gets each sale minus the commission. 37 With
+ * Kashier or Fawaterk the shop gives who gets paid and its IBAN, and the
+ * team transfers each released share.
+ */
 export async function joinMarketplaceAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCatalogApp({ courses: true });
   const { app } = context;
@@ -263,13 +301,42 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
   const store = await getStore();
   const terms = await marketplaceTerms(store, encryptionKey());
   // 11.5 Switches: joining can be switched off, for everyone or per plan.
-  if (!terms || !featureOn(await getSwitches(store), "marketplace", context.license?.plan ?? null)) return { message: "Selling through Yallapp isn't available right now. Add your own iyzico keys instead.", values };
+  if (!terms || !featureOn(await getSwitches(store), "marketplace", context.license?.plan ?? null)) {
+    return { message: "Selling through Yallapp isn't available right now. Add your own payment keys instead.", values };
+  }
+  const now = new Date();
+  const join = async (payment: MarketplacePayment, iban: string) => {
+    await store.updateApp(app.id, { catalogSettings: { ...catalogSettings(app), payment } }, now);
+    await recordStaffChange(context, `Joined selling through Yallapp (payee ${payment.payeeName})`);
+    refresh();
+    const who = payment.subMerchantKey ? "iyzico pays" : "Yallapp transfers";
+    return { ok: true, message: `Done. Your app takes payments now; ${who} your share to the IBAN ending ${iban.slice(-4)}.` };
+  };
+  if (terms.account.provider !== "iyzico") {
+    const parsed = parsePayeeForm(values);
+    if (!parsed.ok) return { errors: parsed.errors, values };
+    return join(
+      {
+        provider: "yallapp",
+        via: terms.account.provider,
+        subMerchantKey: "",
+        subMerchantType: "PERSONAL",
+        payeeName: parsed.payee.name,
+        ibanLast4: parsed.payee.iban.slice(-4),
+        // The team transfers the shares: it needs the whole IBAN and who to ask, kept encrypted.
+        payoutEncrypted: encryptPayout(app.id, parsed.payee, encryptionKey()),
+        sandbox: terms.account.keys.sandbox,
+        joinedAt: now.toISOString(),
+      },
+      parsed.payee.iban,
+    );
+  }
   const parsed = parseSubMerchantForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
   let subMerchantKey: string;
   try {
     subMerchantKey = await createSubMerchant(
-      terms.keys,
+      terms.account.keys,
       { ...parsed.details, conversationId: `shop-${app.id}`, subMerchantExternalId: app.id, currency: catalogSettings(app).currency },
       { baseUrl: iyzicoApiUrl() },
     );
@@ -277,28 +344,18 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
     if (e instanceof IyzicoError) return { message: `iyzico didn't accept these details: ${e.message}`, values };
     throw e;
   }
-  const now = new Date();
-  await store.updateApp(
-    app.id,
+  return join(
     {
-      catalogSettings: {
-        ...catalogSettings(app),
-        payment: {
-          provider: "yallapp",
-          subMerchantKey,
-          subMerchantType: parsed.details.subMerchantType,
-          payeeName: parsed.details.name,
-          ibanLast4: parsed.details.iban.slice(-4),
-          sandbox: terms.keys.sandbox,
-          joinedAt: now.toISOString(),
-        },
-      },
+      provider: "yallapp",
+      subMerchantKey,
+      subMerchantType: parsed.details.subMerchantType,
+      payeeName: parsed.details.name,
+      ibanLast4: parsed.details.iban.slice(-4),
+      sandbox: terms.account.keys.sandbox,
+      joinedAt: now.toISOString(),
     },
-    now,
+    parsed.details.iban,
   );
-  await recordStaffChange(context, `Joined selling through Yallapp (payee ${parsed.details.name})`);
-  refresh();
-  return { ok: true, message: `Done. Your app takes payments now; iyzico pays your share to the IBAN ending ${parsed.details.iban.slice(-4)}.` };
 }
 
 export async function removePaymentKeysAction(): Promise<void> {
@@ -330,7 +387,7 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
     // A completed marketplace order releases the shop's share; our team can also do it from the admin.
     if (status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
       const account = await accountForOrder(store, app, order, encryptionKey());
-      if (account) await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now, order });
+      if (account) await approvePayout({ store, app, account, urls: paymentApiUrls(), now, order });
     }
   }
   refresh();
@@ -352,7 +409,7 @@ export async function moveOrderAction(formData: FormData): Promise<void> {
     const { moved } = await moveOrder({ store, app, order, to, account: serviceAccountOf(app, encryptionKey()), now });
     if (moved && to === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
       const account = await accountForOrder(store, app, order, encryptionKey());
-      if (account) await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now, order });
+      if (account) await approvePayout({ store, app, account, urls: paymentApiUrls(), now, order });
     }
   }
   refresh();

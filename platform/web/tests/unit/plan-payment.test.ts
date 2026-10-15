@@ -27,7 +27,7 @@ async function start(setup: Awaited<ReturnType<typeof setupClient>>, fetcher: ty
   let token = "";
   const url = await startPlanPayment({
     store: setup.store,
-    keys: IYZICO,
+    account: { provider: "iyzico", keys: IYZICO },
     fetcher,
     now: NOW,
     client: setup.client,
@@ -35,9 +35,9 @@ async function start(setup: Awaited<ReturnType<typeof setupClient>>, fetcher: ty
     plan: PLANS.pro,
     billing: { city: "Istanbul", address: "Bağdat Caddesi 1, Kadıköy" },
     ip: "203.0.113.5",
-    callbackUrl: (t) => {
+    callbackUrls: (t) => {
       token = t;
-      return `https://yallapp.test/api/pay/plan/${t}`;
+      return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
     },
   });
   const payment = (await setup.store.getPlanPaymentByToken(sha256Hex(token)))!;
@@ -72,7 +72,7 @@ describe("plan payments", () => {
     expect(iyzico.started[0]).toMatchObject({ price: "4800.00", paidPrice: "4800.00", currency: "TRY", basketId: payment.id });
     expect(payment).toMatchObject({ status: "pending", plan: "pro", months: 12, amountCents: 480000 });
 
-    const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
+    const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
     expect(outcome.kind).toBe("paid");
     if (outcome.kind !== "paid") return;
     expect(outcome.activation.created).toBe(true);
@@ -86,7 +86,7 @@ describe("plan payments", () => {
     const again = (await setup.store.getPlanPaymentByToken(payment.tokenHash))!;
     expect(again.status).toBe("paid");
     expect(
-      (await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment: again, iyzicoToken: "iyzi-1", encryptionKey: KEY })).kind,
+      (await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment: again, iyzicoToken: "iyzi-1", encryptionKey: KEY })).kind,
     ).toBe("already_paid");
     expect((await licenseOf(setup.store, setup.client.id))?.expiresAt).toEqual(outcome.activeUntil);
   });
@@ -95,7 +95,7 @@ describe("plan payments", () => {
     const setup = await setupClient({ plan: "starter", activeUntil: days(20) });
     const iyzico = fakeIyzico((basketId, price) => ({ status: "success", paymentStatus: "SUCCESS", paymentId: "9002", paidPrice: Number(price), basketId }));
     const { payment } = await start(setup, iyzico.fetcher);
-    const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
+    const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
     expect(outcome.kind === "paid" && outcome.activation.created).toBe(false);
     expect(outcome.kind === "paid" && outcome.activation.licenseKey).toBe(setup.licenseKey);
     const license = await licenseOf(setup.store, setup.client.id);
@@ -113,7 +113,7 @@ describe("plan payments", () => {
       const setup = await setupClient({ activate: false });
       const iyzico = fakeIyzico(detail);
       const { payment } = await start(setup, iyzico.fetcher);
-      const outcome = await completePlanPayment({ store: setup.store, keys: IYZICO, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
+      const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
       expect(outcome.kind).toBe("failed");
       expect((await setup.store.getClientById(setup.client.id))?.status).toBe("pending");
       expect(await licenseOf(setup.store, setup.client.id)).toBeNull();

@@ -22,7 +22,7 @@ import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
  * 29 The Campaigns and Donations pages of Charity & donations apps: campaigns
  * (drafts, open, closed, featured), how the app takes donations, and updates
  * sent to a campaign's donors. Payment keys are saved with the shop's
- * actions (app/actions/catalog.ts), own iyzico keys only.
+ * actions (app/actions/catalog.ts), own payment keys only.
  */
 
 async function requireCharityApp(): Promise<ClientContext & { app: App }> {

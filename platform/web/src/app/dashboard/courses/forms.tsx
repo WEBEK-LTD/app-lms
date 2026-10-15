@@ -10,6 +10,7 @@ import {
   saveLessonAction,
 } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
@@ -127,7 +128,7 @@ export function CurrencyForm({ currency }: { currency: string }) {
           Currency
         </label>
         <select id="f-currency" name="currency" defaultValue={currency} className="input input-sm w-[140px]">
-          {["TRY", "USD", "EUR"].map((c) => (
+          {CATALOG_CURRENCIES.map((c) => (
             <option key={c}>{c}</option>
           ))}
         </select>

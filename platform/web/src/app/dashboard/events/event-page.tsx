@@ -212,7 +212,7 @@ export async function EventPage({ id, notice }: { id: number | null; notice: { s
           </div>
         ) : null}
         {event.status === "published" && phase !== "ended" ? (
-          <p className="m-0 text-[13px] text-muted">Cancelling cancels every ticket and tells their holders in the app. Refund paid tickets in your iyzico panel.</p>
+          <p className="m-0 text-[13px] text-muted">Cancelling cancels every ticket and tells their holders in the app. Refund paid tickets in your payment provider&apos;s panel.</p>
         ) : null}
       </section>
 

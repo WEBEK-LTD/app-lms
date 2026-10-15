@@ -149,7 +149,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
       </section>
 
-      <CardPayments app={app} />
+      <CardPayments app={app} currency={data.settings.currency} />
     </div>
   );
 }

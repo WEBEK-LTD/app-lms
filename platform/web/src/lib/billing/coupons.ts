@@ -1,4 +1,4 @@
-import { formatCents, parsePrice } from "../catalog/money";
+import { CATALOG_CURRENCIES, formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption, License } from "../data/types";
 import { PLANS, type Plan, type PlanInfo } from "../plans";
@@ -11,10 +11,10 @@ import type { RateLimitRule } from "../rate-limit";
  * plan without a card payment.
  */
 
-/** iyzico doesn't take card payments under 1.00 in any currency; a smaller discounted price is raised to this. */
+/** iyzico doesn't take card payments under 1.00 in any currency (37 the same minimum is kept for Kashier and Fawaterk); a smaller discounted price is raised to this. */
 export const MIN_CARD_CENTS = 100;
 
-/** A pending redemption holds its use this long (iyzico's page expires in 30 minutes). */
+/** A pending redemption holds its use this long (the provider's page expires within it). */
 export const PENDING_HOLD_MS = 60 * 60 * 1000;
 
 /** Coupon codes a client may try, so codes can't be guessed. */
@@ -46,12 +46,12 @@ export function couponPrice(discount: CouponDiscount, plan: Pick<PlanInfo, "pric
   }
   off = Math.min(Math.max(off, 0), full);
   let amount = full - off;
-  // Never below what iyzico takes: a price that isn't free is at least the minimum.
+  // Never below what the providers take: a price that isn't free is at least the minimum.
   if (amount > 0 && amount < MIN_CARD_CENTS) amount = Math.min(MIN_CARD_CENTS, full);
   return { fullCents: full, discountCents: full - amount, amountCents: amount };
 }
 
-/** Uses that count against the limits: redeemed ones, and pending ones still on iyzico's page. */
+/** Uses that count against the limits: redeemed ones, and pending ones still on the provider's page. */
 export function countedRedemptions(redemptions: CouponRedemption[], now: Date): CouponRedemption[] {
   return redemptions.filter((r) => r.status === "redeemed" || (r.status === "pending" && now.getTime() - r.createdAt.getTime() < PENDING_HOLD_MS));
 }
@@ -199,7 +199,7 @@ export interface CouponInput {
 
 const ALL_PLANS: Plan[] = [...PLANS];
 const ALL_PERIODS: (1 | 12)[] = [1, 12];
-const CURRENCIES: CatalogCurrency[] = ["TRY", "USD", "EUR"];
+const CURRENCIES: CatalogCurrency[] = CATALOG_CURRENCIES;
 
 /** The admin's coupon form, checked; or an error per field. Every plan or period ticked is stored as "all". */
 export function readCouponForm(input: {

@@ -1,4 +1,5 @@
 import type { IconName } from "@/components/icon-names";
+import type { CatalogCurrency } from "./data/types";
 
 /**
  * Yallapp's plans (roadmap 9.2 and 13.1): four tiers, each with features and
@@ -68,7 +69,8 @@ export interface PlanInfo {
   period: string | null;
   /** The price clients pay by card; null while prices are agreed on WhatsApp. */
   priceCents: number | null;
-  currency: "TRY" | "USD" | "EUR";
+  /** 37 Card payments take it only when Yallapp's provider takes it (EGP with Kashier and Fawaterk). */
+  currency: CatalogCurrency;
   /** How long a payment keeps the plan active. */
   billingMonths: 1 | 12;
 }

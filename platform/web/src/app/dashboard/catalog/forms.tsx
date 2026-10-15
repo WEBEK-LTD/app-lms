@@ -487,19 +487,57 @@ export function ShopSettingsForm({
   );
 }
 
-export function PaymentKeysForm({ sandbox }: { sandbox: boolean }) {
+type ProviderChoice = "iyzico" | "kashier" | "fawaterk";
+
+/** 37 Where each provider shows the keys, for the hint under the choice. */
+const KEYS_WHERE: Record<ProviderChoice, string> = {
+  iyzico: "Find your API key and secret key in the iyzico merchant panel, under Settings.",
+  kashier: "Find your merchant ID, and create your Payment API key and secret key, in the Kashier dashboard under Integrate now. Test and live keys differ.",
+  fawaterk: "Find your API key in the Fawaterk dashboard, under Integrations. Staging and live keys differ.",
+};
+
+/** The owner's own merchant account: 37 iyzico, Kashier or Fawaterk, with the keys each one needs. */
+export function PaymentKeysForm({ provider, sandbox, merchantId = "" }: { provider: ProviderChoice | null; sandbox: boolean; merchantId?: string }) {
   const [state, action] = useActionState(savePaymentKeysAction, initialFormState);
+  const [choice, setChoice] = useState<ProviderChoice>((state.values?.provider as ProviderChoice | undefined) || provider || "iyzico");
+  const testLabel = choice === "iyzico" ? "Sandbox keys" : choice === "kashier" ? "Test mode keys" : "Staging key";
+  const testHint =
+    choice === "iyzico"
+      ? "For test payments with iyzico's test cards. Turn off when you paste your live keys."
+      : choice === "kashier"
+        ? "For test payments with Kashier's test cards. Turn off when you paste your live keys."
+        : "For test payments on Fawaterk's staging site. Turn off when you paste your live key.";
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <Field label="API key" name="apiKey" autoComplete="off" required error={state.errors?.apiKey} />
-      <Field label="Secret key" name="secretKey" type="password" autoComplete="off" required error={state.errors?.secretKey} />
-      <Check
-        name="sandbox"
-        label="Sandbox keys"
-        hint="For test payments with iyzico's test cards. Turn off when you paste your live keys."
-        defaultChecked={state.values ? state.values.sandbox === "on" : sandbox}
-      />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="f-provider" className="text-sm font-semibold">
+          Payment provider
+        </label>
+        <select id="f-provider" name="provider" value={choice} onChange={(event) => setChoice(event.target.value as ProviderChoice)} className="input">
+          <option value="iyzico">iyzico (Türkiye)</option>
+          <option value="kashier">Kashier (Egypt)</option>
+          <option value="fawaterk">Fawaterk (Egypt)</option>
+        </select>
+        <span className="text-[13px] leading-normal text-muted">{KEYS_WHERE[choice]}</span>
+        <FieldError id="f-provider-error" error={state.errors?.provider} />
+      </div>
+      {choice === "kashier" ? (
+        <Field
+          label="Merchant ID"
+          name="merchantId"
+          autoComplete="off"
+          placeholder="MID-1234-567"
+          defaultValue={state.values?.merchantId ?? merchantId}
+          required
+          error={state.errors?.merchantId}
+        />
+      ) : null}
+      <Field key={`api-${choice}`} label={choice === "kashier" ? "Payment API key" : "API key"} name="apiKey" autoComplete="off" required error={state.errors?.apiKey} />
+      {choice !== "fawaterk" ? (
+        <Field key={`secret-${choice}`} label="Secret key" name="secretKey" type="password" autoComplete="off" required error={state.errors?.secretKey} />
+      ) : null}
+      <Check key={`test-${choice}`} name="sandbox" label={testLabel} hint={testHint} defaultChecked={state.values ? state.values.sandbox === "on" : sandbox} />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Checking…">
           Save keys
@@ -509,13 +547,37 @@ export function PaymentKeysForm({ sandbox }: { sandbox: boolean }) {
   );
 }
 
-/** Selling through Yallapp's iyzico account: the details iyzico needs to pay the shop. */
-export function MarketplaceForm({ types }: { types: { id: string; label: string }[] }) {
+/**
+ * Selling through Yallapp's account. With iyzico: the details iyzico needs
+ * to register and pay the shop. 37 With Kashier or Fawaterk: who the team
+ * transfers the shop's share to.
+ */
+export function MarketplaceForm({ types, provider = "iyzico" }: { types: { id: string; label: string }[]; provider?: ProviderChoice }) {
   const [state, action] = useActionState(joinMarketplaceAction, initialFormState);
   const v = state.values ?? {};
   const e = state.errors ?? {};
   const [type, setType] = useState(v.type || "PERSONAL");
   const company = type !== "PERSONAL";
+  if (provider !== "iyzico") {
+    return (
+      <form action={action} noValidate className="flex flex-col gap-4">
+        <FormMessage message={state.message} ok={state.ok} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Shop name" name="payeeName" defaultValue={v.payeeName} error={e.payeeName} small />
+          <Field label="Your full name" name="contactName" autoComplete="name" defaultValue={v.contactName} error={e.contactName} small />
+          <Field label="Email" name="email" type="email" autoComplete="email" defaultValue={v.email} error={e.email} small />
+          <Field label="Mobile number" name="phone" type="tel" autoComplete="tel" defaultValue={v.phone} error={e.phone} small />
+        </div>
+        <Field label="Address" name="address" autoComplete="street-address" defaultValue={v.address} error={e.address} small />
+        <Field label="IBAN" name="iban" autoComplete="off" placeholder="EG" defaultValue={v.iban} hint="Where Yallapp transfers your share. It must be in the payee's name." error={e.iban} small />
+        <div className="flex justify-end">
+          <SubmitButton className="h-10" pendingText="Saving…">
+            Sell through Yallapp
+          </SubmitButton>
+        </div>
+      </form>
+    );
+  }
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />

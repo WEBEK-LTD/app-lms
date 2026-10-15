@@ -8,7 +8,7 @@ import { DEFAULT_CATALOG_SETTINGS, type App, type CampaignInput, type Donation }
 import { placeDemoDonation } from "@/lib/demo/checkout";
 import { csvCell, donationsCsv, donorsOf, parseCampaignForm, parseCampaignUpdate, parseDonationSettings, parsePresets } from "@/lib/donations/forms";
 import { campaignPageItems, progressBadge } from "@/lib/donations/page-items";
-import { completeDonationPayment, donationKeys, donationReceiptValues, readDonor, startDonationPayment } from "@/lib/donations/payment";
+import { completeDonationPayment, donationAccount, donationReceiptValues, readDonor, startDonationPayment } from "@/lib/donations/payment";
 import { amountProblem, readDonationRequest, shortName } from "@/lib/donations/service";
 import { emailTemplate, renderTemplate } from "@/lib/email/templates";
 import { DonationsConnector, openInFor } from "@/lib/hosted/connectors/donations";
@@ -175,8 +175,8 @@ describe("29 charity campaigns and donations on the hosted API", () => {
   it("refuses donations the campaign or the charity can't take", async () => {
     const code = (r: HostedResult) => [r.status, (r.body as { code: string }).code];
     // The charity's own keys, the same account orders, tickets and memberships use, and no commission.
-    expect(donationKeys(app, KEY)).toEqual(IYZICO);
-    expect(await checkoutAccount(store, app, KEY)).toEqual({ keys: IYZICO, marketplace: null });
+    expect(donationAccount(app, KEY)).toEqual({ provider: "iyzico", keys: IYZICO });
+    expect(await checkoutAccount(store, app, KEY)).toEqual({ account: { provider: "iyzico", keys: IYZICO }, marketplace: null });
     expect(code(await donate("android", { amount: "20" }))).toEqual([400, "invalid_request"]);
     expect(code(await donate("android", { amount: "abc" }))).toEqual([400, "invalid_request"]);
     // Monthly donations aren't offered yet: refused, never charged once instead.
@@ -199,7 +199,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
     // Only the charity's own iyzico keys: never Yallapp's marketplace account.
     app = { ...app, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, payment: { provider: "yallapp", subMerchantKey: "sub", subMerchantType: "PERSONAL", payeeName: "X", ibanLast4: "1234", sandbox: true, joinedAt: NOW.toISOString() } } };
     expect(code(await donate("android", { amount: "150" }))).toEqual([503, "donations_unavailable"]);
-    expect(donationKeys(app, KEY)).toBeNull();
+    expect(donationAccount(app, KEY)).toBeNull();
     app = { ...app, catalogSettings: DEFAULT_CATALOG_SETTINGS };
     expect(code(await donate("android", { amount: "150" }))).toEqual([503, "donations_unavailable"]);
   });
@@ -222,7 +222,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       let donation = (await store.getDonationByToken(sha256Hex(t)))!;
       const donor = readDonor(app, { name: "Elif Yılmaz", email, phone: "", city: "Izmir" });
       if (!donor.ok) throw new Error("donor");
-      await startDonationPayment({ store, app, keys: IYZICO, donation, donor: donor.donor, ip: "203.0.113.9", callbackUrl: `https://yallapp.test/api/pay/donation/${t}`, now, fetcher: iyzico(paid, () => donation) });
+      await startDonationPayment({ store, app, account: { provider: "iyzico", keys: IYZICO }, donation, donor: donor.donor, ip: "203.0.113.9", callbackUrls: { returnUrl: `https://yallapp.test/api/pay/donation/${t}`, webhookUrl: null }, now, fetcher: iyzico(paid, () => donation) });
       donation = (await store.getDonation(app.id, donation.id))!;
       return donation;
     }
@@ -244,25 +244,25 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 0, donorCount: 0 });
       // A callback iyzico doesn't confirm, or for less, counts nothing.
       const failed = (d: Donation) => ({ status: "success", paymentStatus: "FAILURE", basketId: `donation-${d.id}`, paidPrice: 300 });
-      expect(await completeDonationPayment({ store, keys: IYZICO, donation: first, iyzicoToken: "t", now, fetcher: iyzico(failed, () => first) })).toBe("failed");
+      expect(await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: first, iyzicoToken: "t", now, fetcher: iyzico(failed, () => first) })).toBe("failed");
       const less = (d: Donation) => ({ ...paid(d), paidPrice: 1 });
-      expect(await completeDonationPayment({ store, keys: IYZICO, donation: first, iyzicoToken: "t", now, fetcher: iyzico(less, () => first) })).toBe("failed");
+      expect(await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: first, iyzicoToken: "t", now, fetcher: iyzico(less, () => first) })).toBe("failed");
       const other = (d: Donation) => ({ ...paid(d), basketId: "donation-999" });
-      expect(await completeDonationPayment({ store, keys: IYZICO, donation: first, iyzicoToken: "t", now, fetcher: iyzico(other, () => first) })).toBe("failed");
+      expect(await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: first, iyzicoToken: "t", now, fetcher: iyzico(other, () => first) })).toBe("failed");
       expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 0, donorCount: 0 });
 
-      expect(await completeDonationPayment({ store, keys: IYZICO, donation: first, iyzicoToken: "t", now, fetcher: iyzico(paid, () => first) })).toBe("paid");
+      expect(await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: first, iyzicoToken: "t", now, fetcher: iyzico(paid, () => first) })).toBe("paid");
       expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 300_00, donorCount: 1 });
       // The same callback twice adds nothing.
       const again = (await store.getDonation(app.id, first.id))!;
-      expect(await completeDonationPayment({ store, keys: IYZICO, donation: again, iyzicoToken: "t", now, fetcher: iyzico(paid, () => again) })).toBe("already_paid");
+      expect(await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: again, iyzicoToken: "t", now, fetcher: iyzico(paid, () => again) })).toBe("already_paid");
       expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 300_00, donorCount: 1 });
 
       // The same donor again: more raised, still one donor. Another donor: two.
       const second = await started({ amount: "150" }, "elif@example.com");
-      await completeDonationPayment({ store, keys: IYZICO, donation: second, iyzicoToken: "t", now, fetcher: iyzico(paid, () => second) });
+      await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: second, iyzicoToken: "t", now, fetcher: iyzico(paid, () => second) });
       const third = await started({ amount: "75.50" }, "mert@example.com");
-      await completeDonationPayment({ store, keys: IYZICO, donation: third, iyzicoToken: "t", now, fetcher: iyzico(paid, () => third) });
+      await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: third, iyzicoToken: "t", now, fetcher: iyzico(paid, () => third) });
       expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 525_50, donorCount: 2 });
 
       // The campaign shows them, without the anonymous donor's name.
@@ -279,7 +279,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
       const { access_token } = await signUp();
       const mine = await started({ amount: "300" }, "sara@example.com", access_token);
       await started({ amount: "150" }, "sara@example.com", access_token); // never paid
-      await completeDonationPayment({ store, keys: IYZICO, donation: mine, iyzicoToken: "t", now, fetcher: iyzico(paid, () => mine) });
+      await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation: mine, iyzicoToken: "t", now, fetcher: iyzico(paid, () => mine) });
       const list = await call("GET", "/me/donations", { token: access_token });
       const items = (list.body as { items: Record<string, unknown>[] }).items;
       expect(items).toHaveLength(1);
@@ -293,7 +293,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
 
     it("sends a receipt with the charity, amount, date and reference, and no tax claims", async () => {
       const donation = await started({ amount: "300" }, "elif@example.com");
-      await completeDonationPayment({ store, keys: IYZICO, donation, iyzicoToken: "t", now, fetcher: iyzico(paid, () => donation) });
+      await completeDonationPayment({ store, account: { provider: "iyzico", keys: IYZICO }, donation, iyzicoToken: "t", now, fetcher: iyzico(paid, () => donation) });
       const paidDonation = (await store.getDonation(app.id, donation.id))!;
       const values = donationReceiptValues(paidDonation, "Bereket Food Bank", "https://yallapp.test/receipts/abc");
       expect(values).toMatchObject({ org_name: "Bereket Food Bank", amount: "₺300.00", campaign: "Winter food parcels", reference: `D-${1000 + donation.id}`, date: "12 October 2026" });
@@ -348,7 +348,7 @@ describe("29 charity campaigns and donations on the hosted API", () => {
     expect(await store.getDonation(app.id, donation.id)).toMatchObject({ status: "paid", paymentId: "demo" });
     expect(await store.getCampaign(app.id, ids.parcels)).toMatchObject({ raisedCents: 0, donorCount: 0 });
     expect(await placeDemoDonation(store, app, donation, now)).toBe(false);
-    expect(donationKeys(app, KEY)).toBeNull();
+    expect(donationAccount(app, KEY)).toBeNull();
     const counts = await store.purgeDemoActivity(app.id, days(2));
     expect(counts.donations).toBe(1);
   });

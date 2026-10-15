@@ -133,7 +133,7 @@ Open [Create an account](/sign-up) and enter your full name, email, WhatsApp num
 
 New accounts wait for activation. On the waiting page you can:
 
-- **Pay by card**, when card prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on iyzico's secure page, and your account is activated as soon as the payment is confirmed.
+- **Pay by card**, when card prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk), and your account is activated as soon as the payment is confirmed.
 - **Message us on WhatsApp** to arrange your plan with our team. We activate your account once the payment is confirmed.
 
 We email you when your account is active.
@@ -189,7 +189,7 @@ Event listings with a calendar, free sign-ups and paid tickets with QR codes che
 
 ## Charity & donations
 
-Campaigns with their story, a goal and a progress bar, for charities, food banks, foundations and community groups. Supporters choose an amount and donate on your secure donation page, into your own iyzico account, and get a receipt by email. Campaigns are managed in the Yallapp dashboard, so you don't need a website. On iPhone, the donation page opens in the browser, as Apple requires. See [Charity and donation apps](/docs/donations) and [the Charity & donations solution](/solutions/charity).
+Campaigns with their story, a goal and a progress bar, for charities, food banks, foundations and community groups. Supporters choose an amount and donate on your secure donation page, into your own iyzico, Kashier or Fawaterk account, and get a receipt by email. Campaigns are managed in the Yallapp dashboard, so you don't need a website. On iPhone, the donation page opens in the browser, as Apple requires. See [Charity and donation apps](/docs/donations) and [the Charity & donations solution](/solutions/charity).
 
 ## Changing the app type later
 
@@ -634,7 +634,7 @@ Select **Save & continue**. We check them with SimplyBook.me before saving.
 
 ## What you manage, by app type
 
-- **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico. See [Products, orders and shipping](/docs/store-orders) and [Card payments with iyzico](/docs/card-payments).
+- **Store**: products, categories, stock and shipping on the **Products** page, and orders on the **Orders** page. Customers pay by card through iyzico, Kashier or Fawaterk. See [Products, orders and shipping](/docs/store-orders) and [Card payments](/docs/card-payments).
 - **Restaurant & café**: dishes, their options, opening hours, pickup and delivery on the **Menu** page, and orders on the **Kitchen** page. See [Restaurants and cafés](/docs/restaurants).
 - **Academy**: courses, sections and lessons on the **Courses** page, and orders for paid courses. See [Courses without a website](/docs/courses).
 - **Bookings**: services, your team, working hours and booking rules on the **Services & team** page, and appointments on the **Appointments** page. See [Services, team and appointments](/docs/bookings).
@@ -1211,7 +1211,7 @@ Set a **Shipping fee** for orders with physical products (leave it empty for fre
 
 ## Payments
 
-Customers pay by card on a secure iyzico page. Add your own iyzico keys, or sell through Yallapp's iyzico account: see [Card payments with iyzico](/docs/card-payments).
+Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk). Add your own keys, or sell through Yallapp's account: see [Card payments](/docs/card-payments).
 
 ## Orders
 
@@ -1254,11 +1254,11 @@ When you're closed, the app says **Closed now** and when you open. Orders as soo
 
 Paid orders appear on **Kitchen** with what was chosen, pickup or delivery, the time and the address. You also get an email for each one. Move each order on with one button: **Preparing**, **Ready**, **Out for delivery** (deliveries only) and **Completed**, or **Cancel order**. An order only moves forward. Each step reaches the customer as a notification, and their order in the app shows where it is. The page refreshes by itself every 30 seconds.
 
-> Cancelled orders aren't refunded automatically: refund them in your iyzico panel.
+> Cancelled orders aren't refunded automatically: refund them in your payment provider's panel.
 
 ## Payments
 
-Customers sign in, then pay by card on a secure iyzico page, on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own iyzico keys, or sell through Yallapp's account: see [Card payments with iyzico](/docs/card-payments).
+Customers sign in, then pay by card on a secure page of your provider (iyzico, Kashier or Fawaterk), on Android and iPhone: food is a physical product, so Apple's rules allow it. Add your own keys, or sell through Yallapp's account: see [Card payments](/docs/card-payments).
 
 ## With WooCommerce
 
@@ -1268,24 +1268,35 @@ Restaurants that sell with WooCommerce get the menu wording, and their product v
   doc({
     slug: "card-payments",
     section: "Selling and bookings",
-    title: "Card payments with iyzico",
-    description: "Take card payments in apps without a website, with your own iyzico account or through Yallapp's.",
+    title: "Card payments with iyzico, Kashier or Fawaterk",
+    description: "Take card payments in apps without a website, with your own iyzico, Kashier or Fawaterk account or through Yallapp's.",
     steps: false,
-    body: `Apps without a website take card payments through iyzico: shops for their orders, academies for paid courses. Customers enter their card on iyzico's secure page; Yallapp never sees it. An order is marked paid only after iyzico confirms the payment for that exact amount.
+    body: `Apps without a website take card payments through **iyzico** (Türkiye), **Kashier** or **Fawaterk** (Egypt): shops for their orders, restaurants and cafés, event organisers for tickets, gyms for memberships, academies for paid courses, and charities for donations. Customers enter their card on the provider's secure page; Yallapp never sees it. An order is marked paid only after the provider confirms the payment for that exact amount and currency: we ask the provider ourselves, so a payment can't be faked by opening a link.
 
-## Use your own iyzico account
+## Use your own payment account
 
-On the **Products** page (or the **Courses** page for an academy), under **Card payments**, choose **Use your own iyzico account** and paste your **API key** and **Secret key** from your iyzico merchant panel. Payments go straight into your account.
+On the **Products** page (or the page where you set your prices: **Courses**, **Menu**, **Events**, **Membership plans**, **Campaigns**), under **Card payments**, open **Use your own payment account**, choose your provider and paste your keys. Payments go straight into your account.
 
-> To try it first, turn on **Sandbox keys** and paste iyzico's test keys, then pay with iyzico's test cards. Turn it off when you paste your live keys.
+- **iyzico**: your **API key** and **Secret key**, from the iyzico merchant panel under Settings. Prices in TRY, USD or EUR.
+- **Kashier**: your **Merchant ID** (MID-…), **Payment API key** and **Secret key**, from the Kashier dashboard under Integrate now. Prices in EGP, USD or EUR.
+- **Fawaterk**: your **API key**, from the Fawaterk dashboard under Integrations. Prices in EGP, USD, SAR, AED or EUR.
 
-## No iyzico account? Sell through Yallapp
+Set your prices in a currency your provider takes: the **Card payments** box warns you when they don't match.
 
-Choose **No iyzico account? Sell through Yallapp** and give the details iyzico needs to pay you: who gets paid (you, or your company), your legal name, ID or tax details, address and your IBAN, which must be in the payee's name. iyzico registers you, and you can sell right away.
+> To try it first, turn on the test switch (**Sandbox keys**, **Test mode keys** or **Staging key**) and paste the provider's test keys, then pay with its test cards. Turn it off when you paste your live keys: test and live keys are different.
+
+## No payment account? Sell through Yallapp
+
+Choose **No payment account? Sell through Yallapp** and say who gets paid. Customers then pay into Yallapp's account.
 
 - Each order's price goes to you minus Yallapp's commission; shipping goes to you in full.
-- iyzico pays your share once the order is approved: when you mark the order **completed**, or when our team releases it.
-- We keep only what's needed to pay you, such as the last 4 digits of your IBAN.
+- Your share is released when you mark the order **completed**, or when our team releases it.
+- When Yallapp's account is with iyzico, you give the details iyzico needs (your legal name, ID or tax details, address and a Turkish IBAN in the payee's name), iyzico registers you and pays your share itself.
+- When Yallapp's account is with Kashier or Fawaterk, you give your name, contact details and your IBAN, and Yallapp transfers your share to it. Your IBAN is kept encrypted.
+
+## Refunds
+
+Refunds are made in your provider's merchant panel (iyzico, Kashier or Fawaterk); then mark the order **refunded** on the **Orders** page.
 
 ## Paid courses
 
@@ -1293,7 +1304,7 @@ Academy apps without a website sell paid courses the same way, on Android only: 
 
 ## Donations
 
-Charity & donations apps take donations with their own iyzico account only: selling through Yallapp isn't offered for donations, and Yallapp takes no commission on them. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
+Charity & donations apps take donations with their own iyzico, Kashier or Fawaterk account only: selling through Yallapp isn't offered for donations, and Yallapp takes no commission on them. Add your keys on the **Campaigns** page. See [Charity and donation apps](/docs/donations).
 `,
   }),
   doc({
@@ -1402,7 +1413,7 @@ On **Membership plans**, add each plan with its price and how long it lasts: **M
 
 Turn on **Classes need a membership** so that only members can book a class. Each booking then uses one class of a plan with classes, and cancelling in time gives it back. Off, anyone signed in can book a class and pays at your place.
 
-Members buy a plan in the app and pay by card on your payment page; the membership starts at once. Set up card payments at the bottom of **Membership plans**: see [Card payments with iyzico](/docs/card-payments). Paid memberships also show on **Orders**.
+Members buy a plan in the app and pay by card on your payment page; the membership starts at once. Set up card payments at the bottom of **Membership plans**: see [Card payments](/docs/card-payments). Paid memberships also show on **Orders**.
 
 ## Members
 
@@ -1432,7 +1443,7 @@ Open a course to add sections, and lessons inside them. A lesson has a **video a
 ## Free and paid courses
 
 - **Free courses**: students enroll from the app on Android and iOS.
-- **Paid courses**: bought on Android through the card payment page (see [Card payments with iyzico](/docs/card-payments)). The iPhone app shows no purchase buttons, as Apple's rules require; students who bought elsewhere learn on iPhone too.
+- **Paid courses**: bought on Android through the card payment page (see [Card payments](/docs/card-payments)). The iPhone app shows no purchase buttons, as Apple's rules require; students who bought elsewhere learn on iPhone too.
 
 Paid orders appear on the **Orders** page.
 
@@ -1543,11 +1554,11 @@ Save it as a **draft** while you work and **publish** it to show it in the app. 
 
 ## Free and paid tickets
 
-Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico account, or sell through Yallapp's. The places are held while the buyer pays, and the tickets are issued only once iyzico confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
+Free tickets are taken in the app. Paid tickets are paid by card on a secure payment page: set up **Card payments** on the Events page with your own iyzico, Kashier or Fawaterk account, or sell through Yallapp's. The places are held while the buyer pays, and the tickets are issued only once the provider confirms the payment. Places are counted as they're taken, so the last ticket can't be sold twice.
 
 **On iPhones**, Apple lets apps sell tickets to events that happen at a place, but not to online-only events, which count as digital content. So in the iPhone app, paid tickets to an event without a venue show no buy button; free tickets work everywhere. On Android, everything can be bought in the app.
 
-In **Event settings** on the same page you choose your currency and time zone, whether events show **Open in maps**, and until how many hours before an event people can **cancel free tickets** in the app (their place goes back on sale). Paid tickets are refunded by you, in your iyzico panel.
+In **Event settings** on the same page you choose your currency and time zone, whether events show **Open in maps**, and until how many hours before an event people can **cancel free tickets** in the app (their place goes back on sale). Paid tickets are refunded by you, in your payment provider's panel.
 
 ## Sales and attendees
 
@@ -1569,14 +1580,14 @@ The home page starts with a search box and the events coming up. Change it on **
     slug: "donations",
     section: "Selling and bookings",
     title: "Charity and donation apps",
-    description: "Run a Charity & donations app: campaigns with a goal, donations into your own iyzico account, receipts, donors, and why iPhone donations open in the browser.",
+    description: "Run a Charity & donations app: campaigns with a goal, donations into your own iyzico, Kashier or Fawaterk account, receipts, donors, and why iPhone donations open in the browser.",
     steps: false,
     body: `Charity & donations apps show your campaigns: what you're raising money for, its story and pictures, and how close it is to its goal. Supporters pick an amount, can give anonymously and leave a message, and donate on your secure donation page. Every donor gets a receipt, and finds their donations under **My donations** in the app.
 
 ## Before your first donation
 
 1. Choose **Charity & donations** on **App type**, then **Campaigns managed in Yallapp** on the Website step.
-2. On the **Campaigns** page, under **Card payments**, paste your iyzico **API key** and **Secret key**. Donations go straight into your own iyzico merchant account; Yallapp takes no commission on them. Until your keys are saved, campaigns show in the app but nobody can donate.
+2. On the **Campaigns** page, under **Card payments**, choose your provider (iyzico, Kashier or Fawaterk) and paste your keys (see [Card payments](/docs/card-payments)). Donations go straight into your own merchant account; Yallapp takes no commission on them. Until your keys are saved, campaigns show in the app but nobody can donate.
 3. Under **Donations in the app**, choose your currency. It can't change after the first donation.
 
 ## Campaigns
@@ -1591,7 +1602,7 @@ Select **Add a campaign** and write:
 
 Save a **draft**, **publish** it when it's ready, **close** it when it's done (it stays in the app as ended) and **feature** the ones that matter most: featured campaigns come first. A campaign with donations can't be deleted, so its donors keep their receipts.
 
-The amount raised and the number of donors count **confirmed payments only**: a donation is added when iyzico confirms it, never when someone just opens the donation page.
+The amount raised and the number of donors count **confirmed payments only**: a donation is added when the payment provider confirms it, never when someone just opens the donation page.
 
 ## Why iPhone donations open in the browser
 
@@ -1607,7 +1618,7 @@ When a donation is confirmed, the donor gets an email in your app's name with th
 
 ## Donations and donors
 
-The **Donations** page lists every paid donation, newest first, by campaign. **Export CSV** downloads them as a spreadsheet, with the donor's name, email, phone and message. Donors who chose to give anonymously are listed too: only the app hides their name. The **Donors** page groups donations by email address, the most generous first. Refunds are made in your iyzico panel.
+The **Donations** page lists every paid donation, newest first, by campaign. **Export CSV** downloads them as a spreadsheet, with the donor's name, email, phone and message. Donors who chose to give anonymously are listed too: only the app hides their name. The **Donors** page groups donations by email address, the most generous first. Refunds are made in your payment provider's panel.
 
 ## Updates to donors
 
@@ -1647,7 +1658,7 @@ We email you, and show a notice on your dashboard, 7 days and 1 day before an ap
 
 ## Paying by card
 
-When card prices are shown, you pay on iyzico's secure page: on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed. You can also arrange your payment with our team on WhatsApp.
+When card prices are shown, you pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk): on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed. You can also arrange your payment with our team on WhatsApp.
 
 ## Coupons
 

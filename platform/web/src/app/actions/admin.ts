@@ -16,7 +16,7 @@ import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { DuplicateEmailError } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
-import { appUrl, encryptionKey, iyzicoApiUrl, superAdminEmails } from "@/lib/env";
+import { appUrl, encryptionKey, paymentApiUrls, superAdminEmails } from "@/lib/env";
 import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder, orderNumber } from "@/lib/catalog/settings";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
@@ -455,7 +455,7 @@ export async function releasePayoutAction(formData: FormData): Promise<void> {
   let done = "payout-failed";
   if (app && order && order.paidAt && order.commissionCents !== null) {
     const account = await accountForOrder(store, app, order, encryptionKey());
-    if (account && (await approvePayout({ store, app, account, baseUrl: iyzicoApiUrl(), now: new Date(), order }))) done = "payout-released";
+    if (account && (await approvePayout({ store, app, account, urls: paymentApiUrls(), now: new Date(), order }))) done = "payout-released";
   }
   if (app && order) {
     await recordAudit({

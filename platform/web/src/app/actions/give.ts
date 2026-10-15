@@ -6,15 +6,17 @@ import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { placeDemoDonation } from "@/lib/demo/checkout";
 import { withDemoChecked } from "@/lib/demo/apps";
-import { donationKeys, donationLinkExpired, readDonor, startDonationPayment } from "@/lib/donations/payment";
-import { appUrl, encryptionKey, iyzicoApiUrl } from "@/lib/env";
+import { donationAccount, donationLinkExpired, readDonor, startDonationPayment } from "@/lib/donations/payment";
+import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { ipFromHeaders } from "@/lib/http";
-import { IyzicoError } from "@/lib/payments/iyzico";
+import { PaymentError } from "@/lib/payments/errors";
+import { callbackUrls } from "@/lib/payments/routes";
+import { settleDonationPayment } from "@/lib/payments/settle";
 
 /**
  * 29 The donation page's form (/give/<token>): the donor's name and email for
- * the receipt, then iyzico's payment page, paid into the charity's own
+ * the receipt, then the provider's payment page (37 iyzico, Kashier or Fawaterk), paid into the charity's own
  * account. A demo charity's page gives without any card.
  */
 
@@ -44,23 +46,28 @@ export async function giveAction(token: string, _: FormState, formData: FormData
     await placeDemoDonation(store, app, { ...donation, donorEmail: checked.donor.email }, now);
     redirect(`/give/${token}/thank-you`);
   }
-  const keys = donationKeys(app, encryptionKey());
-  if (!keys) return { message: "This charity can't take donations right now. Please try again later.", values };
+  const account = donationAccount(app, encryptionKey());
+  if (!account) return { message: "This charity can't take donations right now. Please try again later.", values };
+  // 37 A Kashier or Fawaterk payment started earlier may have gone through without its redirect or webhook: read it back before starting another.
+  if (donation.providerRef && donation.paymentProvider && donation.paymentProvider !== "iyzico") {
+    const earlier = await settleDonationPayment(token, { provider: donation.paymentProvider });
+    if (earlier.status === "paid" || earlier.status === "already_paid") redirect(earlier.path);
+  }
   let pageUrl: string;
   try {
     pageUrl = await startDonationPayment({
       store,
       app,
-      keys,
+      account,
       donation,
       donor: checked.donor,
       ip: ipFromHeaders(await headers()),
-      callbackUrl: `${appUrl()}/api/pay/donation/${token}`,
+      callbackUrls: callbackUrls(appUrl(), "donation", account.provider, token),
       now,
-      baseUrl: iyzicoApiUrl(),
+      urls: paymentApiUrls(),
     });
   } catch (e) {
-    if (!(e instanceof IyzicoError)) throw e;
+    if (!(e instanceof PaymentError)) throw e;
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }
   redirect(pageUrl);

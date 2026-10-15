@@ -98,7 +98,7 @@ export default async function MembershipPlansPage() {
         </details>
       </section>
 
-      <CardPayments app={app} />
+      <CardPayments app={app} currency={currency} />
     </div>
   );
 }

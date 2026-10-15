@@ -19,7 +19,7 @@ import { CouponForm } from "../forms";
 export const metadata: Metadata = { title: "Coupon" };
 export const dynamic = "force-dynamic";
 
-const USE_STATUS = { pending: "On iyzico's page", redeemed: "Used", failed: "Payment failed" } as const;
+const USE_STATUS = { pending: "On the payment page", redeemed: "Used", failed: "Payment failed" } as const;
 const USE_TONE = { pending: "warn", redeemed: "success", failed: "neutral" } as const;
 
 const NOTICES: Record<string, string> = {
@@ -75,7 +75,7 @@ export default async function CouponPage({ params, searchParams }: PageProps<"/a
       </section>
       <div className="flex flex-col gap-1.5 pt-2">
         <h2 className="m-0 text-[22px] font-extrabold">Uses</h2>
-        <span className="text-[15px] text-muted">Each card payment with this coupon. Only used ones count against the limits, and ones still on iyzico&apos;s page for an hour.</span>
+        <span className="text-[15px] text-muted">Each card payment with this coupon. Only used ones count against the limits, and ones still on the payment page for an hour.</span>
       </div>
       <section aria-label="Uses" className="overflow-x-auto rounded-2xl border border-line bg-white">
         {uses.length === 0 ? (

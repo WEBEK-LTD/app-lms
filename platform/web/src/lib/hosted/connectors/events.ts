@@ -44,7 +44,7 @@ const noEvent = () => error(404, "not_found", "Event not found.");
  * dashboard's Events page, served with the Events endpoints
  * (lib/events/service.ts). Free tickets are issued in the app; paid ones are
  * held, paid on the payment page (the shop's card payment settings, like
- * paid courses) and issued once iyzico confirms the payment
+ * paid courses) and issued once the provider confirms the payment
  * (`issuePaidTickets` in lib/catalog/payment.ts).
  */
 export class EventsConnector implements Connector {

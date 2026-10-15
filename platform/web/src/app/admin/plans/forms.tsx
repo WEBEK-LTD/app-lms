@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { savePlanAction, savePlanLimitsAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 
 export interface PlanFormValues {
@@ -49,10 +50,12 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
             Currency
           </label>
           <select id={id("currency")} name="currency" defaultValue={v("currency", plan.currency)} className="input">
-            <option>TRY</option>
-            <option>USD</option>
-            <option>EUR</option>
+            {CATALOG_CURRENCIES.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
           </select>
+          {/* 37 Card payments take the plan only in a currency Yallapp's provider takes. */}
+          <span className="text-[13px] text-muted">iyzico takes TRY, USD and EUR; Kashier and Fawaterk take EGP.</span>
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={id("months")} className="text-sm font-semibold">

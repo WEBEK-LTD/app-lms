@@ -210,7 +210,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       {
         icon: "payments",
         title: "Checkout you already trust",
-        text: "Customers pay on your own checkout: WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. Without a website, they pay by card on a secure iyzico page.",
+        text: "Customers pay on your own checkout: WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. Without a website, they pay by card on a secure iyzico, Kashier or Fawaterk page.",
       },
       {
         icon: "local_offer",
@@ -234,7 +234,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Keep running your shop where you do today, or add products in the dashboard",
       "No website: set shipping fees, free shipping from an amount, stock and sale prices",
       "No website: see orders, mark them completed or refunded, get an email for each paid order",
-      "No iyzico account? Sell through Yallapp's and get paid your share",
+      "No payment account? Sell through Yallapp's and get paid your share",
     ],
     docs: [
       { href: "/docs/shopify", label: "Connect Shopify" },
@@ -243,7 +243,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       { href: "/docs/salla", label: "Connect your Salla store" },
       { href: "/docs/zid", label: "Connect your Zid store" },
       { href: "/docs/store-orders", label: "Products, orders and shipping" },
-      { href: "/docs/card-payments", label: "Card payments with iyzico" },
+      { href: "/docs/card-payments", label: "Card payments with iyzico, Kashier or Fawaterk" },
     ],
   },
   {
@@ -281,7 +281,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Browse the menu by category",
       "Choose a dish's options and see the price change",
       "Order for pickup or delivery, as soon as possible or for a time later",
-      "Pay by card on a secure iyzico page, on Android and iPhone",
+      "Pay by card on a secure iyzico, Kashier or Fawaterk page, on Android and iPhone",
       "Follow the order's steps and get a notification at each one",
     ],
     forYou: [
@@ -289,11 +289,11 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Opening hours, preparation time, pickup address, delivery fee, minimum order and delivery areas",
       "The Kitchen page: new orders with their options, and a button for each next step",
       "An email for each paid order",
-      "No iyzico account? Sell through Yallapp's and get paid your share",
+      "No payment account? Sell through Yallapp's and get paid your share",
     ],
     docs: [
       { href: "/docs/restaurants", label: "Restaurants and cafés: menu, pickup, delivery and the kitchen" },
-      { href: "/docs/card-payments", label: "Card payments with iyzico" },
+      { href: "/docs/card-payments", label: "Card payments with iyzico, Kashier or Fawaterk" },
     ],
   },
   {
@@ -441,12 +441,12 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Your weekly timetable, with who's coming to each class",
       "Your membership plans, and whether classes need one",
       "Who has which membership, adding classes or a membership paid at your desk",
-      "Card payments through iyzico, with your own account or through Yallapp",
+      "Card payments through iyzico, Kashier or Fawaterk, with your own account or through Yallapp",
     ],
     docs: [
       { href: "/docs/fitness", label: "Gyms and studios: timetable, classes and memberships" },
       { href: "/docs/bookings", label: "Services, team and appointments" },
-      { href: "/docs/card-payments", label: "Card payments with iyzico" },
+      { href: "/docs/card-payments", label: "Card payments with iyzico, Kashier or Fawaterk" },
     ],
   },
   {
@@ -576,7 +576,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       "Events with pictures, a venue or an online link, and ticket types with their own prices and limits",
       "Sales and attendees per event, with a CSV export",
       "Check tickets at the door with a phone, no app to install",
-      "Card payments into your own iyzico account, or through Yallapp's",
+      "Card payments into your own iyzico, Kashier or Fawaterk account, or through Yallapp's",
     ],
     docs: [{ href: "/docs/events", label: "Events and tickets" }],
   },
@@ -585,7 +585,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
     summary: "Campaigns with progress, donations and receipts.",
     audience: "Charities, food banks, foundations, mosques and community groups.",
     screens: ["charity-home", "charity-campaign"],
-    sources: ["No website: campaigns written in the Yallapp dashboard", "Donations paid into your own iyzico account"],
+    sources: ["No website: campaigns written in the Yallapp dashboard", "Donations paid into your own iyzico, Kashier or Fawaterk account"],
     highlights: [
       {
         icon: "campaign",
@@ -595,7 +595,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
       {
         icon: "payments",
         title: "Every gift goes to you",
-        text: "Donations are paid on a secure page into your own iyzico account. Yallapp takes no commission on donations.",
+        text: "Donations are paid on a secure page into your own iyzico, Kashier or Fawaterk account. Yallapp takes no commission on donations.",
       },
       {
         icon: "receipt_long",
@@ -739,7 +739,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       {
         name: "Products in Yallapp",
         types: ["Store"],
-        text: "Products, categories, stock and shipping, with card payments through iyzico and orders in the dashboard.",
+        text: "Products, categories, stock and shipping, with card payments through iyzico, Kashier or Fawaterk and orders in the dashboard.",
         docs: "/docs/store-orders",
       },
       { name: "Courses in Yallapp", types: ["Academy"], text: "Courses, sections and lessons with video and text; free and paid courses.", docs: "/docs/courses" },
@@ -747,7 +747,7 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "Listings in Yallapp", types: ["Real estate"], text: "Properties with photos, features, a map position and messages.", docs: "/docs/real-estate" },
       { name: "Articles in Yallapp", types: ["News & blog"], text: "Articles with pictures and sections, published when you're ready, with breaking news.", docs: "/docs/news" },
       { name: "Events in Yallapp", types: ["Events & tickets"], text: "Events with ticket types, free sign-ups, paid tickets, attendees and check-in at the door.", docs: "/docs/events" },
-      { name: "Campaigns in Yallapp", types: ["Charity & donations"], text: "Campaigns with a goal and progress, donations into your own iyzico account, receipts and a donor list.", docs: "/docs/donations" },
+      { name: "Campaigns in Yallapp", types: ["Charity & donations"], text: "Campaigns with a goal and progress, donations into your own iyzico, Kashier or Fawaterk account, receipts and a donor list.", docs: "/docs/donations" },
     ],
   },
   {
@@ -760,6 +760,8 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
       { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
       { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
       { name: "iyzico", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
+      { name: "Kashier", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in Egyptian pounds in apps without a website, into your own Kashier account.", docs: "/docs/card-payments" },
+      { name: "Fawaterk", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in Egyptian pounds in apps without a website, into your own Fawaterk account.", docs: "/docs/card-payments" },
     ],
   },
 ];
@@ -939,11 +941,11 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     features: [
       {
         icon: "payments",
-        title: "Card payments with iyzico",
-        text: "Shops and academies without a website take card payments on a secure iyzico page, into their own merchant account.",
+        title: "Card payments with iyzico, Kashier or Fawaterk",
+        text: "Shops and academies without a website take card payments on a secure iyzico, Kashier or Fawaterk page, into their own merchant account.",
         details: [
-          "Your own iyzico keys, with test keys for trying it out",
-          "No iyzico account? Sell through Yallapp's and get paid your share",
+          "Your own iyzico, Kashier or Fawaterk keys, with test keys for trying it out",
+          "No payment account? Sell through Yallapp's and get paid your share",
           "Orders in the dashboard, with an email for each paid order",
           "A shareable web page for every product",
         ],
@@ -1027,7 +1029,7 @@ export const COMPARISON: { topic: string; typical: string; yallapp: string }[] =
   {
     topic: "Payments",
     typical: "Often only through the builder's own payment provider",
-    yallapp: "Your own checkout, or card payments into your own iyzico account",
+    yallapp: "Your own checkout, or card payments into your own iyzico, Kashier or Fawaterk account",
   },
 ];
 
@@ -1090,7 +1092,7 @@ export const REQUIREMENTS = [
   "A Google Play developer account (one-time fee to Google)",
   "An Apple Developer Program membership for iOS (yearly fee to Apple)",
   "A free Firebase project, for push notifications",
-  "An iyzico merchant account, to take card payments without a website (optional)",
+  "An iyzico, Kashier or Fawaterk merchant account, to take card payments without a website (optional)",
 ];
 
 // ---------------------------------------------------------------------------
@@ -1224,15 +1226,15 @@ export const FAQ: FaqGroup[] = [
     items: [
       {
         q: "How do customers pay?",
-        a: "On your own checkout when your shop runs on WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. Without a website, they pay by card on a secure iyzico page, into your own iyzico merchant account.",
+        a: "On your own checkout when your shop runs on WooCommerce, Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla or Zid. Without a website, they pay by card on a secure iyzico, Kashier or Fawaterk page, into your own merchant account.",
       },
       {
-        q: "I don't have an iyzico account. Can I still sell?",
-        a: "Yes. You can sell through Yallapp's iyzico account instead: give the details iyzico asks for on your Products page, and iyzico pays your share for each completed order after a commission.",
+        q: "I don't have a payment account. Can I still sell?",
+        a: "Yes. You can sell through Yallapp's account instead: say who gets paid on your Products page, and your share of each completed order is paid to your IBAN after a commission.",
       },
       {
         q: "Does Yallapp take a cut of my sales?",
-        a: "Not when you use your own checkout or your own iyzico account. Only sales through Yallapp's iyzico account carry a commission.",
+        a: "Not when you use your own checkout or your own payment account. Only sales through Yallapp's account carry a commission.",
       },
       {
         q: "Can customers pay for appointments in the app?",

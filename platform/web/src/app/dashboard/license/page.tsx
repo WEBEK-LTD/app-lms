@@ -18,7 +18,8 @@ import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-
 import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
-import { getPlans, yallappIyzicoKeys } from "@/lib/settings/platform";
+import { getPlans, yallappPaymentAccount } from "@/lib/settings/platform";
+import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
@@ -60,7 +61,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const effective = await effectivePlans(store);
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
   const scheduled = scheduledPlan(license, now);
-  const payable = (await yallappIyzicoKeys(store, encryptionKey())) ? cardPlanOptions(plans, await getSwitches(store)) : [];
+  // 37 Paid into Yallapp's account with the provider the team chose; only plans in a currency it takes.
+  const yallappAccount = await yallappPaymentAccount(store, encryptionKey());
+  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider) : [];
   // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
   const notes = payable.map((p) => {
     const info = plans[p.id];
@@ -115,6 +118,11 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       {payment === "failed" ? (
         <Notice tone="danger" icon="error" role="alert">
           The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
+        </Notice>
+      ) : null}
+      {payment === "pending" ? (
+        <Notice icon="schedule" role="status">
+          Your payment isn&apos;t confirmed yet. If you paid, your plan starts within a few minutes and we email you; otherwise, try again.
         </Notice>
       ) : null}
       {planChange === "scheduled" && scheduled ? (
@@ -304,7 +312,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 : "Paying for your current plan adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
             </p>
           </div>
-          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} />
+          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"} />
         </section>
       ) : null}
 

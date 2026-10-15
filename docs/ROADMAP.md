@@ -557,3 +557,37 @@ sitemap, robots.txt, canonical addresses, link previews or structured data.
 | [x] | 32.5 Company details: "© year Yallapp · Cairo, Egypt" in the footers and the email signature, the contact page, the README; the privacy policy (Yallapp as controller; Egypt's law, the GDPR and KVKK where they apply; no UK specifics) and the terms (good-faith talks for 30 days, mandatory rights of the client's country kept, no governing law clause) | Unit tests and browser tests; a lawyer should review the legal pages |
 | [x] | 32.6 SEO: /sitemap.xml with every public page and solution and article (legal pages with their dates), /robots.txt keeping the private areas out, canonical addresses and Open Graph and Twitter cards on every public page, share images in Yallapp's colors and Bricolage Grotesque (site, pricing, each solution, each article), noindex on sign-in, payment, donation, receipt and shop pages; JSON-LD: Organization (Cairo, contact details from Settings), WebSite, SoftwareApplication with offers only for priced plans, FAQPage, BreadcrumbList on solutions and articles | Unit tests and the search engines browser test |
 | [ ] | 32.7 Legal pages saved in the admin before this phase keep their old text until the team edits them or uses "Back to the default text"; the design files under `docs/design` still say WEBEK LTD (no UK details). The plugin's author and the API contracts' licence now say Yallapp | The team's review |
+
+## Phase 37: Kashier and Fawaterk payments
+
+Yallapp is now based in Cairo, and its clients there pay with Egyptian
+gateways. Kashier and Fawaterk join iyzico everywhere a card is taken:
+clients' plan payments and shop sales through Yallapp (Yallapp's own
+account, with the provider the team picks), and a client's own keys for a
+shop without a website, a restaurant, events' tickets, a gym's memberships,
+paid courses and donations. All three sit behind one interface
+(`src/lib/payments/provider.ts`). A redirect or webhook is only a trigger:
+every payment is read back from the provider with our own keys (paid, our
+reference, the exact amount and currency) and marked paid once, as the
+iyzico flows always did. Webhook signatures are checked too. Built and
+tested with fake Kashier and Fawaterk servers, on the in-memory store and on
+MariaDB 10.11. Kashier's requests and webhook signature follow its own WooCommerce
+plugin; Fawaterk's webhook signature follows its documentation; the read-back
+fields of both, and Fawaterk's invoice requests, come from third-party
+integrations (listed below), so a test payment on each provider's test
+account comes before going live (docs/LAUNCH-CHECKLIST.md). How it works is
+in `docs/ARCHITECTURE.md` ("Card payment providers").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 37.1 Contract first: the currencies of `DonationsConfig`, `CampaignSummary` and `Donation` take EGP, SAR and AED; nothing else the app or the plugin sees changes (the payment pages are web pages; `docs/api/platform.yaml` unchanged) | `redocly lint` passes, the public copy and the API reference regenerated |
+| [x] | 37.2 One provider interface: start a checkout (amount, currency, our reference, customer, return and webhook addresses), confirm by reading the payment back, test the keys with a call that changes nothing; Kashier (payment sessions, `x-kashier-signature`) and Fawaterk (`createInvoiceLink`, `getInvoiceData`, `hashKey`) next to iyzico; amounts as decimal strings in major units; each provider's currencies (iyzico TRY, USD, EUR; Kashier EGP, USD, EUR; Fawaterk EGP, USD, SAR, AED, EUR) | Unit tests with mocked HTTP: request shape, headers, amounts, signatures, read-back, wrong amount, currency or reference refused |
+| [x] | 37.3 Admin: Yallapp's Kashier account (merchant ID, Payment API key, secret key, test or live) and Fawaterk account (API key, staging or live), encrypted like iyzico's, each with **Test connection**; **Yallapp's payment provider** picks which account takes plan payments and marketplace sales; plans can be priced in EGP, SAR or AED and are payable by card only in a currency the provider takes | Unit tests and the egypt-payments browser test |
+| [x] | 37.4 Client-owned keys: the Card payments box (products, menu, events, memberships, courses, campaigns) picks iyzico, Kashier or Fawaterk with the keys each needs, warns when the prices' currency isn't one the provider takes; the payment, donation and plan pages name the provider; payments started with one provider finish with it (`drizzle/0030_payment_providers.sql`: `payment_provider`, `provider_ref` on plan payments, orders and donations; existing rows are iyzico) | Unit tests, migrations applied on MariaDB 10.11, browser tests on both stores |
+| [x] | 37.5 Callbacks: `/api/pay/kashier/<kind>/<token>` and `/api/pay/fawaterk/<kind>/<token>` (GET: the customer returns; POST: the signed webhook), sharing `settle.ts` with iyzico's callbacks; idempotent; a payment not yet confirmed stays pending and the page says so; before a new attempt the earlier one is read back | Unit tests of the routes (unsigned webhook refused, signed one only trusted after the read-back, repeats change nothing) and the browser test, where each fake posts its webhook and redirects |
+| [x] | 37.6 Selling through Yallapp with Kashier or Fawaterk: the shop gives who gets paid and an IBAN (any country; kept encrypted); the whole payment goes to Yallapp's account with the commission recorded; releasing the payout records it and the admin's Payments page shows the payee for the team's transfer | Unit tests |
+| [x] | 37.7 Docs and copy: the card payments article (now "Card payments with iyzico, Kashier or Fawaterk"), the donations and events articles, the public pages and solutions say "iyzico, Kashier or Fawaterk" where true; launch checklist lines for both accounts and a test payment each | Unit tests and the public browser test |
+| [ ] | 37.8 Confirm against the providers' test accounts: Kashier's read-back fields (`status`, `amount`, `currency`, `merchantOrderId`, `transactionId`) and the session `_id` are taken from third-party integrations; Fawaterk's `createInvoiceLink` and `getInvoiceData` fields (`url`, `invoiceId`, `paid`, `total`, `currency`, `pay_load`), whether its webhooks sign with the API key, and its currencies beyond EGP are too. A field named differently leaves a payment pending (never paid wrongly) | A test payment on each provider's test account confirmed by the read-back |
+| [ ] | 37.9 Refunds from the dashboard: iyzico's flows never had them (refunds are made in each provider's panel); Kashier has a refund call, Fawaterk's isn't documented | A refund action tested against each provider's sandbox |
+| [ ] | 37.10 Ticket holds and long-lived pages: places are held for the payment link's hour plus iyzico's 30-minute page; Kashier's session and Fawaterk's invoice may stay payable longer (an expiry field isn't confirmed for either) | The session and invoice expire within the hold, confirmed on each provider |
+| [ ] | 37.11 Kashier's connected accounts (marketplace payouts by Kashier itself, like iyzico's sub-merchants) | Kashier's marketplace API confirmed and tested |
