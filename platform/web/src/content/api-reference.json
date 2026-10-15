@@ -30,7 +30,7 @@
           "method": "GET",
           "path": "/pages",
           "summary": "Get the bottom tabs and the list of pages",
-          "description": "The navigation and pages the client published in the dashboard. When nothing is published yet, the server sends default pages and tabs for the app type, built from the site's content, so the answer is always a full navigation. Servers without pages (older plugins) return 404; the app then uses its built-in tabs and `/home`.\n\nSend `If-None-Match` with the last `version` to get 304 when nothing changed.",
+          "description": "The navigation and pages the client published in the dashboard. When nothing is published yet, the server sends default pages and tabs for the app type, built from the site's content, so the answer is always a full navigation. Servers without pages (older plugins) return 404; the app then uses its built-in tabs and `/home`.\n\nThe default pages follow `app_type`, the type of the app asking, so they match its screens from the first start. Without it the server uses the type the owner chose in the dashboard, else a guess from the site's plugins. Published pages don't depend on it.\n\nSend `If-None-Match` with the last `version` to get 304 when nothing changed.",
           "access": "optional"
         },
         {
