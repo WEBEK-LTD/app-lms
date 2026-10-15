@@ -21,6 +21,7 @@ const _topLevelKeys = {
   'version_code',
   'branding',
   'firebase',
+  'huawei',
 };
 
 const _required = [
@@ -291,6 +292,29 @@ ValidationResult validateBuildConfig(Object? decoded) {
       }
     }
   }
+
+  // 36 Huawei Push Kit, for phones without Google Play services.
+  final huawei = c['huawei'];
+  if (huawei != null) {
+    if (huawei is! Map<String, dynamic>) {
+      errors.add('"huawei" must be an object.');
+    } else {
+      for (final key in huawei.keys) {
+        if (key != 'agconnect_config_url') {
+          errors.add('Unknown field "huawei.$key".');
+        }
+      }
+      final url = _string(
+        huawei,
+        'agconnect_config_url',
+        errors,
+        prefix: 'huawei.',
+      );
+      if (url != null && !_isAbsoluteUrl(url)) {
+        errors.add('"huawei.agconnect_config_url" must be an absolute URL.');
+      }
+    }
+  }
   return ValidationResult(errors);
 }
 
@@ -389,6 +413,33 @@ FirebaseValues parseGoogleServiceInfoPlist(String source) {
   );
 }
 
+/// 36 The app ID in the client's agconnect-services.json (AppGallery
+/// Connect), which must be for [packageName]. Huawei Push Kit asks for a
+/// token with it.
+String parseAgconnectServicesAppId(String source, String packageName) {
+  final json = jsonDecode(source);
+  if (json is! Map<String, dynamic>) {
+    throw const FormatException('agconnect-services.json is not an object.');
+  }
+  String? read(String section, String key) {
+    final value = (json[section] as Map<String, dynamic>?)?[key];
+    return value is String && value.isNotEmpty ? value : null;
+  }
+
+  final appId = read('app_info', 'app_id') ?? read('client', 'app_id');
+  final package =
+      read('app_info', 'package_name') ?? read('client', 'package_name');
+  if (appId == null || !RegExp(r'^\d+$').hasMatch(appId)) {
+    throw const FormatException('agconnect-services.json has no app ID.');
+  }
+  if (package != packageName) {
+    throw FormatException(
+      'agconnect-services.json is for "$package", not "$packageName".',
+    );
+  }
+  return appId;
+}
+
 String _dartString(String? value) {
   if (value == null) return 'null';
   final escaped = value
@@ -428,6 +479,7 @@ String renderDartConfig(
   Map<String, dynamic> c, {
   FirebaseValues? firebaseAndroid,
   FirebaseValues? firebaseIos,
+  String? huaweiAppId,
 }) {
   final b = c['branding'] as Map<String, dynamic>;
   return '''
@@ -456,6 +508,7 @@ const buildConfig = BuildConfigData(
   logoUrl: ${_dartString(b['logo_url'] as String?)},
   firebaseAndroid: ${_firebaseDart(firebaseAndroid)},
   firebaseIos: ${_firebaseDart(firebaseIos)},
+  huaweiAppId: ${_dartString(huaweiAppId)},
 );
 ''';
 }

@@ -1,6 +1,7 @@
 <?php
 /**
- * Push notifications through Firebase Cloud Messaging.
+ * Push notifications through Firebase Cloud Messaging, and Huawei Push Kit for
+ * Huawei phones without Google Play services.
  *
  * @package Yallapp
  */
@@ -14,8 +15,9 @@ use Yallapp\Crypto;
 use Yallapp\Plugin;
 
 /**
- * Sends new-lesson, announcement and enrollment notifications with the FCM HTTP v1 API,
- * and saves each one to the students' inbox (Inbox), with or without Firebase.
+ * Sends new-lesson, announcement and enrollment notifications with the FCM HTTP v1 API
+ * (and, 36, Huawei Push Kit for devices that registered an "hms" token), and saves each
+ * one to the students' inbox (Inbox), with or without push.
  *
  * Sending happens in a cron event so publishing a lesson never waits on Firebase.
  */
@@ -67,12 +69,48 @@ class Push_Service {
 	}
 
 	/**
-	 * Whether a valid service account is saved.
+	 * Whether push can be sent: a valid Firebase service account, or (36) Huawei Push
+	 * Kit's app ID and app secret, is saved.
 	 *
 	 * @return bool
 	 */
 	public function is_configured() {
-		return null !== $this->account();
+		return null !== $this->account() || null !== $this->hms();
+	}
+
+	/**
+	 * 36 Huawei Push Kit, when its app ID and app secret are saved.
+	 *
+	 * @return Hms_Sender|null
+	 */
+	private function hms() {
+		$settings = $this->plugin->settings();
+		$app_id   = (string) $settings->get( 'huawei_push_app_id' );
+		$secret   = Crypto::decrypt( (string) $settings->get( 'huawei_push_app_secret' ) );
+		return '' !== $app_id && '' !== $secret ? new Hms_Sender( $app_id, $secret ) : null;
+	}
+
+	/**
+	 * 36 Splits device tokens by the service that sends them: Firebase ("fcm", also
+	 * for tokens saved before providers existed) or Huawei Push Kit ("hms"). Pure.
+	 *
+	 * @param array $targets Rows with `token` and `provider`.
+	 * @return array{fcm: string[], hms: string[]}
+	 */
+	public static function split_targets( array $targets ) {
+		$split = array(
+			'fcm' => array(),
+			'hms' => array(),
+		);
+		foreach ( $targets as $target ) {
+			$token = (string) ( $target['token'] ?? '' );
+			if ( '' === $token ) {
+				continue;
+			}
+			$which             = isset( $target['provider'] ) && 'hms' === $target['provider'] ? 'hms' : 'fcm';
+			$split[ $which ][] = $token;
+		}
+		return $split;
 	}
 
 	/**
@@ -303,17 +341,27 @@ class Push_Service {
 	 * @param string $kind         Preference key.
 	 * @param array  $notification Title and body.
 	 * @param array  $data         Data for the app.
-	 * @return int Number of messages Firebase accepted.
+	 * @return int Number of messages Firebase and Huawei Push Kit accepted.
 	 */
 	public function send_batch( $user_ids, $kind, $notification, $data ) {
-		$account = $this->account();
+		$targets = self::split_targets( $this->plugin->devices()->push_targets( (array) $user_ids, (string) $kind ) );
+		$sent    = 0;
+		// 36 Huawei phones without Google Play.
+		$hms = $targets['hms'] ? $this->hms() : null;
+		if ( $hms ) {
+			$result = $hms->send( $targets['hms'], (array) $notification, (array) $data );
+			$sent  += $result['sent'];
+			foreach ( $result['invalid'] as $invalid ) {
+				$this->plugin->devices()->forget_push_token( $invalid );
+			}
+		}
+		$account = $targets['fcm'] ? $this->account() : null;
 		$token   = $account ? $this->access_token( $account ) : '';
 		if ( '' === $token ) {
-			return 0;
+			return $sent;
 		}
-		$sent = 0;
-		$url  = 'https://fcm.googleapis.com/v1/projects/' . rawurlencode( $account['project_id'] ) . '/messages:send';
-		foreach ( $this->plugin->devices()->push_tokens( (array) $user_ids, (string) $kind ) as $device_token ) {
+		$url = 'https://fcm.googleapis.com/v1/projects/' . rawurlencode( $account['project_id'] ) . '/messages:send';
+		foreach ( $targets['fcm'] as $device_token ) {
 			$response = wp_remote_post(
 				$url,
 				array(

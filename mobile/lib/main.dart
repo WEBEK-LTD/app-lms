@@ -26,7 +26,8 @@ Future<void> main() async {
     build: resolveBuildConfig(),
     preferences: preferences,
   );
-  final push = createPushService(environment.build, environment.platform);
+  // 36 Firebase, or Huawei Push Kit on Huawei phones without Google Play.
+  final push = await choosePushService(environment.build, environment.platform);
   await push.init();
 
   runApp(

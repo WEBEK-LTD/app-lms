@@ -81,6 +81,7 @@ class BuildConfigData {
     this.logoUrl,
     this.firebaseAndroid,
     this.firebaseIos,
+    this.huaweiAppId,
   });
 
   final AppType appType;
@@ -115,6 +116,11 @@ class BuildConfigData {
   final FirebaseOptionsData? firebaseAndroid;
   final FirebaseOptionsData? firebaseIos;
 
+  /// 36 The AppGallery Connect app ID from the client's
+  /// agconnect-services.json: set when the build includes Huawei Push Kit,
+  /// for Android phones without Google Play services.
+  final String? huaweiAppId;
+
   BuildConfigData copyWith({
     String? siteUrl,
     bool clearApiBaseUrl = false,
@@ -140,5 +146,6 @@ class BuildConfigData {
     logoUrl: logoUrl,
     firebaseAndroid: firebaseAndroid,
     firebaseIos: firebaseIos,
+    huaweiAppId: huaweiAppId,
   );
 }

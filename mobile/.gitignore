@@ -47,9 +47,10 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# Client secrets and Firebase files: never commit
+# Client secrets, Firebase and Huawei (36) files: never commit
 google-services.json
 GoogleService-Info.plist
+agconnect-services.json
 key.properties
 *.jks
 *.keystore

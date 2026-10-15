@@ -10,9 +10,12 @@
 //   pubspec.yaml                                      version line
 // and, when the config lists Firebase files, downloads them to
 //   android/app/google-services.json, ios/Runner/GoogleService-Info.plist
-// (both git-ignored). Running it twice with the same config changes nothing.
+// and (36) Huawei's to android/app/agconnect-services.json (all git-ignored).
+// The Android build adds Huawei's push SDK only when that file is there.
+// Running it twice with the same config changes nothing.
 //
-// --offline skips the Firebase downloads (push stays off in that build).
+// --offline skips the Firebase and Huawei downloads (push stays off in that
+// build).
 // Launcher icons and splash images from branding.icon_url are a later step.
 
 import 'dart:convert';
@@ -80,12 +83,30 @@ Future<void> main(List<String> args) async {
     _remove(serviceInfo);
   }
 
+  // 36 Huawei Push Kit, for Android phones without Google Play services.
+  final agconnect = File('${root.path}/android/app/agconnect-services.json');
+  final huaweiUrl =
+      (config['huawei'] as Map<String, dynamic>?)?['agconnect_config_url']
+          as String?;
+  String? huaweiAppId;
+  if (huaweiUrl != null && !offline) {
+    final body = await _download(huaweiUrl);
+    huaweiAppId = parseAgconnectServicesAppId(
+      body,
+      config['android_package'] as String,
+    );
+    _write(agconnect, body);
+  } else {
+    _remove(agconnect);
+  }
+
   _write(
     File('${root.path}/lib/generated/build_config.g.dart'),
     renderDartConfig(
       config,
       firebaseAndroid: firebaseAndroid,
       firebaseIos: firebaseIos,
+      huaweiAppId: huaweiAppId,
     ),
   );
   _write(
@@ -107,7 +128,8 @@ Future<void> main(List<String> args) async {
     'Applied ${configFile.path}: ${config['app_name']} '
     '(${config['android_package']}, ${config['ios_bundle_id']}) '
     '${config['version_name']}+${config['version_code']}'
-    '${firebaseAndroid != null || firebaseIos != null ? ', push on' : ', push off'}.',
+    '${firebaseAndroid != null || firebaseIos != null ? ', push on' : ', push off'}'
+    '${huaweiAppId != null ? ', Huawei push on' : ''}.',
   );
 }
 

@@ -161,6 +161,42 @@ $r = call( 'GET', '/me', null, $b['json']['access_token'] ?? '' );
 check( 'removed device signed out', 401 === $r['status'], $r['raw'] );
 $r = call( 'PUT', '/me/push-token', array( 'token' => 'fcm-test-token', 'preferences' => array( 'new_lessons' => true ) ), $token );
 check( 'push token saved', 204 === $r['status'], $r['raw'] );
+// 36 Huawei phones without Google Play register a Push Kit token as "hms".
+$push_user = (int) ( call( 'GET', '/me', null, $token )['json']['id'] ?? 0 );
+$targets   = function () use ( $push_user ) {
+	return json_decode( trim( (string) wp_cli( 'eval ' . escapeshellarg( 'echo wp_json_encode( Yallapp\Plugin::instance()->devices()->push_targets( array( ' . $push_user . ' ) ) );' ) ) ), true );
+};
+check( 'a token without a provider is Firebase', array( array( 'token' => 'fcm-test-token', 'provider' => 'fcm' ) ) === $targets(), $targets() );
+$r = call( 'PUT', '/me/push-token', array( 'token' => 'hms-test-token', 'provider' => 'apns' ), $token );
+check( 'unknown push provider refused', 400 === $r['status'] && 'invalid_request' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'PUT', '/me/push-token', array( 'token' => 'hms-test-token', 'provider' => 'hms', 'preferences' => array( 'new_lessons' => true ) ), $token );
+check( 'Push Kit token saved', 204 === $r['status'], $r['raw'] );
+check( 'Push Kit token stored as hms', array( array( 'token' => 'hms-test-token', 'provider' => 'hms' ) ) === $targets(), $targets() );
+// It goes through Push Kit with the app ID and secret, never through Firebase (requests answered here).
+$sent = json_decode(
+	trim(
+		(string) wp_cli(
+			'eval ' . escapeshellarg(
+				'$calls = array();'
+				. ' add_filter( "pre_http_request", function ( $pre, $args, $url ) use ( &$calls ) { $calls[] = array( "url" => $url, "body" => $args["body"] ); $ok = false !== strpos( $url, "oauth-login" ) ? "{\"access_token\":\"hms-access\",\"expires_in\":3600}" : "{\"code\":\"80000000\",\"msg\":\"Success\"}"; return array( "headers" => array(), "body" => $ok, "response" => array( "code" => 200, "message" => "OK" ), "cookies" => array() ); }, 10, 3 );'
+				. ' $settings = Yallapp\Plugin::instance()->settings(); $before = $settings->all();'
+				. ' $settings->update( array( "huawei_push_app_id" => "104123456", "huawei_push_app_secret" => "app-secret-0123456789" ) );'
+				. ' $stored = $settings->get( "huawei_push_app_secret" );'
+				. ' $n = Yallapp\Plugin::instance()->push()->send_batch( array( ' . $push_user . ' ), "new_lessons", array( "title" => "New lesson", "body" => "Loops" ), array( "type" => "new_lesson", "lesson_id" => "7" ) );'
+				. ' $settings->update( array( "huawei_push_app_id" => $before["huawei_push_app_id"], "huawei_push_app_secret" => $before["huawei_push_app_secret"] ) ); delete_transient( "yallapp_hms_access_token_" . md5( "104123456" ) );'
+				. ' echo wp_json_encode( array( "sent" => $n, "encrypted" => 0 === strpos( $stored, "v1:" ), "calls" => $calls ) );'
+			)
+		)
+	),
+	true
+);
+$urls = array_column( $sent['calls'] ?? array(), 'url' );
+check( 'Push Kit secret stored encrypted', true === ( $sent['encrypted'] ?? null ), $sent );
+check( 'Push Kit token sent through Huawei', 1 === ( $sent['sent'] ?? 0 ) && array( 'https://oauth-login.cloud.huawei.com/oauth2/v3/token', 'https://push-api.cloud.huawei.com/v1/104123456/messages:send' ) === $urls, $sent );
+$hms_body = json_decode( (string) ( $sent['calls'][1]['body'] ?? '' ), true );
+check( 'Push Kit message carries the token and data', array( 'hms-test-token' ) === ( $hms_body['message']['token'] ?? null ) && '{"type":"new_lesson","lesson_id":"7"}' === ( $hms_body['message']['data'] ?? '' ), $hms_body );
+$r = call( 'PUT', '/me/push-token', array( 'token' => 'fcm-test-token', 'preferences' => array( 'new_lessons' => true ) ), $token );
+check( 'back to a Firebase token', 204 === $r['status'] && array( array( 'token' => 'fcm-test-token', 'provider' => 'fcm' ) ) === $targets(), $targets() );
 
 echo "Catalog\n";
 $r = call( 'GET', '/categories' );

@@ -97,6 +97,9 @@ class Settings {
 			'bookings_cancel'              => true,
 			// Notifications.
 			'firebase_service_account'     => '',
+			// 36 Huawei Push Kit (AppGallery Connect app ID, and its app secret encrypted).
+			'huawei_push_app_id'           => '',
+			'huawei_push_app_secret'       => '',
 			'notify_new_lesson'            => true,
 			'notify_announcement'          => true,
 			'notify_enrollment'            => true,
@@ -214,6 +217,15 @@ class Settings {
 		}
 		if ( 'firebase_service_account' === $key ) {
 			return self::service_account( (string) $raw );
+		}
+		if ( 'huawei_push_app_id' === $key ) {
+			$raw = trim( (string) $raw );
+			return preg_match( '/^\d{6,20}$/', $raw ) ? $raw : '';
+		}
+		if ( 'huawei_push_app_secret' === $key ) {
+			$raw = trim( (string) $raw );
+			// Already encrypted, or a new secret to encrypt; '' removes it.
+			return '' === $raw || 0 === strpos( $raw, 'v1:' ) ? $raw : Crypto::encrypt( $raw );
 		}
 		return sanitize_text_field( (string) $raw );
 	}

@@ -1,21 +1,27 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/models/models.dart';
 import '../config/build_config.dart';
 import '../routing/paths.dart';
 
-/// Push notifications through Firebase Cloud Messaging.
+/// Push notifications through Firebase Cloud Messaging, or (36) Huawei Push
+/// Kit on Huawei phones without Google Play services.
 ///
 /// Active only when the build config listed the client's Firebase files
-/// (`tool/apply_config.dart` turns them into [FirebaseOptionsData]).
-/// Otherwise every method is a no-op.
+/// (`tool/apply_config.dart` turns them into [FirebaseOptionsData]), or for
+/// Huawei its agconnect-services.json. Otherwise every method is a no-op.
 abstract class PushService {
   bool get isAvailable;
+
+  /// Where the tokens are from; sent with them to the site.
+  PushProvider get provider;
 
   /// Initialises Firebase. Safe to call when push is off.
   Future<void> init();
@@ -80,6 +86,9 @@ class NoopPushService implements PushService {
   bool get isAvailable => false;
 
   @override
+  PushProvider get provider => PushProvider.fcm;
+
+  @override
   Future<void> init() async {}
 
   @override
@@ -103,6 +112,9 @@ class FirebasePushService implements PushService {
 
   @override
   bool get isAvailable => _ready;
+
+  @override
+  PushProvider get provider => PushProvider.fcm;
 
   @override
   Future<void> init() async {
@@ -159,13 +171,192 @@ class FirebasePushService implements PushService {
   }
 }
 
-/// Picks the push service for this platform from the build config.
+/// Picks the Firebase push service for this platform from the build config.
 PushService createPushService(BuildConfigData build, DevicePlatform platform) {
   final options = platform == DevicePlatform.ios
       ? build.firebaseIos
       : build.firebaseAndroid;
   if (options == null) return const NoopPushService();
   return FirebasePushService(options);
+}
+
+/// 36 Which push services an Android phone has.
+typedef PushAvailability = ({bool googlePlay, bool huawei});
+
+/// 36 Which service a device's push goes through, or null for none:
+/// Firebase on iPhones and on Android phones with Google Play services, and
+/// Huawei Push Kit on Android phones without them that have Huawei Mobile
+/// Services, when the build includes Huawei push. Pure.
+PushProvider? choosePushProvider({
+  required DevicePlatform platform,
+  required bool hasFirebase,
+  required bool hasHuawei,
+  required PushAvailability availability,
+}) {
+  if (platform == DevicePlatform.android &&
+      hasHuawei &&
+      !availability.googlePlay &&
+      availability.huawei) {
+    return PushProvider.hms;
+  }
+  return hasFirebase ? PushProvider.fcm : null;
+}
+
+/// 36 Picks the push service at start-up: Huawei Push Kit when
+/// [choosePushProvider] says so, else Firebase as before.
+Future<PushService> choosePushService(
+  BuildConfigData build,
+  DevicePlatform platform, {
+  HmsPushBridge bridge = const HmsPushBridge(),
+}) async {
+  final appId = build.huaweiAppId;
+  if (platform == DevicePlatform.android && appId != null) {
+    final provider = choosePushProvider(
+      platform: platform,
+      hasFirebase: build.firebaseAndroid != null,
+      hasHuawei: true,
+      availability: await bridge.availability(),
+    );
+    if (provider == PushProvider.hms) return HmsPushService(bridge, appId);
+  }
+  return createPushService(build, platform);
+}
+
+/// 36 The app's own channel to Huawei's push SDK (android/hms_push), which
+/// the Android build includes only with the client's agconnect-services.json.
+/// Without it every call answers as if the phone had no Huawei services.
+class HmsPushBridge {
+  const HmsPushBridge({
+    this.channel = const MethodChannel('yallapp/hms_push'),
+    this.eventChannel = const EventChannel('yallapp/hms_push/events'),
+  });
+
+  final MethodChannel channel;
+  final EventChannel eventChannel;
+
+  /// Google Play services and Huawei Mobile Services on this phone. When the
+  /// question can't be answered, Google Play is assumed (Firebase, as before).
+  Future<PushAvailability> availability() async {
+    try {
+      final status = await channel.invokeMapMethod<String, Object?>(
+        'availability',
+      );
+      return (
+        googlePlay: status?['googlePlay'] != false,
+        huawei: status?['huawei'] == true,
+      );
+    } on MissingPluginException {
+      return (googlePlay: true, huawei: false);
+    } on PlatformException {
+      return (googlePlay: true, huawei: false);
+    }
+  }
+
+  /// A Push Kit token for the app, or null (it may then come as an event).
+  Future<String?> token(String appId) async {
+    try {
+      final token = await channel.invokeMethod<String>('token', {
+        'appId': appId,
+      });
+      return token == null || token.isEmpty ? null : token;
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  /// The data of the notification that opened the app, if any.
+  Future<Map<String, dynamic>?> initialMessage() async {
+    try {
+      final data = await channel.invokeMapMethod<String, Object?>(
+        'initialMessage',
+      );
+      final message = data == null ? null : messageData(data);
+      // Only a notification of ours: the launch may carry other extras.
+      return message != null && message.containsKey('type') ? message : null;
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  /// New tokens (`{"type": "token", "token": …}`) and tapped notifications
+  /// (`{"type": "opened", "data": {…}}`) while the app runs.
+  Stream<Map<String, Object?>> get events => eventChannel
+      .receiveBroadcastStream()
+      .where((event) => event is Map)
+      .map((event) => Map<String, Object?>.from(event as Map))
+      .handleError((Object _) {});
+
+  /// A notification's data with string values, as FCM gives them. Push Kit
+  /// may send the data as one JSON string, under `data`. Pure.
+  static Map<String, dynamic> messageData(Map<Object?, Object?> raw) {
+    final data = <String, dynamic>{};
+    for (final entry in raw.entries) {
+      final key = '${entry.key}';
+      if (key.startsWith('_') || key.startsWith('android.')) continue;
+      final value = entry.value;
+      if (key == 'data' && value is String && value.trim().startsWith('{')) {
+        try {
+          final decoded = jsonDecode(value);
+          if (decoded is Map) {
+            for (final inner in decoded.entries) {
+              data['${inner.key}'] = '${inner.value}';
+            }
+            continue;
+          }
+        } on FormatException {
+          // Not JSON: kept as it is below.
+        }
+      }
+      data[key] = '$value';
+    }
+    return data;
+  }
+}
+
+/// 36 Push through Huawei Push Kit, on Huawei phones without Google Play.
+class HmsPushService implements PushService {
+  HmsPushService(this._bridge, this._appId);
+
+  final HmsPushBridge _bridge;
+  final String _appId;
+  bool _ready = false;
+
+  @override
+  bool get isAvailable => _ready;
+
+  @override
+  PushProvider get provider => PushProvider.hms;
+
+  @override
+  Future<void> init() async {
+    _ready = (await _bridge.availability()).huawei;
+  }
+
+  @override
+  Future<String?> token() async => _ready ? _bridge.token(_appId) : null;
+
+  @override
+  Stream<String> get tokenRefreshes => _ready
+      ? _bridge.events
+            .where((e) => e['type'] == 'token' && e['token'] is String)
+            .map((e) => e['token']! as String)
+      : const Stream.empty();
+
+  @override
+  Stream<Map<String, dynamic>> get openedMessages => _ready
+      ? _bridge.events
+            .where((e) => e['type'] == 'opened' && e['data'] is Map)
+            .map((e) => HmsPushBridge.messageData(e['data']! as Map))
+            .where((data) => data.containsKey('type'))
+      : const Stream.empty();
+
+  @override
+  Future<Map<String, dynamic>?> initialMessage() async =>
+      _ready ? _bridge.initialMessage() : null;
 }
 
 /// Must be overridden with the instance created at start-up.

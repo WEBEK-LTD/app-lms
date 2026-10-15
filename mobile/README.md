@@ -86,7 +86,13 @@ plugin, without regenerating the config.
    - the `version:` line of `pubspec.yaml`;
    - when the config lists Firebase files, `android/app/google-services.json`
      and `ios/Runner/GoogleService-Info.plist` (git-ignored). Without them
-     the app builds normally and push is off. `--offline` skips downloads.
+     the app builds normally and push is off. `--offline` skips downloads;
+   - 36 when the config has `huawei.agconnect_config_url`,
+     `android/app/agconnect-services.json` (git-ignored) and its app ID in
+     `build_config.g.dart`. Only then does the Android build include Huawei
+     Push Kit (`android/hms_push`, the channel in `android/app/src/huawei`,
+     Huawei's Maven repository): on phones without Google Play services the
+     app registers with Push Kit instead of Firebase.
 
    Running it again with the same config changes nothing.
 3. `flutter build apk` / `flutter build appbundle` / `flutter build ipa`.
