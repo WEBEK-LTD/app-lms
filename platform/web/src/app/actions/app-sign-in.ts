@@ -9,7 +9,9 @@ import { getStore } from "@/lib/data";
 import type { App, HostedSettings } from "@/lib/data/types";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import { appMailFormValues, appMailServer, appMailTarget, parseAppMailForm, sendThroughServer, type AppMailFormValues } from "@/lib/email/app-mail";
-import { encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
+import { appUrl, encryptionKey, isProduction, waabekApiUrl } from "@/lib/env";
+import { ensureAuthKey, rotateAuthKey, yallappSignsIn } from "@/lib/hosted/app-auth";
+import { issueTestToken } from "@/lib/hosted/test-token";
 import type { FormState } from "@/lib/forms";
 import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hosted/app-sender";
 import { OtpSendError } from "@/lib/hosted/otp-sender";
@@ -32,8 +34,79 @@ async function signInContext(hostedOnly = false) {
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;
   const wordpress = app?.backend === "wordpress" || app?.backend === "setup_requested";
-  if (!app || !(app.backend === "hosted" || (!hostedOnly && wordpress))) redirect("/dashboard");
+  // 34 An app on its own API that Yallapp signs people in to has the hosted API's sign-in settings.
+  if (!app || !(app.backend === "hosted" || yallappSignsIn(app) || (!hostedOnly && wordpress))) redirect("/dashboard");
   return { context, app };
+}
+
+/** 34 Who signs people in is chosen only for apps on their own API. */
+async function ownApiContext() {
+  const context = await getClientContext();
+  if (!context) redirect("/sign-in");
+  if (!mayUseDashboard(context)) redirect("/pending");
+  const app = context.app;
+  if (!app || app.backend !== "custom_api") redirect("/dashboard");
+  return { context, app };
+}
+
+/** 34 Own API apps: the client's API signs people in, or Yallapp does. */
+export async function saveSignInProviderAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { context, app } = await ownApiContext();
+  const choice = String(formData.get("signInBy") ?? "");
+  if (choice !== "api" && choice !== "yallapp") return { errors: { signInBy: "Choose who signs people in." }, values: { signInBy: choice } };
+  const store = await getStore();
+  const now = new Date();
+  // The app's key pair is made now, so the key set is ready before the first token.
+  if (choice === "yallapp") await ensureAuthKey(store, app.id, encryptionKey(), now);
+  const next = withSettings(app, { signInBy: choice });
+  await store.updateApp(app.id, { hostedSettings: next }, now);
+  await recordStaffChange(
+    context,
+    choice === "yallapp" ? "Chose Yallapp to sign people in to the app" : "Chose the app's own API to sign people in",
+    { signInBy: app.hostedSettings?.signInBy ?? "api" },
+    { signInBy: choice },
+  );
+  revalidatePath("/dashboard", "layout");
+  return {
+    ok: true,
+    message:
+      choice === "yallapp"
+        ? "Saved. Yallapp signs people in to your app from its next build. Your developer can switch the app people already have sooner: see For your developer below."
+        : "Saved. Your API signs people in to your app again, from now on.",
+    values: { signInBy: choice },
+  };
+}
+
+export interface TestTokenState {
+  token?: string;
+  expiresAt?: string;
+  error?: string;
+}
+
+/** 34 A 15-minute access token of the store review account, for the developer to try their API. */
+export async function testTokenAction(): Promise<TestTokenState> {
+  const { context, app } = await ownApiContext();
+  if (!yallappSignsIn(app)) return { error: "Choose Yallapp to sign people in first." };
+  const store = await getStore();
+  const limit = await hitRateLimit(store, RATE_LIMITS.appTestToken, app.id);
+  if (!limit.allowed) return { error: `You made several test tokens. Try again in ${Math.ceil(limit.retryAfter / 60)} minutes.` };
+  const issued = await issueTestToken(store, app, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: new Date() });
+  if (!issued) return { error: "Add a store review number or email address under Sign-in rules first: the test token is for that account." };
+  await recordStaffChange(context, "Made a test token for the app's own API");
+  return { token: issued.token, expiresAt: issued.expiresAt.toISOString() };
+}
+
+/** 34 A new key pair signs the app's tokens; the old public key stays published for a day. */
+export async function replaceSigningKeyAction(): Promise<FormState> {
+  const { context, app } = await ownApiContext();
+  if (!yallappSignsIn(app)) return { ok: false, message: "Choose Yallapp to sign people in first." };
+  const store = await getStore();
+  const limit = await hitRateLimit(store, RATE_LIMITS.appSigningKey, app.id);
+  if (!limit.allowed) return { ok: false, message: `You replaced the key several times. Try again in ${Math.ceil(limit.retryAfter / 60)} minutes.` };
+  const key = await rotateAuthKey(store, app.id, encryptionKey(), new Date());
+  await recordStaffChange(context, "Replaced the key that signs the app's tokens", null, { kid: key.kid });
+  revalidatePath("/dashboard/app-sign-in");
+  return { ok: true, message: "Replaced. New tokens are signed with the new key; the old key stays in the key set for a day, so signed-in people stay signed in." };
 }
 
 /** The settings with a change, keeping everything else that's saved (methods, the WhatsApp number, the rules). */

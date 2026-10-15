@@ -27,6 +27,7 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
       : const <String, dynamic>{};
   final appName = text(json['app_name'], 'Your app');
   final apiBase = text(json['api_base_url'], '');
+  final authBase = text(json['auth_base_url'], '');
   final font = text(branding['font'], bundledFonts.first);
   return BuildConfigData(
     appType: switch (json['app_type']) {
@@ -43,6 +44,7 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
     shortName: text(json['short_name'], appName),
     siteUrl: normalizeSiteUrl(text(json['site_url'], '')),
     apiBaseUrl: apiBase.isEmpty ? null : normalizeSiteUrl(apiBase),
+    authBaseUrl: authBase.isEmpty ? null : normalizeSiteUrl(authBase),
     androidPackage: text(json['android_package'], 'com.example.preview'),
     iosBundleId: text(json['ios_bundle_id'], 'com.example.preview'),
     versionName: text(json['version_name'], '1.0.0'),

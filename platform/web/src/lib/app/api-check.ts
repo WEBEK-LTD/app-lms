@@ -11,8 +11,11 @@ import type { AppType, SignInMethod } from "../data/types";
  */
 
 export interface ApiCheck {
-  /** 19 `errors` probes phone sign-in, `email_errors` and `password_errors` the email endpoints. */
-  id: "reachable" | "config" | "app_type" | "home" | "errors" | "email_errors" | "password_errors";
+  /**
+   * 19 `errors` probes phone sign-in, `email_errors` and `password_errors` the email endpoints.
+   * 34 When Yallapp signs people in: `no_token` (a signed-in call without a token answers 401) and `test_token` (with a test token, 200).
+   */
+  id: "reachable" | "config" | "app_type" | "home" | "errors" | "email_errors" | "password_errors" | "no_token" | "test_token";
   label: string;
   ok: boolean;
   detail?: string;
@@ -93,8 +96,21 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** What's missing from a `GET /config` response, by path. */
-export function configProblems(config: unknown): string[] {
+/**
+ * 34 A signed-in endpoint every API of this app type serves, for the token
+ * checks when Yallapp signs people in: an Academy's courses, a Bookings app's
+ * appointments, a Store's orders (only when `features.orders` is on, when the
+ * config is known). Null for types without one (News).
+ */
+export function signedInPath(appType: AppType, features?: unknown): string | null {
+  if (appType === "lms") return "/me/courses";
+  if (appType === "booking") return "/me/appointments";
+  if (appType === "store") return features === undefined || (isObject(features) && features.orders === true) ? "/me/orders" : null;
+  return null;
+}
+
+/** What's missing from a `GET /config` response, by path. 34 When Yallapp signs people in, `auth` is Yallapp's: not checked. */
+export function configProblems(config: unknown, options: { yallappSignIn?: boolean } = {}): string[] {
   if (!isObject(config)) return ["the response isn't a JSON object"];
   const problems: string[] = [];
   const need = (path: string, ok: boolean) => {
@@ -107,12 +123,14 @@ export function configProblems(config: unknown): string[] {
   const features = config.features;
   need("features", isObject(features));
   const auth = config.auth;
-  need("auth.signup_allowed", isObject(auth) && typeof auth.signup_allowed === "boolean");
-  need("auth.signup_fields", isObject(auth) && Array.isArray(auth.signup_fields));
-  need("auth.default_country_code", isObject(auth) && typeof auth.default_country_code === "string");
-  // 19 How people sign in: phone, email or both.
-  const signIn = readSignIn(auth);
-  if (!signIn.ok) problems.push(...signIn.problems);
+  if (!options.yallappSignIn) {
+    need("auth.signup_allowed", isObject(auth) && typeof auth.signup_allowed === "boolean");
+    need("auth.signup_fields", isObject(auth) && Array.isArray(auth.signup_fields));
+    need("auth.default_country_code", isObject(auth) && typeof auth.default_country_code === "string");
+    // 19 How people sign in: phone, email or both.
+    const signIn = readSignIn(auth);
+    if (!signIn.ok) problems.push(...signIn.problems);
+  }
   need("purchases", isObject(config.purchases));
   need("content", isObject(config.content));
   const app = config.app;
@@ -175,7 +193,16 @@ function typeCheckOk(rule: EngineInfo["configCheck"], config: Record<string, unk
 export async function checkApi(
   baseUrl: string,
   appType: AppType,
-  options: { fetcher?: Fetch; resolve?: Resolve } = {},
+  options: {
+    fetcher?: Fetch;
+    resolve?: Resolve;
+    /**
+     * 34 Yallapp signs people in: the API serves no sign-in endpoints, and a
+     * signed-in call answers 401 without a token and 200 with `token` (a test
+     * token of the store review account; that check is left out without one).
+     */
+    yallappSignIn?: { token: string | null } | null;
+  } = {},
 ): Promise<ApiCheckResult> {
   const fetcher = options.fetcher ?? fetch;
   const resolve = options.resolve ?? resolveHost;
@@ -214,7 +241,8 @@ export async function checkApi(
   }
   checks.push({ id: "reachable", label: "Your API answers", ok: true });
 
-  const problems = config.status === 200 ? configProblems(config.body) : [`HTTP ${config.status}`];
+  const yallapp = options.yallappSignIn ?? null;
+  const problems = config.status === 200 ? configProblems(config.body, { yallappSignIn: Boolean(yallapp) }) : [`HTTP ${config.status}`];
   checks.push({
     id: "config",
     label: "GET /config matches the contract",
@@ -239,6 +267,12 @@ export async function checkApi(
     });
   } catch {
     checks.push({ id: "home", label: `GET ${engine.homePath} returns sections`, ok: false, detail: "No answer." });
+  }
+
+  // 34 Yallapp signs people in: the API checks Yallapp's tokens instead of serving sign-in.
+  if (yallapp) {
+    await checkTokens(fetcher, base, signedInPath(appType, body.features), yallapp.token, checks);
+    return done();
   }
 
   // 19 The sign-in endpoints the API offers (phone when /config doesn't say), each with an empty body.
@@ -275,4 +309,31 @@ export async function checkApi(
   }
   if (config.status === 200 && signIn.ok) return { ...done(), signIn: signIn.value };
   return done();
+}
+
+/** 34 A signed-in call answers 401 without a token, and 200 with the test token. */
+async function checkTokens(fetcher: Fetch, base: string, path: string | null, token: string | null, checks: ApiCheck[]): Promise<void> {
+  if (!path) return;
+  const noTokenLabel = `GET ${path} without a token answers 401`;
+  try {
+    const answer = await getJson(fetcher, `${base}${path}`);
+    const ok = answer.status === 401;
+    checks.push({ id: "no_token", label: noTokenLabel, ok, detail: ok ? undefined : `It answered ${answer.status}. Answer 401 when the token is missing, expired or not Yallapp's.` });
+  } catch {
+    checks.push({ id: "no_token", label: noTokenLabel, ok: false, detail: "No answer." });
+  }
+  if (!token) return;
+  const label = `GET ${path} with a test token from Yallapp answers 200`;
+  try {
+    const answer = await getJson(fetcher, `${base}${path}`, { headers: { authorization: `Bearer ${token}` } });
+    const ok = answer.status === 200;
+    checks.push({
+      id: "test_token",
+      label,
+      ok,
+      detail: ok ? undefined : `It answered ${answer.status}. Check the token's signature with the app's public keys, and its iss, aud and exp (see the developer guide).`,
+    });
+  } catch {
+    checks.push({ id: "test_token", label, ok: false, detail: "No answer." });
+  }
 }

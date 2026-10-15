@@ -4,6 +4,7 @@ import type { BuildConfig } from "../build-config/types";
 import { APP_FONTS } from "../build-config/types";
 import type { App } from "../data/types";
 import { hostedApiUrl } from "../hosted/urls";
+import { yallappSignsIn } from "../hosted/sign-in-methods";
 import type { Plan, PlanInfo } from "../plans";
 import type { PreviewGrant } from "./token";
 
@@ -27,7 +28,7 @@ export interface PreviewConfig {
     content_source: PreviewContentSource;
     /** The preview shows the Pages & look draft (hosted API only); otherwise the published pages. */
     draft: boolean;
-    /** Sent by the app as `X-Yallapp-Preview` to the hosted API; null for other content sources. */
+    /** Sent by the app as `X-Yallapp-Preview` to the hosted API (34: also for Yallapp's sign-in of an own API app); null otherwise. */
     api_token: string | null;
     /** Build config fields filled with placeholders because the setup doesn't have them yet. */
     placeholders: string[];
@@ -87,8 +88,12 @@ export function previewConfigFor(
     if (!built.site_url) placeholders.push("site_url");
     built.site_url = options.platformUrl;
     delete built.api_base_url;
+    delete built.auth_base_url;
   }
   if (source === "hosted") built.api_base_url = hostedApiUrl(options.platformUrl, app.id);
+  // 34 Yallapp signs people in to an app on its own API: sign-in goes to the hosted API of this platform.
+  const yallappAuth = source === "custom_api" && yallappSignsIn(app);
+  if (yallappAuth) built.auth_base_url = hostedApiUrl(options.platformUrl, app.id);
   if (!(APP_FONTS as readonly string[]).includes(built.branding.font)) {
     placeholders.push("branding.font");
     built.branding.font = APP_FONTS[0];
@@ -104,7 +109,8 @@ export function previewConfigFor(
       expires_at: grant.expiresAt.toISOString(),
       content_source: source,
       draft,
-      api_token: source === "hosted" ? options.token : null,
+      // 34 Also for Yallapp's sign-in of an app on its own API: sent only to the hosted API, never to the client's.
+      api_token: source === "hosted" || yallappAuth ? options.token : null,
       placeholders,
       missing_steps: missingSteps(app, options.plan, options.plans),
     },

@@ -31,10 +31,20 @@ export function platformKeepsEmail(platform: string): boolean {
   return EMAIL_PLATFORMS.has(platform) || OWN_ACCOUNT_PLATFORMS.has(platform);
 }
 
+/**
+ * 34 Whether Yallapp signs people in to this app: an app on its own API whose
+ * owner chose "Yallapp signs people in" on App sign-in (lib/hosted/app-auth.ts).
+ */
+export function yallappSignsIn(app: Pick<App, "backend"> & { hostedSettings?: App["hostedSettings"] }): boolean {
+  return app.backend === "custom_api" && app.hostedSettings?.signInBy === "yallapp";
+}
+
 /** Whether this app can offer email sign-in at all. */
-export function emailSignInPossible(app: Pick<App, "backend" | "connector" | "demo">): boolean {
+export function emailSignInPossible(app: Pick<App, "backend" | "connector" | "demo"> & { hostedSettings?: App["hostedSettings"] }): boolean {
   // 19 Also a WordPress site our team is still setting up.
   if (app.backend === "wordpress" || app.backend === "setup_requested") return true;
+  // 34 An own API app Yallapp signs people in to: the accounts are Yallapp's, so email works.
+  if (app.backend === "custom_api") return yallappSignsIn(app);
   if (app.backend !== "hosted" || app.demo) return false;
   if (app.connector?.kind === "platform") return platformKeepsEmail(app.connector.platform);
   // Content managed in Yallapp (lib/app/kinds.ts): accounts are the hosted API's own, so email works.

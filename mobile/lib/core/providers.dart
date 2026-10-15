@@ -10,6 +10,7 @@ import 'auth/token_store.dart';
 import 'config/build_config.dart';
 import 'gate/app_gate.dart';
 import 'l10n/language.dart';
+import 'preview/preview.dart';
 
 /// Must be overridden with the environment loaded at start-up.
 final appEnvironmentProvider = Provider<AppEnvironment>(
@@ -28,12 +29,22 @@ class ApiBundle {
 final apiBundleProvider = Provider<ApiBundle>((ref) {
   final env = ref.watch(appEnvironmentProvider);
   final baseUrl = apiUrlOf(env.build);
-  // 17 The app preview tells the hosted API who it is with its preview token.
+  // 34 Yallapp signs people in to an app on its own API: sign-in, the account
+  // and token refreshes go to Yallapp (until /config says otherwise).
+  final authBaseUrl = env.build.authBaseUrl;
+  final accountUrl = authBaseUrl == null
+      ? baseUrl
+      : normalizeSiteUrl(authBaseUrl);
+  // 17 The app preview tells the hosted API who it is with its preview token
+  // (34: only Yallapp's, never the client's own API).
   final previewToken = env.preview?.apiToken;
   final previewHeaders = <String, dynamic>{'X-Yallapp-Preview': ?previewToken};
+  final contentIsHosted =
+      env.preview == null ||
+      env.preview!.contentSource == PreviewContentSource.hosted;
   final refreshDio = Dio(
     BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: accountUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
       contentType: Headers.jsonContentType,
@@ -54,7 +65,15 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     language: language,
     offline: ref.read(offlineCacheProvider),
   );
-  dio.options.headers.addAll(previewHeaders);
+  if (contentIsHosted) dio.options.headers.addAll(previewHeaders);
+  final authDio = createHttpClient(
+    baseUrl: accountUrl,
+    tokens: tokens,
+    onGateError: (error) => ref.read(appGateProvider.notifier).report(error),
+    language: language,
+    offline: ref.read(offlineCacheProvider),
+  );
+  authDio.options.headers.addAll(previewHeaders);
   api = HttpYallappApi(
     dio: dio,
     refreshDio: refreshDio,
@@ -63,9 +82,12 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     language: language,
     preview: env.isPreview,
     appType: env.build.appType,
+    authDio: authDio,
+    authBaseUrl: authBaseUrl,
   );
   ref.onDispose(() {
     dio.close();
+    authDio.close();
     refreshDio.close();
     tokens.dispose();
   });

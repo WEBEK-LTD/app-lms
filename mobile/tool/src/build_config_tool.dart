@@ -15,6 +15,7 @@ const _topLevelKeys = {
   'short_name',
   'site_url',
   'api_base_url',
+  'auth_base_url',
   'android_package',
   'ios_bundle_id',
   'version_name',
@@ -191,8 +192,10 @@ ValidationResult validateBuildConfig(Object? decoded) {
     }
   }
 
-  if (c.containsKey('api_base_url')) {
-    final api = _string(c, 'api_base_url', errors);
+  // 34 `auth_base_url`: Yallapp signs people in to an app on its own API.
+  for (final key in const ['api_base_url', 'auth_base_url']) {
+    if (!c.containsKey(key)) continue;
+    final api = _string(c, key, errors);
     final uri = api == null ? null : Uri.tryParse(api);
     if (api != null &&
         (!api.startsWith('https://') ||
@@ -200,9 +203,7 @@ ValidationResult validateBuildConfig(Object? decoded) {
             uri.host.isEmpty ||
             uri.hasQuery ||
             uri.hasFragment)) {
-      errors.add(
-        '"api_base_url" must be an https:// URL without query or fragment.',
-      );
+      errors.add('"$key" must be an https:// URL without query or fragment.');
     }
   }
 
@@ -495,6 +496,7 @@ const buildConfig = BuildConfigData(
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},
   apiBaseUrl: ${_dartString(c['api_base_url'] == null ? null : _trimSlash(c['api_base_url'] as String))},
+  authBaseUrl: ${_dartString(c['auth_base_url'] == null ? null : _trimSlash(c['auth_base_url'] as String))},
   androidPackage: ${_dartString(c['android_package'] as String)},
   iosBundleId: ${_dartString(c['ios_bundle_id'] as String)},
   versionName: ${_dartString(c['version_name'] as String)},

@@ -20,11 +20,16 @@ import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
 import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
+import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
  * devices, push token and notifications endpoints (docs/api/openapi.yaml),
  * for apps whose backend is "hosted". Same behaviour as the plugin's.
+ *
+ * 34 Also for an app on its own API when Yallapp signs people in: then only
+ * sign-in, the account and its devices (the client's API serves the rest),
+ * with ES256 access tokens the client's API checks (lib/hosted/app-auth.ts).
  */
 
 export const ACCESS_TTL_SECONDS = 900;
@@ -93,6 +98,11 @@ export interface HostedContext {
    * & look draft instead of the published pages.
    */
   preview?: { draft: boolean } | null;
+  /**
+   * 34 Signs and checks the access tokens of an app on its own API that
+   * Yallapp signs people in to. Without it such an app answers not_found.
+   */
+  yallappSignIn?: AppSignIn | null;
 }
 
 export interface HostedRequest {
@@ -172,14 +182,19 @@ async function userLimitReached(ctx: HostedContext, phone: string | null, email:
   return true;
 }
 
+/** 34 The account endpoints Yallapp serves for an app on its own API; everything else is the client's API's. */
+const SIGN_IN_ONLY_ROUTES = new Set(["POST /auth/logout", "GET /me", "PATCH /me", "DELETE /me", "GET /me/devices"]);
+
 export async function handleHosted(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
-  if (ctx.app.backend !== "hosted") return notFound();
+  // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
+  const signInOnly = signsForOwnApi(ctx);
+  if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
   // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
   if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
   const route = `${req.method} /${req.path.join("/")}`;
   switch (route) {
     case "GET /config":
-      return config(ctx, req);
+      return signInOnly ? signInConfig(ctx, req) : config(ctx, req);
     case "POST /auth/otp/request":
       return requestCode(ctx, record(req.body));
     case "POST /auth/email/request":
@@ -193,8 +208,12 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
   }
 
   const session = await authenticate(ctx, req.token);
+  if (signInOnly) {
+    const deviceRoute = req.path.length === 3 && req.path[0] === "me" && req.path[1] === "devices" && req.method === "DELETE";
+    if (!SIGN_IN_ONLY_ROUTES.has(route) && !deviceRoute) return notFound();
+  }
   // 10.6 Pages
-  const page = await handlePages(ctx, req, session?.user ?? null);
+  const page = signInOnly ? null : await handlePages(ctx, req, session?.user ?? null);
   if (page) return page;
   if (req.path[0] === "me" || route === "POST /auth/logout") {
     if (!session) return unauthorized();
@@ -291,16 +310,7 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       ...extra.features,
       offline: ctx.plan === undefined ? false : hasFeature(ctx.plan, "offline_downloads"),
     },
-    auth: {
-      signup_allowed: settings.signupAllowed,
-      signup_fields: signupFields(settings),
-      default_country_code: settings.defaultCountryCode,
-      // 18 Phone, email (a code by email) or both, as the owner chose.
-      methods: hostedSignInMethods(app),
-      ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
-      // 17 `preview: true` at /auth/otp/request signs in only the store review number.
-      preview_sign_in: true,
-    },
+    auth: authConfig(app),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
     purchases: {
       ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),
@@ -325,6 +335,51 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
     ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null)),
+  });
+}
+
+/** `Config.auth`: the owner's sign-in choices. */
+function authConfig(app: App) {
+  const settings = hostedSettings(app);
+  return {
+    signup_allowed: settings.signupAllowed,
+    signup_fields: signupFields(settings),
+    default_country_code: settings.defaultCountryCode,
+    // 18 Phone, email (a code by email) or both, as the owner chose.
+    methods: hostedSignInMethods(app),
+    ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
+    // 17 `preview: true` at /auth/otp/request signs in only the store review number.
+    preview_sign_in: true,
+  };
+}
+
+/**
+ * 34 `GET /config` of an app on its own API that Yallapp signs people in to:
+ * a valid Config whose `auth` is what counts (`provider: yallapp`, the
+ * address of these endpoints and the owner's choices). The app takes only
+ * `auth` from it; everything else comes from the client's own /config.
+ */
+function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
+  const platform = req.query.get("platform");
+  if (platform !== "android" && platform !== "ios") return badRequest("Unknown platform.");
+  if (!req.query.get("app_version")) return badRequest("The app version is missing.");
+  const { app } = ctx;
+  const settings = hostedSettings(app);
+  return ok({
+    site: {
+      name: app.appName ?? "App",
+      url: app.siteUrl ?? ctx.platformUrl,
+      terms_url: settings.termsUrl,
+      privacy_url: app.privacyUrl,
+      support_whatsapp: settings.supportWhatsapp,
+      support_email: app.supportEmail,
+    },
+    branding: { logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null, primary_color: app.primaryColor },
+    features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
+    auth: { ...authConfig(app), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
+    purchases: { enroll_button: false, free_enrollment: false },
+    content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
+    app: { update_required: false, maintenance: false, maintenance_message: null },
   });
 }
 
@@ -663,10 +718,11 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
     };
     await ctx.store.createHostedDevice(device);
   }
-  return ok({ ...(await issueTokens(ctx, user.id, device.id)), user: userJson(user) });
+  return ok({ ...(await issueTokens(ctx, user, device.id)), user: userJson(user) });
 }
 
-async function issueTokens(ctx: HostedContext, userId: number, deviceRowId: string) {
+async function issueTokens(ctx: HostedContext, user: HostedUser, deviceRowId: string) {
+  const userId = user.id;
   const nowSeconds = Math.floor(ctx.now.getTime() / 1000);
   const refreshToken = randomToken(48);
   await ctx.store.createHostedRefreshToken({
@@ -677,11 +733,12 @@ async function issueTokens(ctx: HostedContext, userId: number, deviceRowId: stri
     expiresAt: new Date(ctx.now.getTime() + REFRESH_TTL_DAYS * 86_400_000),
     createdAt: ctx.now,
   });
+  const exp = nowSeconds + ACCESS_TTL_SECONDS;
   return {
-    access_token: encodeJwt(
-      { aud: ctx.app.id, sub: userId, did: deviceRowId, iat: nowSeconds, exp: nowSeconds + ACCESS_TTL_SECONDS },
-      ctx.secret,
-    ),
+    // 34 An app on its own API gets ES256 tokens its API can check; the hosted API's own stay HS256.
+    access_token: signsForOwnApi(ctx)
+      ? await ctx.yallappSignIn!.sign({ sub: String(userId), did: deviceRowId, ...personClaims(user), iat: nowSeconds, exp })
+      : encodeJwt({ aud: ctx.app.id, sub: userId, did: deviceRowId, iat: nowSeconds, exp }, ctx.secret),
     refresh_token: refreshToken,
     expires_in: ACCESS_TTL_SECONDS,
   };
@@ -693,17 +750,37 @@ async function refresh(ctx: HostedContext, body: Record<string, unknown>): Promi
   if (!token || token.appId !== ctx.app.id || token.expiresAt <= ctx.now) return unauthorized();
   const device = await ctx.store.getHostedDevice(ctx.app.id, token.deviceRowId);
   if (!device || device.userId !== token.userId) return unauthorized();
+  // 34 The new access token carries the person's current name, phone and email.
+  const user = await ctx.store.getHostedUser(ctx.app.id, token.userId);
+  if (!user) return unauthorized();
   await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now });
-  return ok(await issueTokens(ctx, token.userId, device.id));
+  return ok(await issueTokens(ctx, user, device.id));
+}
+
+/** 34 Whether this app's tokens are the ES256 ones of Yallapp's sign-in for an own API. */
+function signsForOwnApi(ctx: HostedContext): boolean {
+  return yallappSignsIn(ctx.app) && Boolean(ctx.yallappSignIn);
+}
+
+/** The signed-in person and device: `sub` and `did` of a valid token. */
+async function tokenSubject(ctx: HostedContext, token: string): Promise<{ userId: number; deviceRowId: string } | null> {
+  if (signsForOwnApi(ctx)) {
+    const claims = await ctx.yallappSignIn!.verify(token);
+    // A test token (no device) works only on the client's API.
+    const userId = claims ? Number(claims.sub) : NaN;
+    return claims && typeof claims.did === "string" && Number.isSafeInteger(userId) ? { userId, deviceRowId: claims.did } : null;
+  }
+  const claims = decodeJwt(token, ctx.secret, ctx.app.id, Math.floor(ctx.now.getTime() / 1000));
+  return claims ? { userId: claims.sub, deviceRowId: claims.did } : null;
 }
 
 async function authenticate(ctx: HostedContext, token: string | null): Promise<Session | null> {
   if (!token) return null;
-  const claims = decodeJwt(token, ctx.secret, ctx.app.id, Math.floor(ctx.now.getTime() / 1000));
-  if (!claims) return null;
-  const device = await ctx.store.getHostedDevice(ctx.app.id, claims.did);
-  if (!device || device.userId !== claims.sub) return null;
-  const user = await ctx.store.getHostedUser(ctx.app.id, claims.sub);
+  const subject = await tokenSubject(ctx, token);
+  if (!subject) return null;
+  const device = await ctx.store.getHostedDevice(ctx.app.id, subject.deviceRowId);
+  if (!device || device.userId !== subject.userId) return null;
+  const user = await ctx.store.getHostedUser(ctx.app.id, subject.userId);
   return user ? { user, device } : null;
 }
 

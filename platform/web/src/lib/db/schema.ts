@@ -1,4 +1,5 @@
 import type {
+  AppAuthKey,
   AppBackend,
   AppType,
   AppVertical,
@@ -369,6 +370,23 @@ export const hostedDevices = mysqlTable(
     lastSeenAt: time("last_seen_at").notNull(),
   },
   (t) => [uniqueIndex("hosted_devices_unique").on(t.userId, t.deviceId), index("hosted_devices_app_idx").on(t.appId)],
+);
+
+// 34 The keys that sign an own API app's access tokens when Yallapp signs people in.
+export const appAuthKeys = mysqlTable(
+  "app_auth_keys",
+  {
+    kid: varchar("kid", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    alg: varchar("alg", { length: 10 }).notNull().$type<"ES256">(),
+    publicJwk: jsonText<AppAuthKey["publicJwk"]>("public_jwk").notNull(),
+    privateKeyEncrypted: text("private_key_encrypted"),
+    createdAt: time("created_at").notNull(),
+    retiredAt: time("retired_at"),
+  },
+  (t) => [index("app_auth_keys_app_idx").on(t.appId, t.createdAt)],
 );
 
 export const hostedRefreshTokens = mysqlTable(

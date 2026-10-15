@@ -191,6 +191,13 @@ export interface HostedSettings {
    */
   mailFailedAt?: string | null;
   mailFailedReason?: string | null;
+  /**
+   * 34 Own API apps: who signs people in. `api` (missing): the client's API
+   * serves the sign-in endpoints. `yallapp`: Yallapp does, with the rules
+   * above, and gives the app signed tokens the client's API checks with the
+   * app's public keys (lib/hosted/app-auth.ts).
+   */
+  signInBy?: "api" | "yallapp" | null;
 }
 
 /**
@@ -222,6 +229,25 @@ export interface ApiSignInSnapshot {
 }
 
 export type SignInMethod = "phone" | "email";
+
+/**
+ * 34 A key pair that signs the access tokens of an own API app when Yallapp
+ * signs people in. The private key (PKCS#8) is encrypted with the context
+ * `app-auth-key:<app id>` and dropped when the key is retired; the public key
+ * stays published for a day after that (`app_auth_keys`).
+ */
+export interface AppAuthKey {
+  /** The key's JWK thumbprint (RFC 7638), sent as `kid`. */
+  kid: string;
+  appId: string;
+  alg: "ES256";
+  /** The public key as a JWK (kty, crv, x, y). */
+  publicJwk: { kty: string; crv: string; x: string; y: string };
+  privateKeyEncrypted: string | null;
+  createdAt: Date;
+  /** When a newer key replaced it; null for the key that signs now. */
+  retiredAt: Date | null;
+}
 
 /** The owner's WABEK account: the API key encrypted (context `app-whatsapp:<app id>`), never shown again. */
 export interface AppWhatsappSender {

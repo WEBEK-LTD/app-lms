@@ -1,18 +1,160 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import Link from "next/link";
+import { useActionState, useEffect, useState } from "react";
 import {
   removeAppWhatsappAction,
+  replaceSigningKeyAction,
   saveAppMailAction,
   saveAppSignInAction,
   saveAppWhatsappAction,
   saveSignInMethodsAction,
+  saveSignInProviderAction,
   testAppMailAction,
   testAppWhatsappAction,
+  testTokenAction,
+  type TestTokenState,
 } from "@/app/actions/app-sign-in";
+import { CopyButton } from "@/components/copy-button";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
+
+/** 34 Own API apps: who signs people in. */
+const PROVIDERS = [
+  {
+    value: "api",
+    label: "Your API signs people in",
+    hint: "Your API serves the sign-in endpoints, sends the codes and keeps the accounts.",
+  },
+  {
+    value: "yallapp",
+    label: "Yallapp signs people in",
+    hint: "Like apps on Yallapp: you choose phone or email here, Yallapp sends the codes and keeps the accounts. Your API checks Yallapp's tokens and serves the content.",
+  },
+] as const;
+
+export function SignInProviderForm({ current }: { current: "api" | "yallapp" }) {
+  const [state, action] = useActionState(saveSignInProviderAction, initialFormState);
+  const value = state.values?.signInBy ?? current;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={value}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={state.errors?.signInBy ? "sign-in-by-error" : undefined}>
+        <legend className="sr-only">Who signs people in</legend>
+        {PROVIDERS.map((p) => (
+          <label key={p.value} className="flex cursor-pointer items-start gap-2.5 text-[15px]">
+            <input type="radio" name="signInBy" value={p.value} defaultChecked={value === p.value} className="mt-1 h-4 w-4 accent-midnight" />
+            <span className="flex flex-col">
+              <span className="font-semibold">{p.label}</span>
+              <span className="text-sm text-muted">{p.hint}</span>
+            </span>
+          </label>
+        ))}
+        <FieldError id="sign-in-by-error" error={state.errors?.signInBy} />
+      </fieldset>
+      <div className="flex justify-end">
+        <SubmitButton className="h-11" pendingText="Saving…">
+          Save
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 34 What the developer of the own API needs: where the keys are, what the tokens say, a test token and a new key. */
+export function DeveloperTokens({
+  jwksUrl,
+  issuer,
+  audience,
+  authBaseUrl,
+  tryUrl,
+}: {
+  jwksUrl: string;
+  issuer: string;
+  audience: string;
+  authBaseUrl: string;
+  /** A signed-in endpoint of the app's own API, for the curl example; null when there's none. */
+  tryUrl: string | null;
+}) {
+  const [token, tokenAction] = useActionState(testTokenAction, {} as TestTokenState);
+  const [key, keyAction] = useActionState(replaceSigningKeyAction, initialFormState);
+  const [copied, setCopied] = useState<string | null>(null);
+  useEffect(() => {
+    if (!token.token) return;
+    navigator.clipboard?.writeText(token.token).then(
+      () => setCopied(token.token!),
+      () => setCopied(null),
+    );
+  }, [token.token]);
+  const rows = [
+    { label: "Public keys (JWKS)", value: jwksUrl },
+    { label: "Issuer (iss)", value: issuer },
+    { label: "Audience (aud)", value: audience },
+    { label: "Sign-in address", value: authBaseUrl },
+  ];
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+        The app sends sign-in to Yallapp and every other call to your API with <code>Authorization: Bearer</code> and Yallapp&apos;s access token. Your API
+        checks the token with these public keys, then reads who signed in from it. Send this to your developer with the{" "}
+        <Link href="/docs/my-own-api#let-yallapp-sign-people-in">developer guide</Link>.
+      </p>
+      <dl className="m-0 grid gap-x-4 gap-y-2 text-[15px] sm:grid-cols-[180px_1fr]">
+        {rows.map((r) => (
+          <div key={r.label} className="contents">
+            <dt className="font-semibold">{r.label}</dt>
+            <dd className="m-0 min-w-0">
+              <code className="break-all">{r.value}</code>
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <form action={tokenAction} className="flex flex-col gap-3 border-t border-line-soft pt-4">
+        {token.error ? <FormMessage message={token.error} ok={false} /> : null}
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          A test token is an access token of your store review account, valid for 15 minutes. Your API should answer a signed-in call with it, and 401 without it.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <SubmitButton variant="secondary" className="h-11" pendingText="Making…">
+            Copy a test token
+          </SubmitButton>
+        </div>
+        {token.token ? (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="f-test-token" className="text-sm font-semibold">
+              Test token
+            </label>
+            <textarea id="f-test-token" readOnly rows={4} value={token.token} className="input font-mono text-xs break-all" onFocus={(e) => e.currentTarget.select()} />
+            <div className="flex flex-wrap items-center gap-3">
+              <CopyButton value={token.token} />
+              <span role="status" className="text-sm text-muted">
+                {copied === token.token ? "Copied. " : ""}
+                It works until {new Date(token.expiresAt!).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}.
+              </span>
+            </div>
+            {tryUrl ? (
+              <p className="m-0 text-sm text-muted">
+                Try it: <code className="break-all">curl -H &quot;Authorization: Bearer $TOKEN&quot; {tryUrl}</code>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </form>
+      <form action={keyAction} className="flex flex-col gap-3 border-t border-line-soft pt-4">
+        <FormMessage message={key.message} ok={key.ok} />
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          Only Yallapp holds the private key. Replace it if you ever need to: new tokens use the new key, and the old one stays in the key set for a day.
+        </p>
+        <div className="flex justify-end">
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Replacing…">
+            Replace the signing key
+          </SubmitButton>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
   return (

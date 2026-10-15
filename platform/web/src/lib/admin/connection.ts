@@ -6,6 +6,7 @@ import { shopifyAdminToken, shopifyToken } from "../hosted/connectors";
 import { platformConnector } from "../hosted/connectors/platforms";
 import { platformDefinition } from "../hosted/connectors/registry";
 import { ShopifyConnector } from "../hosted/connectors/shopify";
+import { yallappSignsIn } from "../hosted/sign-in-methods";
 
 export interface ConnectionStatus {
   ok: boolean;
@@ -62,7 +63,8 @@ export async function checkConnection(store: DataStore, app: App, key: Buffer): 
   }
   const base = app.backend === "custom_api" ? app.apiBaseUrl : app.siteUrl ? `${app.siteUrl.replace(/\/+$/, "")}/wp-json/yallapp/v1` : null;
   if (!base) return { ok: false, message: "No website address is saved yet.", problems: [] };
-  const result = await checkApi(base, app.appType);
+  // 34 When Yallapp signs people in, the API serves no sign-in (the team's check makes no test token).
+  const result = await checkApi(base, app.appType, { yallappSignIn: yallappSignsIn(app) ? { token: null } : null });
   return {
     ok: result.ok,
     message: result.ok ? `${base} answers as the app expects.` : `${base} doesn't answer as the app expects.`,

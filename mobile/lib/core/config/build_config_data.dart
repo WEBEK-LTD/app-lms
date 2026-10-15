@@ -76,6 +76,7 @@ class BuildConfigData {
     required this.template,
     required this.font,
     this.apiBaseUrl,
+    this.authBaseUrl,
     this.clientId,
     this.iconUrl,
     this.logoUrl,
@@ -98,6 +99,11 @@ class BuildConfigData {
   /// Where the Yallapp API is when it isn't the WordPress plugin's
   /// `<site_url>/wp-json/yallapp/v1`: a custom API or the hosted one.
   final String? apiBaseUrl;
+
+  /// 34 An app on its own API that Yallapp signs people in to: Yallapp's
+  /// hosted API for the app (`auth_base_url`). Sign-in, the account and its
+  /// devices go there; everything else to [apiBaseUrl].
+  final String? authBaseUrl;
   final String androidPackage;
   final String iosBundleId;
   final String versionName;
@@ -133,6 +139,7 @@ class BuildConfigData {
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,
     apiBaseUrl: clearApiBaseUrl ? null : apiBaseUrl,
+    authBaseUrl: clearApiBaseUrl ? null : authBaseUrl,
     androidPackage: androidPackage,
     iosBundleId: iosBundleId,
     versionName: versionName,

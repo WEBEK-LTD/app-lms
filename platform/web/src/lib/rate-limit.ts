@@ -82,6 +82,9 @@ export const RATE_LIMITS = {
   appMailTest: { name: "app-mail-test:app", limit: 5, windowSeconds: 10 * 60 },
   // 24 The email telling an owner their own email server failed: at most one per app a day (UTC).
   ownMailFailedMail: { name: "own-mail-failed:app", limit: 1, windowSeconds: 24 * 60 * 60 },
+  // 34 Test tokens for an own API (App sign-in, and the API check), and replacing the signing key, per app.
+  appTestToken: { name: "app-test-token:app", limit: 20, windowSeconds: 10 * 60 },
+  appSigningKey: { name: "app-signing-key:app", limit: 3, windowSeconds: 60 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

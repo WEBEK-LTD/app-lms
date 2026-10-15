@@ -97,6 +97,8 @@ describe("website content pages", () => {
       "Build the endpoints in this order",
       "Start with GET /config",
       "The sign-in flow, simply",
+      // 34
+      "Let Yallapp sign people in",
       "Content, with an example",
       "Errors",
       "Images and HTML",

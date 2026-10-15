@@ -10,6 +10,7 @@ const buildConfig = BuildConfigData(
   shortName: 'Academy',
   siteUrl: 'https://your-academy.com',
   apiBaseUrl: null,
+  authBaseUrl: null,
   androidPackage: 'com.youracademy.app',
   iosBundleId: 'com.youracademy.app',
   versionName: '1.0.0',

@@ -636,3 +636,27 @@ in `docs/ARCHITECTURE.md` ("Card payment providers").
 | [ ] | 37.9 Refunds from the dashboard: iyzico's flows never had them (refunds are made in each provider's panel); Kashier has a refund call, Fawaterk's isn't documented | A refund action tested against each provider's sandbox |
 | [ ] | 37.10 Ticket holds and long-lived pages: places are held for the payment link's hour plus iyzico's 30-minute page; Kashier's session and Fawaterk's invoice may stay payable longer (an expiry field isn't confirmed for either) | The session and invoice expire within the hold, confirmed on each provider |
 | [ ] | 37.11 Kashier's connected accounts (marketplace payouts by Kashier itself, like iyzico's sub-merchants) | Kashier's marketplace API confirmed and tested |
+
+## Phase 34: Yallapp sign-in for apps on their own API
+
+An app whose content comes from the client's own API had to serve every
+sign-in endpoint itself: codes, sign-up, refresh, sign-out, devices and
+account deletion. Now the owner can choose "Yallapp signs people in" on App
+sign-in: Yallapp signs people in with the same choices as apps on Yallapp
+(phone, email or both, Yallapp's or the owner's own senders, the store review
+number and address, device limits, account deletion), and the client's API
+only checks Yallapp's access tokens, ES256 JWTs signed with a key pair of that
+app, against the app's public key set. How it works is in
+`docs/ARCHITECTURE.md` ("Yallapp sign-in for apps on their own API").
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 34.1 Contract first: `Config.auth.provider` (`own` or `yallapp`) and `base_url`; the "Yallapp sign-in" tag (which endpoints Yallapp serves, the claims, what the client's API checks, `DELETE /me` first); `GET /.well-known/jwks.json` and the `Jwks` schema; `auth_base_url` in the build config schema and the preview config (`docs/api/platform.yaml`), whose `api_token` goes to Yallapp only | `redocly lint` passes, the public copy and the API reference regenerated |
+| [x] | 34.2 Keys and tokens (`src/lib/hosted/app-auth.ts`): ES256 key pairs per app in `app_auth_keys` (`drizzle/0032_app_auth_keys.sql`), the private key encrypted with ENCRYPTION_KEY; `kid` is the JWK thumbprint; claims `iss`, `aud` (the app ID), `sub`, `phone` and `email` only when proven, `name`, `iat`, `exp` (15 minutes); replacing the key keeps the old public key published for a day; the key set at `/api/app/{id}/.well-known/jwks.json`, cacheable 5 minutes | Unit tests: tokens checked by jose like a client's API, refused for another app, issuer, key, algorithm, after expiry or changed; rotation and deletion; the key set against the contract; MariaDB 10.11 |
+| [x] | 34.3 The hosted API for these apps: only `/config` (the sign-in part), sign-in, `/me`, devices and sign-out, with the hosted rules and rate limits; refresh tokens single use and ended by sign-out, device removal and account deletion; content, pages, push tokens and notifications are the client's | Unit tests with responses checked against the contract |
+| [x] | 34.4 Dashboard: App sign-in's "Who signs people in" for own API apps; with Yallapp, the hosted sections (methods, WhatsApp number, email, rules) and "For your developer" (key set, issuer, audience, sign-in address, **Copy a test token** for the store review account, **Replace the signing key**); the preview page's sign-in note; the build and preview configs carry `auth_base_url` | Unit tests and the yallapp-sign-in browser test on the memory store and MariaDB |
+| [x] | 34.5 The API check: with Yallapp signing people in, no sign-in in `/config` or sign-in endpoints are required; the app type's signed-in endpoint must answer 401 without a token and 200 with a test token (left out without a store review account; the team's connection check makes none) | Unit tests with a fake API |
+| [x] | 34.6 The app: `auth_base_url` from the build or the preview; sign-in, the account, devices and refreshes go to Yallapp, everything else to the client's API with the token; the sign-in rules come from Yallapp's `/config`; an older build follows `auth.provider` in the client's `/config`, and sign-in returns to the client's API when Yallapp's `/config` answers 404; deleting the account calls the client's `DELETE /me` first; the preview token only to Yallapp | Flutter tests with two fake servers (routing, refresh at Yallapp then retry at the client, switching both ways, deletion), the build config tool; the preview bundle rebuilt |
+| [x] | 34.7 Docs: "Let Yallapp sign people in" in the developer guide (the claims, checking the token in Node with jose, PHP with firebase/php-jwt and Python with PyJWT, mapping Yallapp users to your own by `sub` or the proven phone or email, the test token, switching an app built before) | The site content tests; the PyJWT sample checked against a token by hand |
+| [ ] | 34.8 Account deletion when the client's API is down: the app asks it first and stops on an error, so the person retries; a signed notice (webhook) to the client's API would let Yallapp delete at once and tell the client later | When a client asks for it |
+| [ ] | 34.9 People who signed in through the client's own API before the switch sign in again at Yallapp (their tokens stop working); moving their accounts over isn't offered | When a client with existing accounts asks for it |

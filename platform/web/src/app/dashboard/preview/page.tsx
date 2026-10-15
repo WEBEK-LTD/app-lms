@@ -13,6 +13,7 @@ import { DEMO_SIGN_IN } from "@/lib/demo/constants";
 import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, signingSecret } from "@/lib/env";
 import { hostedSettings } from "@/lib/hosted/service";
+import { yallappSignsIn } from "@/lib/hosted/sign-in-methods";
 import { appDefaults, draftLayout, publishedLayout } from "@/lib/pages/layout";
 import { LANGUAGE_NAMES } from "@/lib/pages/types";
 import { languagesForPlan } from "@/lib/pages/plan";
@@ -75,7 +76,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
     <>
       Sign in with the demo number {DEMO_SIGN_IN.display} and the code {DEMO_SIGN_IN.code}.
     </>
-  ) : app.backend === "hosted" ? (
+  ) : app.backend === "hosted" || yallappSignsIn(app) ? (
     settings.reviewPhone && settings.reviewCode ? (
       <>
         Sign in with your store review number, {settings.reviewPhone}, and its code. Change them on <Link href="/dashboard/app-sign-in">App sign-in</Link>.

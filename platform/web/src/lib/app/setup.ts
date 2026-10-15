@@ -10,6 +10,7 @@ import { effectivePlans } from "../entitlements";
 import { compareVersions } from "../semver";
 import { appUrl } from "../env";
 import { hostedApiUrl } from "../hosted/urls";
+import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
 
 export const SETUP_STEPS = ["app-type", "website", "branding", "listing", "publishing"] as const;
@@ -182,6 +183,8 @@ export function buildConfigFor(
     ...(app.vertical ? { vertical: app.vertical } : {}),
     ...(app.backend === "custom_api" && app.apiBaseUrl ? { api_base_url: app.apiBaseUrl } : {}),
     ...(app.backend === "hosted" ? { api_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
+    // 34 Yallapp signs people in: sign-in and the account go to the hosted API, content to the client's.
+    ...(yallappSignsIn(app) && app.apiBaseUrl ? { auth_base_url: hostedApiUrl(appUrl(), app.id) } : {}),
     app_name: app.appName ?? "",
     short_name: app.shortName ?? "",
     // Apps without a website link to the platform.

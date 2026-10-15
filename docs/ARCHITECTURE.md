@@ -723,6 +723,61 @@ mobile/
   WordPress account with that email, when sign-up from the app is allowed);
   accounts that can edit the site get no email and never sign in by code.
 
+## Yallapp sign-in for apps on their own API (Phase 34)
+
+An app whose content comes from the client's own API can leave sign-in to
+Yallapp: App sign-in › "Who signs people in" (`apps.hosted_settings.signInBy`:
+`api`, the default, or `yallapp`).
+
+- **Accounts.** The hosted API's own: `hosted_users`, devices, refresh tokens
+  and challenges for that app, with the same sign-in methods (phone, email or
+  both), code senders (Yallapp's or the owner's WhatsApp number and email
+  server), store review number and address, device limit, sign-up rules,
+  plan limits and rate limits as a hosted app. `handleHosted` answers such an
+  app only for `GET /config`, the `/auth/*` sign-in endpoints, `GET`, `PATCH`
+  and `DELETE /me`, `GET /me/devices` and `DELETE /me/devices/{id}`;
+  everything else (pages, content, push tokens, notifications) is 404: the
+  client's API serves it. Its `/config` is a valid Config whose `auth` counts:
+  the owner's choices plus `provider: yallapp` and `base_url`.
+- **Tokens.** Access tokens are JWTs signed with ES256 by a key pair of that
+  app (`src/lib/hosted/app-auth.ts`, with `jose`): header `kid` (the key's
+  RFC 7638 thumbprint); claims `iss` (the platform's address), `aud` (the app
+  ID), `sub` (the hosted user ID as a string), `did` (the device row, for
+  Yallapp's own session check), `phone` and `email` only when proven by a
+  code (an email typed at a phone sign-up never is), `name`, `iat`, `exp`
+  (15 minutes). Refresh tokens stay opaque, hashed and single use; signing
+  out, removing a device and deleting the account delete them, so access
+  tokens stop within 15 minutes. Apps on the hosted API keep their HS256
+  tokens.
+- **Keys.** `app_auth_keys` (`drizzle/0032_app_auth_keys.sql`): the public
+  JWK, and the private key as PKCS#8 encrypted with ENCRYPTION_KEY and the
+  context `app-auth-key:<app id>`. A key is made when the owner chooses
+  Yallapp (or at the first token). "Replace the signing key" (3 an hour)
+  retires the current key, drops its private key at once and keeps its public
+  key published for a day; older retired keys are deleted then.
+  `GET /api/app/{id}/.well-known/jwks.json` serves the current and recently
+  retired public keys, `Cache-Control: public, max-age=300`, also while the
+  app is paused; 404 for any other app.
+- **The app.** The build config's `auth_base_url` (and the preview's) is the
+  hosted API's address for the app. The Flutter app sends sign-in, the
+  account, device list and refreshes there (a second Dio with the same token
+  manager) and every other call to `api_base_url` with the JWT; it reads both
+  `/config`s and takes `auth` from Yallapp's. An app built before the switch
+  follows the client's `/config` when it says `auth.provider: yallapp`; when
+  Yallapp's `/config` answers 404 (the owner went back) sign-in returns to
+  the client's API. Deleting the account calls the client's `DELETE /me`
+  first (404 or 405 ignored), then Yallapp's. The preview sends its token
+  (`X-Yallapp-Preview`) only to Yallapp.
+- **The client's API** checks the token with the key set (signature, `iss`,
+  `aud`, `exp`) and maps `sub` to its own users (the developer guide, with
+  samples for jose, firebase/php-jwt and PyJWT). "Copy a test token" (20 per
+  10 minutes) signs a 15-minute token for the store review account (made if
+  needed, outside the plan's user count), without `did`, so it works only on
+  the client's API. The API check then skips sign-in and checks that the
+  app type's signed-in endpoint (`/me/courses`, `/me/appointments`, or
+  `/me/orders` when the Store has orders) answers 401 without a token and
+  200 with a test token.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

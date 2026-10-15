@@ -1,7 +1,7 @@
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipToUse } from "../bookings/memberships";
-import type { AppLayoutRecord } from "./types";
+import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type {
   AppPatch,
   BuildPatch,
@@ -103,6 +103,8 @@ export class MemoryStore implements DataStore {
   private hostedUsers = new Map<number, HostedUser>();
   private hostedDevices = new Map<string, HostedDevice>();
   private hostedTokens = new Map<string, HostedRefreshToken>();
+  // 34
+  private appAuthKeys = new Map<string, AppAuthKey>();
   private hostedChallenges = new Map<string, HostedChallenge>();
   private hostedNotifications = new Map<number, HostedNotification>();
   private nextHostedUserId = 1;
@@ -695,6 +697,34 @@ export class MemoryStore implements DataStore {
 
   async countHostedEmailOnlyUsers(appId: string): Promise<number> {
     return [...this.hostedUsers.values()].filter((u) => u.appId === appId && u.phone === null).length;
+  }
+
+  // 34 Keys that sign own API apps' access tokens
+
+  async listAppAuthKeys(appId: string): Promise<AppAuthKey[]> {
+    return [...this.appAuthKeys.values()]
+      .filter((k) => k.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.kid.localeCompare(a.kid))
+      .map(clone);
+  }
+
+  async createAppAuthKey(key: AppAuthKey): Promise<void> {
+    this.appAuthKeys.set(key.kid, clone(key));
+  }
+
+  async retireAppAuthKeys(appId: string, now: Date): Promise<void> {
+    for (const key of this.appAuthKeys.values()) {
+      if (key.appId === appId && key.retiredAt === null) {
+        key.retiredAt = new Date(now);
+        key.privateKeyEncrypted = null;
+      }
+    }
+  }
+
+  async deleteAppAuthKeysRetiredBefore(appId: string, before: Date): Promise<void> {
+    for (const [kid, key] of this.appAuthKeys) {
+      if (key.appId === appId && key.retiredAt !== null && key.retiredAt < before) this.appAuthKeys.delete(kid);
+    }
   }
 
   // Catalog

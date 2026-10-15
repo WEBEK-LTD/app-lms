@@ -118,6 +118,23 @@ void main() {
     expect(renderDartConfig(example()), contains('apiBaseUrl: null,'));
   });
 
+  test('34 Yallapp\'s sign-in address for an app on its own API', () {
+    final config = example()
+      ..['api_base_url'] = 'https://api.shop.test/yallapp/v1'
+      ..['auth_base_url'] = 'https://yallapp.com.tr/api/app/abc/';
+    expect(validateBuildConfig(config).isValid, isTrue);
+    expect(
+      renderDartConfig(config),
+      contains("authBaseUrl: 'https://yallapp.com.tr/api/app/abc',"),
+    );
+    expect(renderDartConfig(example()), contains('authBaseUrl: null,'));
+    expect(
+      validateBuildConfig(example()..['auth_base_url'] = 'http://x.test').errors
+          .join(),
+      contains('"auth_base_url" must be an https:// URL'),
+    );
+  });
+
   test('renders the Dart constants', () {
     final dart = renderDartConfig(example());
     expect(dart, contains('appType: AppType.lms,'));

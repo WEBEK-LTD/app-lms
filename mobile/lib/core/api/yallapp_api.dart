@@ -670,7 +670,30 @@ class HttpYallappApi implements YallappApi {
     String Function()? language,
     this.preview = false,
     this.appType,
-  }) : _language = language ?? (() => 'en');
+    Dio? authDio,
+    this.authBaseUrl,
+  }) : _language = language ?? (() => 'en'),
+       _authDio = authDio,
+       _yallappAuth = authDio != null && authBaseUrl != null;
+
+  /// 34 The build's `auth_base_url`: Yallapp signs people in to this app on
+  /// its own API. Null when the API signs people in (or on Yallapp's hosted
+  /// API, which does both).
+  final String? authBaseUrl;
+
+  /// 34 Sends sign-in, the account and its devices: to Yallapp when it signs
+  /// people in (`Config.auth.provider: yallapp`), else to the same API as the
+  /// content. Null in tests that need only one API.
+  final Dio? _authDio;
+
+  /// 34 Whether sign-in and the account go to Yallapp now, as the last
+  /// `/config` said (the build's `auth_base_url` until then).
+  bool _yallappAuth;
+
+  /// 34 Whether Yallapp signs people in (after `getConfig`).
+  bool get yallappSignsIn => _yallappAuth;
+
+  Dio get _accountDio => _authDio ?? _dio;
 
   /// 30 Sent with `/pages`, so a site's default pages are built for this
   /// app's type (not for whatever plugins the site has).
@@ -716,13 +739,16 @@ class HttpYallappApi implements YallappApi {
     }
   }
 
+  /// [account]: sign-in, the account and its devices (34: Yallapp's when it
+  /// signs people in).
   Future<T> _get<T>(
     String path,
     AuthMode auth,
     T Function(Json json) parse, {
     Map<String, dynamic>? query,
+    bool account = false,
   }) => _call(
-    () => _dio.get<dynamic>(
+    () => (account ? _accountDio : _dio).get<dynamic>(
       path,
       queryParameters: query,
       options: authOptions(auth),
@@ -737,8 +763,9 @@ class HttpYallappApi implements YallappApi {
     T Function(dynamic data) parse, {
     Object? body,
     Map<String, dynamic>? query,
+    bool account = false,
   }) => _call(
-    () => _dio.request<dynamic>(
+    () => (account ? _accountDio : _dio).request<dynamic>(
       path,
       data: body,
       queryParameters: query,
@@ -750,12 +777,80 @@ class HttpYallappApi implements YallappApi {
   static void _ignore(dynamic _) {}
 
   @override
-  Future<AppConfig> getConfig() => _get(
-    '/config',
-    _public,
-    AppConfig.fromJson,
-    query: {'platform': platform.name, 'app_version': appVersion},
-  );
+  Future<AppConfig> getConfig() async {
+    final query = {'platform': platform.name, 'app_version': appVersion};
+    final json = await _get('/config', _public, (json) => json, query: query);
+    final authDio = _authDio;
+    final authBase = _yallappAuthBase(json);
+    if (authDio == null || authBase == null) {
+      _routeAuth(null);
+      return _parseConfig(json);
+    }
+    // 34 Yallapp signs people in: its /config has the sign-in rules.
+    final Json yallapp;
+    try {
+      yallapp = await _call(
+        () => authDio.get<dynamic>(
+          '${_trimSlash(authBase)}/config',
+          queryParameters: query,
+          options: authOptions(_public),
+        ),
+        asJson,
+      );
+    } on ApiException catch (e) {
+      // The owner went back to their own API's sign-in.
+      if (e.statusCode == 404) {
+        _routeAuth(null);
+        return _parseConfig(json);
+      }
+      rethrow;
+    }
+    final auth = yallapp['auth'];
+    if (auth is Map && auth['provider'] == 'yallapp') {
+      _routeAuth(authBase);
+      return _parseConfig({...json, 'auth': auth});
+    }
+    _routeAuth(null);
+    return _parseConfig(json);
+  }
+
+  /// 34 Where Yallapp signs people in to this app: the build's
+  /// `auth_base_url`, else what the API's own `/config` says (for apps built
+  /// before the owner chose it). Null when the API signs people in.
+  String? _yallappAuthBase(Json config) {
+    final fromBuild = authBaseUrl?.trim() ?? '';
+    if (fromBuild.isNotEmpty) return fromBuild;
+    final auth = config['auth'];
+    if (auth is! Map || auth['provider'] != 'yallapp') return null;
+    final base = auth['base_url'];
+    return base is String && base.startsWith('https://') ? base : null;
+  }
+
+  /// 34 Sends sign-in, the account and token refreshes to [base] (Yallapp),
+  /// or with null to the same API as the content.
+  void _routeAuth(String? base) {
+    final authDio = _authDio;
+    if (authDio == null) return;
+    final target = base == null ? _dio.options.baseUrl : _trimSlash(base);
+    authDio.options.baseUrl = target;
+    _refreshDio.options.baseUrl = target;
+    _yallappAuth = base != null;
+  }
+
+  static String _trimSlash(String url) => url.replaceFirst(RegExp(r'/+$'), '');
+
+  AppConfig _parseConfig(Json json) {
+    try {
+      return AppConfig.fromJson(json);
+    } on FormatException catch (e) {
+      throw ApiException(
+        code: ApiException.invalidResponse,
+        message: currentL10n.errorInvalidResponse,
+        statusCode: 200,
+        details: {'reason': e.message},
+      );
+    }
+  }
 
   @override
   Future<List<HomeSection>> getHome() => _get(
@@ -845,6 +940,7 @@ class HttpYallappApi implements YallappApi {
       'phone': phone,
       if (preview) 'preview': true,
     },
+    account: true,
   );
 
   /// 17 What the preview shows instead of opening a checkout.
@@ -866,6 +962,7 @@ class HttpYallappApi implements YallappApi {
     _public,
     (data) => VerifyResult.fromJson(asJson(data)),
     body: {'request_id': requestId, 'code': code, 'device': device.toJson()},
+    account: true,
   );
 
   @override
@@ -875,6 +972,7 @@ class HttpYallappApi implements YallappApi {
     _public,
     (data) => OtpRequestResult.fromJson(asJson(data)),
     body: {'email': email, if (preview) 'preview': true},
+    account: true,
   );
 
   @override
@@ -893,6 +991,7 @@ class HttpYallappApi implements YallappApi {
       'device': device.toJson(),
       if (preview) 'preview': true,
     },
+    account: true,
   );
 
   @override
@@ -902,6 +1001,7 @@ class HttpYallappApi implements YallappApi {
     _public,
     (data) => Session.fromJson(asJson(data)),
     body: input.toJson(),
+    account: true,
   );
 
   @override
@@ -914,7 +1014,8 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<void> logout() => _send('POST', '/auth/logout', _required, _ignore);
+  Future<void> logout() =>
+      _send('POST', '/auth/logout', _required, _ignore, account: true);
 
   @override
   Future<CheckoutLink> createCheckoutLink(int courseId) {
@@ -939,7 +1040,7 @@ class HttpYallappApi implements YallappApi {
   }
 
   @override
-  Future<User> getMe() => _get('/me', _required, User.fromJson);
+  Future<User> getMe() => _get('/me', _required, User.fromJson, account: true);
 
   @override
   Future<User> updateMe({String? name, String? email, String? city}) => _send(
@@ -948,14 +1049,26 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => User.fromJson(asJson(data)),
     body: {'name': ?name, 'email': ?email, 'city': ?city},
+    account: true,
   );
 
   @override
-  Future<void> deleteMe() => _send('DELETE', '/me', _required, _ignore);
+  Future<void> deleteMe() async {
+    // 34 Yallapp signs people in: the client's API deletes its own data
+    // first (404 or 405 when it keeps none), then Yallapp the account.
+    if (_yallappAuth && _authDio != null) {
+      try {
+        await _send('DELETE', '/me', _required, _ignore);
+      } on ApiException catch (e) {
+        if (e.statusCode != 404 && e.statusCode != 405) rethrow;
+      }
+    }
+    await _send('DELETE', '/me', _required, _ignore, account: true);
+  }
 
   @override
   Future<DeviceList> listDevices() =>
-      _get('/me/devices', _required, DeviceList.fromJson);
+      _get('/me/devices', _required, DeviceList.fromJson, account: true);
 
   @override
   Future<void> removeDevice(String deviceId) => _send(
@@ -963,6 +1076,7 @@ class HttpYallappApi implements YallappApi {
     '/me/devices/${Uri.encodeComponent(deviceId)}',
     _required,
     _ignore,
+    account: true,
   );
 
   @override
