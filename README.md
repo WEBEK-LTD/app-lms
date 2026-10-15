@@ -6,7 +6,7 @@ optional: Yallapp can send the sign-in codes); Yallapp provides the WordPress pl
 app, the white-label Flutter app, and the platform that builds and delivers
 each client's apps.
 
-Yallapp is a trading name of WEBEK LTD (England and Wales, no. 16326894).
+Yallapp is based in Cairo, Egypt.
 Website: [yallapp.com.tr](https://yallapp.com.tr)
 
 ## Repository layout

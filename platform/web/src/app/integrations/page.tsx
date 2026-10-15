@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Chip, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
 import { INTEGRATION_GROUPS } from "@/lib/marketing";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Integrations",
   description:
     "WordPress with Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint; Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific, SimplyBook.me; your own API; or no website.",
-};
+  path: "/integrations",
+});
 
 export default async function IntegrationsPage() {
   const text = await getSiteContent("integrations");

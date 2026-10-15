@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
@@ -6,10 +7,11 @@ import { CheckList, Comparison, MarketingPage, Section, SectionTitle } from "@/c
 import { getSiteContent } from "@/lib/content/get";
 import { COMPARISON, SOLUTIONS } from "@/lib/marketing";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Solutions",
-  description: "Branded apps for academies, stores, bookings businesses and real estate offices, with or without a website.",
-};
+  description: "Branded apps for academies, shops, restaurants, clinics, gyms, real estate offices, news sites, events and charities, with or without a website.",
+  path: "/solutions",
+});
 
 export default async function SolutionsPage() {
   const text = await getSiteContent("solutions");

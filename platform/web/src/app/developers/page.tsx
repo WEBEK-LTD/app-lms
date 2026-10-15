@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import reference from "@/content/api-reference.json";
 import { DocArticle, DocsShell } from "@/components/docs-shell";
@@ -9,7 +10,7 @@ import { headingId } from "@/lib/content/markdown";
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getSiteContent("developers");
-  return { title: "API reference", description: text.intro };
+  return pageMetadata({ title: "API reference", description: text.intro!, path: "/developers" });
 }
 
 const API = reference as ApiReference;

@@ -19,10 +19,10 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "14 October 2026",
+  updated: "15 October 2026",
   body: `## 1. Who we are
 
-Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. WEBEK LTD is the data controller for the personal data described here. We follow the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. When we process data of people in Türkiye or the European Union, we also follow the Turkish Personal Data Protection Law No. 6698 (KVKK) and the EU General Data Protection Regulation (GDPR). Contact: [{{contact_email}}](mailto:{{contact_email}}).
+Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
 
 ## 2. Data we collect from our clients
 
@@ -38,7 +38,7 @@ How your app users' data is handled depends on where the app gets its content:
 
 - **Your WordPress website (Yallapp plugin):** your users' accounts, phone numbers, progress and orders stay in your website's database, and Yallapp does not receive them. License checks send only your website address, plugin version and license key. When Yallapp sends your app's sign-in codes, your website sends us the phone number or email address and the code for that one message; we pass them on by WhatsApp or email and keep neither, only a one-way, keyed fingerprint of the number or address for a day, to limit abuse.
 - **Another platform or your own API:** the app talks to that platform or API directly. We store only the connection details you give us, encrypted.
-- **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and WEBEK LTD is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
+- **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and Yallapp is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
 
 In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
@@ -55,11 +55,11 @@ We share data only with providers that help us run Yallapp: hosting (webek.org) 
 
 ## 6. International transfers
 
-We are based in the United Kingdom. Some of our providers are in other countries, such as the United States. When data leaves the UK, Türkiye or the European Union, we use the safeguards the law requires, such as the UK International Data Transfer Agreement or Addendum, standard contractual clauses, and the transfer rules in Article 9 of KVKK.
+We are based in Egypt and work with clients in many countries. Some of our providers are in other countries, such as the United States. When personal data moves from one country to another, we use the safeguards the law that applies requires, such as standard contractual clauses under the GDPR and the transfer rules in Article 9 of KVKK, where they apply.
 
 ## 7. How long we keep it
 
-We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for 6 years, as UK tax law requires. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months.
+We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months.
 
 ## 8. Security
 
@@ -67,7 +67,7 @@ All connections use HTTPS. Publishing credentials and signing keys are encrypted
 
 ## 9. Your rights
 
-Under the UK GDPR, you can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. KVKK (Article 11) and the EU GDPR give you similar rights, including the right to know who your data was shared with. We reply within one month. Email [{{contact_email}}](mailto:{{contact_email}}). You can also complain to the UK Information Commissioner’s Office (ico.org.uk), the Turkish Personal Data Protection Authority (kvkk.gov.tr), or the data protection authority in your EU country.
+You can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. Where the GDPR or KVKK (Article 11) apply, they give you these rights, including the right to know who your data was shared with. We reply within one month. Email [{{contact_email}}](mailto:{{contact_email}}). You can also complain to the data protection authority of your country, such as the Turkish Personal Data Protection Authority (kvkk.gov.tr) or the authority in your EU country.
 
 ## 10. Cookies
 
@@ -83,10 +83,10 @@ export const TERMS: LegalDefault = {
   key: "terms",
   path: "/terms",
   title: "Terms of service",
-  updated: LEGAL_UPDATED,
+  updated: "15 October 2026",
   body: `## 1. About these terms
 
-These terms cover your use of Yallapp: the website at yallapp.com.tr, the client dashboard, the Yallapp WordPress plugin and the mobile apps we build for you. Yallapp is a trading name of WEBEK LTD, a company registered in England and Wales under company number 16326894, with its registered office at 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. In these terms, “we” and “us” mean WEBEK LTD. By creating an account, you agree to these terms.
+These terms cover your use of Yallapp: the website at yallapp.com.tr, the client dashboard, the Yallapp WordPress plugin and the mobile apps we build for you. Yallapp is based in Cairo, Egypt. In these terms, “we” and “us” mean Yallapp. By creating an account, you agree to these terms.
 
 ## 2. Who Yallapp is for
 
@@ -144,13 +144,13 @@ We handle personal data as described in our [Privacy policy](/privacy).
 
 We may update these terms. We will email you about important changes at least 14 days before they take effect.
 
-## 16. Governing law
+## 16. Disputes and your rights
 
-These terms are governed by the laws of England and Wales, and the courts of England and Wales have exclusive jurisdiction. This does not remove any mandatory rights you have under the law of the country where you are based.
+We work with businesses in many countries. If you disagree with something we did, tell us first at [{{contact_email}}](mailto:{{contact_email}}): we will both try in good faith to settle it within 30 days of your message. If it isn’t settled, either of us can take it to the courts or authorities that have jurisdiction under the law that applies. Nothing in these terms removes the rights the law of your country gives you and that can’t be waived by agreement, including consumer and data protection rights.
 
 ## 17. Contact
 
-WEBEK LTD, 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ. Email: [{{contact_email}}](mailto:{{contact_email}}) · WhatsApp: [{{contact_whatsapp}}]({{contact_whatsapp_url}})
+Yallapp, Cairo, Egypt. Email: [{{contact_email}}](mailto:{{contact_email}}) · WhatsApp: [{{contact_whatsapp}}]({{contact_whatsapp_url}})
 `,
 };
 

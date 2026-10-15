@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
 import localFont from "next/font/local";
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -19,13 +20,16 @@ const icons = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL ?? "https://yallapp.com.tr"),
+  metadataBase: new URL(siteUrl()),
   title: {
-    default: "Yallapp: your business as your own mobile app",
+    default: DEFAULT_TITLE,
     template: "%s · Yallapp",
   },
-  description:
-    "Branded Android and iOS apps for academies, stores, bookings, real estate offices, news sites, events and charities, from your WordPress site, Shopify and other platforms, your own API, or no website at all.",
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  // 32 Link previews everywhere; public pages add their own title, address and canonical (lib/seo.ts).
+  openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
+  twitter: { card: "summary_large_image", title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

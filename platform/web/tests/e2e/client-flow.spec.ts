@@ -85,6 +85,9 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await expect(page.getByRole("radio", { name: "Bookings" })).toBeAttached();
   await expect(page.getByRole("radio", { name: "Academy" })).toBeChecked();
+  // 32 The dashboard stays out of search engines and has no canonical address.
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Continue" }).click();
 
   // Website

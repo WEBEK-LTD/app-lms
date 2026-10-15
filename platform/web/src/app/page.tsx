@@ -1,17 +1,23 @@
+import type { Metadata } from "next";
 import { PLANS } from "@/lib/plans";
 import Link from "next/link";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
+import { JsonLdScript } from "@/components/json-ld";
 import { Chip, Comparison, ContactBand, MoreLink, NumbersBand, Section, SectionTitle } from "@/components/marketing";
+import { PlanCards } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import { COMPARISON, FEATURE_GROUPS, INTEGRATION_GROUPS, NUMBERS, SOLUTIONS, STEPS, WORKS_WITH } from "@/lib/marketing";
+import { COMPARISON, FEATURE_GROUPS, INTEGRATION_GROUPS, NUMBERS, numberWord, SOLUTIONS, STEPS, WORKS_WITH } from "@/lib/marketing";
 import { getStore } from "@/lib/data";
-import { getPlans } from "@/lib/settings/platform";
+import { effectivePlans } from "@/lib/entitlements";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
+import { DEFAULT_DESCRIPTION, organizationLd, pageMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
 
 /** Plans and prices come from the admin. */
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = pageMetadata({ description: DEFAULT_DESCRIPTION, path: "/" });
 
 /** The looks a client can pick, shown side by side. */
 const LOOKS = [
@@ -24,13 +30,16 @@ const LOOKS = [
 
 export default async function LandingPage() {
   const contact = await getContact();
-  const all = await getPlans(await getStore());
+  // 32 The same plans as the pricing page.
+  const all = await effectivePlans(await getStore());
   const plans = PLANS.map((id) => all[id]);
+  const base = siteUrl();
   const text = await getSiteContent("home");
   const features = FEATURE_GROUPS.flatMap((g) => g.features).slice(0, 6);
   return (
     <div className="bg-white">
       <SiteHeader current="home" />
+      <JsonLdScript data={[organizationLd(base, { email: contact.email, whatsapp: contact.whatsappDisplay }), websiteLd(base), softwareLd(base, plans)]} />
       <main>
         <section className="overflow-hidden bg-ivory">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-12 px-4 py-14 sm:px-6 sm:py-[72px]">
@@ -74,9 +83,11 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        <Section label="Yallapp in numbers">
-          <NumbersBand numbers={NUMBERS} />
-        </Section>
+        <section aria-label="Yallapp in numbers" className="bg-white">
+          <div className="mx-auto max-w-[1160px] px-4 pt-12 pb-2 sm:px-6 sm:pt-14">
+            <NumbersBand numbers={NUMBERS} />
+          </div>
+        </section>
 
         <Section tinted id="solutions">
           <SectionTitle title={text.solutionsTitle!} text={text.solutionsText} />
@@ -102,7 +113,7 @@ export default async function LandingPage() {
               </Link>
             ))}
           </div>
-          <MoreLink href="/demo">Try the ten demo apps</MoreLink>
+          <MoreLink href="/demo">{`Try the ${numberWord(SOLUTIONS.length)} demo apps`}</MoreLink>
         </Section>
 
         <Section>
@@ -175,35 +186,39 @@ export default async function LandingPage() {
 
         <Section>
           <SectionTitle title={text.stepsTitle!} />
-          <ol className="m-0 grid list-none gap-5 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr))]">
+          {/* 32 A timeline: numbered nodes joined by a line, across on wide screens and down on phones. */}
+          <ol className="m-0 grid list-none gap-0 p-0 lg:grid-cols-5" data-steps-timeline="">
             {STEPS.map((step, index) => (
-              <li key={step.title} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-midnight font-bold text-white">{index + 1}</span>
-                <h3 className="m-0 text-[17px] font-bold">{step.title}</h3>
-                <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p>
+              <li key={step.title} className="relative flex gap-5 pb-9 last:pb-0 lg:flex-col lg:items-center lg:gap-5 lg:px-3 lg:pb-0 lg:text-center">
+                {index < STEPS.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-16 bottom-1 left-[31px] w-0.5 rounded-full bg-line-strong lg:top-[31px] lg:right-[calc(-50%+40px)] lg:bottom-auto lg:left-[calc(50%+40px)] lg:h-0.5 lg:w-auto"
+                  />
+                ) : null}
+                <span className="relative flex h-16 w-16 flex-none items-center justify-center rounded-full bg-midnight text-white">
+                  <Icon name={step.icon} size={28} />
+                  <span className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-ember text-sm font-extrabold text-midnight ring-[3px] ring-white">
+                    {index + 1}
+                  </span>
+                </span>
+                <div className="flex min-w-0 flex-col gap-1.5 pt-1.5 lg:pt-0">
+                  <h3 className="m-0 text-lg font-bold">
+                    <span className="sr-only">Step {index + 1}: </span>
+                    {step.title}
+                  </h3>
+                  <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.short}</p>
+                </div>
               </li>
             ))}
           </ol>
           <MoreLink href="/how-it-works">How it works in detail</MoreLink>
         </Section>
 
-        <Section tinted>
+        <Section tinted id="plans">
           <SectionTitle title={text.plansTitle!} text={text.plansText} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))]">
-            {plans.map((plan) => (
-              <Link
-                key={plan.id}
-                href="/pricing"
-                className={`flex flex-col gap-1.5 rounded-[20px] p-6 text-midnight no-underline hover:text-midnight ${
-                  plan.id === "growth" ? "border-2 border-midnight bg-peach-soft" : "border border-line bg-white hover:border-midnight"
-                }`}
-              >
-                <span className="text-lg font-bold">{plan.name}</span>
-                <span className="text-[15px] text-ink-4">{plan.tagline}</span>
-              </Link>
-            ))}
-          </div>
-          <MoreLink href="/pricing">Compare plans</MoreLink>
+          <PlanCards plans={plans} headingLevel={3} />
+          <MoreLink href="/pricing">Compare all features</MoreLink>
         </Section>
 
         <ContactBand />

@@ -1,9 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- SVG logos are tiny and need no optimisation. */
 import Link from "next/link";
 
-export const LEGAL_LINE =
-  "© 2026 WEBEK LTD · Registered in England and Wales, company no. 16326894 · 71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ";
-
 const LOGO_RATIO = 3009.88 / 977.88;
 
 /** The "yallapp." wordmark. `reversed` is the Ivory version for dark backgrounds. */

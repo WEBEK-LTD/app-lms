@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
@@ -12,10 +13,12 @@ import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, d
 import { DEMO_BRANDS, DEMO_GUIDES } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Try a demo app",
-  description: "Install a real Yallapp app on your Android phone: an academy, a shop, a café, a bookings app, a clinic, a gym, a real estate app and a news app, with sample content.",
-};
+  description:
+    "Install a real Yallapp app on your Android phone: an academy, a shop, a café, a bookings app, a clinic, a gym, a real estate app, a news app, an events app or a charity, with sample content.",
+  path: "/demo",
+});
 /** Whether each download is ready comes from the admin. */
 export const dynamic = "force-dynamic";
 

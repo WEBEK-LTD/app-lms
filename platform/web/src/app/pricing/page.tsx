@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata, siteUrl, softwareLd } from "@/lib/seo";
+import { JsonLdScript } from "@/components/json-ld";
+import { PlanCards } from "@/components/plan-cards";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section, SectionTitle } from "@/components/marketing";
-import { comparisonRows, PLANS, planPrice, type ComparisonValue } from "@/lib/plans";
+import { comparisonRows, PLANS, type ComparisonValue } from "@/lib/plans";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { getContact } from "@/lib/contact";
@@ -11,14 +14,13 @@ import { getContact } from "@/lib/contact";
 /** Plans, prices, features and limits come from the admin (roadmap 9.2 and 13.1). */
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Pricing",
   description:
     "Four plans for your app: Starter, Growth, Pro and Business. Android and iOS apps, push notifications, your own pages, card payments, offline mode, and publishing to Google Play and the App Store done for you.",
-};
-
-/** The plan most clients pick, highlighted. */
-const FEATURED = "growth";
+  path: "/pricing",
+  image: "/pricing/opengraph-image",
+});
 
 function Cell({ value, plan }: { value: ComparisonValue; plan: string }) {
   if (value === true) {
@@ -46,50 +48,9 @@ export default async function PricingPage() {
   const text = await getSiteContent("pricing");
   return (
     <MarketingPage current="pricing" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!}>
+      <JsonLdScript data={softwareLd(siteUrl(), plans)} />
       <Section>
-        <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))]" data-pricing-plans="">
-          {plans.map((plan) => {
-            const featured = plan.id === FEATURED;
-            const shown = planPrice(plan);
-            return (
-              <div
-                key={plan.id}
-                data-plan={plan.id}
-                className={`flex flex-col gap-[18px] rounded-[20px] p-6 ${featured ? "border-2 border-midnight bg-peach-soft" : "border border-line"}`}
-              >
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="m-0 text-xl font-bold">{plan.name}</h2>
-                    {featured ? <span className="rounded-full bg-midnight px-2.5 py-0.5 text-xs font-bold text-white">Most popular</span> : null}
-                  </div>
-                  <span className="text-sm text-muted">{plan.tagline}</span>
-                </div>
-                <span className="text-[30px] font-extrabold">
-                  {shown.price}
-                  {shown.period ? <span className="text-[15px] font-medium text-muted"> / {shown.period}</span> : null}
-                </span>
-                <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px]">
-                  {plan.highlights.map((item) => (
-                    <li key={item} className="flex gap-2.5">
-                      <Icon name="check" size={20} className="flex-none text-success" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/sign-up"
-                  className={`mt-auto flex h-[50px] items-center justify-center rounded-xl text-base font-bold no-underline ${
-                    featured
-                      ? "bg-midnight text-white hover:bg-ink-3 hover:text-white"
-                      : "border border-midnight text-midnight hover:bg-ivory hover:text-midnight"
-                  }`}
-                >
-                  Start with {plan.name}
-                </Link>
-              </div>
-            );
-          })}
-        </div>
+        <PlanCards plans={plans} />
         <p className="m-0 text-[15px] text-ink-4">
           Each app has its own plan. Questions about a plan? <a href={contact.whatsappUrl}>Message us on WhatsApp</a>.
         </p>

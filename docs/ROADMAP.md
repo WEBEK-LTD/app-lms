@@ -519,3 +519,22 @@ WordPress 7.1.3 site with Tutor LMS 4.1.1 and WooCommerce 11.2.0.
 | [x] | 30.2 Plugin 0.3.8: default pages for the asking app's type, then the type from the license status, then a guess; the course lists from Tutor LMS and LearnPress and the student count; the shop and booking plugins in the license check; `/home` shows the latest courses when none are featured | Unit tests, `composer lint`, the integration suites on Tutor LMS (229 checks) and LearnPress (106) |
 | [x] | 30.3 App: sends its type with `/pages`; lists and categories it can't open are left out instead of doing nothing when tapped; the course page shows the student count and the four lists, and opens on the overview for visitors when the course has them; the preview bundle rebuilt | `flutter analyze`, `flutter test`, `build_preview.sh --check`, and the preview against the local site |
 | [x] | 30.4 Dashboard: the Website step, the overview and the license page say what the site runs ("Your website runs: Tutor LMS, WooCommerce"); a warning, with the type that fits and a link to change it, when the app's type doesn't fit the site; the same facts on the admin client page (`drizzle/0029_site_plugins.sql`) | Unit tests and the client-flow browser test |
+
+## Phase 32: The website, the company details and SEO
+
+The owner reviewed yallapp.com.tr: the header had ten links and wrapped into
+three lines on phones, the plans section said "Two plans" over four name-only
+cards, the steps and the numbers band looked dull or broken, counts were out of
+date, and the pages still showed WEBEK LTD's UK registration and address.
+Yallapp is now presented as based in Cairo, Egypt. Search engines had no
+sitemap, robots.txt, canonical addresses, link previews or structured data.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 32.1 Header: Product (Solutions, Features, Integrations, How it works) and Resources (Docs, FAQ, API reference) lists that open by click, tap, Enter or Arrow down, move with the arrow keys, close on Escape, a click outside or leaving them, one open at a time; the section and the page are marked; Pricing, Demo, Contact, Sign in and Get started (lib/site-nav.ts, components/site-nav.tsx) | Unit tests and the menu browser tests |
+| [x] | 32.2 Phones and tablets: a menu button opens a full-screen menu with the groups, Sign in and Get started; the page doesn't scroll behind it, focus stays inside and goes back to the button, Escape closes it; no sideways scroll at 320 px | Browser test at 320 px and screenshots |
+| [x] | 32.3 Home: "A plan for every app" with four full plan cards shared with /pricing (price or "On request", key limits, highlights, Most popular, a button each; four equal columns, two on tablets, a row to swipe on phones), "Compare all features"; the steps as a timeline with an icon each; the numbers as a strip of figures counted from the registries (templates dropped) | Unit tests, the landing browser test and screenshots |
+| [x] | 32.4 Counts follow the registries: "One platform, ten kinds of apps", the hero label, the steps title, the integrations introduction, the FAQ's app kinds, the demo link; outdated lists of kinds in descriptions fixed | Unit tests |
+| [x] | 32.5 Company details: "© year Yallapp · Cairo, Egypt" in the footers and the email signature, the contact page, the README; the privacy policy (Yallapp as controller; Egypt's law, the GDPR and KVKK where they apply; no UK specifics) and the terms (good-faith talks for 30 days, mandatory rights of the client's country kept, no governing law clause) | Unit tests and browser tests; a lawyer should review the legal pages |
+| [x] | 32.6 SEO: /sitemap.xml with every public page and solution and article (legal pages with their dates), /robots.txt keeping the private areas out, canonical addresses and Open Graph and Twitter cards on every public page, share images in Yallapp's colors and Bricolage Grotesque (site, pricing, each solution, each article), noindex on sign-in, payment, donation, receipt and shop pages; JSON-LD: Organization (Cairo, contact details from Settings), WebSite, SoftwareApplication with offers only for priced plans, FAQPage, BreadcrumbList on solutions and articles | Unit tests and the search engines browser test |
+| [ ] | 32.7 Legal pages saved in the admin before this phase keep their old text until the team edits them or uses "Back to the default text"; the plugin's author name, the API contracts' licence name and the design files still say WEBEK LTD (no UK details) | The team's review |

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { breadcrumbLd, pageMetadata, siteUrl } from "@/lib/seo";
+import { JsonLdScript } from "@/components/json-ld";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeviceFrame } from "@/components/device-frame";
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/solutions/[id]">)
   const s = solution((await params).id);
   if (!s) return {};
   const text = await getSiteContent(s.contentKey);
-  return { title: `${s.name} apps`, description: text.intro };
+  return pageMetadata({ title: `${s.name} apps`, description: text.intro!, path: `/solutions/${s.id}`, image: `/solutions/${s.id}/opengraph-image` });
 }
 
 export default async function SolutionPage({ params }: PageProps<"/solutions/[id]">) {
@@ -26,6 +28,12 @@ export default async function SolutionPage({ params }: PageProps<"/solutions/[id
   const others = SOLUTIONS.filter((o) => o.id !== s.id);
   return (
     <MarketingPage current="solutions" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} aside={<DeviceFrame screen={s.screens[0]!} size="lg" priority />}>
+      <JsonLdScript
+        data={breadcrumbLd(siteUrl(), [
+          { name: "Solutions", path: "/solutions" },
+          { name: `${s.name} apps`, path: `/solutions/${s.id}` },
+        ])}
+      />
       <Section>
         <SectionTitle title={`What makes a great ${s.name.toLowerCase()} app`} text={s.audience} />
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">

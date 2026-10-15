@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { DocsShell, docsNavGroups } from "@/components/docs-shell";
 import { Icon } from "@/components/icon";
@@ -9,7 +10,7 @@ import { getSiteContent } from "@/lib/content/get";
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getSiteContent("docs");
-  return { title: "Documentation", description: text.intro };
+  return pageMetadata({ title: "Documentation", description: text.intro!, path: "/docs" });
 }
 
 const SECTION_ICONS: Record<DocSection, IconName> = {

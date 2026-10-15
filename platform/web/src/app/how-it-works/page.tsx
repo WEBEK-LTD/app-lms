@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { BrowserFrame, DASHBOARD_PATHS } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { CheckList, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { REQUIREMENTS, STEPS } from "@/lib/marketing";
+import { numberWord, REQUIREMENTS, STEPS } from "@/lib/marketing";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "How it works",
-  description: "From sign-up to Google Play and the App Store in five steps, with your website, an online platform, your own API or no website at all.",
-};
+  description: `From sign-up to Google Play and the App Store in ${numberWord(STEPS.length)} steps, with your website, an online platform, your own API or no website at all.`,
+  path: "/how-it-works",
+});
 
 export default async function HowItWorksPage() {
   const text = await getSiteContent("how-it-works");

@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
   },
   // mysql2 and nodemailer are loaded at runtime from node_modules on Netlify.
   serverExternalPackages: ["mysql2", "nodemailer"],
+  // 32 The share images (opengraph-image) read their font files at runtime.
+  outputFileTracingIncludes: { "/**": ["./src/app/fonts/og/*.ttf"] },
   experimental: {
     // Turbopack's build cache stores a snapshot of the environment, secrets included.
     // Builds are fast enough without it, and no secret is ever written to disk.

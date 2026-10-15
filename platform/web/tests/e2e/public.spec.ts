@@ -48,23 +48,63 @@ for (const width of [360, 1280]) {
         await expect(tab.getByRole("heading", { level: 1, name: page.heading })).toBeVisible();
         const overflow = await tab.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         expect(overflow).toBeLessThanOrEqual(0);
-        if (page.footer) await expect(tab.getByRole("contentinfo")).toContainText("WEBEK LTD");
+        if (page.footer) await expect(tab.getByRole("contentinfo")).toContainText(`© ${new Date().getFullYear()} Yallapp · Cairo, Egypt`);
       });
     }
   });
 }
 
-test("the landing page has the Home link, pricing and the full footer", async ({ page }) => {
+test("the landing page has the plans, the steps and the full footer", async ({ page }) => {
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Main" });
-  await expect(nav.getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByRole("link", { name: "Compare plans" })).toHaveAttribute("href", "/pricing");
+  // 32 No menu entry is marked on the home page; the logo leads home.
+  await expect(nav.locator("[aria-current]")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Yallapp home" })).toHaveAttribute("href", "/");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/sign-up");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+
+  // 32 Four plan cards with prices, limits, highlights and a button each.
+  await expect(page.getByRole("heading", { level: 2, name: "A plan for every app" })).toBeVisible();
+  const plans = page.getByRole("list", { name: "Plans" });
+  for (const name of ["Starter", "Growth", "Pro", "Business"]) {
+    await expect(plans.getByRole("heading", { level: 3, name, exact: true })).toBeVisible();
+    await expect(plans.getByRole("link", { name: `Start with ${name}` })).toHaveAttribute("href", "/sign-up");
+  }
+  await expect(plans.locator('[data-plan="growth"]')).toContainText("Most popular");
+  await expect(plans.locator('[data-plan="starter"]')).toContainText("On request");
+  await expect(plans.locator('[data-plan="starter"]')).toContainText("Up to 1,000 users");
+  await expect(plans.locator('[data-plan="growth"]')).toContainText("Android and iOS");
+  await expect(plans.locator('[data-plan="growth"]')).toContainText("Full page editor");
+  await expect(page.getByRole("link", { name: "Compare all features" })).toHaveAttribute("href", "/pricing");
+  // Equal heights side by side on a wide screen.
+  const heights = await plans.locator("[data-plan]").evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));
+  expect(new Set(heights).size).toBe(1);
+
+  // 32 The numbers strip and the timeline.
+  const numbers = page.getByRole("region", { name: "Yallapp in numbers" });
+  await expect(numbers).toContainText("app types");
+  await expect(numbers).not.toContainText("Classic");
+  await expect(page.locator("[data-steps-timeline] > li")).toHaveCount(5);
+  await expect(page.getByRole("heading", { level: 2, name: "One platform, ten kinds of apps" })).toBeVisible();
+
   const footer = page.getByRole("contentinfo");
-  await expect(footer).toContainText("company no. 16326894");
-  await expect(footer).toContainText("71-75 Shelton Street, Covent Garden, London, United Kingdom, WC2H 9JQ");
+  await expect(footer).toContainText(`© ${new Date().getFullYear()} Yallapp · Cairo, Egypt`);
+  await expect(footer).toContainText("are trademarks of their owners");
+  await expect(footer).not.toContainText(/WEBEK|England|16326894|London/);
   await expect(footer.getByRole("link", { name: "+90 544 673 19 42" })).toHaveAttribute("href", "https://wa.me/905446731942");
   await expect(footer.getByRole("link", { name: "Refund policy" })).toHaveAttribute("href", "/refund");
   await expect(footer.getByRole("link", { name: "Documentation" })).toHaveAttribute("href", "/docs");
+});
+
+test("the contact page and the legal pages name Yallapp in Cairo, Egypt", async ({ page }) => {
+  await page.goto("/contact");
+  await expect(page.getByRole("main")).toContainText("Based in Cairo, Egypt");
+  await expect(page.getByRole("main")).not.toContainText(/WEBEK|England|16326894|Shelton/);
+  await page.goto("/terms");
+  await expect(page.getByRole("heading", { name: "16. Disputes and your rights" })).toBeVisible();
+  await expect(page.getByRole("main")).not.toContainText(/England|WEBEK/);
+  await page.goto("/privacy");
+  await expect(page.getByRole("main")).toContainText("Yallapp is based in Cairo, Egypt, and is the data controller");
 });
 
 test("the phones on the landing page have thin bezels that scale with their size", async ({ page }) => {
@@ -86,27 +126,155 @@ test("the phones on the landing page have thin bezels that scale with their size
   }
 });
 
-test("every menu link opens its own page", async ({ page }) => {
+test("every menu link opens its own page and marks it", async ({ page }) => {
   const pages = [
-    { name: "Solutions", path: "/solutions" },
-    { name: "Features", path: "/features" },
-    { name: "Integrations", path: "/integrations" },
-    { name: "How it works", path: "/how-it-works" },
-    { name: "Pricing", path: "/pricing" },
-    { name: "Docs", path: "/docs" },
-    { name: "FAQ", path: "/faq" },
-    { name: "Contact", path: "/contact" },
+    { group: "Product", name: "Solutions", path: "/solutions" },
+    { group: "Product", name: "Features", path: "/features" },
+    { group: "Product", name: "Integrations", path: "/integrations" },
+    { group: "Product", name: "How it works", path: "/how-it-works" },
+    { group: null, name: "Pricing", path: "/pricing" },
+    { group: null, name: "Demo", path: "/demo" },
+    { group: "Resources", name: "Docs", path: "/docs" },
+    { group: "Resources", name: "FAQ", path: "/faq" },
+    { group: "Resources", name: "API reference", path: "/developers" },
+    { group: null, name: "Contact", path: "/contact" },
   ];
   for (const target of pages) {
     await page.goto("/");
-    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: target.name, exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`${target.path}$`));
     const nav = page.getByRole("navigation", { name: "Main" });
-    await expect(nav.getByRole("link", { name: target.name, exact: true })).toHaveAttribute("aria-current", "page");
-    await expect(nav.getByRole("link", { name: "Home" })).not.toHaveAttribute("aria-current", "page");
+    if (target.group) await nav.getByRole("button", { name: target.group }).click();
+    await nav.getByRole("link", { name: new RegExp(`^${target.name}`) }).click();
+    await expect(page).toHaveURL(new RegExp(`${target.path}$`));
+    const here = page.getByRole("navigation", { name: "Main" });
+    if (target.group) {
+      // The section's button is marked; its list shows the page as current.
+      const button = here.getByRole("button", { name: target.group });
+      await expect(button).toHaveAttribute("aria-current", "true");
+      await button.click();
+      await expect(here.getByRole("link", { name: new RegExp(`^${target.name}`) })).toHaveAttribute("aria-current", "page");
+    } else {
+      await expect(here.getByRole("link", { name: target.name, exact: true })).toHaveAttribute("aria-current", "page");
+    }
   }
   await page.goto("/pricing");
   await expect(page.getByRole("heading", { name: "Compare plans" })).toBeVisible();
+});
+
+test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {
+  await page.goto("/pricing");
+  const nav = page.getByRole("navigation", { name: "Main" });
+  const product = nav.getByRole("button", { name: "Product" });
+  await expect(product).toHaveAttribute("aria-expanded", "false");
+  await product.focus();
+  await page.keyboard.press("Enter");
+  await expect(product).toHaveAttribute("aria-expanded", "true");
+  const list = page.locator(`#${await product.getAttribute("aria-controls")}`);
+  await expect(list.getByRole("link", { name: /^Solutions/ })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(product).toHaveAttribute("aria-expanded", "false");
+  await expect(list).toBeHidden();
+  await expect(product).toBeFocused();
+  // Arrow down opens the list on its first link; arrows move between links.
+  await page.keyboard.press("ArrowDown");
+  await expect(list.getByRole("link", { name: /^Solutions/ })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(list.getByRole("link", { name: /^Features/ })).toBeFocused();
+  // One list at a time.
+  await nav.getByRole("button", { name: "Resources" }).click();
+  await expect(product).toHaveAttribute("aria-expanded", "false");
+  await expect(nav.getByRole("button", { name: "Resources" })).toHaveAttribute("aria-expanded", "true");
+  // A click outside the list, on the page below.
+  await page.mouse.click(20, 600);
+  await expect(nav.getByRole("button", { name: "Resources" })).toHaveAttribute("aria-expanded", "false");
+});
+
+test("on a phone the menu opens full screen, keeps focus and closes", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto("/features");
+  const toggle = page.getByRole("button", { name: "Menu", exact: true });
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Pricing" })).toBeHidden();
+  await toggle.click();
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await expect(menu).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("button", { name: "Close menu" })).toBeFocused();
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe("hidden");
+  // The groups and the page the visitor is on.
+  await expect(menu.getByRole("link", { name: /^Features/ })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: /^API reference/ })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  await expect(menu.getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/sign-up");
+  // Focus stays in the menu: back past the logo to the last link, and on to the first.
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu.getByRole("link", { name: "Yallapp home" })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu.getByRole("link", { name: "Get started" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menu.getByRole("link", { name: "Yallapp home" })).toBeFocused();
+  // Escape closes it and gives focus back to the button.
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(toggle).toBeFocused();
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).not.toBe("hidden");
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  // A link opens its page and closes the menu.
+  await toggle.click();
+  await page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "Pricing" }).click();
+  await expect(page).toHaveURL(/\/pricing$/);
+  await expect(page.getByRole("dialog", { name: "Menu" })).toHaveCount(0);
+});
+
+test("search engines get the sitemap, robots.txt, canonical addresses, link previews and structured data", async ({ page, request }) => {
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  const xml = await sitemap.text();
+  expect(xml).toContain("<loc>http://localhost:");
+  for (const path of ["/pricing", "/solutions/clinic", "/docs/shopify", "/privacy"]) expect(xml).toContain(`${path}</loc>`);
+  expect(xml).not.toMatch(/\/(dashboard|admin|api|pay|give|receipts|shop)\b/);
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  const rules = await robots.text();
+  expect(rules).toContain("Disallow: /dashboard");
+  expect(rules).toContain("Disallow: /admin");
+  expect(rules).toMatch(/Sitemap: http:\/\/localhost:\d+\/sitemap\.xml/);
+
+  await page.goto("/pricing");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/pricing$/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", "Pricing · Yallapp");
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", /\/pricing$/);
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Yallapp");
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "website");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+  const image = await page.locator('meta[property="og:image"]').getAttribute("content");
+  expect(image).toMatch(/\/pricing\/opengraph-image/);
+  const png = await request.get(new URL(image!).pathname + new URL(image!).search);
+  expect(png.status()).toBe(200);
+  expect(png.headers()["content-type"]).toBe("image/png");
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+
+  // Structured data: the home page describes Yallapp, the FAQ its questions, articles their place.
+  const ld = async () => (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => [JSON.parse(t)].flat());
+  await page.goto("/");
+  const home = await ld();
+  expect(home.map((d) => d["@type"])).toEqual(["Organization", "WebSite", "SoftwareApplication"]);
+  expect(home[0].address).toEqual({ "@type": "PostalAddress", addressLocality: "Cairo", addressCountry: "EG" });
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /localhost:\d+\/?$/);
+  await page.goto("/faq");
+  const faq = (await ld())[0];
+  expect(faq["@type"]).toBe("FAQPage");
+  expect(faq.mainEntity.length).toBeGreaterThan(10);
+  await page.goto("/docs/shopify");
+  expect((await ld())[0].itemListElement.map((i: { name: string }) => i.name)).toEqual(["Home", "Docs", "Connect Shopify"]);
+  await page.goto("/solutions/clinic");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/solutions\/clinic$/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/solutions\/clinic\/opengraph-image/);
+
+  // Sign-in and payment pages stay out of search engines.
+  await page.goto("/sign-in");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
 test("the home page shows the app types, the screens and the comparison", async ({ page }) => {

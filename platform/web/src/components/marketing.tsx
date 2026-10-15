@@ -119,14 +119,19 @@ export async function ContactBand() {
   );
 }
 
-/** The true numbers about Yallapp, as a band of figures. */
+/** 32 The true numbers about Yallapp, as one strip: a big figure and a short label each. */
 export function NumbersBand({ numbers }: { numbers: { value: string; label: string }[] }) {
   return (
-    <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))]">
-      {numbers.map((n) => (
-        <li key={n.label} className="flex flex-col gap-1.5 rounded-2xl border border-line bg-white p-5">
-          <span className="text-[40px] leading-none font-extrabold tracking-[-1px]">{n.value}</span>
-          <span className="text-[15px] leading-snug text-ink-4">{n.label}</span>
+    <ul className="m-0 grid list-none grid-cols-2 gap-px overflow-hidden rounded-[20px] border border-line bg-line p-0 sm:grid-cols-5">
+      {numbers.map((n, i) => (
+        <li
+          key={n.label}
+          className={`flex flex-col items-center justify-center gap-1 bg-white px-4 py-6 text-center sm:py-7 ${
+            i === numbers.length - 1 && numbers.length % 2 === 1 ? "col-span-2 sm:col-span-1" : ""
+          }`}
+        >
+          <span className="text-[40px] leading-none font-extrabold tracking-[-1px] sm:text-[46px]">{n.value}</span>
+          <span className="text-[15px] font-semibold text-ink-4">{n.label}</span>
         </li>
       ))}
     </ul>

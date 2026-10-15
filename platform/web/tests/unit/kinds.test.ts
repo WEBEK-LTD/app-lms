@@ -331,7 +331,8 @@ describe("20 app kinds registry", () => {
       ["solution-charity", "Solutions: Charity & donations", "/solutions/charity"],
     ]);
     expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps"]);
-    expect(NUMBERS[0]).toEqual({ value: "10", label: "app types: academy, store, restaurant & café, bookings, clinic, gym & fitness, real estate, news & blog, events & tickets and charity & donations" });
+    // 32 A figure and a short label each, counted from the registries.
+    expect(NUMBERS[0]).toEqual({ value: String(KINDS.length), label: "app types" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
