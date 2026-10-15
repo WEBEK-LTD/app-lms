@@ -23,7 +23,7 @@ const shapes: [string, string][] = [
 
 describe("App Store Connect keys", () => {
   it.each(shapes)("%s: sent as PKCS#8 PEM with 64-character lines", (_, shape) => {
-    expect(canonicalPrivateKey(shape)).toBe(pem);
+    expect(canonicalPrivateKey(shape)).toBe(pem.trimEnd());
     expect(appStoreKeySchema.shape.privateKey.safeParse(shape).success).toBe(true);
   });
 

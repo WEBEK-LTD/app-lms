@@ -158,7 +158,7 @@ export async function saveSigningKeys(
  */
 export function canonicalPrivateKey(pem: string): string {
   try {
-    return createPrivateKey(rewrapPem(pem)).export({ type: "pkcs8", format: "pem" }).toString();
+    return createPrivateKey(rewrapPem(pem)).export({ type: "pkcs8", format: "pem" }).toString().trimEnd();
   } catch {
     return pem;
   }
