@@ -5,13 +5,16 @@ import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { appMailFormValues } from "@/lib/email/app-mail";
-import { isProduction } from "@/lib/env";
+import { appUrl, isProduction } from "@/lib/env";
 import { failureDate } from "@/lib/hosted/app-sender";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
 import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
-import { AppMailForms, AppSignInForm, AppWhatsappForms, SignInMethodsForm } from "./forms";
+import { signedInPath } from "@/lib/app/api-check";
+import { jwksUrl, tokenIssuer, yallappSignsIn } from "@/lib/hosted/app-auth";
+import { hostedApiUrl } from "@/lib/hosted/urls";
+import { AppMailForms, AppSignInForm, AppWhatsappForms, DeveloperTokens, SignInMethodsForm, SignInProviderForm } from "./forms";
 
 export const metadata: Metadata = { title: "App sign-in" };
 
@@ -30,6 +33,37 @@ function advertised(signIn: NonNullable<NonNullable<App["hostedSettings"]>["apiS
   return lines;
 }
 
+/** 34 Own API apps: their API signs people in, or Yallapp does. */
+function ProviderSection({ app }: { app: App }) {
+  return (
+    <section aria-labelledby="h-provider" className={sectionClass}>
+      <h2 id="h-provider" className="m-0 text-[19px] font-bold">
+        Who signs people in
+      </h2>
+      <SignInProviderForm current={yallappSignsIn(app) ? "yallapp" : "api"} />
+    </section>
+  );
+}
+
+/** 34 For the developer of the own API: the keys, the claims to check, a test token. */
+function DeveloperSection({ app }: { app: App }) {
+  const path = signedInPath(app.appType);
+  return (
+    <section aria-labelledby="h-developer" className={sectionClass}>
+      <h2 id="h-developer" className="m-0 text-[19px] font-bold">
+        For your developer
+      </h2>
+      <DeveloperTokens
+        jwksUrl={jwksUrl(appUrl(), app.id)}
+        issuer={tokenIssuer(appUrl())}
+        audience={app.id}
+        authBaseUrl={hostedApiUrl(appUrl(), app.id)}
+        tryUrl={path && app.apiBaseUrl ? `${app.apiBaseUrl.replace(/\/+$/, "")}${path}` : null}
+      />
+    </section>
+  );
+}
+
 /** 19 Own API apps: the API decides how people sign in; this shows what it said at the last check. */
 function CustomApiSignIn({ app }: { app: App }) {
   const saved = app.hostedSettings?.apiSignIn ?? null;
@@ -41,9 +75,10 @@ function CustomApiSignIn({ app }: { app: App }) {
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           Your own API signs people in, so it decides how: by phone, by email or both, in its <code>GET /config</code> (
           <code>auth.methods</code>). Your system sends the codes, and keeps the store review number or email address for Apple and Google.
-          Nothing here changes it.
+          Or let Yallapp sign people in, and your API only checks Yallapp&apos;s tokens.
         </p>
       </div>
+      <ProviderSection app={app} />
       <section aria-labelledby="h-api-sign-in" className={sectionClass}>
         <h2 id="h-api-sign-in" className="m-0 text-[19px] font-bold">
           What your API offers
@@ -99,8 +134,11 @@ function sourceName(app: App): string {
  */
 export default async function AppSignInPage() {
   const { app, client, user } = await requireClient();
-  if (app?.backend === "custom_api") return <CustomApiSignIn app={app} />;
-  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested")) {
+  // Called, not rendered as its own component: the "Who signs people in" form stays in place (with its message) when the choice changes.
+  if (app?.backend === "custom_api" && !yallappSignsIn(app)) return CustomApiSignIn({ app });
+  // 34 An app on its own API that Yallapp signs people in to has the hosted API's choices.
+  const ownApi = app?.backend === "custom_api";
+  if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested" && !ownApi)) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
         <h1 className={titleClass}>App sign-in</h1>
@@ -129,9 +167,13 @@ export default async function AppSignInPage() {
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
           {wordpress
             ? "People sign in to your app with the accounts on your website. Choose how, and who sends their codes. The other sign-in rules are in the Yallapp plugin in WordPress."
-            : "Choose how customers sign in to your app, and the rules for new customers. Changes apply at once, without a new build."}
+            : ownApi
+              ? "Yallapp signs people in to your app and keeps their accounts; your API serves the content and checks Yallapp's tokens. Choose how people sign in, and the rules for new customers."
+              : "Choose how customers sign in to your app, and the rules for new customers. Changes apply at once, without a new build."}
         </p>
       </div>
+      {ownApi ? <ProviderSection app={app} /> : null}
+      {ownApi ? <DeveloperSection app={app} /> : null}
       {waiting ? (
         <Notice icon="hourglass_top">
           Our team is still setting up your WordPress site. Choose now: what you save here applies as soon as your site and the Yallapp plugin are ready.

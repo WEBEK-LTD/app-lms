@@ -9,7 +9,7 @@ export const DEVELOPER_GUIDE = `This guide is for the developer who connects a w
 
 - A developer who can add endpoints to your website or backend
 - An https address for the API, for example https://api.your-site.com/yallapp/v1, reachable from the public internet
-- A way to sign your users in: a one-time code by SMS or WhatsApp to their phone, by email, or their email address and a password you already keep
+- A way to sign your users in: a one-time code by SMS or WhatsApp to their phone, by email, or their email address and a password you already keep. Or [let Yallapp sign people in](#let-yallapp-sign-people-in)
 - A Yallapp account with the app type chosen: Academy, Store or Bookings (Real estate apps run only on listings managed in Yallapp)
 
 ## What "your website serves the Yallapp API" means
@@ -35,8 +35,8 @@ The rules that apply everywhere:
 Start small and run the live check after each step (the last section of this guide).
 
 1. \`GET /config\`: the app's settings. Every app needs it, signed out.
-2. Sign-in: \`POST /auth/otp/verify\`, \`POST /auth/register\`, \`POST /auth/refresh\` and \`POST /auth/logout\`, with \`POST /auth/otp/request\` for phone sign-in, and \`POST /auth/email/request\` or \`POST /auth/password\` for email sign-in (see [the sign-in flow](#the-sign-in-flow-simply)).
-3. The account: \`GET\`, \`PATCH\` and \`DELETE /me\`, \`GET /me/devices\`, \`DELETE /me/devices/{device_id}\`, \`PUT /me/push-token\`, \`GET /me/notifications\` and \`POST /me/notifications/read\`.
+2. Sign-in: \`POST /auth/otp/verify\`, \`POST /auth/register\`, \`POST /auth/refresh\` and \`POST /auth/logout\`, with \`POST /auth/otp/request\` for phone sign-in, and \`POST /auth/email/request\` or \`POST /auth/password\` for email sign-in (see [the sign-in flow](#the-sign-in-flow-simply)). Or [let Yallapp sign people in](#let-yallapp-sign-people-in), and skip this step.
+3. The account: \`GET\`, \`PATCH\` and \`DELETE /me\`, \`GET /me/devices\`, \`DELETE /me/devices/{device_id}\`, \`PUT /me/push-token\`, \`GET /me/notifications\` and \`POST /me/notifications/read\`. When Yallapp signs people in, only the last three.
 4. Your app type's content, below.
 5. Optional extras, below.
 
@@ -203,6 +203,133 @@ Someone who signed up by email has no phone number: send \`"phone": null\` in th
 
 > Apple and Google reviewers must be able to sign in, and they can't receive your codes. Keep a test number, and a test email address when you offer email sign-in, that accept a fixed code with no message sent while your app is in review, and give them to the stores. When your app signs in by email only, the reviewers need the test email address: they can't use a number there. With \`"password"\`, give them a test account's email address and password.
 
+## Let Yallapp sign people in
+
+You can leave sign-in to Yallapp. In the dashboard, open **App sign-in** and choose **Yallapp signs people in**. The app's owner then chooses phone, email or both there, Yallapp sends the codes (from Yallapp's WhatsApp number and email address, or the owner's own), keeps the accounts, the store review number and the device limit, and deletes accounts when people ask. Your API serves the content and checks who is signed in.
+
+How it works:
+
+- The app sends sign-in, the account (\`GET\`, \`PATCH\` and \`DELETE /me\`) and the list of devices to Yallapp, and every other call to your API, with \`Authorization: Bearer\` and the access token Yallapp gave it.
+- The access token is a JWT signed with **ES256** by a key pair of your app only. Only Yallapp holds the private key. The public keys are at your app's key set: **App sign-in › For your developer** shows its address, like \`https://yallapp.com.tr/api/app/{app_id}/.well-known/jwks.json\`.
+- Access tokens last 15 minutes. When one expires, your API answers 401, and the app gets a new one from Yallapp and tries again.
+- Serve none of the sign-in endpoints. Your \`/config\` doesn't need \`auth\` either: the app takes it from Yallapp.
+
+The claims in each token:
+
+~~~json
+{
+  "iss": "https://yallapp.com.tr",
+  "aud": "your app's ID",
+  "sub": "1042",
+  "phone": "+905321234567",
+  "name": "Sara Yilmaz",
+  "iat": 1792141800,
+  "exp": 1792142700
+}
+~~~
+
+- \`iss\`: always \`https://yallapp.com.tr\`. \`aud\`: your app's ID, shown on **App sign-in**, so a token of another app never works with yours.
+- \`sub\`: the person's Yallapp user ID, as text. It never changes for that account.
+- \`phone\` (E.164) and \`email\` come only when the person proved them with a code: \`phone\` for people who sign in by phone, \`email\` for people who sign in by email. An address typed at a phone sign-up is never in the token.
+- \`name\`: as the person gave it. \`did\` is Yallapp's own; ignore it.
+
+### Check the token in your API
+
+On every signed-in call: take the token from the \`Authorization\` header, check its signature with the key named by its \`kid\` in the key set, and check \`iss\`, \`aud\` and \`exp\`. Answer 401 with \`{ "code": "invalid_token", "message": "…" }\` when anything is wrong or the token is missing. Cache the key set (we allow 5 minutes), and fetch it again when a token names a \`kid\` you don't have: the libraries below do both.
+
+Node.js, with jose:
+
+~~~js
+import { createRemoteJWKSet, jwtVerify } from "jose";
+
+const APP_ID = "your app's ID";
+const keys = createRemoteJWKSet(new URL("https://yallapp.com.tr/api/app/" + APP_ID + "/.well-known/jwks.json"));
+
+export async function signedIn(req) {
+  const token = (req.headers.authorization || "").replace(/^Bearer /, "");
+  try {
+    const { payload } = await jwtVerify(token, keys, {
+      issuer: "https://yallapp.com.tr",
+      audience: APP_ID,
+      algorithms: ["ES256"],
+    });
+    return payload; // payload.sub, payload.phone, payload.email, payload.name
+  } catch {
+    return null; // answer 401
+  }
+}
+~~~
+
+PHP, with firebase/php-jwt:
+
+~~~php
+use Firebase\\JWT\\JWK;
+use Firebase\\JWT\\JWT;
+
+const APP_ID = 'your app\\'s ID';
+
+function signed_in(): ?object {
+    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    $token = preg_replace('/^Bearer\\s+/', '', $header);
+    // Cache this answer for 5 minutes in your own cache (or use CachedKeySet).
+    $jwks = json_decode(file_get_contents('https://yallapp.com.tr/api/app/' . APP_ID . '/.well-known/jwks.json'), true);
+    try {
+        $claims = JWT::decode($token, JWK::parseKeySet($jwks)); // checks the signature and exp
+    } catch (Exception $e) {
+        return null; // answer 401
+    }
+    if ($claims->iss !== 'https://yallapp.com.tr' || $claims->aud !== APP_ID) {
+        return null;
+    }
+    return $claims; // $claims->sub, $claims->phone ?? null, $claims->email ?? null
+}
+~~~
+
+Python, with PyJWT:
+
+~~~python
+import jwt
+
+APP_ID = "your app's ID"
+keys = jwt.PyJWKClient("https://yallapp.com.tr/api/app/" + APP_ID + "/.well-known/jwks.json", lifespan=300)
+
+def signed_in(authorization: str):
+    token = authorization.removeprefix("Bearer ")
+    try:
+        key = keys.get_signing_key_from_jwt(token)
+        return jwt.decode(token, key, algorithms=["ES256"], audience=APP_ID, issuer="https://yallapp.com.tr")
+    except jwt.PyJWTError:
+        return None  # answer 401
+~~~
+
+### Your users and Yallapp's
+
+Keep your own user for each Yallapp account, and find it by \`sub\`. The first time a \`sub\` comes:
+
+- If your system already knows people, match the token's **proven** \`phone\` or \`email\` to the user you have with that number or address, and save the \`sub\` on them. Never match on anything else.
+- Otherwise create a user with the \`sub\`, the \`name\` and what the token proves.
+
+From then on, find them by \`sub\` only: people can change their name in the app, and \`sub\` stays the same. Each signed-in call works on that user's data: their courses, orders or appointments.
+
+When someone deletes their account in the app, the app first calls your \`DELETE /me\` with their token, so you can delete what you keep about them (answer 204, or 404 when you keep nothing), and then Yallapp deletes their account. Signing out, and removing a device in the app, end that device's sign-in at Yallapp: its tokens stop being renewed and stop working within 15 minutes.
+
+### Try it
+
+**App sign-in › For your developer** has **Copy a test token**: an access token of your store review account, valid for 15 minutes, signed like the app's. Call a signed-in endpoint of your API with it, and without it:
+
+~~~http
+GET /me/courses
+Authorization: Bearer eyJhbGciOiJFUzI1NiIs...
+~~~
+
+The live check does the same: with Yallapp signing people in, it checks that a signed-in call answers 401 without a token and 200 with a test token (when your app has a store review number or email address on **App sign-in**).
+
+An app built before the owner chose Yallapp still sends sign-in to your API. The next build sends it to Yallapp. To switch the app people already have now, add this to your \`/config\`:
+
+~~~json
+"auth": { "provider": "yallapp", "base_url": "https://yallapp.com.tr/api/app/{app_id}" }
+~~~
+
 ## Content, with an example
 
 Lists are paged. The app sends \`page\` (from 1) and \`per_page\` (up to 50) and expects the page details next to the \`items\`:
@@ -274,7 +401,7 @@ Every error is JSON with a stable \`code\` the app can act on and a \`message\` 
 
 1. In your Yallapp dashboard, open **App setup** and the **Website** step.
 2. Choose **My own API** and enter your base URL.
-3. Select **Run the check**. We call your API the way the app does: \`/config\`, your app type's settings and your sign-in settings in it (\`auth.methods\` and \`auth.email_sign_in\`), your home endpoint, and the error shape of the sign-in endpoints you offer (\`POST /auth/otp/request\`, \`POST /auth/email/request\` or \`POST /auth/password\`) with an empty body. The dashboard's **App sign-in** page then shows how your API signs people in.
+3. Select **Run the check**. We call your API the way the app does: \`/config\`, your app type's settings and your sign-in settings in it (\`auth.methods\` and \`auth.email_sign_in\`), your home endpoint, and the error shape of the sign-in endpoints you offer (\`POST /auth/otp/request\`, \`POST /auth/email/request\` or \`POST /auth/password\`) with an empty body. The dashboard's **App sign-in** page then shows how your API signs people in. When Yallapp signs people in, the check skips sign-in and checks your API's answers with and without a token instead.
 4. Fix anything the check lists, run it again, then select **Save & continue**.
 
 > The check is a quick start, not a full test. The [API reference](/developers) lists every field the app reads.
@@ -302,7 +429,7 @@ The preview never sends sign-in codes. To let your client try the signed-in scre
 
 - Every required endpoint for your app type answers over https, with JSON
 - \`/config\` passes the live check and turns off what you don't support
-- Sign-in works end to end for each method in \`auth.methods\`, including a new number (or email address), refresh and sign-out
+- Sign-in works end to end for each method in \`auth.methods\`, including a new number (or email address), refresh and sign-out. When Yallapp signs people in: your API accepts a test token, and finds or creates the user by \`sub\`
 - Signed-in calls answer 401 with an expired token, and refresh works once per refresh token
 - Deleting the account (\`DELETE /me\`) works, as Apple and Google require
 - On iOS, no paid digital content offers a purchase

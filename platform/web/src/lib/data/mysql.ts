@@ -7,7 +7,7 @@ import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
-import type { AppLayoutRecord } from "./types";
+import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
   AppPatch,
@@ -848,6 +848,38 @@ export class MysqlStore implements DataStore {
         .where(and(eq(schema.hostedUsers.appId, appId), isNull(schema.hostedUsers.phone))),
     );
     return rows[0]?.n ?? 0;
+  }
+
+  // 34 Keys that sign own API apps' access tokens
+
+  async listAppAuthKeys(appId: string): Promise<AppAuthKey[]> {
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(schema.appAuthKeys)
+        .where(eq(schema.appAuthKeys.appId, appId))
+        .orderBy(desc(schema.appAuthKeys.createdAt), desc(schema.appAuthKeys.kid)),
+    );
+    return rows.map((row) => ({ ...row, alg: "ES256" as const }));
+  }
+
+  async createAppAuthKey(key: AppAuthKey): Promise<void> {
+    await this.run((db) => db.insert(schema.appAuthKeys).values(key));
+  }
+
+  async retireAppAuthKeys(appId: string, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.appAuthKeys)
+        .set({ retiredAt: now, privateKeyEncrypted: null })
+        .where(and(eq(schema.appAuthKeys.appId, appId), isNull(schema.appAuthKeys.retiredAt))),
+    );
+  }
+
+  async deleteAppAuthKeysRetiredBefore(appId: string, before: Date): Promise<void> {
+    await this.run((db) =>
+      db.delete(schema.appAuthKeys).where(and(eq(schema.appAuthKeys.appId, appId), isNotNull(schema.appAuthKeys.retiredAt), lt(schema.appAuthKeys.retiredAt, before))),
+    );
   }
 
   // Catalog

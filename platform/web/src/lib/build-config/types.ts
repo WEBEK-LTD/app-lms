@@ -23,6 +23,8 @@ export interface BuildConfig {
   vertical?: AppVertical;
   /** Only for apps whose content isn't served by the WordPress plugin. */
   api_base_url?: string;
+  /** 34 Own API apps Yallapp signs people in to: the hosted API's address for the app, for sign-in and the account. */
+  auth_base_url?: string;
   app_name: string;
   short_name: string;
   site_url: string;

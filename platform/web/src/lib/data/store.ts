@@ -56,6 +56,8 @@ import type { DemoPurgeCounts } from "./types";
 import type { Article, ArticleCategory, ArticleInput, NewsSettings } from "./types";
 // 28 Events & tickets
 import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket, TicketClaim, TicketClaimRefusal, TicketType, TicketTypeInput } from "./types";
+// 34 Yallapp sign-in for own API apps
+import type { AppAuthKey } from "./types";
 // 29 Charity & donations
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
@@ -263,6 +265,15 @@ export interface DataStore {
   countHostedUsers(appId: string): Promise<number>;
   /** 19 The app's users who signed up by email (no phone number): they can't sign in when email sign-in is off. */
   countHostedEmailOnlyUsers(appId: string): Promise<number>;
+
+  // 34 Keys that sign the access tokens of own API apps Yallapp signs people in to
+  /** The app's keys, newest first: the ones signing now (not retired) and the retired ones not yet deleted. */
+  listAppAuthKeys(appId: string): Promise<AppAuthKey[]>;
+  createAppAuthKey(key: AppAuthKey): Promise<void>;
+  /** Retires the app's current keys: they stop signing (their private keys are dropped), their public keys stay until deleted. */
+  retireAppAuthKeys(appId: string, now: Date): Promise<void>;
+  /** Deletes the app's keys retired before `before`. */
+  deleteAppAuthKeysRetiredBefore(appId: string, before: Date): Promise<void>;
 
   // Platform settings (admin)
   /**

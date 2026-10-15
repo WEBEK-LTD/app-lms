@@ -225,6 +225,13 @@
       "when": 1792060296409,
       "tag": "0031_more_android_stores",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1792061363616,
+      "tag": "0032_app_auth_keys",
+      "breakpoints": true
     }
   ]
 }

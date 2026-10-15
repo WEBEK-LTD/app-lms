@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
+import { apiCheckSignIn } from "@/lib/hosted/test-token";
 import { appTypeName, connectorFits, ENGINES, hostedOnly, isAppType, kindById, defaultKind, ownContentTitle, type OwnContentKind } from "@/lib/app/kinds";
 import { isSetupComplete, managedPublishing, newApp, queueBuild, STEP_LABEL, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -281,7 +282,10 @@ export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData)
     // 19 Saved either way; a failing check is shown here and stays on the overview and Builds until it passes.
     const limited = await hitRateLimit(store, RATE_LIMITS.apiCheck, context.client.id);
     if (limited.allowed) {
-      const result = await checkApi(patch.apiBaseUrl, context.app.appType);
+      // 34 When Yallapp signs people in, the API checks tokens instead of serving sign-in.
+      const saved = (await store.getAppById(context.app.id)) ?? context.app;
+      const yallappSignIn = await apiCheckSignIn(store, saved, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: new Date() });
+      const result = await checkApi(patch.apiBaseUrl, context.app.appType, { yallappSignIn });
       await recordApiCheck(store, context.app, result, new Date(), appUrl());
       await keepApiSignIn(context.app, patch.apiBaseUrl, result, new Date());
       if (!result.ok) {
@@ -487,7 +491,9 @@ export async function checkApiAction(_: ApiCheckState, formData: FormData): Prom
   if (!limited.allowed) return { result: null, error: "Too many checks. Try again in a few minutes." };
   const address = String(formData.get("apiBaseUrl") ?? "").trim();
   if (!address) return { result: null, error: "Enter your API's address first." };
-  const result = await checkApi(address, context.app.appType);
+  // 34 When Yallapp signs people in, the API checks tokens instead of serving sign-in.
+  const yallappSignIn = await apiCheckSignIn(await getStore(), context.app, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: new Date() });
+  const result = await checkApi(address, context.app.appType, { yallappSignIn });
   await keepApiSignIn(context.app, address, result, new Date());
   // 19 A check of the saved address is the app's last check: it updates the notice on the overview and Builds.
   if (context.app.backend === "custom_api" && context.app.apiBaseUrl === address.replace(/\/+$/, "")) {

@@ -12,7 +12,9 @@ import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
 import { appState } from "@/lib/license/status";
 import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
-import type { BookingAppointment } from "@/lib/data/types";
+import type { App, BookingAppointment } from "@/lib/data/types";
+import type { DataStore } from "@/lib/data/store";
+import { appSignIn, ensureAuthKey, JWKS_MAX_AGE_SECONDS, jwksOf, signingKey, yallappSignsIn } from "@/lib/hosted/app-auth";
 import { newInquiryMailValues } from "@/lib/listings/notify";
 import { appMailDelivered, sendTemplate } from "@/lib/email/send";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
@@ -49,8 +51,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
   // 16 Demo sign-in and demo checkout only for the demo account's own demo apps.
   const app = await withDemoChecked(store, found);
   // Each app has its own plan: the API answers while this app's license is active.
-  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const now = new Date();
+  // 34 The public keys that check the access tokens of an own API app Yallapp signs people in to.
+  if (path.length === 2 && path[0] === ".well-known" && path[1] === "jwks.json") return jwksResponse(request, app, store, now);
+  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const url = new URL(request.url);
   // Logout and "mark as read" come without a body; anything else sent must be JSON.
   const raw = request.method === "GET" || request.method === "DELETE" ? "" : await request.text();
@@ -85,6 +89,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       ip: ipFromHeaders(request.headers),
       preview: preview?.ok ? { draft: preview.grant.draft } : null,
       secret: hmacSha256(signingSecret(), "hosted-api"),
+      // 34 Own API apps Yallapp signs people in to: ES256 tokens with the app's own keys.
+      yallappSignIn: yallappSignsIn(app) ? appSignIn(store, app.id, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => now }) : null,
       // 18 The owner's own WhatsApp number when they connected one, else Yallapp's sender.
       // 19 When the own number fails, Yallapp's sender sends that code and the owner is told.
       sender: senderWithFallback(
@@ -130,6 +136,30 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
   );
   if (result.status === 304) return new Response(null, { status: 304, headers: { "cache-control": "no-store", ...result.headers } });
   return result.status === 204 ? noContent() : json(result.body, result.status, result.headers);
+}
+
+/**
+ * 34 `GET /.well-known/jwks.json`: the app's public signing keys (the current
+ * one, and for a day one it replaced), for the client's API to check access
+ * tokens. Public and cacheable for 5 minutes; 404 unless Yallapp signs
+ * people in to this app. Served also while the app is paused.
+ */
+async function jwksResponse(request: Request, app: App, store: DataStore, now: Date): Promise<Response> {
+  if (request.method !== "GET") return errorResponse(405, "method_not_allowed", "Use GET.");
+  if (!yallappSignsIn(app)) return errorResponse(404, "not_found", "Not found.");
+  let keys = await store.listAppAuthKeys(app.id);
+  if (!signingKey(keys)) {
+    await ensureAuthKey(store, app.id, encryptionKey(), now);
+    keys = await store.listAppAuthKeys(app.id);
+  }
+  return new Response(JSON.stringify(jwksOf(keys, now)), {
+    status: 200,
+    headers: {
+      "content-type": "application/jwk-set+json",
+      "cache-control": `public, max-age=${JWKS_MAX_AGE_SECONDS}`,
+      "access-control-allow-origin": "*",
+    },
+  });
 }
 
 export const GET = handle;

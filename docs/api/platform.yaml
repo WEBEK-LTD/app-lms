@@ -530,6 +530,7 @@ components:
             short_name: { type: string, minLength: 1 }
             site_url: { type: string, format: uri }
             api_base_url: { type: string, format: uri }
+            auth_base_url: { type: string, format: uri, description: "An app on its own API that Yallapp signs people in to: the hosted API of the platform the preview runs on, for sign-in and the account (roadmap 34)." }
             android_package: { type: string }
             ios_bundle_id: { type: string }
             version_name: { type: string, example: 1.0.0 }
@@ -557,7 +558,7 @@ components:
             draft: { type: boolean, description: "The preview shows the Pages & look draft (hosted API only); otherwise the published pages." }
             api_token:
               type: [string, 'null']
-              description: For the hosted API only. The app sends it as `X-Yallapp-Preview` with every request to the hosted API.
+              description: For the hosted API only. The app sends it as `X-Yallapp-Preview` with every request to the hosted API. An app on its own API that Yallapp signs people in to gets one too, and sends it only to `auth_base_url`, never to its own API.
             placeholders:
               type: array
               description: Build config fields filled with placeholders, e.g. `app_name`, `short_name`, `android_package`, `site_url`, `branding.icon_url`.

@@ -26,6 +26,7 @@
     "short_name": { "type": "string", "minLength": 1, "maxLength": 12, "description": "Shown under the app icon." },
     "site_url": { "type": "string", "format": "uri", "pattern": "^https://", "description": "The client's WordPress site. The app calls <site_url>/wp-json/yallapp/v1." },
     "api_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+$", "description": "Optional. Where the app finds the Yallapp API, for sites without WordPress (a custom API or the hosted API). Defaults to <site_url>/wp-json/yallapp/v1." },
+    "auth_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+$", "description": "Optional. For an app on its own API that Yallapp signs people in to: Yallapp's hosted API for the app, https://yallapp.com.tr/api/app/{app_id}. The app sends sign-in, account and device calls there (Config.auth.provider 'yallapp'), and every other call to api_base_url with Yallapp's access token. Left out when the API at api_base_url signs people in." },
     "android_package": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$", "examples": ["com.youracademy.app"] },
     "ios_bundle_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9-]*(\\.[A-Za-z][A-Za-z0-9-]*)+$", "examples": ["com.youracademy.app"] },
     "version_name": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "examples": ["1.0.0"] },

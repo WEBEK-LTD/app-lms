@@ -32,6 +32,13 @@ info:
     `X-Yallapp-Preview: <preview token>`: the API then answers for the app's
     owner while the app isn't active yet, signs in only the store review
     number, and serves the Pages & look draft when the preview asks for it.
+
+    A client's own API can let Yallapp sign people in (roadmap 34): its app
+    then sends sign-in, the account and its devices to the hosted API
+    (`Config.auth.provider: yallapp`, `Config.auth.base_url`) and every other
+    call to the client's API with Yallapp's access token, a JWT the client's
+    API checks with the keys at `GET /.well-known/jwks.json` (see the
+    "Yallapp sign-in" tag).
   license:
     name: Proprietary, Yallapp
     url: https://yallapp.com.tr
@@ -60,6 +67,33 @@ tags:
     description: Pages and bottom tabs built in the client dashboard.
   - name: Auth
     description: Sign-in with a one-time code, tokens and sign-up.
+  - name: Yallapp sign-in
+    description: |
+      For a client's own API whose owner chose "Yallapp signs people in" on
+      the dashboard's App sign-in page (roadmap 34). Yallapp's hosted API for
+      the app (`https://yallapp.com.tr/api/app/{app_id}`, `Config.auth.base_url`)
+      serves `GET /config` (only its `auth` counts), the Auth endpoints
+      (`/auth/otp/request`, `/auth/email/request`, `/auth/otp/verify`,
+      `/auth/register`, `/auth/refresh`, `/auth/logout`), `GET`, `PATCH` and
+      `DELETE /me`, `GET /me/devices` and `DELETE /me/devices/{device_id}`,
+      with the sign-in methods, codes, store review access and device limit
+      the owner set in Yallapp. The client's API serves everything else,
+      including `/auth/checkout-link`, `PUT /me/push-token` and the
+      notifications, and never the sign-in endpoints.
+
+      The access token the app sends to the client's API is a JWT signed with
+      ES256 (header `kid`) by a key pair of that app only, valid for 15
+      minutes. Claims: `iss` (`https://yallapp.com.tr`), `aud` (the app's ID),
+      `sub` (the person's Yallapp user ID, a string), `phone` (E.164) and
+      `email` only when proven by a code, `name`, `iat`, `exp`; `did` is
+      Yallapp's own. The client's API checks the signature with the keys at
+      `GET /.well-known/jwks.json`, and `iss`, `aud` and `exp`, then finds or
+      creates its own user by `sub`, or by the proven phone or email. A
+      missing, expired or invalid token answers 401, and the app refreshes it
+      at Yallapp. Refresh tokens are opaque and work once; signing out,
+      removing a device and deleting the account end them. Before deleting
+      the account at Yallapp, the app calls the client's `DELETE /me`, so the
+      client can delete its own data (404 or 405 when it keeps none).
   - name: Account
     description: The signed-in student's profile, devices and push token.
   - name: Catalog
@@ -509,6 +543,31 @@ paths:
       responses:
         '204': { description: Signed out }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /.well-known/jwks.json:
+    get:
+      tags: [Yallapp sign-in]
+      operationId: getSignInKeys
+      summary: Get the keys that sign access tokens
+      description: |
+        Served only by Yallapp's hosted API, for an app on its own API that
+        Yallapp signs people in to (404 otherwise): the app's public ES256 keys
+        as a JSON Web Key Set, the one signing now first. When the owner
+        replaces the key, the old one stays here for a day, so tokens it signed
+        keep working until they expire. Cache it for up to 5 minutes
+        (`Cache-Control`), and fetch it again when a token names a `kid` you
+        don't have.
+      security: []
+      responses:
+        '200':
+          description: The app's public keys
+          headers:
+            Cache-Control:
+              schema: { type: string, example: 'public, max-age=300' }
+          content:
+            application/jwk-set+json:
+              schema: { $ref: '#/components/schemas/Jwks' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /auth/checkout-link:
     post:
@@ -2946,6 +3005,19 @@ components:
                 plugin 0.3.5 and later). Sent when `methods` has `email`.
             password_reset_url: { type: [string, 'null'], format: uri, description: "With `email_sign_in: password`: the website's page to reset a forgotten password." }
             preview_sign_in: { type: boolean, description: "Whether `POST /auth/otp/request` honours `preview: true` (only the store review number signs in, no code is sent). The app preview offers sign-in only when this is true. Missing means false." }
+            provider:
+              type: string
+              enum: [own, yallapp]
+              description: |
+                Who signs people in. `own` (or missing): this API serves the
+                sign-in endpoints. `yallapp`: Yallapp does (roadmap 34, the
+                "Yallapp sign-in" tag): the app sends sign-in, the account and
+                its devices to `base_url`, reads `GET {base_url}/config` and
+                takes its `auth` in place of this one, and sends every other call
+                here with Yallapp's access token. An app built after the owner
+                chose it knows already (the build config's `auth_base_url`); a
+                client's own API may send it too, for apps built before.
+            base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: "With `provider: yallapp`: Yallapp's hosted API for the app." }
         purchases:
           type: object
           required: [enroll_button, free_enrollment]
@@ -3014,6 +3086,25 @@ components:
         access_token: { type: string }
         refresh_token: { type: string }
         expires_in: { type: integer, description: Access token lifetime in seconds., example: 900 }
+
+    Jwks:
+      type: object
+      description: A JSON Web Key Set (RFC 7517) of P-256 public keys.
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            required: [kty, crv, x, y, kid, alg, use]
+            properties:
+              kty: { type: string, const: EC }
+              crv: { type: string, const: P-256 }
+              x: { type: string }
+              y: { type: string }
+              kid: { type: string, description: "The key's JWK thumbprint (RFC 7638); the token's header names it." }
+              alg: { type: string, const: ES256 }
+              use: { type: string, const: sig }
 
     Session:
       allOf:
