@@ -30,7 +30,7 @@ import { CONTENT_PAGES } from "@/lib/content/site";
 import type { App, AppType, ConnectorConfig } from "@/lib/data/types";
 import { DEMO_SLUGS, DEMO_TYPES, demoTypeOfSlug } from "@/lib/demo/constants";
 import { emailSignInNote } from "@/lib/hosted/sign-in-methods";
-import { INTEGRATION_GROUPS, NUMBERS, SOLUTIONS } from "@/lib/marketing";
+import { INTEGRATION_GROUPS, SOLUTIONS } from "@/lib/marketing";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { blockTypesFor, itemSourcesFor } from "@/lib/pages/sources";
 import { SCREENS, type LayoutBlock, type LayoutContent, type LayoutTab } from "@/lib/pages/types";
@@ -306,7 +306,7 @@ describe("20 app kinds registry", () => {
     );
   });
 
-  it("names the solution pages, their headers and the numbers as before", () => {
+  it("names the solution pages and their headers as before", () => {
     expect(SOLUTIONS.map((s) => [s.id, s.contentKey, s.name, s.icon])).toEqual([
       ["academy", "solution-academy", "Academy", "school"],
       ["store", "solution-store", "Store", "storefront"],
@@ -333,8 +333,6 @@ describe("20 app kinds registry", () => {
       ["solution-charity", "Solutions: Charity & donations", "/solutions/charity"],
     ]);
     expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps"]);
-    // 32 A figure and a short label each, counted from the registries.
-    expect(NUMBERS[0]).toEqual({ value: String(KINDS.length), label: "app types" });
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });

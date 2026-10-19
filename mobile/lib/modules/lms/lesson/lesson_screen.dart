@@ -102,9 +102,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _completing = false;
   late final ScreenSecurity _security = ref.read(screenSecurityProvider);
 
+  /// 40 Read once: the video player saves its place when it closes, after
+  /// this screen has left the tree.
+  late final _api = ref.read(yallappApiProvider);
+  late final _signedIn = ref.read(authControllerProvider).isSignedIn;
+
   @override
   void initState() {
     super.initState();
+    _api;
+    _signedIn;
     final rules = ref.read(appConfigProvider).content;
     if (rules.blockScreenCapture) {
       final security = _security;
@@ -136,10 +143,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _saveProgress(int position, double percent) {
-    if (!ref.read(authControllerProvider).isSignedIn) return;
+    if (!_signedIn) return;
     unawaited(
-      ref
-          .read(yallappApiProvider)
+      _api
           .saveLessonProgress(
             widget.lessonId,
             positionSeconds: position,

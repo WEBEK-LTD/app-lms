@@ -23,14 +23,15 @@ const STAGE_LABEL: Record<StageKey, string> = {
   upload_testflight: "Upload to TestFlight",
   upload_galaxy: "Upload to Galaxy Store",
   upload_appgallery: "Upload to AppGallery",
+  upload_xiaomi: "Upload to Xiaomi GetApps",
 };
 
-const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery"];
+const ORDER: StageKey[] = ["queued", "android", "ios", "upload_play", "upload_testflight", "upload_galaxy", "upload_appgallery", "upload_xiaomi"];
 
 export function BuildStages({ stages }: { stages: Stages }) {
   return (
     <ol className="m-0 grid list-none gap-2.5 p-0 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
-      {/* 35, 36 Builds queued before the Galaxy Store and AppGallery stages don't have them. */}
+      {/* 35, 36, 42 Builds queued before the Galaxy Store, AppGallery and Xiaomi GetApps stages don't have them. */}
       {ORDER.filter((key) => stages[key] !== undefined && stages[key] !== "skipped").map((key) => {
         const status = stages[key]!;
         const styles: Record<StageStatus, string> = {

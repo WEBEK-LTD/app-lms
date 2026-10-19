@@ -24,6 +24,10 @@ abstract final class AppIcons {
   static const playCircle = Symbols.play_circle_rounded;
   static const fullscreen = Symbols.fullscreen_rounded;
   static const fullscreenExit = Symbols.fullscreen_exit_rounded;
+  static const back10 = Symbols.replay_10_rounded;
+  static const forward10 = Symbols.forward_10_rounded;
+  static const captions = Symbols.closed_caption_rounded;
+  static const captionsOff = Symbols.closed_caption_disabled_rounded;
   static const close = Symbols.close_rounded;
   static const rotate = Symbols.screen_rotation_rounded;
   static const web = Symbols.language_rounded;

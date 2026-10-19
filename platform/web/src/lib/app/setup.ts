@@ -83,13 +83,15 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
   };
 }
 
-export function hasStoreKeys(app: App): { play: boolean; appStore: boolean; galaxy: boolean; appGallery: boolean } {
+export function hasStoreKeys(app: App): { play: boolean; appStore: boolean; galaxy: boolean; appGallery: boolean; xiaomi: boolean } {
   return {
     play: Boolean(app.googlePlayKeyEncrypted),
     appStore: Boolean(app.ascPrivateKeyEncrypted && app.ascIssuerId && app.ascKeyId),
     // 35, 36 Samsung Galaxy Store and Huawei AppGallery upload keys.
     galaxy: Boolean(app.galaxyKeyEncrypted && app.galaxyContentId && app.galaxyServiceAccountId),
     appGallery: Boolean(app.huaweiClientSecretEncrypted && app.huaweiClientId && app.huaweiAppId),
+    // 42 Xiaomi GetApps.
+    xiaomi: Boolean(app.xiaomiPasswordEncrypted && app.xiaomiUserName && app.xiaomiCertificate),
   };
 }
 
@@ -212,6 +214,7 @@ export function initialStages(autoPublish: boolean, app: App, ios = true): Build
     // 35, 36 Only with "We publish for you" and the store's keys, like Google Play.
     upload_galaxy: autoPublish && keys.galaxy ? "pending" : "skipped",
     upload_appgallery: autoPublish && keys.appGallery ? "pending" : "skipped",
+    upload_xiaomi: autoPublish && keys.xiaomi ? "pending" : "skipped",
   };
 }
 

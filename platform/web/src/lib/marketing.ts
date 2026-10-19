@@ -1,6 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import { KINDS, kindById } from "./app/kinds";
-import { BLOCK_TYPES, LANGUAGE_CODES } from "./pages/types";
+import { ALL_STORES_TEXT, MORE_ANDROID_STORES_TEXT } from "./stores";
 
 /** "a, b and c" (or "a, b or c"). */
 function listText(items: string[], last = "and"): string {
@@ -758,6 +758,10 @@ export const INTEGRATION_GROUPS: IntegrationGroup[] = [
     items: [
       { name: "Google Play Console", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your Android app, published under your own developer account.", docs: "/docs/google-play" },
       { name: "App Store Connect", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your iOS app, published under your own Apple Developer account.", docs: "/docs/app-store" },
+      // 41 The other Android stores (Phases 35, 36 and 42).
+      { name: "Samsung Galaxy Store", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your Android app on every Samsung Galaxy phone, under your own seller account.", docs: "/docs/galaxy-store" },
+      { name: "Huawei AppGallery", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your Android app for Huawei phones, with push notifications through Huawei Push Kit.", docs: "/docs/huawei-appgallery" },
+      { name: "Xiaomi GetApps", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Your Android app on Xiaomi, Redmi and POCO phones, under your own developer account.", docs: "/docs/xiaomi-getapps" },
       { name: "Firebase", types: ["Academy", "Store", "Bookings", "Real estate", "News & blog", "Events & tickets", "Charity & donations"], text: "Push notifications through your own Firebase project. Free for this use.", docs: "/docs/push-notifications" },
       { name: "iyzico", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in apps without a website, into your own iyzico merchant account.", docs: "/docs/card-payments" },
       { name: "Kashier", types: ["Store", "Academy", "Events & tickets", "Charity & donations"], text: "Card payments in Egyptian pounds in apps without a website, into your own Kashier account.", docs: "/docs/card-payments" },
@@ -775,35 +779,6 @@ export const INTEGRATION_COUNTS = {
   plugins: INTEGRATION_GROUPS.find((g) => g.id === "wordpress")!.items.filter((i) => i.docs === "/docs/wordpress-plugin").length,
   platforms: INTEGRATION_GROUPS.find((g) => g.id === "platforms")!.items.filter((i) => i.docs !== "/docs/news").length,
 };
-
-/** 32 True numbers about the product, shown as a strip on the home and features pages: a figure and a short label, counted from the registries. */
-export const NUMBERS: { value: string; label: string }[] = [
-  { value: String(KINDS.length), label: "app types" },
-  { value: countAtLeast(INTEGRATION_COUNTS.plugins + INTEGRATION_COUNTS.platforms), label: "integrations" },
-  { value: String(LANGUAGE_CODES.length), label: "app languages" },
-  // Google Play and the App Store.
-  { value: "2", label: "app stores" },
-  { value: String(BLOCK_TYPES.length), label: "page blocks" },
-];
-
-/** The names in the "works with" strip on the home page. */
-export const WORKS_WITH = [
-  "WordPress",
-  "WooCommerce",
-  "Tutor LMS",
-  "LearnDash",
-  "Shopify",
-  "ikas",
-  "Ticimax",
-  "IdeaSoft",
-  "Wix",
-  "Salla",
-  "Zid",
-  "Teachable",
-  "Thinkific",
-  "SimplyBook.me",
-  "Amelia",
-];
 
 // ---------------------------------------------------------------------------
 // Features.
@@ -851,7 +826,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
       {
         icon: "smartphone",
         title: "Published as your own app",
-        text: "Your Android and iOS apps are published under your own Google Play and App Store accounts.",
+        text: `Your Android and iOS apps are published under your own accounts on ${ALL_STORES_TEXT}.`,
         details: [
           "Your package name and bundle ID",
           "Your store title, descriptions and screenshots",
@@ -965,7 +940,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
   {
     id: "builds",
     title: "Builds, signing and publishing",
-    text: "We build, sign and package your apps. Download them and follow our guides, or let us publish them for you.",
+    text: `We build, sign and package your apps for ${ALL_STORES_TEXT}. Download them and follow our guides, or let us publish them for you.`,
     screens: ["dashboard-builds"],
     features: [
       {
@@ -973,7 +948,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         title: "Every file you need",
         text: "Android APK and App Bundle, the iOS build, your signing key and your store assets.",
         details: [
-          "APK to install on a phone and test",
+          "APK to install on a phone and test, and for Galaxy Store, AppGallery and GetApps",
           "App Bundle (AAB) for Google Play",
           "iOS build (Growth and up), uploaded to TestFlight on Pro and Business",
           "Store icon, feature graphic, your screenshots and listing text",
@@ -1004,7 +979,7 @@ export const COMPARISON: { topic: string; typical: string; yallapp: string }[] =
   {
     topic: "Whose app it is",
     typical: "Sometimes published under the builder's account",
-    yallapp: "Published under your own Google Play and App Store accounts, with your signing key to download",
+    yallapp: "Published under your own accounts on all five app stores, with your signing key to download",
   },
   {
     topic: "Changing the app",
@@ -1083,7 +1058,10 @@ export const STEPS: Step[] = [
     short: "Download your apps, or we publish them for you.",
     icon: "publish",
     text: "Your apps build as soon as the setup is complete. Download them and publish with our guides, or let us publish them for you.",
-    details: ["Starter and Growth: download your files and follow the step-by-step guides", "Pro and Business: we publish every new version on Google Play and the App Store"],
+    details: [
+      "Starter and Growth: download your files and follow the step-by-step guides",
+      `Pro and Business: we publish every new version on ${ALL_STORES_TEXT}`,
+    ],
   },
 ];
 
@@ -1091,6 +1069,7 @@ export const REQUIREMENTS = [
   "Your content: a website on a supported platform, your own API, or nothing at all",
   "A Google Play developer account (one-time fee to Google)",
   "An Apple Developer Program membership for iOS (yearly fee to Apple)",
+  `Seller accounts on ${MORE_ANDROID_STORES_TEXT}, if you want your app there too (free)`,
   "A free Firebase project, for push notifications",
   "An iyzico, Kashier or Fawaterk merchant account, to take card payments without a website (optional)",
 ];
@@ -1109,7 +1088,7 @@ export const FAQ: FaqGroup[] = [
     items: [
       {
         q: "What does Yallapp do?",
-        a: "Yallapp builds branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, real estate offices, news sites, events, charities and more. Your app gets its content from your website, an online platform you already use, your own API, or from the Yallapp dashboard if you have no website. We build the apps, and you publish them under your own name, or we publish them for you.",
+        a: `Yallapp builds branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, real estate offices, news sites, events, charities and more. Your app gets its content from your website, an online platform you already use, your own API, or from the Yallapp dashboard if you have no website. We build the apps, and you publish them under your own name on ${ALL_STORES_TEXT}, or we publish them for you.`,
       },
       {
         q: "Do I need a website?",
@@ -1176,15 +1155,19 @@ export const FAQ: FaqGroup[] = [
     ],
   },
   {
-    title: "Publishing on Google Play and the App Store",
+    title: "Publishing on the app stores",
     items: [
       {
+        q: "Which app stores can my app be on?",
+        a: `${ALL_STORES_TEXT}. Every plan builds the Android app for Google Play, Galaxy Store, AppGallery and GetApps; the iOS app for the App Store comes with Growth and up.`,
+      },
+      {
         q: "Do I need my own Apple and Google developer accounts?",
-        a: "Yes. Your apps are published under your own name. Google charges a one-time fee and Apple a yearly fee, paid directly to them. Companies need a D-U-N-S number for both. See [Developer accounts](/docs/developer-accounts).",
+        a: "Yes. Your apps are published under your own name. Google charges a one-time fee and Apple a yearly fee, paid directly to them. Companies need a D-U-N-S number for both. Samsung, Huawei and Xiaomi accounts are free, and only needed if you want your app in their stores. See [Developer accounts](/docs/developer-accounts).",
       },
       {
         q: "Who publishes the apps?",
-        a: "On Starter and Growth you download the files and publish them with our step-by-step guides. On Pro and Business we publish your app and every new version on Google Play and the App Store for you.",
+        a: `On Starter and Growth you download the files and publish them with our step-by-step guides. On Pro and Business we publish your app and every new version on ${ALL_STORES_TEXT} for you.`,
       },
       {
         q: "Will Apple accept my app?",
@@ -1318,7 +1301,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Can people delete their account?",
-        a: "Yes, from the app's account screen, as Apple and Google require.",
+        a: "Yes, from the app's account screen, as the app stores require.",
       },
     ],
   },

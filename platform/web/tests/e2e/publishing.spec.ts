@@ -22,6 +22,22 @@ let admin: Page;
 let own: Page;
 let appId = "";
 
+/** 42 A self-signed RSA certificate in place of Xiaomi's (public: no private key here). */
+const XIAOMI_TEST_CERT = `-----BEGIN CERTIFICATE-----
+MIICEjCCAXugAwIBAgIUHlpQTLA+hgRV3iFxH987igJ//OwwDQYJKoZIhvcNAQEL
+BQAwGjEYMBYGA1UEAwwPZGV2LnhpYW9taS50ZXN0MCAXDTI2MTAxOTA5NTc1NVoY
+DzIxMjYwOTI1MDk1NzU1WjAaMRgwFgYDVQQDDA9kZXYueGlhb21pLnRlc3QwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAL1BhJgpRwYblivNVwLUsK5pyzPsZRvO
+4i3Ib8t8O4Zq1o7L0bMxOJQV6YFOHSHR43UuimbiXy/RyLr224xED8fpwYCJ7cZk
++vVHEGRyTrLcEjvJavLo6GniSew4tb/bU1Su2wQEAdGIkshVfz8kLF39CghfvZ6q
+0StJZthGS4GZAgMBAAGjUzBRMB0GA1UdDgQWBBRLhl8U4NT+Dqz6/zlVk4H39atG
+PzAfBgNVHSMEGDAWgBRLhl8U4NT+Dqz6/zlVk4H39atGPzAPBgNVHRMBAf8EBTAD
+AQH/MA0GCSqGSIb3DQEBCwUAA4GBAGCdEWMw/aKx/nyD1e9xzG7zOVSDrtYGj0Db
+UuHuYtASf4Gra9i/RfiGb98tQgh8rakmexyTg1Xj0fVLgWBXsaikzoWLnbS20OG0
+4hx+ugPy88en99mxEpbXcytR7jp6GkMSff9sH5pEgz0WTbq1iXi3CZGu+uWBbgtl
+oQVj85FB
+-----END CERTIFICATE-----`;
+
 interface SentMail {
   to: string;
   subject: string;
@@ -236,6 +252,40 @@ test("35, 36 the client adds Samsung Galaxy Store, and the team moves it along",
   await expect(own.getByRole("region", { name: "History" })).toContainText("Samsung Galaxy Store: In review");
 });
 
+test("42 the client adds Xiaomi GetApps, and the team marks it live", async () => {
+  await own.goto("/dashboard/publishing");
+  const more = own.getByRole("form", { name: "More Android stores" });
+  await expect(more.getByText("Xiaomi's app store, on Xiaomi, Redmi and POCO phones.")).toBeVisible();
+  await more.getByRole("checkbox", { name: /Xiaomi GetApps/ }).check();
+  await more.getByRole("button", { name: "Save stores" }).click();
+  await expect(own.getByRole("region", { name: "Xiaomi GetApps" })).toContainText("Waiting for you");
+  // Galaxy Store stays as it was.
+  await expect(own.getByRole("region", { name: "Samsung Galaxy Store" })).toContainText("Samsung is reviewing your app.");
+  const steps = own.getByRole("region", { name: "Your steps" });
+  await expect(steps.getByText("Create your Xiaomi developer account")).toBeVisible();
+  await expect(steps.getByText(`add ${teamEmail} as a member of your account who may manage your apps`)).toBeVisible();
+  await expect(steps.getByText("6 of 10 done")).toBeVisible();
+  await expect.poll(async () => (await mailsTo(teamEmail)).map((m) => m.subject)).toContain(`Publishing: ${client.name} asked us to publish their app on Xiaomi GetApps too`);
+
+  await admin.goto("/admin/publishing");
+  const card = admin.getByRole("region", { name: `Franklin Lab (${client.name})` });
+  await expect(card).toContainText("Give our team access to your Xiaomi developer account");
+  await card.getByLabel("Xiaomi GetApps status").selectOption("live");
+  await card.getByLabel("Xiaomi GetApps link").fill("https://play.google.com/store/apps/details?id=com.franklin");
+  await card.getByRole("button", { name: "Save Xiaomi GetApps" }).click();
+  await expect(card.getByText("A Xiaomi GetApps link starts with https://global.app.mi.com/ or https://app.mi.com/.")).toBeVisible();
+  await card.getByLabel("Xiaomi GetApps link").fill("https://global.app.mi.com/details?id=com.franklin");
+  await card.getByRole("button", { name: "Save Xiaomi GetApps" }).click();
+  await expect(card.getByText("Xiaomi GetApps is now “Live”. The client has been emailed.")).toBeVisible();
+  await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Franklin Lab on Xiaomi GetApps: Live");
+
+  await own.goto("/dashboard/publishing");
+  const xiaomi = own.getByRole("region", { name: "Xiaomi GetApps" });
+  await expect(xiaomi).toContainText("Your app is live on Xiaomi GetApps.");
+  await expect(xiaomi.getByRole("link", { name: "See it on Xiaomi GetApps" })).toHaveAttribute("href", "https://global.app.mi.com/details?id=com.franklin");
+  await expect(own.getByRole("region", { name: "History" })).toContainText("Xiaomi GetApps: Live");
+});
+
 test("a build that didn't finish says why, and Try again builds the same version", async ({ request }) => {
   const first = (await queued(request, "1.0.0"))!;
   await request.post(`/api/v1/builds/${first.id}/status`, { headers: pipeline, data: { status: "building", stages: { android: "running" }, log_url: "https://github.com/WEBEK-LTD/app-lms/actions/runs/7" } });
@@ -346,7 +396,7 @@ test("publishing yourself after all tells the team, and the setup's Publishing s
   await expect(own.getByRole("region", { name: "History" })).toContainText("You chose to publish your app yourself");
 });
 
-test("35, 36 More Android stores: Galaxy Store keys and Huawei push reach the next build", async ({ request }) => {
+test("35, 36, 42 More Android stores: Galaxy Store and Xiaomi GetApps keys and Huawei push reach the next build", async ({ request }) => {
   const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048, privateKeyEncoding: { type: "pkcs8", format: "pem" }, publicKeyEncoding: { type: "spki", format: "pem" } });
   const androidPackage = `com.franklin${suffix}.app`;
   await own.goto("/dashboard/publishing/more-stores");
@@ -387,6 +437,25 @@ test("35, 36 More Android stores: Galaxy Store keys and Huawei push reach the ne
   await expect(huawei.getByText("agconnect-services.json saved")).toBeVisible();
   await expect(huawei.getByLabel("App ID")).toHaveAttribute("placeholder", "104123456");
 
+  // 42 Xiaomi GetApps: a key that isn't a certificate is refused, then the keys and what's new.
+  const xiaomi = own.getByRole("region", { name: "Xiaomi GetApps" });
+  await xiaomi.getByLabel("Developer account email").fill("rosalind");
+  await xiaomi.getByLabel("API private key").fill("xiaomi-api-key-0123456789");
+  await xiaomi.getByLabel("Public certificate").setInputFiles({ name: "dev.api.public.cer", mimeType: "application/x-x509-ca-cert", buffer: Buffer.from(privateKey) });
+  await xiaomi.getByRole("button", { name: "Save Xiaomi GetApps keys" }).click();
+  await expect(xiaomi.getByText("Enter the email you sign in to the Xiaomi developer platform with.")).toBeVisible();
+  await expect(xiaomi.getByText("This isn't Xiaomi's public certificate.")).toBeVisible();
+  await xiaomi.getByLabel("Developer account email").fill("rosalind@lab.test");
+  await xiaomi.getByLabel("API private key").fill("xiaomi-api-key-0123456789");
+  await xiaomi.getByLabel("Public certificate").setInputFiles({ name: "dev.api.public.cer", mimeType: "application/x-x509-ca-cert", buffer: Buffer.from(XIAOMI_TEST_CERT) });
+  await xiaomi.getByLabel(/What's new/).fill("New lab sessions every week.");
+  await xiaomi.getByRole("button", { name: "Save Xiaomi GetApps keys" }).click();
+  await expect(xiaomi.getByText("Saved. Every new build is uploaded to Xiaomi GetApps and sent for review.")).toBeVisible();
+  await own.reload();
+  await expect(xiaomi.getByText("Xiaomi GetApps keys saved")).toBeVisible();
+  await expect(xiaomi.getByLabel(/What's new/)).toHaveValue("New lab sessions every week.");
+  await expect(own.locator("body")).not.toContainText("xiaomi-api-key-0123456789");
+
   // A new build: its config has the Huawei file, its keys the Galaxy Store ones.
   const queue = async () =>
     ((await (await request.get("/api/v1/builds/queue?limit=100", { headers: pipeline })).json()).builds as { id: string; app_id: string; stages: Record<string, string> }[]).filter(
@@ -400,7 +469,7 @@ test("35, 36 More Android stores: Galaxy Store keys and Huawei push reach the ne
   await expect(own.getByText(/Build #\d+ is queued\./)).toBeVisible();
   await expect(own.getByText("Upload to Galaxy Store").first()).toBeVisible();
   const [build] = await queue();
-  expect(build!.stages).toMatchObject({ upload_galaxy: "pending", upload_appgallery: "skipped" });
+  expect(build!.stages).toMatchObject({ upload_galaxy: "pending", upload_appgallery: "skipped", upload_xiaomi: "pending" });
   await request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "building" } });
   const config = await (await request.get(`/api/v1/builds/${build!.id}/config`, { headers: pipeline })).json();
   expect(config.huawei.agconnect_config_url).toMatch(/\/api\/v1\/assets\/[0-9a-f-]{36}$/);
@@ -409,9 +478,21 @@ test("35, 36 More Android stores: Galaxy Store keys and Huawei push reach the ne
   const keys = await (await request.get(`/api/v1/builds/${build!.id}/secrets`, { headers: pipeline })).json();
   expect(keys.galaxy_store).toEqual({ content_id: "000001234567", service_account_id: "sa-franklin-01", private_key: privateKey.trim() });
   expect(keys.huawei_appgallery).toBeNull();
+  expect(keys.xiaomi_getapps).toEqual({
+    user_name: "rosalind@lab.test",
+    password: "xiaomi-api-key-0123456789",
+    public_certificate: XIAOMI_TEST_CERT,
+    release_notes: "New lab sessions every week.",
+  });
 
-  // The pipeline reports the upload.
-  await request.post(`/api/v1/builds/${build!.id}/status`, { headers: pipeline, data: { status: "ready", stages: { android: "done", upload_galaxy: "done" } } });
+  // The pipeline reports the uploads: Xiaomi's didn't work, in plain words.
+  const xiaomiFailed = "The upload to Xiaomi GetApps didn't work. Xiaomi GetApps needs the first version submitted by hand in Xiaomi's developer console.";
+  await request.post(`/api/v1/builds/${build!.id}/status`, {
+    headers: pipeline,
+    data: { status: "ready", stages: { android: "done", upload_galaxy: "done", upload_xiaomi: "failed" }, message: xiaomiFailed },
+  });
   await own.goto("/dashboard/builds");
   await expect(own.getByText("Upload to Galaxy Store").first()).toBeVisible();
+  await expect(own.getByText("Upload to Xiaomi GetApps").first()).toBeVisible();
+  await expect(own.getByText(xiaomiFailed).first()).toBeVisible();
 });

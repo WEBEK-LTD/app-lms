@@ -14,6 +14,7 @@ import '../services/push_service.dart';
 import '../storage/local_settings.dart';
 import '../theme/app_icons.dart';
 import '../theme/app_theme.dart';
+import '../web/browser_frame.dart';
 import '../web/web_view.dart';
 import '../widgets/common.dart';
 import 'preview.dart';
@@ -23,7 +24,7 @@ import 'preview_widgets.dart';
 /// preview link in the page address from the platform it was opened from,
 /// keeps this app's browser storage apart from other apps' previews, and
 /// runs the same app as the installed one, without push notifications, web
-/// views or checkout.
+/// views (40: but for the video player) or checkout.
 Future<void> runPreview({Uri? address, Dio? http}) async {
   final page = address ?? Uri.base;
   final launch = PreviewLaunch.fromUri(page);
@@ -69,8 +70,12 @@ Future<void> runPreview({Uri? address, Dio? http}) async {
         tokenStoreProvider.overrideWithValue(
           PreferencesTokenStore(preferences),
         ),
+        // 40 Pages made to work in a browser frame (the lesson video
+        // player) show there; the rest need the installed app.
         webViewBuilderProvider.overrideWithValue(
-          (request) => PreviewWebViewPlaceholder(request: request),
+          (request) => request.browserFrame
+              ? BrowserFrame(request: request)
+              : PreviewWebViewPlaceholder(request: request),
         ),
       ],
       child: const YallappApp(),

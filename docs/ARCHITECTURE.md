@@ -111,6 +111,25 @@ Width always matches the content width. Height, in order of preference:
 Height is measured again on rotation and when the keyboard opens. Pages that
 refuse to be framed show an "Open" card that opens them full screen.
 
+### Videos on video sites
+
+A lesson video, a video in lesson text or a page's video block never shows
+where it is hosted (roadmap 40). YouTube (IFrame Player API), Vimeo (its
+player.js) and Bunny Stream (the Player.js protocol) play in a web view
+behind the app's own controls, the same as for uploaded files: the site's
+player loads with its controls, title, related videos and sharing turned
+off, three times as tall as the visible box so what it still draws along its
+edges falls outside it, under a transparent layer that takes every touch,
+and under the poster before it starts and after it ends. The page reports
+state, time and duration to the app over a JavaScript channel (watch
+tracking, resume, the watermark and the screen-capture cover work as for
+files) and takes play, pause, seek, speed, captions and quality commands.
+Wistia, Dailymotion and Loom keep their own player with the branding options
+they offer. In every video web view nothing may replace the page and frames
+may not load the sites' own pages or app links, so no tap opens the site,
+its app or a browser. The app preview shows the same player in a sandboxed
+frame.
+
 ## Flutter app
 
 ```
@@ -192,7 +211,8 @@ mobile/
   apply. Payment, when there is one, happens at the business; the app never
   takes payment for an appointment.
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
-  iOS) and a watermark with the student's phone number.
+  iOS) and a watermark with the student's phone number, also over videos
+  played from video sites.
 
 ## Platform (yallapp.com.tr)
 
@@ -967,6 +987,18 @@ without a new build. The app renders whatever the API sends.
   store's first version is published by hand. The keys are on the dashboard's
   Publishing › More Android stores page, encrypted like the other store keys,
   and `/builds/{id}/secrets` sends them only to builds whose plan uploads.
+- 42 Pro plan, optional: the APK to Xiaomi GetApps through the Xiaomi
+  developer platform's automatic publishing API (`build/scripts/xiaomi_getapps.py`):
+  `/dev/query` checks the app is on the store under the account and may take
+  an update, then one multipart `/dev/push` sends RequestData (the account
+  email, update type 1 and appInfo: the name on the store, the package, what's
+  new, the privacy link), the APK and the 512 px icon, which submits it.
+  Every request carries SIG: the MD5s of RequestData and each file with the
+  API private key, as JSON, encrypted with Xiaomi's public certificate (RSA,
+  PKCS#1 v1.5, in blocks) as hex. The keys (`apps.xiaomi_*`, the private key
+  encrypted with its own context, the certificate kept as PEM) are on the
+  same page; a push is never repeated, since a lost answer may still have
+  submitted the update.
 - 36 Huawei push: with the client's agconnect-services.json in the build
   config, the Android build includes `android/hms_push` (Huawei's Push Kit
   SDK) and the app's channel to it (`android/app/src/huawei`); builds without

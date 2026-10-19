@@ -4,10 +4,12 @@ import Link from "next/link";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
-import { Chip, Comparison, ContactBand, MoreLink, NumbersBand, Section, SectionTitle } from "@/components/marketing";
+import { StoreMarks, WorksWithStrip } from "@/components/brand-marks";
+import { Chip, Comparison, ContactBand, FeatureIcon, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { PlanCards } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
-import { COMPARISON, FEATURE_GROUPS, INTEGRATION_GROUPS, NUMBERS, numberWord, SOLUTIONS, STEPS, WORKS_WITH } from "@/lib/marketing";
+import { COMPARISON, FEATURE_GROUPS, INTEGRATION_GROUPS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
+import { APP_STORES } from "@/lib/stores";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { getContact } from "@/lib/contact";
@@ -42,50 +44,52 @@ export default async function LandingPage() {
       <JsonLdScript data={[organizationLd(base, { email: contact.email, whatsapp: contact.whatsappDisplay }), websiteLd(base), softwareLd(base, plans)]} />
       <main>
         <section className="overflow-hidden bg-ivory">
-          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-12 px-4 py-14 sm:px-6 sm:py-[72px]">
-            <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[22px]">
-              <span className="flex min-h-[30px] items-center self-start rounded-[15px] bg-peach px-3 py-1 text-[13px] font-bold">{text.badge}</span>
-              <h1 className="m-0 text-[38px] leading-[1.08] font-extrabold tracking-[-1px] sm:text-[52px]">{text.title}</h1>
-              <p className="m-0 max-w-[560px] text-lg leading-relaxed text-ink-4">{text.intro}</p>
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-12 gap-y-14 px-4 pt-12 pb-16 sm:px-6 sm:pt-[72px] sm:pb-24">
+            <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-6">
+              <span className="flex min-h-[32px] items-center gap-2 self-start rounded-full border border-line bg-white py-1 pr-3.5 pl-1.5 text-[13px] font-bold">
+                <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-peach">
+                  <Icon name="smartphone" size={15} />
+                </span>
+                {text.badge}
+              </span>
+              <h1 className="m-0 text-[40px] leading-[1.04] font-extrabold tracking-[-1.5px] text-balance sm:text-[60px] sm:tracking-[-2px]">{text.title}</h1>
+              <p className="m-0 max-w-[540px] text-lg leading-relaxed text-ink-4 sm:text-[19px]">{text.intro}</p>
               <div className="flex flex-wrap gap-3">
                 <a
                   href={contact.whatsappUrl}
-                  className="flex h-[52px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
+                  className="flex h-[54px] items-center gap-2.5 rounded-xl bg-midnight px-6 text-base font-bold text-white no-underline shadow-[0_12px_24px_-14px_rgba(14,13,36,0.6)] transition-colors hover:bg-ink-3 hover:text-white"
                 >
                   <Icon name="chat" size={20} />
                   {text.primaryCta}
                 </a>
                 <Link
                   href="/how-it-works"
-                  className="flex h-[52px] items-center rounded-xl border border-line-button bg-white px-[22px] text-base font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
+                  className="flex h-[54px] items-center gap-2 rounded-xl border border-line-button bg-white px-6 text-base font-semibold text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight"
                 >
                   {text.secondaryCta}
+                  <Icon name="arrow_forward" size={20} />
                 </Link>
+              </div>
+              {/* 41 The five stores, as marks. */}
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2.5 pt-1">
+                <span className="text-sm font-semibold text-muted">Publish to</span>
+                <StoreMarks stores={[...APP_STORES]} label="App stores Yallapp publishes to" size={18} />
               </div>
               <MoreLink href="/demo">Try a demo app on your phone</MoreLink>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted">
-                <span>Works with:</span>
-                {WORKS_WITH.map((name) => (
-                  <span key={name} className="font-semibold text-midnight">
-                    {name}
-                  </span>
-                ))}
-                <Link href="/integrations" className="font-semibold">
-                  and more
-                </Link>
-              </div>
             </div>
-            <div className="flex min-w-0 flex-[1_1_564px] items-end justify-center gap-4" aria-label="Yallapp apps" role="group">
-              <DeviceFrame screen="store-home" size="xs" className="hidden translate-y-6 md:flex" />
-              <DeviceFrame screen="academy-home" size="md" priority />
-              <DeviceFrame screen="bookings-services" size="xs" className="hidden translate-y-6 md:flex" />
+            <div className="relative flex min-w-0 flex-[1_1_520px] items-end justify-center gap-4" aria-label="Yallapp apps" role="group">
+              <span aria-hidden="true" className="absolute inset-x-[6%] top-[14%] bottom-[-6%] rounded-[40px] bg-peach" />
+              <DeviceFrame screen="store-home" size="xs" className="relative hidden translate-y-6 md:flex" />
+              <DeviceFrame screen="academy-home" size="md" priority className="relative" />
+              <DeviceFrame screen="bookings-services" size="xs" className="relative hidden translate-y-6 md:flex" />
             </div>
           </div>
         </section>
 
-        <section aria-label="Yallapp in numbers" className="bg-white">
-          <div className="mx-auto max-w-[1160px] px-4 pt-12 pb-2 sm:px-6 sm:pt-14">
-            <NumbersBand numbers={NUMBERS} />
+        {/* 41 The brands Yallapp works with, in place of the numbers strip. */}
+        <section aria-labelledby="works-with-title" className="border-b border-line-soft bg-white py-14 sm:py-16">
+          <div className="mx-auto max-w-[1280px]">
+            <WorksWithStrip />
           </div>
         </section>
 
@@ -96,11 +100,9 @@ export default async function LandingPage() {
               <Link
                 key={s.id}
                 href={`/solutions/${s.id}`}
-                className="group flex flex-col gap-4 overflow-hidden rounded-2xl border border-line bg-white p-6 text-midnight no-underline hover:border-midnight hover:text-midnight"
+                className="group flex flex-col gap-4 overflow-hidden rounded-2xl border border-line bg-white p-6 text-midnight no-underline transition-[border-color,box-shadow,translate] duration-200 hover:-translate-y-0.5 hover:border-midnight hover:text-midnight hover:shadow-[0_24px_40px_-28px_rgba(14,13,36,0.4)]"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ivory">
-                  <Icon name={s.icon} size={26} />
-                </span>
+                <FeatureIcon name={s.icon} />
                 <span className="flex flex-col gap-1.5">
                   <span className="text-xl font-bold">{s.name}</span>
                   <span className="text-[15px] leading-relaxed text-ink-4">{s.summary}</span>
@@ -120,8 +122,8 @@ export default async function LandingPage() {
           <SectionTitle title={text.featuresTitle!} text={text.featuresText} />
           <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
             {features.map((feature) => (
-              <div key={feature.title} className="flex flex-col gap-2.5 rounded-2xl border border-line p-6">
-                <Icon name={feature.icon} size={28} />
+              <div key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 transition-colors duration-200 hover:border-line-strong">
+                <FeatureIcon name={feature.icon} />
                 <h3 className="m-0 text-lg font-bold">{feature.title}</h3>
                 <p className="m-0 text-[15px] leading-relaxed text-ink-4">{feature.text}</p>
               </div>
@@ -142,9 +144,9 @@ export default async function LandingPage() {
           <SectionTitle title={text.integrationsTitle!} text={text.integrationsText} />
           <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
             {INTEGRATION_GROUPS.slice(0, 3).map((group) => (
-              <div key={group.id} className="flex flex-col gap-3.5 rounded-2xl border border-line bg-white p-6">
-                <span className="flex items-center gap-2.5">
-                  <Icon name={group.icon} size={24} />
+              <div key={group.id} className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
+                <span className="flex items-center gap-3">
+                  <FeatureIcon name={group.icon} />
                   <h3 className="m-0 text-lg font-bold">{group.title}</h3>
                 </span>
                 <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
@@ -198,7 +200,7 @@ export default async function LandingPage() {
                 ) : null}
                 <span className="relative flex h-16 w-16 flex-none items-center justify-center rounded-full bg-midnight text-white">
                   <Icon name={step.icon} size={28} />
-                  <span className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-ember text-sm font-extrabold text-midnight ring-[3px] ring-white">
+                  <span className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-ember text-sm font-extrabold text-[#0e0d24] ring-[3px] ring-white">
                     {index + 1}
                   </span>
                 </span>

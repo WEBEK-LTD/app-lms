@@ -537,5 +537,91 @@ if ( $expect['certificate'] ) {
 	check( 'certificates still 200', 200 === $r['status'], $r['raw'] );
 }
 
+if ( 'learnpress' === $lms_id ) {
+	/**
+	 * 39 Whether the app opens the paid course's locked lesson (and lists the course).
+	 */
+	function lp_opens( $token, $course_id, $lesson_id ) {
+		$lesson = call( 'GET', '/lessons/' . $lesson_id, null, $token );
+		$mine   = call( 'GET', '/me/courses', null, $token );
+		$page   = call( 'GET', '/courses/' . $course_id . '?platform=android', null, $token );
+		return array(
+			'lesson' => $lesson['status'],
+			'listed' => in_array( $course_id, array_map( function ( $i ) { return $i['course']['id']; }, $mine['json']['items'] ?? array() ), true ),
+			'action' => $page['json']['purchase']['action'] ?? '',
+		);
+	}
+
+	/**
+	 * 39 An LP order for a course, as LearnPress's checkout (or the admin, "manual") makes it.
+	 */
+	function lp_order( $user_id, $course_id, $status, $via = 'checkout' ) {
+		return (int) wp_eval(
+			'$o = new LP_Order(); $o->set_user_id( ' . (int) $user_id . ' ); $o->set_created_via( "' . $via . '" ); $o->save(); $o->add_item( ' . (int) $course_id . ' ); $o->update_status( "' . $status . '" ); echo $o->get_id();'
+		);
+	}
+
+	$locked  = $seed['design_locked'];
+	$blocked = array( 'lesson' => 403, 'listed' => false, 'action' => 'checkout' );
+	$open    = array( 'lesson' => 200, 'listed' => true, 'action' => 'continue' );
+
+	echo "Paid course bought with LearnPress's checkout (39)\n";
+	$buyer    = sign_up( 'Hana Fouad' );
+	$buyer_t  = $buyer['json']['access_token'] ?? '';
+	$buyer_id = (int) ( $buyer['json']['user']['id'] ?? 0 );
+	$order    = lp_order( $buyer_id, $seed['design'], 'pending' );
+	check( 'pending order: no access, can still buy', $blocked === lp_opens( $buyer_t, $seed['design'], $locked ), lp_opens( $buyer_t, $seed['design'], $locked ) );
+	$r = call( 'GET', '/me/orders', null, $buyer_t );
+	check( 'pending order listed', 'pending' === ( $r['json']['items'][0]['status'] ?? '' ) && $seed['design'] === ( $r['json']['items'][0]['items'][0]['course_id'] ?? 0 ), $r['raw'] );
+	wp_eval( 'learn_press_get_order( ' . $order . ' )->update_status( "completed" );' );
+	check( 'completed order: listed, every lesson opens', $open === lp_opens( $buyer_t, $seed['design'], $locked ), lp_opens( $buyer_t, $seed['design'], $locked ) );
+	$r = call( 'POST', '/lessons/' . $locked . '/complete', array(), $buyer_t );
+	check( 'completed order: lessons complete', 200 === $r['status'], $r['raw'] );
+	// LearnPress blocks a course once its duration is over when the course says so.
+	$lp_course_meta = function ( $duration, $block ) use ( $seed ) {
+		// As the course editor saves it: post meta and LearnPress's course cache.
+		wp_eval( 'wp_set_current_user( 1 ); $c = LearnPress\\Models\\CourseModel::find( ' . (int) $seed['design'] . ', true ); foreach ( array( "_lp_duration" => "' . $duration . '", "_lp_block_expire_duration" => "' . $block . '" ) as $k => $v ) { update_post_meta( $c->get_id(), $k, $v ); $c->meta_data->$k = $v; } $c->save(); wp_cache_flush();' );
+	};
+	$lp_course_meta( '1 day', 'yes' );
+	wp_eval( 'global $wpdb; $wpdb->update( $wpdb->prefix . "learnpress_user_items", array( "start_time" => gmdate( "Y-m-d H:i:s", time() - 3 * DAY_IN_SECONDS ) ), array( "user_id" => ' . $buyer_id . ', "item_id" => ' . (int) $seed['design'] . ' ) ); wp_cache_flush();' );
+	$r = call( 'GET', '/lessons/' . $locked, null, $buyer_t );
+	check( 'duration over and blocked: lessons refused', 403 === $r['status'], $r['raw'] );
+	$lp_course_meta( '10 week', 'no' );
+	$r = call( 'GET', '/lessons/' . $locked, null, $buyer_t );
+	check( 'no time limit: lessons open again', 200 === $r['status'], $r['raw'] );
+	wp_eval( 'learn_press_get_order( ' . $order . ' )->update_status( "refunded" );' );
+	check( 'refunded order: no access', $blocked === lp_opens( $buyer_t, $seed['design'], $locked ), lp_opens( $buyer_t, $seed['design'], $locked ) );
+
+	echo "Bought without LearnPress's auto start (39)\n";
+	wp_eval( 'update_option( "learn_press_auto_enroll", "no" );' );
+	$late    = sign_up( 'Yara Samir' );
+	$late_t  = $late['json']['access_token'] ?? '';
+	$late_id = (int) ( $late['json']['user']['id'] ?? 0 );
+	lp_order( $late_id, $seed['design'], 'completed' );
+	check( 'bought, not started: LearnPress says purchased', 'purchased' === wp_eval( 'global $wpdb; echo $wpdb->get_var( "SELECT status FROM {$wpdb->prefix}learnpress_user_items WHERE user_id = ' . $late_id . ' AND item_id = ' . (int) $seed['design'] . ' ORDER BY user_item_id DESC LIMIT 1" );' ) );
+	check( 'bought, not started: listed, opens, and the course starts', $open === lp_opens( $late_t, $seed['design'], $locked ), lp_opens( $late_t, $seed['design'], $locked ) );
+	check( 'the course is started the way "Start now" does it', 'enrolled' === wp_eval( 'global $wpdb; echo $wpdb->get_var( "SELECT status FROM {$wpdb->prefix}learnpress_user_items WHERE user_id = ' . $late_id . ' AND item_id = ' . (int) $seed['design'] . ' ORDER BY user_item_id DESC LIMIT 1" );' ) );
+	wp_eval( 'update_option( "learn_press_auto_enroll", "yes" );' );
+
+	echo "The admin assigns the course (39)\n";
+	$given    = sign_up( 'Salma Adel' );
+	$given_t  = $given['json']['access_token'] ?? '';
+	$given_id = (int) ( $given['json']['user']['id'] ?? 0 );
+	// LearnPress > Tools > Assign course, as its REST handler (assign_courses_to_users) does it.
+	wp_eval(
+		'LP_User_Items_DB::getInstance()->delete_user_items_old( ' . $given_id . ', ' . (int) $seed['design'] . ' );'
+		. ' $m = new LearnPress\Models\UserItems\UserCourseModel(); $m->user_id = ' . $given_id . '; $m->item_id = ' . (int) $seed['design'] . '; $m->item_type = LP_COURSE_CPT; $m->ref_type = ""; $m->status = LP_COURSE_ENROLLED; $m->graduation = LP_COURSE_GRADUATION_IN_PROGRESS; $m->start_time = gmdate( LP_Datetime::$format, time() ); $m->save();'
+		. ' do_action( "learn-press/assigned-course-to-user", $m );'
+	);
+	check( 'assigned: listed, every lesson opens', $open === lp_opens( $given_t, $seed['design'], $locked ), lp_opens( $given_t, $seed['design'], $locked ) );
+	// A manual order the admin completes (LearnPress > Orders > Add new).
+	$manual = sign_up( 'Mariam Tarek' );
+	lp_order( (int) ( $manual['json']['user']['id'] ?? 0 ), $seed['design'], 'completed', 'manual' );
+	check( 'manual order: listed, every lesson opens', $open === lp_opens( $manual['json']['access_token'] ?? '', $seed['design'], $locked ), lp_opens( $manual['json']['access_token'] ?? '', $seed['design'], $locked ) );
+	// Tools > Unassign course.
+	wp_eval( 'LP_User_Items_DB::getInstance()->delete_user_items_old( ' . $given_id . ', ' . (int) $seed['design'] . ' );' );
+	check( 'unassigned: no access', $blocked === lp_opens( $given_t, $seed['design'], $locked ), lp_opens( $given_t, $seed['design'], $locked ) );
+}
+
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

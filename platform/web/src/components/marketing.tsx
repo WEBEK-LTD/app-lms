@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { IconName } from "./icon-names";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
 import { Icon } from "./icon";
@@ -27,13 +28,13 @@ export function MarketingPage({
       <SiteHeader current={current} />
       <main>
         <section className="bg-ivory">
-          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-10 px-4 py-14 sm:px-6 sm:py-16">
-            <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-4">
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-10 px-4 py-14 sm:px-6 sm:py-20">
+            <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-5">
               {eyebrow ? (
-                <span className="flex h-[30px] items-center self-start rounded-[15px] bg-peach px-3 text-[13px] font-bold">{eyebrow}</span>
+                <span className="flex h-[30px] items-center self-start rounded-full border border-line bg-white px-3.5 text-[13px] font-bold">{eyebrow}</span>
               ) : null}
-              <h1 className="m-0 max-w-[760px] text-[34px] leading-[1.1] font-extrabold tracking-[-1px] sm:text-[46px]">{title}</h1>
-              <p className="m-0 max-w-[640px] text-lg leading-relaxed text-ink-4">{intro}</p>
+              <h1 className="m-0 max-w-[780px] text-[36px] leading-[1.06] font-extrabold tracking-[-1.2px] text-balance sm:text-[50px] sm:tracking-[-1.6px]">{title}</h1>
+              <p className="m-0 max-w-[640px] text-lg leading-relaxed text-ink-4 sm:text-[19px]">{intro}</p>
             </div>
             {aside ? <div className="flex min-w-0 flex-[1_1_300px] justify-center">{aside}</div> : null}
           </div>
@@ -63,7 +64,7 @@ export function Section({
 }) {
   return (
     <section id={id} aria-label={label} className={`scroll-mt-4 ${tinted ? "bg-ivory" : ""}`}>
-      <div className={`mx-auto flex flex-col gap-9 px-4 py-14 sm:px-6 sm:py-20 ${narrow ? "max-w-[820px]" : "max-w-[1160px]"}`}>{children}</div>
+      <div className={`mx-auto flex flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24 ${narrow ? "max-w-[820px]" : "max-w-[1160px]"}`}>{children}</div>
     </section>
   );
 }
@@ -72,8 +73,8 @@ export function SectionTitle({ title, text, eyebrow }: { title: string; text?: s
   return (
     <div className="flex max-w-[680px] flex-col gap-2.5">
       {eyebrow ? <span className="text-[13px] font-bold tracking-[1px] text-accent uppercase">{eyebrow}</span> : null}
-      <h2 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">{title}</h2>
-      {text ? <p className="m-0 text-[17px] leading-relaxed text-ink-4">{text}</p> : null}
+      <h2 className="m-0 text-[28px] leading-[1.12] font-extrabold tracking-[-0.6px] text-balance sm:text-[38px] sm:tracking-[-1px]">{title}</h2>
+      {text ? <p className="m-0 text-[17px] leading-relaxed text-ink-4 sm:text-lg">{text}</p> : null}
     </div>
   );
 }
@@ -81,9 +82,9 @@ export function SectionTitle({ title, text, eyebrow }: { title: string; text?: s
 /** "Learn more" link under a teaser. */
 export function MoreLink({ href, children }: { href: string; children: string }) {
   return (
-    <Link href={href} className="flex items-center gap-1.5 self-start text-base font-bold text-midnight no-underline hover:underline">
+    <Link href={href} className="group flex items-center gap-1.5 self-start text-base font-bold text-midnight no-underline hover:text-midnight hover:underline">
       {children}
-      <Icon name="arrow_forward" size={20} />
+      <Icon name="arrow_forward" size={20} className="transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
 }
@@ -94,9 +95,9 @@ export async function ContactBand() {
   const text = await getSiteContent("contact-band");
   return (
     <section className="on-dark bg-night-2 text-white">
-      <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-6 px-4 py-12 sm:px-6">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">{text.title}</h2>
+      <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-8 px-4 py-14 sm:px-6 sm:py-16">
+        <div className="flex max-w-[620px] flex-col gap-2.5">
+          <h2 className="m-0 text-[28px] leading-tight font-extrabold tracking-[-0.6px] text-balance sm:text-[32px]">{text.title}</h2>
           <p className="m-0 text-base text-night-text">{text.text}</p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -116,25 +117,6 @@ export async function ContactBand() {
         </div>
       </div>
     </section>
-  );
-}
-
-/** 32 The true numbers about Yallapp, as one strip: a big figure and a short label each. */
-export function NumbersBand({ numbers }: { numbers: { value: string; label: string }[] }) {
-  return (
-    <ul className="m-0 grid list-none grid-cols-2 gap-px overflow-hidden rounded-[20px] border border-line bg-line p-0 sm:grid-cols-5">
-      {numbers.map((n, i) => (
-        <li
-          key={n.label}
-          className={`flex flex-col items-center justify-center gap-1 bg-white px-4 py-6 text-center sm:py-7 ${
-            i === numbers.length - 1 && numbers.length % 2 === 1 ? "col-span-2 sm:col-span-1" : ""
-          }`}
-        >
-          <span className="text-[40px] leading-none font-extrabold tracking-[-1px] sm:text-[46px]">{n.value}</span>
-          <span className="text-[15px] font-semibold text-ink-4">{n.label}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 
@@ -195,4 +177,13 @@ export function CheckList({ items, className = "" }: { items: string[]; classNam
 /** A small rounded label, like an app type on an integration. */
 export function Chip({ children }: { children: ReactNode }) {
   return <span className="inline-flex items-center rounded-full bg-ivory px-2.5 py-0.5 text-xs font-bold text-ink-3">{children}</span>;
+}
+
+/** 41 The icon tile on cards: one size everywhere (a 48 px tile, a 26 px symbol). */
+export function FeatureIcon({ name }: { name: IconName }) {
+  return (
+    <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-peach text-midnight">
+      <Icon name={name} size={26} />
+    </span>
+  );
 }

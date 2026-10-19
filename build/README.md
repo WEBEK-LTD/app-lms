@@ -30,9 +30,15 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    - **Pro, 36:** with the client's AppGallery Connect API client, uploads
      the APK to Huawei AppGallery and submits it for review
      (`scripts/appgallery.py`, AppGallery Connect Publishing API).
-   - Both stores get the APK, signed with the app's upload key: an App
-     Bundle would need the store to manage the signing key. A failed upload
-     to either store leaves the build `ready` with a message for the client.
+   - **Pro, 42:** with the client's Xiaomi keys, checks the app on Xiaomi
+     GetApps and uploads the APK with the 512 px icon and what's new, which
+     submits it for review (`scripts/xiaomi_getapps.py`, the Xiaomi developer
+     platform's automatic publishing API). A push whose answer is lost isn't
+     sent again.
+   - These stores get the APK, signed with the app's upload key: an App
+     Bundle would need the store to manage the signing key (Xiaomi's API has
+     no field for one). A failed upload to any of them leaves the build
+     `ready` with a message for the client.
 4. **iOS** (macOS), per build, only when the client added an App Store Connect
    key:
    - Registers the App ID (with push when the app has Firebase).
@@ -132,6 +138,11 @@ and the team publishes from the admin's Publishing page.
   the app secret in the dashboard (every plan: push on Huawei phones). On Pro,
   submit the first APK by hand, then add a Connect API client (App
   administrator role) for the uploads.
+- **Xiaomi GetApps (Pro, optional):** add the app on the Xiaomi developer
+  platform and submit the first APK by hand; the automatic publishing API only
+  updates apps already there. Then enter the account's email, the API private
+  key and Xiaomi's public certificate from its automatic publishing page in
+  the dashboard (Publishing › More Android stores).
 
 ## Files
 
@@ -142,6 +153,7 @@ and the team publishes from the admin's Publishing page.
 | `scripts/upload.sh` | Uploads files over FTPS and prints their artifact list |
 | `scripts/galaxy_store.py` | Uploads the APK to Samsung Galaxy Store and submits it (35) |
 | `scripts/appgallery.py` | Uploads the APK to Huawei AppGallery and submits it (36) |
+| `scripts/xiaomi_getapps.py` | Uploads the APK to Xiaomi GetApps, which submits it (42) |
 | `scripts/report.py` | Sends the final status |
 | `scripts/make_icons.py` | Writes launcher icons from the client's 1024 px icon |
 | `scripts/store_assets.py` | Packs the store assets zip: icons, feature graphic, screenshots, listing |

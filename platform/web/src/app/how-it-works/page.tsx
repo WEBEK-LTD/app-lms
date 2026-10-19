@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import { StoreMarks } from "@/components/brand-marks";
 import { BrowserFrame, DASHBOARD_PATHS } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { CheckList, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
 import { numberWord, REQUIREMENTS, STEPS } from "@/lib/marketing";
+import { APP_STORES } from "@/lib/stores";
 
 export const metadata: Metadata = pageMetadata({
   title: "How it works",
-  description: `From sign-up to Google Play and the App Store in ${numberWord(STEPS.length)} steps, with your website, an online platform, your own API or no website at all.`,
+  description: `From sign-up to Google Play, the App Store, Galaxy Store, AppGallery and GetApps in ${numberWord(STEPS.length)} steps, with your website, an online platform, your own API or no website at all.`,
   path: "/how-it-works",
 });
 
@@ -19,12 +21,14 @@ export default async function HowItWorksPage() {
       <Section>
         <ol className="m-0 flex list-none flex-col gap-5 p-0">
           {STEPS.map((step, index) => (
-            <li key={step.title} className="flex flex-wrap gap-5 rounded-2xl border border-line p-6 sm:p-7">
-              <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-midnight text-lg font-bold text-white">{index + 1}</span>
+            <li key={step.title} className="flex flex-wrap gap-5 rounded-2xl border border-line bg-white p-6 transition-colors duration-200 hover:border-line-strong sm:p-7">
+              <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-midnight text-lg font-extrabold text-white">{index + 1}</span>
               <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-2.5">
                 <h2 className="m-0 text-xl font-bold">{step.title}</h2>
                 <p className="m-0 text-[15px] leading-relaxed text-ink-4">{step.text}</p>
                 <CheckList items={step.details} />
+                {/* 41 The last step ends on the stores. */}
+                {index === STEPS.length - 1 ? <StoreMarks stores={[...APP_STORES]} label="App stores Yallapp publishes to" size={18} className="pt-1" /> : null}
               </div>
             </li>
           ))}

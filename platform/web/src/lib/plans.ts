@@ -1,5 +1,6 @@
 import type { IconName } from "@/components/icon-names";
 import type { CatalogCurrency } from "./data/types";
+import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
 
 /**
  * Yallapp's plans (roadmap 9.2 and 13.1): four tiers, each with features and
@@ -97,6 +98,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1 },
     highlights: [
       "Android app (APK & AAB)",
+      "For Google Play, Galaxy Store, AppGallery and GetApps",
       "1 connected platform",
       "Up to 1,000 app users",
       "1 app language",
@@ -143,7 +145,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
       "Everything in Growth",
       "Unlimited app users",
       "All app languages",
-      "We publish to Google Play & App Store",
+      "We publish to all five app stores",
       "Automatic store updates",
       "Priority support",
     ],
@@ -178,7 +180,7 @@ export interface PlanFeatureDef {
 }
 
 export const PLAN_FEATURES: PlanFeatureDef[] = [
-  { id: "ios", label: "iOS app", description: "Your app on the App Store as well as Google Play.", enforced: "Builds skip iOS and the pipeline gets no App Store key." },
+  { id: "ios", label: "iOS app", description: "Your app on the App Store as well as the Android stores.", enforced: "Builds skip iOS and the pipeline gets no App Store key." },
   { id: "push", label: "Push notifications", description: "Send notifications to your app users' phones.", enforced: "Config features.push, the plugin's license, the Notifications page." },
   {
     id: "offline_downloads",
@@ -207,7 +209,7 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   {
     id: "auto_publish",
     label: "We publish for you",
-    description: "We upload your apps and every update to Google Play and the App Store.",
+    description: `We upload your apps and every update to ${ALL_STORES_TEXT}.`,
     enforced: "Builds' auto_publish and the Publishing step's store keys.",
   },
 ];
@@ -339,6 +341,21 @@ export function planLimitLines(plan: PlanInfo): { icon: IconName; text: string }
   ];
 }
 
+/**
+ * 41 The stores an app on the plan can be on, and who publishes there: the
+ * Android stores on every plan, the App Store with the iOS app; with "We
+ * publish for you" Yallapp uploads every build to each of them.
+ */
+export function planStores(plan: Pick<PlanInfo, "features">): { stores: AppStore[]; publisher: "you" | "us" } {
+  return { stores: storesFor(hasFeature(plan, "ios")), publisher: hasFeature(plan, "auto_publish") ? "us" : "you" };
+}
+
+/** 41 "5 app stores · We publish for you": the caption under a plan card's store marks. */
+export function planStoresLine(plan: Pick<PlanInfo, "features">): string {
+  const { stores, publisher } = planStores(plan);
+  return `${stores.length} app stores · ${publisher === "us" ? "We publish for you" : "You publish with our guides"}`;
+}
+
 /** "1,000", or the limit's word for unlimited. */
 export function formatLimit(value: number | null, unlimited = "Unlimited"): string {
   return value === null ? unlimited : new Intl.NumberFormat("en-US").format(value);
@@ -349,6 +366,8 @@ export type ComparisonValue = boolean | string;
 export interface ComparisonRow {
   label: string;
   values: Record<Plan, ComparisonValue>;
+  /** 41 A store's row, shown with its mark. */
+  store?: AppStore;
 }
 
 /** The pricing page's comparison table, from the plans as the team set them. */
@@ -359,6 +378,8 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
   return [
     { label: "Android app", values: each(() => true) },
     { label: "iOS app", values: has("ios") },
+    // 41 One row per store, with its mark on the pricing page.
+    ...APP_STORES.map((id): ComparisonRow => ({ label: STORE_FACTS[id].name, store: id, values: each((p) => planStores(p).stores.includes(id)) })),
     { label: "Connected platforms", values: each((p) => formatLimit(p.limits.sources, "All")) },
     { label: "App users", values: each((p) => formatLimit(p.limits.appUsers)) },
     { label: "App languages", values: each((p) => formatLimit(p.limits.languages, "All")) },

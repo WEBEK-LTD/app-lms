@@ -126,16 +126,18 @@ fi
 
 # 35, 36 Samsung Galaxy Store and Huawei AppGallery: the APK (signed with the upload key),
 # only on plans with "We publish for you" and with the client's keys (the secrets send
-# null otherwise). The first version of each is published by hand.
-store_upload() { # stage script secrets-key failure-message
+# null otherwise). The first version of each is published by hand. 42 Xiaomi GetApps
+# the same way, with the build config, the 512 px icon and the store listing too.
+store_upload() { # stage script secrets-key failure-message [more script arguments]
 	local stage=$1 script=$2 key=$3 failure=$4 has
+	shift 4
 	has=$(python3 -c 'import json,sys; print("yes" if json.load(open(sys.argv[1])).get(sys.argv[2]) else "no")' "$WORK/secrets.json" "$key")
 	if [ "$AUTO_PUBLISH" != "true" ] || [ "$has" != "yes" ]; then
 		echo skipped
 		return
 	fi
 	platform status "$BUILD_ID" "{\"stages\":{\"$stage\":\"running\"}}" >&2
-	if python3 "$SCRIPTS/$script" "$WORK/secrets.json" "$APK" >&2; then
+	if python3 "$SCRIPTS/$script" "$WORK/secrets.json" "$APK" "$@" >&2; then
 		echo "done"
 	else
 		MESSAGE="${MESSAGE:+$MESSAGE }$failure"
@@ -149,7 +151,15 @@ store_upload upload_galaxy galaxy_store.py galaxy_store "$GALAXY_FAILED" > "$WOR
 GALAXY=$(cat "$WORK/galaxy.stage")
 store_upload upload_appgallery appgallery.py huawei_appgallery "$APPGALLERY_FAILED" > "$WORK/appgallery.stage"
 APPGALLERY=$(cat "$WORK/appgallery.stage")
+# 42 Xiaomi wants the icon with every update: the 512 px one from the store assets.
+XIAOMI_ICON="$WORK/xiaomi-icon.png"
+if [ -f "$WORK/store-assets.zip" ]; then
+	python3 -c 'import sys,zipfile; open(sys.argv[2],"wb").write(zipfile.ZipFile(sys.argv[1]).read("google-play/icon-512.png"))' "$WORK/store-assets.zip" "$XIAOMI_ICON" || rm -f "$XIAOMI_ICON"
+fi
+XIAOMI_FAILED="The upload to Xiaomi GetApps didn't work. Xiaomi GetApps needs the first version submitted by hand in Xiaomi's developer console, and no other update in review; download the APK below and see the Xiaomi GetApps guide."
+store_upload upload_xiaomi xiaomi_getapps.py xiaomi_getapps "$XIAOMI_FAILED" "$WORK/config.json" "$XIAOMI_ICON" "$WORK/store.json" > "$WORK/xiaomi.stage"
+XIAOMI=$(cat "$WORK/xiaomi.stage")
 
-STAGES="{\"android\":\"done\",\"upload_play\":\"$PLAY\",\"upload_galaxy\":\"$GALAXY\",\"upload_appgallery\":\"$APPGALLERY\"}"
+STAGES="{\"android\":\"done\",\"upload_play\":\"$PLAY\",\"upload_galaxy\":\"$GALAXY\",\"upload_appgallery\":\"$APPGALLERY\",\"upload_xiaomi\":\"$XIAOMI\"}"
 result "$STAGES" "$ARTIFACTS" "$MESSAGE"
 platform status "$BUILD_ID" "{\"stages\":$STAGES}"

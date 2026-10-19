@@ -248,7 +248,13 @@ class FakeApi implements YallappApi {
     int lessonId, {
     required int positionSeconds,
     required double watchedPercent,
-  }) => _answer('saveLessonProgress', () {});
+  }) => _answer(
+    'saveLessonProgress',
+    () => savedProgress.add((positionSeconds, watchedPercent)),
+  );
+
+  /// 40 Every progress report: position in seconds and watched percent.
+  final savedProgress = <(int, double)>[];
 
   @override
   Future<Progress> completeLesson(int lessonId) => _answer(

@@ -48,7 +48,7 @@ describe("the “Publish it for me” checklist", () => {
     expect(canUseManagedPublishing(null)).toBe(false);
   });
 
-  it("links only to Google's, Apple's, Firebase's, Samsung's and Huawei's own pages, and never asks for a password", () => {
+  it("links only to Google's, Apple's, Firebase's, Samsung's, Huawei's and Xiaomi's own pages, and never asks for a password", () => {
     const hosts = new Set(PUBLISHING_STEPS.flatMap((s) => s.links.map((l) => new URL(l.href).hostname)));
     for (const host of hosts) {
       expect([
@@ -62,6 +62,9 @@ describe("the “Publish it for me” checklist", () => {
         "seller.samsungapps.com",
         "developer.samsung.com",
         "developer.huawei.com",
+        // 42
+        "dev.mi.com",
+        "global.developer.mi.com",
       ]).toContain(host);
     }
     for (const step of PUBLISHING_STEPS) {

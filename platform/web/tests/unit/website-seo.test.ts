@@ -8,8 +8,7 @@ import { COMPANY_PLACE, legalLine } from "@/lib/company";
 import { contentPage } from "@/lib/content/site";
 import { parseMarkdown } from "@/lib/content/markdown";
 import { EMAIL_TEMPLATES } from "@/lib/email/templates";
-import { countAtLeast, FAQ, INTEGRATION_COUNTS, NUMBERS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
-import { BLOCK_TYPES, LANGUAGE_CODES } from "@/lib/pages/types";
+import { countAtLeast, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { PLAN_INFO, planLimitLines, plansWith } from "@/lib/plans";
 import {
   blocksText,
@@ -72,23 +71,13 @@ describe("32 the company details", () => {
   });
 });
 
-describe("32 the home page's texts and numbers", () => {
+describe("32 the home page's texts and counts", () => {
   it("counts from the registries, not from words in the text", () => {
     expect(numberWord(10)).toBe("ten");
     expect(numberWord(5)).toBe("five");
     expect(numberWord(42)).toBe("42");
     expect(countAtLeast(23)).toBe("20+");
     expect(countAtLeast(7)).toBe("7");
-    expect(NUMBERS).toEqual([
-      { value: String(KINDS.length), label: "app types" },
-      { value: countAtLeast(INTEGRATION_COUNTS.plugins + INTEGRATION_COUNTS.platforms), label: "integrations" },
-      { value: String(LANGUAGE_CODES.length), label: "app languages" },
-      { value: "2", label: "app stores" },
-      { value: String(BLOCK_TYPES.length), label: "page blocks" },
-    ]);
-    // Short labels only: no lists, no template names.
-    for (const n of NUMBERS) expect(n.label.split(" ").length).toBeLessThanOrEqual(4);
-    expect(NUMBERS.map((n) => n.label).join(" ")).not.toMatch(/Classic|Bold|Minimal|template/);
     expect(INTEGRATION_COUNTS).toEqual({ plugins: 11, platforms: 10 });
   });
 

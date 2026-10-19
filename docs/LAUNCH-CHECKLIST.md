@@ -107,6 +107,9 @@ devices. Everything else is in the code. Tick each line when it's done.
       manager for applications).
 - [ ] 36 A HUAWEI ID for the publishing team email, so we can join clients'
       AppGallery Connect teams (App administrator and Operations roles).
+- [ ] 42 A Xiaomi account (and developer account) for the publishing team
+      email, so clients can add it as a member who manages their apps on the
+      Xiaomi developer platform.
 
 ## 5. Demo apps on yallapp.com.tr/demo (Phase 16)
 
@@ -215,8 +218,8 @@ Nothing to set on Netlify: the preview is served from the site's own files
 
 ## 7d. WordPress apps follow their type (Phase 30)
 
-- [ ] **Release plugin 0.4.0** (Admin › App & plugin versions; it
-      includes 0.3.8) with the changelog from `wp-plugin/yallapp/readme.txt`.
+- [ ] **Release plugin 0.4.1** (Admin › App & plugin versions; it
+      includes 0.3.8 and 0.4.0) with the changelog from `wp-plugin/yallapp/readme.txt`.
       Clients whose app type
       doesn't match the plugins on their site need it for the right tabs and
       home, and the dashboard needs it to say what their site runs.
@@ -236,6 +239,20 @@ Nothing to set on Netlify: the preview is served from the site's own files
 - [ ] Before telling clients: one real Galaxy Store update and one real
       AppGallery update through the pipeline (section 8), and one push to a
       Huawei phone without Google Play from the hosted API and from WordPress.
+
+## 7f. Xiaomi GetApps (Phase 42)
+
+- [ ] Apply migration `0034_xiaomi_getapps.sql` (the Xiaomi keys and what's
+      new on apps; the Xiaomi track of a publishing request needs nothing new).
+- [ ] Before telling clients: a Xiaomi developer account with a test app
+      already on GetApps (first version submitted by hand), its API private key
+      and public certificate from the automatic publishing page saved in a
+      test client's dashboard, and one real update through the pipeline
+      (section 8, 42.7). Check in Xiaomi's console that it arrived in review
+      with the right name, icon and what's new.
+- [ ] Find out whether apps on Xiaomi's international developer site
+      (global.developer.mi.com) have the automatic publishing page too, and
+      fix the guide's wording if they don't.
 
 ## 8. Accounts the remaining roadmap steps wait on
 
@@ -259,4 +276,5 @@ Nothing to set on Netlify: the preview is served from the site's own files
 | 22.5 | A Wix test site with Wix Stores (Catalog V3): a Headless OAuth app's client ID, and an account API key that reads orders and contacts with the site ID |
 | 35.4 | A Galaxy Store Seller Portal account (commercial seller) with a test app already on sale, and a service account with the Publishing scope: one build uploaded and submitted by the pipeline |
 | 36.5, 36.6 | An AppGallery Connect account with a test app (first version submitted by hand), a Connect API client (App administrator), Push Kit on, and a Huawei phone without Google Play to install the build and receive a push |
+| 42.7 | A Xiaomi developer account with a test app already on GetApps, its automatic publishing API private key and public certificate: one build checked with `/dev/query`, uploaded and submitted by the pipeline |
 | 25.5 | Yallapp's partner apps: a Salla Partners app (custom mode, callback `/oauth/salla`, webhook `/api/webhooks/salla`) and a Zid Partner Dashboard app (redirect `/oauth/zid`), saved in admin Settings, plus a Salla demo store and a Zid test store to connect |

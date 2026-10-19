@@ -1264,13 +1264,13 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
   );
 }
 
-/** 35, 36 Samsung Galaxy Store and Huawei AppGallery (and Huawei push) have their own page. */
+/** 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery (and Huawei push) and Xiaomi GetApps have their own page. */
 function MoreStoresLink() {
   return (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
       <Icon name="storefront" size={20} className="text-muted" />
       <span>
-        Samsung Galaxy Store and Huawei AppGallery, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
+        Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
       </span>
     </p>
   );
@@ -1327,9 +1327,9 @@ export function PublishingStep({
         <StepCard title="Publishing" id="h-publishing">
           {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own Google Play{ios ? " and App Store" : ""} account
-            {ios ? "s" : ""}. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step
-            guides take you through each store.
+            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own developer accounts on Google Play
+            {ios ? ", the App Store" : ""}, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You get the files, the Android upload key and the store
+            assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             <li>

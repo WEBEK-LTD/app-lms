@@ -725,3 +725,107 @@ preview. About 530 screenshots; what was found is below. No migration.
 | [ ] | 38.20 The events list's `price_label` and server error messages are English in Arabic and Turkish apps (the content API doesn't receive the language); a WordPress site's labels follow the site's language | When the content API gets the language |
 | [ ] | 38.21 Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
 | [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |
+
+## Phase 39: Paid and enrolled courses open in the app; plugin 0.4.0 updates cleanly
+
+The owner runs plugin 0.3.8 with Tutor LMS 4.1.1 and WooCommerce 11.2.0 and is
+updating to 0.4.0. Proved on local WordPress 7.1.3 sites, through the plugin's
+API as the app calls it and in the app preview: an update from 0.3.8 with
+WordPress's own updater keeps every setting, sign-in, device and enrollment,
+and every way a student gets a course opens it in the app while every other
+way is refused by the API itself. Found and fixed four plugin bugs and one app
+bug. No database migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 39.1 Update from 0.3.8: settings saved on the settings page, a license, two students signed in (phone code, password) with a push token and progress; then WordPress's upgrader (`Plugin_Upgrader`, as Dashboard › Updates: files replaced, still active, no activation hook). Tables upgraded (`push_provider`), settings and license kept, old access and refresh tokens and devices still work, every route answers, the settings page opens, nothing in the PHP log | `upgrade-test.php` (30 checks; `UPGRADE_FROM=34d734f run.sh`, new CI job) |
+| [x] | 39.2 Tutor LMS with WooCommerce (`WOO=1`, `seed-tutor-woo.php`): free course enrolled in the app and on the website; paid course bought on the website's checkout from the app's link, by bank transfer (on hold: no access), completed (My courses, every lesson, the PDF, the quiz, the assignment open), refunded and cancelled (no access, can buy again), cash on delivery (processing: no access); the admin's enrollment and removal; Tutor's own checkout (unpaid, paid, refunded); the preview lesson; a guest: price, Android checkout, iOS no button, every item locked and refused (401) | `access-test.php` (71 checks; new CI job) |
+| [x] | 39.3 Fixed: a WooCommerce sale price read "$300.00 Original price was: $300.00.$250.00Current price is: $250.00." in the app; now "$250.00" (`Money::current`, every LMS) | `MoneyTest`, `access-test.php` |
+| [x] | 39.4 Fixed: "Continue" stopped for good at an assignment (it opens on the website and never completes from the app): the plugin's `next_item` and the app's course page skip assignments and live classes (`Next_Item`, `nextItemToOpen`); the preview bundle rebuilt | `NextItemTest`, `continue_learning_test.dart`, `access-test.php`, the preview |
+| [x] | 39.5 Fixed: Tutor LMS's My courses listed a course Tutor's enrollment check refuses (Tutor LMS Pro's expiry): now filtered through it | `access-test.php` (an expired enrollment) |
+| [x] | 39.6 LearnPress fixed: a course bought with "Auto start" off ("purchased") offered to be bought again; it is now in My courses and opens, starting the way "Start now" does. A course past its time limit with "Block content when duration expires", or finished with "Block when finished", stayed open; it is closed as on the website. Checked: pending, completed, refunded orders, the admin's Assign/Unassign tool and a manual order | `adapter-test.php` on LearnPress (119 checks) |
+| [x] | 39.7 The other adapters with the shared changes: LifterLMS 108, MasterStudy 115, Sensei 102, Masteriyo 116 checks; Tutor LMS 263 | Their integration suites |
+| [ ] | 39.8 Tutor LMS Pro's prerequisites and content drip, and its enrollment expiry itself, can't be tried without Tutor LMS Pro (the plugin follows Tutor's enrollment check, so expiry should follow); LearnPress's WooCommerce add-on and LearnDash weren't available to test | With a Pro copy |
+| [ ] | 39.9 PHP 7.4 itself isn't installed here: covered by `php -l`, PHPCompatibility (`testVersion 7.4-`) and the CI's unit tests on PHP 7.4 | CI |
+
+## Phase 40: Lesson videos without the video site's branding
+
+The owner asked that a lesson video never show where it is hosted: no
+YouTube or Vimeo logo, no title bar with the channel, no "Watch on YouTube",
+"More videos", related videos or end screens, no share or "Watch later"
+buttons, and no tap that opens the site, its app or a browser. The student
+sees only the app's player. YouTube, Vimeo and Bunny Stream videos now play
+behind the app's own controls, the same controls as uploaded files, wherever
+they appear (the lesson video, videos in lesson text, page video and embed
+blocks). The sites can't be reached from the build machine, so the player
+page was checked in Chromium against stand-in players that implement the
+same JavaScript APIs and draw a title bar, "Watch on YouTube", a logo and
+"More videos" along their edges. No contract change, no migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 40.1 YouTube through the IFrame Player API with `controls=0`, `rel=0`, `iv_load_policy=3`, `disablekb=1`, `fs=0`, `playsinline=1`, `modestbranding=1`, `cc_load_policy=0` and the page's own `origin`; Vimeo through player.js with `title`, `byline`, `portrait`, `badge`, `controls`, `transparent`, `pip`, `autopause` and `keyboard` off and `dnt=1` (an unlisted video keeps its `h`); Bunny Stream through the Player.js protocol, its signed link kept (`video/hosted_video.dart`, `video/brandless_player_html.dart`) | `brandless_video_test.dart` (every link shape, the parameters) |
+| [x] | 40.2 What the sites still draw stays hidden: the player frame is three times as tall as the visible box (the site keeps the picture in the middle and draws its title, logo, "More videos" and buttons along the frame's edges, outside the box) and as wide as the picture (4:3 and Shorts show whole); a transparent layer takes every touch; the poster covers the player before it starts and after it ends (end screens), with our play and replay buttons; a paused frame stays visible | `tool/check_player_pages.sh`: every point of the video hits our layer, taps and `window.open` open nothing, the cover before the start and at the end, for YouTube, Vimeo and Bunny |
+| [x] | 40.3 The app's own controls for these videos and for uploaded files alike (`video/player_controls.dart`): play and pause, 10 seconds back and forward, a seek bar with the loaded part, the time, speed from 0.5x to 2x (the speeds the player allows; 0.5x added to the settings too), captions on and off when the video has tracks, quality when the player offers several (Vimeo), and full screen in the app, turned to landscape (portrait videos stay upright), carrying on at the same second | `lesson_video_test.dart`, `brandless_video_test.dart` (the controller from loading to the end, speeds, captions, quality, errors) |
+| [x] | 40.4 Nothing opens the site: in every video web view (also Wistia, Dailymotion, Loom and other embed code, and the full-screen embed view) the page can't be replaced, so links, `window.open` and `target="_blank"` go nowhere, frames can't load the sites' own pages (watch pages, channels, sign-in, short links) and no app links (`intent:`, `vnd.youtube:`) load; touches never reach the web view under our controls; the host name no longer shows under a video in lesson text | `brandless_video_test.dart` (the navigation rules), `lesson_video_test.dart`, `lesson_embed_test.dart` |
+| [x] | 40.5 The watermark, watch tracking (distinct seconds played, as for files), resume, saving the place on pause, every 15 seconds and on leaving, mark complete and the next lesson at the end, and the screen-capture cover (the video pauses under it and keeps its place) work with these videos; the page reports state, time, duration and loaded share over the `YallappPlayer` channel | `lesson_video_test.dart` |
+| [x] | 40.6 Wistia, Dailymotion and Loom keep their own player with the branding options they offer turned off (Wistia: no copy-link menu; Dailymotion: no logo, start-screen info, sharing, queue or end screen; Loom: no owner, title, sharing or top bar); navigation blocked as in 40.4 | `brandless_video_test.dart`, `lesson_video_test.dart` |
+| [x] | 40.7 The app preview shows the same player in a sandboxed frame (no popups, no top-level navigation; touches go to the app's controls); the preview bundle rebuilt | `courses-hosted.spec.ts`: a hosted academy's YouTube lesson in the preview, the parameters, our layer everywhere, a real click on our Play reaching the player, no popup; `build_preview.sh --check` |
+| [ ] | 40.8 Known risk for the owner: YouTube's API terms ask apps not to hide, cover or change YouTube's branding or player, which this player does on purpose; YouTube could object or block the app's embeds. Videos on Vimeo (a paid plan, which also hides its controls and logo itself), Bunny Stream or uploaded to the site carry no such risk | Owner's decision |
+| [ ] | 40.9 Partial: Wistia, Dailymotion and Loom still show their own controls, and whatever branding their plan and parameters don't remove (their logo on free plans); Vimeo on a free plan ignores `controls=0` and refuses speeds (the speed button then goes), its controls being hidden only by the tall frame; YouTube's `setPlaybackQuality` no longer does anything, so YouTube has no quality button | A JavaScript API from those sites, or videos moved to YouTube, Vimeo, Bunny Stream or the site |
+| [ ] | 40.10 To check on phones with real videos: that YouTube and Vimeo draw captions inside the picture (not along the frame's bottom edge, outside the box) and that nothing of theirs shows on Android and iOS web views; full screen loads a second player at the same second (about a second of loading) instead of moving the playing one | A device test with the owner's videos |
+
+## Phase 41: Five app stores everywhere, a Works with strip, and a design pass
+
+Since Phases 35 and 36 Yallapp publishes to Samsung Galaxy Store and Huawei
+AppGallery too, and Phase 42 adds Xiaomi GetApps on the same terms, but much
+of the website still said two stores. Every public page, the plans, the
+documentation, the legal pages' service description, the share texts and the
+dashboard's publishing texts now name the five stores and which plans include
+which: every plan builds the Android app for Google Play, Galaxy Store,
+AppGallery and GetApps, the App Store comes with the iOS app (Growth and up),
+and "We publish for you" (Pro and Business) uploads every build to each of
+them. The numbers strip ("10 app types … 2 app stores …") is gone; in its
+place a "Works with" strip of the real brands Yallapp works with. The public
+site got a design pass and a dark mode. No migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 41.1 The stores in one place: `lib/stores.ts` (ids, names, guides, `storesFor`; no marks, client code imports the plans) and `planStores` / `planStoresLine` in `lib/plans.ts`, following each plan's features as the team sets them; a row per store in the pricing table | `phase41.test.ts` |
+| [x] | 41.2 Wording: home, features, how it works, pricing (with an "App stores" note: Samsung, Huawei and Xiaomi accounts are free), FAQ (a new "Which app stores can my app be on?", the group "Publishing on the app stores"), integrations ("Accounts you bring" adds Galaxy Store, AppGallery and GetApps), the getting-started, developer-accounts and plans articles, the privacy and terms pages' service description, meta descriptions, Open Graph texts and JSON-LD (`DEFAULT_DESCRIPTION`), the plan highlights and feature descriptions the admin's plan editor shows, the dashboard's Publishing, setup step and Builds & downloads texts and the footer's guides | `phase41.test.ts` (no "2 app stores", "both stores" or "Google Play & App Store" left), `website-seo.test.ts` |
+| [x] | 41.3 The Works with strip on the home and features pages (`components/brand-marks.tsx`, `lib/brands.ts`): the five stores, Firebase, WhatsApp (sign-in codes go out through the WhatsApp Cloud API or waabek.com), iyzico, Kashier and Fawaterk in one row, the website platforms of the Integrations page in another (Bookly, only detected, is left out). Marks from `simple-icons` 16.34.0 (CC0, pinned, only the icons used are imported: the server chunk is 28 kB); brands it lacks are their name in the site's font. Grey until hovered, then in the brand's color (a color that would vanish is replaced), two rows scrolling in opposite directions, paused under the pointer, still and wrapped with `prefers-reduced-motion`; each logo an image named after its brand, the loop's copy hidden from assistive technology; fixed sizes, no layout shift. Heading "Works with", never "partners", with the trademark note | `phase41.test.ts`, `public.spec.ts` (names, no "partner", Xiaomi present, pausing, reduced motion, 390 px) |
+| [x] | 41.4 Store marks on every plan card (home and pricing) with "4 app stores · You publish with our guides" or "5 app stores · We publish for you", in the hero, the last step of How it works, the footer, the pricing table's store rows and the integration cards; `docs/BRAND.md` allows third-party marks only there, unaltered | `phase41.test.ts`, `public.spec.ts` (each card's marks by name) |
+| [x] | 41.5 Design pass: a larger hero headline with balanced lines, an arrow on the second button and the phones on a stage; more room between sections and larger section titles; one icon tile size on every card (`FeatureIcon`); hover states on cards; plan cards with the recommended plan raised and starred, round check marks and a filled button on hover; the pricing table's recommended column tinted; the FAQ's questions as cards with a round toggle; the closing band and footer polished | Screenshots at 1440 and 390 px, light and dark (home, pricing, integrations, features, how it works, FAQ, a solution, an article) |
+| [x] | 41.6 Dark mode on the public website, following the visitor's setting: the brand tokens swap on every page with the site header (`html:has([data-site-theme])`), dark bands keep their colors, the logo turns Ivory, form fields follow; the dashboard, the admin and the sign-in pages stay light | `public.spec.ts` (dark pricing page, light sign-in), `phase41.test.ts` |
+| [x] | 41.7 Xiaomi GetApps' guide and upload keys came with Phase 42: the guide is linked from the footer, Builds & downloads, the store facts and the Integrations page | Merged with Phase 42 |
+| [ ] | 41.8 The owner's texts edited in the admin (Website content) keep their wording: edits saved before this phase that mention two stores need a look in the admin | Owner's review |
+| [ ] | 41.9 A light and dark switch on the website (it follows the visitor's setting only), and dark mode for the dashboard | Owner's decision |
+
+## Phase 42: Xiaomi GetApps publishing
+
+Android apps on Xiaomi GetApps too, the app store on Xiaomi, Redmi and POCO
+phones, under the client's own developer account, the way Phases 35 and 36
+added Galaxy Store and AppGallery. The client (or our team, through "Publish
+it for me") submits the first version by hand; after that, on plans with "We
+publish for you", every build's APK is checked against the store and uploaded
+through the automatic publishing API of the Xiaomi developer platform, which
+submits it for review. Xiaomi gets the APK, signed with the app's upload key:
+its API has an `apk` field (and `secondApk`), none for an App Bundle.
+Xiaomi's documentation (dev.mi.com, in Chinese) couldn't be fetched from
+here, so the requests follow three independent open-source clients of the
+same API (one of them tested against a real account) and the parts of
+Xiaomi's guide that search results quote; built and tested against a local
+mock. Nothing has been sent to Xiaomi yet. Migration
+`drizzle/0034_xiaomi_getapps.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 42.1 Contract first: `xiaomi_getapps` in `BuildSecrets` (account email, API private key, Xiaomi's public certificate, what's new; only for builds whose plan uploads) and the `upload_xiaomi` stage in `docs/api/pipeline.yaml` | `redocly lint` passes |
+| [x] | 42.2 Platform: the keys on the app (`apps.xiaomi_*`: the private key encrypted with its own context, the certificate as PEM, what's new or the default "Improvements and fixes."), `upload_xiaomi` started as pending only with "We publish for you" and the keys, the stage on Builds & downloads and a plain failure reason; the Xiaomi track of "Publish it for me" kept with the other extra stores (no migration for it) | Unit tests (keys never sent to builds that don't upload, can't be moved to another app or column), migration generated and `drizzle-kit generate` clean |
+| [x] | 42.3 Dashboard: Publishing › More Android stores has the Xiaomi GetApps section (its setup steps, email, API private key, the certificate file checked as an unexpired X.509 RSA certificate in PEM or DER, what's new); "Publish it for me" can add Xiaomi GetApps (two more checklist steps, its track and statuses in Admin › Publishing, store links on `global.app.mi.com` or `app.mi.com`, status emails); each store's link placeholder in the admin; the docs article "Publish on Xiaomi GetApps" | Unit tests and the publishing browser test |
+| [x] | 42.4 Pipeline: `build/scripts/xiaomi_getapps.py` after the Android build: `/dev/query` (the app on the store under this account, `updateVersion`, an older version code; asked again while Xiaomi answers -20035), then one multipart `/dev/push` with RequestData (`userName`, `synchroType` 1, `appInfo` as a JSON string: the name already on the store, the package, `updateDesc`, `privacyUrl` when https), the APK and the 512 px icon from the store assets; SIG as the MD5s of RequestData and each file with the API private key, encrypted with the certificate (openssl, PKCS#1 v1.5, blocks of the key size less 11 bytes) as hex; a push is never repeated (a lost answer says to check the console); plain messages for Xiaomi's known result codes, no secret in the output | `python3 -m unittest discover build/tests` against a mock that decrypts the SIG with a test certificate's key, `bash -n` |
+| [x] | 42.5 Docs: `build/README.md`, `docs/ARCHITECTURE.md`, `docs/LAUNCH-CHECKLIST.md` (7f, section 8) | |
+| [ ] | 42.6 Uploads in the publishing history: as for Galaxy Store and AppGallery, a build's upload outcome is its `upload_xiaomi` stage and message (Builds & downloads, the build email); the pipeline writes no publishing event, and the team moves the Xiaomi track in Admin › Publishing | When the team wants uploads in the history |
+| [ ] | 42.7 Confirm with a real Xiaomi account (none of this is in an English document): the base address and both endpoints; multipart for `/dev/query` too (one client sends it form-encoded); SIG's JSON (`sig` list of `name`/`hash`, `password`), the block size from the certificate (Xiaomi's is 1024-bit: 117 bytes) and lower-case hex; `appInfo` as a JSON string (Xiaomi's guide as quoted; one client sends an object); `/dev/query`'s `packageInfo` (`packageName`, `appName`, `versionCode`) and `updateVersion` (only one client reads it; an absent value doesn't stop the upload); the result codes -7, -92, -20002, -20014, -20030, -20035; that the icon is required with every update and replaces the store's, that `privacyUrl` may be left out and `suitableType` isn't needed; the 500-character limit of `updateDesc`; whether an update without `testAccount` keeps the reviewer sign-in given in the console (the structured format one client describes since February 2026 isn't sent); and where the API private key and certificate are in the console | One build checked, uploaded and in review on a test app (LAUNCH-CHECKLIST, section 8) |
+| [ ] | 42.8 Xiaomi's international developer site (global.developer.mi.com): whether apps there have the automatic publishing API; the guide says uploads stay by hand without that page. Also how a client adds our team email as a member on the developer platform (the step doesn't name menus) | Checked on both sites with a real account |
+| [ ] | 42.9 More of the listing through the API: screenshots and the descriptions (`desc`, `brief`) are only required for a new app; whether an update takes them isn't confirmed, so they're managed in the console | After 42.7 |

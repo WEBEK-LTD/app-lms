@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useActionState, type ReactNode } from "react";
-import { removeMoreStoreKeyAction, saveGalaxyStoreAction, saveHuaweiAction } from "@/app/actions/more-stores";
+import { removeMoreStoreKeyAction, saveGalaxyStoreAction, saveHuaweiAction, saveXiaomiAction } from "@/app/actions/more-stores";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState, type FormState } from "@/lib/forms";
 
-/** 35, 36 The forms of the "More Android stores" page. */
+/** 35, 36, 42 The forms of the "More Android stores" page. */
 
 const v = (state: FormState, key: string) => state.values?.[key] ?? "";
 
@@ -198,6 +198,85 @@ export function HuaweiForm({
           How to set up AppGallery
         </Link>
       </div>
+    </form>
+  );
+}
+
+/** 42 Xiaomi GetApps: the developer account's email, the API private key, Xiaomi's public certificate and what's new. */
+export function XiaomiForm({
+  saved,
+  uploads,
+  notes,
+}: {
+  saved: { userName: string } | null;
+  uploads: boolean;
+  notes: { current: string; fallback: string; max: number };
+}) {
+  const [state, action] = useActionState(saveXiaomiAction, initialFormState);
+  const e = state.errors ?? {};
+  return (
+    <form action={action} noValidate className="flex flex-col gap-3.5">
+      <FormMessage message={state.message} ok={state.ok} />
+      {saved ? <Saved title="Xiaomi GetApps keys" detail={saved.userName} removeKey="xiaomi" /> : null}
+      <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 border-0 p-0">
+        <div className="flex flex-wrap gap-3.5">
+          <Field
+            className="flex-[1_1_240px]"
+            label="Developer account email"
+            name="xiaomiUserName"
+            type="email"
+            autoComplete="off"
+            defaultValue={v(state, "xiaomiUserName")}
+            placeholder={saved?.userName ?? "you@example.com"}
+            hint="The email you sign in to the Xiaomi developer platform with."
+            error={e.xiaomiUserName}
+            small
+          />
+          <Field
+            className="flex-[1_1_240px]"
+            label={saved ? "Replace the API private key" : "API private key"}
+            name="xiaomiPassword"
+            type="password"
+            autoComplete="off"
+            hint="From the automatic publishing page. It isn't your sign-in password."
+            error={e.xiaomiPassword}
+            small
+          />
+        </div>
+        <FileField
+          name="xiaomiCertificateFile"
+          label={saved ? "Replace the public certificate" : "Public certificate"}
+          accept=".cer,.crt,.pem"
+          hint="The certificate file you download from the same page."
+          error={e.xiaomiCertificateFile}
+        />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-xiaomiReleaseNotes" className="text-sm font-semibold">
+            What&apos;s new <span className="font-normal text-muted">(optional)</span>
+          </label>
+          <textarea
+            id="f-xiaomiReleaseNotes"
+            name="xiaomiReleaseNotes"
+            rows={3}
+            maxLength={notes.max}
+            defaultValue={state.values?.xiaomiReleaseNotes ?? notes.current}
+            placeholder={notes.fallback}
+            className="input text-sm"
+            aria-invalid={e.xiaomiReleaseNotes ? true : undefined}
+            aria-describedby={`f-xiaomiReleaseNotes-hint${e.xiaomiReleaseNotes ? " f-xiaomiReleaseNotes-error" : ""}`}
+          />
+          <span id="f-xiaomiReleaseNotes-hint" className="text-xs text-muted">
+            Xiaomi shows it with the update. We send it with every build until you change it; without it, “{notes.fallback}”
+          </span>
+          <FieldError id="f-xiaomiReleaseNotes-error" error={e.xiaomiReleaseNotes} />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <SubmitButton className="h-10">Save Xiaomi GetApps keys</SubmitButton>
+          <Link href="/docs/xiaomi-getapps" className="text-sm font-semibold">
+            How to set up Xiaomi GetApps
+          </Link>
+        </div>
+      </fieldset>
     </form>
   );
 }

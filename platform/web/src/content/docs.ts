@@ -14,7 +14,8 @@ import { DEVELOPER_GUIDE } from "./docs-developer";
  * services Yallapp runs on; the only ones to name are webek.org (hosting),
  * waabek.com (WhatsApp codes), the platforms clients connect, Firebase,
  * Google Play Console, App Store Connect, Galaxy Store Seller Portal,
- * AppGallery Connect (and Huawei Push Kit) and iyzico.
+ * AppGallery Connect (and Huawei Push Kit), the Xiaomi developer platform
+ * (Xiaomi GetApps) and iyzico.
  */
 
 export type DocSection =
@@ -88,14 +89,14 @@ export const DOCS: DocDefault[] = [
 
 - **You set up your app in the dashboard**: its type, where its content comes from, its name, icon, colors and pages.
 - **Your content stays where it is.** With a website or an online platform, the app reads it live. Without one, you add your products, courses, services or listings in the dashboard.
-- **We build your apps.** You get the files for Google Play and the App Store, your signing key and your store assets.
+- **We build your apps.** You get the files for Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, your signing key and your store assets.
 - **You publish them under your own name**, with our guides, or we publish them for you on the Pro and Business plans.
 - **You change your app without a new version.** Pages, look, languages and content change from the dashboard and show the next time the app opens.
 
 ## What you need
 
 - Your content: a website on a [supported platform](/integrations), your own API, or nothing at all
-- A Google Play developer account, and an Apple Developer Program membership for iPhones (see [Developer accounts](/docs/developer-accounts))
+- A Google Play developer account, and an Apple Developer Program membership for iPhones (see [Developer accounts](/docs/developer-accounts)); free Samsung, Huawei and Xiaomi accounts if you want your app in their stores too
 - Your app icon (a square PNG, 1024 × 1024 pixels) and your logo
 - A free Firebase project, if you want push notifications (see [Push notifications with Firebase](/docs/push-notifications))
 
@@ -106,7 +107,7 @@ export const DOCS: DocDefault[] = [
 3. [Choose where your content comes from](/docs/content-sources) and connect it.
 4. Complete [the setup steps](/docs/setup-steps): branding, store listing and publishing.
 5. Build your [pages and look](/docs/pages-and-look) and turn on [languages](/docs/languages).
-6. Download your apps from [Builds & downloads](/docs/builds) and publish them on [Google Play](/docs/google-play) and the [App Store](/docs/app-store).
+6. Download your apps from [Builds & downloads](/docs/builds) and publish them on [Google Play](/docs/google-play) and the [App Store](/docs/app-store), and if you like on [Samsung Galaxy Store](/docs/galaxy-store), [Huawei AppGallery](/docs/huawei-appgallery) and Xiaomi GetApps.
 
 ## Getting help
 
@@ -1028,7 +1029,11 @@ Enroll at developer.apple.com with an Apple Account that has two-factor authenti
 
 ## Give us access on Pro and Business
 
-On the Pro and Business plans we upload your builds for you. Add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps).
+On the Pro and Business plans we upload your builds for you. Add the Google Play service account key and the App Store Connect API key on the **Publishing** step: see [The setup steps](/docs/setup-steps). The keys for Samsung Galaxy Store and Huawei AppGallery go on **Publishing › More Android stores**.
+
+## Samsung, Huawei and Xiaomi
+
+Your Android app can also be on Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, on every plan. Their developer accounts are free. See [Publish on Samsung Galaxy Store](/docs/galaxy-store) and [Publish on Huawei AppGallery](/docs/huawei-appgallery).
 `,
   }),
   doc({
@@ -1196,6 +1201,51 @@ In AppGallery Connect, open **Users and permissions › API key › Connect API*
 ## When our team publishes for you
 
 With **Publish it for me**, tick Huawei AppGallery on the **Publishing** page. Then, in AppGallery Connect, open **Users and permissions** and add our team email as a team member with the **App administrator** and **Operations** roles. Huawei sends us the invitation; you never share your password.
+`,
+  }),
+  // 42 Xiaomi GetApps
+  doc({
+    slug: "xiaomi-getapps",
+    section: "Publishing",
+    title: "Publish on Xiaomi GetApps",
+    description: "Put your Android app on GetApps, the app store on Xiaomi, Redmi and POCO phones, under your own developer account.",
+    steps: true,
+    body: `Xiaomi, Redmi and POCO phones come with GetApps, Xiaomi's own app store. Publish your Android app there under your own developer account: it's the same Android app as on Google Play. You submit the first version yourself; on the Pro and Business plans we upload every version after that.
+
+## Before you start
+
+- A Xiaomi account, and a developer account on the Xiaomi developer platform
+- Your Android app (.apk) from [Builds & downloads](/dashboard/builds)
+- Your store assets: icon (512 × 512), screenshots and the listing texts
+- A privacy policy page on your website, or anywhere public
+
+## Create your developer account
+
+Register as a developer on the Xiaomi developer platform (dev.mi.com) with your Xiaomi account, as a company or as an individual, and complete Xiaomi's identity check. Xiaomi also has an international developer site for GetApps (global.developer.mi.com).
+
+## Add your app and submit the first version
+
+Create your app with your app's package name (from your Store listing step) and upload the .apk file from Builds & downloads. Xiaomi may ask you to show that the app is yours: follow the steps it gives, and contact us if it asks for a file signed with your app's key.
+
+> Upload the .apk, not the App Bundle. The .apk is signed with your app's upload key, the same key every later version uses.
+
+## Fill in the listing and submit
+
+Add the description, icon, screenshots, your privacy policy link and the age rating, then submit. Xiaomi reviews the app, usually within a few working days.
+
+> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+
+## Pro and Business: let us upload every update
+
+Once your app is on GetApps, open the automatic publishing API page from the developer platform's app management. Copy the **private key** it shows and download Xiaomi's **public certificate**. Then open **Publishing › More Android stores** in your dashboard and enter them with the email you sign in with. You can also write what's new; Xiaomi shows it with the update. From then on, every build you start is uploaded to Xiaomi GetApps and sent for review.
+
+> Xiaomi sends each upload straight to review, with your app's icon. Resetting the private key in Xiaomi's console stops the old one working: enter the new one in your dashboard.
+
+If your developer account has no automatic publishing page, uploads stay by hand: download the .apk from Builds & downloads and submit it as a new version.
+
+## When our team publishes for you
+
+With **Publish it for me**, tick Xiaomi GetApps on the **Publishing** page. Then add our team email as a member of your Xiaomi developer account who may manage your apps. If you can't find where to add members, contact us and we'll find the way with you. You never share your password.
 `,
   }),
   doc({
@@ -1756,9 +1806,9 @@ The app takes one-off donations. Monthly donations need a card saved for a subsc
 
 ## The four plans
 
-- **Starter**: the Android app, one content source, ready-made page templates, one language and up to 1,000 app users. You publish it with our step-by-step guides.
-- **Growth**: adds the iOS app, the full page editor, three languages, card payments in the app, offline mode, automatic rebuilds and up to 10,000 app users.
-- **Pro**: adds unlimited app users, every language and "We publish for you": we publish your app and every update on Google Play and the App Store, with priority support.
+- **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, ready-made page templates, one language and up to 1,000 app users. You publish it with our step-by-step guides.
+- **Growth**: adds the iOS app for the App Store, the full page editor, three languages, card payments in the app, offline mode, automatic rebuilds and up to 10,000 app users.
+- **Pro**: adds unlimited app users, every language and "We publish for you": we publish your app and every update on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, with priority support.
 - **Business**: everything in Pro, with a dedicated account manager and custom features on request.
 
 App users limits count the people signed in to apps on our hosting. Apps on your WordPress site keep their users on your site, with no limit. See the [pricing page](/pricing) for the current prices and the full comparison.

@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
   title: "FAQ",
   path: "/faq",
   description:
-    "Answers about getting started, content sources, publishing on Google Play and the App Store, push notifications, payments, languages, plans, several apps per account, security and support.",
+    "Answers about getting started, content sources, publishing on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, push notifications, payments, languages, plans, several apps per account, security and support.",
 });
 
 export default async function FaqPage() {
@@ -27,7 +27,7 @@ export default async function FaqPage() {
             <a
               key={`${i}-${group.title}`}
               href={`#${headingId(group.title)}`}
-              className="rounded-full border border-line px-3.5 py-1.5 text-sm font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
+              className="rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-semibold text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight"
             >
               {group.title}
             </a>
@@ -35,16 +35,22 @@ export default async function FaqPage() {
         </nav>
         {groups.map((group, groupIndex) => (
           <div key={`${groupIndex}-${group.title}`} className="flex flex-col gap-4">
-            <h2 id={headingId(group.title)} className="m-0 scroll-mt-4 text-[22px] font-extrabold">
+            <h2 id={headingId(group.title)} className="m-0 scroll-mt-4 pt-4 text-2xl font-extrabold tracking-[-0.4px]">
               {group.title}
             </h2>
             {group.items.map((item, index) => (
-              <details key={`${index}-${item.question}`} open={groupIndex === 0 && index === 0} className="group rounded-[14px] border border-line bg-white px-5 py-[18px]">
-                <summary className="flex items-start justify-between gap-3 rounded-md text-[17px] font-bold">
+              <details
+                key={`${index}-${item.question}`}
+                open={groupIndex === 0 && index === 0}
+                className="group rounded-2xl border border-line bg-white transition-colors duration-200 open:border-line-strong hover:border-line-strong"
+              >
+                <summary className="flex items-center justify-between gap-4 rounded-2xl px-5 py-[18px] text-[17px] leading-snug font-bold sm:px-6">
                   {item.question}
-                  <Icon name="expand_more" size={24} className="transition-transform group-open:rotate-180" />
+                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-sand transition-colors group-open:bg-midnight group-open:text-white">
+                    <Icon name="expand_more" size={22} className="transition-transform duration-200 group-open:rotate-180" />
+                  </span>
                 </summary>
-                <div className="mt-3 flex flex-col gap-3 text-[15px] leading-relaxed text-ink-4 [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-5">
+                <div className="flex flex-col gap-3 px-5 pb-5 text-[15px] leading-relaxed text-ink-4 sm:px-6 [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-5">
                   <MarkdownBlocks blocks={item.answer} />
                 </div>
               </details>

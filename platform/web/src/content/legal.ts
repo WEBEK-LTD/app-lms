@@ -28,7 +28,7 @@ Yallapp is based in Cairo, Egypt, and is the data controller for the personal da
 
 - **Account details:** name, email, WhatsApp number and a securely hashed password.
 - **Website and app details:** your website address, app name, logo, icons, colors and store listing text.
-- **Publishing credentials:** Google Play and App Store Connect keys, if you choose to add them. These are stored encrypted.
+- **Publishing credentials:** Google Play, App Store Connect, Samsung Galaxy Store and Huawei AppGallery keys, if you choose to add them. These are stored encrypted.
 - **Billing records:** your plan, dates and payment notes.
 - **Messages** you send us, and **technical logs** such as IP address, browser and sign-in times.
 
@@ -114,7 +114,7 @@ You keep ownership of your website, content and brand. You are responsible for h
 
 ## 8. App store accounts and publishing
 
-Your apps are published under your own Apple and Google developer accounts. You are the publisher and are responsible for meeting each store’s policies, including your store listing and privacy disclosures. If you give us store API keys, we use them only to upload builds you request. You can revoke them at any time.
+Your apps are published under your own developer accounts with each store you choose: Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You are the publisher and are responsible for meeting each store’s policies, including your store listing and privacy disclosures. If you give us store API keys, we use them only to upload builds you request. You can revoke them at any time.
 
 ## 9. Signing keys
 

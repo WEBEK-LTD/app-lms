@@ -53,6 +53,23 @@ class CurriculumItem {
   final bool preview;
   final bool locked;
   final bool completed;
+
+  /// 39 Lessons and quizzes open in the app; assignments and live classes open
+  /// on the website (and never complete from the app).
+  bool get opensInApp =>
+      type == CurriculumItemType.lesson || type == CurriculumItemType.quiz;
+}
+
+/// 39 Where "Continue learning" goes on a course page: the first lesson or
+/// quiz not completed yet, else the first one open, else null. Assignments
+/// and live classes are skipped: they open on the website, so stopping at one
+/// would keep the student from the lessons after it.
+CurriculumItem? nextItemToOpen(List<Topic> topics) {
+  final open = [
+    for (final topic in topics)
+      ...topic.items.where((item) => item.opensInApp && !item.locked),
+  ];
+  return open.where((item) => !item.completed).firstOrNull ?? open.firstOrNull;
 }
 
 enum RenderMode { native, webview }

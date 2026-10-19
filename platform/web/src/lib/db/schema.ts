@@ -222,6 +222,11 @@ export const apps = mysqlTable(
     huaweiClientSecretEncrypted: text("huawei_client_secret_encrypted"),
     huaweiAgconnectAssetId: id("huawei_agconnect_asset_id"),
     huaweiPushSecretEncrypted: text("huawei_push_secret_encrypted"),
+    // 42 Xiaomi GetApps: the developer account's email, the API private key (encrypted), Xiaomi's public certificate, what's new.
+    xiaomiUserName: varchar("xiaomi_user_name", { length: 254 }),
+    xiaomiPasswordEncrypted: text("xiaomi_password_encrypted"),
+    xiaomiCertificate: text("xiaomi_certificate"),
+    xiaomiReleaseNotes: varchar("xiaomi_release_notes", { length: 500 }),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),

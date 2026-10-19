@@ -81,6 +81,171 @@
   }
 }
 
+/*
+ * 41 Dark mode on the public website (every page with the site header,
+ * components/site-chrome.tsx), following the phone's or computer's setting.
+ * The brand tokens are swapped: Midnight becomes the page and Ivory the
+ * text, so a Midnight button turns Ivory with dark text. The dashboard, the
+ * admin and the sign-in pages keep the light palette. `.on-dark` bands (the
+ * closing band, the footer) are dark already and keep their own colors.
+ */
+@media (prefers-color-scheme: dark) {
+  html:has([data-site-theme]) {
+    color-scheme: dark;
+    --color-white: #161530;
+    --color-ivory: #0e0d24;
+    --color-midnight: #f4efe6;
+    --color-accent: #ff9a6e;
+    --color-accent-hover: #ffbb9c;
+
+    --color-ink-2: #ebe6f2;
+    --color-ink-3: #ddd8e8;
+    --color-ink-4: #bdb8cc;
+    --color-muted: #a9a4bb;
+    --color-faint: #827d96;
+
+    --color-line: #2c2a49;
+    --color-line-soft: #24223f;
+    --color-line-strong: #3d3a5c;
+    --color-line-button: #3d3a5c;
+    --color-sand: #1c1b38;
+    --color-peach: #2e2645;
+    --color-peach-soft: #1d1b3b;
+    --color-cream: #1f1c2e;
+    --color-step: #2a2843;
+
+    --color-success: #5ccf95;
+    --color-success-bg: #12301f;
+    --color-warn: #f2ad6b;
+    --color-warn-bg: #33240f;
+    --color-danger: #ff8f86;
+    --color-danger-bg: #3a1716;
+  }
+  html:has([data-site-theme]) .on-dark {
+    --color-white: #ffffff;
+    --color-ivory: #f4efe6;
+    --color-midnight: #0e0d24;
+  }
+}
+
+/*
+ * 41 Third-party marks (components/brand-marks.tsx): grey until hovered, then
+ * in the brand's color (--brand, or --brand-dark on the dark site).
+ */
+.brand-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 20px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: var(--color-white);
+  color: var(--color-muted);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+@media (max-width: 639.98px) {
+  .brand-chip {
+    height: 46px;
+    padding: 0 16px;
+    font-size: 15px;
+  }
+}
+.brand-chip svg {
+  display: block;
+  flex: none;
+  fill: currentColor;
+  transition: fill 0.2s;
+}
+.brand-chip:hover {
+  color: var(--color-midnight);
+  border-color: var(--color-line-strong);
+  box-shadow: 0 8px 20px -14px rgba(14, 13, 36, 0.35);
+}
+.brand-chip:hover svg,
+.store-mark:hover svg {
+  fill: var(--brand);
+}
+@media (prefers-color-scheme: dark) {
+  html:has([data-site-theme]) .brand-chip:hover svg,
+  html:has([data-site-theme]) .store-mark:hover svg {
+    fill: var(--brand-dark);
+  }
+}
+.on-dark .store-mark:hover svg {
+  fill: var(--brand-dark);
+}
+.store-mark svg {
+  display: block;
+  fill: currentColor;
+  transition: fill 0.2s;
+}
+
+/*
+ * 41 The "Works with" strip: each row scrolls on its own, pauses under the
+ * pointer, and is a still, wrapped list when the visitor prefers less motion.
+ * The second copy of a row only closes the loop and is hidden from assistive
+ * technology.
+ */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 60s) linear infinite;
+}
+.marquee-reverse .marquee-track {
+  animation-direction: reverse;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-list {
+  display: flex;
+  flex: none;
+  gap: 12px;
+  margin: 0;
+  padding: 2px 12px 2px 0;
+  list-style: none;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+  .marquee-track {
+    width: auto;
+    animation: none;
+  }
+  .marquee-list {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 2px 0;
+  }
+  .marquee-list[aria-hidden="true"] {
+    display: none;
+  }
+}
+
 /* Google Material Symbols (Rounded), self-hosted subset. */
 .material-symbols-rounded {
   font-family: var(--font-icons);
@@ -110,7 +275,7 @@
     box-sizing: border-box;
     border: 1px solid var(--color-line-strong);
     border-radius: 10px;
-    background: #fff;
+    background: var(--color-white);
     padding: 0 14px;
     font: inherit;
     font-size: 15px;

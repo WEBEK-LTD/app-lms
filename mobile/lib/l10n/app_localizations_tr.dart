@@ -1635,6 +1635,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get fullScreen => 'Tam ekran';
 
   @override
+  String get back10Seconds => '10 saniye geri';
+
+  @override
+  String get forward10Seconds => '10 saniye ileri';
+
+  @override
+  String get captionsTurnOn => 'Altyazıları aç';
+
+  @override
+  String get captionsTurnOff => 'Altyazıları kapat';
+
+  @override
+  String get videoQuality => 'Video kalitesi';
+
+  @override
   String get loadingEmbed => 'Gömülü içerik yükleniyor';
 
   @override

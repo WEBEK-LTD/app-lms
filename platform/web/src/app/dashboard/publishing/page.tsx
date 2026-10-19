@@ -35,15 +35,24 @@ import {
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
+import { ALL_STORES_TEXT } from "@/lib/stores";
 
 export const metadata: Metadata = { title: "Publishing" };
 
-const GROUP: Record<string, string> = { android: "Google Play", ios: "App Store", both: "Push notifications", galaxy: "Galaxy Store", huawei: "AppGallery" };
+const GROUP: Record<string, string> = {
+  android: "Google Play",
+  ios: "App Store",
+  both: "Push notifications",
+  galaxy: "Galaxy Store",
+  huawei: "AppGallery",
+  xiaomi: "Xiaomi GetApps",
+};
 
-/** 35, 36 What the extra stores are, on the Publishing page. */
+/** 35, 36, 42 What the extra stores are, on the Publishing page. */
 const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], string> = {
   galaxy: "Samsung's own app store, on every Samsung Galaxy phone and tablet.",
   huawei: "Huawei's app store, for Huawei phones without Google Play.",
+  xiaomi: "Xiaomi's app store, on Xiaomi, Redmi and POCO phones.",
 };
 
 function Choice({ mode, title, text, points, disabled }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string }) {
@@ -87,7 +96,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const notIncluded = allowed ? undefined : `Not included in this app's plan. Upgrade it on ${licensePageName(app)}.`;
   const autoUpload = hasFeature(current, "auto_publish");
 
-  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on Google Play and the App Store.</>} />;
+  // 41 Every store Yallapp publishes to.
+  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on {ALL_STORES_TEXT}.</>} />;
 
   const passwords = (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
@@ -108,12 +118,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             Publishing for you isn&apos;t included in this app&apos;s plan. <Link href="/dashboard/license#change-plan">Upgrade the plan</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
           </Notice>
         ) : null}
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to Google Play and the App Store? You can change your mind later.</p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to the app stores? You can change your mind later.</p>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
           <Choice
             mode="managed"
             title="Publish it for me"
-            text="Our team publishes your app on both stores and keeps it there, under your own developer accounts."
+            text="Our team publishes your app on the stores you choose and keeps it there, under your own developer accounts."
             points={[
               "You create your Google Play and Apple developer accounts, in your name: we show you how, step by step.",
               "You invite our team email to them. No passwords.",
@@ -129,7 +139,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               "Download the Android App Bundle, the iOS app and the store assets.",
               autoUpload
                 ? "Or add your store keys in App setup › Publishing and we upload every new build for you."
-                : "Follow our Google Play and App Store guides.",
+                : "Follow our step-by-step guide for each store.",
             ]}
           />
         </div>
@@ -161,7 +171,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               Follow our guides: <Link href="/guides/google-play">Publish on Google Play</Link> and <Link href="/guides/app-store">Publish on the App Store</Link>.
             </li>
             <li>
-              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store and Huawei AppGallery</Link>, with their guides.
+              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps</Link>, with their
+              guides.
             </li>
             {autoUpload ? (
               <li>
@@ -245,7 +256,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </div>
       </section>
 
-      {/* 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants them too. */}
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
       <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-more-stores" className="m-0 text-lg font-bold">
           More Android stores

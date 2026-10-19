@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -33,11 +35,28 @@ const testBuild = BuildConfigData(
 );
 
 /// Records the web views the app asked for, and draws a sized placeholder.
-class WebViewLog {
+class WebViewLog implements WebViewHandle {
   final requests = <WebViewRequest>[];
+
+  /// 40 Text the app sent to pages (commands to the video player).
+  final sent = <String>[];
+
+  @override
+  Future<void> postToPage(String message) async => sent.add(message);
+
+  /// 40 Delivers [message] to the app as the page would, on [channel].
+  void post(String channel, String message, {String? label}) {
+    final request = requests.lastWhere(
+      (r) =>
+          r.channels.containsKey(channel) &&
+          (label == null || r.debugLabel == label),
+    );
+    request.channels[channel]!(message);
+  }
 
   Widget build(WebViewRequest request) {
     requests.add(request);
+    request.onCreated?.call(this);
     return ColoredBox(
       key: ValueKey('webview-${request.debugLabel}'),
       color: const Color(0xFFDDDDDD),
@@ -48,11 +67,14 @@ class WebViewLog {
 class FakeScreenSecurity implements ScreenSecurity {
   final calls = <bool>[];
 
+  /// 40 Tests add true when the screen starts being recorded.
+  final captures = StreamController<bool>.broadcast();
+
   @override
   Future<void> setSecure(bool enabled) async => calls.add(enabled);
 
   @override
-  Stream<bool> captureChanges() => const Stream.empty();
+  Stream<bool> captureChanges() => captures.stream;
 }
 
 class TestApp {

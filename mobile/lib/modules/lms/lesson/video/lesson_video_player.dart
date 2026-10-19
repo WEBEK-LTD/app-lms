@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 
@@ -14,31 +12,20 @@ import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/common.dart';
 import '../embeds/embed_frame.dart';
+import 'embed_player.dart';
+import 'hosted_video.dart';
+import 'player_controls.dart';
+import 'watch_tracker.dart';
 import 'watermark.dart';
 import '../../../../core/l10n/l10n.dart';
 
-/// How much of a video has been watched: distinct seconds played, so skipping
-/// ahead doesn't count.
-class WatchTracker {
-  WatchTracker({int? durationSeconds}) : _duration = durationSeconds;
-
-  final _seconds = <int>{};
-  int? _duration;
-
-  set durationSeconds(int value) => _duration = value;
-
-  void record(Duration position) => _seconds.add(position.inSeconds);
-
-  double get percent {
-    final d = _duration;
-    if (d == null || d <= 0) return 0;
-    return (_seconds.length / d * 100).clamp(0, 100).toDouble();
-  }
-}
+export 'watch_tracker.dart';
 
 /// The lesson video (design: Lesson): uploaded and external files play with
-/// `video_player` from the signed URL; YouTube, Vimeo and other embeds play
-/// in a web view. A moving watermark sits on top, and the video is blanked
+/// `video_player` from the signed URL; YouTube, Vimeo and Bunny Stream play
+/// in a web view behind the same controls (40: nothing shows where they're
+/// hosted, see [BrandlessVideo]); other embeds play in a web view that can't
+/// open their site. A moving watermark sits on top, and the video is blanked
 /// while the screen is being captured (iOS).
 class LessonVideoPlayer extends ConsumerStatefulWidget {
   const LessonVideoPlayer({
@@ -85,12 +72,15 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   Duration _lastPosition = Duration.zero;
   late final ValueNotifier<bool> _captured = ValueNotifier(widget.captured);
 
+  /// 40 The video site and video, when it's on one.
+  late final HostedVideo? _hosted = hostedLessonVideo(widget.video);
+
   @override
   void initState() {
     super.initState();
     _tracker = WatchTracker(durationSeconds: widget.video.durationSeconds);
     _lastPosition = Duration(seconds: widget.startSeconds);
-    if (widget.video.playsNatively) {
+    if (_hosted == null && widget.video.playsNatively) {
       unawaited(_init(widget.video, _lastPosition));
       _progressTimer = Timer.periodic(const Duration(seconds: 15), (_) {
         if (_controller?.value.isPlaying ?? false) _report();
@@ -196,10 +186,17 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => _FullscreenVideo(
-          controller: c,
-          watermark: widget.watermark,
+        builder: (_) => FullscreenPlayerFrame(
           captured: _captured,
+          portrait: c.value.aspectRatio < 1,
+          watermark: widget.watermark == null
+              ? null
+              : MovingWatermark(text: widget.watermark!),
+          child: _NativeVideo(
+            controller: c,
+            fullScreen: true,
+            onFullScreen: () => Navigator.of(context).maybePop(),
+          ),
         ),
       ),
     );
@@ -208,12 +205,26 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     final Widget video;
-    if (widget.captured) {
-      video = const _CapturedNotice();
-    } else if (!widget.video.playsNatively) {
-      video = _WebVideo(video: widget.video);
+    final hosted = _hosted;
+    if (hosted != null && hosted.ownControls) {
+      // 40 Stays in place while the screen is captured (it pauses and covers
+      // itself), so the student carries on where they were.
+      video = BrandlessVideo(
+        video: hosted,
+        posterUrl: widget.video.posterUrl,
+        startSeconds: widget.startSeconds,
+        tracker: _tracker,
+        onProgress: widget.onProgress,
+        onEnded: widget.onEnded,
+        watermark: widget.watermark,
+        captured: _captured,
+      );
+    } else if (widget.captured) {
+      video = const CapturedNotice();
+    } else if (hosted != null || !widget.video.playsNatively) {
+      video = _WebVideo(video: widget.video, hosted: hosted);
     } else if (_error != null) {
-      video = _VideoMessage(
+      video = VideoMessage(
         icon: AppIcons.error,
         message: context.l10n.videoFailed,
         actionLabel: context.l10n.tryAgain,
@@ -263,77 +274,29 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   }
 }
 
-class _CapturedNotice extends StatelessWidget {
-  const _CapturedNotice();
-
-  @override
-  Widget build(BuildContext context) => _VideoMessage(
-    icon: AppIcons.visibilityOff,
-    message: context.l10n.screenRecording,
-  );
+/// 40 The lesson video's site and video, from its link or its embed code;
+/// null for files and for embeds of other sites.
+HostedVideo? hostedLessonVideo(Video video) {
+  final url = video.url;
+  if (url != null && url.isNotEmpty) {
+    final hosted = HostedVideo.parse(url);
+    if (hosted != null) return hosted;
+  }
+  final embed = video.embedHtml;
+  if (embed != null && embed.isNotEmpty) {
+    return HostedVideo.fromEmbedHtml(embed);
+  }
+  return null;
 }
 
-class _VideoMessage extends StatelessWidget {
-  const _VideoMessage({
-    required this.icon,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-
-  final IconData icon;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: Colors.black,
-    child: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        // Scales down rather than overflowing the 16:9 frame (large text).
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 320),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppIcon(icon, size: 28, color: BrandColors.ivory),
-                const SizedBox(height: 10),
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: BrandColors.ivory,
-                    fontSize: 14,
-                  ),
-                ),
-                if (actionLabel != null) ...[
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: onAction,
-                    style: TextButton.styleFrom(
-                      foregroundColor: BrandColors.ivory,
-                    ),
-                    child: Text(actionLabel!),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-/// YouTube, Vimeo or another embed player in a web view.
+/// A video site's own player (Wistia, Dailymotion, Loom) or another embed in
+/// a web view, with its branding turned off where the site allows it. 40
+/// Nothing in it can open another page, the site's app or a browser.
 class _WebVideo extends ConsumerWidget {
-  const _WebVideo({required this.video});
+  const _WebVideo({required this.video, this.hosted});
 
   final Video video;
+  final HostedVideo? hosted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -342,7 +305,12 @@ class _WebVideo extends ConsumerWidget {
     final embedHtml = video.embedHtml;
     final url = video.url;
     final String html;
-    if (url != null && url.isNotEmpty) {
+    if (hosted != null) {
+      html = embedWrapperHtml(
+        src: hosted!.playerUrl().toString(),
+        measure: false,
+      );
+    } else if (url != null && url.isNotEmpty) {
       html = embedWrapperHtml(src: embeddableVideoUrl(url), measure: false);
     } else if (embedHtml != null && embedHtml.isNotEmpty) {
       html =
@@ -352,23 +320,25 @@ class _WebVideo extends ConsumerWidget {
           'iframe,video{border:0;width:100%!important;height:100%!important}'
           '</style></head><body>$embedHtml</body></html>';
     } else {
-      return _VideoMessage(
+      return VideoMessage(
         icon: AppIcons.error,
         message: context.l10n.videoUnavailable,
       );
     }
+    final page = Uri.parse('$site/');
     return builder(
       WebViewRequest(
         html: html,
         baseUrl: '$site/',
-        openLinksOutside: true,
+        allowNavigation: (uri, mainFrame) =>
+            videoNavigationAllowed(uri, mainFrame, page: page),
         debugLabel: 'video',
       ),
     );
   }
 }
 
-class _NativeVideo extends StatefulWidget {
+class _NativeVideo extends StatelessWidget {
   const _NativeVideo({
     required this.controller,
     required this.onFullScreen,
@@ -379,322 +349,63 @@ class _NativeVideo extends StatefulWidget {
   final VoidCallback onFullScreen;
   final bool fullScreen;
 
-  @override
-  State<_NativeVideo> createState() => _NativeVideoState();
-}
-
-class _NativeVideoState extends State<_NativeVideo> {
-  bool _controlsVisible = true;
-  Timer? _hide;
-
-  VideoPlayerController get _c => widget.controller;
-
-  void _scheduleHide() {
-    _hide?.cancel();
-    _hide = Timer(const Duration(seconds: 3), () {
-      if (mounted && _c.value.isPlaying) {
-        setState(() => _controlsVisible = false);
-      }
-    });
-  }
-
-  void _toggleControls() {
-    setState(() => _controlsVisible = !_controlsVisible);
-    if (_controlsVisible) _scheduleHide();
-  }
-
   void _togglePlay() {
-    final value = _c.value;
+    final value = controller.value;
     if (value.isPlaying) {
-      _c.pause();
+      controller.pause();
     } else {
-      if (value.position >= value.duration) _c.seekTo(Duration.zero);
-      _c.play();
-      _scheduleHide();
+      if (value.position >= value.duration) controller.seekTo(Duration.zero);
+      controller.play();
     }
   }
 
-  void _cycleSpeed() {
-    final current = _c.value.playbackSpeed;
-    final index = playbackSpeeds.indexWhere((s) => s == current);
-    final next = playbackSpeeds[(index + 1) % playbackSpeeds.length];
-    _c.setPlaybackSpeed(next);
-  }
-
   @override
-  void dispose() {
-    _hide?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: _toggleControls,
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        Center(
-          child: AspectRatio(
-            aspectRatio: _c.value.aspectRatio,
-            child: VideoPlayer(_c),
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: _controlsVisible ? 1 : 0,
-          duration: const Duration(milliseconds: 200),
-          child: IgnorePointer(
-            ignoring: !_controlsVisible,
-            child: ValueListenableBuilder<VideoPlayerValue>(
-              valueListenable: _c,
-              builder: (context, value, _) => _Controls(
-                value: value,
-                fullScreen: widget.fullScreen,
-                onPlayPause: _togglePlay,
-                onSeek: (d) => _c.seekTo(d),
-                onSpeed: _cycleSpeed,
-                onFullScreen: widget.onFullScreen,
+  Widget build(BuildContext context) =>
+      ValueListenableBuilder<VideoPlayerValue>(
+        valueListenable: controller,
+        builder: (context, value, _) {
+          final state = nativeSnapshot(value);
+          return PlayerSurface(
+            playing: state.playing,
+            video: Center(
+              child: AspectRatio(
+                aspectRatio: value.aspectRatio,
+                child: VideoPlayer(controller),
               ),
             ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _Controls extends StatelessWidget {
-  const _Controls({
-    required this.value,
-    required this.fullScreen,
-    required this.onPlayPause,
-    required this.onSeek,
-    required this.onSpeed,
-    required this.onFullScreen,
-  });
-
-  final VideoPlayerValue value;
-  final bool fullScreen;
-  final VoidCallback onPlayPause;
-  final ValueChanged<Duration> onSeek;
-  final VoidCallback onSpeed;
-  final VoidCallback onFullScreen;
-
-  @override
-  Widget build(BuildContext context) {
-    final duration = value.duration;
-    final position = value.position > duration ? duration : value.position;
-    const muted = Color(0xFFC9C6DC);
-    const chip = Color(0xFF24223F);
-    final ended =
-        duration > Duration.zero && position >= duration && !value.isPlaying;
-    return Stack(
-      children: [
-        Center(
-          child: Semantics(
-            button: true,
-            label: value.isPlaying
-                ? context.l10n.pause
-                : (ended ? context.l10n.playAgain : context.l10n.play),
-            excludeSemantics: true,
-            child: Material(
-              color: Colors.white,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: onPlayPause,
-                child: SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: AppIcon(
-                    value.isPlaying
-                        ? AppIcons.pause
-                        : (ended ? AppIcons.replay : AppIcons.play),
-                    size: 28,
-                    color: BrandColors.midnight,
-                    filled: true,
-                  ),
-                ),
-              ),
+            controls: PlayerControls(
+              state: state,
+              fullScreen: fullScreen,
+              onPlayPause: _togglePlay,
+              onSeek: controller.seekTo,
+              onSpeed: () => controller.setPlaybackSpeed(state.nextSpeed()),
+              onFullScreen: onFullScreen,
             ),
-          ),
-        ),
-        Positioned(
-          left: 8,
-          right: 8,
-          bottom: 4,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 4,
-                  activeTrackColor: Colors.white,
-                  inactiveTrackColor: const Color(0xFF3A3756),
-                  thumbColor: Colors.white,
-                  overlayShape: SliderComponentShape.noOverlay,
-                  thumbShape: const RoundSliderThumbShape(
-                    enabledThumbRadius: 6,
-                  ),
-                ),
-                child: SizedBox(
-                  height: 28,
-                  child: Slider(
-                    value: duration.inMilliseconds == 0
-                        ? 0
-                        : position.inMilliseconds / duration.inMilliseconds,
-                    semanticFormatterCallback: (_) => context.l10n.positionOf(
-                      formatClock(position),
-                      formatClock(duration),
-                    ),
-                    onChanged: duration == Duration.zero
-                        ? null
-                        : (v) => onSeek(duration * v),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${formatClock(position)} / ${formatClock(duration)}',
-                        style: const TextStyle(fontSize: 12, color: muted),
-                      ),
-                    ),
-                    _ChipButton(
-                      label: speedLabel(value.playbackSpeed),
-                      semantics: context.l10n.playbackSpeedIs(
-                        speedLabel(value.playbackSpeed),
-                      ),
-                      color: chip,
-                      onTap: onSpeed,
-                    ),
-                    const SizedBox(width: 8),
-                    _ChipButton(
-                      icon: fullScreen
-                          ? AppIcons.fullscreenExit
-                          : AppIcons.fullscreen,
-                      semantics: fullScreen
-                          ? context.l10n.exitFullScreen
-                          : context.l10n.fullScreen,
-                      color: chip,
-                      onTap: onFullScreen,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+          );
+        },
+      );
 }
 
-class _ChipButton extends StatelessWidget {
-  const _ChipButton({
-    required this.semantics,
-    required this.color,
-    required this.onTap,
-    this.label,
-    this.icon,
-  });
-
-  final String? label;
-  final IconData? icon;
-  final String semantics;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: semantics,
-    excludeSemantics: true,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-        child: Center(
-          widthFactor: 1,
-          child: Container(
-            height: 28,
-            constraints: const BoxConstraints(minWidth: 28),
-            padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 10),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: label != null
-                ? Text(
-                    label!,
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
-                  )
-                : AppIcon(icon!, size: 16, color: Colors.white),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-/// The same player filling the screen; rotation is allowed here.
-class _FullscreenVideo extends StatefulWidget {
-  const _FullscreenVideo({
-    required this.controller,
-    required this.captured,
-    this.watermark,
-  });
-
-  final VideoPlayerController controller;
-  final ValueListenable<bool> captured;
-  final String? watermark;
-
-  @override
-  State<_FullscreenVideo> createState() => _FullscreenVideoState();
-}
-
-class _FullscreenVideoState extends State<_FullscreenVideo> {
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.portraitUp,
-    ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+/// 40 What the controls show for a file the app plays itself.
+PlayerSnapshot nativeSnapshot(VideoPlayerValue value) {
+  final duration = value.duration;
+  var loaded = Duration.zero;
+  for (final range in value.buffered) {
+    if (range.end > loaded) loaded = range.end;
   }
-
-  @override
-  void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.black,
-    body: Stack(
-      fit: StackFit.expand,
-      children: [
-        _NativeVideo(
-          controller: widget.controller,
-          fullScreen: true,
-          onFullScreen: () => Navigator.of(context).maybePop(),
-        ),
-        if (widget.watermark != null) MovingWatermark(text: widget.watermark!),
-        ValueListenableBuilder<bool>(
-          valueListenable: widget.captured,
-          builder: (context, captured, _) =>
-              captured ? const _CapturedNotice() : const SizedBox.shrink(),
-        ),
-      ],
-    ),
+  return PlayerSnapshot(
+    position: value.position,
+    duration: duration,
+    buffered: duration > Duration.zero
+        ? (loaded.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+        : 0,
+    playing: value.isPlaying,
+    buffering: value.isBuffering,
+    started: true,
+    ended:
+        duration > Duration.zero &&
+        value.position >= duration &&
+        !value.isPlaying,
+    speed: value.playbackSpeed,
   );
 }

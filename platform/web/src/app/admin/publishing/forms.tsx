@@ -6,6 +6,15 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import type { PublishingStore } from "@/lib/data/types";
 import { initialFormState } from "@/lib/forms";
 
+/** What each store's link looks like (42: the extra stores had the App Store's). */
+const LINK_PLACEHOLDER: Record<PublishingStore, string> = {
+  android: "https://play.google.com/store/apps/details?id=…",
+  ios: "https://apps.apple.com/app/…",
+  galaxy: "https://galaxystore.samsung.com/detail/…",
+  huawei: "https://appgallery.huawei.com/app/…",
+  xiaomi: "https://global.app.mi.com/details?id=…",
+};
+
 /** One store's status, the note to the client and the store link. */
 export function TrackForm({
   appId,
@@ -70,7 +79,7 @@ export function TrackForm({
           type="url"
           small
           defaultValue={v.storeUrl}
-          placeholder={store === "android" ? "https://play.google.com/store/apps/details?id=…" : "https://apps.apple.com/app/…"}
+          placeholder={LINK_PLACEHOLDER[store]}
           hint="The app's store page, once it's live."
           error={e.storeUrl}
         />

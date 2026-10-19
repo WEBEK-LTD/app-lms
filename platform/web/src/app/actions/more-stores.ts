@@ -24,14 +24,19 @@ import {
   checkHuaweiAppId,
   checkHuaweiClientId,
   checkHuaweiSecret,
+  checkXiaomiCertificate,
+  checkXiaomiPassword,
+  checkXiaomiReleaseNotes,
+  checkXiaomiUserName,
 } from "@/lib/publishing/more-stores";
 
 /**
- * 35, 36 The dashboard's "More Android stores" page: Samsung Galaxy Store and
- * Huawei AppGallery. Upload keys are kept only on plans with "We publish for
- * you" (the pipeline uploads with them); Huawei push (agconnect-services.json
- * and the app secret) works on every plan, like Firebase. Keys are encrypted
- * and never shown again; fields left empty keep what was saved.
+ * 35, 36, 42 The dashboard's "More Android stores" page: Samsung Galaxy Store,
+ * Huawei AppGallery and Xiaomi GetApps. Upload keys are kept only on plans
+ * with "We publish for you" (the pipeline uploads with them); Huawei push
+ * (agconnect-services.json and the app secret) works on every plan, like
+ * Firebase. Keys are encrypted and never shown again; fields left empty keep
+ * what was saved.
  */
 
 const PAGE = "/dashboard/publishing/more-stores";
@@ -162,6 +167,47 @@ export async function saveHuaweiAction(_: FormState, formData: FormData): Promis
   return { ok: true, message: agconnectBody ? "Saved. Your next build includes Huawei push." : "Saved." };
 }
 
+/**
+ * 42 Xiaomi GetApps: the developer account's email, the automatic publishing
+ * API's private key (encrypted with its own context), Xiaomi's public
+ * certificate (a file, checked as an X.509 RSA certificate) and what's new in
+ * each update (optional: a short default otherwise).
+ */
+export async function saveXiaomiAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireApp();
+  const app = context.app;
+  const values = { xiaomiUserName: field(formData, "xiaomiUserName"), xiaomiReleaseNotes: field(formData, "xiaomiReleaseNotes") };
+  if (!(await uploadsAllowed(context))) return { message: "Uploading to Xiaomi GetApps is part of “We publish for you”. Upgrade the app's plan to use it.", values };
+  const errors: Record<string, string> = {};
+  const userName = values.xiaomiUserName || app.xiaomiUserName || "";
+  const nameProblem = checkXiaomiUserName(userName);
+  if (nameProblem) errors.xiaomiUserName = nameProblem;
+  const patch: AppPatch = { xiaomiUserName: userName, xiaomiReleaseNotes: values.xiaomiReleaseNotes || null };
+  const notesProblem = checkXiaomiReleaseNotes(values.xiaomiReleaseNotes);
+  if (notesProblem) errors.xiaomiReleaseNotes = notesProblem;
+
+  const password = field(formData, "xiaomiPassword");
+  if (password) {
+    const problem = checkXiaomiPassword(password);
+    if (problem) errors.xiaomiPassword = problem;
+    else patch.xiaomiPasswordEncrypted = encrypt(password, encryptionKey(), keyContext.xiaomi(app.id));
+  } else if (!app.xiaomiPasswordEncrypted) errors.xiaomiPassword = "Paste the private key from the automatic publishing page.";
+
+  const file = formData.get("xiaomiCertificateFile");
+  if (file && typeof file !== "string" && file.size > 0) {
+    const checked = checkXiaomiCertificate(Buffer.from(await file.arrayBuffer()), new Date());
+    if (!checked.ok) errors.xiaomiCertificateFile = checked.error;
+    else patch.xiaomiCertificate = checked.value;
+  } else if (!app.xiaomiCertificate) errors.xiaomiCertificateFile = "Upload Xiaomi's public certificate from the automatic publishing page.";
+
+  if (Object.keys(errors).length) return { errors, values };
+  const store = await getStore();
+  await store.updateApp(app.id, patch, new Date());
+  await recordStaffChange(context, "Saved the Xiaomi GetApps keys", { xiaomiUserName: app.xiaomiUserName ?? null }, { xiaomiUserName: userName });
+  revalidatePath(PAGE);
+  return { ok: true, message: "Saved. Every new build is uploaded to Xiaomi GetApps and sent for review." };
+}
+
 async function saveAgconnect(clientId: string, body: string): Promise<string> {
   const id = newId();
   const blobKey = `assets/${clientId}/${id}.json`;
@@ -176,6 +222,8 @@ const REMOVE: Record<string, { patch: AppPatch; label: string }> = {
   "huawei-upload": { patch: { huaweiClientId: null, huaweiClientSecretEncrypted: null }, label: "the AppGallery API client" },
   "huawei-push": { patch: { huaweiPushSecretEncrypted: null }, label: "the Huawei Push Kit app secret" },
   "huawei-agconnect": { patch: { huaweiAgconnectAssetId: null }, label: "agconnect-services.json" },
+  // 42
+  xiaomi: { patch: { xiaomiUserName: null, xiaomiPasswordEncrypted: null, xiaomiCertificate: null, xiaomiReleaseNotes: null }, label: "the Xiaomi GetApps keys" },
 };
 
 export async function removeMoreStoreKeyAction(formData: FormData): Promise<void> {

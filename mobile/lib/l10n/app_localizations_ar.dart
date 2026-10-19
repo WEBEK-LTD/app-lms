@@ -1678,6 +1678,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fullScreen => 'ملء الشاشة';
 
   @override
+  String get back10Seconds => 'رجوع 10 ثوانٍ';
+
+  @override
+  String get forward10Seconds => 'تقديم 10 ثوانٍ';
+
+  @override
+  String get captionsTurnOn => 'تشغيل الترجمة';
+
+  @override
+  String get captionsTurnOff => 'إيقاف الترجمة';
+
+  @override
+  String get videoQuality => 'جودة الفيديو';
+
+  @override
   String get loadingEmbed => 'جارٍ تحميل المحتوى المضمّن';
 
   @override

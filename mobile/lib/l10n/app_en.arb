@@ -1046,6 +1046,11 @@
   },
   "exitFullScreen": "Exit full screen",
   "fullScreen": "Full screen",
+  "back10Seconds": "Back 10 seconds",
+  "forward10Seconds": "Forward 10 seconds",
+  "captionsTurnOn": "Turn captions on",
+  "captionsTurnOff": "Turn captions off",
+  "videoQuality": "Video quality",
   "loadingEmbed": "Loading embedded content",
   "embedFrom": "Embedded content from {host}",
   "@embedFrom": {

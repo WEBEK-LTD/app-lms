@@ -358,7 +358,8 @@ abstract class Base_Adapter implements Lms_Adapter {
 				'formatted'   => null,
 			);
 		}
-		$text = \Yallapp\Commerce\Money::plain( $formatted );
+		// 39 The price paid now: a sale's crossed-out regular price is in `amount`.
+		$text = \Yallapp\Commerce\Money::current( $formatted );
 		return array(
 			'is_free'     => false,
 			'amount'      => $regular > 0 ? number_format( (float) $regular, 2, '.', '' ) : null,
@@ -509,19 +510,10 @@ abstract class Base_Adapter implements Lms_Adapter {
 	 * @return array
 	 */
 	protected function my_course( WP_Post $post, $user_id ) {
-		$next = null;
-		foreach ( (array) $this->curriculum( $post->ID, $user_id ) as $topic ) {
-			foreach ( $topic['items'] as $item ) {
-				if ( ! $item['completed'] && ! $item['locked'] ) {
-					$next = $item;
-					break 2;
-				}
-			}
-		}
 		return array(
 			'course'          => $this->summary( $post, $user_id ),
 			'progress'        => $this->progress( $post->ID, $user_id ),
-			'next_item'       => $next,
+			'next_item'       => Next_Item::pick( (array) $this->curriculum( $post->ID, $user_id ) ),
 			'certificate_url' => $this->certificate_url( $post->ID, $user_id ),
 		);
 	}

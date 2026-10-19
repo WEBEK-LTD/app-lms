@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { BrowserFrame, DASHBOARD_PATHS, DeviceFrame } from "@/components/device-frame";
-import { Icon } from "@/components/icon";
-import { CheckList, Comparison, MarketingPage, MoreLink, NumbersBand, Section, SectionTitle } from "@/components/marketing";
+import { WorksWithStrip } from "@/components/brand-marks";
+import { CheckList, Comparison, FeatureIcon, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { COMPARISON, DASHBOARD_SCREENS, FEATURE_GROUPS, NUMBERS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
+import { COMPARISON, DASHBOARD_SCREENS, FEATURE_GROUPS, type AppScreen, type DashboardScreen } from "@/lib/marketing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Features",
   description:
-    "Your brand, a drag-and-drop page editor, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing for Android and iOS.",
+    "Your brand, a drag-and-drop page editor, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
   path: "/features",
 });
 
@@ -19,20 +19,27 @@ export default async function FeaturesPage() {
   const text = await getSiteContent("features");
   return (
     <MarketingPage current="features" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!} aside={<DeviceFrame screen="store-product" size="md" priority />}>
-      <Section label="Features at a glance">
-        <nav aria-label="Features on this page" className="flex flex-wrap gap-2.5">
-          {FEATURE_GROUPS.map((group) => (
-            <a
-              key={group.id}
-              href={`#${group.id}`}
-              className="rounded-full border border-line px-4 py-2 text-[15px] font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
-            >
-              {group.title}
-            </a>
-          ))}
-        </nav>
-        <NumbersBand numbers={NUMBERS} />
-      </Section>
+      <section aria-label="Features at a glance" className="bg-white">
+        <div className="mx-auto max-w-[1160px] px-4 pt-12 sm:px-6">
+          <nav aria-label="Features on this page" className="flex flex-wrap gap-2.5">
+            {FEATURE_GROUPS.map((group) => (
+              <a
+                key={group.id}
+                href={`#${group.id}`}
+                className="rounded-full border border-line bg-white px-4 py-2 text-[15px] font-semibold text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight"
+              >
+                {group.title}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </section>
+      {/* 41 The brands Yallapp works with, in place of the numbers strip. */}
+      <section aria-labelledby="works-with-title" className="bg-white py-14 sm:py-16">
+        <div className="mx-auto max-w-[1280px]">
+          <WorksWithStrip />
+        </div>
+      </section>
 
       {FEATURE_GROUPS.map((group, index) => (
         <Section key={group.id} id={group.id} tinted={index % 2 === 0}>
@@ -56,10 +63,8 @@ export default async function FeaturesPage() {
           ) : null}
           <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
             {group.features.map((feature) => (
-              <article key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 sm:p-7">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ivory text-midnight">
-                  <Icon name={feature.icon} size={26} />
-                </span>
+              <article key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 transition-colors duration-200 hover:border-line-strong sm:p-7">
+                <FeatureIcon name={feature.icon} />
                 <h3 className="m-0 text-xl font-bold">{feature.title}</h3>
                 <p className="m-0 text-[15px] leading-relaxed text-ink-4">{feature.text}</p>
                 <CheckList items={feature.details} />

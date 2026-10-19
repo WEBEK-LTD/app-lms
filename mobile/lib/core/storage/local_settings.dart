@@ -20,7 +20,7 @@ enum VideoQuality {
   };
 }
 
-const playbackSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
+const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
 /// 28 The signed-in user's tickets kept on this phone (Events & tickets
 /// apps), so they show offline; forgotten on sign-out.
