@@ -1,13 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { headingId, inlineText, parseMarkdown, type Block, type Inline } from "@/lib/content/markdown";
+import { DEFAULT_LANG, type Lang } from "@/i18n/config";
+import { localePath } from "@/i18n/paths";
 
 /**
  * Markdown written in the admin, as React elements: text is never read as
  * HTML, and links are already limited to safe addresses by the parser.
+ * 55 With `lang`, links to the site's pages go to that language's version.
  */
 
-export function InlineNodes({ nodes }: { nodes: Inline[] }): ReactNode {
+export function InlineNodes({ nodes, lang = DEFAULT_LANG }: { nodes: Inline[]; lang?: Lang }): ReactNode {
   return nodes.map((n, i) => {
     switch (n.t) {
       case "text":
@@ -15,13 +18,13 @@ export function InlineNodes({ nodes }: { nodes: Inline[] }): ReactNode {
       case "strong":
         return (
           <b key={i}>
-            <InlineNodes nodes={n.c} />
+            <InlineNodes nodes={n.c} lang={lang} />
           </b>
         );
       case "em":
         return (
           <em key={i}>
-            <InlineNodes nodes={n.c} />
+            <InlineNodes nodes={n.c} lang={lang} />
           </em>
         );
       case "code":
@@ -31,12 +34,12 @@ export function InlineNodes({ nodes }: { nodes: Inline[] }): ReactNode {
       case "link":
         // Pages of this site open in the app's router; files (like /developers/openapi.yaml) and other sites as plain links.
         return n.href.startsWith("/") && !/\.[a-z0-9]+(\?|#|$)/i.test(n.href) ? (
-          <Link key={i} href={n.href}>
-            <InlineNodes nodes={n.c} />
+          <Link key={i} href={localePath(lang, n.href)}>
+            <InlineNodes nodes={n.c} lang={lang} />
           </Link>
         ) : (
           <a key={i} href={n.href}>
-            <InlineNodes nodes={n.c} />
+            <InlineNodes nodes={n.c} lang={lang} />
           </a>
         );
     }
@@ -48,8 +51,10 @@ export function MarkdownBlocks({
   blocks,
   quote,
   anchors = false,
+  lang = DEFAULT_LANG,
 }: {
   blocks: Block[];
+  lang?: Lang;
   quote?: (children: ReactNode, key: number) => ReactNode;
   /** Gives headings an id from their text, so they can be linked to (documentation). */
   anchors?: boolean;
@@ -59,14 +64,14 @@ export function MarkdownBlocks({
       case "p":
         return (
           <p key={i}>
-            <InlineNodes nodes={b.c} />
+            <InlineNodes nodes={b.c} lang={lang} />
           </p>
         );
       case "h": {
         const Heading = `h${b.level}` as "h2" | "h3" | "h4";
         return (
-          <Heading key={i} id={anchors ? headingId(inlineText(b.c)) : undefined} className={anchors ? "scroll-mt-6" : undefined}>
-            <InlineNodes nodes={b.c} />
+          <Heading key={i} id={anchors ? (b.id ?? headingId(inlineText(b.c))) : undefined} className={anchors ? "scroll-mt-6" : undefined}>
+            <InlineNodes nodes={b.c} lang={lang} />
           </Heading>
         );
       }
@@ -75,25 +80,25 @@ export function MarkdownBlocks({
           <ul key={i}>
             {b.items.map((item, j) => (
               <li key={j}>
-                <InlineNodes nodes={item} />
+                <InlineNodes nodes={item} lang={lang} />
               </li>
             ))}
           </ul>
         );
       case "ol":
         return (
-          <ol key={i} start={b.start} className="m-0 pl-5">
+          <ol key={i} start={b.start} className="m-0 ps-5">
             {b.items.map((item, j) => (
               <li key={j}>
-                <InlineNodes nodes={item} />
+                <InlineNodes nodes={item} lang={lang} />
               </li>
             ))}
           </ol>
         );
       case "quote": {
-        const inner = <MarkdownBlocks blocks={b.blocks} anchors={anchors} />;
+        const inner = <MarkdownBlocks blocks={b.blocks} anchors={anchors} lang={lang} />;
         return quote ? quote(inner, i) : (
-          <blockquote key={i} className="m-0 border-l-[3px] border-line pl-4 text-ink-3">
+          <blockquote key={i} className="m-0 border-s-[3px] border-line ps-4 text-ink-3">
             {inner}
           </blockquote>
         );
@@ -102,6 +107,7 @@ export function MarkdownBlocks({
         return (
           <pre
             key={i}
+            dir="ltr"
             data-lang={b.lang || undefined}
             className="m-0 max-w-full overflow-x-auto rounded-xl bg-midnight px-4 py-3.5 font-mono text-[13px] leading-relaxed whitespace-pre text-ivory"
           >
@@ -115,6 +121,6 @@ export function MarkdownBlocks({
 }
 
 /** Markdown source as page content. */
-export function Markdown({ source }: { source: string }) {
-  return <MarkdownBlocks blocks={parseMarkdown(source)} />;
+export function Markdown({ source, lang = DEFAULT_LANG }: { source: string; lang?: Lang }) {
+  return <MarkdownBlocks blocks={parseMarkdown(source)} lang={lang} />;
 }

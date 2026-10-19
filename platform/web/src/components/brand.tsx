@@ -27,10 +27,23 @@ export function Logo({ height = 30, reversed = false, adaptive = false, alt = "Y
   );
 }
 
-export function LogoLink({ href = "/", reversed = false, adaptive = false, height = 30 }: { href?: string; reversed?: boolean; adaptive?: boolean; height?: number }) {
+export function LogoLink({
+  href = "/",
+  reversed = false,
+  adaptive = false,
+  height = 30,
+  alt = "Yallapp home",
+}: {
+  href?: string;
+  reversed?: boolean;
+  adaptive?: boolean;
+  height?: number;
+  /** 55 In the page's language. */
+  alt?: string;
+}) {
   return (
     <Link href={href} className="flex rounded-md">
-      <Logo height={height} reversed={reversed} adaptive={adaptive} alt="Yallapp home" />
+      <Logo height={height} reversed={reversed} adaptive={adaptive} alt={alt} />
     </Link>
   );
 }

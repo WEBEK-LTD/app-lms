@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import type { IconName } from "./icon-names";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
+import { DEFAULT_LANG, messagesFor, type Lang } from "@/i18n";
+import { localePath } from "@/i18n/paths";
 import { AccountLink } from "./account-link";
 import { Logo } from "./brand";
 import { Icon } from "./icon";
@@ -17,7 +19,10 @@ export function MarketingPage({
   intro,
   aside,
   children,
+  lang = DEFAULT_LANG,
 }: {
+  /** 55 The page's language: its header, closing band and footer follow it. */
+  lang?: Lang;
   current?: SitePage;
   eyebrow?: string;
   title: string;
@@ -28,7 +33,7 @@ export function MarketingPage({
 }) {
   return (
     <div className="bg-white">
-      <SiteHeader current={current} />
+      <SiteHeader current={current} lang={lang} />
       <main>
         <section className="bg-ivory">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-10 px-4 py-14 sm:px-6 sm:py-20">
@@ -43,9 +48,9 @@ export function MarketingPage({
           </div>
         </section>
         {children}
-        <ContactBand />
+        <ContactBand lang={lang} />
       </main>
-      <SiteFooter full />
+      <SiteFooter full lang={lang} />
     </div>
   );
 }
@@ -87,15 +92,16 @@ export function MoreLink({ href, children }: { href: string; children: string })
   return (
     <Link href={href} className="group flex items-center gap-1.5 self-start text-base font-bold text-midnight no-underline hover:text-midnight hover:underline">
       {children}
-      <Icon name="arrow_forward" size={20} className="transition-transform group-hover:translate-x-0.5" />
+      <Icon name="arrow_forward" size={20} className="transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
     </Link>
   );
 }
 
 /** The closing call to action on every marketing page. */
-export async function ContactBand() {
+export async function ContactBand({ lang = DEFAULT_LANG }: { lang?: Lang }) {
   const contact = await getContact();
-  const text = await getSiteContent("contact-band");
+  const text = await getSiteContent("contact-band", lang);
+  const m = messagesFor(lang).common;
   return (
     <section className="on-dark bg-night-2 text-white">
       <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-8 px-4 py-14 sm:px-6 sm:py-16">
@@ -109,14 +115,14 @@ export async function ContactBand() {
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
           >
             <WhatsAppMark size={20} />
-            Talk to us on WhatsApp
+            {m.talkWhatsApp}
           </a>
           <AccountLink
-            href="/sign-up"
-            signedIn="Go to your dashboard"
+            href={localePath(lang, "/sign-up")}
+            signedIn={m.goToDashboard}
             className="flex h-[50px] items-center rounded-xl border border-night-line px-[22px] text-base font-semibold text-white no-underline hover:border-ivory hover:text-white"
           >
-            Create an account
+            {m.createAccount}
           </AccountLink>
         </div>
       </div>
@@ -130,10 +136,11 @@ export async function ContactBand() {
  * raised dark column for Yallapp that runs the whole height. On phones each
  * topic is a card with the two answers one under the other.
  */
-export function Comparison({ rows }: { rows: { icon: IconName; topic: string; typical: string; yallapp: string }[] }) {
+export function Comparison({ rows, lang = DEFAULT_LANG }: { rows: { icon: IconName; topic: string; typical: string; yallapp: string }[]; lang?: Lang }) {
   const last = rows.length + 1;
+  const m = messagesFor(lang).comparison;
   return (
-    <div role="table" aria-label="A typical app builder compared with Yallapp" className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(180px,0.85fr)_1fr_1.15fr] md:gap-0" data-comparison="">
+    <div role="table" aria-label={m.label} className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(180px,0.85fr)_1fr_1.15fr] md:gap-0" data-comparison="">
       {/* The two columns' backgrounds, under the cells. */}
       <div aria-hidden="true" className="hidden rounded-2xl border border-line bg-white md:block" style={{ gridColumn: 2, gridRow: `1 / ${last + 1}` }} />
       <div
@@ -144,17 +151,17 @@ export function Comparison({ rows }: { rows: { icon: IconName; topic: string; ty
 
       <div role="row" className="hidden md:grid md:grid-cols-subgrid" style={{ gridColumn: "1 / 4", gridRow: 1 }}>
         <span role="columnheader" className="flex items-end px-5 pb-4 text-[13px] font-bold tracking-[1px] text-muted uppercase">
-          What matters
+          {m.whatMatters}
         </span>
         <span role="columnheader" className="flex items-center gap-2.5 border-b border-line-soft px-6 py-5 text-[15px] font-bold text-muted">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sand">
             <Icon name="apps" size={18} />
           </span>
-          A typical app builder
+          {m.typical}
         </span>
         <span role="columnheader" className="on-dark flex items-center justify-between gap-3 border-b border-night-line px-6 py-5">
           <Logo height={26} reversed alt="Yallapp" />
-          <span className="rounded-full bg-ember px-2.5 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">Every app</span>
+          <span className="rounded-full bg-ember px-2.5 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">{m.everyApp}</span>
         </span>
       </div>
 
@@ -178,7 +185,7 @@ export function Comparison({ rows }: { rows: { icon: IconName; topic: string; ty
                 <Icon name="close" size={14} />
               </span>
               <span>
-                <span className="font-semibold text-ink-4 md:sr-only">A typical app builder: </span>
+                <span className="font-semibold text-ink-4 md:sr-only">{m.typicalPrefix}</span>
                 {row.typical}
               </span>
             </span>
@@ -187,7 +194,7 @@ export function Comparison({ rows }: { rows: { icon: IconName; topic: string; ty
                 <Icon name="check" size={14} />
               </span>
               <span>
-                <span className="font-bold text-ivory md:sr-only">Yallapp: </span>
+                <span className="font-bold text-ivory md:sr-only">{m.yallappPrefix}</span>
                 {row.yallapp}
               </span>
             </span>

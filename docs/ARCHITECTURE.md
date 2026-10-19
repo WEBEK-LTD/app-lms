@@ -1083,6 +1083,112 @@ app owners sell to their own customers keeps each app's own currency.
   activation and renewal emails (`{{payment_line}}`) and Admin › Payments
   show the pounds charged and the dollar price as "about".
 
+## The website in Arabic and Turkish (Phase 55)
+
+yallapp.com.tr is in English, Arabic and Turkish. English is the default and
+the source of every text; Phase 56 puts the client dashboard on the same
+foundation. The admin stays in English. Client apps keep their own languages
+(`lib/i18n/locales.ts`, "Pages, looks and languages" below): the two lists
+are separate.
+
+- **Addresses.** English pages keep their addresses, with no prefix. Arabic
+  and Turkish ones live under `/ar/…` and `/tr/…`: the home page, solutions,
+  features, integrations, how it works, pricing, demo, contact, FAQ, docs (the
+  index and every article), developers, terms, privacy, refund, sign-in,
+  sign-up, forgot and reset password, and "page not found". Dashboard, admin,
+  API, `/pay`, `/give`, `/shop`, `/receipts`, `/a`, `/m`, `/media`, `/oauth`
+  and `/pending` have no language prefix. There is no proxy, middleware or
+  rewrite: `src/app/[lang]/…` mirrors the pages, and both the English route
+  files and the `[lang]` ones render the same page modules (`src/site/*`)
+  with a `lang`. `[lang]/layout.tsx` makes `ar` and `tr` ahead of time
+  (`generateStaticParams`); each page checks its language
+  (`src/site/lang.ts` `routeLang`), so `/xyz` is "page not found" in English
+  and `/ar/xyz` (`[lang]/[...rest]`) is in Arabic
+  (`components/localized-not-found.tsx`). Every page keeps how it was
+  rendered: `/`, `/pricing` and their `/ar`, `/tr` versions are dynamic
+  (prices, Phase 52, and `lib/geo-vary.ts` lists them), the others are
+  static. Pages never redirect by the browser's languages.
+- **Paths** (`src/i18n/paths.ts`). `localePath(lang, href)` gives a link in a
+  language (paths that aren't site pages, like `/dashboard`, stay as they
+  are, with any `?` and `#`), `switchLangPath(path, lang)` the same page in
+  another language, `languageAlternates(path)` the `en`, `ar`, `tr` and
+  `x-default` (English) addresses for `hreflang`.
+- **Texts** (`src/i18n`). `messages/en.ts` is the typed catalog (`as const`,
+  type `Messages`), by area (`nav`, `footer`, `pricing`, `auth`,
+  `formErrors`, …); `ar.ts` and `tr.ts` are `Messages` too, so a missing key
+  fails the type check, and `tests/unit/site-i18n.test.ts` checks every key,
+  ICU placeholder and rich-text tag against English. Messages are ICU
+  (`{count, plural, …}`, parsed by `lib/i18n/icu.ts`); `<tag>…</tag>` marks
+  links and bold parts, rendered by `richText` (`src/i18n/rich.tsx`).
+  `messagesFor(lang)` and `getT(lang)` work on the server and in client
+  components; server pages pass client components only the texts they need,
+  so the catalogs stay out of the browser's code. `translateKnown(lang,
+  "formErrors", english)` turns an English message from shared code (like
+  "Use at least 10 characters.") into the page's language.
+- **Numbers and dates.** `formatNumber`, `formatDate` and `formatList` use
+  `LANG_INFO[lang].intl`: `en-US`, `tr-TR` and `ar-EG-u-nu-latn`. Arabic
+  pages write Latin digits (0–9), as most Arabic websites with prices do, so
+  the same numbers read the same in every language. Prices are written the
+  same way in all three ("EGP 1,500", "$29", `lib/billing/prices.ts`) and
+  kept left to right inside Arabic text (`dir="ltr"`).
+- **`<html lang dir>`** comes from `components/html-shell.tsx`, a client
+  component in the root layout that reads the route's `lang` parameter, so
+  static pages stay static. Pages without the parameter (dashboard, admin)
+  are `lang="en" dir="ltr"`.
+- **Right to left.** Arabic pages use Tailwind's logical classes (`ms-`,
+  `ps-`, `start-`, `text-start`, `border-s`) and the `rtl:` variant where a
+  movement has a direction. `Icon` mirrors directional symbols (arrows,
+  chevrons) with `.icon-flip:dir(rtl)`. The Works-with strip scrolls the
+  other way (`marquee-rtl`), the timeline's line and dots follow the
+  direction, phone and browser frames aren't mirrored, and code, addresses,
+  phone numbers and the API reference stay left to right.
+- **Fonts.** IBM Plex Sans Arabic (`next/font`, Arabic subset only,
+  `--font-arabic`) comes first for `:lang(ar)`; Latin words stay in
+  Bricolage Grotesque (`docs/BRAND.md` › Type).
+- **The switcher** (`components/language-switcher.tsx`): "English ·
+  العربية · Türkçe", each name in its own language with `lang` and
+  `hreflang`, in the header (a menu on wide screens, a row in the phone menu)
+  and the footer, also on the sign-in pages. Plain links to the same page in
+  the other language, so the page loads with its own direction. Choosing one
+  sets the `yallapp_lang` cookie (`src/i18n/config.ts`: one year, `Path=/`,
+  `SameSite=Lax`, readable by scripts); signing in or up from an Arabic or
+  Turkish page sets it too (`app/actions/auth.ts`). Nothing redirects by it
+  yet; it's for Phase 56. Sign-in still goes to the dashboard.
+- **Search engines** (`lib/seo.ts` `siteMetadata`). Each page has its own
+  title, description and canonical, `alternates.languages` with `en`, `ar`,
+  `tr` and `x-default` (English), `og:locale` with the other two as
+  `og:locale:alternate`, and JSON-LD with `inLanguage`. `sitemap.xml`
+  (`lib/sitemap.ts` `siteSitemap`) lists each page in the three languages
+  with their alternates. Sign-in pages stay `noindex`, and `robots.txt` is
+  unchanged.
+- **Share images.** The Open Graph images are made per language
+  (`components/og-image.tsx`). The image library draws neither Arabic letter
+  joining nor right-to-left order, so `lib/arabic-shape.ts` turns Arabic
+  words into their joined presentation forms, and the words are laid out
+  from the right; it covers the letters and lam-alef of Modern Standard
+  Arabic, not diacritics. The font files are in `src/app/fonts/og`.
+- **Long texts.** Built-in translations live in `src/content/ar` and
+  `src/content/tr` (marketing lists, plans, FAQ, the documentation, the
+  legal pages and the texts the team edits), with types in
+  `src/content/translation-types.ts`; `lib/marketing-lang.ts` picks them.
+  Translated articles keep the English heading anchors with `## Heading
+  {#anchor}`, so links like `/docs/wordpress-plugin#sign-in-codes` still work.
+  Brand, store and platform names, and third-party screens' labels, stay as
+  they are. The legal pages say the English version prevails and link to it.
+- **Texts the team edits** (Admin › Website content). Each page has
+  English, Arabic and Turkish tabs (`?lang=ar`). Translations are saved in
+  the same `site_content` table under `<key>@ar` and `<key>@tr` (no
+  migration). A field shows the team's edit in that language, else the
+  built-in translation, else the English text; an empty field falls back.
+  Plan texts edited in Admin › Plans are shown as edited, in every
+  language; untouched ones use the built-in translations.
+- **For Phase 56 (the dashboard).** Add a `dashboard` area to the catalogs
+  (the type check and the unit test then ask for Arabic and Turkish), read
+  the language from `yallapp_lang` (`langFromCookie`) on the server, and set
+  `lang`/`dir` on the dashboard's wrapper, or give `HtmlShell` the language
+  from a cookie-reading layout. `PasswordField`, `Icon` mirroring, the
+  formatters and `translateKnown` are ready.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

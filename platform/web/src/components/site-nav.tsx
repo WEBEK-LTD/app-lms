@@ -3,9 +3,43 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { AccountLink } from "./account-link";
-import { activeEntry, SITE_NAV, type SiteGroup, type SiteLink, type SitePage } from "@/lib/site-nav";
+import { activeEntry, SITE_NAV, type SiteGroup, type SiteLink, type SiteNavEntry, type SitePage } from "@/lib/site-nav";
+import { DEFAULT_LANG, type Lang } from "@/i18n/config";
+import { localePath } from "@/i18n/paths";
 import { LogoLink } from "./brand";
 import { Icon } from "./icon";
+import { LanguageList, LanguageMenu, type LanguageLabels } from "./language-switcher";
+
+/** 55 The header's words in the page's language (from the catalog's `nav`); English by default. */
+export interface SiteNavLabels {
+  main: string;
+  signIn: string;
+  getStarted: string;
+  dashboard: string;
+  goToDashboard: string;
+  menu: string;
+  closeMenu: string;
+  logoHome: string;
+}
+
+const ENGLISH_LABELS: SiteNavLabels = {
+  main: "Main",
+  signIn: "Sign in",
+  getStarted: "Get started",
+  dashboard: "Dashboard",
+  goToDashboard: "Go to your dashboard",
+  menu: "Menu",
+  closeMenu: "Close menu",
+  logoHome: "Yallapp home",
+};
+
+interface NavProps {
+  current?: SitePage;
+  lang: Lang;
+  nav: SiteNavEntry[];
+  labels: SiteNavLabels;
+  languages?: LanguageLabels;
+}
 
 /**
  * 32 The public website's header: the menu with its Product and Resources
@@ -137,7 +171,7 @@ function Dropdown({
         ref={panel}
         id={id}
         hidden={!open}
-        className="absolute top-full left-0 z-40 mt-2 w-[380px] rounded-2xl border border-line bg-white p-2 shadow-[0_16px_40px_rgba(14,13,36,0.14)]"
+        className="absolute start-0 top-full z-40 mt-2 w-[380px] rounded-2xl border border-line bg-white p-2 shadow-[0_16px_40px_rgba(14,13,36,0.14)]"
       >
         <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
           {group.items.map((item) => (
@@ -149,13 +183,13 @@ function Dropdown({
   );
 }
 
-function DesktopNav({ current }: { current?: SitePage }) {
+function DesktopNav({ current, nav, labels }: NavProps) {
   const [openId, setOpenId] = useState<string | null>(null);
   const marked = activeEntry(current);
   return (
-    <nav aria-label="Main" className="hidden lg:block">
+    <nav aria-label={labels.main} className="hidden lg:block">
       <ul className="m-0 flex list-none items-center gap-1 p-0">
-        {SITE_NAV.map((entry) =>
+        {nav.map((entry) =>
           entry.kind === "group" ? (
             <Dropdown
               key={entry.id}
@@ -182,7 +216,7 @@ function DesktopNav({ current }: { current?: SitePage }) {
   );
 }
 
-function MobileMenu({ current }: { current?: SitePage }) {
+function MobileMenu({ current, lang, nav, labels, languages }: NavProps) {
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -241,7 +275,7 @@ function MobileMenu({ current }: { current?: SitePage }) {
         type="button"
         aria-expanded={open}
         aria-controls="site-menu"
-        aria-label="Menu"
+        aria-label={labels.menu}
         onClick={() => setOpen(true)}
         className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[10px] border border-line-button bg-white text-midnight hover:border-midnight lg:hidden"
       >
@@ -253,25 +287,25 @@ function MobileMenu({ current }: { current?: SitePage }) {
           id="site-menu"
           role="dialog"
           aria-modal="true"
-          aria-label="Menu"
+          aria-label={labels.menu}
           onKeyDown={onKeyDown}
           className="fixed inset-0 z-50 flex flex-col bg-white lg:hidden"
         >
           <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3.5 sm:px-6">
-            <LogoLink href="/" adaptive />
+            <LogoLink href={localePath(lang, "/")} adaptive alt={labels.logoHome} />
             <button
               ref={closeButton}
               type="button"
-              aria-label="Close menu"
+              aria-label={labels.closeMenu}
               onClick={close}
               className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[10px] border border-line-button bg-white text-midnight hover:border-midnight"
             >
               <Icon name="close" size={26} />
             </button>
           </div>
-          <nav aria-label="Main" className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">
+          <nav aria-label={labels.main} className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6">
             <ul className="m-0 flex list-none flex-col gap-1 p-0">
-              {SITE_NAV.map((entry) =>
+              {nav.map((entry) =>
                 entry.kind === "group" ? (
                   <li key={entry.id} className="flex flex-col gap-1 pt-2 pb-3">
                     <span
@@ -303,28 +337,30 @@ function MobileMenu({ current }: { current?: SitePage }) {
                 ),
               )}
             </ul>
+            {/* 55 The other languages, before the account buttons (the menu's last stops). */}
+            {languages ? <LanguageList lang={lang} labels={languages} className="mt-4 border-t border-line-soft px-3 pt-4 text-[15px]" /> : null}
           </nav>
           <div className="grid auto-cols-fr grid-flow-col gap-3 border-t border-line bg-sand px-4 py-4 sm:px-6">
             <AccountLink
-              href="/sign-in"
+              href={localePath(lang, "/sign-in")}
               signedIn={null}
               onClick={() => setOpen(false)}
               className="flex h-12 items-center justify-center rounded-xl border border-midnight bg-white text-base font-bold text-midnight no-underline hover:text-midnight"
             >
-              Sign in
+              {labels.signIn}
             </AccountLink>
             <AccountLink
-              href="/sign-up"
+              href={localePath(lang, "/sign-up")}
               signedIn={
                 <>
                   <Icon name="dashboard" size={20} />
-                  Go to your dashboard
+                  {labels.goToDashboard}
                 </>
               }
               onClick={() => setOpen(false)}
               className="flex h-12 items-center justify-center gap-2 rounded-xl bg-midnight text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
             >
-              Get started
+              {labels.getStarted}
             </AccountLink>
           </div>
         </div>
@@ -333,33 +369,56 @@ function MobileMenu({ current }: { current?: SitePage }) {
   );
 }
 
-/** Everything inside the header bar. */
-export function SiteNav({ current }: { current?: SitePage }) {
+/**
+ * Everything inside the header bar. 55 `lang` gives the links to that
+ * language's pages; `nav` and `labels` come from the server in that language
+ * (lib/site-nav.ts `siteNavFor`, the catalog's `nav`); `languages` adds the
+ * language switcher.
+ */
+export function SiteNav({
+  current,
+  lang = DEFAULT_LANG,
+  nav = SITE_NAV,
+  labels = ENGLISH_LABELS,
+  languages,
+}: {
+  current?: SitePage;
+  lang?: Lang;
+  nav?: SiteNavEntry[];
+  labels?: SiteNavLabels;
+  languages?: LanguageLabels;
+}) {
+  const props: NavProps = { current, lang, nav, labels, languages };
   return (
     <>
-      <DesktopNav current={current} />
-      <div className="ml-auto flex items-center gap-2">
+      <DesktopNav {...props} />
+      <div className="ms-auto flex items-center gap-2">
+        {languages ? (
+          <div className="hidden lg:block">
+            <LanguageMenu lang={lang} labels={languages} />
+          </div>
+        ) : null}
         {/* Signed in on this browser: one "Dashboard" button instead of Sign in and Get started. */}
         <AccountLink
-          href="/sign-in"
+          href={localePath(lang, "/sign-in")}
           signedIn={null}
           className="hidden h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline lg:flex"
         >
-          Sign in
+          {labels.signIn}
         </AccountLink>
         <AccountLink
-          href="/sign-up"
+          href={localePath(lang, "/sign-up")}
           signedIn={
             <>
               <Icon name="dashboard" size={18} />
-              Dashboard
+              {labels.dashboard}
             </>
           }
           className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white sm:flex"
         >
-          Get started
+          {labels.getStarted}
         </AccountLink>
-        <MobileMenu current={current} />
+        <MobileMenu {...props} />
       </div>
     </>
   );

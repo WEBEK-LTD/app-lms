@@ -56,7 +56,10 @@ export function DeviceFrame({
   priority = false,
   className = "",
   caption,
+  alt,
 }: {
+  /** 55 The screenshot's description in the page's language (lib/marketing-lang.ts `screenAltFor`); English by default. */
+  alt?: string;
   screen: AppScreen;
   size?: keyof typeof PHONE_SIZES;
   /** Loads the image first (the hero). */
@@ -69,7 +72,7 @@ export function DeviceFrame({
       <PhoneFrame className={PHONE_SIZES[size]} data-screen={screen}>
         <Image
           src={`/screens/${screen}.png`}
-          alt={SCREEN_ALT[screen]}
+          alt={alt ?? SCREEN_ALT[screen]}
           fill
           sizes="(max-width: 640px) 60vw, 280px"
           priority={priority}
@@ -82,18 +85,18 @@ export function DeviceFrame({
 }
 
 /** A dashboard screenshot in a plain window frame with the page's address. */
-export function BrowserFrame({ screen, path, className = "" }: { screen: DashboardScreen; path: string; className?: string }) {
+export function BrowserFrame({ screen, path, className = "", alt }: { screen: DashboardScreen; path: string; className?: string; alt?: string }) {
   return (
     <figure className={`m-0 min-w-0 overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_48px_-32px_rgba(14,13,36,0.45)] ${className}`}>
       <div className="flex items-center gap-1.5 border-b border-line-soft bg-sand px-3.5 py-2.5" aria-hidden="true">
         <span className="h-2.5 w-2.5 flex-none rounded-full bg-line-strong" />
         <span className="h-2.5 w-2.5 flex-none rounded-full bg-line-strong" />
         <span className="h-2.5 w-2.5 flex-none rounded-full bg-line-strong" />
-        <span className="ml-2.5 min-w-0 flex-1 truncate rounded-md border border-line-soft bg-white px-2.5 py-1 text-xs text-muted">yallapp.com.tr{path}</span>
+        <span dir="ltr" className="ms-2.5 min-w-0 flex-1 truncate rounded-md border border-line-soft bg-white px-2.5 py-1 text-start text-xs text-muted">yallapp.com.tr{path}</span>
       </div>
       <Image
         src={`/screens/${screen}.png`}
-        alt={SCREEN_ALT[screen]}
+        alt={alt ?? SCREEN_ALT[screen]}
         width={1920}
         height={1200}
         sizes="(max-width: 1160px) 100vw, 760px"
