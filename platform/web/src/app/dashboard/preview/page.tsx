@@ -82,7 +82,10 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const settings = hostedSettings(app);
   const linkTo = (href: string) => ({ link: (chunk: string) => <Link href={href}>{chunk}</Link> });
   const signInLink = linkTo("/dashboard/app-sign-in");
-  const ltr = (text: string) => () => <bdi dir="ltr">{text}</bdi>;
+  const ltr = (text: string) =>
+    function LtrText() {
+      return <bdi dir="ltr">{text}</bdi>;
+    };
   const signIn = app.demo
     ? richText(t("preview.demoSignIn"), { phone: ltr(DEMO_SIGN_IN.display), code: ltr(DEMO_SIGN_IN.code) })
     : app.backend === "hosted" || yallappSignsIn(app)

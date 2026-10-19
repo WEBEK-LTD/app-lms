@@ -4,22 +4,28 @@ import { ColumnChart, SERIES_COLORS, TrendChart } from "@/components/analytics-c
 import { BarList, DataTable, KpiTiles, percent, RetentionTiles } from "@/components/analytics-report";
 import { Icon } from "@/components/icon";
 import { EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
-import { compact } from "@/lib/analytics/format";
-import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
+import { compactIn } from "@/lib/analytics/format";
+import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport, type Share } from "@/lib/analytics/report";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
 import { timeZones, zoneLabel, zoneOf } from "@/lib/analytics/zone";
 import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
+import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
+import { appLanguageName } from "@/lib/i18n/language-names";
 
 import { ZoneForm } from "./zone-form";
 
-export const metadata: Metadata = { title: "Analytics" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("analytics.title") };
+}
 
-function dayText(day: string): string {
-  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+function dayText(day: string, text: DashboardText): string {
+  return text.date(new Date(`${day}T00:00:00Z`));
 }
 
 function exportHref(report: AnalyticsReport): string {
@@ -29,11 +35,12 @@ function exportHref(report: AnalyticsReport): string {
 }
 
 /** Date range first: the presets, then a custom range. Everything below follows it. */
-function RangeFilter({ report }: { report: AnalyticsReport }) {
+function RangeFilter({ report, text }: { report: AnalyticsReport; text: DashboardText }) {
   const { range } = report;
+  const { t } = text;
   return (
     <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-      <nav aria-label="Date range" className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
+      <nav aria-label={t("analytics.dateRange")} className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
         {RANGE_PRESETS.map((n) => {
           const current = range.preset === String(n);
           return (
@@ -43,44 +50,62 @@ function RangeFilter({ report }: { report: AnalyticsReport }) {
               aria-current={current ? "page" : undefined}
               className={`inline-flex h-9 items-center rounded-[9px] px-3 text-sm font-semibold no-underline ${current ? "bg-midnight text-white hover:text-white" : "text-ink-3 hover:bg-ivory hover:text-midnight"}`}
             >
-              Last {n} days
+              {t("analytics.lastDays", { count: n })}
             </Link>
           );
         })}
       </nav>
-      <form action="/dashboard/analytics" className="flex flex-wrap items-end gap-2" aria-label="Custom range">
+      <form action="/dashboard/analytics" className="flex flex-wrap items-end gap-2" aria-label={t("analytics.customRange")}>
         <input type="hidden" name="range" value="custom" />
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-          From
+          {t("analytics.from")}
           <input type="date" name="from" defaultValue={range.from} required className="input input-sm h-9 w-[150px]" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
-          To
+          {t("analytics.to")}
           <input type="date" name="to" defaultValue={range.to} required className="input input-sm h-9 w-[150px]" />
         </label>
         <button type="submit" className={`${btn.secondary} h-9 px-3 text-sm`}>
-          Apply
+          {t("analytics.apply")}
         </button>
       </form>
     </div>
   );
 }
 
-function NoData({ app }: { app: App }) {
+function NoData({ app, text }: { app: App; text: DashboardText }) {
   return (
-    <EmptyState icon="monitoring" title="No usage in this range yet">
-      Numbers appear here a minute or so after people open {app.appName ?? "your app"} on their phones. Your app sends them from its first build made after
-      Analytics arrived: publish a new build to start. The app preview in the dashboard isn&apos;t counted.
+    <EmptyState icon="monitoring" title={text.t("analytics.noData")}>
+      {app.appName ? text.t("analytics.noDataText", { app: app.appName }) : text.t("analytics.noDataTextNoName")}
     </EmptyState>
   );
 }
 
+/** Country and language names in the dashboard's language; "Other" and "Unknown" translated. */
+function relabel(items: Share[], text: DashboardText, kind: "country" | "language" | "other"): Share[] {
+  if (text.lang === "en") return items;
+  const regions = new Intl.DisplayNames([text.lang], { type: "region" });
+  return items.map((item) => {
+    if (item.key === "other") return { ...item, label: text.t("analytics.other") };
+    if (item.key === "unknown") return { ...item, label: text.t("analytics.unknown") };
+    try {
+      if (kind === "country") return { ...item, label: regions.of(item.key.toUpperCase()) ?? item.label };
+      if (kind === "language") return { ...item, label: appLanguageName(item.key, text.lang) };
+    } catch {
+      return item;
+    }
+    return { ...item, label: text.k(item.label) };
+  });
+}
+
 export default async function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
   const { app, client } = await requireClient();
+  const text = await dashboardText();
+  const { t, k, lang, num } = text;
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <PageHeader title="Analytics" description="Choose your app type first; your app's numbers show here once people use it." />
+        <PageHeader title={t("analytics.title")} description={t("analytics.noApp")} />
       </div>
     );
   }
@@ -94,153 +119,150 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
   const days = report.daily.map((d) => d.day);
-  const previousLabel = `Previous ${range.days} days`;
+  const from = dayText(range.from, text);
+  const to = dayText(range.to, text);
+  const zoneText = zoneLabel(zone, now);
+  const short = (value: number) => compactIn(lang, value);
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Analytics"
-        description={
-          <>
-            How people use your app, {dayText(range.from)} to {dayText(range.to)} ({zoneLabel(zone, now)}). Totals only: no one is identified.
-          </>
-        }
+        title={t("analytics.title")}
+        description={richText(t("analytics.intro", { from, to }), { zone: () => <bdi dir="ltr">{zoneText}</bdi> })}
         actions={
           <a href={exportHref(report)} className={`${btn.secondary} h-11`} download>
             <Icon name="download" size={20} />
-            Export CSV
+            {t("analytics.exportCsv")}
           </a>
         }
       />
-      <RangeFilter report={report} />
-      <ZoneForm zone={zone} label={zoneLabel(zone, now)} zones={timeZones()} chosen={Boolean(app.timeZone)} />
-      <Notice>
-        Installs are counted when the app is first opened. Downloads from Google Play, the App Store and the other stores aren&apos;t shared with Yallapp, so
-        your store consoles may show more. People who turn off &ldquo;Share usage statistics&rdquo; in the app&apos;s Settings aren&apos;t counted.
-      </Notice>
+      <RangeFilter report={report} text={text} />
+      <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+      <Notice>{t("analytics.installsNote")}</Notice>
 
-      <KpiTiles report={report} />
+      <KpiTiles report={report} lang={lang} />
 
-      {!report.hasData ? <NoData app={app} /> : null}
+      {!report.hasData ? <NoData app={app} text={text} /> : null}
 
-      <Section id="active" titleId="h-active" title="Daily active users" description="People who opened the app each day, against the same days of the period before.">
+      <Section id="active" titleId="h-active" title={t("analytics.dau")} description={t("analytics.dauText")}>
         <TrendChart
-          label={`Daily active users, ${dayText(range.from)} to ${dayText(range.to)}, with the previous period`}
+          label={t("analytics.dauChart", { from, to })}
           days={days}
           series={[
-            { name: `Last ${range.days} days`, color: SERIES_COLORS.current, values: report.daily.map((d) => d.active) },
+            { name: t("analytics.lastDays", { count: range.days }), color: SERIES_COLORS.current, values: report.daily.map((d) => d.active) },
             ...(report.daily.some((d) => d.previousActive !== null)
-              ? [{ name: previousLabel, color: SERIES_COLORS.previous, values: report.daily.map((d) => d.previousActive) }]
+              ? [{ name: t("analytics.previousDays", { count: range.days }), color: SERIES_COLORS.previous, values: report.daily.map((d) => d.previousActive) }]
               : []),
           ]}
         />
         <details className="text-sm">
-          <summary className="cursor-pointer font-semibold">Show as a table</summary>
+          <summary className="cursor-pointer font-semibold">{t("analytics.showTable")}</summary>
           <DataTable
-            caption="Daily active users, installs and sessions"
-            head={["Day", "Active users", "Installs", "Sessions"]}
-            rows={report.daily.map((d) => [dayText(d.day), d.active, d.installs, d.sessions])}
+            caption={t("analytics.dailyCaption")}
+            head={[t("analytics.day"), t("analytics.activeUsers"), t("analytics.installs"), t("analytics.sessions")]}
+            rows={report.daily.map((d) => [dayText(d.day, text), num(d.active), num(d.installs), num(d.sessions)])}
           />
         </details>
       </Section>
 
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))]">
-        <Section id="installs" titleId="h-installs" title="Installs" description="First opens a day: counted when the app is first opened, not when it's downloaded.">
-          <ColumnChart label={`Installs a day, ${dayText(range.from)} to ${dayText(range.to)}`} days={days} values={report.daily.map((d) => d.installs)} unit="installs" />
+        <Section id="installs" titleId="h-installs" title={t("analytics.installs")} description={t("analytics.installsText")}>
+          <ColumnChart label={t("analytics.installsChart", { from, to })} days={days} values={report.daily.map((d) => d.installs)} unit={t("analytics.installsUnit")} />
         </Section>
-        <Section id="retention" titleId="h-retention" title="Retention" description="Of the people who first opened the app in this range, how many came back 1, 7 and 30 days later.">
-          <RetentionTiles report={report} />
+        <Section id="retention" titleId="h-retention" title={t("analytics.retention")} description={t("analytics.retentionText")}>
+          <RetentionTiles report={report} lang={lang} />
         </Section>
       </div>
 
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
-        <Section id="platforms" titleId="h-platforms" title="Platforms" description="Share of active users.">
-          <BarList items={report.platforms} label="Platforms" />
+        <Section id="platforms" titleId="h-platforms" title={t("analytics.platforms")} description={t("analytics.platformsText")}>
+          <BarList items={relabel(report.platforms, text, "other")} label={t("analytics.platforms")} lang={lang} />
         </Section>
-        <Section id="systems" titleId="h-systems" title="System versions">
-          <BarList items={report.systems} label="System versions" />
+        <Section id="systems" titleId="h-systems" title={t("analytics.systems")}>
+          <BarList items={relabel(report.systems, text, "other")} label={t("analytics.systems")} lang={lang} />
         </Section>
-        <Section id="versions" titleId="h-versions" title="App versions">
-          <BarList items={report.versions} label="App versions" />
+        <Section id="versions" titleId="h-versions" title={t("analytics.versions")}>
+          <BarList items={relabel(report.versions, text, "other")} label={t("analytics.versions")} lang={lang} />
         </Section>
-        <Section id="countries" titleId="h-countries" title="Countries" description="From the network people used, when the numbers arrived.">
-          <BarList items={report.countries} label="Countries" />
+        <Section id="countries" titleId="h-countries" title={t("analytics.countries")} description={t("analytics.countriesText")}>
+          <BarList items={relabel(report.countries, text, "country")} label={t("analytics.countries")} lang={lang} />
         </Section>
-        <Section id="languages" titleId="h-languages" title="Languages" description="The language people use the app in.">
-          <BarList items={report.languages} label="Languages" />
+        <Section id="languages" titleId="h-languages" title={t("analytics.languages")} description={t("analytics.languagesText")}>
+          <BarList items={relabel(report.languages, text, "language")} label={t("analytics.languages")} lang={lang} />
         </Section>
-        <Section id="screens" titleId="h-screens" title="Top screens" description="Screen views.">
-          <BarList items={report.screens} label="Top screens" valueText={(s) => compact(s.value)} />
+        <Section id="screens" titleId="h-screens" title={t("analytics.screens")} description={t("analytics.screensText")}>
+          <BarList items={relabel(report.screens, text, "other")} label={t("analytics.screens")} valueText={(s) => short(s.value)} lang={lang} />
         </Section>
       </div>
 
-      <Section id="items" titleId="h-items" title={`Top ${items}`} description={`The ${items} people opened most.`}>
+      <Section id="items" titleId="h-items" title={t("analytics.topItems", { items })} description={t("analytics.topItemsText", { items })}>
         {report.items.length === 0 ? (
-          <p className="m-0 text-sm text-muted">No {items} opened in this range yet.</p>
+          <p className="m-0 text-sm text-muted">{t("analytics.noItems", { items })}</p>
         ) : (
           <DataTable
-            caption={`Top ${items}`}
-            head={["Name", "Kind", "Views"]}
-            rows={report.items.map((item) => [item.title, itemWord(item.kind), item.views.toLocaleString("en-GB")])}
+            caption={t("analytics.topItems", { items })}
+            head={[t("analytics.name"), t("analytics.kind"), t("analytics.views")]}
+            rows={report.items.map((item) => [item.title, k(itemWord(item.kind)), num(item.views)])}
           />
         )}
       </Section>
 
       {funnel ? (
-        <Section id="funnel" titleId="h-funnel" title="Conversions" description="From looking to buying: how many views led to the next step. The payment itself happens on the checkout page.">
+        <Section id="funnel" titleId="h-funnel" title={t("analytics.conversions")} description={t("analytics.conversionsText")}>
           <BarList
-            label="Conversions"
+            label={t("analytics.conversions")}
+            lang={lang}
             items={report.funnel.map((step) => ({
               key: step.step,
-              label: step.step === "view" ? "Viewed" : step.step === "intent" ? funnel.intent : funnel.checkout,
+              label: step.step === "view" ? t("analytics.viewed") : k(step.step === "intent" ? funnel.intent : funnel.checkout),
               value: step.value,
               share: step.rate ?? 1,
             }))}
-            valueText={(s) => (s.key === "view" ? compact(s.value) : `${compact(s.value)} · ${percent(s.share, 1)} of views`)}
+            valueText={(s) => (s.key === "view" ? short(s.value) : t("analytics.ofViews", { value: short(s.value), percent: percent(s.share, 1, lang) }))}
           />
           {report.checkoutValue.length > 0 ? (
             <p className="m-0 text-sm text-muted">
-              Value taken to checkout: {report.checkoutValue.map((v) => formatCents(v.cents, v.currency as Parameters<typeof formatCents>[1])).join(", ")}
+              {t("analytics.checkoutValue", { values: report.checkoutValue.map((v) => formatCents(v.cents, v.currency as Parameters<typeof formatCents>[1])).join(", ") })}
             </p>
           ) : null}
         </Section>
       ) : null}
 
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))]">
-        <Section id="push" titleId="h-push" title="Notifications" description="How many of the phones a notification went to opened the app from it.">
+        <Section id="push" titleId="h-push" title={t("analytics.notifications")} description={t("analytics.notificationsText")}>
           {report.push.length === 0 && report.pushFromSite.length === 0 ? (
-            <p className="m-0 text-sm text-muted">No notifications sent or opened in this range.</p>
+            <p className="m-0 text-sm text-muted">{t("analytics.noNotifications")}</p>
           ) : (
             <>
               {report.push.length > 0 ? (
                 <DataTable
-                  caption="Notifications you sent"
-                  head={["Notification", "Sent", "Phones", "Opened", "Open rate"]}
-                  rows={report.push.map((p) => [p.title, dayText(p.sentDay), p.pushed, p.opened, percent(p.rate, 1)])}
+                  caption={t("analytics.sentCaption")}
+                  head={[t("analytics.notification"), t("analytics.sent"), t("analytics.phones"), t("analytics.opened"), t("analytics.openRate")]}
+                  rows={report.push.map((p) => [p.title, dayText(p.sentDay, text), num(p.pushed), num(p.opened), percent(p.rate, 1, lang)])}
                 />
               ) : null}
               {report.pushFromSite.length > 0 ? (
                 <DataTable
-                  caption="Opened notifications from your website"
+                  caption={t("analytics.siteCaption")}
                   hideCaption={report.push.length === 0}
-                  head={["From your website", "Opened"]}
-                  rows={report.pushFromSite.map((p) => [pushTypeWord(p.type), p.opened])}
+                  head={[t("analytics.fromSite"), t("analytics.opened")]}
+                  rows={report.pushFromSite.map((p) => [k(pushTypeWord(p.type)), num(p.opened)])}
                 />
               ) : null}
             </>
           )}
         </Section>
-        <Section id="searches" titleId="h-searches" title="Top searches" description={`What people searched for, without who searched; a search shows once it was made at least ${MIN_SEARCH_COUNT} times.`}>
+        <Section id="searches" titleId="h-searches" title={t("analytics.searches")} description={t("analytics.searchesText", { count: MIN_SEARCH_COUNT })}>
           {report.searches.length === 0 ? (
-            <p className="m-0 text-sm text-muted">No searches to show in this range yet.</p>
+            <p className="m-0 text-sm text-muted">{t("analytics.noSearches")}</p>
           ) : (
-            <DataTable caption="Top searches" head={["Search", "Times"]} rows={report.searches.map((s) => [s.query, s.count])} />
+            <DataTable caption={t("analytics.searches")} head={[t("analytics.search"), t("analytics.times")]} rows={report.searches.map((s) => [s.query, num(s.count)])} />
           )}
         </Section>
       </div>
 
       <p className="m-0 text-sm text-muted">
-        What the app sends and how long it is kept: <Link href="/docs/analytics">Analytics in the guides</Link>.
+        {richText(t("analytics.guide"), { link: (chunk) => <Link href={localePath(lang, "/docs/analytics")}>{chunk}</Link> })}
       </p>
     </div>
   );

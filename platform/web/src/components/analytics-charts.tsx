@@ -1,7 +1,10 @@
 "use client";
 
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { compact } from "@/lib/analytics/format";
+import { compactIn } from "@/lib/analytics/format";
+import { useDashLang, useOptionalDashT } from "@/components/dashboard-i18n";
+import type { Lang } from "@/i18n/config";
+import { formatDate } from "@/i18n/format";
 
 /**
  * 44 The charts of Dashboard › Analytics, drawn as SVG: thin marks, one
@@ -10,7 +13,9 @@ import { compact } from "@/lib/analytics/format";
  * focus (arrow keys), and the values in a table beside each chart. Light
  * only, like the dashboard. Colors checked with the data-viz palette
  * validator against the white card: the current period in Ember (text)
- * #C2410C, the period before in violet #5B56C8.
+ * #C2410C, the period before in violet #5B56C8. 56 In the dashboard's
+ * language; time runs left to right in Arabic too (the plot keeps `dir="ltr"`,
+ * like the arrow keys), while legends and tooltips read in the language.
  */
 export const SERIES_COLORS = { current: "#c2410c", previous: "#5b56c8" } as const;
 
@@ -32,8 +37,8 @@ function niceMax(value: number): number {
 }
 
 
-function shortDay(day: string): string {
-  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+function shortDay(day: string, lang: Lang): string {
+  return formatDate(lang, new Date(`${day}T00:00:00Z`), { day: "numeric", month: "short", timeZone: "UTC" });
 }
 
 function ticksFor(max: number): number[] {
@@ -68,7 +73,10 @@ function Tooltip({ x, title, rows }: { x: number; title: string; rows: { name: s
 }
 
 /** A line chart over days: up to two series (this period and the one before), one axis. */
-export function TrendChart({ label, days, series, format = compact }: { label: string; days: string[]; series: TrendSeries[]; format?: (n: number) => string }) {
+export function TrendChart({ label, days, series, format }: { label: string; days: string[]; series: TrendSeries[]; format?: (n: number) => string }) {
+  const t = useOptionalDashT();
+  const lang = useDashLang();
+  const show = format ?? ((n: number) => compactIn(lang, n));
   const [active, setActive] = useState<number | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const titleId = useId();
@@ -107,7 +115,7 @@ export function TrendChart({ label, days, series, format = compact }: { label: s
   };
 
   return (
-    <div className="relative">
+    <div className="relative" dir="ltr">
       {series.length > 1 ? (
         <ul className="m-0 mb-2 flex list-none flex-wrap gap-4 p-0 text-[13px] text-ink-4">
           {series.map((s) => (
@@ -132,18 +140,19 @@ export function TrendChart({ label, days, series, format = compact }: { label: s
         onBlur={() => setActive(null)}
         onKeyDown={onKey}
       >
-        <title id={titleId}>{`${label}. Use the left and right arrow keys to read each day; the values are also in the table.`}</title>
+        {/* i18n-ok: outside the dashboard (the admin) the charts stay in English. */}
+        <title id={titleId}>{t ? t("analytics.chartKeys", { label }) : `${label}. Use the left and right arrow keys to read each day; the values are also in the table.`}</title>
         {ticksFor(max).map((tick) => (
           <g key={tick}>
             <line x1={PAD.left} x2={WIDTH - PAD.right} y1={y(tick)} y2={y(tick)} stroke="#ede7dc" strokeWidth={1} />
             <text x={PAD.left - 8} y={y(tick)} dy="0.32em" textAnchor="end" fontSize={11} fill="#5e5b70" className="tabular-nums">
-              {compact(tick)}
+              {compactIn(lang, tick)}
             </text>
           </g>
         ))}
         {xLabels(days).map((i) => (
           <text key={i} x={x(i)} y={HEIGHT - 8} textAnchor="middle" fontSize={11} fill="#5e5b70">
-            {shortDay(days[i]!)}
+            {shortDay(days[i]!, lang)}
           </text>
         ))}
         {[...series].reverse().map((s) => (
@@ -163,8 +172,8 @@ export function TrendChart({ label, days, series, format = compact }: { label: s
       {active !== null ? (
         <Tooltip
           x={x(active)}
-          title={shortDay(days[active]!)}
-          rows={series.map((s) => ({ name: s.name, color: s.color, value: s.values[active] === null || s.values[active] === undefined ? "–" : format(s.values[active]!) }))}
+          title={shortDay(days[active]!, lang)}
+          rows={series.map((s) => ({ name: s.name, color: s.color, value: s.values[active] === null || s.values[active] === undefined ? "–" : show(s.values[active]!) }))}
         />
       ) : null}
     </div>
@@ -173,6 +182,8 @@ export function TrendChart({ label, days, series, format = compact }: { label: s
 
 /** Columns over days, one series: each column has its own tooltip on hover and focus. */
 export function ColumnChart({ label, days, values, color = SERIES_COLORS.current, unit }: { label: string; days: string[]; values: number[]; color?: string; unit: string }) {
+  const t = useOptionalDashT();
+  const lang = useDashLang();
   const [active, setActive] = useState<number | null>(null);
   const titleId = useId();
   const max = niceMax(Math.max(1, ...values));
@@ -188,7 +199,7 @@ export function ColumnChart({ label, days, values, color = SERIES_COLORS.current
     setActive((i) => Math.min(days.length - 1, Math.max(0, (i ?? (step > 0 ? -1 : days.length)) + step)));
   };
   return (
-    <div className="relative">
+    <div className="relative" dir="ltr">
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="block h-auto w-full touch-pan-y outline-none focus-visible:ring-2 focus-visible:ring-midnight"
@@ -200,18 +211,19 @@ export function ColumnChart({ label, days, values, color = SERIES_COLORS.current
         onPointerLeave={() => setActive(null)}
         onKeyDown={onKey}
       >
-        <title id={titleId}>{`${label}. Use the left and right arrow keys to read each day; the values are also in the table.`}</title>
+        {/* i18n-ok: outside the dashboard (the admin) the charts stay in English. */}
+        <title id={titleId}>{t ? t("analytics.chartKeys", { label }) : `${label}. Use the left and right arrow keys to read each day; the values are also in the table.`}</title>
         {ticksFor(max).map((tick) => (
           <g key={tick}>
             <line x1={PAD.left} x2={WIDTH - PAD.right} y1={y(tick)} y2={y(tick)} stroke="#ede7dc" strokeWidth={1} />
             <text x={PAD.left - 8} y={y(tick)} dy="0.32em" textAnchor="end" fontSize={11} fill="#5e5b70">
-              {compact(tick)}
+              {compactIn(lang, tick)}
             </text>
           </g>
         ))}
         {xLabels(days).map((i) => (
           <text key={i} x={PAD.left + band * i + band / 2} y={HEIGHT - 8} textAnchor="middle" fontSize={11} fill="#5e5b70">
-            {shortDay(days[i]!)}
+            {shortDay(days[i]!, lang)}
           </text>
         ))}
         {values.map((v, i) => {
@@ -235,8 +247,8 @@ export function ColumnChart({ label, days, values, color = SERIES_COLORS.current
       {active !== null ? (
         <Tooltip
           x={PAD.left + band * active + band / 2}
-          title={shortDay(days[active]!)}
-          rows={[{ name: unit, color, value: compact(values[active] ?? 0) }]}
+          title={shortDay(days[active]!, lang)}
+          rows={[{ name: unit, color, value: compactIn(lang, values[active] ?? 0) }]}
         />
       ) : null}
     </div>

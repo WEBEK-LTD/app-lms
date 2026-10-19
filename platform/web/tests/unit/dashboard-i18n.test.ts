@@ -9,6 +9,7 @@ import { dashboardFiles, filesUnder, findHardcodedText } from "./dashboard-strin
 
 const ROOT = join(__dirname, "../..");
 const placeholders = (message: string) => [...icuArguments(parseIcu(message)).keys()].sort();
+const tagSet = (message: string) => [...new Set(richTags(message))].sort();
 
 describe("56 the dashboard's catalogs", () => {
   const english = flattenMessages(dashboardMessages("en"));
@@ -27,7 +28,8 @@ describe("56 the dashboard's catalogs", () => {
       const other = flattenMessages(dashboardMessages(lang));
       for (const [key, message] of english) {
         expect(placeholders(other.get(key)!), `${lang} ${key}`).toEqual(placeholders(message));
-        expect(richTags(other.get(key)!), `${lang} ${key}`).toEqual(richTags(message));
+        // The same tags (a plural may repeat one in more branches: Arabic has "two" and "few").
+        expect(tagSet(other.get(key)!), `${lang} ${key}`).toEqual(tagSet(message));
       }
     }
   });
