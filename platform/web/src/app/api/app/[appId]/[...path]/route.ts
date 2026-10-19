@@ -24,6 +24,9 @@ import { withDemoChecked } from "@/lib/demo/apps";
 import { demoOfficeReply } from "@/lib/demo/cleanup";
 import { corsHeaders, preflight, previewOrigins } from "@/lib/preview/cors";
 import { PREVIEW_HEADER, previewKey, verifyPreviewToken } from "@/lib/preview/token";
+import { isLanguageCode } from "@/lib/i18n/locales";
+import { stringPack } from "@/lib/i18n/packs";
+import { etagValues } from "@/lib/pages/plugin";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -54,6 +57,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
   const now = new Date();
   // 34 The public keys that check the access tokens of an own API app Yallapp signs people in to.
   if (path.length === 2 && path[0] === ".well-known" && path[1] === "jwks.json") return jwksResponse(request, app, store, now);
+  // 43 The owner's interface strings for a language, for every app (WordPress and own API apps too).
+  if (path.length === 2 && path[0] === "strings") return stringPackResponse(request, app, store, path[1]!, now);
   const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const url = new URL(request.url);
   // Logout and "mark as read" come without a body; anything else sent must be JSON.
@@ -160,6 +165,29 @@ async function jwksResponse(request: Request, app: App, store: DataStore, now: D
       "access-control-allow-origin": "*",
     },
   });
+}
+
+/**
+ * 43 `GET /strings/{language}` (docs/api/openapi.yaml, getStringPack): the
+ * owner's translations of the app's interface strings in one language, as
+ * published; with `draft=1` and the app preview's token, the draft's. The
+ * app gets the address from `Config.languages.list` and keeps the pack for
+ * offline use. Served also while the app is paused; never secret.
+ */
+async function stringPackResponse(request: Request, app: App, store: DataStore, lang: string, now: Date): Promise<Response> {
+  if (request.method !== "GET") return errorResponse(405, "method_not_allowed", "Use GET.");
+  if (!isLanguageCode(lang)) return errorResponse(404, "not_found", "Not found.");
+  let draft = false;
+  if (new URL(request.url).searchParams.get("draft") === "1") {
+    const token = request.headers.get(PREVIEW_HEADER);
+    const preview = token ? verifyPreviewToken(token, previewKey(signingSecret()), now, app.id) : null;
+    draft = Boolean(preview?.ok && preview.grant.draft);
+  }
+  const record = await store.getAppLayout(app.id);
+  const pack = stringPack((draft ? record?.draft : record?.published)?.strings, lang);
+  const headers = { "cache-control": draft ? "no-store" : "public, max-age=300", etag: `"${pack.version}"`, vary: "X-Yallapp-Preview" };
+  if (etagValues(request.headers.get("if-none-match")).includes(pack.version)) return new Response(null, { status: 304, headers });
+  return json(pack, 200, headers);
 }
 
 export const GET = handle;

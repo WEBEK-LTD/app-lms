@@ -378,7 +378,7 @@ components:
           description: The plan's limits; null means unlimited. Missing on older platforms.
           properties:
             app_users: { type: [integer, 'null'], description: "App users on the hosted API. A WordPress site keeps its own users: no limit applies there." }
-            languages: { type: [integer, 'null'], description: "App languages, English included. The layout endpoint already sends at most this many." }
+            languages: { type: [integer, 'null'], description: "App languages, the default included; any language counts, whoever translates it. The layout endpoint already sends at most this many." }
             sources: { type: [integer, 'null'], description: "Connected content sources the app's pages can list (the app's main content, plus blog posts on WordPress). The layout endpoint already leaves out blocks beyond it." }
         sign_in_methods:
           type: [array, 'null']
@@ -447,13 +447,38 @@ components:
           description: '`Appearance` in the app API.'
         languages:
           type: object
-          description: '`Languages` in the app API.'
+          description: |
+            `Languages` in the app API, for the plugin's `Config.languages`:
+            any language the app can show (`LanguageCode`), in the owner's
+            order. `list` (`AppLanguage`) names each one, its direction and the
+            owner's string pack, which the app downloads from the platform;
+            the plugin passes it on as it is. Tab names, page titles and
+            sample texts Yallapp wrote already carry their Arabic and Turkish
+            in `translations` where the owner wrote none.
           required: [default, available]
           properties:
             default: { type: string, example: en }
             available:
               type: array
               items: { type: string, example: ar }
+            list:
+              type: array
+              items:
+                type: object
+                required: [code, name, native_name, direction, strings]
+                properties:
+                  code: { type: string, example: fr }
+                  name: { type: string, example: French }
+                  native_name: { type: string, example: Français }
+                  direction: { type: string, enum: [ltr, rtl] }
+                  strings:
+                    oneOf:
+                      - type: object
+                        required: [url, version]
+                        properties:
+                          url: { type: string, format: uri }
+                          version: { type: string }
+                      - type: 'null'
         tabs:
           type: array
           minItems: 2

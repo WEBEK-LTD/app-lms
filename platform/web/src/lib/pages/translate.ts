@@ -1,4 +1,4 @@
-import { ENTRY_LISTS, LANGUAGE_CODES, type LanguageCode, type Languages, type LayoutBlock, type Translations } from "./types";
+import { ENTRY_LISTS, type LanguageCode, type Languages, type LayoutBlock, type Translations } from "./types";
 
 /**
  * The language to answer in: the first language in `Accept-Language` (by
@@ -10,12 +10,12 @@ export function pickLanguage(acceptLanguage: string | null | undefined, language
     .map((part, index) => {
       const [tag = "", ...params] = part.trim().split(";");
       const q = params.map((p) => /^\s*q\s*=\s*([0-9.]+)\s*$/i.exec(p)?.[1]).find(Boolean);
-      return { code: tag.trim().toLowerCase().split("-")[0] ?? "", q: q === undefined ? 1 : Number(q), index };
+      return { code: tag.trim().toLowerCase().split(/[-_]/)[0] ?? "", q: q === undefined ? 1 : Number(q), index };
     })
     .filter((w) => w.code && Number.isFinite(w.q) && w.q > 0)
     .sort((a, b) => b.q - a.q || a.index - b.index);
   for (const { code } of wanted) {
-    if ((LANGUAGE_CODES as readonly string[]).includes(code) && languages.available.includes(code as LanguageCode)) return code as LanguageCode;
+    if (languages.available.includes(code)) return code;
   }
   return languages.default;
 }

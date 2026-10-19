@@ -5,7 +5,8 @@ import { saveAppDefaultsAction } from "@/app/actions/app-defaults";
 import { FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import { CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
-import { APP_FONTS, APP_TEMPLATES, CARD_STYLES, CORNERS, LANGUAGE_CODES, LANGUAGE_NAMES, THEME_MODES, type AppDefaultsSetting } from "@/lib/pages/types";
+import { languageName } from "@/lib/i18n/locales";
+import { APP_FONTS, APP_TEMPLATES, CARD_STYLES, CORNERS, LANGUAGE_CODES, THEME_MODES, type AppDefaultsSetting } from "@/lib/pages/types";
 
 function Select({ name, label, value, options }: { name: string; label: string; value: string; options: { id: string; label: string }[] }) {
   return (
@@ -45,7 +46,7 @@ export function AppDefaultsForm({ current }: { current: AppDefaultsSetting }) {
           name="default_language"
           label="Default language"
           value={v?.default_language ?? current.languages.default}
-          options={LANGUAGE_CODES.map((l) => ({ id: l, label: LANGUAGE_NAMES[l] }))}
+          options={LANGUAGE_CODES.map((l) => ({ id: l, label: languageName(l) }))}
         />
       </div>
       <label className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -63,7 +64,7 @@ export function AppDefaultsForm({ current }: { current: AppDefaultsSetting }) {
           {LANGUAGE_CODES.map((l) => (
             <label key={l} className="flex cursor-pointer items-center gap-2 text-[15px]">
               <input type="checkbox" name="languages" value={l} defaultChecked={chosen.has(l)} className="h-4 w-4 accent-midnight" />
-              {LANGUAGE_NAMES[l]}
+              {languageName(l)}
             </label>
           ))}
         </div>

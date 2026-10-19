@@ -20,8 +20,13 @@ info:
     - The app sends `Accept-Language` with the language the user picked
       (one of `Config.languages.available`). Texts the client wrote (pages,
       blocks, listings) come back in that language when a translation exists,
-      else in the default language. The app's own interface strings ship with
-      the app.
+      else in the default language. Tab names, page titles and sample texts
+      that Yallapp wrote come in Arabic and Turkish too, unless the owner
+      translated them; the hosted API answers its messages and labels in
+      those languages as well. The app's own interface strings ship with the
+      app in English, Arabic and Turkish; the owner's translations of them
+      (any language) come as string packs (`Config.languages.list`,
+      `GET /strings/{language}`).
 
     The app preview (in the Yallapp dashboard) runs the same app in a web
     browser at `https://yallapp.com.tr/preview-app/`. For it to reach the API,
@@ -275,6 +280,54 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AppPage' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /strings/{language}:
+    get:
+      tags: [App]
+      operationId: getStringPack
+      summary: Get the owner's translations of the app's own texts in one language
+      description: |
+        Served by the Yallapp platform for every app, also those on WordPress or
+        their own API: the app takes the address from
+        `Config.languages.list[].strings.url` and never builds it. The pack has
+        the owner's translations of the app's interface strings (the keys of
+        the app's string files); the app shows the owner's string, else its own
+        in that language, else English. Keep the last pack for offline use and
+        download it again when `strings.version` in `/config` changes. Strings
+        with placeholders use the same ICU format as the app's string files
+        (`{name}`, `{count, plural, =1{…} other{…}}`), checked when the owner
+        saves them. With `draft=1` and `X-Yallapp-Preview`, the app preview
+        gets the Pages & look draft's strings.
+      security: []
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/LanguageCode' }
+        - name: v
+          in: query
+          required: false
+          description: The pack's version, so caches keep each version apart.
+          schema: { type: string }
+        - name: draft
+          in: query
+          required: false
+          schema: { type: string, enum: ['1'] }
+      responses:
+        '200':
+          description: The language's strings
+          headers:
+            ETag:
+              description: The pack's version.
+              schema: { type: string }
+            Cache-Control:
+              schema: { type: string, example: 'public, max-age=300' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StringPack' }
+        '304':
+          description: Not modified since the version in `If-None-Match`.
         '404': { $ref: '#/components/responses/NotFound' }
 
   /auth/otp/request:
@@ -2906,7 +2959,7 @@ components:
             - cancel_not_allowed
             - campaign_closed
             - donations_unavailable
-        message: { type: string, description: A message safe to show to the student. }
+        message: { type: string, description: "A message safe to show to the student, in the language the app asked for with `Accept-Language` when the server has it (the hosted API: English, Arabic and Turkish), else in English." }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
         contact:
@@ -4689,10 +4742,12 @@ components:
     Languages:
       type: object
       description: |
-        The languages the client turned on. The app's interface is English by
-        default and ships translations for every code in the enum; Arabic is
-        shown right to left. The app offers a language picker in Settings when
-        more than one is available, and sends the choice as `Accept-Language`.
+        The languages the client offers, in the order the app's language
+        picker shows them. The app ships its interface in English, Arabic and
+        Turkish; for any other language it shows the owner's string pack over
+        English. The app offers a language picker in Settings when more than
+        one is available, and sends the choice as `Accept-Language`. Apps
+        older than `list` leave out codes they don't ship.
       required: [default, available]
       properties:
         default: { $ref: '#/components/schemas/LanguageCode' }
@@ -4700,10 +4755,59 @@ components:
           type: array
           minItems: 1
           items: { $ref: '#/components/schemas/LanguageCode' }
+        list:
+          type: array
+          description: |
+            Each code of `available`, in the same order, with its names, its
+            direction and the owner's string pack. Missing from older servers:
+            the app then names languages itself and uses its own strings.
+          items: { $ref: '#/components/schemas/AppLanguage' }
+
+    AppLanguage:
+      type: object
+      required: [code, name, native_name, direction, strings]
+      properties:
+        code: { $ref: '#/components/schemas/LanguageCode' }
+        name: { type: string, description: The language's name in English., example: French }
+        native_name: { type: string, description: 'Its name in the language itself, for the picker.', example: Français }
+        direction:
+          type: string
+          enum: [ltr, rtl]
+          description: Right to left for Arabic, Persian, Hebrew, Urdu, Pashto, Uyghur and others; the whole app turns around.
+        strings:
+          description: Where the owner's translations of the app's own texts are (`getStringPack`); null when there are none.
+          oneOf:
+            - type: object
+              required: [url, version]
+              properties:
+                url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000/strings/fr?v=4f2a9c01d3b7e855' }
+                version: { type: string, example: 4f2a9c01d3b7e855 }
+            - type: 'null'
+
+    StringPack:
+      type: object
+      required: [language, version, strings]
+      properties:
+        language: { $ref: '#/components/schemas/LanguageCode' }
+        version: { type: string, description: 'Changes with the strings; `empty` when there are none.' }
+        strings:
+          type: object
+          description: The app's string key, then the owner's text in this language.
+          additionalProperties: { type: string, maxLength: 2000 }
+          example: { tabHome: Accueil, itemCount: '{count, plural, =1{1 article} other{{count} articles}}' }
 
     LanguageCode:
       type: string
-      enum: [en, ar, tr]
+      pattern: '^[a-z]{2,3}$'
+      description: |
+        A language the app's system screens come in (Flutter's Material and
+        Cupertino localizations): af, am, ar, as, az, be, bg, bn, bo, bs, ca,
+        cs, cy, da, de, el, en, es, et, eu, fa, fi, fil, fr, ga, gl, gsw, gu,
+        he, hi, hr, hu, hy, id, is, it, ja, ka, kk, km, kn, ko, ky, lo, lt, lv,
+        mk, ml, mn, mr, ms, my, nb, ne, nl, no, or, pa, pl, ps, pt, ro, ru, si,
+        sk, sl, sq, sr, sv, sw, ta, te, th, tl, tr, ug, uk, ur, uz, vi, zh, zu.
+        Yallapp ships translations for en, ar and tr.
+      example: en
 
     ListingsConfig:
       type: object
@@ -5005,7 +5109,7 @@ components:
             - $ref: '#/components/schemas/EventVenue'
             - type: 'null'
         online: { type: boolean, description: 'Whether it can be joined online (it has an online link).' }
-        price_label: { type: [string, 'null'], description: 'Display text only ("Free", "From ₺150"). Never a purchase button.', example: Free }
+        price_label: { type: [string, 'null'], description: 'Display text only ("Free", "From ₺150"), in the language the app asked for with `Accept-Language` (English, Arabic or Turkish on the hosted API). Never a purchase button.', example: Free }
         status: { type: string, enum: [scheduled, cancelled, ended] }
         spots_left: { type: [integer, 'null'], description: 'Places left across its ticket types; null when there''s no limit.' }
         sold_out: { type: boolean }

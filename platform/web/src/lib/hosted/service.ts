@@ -21,6 +21,7 @@ import { hasFeature, type PlanInfo } from "../plans";
 import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
+import { localizedError, requestLanguage } from "../i18n/builtin";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -185,7 +186,17 @@ async function userLimitReached(ctx: HostedContext, phone: string | null, email:
 /** 34 The account endpoints Yallapp serves for an app on its own API; everything else is the client's API's. */
 const SIGN_IN_ONLY_ROUTES = new Set(["POST /auth/logout", "GET /me", "PATCH /me", "DELETE /me", "GET /me/devices"]);
 
+/**
+ * The hosted API. 43 An error's message comes in the language the app asks
+ * in when Yallapp has it (Arabic, Turkish), else in English.
+ */
 export async function handleHosted(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
+  const result = await route(ctx, req);
+  if (result.status < 400 || result.body === undefined) return result;
+  return { ...result, body: localizedError(result.body, requestLanguage(req.headers?.get("accept-language"))) };
+}
+
+async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResult> {
   // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
   const signInOnly = signsForOwnApi(ctx);
   if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
@@ -254,6 +265,8 @@ export async function handleHosted(ctx: HostedContext, req: HostedRequest): Prom
       body: req.body,
       user: session?.user ?? null,
       now: ctx.now,
+      // 43 Labels the connector writes (an event's price) in the app's language.
+      lang: requestLanguage(req.headers?.get("accept-language")),
     });
     if (result) return result;
   }
@@ -334,7 +347,11 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       ? { donations: { ...extra.donations, updates_push: extra.donations.updates_push && ctx.push && (ctx.plan === undefined || hasFeature(ctx.plan, "push")) } }
       : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
-    ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null)),
+    // 43 With each language's name, direction and the owner's string pack.
+    ...(await lookAndLanguages(ctx.store, app, ctx.preview?.draft ? await draftLayout(ctx.store, app, ctx.now) : undefined, ctx.plan ?? null, {
+      platformUrl: ctx.platformUrl,
+      draft: Boolean(ctx.preview?.draft),
+    })),
   });
 }
 

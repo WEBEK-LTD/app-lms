@@ -8,7 +8,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { designById, designFits, designsFor } from "@/lib/pages/designs";
-import { designLayout, designSamples, hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
+import { designLayout, designSamples, hasUnpublishedChanges, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -86,7 +86,7 @@ export default async function PagesPage() {
       )}
       <PagesEditor
         initial={{
-          draft: record.draft,
+          draft: withoutStrings(record.draft),
           savedAt: record.draftUpdatedAt.toISOString(),
           published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
           changes: hasUnpublishedChanges(record),

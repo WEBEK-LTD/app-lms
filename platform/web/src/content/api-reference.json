@@ -19,6 +19,13 @@
           "summary": "Get home screen sections",
           "description": "Sections in the order chosen in the plugin settings. Signed-out users get the public sections only.",
           "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/strings/{language}",
+          "summary": "Get the owner's translations of the app's own texts in one language",
+          "description": "Served by the Yallapp platform for every app, also those on WordPress or their own API: the app takes the address from `Config.languages.list[].strings.url` and never builds it. The pack has the owner's translations of the app's interface strings (the keys of the app's string files); the app shows the owner's string, else its own in that language, else English. Keep the last pack for offline use and download it again when `strings.version` in `/config` changes. Strings with placeholders use the same ICU format as the app's string files (`{name}`, `{count, plural, =1{…} other{…}}`), checked when the owner saves them. With `draft=1` and `X-Yallapp-Preview`, the app preview gets the Pages & look draft's strings.",
+          "access": "public"
         }
       ]
     },

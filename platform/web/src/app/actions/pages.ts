@@ -6,7 +6,7 @@ import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/aut
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord } from "@/lib/data/types";
 import { designById, designFits } from "@/lib/pages/designs";
-import { discardDraft, hasUnpublishedChanges, publishLayout, saveDesignDraft, saveDraft } from "@/lib/pages/layout";
+import { discardDraft, hasUnpublishedChanges, publishLayout, saveDesignDraft, saveDraft, withoutStrings } from "@/lib/pages/layout";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan } from "@/lib/entitlements";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
@@ -35,7 +35,8 @@ async function requireLayoutApp(): Promise<ClientContext & { app: App }> {
 function result(record: AppLayoutRecord, message?: string): LayoutSaveResult {
   return {
     ok: true,
-    draft: record.draft,
+    // 43 Without the interface strings: the Languages page edits those, and the editor's saves keep them.
+    draft: withoutStrings(record.draft),
     savedAt: record.draftUpdatedAt.toISOString(),
     published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
     changes: hasUnpublishedChanges(record),

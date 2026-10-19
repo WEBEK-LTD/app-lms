@@ -8,6 +8,8 @@ import type { AppDefaultsSetting, Appearance, Languages, Layout, LayoutContent, 
 import { parseLayoutContent, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
+import { withBuiltInTexts } from "./builtin";
+import { withLanguageList } from "../i18n/packs";
 
 /**
  * The draft and the published copy of an app's layout (roadmap 10.4). The
@@ -62,12 +64,18 @@ function stampPages(next: LayoutContent, previous: LayoutContent | null, now: Da
   };
 }
 
-/** Checks and saves the dashboard's draft. */
+/**
+ * Checks and saves the dashboard's draft. 43 A draft sent without
+ * `strings` (the page editor's) keeps the interface strings it had; the
+ * Translations page sends them.
+ */
 export async function saveDraft(store: DataStore, app: App, input: unknown, now: Date): Promise<ParseResult<AppLayoutRecord>> {
   const parsed = parseLayoutContent(input, { app, now });
   if (!parsed.ok) return parsed;
   const record = await loadLayout(store, app, now);
-  const saved: AppLayoutRecord = { ...record, draft: stampPages(parsed.value, record.draft, now), draftUpdatedAt: now };
+  const sentStrings = Boolean(input && typeof input === "object" && "strings" in input);
+  const next: LayoutContent = sentStrings || !record.draft.strings ? parsed.value : { ...parsed.value, strings: record.draft.strings };
+  const saved: AppLayoutRecord = { ...record, draft: stampPages(next, record.draft, now), draftUpdatedAt: now };
   await store.saveAppLayout(saved);
   return { ok: true, value: saved };
 }
@@ -166,6 +174,14 @@ export async function discardDraft(store: DataStore, app: App, now: Date): Promi
   return saved;
 }
 
+/** 43 The layout without the owner's interface strings (what the page editor works on). */
+export function withoutStrings<T extends LayoutContent>(layout: T): T {
+  if (!("strings" in layout)) return layout;
+  const { strings: _strings, ...rest } = layout;
+  void _strings;
+  return rest as T;
+}
+
 /** Whether the draft differs from what's published. */
 export function hasUnpublishedChanges(record: AppLayoutRecord): boolean {
   if (!record.published) return true;
@@ -183,13 +199,14 @@ export async function publishedLayout(store: DataStore, appId: string): Promise<
  * changes when the defaults do.
  */
 export async function servedLayout(store: DataStore, app: App, plan: PlanInfo | null = null, options: { draft?: boolean; now?: Date } = {}): Promise<Layout> {
+  // 43 With Yallapp's own translations of the texts it wrote, where the owner has none.
   // 17 The app preview can show the draft, with the plan's limits like the published layout.
-  if (options.draft) return layoutForPlan(await draftLayout(store, app, options.now ?? new Date()), app, plan, await appDefaults(store));
+  if (options.draft) return withBuiltInTexts(layoutForPlan(await draftLayout(store, app, options.now ?? new Date()), app, plan, await appDefaults(store)));
   const published = await publishedLayout(store, app.id);
   const defaults = await appDefaults(store);
-  if (published) return layoutForPlan(published, app, plan, defaults);
+  if (published) return withBuiltInTexts(layoutForPlan(published, app, plan, defaults));
   const content = defaultLayout(app, defaults, app.createdAt);
-  return layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults);
+  return withBuiltInTexts(layoutForPlan({ version: `default.${sha256Hex(JSON.stringify(content)).slice(0, 16)}`, ...content }, app, plan, defaults));
 }
 
 /**
@@ -203,16 +220,21 @@ export async function draftLayout(store: DataStore, app: App, now: Date): Promis
 
 /**
  * `Config.appearance` and `Config.languages`: from the published layout, or
- * the defaults before the first publish.
+ * the defaults before the first publish. 43 With `packs`, each language's
+ * names, direction and string pack (`Languages.list`); `draft` points the
+ * packs at the draft's strings, for the preview.
  */
 export async function lookAndLanguages(
   store: DataStore,
   app: App,
   published?: Layout | null,
   plan: PlanInfo | null = null,
+  packs: { platformUrl: string; draft?: boolean } | null = null,
 ): Promise<{ appearance: Appearance; languages: Languages }> {
   const layout = published === undefined ? await publishedLayout(store, app.id) : published;
-  if (layout) return { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan) };
+  const withList = (languages: Languages): Languages =>
+    packs ? withLanguageList(languages, layout?.strings, { platformUrl: packs.platformUrl, appId: app.id, draft: packs.draft }) : languages;
+  if (layout) return { appearance: layout.appearance, languages: withList(languagesForPlan(layout.languages, plan)) };
   const defaults = await appDefaults(store);
-  return { appearance: defaultAppearance(app, defaults), languages: languagesForPlan(defaults.languages, plan) };
+  return { appearance: defaultAppearance(app, defaults), languages: withList(languagesForPlan(defaults.languages, plan)) };
 }

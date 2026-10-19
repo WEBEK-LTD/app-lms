@@ -51,6 +51,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard", label: "Overview", icon: "dashboard", exact: true },
         { href: "/dashboard/setup", label: "App setup", icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: "Pages & look", icon: "palette" },
+        // 43 The app's languages and every text in them.
+        { href: "/dashboard/languages", label: "Languages", icon: "language" },
         { href: "/dashboard/preview", label: "Preview your app", icon: "visibility" },
       ],
     },

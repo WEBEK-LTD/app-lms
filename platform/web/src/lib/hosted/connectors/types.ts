@@ -14,6 +14,8 @@ export interface ConnectorRequest {
   /** The signed-in customer, when the request has a valid access token. */
   user: HostedUser | null;
   now: Date;
+  /** 43 The language the app asks in ("ar"), for labels the connector writes; null or missing: English. */
+  lang?: string | null;
 }
 
 /**

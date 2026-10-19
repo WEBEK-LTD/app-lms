@@ -15,7 +15,7 @@ import { appUrl, signingSecret } from "@/lib/env";
 import { hostedSettings } from "@/lib/hosted/service";
 import { yallappSignsIn } from "@/lib/hosted/sign-in-methods";
 import { appDefaults, draftLayout, publishedLayout } from "@/lib/pages/layout";
-import { LANGUAGE_NAMES } from "@/lib/pages/types";
+import { languageName } from "@/lib/i18n/locales";
 import { languagesForPlan } from "@/lib/pages/plan";
 import { draftPreviewSupported, missingSteps, previewContentSource } from "@/lib/preview/config";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
@@ -47,7 +47,8 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const draftSupported = draftPreviewSupported(app);
-  const draft = draftSupported && (await searchParams).pages === "draft";
+  const params = await searchParams;
+  const draft = draftSupported && params.pages === "draft";
   const token = createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now);
   const path = previewAppPath(token);
   const phoneUrl = `${appUrl()}${path}`;
@@ -58,7 +59,9 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   // The languages the app offers, as it will get them (draft or published, within the plan).
   const layout = draft ? await draftLayout(store, app, now) : await publishedLayout(store, app.id);
   const languages = languagesForPlan(layout?.languages ?? (await appDefaults(store)).languages, plan);
-  const languageOptions = languages.available.map((code) => ({ code, label: LANGUAGE_NAMES[code] }));
+  const languageOptions = languages.available.map((code) => ({ code, label: languageName(code) }));
+  // 43 The Languages page opens the preview in the language being translated.
+  const startLanguage = typeof params.lang === "string" && languages.available.includes(params.lang) ? params.lang : languages.default;
 
   const sourceText: Record<typeof source, string> = {
     wordpress: `Your WordPress site, ${app.siteUrl ?? ""}, through the Yallapp plugin.`,
@@ -142,7 +145,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
       )}
 
       <div className="grid items-start gap-6 lg:grid-cols-[auto_minmax(0,1fr)]">
-        <PreviewPanel src={path} appName={name} languages={languageOptions} defaultLanguage={languages.default} />
+        <PreviewPanel src={path} appName={name} languages={languageOptions} defaultLanguage={startLanguage} />
 
         <div className="flex min-w-0 flex-col gap-4">
           {missing.length ? (

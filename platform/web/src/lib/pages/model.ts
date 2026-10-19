@@ -73,7 +73,8 @@ export function switchDefaultLanguage(layout: LayoutContent, to: LanguageCode): 
   if (from === to) return layout;
   return {
     ...layout,
-    languages: { default: to, available: [to, ...layout.languages.available.filter((l) => l !== to)] },
+    // 43 The owner's order stays; a language that wasn't offered yet comes first.
+    languages: { default: to, available: layout.languages.available.includes(to) ? layout.languages.available : [to, ...layout.languages.available] },
     tabs: layout.tabs.map((t) => swapTexts(t, TRANSLATABLE.tab, from, to)),
     pages: layout.pages.map((p) => ({
       ...swapTexts(p, TRANSLATABLE.page, from, to),

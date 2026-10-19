@@ -15,14 +15,13 @@ import {
   APP_TEMPLATES,
   CARD_STYLES,
   CORNERS,
-  LANGUAGE_CODES,
-  LANGUAGE_NAMES,
   LAYOUT_LIMITS,
   THEME_MODES,
   type Appearance,
   type BlockType,
   type ItemSource,
   type LanguageCode,
+  type Languages,
   type LayoutBlock,
   type LayoutContent,
   type LayoutPage,
@@ -31,6 +30,8 @@ import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 import { DesignThumb, PhonePreview } from "./preview";
 import { UpgradeHint } from "@/components/upgrade";
+import { languageName, MAX_LANGUAGES } from "@/lib/i18n/locales";
+import { LanguageList } from "../languages/language-list";
 import type { Plan } from "@/lib/plans";
 
 /** 13.1 What the app's plan allows in the editor. */
@@ -331,17 +332,14 @@ export function PagesEditor({
 
   const setLook = (patch: Partial<Appearance>) => update((l) => ({ ...l, appearance: { ...l.appearance, ...patch } }));
 
-  function toggleLanguage(code: LanguageCode, on: boolean) {
+  // 43 Added, removed, reordered or a new default; a new default takes its translations as the main texts.
+  function changeLanguages(next: Languages, defaultTo?: string) {
     update((l) => {
-      const available = on ? [...l.languages.available, code] : l.languages.available.filter((c) => c !== code);
-      return { ...l, languages: { default: l.languages.default, available: LANGUAGE_CODES.filter((c) => c === l.languages.default || available.includes(c)) } };
+      const base = defaultTo ? switchDefaultLanguage(l, defaultTo) : l;
+      return { ...base, languages: { default: base.languages.default, available: next.available } };
     });
-    if (!on && editLang === code) setEditLang(def);
-  }
-
-  function changeDefault(code: LanguageCode) {
-    update((l) => switchDefaultLanguage(l, code));
-    setEditLang(code);
+    if (defaultTo) setEditLang(defaultTo);
+    else if (!next.available.includes(editLang)) setEditLang(def);
   }
 
   const statusText =
@@ -380,7 +378,7 @@ export function PagesEditor({
                 id="edit-language"
                 label="Edit texts in"
                 value={lang.edit}
-                options={layout.languages.available.map((c) => ({ value: c, label: c === def ? `${LANGUAGE_NAMES[c]} (default)` : LANGUAGE_NAMES[c] }))}
+                options={layout.languages.available.map((c) => ({ value: c, label: c === def ? `${languageName(c)} (default)` : languageName(c) }))}
                 onChange={setEditLang}
               />
             </div>
@@ -783,22 +781,16 @@ export function PagesEditor({
             <div className="flex flex-col gap-1">
               <h2 className="m-0 text-lg font-bold">Languages</h2>
               <p className="m-0 text-[15px] text-ink-4">
-                People pick a language in the app&apos;s settings when you turn on more than one. Arabic shows right to left. Write each text in every language with &quot;Edit texts in&quot; above;
-                empty texts show the default language.
+                People pick a language in the app&apos;s settings when you offer more than one. Write your page texts in each language with &quot;Edit texts in&quot; above, or all at
+                once on the{" "}
+                <a href="/dashboard/languages" className="font-semibold">
+                  Languages
+                </a>{" "}
+                page, with the app&apos;s own texts. Empty texts show Yallapp&apos;s translation of the texts it wrote, else the default language.
               </p>
             </div>
-            <div className="max-w-[280px]">
-              <SelectInput id="languages-default" label="Default language" value={def} options={LANGUAGE_CODES.map((c) => ({ value: c, label: LANGUAGE_NAMES[c] }))} onChange={changeDefault} />
-            </div>
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-1.5 p-0 text-sm font-semibold">Languages in the app</legend>
-              <div className="flex flex-wrap gap-x-5 gap-y-2">
-                {LANGUAGE_CODES.map((c) => {
-                  const on = c === def || layout.languages.available.includes(c);
-                  return <Check key={c} label={LANGUAGE_NAMES[c]} checked={on} disabled={c === def || (!on && languagesFull)} onChange={(next) => toggleLanguage(c, next)} />;
-                })}
-              </div>
-            </fieldset>
+            {/* 43 Any language, in the owner's order. */}
+            <LanguageList languages={layout.languages} onChange={changeLanguages} full={languagesFull} max={MAX_LANGUAGES} idPrefix="pages-languages" />
             {plan.languages !== null && languagesFull ? (
               <UpgradeHint title="More app languages" to={plan.upgradeLanguages}>
                 The {plan.name} plan includes {plan.languages} app language{plan.languages === 1 ? "" : "s"}.

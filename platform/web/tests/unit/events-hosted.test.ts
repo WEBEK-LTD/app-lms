@@ -169,6 +169,17 @@ describe("28 events and tickets on the hosted API", () => {
     expect((summary.items[0] as unknown as { starts_local: string }).starts_local).toBe(`${days(2).toISOString().slice(0, 10)}T13:00`);
   });
 
+  // 43 (38.20) The price label in the language the app asks in, as the cards on its pages.
+  it("writes the price label in Arabic and Turkish", async () => {
+    const list = async (lang: string) => {
+      const result = await connector().handle({ method: "GET", path: ["events"], query: new URLSearchParams(), body: undefined, user, now: NOW, lang });
+      return (result!.body as { items: { price_label: string }[] }).items.map((e) => e.price_label);
+    };
+    expect(await list("tr")).toEqual(["Ücretsiz", "₺350.00 ve üzeri", "Ücretsiz · ₺150.00 ve üzeri"]);
+    expect(await list("ar")).toEqual(["مجاني", "ابتداءً من ⁦₺350.00⁩", "مجاني · ابتداءً من ⁦₺150.00⁩"]);
+    expect(await list("fr")).toEqual(["Free", "From ₺350.00", "Free · from ₺150.00"]);
+  });
+
   it("serves an event with what each ticket's button does on each platform", async () => {
     const actions = async (event: EventRecord, platform: string, with_?: EventsConnector) => {
       const body = (await call("GET", "/events/{event_id}", { params: [String(event.id)], query: { platform }, with: with_ })).body as {
