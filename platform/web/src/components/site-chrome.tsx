@@ -58,7 +58,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
           </div>
           <nav aria-label="Product" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>PRODUCT</FooterHeading>
-            {[...PRODUCT_LINKS, { id: "pricing", href: "/pricing", label: "Pricing" }, { id: "demo", href: "/demo", label: "Demo" }].map((page) => (
+            {[{ id: "home", href: "/", label: "Home" }, ...PRODUCT_LINKS, { id: "pricing", href: "/pricing", label: "Pricing" }, { id: "demo", href: "/demo", label: "Demo" }].map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}
               </Link>

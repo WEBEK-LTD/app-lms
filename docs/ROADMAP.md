@@ -1165,13 +1165,13 @@ choice is in `apps.hosted_settings`).
 | [ ] | 53.11 Not tried on real phones: that Android screen recordings and screenshots of a lesson, its video full screen and a dialog come out black and the recent apps hide it; that iOS covers a lesson while recording or mirroring, leaves it out of screenshots (the secure layer: check every supported iOS version, and that touches, the keyboard and rotation still work), shows the notice and blurs the app switcher; the PDF viewer on both; that a backup (Google, iCloud, a computer) and a move to a new phone leave saved lessons out | A device test with a protected course |
 | [ ] | 53.12 What can't be blocked: a photo or video of the screen taken with another device; on iOS a screenshot where the secure layer stops working with an iOS update (the notice still shows). Android's screenshot detection (Android 14) isn't used since `FLAG_SECURE` blocks them | Known limits, said on the dashboard page |
 
-## Phase 54: The website knows who is signed in, WhatsApp's mark, a new comparison, and the email in the footer
+## Phase 54: The website knows who is signed in, Home in the menus, WhatsApp's mark, a new comparison, and the email in the footer
 
 The owner asked for four touches on yallapp.com.tr: people who are signed in
 still saw "Sign in" and "Get started"; the WhatsApp buttons showed a chat
 bubble instead of WhatsApp's mark; the "A typical app builder, and Yallapp"
-table needed a better look; and the footer's Contact column showed the
-website instead of the email. No migration, no contract change.
+table needed a better look; the footer's Contact column showed the
+website instead of the email; and the menus had no Home link. No migration, no contract change.
 
 | | Step | Done when |
 |---|---|---|
@@ -1179,5 +1179,6 @@ website instead of the email. No migration, no contract change.
 | [x] | 54.2 WhatsApp's mark (simple-icons, unaltered, in the button's color) on every button and link that opens a WhatsApp chat with Yallapp: the hero, the closing band, the footer, Contact, Docs and the pending page. `docs/BRAND.md` › Third-party brand marks allows it there | Screenshots |
 | [x] | 54.3 The comparison redrawn: the topics with their icons, a quiet column for a typical builder and a raised dark Yallapp column running the whole height; on phones a card per topic with the two answers one under the other; the same in dark mode. The languages row says any language the owner adds (Phase 43) | `public.spec.ts` (the table), screenshots at 1280 and 390 px and in dark mode |
 | [x] | 54.4 The footer's Contact column: the WhatsApp number and the email (Admin › Settings › Contact, `info@yallapp.com.tr` by default) instead of the website's address | Screenshot |
-| [ ] | 54.5 A session that ended on the server (signed out on another device, a password change) leaves the readable cookie until it expires: the header says Dashboard and the dashboard asks to sign in again | Acceptable; the sign-in page could clear it later |
+| [x] | 54.5 **Home** is the first entry of the main menu (marked on the home page) and of the footer's Product list | `website-seo.test.ts`, `public.spec.ts` |
+| [ ] | 54.6 A session that ended on the server (signed out on another device, a password change) leaves the readable cookie until it expires: the header says Dashboard and the dashboard asks to sign in again | Acceptable; the sign-in page could clear it later |
 
