@@ -213,6 +213,30 @@ mobile/
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number, also over videos
   played from video sites.
+- Lessons offline (Phase 45, `modules/lms/downloads/`): with
+  `features.downloads` (offline mode in the plan and the owner's choice) a
+  student saves a lesson or a whole course: the lesson itself, then
+  `POST /lessons/{id}/download` gives links to its files (the uploaded or
+  direct video file, attachments, images in the text), signed for the
+  student for 15 minutes (the plugin's `/media/{id}` with a `download|`
+  signature of its own). background_downloader transfers them (in the
+  background, pausable, Wi-Fi only when asked, one notification when the
+  batch is done) into the app's cache; each file is then sealed with
+  AES-256-GCM in 256 KiB chunks (the header and chunk index as associated
+  data) into the app's support folder, the key in the Keystore or Keychain
+  (this device only), and the plain copy deleted. Nothing is in the gallery
+  or the Files app. A saved video plays from a loopback server with a random
+  path that decrypts the chunks a range asks for, so the app's own player,
+  watermark and capture cover apply; images in the text come from it too, and
+  an attachment opens from a temporary decrypted copy deleted at the next
+  start. Lessons whose video plays from a video site can't be saved (409
+  `not_downloadable`). At each start online the app asks
+  `POST /me/downloads/check` and deletes what the student may no longer open
+  (and everything when downloads are off); without a check for `keep_days`
+  (30) days everything is deleted. Signing out deletes it all. Watch progress
+  and "Mark as complete" made offline wait on the phone and go out with the
+  usual calls when the connection is back (places first). The web build (the
+  app preview) has no downloads.
 
 ## Platform (yallapp.com.tr)
 
@@ -376,7 +400,11 @@ mobile/
     plugin's `features.push` and `features.offline` follow them when the
     license is enforced.
   - **App:** offline mode keeps GET answers (never sign-in calls, at most 150,
-    forgotten on sign-out) and shows them without a connection.
+    forgotten on sign-out) and shows them without a connection. Saving
+    lessons for offline viewing (Phase 45) needs the same plan feature and
+    the owner's choice on the Courses page (`apps.hosted_settings.offlineDownloads`:
+    on by default for courses managed in Yallapp; on WordPress null leaves the
+    plugin's "Allow offline downloads", sent as `LicenseStatus.offline_downloads`).
 
   Changing plans (License & plugin, `#change-plan`): an upgrade is paid by
   card and starts at once; the days left on the old plan are credited at

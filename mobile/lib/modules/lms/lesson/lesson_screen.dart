@@ -19,6 +19,10 @@ import '../../../core/web/web_view.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
+import '../downloads/download_manager.dart';
+import '../downloads/download_widgets.dart';
+import '../downloads/lesson_snapshot.dart';
+import '../downloads/progress_queue.dart';
 import '../navigation.dart';
 import 'content/html_content.dart';
 import 'embeds/inline_embed.dart';
@@ -113,6 +117,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     super.initState();
     _api;
     _signedIn;
+    _queue;
     final rules = ref.read(appConfigProvider).content;
     if (rules.blockScreenCapture) {
       final security = _security;
@@ -143,16 +148,31 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
   }
 
+  /// 45 Read once, like the API: the player saves its place after this
+  /// screen has left the tree.
+  late final _queue = ref.read(progressQueueProvider);
+
   void _saveProgress(int position, double percent) {
     if (!_signedIn) return;
+    final lessonId = widget.lessonId;
+    final queue = _queue;
     unawaited(
       _api
           .saveLessonProgress(
-            widget.lessonId,
+            lessonId,
             positionSeconds: position,
             watchedPercent: percent,
           )
-          .catchError((Object _) {}),
+          .catchError((Object e) {
+            // 45 Offline: sent when the app is back online.
+            if (e is ApiException && e.isOffline) {
+              return queue.addProgress(
+                lessonId,
+                positionSeconds: position,
+                watchedPercent: percent,
+              );
+            }
+          }),
     );
   }
 
@@ -176,7 +196,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       reportGoodMoment(ref, GoodMoment.lessonCompleted);
     } on ApiException catch (e) {
       if (!mounted) return;
-      if (e.code == ApiException.watchRequirementNotMet) {
+      if (e.isOffline) {
+        // 45 Completed offline: sent when the app is back online.
+        await _queue.addComplete(lesson.id);
+        if (!mounted) return;
+        setState(() => _completedOverride = true);
+        showMessage(context, context.l10n.lessonCompleteOffline);
+      } else if (e.code == ApiException.watchRequirementNotMet) {
         final percent = ref
             .read(appConfigProvider)
             .content
@@ -285,10 +311,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       ),
     );
     final subtitle = [?course?.title, ?position.topic?.title].join(' · ');
+    // 45 Save for offline.
+    final download = LessonDownloadButton(
+      lesson: lesson,
+      courseTitle: course?.title ?? '',
+      courseImage: course?.imageUrl,
+    );
 
     if (lesson.video != null) {
       return _VideoLesson(
         lesson: lesson,
+        download: download,
         subtitle: subtitle,
         position: position,
         footer: footer,
@@ -309,6 +342,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       counter: position.index != null && position.total != null
           ? context.l10n.lessonPosition(position.index!, position.total!)
           : context.l10n.lesson,
+      trailing: download,
     );
 
     if (lesson.renderMode == RenderMode.webview && lesson.webviewUrl != null) {
@@ -377,10 +411,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 }
 
 class _LessonHeader extends StatelessWidget {
-  const _LessonHeader({required this.subtitle, required this.counter});
+  const _LessonHeader({
+    required this.subtitle,
+    required this.counter,
+    this.trailing,
+  });
 
   final String subtitle;
   final String counter;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -422,6 +461,7 @@ class _LessonHeader extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailing != null) ...[const SizedBox(width: 12), trailing!],
             ],
           ),
         ),
@@ -490,6 +530,7 @@ class _LessonFooter extends StatelessWidget {
 class _VideoLesson extends ConsumerStatefulWidget {
   const _VideoLesson({
     required this.lesson,
+    required this.download,
     required this.subtitle,
     required this.position,
     required this.footer,
@@ -500,6 +541,9 @@ class _VideoLesson extends ConsumerStatefulWidget {
   });
 
   final Lesson lesson;
+
+  /// 45 The "Save for offline" button.
+  final Widget download;
   final String subtitle;
   final LessonPosition position;
   final Widget footer;
@@ -559,12 +603,20 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
                     style: TextStyle(fontSize: 12, color: p.textSecondary),
                   ),
                 const SizedBox(height: 4),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    lesson.title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          lesson.title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                    ),
+                    widget.download,
+                  ],
                 ),
                 const SizedBox(height: 14),
                 SegmentedTabs(
@@ -753,13 +805,27 @@ class _TopicItemRow extends StatelessWidget {
   }
 }
 
-class _Attachments extends StatelessWidget {
+class _Attachments extends ConsumerWidget {
   const _Attachments({required this.attachments});
 
   final List<Attachment> attachments;
 
+  /// 45 A saved attachment opens from the phone; the others from the web.
+  Future<void> _open(BuildContext context, WidgetRef ref, String url) async {
+    if (!url.startsWith('$savedFileScheme:')) {
+      await openExternal(url);
+      return;
+    }
+    final opened = await ref
+        .read(downloadManagerProvider.notifier)
+        .openSaved(url);
+    if (!opened && context.mounted) {
+      showMessage(context, context.l10n.downloadFailed);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => AppCard(
+  Widget build(BuildContext context, WidgetRef ref) => AppCard(
     child: Column(
       children: [
         for (final (i, a) in attachments.indexed) ...[
@@ -773,7 +839,7 @@ class _Attachments extends StatelessWidget {
               size: 20,
               color: context.palette.textSecondary,
             ),
-            onTap: () => openExternal(a.url),
+            onTap: () => _open(context, ref, a.url),
           ),
         ],
       ],

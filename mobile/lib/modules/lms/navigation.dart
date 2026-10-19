@@ -40,6 +40,11 @@ void openCurriculumItem(
 
 /// Continues an enrolled course at its next item, or opens the course.
 void continueCourse(BuildContext context, MyCourse course) {
+  // 45 A finished course opens on its page, to review it.
+  if (course.progress.courseCompleted) {
+    openCourse(context, course.course.id);
+    return;
+  }
   final next = course.nextItem;
   // 39 Earlier plugins could send an assignment here; it opens on the
   // website, so the course page is the better place to continue from.

@@ -193,19 +193,27 @@ class FakeApi implements YallappApi {
   @override
   Future<Paged<CourseSummary>> listCourses(CourseQuery query) => _answer(
     'listCourses',
-    () =>
-        Paged.fromJson(pageJson([courseSummaryJson()]), CourseSummary.fromJson),
+    () => Paged.fromJson(
+      pageJson([courseSummaryJson(enrolled: catalogEnrolled)]),
+      CourseSummary.fromJson,
+    ),
   );
+
+  /// 45 Whether the catalog's course says the student is enrolled.
+  bool catalogEnrolled = false;
 
   @override
   Future<CourseDetail> getCourse(int courseId) =>
       _answer('getCourse', () => CourseDetail.fromJson(course));
 
+  /// 45 The curriculum `getCurriculum` answers; [curriculumJson] by default.
+  Map<String, dynamic>? curriculum;
+
   @override
   Future<List<Topic>> getCurriculum(int courseId) => _answer(
     'getCurriculum',
     () => [
-      for (final t in curriculumJson()['topics'] as List)
+      for (final t in (curriculum ?? curriculumJson())['topics'] as List)
         Topic.fromJson(t as Map<String, dynamic>),
     ],
   );
@@ -225,8 +233,18 @@ class FakeApi implements YallappApi {
     int page = 1,
   }) => _answer(
     'listMyCourses',
-    () => Paged.fromJson(pageJson([myCourseJson()]), MyCourse.fromJson),
+    () => Paged.fromJson(
+      pageJson(
+        status == MyCoursesStatus.completed
+            ? completedCourses
+            : [myCourseJson()],
+      ),
+      MyCourse.fromJson,
+    ),
   );
+
+  /// 45 What My courses › Completed lists.
+  List<Map<String, dynamic>> completedCourses = [];
 
   @override
   Future<List<CourseSummary>> listWishlist() =>
@@ -241,7 +259,10 @@ class FakeApi implements YallappApi {
 
   @override
   Future<Lesson> getLesson(int lessonId) =>
-      _answer('getLesson', () => Lesson.fromJson(lesson));
+      _answer('getLesson', () => Lesson.fromJson(lessons[lessonId] ?? lesson));
+
+  /// 45 Lessons by ID; [lesson] for the others.
+  final lessons = <int, Map<String, dynamic>>{};
 
   @override
   Future<void> saveLessonProgress(
@@ -266,6 +287,52 @@ class FakeApi implements YallappApi {
       'percent': 65,
       'course_completed': false,
     }),
+  );
+
+  /// 45 What `downloadLesson` answers, per lesson; a video file by default.
+  final downloads = <int, Map<String, dynamic>>{};
+
+  @override
+  Future<LessonDownload> downloadLesson(int lessonId) => _answer(
+    'downloadLesson',
+    () => LessonDownload.fromJson(
+      downloads[lessonId] ??
+          {
+            'lesson_id': lessonId,
+            'course_id': 1,
+            'files': [
+              {
+                'kind': 'video',
+                'url': 'https://academy.test/wp-json/yallapp/v1/media/9?dl=1',
+              },
+            ],
+            'expires_at': DateTime.now()
+                .add(const Duration(minutes: 15))
+                .toUtc()
+                .toIso8601String(),
+            'keep_days': 30,
+          },
+    ),
+  );
+
+  /// 45 Lessons `checkDownloads` refuses, and whether downloads are on.
+  final refusedDownloads = <int>{};
+  bool downloadsOn = true;
+
+  @override
+  Future<DownloadCheck> checkDownloads(List<int> lessonIds) => _answer(
+    'checkDownloads',
+    () => DownloadCheck(
+      allowed: [
+        for (final id in lessonIds)
+          if (downloadsOn && !refusedDownloads.contains(id)) id,
+      ],
+      refused: [
+        for (final id in lessonIds)
+          if (!downloadsOn || refusedDownloads.contains(id)) id,
+      ],
+      downloads: downloadsOn,
+    ),
   );
 
   @override

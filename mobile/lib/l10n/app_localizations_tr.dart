@@ -3247,4 +3247,228 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get sendCrashReportsHint =>
       'Bir sorun olduğunda uygulama, düzeltilebilmesi için ne olduğunu, sürümünü ve telefon türünü gönderir. Adınızı, numaranızı veya yazdıklarınızı asla göndermez.';
+
+  @override
+  String get downloadNeedsInternetVideo =>
+      'Bu dersin videosu bir video sitesinden oynatılıyor, bu yüzden internet gerekiyor. Çevrimdışı izlemek için kaydedilemez.';
+
+  @override
+  String get downloadNeedsInternetPage =>
+      'Bu ders bir web sayfası gösteriyor, bu yüzden internet gerekiyor. Çevrimdışı izlemek için kaydedilemez.';
+
+  @override
+  String get downloadsOff =>
+      'Dersleri çevrimdışı izlemek için kaydetmek bu uygulamada yok.';
+
+  @override
+  String get downloadNotAvailable =>
+      'Bu ders çevrimdışı izlemek için kaydedilemez.';
+
+  @override
+  String get downloadFailed => 'İndirme tamamlanmadı. Tekrar deneyin.';
+
+  @override
+  String get downloadWaitsForConnection => 'Bağlantı bekleniyor.';
+
+  @override
+  String downloadsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count ders kaydedilmedi: videoları bir video sitesinden oynatılıyor, bu yüzden internet gerekiyor.',
+      one: '1 ders kaydedilmedi: videosu bir video sitesinden oynatılıyor, bu yüzden internet gerekiyor.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadsExpired(int days) {
+    return 'Kaydettiğiniz dersler silindi: uygulama $days gün boyunca erişiminizi kontrol edemedi. İnternete bağlanıp yeniden kaydedin.';
+  }
+
+  @override
+  String get downloadsTurnedOff =>
+      'Kaydettiğiniz dersler silindi: ders kaydetme artık bu uygulamada yok.';
+
+  @override
+  String downloadsAccessEnded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Erişiminiz sona erdiği için kaydedilen $count ders silindi.',
+      one: 'Erişiminiz sona erdiği için kaydedilen 1 ders silindi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsNotificationRunning => 'Çevrimdışı için kaydediliyor';
+
+  @override
+  String get downloadsNotificationPaused => 'İndirme duraklatıldı';
+
+  @override
+  String get downloadsNotificationDone => 'Çevrimdışı için kaydedildi';
+
+  @override
+  String get downloadsNotificationDoneBody =>
+      'Dersleriniz internetsiz izlemeye hazır.';
+
+  @override
+  String get downloadsNotificationFailed => 'İndirme başarısız oldu';
+
+  @override
+  String get downloads => 'İndirilenler';
+
+  @override
+  String get downloadLesson => 'Çevrimdışı için kaydet';
+
+  @override
+  String get downloadCourse => 'Kursu çevrimdışı için kaydet';
+
+  @override
+  String downloadSaving(int saved, int total) {
+    return 'Çevrimdışı için kaydediliyor · $saved/$total';
+  }
+
+  @override
+  String downloadSavingLesson(int percent) {
+    return 'Çevrimdışı için kaydediliyor · %$percent';
+  }
+
+  @override
+  String get downloadSaved => 'Çevrimdışı için kaydedildi';
+
+  @override
+  String downloadCourseSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders çevrimdışı için kaydedildi',
+      one: '1 ders çevrimdışı için kaydedildi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadQueued => 'İndirmeyi bekliyor';
+
+  @override
+  String get downloadPaused => 'Duraklatıldı';
+
+  @override
+  String get downloadPause => 'Duraklat';
+
+  @override
+  String get downloadResume => 'Sürdür';
+
+  @override
+  String get downloadRetry => 'Tekrar dene';
+
+  @override
+  String get downloadCancel => 'İndirmeyi iptal et';
+
+  @override
+  String get downloadDelete => 'Bu telefondan sil';
+
+  @override
+  String get downloadsDeleteAll => 'Tüm indirilenleri sil';
+
+  @override
+  String get downloadsDeleteAllConfirm =>
+      'Kaydedilen tüm dersler bu telefondan silinsin mi? Bağlantınız varken yeniden kaydedebilirsiniz.';
+
+  @override
+  String get downloadsDeleteCourseConfirm =>
+      'Bu kursun kaydedilen dersleri bu telefondan silinsin mi?';
+
+  @override
+  String get delete => 'Sil';
+
+  @override
+  String get downloadsStorage => 'Kullanılan alan';
+
+  @override
+  String get downloadsWifiOnly => 'Yalnızca Wi-Fi ile indir';
+
+  @override
+  String get downloadsWifiOnlyHint =>
+      'Mobil verinizi korur: indirmeler Wi-Fi\'ye bağlanana kadar bekler.';
+
+  @override
+  String get downloadsEmptyTitle => 'Henüz indirilen yok';
+
+  @override
+  String get downloadsEmptyMessage =>
+      'Bir dersi ya da kursun tamamını internetsiz izlemek ve okumak için kaydedin: kursta ya da derste Çevrimdışı için kaydet\'e dokunun.';
+
+  @override
+  String downloadsNote(int days) {
+    return 'Kaydedilen dersler bu uygulamanın içinde şifreli tutulur, galerinizde ya da dosyalarınızda asla görünmez. Kursa erişiminiz sona erdiğinde ya da $days gün bağlantı olmadan geçtiğinde silinir.';
+  }
+
+  @override
+  String downloadsKeptFor(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Bağlantı olmadan $days gün daha saklanır',
+      one: 'Bağlantı olmadan 1 gün daha saklanır',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsUnsupported =>
+      'İndirmeler telefonunuzdaki uygulamada çalışır.';
+
+  @override
+  String get downloadStarted =>
+      'Çevrimdışı için kaydediliyor. Uygulamayı kullanmaya devam edebilirsiniz.';
+
+  @override
+  String downloadCourseStarted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ders çevrimdışı için kaydediliyor.',
+      one: '1 ders çevrimdışı için kaydediliyor.',
+      zero: 'Açabildiğiniz tüm dersler zaten kaydedildi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadCourseSize(String lessons, String size) {
+    return '$lessons · $size';
+  }
+
+  @override
+  String sizeGigabytes(String size) {
+    return '$size GB';
+  }
+
+  @override
+  String get lessonCompleteOffline =>
+      'Tamamlandı olarak işaretlendi. Tekrar çevrimiçi olduğunuzda gönderilecek.';
+
+  @override
+  String get reviewCourse => 'Kursu gözden geçir';
+
+  @override
+  String courseCompletedOn(String date) {
+    return '$date tarihinde tamamlandı';
+  }
+
+  @override
+  String get courseCompletedTitle => 'Bu kursu tamamladınız';
+
+  @override
+  String get viewCertificate => 'Sertifikayı görüntüle';
+
+  @override
+  String completedCourseLabel(String title) {
+    return '$title, tamamlandı';
+  }
 }

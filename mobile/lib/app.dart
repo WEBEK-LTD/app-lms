@@ -14,6 +14,7 @@ import 'core/services/push_registration.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
+import 'modules/lms/downloads/learning_sync.dart';
 
 /// The app root: theme from the build and runtime config, routing, and the
 /// start-up gate.
@@ -38,7 +39,9 @@ class YallappApp extends ConsumerWidget {
       // 44 Usage statistics: the session and the screens.
       ..watch(analyticsRoutesProvider)
       // 46 Crash reports and the rating prompt's count of app runs.
-      ..watch(appHealthProvider);
+      ..watch(appHealthProvider)
+      // 45 Offline progress sent, saved lessons checked, at each start.
+      ..watch(learningSyncProvider);
 
     return MaterialApp.router(
       title: env.build.appName,

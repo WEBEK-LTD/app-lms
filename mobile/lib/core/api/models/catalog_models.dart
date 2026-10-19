@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'learning_models.dart' show Progress;
 import '../../l10n/l10n.dart';
 
 class PageMeta {
@@ -177,6 +178,8 @@ class CourseDetail extends CourseSummary {
     this.qna,
     this.studentCount,
     this.about = CourseAbout.empty,
+    this.progress,
+    this.certificateUrl,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -205,6 +208,8 @@ class CourseDetail extends CourseSummary {
       about: json['about'] is Map
           ? CourseAbout.fromJson(asJson(json['about']))
           : CourseAbout.empty,
+      progress: optObject(json, 'progress', Progress.fromJson),
+      certificateUrl: optString(json, 'certificate_url'),
     );
   }
 
@@ -225,6 +230,13 @@ class CourseDetail extends CourseSummary {
 
   /// 30 The lists the LMS keeps beside the description.
   final CourseAbout about;
+
+  /// 45 The signed-in student's progress, when enrolled; null for visitors
+  /// and from older servers.
+  final Progress? progress;
+
+  /// 45 The student's certificate for this course, once earned.
+  final String? certificateUrl;
 }
 
 /// 30 What students learn, the requirements, who the course is for and what

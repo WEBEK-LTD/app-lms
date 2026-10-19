@@ -72,6 +72,20 @@ CurriculumItem? nextItemToOpen(List<Topic> topics) {
   return open.where((item) => !item.completed).firstOrNull ?? open.firstOrNull;
 }
 
+/// 45 Whether an enrolled student finished the course: the server's
+/// progress says so (`CourseDetail.progress.course_completed`); from an older
+/// server without it, every lesson and quiz of the curriculum is complete.
+bool courseFinished(CourseDetail course, List<Topic>? topics) {
+  if (!course.enrolled) return false;
+  final progress = course.progress;
+  if (progress != null) return progress.courseCompleted;
+  if (topics == null) return false;
+  final items = [
+    for (final topic in topics) ...topic.items.where((item) => item.opensInApp),
+  ];
+  return items.isNotEmpty && items.every((item) => item.completed);
+}
+
 enum RenderMode { native, webview }
 
 class Lesson {
@@ -90,6 +104,7 @@ class Lesson {
     this.positionSeconds = 0,
     this.previousId,
     this.nextId,
+    this.offline,
   });
 
   factory Lesson.fromJson(Json json) => Lesson(
@@ -117,6 +132,7 @@ class Lesson {
     positionSeconds: intOr(json, 'position_seconds', 0),
     previousId: optInt(json, 'previous_id'),
     nextId: optInt(json, 'next_id'),
+    offline: optObject(json, 'offline', LessonOffline.fromJson),
   );
 
   final int id;
@@ -137,12 +153,16 @@ class Lesson {
   final int? previousId;
   final int? nextId;
 
+  /// 45 Whether the lesson can be saved for offline viewing; null (older
+  /// servers, connected schools) means it can't.
+  final LessonOffline? offline;
+
   /// The embed height rule for this lesson: its own override, else the
   /// site's setting.
   EmbedHeightMode embedHeightFor(ContentRules rules) =>
       embedHeight ?? rules.embedHeight;
 
-  Lesson copyWith({bool? completed}) => Lesson(
+  Lesson copyWith({bool? completed, int? positionSeconds}) => Lesson(
     id: id,
     courseId: courseId,
     title: title,
@@ -154,10 +174,139 @@ class Lesson {
     video: video,
     attachments: attachments,
     completed: completed ?? this.completed,
-    positionSeconds: positionSeconds,
+    positionSeconds: positionSeconds ?? this.positionSeconds,
     previousId: previousId,
     nextId: nextId,
+    offline: offline,
   );
+}
+
+/// 45 Why a lesson can't be saved for offline viewing.
+enum OfflineBlocker {
+  /// The video plays from a video site (YouTube, Vimeo, Bunny Stream...).
+  videoSite,
+
+  /// The lesson shows a web page or embedded content.
+  webPage,
+
+  /// Downloads aren't on for this app.
+  disabled,
+
+  /// The server didn't say (an older server, a connected school).
+  unknown,
+}
+
+/// 45 `Lesson.offline`.
+class LessonOffline {
+  const LessonOffline({required this.available, this.reason, this.sizeBytes});
+
+  factory LessonOffline.fromJson(Json json) => LessonOffline(
+    available: boolOr(json, 'available', false),
+    reason: switch (json['reason']) {
+      'video_site' => OfflineBlocker.videoSite,
+      'web_page' => OfflineBlocker.webPage,
+      'disabled' => OfflineBlocker.disabled,
+      null => null,
+      _ => OfflineBlocker.unknown,
+    },
+    sizeBytes: optInt(json, 'size_bytes'),
+  );
+
+  final bool available;
+  final OfflineBlocker? reason;
+  final int? sizeBytes;
+}
+
+enum DownloadFileKind { video, attachment, image }
+
+/// 45 One file of a lesson saved for offline viewing.
+class DownloadFile {
+  const DownloadFile({
+    required this.kind,
+    required this.url,
+    this.sourceUrl,
+    this.name,
+    this.sizeBytes,
+    this.mimeType,
+  });
+
+  factory DownloadFile.fromJson(Json json) => DownloadFile(
+    kind: enumFrom(
+      DownloadFileKind.values,
+      json['kind'],
+      DownloadFileKind.attachment,
+    ),
+    url: reqString(json, 'url'),
+    sourceUrl: optString(json, 'source_url'),
+    name: optString(json, 'name'),
+    sizeBytes: optInt(json, 'size_bytes'),
+    mimeType: optString(json, 'mime_type'),
+  );
+
+  final DownloadFileKind kind;
+
+  /// Where to download it: a short-lived link signed for the student.
+  final String url;
+
+  /// The address the lesson uses for it (an attachment's `url`, an image's
+  /// `src`); null for the video.
+  final String? sourceUrl;
+  final String? name;
+  final int? sizeBytes;
+  final String? mimeType;
+}
+
+/// 45 `POST /lessons/{id}/download`.
+class LessonDownload {
+  const LessonDownload({
+    required this.lessonId,
+    required this.courseId,
+    required this.files,
+    required this.expiresAt,
+    this.keepDays = 30,
+  });
+
+  factory LessonDownload.fromJson(Json json) => LessonDownload(
+    lessonId: reqInt(json, 'lesson_id'),
+    courseId: reqInt(json, 'course_id'),
+    files: listOf(json, 'files', DownloadFile.fromJson),
+    expiresAt: reqDate(json, 'expires_at'),
+    keepDays: intOr(json, 'keep_days', 30),
+  );
+
+  final int lessonId;
+  final int courseId;
+  final List<DownloadFile> files;
+  final DateTime expiresAt;
+  final int keepDays;
+}
+
+/// 45 `POST /me/downloads/check`.
+class DownloadCheck {
+  const DownloadCheck({
+    required this.allowed,
+    required this.refused,
+    required this.downloads,
+    this.keepDays = 30,
+  });
+
+  factory DownloadCheck.fromJson(Json json) => DownloadCheck(
+    allowed: [
+      for (final id in (json['allowed'] as List?) ?? const [])
+        if (id is int) id,
+    ],
+    refused: [
+      for (final id in (json['refused'] as List?) ?? const [])
+        if (id is int) id,
+    ],
+    downloads: boolOr(json, 'downloads', false),
+    keepDays: intOr(json, 'keep_days', 30),
+  );
+
+  final List<int> allowed;
+  final List<int> refused;
+  final bool downloads;
+  final int keepDays;
 }
 
 enum EmbedProvider { youtube, vimeo, sameSite, other }
@@ -231,6 +380,7 @@ class Progress {
     required this.totalItems,
     required this.percent,
     this.courseCompleted = false,
+    this.completedAt,
   });
 
   factory Progress.fromJson(Json json) => Progress(
@@ -239,6 +389,7 @@ class Progress {
     totalItems: reqInt(json, 'total_items'),
     percent: reqInt(json, 'percent').clamp(0, 100),
     courseCompleted: boolOr(json, 'course_completed', false),
+    completedAt: optDate(json, 'completed_at'),
   );
 
   final int courseId;
@@ -246,6 +397,9 @@ class Progress {
   final int totalItems;
   final int percent;
   final bool courseCompleted;
+
+  /// 45 When the course was completed, when known.
+  final DateTime? completedAt;
 }
 
 class MyCourse {

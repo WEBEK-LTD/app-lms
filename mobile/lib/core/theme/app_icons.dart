@@ -65,6 +65,14 @@ abstract final class AppIcons {
   static const openInNew = Symbols.open_in_new_rounded;
   static const attachment = Symbols.attach_file_rounded;
   static const download = Symbols.download_rounded;
+  // 45 Lessons saved for offline viewing.
+  static const downloadDone = Symbols.download_done_rounded;
+  static const downloading = Symbols.downloading_rounded;
+  static const downloadOff = Symbols.file_download_off_rounded;
+  static const storage = Symbols.hard_drive_rounded;
+  static const wifi = Symbols.wifi_rounded;
+  static const downloads = Symbols.download_for_offline_rounded;
+  static const review = Symbols.auto_stories_rounded;
   static const assignment = Symbols.assignment_rounded;
   static const live = Symbols.live_tv_rounded;
   static const article = Symbols.article_rounded;

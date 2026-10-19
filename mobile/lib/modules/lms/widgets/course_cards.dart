@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/theme/app_icons.dart';
@@ -6,6 +7,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/format/dates.dart';
+import '../data/lms_providers.dart';
 
 String courseMeta(CourseSummary course) {
   final lessons = currentL10n.lessonCount(course.lessonCount);
@@ -78,7 +81,7 @@ class CourseListCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: course.enrolled
-                            ? const EnrolledLabel()
+                            ? EnrolledLabel(courseId: course.id)
                             : PriceLabel(course.price),
                       ),
                       if (course.rating != null)
@@ -95,23 +98,39 @@ class CourseListCard extends StatelessWidget {
   }
 }
 
-class EnrolledLabel extends StatelessWidget {
-  const EnrolledLabel({super.key});
+/// "Enrolled", or 45 "Completed" once the student finished the course.
+class EnrolledLabel extends ConsumerWidget {
+  const EnrolledLabel({super.key, this.courseId});
+
+  final int? courseId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
+    final completed =
+        courseId != null &&
+        (ref.watch(completedCourseIdsProvider).value?.contains(courseId) ??
+            false);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppIcon(AppIcons.check, size: 14, color: p.success),
+        AppIcon(
+          completed ? AppIcons.checkCircle : AppIcons.check,
+          size: 14,
+          color: p.success,
+          filled: completed,
+        ),
         const SizedBox(width: 4),
-        Text(
-          context.l10n.enrolled,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: p.success,
+        Flexible(
+          child: Text(
+            completed ? context.l10n.completed : context.l10n.enrolled,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: p.success,
+            ),
           ),
         ),
       ],
@@ -199,7 +218,7 @@ class CourseTileCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: course.enrolled
-                              ? const EnrolledLabel()
+                              ? EnrolledLabel(courseId: course.id)
                               : PriceLabel(course.price),
                         ),
                         if (course.rating != null) RatingLabel(course.rating!),
@@ -282,7 +301,7 @@ class CourseFeatureCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     if (course.enrolled)
-                      const EnrolledLabel()
+                      EnrolledLabel(courseId: course.id)
                     else
                       DefaultTextStyle.merge(
                         style: const TextStyle(fontWeight: FontWeight.w800),
@@ -364,7 +383,7 @@ class CourseRow extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               if (course.enrolled)
-                const EnrolledLabel()
+                EnrolledLabel(courseId: course.id)
               else
                 PriceLabel(course.price, size: 14),
             ],
@@ -376,8 +395,18 @@ class CourseRow extends StatelessWidget {
 }
 
 String nextLabel(MyCourse course) {
+  // 45 A finished course says so, with the date when known.
+  if (course.progress.courseCompleted) return completedLine(course.progress);
   final next = course.nextItem;
   return next == null ? '' : next.title;
+}
+
+/// 45 "Completed on 12 Oct 2026", or "Completed".
+String completedLine(Progress progress) {
+  final date = progress.completedAt;
+  return date == null
+      ? currentL10n.completed
+      : currentL10n.courseCompletedOn(shortDate(date));
 }
 
 /// The dark "Continue learning" card of the Classic home.
@@ -398,7 +427,9 @@ class ContinueCardClassic extends StatelessWidget {
     final next = nextLabel(course);
     return Semantics(
       button: true,
-      label: next.isEmpty
+      label: progress.courseCompleted
+          ? context.l10n.completedCourseLabel(course.course.title)
+          : next.isEmpty
           ? context.l10n.continueCourseLabel(
               course.course.title,
               progress.percent,
@@ -542,9 +573,12 @@ class ContinueCardBold extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final percent = course.progress.percent;
+    final finished = course.progress.courseCompleted;
     return Semantics(
       button: true,
-      label: context.l10n.continueCourseLabel(course.course.title, percent),
+      label: finished
+          ? context.l10n.completedCourseLabel(course.course.title)
+          : context.l10n.continueCourseLabel(course.course.title, percent),
       excludeSemantics: true,
       child: Material(
         color: p.surface,
@@ -589,8 +623,13 @@ class ContinueCardBold extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.l10n.continueAction,
-                        style: TextStyle(fontSize: 12, color: p.textSecondary),
+                        finished
+                            ? completedLine(course.progress)
+                            : context.l10n.continueAction,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: finished ? p.success : p.textSecondary,
+                        ),
                       ),
                       Text(
                         course.course.title,
@@ -615,7 +654,7 @@ class ContinueCardBold extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: AppIcon(
-                    AppIcons.play,
+                    finished ? AppIcons.review : AppIcons.play,
                     size: 18,
                     color: p.onPrimary,
                     filled: true,
@@ -646,9 +685,12 @@ class ContinueCardMinimal extends StatelessWidget {
     final p = context.palette;
     final percent = course.progress.percent;
     final next = nextLabel(course);
+    final finished = course.progress.courseCompleted;
     return Semantics(
       button: true,
-      label: context.l10n.continueCourseLabel(course.course.title, percent),
+      label: finished
+          ? context.l10n.completedCourseLabel(course.course.title)
+          : context.l10n.continueCourseLabel(course.course.title, percent),
       excludeSemantics: true,
       child: Material(
         color: p.surfaceMuted,
@@ -666,7 +708,10 @@ class ContinueCardMinimal extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        context.l10n.continueAction.toUpperCase(),
+                        (finished
+                                ? context.l10n.completed
+                                : context.l10n.continueAction)
+                            .toUpperCase(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

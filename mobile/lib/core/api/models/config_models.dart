@@ -324,6 +324,7 @@ class SiteFeatures {
     required this.push,
     this.orders = false,
     this.offline = false,
+    this.downloads = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -340,6 +341,7 @@ class SiteFeatures {
     push: reqBool(json, 'push'),
     orders: boolOr(json, 'orders', false),
     offline: boolOr(json, 'offline', false),
+    downloads: boolOr(json, 'downloads', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -360,6 +362,10 @@ class SiteFeatures {
   /// Offline mode, when the app's plan includes it: the app keeps what the
   /// user last saw and shows it without a connection.
   final bool offline;
+
+  /// 45 Students can save lessons and courses on the phone to watch and read
+  /// offline: offline mode in the plan and the owner turned downloads on.
+  final bool downloads;
 }
 
 enum SignupField { name, email, city }

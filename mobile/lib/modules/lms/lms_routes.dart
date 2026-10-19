@@ -13,6 +13,7 @@ import '../shared/shared_routes.dart';
 import 'courses/course_detail_screen.dart';
 import 'courses/course_questions.dart';
 import 'courses/courses_screen.dart';
+import 'downloads/downloads_screen.dart';
 import 'home/home_screen.dart';
 import 'lesson/lesson_screen.dart';
 import 'my_courses/my_courses_screen.dart';
@@ -113,6 +114,13 @@ List<TabScreen> _screens() => [
           parentNavigatorKey: rootNavigatorKey,
           pageBuilder: (context, state) =>
               appPage(state, const QuizResultsScreen()),
+        ),
+        // 45 Lessons saved for offline viewing.
+        GoRoute(
+          path: 'downloads',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const DownloadsScreen()),
         ),
       ],
     ),
