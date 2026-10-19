@@ -7,6 +7,7 @@ import { membershipToUse } from "../bookings/memberships";
 import { clientAccountState, longestLicense } from "../license/status";
 import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
+import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
@@ -2559,6 +2560,105 @@ export class MysqlStore implements DataStore {
   async listPublishingEvents(appId: string): Promise<PublishingEvent[]> {
     const t = schema.publishingEvents;
     return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.at), desc(t.id)));
+  }
+
+  // 44 Analytics for app owners
+
+  async insertAnalyticsEvents(events: AnalyticsEventRow[]): Promise<void> {
+    if (events.length === 0) return;
+    await this.run((db) => db.insert(schema.analyticsEvents).values(events));
+  }
+
+  async listAnalyticsEvents(appId: string, day: string): Promise<AnalyticsEventRow[]> {
+    const t = schema.analyticsEvents;
+    const rows = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.day, day))));
+    return rows.map((row) => {
+      const event: AnalyticsEventRow & { id?: number } = { ...row, firstOpen: Boolean(row.firstOpen) };
+      delete event.id;
+      return event;
+    });
+  }
+
+  async countAnalyticsActive(appId: string, fromDay: string, toDay: string): Promise<number> {
+    const t = schema.analyticsEvents;
+    const rows = await this.run((db) =>
+      db
+        .select({ n: sql<number>`count(distinct ${t.installId})` })
+        .from(t)
+        .where(and(eq(t.appId, appId), gte(t.day, fromDay), lte(t.day, toDay))),
+    );
+    return Number(rows[0]?.n ?? 0);
+  }
+
+  async countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number> {
+    const [rows] = (await this.run((db) =>
+      db.execute(
+        sql`select count(distinct e.install_id) as n from analytics_events e
+            where e.app_id = ${appId} and e.day = ${day} and e.install_id in (
+              select f.install_id from analytics_events f
+              where f.app_id = ${appId} and f.day = ${cohortDay} and f.type = 'app_open' and f.first_open = true)`,
+      ),
+    )) as unknown as [{ n: number | string }[]];
+    return Number(rows[0]?.n ?? 0);
+  }
+
+  async saveAnalyticsDaily(appId: string, day: string, rows: AnalyticsDailyRow[]): Promise<void> {
+    for (let i = 0; i < rows.length; i += 200) {
+      const chunk = rows.slice(i, i + 200).map((row) => ({ appId, day, metric: row.metric, key: row.key, label: row.label, value: row.value }));
+      await this.run((db) =>
+        db
+          .insert(schema.analyticsDaily)
+          .values(chunk)
+          .onDuplicateKeyUpdate({ set: { value: sql`values(${schema.analyticsDaily.value})`, label: sql`values(${schema.analyticsDaily.label})` } }),
+      );
+    }
+  }
+
+  async addAnalyticsDaily(appId: string, day: string, row: AnalyticsDailyRow): Promise<void> {
+    const t = schema.analyticsDaily;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values({ appId, day, metric: row.metric, key: row.key, label: row.label, value: row.value })
+        .onDuplicateKeyUpdate({ set: { value: sql`${t.value} + values(${t.value})`, label: sql`coalesce(values(${t.label}), ${t.label})` } }),
+    );
+  }
+
+  async listAnalyticsDaily(appId: string, fromDay: string, toDay: string, metrics?: AnalyticsMetric[]): Promise<AnalyticsDailyRecord[]> {
+    const t = schema.analyticsDaily;
+    if (metrics && metrics.length === 0) return [];
+    const rows = await this.run((db) =>
+      db
+        .select({ day: t.day, metric: t.metric, key: t.key, label: t.label, value: t.value })
+        .from(t)
+        .where(and(eq(t.appId, appId), gte(t.day, fromDay), lte(t.day, toDay), ...(metrics ? [inArray(t.metric, metrics)] : [])))
+        .orderBy(asc(t.day)),
+    );
+    return rows.map((row) => ({ ...row, value: Number(row.value) }));
+  }
+
+  async listAnalyticsEventDays(appId: string, fromDay: string): Promise<string[]> {
+    const t = schema.analyticsEvents;
+    const rows = await this.run((db) =>
+      db
+        .selectDistinct({ day: t.day })
+        .from(t)
+        .where(and(eq(t.appId, appId), gte(t.day, fromDay)))
+        .orderBy(asc(t.day)),
+    );
+    return rows.map((row) => row.day);
+  }
+
+  async listAnalyticsAppIds(fromDay: string): Promise<string[]> {
+    const t = schema.analyticsEvents;
+    const rows = await this.run((db) => db.selectDistinct({ appId: t.appId }).from(t).where(gte(t.day, fromDay)));
+    return rows.map((row) => row.appId);
+  }
+
+  async purgeAnalyticsEvents(beforeDay: string): Promise<number> {
+    const t = schema.analyticsEvents;
+    const [result] = await this.run((db) => db.delete(t).where(lt(t.day, beforeDay)));
+    return result.affectedRows;
   }
 }
 

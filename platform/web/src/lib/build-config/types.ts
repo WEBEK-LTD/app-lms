@@ -44,6 +44,11 @@ export interface BuildConfig {
     android_config_url?: string;
     ios_config_url?: string;
   };
+  /** 44 Where the app sends its usage statistics; left out of the preview's config. */
+  analytics?: {
+    events_url: string;
+    key: string;
+  };
   /** 36 Huawei Push Kit (agconnect-services.json), for phones without Google Play services. */
   huawei?: {
     agconnect_config_url?: string;

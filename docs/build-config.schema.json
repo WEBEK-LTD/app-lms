@@ -53,6 +53,16 @@
         "ios_config_url": { "type": "string", "format": "uri", "description": "GoogleService-Info.plist" }
       }
     },
+    "analytics": {
+      "type": "object",
+      "description": "Optional. 44 Where the app sends its usage statistics (docs/api/platform.yaml, tag Analytics): Yallapp's endpoint for this app and the app's analytics key. Left out of the app preview's config; without it the app sends nothing.",
+      "additionalProperties": false,
+      "required": ["events_url", "key"],
+      "properties": {
+        "events_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+$", "description": "https://yallapp.com.tr/api/v1/apps/{app_id}/events" },
+        "key": { "type": "string", "pattern": "^[A-Za-z0-9_-]{16,64}$", "description": "Sent as X-Yallapp-Analytics-Key. Not a secret: it is the same in every copy of the app." }
+      }
+    },
     "huawei": {
       "type": "object",
       "description": "Optional. 36 Huawei Push Kit, for Android phones without Google Play services (Huawei AppGallery). Without it those phones get no push notifications and the build leaves Huawei's SDK out.",

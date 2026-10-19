@@ -85,6 +85,10 @@ export const RATE_LIMITS = {
   // 34 Test tokens for an own API (App sign-in, and the API check), and replacing the signing key, per app.
   appTestToken: { name: "app-test-token:app", limit: 20, windowSeconds: 10 * 60 },
   appSigningKey: { name: "app-signing-key:app", limit: 3, windowSeconds: 60 * 60 },
+  // 44 Usage events the apps send (POST /api/v1/apps/{app_id}/events): per IP, per install and per app.
+  analyticsIp: { name: "analytics:ip", limit: 60, windowSeconds: 60 },
+  analyticsInstall: { name: "analytics:install", limit: 30, windowSeconds: 10 * 60 },
+  analyticsApp: { name: "analytics:app", limit: 3000, windowSeconds: 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

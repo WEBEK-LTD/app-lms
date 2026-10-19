@@ -2,11 +2,13 @@ openapi: 3.1.0
 info:
   title: Yallapp platform API (license and updates)
   version: 1.0.0
-  summary: What the Yallapp WordPress plugin calls on yallapp.com.tr.
+  summary: What the Yallapp WordPress plugin and the apps call on yallapp.com.tr.
   description: |
-    Served by the Yallapp platform on Netlify. The plugin is the only client,
-    except for the app preview's config (tag Preview), which the app reads
-    when it runs as the preview in the Yallapp dashboard.
+    Served by the Yallapp platform on Netlify. The plugin is the main client;
+    the app reads the app preview's config (tag Preview) when it runs as the
+    preview in the Yallapp dashboard, and every installed app sends its usage
+    statistics (tag Analytics), whatever its backend (WordPress, the hosted
+    API, a connected platform or its own API).
 
     - The plugin checks its license on activation, then every 12 hours.
       When the app's owner saves something the license status carries
@@ -60,6 +62,24 @@ tags:
       The app preview: the client's app running in a browser, in the Yallapp
       dashboard ("Preview your app") or on a phone through its QR code. The
       dashboard makes a preview token for one app; it expires after an hour.
+  - name: Analytics
+    description: |
+      Usage statistics for the app's owner (roadmap 44): first-party, no
+      third-party analytics SDK, no advertising ID, no fingerprinting. Each
+      install makes a random install ID (a version 4 UUID) the first time it
+      sends; it is not the device ID the app registers with its backend, not
+      tied to the account, and a new one is made when the person turns
+      "Share usage statistics" off and on again. The person can turn sending
+      off in the app's Settings (on by default): the app then stops sending and
+      forgets the events it hadn't sent yet. The app preview never sends.
+
+      The platform reads the country from the request's IP when the batch
+      arrives and never stores the IP. Search texts are only counted per day
+      (never stored with the install ID); the dashboard lists a search only
+      once it was made at least twice. Raw events are kept for 40 days (long
+      enough to count monthly active users and 30-day returns, also for events
+      a phone sent up to a week late), then only daily totals remain; all of
+      it is deleted with the app. Reports show totals only, never one install.
 
 paths:
   /licenses/activate:
@@ -292,6 +312,85 @@ paths:
               schema: { $ref: '#/components/schemas/Error' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /apps/{app_id}/events:
+    post:
+      tags: [Analytics]
+      operationId: sendAnalyticsEvents
+      summary: Send a batch of usage events
+      description: |
+        The app batches events in memory and on the phone, and sends them
+        every 30 seconds and when it goes to the background, at most 100 per
+        request. A batch that fails is sent again later with a growing pause;
+        events older than 7 days are dropped on the phone and here.
+
+        **Key.** `X-Yallapp-Analytics-Key` is the app's analytics key from its
+        build config (`analytics.key`, docs/build-config.schema.json): a keyed
+        hash of the app's ID made by the platform, the same in every build of
+        the app. It is in every copy of the app, so it isn't a secret: it
+        keeps out requests made up from an app ID alone, and the limits below
+        cap what a copied key can do. The platform can change it with its
+        signing secret; older builds then stop counting.
+
+        **Limits.** At most 100 events and 64 KB per request. 60 requests a
+        minute per IP, 30 per 10 minutes per install, 3000 a minute per app.
+        Over a limit: 429 with `retry_after_seconds` and `Retry-After`; the
+        app keeps the batch and tries later.
+
+        **Sessions.** The app sends `app_open` when it starts and when it comes
+        back after 30 minutes or more in the background; each `app_open` is a
+        session. `first_open` is true once per install: installs are counted
+        when the app is first opened (store downloads aren't known here).
+
+        **What counts.** An event whose `at` is more than 7 days ago or more
+        than 10 minutes ahead is skipped (counted in `dropped`); an invalid
+        event fails the whole batch with 400, so a broken build is noticed.
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: X-Yallapp-Analytics-Key
+          in: header
+          required: true
+          schema: { type: string, minLength: 16, maxLength: 64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnalyticsBatch' }
+      responses:
+        '202':
+          description: The events were taken.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted, dropped]
+                properties:
+                  accepted: { type: integer, minimum: 0 }
+                  dropped: { type: integer, minimum: 0, description: Events skipped for their time (too old or ahead). }
+        '400':
+          description: The batch isn't valid (`invalid_request`, with the first problem in `message`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The analytics key isn't this app's (`invalid_key`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: No app with this ID (`not_found`). The app stops sending until it starts again.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '413':
+          description: More than 64 KB (`invalid_request`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 components:
   responses:
     BadRequest:
@@ -322,7 +421,7 @@ components:
       properties:
         code:
           type: string
-          examples: [invalid_request, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
+          examples: [invalid_request, invalid_key, not_found, license_not_found, license_in_use, rate_limited, invalid_token, preview_expired, license_inactive, invalid_phone, provider_error]
         message: { type: string }
         retry_after_seconds: { type: integer, minimum: 1, description: 'With `rate_limited`: seconds until another request can succeed.' }
 
@@ -626,6 +725,62 @@ components:
                 properties:
                   step: { type: string, enum: [app-type, website, branding, listing, publishing] }
                   label: { type: string, example: Branding }
+
+    AnalyticsBatch:
+      type: object
+      additionalProperties: false
+      required: [install_id, platform, app_version, events]
+      properties:
+        install_id:
+          type: string
+          format: uuid
+          description: The install's random analytics ID (not the device ID the app registers with its backend).
+        platform: { type: string, enum: [android, ios] }
+        app_version: { type: string, maxLength: 32, examples: ['1.2.0'] }
+        os_version: { type: string, maxLength: 32, description: 'The system and its version, e.g. `Android 14` or `iOS 18.1`.' }
+        locale: { type: string, maxLength: 16, description: 'The app''s language, e.g. `ar` or `en`. Only the language is kept.' }
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { $ref: '#/components/schemas/AnalyticsEvent' }
+
+    AnalyticsEvent:
+      type: object
+      additionalProperties: false
+      required: [type, at]
+      description: |
+        One thing that happened in the app. Which fields go with which type:
+        - `app_open`: `first_open` (true once per install). Each is a session.
+        - `screen_view`: `screen`, the kind of screen (`home`, `course`,
+          `cart`, `search`…), never an address with IDs in it.
+        - `item_view`: `item_kind`, `item_id` and `title` (the name when it
+          was seen, for the reports).
+        - `add_to_cart`, `purchase_click` (the checkout or payment page opens),
+          `enroll`, `book`, `donate`, `ticket`, `share`: `item_kind` and
+          `item_id`, with `title`, `amount` and `currency` when known.
+        - `search`: `query`, counted per day without the install; never kept
+          with the install ID.
+        - `push_open`: `notification_id` when the notification has one, and
+          `push_type` (its `type`, e.g. `announcement`, `new_lesson`).
+        Fields that don't go with the type are ignored.
+      properties:
+        type:
+          type: string
+          enum: [app_open, screen_view, item_view, add_to_cart, purchase_click, enroll, book, donate, ticket, search, push_open, share]
+        at: { type: string, format: date-time, description: When it happened on the phone. }
+        first_open: { type: boolean }
+        screen: { type: string, pattern: '^[a-z][a-z0-9_]{0,39}$' }
+        item_kind:
+          type: string
+          enum: [course, lesson, product, service, class, membership, listing, article, event, campaign, page]
+        item_id: { type: string, minLength: 1, maxLength: 64 }
+        title: { type: string, maxLength: 120 }
+        amount: { type: number, minimum: 0, maximum: 100000000, description: In the currency's main unit (12.5 for ₺12.50). }
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        query: { type: string, maxLength: 80 }
+        notification_id: { type: string, maxLength: 64 }
+        push_type: { type: string, pattern: '^[a-z][a-z0-9_]{0,31}$' }
 
     Translations:
       type: object

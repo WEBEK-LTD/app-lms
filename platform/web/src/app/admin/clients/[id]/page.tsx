@@ -34,7 +34,9 @@ import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
-import { appTypeName } from "@/lib/app/kinds";
+import { appTypeName, wordsOf } from "@/lib/app/kinds";
+import { BarList, KpiTiles, RetentionTiles } from "@/components/analytics-report";
+import { loadReport, rangeFrom } from "@/lib/analytics/report";
 import { siteMatch } from "@/lib/app/site-match";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
@@ -585,6 +587,8 @@ async function AppEntry({
         </Card>
       ) : null}
 
+      {app ? <AnalyticsCard app={app} now={now} /> : null}
+
       {app?.backend === "hosted" ? (
         <HostedSection clientId={client.id} app={app} q={usersQuery} page={usersPage} may={{ edit: may.edit }} />
       ) : null}
@@ -685,6 +689,44 @@ function AppCard({
           </SubmitButton>
         </form>
       ) : null}
+    </Card>
+  );
+}
+
+/** 44 The app's usage over the last 30 days, as its owner sees it on Analytics: totals only. */
+async function AnalyticsCard({ app, now }: { app: App; now: Date }) {
+  const report = await loadReport(await getStore(), app.id, rangeFrom({ range: "30" }, now), now);
+  const items = wordsOf(app).items;
+  return (
+    <Card id={`h-analytics-${app.id}`} title="Analytics, last 30 days" level={3}>
+      {report.hasData ? (
+        <>
+          <KpiTiles report={report} />
+          <RetentionTiles report={report} />
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
+            <div className="flex flex-col gap-2">
+              <h4 className="m-0 text-sm font-bold">Platforms</h4>
+              <BarList items={report.platforms} label="Platforms" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <h4 className="m-0 text-sm font-bold">Top {items}</h4>
+              {report.items.length === 0 ? (
+                <p className="m-0 text-sm text-muted">None opened yet.</p>
+              ) : (
+                <ol className="m-0 flex flex-col gap-1 pl-5 text-sm">
+                  {report.items.slice(0, 5).map((item) => (
+                    <li key={`${item.kind}:${item.id}`}>
+                      {item.title} <span className="text-muted">· {item.views} views</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className="m-0 text-sm text-muted">No usage yet. The app sends it from its first build made after Analytics arrived, once people open it.</p>
+      )}
     </Card>
   );
 }

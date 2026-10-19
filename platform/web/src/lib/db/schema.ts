@@ -59,6 +59,8 @@ import type { ArticleStatus, NewsSettings } from "../data/types";
 import type { EventSettings, EventStatus, TicketStatus } from "../data/types";
 // 29 Charity & donations
 import type { CampaignStatus, DonationRecurring, DonationSettings, DonationStatus } from "../data/types";
+// 44 Analytics
+import type { AnalyticsEventType, AnalyticsItemKind, AnalyticsMetric } from "../analytics/types";
 // 14.1 We publish for you
 import type { PublishingChecklist, PublishingListing, PublishingMode, PublishingStatus, PublishingStore } from "../data/types";
 
@@ -1286,4 +1288,51 @@ export const ownerNotices = mysqlTable(
     resolvedAt: time("resolved_at"),
   },
   (t) => [uniqueIndex("owner_notices_app_key_unique").on(t.appId, t.dedupeKey), index("owner_notices_client_idx").on(t.clientId, t.createdAt)],
+);
+
+// 44 Analytics for app owners: raw usage events for 40 days (never an IP or a
+// search text), and daily totals kept until the app is deleted.
+
+export const analyticsEvents = mysqlTable(
+  "analytics_events",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    installId: varchar("install_id", { length: 36 }).notNull(),
+    type: varchar("type", { length: 16 }).notNull().$type<AnalyticsEventType>(),
+    at: time("at").notNull(),
+    day: varchar("day", { length: 10 }).notNull(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<"android" | "ios">(),
+    appVersion: varchar("app_version", { length: 32 }).notNull(),
+    osVersion: varchar("os_version", { length: 32 }),
+    language: varchar("language", { length: 3 }),
+    country: varchar("country", { length: 2 }),
+    firstOpen: boolean("first_open").notNull(),
+    screen: varchar("screen", { length: 40 }),
+    itemKind: varchar("item_kind", { length: 16 }).$type<AnalyticsItemKind>(),
+    itemId: varchar("item_id", { length: 64 }),
+    title: varchar("title", { length: 120 }),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }),
+    currency: varchar("currency", { length: 3 }),
+    notificationId: varchar("notification_id", { length: 64 }),
+    pushType: varchar("push_type", { length: 32 }),
+  },
+  (t) => [index("analytics_events_app_day_idx").on(t.appId, t.day, t.installId), index("analytics_events_day_idx").on(t.day)],
+);
+
+export const analyticsDaily = mysqlTable(
+  "analytics_daily",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    day: varchar("day", { length: 10 }).notNull(),
+    metric: varchar("metric", { length: 16 }).notNull().$type<AnalyticsMetric>(),
+    key: varchar("key", { length: 100 }).notNull(),
+    label: varchar("label", { length: 120 }),
+    value: bigint("value", { mode: "number" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.day, t.metric, t.key] })],
 );

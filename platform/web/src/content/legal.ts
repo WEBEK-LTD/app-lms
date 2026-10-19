@@ -19,7 +19,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "15 October 2026",
+  updated: "19 October 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -39,6 +39,7 @@ How your app users' data is handled depends on where the app gets its content:
 - **Your WordPress website (Yallapp plugin):** your users' accounts, phone numbers, progress and orders stay in your website's database, and Yallapp does not receive them. License checks send only your website address, plugin version and license key. When Yallapp sends your app's sign-in codes, your website sends us the phone number or email address and the code for that one message; we pass them on by WhatsApp or email and keep neither, only a one-way, keyed fingerprint of the number or address for a day, to limit abuse.
 - **Another platform or your own API:** the app talks to that platform or API directly. We store only the connection details you give us, encrypted.
 - **No website (content managed in the Yallapp dashboard):** we host the data your app needs, such as your users' names, phone numbers, sign-ins, orders, bookings and enquiries, and the content you add. For this data you are the data controller and Yallapp is your data processor: we use it only to run your app and on your instructions, keep it secure, and delete it when your account ends or when you ask.
+- **Usage statistics (every app):** so you can see how your app is used, the app sends Yallapp what happens in it: app opens (and whether it's the first), the kind of screen opened, the courses, products or other items opened with their name, actions such as adding to the cart, enrolling, booking, giving or opening the checkout page (with the amount when there is one), search texts, opened notifications and shares, together with a random install number the app makes (not linked to the user's account, and new when they turn sharing off and on again), the platform, the app and system versions and the app's language. We work out the country from the connection when the data arrives and do not keep the IP address. No names, phone numbers, email addresses or advertising IDs are sent, there are no third-party analytics or advertising tools in the apps, and nothing is used to track people across apps or websites. Search texts are only counted per day, never stored with the install number. Reports show you totals only. Your app users can turn off "Share usage statistics" in the app's settings; the app then stops sending and deletes what it hadn't sent. For these statistics you are the data controller and Yallapp is your data processor.
 
 In every case you are responsible for giving your app users your own privacy notice. Push notifications are sent through your own Firebase project. Sign-in codes may be sent on WhatsApp through waabek.com (from our number, or from yours if you connect it), or by email from our email server (or through your own email server if you set one up; we store its password encrypted). If you ask us for help with a problem involving one of your users, we use only the data you share with us, and only on your instructions.
 
@@ -59,7 +60,7 @@ We are based in Egypt and work with clients in many countries. Some of our provi
 
 ## 7. How long we keep it
 
-We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months.
+We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Usage statistics from your app are kept for 40 days, then only daily totals remain, until your app is deleted.
 
 ## 8. Security
 
