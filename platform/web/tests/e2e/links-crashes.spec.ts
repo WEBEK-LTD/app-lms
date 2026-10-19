@@ -9,7 +9,7 @@ import { E2E } from "../../playwright.config";
  * team's Crashes page and the owner's Stability page.
  */
 test.describe.configure({ mode: "serial" });
-// Its own address: sign-ups are limited per address, and the other specs share the default one.
+// Its own address and super admin: sign-ups are limited per address and sign-ins per email, and the other specs share the default ones.
 test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.246" } });
 
 const suffix = Date.now().toString(36);
@@ -44,7 +44,7 @@ test("Links to your app: the fingerprint, the Team ID and Check links", async ({
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/pending$/);
 
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.linksAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");
   await page.getByRole("searchbox", { name: "Search clients" }).fill(client.email);
   await page.getByRole("button", { name: "Search" }).click();
@@ -154,7 +154,7 @@ test("crash reports reach the team's Crashes page and the owner's Stability", as
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Stability" })).toHaveCount(0);
 
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.linksAdminEmail, E2E.adminPassword);
   await page.goto("/admin/crashes");
   const issue = page.locator("[data-crash]").filter({ hasText: "No product for <email>" });
   await expect(issue).toContainText("on /product/:id");
@@ -174,7 +174,7 @@ test("crash reports reach the team's Crashes page and the owner's Stability", as
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "Saved." })).toBeVisible();
   expect((await request.post(url, { data: { reports: [report(new Date().toISOString())], sessions: 3 } })).status()).toBe(204);
-  await signIn(page, E2E.adminEmail, E2E.adminPassword);
+  await signIn(page, E2E.linksAdminEmail, E2E.adminPassword);
   await page.goto("/admin/crashes?status=all");
   await expect(page.locator("[data-crash]").filter({ hasText: "No product for <email>" }).locator("[data-count]")).toHaveText("2");
 });
