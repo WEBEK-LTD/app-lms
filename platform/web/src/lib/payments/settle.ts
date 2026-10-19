@@ -81,7 +81,8 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
   const paidApp = outcome.kind === "paid" ? (outcome.activation.app?.id ?? null) : payment.appId;
   // 31 A new plan's features reach the app's WordPress site at once.
   if (outcome.kind === "paid") refreshSitesSoon([paidApp]);
-  return { status: outcome.kind, path: "/dashboard/license?payment=paid", paidApp };
+  // 51 A storage payment confirmed before (Kashier's and Fawaterk's webhook usually arrives first) also comes back to Media.
+  return { status: outcome.kind, path: payment.purpose === "storage" ? "/dashboard/media?payment=paid" : "/dashboard/license?payment=paid", paidApp };
 }
 
 /** A shop's order: products, paid courses, memberships, tickets, a restaurant's order. */
