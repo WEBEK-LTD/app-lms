@@ -231,7 +231,7 @@ Derslere yalnızca üyelerin yer ayırtabilmesi için **Dersler üyelik gerektir
 
 ## iPhone ve App Store
 
-Üyelik, işletmenizdeki ve yüz yüze kullanılan dersler içindir; bu yüzden Apple, ödemenin uygulama dışında yapılmasına izin verir (App Store İnceleme Yönergesi 3.1.3(e)). iPhone uygulaması, Android ile aynı ödeme sayfasını açar. Yayınlarken bunu **Yayınlama**'daki **Mağaza incelemecileri için** alanına ekleyin: sayfa uygun ifadeyi önerir.
+Üyelik, işletmenizdeki ve yüz yüze kullanılan dersler içindir; bu yüzden Apple, ödemenin uygulama dışında yapılmasına izin verir (App Store İnceleme Yönergesi 3.1.3(e)). iPhone uygulaması, Android ile aynı ödeme sayfasını açar. Yayınlarken bunu **Yayın**'daki **Mağaza inceleyicileri için** alanına ekleyin: sayfa uygun ifadeyi önerir.
 `,
   },
   media: {
