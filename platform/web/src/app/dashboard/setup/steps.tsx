@@ -1327,9 +1327,9 @@ export function PublishingStep({
         <StepCard title="Publishing" id="h-publishing">
           {teamNotice}
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own Google Play{ios ? " and App Store" : ""} account
-            {ios ? "s" : ""}. You get the files, the Android upload key and the store assets on the Builds &amp; downloads page, and our step-by-step
-            guides take you through each store.
+            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own developer accounts on Google Play
+            {ios ? ", the App Store" : ""}, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You get the files, the Android upload key and the store
+            assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             <li>

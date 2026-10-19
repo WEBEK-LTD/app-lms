@@ -35,6 +35,7 @@ import {
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
+import { ALL_STORES_TEXT } from "@/lib/stores";
 
 export const metadata: Metadata = { title: "Publishing" };
 
@@ -87,7 +88,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const notIncluded = allowed ? undefined : `Not included in this app's plan. Upgrade it on ${licensePageName(app)}.`;
   const autoUpload = hasFeature(current, "auto_publish");
 
-  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on Google Play and the App Store.</>} />;
+  // 41 Every store Yallapp publishes to.
+  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on {ALL_STORES_TEXT}.</>} />;
 
   const passwords = (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
@@ -108,12 +110,12 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
             Publishing for you isn&apos;t included in this app&apos;s plan. <Link href="/dashboard/license#change-plan">Upgrade the plan</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
           </Notice>
         ) : null}
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to Google Play and the App Store? You can change your mind later.</p>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">How should your app get to the app stores? You can change your mind later.</p>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
           <Choice
             mode="managed"
             title="Publish it for me"
-            text="Our team publishes your app on both stores and keeps it there, under your own developer accounts."
+            text="Our team publishes your app on the stores you choose and keeps it there, under your own developer accounts."
             points={[
               "You create your Google Play and Apple developer accounts, in your name: we show you how, step by step.",
               "You invite our team email to them. No passwords.",
@@ -129,7 +131,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               "Download the Android App Bundle, the iOS app and the store assets.",
               autoUpload
                 ? "Or add your store keys in App setup › Publishing and we upload every new build for you."
-                : "Follow our Google Play and App Store guides.",
+                : "Follow our step-by-step guide for each store.",
             ]}
           />
         </div>

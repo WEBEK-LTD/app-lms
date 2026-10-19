@@ -8,6 +8,6 @@ export const contentType = OG_CONTENT_TYPE;
 export default async function Image() {
   return ogImage({
     title: "Your business, as your own mobile app.",
-    text: "Branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all.",
+    text: "Branded Android and iOS apps on all five app stores, from the website you already run, from Shopify and other platforms, or with no website at all.",
   });
 }

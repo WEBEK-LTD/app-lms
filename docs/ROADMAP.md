@@ -725,3 +725,29 @@ preview. About 530 screenshots; what was found is below. No migration.
 | [ ] | 38.20 The events list's `price_label` and server error messages are English in Arabic and Turkish apps (the content API doesn't receive the language); a WordPress site's labels follow the site's language | When the content API gets the language |
 | [ ] | 38.21 Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
 | [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |
+
+## Phase 41: Five app stores everywhere, a Works with strip, and a design pass
+
+Since Phases 35 and 36 Yallapp publishes to Samsung Galaxy Store and Huawei
+AppGallery too, and Phase 42 adds Xiaomi GetApps on the same terms, but much
+of the website still said two stores. Every public page, the plans, the
+documentation, the legal pages' service description, the share texts and the
+dashboard's publishing texts now name the five stores and which plans include
+which: every plan builds the Android app for Google Play, Galaxy Store,
+AppGallery and GetApps, the App Store comes with the iOS app (Growth and up),
+and "We publish for you" (Pro and Business) uploads every build to each of
+them. The numbers strip ("10 app types … 2 app stores …") is gone; in its
+place a "Works with" strip of the real brands Yallapp works with. The public
+site got a design pass and a dark mode. No migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 41.1 The stores in one place: `lib/stores.ts` (ids, names, guides, `storesFor`; no marks, client code imports the plans) and `planStores` / `planStoresLine` in `lib/plans.ts`, following each plan's features as the team sets them; a row per store in the pricing table | `phase41.test.ts` |
+| [x] | 41.2 Wording: home, features, how it works, pricing (with an "App stores" note: Samsung, Huawei and Xiaomi accounts are free), FAQ (a new "Which app stores can my app be on?", the group "Publishing on the app stores"), integrations ("Accounts you bring" adds Galaxy Store, AppGallery and GetApps), the getting-started, developer-accounts and plans articles, the privacy and terms pages' service description, meta descriptions, Open Graph texts and JSON-LD (`DEFAULT_DESCRIPTION`), the plan highlights and feature descriptions the admin's plan editor shows, the dashboard's Publishing, setup step and Builds & downloads texts and the footer's guides | `phase41.test.ts` (no "2 app stores", "both stores" or "Google Play & App Store" left), `website-seo.test.ts` |
+| [x] | 41.3 The Works with strip on the home and features pages (`components/brand-marks.tsx`, `lib/brands.ts`): the five stores, Firebase, WhatsApp (sign-in codes go out through the WhatsApp Cloud API or waabek.com), iyzico, Kashier and Fawaterk in one row, the website platforms of the Integrations page in another (Bookly, only detected, is left out). Marks from `simple-icons` 16.34.0 (CC0, pinned, only the icons used are imported: the server chunk is 28 kB); brands it lacks are their name in the site's font. Grey until hovered, then in the brand's color (a color that would vanish is replaced), two rows scrolling in opposite directions, paused under the pointer, still and wrapped with `prefers-reduced-motion`; each logo an image named after its brand, the loop's copy hidden from assistive technology; fixed sizes, no layout shift. Heading "Works with", never "partners", with the trademark note | `phase41.test.ts`, `public.spec.ts` (names, no "partner", Xiaomi present, pausing, reduced motion, 390 px) |
+| [x] | 41.4 Store marks on every plan card (home and pricing) with "4 app stores · You publish with our guides" or "5 app stores · We publish for you", in the hero, the last step of How it works, the footer, the pricing table's store rows and the integration cards; `docs/BRAND.md` allows third-party marks only there, unaltered | `phase41.test.ts`, `public.spec.ts` (each card's marks by name) |
+| [x] | 41.5 Design pass: a larger hero headline with balanced lines, an arrow on the second button and the phones on a stage; more room between sections and larger section titles; one icon tile size on every card (`FeatureIcon`); hover states on cards; plan cards with the recommended plan raised and starred, round check marks and a filled button on hover; the pricing table's recommended column tinted; the FAQ's questions as cards with a round toggle; the closing band and footer polished | Screenshots at 1440 and 390 px, light and dark (home, pricing, integrations, features, how it works, FAQ, a solution, an article) |
+| [x] | 41.6 Dark mode on the public website, following the visitor's setting: the brand tokens swap on every page with the site header (`html:has([data-site-theme])`), dark bands keep their colors, the logo turns Ivory, form fields follow; the dashboard, the admin and the sign-in pages stay light | `public.spec.ts` (dark pricing page, light sign-in), `phase41.test.ts` |
+| [ ] | 41.7 Xiaomi GetApps' guide and upload keys come with Phase 42; the store mark and the wording are in place, the guide link is added when the article exists | Phase 42 merged |
+| [ ] | 41.8 The owner's texts edited in the admin (Website content) keep their wording: edits saved before this phase that mention two stores need a look in the admin | Owner's review |
+| [ ] | 41.9 A light and dark switch on the website (it follows the visitor's setting only), and dark mode for the dashboard | Owner's decision |

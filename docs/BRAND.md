@@ -32,6 +32,18 @@ Designs: [Yallapp design canvas](https://claude.ai/artifact/KXsMPBp2at8HgoCssXzt
 - No imagery, icons or wording that suggests AI: no sparkles, no "AI" labels,
   no gradient glows.
 
+### Third-party brand marks
+
+The Material Symbols rule is for interface icons. Logos of the stores and
+platforms Yallapp really works with may appear only in the website's
+**Works with** strip, as store marks on the plans and publishing texts, and on
+integration cards. Use them unaltered (the CC0 paths of the `simple-icons`
+package; only the view box may be fitted to a wordmark), grey until hovered,
+with the brand's name as the accessible name. A brand without a mark there is
+shown as its name, never as a made-up logo. Never call these brands
+"partners", and keep the note that the names and logos are trademarks of their
+owners and don't mean endorsement.
+
 ## Logo files
 
 Everything is in [`/brand`](../brand). Use the SVG files on screens and the PNG

@@ -80,10 +80,37 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   const heights = await plans.locator("[data-plan]").evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));
   expect(new Set(heights).size).toBe(1);
 
-  // 32 The numbers strip and the timeline.
-  const numbers = page.getByRole("region", { name: "Yallapp in numbers" });
-  await expect(numbers).toContainText("app types");
-  await expect(numbers).not.toContainText("Classic");
+  // 41 Every plan card shows the marks of its stores: the Android stores on Starter, the App Store too from Growth.
+  const storeNames = ["Google Play", "Apple App Store", "Samsung Galaxy Store", "Huawei AppGallery", "Xiaomi GetApps"];
+  for (const [plan, names] of [
+    ["starter", storeNames.filter((n) => n !== "Apple App Store")],
+    ["growth", storeNames],
+    ["pro", storeNames],
+    ["business", storeNames],
+  ] as const) {
+    const marks = plans.locator(`[data-plan="${plan}"]`).getByRole("list", { name: /app stores$/ });
+    await expect(marks.getByRole("img")).toHaveCount(names.length);
+    for (const name of names) await expect(marks.getByRole("img", { name, exact: true })).toHaveCount(1);
+  }
+  await expect(plans.locator('[data-plan="pro"]')).toContainText("5 app stores · We publish for you");
+  await expect(plans.locator('[data-plan="starter"]')).toContainText("4 app stores · You publish with our guides");
+
+  // 41 The Works with strip replaced the numbers strip: real brands, named, never "partners".
+  await expect(page.getByRole("region", { name: "Yallapp in numbers" })).toHaveCount(0);
+  const strip = page.getByRole("region", { name: "Publish to the stores, connect what you already use" });
+  await expect(strip.getByText("Works with", { exact: true })).toBeVisible();
+  await expect(strip).not.toContainText(/partner/i);
+  await expect(strip).toContainText("are trademarks of their owners and don't mean they endorse Yallapp");
+  const stores = strip.getByRole("list", { name: "App stores, payments and messaging" });
+  for (const name of [...storeNames, "WhatsApp", "Firebase", "iyzico", "Kashier", "Fawaterk"]) await expect(stores.getByRole("img", { name, exact: true })).toHaveCount(1);
+  await expect(stores.getByRole("img", { name: "Xiaomi GetApps" })).toHaveCount(1);
+  const platforms = strip.getByRole("list", { name: "Websites and platforms" });
+  for (const name of ["WordPress", "WooCommerce", "Shopify", "Wix", "Salla", "Zid", "Tutor LMS", "SimplyBook.me"]) await expect(platforms.getByRole("img", { name, exact: true })).toHaveCount(1);
+  // Every logo has a name; the loop's second copy is hidden from assistive technology.
+  const labels = await strip.locator("[data-brand]").evaluateAll((chips) => chips.map((c) => c.getAttribute("aria-label") ?? ""));
+  expect(labels.length).toBeGreaterThan(20);
+  for (const label of labels) expect(label.trim().length).toBeGreaterThan(1);
+  expect(await strip.getByRole("img").count()).toBe(labels.length / 2);
   await expect(page.locator("[data-steps-timeline] > li")).toHaveCount(5);
   await expect(page.getByRole("heading", { level: 2, name: "One platform, ten kinds of apps" })).toBeVisible();
 
@@ -94,6 +121,37 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   await expect(footer.getByRole("link", { name: "+90 544 673 19 42" })).toHaveAttribute("href", "https://wa.me/905446731942");
   await expect(footer.getByRole("link", { name: "Refund policy" })).toHaveAttribute("href", "/refund");
   await expect(footer.getByRole("link", { name: "Documentation" })).toHaveAttribute("href", "/docs");
+});
+
+test("the Works with strip scrolls, pauses under the pointer and stands still for less motion", async ({ browser }) => {
+  // 41 Moving by default; paused while hovered.
+  const moving = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await moving.goto("/");
+  const track = moving.locator(".marquee-track").first();
+  await expect.poll(() => track.evaluate((t) => getComputedStyle(t).animationName)).toBe("marquee");
+  await moving.locator(".marquee").first().hover();
+  await expect.poll(() => track.evaluate((t) => getComputedStyle(t).animationPlayState)).toBe("paused");
+  await moving.close();
+  // Still and wrapped, the loop's copy hidden, when the visitor prefers less motion; nothing overflows a phone.
+  const still = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+  await still.goto("/");
+  await expect.poll(() => still.locator(".marquee-track").first().evaluate((t) => getComputedStyle(t).animationName)).toBe("none");
+  await expect(still.locator('.marquee-list[aria-hidden="true"]').first()).toBeHidden();
+  await expect(still.getByRole("img", { name: "Xiaomi GetApps" }).first()).toBeVisible();
+  expect(await still.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  await still.close();
+});
+
+test("the public site follows dark mode, the sign-in page stays light", async ({ browser }) => {
+  // 41 Midnight page and Ivory text on public pages; the dark bands stay dark.
+  const dark = await browser.newPage({ colorScheme: "dark" });
+  await dark.goto("/pricing");
+  const colors = await dark.evaluate(() => ({ body: getComputedStyle(document.body).backgroundColor, text: getComputedStyle(document.body).color }));
+  expect(colors).toEqual({ body: "rgb(14, 13, 36)", text: "rgb(244, 239, 230)" });
+  await expect(dark.getByRole("contentinfo")).toHaveCSS("background-color", "rgb(14, 13, 36)");
+  await dark.goto("/sign-in");
+  expect(await dark.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(244, 239, 230)");
+  await dark.close();
 });
 
 test("the contact page and the legal pages name Yallapp in Cairo, Egypt", async ({ page }) => {

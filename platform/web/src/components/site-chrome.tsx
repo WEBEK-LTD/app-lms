@@ -3,7 +3,9 @@ import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
 import { legalLine } from "@/lib/company";
 import { PRODUCT_LINKS, type SitePage } from "@/lib/site-nav";
+import { APP_STORES } from "@/lib/stores";
 import { Logo, LogoLink } from "./brand";
+import { StoreMarks } from "./brand-marks";
 import { SiteNav } from "./site-nav";
 
 export type { SitePage };
@@ -11,9 +13,9 @@ export type { SitePage };
 /** 32 Header of the public website: Product and Resources lists, the other pages, Sign in and Get started; `current` marks where the visitor is. */
 export function SiteHeader({ current, white = true }: { current?: SitePage; white?: boolean }) {
   return (
-    <header className={`relative z-30 border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
+    <header data-site-theme="" className={`relative z-30 border-b ${white ? "border-line bg-white" : "border-line-soft"}`}>
       <div className="mx-auto flex max-w-[1160px] items-center gap-4 px-4 py-3.5 sm:px-6 lg:gap-6">
-        <LogoLink href="/" />
+        <LogoLink href="/" adaptive />
         <SiteNav current={current} />
       </div>
     </header>
@@ -41,6 +43,8 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
               Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, from the website you already run, or from
               no website at all.
             </p>
+            {/* 41 The five stores. */}
+            <StoreMarks stores={[...APP_STORES]} label="App stores Yallapp publishes to" size={16} tone="dark" />
             {full ? (
               <a
                 href={contact.whatsappUrl}
@@ -64,6 +68,8 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
             <Link href="/docs" className={footerLink}>Documentation</Link>
             <Link href="/docs/google-play" className={footerLink}>Publish on Google Play</Link>
             <Link href="/docs/app-store" className={footerLink}>Publish on the App Store</Link>
+            <Link href="/docs/galaxy-store" className={footerLink}>Publish on Galaxy Store</Link>
+            <Link href="/docs/huawei-appgallery" className={footerLink}>Publish on AppGallery</Link>
             <Link href="/developers" className={footerLink}>API reference</Link>
             <Link href="/faq" className={footerLink}>FAQ</Link>
           </nav>
@@ -96,7 +102,10 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
         <div className="flex flex-wrap justify-between gap-3 border-t border-night-line pt-6 text-sm">
           <span>{legalLine()}</span>
           {full ? (
-            <span>WordPress, Shopify and the other names on this site are trademarks of their owners. Yallapp is not affiliated with the platforms it connects to.</span>
+            <span className="max-w-[640px]">
+              Google Play, the App Store, WordPress, Shopify and the other names and logos on this site are trademarks of their owners. Yallapp is not affiliated with
+              the stores and platforms it works with.
+            </span>
           ) : (
             <a href={contact.whatsappUrl} className="text-night-text no-underline hover:text-white hover:underline">
               WhatsApp: {contact.whatsappDisplay} · yallapp.com.tr

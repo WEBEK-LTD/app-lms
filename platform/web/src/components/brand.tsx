@@ -3,9 +3,12 @@ import Link from "next/link";
 
 const LOGO_RATIO = 3009.88 / 977.88;
 
-/** The "yallapp." wordmark. `reversed` is the Ivory version for dark backgrounds. */
-export function Logo({ height = 30, reversed = false, alt = "Yallapp" }: { height?: number; reversed?: boolean; alt?: string }) {
-  return (
+/**
+ * The "yallapp." wordmark. `reversed` is the Ivory version for dark backgrounds;
+ * `adaptive` (41) switches to it when the public site is in dark mode.
+ */
+export function Logo({ height = 30, reversed = false, adaptive = false, alt = "Yallapp" }: { height?: number; reversed?: boolean; adaptive?: boolean; alt?: string }) {
+  const img = (
     <img
       src={reversed ? "/brand/yallapp-logo-reversed-transparent.svg" : "/brand/yallapp-logo-primary-transparent.svg"}
       alt={alt}
@@ -15,12 +18,19 @@ export function Logo({ height = 30, reversed = false, alt = "Yallapp" }: { heigh
       className="block"
     />
   );
+  if (!adaptive || reversed) return img;
+  return (
+    <picture className="block">
+      <source media="(prefers-color-scheme: dark)" srcSet="/brand/yallapp-logo-reversed-transparent.svg" />
+      {img}
+    </picture>
+  );
 }
 
-export function LogoLink({ href = "/", reversed = false, height = 30 }: { href?: string; reversed?: boolean; height?: number }) {
+export function LogoLink({ href = "/", reversed = false, adaptive = false, height = 30 }: { href?: string; reversed?: boolean; adaptive?: boolean; height?: number }) {
   return (
     <Link href={href} className="flex rounded-md">
-      <Logo height={height} reversed={reversed} alt="Yallapp home" />
+      <Logo height={height} reversed={reversed} adaptive={adaptive} alt="Yallapp home" />
     </Link>
   );
 }

@@ -12,7 +12,7 @@ import type { PlanInfo } from "./plans";
 export const SITE_NAME = COMPANY.name;
 export const DEFAULT_TITLE = "Yallapp: your business as your own mobile app";
 export const DEFAULT_DESCRIPTION =
-  "Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, from your WordPress site, Shopify and other platforms, your own API, or no website at all.";
+  "Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, from your WordPress site, Shopify and other platforms, your own API, or no website at all.";
 
 /** The public site's address without a trailing slash: APP_URL, else the host's URL, else yallapp.com.tr. */
 export function siteUrl(): string {

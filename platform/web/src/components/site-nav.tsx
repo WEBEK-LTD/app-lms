@@ -257,7 +257,7 @@ function MobileMenu({ current }: { current?: SitePage }) {
           className="fixed inset-0 z-50 flex flex-col bg-white lg:hidden"
         >
           <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3.5 sm:px-6">
-            <LogoLink href="/" />
+            <LogoLink href="/" adaptive />
             <button
               ref={closeButton}
               type="button"

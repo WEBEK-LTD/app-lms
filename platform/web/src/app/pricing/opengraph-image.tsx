@@ -8,5 +8,5 @@ export const contentType = OG_CONTENT_TYPE;
 
 export default async function Image() {
   const text = await getSiteContent("pricing");
-  return ogImage({ eyebrow: "Pricing", title: text.title!, text: "Starter, Growth, Pro and Business: Android and iOS apps, published by you or by us." });
+  return ogImage({ eyebrow: "Pricing", title: text.title!, text: "Starter, Growth, Pro and Business: apps on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, published by you or by us." });
 }
