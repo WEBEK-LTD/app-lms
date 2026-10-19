@@ -6,6 +6,7 @@ import type { Pickable } from "@/lib/hosted/pages/pickable";
 import { cleanBlockHtml } from "@/lib/pages/html";
 import { SOCIAL_LABELS, WEEKDAY_LABELS } from "@/lib/pages/labels";
 import { SOURCE_NAMES } from "@/lib/pages/sources";
+import { withFilledTexts } from "@/lib/pages/fill-texts";
 import { translated, translatedBlock } from "@/lib/pages/translate";
 import { RTL_LANGUAGES, type Appearance, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
 import { IconGlyph } from "./controls";
@@ -476,12 +477,13 @@ const NOTHING_PICKED: Pickable = { items: {}, categories: {} };
 
 export function PhonePreview({
   layout,
-  page,
+  page: pageIn,
   lang,
   pickable,
   app,
   onOpenPage,
   still = false,
+  builtin,
 }: {
   layout: LayoutContent;
   page: LayoutPage | null;
@@ -491,11 +493,16 @@ export function PhonePreview({
   onOpenPage: (slug: string) => void;
   /** 33 A thumbnail: no caption and nothing scrolls. */
   still?: boolean;
+  /** 43 Yallapp's translations of the texts it wrote (English text, then language), shown where the owner wrote none, as the app does. */
+  builtin?: Record<string, Record<string, string>>;
 }) {
   const { appearance } = layout;
   const def = layout.languages.default;
   const theme = themeOf(appearance, app.primaryColor);
   const rtl = RTL_LANGUAGES.includes(lang);
+  const filled = builtin ? withFilledTexts({ languages: layout.languages, tabs: layout.tabs, pages: pageIn ? [pageIn] : [] }, [lang], (text, l) => builtin[text]?.[l] ?? null) : null;
+  const tabs = filled ? filled.tabs : layout.tabs;
+  const page = filled ? (filled.pages[0] ?? null) : pageIn;
   const shown = page ? translated(page, lang, def) : null;
   const classic = appearance.template === "classic";
   return (
@@ -535,7 +542,7 @@ export function PhonePreview({
             )}
           </div>
           <nav style={{ display: "flex", borderTop: `1px solid ${theme.line}`, background: theme.surface, padding: "6px 4px 10px" }}>
-            {layout.tabs.map((tab) => {
+            {tabs.map((tab) => {
               const t = translated(tab, lang, def);
               const current = tab.target.type === "page" && tab.target.page_slug === page?.slug;
               const style: CSSProperties = {

@@ -85,6 +85,7 @@ export function PagesEditor({
   plan,
   ready,
   designs,
+  builtin,
 }: {
   initial: {
     draft: LayoutContent;
@@ -108,6 +109,8 @@ export function PagesEditor({
   ready: Pick<LayoutContent, "pages" | "tabs">;
   /** 33 The ready-made designs for the app's kind, each as the draft it would make. */
   designs: { id: string; name: string; description: string; layout: LayoutContent }[];
+  /** 43 Yallapp's translations of the texts it wrote, for the phone preview. */
+  builtin: Record<string, Record<string, string>>;
 }) {
   const [layout, setLayout] = useState<LayoutContent>(initial.draft);
   const [published, setPublished] = useState(initial.published);
@@ -808,6 +811,7 @@ export function PagesEditor({
           pickable={pickable}
           app={app}
           onOpenPage={setPageSlug}
+          builtin={builtin}
         />
       </div>
     </div>

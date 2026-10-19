@@ -17,6 +17,7 @@ import { defaultLayout } from "@/lib/pages/defaults";
 import { appDefaults } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { builtInSuggestions } from "@/lib/pages/builtin";
 
 export const metadata: Metadata = { title: "Pages & look" };
 export const dynamic = "force-dynamic";
@@ -115,6 +116,8 @@ export default async function PagesPage() {
           upgradeLanguages: plan ? lowestPlanWith(plans, (p) => p.limits.languages === null || p.limits.languages > (plan.limits.languages ?? 0), planId) : null,
         }}
         ready={{ pages: ready.pages, tabs: ready.tabs }}
+        // 43 The preview shows Yallapp's Arabic and Turkish where the owner wrote none, as the app does.
+        builtin={builtInSuggestions(app.appName ?? null, ["ar", "tr"])}
       />
     </div>
   );

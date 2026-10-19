@@ -145,6 +145,8 @@ test("the client writes Arabic texts and the app gets them in Arabic", async ({ 
   await own.getByLabel("Edit texts in").selectOption("ar");
   const preview = own.getByRole("figure", { name: "Phone preview" });
   await expect(preview.locator('[dir="rtl"]')).toBeVisible();
+  // 43 Yallapp's Arabic for the tab names it wrote, as the app shows them.
+  await expect(preview.getByRole("navigation")).toContainText("الحساب");
   const page = own.getByRole("region", { name: /^Page: / });
   await page.getByLabel("Page title (Arabic)").fill("الرئيسية");
   await page.getByRole("button", { name: /^Text: / }).first().click();

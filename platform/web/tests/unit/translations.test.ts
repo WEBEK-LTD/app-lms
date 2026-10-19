@@ -16,7 +16,7 @@ import { applyTranslations, contentRows, interfaceRows, progress } from "@/lib/i
 import { hasWords, yallappPageTexts } from "@/lib/i18n/yallapp-texts";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext } from "@/lib/hosted/service";
-import { withBuiltInTexts } from "@/lib/pages/builtin";
+import { builtInSuggestions, withBuiltInTexts } from "@/lib/pages/builtin";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { applyDesign, DESIGNS } from "@/lib/pages/designs";
 import { loadLayout, lookAndLanguages, publishLayout, saveDraft } from "@/lib/pages/layout";
@@ -152,6 +152,13 @@ describe("43 Yallapp's translations in served layouts", () => {
     const served = withBuiltInTexts(layout({ languages: { default: "ar", available: ["ar", "en"] } }));
     expect(served.tabs.map((t) => translated(t, "ar", "ar").label)).toEqual(["الرئيسية", "الدورات", "دوراتي", "الحساب"]);
     expect(translated(served.tabs[0]!, "en", "ar").label).toBe("Home");
+  });
+
+  it("gives the dashboard's phone preview the same texts, with the app's name", () => {
+    const texts = builtInSuggestions("Nile & Co", ["en", "ar", "tr", "fr"]);
+    expect(texts.Home).toEqual({ ar: "الرئيسية", tr: "Ana sayfa" });
+    expect(texts["<h2>Welcome to Nile &amp; Co</h2>"]?.ar).toBe("<h2>مرحبًا بك في Nile &amp; Co</h2>");
+    expect(builtInSuggestions("Nile", ["en", "fr"])).toEqual({});
   });
 
   it("leaves an English-only layout as it is", () => {
