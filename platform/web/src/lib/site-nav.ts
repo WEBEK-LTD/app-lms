@@ -50,6 +50,7 @@ export const RESOURCE_LINKS: SiteLink[] = [
 ];
 
 export const SITE_NAV: SiteNavEntry[] = [
+  { kind: "link", id: "home", href: "/", label: "Home" },
   { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS },
   { kind: "link", id: "pricing", href: "/pricing", label: "Pricing" },
   { kind: "link", id: "demo", href: "/demo", label: "Demo" },

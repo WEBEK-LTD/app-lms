@@ -3,8 +3,11 @@ import type { ReactNode } from "react";
 import type { IconName } from "./icon-names";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
+import { AccountLink } from "./account-link";
+import { Logo } from "./brand";
 import { Icon } from "./icon";
 import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
+import { WhatsAppMark } from "./brand-marks";
 
 /** A public marketing page: header with `current` marked, a title band, the content and the full footer. */
 export function MarketingPage({
@@ -105,57 +108,92 @@ export async function ContactBand() {
             href={contact.whatsappUrl}
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
           >
-            <Icon name="chat" size={20} />
+            <WhatsAppMark size={20} />
             Talk to us on WhatsApp
           </a>
-          <Link
+          <AccountLink
             href="/sign-up"
+            signedIn="Go to your dashboard"
             className="flex h-[50px] items-center rounded-xl border border-night-line px-[22px] text-base font-semibold text-white no-underline hover:border-ivory hover:text-white"
           >
             Create an account
-          </Link>
+          </AccountLink>
         </div>
       </div>
     </section>
   );
 }
 
-/** "A typical app builder" next to Yallapp: a table from sm up, stacked rows on phones. */
-export function Comparison({ rows }: { rows: { topic: string; typical: string; yallapp: string }[] }) {
+/**
+ * "A typical app builder" next to Yallapp. From md up a three-column table:
+ * the topics with their icons, a quiet column for the typical builder, and a
+ * raised dark column for Yallapp that runs the whole height. On phones each
+ * topic is a card with the two answers one under the other.
+ */
+export function Comparison({ rows }: { rows: { icon: IconName; topic: string; typical: string; yallapp: string }[] }) {
+  const last = rows.length + 1;
   return (
-    <div role="table" aria-label="A typical app builder compared with Yallapp" className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white">
-      <div role="row" className="hidden border-b border-line bg-sand sm:grid sm:grid-cols-[1fr_1.4fr_1.4fr]">
-        <span role="columnheader" className="px-5 py-4 text-sm font-bold text-muted">
+    <div role="table" aria-label="A typical app builder compared with Yallapp" className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(180px,0.85fr)_1fr_1.15fr] md:gap-0" data-comparison="">
+      {/* The two columns' backgrounds, under the cells. */}
+      <div aria-hidden="true" className="hidden rounded-2xl border border-line bg-white md:block" style={{ gridColumn: 2, gridRow: `1 / ${last + 1}` }} />
+      <div
+        aria-hidden="true"
+        className="hidden rounded-[22px] bg-night-2 shadow-[0_24px_60px_-20px_rgba(14,13,36,0.55)] ring-1 ring-night-line md:block md:-my-3"
+        style={{ gridColumn: 3, gridRow: `1 / ${last + 1}` }}
+      />
+
+      <div role="row" className="hidden md:grid md:grid-cols-subgrid" style={{ gridColumn: "1 / 4", gridRow: 1 }}>
+        <span role="columnheader" className="flex items-end px-5 pb-4 text-[13px] font-bold tracking-[1px] text-muted uppercase">
           What matters
         </span>
-        <span role="columnheader" className="px-5 py-4 text-sm font-bold text-muted">
+        <span role="columnheader" className="flex items-center gap-2.5 border-b border-line-soft px-6 py-5 text-[15px] font-bold text-muted">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sand">
+            <Icon name="apps" size={18} />
+          </span>
           A typical app builder
         </span>
-        <span role="columnheader" className="px-5 py-4 text-sm font-bold">
-          Yallapp
+        <span role="columnheader" className="on-dark flex items-center justify-between gap-3 border-b border-night-line px-6 py-5">
+          <Logo height={26} reversed alt="Yallapp" />
+          <span className="rounded-full bg-ember px-2.5 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">Every app</span>
         </span>
       </div>
-      {rows.map((row) => (
-        <div role="row" key={row.topic} className="grid gap-2 border-b border-line-soft px-5 py-4 last:border-b-0 sm:grid-cols-[1fr_1.4fr_1.4fr] sm:gap-0 sm:p-0">
-          <span role="rowheader" className="font-bold sm:px-5 sm:py-4">
-            {row.topic}
-          </span>
-          <span role="cell" className="flex gap-2 text-[15px] text-ink-4 sm:px-5 sm:py-4">
-            <Icon name="close" size={20} className="mt-0.5 text-muted" />
-            <span>
-              <span className="sr-only">A typical app builder: </span>
-              {row.typical}
+
+      {rows.map((row, i) => {
+        const end = i === rows.length - 1;
+        return (
+          <div
+            role="row"
+            key={row.topic}
+            className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white md:grid md:grid-cols-subgrid md:overflow-visible md:rounded-none md:border-0 md:bg-transparent"
+            style={{ gridColumn: "1 / 4", gridRow: i + 2 }}
+          >
+            <span role="rowheader" className={`flex items-center gap-3 px-5 pt-4 pb-3 md:py-5 ${end ? "" : "md:border-b md:border-line-soft"}`}>
+              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-peach text-accent">
+                <Icon name={row.icon} size={22} />
+              </span>
+              <span className="text-base font-bold">{row.topic}</span>
             </span>
-          </span>
-          <span role="cell" className="flex gap-2 text-[15px] sm:bg-peach-soft sm:px-5 sm:py-4">
-            <Icon name="check" size={20} className="mt-0.5 text-success" />
-            <span>
-              <span className="sr-only">Yallapp: </span>
-              {row.yallapp}
+            <span role="cell" className={`flex gap-3 px-5 pb-4 text-[15px] leading-snug text-muted md:px-6 md:py-5 ${end ? "" : "md:border-b md:border-line-soft"}`}>
+              <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-sand text-faint md:bg-line-soft">
+                <Icon name="close" size={14} />
+              </span>
+              <span>
+                <span className="font-semibold text-ink-4 md:sr-only">A typical app builder: </span>
+                {row.typical}
+              </span>
             </span>
-          </span>
-        </div>
-      ))}
+            <span role="cell" className={`on-dark flex gap-3 bg-night-2 px-5 py-4 text-[15px] leading-snug text-white md:bg-transparent md:px-6 md:py-5 ${end ? "" : "md:border-b md:border-night-line"}`}>
+              <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-ember text-white">
+                <Icon name="check" size={14} />
+              </span>
+              <span>
+                <span className="font-bold text-ivory md:sr-only">Yallapp: </span>
+                {row.yallapp}
+              </span>
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

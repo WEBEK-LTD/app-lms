@@ -57,8 +57,10 @@ for (const width of [360, 1280]) {
 test("the landing page has the plans, the steps and the full footer", async ({ page }) => {
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Main" });
-  // 32 No menu entry is marked on the home page; the logo leads home.
-  await expect(nav.locator("[aria-current]")).toHaveCount(0);
+  // 54 Home is the first menu entry, marked on the home page; the logo leads home too.
+  await expect(nav.getByRole("link", { name: "Home", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.locator("[aria-current]")).toHaveCount(1);
+  await expect(page.getByRole("contentinfo").getByRole("navigation", { name: "Product" }).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
   await expect(page.getByRole("link", { name: "Yallapp home" })).toHaveAttribute("href", "/");
   await expect(page.getByRole("banner").getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/sign-up");
   await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
@@ -186,6 +188,7 @@ test("the phones on the landing page have thin bezels that scale with their size
 
 test("every menu link opens its own page and marks it", async ({ page }) => {
   const pages = [
+    { group: null, name: "Home", path: "/" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -198,7 +201,7 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
     { group: null, name: "Contact", path: "/contact" },
   ];
   for (const target of pages) {
-    await page.goto("/");
+    await page.goto(target.path === "/" ? "/pricing" : "/");
     const nav = page.getByRole("navigation", { name: "Main" });
     if (target.group) await nav.getByRole("button", { name: target.group }).click();
     await nav.getByRole("link", { name: new RegExp(`^${target.name}`) }).click();

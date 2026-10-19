@@ -4,8 +4,9 @@ import { getContact } from "@/lib/contact";
 import { legalLine } from "@/lib/company";
 import { PRODUCT_LINKS, type SitePage } from "@/lib/site-nav";
 import { APP_STORES } from "@/lib/stores";
+import { AccountLink } from "./account-link";
 import { Logo, LogoLink } from "./brand";
-import { StoreMarks } from "./brand-marks";
+import { StoreMarks, WhatsAppMark } from "./brand-marks";
 import { SiteNav } from "./site-nav";
 
 export type { SitePage };
@@ -50,14 +51,14 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
                 href={contact.whatsappUrl}
                 className="flex h-[46px] items-center gap-2 self-start rounded-[10px] bg-ivory px-[18px] text-[15px] font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
               >
-                <Icon name="chat" size={20} />
+                <WhatsAppMark size={20} />
                 Talk to us on WhatsApp
               </a>
             ) : null}
           </div>
           <nav aria-label="Product" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>PRODUCT</FooterHeading>
-            {[...PRODUCT_LINKS, { id: "pricing", href: "/pricing", label: "Pricing" }, { id: "demo", href: "/demo", label: "Demo" }].map((page) => (
+            {[{ id: "home", href: "/", label: "Home" }, ...PRODUCT_LINKS, { id: "pricing", href: "/pricing", label: "Pricing" }, { id: "demo", href: "/demo", label: "Demo" }].map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}
               </Link>
@@ -76,8 +77,12 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
           </nav>
           <nav aria-label="Account" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>ACCOUNT</FooterHeading>
-            <Link href="/sign-in" className={footerLink}>Sign in</Link>
-            <Link href="/sign-up" className={footerLink}>Create an account</Link>
+            <AccountLink href="/sign-in" signedIn="Your dashboard" className={footerLink}>
+              Sign in
+            </AccountLink>
+            <AccountLink href="/sign-up" signedIn={null} className={footerLink}>
+              Create an account
+            </AccountLink>
             <Link href="/contact" className={footerLink}>Contact</Link>
           </nav>
           <nav aria-label="Legal" className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
@@ -90,12 +95,12 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
             <div className="flex flex-[1_1_180px] flex-col gap-3 text-[15px]">
               <FooterHeading>CONTACT</FooterHeading>
               <a href={contact.whatsappUrl} className={`${footerLink} flex items-center gap-2`}>
-                <Icon name="call" size={18} />
+                <WhatsAppMark size={18} />
                 {contact.whatsappDisplay}
               </a>
-              <a href="https://yallapp.com.tr" className={`${footerLink} flex items-center gap-2`}>
-                <Icon name="language" size={18} />
-                yallapp.com.tr
+              <a href={`mailto:${contact.email}`} className={`${footerLink} flex items-center gap-2`}>
+                <Icon name="mail" size={18} />
+                {contact.email}
               </a>
             </div>
           ) : null}

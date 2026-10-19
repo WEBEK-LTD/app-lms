@@ -7,6 +7,7 @@ import { getSiteContent } from "@/lib/content/get";
 import { MarketingPage, Section } from "@/components/marketing";
 import { COMPANY, COMPANY_PLACE } from "@/lib/company";
 import { getContact, type Contact } from "@/lib/contact";
+import { WhatsAppMark } from "@/components/brand-marks";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -46,7 +47,7 @@ export default async function ContactPage() {
           {CHANNELS.map((channel) => (
             <div key={channel.title} className="flex flex-col gap-3 rounded-2xl border border-line p-6 sm:p-7">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ivory text-midnight">
-                <Icon name={channel.icon} size={26} />
+                {channel.title === "WhatsApp" ? <WhatsAppMark size={26} /> : <Icon name={channel.icon} size={26} />}
               </span>
               <h2 className="m-0 text-xl font-bold">{channel.title}</h2>
               <p className="m-0 text-[15px] leading-relaxed text-ink-4">{channel.text}</p>

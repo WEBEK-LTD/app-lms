@@ -10,6 +10,7 @@ import { adminRoleOf } from "../admin/team";
 import { ipFromHeaders } from "../http";
 import { appState, clientAccountState, type AccountState } from "../license/status";
 import { SESSION_TTL_SECONDS, sealSession, unsealSession } from "./session-token";
+import { SIGNED_IN_COOKIE } from "./signed-in-cookie";
 
 export const SESSION_COOKIE = "yallapp_session";
 /** The client a super admin is managing from their dashboard. Only read for super admins. */
@@ -29,11 +30,14 @@ export async function startSession(user: Pick<User, "id" | "sessionVersion">): P
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   });
+  // The public pages read this one to show "Dashboard" (lib/auth/signed-in-cookie.ts).
+  jar.set(SIGNED_IN_COOKIE, "1", { httpOnly: false, secure: secureCookies(), sameSite: "lax", path: "/", maxAge: SESSION_TTL_SECONDS });
 }
 
 export async function endSession(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
+  jar.delete(SIGNED_IN_COOKIE);
   jar.delete(MANAGE_COOKIE);
   jar.delete(APP_COOKIE);
 }

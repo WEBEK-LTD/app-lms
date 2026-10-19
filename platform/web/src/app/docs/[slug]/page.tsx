@@ -12,6 +12,7 @@ import { headingId } from "@/lib/content/markdown";
 import { parseGuide } from "@/lib/content/site";
 import { breadcrumbLd, pageMetadata, siteUrl } from "@/lib/seo";
 import { JsonLdScript } from "@/components/json-ld";
+import { WhatsAppMark } from "@/components/brand-marks";
 
 // Unknown articles get notFound() below. (dynamicParams = false would 404 every article once
 // the contact details change and the pages are rebuilt.)
@@ -135,7 +136,7 @@ export default async function DocPage({ params }: PageProps<"/docs/[slug]">) {
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-5">
           <a href={contact.whatsappUrl} className="flex items-center gap-1.5 font-semibold no-underline">
-            <Icon name="chat" size={20} />
+            <WhatsAppMark size={20} />
             Need help? Message us
           </a>
           <span className="flex flex-wrap gap-x-5 gap-y-2">

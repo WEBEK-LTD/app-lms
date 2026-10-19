@@ -28,8 +28,8 @@ import { parseUpdated, PRIVATE_PATHS, robotsRules, sitemapEntries } from "@/lib/
 const BASE = "https://yallapp.test";
 
 describe("32 the website's menu", () => {
-  it("has Product and Resources lists, then Pricing, Demo and Contact", () => {
-    expect(SITE_NAV.map((e) => e.label)).toEqual(["Product", "Pricing", "Demo", "Resources", "Contact"]);
+  it("has Home, Product and Resources lists, then Pricing, Demo and Contact", () => {
+    expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Pricing", "Demo", "Resources", "Contact"]);
     const hrefs = (id: string) => SITE_NAV.flatMap((e) => (e.kind === "group" && e.id === id ? e.items.map((i) => i.href) : []));
     expect(hrefs("product")).toEqual(["/solutions", "/features", "/integrations", "/how-it-works"]);
     expect(hrefs("resources")).toEqual(["/docs", "/faq", "/developers"]);
@@ -40,7 +40,7 @@ describe("32 the website's menu", () => {
     expect(activeEntry("features")).toBe("product");
     expect(activeEntry("how")).toBe("product");
     expect(activeEntry("developers")).toBe("resources");
-    expect(activeEntry("home")).toBeNull();
+    expect(activeEntry("home")).toBe("home");
     expect(activeEntry(undefined)).toBeNull();
   });
 });

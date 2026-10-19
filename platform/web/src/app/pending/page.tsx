@@ -17,6 +17,7 @@ import { priceView } from "@/lib/billing/display";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel } from "@/lib/app/label";
+import { WhatsAppMark } from "@/components/brand-marks";
 
 export const metadata: Metadata = { title: "Account pending activation", robots: { index: false } };
 
@@ -36,6 +37,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
             <p className="m-0 text-base leading-relaxed text-ink-4">Message us on WhatsApp and we&apos;ll sort it out.</p>
             <div className="flex flex-wrap gap-3">
               <a href={contact.whatsappUrl} className={`${btn.primary} h-[50px] flex-[1_1_220px]`}>
+                <WhatsAppMark size={20} />
                 Message us on WhatsApp
               </a>
               <SignOutButton className={`${btn.secondary} h-[50px] w-full cursor-pointer`} />
@@ -130,7 +132,7 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
 
           <div className="flex flex-wrap gap-3">
             <a href={whatsapp} className={`${btn.primary} h-[50px] flex-[1_1_220px] text-base`}>
-              <Icon name="chat" size={20} />
+              <WhatsAppMark size={20} />
               Message us on WhatsApp
             </a>
             {/* A full page load, so the status is read again from the server. */}
