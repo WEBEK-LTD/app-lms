@@ -3,8 +3,9 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import type { Lang } from "@/i18n/config";
 import { setDocumentLang } from "./html-shell";
-import { flattenMessages, formatDate, formatMessage, formatNumber, lookup, relocalizeDate, translateFrom } from "@/i18n/format";
+import { flattenMessages, formatDate, formatMessage, formatNumber, lookup, translateFrom } from "@/i18n/format";
 import type { DashboardMessages, DashT } from "@/i18n/dashboard";
+import { nestedValue } from "@/i18n/dashboard/nested";
 
 /**
  * 56 The dashboard's language in client components. The dashboard layout
@@ -41,7 +42,7 @@ export function DashboardI18n({
     if (lang === "en") return { lang, t, known: (english) => english };
     const source = new Map(Object.entries(knownEnglish));
     const target = new Map([...flattenMessages(messages)].filter(([key]) => source.has(key)));
-    return { lang, t, known: (english) => translateFrom(lang, source, target, english, (v) => relocalizeDate(lang, v)) };
+    return { lang, t, known: (english) => translateFrom(lang, source, target, english, nestedValue(lang, source, target)) };
   }, [lang, messages, knownEnglish]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

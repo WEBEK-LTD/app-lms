@@ -49,10 +49,18 @@ const hasWords = (text: string) => /[A-Za-z]{2,}/.test(text) && !SAME_EVERYWHERE
 export function findHardcodedText(file: string, source = readFileSync(file, "utf8")): Finding[] {
   const sf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const lines = source.split("\n");
+  // Lines between `i18n-ok-begin` and `i18n-ok-end` (the client app's own screens in a preview) are skipped too.
+  const skipped = new Set<number>();
+  let inside = false;
+  lines.forEach((text, i) => {
+    if (text.includes("i18n-ok-begin")) inside = true;
+    if (inside) skipped.add(i);
+    if (text.includes("i18n-ok-end")) inside = false;
+  });
   const out: Finding[] = [];
   const add = (node: ts.Node, text: string) => {
     const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line;
-    if (lines[line]?.includes("i18n-ok") || lines[line - 1]?.includes("i18n-ok")) return;
+    if (skipped.has(line) || lines[line]?.includes("i18n-ok") || lines[line - 1]?.includes("i18n-ok")) return;
     out.push({ file, line: line + 1, text: text.trim().slice(0, 80) });
   };
   const literalText = (node: ts.Node): string | null =>

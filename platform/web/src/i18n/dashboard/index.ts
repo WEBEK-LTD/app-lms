@@ -1,5 +1,6 @@
 import type { Lang } from "../config";
-import { flattenMessages, formatMessage, lookup, relocalizeDate, translateFrom, type MessageValues } from "../format";
+import { flattenMessages, formatMessage, lookup, translateFrom, type MessageValues } from "../format";
+import { nestedValue } from "./nested";
 import type { Leaves } from "..";
 import type { Strings } from "../types";
 import * as common from "./common";
@@ -9,6 +10,7 @@ import * as lib from "./lib";
 import * as license from "./license";
 import * as nav from "./nav";
 import * as overview from "./overview";
+import * as pages from "./pages";
 import * as setup from "./setup";
 
 /**
@@ -31,7 +33,7 @@ import * as setup from "./setup";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };
@@ -81,5 +83,7 @@ export function knownEnglish(): Record<string, string> {
 /** An English text from shared code in a language, when the catalogs know it; else as it is. */
 export function knownTranslator(lang: Lang): (english: string) => string {
   if (lang === "en") return (english) => english;
-  return (english) => translateFrom(lang, known("en"), known(lang), english, (value) => relocalizeDate(lang, value));
+  const source = known("en");
+  const target = known(lang);
+  return (english) => translateFrom(lang, source, target, english, nestedValue(lang, source, target));
 }

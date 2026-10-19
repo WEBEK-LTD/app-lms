@@ -8,7 +8,7 @@ import { newBlockId } from "@/lib/pages/defaults";
 import { blockTexts } from "@/lib/pages/designs/texts";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
-import { actionProblem, blockProblem, listHint, type ScreenOption } from "@/lib/pages/sources";
+import { actionProblem, blockProblem, type ScreenOption } from "@/lib/pages/sources";
 import { translated } from "@/lib/pages/translate";
 import {
   APP_FONTS,
@@ -30,7 +30,13 @@ import { BlockSettings, type BlockContext } from "./block-settings";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
 import { DesignThumb, PhonePreview } from "./preview";
 import { UpgradeHint } from "@/components/upgrade";
-import { languageName, MAX_LANGUAGES } from "@/lib/i18n/locales";
+import { MAX_LANGUAGES } from "@/lib/i18n/locales";
+import { appLanguageName } from "@/lib/i18n/language-names";
+import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { formatList } from "@/i18n/format";
+import { richText } from "@/i18n/rich";
+import type { DashKey, DashT } from "@/i18n/dashboard";
+import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { LanguageList } from "../languages/language-list";
 import type { Plan } from "@/lib/plans";
 
@@ -48,18 +54,36 @@ export interface EditorPlan {
 type Panel = "pages" | "tabs" | "look" | "languages";
 type Status = "saved" | "saving" | "unsaved" | "invalid";
 
-const PANELS: { id: Panel; label: string }[] = [
-  { id: "pages", label: "Pages" },
-  { id: "tabs", label: "Tabs" },
-  { id: "look", label: "Look" },
-  { id: "languages", label: "Languages" },
+const PANELS: { id: Panel; label: DashKey }[] = [
+  { id: "pages", label: "pages.panelPages" },
+  { id: "tabs", label: "pages.panelTabs" },
+  { id: "look", label: "pages.panelLook" },
+  { id: "languages", label: "pages.panelLanguages" },
 ];
 
-const TEMPLATE_TEXT: Record<(typeof APP_TEMPLATES)[number], string> = {
-  classic: "A colored top bar and soft cards.",
-  bold: "Big headings and full-width images.",
-  minimal: "White space and thin lines.",
+const TEMPLATE_TEXT: Record<(typeof APP_TEMPLATES)[number], DashKey> = {
+  classic: "pages.templateClassic",
+  bold: "pages.templateBold",
+  minimal: "pages.templateMinimal",
 };
+
+/**
+ * 56 A problem the layout's check found ("Page "Home", block 2 (Banner): The
+ * heading can have at most 200 characters."): where it is and what it is, each
+ * in the dashboard's language when the words are known.
+ */
+function layoutProblem(text: string, t: DashT, known: (english: string) => string): string {
+  const match = text.match(/^(.*): ([A-Z][^:]*)$/);
+  if (!match) return known(text);
+  const where = match[1]!
+    .replace(/Page "(.*?)"/g, (_, name: string) => t("pages.wherePage", { name }))
+    .replace(/Page (\d+)/g, (_, n: string) => t("pages.wherePageN", { n }))
+    .replace(/block (\d+)/g, (_, n: string) => t("pages.whereBlock", { n }))
+    .replace(/Tab (\d+)/g, (_, n: string) => t("pages.whereTab", { n }))
+    .replace(/\(([^)]+)\)/g, (_, name: string) => `(${known(name)})`)
+    .replace(/^(Look|Languages|Tabs)$/, (name) => known(name));
+  return `${where}: ${known(match[2]!)}`;
+}
 
 const AUTOSAVE_MS = 1200;
 
@@ -112,6 +136,11 @@ export function PagesEditor({
   /** 43 Yallapp's translations of the texts it wrote, for the phone preview. */
   builtin: Record<string, Record<string, string>>;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const dashLang = useDashLang();
+  const { num } = useDashFormat();
+  const languageName = (code: string) => appLanguageName(code, dashLang);
   const [layout, setLayout] = useState<LayoutContent>(initial.draft);
   const [published, setPublished] = useState(initial.published);
   const [changes, setChanges] = useState(initial.changes);
@@ -171,10 +200,10 @@ export function PagesEditor({
         applied(await saveLayoutDraftAction(JSON.stringify(draft)), sent, false);
       } catch {
         setStatus("unsaved");
-        setErrors(["The draft couldn't be saved. Check your connection and try again."]);
+        setErrors([t("pages.cantSave")]);
       }
     },
-    [applied],
+    [applied, t],
   );
 
   // Saves the draft a moment after the last change.
@@ -206,16 +235,16 @@ export function PagesEditor({
     try {
       const r = await publishLayoutAction(JSON.stringify(layout));
       applied(r, sent, edits.current === sent);
-      setMessage(r.ok ? { text: r.message ?? "Published.", ok: true } : { text: "Not published: fix the problems listed above.", ok: false });
+      setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.published"), ok: true } : { text: t("pages.notPublished"), ok: false });
     } catch {
-      setMessage({ text: "Couldn't publish. Check your connection and try again.", ok: false });
+      setMessage({ text: t("pages.cantPublish"), ok: false });
     } finally {
       setBusy(false);
     }
   }
 
   async function discard() {
-    if (!window.confirm(published ? "Discard your changes and go back to the published pages?" : "Discard your changes and go back to the starting pages?")) return;
+    if (!window.confirm(published ? t("pages.discardPublished") : t("pages.discardStarting"))) return;
     setBusy(true);
     edits.current += 1;
     const sent = edits.current;
@@ -223,7 +252,7 @@ export function PagesEditor({
       const r = await discardLayoutDraftAction();
       applied(r, sent, true);
       if (r.ok) {
-        setMessage({ text: r.message ?? "Draft discarded.", ok: true });
+        setMessage({ text: r.message ? known(r.message) : t("pages.discarded"), ok: true });
         setEditLang(r.draft.languages.default);
       }
     } finally {
@@ -234,7 +263,7 @@ export function PagesEditor({
   // 33 Ready-made designs
 
   async function chooseDesign(id: string, name: string) {
-    if (!window.confirm(`Replace your draft with the ${name} design? Your pages, tabs and look in the draft are replaced; what's published stays until you publish.`)) return;
+    if (!window.confirm(t("pages.replaceDesign", { name }))) return;
     setBusy(true);
     edits.current += 1;
     const sent = edits.current;
@@ -247,12 +276,12 @@ export function PagesEditor({
         setPageSlug(r.draft.pages[0]?.slug ?? null);
         setOpenBlock(null);
         setDesignsOpen(false);
-        setMessage({ text: r.message ?? "Design applied.", ok: true });
+        setMessage({ text: r.message ? known(r.message) : t("pages.designApplied"), ok: true });
       } else {
-        setMessage({ text: r.errors[0] ?? "The design couldn't be applied.", ok: false });
+        setMessage({ text: r.errors[0] ? known(r.errors[0]) : t("pages.designFailed"), ok: false });
       }
     } catch {
-      setMessage({ text: "Couldn't apply the design. Check your connection and try again.", ok: false });
+      setMessage({ text: t("pages.cantApply"), ok: false });
     } finally {
       setBusy(false);
     }
@@ -264,7 +293,7 @@ export function PagesEditor({
     const title = newTitle.trim();
     if (!title) return;
     if (layout.pages.length >= LAYOUT_LIMITS.maxPages) {
-      setMessage({ text: `An app can have at most ${LAYOUT_LIMITS.maxPages} pages.`, ok: false });
+      setMessage({ text: t("pages.maxPages", { max: LAYOUT_LIMITS.maxPages }), ok: false });
       return;
     }
     const slug = uniqueSlug(title, layout.pages.map((p) => p.slug));
@@ -276,7 +305,7 @@ export function PagesEditor({
   function deletePage(p: LayoutPage) {
     const links = pageLinks(layout, p.slug);
     if (links.length) {
-      setMessage({ text: `${p.title} can't be deleted: ${links.join(" and ")} opens it. Change that first.`, ok: false });
+      setMessage({ text: t("pages.cantDelete", { page: p.title, links: formatList(dashLang, links) }), ok: false });
       return;
     }
     update((l) => ({ ...l, pages: l.pages.filter((x) => x.slug !== p.slug) }));
@@ -307,7 +336,7 @@ export function PagesEditor({
   function addBlock(type: BlockType) {
     if (!page) return;
     if (page.blocks.length >= LAYOUT_LIMITS.maxBlocks) {
-      setMessage({ text: `A page can have at most ${LAYOUT_LIMITS.maxBlocks} blocks.`, ok: false });
+      setMessage({ text: t("pages.maxBlocks", { max: LAYOUT_LIMITS.maxBlocks }), ok: false });
       return;
     }
     const block = newBlock(type, sources, screens);
@@ -346,31 +375,41 @@ export function PagesEditor({
   }
 
   const statusText =
-    status === "saving" ? "Saving…" : status === "unsaved" ? "Unsaved changes" : status === "invalid" ? "Draft not saved: fix the problems below." : `Draft saved ${formatDateTime(new Date(savedAt))}`;
+    status === "saving"
+      ? t("pages.saving")
+      : status === "unsaved"
+        ? t("pages.unsaved")
+        : status === "invalid"
+          ? t("pages.invalid")
+          : t("pages.savedAt", { date: formatDateTime(new Date(savedAt), dashLang) });
+  // 31 What a List block can show in this app: "Courses or blog posts".
+  const listHint = sources.length ? formatList(dashLang, sources.map((s) => known(SOURCE_NAMES[s])), "disjunction") : t("pages.entriesFrom");
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex min-w-0 flex-col gap-5">
-        <section aria-label="Draft and publishing" className={sectionClass}>
+        <section aria-label={t("pages.draftSection")} className={sectionClass}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1">
               <p role="status" className="m-0 text-[15px] font-semibold">
                 {statusText}
               </p>
               <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-muted">
-                {published ? `Published version ${published.version}, ${formatDateTime(new Date(published.at))}.` : "Not published yet: your app shows the starting pages."}
-                {changes && published ? <Badge tone="warn">Unpublished changes</Badge> : null}
+                {published
+                  ? t("pages.publishedVersion", { version: published.version, date: formatDateTime(new Date(published.at), dashLang) })
+                  : t("pages.notYet")}
+                {changes && published ? <Badge tone="warn">{t("pages.unpublished")}</Badge> : null}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button type="button" className={smallBtn} disabled={busy || status === "saving"} onClick={() => void save(layout)}>
-                Save draft
+                {t("pages.saveDraft")}
               </button>
               <button type="button" className={smallBtn} disabled={busy} onClick={() => void discard()}>
-                Discard draft
+                {t("pages.discardDraft")}
               </button>
               <button type="button" className={`${btn.primary} h-9 px-4 text-sm`} disabled={busy} onClick={() => void publish()}>
-                {busy ? "Working…" : "Publish"}
+                {busy ? t("pages.working") : t("pages.publish")}
               </button>
             </div>
           </div>
@@ -379,19 +418,19 @@ export function PagesEditor({
             <div className="max-w-[280px]">
               <SelectInput
                 id="edit-language"
-                label="Edit texts in"
+                label={t("pages.editIn")}
                 value={lang.edit}
-                options={layout.languages.available.map((c) => ({ value: c, label: c === def ? `${languageName(c)} (default)` : languageName(c) }))}
+                options={layout.languages.available.map((c) => ({ value: c, label: c === def ? t("pages.defaultLang", { language: languageName(c) }) : languageName(c) }))}
                 onChange={setEditLang}
               />
             </div>
           ) : null}
           {errors.length ? (
             <div role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-[15px] text-danger">
-              <p className="m-0 font-semibold">Fix these to save and publish:</p>
-              <ul className="m-0 mt-1 list-disc pl-5">
+              <p className="m-0 font-semibold">{t("pages.fix")}</p>
+              <ul className="m-0 mt-1 list-disc ps-5">
                 {errors.map((e, i) => (
-                  <li key={i}>{e}</li>
+                  <li key={i}>{layoutProblem(e, t, known)}</li>
                 ))}
               </ul>
             </div>
@@ -403,7 +442,7 @@ export function PagesEditor({
           ) : null}
         </section>
 
-        <div role="tablist" aria-label="Edit" className="flex flex-wrap gap-1 rounded-xl bg-white p-1">
+        <div role="tablist" aria-label={t("pages.edit")} className="flex flex-wrap gap-1 rounded-xl bg-white p-1">
           {PANELS.map((p) => (
             <button
               key={p.id}
@@ -415,20 +454,21 @@ export function PagesEditor({
               onClick={() => setPanel(p.id)}
               className={`h-10 flex-1 rounded-lg px-4 text-[15px] ${panel === p.id ? "bg-midnight font-bold text-white" : "font-semibold text-ink-3 hover:bg-ivory"}`}
             >
-              {p.label}
+              {t(p.label)}
             </button>
           ))}
         </div>
 
         {(panel === "pages" || panel === "tabs") && !plan.pageEditor ? (
           <section role="tabpanel" id={`panel-${panel}`} aria-labelledby={`tab-${panel}`} className={sectionClass}>
-            <h2 className="m-0 text-lg font-bold">{panel === "pages" ? "Pages" : "Bottom tabs"}</h2>
-            <p className="m-0 text-[15px] text-ink-4">
-              On the {plan.name} plan your app uses ready-made pages and tabs for its type, filled with your content. Choose its template, colors and fonts
-              under Look.
-            </p>
-            <UpgradeHint title="Full page editor" to={plan.upgradeEditor}>
-              Build your own pages and tabs from blocks: banners, lists, buttons, videos and more.
+            <h2 className="m-0 text-lg font-bold">{panel === "pages" ? t("pages.panelPages") : t("pages.bottomTabs")}</h2>
+            <p className="m-0 text-[15px] text-ink-4">{t("pages.readyMade", { plan: plan.name })}</p>
+            <UpgradeHint
+              title={t("pages.fullEditor")}
+              to={plan.upgradeEditor}
+              cta={plan.upgradeEditor ? t("overview.upgradeTo", { plan: plan.upgradeEditor.name }) : undefined}
+            >
+              {t("pages.fullEditorText")}
             </UpgradeHint>
           </section>
         ) : null}
@@ -441,26 +481,24 @@ export function PagesEditor({
                   <summary className="cursor-pointer list-none">
                     <span className="flex flex-wrap items-center justify-between gap-2">
                       <h2 id="h-designs" className="m-0 text-lg font-bold">
-                        Start from a design
+                        {t("pages.startDesign")}
                       </h2>
-                      <span className={smallBtn}>{designsOpen ? "Hide designs" : "Show designs"}</span>
+                      <span className={smallBtn}>{designsOpen ? t("pages.hideDesigns") : t("pages.showDesigns")}</span>
                     </span>
-                    <span className="mt-1 block text-[15px] text-ink-4">
-                      Ready-made pages, tabs and a look for your kind of app. A design replaces your draft; your published pages stay until you publish.
-                    </span>
+                    <span className="mt-1 block text-[15px] text-ink-4">{t("pages.designsText")}</span>
                   </summary>
                   <ul className="m-0 mt-4 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-4">
                     {designs.map((d) => (
                       <li key={d.id} className={`flex flex-col gap-2 rounded-xl border p-3 ${currentDesign === d.id ? "border-2 border-midnight" : "border-line"}`}>
                         <DesignThumb layout={{ ...d.layout, appearance: { ...d.layout.appearance, theme_mode: "light" } }} app={app} />
                         <span className="flex items-center gap-2 text-[15px] font-bold">
-                          {d.name}
-                          {currentDesign === d.id ? <Badge tone="neutral">Your design</Badge> : null}
+                          {known(d.name)}
+                          {currentDesign === d.id ? <Badge tone="neutral">{t("pages.yourDesign")}</Badge> : null}
                         </span>
-                        <span className="text-xs text-muted">{d.description}</span>
+                        <span className="text-xs text-muted">{known(d.description)}</span>
                         {/* 38 Grows with its text: in four narrow columns "Use this design" takes two lines. */}
-                        <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={`Use the ${d.name} design`} onClick={() => void chooseDesign(d.id, d.name)}>
-                          Use this design
+                        <button type="button" className={`${btn.secondary} mt-auto min-h-9 px-3 py-1.5 text-center leading-tight`} disabled={busy} aria-label={t("pages.useNamed", { name: known(d.name) })} onClick={() => void chooseDesign(d.id, known(d.name))}>
+                          {t("pages.useDesign")}
                         </button>
                       </li>
                     ))}
@@ -470,7 +508,7 @@ export function PagesEditor({
             ) : null}
             <section aria-labelledby="h-page-list" className={sectionClass}>
               <h2 id="h-page-list" className="m-0 text-lg font-bold">
-                Pages
+                {t("pages.panelPages")}
               </h2>
               <ul className="m-0 flex list-none flex-col p-0">
                 {layout.pages.map((p) => {
@@ -481,17 +519,17 @@ export function PagesEditor({
                         type="button"
                         aria-current={page?.slug === p.slug ? "true" : undefined}
                         onClick={() => setPageSlug(p.slug)}
-                        className={`flex min-w-0 cursor-pointer flex-col items-start border-0 bg-transparent p-0 text-left ${page?.slug === p.slug ? "text-midnight" : "text-ink-3"}`}
+                        className={`flex min-w-0 cursor-pointer flex-col items-start border-0 bg-transparent p-0 text-start ${page?.slug === p.slug ? "text-midnight" : "text-ink-3"}`}
                       >
                         <span className={`text-[15px] ${page?.slug === p.slug ? "font-bold" : "font-semibold"}`}>{title}</span>
-                        <span className="text-xs text-muted">/{p.slug} · {p.blocks.length} blocks</span>
+                        <span className="text-xs text-muted">{t("pages.pageInfo", { slug: p.slug, count: p.blocks.length })}</span>
                       </button>
                       <span className="flex gap-2">
-                        <button type="button" className={smallBtn} aria-label={`Duplicate ${title}`} onClick={() => duplicate(p)}>
-                          Duplicate
+                        <button type="button" className={smallBtn} aria-label={t("pages.duplicateNamed", { name: title })} onClick={() => duplicate(p)}>
+                          {t("pages.duplicate")}
                         </button>
-                        <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={`Delete ${title}`} onClick={() => deletePage(p)}>
-                          Delete
+                        <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteNamed", { name: title })} onClick={() => deletePage(p)}>
+                          {t("common.delete")}
                         </button>
                       </span>
                     </li>
@@ -500,10 +538,10 @@ export function PagesEditor({
               </ul>
               <div className="flex flex-wrap items-end gap-2">
                 <div className="min-w-[200px] flex-1">
-                  <TextInput id="new-page-title" label="New page title" value={newTitle} onChange={setNewTitle} />
+                  <TextInput id="new-page-title" label={t("pages.newPage")} value={newTitle} onChange={setNewTitle} />
                 </div>
                 <button type="button" className={`${btn.primary} h-11 px-4 text-sm`} disabled={!newTitle.trim()} onClick={addPage}>
-                  Add page
+                  {t("pages.addPage")}
                 </button>
               </div>
             </section>
@@ -511,20 +549,20 @@ export function PagesEditor({
             {page ? (
               <section aria-labelledby="h-page" className={sectionClass}>
                 <h2 id="h-page" className="m-0 text-lg font-bold">
-                  Page: {translated(page, lang.edit, def).title || page.slug}
+                  {t("pages.pageHeading", { name: translated(page, lang.edit, def).title || page.slug })}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <LangText id={`page-${page.slug}-title`} label="Page title" value={page} field="title" lang={lang} onChange={(next) => updatePage(page.slug, () => next)} />
-                  <TextInput id={`page-${page.slug}-slug`} label="Page address" value={page.slug} hint="Lowercase letters, digits and dashes." onChange={(v) => changeSlug(page, v)} />
+                  <LangText id={`page-${page.slug}-title`} label={t("pages.pageTitle")} value={page} field="title" lang={lang} onChange={(next) => updatePage(page.slug, () => next)} />
+                  <TextInput id={`page-${page.slug}-slug`} label={t("pages.pageAddress")} dir="ltr" value={page.slug} hint={t("pages.pageAddressHint")} onChange={(v) => changeSlug(page, v)} />
                 </div>
-                <Check label="Show the title at the top" checked={page.show_title} onChange={(show_title) => updatePage(page.slug, (p) => ({ ...p, show_title }))} />
+                <Check label={t("pages.showTitle")} checked={page.show_title} onChange={(show_title) => updatePage(page.slug, (p) => ({ ...p, show_title }))} />
 
-                <h3 className="m-0 text-base font-bold">Blocks</h3>
+                <h3 className="m-0 text-base font-bold">{t("pages.blocks")}</h3>
                 {page.blocks.length ? (
-                  <ol aria-label="Blocks" className="m-0 flex list-none flex-col gap-2 p-0">
+                  <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
                     {page.blocks.map((block, i) => {
                       const open = openBlock === block.id;
-                      const name = `${BLOCK_LABELS[block.type]}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
+                      const name = `${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
                       const problem = blockProblem(block, screens, sources);
                       return (
                         <li
@@ -543,46 +581,46 @@ export function PagesEditor({
                             onDragEnd={() => setDragFrom(null)}
                             className="flex items-center gap-2 px-2 py-2"
                           >
-                            <span className="cursor-grab text-muted" title="Drag to move">
+                            <span className="cursor-grab text-muted" title={t("pages.drag")}>
                               <IconGlyph name="drag_indicator" />
                             </span>
                             <button
                               type="button"
                               aria-expanded={open}
                               onClick={() => setOpenBlock(open ? null : block.id)}
-                              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-left text-[15px] font-semibold text-midnight"
+                              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
                             >
                               <span className="truncate">{name}</span>
-                              {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? "Signed in" : "Signed out"}</Badge> : null}
+                              {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
                               {problem ? (
-                                <span title={problem}>
-                                  <Badge tone="warn">Needs a fix</Badge>
+                                <span title={known(problem)}>
+                                  <Badge tone="warn">{t("pages.needsFix")}</Badge>
                                 </span>
                               ) : null}
                               {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
-                                <span title="This block still has the design's sample text. Write your own before you publish.">
-                                  <Badge tone="neutral">Sample text</Badge>
+                                <span title={t("pages.sampleTitle")}>
+                                  <Badge tone="neutral">{t("pages.sample")}</Badge>
                                 </span>
                               ) : null}
                             </button>
-                            <button type="button" className={iconBtn} aria-label={`Move block ${i + 1} up`} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i - 1))}>
+                            <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i - 1))}>
                               <IconGlyph name="arrow_upward" size={20} />
                             </button>
                             <button
                               type="button"
                               className={iconBtn}
-                              aria-label={`Move block ${i + 1} down`}
+                              aria-label={t("pages.blockDown", { n: i + 1 })}
                               disabled={i === page.blocks.length - 1}
                               onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i + 1))}
                             >
                               <IconGlyph name="arrow_downward" size={20} />
                             </button>
-                            <button type="button" className={iconBtn} aria-label={`Delete block ${i + 1}`} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
+                            <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
                               <IconGlyph name="delete" size={20} />
                             </button>
                           </div>
                           {open ? (
-                            <div className="border-t border-line-soft p-3" role="group" aria-label={`Block ${i + 1} settings`}>
+                            <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
                               <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? next : x)))} />
                             </div>
                           ) : null}
@@ -591,34 +629,34 @@ export function PagesEditor({
                     })}
                   </ol>
                 ) : (
-                  <p className="m-0 text-[15px] text-muted">No blocks yet. Add one below.</p>
+                  <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
                 )}
 
-                <h3 className="m-0 text-base font-bold">Add a block</h3>
+                <h3 className="m-0 text-base font-bold">{t("pages.addBlock")}</h3>
                 {/* 33 In groups, each block with its icon and what it's for. */}
                 {BLOCK_GROUPS.map((group) => {
-                  const types = group.types.filter((t) => blockTypes.includes(t));
+                  const types = group.types.filter((type) => blockTypes.includes(type));
                   if (!types.length) return null;
                   return (
                     <div key={group.name} role="group" aria-labelledby={`add-${group.name}`} className="flex flex-col gap-2">
                       <h4 id={`add-${group.name}`} className="m-0 text-xs font-bold tracking-[0.06em] text-muted uppercase">
-                        {group.name}
+                        {known(group.name)}
                       </h4>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {types.map((type) => (
                           <button
                             key={type}
                             type="button"
-                            aria-label={`Add ${BLOCK_LABELS[type]} block`}
+                            aria-label={t("pages.addNamed", { name: known(BLOCK_LABELS[type]) })}
                             onClick={() => addBlock(type)}
-                            className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-left hover:border-midnight"
+                            className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-white px-3 py-2.5 text-start hover:border-midnight"
                           >
                             <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-ivory text-midnight">
                               <IconGlyph name={BLOCK_ICONS[type]} size={20} />
                             </span>
                             <span className="flex min-w-0 flex-col gap-0.5">
-                              <span className="text-[15px] font-semibold text-midnight">{BLOCK_LABELS[type]}</span>
-                              <span className="text-xs text-muted">{type === "items" ? listHint(sources) : BLOCK_HINTS[type]}</span>
+                              <span className="text-[15px] font-semibold text-midnight">{known(BLOCK_LABELS[type])}</span>
+                              <span className="text-xs text-muted">{type === "items" ? listHint : known(BLOCK_HINTS[type])}</span>
                             </span>
                           </button>
                         ))}
@@ -628,7 +666,7 @@ export function PagesEditor({
                 })}
               </section>
             ) : (
-              <p className="m-0 text-[15px] text-muted">Add a page to start.</p>
+              <p className="m-0 text-[15px] text-muted">{t("pages.addPageFirst")}</p>
             )}
           </div>
         ) : null}
@@ -636,65 +674,63 @@ export function PagesEditor({
         {panel === "tabs" && plan.pageEditor ? (
           <section role="tabpanel" id="panel-tabs" aria-labelledby="tab-tabs" className={sectionClass}>
             <div className="flex flex-col gap-1">
-              <h2 className="m-0 text-lg font-bold">Bottom tabs</h2>
-              <p className="m-0 text-[15px] text-ink-4">
-                {LAYOUT_LIMITS.minTabs} to {LAYOUT_LIMITS.maxTabs} tabs, left to right. Each opens one of your pages or a screen of the app.
-              </p>
+              <h2 className="m-0 text-lg font-bold">{t("pages.bottomTabs")}</h2>
+              <p className="m-0 text-[15px] text-ink-4">{t("pages.tabsText", { min: LAYOUT_LIMITS.minTabs, max: LAYOUT_LIMITS.maxTabs })}</p>
             </div>
             <ol className="m-0 flex list-none flex-col gap-3 p-0">
               {layout.tabs.map((tab, i) => (
                 <li key={tab.id}>
                   <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-3">
                     <legend className="flex items-center gap-2 px-1 text-sm font-bold">
-                      Tab {i + 1}
-                      {actionProblem(tab.target, screens, sources) ? <Badge tone="warn">Needs a fix</Badge> : null}
+                      {t("pages.tabN", { n: num(i + 1) })}
+                      {actionProblem(tab.target, screens, sources) ? <Badge tone="warn">{t("pages.needsFix")}</Badge> : null}
                     </legend>
                     <LangText
                       id={`tab-${tab.id}-label`}
-                      label="Label"
+                      label={t("pages.label")}
                       value={tab}
                       field="label"
                       lang={lang}
-                      onChange={(next) => update((l) => ({ ...l, tabs: l.tabs.map((t) => (t.id === tab.id ? next : t)) }))}
+                      onChange={(next) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? next : x)) }))}
                     />
                     <IconPicker
                       id={`tab-${tab.id}-icon`}
-                      label="Icon"
+                      label={t("pages.icon")}
                       value={tab.icon}
-                      onChange={(icon) => update((l) => ({ ...l, tabs: l.tabs.map((t) => (t.id === tab.id ? { ...t, icon: icon ?? t.icon } : t)) }))}
+                      onChange={(icon) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? { ...x, icon: icon ?? x.icon } : x)) }))}
                     />
                     <ActionEditor
                       id={`tab-${tab.id}-target`}
-                      label="Opens"
+                      label={t("pages.opens")}
                       action={tab.target}
                       optional={false}
                       pages={pages}
                       sources={sources}
                       screens={screens}
                       courses={pickable.items.courses}
-                      onChange={(target) => target && update((l) => ({ ...l, tabs: l.tabs.map((t) => (t.id === tab.id ? { ...t, target } : t)) }))}
+                      onChange={(target) => target && update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? { ...x, target } : x)) }))}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <button type="button" className={smallBtn} aria-label={`Move tab ${i + 1} left`} disabled={i === 0} onClick={() => update((l) => ({ ...l, tabs: moveItem(l.tabs, i, i - 1) }))}>
-                        Move left
+                      <button type="button" className={smallBtn} aria-label={t("pages.tabLeft", { n: i + 1 })} disabled={i === 0} onClick={() => update((l) => ({ ...l, tabs: moveItem(l.tabs, i, i - 1) }))}>
+                        {t("pages.moveLeft")}
                       </button>
                       <button
                         type="button"
                         className={smallBtn}
-                        aria-label={`Move tab ${i + 1} right`}
+                        aria-label={t("pages.tabRight", { n: i + 1 })}
                         disabled={i === layout.tabs.length - 1}
                         onClick={() => update((l) => ({ ...l, tabs: moveItem(l.tabs, i, i + 1) }))}
                       >
-                        Move right
+                        {t("pages.moveRight")}
                       </button>
                       <button
                         type="button"
                         className={`${btn.danger} h-9 px-3 text-sm`}
-                        aria-label={`Remove tab ${i + 1}`}
+                        aria-label={t("pages.tabRemove", { n: i + 1 })}
                         disabled={layout.tabs.length <= LAYOUT_LIMITS.minTabs}
-                        onClick={() => update((l) => ({ ...l, tabs: l.tabs.filter((t) => t.id !== tab.id) }))}
+                        onClick={() => update((l) => ({ ...l, tabs: l.tabs.filter((x) => x.id !== tab.id) }))}
                       >
-                        Remove
+                        {t("common.remove")}
                       </button>
                     </div>
                   </fieldset>
@@ -703,7 +739,7 @@ export function PagesEditor({
             </ol>
             <div>
               <button type="button" className={smallBtn} disabled={layout.tabs.length >= LAYOUT_LIMITS.maxTabs} onClick={addTab}>
-                Add a tab
+                {t("pages.addTab")}
               </button>
             </div>
           </section>
@@ -711,20 +747,20 @@ export function PagesEditor({
 
         {panel === "look" ? (
           <section role="tabpanel" id="panel-look" aria-labelledby="tab-look" className={sectionClass}>
-            <h2 className="m-0 text-lg font-bold">Look</h2>
+            <h2 className="m-0 text-lg font-bold">{t("pages.panelLook")}</h2>
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-1.5 p-0 text-sm font-semibold">Template</legend>
+              <legend className="mb-1.5 p-0 text-sm font-semibold">{t("pages.template")}</legend>
               <div className="grid gap-2 sm:grid-cols-3">
-                {APP_TEMPLATES.map((t) => (
+                {APP_TEMPLATES.map((template) => (
                   <label
-                    key={t}
+                    key={template}
                     className="flex cursor-pointer flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-2 has-[:checked]:border-midnight has-[:checked]:p-[11px]"
                   >
                     <span className="flex items-center gap-2 text-[15px] font-bold">
-                      <input type="radio" name="template" checked={layout.appearance.template === t} onChange={() => setLook({ template: t })} className="h-4 w-4 accent-midnight" />
-                      {TEMPLATE_LABELS[t]}
+                      <input type="radio" name="template" checked={layout.appearance.template === template} onChange={() => setLook({ template })} className="h-4 w-4 accent-midnight" />
+                      {known(TEMPLATE_LABELS[template])}
                     </span>
-                    <span className="text-xs text-muted">{TEMPLATE_TEXT[t]}</span>
+                    <span className="text-xs text-muted">{t(TEMPLATE_TEXT[template])}</span>
                   </label>
                 ))}
               </div>
@@ -732,38 +768,38 @@ export function PagesEditor({
             <div className="grid gap-3 sm:grid-cols-2">
               <SelectInput
                 id="look-mode"
-                label="Opens in"
+                label={t("pages.opensIn")}
                 value={layout.appearance.theme_mode}
-                options={THEME_MODES.map((m) => ({ value: m, label: THEME_MODE_LABELS[m] }))}
+                options={THEME_MODES.map((m) => ({ value: m, label: known(THEME_MODE_LABELS[m]) }))}
                 onChange={(theme_mode) => setLook({ theme_mode })}
               />
-              <SelectInput id="look-font" label="Font" value={layout.appearance.font} options={APP_FONTS.map((f) => ({ value: f, label: f }))} onChange={(font) => setLook({ font })} />
+              <SelectInput id="look-font" label={t("pages.font")} value={layout.appearance.font} options={APP_FONTS.map((f) => ({ value: f, label: f }))} onChange={(font) => setLook({ font })} />
               <SelectInput
                 id="look-corners"
-                label="Corners"
+                label={t("pages.corners")}
                 value={layout.appearance.corners}
-                options={CORNERS.map((c) => ({ value: c, label: CORNER_LABELS[c] }))}
+                options={CORNERS.map((c) => ({ value: c, label: known(CORNER_LABELS[c]) }))}
                 onChange={(corners) => setLook({ corners })}
               />
               <SelectInput
                 id="look-cards"
-                label="Cards"
+                label={t("pages.cards")}
                 value={layout.appearance.cards}
-                options={CARD_STYLES.map((c) => ({ value: c, label: CARD_LABELS[c] }))}
+                options={CARD_STYLES.map((c) => ({ value: c, label: known(CARD_LABELS[c]) }))}
                 onChange={(cards) => setLook({ cards })}
               />
             </div>
-            <Check label="People can switch between light and dark mode in Settings" checked={layout.appearance.user_can_change_mode} onChange={(user_can_change_mode) => setLook({ user_can_change_mode })} />
+            <Check label={t("pages.switchMode")} checked={layout.appearance.user_can_change_mode} onChange={(user_can_change_mode) => setLook({ user_can_change_mode })} />
             <div className="flex flex-wrap items-end gap-4">
               <Check
-                label="Use a secondary color"
+                label={t("pages.secondary")}
                 checked={layout.appearance.secondary_color !== null}
                 onChange={(on) => setLook({ secondary_color: on ? (layout.appearance.secondary_color ?? "#E8B04B") : null })}
               />
               {layout.appearance.secondary_color !== null ? (
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="look-secondary" className="text-sm font-semibold">
-                    Secondary color
+                    {t("pages.secondaryColor")}
                   </label>
                   <input
                     id="look-secondary"
@@ -775,28 +811,33 @@ export function PagesEditor({
                 </div>
               ) : null}
             </div>
-            <p className="m-0 text-sm text-muted">Your main color and logo come from the Branding step. The secondary color marks progress and highlights.</p>
+            <p className="m-0 text-sm text-muted">{t("pages.colorsFrom")}</p>
           </section>
         ) : null}
 
         {panel === "languages" ? (
           <section role="tabpanel" id="panel-languages" aria-labelledby="tab-languages" className={sectionClass}>
             <div className="flex flex-col gap-1">
-              <h2 className="m-0 text-lg font-bold">Languages</h2>
+              <h2 className="m-0 text-lg font-bold">{t("pages.panelLanguages")}</h2>
               <p className="m-0 text-[15px] text-ink-4">
-                People pick a language in the app&apos;s settings when you offer more than one. Write your page texts in each language with &quot;Edit texts in&quot; above, or all at
-                once on the{" "}
-                <a href="/dashboard/languages" className="font-semibold">
-                  Languages
-                </a>{" "}
-                page, with the app&apos;s own texts. Empty texts show Yallapp&apos;s translation of the texts it wrote, else the default language.
+                {richText(t("pages.languagesText"), {
+                  link: (chunk) => (
+                    <a href="/dashboard/languages" className="font-semibold">
+                      {chunk}
+                    </a>
+                  ),
+                })}
               </p>
             </div>
             {/* 43 Any language, in the owner's order. */}
             <LanguageList languages={layout.languages} onChange={changeLanguages} full={languagesFull} max={MAX_LANGUAGES} idPrefix="pages-languages" />
             {plan.languages !== null && languagesFull ? (
-              <UpgradeHint title="More app languages" to={plan.upgradeLanguages}>
-                The {plan.name} plan includes {plan.languages} app language{plan.languages === 1 ? "" : "s"}.
+              <UpgradeHint
+                title={t("pages.moreLanguages")}
+                to={plan.upgradeLanguages}
+                cta={plan.upgradeLanguages ? t("overview.upgradeTo", { plan: plan.upgradeLanguages.name }) : undefined}
+              >
+                {t("pages.planLanguages", { plan: plan.name, count: plan.languages })}
               </UpgradeHint>
             ) : null}
           </section>

@@ -4,6 +4,8 @@ import { Icon } from "@/components/icon";
 import { Notice, btn } from "@/components/ui";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
@@ -19,18 +21,21 @@ import { allowedSources } from "@/lib/pages/plan";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
 import { builtInSuggestions } from "@/lib/pages/builtin";
 
-export const metadata: Metadata = { title: "Pages & look" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("pages.title") };
+}
 export const dynamic = "force-dynamic";
 
 /** 10.4: the app's pages, bottom tabs, look and languages, with a preview, drafts and publishing. */
 export default async function PagesPage() {
   const { app, license } = await requireClient();
+  const { t } = await dashboardText();
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("pages.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          First <Link href="/dashboard/app-type">choose your app type</Link>. Your app then starts with a home page you can change here.
+          {richText(t("pages.chooseTypeFirst"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -47,22 +52,20 @@ export default async function PagesPage() {
   const ready = defaultLayout(app, await appDefaults(store), app.createdAt);
   const reach =
     app.backend === "hosted"
-      ? "Your app gets published changes the next time it opens."
+      ? t("pages.reachHosted")
       : app.backend === "wordpress"
-        ? "The Yallapp plugin on your site gets published changes within a minute when your site can be reached, otherwise within 15 minutes; Refresh in the plugin settings gets them at once."
+        ? t("pages.reachWordpress")
         : app.backend === "setup_requested"
           ? // 19 The pages reach the app through the plugin on the site our team sets up.
-            "Once our team has set up your WordPress site, the Yallapp plugin on it picks up what you publish here within 15 minutes."
+            t("pages.reachSetup")
           : null;
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="flex max-w-[680px] flex-[1_1_320px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Pages & look</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            Build your app&apos;s pages from blocks, choose its bottom tabs, look and languages. Changes are saved as a draft; your app shows them once you publish.
-          </p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("pages.title")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("pages.intro")}</p>
         </div>
         {/* 17 The real app: with the saved draft on the hosted API, else with what's published. A new tab keeps the editor (and its autosave) open. */}
         <div className="flex flex-col items-start gap-1">
@@ -73,16 +76,16 @@ export default async function PagesPage() {
             className={`${btn.secondary} h-10 px-4 text-sm`}
           >
             <Icon name="visibility" size={18} />
-            {app.backend === "hosted" ? "Preview the draft in your app" : "Preview your app"}
+            {app.backend === "hosted" ? t("pages.previewDraft") : t("pages.previewApp")}
             <Icon name="open_in_new" size={16} />
-            <span className="sr-only"> (opens in a new tab)</span>
+            <span className="sr-only">{t("common.opensInNewTab")}</span>
           </a>
-          {app.backend === "hosted" ? null : <span className="text-[13px] text-muted">Shows your published pages.</span>}
+          {app.backend === "hosted" ? null : <span className="text-[13px] text-muted">{t("pages.showsPublished")}</span>}
         </div>
       </div>
       {reach ? null : (
         <Notice tone="warn" icon="info">
-          Apps on your own API don&apos;t get these pages from Yallapp. They reach apps through the Yallapp plugin or the Yallapp hosted API.
+          {t("pages.ownApi")}
         </Notice>
       )}
       <PagesEditor
@@ -97,7 +100,7 @@ export default async function PagesPage() {
         designs={designsFor(app).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))}
         app={{
           appType: app.appType,
-          name: app.appName ?? "Your app",
+          name: app.appName ?? t("setup.yourApp"),
           primaryColor: app.primaryColor,
           logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null,
         }}
@@ -108,7 +111,7 @@ export default async function PagesPage() {
         pickable={pickable}
         reach={reach}
         plan={{
-          name: plan?.name ?? "current",
+          name: plan?.name ?? "",
           // Before activation the client can try everything; the app gets what its plan allows.
           pageEditor: plan ? hasFeature(plan, "page_editor") : true,
           languages: plan?.limits.languages ?? null,

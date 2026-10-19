@@ -9,6 +9,7 @@ import { SOURCE_NAMES } from "@/lib/pages/sources";
 import { withFilledTexts } from "@/lib/pages/fill-texts";
 import { translated, translatedBlock } from "@/lib/pages/translate";
 import { RTL_LANGUAGES, type Appearance, type LanguageCode, type LayoutBlock, type LayoutContent, type LayoutPage } from "@/lib/pages/types";
+import { useOptionalDashT } from "@/components/dashboard-i18n";
 import { IconGlyph } from "./controls";
 
 /**
@@ -68,11 +69,12 @@ function Sample({ theme, n, label, layout }: { theme: Theme; n: number; label: s
   return (
     <div style={{ ...theme.card, padding: 6, display: "flex", flexDirection: layout === "list" ? "row" : "column", gap: 6, minWidth: layout === "carousel" ? 104 : undefined, alignItems: layout === "list" ? "center" : undefined }}>
       {image}
-      <div style={{ fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label || `Entry ${n}`}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label || `Entry ${n}` /* i18n-ok: the app's preview */}</div>
     </div>
   );
 }
 
+// i18n-ok-begin: the client app's own screens, in the app's language (they stay as the app shows them).
 function BlockPreview({ block, theme, appearance, pickable, lang, def }: { block: LayoutBlock; theme: Theme; appearance: Appearance; pickable: Pickable; lang: LanguageCode; def: LanguageCode }) {
   const b = translatedBlock(block, lang, def);
   const bold = appearance.template === "bold";
@@ -458,6 +460,8 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
   }
 }
 
+// i18n-ok-end
+
 /**
  * 33 A small, still picture of a design's home page (the Branding step and
  * "Start from a design"): the same drawing at a smaller size, hidden from
@@ -505,8 +509,10 @@ export function PhonePreview({
   const page = filled ? (filled.pages[0] ?? null) : pageIn;
   const shown = page ? translated(page, lang, def) : null;
   const classic = appearance.template === "classic";
+  // 56 The dashboard's words around the phone (the phone shows the app's own language).
+  const dt = useOptionalDashT();
   return (
-    <figure className="m-0 flex max-w-full flex-col items-center gap-2" aria-label={still ? undefined : "Phone preview"}>
+    <figure className="m-0 flex max-w-full flex-col items-center gap-2" aria-label={still ? undefined : (dt?.("pages.phonePreview") ?? "Phone preview")}> {/* i18n-ok: English outside the dashboard */}
       {/* 19 The shared phone frame; the screen clips the content to its rounded corners. */}
       <PhoneFrame className="w-[300px]">
         <div
@@ -538,7 +544,7 @@ export function PhonePreview({
             {page?.blocks.length ? (
               page.blocks.map((block) => <BlockPreview key={block.id} block={block} theme={theme} appearance={appearance} pickable={pickable} lang={lang} def={def} />)
             ) : (
-              <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>Add blocks to this page.</p>
+              <p style={{ color: theme.muted, fontSize: 12, textAlign: "center", marginTop: 40 }}>{dt?.("pages.addBlocksHere") ?? "Add blocks to this page." /* i18n-ok */}</p>
             )}
           </div>
           <nav style={{ display: "flex", borderTop: `1px solid ${theme.line}`, background: theme.surface, padding: "6px 4px 10px" }}>
@@ -591,8 +597,8 @@ export function PhonePreview({
       {still ? null : (
         <figcaption className="text-xs text-muted">
           {Object.values(pickable.items).some((list) => list && list.length > 0)
-            ? "Preview of the draft. Lists show the names of your entries; pictures are placeholders."
-            : "Preview of the draft. Lists show sample entries until we can read yours."}
+            ? (dt?.("pages.captionEntries") ?? "Preview of the draft. Lists show the names of your entries; pictures are placeholders.") /* i18n-ok */
+            : (dt?.("pages.captionSamples") ?? "Preview of the draft. Lists show sample entries until we can read yours.") /* i18n-ok */}
         </figcaption>
       )}
     </figure>
