@@ -12,7 +12,10 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 
 ## Product rules
 
-- Every user-facing string in the apps and on yallapp.com.tr is English.
+- English is the default language. yallapp.com.tr and the client dashboard
+  are in English, Arabic and Turkish: every new user-facing string there is
+  added in all three. The admin stays in English. Client apps keep their own
+  languages as before.
 - Icons come from Google Material Symbols (Rounded) only. The one exception is
   the logos of stores and platforms Yallapp works with, used as
   `docs/BRAND.md` › "Third-party brand marks" says.

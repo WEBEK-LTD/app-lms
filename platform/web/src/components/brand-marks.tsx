@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { STORES, TRADEMARK_NOTE, WHATSAPP_MARK, WORKS_WITH_ROWS, type Brand, type BrandMark } from "@/lib/brands";
 import type { AppStore } from "@/lib/stores";
+import { DEFAULT_LANG, messagesFor, type Lang } from "@/i18n";
 
 /**
  * 41 Third-party brand marks, the only icons on the site that aren't Material
@@ -61,14 +62,17 @@ export function BrandChip({ brand }: { brand: Brand }) {
  * who prefer less motion). Not "partners": Yallapp has no agreement with
  * these companies, and the small print says so.
  */
-export function WorksWithStrip({ headingLevel = 2 }: { headingLevel?: 2 | 3 }) {
+export function WorksWithStrip({ headingLevel = 2, lang = DEFAULT_LANG }: { headingLevel?: 2 | 3; lang?: Lang }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
+  // 55 The strip's words in the page's language; the brands keep their names.
+  const m = messagesFor(lang).worksWith;
+  const rowLabel: Record<string, string> = { stores: m.storesRow, platforms: m.platformsRow };
   return (
     <div className="flex flex-col gap-7" data-works-with="">
       <div className="mx-auto flex max-w-[640px] flex-col items-center gap-2 px-4 text-center">
-        <span className="text-[13px] font-bold tracking-[1px] text-accent uppercase">Works with</span>
+        <span className="text-[13px] font-bold tracking-[1px] text-accent uppercase">{m.eyebrow}</span>
         <Heading id="works-with-title" className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] text-balance sm:text-[32px]">
-          Publish to the stores, connect what you already use
+          {m.title}
         </Heading>
       </div>
       <div className="flex flex-col gap-3">
@@ -79,7 +83,7 @@ export function WorksWithStrip({ headingLevel = 2 }: { headingLevel?: 2 | 3 }) {
             style={{ "--marquee-duration": `${row.brands.length * 4}s` } as CSSProperties}
           >
             <div className="marquee-track">
-              <ul aria-label={row.label} className="marquee-list">
+              <ul aria-label={rowLabel[row.id] ?? row.label} className="marquee-list">
                 {row.brands.map((brand) => (
                   <li key={brand.id}>
                     <BrandChip brand={brand} />
@@ -97,7 +101,7 @@ export function WorksWithStrip({ headingLevel = 2 }: { headingLevel?: 2 | 3 }) {
           </div>
         ))}
       </div>
-      <p className="m-0 px-4 text-center text-xs text-muted">{TRADEMARK_NOTE}</p>
+      <p className="m-0 px-4 text-center text-xs text-muted">{lang === "en" ? TRADEMARK_NOTE : m.trademarks}</p>
     </div>
   );
 }

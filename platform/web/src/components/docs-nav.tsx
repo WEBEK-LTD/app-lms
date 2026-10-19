@@ -13,7 +13,22 @@ export interface DocsNavGroup {
  * The documentation's menu, with a search box that narrows the list. On
  * phones it folds behind a button so the article comes first.
  */
-export function DocsNav({ groups, current }: { groups: DocsNavGroup[]; current: string }) {
+/** 55 The menu's words in the page's language; `noMatch` has a {query} placeholder. */
+export interface DocsNavLabels {
+  menu: string;
+  browse: string;
+  search: string;
+  noMatch: string;
+}
+
+const ENGLISH: DocsNavLabels = {
+  menu: "Documentation",
+  browse: "Browse the documentation",
+  search: "Search the documentation",
+  noMatch: "No articles match “{query}”.",
+};
+
+export function DocsNav({ groups, current, labels = ENGLISH }: { groups: DocsNavGroup[]; current: string; labels?: DocsNavLabels }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const listId = useId();
@@ -24,7 +39,7 @@ export function DocsNav({ groups, current }: { groups: DocsNavGroup[]; current: 
     .filter((g) => g.links.length > 0);
 
   return (
-    <nav aria-label="Documentation" className="flex flex-col gap-3 text-[15px]">
+    <nav aria-label={labels.menu} className="flex flex-col gap-3 text-[15px]">
       <button
         type="button"
         aria-expanded={open}
@@ -34,25 +49,25 @@ export function DocsNav({ groups, current }: { groups: DocsNavGroup[]; current: 
       >
         <span className="flex items-center gap-2">
           <Icon name="menu_book" size={20} />
-          Browse the documentation
+          {labels.browse}
         </span>
         <Icon name="expand_more" size={22} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       <div id={listId} className={`${open ? "flex" : "hidden"} flex-col gap-5 lg:flex`}>
         <label className="flex flex-col gap-1.5">
-          <span className="sr-only">Search the documentation</span>
+          <span className="sr-only">{labels.search}</span>
           <span className="relative flex items-center">
-            <Icon name="search" size={20} className="pointer-events-none absolute left-3 text-muted" />
+            <Icon name="search" size={20} className="pointer-events-none absolute start-3 text-muted" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search the documentation"
-              className="input input-sm pl-10"
+              placeholder={labels.search}
+              className="input input-sm ps-10"
             />
           </span>
         </label>
-        {shown.length === 0 ? <p className="m-0 px-3 text-sm text-muted">No articles match “{query}”.</p> : null}
+        {shown.length === 0 ? <p className="m-0 px-3 text-sm text-muted">{labels.noMatch.replace("{query}", query)}</p> : null}
         {shown.map((group) => (
           <div key={group.title} role="group" aria-label={group.title} className="flex flex-col gap-0.5">
             <span className="px-3 pb-1.5 text-xs font-bold tracking-[1px] text-muted uppercase">{group.title}</span>
@@ -62,7 +77,7 @@ export function DocsNav({ groups, current }: { groups: DocsNavGroup[]; current: 
                   key={link.href}
                   href={link.href}
                   aria-current="page"
-                  className="rounded-lg border-l-[3px] border-ember bg-white px-3 py-1.5 font-bold text-midnight no-underline hover:text-midnight"
+                  className="rounded-lg border-s-[3px] border-ember bg-white px-3 py-1.5 font-bold text-midnight no-underline hover:text-midnight"
                 >
                   {link.label}
                 </Link>

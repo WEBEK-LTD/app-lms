@@ -24,6 +24,13 @@ Designs: [Yallapp design canvas](https://claude.ai/artifact/KXsMPBp2at8HgoCssXzt
 
 - Bricolage Grotesque (Google Fonts) for Yallapp's own pages and as the default
   font of the Classic app template.
+- (55) IBM Plex Sans Arabic for the Arabic pages of yallapp.com.tr (/ar), in
+  the same weights. Arabic text uses it first; Latin words on those pages,
+  like "Yallapp" and store names, stay in Bricolage Grotesque. Arabic gets
+  normal letter spacing (never the tight tracking of Latin headings) and a
+  taller line height for headings. Turkish uses Bricolage Grotesque, which
+  has every Turkish letter (ç, ğ, ı, İ, ö, ş, ü). Share images (Open Graph)
+  for Arabic pages use IBM Plex Sans Arabic too.
 - The Bold and Minimal templates use Outfit and Manrope.
 
 ## Icons
