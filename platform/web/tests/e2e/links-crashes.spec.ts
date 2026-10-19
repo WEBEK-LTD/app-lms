@@ -9,6 +9,8 @@ import { E2E } from "../../playwright.config";
  * team's Crashes page and the owner's Stability page.
  */
 test.describe.configure({ mode: "serial" });
+// Its own address: sign-ups are limited per address, and the other specs share the default one.
+test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.246" } });
 
 const suffix = Date.now().toString(36);
 const client = {
