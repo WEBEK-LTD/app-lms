@@ -168,6 +168,50 @@ jobs:
       - name: Build the dev site and run the API checks
         run: tests/integration/run.sh "$RUNNER_TEMP/site"
 
+  access-integration:
+    # 39 Tutor LMS with WooCommerce (most academies): every way a student gets a course
+    # opens it in the app; and an update from plugin 0.3.8 (the Phase 30 merge) keeps
+    # settings, sign-ins and devices.
+    name: Plugin end-to-end (Tutor LMS + WooCommerce, ${{ matrix.suite }})
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: course access
+            woo: '1'
+            upgrade_from: ''
+          - suite: update from 0.3.8
+            woo: '1'
+            upgrade_from: 34d734f
+    defaults:
+      run:
+        working-directory: wp-plugin/yallapp
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: pdo_sqlite, sqlite3, curl, mbstring, dom, zip
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/yallapp-dev
+          key: yallapp-dev-wp7.1.3-tutor-woo-${{ hashFiles('wp-plugin/yallapp/tests/dev-site/setup.sh') }}
+      - name: Build the dev site and run the checks
+        env:
+          WOO: ${{ matrix.woo }}
+          UPGRADE_FROM: ${{ matrix.upgrade_from }}
+        run: tests/integration/run.sh "$RUNNER_TEMP/site"
+      - name: PHP log
+        if: failure()
+        run: tail -n 80 "$RUNNER_TEMP/site/wp-content/debug.log" || true
+
   adapter-integration:
     name: Plugin end-to-end (${{ matrix.lms }})
     needs: changes

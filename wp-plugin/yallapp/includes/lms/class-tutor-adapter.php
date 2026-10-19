@@ -322,7 +322,16 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array{items: array[], total: int}
 	 */
 	public function my_courses( $user_id, $status, $page, $per_page ) {
-		$enrolled  = array_map( 'intval', (array) tutor_utils()->get_enrolled_courses_ids_by_user( $user_id ) );
+		// 39 Through Tutor's own enrollment check too, so its filters (Tutor LMS Pro's
+		// enrollment expiry, for one) hide what the course page and lessons refuse.
+		$enrolled  = array_values(
+			array_filter(
+				array_map( 'intval', (array) tutor_utils()->get_enrolled_courses_ids_by_user( $user_id ) ),
+				function ( $course_id ) use ( $user_id ) {
+					return $this->is_enrolled( $course_id, $user_id );
+				}
+			)
+		);
 		$completed = array_map( 'intval', (array) tutor_utils()->get_completed_courses_ids_by_user( $user_id ) );
 		$ids       = 'completed' === $status ? array_values( array_intersect( $enrolled, $completed ) ) : array_values( array_diff( $enrolled, $completed ) );
 		$total     = count( $ids );
@@ -1302,19 +1311,10 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array
 	 */
 	private function my_course( WP_Post $post, $user_id ) {
-		$next = null;
-		foreach ( (array) $this->curriculum( $post->ID, $user_id ) as $topic ) {
-			foreach ( $topic['items'] as $item ) {
-				if ( ! $item['completed'] && ! $item['locked'] ) {
-					$next = $item;
-					break 2;
-				}
-			}
-		}
 		return array(
 			'course'          => $this->summary( $post, $user_id ),
 			'progress'        => $this->progress( $post->ID, $user_id ),
-			'next_item'       => $next,
+			'next_item'       => Next_Item::pick( (array) $this->curriculum( $post->ID, $user_id ) ),
 			'certificate_url' => $this->certificate_url( $post->ID, $user_id ),
 		);
 	}
@@ -1345,13 +1345,15 @@ class Tutor_Adapter implements Lms_Adapter {
 			$code     = tutor_utils()->get_option( 'currency_code' );
 			$currency = $code ? (string) $code : null;
 		}
-		$formatted = trim( html_entity_decode( wp_strip_all_tags( (string) tutor_utils()->get_course_price( $course_id ) ), ENT_QUOTES, 'UTF-8' ) );
+		// 39 WooCommerce's sale price HTML carries the old price and screen-reader text
+		// ("Original price was: …"); the app shows the price paid now.
+		$formatted = Money::current( (string) tutor_utils()->get_course_price( $course_id ) );
 		return array(
 			'is_free'     => false,
 			'amount'      => $regular > 0 ? number_format( $regular, 2, '.', '' ) : null,
 			'sale_amount' => ( $sale > 0 && $sale < $regular ) ? number_format( $sale, 2, '.', '' ) : null,
 			'currency'    => $currency,
-			'formatted'   => '' !== $formatted ? preg_replace( '/\s+/', ' ', $formatted ) : null,
+			'formatted'   => '' !== $formatted ? $formatted : null,
 		);
 	}
 

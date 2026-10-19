@@ -272,8 +272,64 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @return bool
 	 */
 	public function is_enrolled( $course_id, $user_id ) {
+		return null !== $this->owned_course( $course_id, $user_id );
+	}
+
+	/**
+	 * 39 The student's LearnPress course item when it gives them the course: enrolled,
+	 * finished, or bought and not started yet ("purchased": LearnPress without "Auto start",
+	 * whose website shows a "Start now" button; the app starts it when a lesson opens).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return UserCourseModel|null
+	 */
+	private function owned_course( $course_id, $user_id ) {
 		$user_course = $user_id ? UserCourseModel::find( (int) $user_id, (int) $course_id, true ) : false;
-		return $user_course instanceof UserCourseModel && $user_course->has_enrolled_or_finished();
+		if ( ! $user_course instanceof UserCourseModel ) {
+			return null;
+		}
+		return in_array( (string) $user_course->get_status(), array( 'enrolled', 'finished', 'purchased' ), true ) ? $user_course : null;
+	}
+
+	/**
+	 * 39 Starts a bought course the way LearnPress's "Start now" button does (its REST
+	 * enroll_courses): the course's time limit counts from now.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID.
+	 * @return void
+	 */
+	private function start_if_purchased( $course_id, $user_id ) {
+		$user_course = $this->owned_course( $course_id, $user_id );
+		if ( ! $user_course || 'purchased' !== $user_course->get_status() ) {
+			return;
+		}
+		$user_course->graduation = LP_COURSE_GRADUATION_IN_PROGRESS;
+		$user_course->status     = LP_COURSE_ENROLLED;
+		$user_course->start_time = gmdate( \LP_Datetime::$format, time() );
+		$user_course->save();
+		/** This action is documented in LearnPress. */
+		do_action( 'learnpress/user/course-enrolled', $user_course->ref_id, (int) $course_id, (int) $user_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores -- LearnPress hook.
+	}
+
+	/**
+	 * 39 Whether LearnPress keeps a student out of a course they have: its time limit is
+	 * over and the course blocks it then, or it is finished and blocks finished courses.
+	 *
+	 * @param CourseModel     $course      Course.
+	 * @param UserCourseModel $user_course The student's course item.
+	 * @return bool
+	 */
+	private static function blocked( CourseModel $course, UserCourseModel $user_course ) {
+		if ( $user_course->has_finished() && method_exists( $course, 'enable_block_when_finished' ) && $course->enable_block_when_finished() ) {
+			return true;
+		}
+		if ( 'purchased' === $user_course->get_status() ) {
+			return false;
+		}
+		$remaining = method_exists( $user_course, 'get_time_remaining' ) ? $user_course->get_time_remaining() : $user_course->timestamp_remaining_duration();
+		return 0 === (int) $remaining;
 	}
 
 	/**
@@ -387,7 +443,11 @@ class LearnPress_Adapter extends Base_Adapter {
 			return true;
 		}
 		$course = CourseModel::find( $this->course_of( $lesson_id ), true );
-		return $course && $this->has_course_access( $course, $user_id );
+		if ( ! $course || ! $this->has_course_access( $course, $user_id ) ) {
+			return false;
+		}
+		$this->start_if_purchased( $course->get_id(), $user_id );
+		return true;
 	}
 
 	/**
@@ -399,8 +459,13 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function complete_lesson( $lesson_id, $user_id ) {
-		$course_id   = $this->course_of( $lesson_id );
-		$user_course = ( $course_id && $user_id ) ? UserCourseModel::find( (int) $user_id, $course_id, true ) : false;
+		$course_id = $this->course_of( $lesson_id );
+		$course    = $course_id ? CourseModel::find( $course_id, true ) : null;
+		if ( ! $course || ! $user_id || ! $this->has_course_access( $course, $user_id ) ) {
+			return self::not_enrolled();
+		}
+		$this->start_if_purchased( $course_id, $user_id );
+		$user_course = UserCourseModel::find( (int) $user_id, $course_id );
 		if ( ! $user_course instanceof UserCourseModel || ! $user_course->has_enrolled_or_finished() ) {
 			return self::not_enrolled();
 		}
@@ -659,7 +724,8 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @return int[]
 	 */
 	public function enrolled_course_ids( $user_id ) {
-		return $this->user_course_ids( $user_id, array( 'enrolled', 'finished' ) );
+		// 39 With "purchased": bought, not started yet (LearnPress without "Auto start").
+		return $this->user_course_ids( $user_id, array( 'enrolled', 'finished', 'purchased' ) );
 	}
 
 	/**
@@ -874,7 +940,13 @@ class LearnPress_Adapter extends Base_Adapter {
 		if ( $course->has_no_enroll_requirement() ) {
 			return true;
 		}
-		return $user_id > 0 && ( $this->is_enrolled( $course->get_id(), $user_id ) || $this->teaches( $user_id, $course->get_id() ) );
+		if ( $user_id > 0 && $this->teaches( $user_id, $course->get_id() ) ) {
+			return true;
+		}
+		// 39 LearnPress's own rules (LP_User::can_view_content_course): a time limit or a
+		// finished course can close it again.
+		$user_course = $this->owned_course( $course->get_id(), $user_id );
+		return null !== $user_course && ! self::blocked( $course, $user_course );
 	}
 
 	/**
@@ -924,9 +996,11 @@ class LearnPress_Adapter extends Base_Adapter {
 			return self::not_found( __( 'Quiz not found.', 'yallapp' ) );
 		}
 		$course = CourseModel::find( $this->course_of( $quiz_id ), true );
-		if ( ! $course || ! $user_id || ! $this->is_enrolled( $course->get_id(), $user_id ) ) {
+		// 39 The same rules as lessons: a course past its time limit stays closed.
+		if ( ! $course || ! $user_id || ! $this->owned_course( $course->get_id(), $user_id ) || ! $this->has_course_access( $course, $user_id ) ) {
 			return self::not_enrolled( __( 'Enroll in this course to take the quiz.', 'yallapp' ) );
 		}
+		$this->start_if_purchased( $course->get_id(), $user_id );
 		return $quiz;
 	}
 

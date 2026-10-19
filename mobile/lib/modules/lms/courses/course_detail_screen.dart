@@ -146,10 +146,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   }
 
   void _continue(List<Topic>? topics, CourseDetail course) {
-    final items = [for (final t in topics ?? const <Topic>[]) ...t.items];
-    final next =
-        items.where((i) => !i.completed && !i.locked).firstOrNull ??
-        items.where((i) => !i.locked).firstOrNull;
+    final next = nextItemToOpen(topics ?? const <Topic>[]);
     if (next == null) {
       setState(() => _tab = 1);
       return;

@@ -12,6 +12,10 @@
 #        APP=bookings: a booking plugin and no LMS (seed-bookings-<BOOKING>.php);
 #        BOOKING: amelia (default), bookingpress, latepoint.
 #        APP=news: a news site with posts only (seed-news.php). SEED=0 skips seeding.
+#        WOO=1 with LMS=tutor: WooCommerce too, selling the paid courses (seed-tutor-woo.php),
+#        as most Tutor LMS academies do.
+#        PLUGIN_SRC=<dir>: install a copy of that plugin folder (an older release, to test
+#        upgrading) instead of linking this one.
 # Then:  tests/dev-site/serve.sh <site-dir>   (http://127.0.0.1:8089)
 set -euo pipefail
 
@@ -23,6 +27,11 @@ if [ "$APP" = store ] || [ "$APP" = bookings ] || [ "$APP" = news ]; then
 fi
 BOOKING=${BOOKING:-amelia}
 SEED=${SEED:-1}
+WOO=${WOO:-0}
+if [ "$LMS" != tutor ]; then
+	WOO=0
+fi
+PLUGIN_SRC=${PLUGIN_SRC:-}
 WP_VERSION=${WP_VERSION:-7.1.3}
 TUTOR_VERSION=${TUTOR_VERSION:-4.1.1}
 SQLITE_VERSION=${SQLITE_VERSION:-v3.1.0}
@@ -104,7 +113,7 @@ elif [ "$LMS" != tutor ] && [ "$LMS" != none ]; then
 	LMS_SRC="$CACHE/$LMS_SLUG-$LMS_VERSION"
 	LMS_DIR=$LMS_SLUG
 fi
-if [ "$APP" = store ]; then
+if [ "$APP" = store ] || [ "$WOO" = 1 ]; then
 	from_wordpress_org woocommerce "$WOOCOMMERCE_VERSION"
 fi
 if [ "$APP" = bookings ]; then
@@ -131,7 +140,7 @@ if [ "$LMS" != none ]; then
 	cp -r "$LMS_SRC" "$SITE_DIR/wp-content/plugins/$LMS_DIR"
 	rm -rf "$SITE_DIR/wp-content/plugins/$LMS_DIR/.git" "$SITE_DIR/wp-content/plugins/$LMS_DIR/node_modules"
 fi
-if [ "$APP" = store ]; then
+if [ "$APP" = store ] || [ "$WOO" = 1 ]; then
 	cp -r "$CACHE/woocommerce-$WOOCOMMERCE_VERSION" "$SITE_DIR/wp-content/plugins/woocommerce"
 fi
 if [ "$APP" = bookings ]; then
@@ -140,7 +149,11 @@ if [ "$APP" = bookings ]; then
 	mkdir -p "$SITE_DIR/wp-content/mu-plugins"
 	cp "$HERE/sqlite-functions.php" "$SITE_DIR/wp-content/mu-plugins/"
 fi
-ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
+if [ -n "$PLUGIN_SRC" ]; then
+	cp -r "$PLUGIN_SRC" "$SITE_DIR/wp-content/plugins/yallapp"
+else
+	ln -s "$PLUGIN_DIR" "$SITE_DIR/wp-content/plugins/yallapp"
+fi
 
 cat > "$SITE_DIR/wp-config.php" <<PHP
 <?php
@@ -184,7 +197,7 @@ fi
 if [ "$LMS" != none ]; then
 	wp plugin activate "$LMS_DIR" --quiet
 fi
-if [ "$APP" = store ]; then
+if [ "$APP" = store ] || [ "$WOO" = 1 ]; then
 	wp plugin activate woocommerce --quiet
 fi
 if [ "$APP" = bookings ]; then
@@ -214,6 +227,9 @@ elif [ "$APP" = news ]; then
 	wp eval-file "$HERE/seed-news.php"
 elif [ "$LMS" = tutor ]; then
 	wp eval-file "$HERE/seed.php"
+	if [ "$WOO" = 1 ]; then
+		wp eval-file "$HERE/seed-tutor-woo.php"
+	fi
 else
 	wp eval-file "$HERE/seed-$LMS.php"
 fi

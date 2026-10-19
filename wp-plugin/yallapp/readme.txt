@@ -42,6 +42,13 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= Unreleased =
+* A course on sale with WooCommerce shows its sale price in the app ("$250.00"). Before, the app showed WooCommerce's text for screen readers with both prices ("$300.00 Original price was: $300.00.$250.00Current price is: $250.00.").
+* "Continue" in My courses goes to the next lesson or quiz. Before, it stopped at the first assignment, which opens on the website, for good.
+* Tutor LMS: My courses leaves out a course Tutor no longer counts the student as enrolled in (for example an enrollment that has expired), the same as its lessons.
+* LearnPress: a course bought while "Auto start" is off is in My courses and opens in the app, which starts it the way the website's "Start now" button does. Before, the app offered to buy it again.
+* LearnPress: a course whose time limit is over stays closed in the app when the course blocks it then, as on the website; and a finished course stays closed when the course blocks finished courses.
+
 = 0.4.0 =
 * Settings show only what fits the app type you chose in the Yallapp dashboard: a Store app sees the shop's options, an academy the course options, and so on.
 * Changes you save in the Yallapp dashboard reach your site at once: Yallapp asks the plugin to check its license again, with a signed request the plugin verifies. Before, they waited for the next check, up to 12 hours later.

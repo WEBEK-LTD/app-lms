@@ -726,6 +726,28 @@ preview. About 530 screenshots; what was found is below. No migration.
 | [ ] | 38.21 Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
 | [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |
 
+## Phase 39: Paid and enrolled courses open in the app; plugin 0.4.0 updates cleanly
+
+The owner runs plugin 0.3.8 with Tutor LMS 4.1.1 and WooCommerce 11.2.0 and is
+updating to 0.4.0. Proved on local WordPress 7.1.3 sites, through the plugin's
+API as the app calls it and in the app preview: an update from 0.3.8 with
+WordPress's own updater keeps every setting, sign-in, device and enrollment,
+and every way a student gets a course opens it in the app while every other
+way is refused by the API itself. Found and fixed four plugin bugs and one app
+bug. No database migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 39.1 Update from 0.3.8: settings saved on the settings page, a license, two students signed in (phone code, password) with a push token and progress; then WordPress's upgrader (`Plugin_Upgrader`, as Dashboard › Updates: files replaced, still active, no activation hook). Tables upgraded (`push_provider`), settings and license kept, old access and refresh tokens and devices still work, every route answers, the settings page opens, nothing in the PHP log | `upgrade-test.php` (30 checks; `UPGRADE_FROM=34d734f run.sh`, new CI job) |
+| [x] | 39.2 Tutor LMS with WooCommerce (`WOO=1`, `seed-tutor-woo.php`): free course enrolled in the app and on the website; paid course bought on the website's checkout from the app's link, by bank transfer (on hold: no access), completed (My courses, every lesson, the PDF, the quiz, the assignment open), refunded and cancelled (no access, can buy again), cash on delivery (processing: no access); the admin's enrollment and removal; Tutor's own checkout (unpaid, paid, refunded); the preview lesson; a guest: price, Android checkout, iOS no button, every item locked and refused (401) | `access-test.php` (71 checks; new CI job) |
+| [x] | 39.3 Fixed: a WooCommerce sale price read "$300.00 Original price was: $300.00.$250.00Current price is: $250.00." in the app; now "$250.00" (`Money::current`, every LMS) | `MoneyTest`, `access-test.php` |
+| [x] | 39.4 Fixed: "Continue" stopped for good at an assignment (it opens on the website and never completes from the app): the plugin's `next_item` and the app's course page skip assignments and live classes (`Next_Item`, `nextItemToOpen`); the preview bundle rebuilt | `NextItemTest`, `continue_learning_test.dart`, `access-test.php`, the preview |
+| [x] | 39.5 Fixed: Tutor LMS's My courses listed a course Tutor's enrollment check refuses (Tutor LMS Pro's expiry): now filtered through it | `access-test.php` (an expired enrollment) |
+| [x] | 39.6 LearnPress fixed: a course bought with "Auto start" off ("purchased") offered to be bought again; it is now in My courses and opens, starting the way "Start now" does. A course past its time limit with "Block content when duration expires", or finished with "Block when finished", stayed open; it is closed as on the website. Checked: pending, completed, refunded orders, the admin's Assign/Unassign tool and a manual order | `adapter-test.php` on LearnPress (119 checks) |
+| [x] | 39.7 The other adapters with the shared changes: LifterLMS 108, MasterStudy 115, Sensei 102, Masteriyo 116 checks; Tutor LMS 263 | Their integration suites |
+| [ ] | 39.8 Tutor LMS Pro's prerequisites and content drip, and its enrollment expiry itself, can't be tried without Tutor LMS Pro (the plugin follows Tutor's enrollment check, so expiry should follow); LearnPress's WooCommerce add-on and LearnDash weren't available to test | With a Pro copy |
+| [ ] | 39.9 PHP 7.4 itself isn't installed here: covered by `php -l`, PHPCompatibility (`testVersion 7.4-`) and the CI's unit tests on PHP 7.4 | CI |
+
 ## Phase 40: Lesson videos without the video site's branding
 
 The owner asked that a lesson video never show where it is hosted: no
