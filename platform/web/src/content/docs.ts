@@ -71,7 +71,7 @@ export const GUIDE_REDIRECTS: Record<string, string> = {
 const doc = (d: Omit<DocDefault, "key"> & { key?: string }): DocDefault => ({ key: `doc-${d.slug}`, ...d });
 
 /** 24 The steps of each email service on App sign-in › Your app's email, as the dashboard shows them. */
-const MAIL_PRESET_STEPS = MAIL_PRESETS.map(
+export const MAIL_PRESET_STEPS = MAIL_PRESETS.map(
   (p) => `**${p.name}** (${p.hint}${p.host ? `: ${p.host}, ${p.ports.map((port) => port.label).join(" or ")}` : ""})\n\n${p.steps.map((step, i) => `${i + 1}. ${step}`).join("\n")}`,
 ).join("\n\n");
 
