@@ -1210,3 +1210,19 @@ and a browser test on memory and on MariaDB. Migration
 | [ ] | 57.9 Email clients when a Maintenance announcement is published (today the team ticks "Also email it to these clients now") | Owner's decision |
 | [ ] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56 |
 | [ ] | 57.11 The bell counts only on a page load, a focus after a minute, or what the person does; a build that finishes while the dashboard stays open shows on the next load | Acceptable |
+
+## Later: the Yallapp app for business owners (decided, not started)
+
+After the website and the client dashboard are in English, Arabic and Turkish
+(Phases 55 to 57), Yallapp gets its own mobile app for the people who run an
+app on it: today's numbers, alerts for new orders, bookings, tickets and
+messages, the orders and appointments of the day, a ticket and check-in
+scanner, sending a notification to the app's users, replies to questions and
+messages, quick edits and uploads to Media from the phone, the app preview,
+and builds and publishing. Decided with the owner:
+
+| | Decision |
+|---|---|
+| [x] | No payments of any kind in the app, on any platform: plans, storage packs and everything else are paid on yallapp.com.tr only |
+| [x] | Same database and the same accounts as the website and the dashboard; nothing kept separately for the app |
+| [ ] | Contract first: an owner API next to the existing ones, then the app (Flutter), then the stores under Yallapp's own accounts |
