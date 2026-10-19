@@ -5,6 +5,8 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { EmptyState, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
@@ -14,18 +16,20 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
 
-export const metadata: Metadata = { title: "App notifications" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("notify.title") };
+}
 
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
   const { app, license } = await requireClient();
+  const { t, lang } = await dashboardText();
   if (!app || app.backend !== "hosted") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">App notifications</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("notify.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app gets its notifications from your website: send them from the Yallapp plugin in WordPress.{" "}
-          <Link href="/dashboard/setup">Back to app setup</Link>
+          {t("notify.fromSite")} <Link href="/dashboard/setup">{t("notify.backToSetup")}</Link>
         </p>
       </div>
     );
@@ -37,51 +41,47 @@ export default async function NotificationsPage() {
   const plans = await effectivePlans(store);
   const planId = license ? currentPlanId(license, new Date()) : null;
   const push = planId ? hasFeature(plans[planId], "push") : false;
+  const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">App notifications</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Message everyone who uses your app. {customers} {customers === 1 ? "customer has" : "customers have"} signed in so far.
-        </p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("notify.title")}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.intro", { count: customers })}</p>
       </div>
 
       <div className="flex flex-wrap items-start gap-6">
         <section aria-labelledby="h-send" className="flex min-w-0 flex-[1_1_440px] flex-col gap-[18px] rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-send" className="m-0 text-lg font-bold">
-            New notification
+            {t("notify.newNotification")}
           </h2>
           <SendNotificationForm titleMax={NOTIFICATION_TITLE_MAX} bodyMax={NOTIFICATION_BODY_MAX} />
         </section>
 
         <section aria-labelledby="h-push" className="flex min-w-0 flex-[1_1_320px] flex-col gap-[14px] rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-push" className="m-0 text-lg font-bold">
-            Push
+            {t("notify.push")}
           </h2>
           {push ? null : (
-            <UpgradeHint title="Push notifications" to={lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId)} compact>
-              Your plan sends notifications to the app&apos;s inbox only.
+            <UpgradeHint title={t("notify.pushFeature")} to={upgrade} compact cta={upgrade ? t("overview.upgradeTo", { plan: upgrade.name }) : undefined}>
+              {t("notify.inboxOnly")}
             </UpgradeHint>
           )}
           {account ? (
             <>
               <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
                 <Icon name="check_circle" size={20} filled />
-                On · Firebase project {account.project_id}
+                <span>{richText(t("notify.pushOn"), { project: () => <bdi dir="ltr">{account.project_id}</bdi> })}</span>
               </p>
               <form action={removeServiceAccountAction}>
                 <SubmitButton variant="secondary" className="h-10">
-                  Remove key
+                  {t("notify.removeKey")}
                 </SubmitButton>
               </form>
             </>
           ) : (
             <>
-              <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-                Notifications reach the inbox in your app. To also show them on your customers&apos; lock screens, add the key of the same
-                Firebase project as your app&apos;s Firebase files.
-              </p>
+              <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("notify.addKey")}</p>
               <ServiceAccountForm />
             </>
           )}
@@ -90,17 +90,19 @@ export default async function NotificationsPage() {
 
       <section aria-labelledby="h-sent" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-sent" className="m-0 text-lg font-bold">
-          Sent
+          {t("notify.sent")}
         </h2>
         {sent.length === 0 ? (
-          <EmptyState icon="notifications" title="Nothing sent yet.">Your notifications show here once you send them.</EmptyState>
+          <EmptyState icon="notifications" title={t("notify.nothingSent")}>
+            {t("notify.nothingSentText")}
+          </EmptyState>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
             {sent.map((n) => (
               <li key={n.id} className="flex flex-col gap-0.5 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
                 <span className="text-[15px] font-bold">{n.title}</span>
                 <span className="text-[15px] text-ink-4">{n.body}</span>
-                <span className="text-[13px] text-muted">{formatDateTime(n.createdAt)}</span>
+                <span className="text-[13px] text-muted">{formatDateTime(n.createdAt, lang)}</span>
               </li>
             ))}
           </ul>
