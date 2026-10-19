@@ -483,14 +483,17 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
     ["appUsers", 1],
     ["languages", 1],
     ["sources", 1],
-    // 51 Gigabytes of media storage.
-    ["storageGb", 1],
     ["teamMembers", 1],
   ] as const) {
     const limit = readLimit(values[name]!);
     if (limit === undefined || (limit !== null && limit < min)) errors[name] = "Enter a whole number from 1, or leave it empty for no limit.";
     else limits[name] = limit;
   }
+  // 51 Gigabytes of media storage: decimals allowed (0.5 is 512 MB).
+  const storage = values.storageGb!;
+  if (storage === "" || storage.toLowerCase() === "unlimited") limits.storageGb = null;
+  else if (/^\d{1,6}(\.\d{1,3})?$/.test(storage) && Number(storage) > 0) limits.storageGb = Number(storage);
+  else errors.storageGb = "Enter the gigabytes, like 20 or 0.5, or leave it empty for no limit.";
   if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);

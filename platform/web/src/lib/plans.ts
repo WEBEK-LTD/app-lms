@@ -45,7 +45,7 @@ export interface PlanLimits {
   languages: number | null;
   /** Connected content sources the pages can list (null: all). Enforced: the page editor and the served layout. */
   sources: number | null;
-  /** 51 Gigabytes for the Media library's videos, pictures and PDFs, before storage packs (null: unlimited). Enforced: uploads past it are refused. */
+  /** 51 Gigabytes (decimals allowed, like 0.5) for the Media library's videos, pictures and PDFs, before storage packs (null: unlimited). Enforced: uploads past it are refused. */
   storageGb: number | null;
   // Display-only: shown on the pricing page and the dashboard, handled by the team.
   /** Display-only: team members (several sign-ins per account aren't built yet). */
@@ -280,7 +280,7 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
     languages: count(v.languages, fallback.languages),
     sources: count(v.sources, fallback.sources),
     // 51 Edits saved before storage was a limit keep the plan's default.
-    storageGb: v.storageGb === undefined ? fallback.storageGb : count(v.storageGb, fallback.storageGb),
+    storageGb: v.storageGb === undefined ? fallback.storageGb : v.storageGb === null ? null : typeof v.storageGb === "number" && Number.isFinite(v.storageGb) && v.storageGb > 0 ? v.storageGb : fallback.storageGb,
     teamMembers: count(v.teamMembers, fallback.teamMembers),
     support: SUPPORT_LEVELS.includes(v.support as SupportLevel) ? (v.support as SupportLevel) : fallback.support,
     accountManager: typeof v.accountManager === "boolean" ? v.accountManager : fallback.accountManager,
@@ -407,7 +407,7 @@ export function planStoresLine(plan: Pick<PlanInfo, "features">): string {
 /** 51 "20 GB", "1 TB", or "Unlimited storage". */
 export function formatStorage(gb: number | null): string {
   if (gb === null) return "Unlimited storage";
-  return gb >= 1000 && gb % 1000 === 0 ? `${gb / 1000} TB` : `${new Intl.NumberFormat("en-US").format(gb)} GB`;
+  return gb >= 1000 && gb % 1000 === 0 ? `${gb / 1000} TB` : `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 3 }).format(gb)} GB`;
 }
 
 /** "1,000", or the limit's word for unlimited. */

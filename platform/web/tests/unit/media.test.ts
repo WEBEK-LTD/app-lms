@@ -479,7 +479,7 @@ describe("storage packs, bought by card (51)", () => {
     expect(kashier.calls.at(-1)!.body).toMatchObject({ amount: "4200.00", currency: "EGP" });
     const renewalPayment = (await setup.store.getPlanPaymentByToken(sha256Hex(renewToken)))!;
     expect(renewalPayment).toMatchObject({ purpose: "plan", amountCents: 420000, currency: "EGP", shownCents: 8400, shownCurrency: "USD" });
-    expect(paymentWhat(renewalPayment, "Growth")).toBe("Growth, 1 year, with storage +25 GB");
+    expect(paymentWhat(renewalPayment, "Growth")).toBe("Growth · 1 year · storage +25 GB");
     kashier.pay("sess2abcdef");
     const renewed = await completePlanPayment({ store: setup.store, account: KASHIER, fetcher: kashier.fetcher, now: NOW, payment: renewalPayment, encryptionKey: KEY });
     expect(renewed.kind).toBe("paid");
@@ -568,7 +568,7 @@ describe("lesson videos from the Media library on the hosted API (51)", () => {
   let dir: string;
   let videoLink = "";
   const sender = new LogSender();
-  let now = NOW;
+  const now = NOW;
 
   beforeEach(async () => {
     ({ store } = await setupClient());
