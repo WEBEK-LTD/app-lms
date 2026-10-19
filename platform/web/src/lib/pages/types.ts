@@ -1,4 +1,5 @@
 import { APP_FONTS, APP_TEMPLATES, type AppFont } from "../build-config/types";
+import { BUILT_IN_LANGUAGES, LOCALES, RTL_CODES } from "../i18n/locales";
 
 /**
  * An app's pages, tabs, look and languages (roadmap 10.4 to 10.8), in the
@@ -12,7 +13,8 @@ export { APP_FONTS, APP_TEMPLATES };
 export const THEME_MODES = ["system", "light", "dark"] as const;
 export const CORNERS = ["sharp", "soft", "round"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
-export const LANGUAGE_CODES = ["en", "ar", "tr"] as const;
+/** 43 The languages Yallapp ships its own translations in; an app can offer any of `LOCALES` (lib/i18n/locales.ts). */
+export const LANGUAGE_CODES = BUILT_IN_LANGUAGES;
 export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns"] as const;
 export const BLOCK_TYPES = [
   "banner",
@@ -79,7 +81,8 @@ export type AppTemplateName = (typeof APP_TEMPLATES)[number];
 export type ThemeMode = (typeof THEME_MODES)[number];
 export type Corners = (typeof CORNERS)[number];
 export type CardStyle = (typeof CARD_STYLES)[number];
-export type LanguageCode = (typeof LANGUAGE_CODES)[number];
+/** 43 A language code from `LOCALES` ("en", "ar", "fr", "fil"). */
+export type LanguageCode = string;
 export type ItemSource = (typeof ITEM_SOURCES)[number];
 export type BlockType = (typeof BLOCK_TYPES)[number];
 export type Visibility = (typeof VISIBILITIES)[number];
@@ -89,9 +92,10 @@ export type Weekday = (typeof WEEKDAYS)[number];
 export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
 export type NoticeTone = (typeof NOTICE_TONES)[number];
 
-export const LANGUAGE_NAMES: Record<LanguageCode, string> = { en: "English", ar: "Arabic", tr: "Turkish" };
+/** Each language's name in English, for the dashboard. */
+export const LANGUAGE_NAMES: Record<LanguageCode, string> = Object.fromEntries(LOCALES.map((l) => [l.code, l.name]));
 /** Languages written right to left. */
-export const RTL_LANGUAGES: readonly LanguageCode[] = ["ar"];
+export const RTL_LANGUAGES: readonly LanguageCode[] = RTL_CODES;
 
 /** `Appearance` in the app API. */
 export interface Appearance {
@@ -107,12 +111,27 @@ export interface Appearance {
 /** `Languages` in the app API. */
 export interface Languages {
   default: LanguageCode;
-  /** Always includes the default. */
+  /** Always includes the default; 43 in the owner's order. */
   available: LanguageCode[];
+  /** 43 `AppLanguage` for each available language: added when served, never stored. */
+  list?: AppLanguage[];
+}
+
+/** 43 `AppLanguage` in the app API: a language's names, direction and the owner's interface strings for it. */
+export interface AppLanguage {
+  code: LanguageCode;
+  name: string;
+  native_name: string;
+  direction: "ltr" | "rtl";
+  /** Where the app gets the owner's interface strings; null without any. */
+  strings: { url: string; version: string } | null;
 }
 
 /** Texts in other languages: language code, then field name. */
-export type Translations = Partial<Record<LanguageCode, Record<string, string>>>;
+export type Translations = Record<LanguageCode, Record<string, string>>;
+
+/** 43 The owner's interface strings: language code, then the app's string key (mobile/lib/l10n). */
+export type InterfaceStrings = Record<LanguageCode, Record<string, string>>;
 
 /** `Action` in the app API. */
 export interface Action {
@@ -286,6 +305,8 @@ export interface LayoutContent {
   languages: Languages;
   tabs: LayoutTab[];
   pages: LayoutPage[];
+  /** 43 The owner's translations of the app's own interface strings; apps get them as string packs, never in the layout. */
+  strings?: InterfaceStrings;
 }
 
 /** `Layout` in docs/api/platform.yaml: a published layout. */
@@ -311,8 +332,11 @@ export const LAYOUT_LIMITS = {
   maxClosedDates: 30,
   maxItems: 30,
   maxHandPicked: 30,
-  /** The whole layout as JSON. */
+  /** The whole layout as JSON (43 without the interface strings). */
   maxBytes: 512 * 1024,
+  /** 43 Interface strings: one string, and one language's as JSON. */
+  stringChars: 2000,
+  stringsBytes: 400 * 1024,
   htmlChars: 20_000,
 } as const;
 

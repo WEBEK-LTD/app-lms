@@ -26,7 +26,10 @@ class YallappApp extends ConsumerWidget {
     final settings = ref.watch(localSettingsProvider);
     final router = ref.watch(appRouterProvider);
     final language = ref.watch(appLanguageProvider);
-    setCurrentLanguage(language);
+    // 43 The owner's string packs over the app's own strings, any language.
+    final packs = ref.watch(stringPackMapsProvider);
+    final direction = ref.watch(appTextDirectionProvider);
+    setCurrentLanguage(language, packs[language]);
     ref
       ..watch(pushRegistrationProvider)
       ..watch(pushNavigationProvider);
@@ -38,16 +41,19 @@ class YallappApp extends ConsumerWidget {
       darkTheme: look.theme(Brightness.dark),
       // 17 The app preview's Light / Dark switch wins over the app's setting.
       themeMode: env.preview?.themeMode ?? look.themeModeFor(settings),
-      // Arabic turns the whole app right to left through the locale.
+      // A right-to-left language turns the whole app around (43 by its direction).
       locale: Locale(language),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: ref.watch(appLocalesProvider),
+      localizationsDelegates: appLocalizationsDelegates(packs),
       routerConfig: router,
       // Status bar icons follow the theme; screens with a colored top
       // (the Bold header) set their own.
       builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: overlayStyleOn(Theme.of(context).scaffoldBackgroundColor),
-        child: GateView(child: child ?? const SizedBox()),
+        child: Directionality(
+          textDirection: direction,
+          child: GateView(child: child ?? const SizedBox()),
+        ),
       ),
     );
   }

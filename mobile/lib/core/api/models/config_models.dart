@@ -1,5 +1,6 @@
 import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
+import '../../l10n/locales.dart';
 import 'catalog_models.dart';
 import 'event_models.dart';
 import 'donation_models.dart';
@@ -89,20 +90,38 @@ class AppConfig {
 
 /// `Config.languages`. Codes the app doesn't ship are dropped.
 class Languages {
-  const Languages({required this.defaultCode, required this.available});
+  const Languages({
+    required this.defaultCode,
+    required this.available,
+    this.list = const [],
+  });
 
+  /// 43 Any language the app's system widgets come in (`appLocales`), in
+  /// the owner's order; codes the app can't show are left out.
   factory Languages.fromJson(Json json) {
     final available = [
       for (final code in stringList(json, 'available'))
-        if (shippedLanguages.contains(code)) code,
+        if (appLocaleOf(code) != null) code,
     ];
     final fallback = optString(json, 'default');
-    final defaultCode = shippedLanguages.contains(fallback)
-        ? fallback!
+    final defaultCode = fallback != null && available.contains(fallback)
+        ? fallback
         : (available.isEmpty ? 'en' : available.first);
+    final details = <String, AppLanguage>{};
+    final raw = json['list'];
+    if (raw is List) {
+      for (final item in raw) {
+        final language = item is Map
+            ? AppLanguage.tryParse(asJson(item))
+            : null;
+        if (language != null) details[language.code] = language;
+      }
+    }
+    final codes = available.isEmpty ? [defaultCode] : available;
     return Languages(
       defaultCode: defaultCode,
-      available: available.isEmpty ? [defaultCode] : available,
+      available: codes,
+      list: [for (final code in codes) details[code] ?? AppLanguage.of(code)],
     );
   }
 
@@ -111,6 +130,86 @@ class Languages {
 
   final String defaultCode;
   final List<String> available;
+
+  /// 43 Each available language's names, direction and string pack, in the
+  /// same order. Built from the app's own list when the server sends none.
+  final List<AppLanguage> list;
+
+  AppLanguage language(String code) {
+    for (final language in list) {
+      if (language.code == code) return language;
+    }
+    return AppLanguage.of(code);
+  }
+
+  Json toJson() => {
+    'default': defaultCode,
+    'available': available,
+    'list': [for (final l in list) l.toJson()],
+  };
+}
+
+/// 43 `AppLanguage`: a language's names, direction and the owner's string
+/// pack (null without one).
+class AppLanguage {
+  const AppLanguage({
+    required this.code,
+    required this.name,
+    required this.nativeName,
+    required this.rtl,
+    this.packUrl,
+    this.packVersion,
+  });
+
+  /// From the app's own list, without a pack.
+  factory AppLanguage.of(String code) {
+    final locale = appLocaleOf(code);
+    return AppLanguage(
+      code: code,
+      name: locale?.name ?? code,
+      nativeName: locale?.nativeName ?? code,
+      rtl: rtlLanguageCodes.contains(code),
+    );
+  }
+
+  static AppLanguage? tryParse(Json json) {
+    final code = optString(json, 'code');
+    if (code == null || appLocaleOf(code) == null) return null;
+    final own = AppLanguage.of(code);
+    final strings = json['strings'] is Map ? asJson(json['strings']) : null;
+    final url = strings == null ? null : optString(strings, 'url');
+    final version = strings == null ? null : optString(strings, 'version');
+    final direction = optString(json, 'direction');
+    return AppLanguage(
+      code: code,
+      name: optString(json, 'name') ?? own.name,
+      nativeName: optString(json, 'native_name') ?? own.nativeName,
+      rtl: direction == null ? own.rtl : direction == 'rtl',
+      packUrl: url != null && version != null ? url : null,
+      packVersion: url != null && version != null ? version : null,
+    );
+  }
+
+  final String code;
+  final String name;
+
+  /// For the language picker.
+  final String nativeName;
+  final bool rtl;
+
+  /// Where the owner's strings in this language are, and their version.
+  final String? packUrl;
+  final String? packVersion;
+
+  Json toJson() => {
+    'code': code,
+    'name': name,
+    'native_name': nativeName,
+    'direction': rtl ? 'rtl' : 'ltr',
+    'strings': packUrl == null
+        ? null
+        : {'url': packUrl, 'version': packVersion},
+  };
 }
 
 class SiteInfo {

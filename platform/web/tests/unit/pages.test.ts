@@ -17,6 +17,7 @@ import { duplicatePage, renamePageLinks, switchDefaultLanguage, textIn, uniqueSl
 import { pluginLayout } from "@/lib/pages/plugin";
 import { pickLanguage, translated } from "@/lib/pages/translate";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
+import { DICTIONARY_VERSION } from "@/lib/i18n/builtin";
 import type { LayoutBlock, LayoutContent } from "@/lib/pages/types";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import { APP_TYPES, hostedOnly, KINDS } from "@/lib/app/kinds";
@@ -85,7 +86,7 @@ describe("layout validation", () => {
   it("rebuilds blocks from known fields and cleans their HTML", () => {
     const result = parse(
       layoutWith([
-        { id: "t1", type: "text", visibility: "everyone", html: "<p>Hello<script>x</script></p>", extra: "dropped", translations: { ar: { html: "<p>مرحبا</p><script>x</script>", bogus: "x" }, de: { html: "Hallo" } } },
+        { id: "t1", type: "text", visibility: "everyone", html: "<p>Hello<script>x</script></p>", extra: "dropped", translations: { ar: { html: "<p>مرحبا</p><script>x</script>", bogus: "x" }, xx: { html: "Hallo" } } },
         { id: "b1", type: "button", visibility: "signed_out", label: " Sign up ", style: "filled", icon: "person", action: { type: "url", url: "https://academy.test/join", open_in: "browser", junk: 1 } },
       ]),
     );
@@ -246,7 +247,8 @@ describe("languages", () => {
     expect(layout.ok).toBe(true);
     if (!layout.ok) return;
     const arabic = switchDefaultLanguage(layout.value, "ar");
-    expect(arabic.languages).toEqual({ default: "ar", available: ["ar", "en"] });
+    // 43 The owner's order stays.
+    expect(arabic.languages).toEqual({ default: "ar", available: ["en", "ar"] });
     expect(arabic.pages[0]).toMatchObject({ title: "الرئيسية", translations: { en: { title: "Home" } } });
     expect(arabic.pages[0]!.blocks[0]).toMatchObject({ html: "<p>مرحبا</p>", translations: { en: { html: "<p>Hello</p>" } } });
     expect(arabic.tabs[1]).toMatchObject({ label: "Account", translations: { en: { label: "Account" } } });
@@ -562,11 +564,13 @@ describe("pages on the hosted API", () => {
 
   it("serves the published navigation with a version, in the asked language", async () => {
     expect((await publishLayout(store, app, layoutWith(blocks), "owner@lale.test", NOW)).ok).toBe(true);
+    // 43 The version carries Yallapp's translations, which the served layout has.
+    const served = `${layoutVersion(NOW, 1)}~t${DICTIONARY_VERSION}`;
     const nav = await call("/pages");
     expect(nav.status).toBe(200);
-    expect(nav.headers).toMatchObject({ vary: "Accept-Language", etag: `"${layoutVersion(NOW, 1)}"` });
+    expect(nav.headers).toMatchObject({ vary: "Accept-Language", etag: `"${served}"` });
     expect(nav.body).toEqual({
-      version: layoutVersion(NOW, 1),
+      version: served,
       tabs: [
         { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
         { id: "account", label: "Account", icon: "person", target: { type: "screen", screen: "account" } },
@@ -574,17 +578,18 @@ describe("pages on the hosted API", () => {
       pages: [{ slug: "home", title: "Home", updated_at: NOW.toISOString() }],
     });
     const arabic = await call("/pages", { headers: { "accept-language": "ar-EG,ar;q=0.9" } });
-    expect(arabic.body).toMatchObject({ tabs: [{ label: "الرئيسية" }, { label: "Account" }], pages: [{ title: "الرئيسية" }] });
+    // 43 The owner's Arabic, and Yallapp's for "Account", which the owner didn't translate.
+    expect(arabic.body).toMatchObject({ tabs: [{ label: "الرئيسية" }, { label: "الحساب" }], pages: [{ title: "الرئيسية" }] });
     // Turkish isn't turned on: the default language.
     expect((await call("/pages", { headers: { "accept-language": "tr" } })).body).toMatchObject({ pages: [{ title: "Home" }] });
-    expect((await call("/pages", { headers: { "if-none-match": `"${layoutVersion(NOW, 1)}"` } })).status).toBe(304);
+    expect((await call("/pages", { headers: { "if-none-match": `"${served}"` } })).status).toBe(304);
     // Each language has its own version: switching language never gets a 304 for the old texts.
-    expect(arabic.body).toMatchObject({ version: `${layoutVersion(NOW, 1)}.ar` });
+    expect(arabic.body).toMatchObject({ version: `${served}.ar` });
     expect(
-      (await call("/pages", { headers: { "accept-language": "ar", "if-none-match": `"${layoutVersion(NOW, 1)}"` } })).status,
+      (await call("/pages", { headers: { "accept-language": "ar", "if-none-match": `"${served}"` } })).status,
     ).toBe(200);
     expect(
-      (await call("/pages", { headers: { "accept-language": "ar", "if-none-match": `"${layoutVersion(NOW, 1)}.ar"` } })).status,
+      (await call("/pages", { headers: { "accept-language": "ar", "if-none-match": `"${served}.ar"` } })).status,
     ).toBe(304);
     expect((await call("/pages", { query: {} })).status).toBe(400);
 

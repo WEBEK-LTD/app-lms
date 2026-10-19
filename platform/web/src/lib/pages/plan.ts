@@ -20,12 +20,12 @@ export function allowedSources(app: Pick<App, "appType" | "backend">, plan: Pick
   return limit === null ? all : all.slice(0, Math.max(1, limit));
 }
 
-/** At most the plan's number of languages, the default first. */
+/** At most the plan's number of languages: the default and the first others, in the owner's order (43 any language counts). */
 export function languagesForPlan(languages: Languages, plan: Pick<PlanInfo, "limits"> | null): Languages {
   const limit = plan?.limits.languages ?? null;
   if (limit === null || languages.available.length <= limit) return languages;
-  const others = languages.available.filter((l) => l !== languages.default);
-  return { default: languages.default, available: [languages.default, ...others.slice(0, Math.max(0, limit - 1))] };
+  const others = languages.available.filter((l) => l !== languages.default).slice(0, Math.max(0, limit - 1));
+  return { default: languages.default, available: languages.available.filter((l) => l === languages.default || others.includes(l)) };
 }
 
 function actionAllowed(action: Action | null | undefined, sources: ItemSource[]): boolean {

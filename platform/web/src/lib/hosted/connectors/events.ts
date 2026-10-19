@@ -98,7 +98,7 @@ export class EventsConnector implements Connector {
     if (!event) return noEvent();
     const mine = request.user ? await this.deps.store.listTickets({ appId: this.deps.app.id, eventId: event.id, userId: request.user.id }) : [];
     const ios = request.query.get("platform") === "ios";
-    return { status: 200, body: eventDetailJson(data, event, { assetUrl: this.deps.assetUrl, ios, canSell: this.canSell, mine }) };
+    return { status: 200, body: eventDetailJson(data, event, { assetUrl: this.deps.assetUrl, ios, canSell: this.canSell, mine, lang: request.lang }) };
   }
 
   /** Free tickets, on every platform. */
@@ -196,7 +196,7 @@ export class EventsConnector implements Connector {
   private async myTickets(request: ConnectorRequest): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const [data, tickets] = await Promise.all([this.load(request.now), this.deps.store.listTickets({ appId: this.deps.app.id, userId: request.user.id })]);
-    const deps = { assetUrl: this.deps.assetUrl, key: this.key };
+    const deps = { assetUrl: this.deps.assetUrl, key: this.key, lang: request.lang };
     return { status: 200, body: { items: walletOrder(data, tickets).map((t) => ticketJson(data, t, deps)) } };
   }
 

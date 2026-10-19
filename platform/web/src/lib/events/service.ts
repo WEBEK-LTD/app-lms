@@ -146,6 +146,8 @@ export function localClock(at: Date, timeZone: string): string {
 
 export interface JsonDeps {
   assetUrl: (assetId: string) => string;
+  /** 43 The language the app asks in, for the price label ("Free", "From ₺150"); English when missing. */
+  lang?: string | null;
 }
 
 export function eventSummaryJson(data: EventsData, event: EventRecord, deps: JsonDeps) {
@@ -167,7 +169,7 @@ export function eventSummaryJson(data: EventsData, event: EventRecord, deps: Jso
       ? { name: event.venueName, address: event.venueAddress, latitude: event.latitude, longitude: event.longitude }
       : null,
     online: Boolean(event.onlineUrl),
-    price_label: priceLabel(types, data.settings.currency),
+    price_label: priceLabel(types, data.settings.currency, itemWords(deps.lang)),
     status: phase,
     spots_left: left.event,
     sold_out: types.length > 0 && types.every((t) => left.types.get(t.id) === 0),
@@ -310,7 +312,8 @@ export function readTicketOrder(data: EventsData, event: EventRecord | null, bod
   const quantity = Number(input.quantity);
   const most = Math.min(type.maxPerOrder, MAX_TICKETS_PER_ORDER);
   if (!Number.isInteger(quantity) || quantity < 1) return error(400, "invalid_request", "Choose how many tickets.");
-  if (quantity > most) return error(400, "invalid_request", `You can get up to ${most} ${most === 1 ? "ticket" : "tickets"} at a time.`);
+  // 43 Two whole sentences, so the hosted API can answer them in the app's language.
+  if (quantity > most) return error(400, "invalid_request", most === 1 ? "You can get up to 1 ticket at a time." : `You can get up to ${most} tickets at a time.`);
   const raw = input.attendee_names ?? [];
   if (!Array.isArray(raw) || raw.length > quantity || raw.some((n) => typeof n !== "string" || n.length > NAME_MAX)) {
     return error(400, "invalid_request", `Give a name of up to ${NAME_MAX} characters for each ticket.`);
@@ -354,7 +357,7 @@ export function listEventsResult(data: EventsData, request: ConnectorRequest, de
       per_page: perPage,
       total: found.length,
       total_pages: Math.max(1, Math.ceil(found.length / perPage)),
-      items: found.slice((page - 1) * perPage, page * perPage).map((e) => eventSummaryJson(data, e, deps)),
+      items: found.slice((page - 1) * perPage, page * perPage).map((e) => eventSummaryJson(data, e, { ...deps, lang: request.lang })),
     },
   };
 }

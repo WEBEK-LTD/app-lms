@@ -82,7 +82,8 @@ test("a new client's app starts with those defaults", async ({ browser }) => {
   await expect(own.getByLabel("Corners")).toHaveValue("sharp");
   await expect(own.getByLabel("Font")).toHaveValue("Lexend");
   await own.getByRole("tab", { name: "Languages" }).click();
-  await expect(own.getByRole("checkbox", { name: "Arabic" })).toBeChecked();
+  // 43 Any language, in the owner's order.
+  await expect(own.getByRole("list", { name: "Languages in the app" }).getByRole("listitem")).toContainText(["English", "Arabic"]);
 
   // Before the first publish the app gets the default pages.
   const nav = await (await own.request.get(`${api}/pages?platform=android`)).json();
@@ -123,11 +124,12 @@ test("the hosted API serves the published page", async ({ request }) => {
   // The look and languages the app started with, now published.
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.appearance).toMatchObject({ template: "minimal", corners: "sharp", font: "Lexend" });
-  expect(config.languages).toEqual({ default: "en", available: ["en", "ar"] });
+  expect(config.languages).toMatchObject({ default: "en", available: ["en", "ar"], list: [{ code: "en", native_name: "English" }, { code: "ar", direction: "rtl", strings: null }] });
   const navResponse = await request.get(`${api}/pages?platform=android`);
   expect(navResponse.headers()["vary"]).toContain("Accept-Language");
   const nav = await navResponse.json();
-  expect(nav.version).toMatch(/\.1$/);
+  // 43 With Yallapp's Arabic for its own tab names in the layout, the version says so.
+  expect(nav.version).toMatch(/\.1~t[0-9a-f]{8}$/);
   expect(navResponse.headers()["etag"]).toBe(`"${nav.version}"`);
   expect((await request.get(`${api}/pages?platform=android`, { headers: { "if-none-match": `"${nav.version}"` } })).status()).toBe(304);
   const home = await (await request.get(`${api}/pages/home?platform=android`)).json();
@@ -143,6 +145,8 @@ test("the client writes Arabic texts and the app gets them in Arabic", async ({ 
   await own.getByLabel("Edit texts in").selectOption("ar");
   const preview = own.getByRole("figure", { name: "Phone preview" });
   await expect(preview.locator('[dir="rtl"]')).toBeVisible();
+  // 43 Yallapp's Arabic for the tab names it wrote, as the app shows them.
+  await expect(preview.getByRole("navigation")).toContainText("الحساب");
   const page = own.getByRole("region", { name: /^Page: / });
   await page.getByLabel("Page title (Arabic)").fill("الرئيسية");
   await page.getByRole("button", { name: /^Text: / }).first().click();
@@ -157,7 +161,9 @@ test("the client writes Arabic texts and the app gets them in Arabic", async ({ 
   const english = await (await request.get(`${api}/pages/home?platform=android`, { headers: { "accept-language": "en" } })).json();
   expect(english.blocks[0]).toMatchObject({ html: "<p>Learn with Nil</p>" });
   const nav = await (await request.get(`${api}/pages?platform=android`, { headers: { "accept-language": "ar-EG,ar;q=0.9" } })).json();
-  expect(nav.version).toMatch(/\.2\.ar$/);
+  expect(nav.version).toMatch(/\.2~t[0-9a-f]{8}\.ar$/);
+  // 43 Yallapp's Arabic for the tab names it wrote.
+  expect(nav.tabs.map((t: { label: string }) => t.label)).toEqual(["الرئيسية", "الدورات", "دوراتي", "الحساب"]);
   expect(nav.pages[0].title).toBe("الرئيسية");
 });
 

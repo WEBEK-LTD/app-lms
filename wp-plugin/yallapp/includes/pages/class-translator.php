@@ -16,9 +16,15 @@ defined( 'ABSPATH' ) || exit;
 class Translator {
 
 	/**
-	 * Language codes the app ships (Config.languages, LanguageCode).
+	 * Language codes the app ships its own texts in.
 	 */
 	const CODES = array( 'en', 'ar', 'tr' );
+
+	/**
+	 * 43 Every language the app can show (LanguageCode: the languages of the app's system
+	 * screens), the same list as the platform's (platform/web/src/lib/i18n/locales.ts).
+	 */
+	const LANGUAGES = 'af am ar as az be bg bn bo bs ca cs cy da de el en es et eu fa fi fil fr ga gl gsw gu he hi hr hu hy id is it ja ka kk km kn ko ky lo lt lv mk ml mn mr ms my nb ne nl no or pa pl ps pt ro ru si sk sl sq sr sv sw ta te th tl tr ug uk ur uz vi zh zu';
 
 	/**
 	 * Fields a translation may replace.
@@ -74,17 +80,18 @@ class Translator {
 	}
 
 	/**
-	 * Languages shape, keeping only the codes the app knows.
+	 * Languages shape, keeping only valid codes, in the owner's order; 43 with `list` (each
+	 * language's names, direction and string pack) passed on when the platform sent it.
 	 *
 	 * @param mixed $raw Languages from the layout, or null.
-	 * @return array{default: string, available: string[]}
+	 * @return array{default: string, available: string[], list?: array[]}
 	 */
 	public static function languages( $raw ) {
-		$default   = is_array( $raw ) && isset( $raw['default'] ) && in_array( $raw['default'], self::CODES, true ) ? $raw['default'] : 'en';
+		$default   = is_array( $raw ) && isset( $raw['default'] ) && self::is_code( $raw['default'] ) ? $raw['default'] : 'en';
 		$available = array();
 		if ( is_array( $raw ) && isset( $raw['available'] ) && is_array( $raw['available'] ) ) {
 			foreach ( $raw['available'] as $code ) {
-				if ( in_array( $code, self::CODES, true ) && ! in_array( $code, $available, true ) ) {
+				if ( self::is_code( $code ) && ! in_array( $code, $available, true ) ) {
 					$available[] = $code;
 				}
 			}
@@ -92,10 +99,68 @@ class Translator {
 		if ( ! in_array( $default, $available, true ) ) {
 			array_unshift( $available, $default );
 		}
-		return array(
+		$out  = array(
 			'default'   => $default,
 			'available' => $available,
 		);
+		$list = self::language_list( is_array( $raw ) && isset( $raw['list'] ) ? $raw['list'] : null, $available );
+		if ( $list ) {
+			$out['list'] = $list;
+		}
+		return $out;
+	}
+
+	/**
+	 * Whether a value is a language code.
+	 *
+	 * @param mixed $code Value.
+	 * @return bool
+	 */
+	public static function is_code( $code ) {
+		return is_string( $code ) && in_array( $code, explode( ' ', self::LANGUAGES ), true );
+	}
+
+	/**
+	 * 43 `AppLanguage` for each available language, from the platform's list: names, direction
+	 * and where the app downloads the owner's strings. Null when the list doesn't cover them all.
+	 *
+	 * @param mixed    $raw       The platform's list.
+	 * @param string[] $available Available codes.
+	 * @return array[]|null
+	 */
+	private static function language_list( $raw, array $available ) {
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+		$by_code = array();
+		foreach ( $raw as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['code'] ) || ! self::is_code( $item['code'] ) ) {
+				continue;
+			}
+			$strings = null;
+			if ( isset( $item['strings']['url'], $item['strings']['version'] ) && is_string( $item['strings']['url'] ) && is_string( $item['strings']['version'] )
+				&& 0 === strpos( $item['strings']['url'], 'https://' ) ) {
+				$strings = array(
+					'url'     => $item['strings']['url'],
+					'version' => $item['strings']['version'],
+				);
+			}
+			$by_code[ $item['code'] ] = array(
+				'code'        => $item['code'],
+				'name'        => isset( $item['name'] ) && is_string( $item['name'] ) ? $item['name'] : $item['code'],
+				'native_name' => isset( $item['native_name'] ) && is_string( $item['native_name'] ) ? $item['native_name'] : $item['code'],
+				'direction'   => isset( $item['direction'] ) && 'rtl' === $item['direction'] ? 'rtl' : 'ltr',
+				'strings'     => $strings,
+			);
+		}
+		$list = array();
+		foreach ( $available as $code ) {
+			if ( ! isset( $by_code[ $code ] ) ) {
+				return null;
+			}
+			$list[] = $by_code[ $code ];
+		}
+		return $list;
 	}
 
 	/**

@@ -309,7 +309,8 @@ describe("33 new blocks on the hosted API", () => {
 
     const ar = (await home("ar")).body.blocks;
     expect((ar[0]!.slides as { heading: string }[])[0]!.heading).toBe("تخفيضات الخريف");
-    expect((ar[1]!.links as { label: string }[]).map((l) => l.label)).toEqual(["الدورات", "About"]);
+    // 43 "About" is a text Yallapp writes: its Arabic shows where the owner wrote none.
+    expect((ar[1]!.links as { label: string }[]).map((l) => l.label)).toEqual(["الدورات", "من نحن"]);
     expect((ar[3]!.questions as { question: string; answer: string }[])[0]).toEqual({ question: "كيف أبدأ؟", answer: "Enroll.\nThen learn." });
     expect(ar[5]!.address).toBe("١٢ شارع ٩، المعادي");
     expect(ar[10]!.text).toBe("مغلق يوم الجمعة");

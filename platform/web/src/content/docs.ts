@@ -839,22 +839,43 @@ Your app's name under the icon, its icon and its store listing come with a build
   doc({
     slug: "languages",
     section: "Your app",
-    title: "Languages",
-    description: "Turn on English, Arabic (right to left) and Turkish, choose the default and translate your page texts.",
+    title: "Languages and translations",
+    description: "Offer your app in any language: Yallapp translates English, Arabic and Turkish for you, and you translate any other language yourself.",
     steps: false,
-    body: `Every Yallapp app is in English. You can turn on **Arabic** and **Turkish** too, and people pick their language in the app's settings.
+    body: `Every Yallapp app is in English. Yallapp also translates it into **Arabic** and **Turkish**: the app's own buttons and messages, and the tab names, page titles and sample texts Yallapp writes for you. You can add **any other language** the app can show, such as French, German, Persian or Urdu, and translate it yourself. People pick their language in the app's settings, where each language shows its own name.
 
-## Turn languages on
+## Add languages
 
-In **Pages & look**, open **Languages**. Choose the languages people can pick and the **Default language**. Publish to apply the change.
+Open **Languages** in your dashboard (or **Pages & look › Languages**). Choose a language in **Add a language** and select **Add**. Then:
+
+- **Make default** sets the language your app opens in when the phone's language isn't one of yours. Your page texts move with it, so nothing is lost.
+- The arrows set the order of the language picker in the app.
+- The bin removes a language. Its translations are kept, in case you add it again.
+
+Changes are saved to your draft. Select **Publish** to send them to your app. How many languages your app can have depends on your plan, whoever translates them.
 
 ## Translate your texts
 
-The app's own buttons and messages come in all three languages. Your own texts (page titles, banners, text blocks, buttons, tab labels) are yours to translate: choose a language in **Edit texts in** and write the text for it. A text without a translation shows in your default language.
+The **Translations** part of the Languages page lists every text your app shows in the language you choose, with how much is translated:
+
+- **Your pages and tabs**: tab names, page titles, and the texts of your blocks, slides, questions and people.
+- **The app's own texts**: its buttons, screens and messages.
+
+Write each text in the box under it. **Show: Missing** lists what still needs a translation, and **Search** finds a word, a text or a key. **Copy English** fills in the English, for brand names you keep as they are. Select **Save translations**, then **Publish**. **Preview in** opens your app in that language before you publish (apps without a website; others show what's published).
+
+A text you haven't translated shows Yallapp's translation in Arabic and Turkish, else the default language for your pages and English for the app's own texts. Your translation always wins, also over Yallapp's: in Arabic and Turkish, select **Change Yallapp's** to start from its text. If you change a text Yallapp wrote, such as a tab name, it's yours to translate.
+
+## Placeholders and numbers
+
+Some app texts have **placeholders** in braces, such as **{name}** or **{count}**: the app puts a name or a number there. Select a placeholder under the box to insert it, and keep only the ones shown. Texts with numbers can have a form per number, written as **{count, plural, =1{1 lesson} other{{count} lessons}}**; use the forms your language needs (**one**, **few**, **many**, **other**). A text with a placeholder the app doesn't have can't be saved, so a mistake never reaches your app.
+
+## Work in a spreadsheet
+
+**Export** a language as **CSV**, **JSON** or **XLIFF**, fill in the translation column (or send the file to a translator), and **Import a file** back. Rows are matched by their ID; check the imported texts, then save.
 
 ## Right to left
 
-When someone picks Arabic, the whole app switches to right to left: menus, lists, icons and text.
+Arabic, Persian, Hebrew, Urdu, Pashto and Uyghur are written right to left: when someone picks one, the whole app turns around, menus, lists, icons and text.
 
 > Texts that come from your website or platform, such as course or product names, show as they are written there. Property listings show as your office wrote them.
 `,

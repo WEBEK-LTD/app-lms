@@ -1,4 +1,6 @@
 import type { App } from "../data/types";
+import { parseInterfaceStrings } from "../i18n/app-strings";
+import { isLanguageCode, MAX_LANGUAGES } from "../i18n/locales";
 import { cleanBlockHtml, safeHref } from "./html";
 import { ICON_NAME } from "./icons";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
@@ -12,7 +14,6 @@ import {
   CORNERS,
   ITEMS_LAYOUTS,
   ITEMS_SORTS,
-  LANGUAGE_CODES,
   LAYOUT_LIMITS,
   NOTICE_TONES,
   QUICK_LINK_STYLES,
@@ -171,19 +172,22 @@ export function parseAppearance(value: unknown, c: Checker = new Checker(), wher
 
 export function parseLanguages(value: unknown, c: Checker = new Checker(), where = "Languages"): Languages {
   const v = record(value) ?? {};
-  const def = oneOf(LANGUAGE_CODES, v.default) ? v.default : null;
+  // 43 Any language the app's system widgets come in (lib/i18n/locales.ts), not only the ones Yallapp translates.
+  const def = isLanguageCode(v.default) ? v.default : null;
   if (!def) c.fail(where, "choose the default language.");
   const available: LanguageCode[] = [];
   if (!Array.isArray(v.available)) c.fail(where, "choose the languages.");
   for (const code of Array.isArray(v.available) ? v.available : []) {
-    if (!oneOf(LANGUAGE_CODES, code)) c.fail(where, `${String(code)} isn't a language apps support.`);
+    if (!isLanguageCode(code)) c.fail(where, `${String(code)} isn't a language apps support.`);
     else if (!available.includes(code)) available.push(code);
   }
+  if (available.length > MAX_LANGUAGES) c.fail(where, `an app can have at most ${MAX_LANGUAGES} languages.`);
   const fallback = def ?? "en";
   if (!available.includes(fallback)) available.unshift(fallback);
-  // The default first, then the others in the order of the list.
-  return { default: fallback, available: [fallback, ...LANGUAGE_CODES.filter((l) => l !== fallback && available.includes(l))] };
+  // 43 In the owner's order (the app's language picker shows them so).
+  return { default: fallback, available: available.slice(0, MAX_LANGUAGES) };
 }
+
 
 /** Admin defaults for new apps (11.9). */
 export function parseAppDefaults(value: unknown): ParseResult<AppDefaultsSetting> {
@@ -256,7 +260,7 @@ function parseTranslations(ctx: Context, where: string, value: unknown, fields: 
   if (!v) return undefined;
   const out: Translations = {};
   for (const [lang, texts] of Object.entries(v)) {
-    if (!oneOf(LANGUAGE_CODES, lang) || lang === ctx.languages.default) continue;
+    if (!isLanguageCode(lang) || lang === ctx.languages.default) continue;
     // Translations of a language that's turned off are kept, so turning it back on brings them back.
     const t = record(texts);
     if (!t) continue;
@@ -664,7 +668,9 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   const c = new Checker();
   const v = record(value);
   if (!v) return { ok: false, errors: ["The layout is missing."] };
-  if (JSON.stringify(v).length > LAYOUT_LIMITS.maxBytes) return { ok: false, errors: ["The layout is too large. Remove some blocks or pages."] };
+  // 43 The interface strings have their own limits.
+  const { strings: stringsIn, ...rest } = v;
+  if (JSON.stringify(rest).length > LAYOUT_LIMITS.maxBytes) return { ok: false, errors: ["The layout is too large. Remove some blocks or pages."] };
   const appearance = parseAppearance(v.appearance, c);
   const languages = parseLanguages(v.languages, c);
   const pagesIn = Array.isArray(v.pages) ? v.pages : [];
@@ -703,6 +709,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     if (tabIds.has(tab.id)) c.fail("Tabs", "two tabs have the same ID.");
     tabIds.add(tab.id);
   }
+  const strings = stringsIn === undefined ? undefined : parseInterfaceStrings(stringsIn, (where, message) => c.fail(where, message));
   if (c.errors.length) return { ok: false, errors: c.errors };
-  return { ok: true, value: { appearance, languages, tabs, pages } };
+  return { ok: true, value: { appearance, languages, tabs, pages, ...(strings && Object.keys(strings).length ? { strings } : {}) } };
 }

@@ -3,6 +3,8 @@ import { hashLicenseKey } from "../license/key";
 import type { SiteInfo } from "../license/service";
 import { licenseState } from "../license/status";
 import { effectivePlans, planOfLicense } from "../entitlements";
+import { withLanguageList } from "../i18n/packs";
+import { withBuiltInTexts } from "./builtin";
 import { appDefaults } from "./layout";
 import { layoutForPlan } from "./plan";
 import type { Layout } from "./types";
@@ -28,7 +30,7 @@ export function etagValues(header: string | null): string[] {
     .filter(Boolean);
 }
 
-export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch: string | null, now: Date): Promise<LayoutResult> {
+export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch: string | null, now: Date, platformUrl = "https://yallapp.com.tr"): Promise<LayoutResult> {
   const license = await store.getLicenseByHash(hashLicenseKey(site.licenseKey));
   const client = license ? await store.getClientById(license.clientId) : null;
   if (!license || !client) {
@@ -43,7 +45,13 @@ export async function pluginLayout(store: DataStore, site: SiteInfo, ifNoneMatch
   const published = app && app.clientId === client.id ? (await store.getAppLayout(app.id))?.published : null;
   if (!app || !published) return { status: 204 };
   // 13.1 The layout as the app's plan allows it (languages, sources, the full page editor).
-  const layout = layoutForPlan(published, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store));
+  // 43 With Yallapp's own translations, and each language's name, direction and string pack
+  // for the plugin's Config.languages; the interface strings themselves stay on the platform.
+  const planned = withBuiltInTexts(layoutForPlan(published, app, planOfLicense(await effectivePlans(store), license, now), await appDefaults(store)));
+  const { strings: _strings, ...rest } = planned;
+  void _strings;
+  // Strings are published with the pages, so a changed pack always comes with a new version.
+  const layout: Layout = { ...rest, languages: withLanguageList(planned.languages, published.strings, { platformUrl, appId: app.id }) };
   if (etagValues(ifNoneMatch).includes(layout.version)) return { status: 304 };
   return { status: 200, body: layout, etag: layout.version };
 }

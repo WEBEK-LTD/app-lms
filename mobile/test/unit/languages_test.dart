@@ -86,13 +86,19 @@ void main() {
       );
     });
 
-    test('Config.languages drops codes the app does not ship', () {
+    // 43 Any language the app's system widgets come in; others are dropped.
+    test('Config.languages keeps any language the app can show', () {
       final languages = Languages.fromJson({
-        'default': 'fr',
-        'available': ['fr', 'tr', 'en'],
+        'default': 'xx',
+        'available': ['fr', 'xx', 'tr', 'en'],
       });
-      expect(languages.available, ['tr', 'en']);
-      expect(languages.defaultCode, 'tr');
+      expect(languages.available, ['fr', 'tr', 'en']);
+      expect(languages.defaultCode, 'fr');
+      expect(languages.list.map((l) => l.nativeName), [
+        'Français',
+        'Türkçe',
+        'English',
+      ]);
     });
   });
 }

@@ -4,9 +4,13 @@ import type { ReactNode } from "react";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { textIn, withText } from "@/lib/pages/model";
 import { actionProblem, screenName, SOURCE_NAMES, type ScreenOption } from "@/lib/pages/sources";
-import { LANGUAGE_NAMES, RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
+import { languageName } from "@/lib/i18n/locales";
+import { RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
 
 /** Form controls of the page and look editor. Every one has a visible label. */
+
+/** 43 Languages Yallapp translates the texts it writes into (lib/i18n/builtin). */
+const DICTIONARY_LANGS = ["ar", "tr"];
 
 export function TextInput({
   id,
@@ -140,12 +144,12 @@ export function LangText<T extends { translations?: Translations } & object>({
   return (
     <TextInput
       id={`${id}-${lang.edit}`}
-      label={other ? `${label} (${LANGUAGE_NAMES[lang.edit]})` : label}
+      label={other ? `${label} (${languageName(lang.edit)})` : label}
       value={textIn(value, field, lang.edit, lang.default)}
       placeholder={other ? textIn(value, field, lang.default, lang.default) : undefined}
       dir={RTL_LANGUAGES.includes(lang.edit) ? "rtl" : "ltr"}
       rows={rows}
-      hint={other ? `Empty shows the ${LANGUAGE_NAMES[lang.default]} text.` : hint}
+      hint={other ? (DICTIONARY_LANGS.includes(lang.edit) ? `Empty shows Yallapp's ${languageName(lang.edit)} for texts Yallapp wrote, else the ${languageName(lang.default)} text.` : `Empty shows the ${languageName(lang.default)} text.`) : hint}
       onChange={(text) => onChange(withText(value, field, text, lang.edit, lang.default))}
     />
   );
