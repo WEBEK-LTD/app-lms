@@ -67,6 +67,15 @@ export function LanguagesEditor({
   const [errors, setErrors] = useState<string[]>([]);
   const [status, setStatus] = useState({ changes, savedAt, published });
   const fileInput = useRef<HTMLInputElement>(null);
+  // Another language: its own filter, page and unsaved texts (the messages stay).
+  const [forLang, setForLang] = useState(lang.code);
+  if (forLang !== lang.code) {
+    setForLang(lang.code);
+    setEdits({});
+    setFilter(lang.builtIn ? "all" : "missing");
+    setPage(0);
+    setQuery("");
+  }
 
   const full = plan.languages !== null && languages.available.length >= plan.languages;
   const pending = Object.keys(edits).length;

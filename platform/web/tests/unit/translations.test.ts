@@ -193,6 +193,9 @@ describe("43 any language", () => {
     const dart = readFileSync(join(ROOT, "../../mobile/lib/core/l10n/locales.dart"), "utf8");
     const entries = [...dart.matchAll(/AppLocale\('([a-z]+)', '([^']+)', '([^']+)'\)/g)].map((m) => [m[1], m[2], m[3]]);
     expect(entries).toEqual(LOCALES.map((l) => [l.code, l.name, l.nativeName]));
+    // And the plugin's, which passes the languages on.
+    const php = readFileSync(join(ROOT, "../../wp-plugin/yallapp/includes/pages/class-translator.php"), "utf8");
+    expect(/const LANGUAGES = '([a-z ]+)';/.exec(php)?.[1]?.split(" ")).toEqual(LOCALES.map((l) => l.code));
   });
 
   it("takes any of them, in the owner's order", () => {
