@@ -1591,6 +1591,25 @@ class OverlayLocalizations extends AppLocalizations {
   String get fullScreen => overlay.text('fullScreen') ?? base.fullScreen;
 
   @override
+  String get back10Seconds =>
+      overlay.text('back10Seconds') ?? base.back10Seconds;
+
+  @override
+  String get forward10Seconds =>
+      overlay.text('forward10Seconds') ?? base.forward10Seconds;
+
+  @override
+  String get captionsTurnOn =>
+      overlay.text('captionsTurnOn') ?? base.captionsTurnOn;
+
+  @override
+  String get captionsTurnOff =>
+      overlay.text('captionsTurnOff') ?? base.captionsTurnOff;
+
+  @override
+  String get videoQuality => overlay.text('videoQuality') ?? base.videoQuality;
+
+  @override
   String get loadingEmbed => overlay.text('loadingEmbed') ?? base.loadingEmbed;
 
   @override
