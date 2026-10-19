@@ -2,17 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import { appLanguageName } from "@/lib/i18n/language-names";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
-import { isBuiltInLanguage, isRtl, languageName, localeInfo } from "@/lib/i18n/locales";
+import { isBuiltInLanguage, isRtl, localeInfo } from "@/lib/i18n/locales";
 import { contentRows, interfaceRows, progress } from "@/lib/i18n/translations";
 import { hasUnpublishedChanges, loadLayout } from "@/lib/pages/layout";
 import { draftPreviewSupported } from "@/lib/preview/config";
 import { lowestPlanWith } from "@/lib/plans";
 import { LanguagesEditor } from "./editor";
 
-export const metadata: Metadata = { title: "Languages" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("languages.title") };
+}
 export const dynamic = "force-dynamic";
 
 /**
@@ -25,12 +30,14 @@ export const dynamic = "force-dynamic";
  */
 export default async function LanguagesPage({ searchParams }: PageProps<"/dashboard/languages">) {
   const { app, license } = await requireClient();
+  const { t, lang: dashLang } = await dashboardText();
+  const languageName = (code: string) => appLanguageName(code, dashLang);
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Languages</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("languages.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          First <Link href="/dashboard/app-type">choose your app type</Link>. Then choose your app&apos;s languages and translate its texts here.
+          {richText(t("languages.chooseTypeFirst"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -57,13 +64,8 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Languages"
-        description={
-          <>
-            Your app&apos;s languages and every text it shows in them: your pages and tabs, and the app&apos;s own buttons and messages. Yallapp translates the app into English,
-            Arabic and Turkish; for any other language, you write the translations here. Changes are saved to your draft and reach your app when you publish.
-          </>
-        }
+        title={t("languages.title")}
+        description={t("languages.intro")}
       />
       <LanguagesEditor
         languages={{ default: languages.default, available: languages.available }}
@@ -77,7 +79,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
         previewHref={`/dashboard/preview?${hosted ? "pages=draft&" : ""}lang=${encodeURIComponent(lang)}`}
         previewDraft={hosted}
         plan={{
-          name: plan?.name ?? "current",
+          name: plan?.name ?? "",
           languages: plan?.limits.languages ?? null,
           upgrade: plan ? lowestPlanWith(plans, (p) => p.limits.languages === null || p.limits.languages > (plan.limits.languages ?? 0), planId) : null,
         }}

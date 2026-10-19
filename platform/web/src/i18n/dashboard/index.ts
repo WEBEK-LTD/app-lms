@@ -5,7 +5,9 @@ import type { Leaves } from "..";
 import type { Strings } from "../types";
 import * as common from "./common";
 import * as forms from "./forms";
+import * as health from "./health";
 import * as kinds from "./kinds";
+import * as languages from "./languages";
 import * as lib from "./lib";
 import * as license from "./license";
 import * as nav from "./nav";
@@ -34,7 +36,7 @@ import * as setup from "./setup";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

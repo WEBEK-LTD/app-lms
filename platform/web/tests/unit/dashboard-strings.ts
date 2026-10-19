@@ -33,7 +33,7 @@ const TEXT_PROPS = new Set(["label", "title", "hint", "description", "message", 
 
 /** Words that stay as they are in every language. */
 const SAME_EVERYWHERE =
-  /^(?:Yallapp|WordPress|WhatsApp|Google Play|App Store|Galaxy Store|AppGallery|GetApps|Android|iOS|iPhone|Shopify|Kashier|API|APK|AAB|PNG|JPEG|PDF|SVG|MP4|URL|HTTPS?|JSON|OK|UTC|EGP|USD|TRY|EUR|GBP|ID|QR|SKU|FCM|APNs|Firebase|YouTube|Vimeo|Wistia|Bunny|Cloudflare|Instagram|Facebook|TikTok|X|LinkedIn|Telegram|E-mail|Email:?)$/;
+  /^(?:Yallapp|WordPress|WhatsApp|Google Play|App Store|Galaxy Store|AppGallery|GetApps|Android|iOS|iPhone|Shopify|Kashier|API|APK|AAB|PNG|JPEG|PDF|SVG|MP4|URL|HTTPS?|JSON|CSV|XML|XLIFF|OK|UTC|EGP|USD|TRY|EUR|GBP|ID|QR|SKU|FCM|APNs|Firebase|YouTube|Vimeo|Wistia|Bunny|Cloudflare|Instagram|Facebook|TikTok|X|LinkedIn|Telegram|E-mail|Email:?)$/;
 
 export interface Finding {
   file: string;

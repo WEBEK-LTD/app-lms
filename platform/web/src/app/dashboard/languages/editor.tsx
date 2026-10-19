@@ -13,6 +13,20 @@ import { MAX_LANGUAGES } from "@/lib/i18n/locales";
 import type { TranslationRow } from "@/lib/i18n/translations";
 import type { Plan } from "@/lib/plans";
 import { LanguageList } from "./language-list";
+import { useDashFormat, useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { appLanguageName } from "@/lib/i18n/language-names";
+import type { DashT } from "@/i18n/dashboard";
+
+/** 56 "Home › block 2 › heading": each part in the dashboard's language when its words are known (page names are the owner's). */
+function whereIn(where: string, known: (english: string) => string): string {
+  return where
+    .split(" › ")
+    .map((part) => {
+      const entry = part.match(/^(Slide|Link|Quote|Question|Person|Number) (\d+) (.+)$/);
+      return entry ? `${known(entry[1]!)} ${entry[2]} ${known(entry[3]!)}` : known(part);
+    })
+    .join(" › ");
+}
 
 /** 43 The Languages page: the app's languages, and every text in the one being translated. */
 
@@ -56,6 +70,9 @@ export function LanguagesEditor({
   previewDraft: boolean;
   plan: { name: string; languages: number | null; upgrade: { id: Plan; name: string } | null };
 }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const { num } = useDashFormat();
   const router = useRouter();
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<Filter>(lang.builtIn ? "all" : "missing");
@@ -77,6 +94,8 @@ export function LanguagesEditor({
     setQuery("");
   }
 
+  const dashLang = useDashLang();
+  const englishName = appLanguageName("en", dashLang);
   const full = plan.languages !== null && languages.available.length >= plan.languages;
   const pending = Object.keys(edits).length;
   const valueOf = (row: TranslationRow) => edits[row.id] ?? row.value;
@@ -125,13 +144,13 @@ export function LanguagesEditor({
   function after(r: TranslationsResult, keepEdits = false) {
     if (r.ok) {
       setErrors([]);
-      setMessage({ text: r.message, ok: true });
+      setMessage({ text: known(r.message), ok: true });
       setStatus({ changes: r.changes, savedAt: r.savedAt, published: r.published });
       if (!keepEdits) setEdits({});
       router.refresh();
     } else {
       setErrors(r.errors);
-      setMessage({ text: "Not saved: fix the problems listed above.", ok: false });
+      setMessage({ text: t("languages.notSaved"), ok: false });
     }
   }
 
@@ -141,19 +160,19 @@ export function LanguagesEditor({
     try {
       after(await saveTranslationsAction(lang.code, edits));
     } catch {
-      setMessage({ text: "Couldn't save. Check your connection and try again.", ok: false });
+      setMessage({ text: t("languages.cantSave"), ok: false });
     } finally {
       setBusy(false);
     }
   }
 
   async function publish() {
-    if (pending && !window.confirm("You have translations that aren't saved. Publish without them?")) return;
+    if (pending && !window.confirm(t("languages.unsavedPublish"))) return;
     setBusy(true);
     try {
       after(await publishTranslationsAction(), true);
     } catch {
-      setMessage({ text: "Couldn't publish. Check your connection and try again.", ok: false });
+      setMessage({ text: t("languages.cantPublish"), ok: false });
     } finally {
       setBusy(false);
     }
@@ -165,7 +184,7 @@ export function LanguagesEditor({
       const r = await saveLanguagesAction({ default: next.default, available: next.available });
       after(r, true);
     } catch {
-      setMessage({ text: "Couldn't save the languages. Check your connection and try again.", ok: false });
+      setMessage({ text: t("languages.cantSaveLanguages"), ok: false });
     } finally {
       setBusy(false);
     }
@@ -190,20 +209,20 @@ export function LanguagesEditor({
     event.target.value = "";
     if (!file) return;
     if (file.size > 3_000_000) {
-      setMessage({ text: "The file is too large.", ok: false });
+      setMessage({ text: t("languages.fileLarge"), ok: false });
       return;
     }
     const result = parseImport(file.name, await file.text());
     if (result.error) {
-      setMessage({ text: result.error, ok: false });
+      setMessage({ text: known(result.error), ok: false });
       return;
     }
-    const known = new Map(rows.map((r) => [r.id, r]));
+    const byId = new Map(rows.map((r) => [r.id, r]));
     const next = { ...edits };
     let used = 0;
     let unknown = 0;
     for (const [id, text] of Object.entries(result.translations)) {
-      const row = known.get(id);
+      const row = byId.get(id);
       if (!row) {
         unknown += 1;
         continue;
@@ -214,9 +233,9 @@ export function LanguagesEditor({
       used += 1;
     }
     setEdits(next);
-    const other = result.language && result.language !== lang.code ? ` The file is for ${result.language}; its texts were added to ${lang.name}.` : "";
+    const other = result.language && result.language !== lang.code ? t("languages.otherLanguage", { file: result.language, language: lang.name }) : "";
     setMessage({
-      text: `${used} translation${used === 1 ? "" : "s"} imported${unknown ? `, ${unknown} didn't match a text of this app` : ""}. Check them, then save.${other}`,
+      text: `${unknown ? t("languages.importedUnknown", { count: used, unknown }) : t("languages.imported", { count: used })}${other}`,
       ok: true,
     });
     setFilter("all");
@@ -224,48 +243,52 @@ export function LanguagesEditor({
 
   return (
     <div className="flex flex-col gap-6">
-      <Section id="app-languages" titleId="h-app-languages" title="Your app's languages" description="The order here is the order of the language picker in the app.">
+      <Section id="app-languages" titleId="h-app-languages" title={t("languages.yourLanguages")} description={t("languages.orderText")}>
         <LanguageList languages={languages} onChange={(next) => void changeLanguages(next)} full={full} max={MAX_LANGUAGES} />
         {full && plan.languages !== null ? (
-          <UpgradeHint title="More app languages" to={plan.upgrade}>
-            The {plan.name} plan includes {plan.languages} app language{plan.languages === 1 ? "" : "s"}.
+          <UpgradeHint title={t("pages.moreLanguages")} to={plan.upgrade} cta={plan.upgrade ? t("overview.upgradeTo", { plan: plan.upgrade.name }) : undefined}>
+            {t("pages.planLanguages", { plan: plan.name, count: plan.languages })}
           </UpgradeHint>
         ) : null}
       </Section>
 
-      <section aria-label="Draft and publishing" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <section aria-label={t("languages.draftSection")} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
             <p role="status" className="m-0 text-[15px] font-semibold">
-              {busy ? "Working…" : pending ? `${pending} unsaved change${pending === 1 ? "" : "s"}` : `Draft saved ${formatDateTime(new Date(status.savedAt))}`}
+              {busy
+                ? t("languages.working")
+                : pending
+                  ? t("languages.unsaved", { count: pending })
+                  : t("languages.savedAt", { date: formatDateTime(new Date(status.savedAt), dashLang) })}
             </p>
             <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-muted">
-              {status.published ? `Published version ${status.published}.` : "Not published yet."}
-              {status.changes ? <Badge tone="warn">Unpublished changes</Badge> : null}
+              {status.published ? t("languages.publishedVersion", { version: status.published }) : t("languages.notPublished")}
+              {status.changes ? <Badge tone="warn">{t("languages.unpublished")}</Badge> : null}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <a href={previewHref} target="_blank" rel="noopener" className={`${btn.secondary} h-9 px-3.5 text-sm`}>
               <Icon name="visibility" size={18} />
-              Preview in {lang.name}
+              {t("languages.previewIn", { language: lang.name })}
               <Icon name="open_in_new" size={16} />
-              <span className="sr-only"> (opens in a new tab)</span>
+              <span className="sr-only">{t("common.opensInNewTab")}</span>
             </a>
             <button type="button" className={`${btn.secondary} h-9 px-3.5 text-sm`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
-              Save translations
+              {t("languages.saveTranslations")}
             </button>
             <button type="button" className={`${btn.primary} h-9 px-4 text-sm`} disabled={busy} onClick={() => void publish()}>
-              Publish
+              {t("languages.publish")}
             </button>
           </div>
         </div>
-        {previewDraft ? null : <p className="m-0 text-sm text-muted">The preview shows what&apos;s published: publish to see your changes there.</p>}
+        {previewDraft ? null : <p className="m-0 text-sm text-muted">{t("languages.previewPublished")}</p>}
         {errors.length ? (
           <div role="alert" className="rounded-xl bg-danger-bg px-4 py-3 text-[15px] text-danger">
-            <p className="m-0 font-semibold">Fix these to save and publish:</p>
-            <ul className="m-0 mt-1 list-disc pl-5">
+            <p className="m-0 font-semibold">{t("languages.fix")}</p>
+            <ul className="m-0 mt-1 list-disc ps-5">
               {errors.map((e, i) => (
-                <li key={i}>{e}</li>
+                <li key={i}>{known(e)}</li>
               ))}
             </ul>
           </div>
@@ -277,8 +300,8 @@ export function LanguagesEditor({
         ) : null}
       </section>
 
-      <Section id="translations" titleId="h-translations" title="Translations" description="Choose a language, then write each text in it. Empty texts show the language's fallback.">
-        <nav aria-label="Language to translate" className="flex flex-wrap gap-2">
+      <Section id="translations" titleId="h-translations" title={t("languages.translations")} description={t("languages.translationsText")}>
+        <nav aria-label={t("languages.toTranslate")} className="flex flex-wrap gap-2">
           {summaries.map((s) => {
             const current = s.code === lang.code;
             return (
@@ -287,14 +310,12 @@ export function LanguagesEditor({
                 href={`/dashboard/languages?lang=${encodeURIComponent(s.code)}`}
                 aria-current={current ? "page" : undefined}
                 onClick={(e) => {
-                  if (pending && !current && !window.confirm("Leave without saving your changes?")) e.preventDefault();
+                  if (pending && !current && !window.confirm(t("common.leaveUnsaved"))) e.preventDefault();
                 }}
                 className={`flex flex-col items-start gap-0.5 rounded-xl border px-3.5 py-2 text-sm no-underline ${current ? "border-midnight bg-midnight text-white hover:text-white" : "border-line-strong bg-white text-midnight hover:border-midnight"}`}
               >
                 <span className="font-semibold">{s.name}</span>
-                <span className={current ? "text-white/80" : "text-muted"}>
-                  {s.done} of {s.total}
-                </span>
+                <span className={current ? "text-white/80" : "text-muted"}>{t("languages.doneOf", { done: s.done, total: s.total })}</span>
               </Link>
             );
           })}
@@ -302,22 +323,29 @@ export function LanguagesEditor({
 
         <div className="flex flex-col gap-2">
           <p className="m-0 text-[15px] font-semibold" id="progress-label">
-            {lang.name}: {summary?.done ?? 0} of {summary?.total ?? rows.length} translated ({summary && summary.total ? Math.floor((summary.done / summary.total) * 100) : 0}%)
+            {t("languages.progress", {
+              language: lang.name,
+              done: summary?.done ?? 0,
+              total: summary?.total ?? rows.length,
+              percent: summary && summary.total ? Math.floor((summary.done / summary.total) * 100) : 0,
+            })}
           </p>
-          <ProgressBar value={summary?.done ?? 0} max={summary?.total ?? rows.length} label={`${lang.name} translated`} tone={summary && summary.done >= summary.total ? "success" : "accent"} />
+          <ProgressBar value={summary?.done ?? 0} max={summary?.total ?? rows.length} label={t("languages.progressLabel", { language: lang.name })} tone={summary && summary.done >= summary.total ? "success" : "accent"} />
           <p className="m-0 text-sm text-muted">
             {lang.isDefault
-              ? `${lang.name} is your default language: you write your pages in it on Pages & look. Here you can change the app's own texts in it.`
+              ? t("languages.isDefault", { language: lang.name })
               : lang.builtIn
-                ? `Yallapp's ${lang.name} is filled in for the app and for the texts Yallapp wrote. Write your own wherever you like; yours always wins. Empty texts show Yallapp's, else the ${defaultName} text.`
-                : `A text you haven't translated shows in ${defaultName === "English" ? "English" : `${defaultName} (your pages) or English (the app's own texts)`}.`}
+                ? t("languages.builtIn", { language: lang.name, default: defaultName })
+                : languages.default === "en"
+                  ? t("languages.fallbackEnglish")
+                  : t("languages.fallbackDefault", { default: defaultName })}
           </p>
         </div>
 
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1.5">
             <label htmlFor="tr-search" className="text-sm font-semibold">
-              Search
+              {t("languages.search")}
             </label>
             <input
               id="tr-search"
@@ -327,13 +355,13 @@ export function LanguagesEditor({
                 setQuery(e.target.value);
                 setPage(0);
               }}
-              placeholder="A word, a text or a key"
+              placeholder={t("languages.searchPlaceholder")}
               className="input input-sm"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="tr-group" className="text-sm font-semibold">
-              Texts
+              {t("languages.texts")}
             </label>
             <select
               id="tr-group"
@@ -344,14 +372,14 @@ export function LanguagesEditor({
               }}
               className="input input-sm"
             >
-              <option value="all">All texts</option>
-              <option value="content">Your pages and tabs ({contentCount})</option>
-              <option value="interface">The app&apos;s own texts ({rows.length - contentCount})</option>
+              <option value="all">{t("languages.allTexts")}</option>
+              <option value="content">{t("languages.yourTexts", { count: contentCount })}</option>
+              <option value="interface">{t("languages.appTexts", { count: rows.length - contentCount })}</option>
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="tr-filter" className="text-sm font-semibold">
-              Show
+              {t("languages.show")}
             </label>
             <select
               id="tr-filter"
@@ -362,15 +390,15 @@ export function LanguagesEditor({
               }}
               className="input input-sm"
             >
-              <option value="missing">Missing</option>
-              <option value="all">All</option>
-              <option value="mine">Written by you</option>
+              <option value="missing">{t("languages.missing")}</option>
+              <option value="all">{t("languages.all")}</option>
+              <option value="mine">{t("languages.mine")}</option>
             </select>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold text-muted">Export:</span>
+          <span className="text-sm font-semibold text-muted">{t("languages.export")}</span>
           {(["csv", "json", "xliff"] as const).map((f) => (
             <button key={f} type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => exportAs(f)}>
               <Icon name="download" size={18} />
@@ -379,41 +407,56 @@ export function LanguagesEditor({
           ))}
           <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => fileInput.current?.click()}>
             <Icon name="upload" size={18} />
-            Import a file
+            {t("languages.importFile")}
           </button>
-          <input ref={fileInput} type="file" accept=".csv,.json,.xlf,.xliff,.xml,text/csv,application/json" className="sr-only" aria-label="Import translations" onChange={(e) => void importFile(e)} />
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".csv,.json,.xlf,.xliff,.xml,text/csv,application/json"
+            className="sr-only"
+            aria-label={t("languages.importLabel")} onChange={(e) => void importFile(e)} />
         </div>
 
         {visible.length === 0 ? (
           <p className="m-0 rounded-xl bg-sand px-4 py-6 text-center text-[15px] text-muted">
-            {filter === "missing" && !query ? `Every text is translated into ${lang.name}.` : "No texts match."}
+            {filter === "missing" && !query ? t("languages.allDone", { language: lang.name }) : t("languages.noMatch")}
           </p>
         ) : (
-          <ol className="m-0 flex list-none flex-col gap-3 p-0" aria-label={`Texts in ${lang.name}`}>
+          <ol className="m-0 flex list-none flex-col gap-3 p-0" aria-label={t("languages.textsIn", { language: lang.name })}>
             {visible.map((row) => (
-              <RowEditor key={row.id} row={row} value={valueOf(row)} edited={row.id in edits} lang={lang} defaultName={defaultName} problem={problems[row.id]} onChange={(v) => edit(row.id, v)} />
+              <RowEditor
+                key={row.id}
+                row={row}
+                value={valueOf(row)}
+                edited={row.id in edits}
+                lang={lang}
+                defaultName={defaultName}
+                englishName={englishName}
+                problem={problems[row.id]}
+                onChange={(v) => edit(row.id, v)}
+                t={t}
+                known={known}
+              />
             ))}
           </ol>
         )}
 
         {pages > 1 ? (
-          <nav aria-label="Pages of texts" className="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label={t("languages.pagesOf")} className="flex flex-wrap items-center justify-between gap-2">
             <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} disabled={at === 0} onClick={() => setPage(at - 1)}>
-              Previous
+              {t("common.previous")}
             </button>
-            <span className="text-sm text-muted">
-              {at * PAGE_SIZE + 1} to {Math.min(shown.length, (at + 1) * PAGE_SIZE)} of {shown.length}
-            </span>
+            <span className="text-sm text-muted">{t("languages.range", { from: at * PAGE_SIZE + 1, to: Math.min(shown.length, (at + 1) * PAGE_SIZE), total: shown.length })}</span>
             <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} disabled={at >= pages - 1} onClick={() => setPage(at + 1)}>
-              Next
+              {t("common.next")}
             </button>
           </nav>
         ) : null}
 
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {blocking ? <span className="text-sm font-semibold text-danger">Fix {blocking === 1 ? "one text" : `${blocking} texts`} before saving.</span> : null}
+          {blocking ? <span className="text-sm font-semibold text-danger">{t("languages.fixBefore", { count: blocking })}</span> : null}
           <button type="button" className={`${btn.primary} h-10 px-4 text-sm`} disabled={busy || !pending || blocking > 0} onClick={() => void save()}>
-            Save translations{pending ? ` (${pending})` : ""}
+            {pending ? t("languages.saveCount", { count: num(pending) }) : t("languages.saveTranslations")}
           </button>
         </div>
       </Section>
@@ -427,20 +470,28 @@ function RowEditor({
   edited,
   lang,
   defaultName,
+  englishName,
   problem,
   onChange,
+  t,
+  known,
 }: {
   row: TranslationRow;
   value: string;
   edited: boolean;
   lang: LangInfo;
   defaultName: string;
+  /** "English" in the dashboard's language: the app's own texts come in it. */
+  englishName: string;
   problem?: { errors: string[]; warnings: string[] };
   onChange: (value: string) => void;
+  t: DashT;
+  known: (english: string) => string;
 }) {
   const field = useRef<HTMLTextAreaElement>(null);
   const id = `row-${row.id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
-  const sourceName = row.kind === "content" ? defaultName : "English";
+  const sourceName = row.kind === "content" ? defaultName : englishName;
+  const where = row.kind === "content" ? whereIn(row.where, known) : row.where;
   const placeholders = Object.keys(row.placeholders ?? {});
 
   function insert(name: string) {
@@ -460,20 +511,31 @@ function RowEditor({
     <li className="flex flex-col gap-2 rounded-xl border border-line p-4" data-row-id={row.id}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="min-w-0 text-xs font-semibold text-muted">
-          {row.kind === "content" ? row.where : <code className="font-mono">{row.id}</code>}
-          {row.kind === "interface" && row.where ? <span className="font-normal"> · {row.where}</span> : null}
+          {row.kind === "content" ? where : <code className="font-mono">{row.id}</code>}
+          {row.kind === "interface" && row.where ? (
+            <span className="font-normal" lang="en" dir="ltr">
+              {" "}
+              · {row.where}
+            </span>
+          ) : null}
         </span>
         <span className="flex flex-wrap gap-1.5">
-          {edited ? <Badge tone="info">Not saved</Badge> : null}
-          {value.trim() ? <Badge tone="success">Yours</Badge> : row.builtin ? <Badge tone="neutral">Yallapp&apos;s translation</Badge> : <Badge tone="warn">Missing</Badge>}
+          {edited ? <Badge tone="info">{t("languages.notSavedBadge")}</Badge> : null}
+          {value.trim() ? (
+            <Badge tone="success">{t("languages.yours")}</Badge>
+          ) : row.builtin ? (
+            <Badge tone="neutral">{t("languages.yallappsTranslation")}</Badge>
+          ) : (
+            <Badge tone="warn">{t("languages.missingBadge")}</Badge>
+          )}
         </span>
       </div>
-      <p className="m-0 rounded-lg bg-sand px-3 py-2 text-[15px] break-words whitespace-pre-wrap" id={`${id}-source`}>
+      <p className="m-0 rounded-lg bg-sand px-3 py-2 text-[15px] break-words whitespace-pre-wrap" id={`${id}-source`} dir="auto">
         <span className="sr-only">{sourceName}: </span>
         {row.source}
       </p>
       <label htmlFor={id} className="sr-only">
-        {lang.name} for {row.kind === "content" ? row.where : row.id}
+        {t("languages.forRow", { language: lang.name, where: row.kind === "content" ? where : row.id })}
       </label>
       <textarea
         ref={field}
@@ -482,7 +544,7 @@ function RowEditor({
         dir={lang.rtl ? "rtl" : "ltr"}
         lang={lang.code}
         rows={row.source.length > 80 || row.html ? 3 : 1}
-        placeholder={row.builtin ?? `Shows the ${sourceName} text until you translate it`}
+        placeholder={row.builtin ?? t("languages.showsUntil", { language: sourceName })}
         aria-describedby={`${id}-source${problem ? ` ${id}-problem` : ""}`}
         aria-invalid={problem?.errors.length ? true : undefined}
         onChange={(e) => onChange(e.target.value)}
@@ -492,26 +554,26 @@ function RowEditor({
         <div id={`${id}-problem`} className="flex flex-col gap-0.5 text-sm">
           {problem.errors.map((e) => (
             <span key={e} role="alert" className="font-semibold text-danger">
-              {e}
+              {known(e)}
             </span>
           ))}
           {problem.warnings.map((w) => (
             <span key={w} className="text-muted">
-              {w}
+              {known(w)}
             </span>
           ))}
         </div>
       ) : null}
       <div className="flex flex-wrap items-center gap-2">
         {placeholders.length ? (
-          <span className="flex flex-wrap items-center gap-1.5" aria-label="Placeholders the app fills in">
+          <span className="flex flex-wrap items-center gap-1.5" aria-label={t("languages.placeholders")}>
             {placeholders.map((p) => (
               <button
                 key={p}
                 type="button"
                 className="rounded-full border border-line-strong bg-ivory px-2.5 py-0.5 font-mono text-xs font-semibold text-midnight hover:border-midnight"
                 onClick={() => insert(p)}
-                title={`Insert {${p}}: the app puts the ${row.placeholders?.[p] === "int" ? "number" : "value"} here`}
+                title={row.placeholders?.[p] === "int" ? t("languages.insertNumber", { placeholder: `{${p}}` }) : t("languages.insertValue", { placeholder: `{${p}}` })}
               >
                 {`{${p}}`}
               </button>
@@ -519,17 +581,17 @@ function RowEditor({
           </span>
         ) : null}
         <button type="button" className="text-sm font-semibold text-accent underline-offset-2 hover:underline" onClick={() => onChange(row.source)}>
-          <Icon name="content_copy" size={16} className="mr-1 align-[-3px]" />
-          Copy {sourceName}
+          <Icon name="content_copy" size={16} className="me-1 align-[-3px]" />
+          {t("languages.copySource", { language: sourceName })}
         </button>
         {row.builtin && !value.trim() ? (
           <button type="button" className="text-sm font-semibold text-accent underline-offset-2 hover:underline" onClick={() => onChange(row.builtin!)}>
-            Change Yallapp&apos;s
+            {t("languages.changeYallapps")}
           </button>
         ) : null}
         {value ? (
           <button type="button" className="text-sm font-semibold text-muted underline-offset-2 hover:underline" onClick={() => onChange("")}>
-            Clear
+            {t("languages.clear")}
           </button>
         ) : null}
       </div>

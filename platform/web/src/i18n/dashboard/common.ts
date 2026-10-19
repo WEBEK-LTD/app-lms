@@ -74,6 +74,7 @@ export const en = {
   readOnly: "Read only",
   upgrade: "Upgrade",
   utc: "{time} UTC",
+  leaveUnsaved: "Leave without saving your changes?",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -136,6 +137,7 @@ export const ar: Messages = {
   readOnly: "للعرض فقط",
   upgrade: "ترقية",
   utc: "{time} بالتوقيت العالمي",
+  leaveUnsaved: "هل تريد المغادرة دون حفظ تغييراتك؟",
 };
 
 export const tr: Messages = {
@@ -196,4 +198,5 @@ export const tr: Messages = {
   readOnly: "Salt okunur",
   upgrade: "Yükselt",
   utc: "{time} UTC",
+  leaveUnsaved: "Değişikliklerinizi kaydetmeden çıkılsın mı?",
 };
