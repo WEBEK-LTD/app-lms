@@ -70,7 +70,7 @@ export function MarkdownBlocks({
       case "h": {
         const Heading = `h${b.level}` as "h2" | "h3" | "h4";
         return (
-          <Heading key={i} id={anchors ? headingId(inlineText(b.c)) : undefined} className={anchors ? "scroll-mt-6" : undefined}>
+          <Heading key={i} id={anchors ? (b.id ?? headingId(inlineText(b.c))) : undefined} className={anchors ? "scroll-mt-6" : undefined}>
             <InlineNodes nodes={b.c} lang={lang} />
           </Heading>
         );

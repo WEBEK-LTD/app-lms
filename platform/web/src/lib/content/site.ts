@@ -346,6 +346,8 @@ export function parseFaq(source: string): FaqSection[] {
 
 export interface GuideStepDoc {
   title: string;
+  /** 55 Its anchor when the heading gives one ("{#id}"), else one is made from the title. */
+  id?: string;
   body: Block[];
   notice: Block[] | null;
 }
@@ -372,11 +374,12 @@ export function parseGuide(source: string): GuideDoc {
     }
     if (block.t === "h" && block.level === 2 && section !== "outro") {
       const title = inlineText(block.c).trim();
-      if (/^before you start$/i.test(title) && !doc.before) {
+      // 55 "Before you start" in English, Arabic or Turkish.
+      if (/^(before you start|قبل أن تبدأ|başlamadan önce)$/i.test(title) && !doc.before) {
         doc.before = { title, items: [] };
         section = "before";
       } else {
-        doc.steps.push({ title, body: [], notice: null });
+        doc.steps.push(block.id ? { title, id: block.id, body: [], notice: null } : { title, body: [], notice: null });
         section = "step";
       }
       return;

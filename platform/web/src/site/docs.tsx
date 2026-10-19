@@ -135,7 +135,7 @@ export async function DocPage({ lang, slug }: { lang: Lang; slug: string }) {
   const index = links.findIndex((l) => l.href === here);
   const previous = index > 0 ? links[index - 1] : null;
   const next = index >= 0 && index < links.length - 1 ? links[index + 1] : null;
-  const ids = doc.steps.map((step) => headingId(step.title));
+  const ids = doc.steps.map((step) => step.id ?? headingId(step.title));
 
   return (
     <DocsShell current={`/docs/${article.slug}`} lang={lang}>

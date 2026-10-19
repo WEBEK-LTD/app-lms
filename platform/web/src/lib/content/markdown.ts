@@ -18,7 +18,7 @@ export type Inline =
 
 export type Block =
   | { t: "p"; c: Inline[] }
-  | { t: "h"; level: 2 | 3 | 4; c: Inline[] }
+  | { t: "h"; level: 2 | 3 | 4; c: Inline[]; /** 55 An anchor given as "{#id}" at the end (a translated heading keeps the English one). */ id?: string }
   | { t: "ul"; items: Inline[][] }
   | { t: "ol"; start: number; items: Inline[][] }
   | { t: "quote"; blocks: Block[] }
@@ -73,7 +73,9 @@ export function parseMarkdown(source: string): Block[] {
     const heading = HEADING.exec(trimmed);
     if (heading) {
       const level = Math.max(2, heading[1]!.length) as 2 | 3 | 4;
-      blocks.push({ t: "h", level, c: parseInline(heading[2]!.replace(/\s+#+$/, "")) });
+      const text = heading[2]!.replace(/\s+#+$/, "");
+      const anchor = text.match(/\s*\{#([a-z0-9-]+)\}$/);
+      blocks.push(anchor ? { t: "h", level, c: parseInline(text.slice(0, anchor.index)), id: anchor[1]! } : { t: "h", level, c: parseInline(text) });
       i += 1;
       continue;
     }
