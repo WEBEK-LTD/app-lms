@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { FEATURED_PLAN, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo } from "@/lib/plans";
+import { FEATURED_PLAN, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
+
+/** 52 The line under the plans: which currency the prices are in, and what a card is charged in. */
+export function currencyNote(view: PriceView): string {
+  return view.display === "EGP"
+    ? "Prices in Egyptian pounds (EGP). Card payments go through Kashier."
+    : "Prices in US dollars. Card payments go through Kashier and are charged in Egyptian pounds (EGP); your bank converts the amount.";
+}
 import { StoreMarks } from "./brand-marks";
 import { Icon } from "./icon";
 
@@ -7,18 +14,20 @@ import { Icon } from "./icon";
  * 32 The plans side by side, as on the pricing page and the home page: name,
  * price, key limits, the stores (41), highlights and a button. Four columns
  * on wide screens, two on tablets, and a row to swipe through on phones.
+ * 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
  */
-export function PlanCards({ plans, headingLevel = 2 }: { plans: PlanInfo[]; headingLevel?: 2 | 3 }) {
+export function PlanCards({ plans, view, headingLevel = 2 }: { plans: PlanInfo[]; view: PriceView; headingLevel?: 2 | 3 }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <ul
       aria-label="Plans"
       data-pricing-plans=""
+      data-currency={view.display}
       className="-mx-4 flex list-none snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pt-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-4"
     >
       {plans.map((plan) => {
         const featured = plan.id === FEATURED_PLAN;
-        const shown = planPrice(plan);
+        const shown = planPrice(plan, view);
         const { stores } = planStores(plan);
         return (
           <li

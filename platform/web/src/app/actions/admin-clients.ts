@@ -159,6 +159,7 @@ export async function resendLicenseEmailAction(formData: FormData): Promise<void
     active_until: formatDate(license!.expiresAt),
     license_key: revealLicenseKey(license!, encryptionKey()),
     dashboard_url: `${appUrl()}/dashboard`,
+    payment_line: "",
   }).catch((error: unknown) => console.error("[mail] license email failed", error));
   await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again${onApp(app, apps)}` });
   back(client.id, "done=license-sent");

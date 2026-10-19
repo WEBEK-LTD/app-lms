@@ -92,7 +92,7 @@ describe("platform settings", () => {
 
 describe("plans from the admin", () => {
   it("keeps the defaults until the team edits a plan", async () => {
-    const { PLAN_INFO, plansWith, planPrice } = await import("@/lib/plans");
+    const { PLAN_INFO, plansWith, planPrice, planSettingOf } = await import("@/lib/plans");
     expect(plansWith(null)).toEqual(PLAN_INFO);
     const plans = plansWith({
       pro: {
@@ -102,7 +102,8 @@ describe("plans from the admin", () => {
         highlights: ["Automatic publishing"],
         price: "On request",
         priceCents: 480000,
-        currency: "TRY",
+        usdCents: 9900,
+        onRequest: false,
         billingMonths: 12,
         features: ["push", "auto_publish"],
         limits: { ...PLAN_INFO.pro.limits, appUsers: 50_000 },
@@ -114,15 +115,21 @@ describe("plans from the admin", () => {
         highlights: ["Android APK & AAB, iOS build"],
         price: "On request",
         priceCents: 120000,
-        currency: "TRY",
+        currency: "EGP",
         billingMonths: 12,
         features: ["push", "offline_downloads"],
       },
     });
     expect(plans.starter).toEqual(PLAN_INFO.starter);
     expect(plans.pro).toMatchObject({ id: "pro", name: "Premium", features: ["push", "auto_publish"], period: "year", limits: { appUsers: 50_000 } });
-    expect(planPrice(plans.pro)).toEqual({ price: "₺4,800.00", period: "year" });
+    // 52 Pounds by default and in Egypt; the plan's own dollar price elsewhere.
+    expect(planPrice(plans.pro)).toEqual({ price: "EGP\u00a04,800", period: "year" });
+    expect(planPrice(plans.pro, { display: "USD", egpPerUsd: 50 })).toEqual({ price: "$99", period: "year" });
     expect(planPrice(plans.starter)).toEqual({ price: "On request", period: null });
-    expect(plans.growth).toEqual({ ...PLAN_INFO.growth, priceCents: 120000, period: "year" });
+    expect(plans.growth).toEqual({ ...PLAN_INFO.growth, priceCents: 120000, onRequest: false, period: "year" });
+    // The team can keep a price and show "On request".
+    const hidden = plansWith({ pro: { ...planSettingOf(plans.pro), onRequest: true } });
+    expect(hidden.pro).toMatchObject({ priceCents: 480000, onRequest: true, period: null });
+    expect(planPrice(hidden.pro)).toEqual({ price: "On request", period: null });
   });
 });

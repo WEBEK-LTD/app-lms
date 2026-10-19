@@ -119,10 +119,11 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "active_until", description: "The last day of the plan", sample: "12 Oct 2027" },
       { name: "license_key", description: "The license key", sample: "YALL-AB12-CD34-EF56" },
       { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
+      { name: "payment_line", description: "52 The card payment and its receipt, and a blank line, after a card payment; empty when the team activated it", sample: "Paid: EGP 1,500 (about $30) by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
     ],
     subject: "Your Yallapp account is active",
     body:
-      "Hello {{name}},\n\nYour Yallapp account is active.\n\nApp: {{app_name}}\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n" +
+      "Hello {{name}},\n\nYour Yallapp account is active.\n\nApp: {{app_name}}\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n{{payment_line}}" +
       "Next steps:\n1. Install the Yallapp plugin on your WordPress site and paste your license key.\n" +
       "2. Set up your app in your dashboard: {{dashboard_url}}\n\n" +
       "You can always find your license key on the License & plugin page." +
@@ -138,9 +139,10 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "plan", description: "The plan's name", sample: "Pro" },
       { name: "active_until", description: "The new last day of the plan", sample: "12 Oct 2027" },
       { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
+      { name: "payment_line", description: "52 The card payment and its receipt, and a blank line, after a card payment; empty when the team activated it", sample: "Paid: EGP 1,500 (about $30) by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
     ],
     subject: "Your Yallapp plan has been renewed",
-    body: "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} is now active until {{active_until}}.\n\nDashboard: {{dashboard_url}}" + SIGNATURE,
+    body: "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} is now active until {{active_until}}.\n\n{{payment_line}}Dashboard: {{dashboard_url}}" + SIGNATURE,
   },
   {
     key: "build_ready",

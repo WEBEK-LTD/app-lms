@@ -116,6 +116,8 @@ export const clients = mysqlTable(
     status: varchar("status", { length: 16 }).notNull().$type<"pending" | "active" | "suspended">(),
     paymentNote: text("payment_note"),
     activatedAt: time("activated_at"),
+    // 52 The account's country: the currency Yallapp's prices are shown in.
+    country: varchar("country", { length: 2 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -581,6 +583,9 @@ export const planPayments = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there.
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 52 The price as the client saw it, when another currency than the charge (dollars outside Egypt).
+    shownCents: bigint("shown_cents", { mode: "number", unsigned: true }),
+    shownCurrency: varchar("shown_currency", { length: 3 }).$type<CatalogCurrency>(),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),

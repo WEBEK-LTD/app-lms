@@ -20,7 +20,8 @@ import { days, KEY, NOW, setupClient } from "./helpers";
 /** Several apps per account (roadmap 12): each app has its own plan, license, payments and builds. */
 
 const IYZICO: IyzicoKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
-const PLANS = plansWith({ starter: { ...PLAN_INFO.starter, highlights: [...PLAN_INFO.starter.highlights], features: [...PLAN_INFO.starter.features], priceCents: 30000, currency: "TRY", billingMonths: 1 } });
+const PLANS = plansWith({ starter: { ...PLAN_INFO.starter, highlights: [...PLAN_INFO.starter.highlights], features: [...PLAN_INFO.starter.features], priceCents: 30000, onRequest: false, billingMonths: 1 } });
+const EGP_300 = { cents: 30000, currency: "EGP" as const };
 
 function app(clientId: string, name: string, createdAt: Date, appType: App["appType"] = "lms"): App {
   return { ...newApp(clientId, null, createdAt, appType), appName: name };
@@ -69,6 +70,7 @@ describe("several apps in the memory store", () => {
       client: setup.client,
       plan: PLANS.starter,
       coupon: { ok: true, coupon: coupon(), fullCents: 30000, discountCents: 30000, amountCents: 0 },
+      charged: EGP_300,
       encryptionKey: KEY,
       now: NOW,
     });
@@ -216,6 +218,8 @@ describe("licenses and plans per app", () => {
         token = t;
         return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
       },
+      // 52 iyzico charges the dollar price.
+      offer: { charged: { cents: 600, currency: "USD" }, shown: { cents: 600, currency: "USD" } },
     });
     const payment = (await store.getPlanPaymentByToken(sha256Hex(token)))!;
     expect(payment).toMatchObject({ appId: second.id, plan: "starter" });
@@ -265,11 +269,11 @@ describe("licenses and plans per app", () => {
     const plan = PLANS.starter;
     const first = coupon({ firstPaymentOnly: true, discount: { kind: "percent", percent: 50 } });
     // The account was activated (its first app), but this app has no license yet.
-    expect(checkCoupon({ coupon: first, plan, client, license: null, redemptions: [], now: NOW }).ok).toBe(true);
-    expect(checkCoupon({ coupon: first, plan, client, license: { id: "l-1" }, redemptions: [], now: NOW })).toEqual({ ok: false, error: "This coupon is for a first payment only." });
+    expect(checkCoupon({ coupon: first, plan, charged: EGP_300, client, license: null, redemptions: [], now: NOW }).ok).toBe(true);
+    expect(checkCoupon({ coupon: first, plan, charged: EGP_300, client, license: { id: "l-1" }, redemptions: [], now: NOW })).toEqual({ ok: false, error: "This coupon is for a first payment only." });
     const once = coupon({ maxPerClient: 1, discount: { kind: "percent", percent: 50 } });
     const used = { couponId: once.id, paymentId: "p-1", clientId: "client-1", code: once.code, plan: "starter" as const, fullCents: 1, discountCents: 1, currency: "TRY" as const, status: "redeemed" as const, createdAt: NOW, redeemedAt: NOW };
-    expect(checkCoupon({ coupon: once, plan, client, license: null, redemptions: [used], now: NOW })).toEqual({ ok: false, error: "You've already used this coupon." });
+    expect(checkCoupon({ coupon: once, plan, charged: EGP_300, client, license: null, redemptions: [used], now: NOW })).toEqual({ ok: false, error: "You've already used this coupon." });
   });
 
   it("announcements by plan or app type reach an account when any of its apps matches", () => {

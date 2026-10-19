@@ -8,10 +8,14 @@ import { PLAN_INFO, plansWith } from "@/lib/plans";
 import { days, KEY, licenseOf, NOW, setupClient } from "./helpers";
 
 const IYZICO: IyzicoKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
+// 52 Plans are priced in Egyptian pounds.
 const PLANS = plansWith({
-  pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, currency: "TRY", billingMonths: 12 },
-  starter: { ...PLAN_INFO.starter, highlights: [], features: [], priceCents: 20000, currency: "USD", billingMonths: 1 },
+  pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, onRequest: false, billingMonths: 12 },
+  starter: { ...PLAN_INFO.starter, highlights: [], features: [], priceCents: 20000, onRequest: false, billingMonths: 1 },
 });
+const EGP = (cents: number) => ({ cents, currency: "EGP" as const });
+const USD = (cents: number) => ({ cents, currency: "USD" as const });
+const PRO = EGP(480000);
 
 function coupon(patch: Partial<Coupon> = {}): Coupon {
   return {
@@ -43,7 +47,7 @@ function use(patch: Partial<CouponRedemption> = {}): CouponRedemption {
     plan: "pro",
     fullCents: 480000,
     discountCents: 96000,
-    currency: "TRY",
+    currency: "EGP",
     status: "redeemed",
     createdAt: days(-1),
     redeemedAt: days(-1),
@@ -54,25 +58,26 @@ function use(patch: Partial<CouponRedemption> = {}): CouponRedemption {
 const client = { id: "client-1", activatedAt: null };
 
 describe("coupon prices", () => {
-  it("takes a percentage or a fixed amount in the plan's currency", () => {
-    expect(couponPrice({ kind: "percent", percent: 20 }, PLANS.pro)).toEqual({ fullCents: 480000, discountCents: 96000, amountCents: 384000 });
-    expect(couponPrice({ kind: "percent", percent: 33 }, { priceCents: 999, currency: "TRY" })).toEqual({ fullCents: 999, discountCents: 330, amountCents: 669 });
-    expect(couponPrice({ kind: "fixed", amounts: { TRY: 50000, USD: 1000 } }, PLANS.pro)).toEqual({ fullCents: 480000, discountCents: 50000, amountCents: 430000 });
-    expect(couponPrice({ kind: "fixed", amounts: { USD: 1000 } }, PLANS.starter)).toEqual({ fullCents: 20000, discountCents: 1000, amountCents: 19000 });
-    // No amount in the plan's currency: the coupon doesn't apply.
-    expect(couponPrice({ kind: "fixed", amounts: { EUR: 1000 } }, PLANS.pro)).toBeNull();
+  it("takes a percentage or a fixed amount in the charge's currency", () => {
+    expect(couponPrice({ kind: "percent", percent: 20 }, PRO)).toEqual({ fullCents: 480000, discountCents: 96000, amountCents: 384000 });
+    expect(couponPrice({ kind: "percent", percent: 33 }, EGP(999))).toEqual({ fullCents: 999, discountCents: 330, amountCents: 669 });
+    expect(couponPrice({ kind: "fixed", amounts: { EGP: 50000, USD: 1000 } }, PRO)).toEqual({ fullCents: 480000, discountCents: 50000, amountCents: 430000 });
+    // 52 iyzico charges the dollar price: the dollar amount off.
+    expect(couponPrice({ kind: "fixed", amounts: { EGP: 50000, USD: 1000 } }, USD(20000))).toEqual({ fullCents: 20000, discountCents: 1000, amountCents: 19000 });
+    // No amount in the charge's currency: the coupon doesn't apply.
+    expect(couponPrice({ kind: "fixed", amounts: { USD: 1000 } }, PRO)).toBeNull();
   });
 
   it("never goes below iyzico's minimum, and is free only at the whole price", () => {
-    expect(couponPrice({ kind: "fixed", amounts: { TRY: 479950 } }, PLANS.pro)).toEqual({ fullCents: 480000, discountCents: 480000 - MIN_CARD_CENTS, amountCents: MIN_CARD_CENTS });
-    expect(couponPrice({ kind: "percent", percent: 100 }, PLANS.pro)).toEqual({ fullCents: 480000, discountCents: 480000, amountCents: 0 });
-    expect(couponPrice({ kind: "fixed", amounts: { TRY: 9_000_000 } }, PLANS.pro)).toEqual({ fullCents: 480000, discountCents: 480000, amountCents: 0 });
+    expect(couponPrice({ kind: "fixed", amounts: { EGP: 479950 } }, PRO)).toEqual({ fullCents: 480000, discountCents: 480000 - MIN_CARD_CENTS, amountCents: MIN_CARD_CENTS });
+    expect(couponPrice({ kind: "percent", percent: 100 }, PRO)).toEqual({ fullCents: 480000, discountCents: 480000, amountCents: 0 });
+    expect(couponPrice({ kind: "fixed", amounts: { EGP: 9_000_000 } }, PRO)).toEqual({ fullCents: 480000, discountCents: 480000, amountCents: 0 });
   });
 });
 
 describe("coupon rules", () => {
   const check = (c: Coupon | null, redemptions: CouponRedemption[] = [], plan = PLANS.pro, who: { id: string; activatedAt: Date | null } = client) =>
-    checkCoupon({ coupon: c, plan, client: who, redemptions, now: NOW });
+    checkCoupon({ coupon: c, plan, charged: EGP(plan.priceCents!), client: who, redemptions, now: NOW });
 
   it("applies an active coupon", () => {
     expect(check(coupon())).toMatchObject({ ok: true, amountCents: 384000, discountCents: 96000 });
@@ -90,7 +95,7 @@ describe("coupon rules", () => {
     expect(check(coupon({ plans: ["starter"] }))).toEqual({ ok: false, error: "This coupon doesn't apply to the Pro plan." });
     expect(check(coupon({ periods: [1] }))).toEqual({ ok: false, error: "This coupon doesn't apply to yearly billing." });
     expect(check(coupon({ plans: ["pro"], periods: [12] })).ok).toBe(true);
-    expect(check(coupon({ discount: { kind: "fixed", amounts: { USD: 500 } } }))).toEqual({ ok: false, error: "This coupon doesn't apply to payments in TRY." });
+    expect(check(coupon({ discount: { kind: "fixed", amounts: { USD: 500 } } }))).toEqual({ ok: false, error: "This coupon doesn't apply to payments in EGP." });
   });
 
   it("keeps first-payment coupons for clients never activated", () => {
@@ -136,9 +141,9 @@ describe("the admin's coupon form", () => {
         active: true,
       },
     });
-    expect(form({ code: "PRO500", kind: "fixed", amountTRY: "500", amountUSD: "", amountEUR: "19,90" }, ["pro"], ["12"])).toMatchObject({
+    expect(form({ code: "PRO500", kind: "fixed", amountEGP: "500", amountUSD: "19,90" }, ["pro"], ["12"])).toMatchObject({
       ok: true,
-      coupon: { discount: { kind: "fixed", amounts: { TRY: 50000, EUR: 1990 } }, plans: ["pro"], periods: [12], active: false, maxRedemptions: null },
+      coupon: { discount: { kind: "fixed", amounts: { EGP: 50000, USD: 1990 } }, plans: ["pro"], periods: [12], active: false, maxRedemptions: null },
     });
   });
 
@@ -154,13 +159,13 @@ describe("the admin's coupon form", () => {
         maxPerClient: "Enter a whole number, or leave it empty for no limit.",
       },
     });
-    expect(form({ code: "FIXED", kind: "fixed" })).toEqual({ ok: false, errors: { amountTRY: "Enter the amount off in at least one currency." } });
+    expect(form({ code: "FIXED", kind: "fixed" })).toEqual({ ok: false, errors: { amountEGP: "Enter the amount off in at least one currency." } });
   });
 
   it("shows a saved coupon as it reads it", () => {
-    const saved = coupon({ discount: { kind: "fixed", amounts: { TRY: 50000 } }, plans: ["pro"], validUntil: new Date("2026-10-31T23:59:59.999Z") });
+    const saved = coupon({ discount: { kind: "fixed", amounts: { EGP: 50000 } }, plans: ["pro"], validUntil: new Date("2026-10-31T23:59:59.999Z") });
     const values = couponFormValues(saved);
-    expect(values).toMatchObject({ kind: "fixed", amountTRY: "500.00", plans: "pro", periods: "1,12", validUntil: "2026-10-31" });
+    expect(values).toMatchObject({ kind: "fixed", amountEGP: "500.00", plans: "pro", periods: "1,12", validUntil: "2026-10-31" });
     const { firstPaymentOnly, active, plans, periods, ...text } = values;
     const read = form({ ...text, ...(firstPaymentOnly ? { firstPaymentOnly: "on" } : {}), ...(active ? { active: "on" } : {}) }, plans.split(","), periods.split(","));
     expect(read).toMatchObject({ ok: true, coupon: { discount: saved.discount, plans: saved.plans, validUntil: saved.validUntil } });
@@ -185,7 +190,8 @@ describe("plan payments with a coupon", () => {
   it("charges the lowered price and records the use with the payment", async () => {
     const setup = await setupClient({ activate: false });
     await setup.store.createCoupon(coupon());
-    const check = await findCoupon(setup.store, { code: "welcome20", plan: PLANS.pro, client: setup.client, now: NOW });
+    // 52 With iyzico (the team's choice), the dollar price is charged.
+    const check = await findCoupon(setup.store, { code: "welcome20", plan: PLANS.pro, charged: USD(480000), client: setup.client, now: NOW });
     expect(check).toMatchObject({ ok: true, amountCents: 384000 });
     if (!check.ok) return;
     const iyzico = fakeIyzico();
@@ -205,8 +211,9 @@ describe("plan payments with a coupon", () => {
         return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
       },
       coupon: check,
+      offer: { charged: USD(384000), shown: USD(384000) },
     });
-    expect(iyzico.started[0]).toMatchObject({ price: "3840.00", paidPrice: "3840.00", basketItems: [{ price: "3840.00" }] });
+    expect(iyzico.started[0]).toMatchObject({ price: "3840.00", paidPrice: "3840.00", currency: "USD", basketItems: [{ price: "3840.00" }] });
     const payment = (await setup.store.getPlanPaymentByToken(sha256Hex(token)))!;
     expect(payment.amountCents).toBe(384000);
     expect(await setup.store.listCouponRedemptions({ couponId: coupon().id })).toMatchObject([{ paymentId: payment.id, status: "pending", fullCents: 480000, discountCents: 96000 }]);
@@ -220,18 +227,18 @@ describe("plan payments with a coupon", () => {
   it("activates without a card payment when the coupon takes the whole price", async () => {
     const setup = await setupClient({ activate: false });
     await setup.store.createCoupon(coupon({ code: "FREEPRO", discount: { kind: "percent", percent: 100 }, maxPerClient: 1 }));
-    const check = await findCoupon(setup.store, { code: "FreePro", plan: PLANS.pro, client: setup.client, now: NOW });
+    const check = await findCoupon(setup.store, { code: "FreePro", plan: PLANS.pro, charged: PRO, client: setup.client, now: NOW });
     if (!check.ok) throw new Error(check.error);
-    const outcome = await activateWithFreeCoupon({ store: setup.store, client: setup.client, plan: PLANS.pro, coupon: check, encryptionKey: KEY, now: NOW });
+    const outcome = await activateWithFreeCoupon({ store: setup.store, client: setup.client, plan: PLANS.pro, coupon: check, charged: PRO, encryptionKey: KEY, now: NOW });
     expect(outcome.activation.created).toBe(true);
-    expect(outcome.payment).toMatchObject({ amountCents: 0, status: "paid", paymentId: null, paidAt: NOW });
+    expect(outcome.payment).toMatchObject({ amountCents: 0, currency: "EGP", status: "paid", paymentId: null, paidAt: NOW });
     expect(await setup.store.listPlanPayments({ clientId: setup.client.id, limit: 5 })).toMatchObject([{ amountCents: 0, status: "paid" }]);
     expect(await setup.store.listCouponRedemptions({ clientId: setup.client.id })).toMatchObject([{ code: "FREEPRO", status: "redeemed", discountCents: 480000 }]);
     const license = (await licenseOf(setup.store, setup.client.id))!;
     expect(license.plan).toBe("pro");
     expect(license.expiresAt.getUTCFullYear()).toBe(NOW.getUTCFullYear() + 1);
     // The coupon was for one use per client.
-    const again = await findCoupon(setup.store, { code: "FREEPRO", plan: PLANS.pro, client: setup.client, now: NOW });
+    const again = await findCoupon(setup.store, { code: "FREEPRO", plan: PLANS.pro, charged: PRO, client: setup.client, now: NOW });
     expect(again).toEqual({ ok: false, error: "You've already used this coupon." });
   });
 
@@ -239,6 +246,6 @@ describe("plan payments with a coupon", () => {
     const setup = await setupClient({ activate: false });
     expect(await setup.store.createCoupon(coupon())).toBe(true);
     expect(await setup.store.createCoupon(coupon({ id: "c0ffee00-0000-4000-8000-000000000002" }))).toBe(false);
-    expect(await findCoupon(setup.store, { code: "nope", plan: PLANS.pro, client: setup.client, now: NOW })).toEqual({ ok: false, error: "This coupon code isn't valid." });
+    expect(await findCoupon(setup.store, { code: "nope", plan: PLANS.pro, charged: PRO, client: setup.client, now: NOW })).toEqual({ ok: false, error: "This coupon code isn't valid." });
   });
 });

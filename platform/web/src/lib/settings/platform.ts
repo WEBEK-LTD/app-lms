@@ -1,6 +1,6 @@
 import { decrypt, encrypt } from "../crypto/encryption";
 import type { DataStore } from "../data/store";
-import type { PlatformSetting, PlatformSettingKey, PlatformSettingValues } from "../data/types";
+import type { PlatformSetting, PlatformSettingKey, PlatformSettingValues, YallappBillingSetting } from "../data/types";
 import { otpSenderConfig, smtpConfig, type OtpSenderConfig, type SmtpConfig } from "../env";
 import type { IyzicoKeys } from "../payments/iyzico";
 import { isPaymentProvider, type PaymentAccount, type PaymentProviderId } from "../payments/provider";
@@ -103,7 +103,7 @@ export async function yallappIyzicoKeys(store: DataStore, encryptionKey: Buffer)
   };
 }
 
-/** 37 Which of Yallapp's accounts takes new plan payments and marketplace sales: the team's choice, iyzico until set. */
+/** 37 Which of Yallapp's accounts takes new marketplace sales (52 plans have their own: yallappBilling): the team's choice, iyzico until set. */
 export async function yallappProvider(store: DataStore): Promise<PaymentProviderId> {
   const saved = await platformSetting(store, "paymentProvider", { fresh: true });
   return saved && isPaymentProvider(saved.value.provider) ? saved.value.provider : "iyzico";
@@ -137,9 +137,24 @@ export async function yallappAccountFor(store: DataStore, provider: PaymentProvi
   return { provider, keys: { apiKey: decryptSetting("fawaterk", saved.value.apiKeyEncrypted, encryptionKey), sandbox: saved.value.sandbox } };
 }
 
-/** 37 Yallapp's account that takes new payments (the chosen provider's), or null until it is set. */
+/** 37 Yallapp's account that takes new marketplace sales (the chosen provider's), or null until it is set. */
 export async function yallappPaymentAccount(store: DataStore, encryptionKey: Buffer): Promise<PaymentAccount | null> {
   return yallappAccountFor(store, await yallappProvider(store), encryptionKey);
+}
+
+/** 52 Yallapp's own billing: the gateway for its plans and add-ons (Kashier until set) and the pound-to-dollar rate (none until set). */
+export async function yallappBilling(store: DataStore, options: { fresh?: boolean } = {}): Promise<YallappBillingSetting> {
+  const saved = (await platformSetting(store, "billing", options))?.value;
+  const rate = saved?.egpPerUsd;
+  return {
+    planProvider: saved && isPaymentProvider(saved.planProvider) ? saved.planProvider : "kashier",
+    egpPerUsd: typeof rate === "number" && Number.isFinite(rate) && rate > 0 ? rate : null,
+  };
+}
+
+/** 52 Yallapp's account that takes new plan and add-on payments (the gateway the team chose for them), or null until it is set. */
+export async function yallappPlanAccount(store: DataStore, encryptionKey: Buffer): Promise<PaymentAccount | null> {
+  return yallappAccountFor(store, (await yallappBilling(store, { fresh: true })).planProvider, encryptionKey);
 }
 
 /** The plans as the team set them in the admin. */

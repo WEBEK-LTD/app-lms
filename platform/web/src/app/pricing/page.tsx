@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata, siteUrl, softwareLd } from "@/lib/seo";
 import { JsonLdScript } from "@/components/json-ld";
-import { PlanCards } from "@/components/plan-cards";
+import { currencyNote, PlanCards } from "@/components/plan-cards";
 import { StoreName } from "@/components/brand-marks";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
@@ -11,8 +11,13 @@ import { comparisonRows, FEATURED_PLAN, PLANS, type ComparisonValue } from "@/li
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { getContact } from "@/lib/contact";
+import { visitorPriceView } from "@/lib/billing/display";
 
-/** Plans, prices, features and limits come from the admin (roadmap 9.2 and 13.1). */
+/**
+ * Plans, prices, features and limits come from the admin (roadmap 9.2 and
+ * 13.1). 52 Prices show in pounds in Egypt and in dollars elsewhere: the
+ * page is rendered per request and sent with `Vary` (next.config.ts).
+ */
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pageMetadata({
@@ -43,17 +48,19 @@ function Cell({ value, plan }: { value: ComparisonValue; plan: string }) {
 
 export default async function PricingPage() {
   const contact = await getContact();
-  const all = await effectivePlans(await getStore());
+  const store = await getStore();
+  const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   const plans = PLANS.map((id) => all[id]);
   const rows = comparisonRows(all);
   const text = await getSiteContent("pricing");
   return (
     <MarketingPage current="pricing" eyebrow={text.eyebrow} title={text.title!} intro={text.intro!}>
-      <JsonLdScript data={softwareLd(siteUrl(), plans)} />
+      <JsonLdScript data={softwareLd(siteUrl(), plans, view)} />
       <Section>
-        <PlanCards plans={plans} />
+        <PlanCards plans={plans} view={view} />
         <p className="m-0 text-[15px] text-ink-4">
-          Each app has its own plan. Questions about a plan? <a href={contact.whatsappUrl}>Message us on WhatsApp</a>.
+          <span data-currency-note="">{currencyNote(view)}</span> Each app has its own plan. Questions about a plan?{" "}
+          <a href={contact.whatsappUrl}>Message us on WhatsApp</a>.
         </p>
       </Section>
       <Section tinted>

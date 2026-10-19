@@ -146,14 +146,16 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   await openSettings();
   await page.goto("/admin/plans");
   const pro = page.getByRole("region", { name: "Pro" });
-  await pro.getByLabel("Card price").fill("4800");
+  await pro.getByLabel("A price").check();
+  await pro.getByLabel("Price in EGP").fill("4800");
   await pro.getByLabel("Billed").selectOption("12");
   await pro.getByLabel("Tagline").fill("We publish the apps for you, every time");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(pro.getByText("Pro saved.")).toBeVisible();
 
+  // 52 Pounds for a visitor from Egypt; elsewhere too while there's no dollar price.
   await page.goto("/pricing");
-  await expect(page.getByText("₺4,800.00")).toBeVisible();
+  await expect(page.locator('[data-pricing-plans] [data-plan="pro"]')).toContainText(/EGP\s4,800/);
   await expect(page.getByText("We publish the apps for you, every time")).toBeVisible();
 
   await page.goto("/admin/plans");
@@ -162,7 +164,7 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   // The button goes once the default is back; on a database that takes a moment.
   await expect(reset).toHaveCount(0);
   await page.goto("/pricing");
-  await expect(page.getByText("₺4,800.00")).toHaveCount(0);
+  await expect(page.locator('[data-pricing-plans] [data-plan="pro"]')).toContainText("On request");
 });
 
 test("the team changes the contact details shown everywhere", async () => {

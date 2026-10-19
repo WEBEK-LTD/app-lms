@@ -4,7 +4,9 @@ import { E2E } from "../../playwright.config";
 
 /**
  * A new client pays their plan by card into Yallapp's iyzico account (a fake
- * iyzico here) and is activated without the team (roadmap 9.4).
+ * iyzico here) and is activated without the team (roadmap 9.4). 52 With
+ * iyzico chosen for plans (Kashier is the default), the plan's dollar price
+ * is charged: iyzico takes no Egyptian pounds.
  */
 test.describe.configure({ mode: "serial" });
 
@@ -81,17 +83,25 @@ test("card payment shows once the team sets the account and a card price", async
   await iyzico.getByLabel("Secret key").fill("sandbox-yallapp-secret");
   await iyzico.getByRole("button", { name: "Save keys" }).click();
   await expect(iyzico.getByText("iyzico account saved.")).toBeVisible();
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("iyzico");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
 
   await admin.goto("/admin/plans");
   const pro = admin.getByRole("region", { name: "Pro" });
-  await pro.getByLabel("Card price").fill("4800");
+  await pro.getByLabel("A price").check();
+  await pro.getByLabel("Price in EGP").fill("4800");
+  await pro.getByLabel("Price in USD (optional)").fill("96");
   await pro.getByLabel("Billed").selectOption("12");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(pro.getByText("Pro saved.")).toBeVisible();
 
   await own.reload();
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText("₺4,800.00")).toBeVisible();
+  await expect(own.getByText("$96 / year")).toBeVisible();
+  // Charged in the currency shown: nothing to convert.
+  await expect(own.locator("[data-charge-line]")).toHaveCount(0);
 });
 
 test("a new client pays by card and is activated", async () => {
@@ -100,7 +110,7 @@ test("a new client pays by card and is activated", async () => {
   await own.getByLabel("City").fill("Ankara");
   await own.getByLabel("Billing address").fill("Atatürk Bulvarı 10, Çankaya");
   await own.getByRole("button", { name: "Pay and activate" }).click();
-  await expect(own.getByText("Total 4800.00")).toBeVisible();
+  await expect(own.getByText("Total 96.00")).toBeVisible();
   await own.getByRole("button", { name: "Pay with test card" }).click();
 
   await expect(own).toHaveURL(/\/dashboard\/license\?payment=paid$/);
@@ -115,7 +125,7 @@ test("the team sees the payment", async () => {
   await admin.goto("/admin/payments");
   const row = admin.getByRole("row", { name: new RegExp(client.name) });
   await expect(row).toContainText("Paid");
-  await expect(row).toContainText("₺4,800.00");
+  await expect(row).toContainText("$96");
   await expect(row).toContainText("5150");
   await row.getByRole("link", { name: client.name }).click();
   await expect(admin.getByRole("complementary")).toContainText("Card payments");
@@ -126,6 +136,10 @@ test("the team puts the settings back", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings");
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("kashier");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText(/Plans are paid through Yallapp's Kashier account\./)).toBeVisible();
   const iyzico = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await iyzico.getByRole("button", { name: "Remove keys" }).click();
   await expect(iyzico).toContainText("Now: not set.");

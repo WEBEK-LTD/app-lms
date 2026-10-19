@@ -6,7 +6,9 @@ import { PLAN_INFO, plansWith } from "@/lib/plans";
 import { days, KEY, licenseOf, NOW, setupClient } from "./helpers";
 
 const IYZICO: IyzicoKeys = { apiKey: "yallapp-api", secretKey: "yallapp-secret", sandbox: true };
-const PLANS = plansWith({ pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, currency: "TRY", billingMonths: 12 } });
+const PLANS = plansWith({ pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 24000000, usdCents: 480000, onRequest: false, billingMonths: 12 } });
+// 52 With iyzico (the team's choice), the dollar price is charged.
+const OFFER = { charged: { cents: 480000, currency: "USD" as const }, shown: { cents: 480000, currency: "USD" as const } };
 
 /** A fake iyzico: records the started payment and answers its detail as configured. */
 function fakeIyzico(detail: (basketId: string, price: string) => Record<string, unknown>) {
@@ -39,6 +41,7 @@ async function start(setup: Awaited<ReturnType<typeof setupClient>>, fetcher: ty
       token = t;
       return { returnUrl: `https://yallapp.test/api/pay/plan/${t}`, webhookUrl: null };
     },
+    offer: OFFER,
   });
   const payment = (await setup.store.getPlanPaymentByToken(sha256Hex(token)))!;
   return { url, payment };
@@ -69,7 +72,7 @@ describe("plan payments", () => {
     const iyzico = fakeIyzico((basketId, price) => ({ status: "success", paymentStatus: "SUCCESS", paymentId: "9001", paidPrice: Number(price), basketId }));
     const { url, payment } = await start(setup, iyzico.fetcher);
     expect(url).toBe("https://iyzico.test/pay/iyzi-1");
-    expect(iyzico.started[0]).toMatchObject({ price: "4800.00", paidPrice: "4800.00", currency: "TRY", basketId: payment.id });
+    expect(iyzico.started[0]).toMatchObject({ price: "4800.00", paidPrice: "4800.00", currency: "USD", basketId: payment.id });
     expect(payment).toMatchObject({ status: "pending", plan: "pro", months: 12, amountCents: 480000 });
 
     const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });

@@ -116,7 +116,7 @@ export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" |
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
 export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt">>;
-export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt">>;
+export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
 /** Signing keys created by the build pipeline. Written only through `saveSigningKeys`, which never replaces one. */
@@ -140,7 +140,8 @@ export interface DataStore {
   updateUser(id: string, patch: UserPatch, now: Date): Promise<void>;
 
   // Clients
-  createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client>;
+  /** 52 `country`: the request's, at sign-up (null when unknown). */
+  createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client>;
   getClientById(id: string): Promise<Client | null>;
   getClientByUserId(userId: string): Promise<Client | null>;
   updateClient(id: string, patch: ClientPatch, now: Date): Promise<void>;

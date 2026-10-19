@@ -174,9 +174,16 @@ test("a coupon lowers the client's card payment", async () => {
   await iyzico.getByLabel("Secret key").fill("sandbox-yallapp-secret");
   await iyzico.getByRole("button", { name: "Save keys" }).click();
   await expect(iyzico.getByText("iyzico account saved.")).toBeVisible();
+  // 52 Plans through iyzico: it charges the dollar price (the same figure here).
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("iyzico");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
   await admin.goto("/admin/plans");
   const pro = admin.getByRole("region", { name: "Pro" });
-  await pro.getByLabel("Card price").fill("4800");
+  await pro.getByLabel("A price").check();
+  await pro.getByLabel("Price in EGP").fill("4800");
+  await pro.getByLabel("Price in USD (optional)").fill("4800");
   await pro.getByLabel("Billed").selectOption("12");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(pro.getByText("Pro saved.")).toBeVisible();
@@ -201,7 +208,7 @@ test("a coupon lowers the client's card payment", async () => {
   await own.getByLabel("Coupon code").fill(code.toLowerCase());
   await own.getByRole("button", { name: "Apply" }).click();
   await expect(own.getByText("Coupon applied. The price below is what you pay.")).toBeVisible();
-  await expect(own.getByText("₺3,600.00")).toBeVisible();
+  await expect(own.getByText("$3,600")).toBeVisible();
   // Applying the coupon keeps the address.
   await expect(own.getByLabel("City")).toHaveValue("Izmir");
   await own.getByRole("button", { name: "Pay and activate" }).click();
@@ -213,9 +220,9 @@ test("a coupon lowers the client's card payment", async () => {
   await admin.goto(couponUrl);
   const uses = admin.getByRole("region", { name: "Uses" });
   await expect(uses.getByRole("row", { name: new RegExp(client.name) })).toContainText("Used");
-  await expect(uses.getByRole("row", { name: new RegExp(client.name) })).toContainText("₺3,600.00");
+  await expect(uses.getByRole("row", { name: new RegExp(client.name) })).toContainText("$3,600");
   await admin.goto("/admin/payments");
-  await expect(admin.getByRole("row", { name: new RegExp(client.name) })).toContainText(`₺3,600.00Coupon ${code}, ₺1,200.00 off`);
+  await expect(admin.getByRole("row", { name: new RegExp(client.name) })).toContainText(`$3,600Coupon ${code}, $1,200 off`);
 
   // The settings go back for the other checks.
   await admin.goto(couponUrl);
@@ -224,6 +231,10 @@ test("a coupon lowers the client's card payment", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Pro" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings");
+  const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billingBack.getByLabel("Gateway for plans").selectOption("kashier");
+  await billingBack.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billingBack.getByText(/Plans are paid through Yallapp's Kashier account\./)).toBeVisible();
   const keys = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await keys.getByRole("button", { name: "Remove keys" }).click();
   await expect(keys).toContainText("Now: not set.");

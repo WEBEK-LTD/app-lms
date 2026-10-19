@@ -924,6 +924,64 @@ fingerprinting; reports show totals only.
   and install ID are deleted. The preview (`env.isPreview`) and builds
   without `analytics` never send.
 
+## Yallapp's prices in pounds and dollars (Phase 52)
+
+Yallapp's own prices (the plans clients pay Yallapp for, and any add-on) are
+set in Egyptian pounds and charged in pounds through Kashier, wherever the
+client is. People in Egypt see pounds; everyone else sees US dollars. What
+app owners sell to their own customers keeps each app's own currency.
+
+- **One place for the money rules** (`lib/billing/prices.ts`). A
+  `YallappPrice` is `{ egpCents, usdCents }`: the charged price in piastres
+  and the dollar price set by hand (null: the pounds at the team's rate,
+  `egpPerUsd`, rounded to whole dollars, at least $1). `shownPrice` gives the
+  visitor's price, `chargedPrice` what a gateway charges (Kashier and
+  Fawaterk: pounds; iyzico takes no pounds, so with iyzico the dollar price
+  is charged), `offerFor` both and the line "You'll be charged EGP X (about
+  $Y); your bank may convert it." when they differ, `loweredOffer` the same
+  after a coupon (the coupon lowers the charge; the shown price drops in the
+  same proportion, to the cent). `formatMoney` writes "EGP 1,500" and "$29"
+  (English pages; "ج.م" would be for Arabic ones only). Plans use it through
+  `planPriceOf` (null when "On request"); an add-on only needs a
+  `YallappPrice` to get the same display, charge, coupon and receipt rules.
+- **Settings.** Each plan's edit (`platform_settings.plans`) keeps
+  `priceCents` (pounds), `usdCents` and `onRequest` (the team can keep a
+  price and still show "On request"). `platform_settings.billing` holds the
+  gateway for plans and add-ons (Kashier until set) and the rate. The
+  marketplace keeps its own provider (`paymentProvider`). Edits from before
+  Phase 52 named a currency: pounds stay the price, dollars become the
+  shown dollar price, other currencies are dropped.
+- **The visitor's country** (`lib/geo.ts`), first that answers: our reverse
+  proxy's `X-Yallapp-Client-Country` (trusted only with
+  `X-Yallapp-Proxy-Secret`; the proxy looks the visitor up with
+  `mod_maxminddb`, because Netlify sees the proxy's own country), Netlify's
+  `x-nf-geo` (JSON, base64 or plain) and `x-country`, Cloudflare's
+  `cf-ipcountry` (if a Cloudflare zone is ever put in front), then the region
+  of the browser's preferred language (`Accept-Language: ar-EG`); none:
+  dollars. A signed-in client's account country (`clients.country`, saved
+  from the request at sign-up) comes before the request's
+  (`lib/billing/display.ts`). Spoofing a header only changes what is shown:
+  the charge is the same pounds.
+- **Caching.** The pages with prices (`/`, `/pricing`, the dashboard) are
+  rendered per request (`dynamic = "force-dynamic"`, so Next.js sends
+  `Cache-Control: private, no-cache, no-store`): no CDN or proxy keeps a
+  copy, and the country is read on each request. As a second guard,
+  `next.config.ts` sends `Netlify-Vary: header=X-Yallapp-Client-Country|
+  X-Country|CF-IPCountry|Accept-Language,country=eg` on `/` and `/pricing`
+  (`lib/geo-vary.ts`), so Netlify's cache, if turned on for them later,
+  keeps one copy per country. A plain `Vary` can't be added: Next.js
+  replaces it on app pages with its own. Static or ISR pages must never show
+  a price: a page that needs one reads `priceView` (which makes it dynamic)
+  or shows prices from the client side.
+- **Payments.** `payPlanAction` works out the offer on the server (never from
+  the browser), checks a coupon against the charge, and starts the payment
+  with the charge; the payment keeps `shown_cents` and `shown_currency` when
+  the client saw dollars (migration 0040). Kashier is asked for pounds
+  (`currency: "EGP"`) and the read-back must match the pounds. The receipt
+  (`/dashboard/license/receipts/<id>`, `lib/billing/receipt.ts`), the
+  activation and renewal emails (`{{payment_line}}`) and Admin › Payments
+  show the pounds charged and the dollar price as "about".
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

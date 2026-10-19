@@ -13,7 +13,7 @@ export interface LegalDefault {
   body: string;
 }
 
-export const LEGAL_UPDATED = "14 October 2026";
+export const LEGAL_UPDATED = "19 October 2026";
 
 export const PRIVACY: LegalDefault = {
   key: "privacy",
@@ -103,7 +103,7 @@ You must give accurate details when you sign up. Your account becomes active aft
 
 ## 5. Plans, payment and renewal
 
-Plans and prices are shown on our pricing page or agreed with our team before you pay. Payment is arranged directly with us. Your plan runs for the period you paid for and renews only when you pay for the next period. If your plan is not renewed, your license becomes inactive and your apps stop loading content through the plugin.
+Plans and prices are shown on our pricing page or agreed with our team before you pay. Prices are shown in Egyptian pounds in Egypt and in US dollars elsewhere. Card payments for Yallapp plans are charged in Egyptian pounds through Kashier, wherever you are; the payment page shows the exact amount before you pay, and your bank may convert it at its own rate and fees. You can also arrange payment with our team. Your plan runs for the period you paid for and renews only when you pay for the next period. If your plan is not renewed, your license becomes inactive and your apps stop loading content through the plugin.
 
 ## 6. Cancellation and refunds
 
@@ -162,11 +162,11 @@ export const REFUND: LegalDefault = {
   updated: LEGAL_UPDATED,
   body: `## 1. How payments work
 
-Payments for Yallapp plans are arranged directly with our team. There are no automatic charges.
+You pay for Yallapp plans by card in your dashboard, charged in Egyptian pounds through Kashier, or as arranged with our team. There are no automatic charges.
 
 ## 2. Cancel within 3 days
 
-You can cancel within 3 days of your account being activated. We refund the full amount you paid for the current period.
+You can cancel within 3 days of your account being activated. We refund the full amount you paid for the current period, in Egyptian pounds as it was charged. If your bank converted the payment, the amount you get back depends on its rate.
 
 ## 3. After 3 days
 

@@ -21,7 +21,7 @@ import { can, type AdminPermission } from "@/lib/admin/permissions";
 import { appLabel } from "@/lib/app/label";
 import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
-import { formatCents } from "@/lib/catalog/money";
+import { formatAmount } from "@/lib/billing/prices";
 import { getStore } from "@/lib/data";
 import type { App, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
@@ -292,7 +292,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                 <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                   <span>
-                    {formatCents(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"} ·{" "}
+                    {formatAmount(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"} ·{" "}
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                     {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
                   </span>

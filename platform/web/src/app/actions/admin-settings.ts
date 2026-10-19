@@ -5,22 +5,25 @@ import { cookies } from "next/headers";
 import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { CatalogCurrency, OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
+import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
 import { appUrl, encryptionKey, iyzicoApiUrl, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
-import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { parsePrice } from "@/lib/catalog/money";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { checkTestCode, OTP_TEST_TTL_SECONDS, sendTestCode, type OtpTestTicket } from "@/lib/hosted/otp-test";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { checkIyzicoKeys } from "@/lib/payments/iyzico";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
-import { checkAccount, currencyList, isPaymentProvider, PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
+import { checkAccount, isPaymentProvider, PROVIDER_NAME } from "@/lib/payments/provider";
+import { readRate } from "@/lib/billing/prices";
+import { cardPlans } from "@/lib/billing/plan-payment";
 import {
   isPlan,
   PLAN_FEATURE_IDS,
   PLAN_INFO,
+  planPriceOf,
   planSettingOf,
   plansWith,
   SUPPORT_LEVELS,
@@ -42,6 +45,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   kashier: "Yallapp's Kashier account",
   fawaterk: "Yallapp's Fawaterk account",
   paymentProvider: "payment provider",
+  billing: "plan payments and exchange rate",
   marketplace: "marketplace commission",
   contact: "contact details",
   plans: "plans",
@@ -329,14 +333,42 @@ export async function savePaymentProviderAction(_: FormState, formData: FormData
   await save("paymentProvider", { provider }, admin);
   const name = PROVIDER_NAME[provider];
   const ready = await yallappAccountFor(store, provider, encryptionKey()).catch(() => null);
-  const plans = Object.values(await getPlans(store)).filter((p) => p.priceCents !== null && p.priceCents > 0);
-  const unpaid = plans.filter((p) => !providerTakes(provider, p.currency)).map((p) => p.name);
+  revalidatePath("/dashboard", "layout");
+  return {
+    ok: true,
+    message: `Payments go to Yallapp's ${name} account.${ready ? "" : ` Add Yallapp's ${name} account below: until then, sales through Yallapp are off.`}`,
+    values: { provider },
+  };
+}
+
+/**
+ * 52 Yallapp's own plans and add-ons: the gateway they're paid through
+ * (Kashier, in pounds, unless the team chooses another) and the
+ * pound-to-dollar rate for the dollar prices shown outside Egypt.
+ */
+export async function savePlanBillingAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("payments.manage");
+  const values = { planProvider: str(formData, "planProvider"), egpPerUsd: str(formData, "egpPerUsd") };
+  const errors: Record<string, string> = {};
+  if (!isPaymentProvider(values.planProvider)) errors.planProvider = "Choose a gateway.";
+  const rate = readRate(values.egpPerUsd);
+  if (rate === undefined) errors.egpPerUsd = "Enter how many Egyptian pounds make one US dollar, like 48.5, or leave it empty.";
+  if (Object.keys(errors).length || !isPaymentProvider(values.planProvider) || rate === undefined) return { errors, values };
+  const store = await getStore();
+  const provider = values.planProvider;
+  await save("billing", { planProvider: provider, egpPerUsd: rate }, admin);
+  const name = PROVIDER_NAME[provider];
+  const ready = await yallappAccountFor(store, provider, encryptionKey()).catch(() => null);
+  const plans = await getPlans(store);
+  // iyzico charges the dollar price: plans without one (by hand or at the rate) can't be paid by card.
+  const unpaid = Object.values(plans).filter((p) => planPriceOf(p) && !cardPlans(plans, provider, rate).some((c) => c.id === p.id)).map((p) => p.name);
   const notes = [
-    ready ? null : `Add Yallapp's ${name} account below: until then, card payments are off.`,
-    unpaid.length ? `${unpaid.join(" and ")} can't be paid by card until priced in ${currencyList(provider)} on the Plans page.` : null,
+    ready ? null : `Add Yallapp's ${name} account below: until then, card payments for plans are off.`,
+    unpaid.length ? `${unpaid.join(" and ")} can't be paid by card until they have a dollar price (set the rate, or a dollar price on the Plans page).` : null,
   ].filter(Boolean);
   revalidatePath("/dashboard", "layout");
-  return { ok: true, message: `Payments go to Yallapp's ${name} account.${notes.length ? ` ${notes.join(" ")}` : ""}`, values: { provider } };
+  await revalidatePlans();
+  return { ok: true, message: `Plans are paid through Yallapp's ${name} account.${notes.length ? ` ${notes.join(" ")}` : ""}`, values };
 }
 
 /** The plan as it is now (defaults with the team's edits), to save a full edit from. */
@@ -358,7 +390,7 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   const plan = str(formData, "plan");
   if (!isPlan(plan)) return { message: "Unknown plan." };
   const values: Record<string, string> = {};
-  for (const name of ["name", "tagline", "highlights", "price", "cardPrice", "currency", "months"]) values[name] = str(formData, name);
+  for (const name of ["name", "tagline", "highlights", "price", "pricing", "egpPrice", "usdPrice", "months"]) values[name] = str(formData, name);
   const errors: Record<string, string> = {};
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
   if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
@@ -366,10 +398,15 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   if (highlights.length === 0 || highlights.length > 10 || highlights.some((h) => h.length > 80)) {
     errors.highlights = "Write 1 to 10 lines, each up to 80 characters.";
   }
-  if (!values.price || values.price.length > 30) errors.price = "Enter what the pricing page shows without a card price, like On request.";
-  const priceCents = values.cardPrice ? parsePrice(values.cardPrice) : null;
-  if (values.cardPrice && (priceCents === null || priceCents === 0)) errors.cardPrice = "Enter a price, like 4800, or leave it empty.";
-  if (!CATALOG_CURRENCIES.includes(values.currency as CatalogCurrency)) errors.currency = "Choose a currency.";
+  if (!values.price || values.price.length > 30) errors.price = "Enter what the pricing page shows instead of a price, like On request.";
+  // 52 A price in Egyptian pounds (what is charged), and a dollar price by hand or from the rate; or "On request".
+  const onRequest = values.pricing === "request";
+  if (!onRequest && values.pricing !== "price") errors.pricing = "Choose a price or On request.";
+  const priceCents = values.egpPrice ? parsePrice(values.egpPrice) : null;
+  if (values.egpPrice && (priceCents === null || priceCents === 0)) errors.egpPrice = "Enter a price in Egyptian pounds, like 1500.";
+  else if (!onRequest && priceCents === null) errors.egpPrice = "Enter the price in Egyptian pounds, or choose On request.";
+  const usdCents = values.usdPrice ? parsePrice(values.usdPrice) : null;
+  if (values.usdPrice && (usdCents === null || usdCents === 0)) errors.usdPrice = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
   if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
@@ -380,9 +417,12 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     highlights,
     price: values.price!,
     priceCents,
-    currency: values.currency as PlanSetting["currency"],
+    usdCents,
+    onRequest,
     billingMonths: values.months === "1" ? 1 : 12,
   };
+  // An edit from before Phase 52 named its currency; prices are in pounds now.
+  delete setting.currency;
   await save("plans", { ...saved, [plan]: setting }, admin, {
     action: "plan.save",
     target: { type: "plan", id: plan },

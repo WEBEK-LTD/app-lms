@@ -170,7 +170,7 @@ export class MemoryStore implements DataStore {
     if (user) this.users.set(id, clone({ ...user, ...patch, updatedAt: now }));
   }
 
-  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client> {
+  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client> {
     const client: Client = {
       id: newId(),
       userId: input.userId,
@@ -179,6 +179,7 @@ export class MemoryStore implements DataStore {
       status: "pending",
       paymentNote: null,
       activatedAt: null,
+      country: input.country ?? null,
       createdAt: input.now,
       updatedAt: input.now,
     };

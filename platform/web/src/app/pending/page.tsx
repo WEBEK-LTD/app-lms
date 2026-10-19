@@ -12,7 +12,8 @@ import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { getSwitches } from "@/lib/switches";
 import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
-import { getPlans, yallappPaymentAccount } from "@/lib/settings/platform";
+import { getPlans, yallappPlanAccount } from "@/lib/settings/platform";
+import { priceView } from "@/lib/billing/display";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel } from "@/lib/app/label";
@@ -49,8 +50,9 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   const suspended = context.client.status === "suspended";
   const { payment } = await searchParams;
   const store = await getStore();
-  const yallappAccount = suspended ? null : await yallappPaymentAccount(store, encryptionKey());
-  const payable = yallappAccount ? cardPlanOptions(await getPlans(store), await getSwitches(store), yallappAccount.provider) : [];
+  // 52 Yallapp's gateway for plans (Kashier, in pounds); prices in the client's currency.
+  const yallappAccount = suspended ? null : await yallappPlanAccount(store, encryptionKey());
+  const payable = yallappAccount ? cardPlanOptions(await getPlans(store), await getSwitches(store), yallappAccount.provider, await priceView(store, context.client)) : [];
   const whatsapp = `${contact.whatsappUrl}?text=${encodeURIComponent(
     suspended
       ? `Hello, my Yallapp account (${user.email}) is suspended. Can you help?`

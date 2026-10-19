@@ -102,11 +102,11 @@ test("a support admin can't change plan prices but can activate a client", async
   await expect(helper.getByText("Your role can see this but not change plans or prices.")).toBeVisible();
   const pro = helper.getByRole("region", { name: "Pro" });
   await expect(pro.getByRole("button", { name: "Save plan" })).toBeDisabled();
-  await expect(pro.getByLabel("Card price")).toBeDisabled();
+  await expect(pro.getByLabel("Price in EGP")).toBeDisabled();
 
   // Forcing the form open doesn't help: the server checks the role.
   await helper.evaluate(() => document.querySelectorAll("fieldset[disabled]").forEach((f) => f.removeAttribute("disabled")));
-  await pro.getByLabel("Card price").fill("1");
+  await pro.getByLabel("Price in EGP").fill("1");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(helper).toHaveURL(/\/admin\?denied=plans\.edit$/);
   await expect(helper.getByRole("main").getByRole("alert")).toContainText("Your role can't do that.");

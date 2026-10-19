@@ -135,7 +135,7 @@ Open [Create an account](/sign-up) and enter your full name, email, WhatsApp num
 
 New accounts wait for activation. On the waiting page you can:
 
-- **Pay by card**, when card prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk), and your account is activated as soon as the payment is confirmed.
+- **Pay by card**, when prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on the secure page of our payment provider, Kashier, in Egyptian pounds (outside Egypt the price is shown in US dollars and your bank converts the charge), and your account is activated as soon as the payment is confirmed.
 - **Message us on WhatsApp** to arrange your plan with our team. We activate your account once the payment is confirmed.
 
 We email you when your account is active.
@@ -1897,7 +1897,9 @@ We email you, and show a notice on your dashboard, 7 days and 1 day before an ap
 
 ## Paying by card
 
-When card prices are shown, you pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk): on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed. You can also arrange your payment with our team on WhatsApp.
+When prices are shown, you pay on the secure page of our payment provider, Kashier: on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed, and a receipt for each payment under **Payments** on the same page. You can also arrange your payment with our team on WhatsApp.
+
+Prices are shown in Egyptian pounds in Egypt and in US dollars everywhere else. Every card payment is charged in Egyptian pounds: outside Egypt the form says, for example, "You'll be charged EGP 1,500 (about $30)", and your bank converts the amount at its own rate. The receipt shows the amount charged in pounds.
 
 ## Coupons
 

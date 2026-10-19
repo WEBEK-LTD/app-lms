@@ -186,7 +186,7 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.users).set({ ...patch, updatedAt: now }).where(eq(schema.users.id, id)));
   }
 
-  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client> {
+  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client> {
     const client: Client = {
       id: newId(),
       userId: input.userId,
@@ -195,6 +195,7 @@ export class MysqlStore implements DataStore {
       status: "pending",
       paymentNote: null,
       activatedAt: null,
+      country: input.country ?? null,
       createdAt: input.now,
       updatedAt: input.now,
     };

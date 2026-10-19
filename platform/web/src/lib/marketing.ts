@@ -1251,7 +1251,11 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "How do I pay?",
-        a: "By card in your dashboard when a card price is shown, or arranged directly with our team on WhatsApp. We activate your account as soon as the payment is confirmed.",
+        a: "By card in your dashboard when a price is shown, or arranged directly with our team on WhatsApp. We activate your account as soon as the payment is confirmed.",
+      },
+      {
+        q: "Which currency are the prices in?",
+        a: "Egyptian pounds in Egypt, and US dollars everywhere else. Card payments go through Kashier and are charged in Egyptian pounds wherever you are: the payment page shows the exact amount in pounds before you pay, and your bank converts it at its own rate.",
       },
       {
         q: "Do you have coupons?",
