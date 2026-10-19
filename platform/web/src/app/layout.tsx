@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque } from "next/font/google";
+import { Bricolage_Grotesque, IBM_Plex_Sans_Arabic } from "next/font/google";
 import localFont from "next/font/local";
+import { HtmlShell } from "@/components/html-shell";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -8,6 +9,20 @@ const bricolage = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"],
   variable: "--font-bricolage",
   display: "swap",
+});
+
+/**
+ * 55 Arabic text: Bricolage Grotesque has no Arabic letters. Only the Arabic
+ * subset is loaded (the browser fetches it only for Arabic text), without a
+ * fallback face, so Latin text stays in Bricolage (globals.css, `:lang(ar)`).
+ */
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-arabic",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: false,
 });
 
 const icons = localFont({
@@ -48,8 +63,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${icons.variable}`}>
+    <HtmlShell className={`${bricolage.variable} ${plexArabic.variable} ${icons.variable}`}>
       <body className="min-h-screen bg-ivory font-sans text-midnight antialiased">{children}</body>
-    </html>
+    </HtmlShell>
   );
 }

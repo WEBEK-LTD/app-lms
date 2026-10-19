@@ -8,14 +8,23 @@ import { fillValues } from "@/lib/content/markdown";
 import type { ContentField } from "@/lib/content/site";
 import { initialFormState } from "@/lib/forms";
 
-/** A page's texts; Markdown fields show a live preview next to the text. */
+/**
+ * A page's texts; Markdown fields show a live preview next to the text.
+ * 55 `lang` edits the Arabic or Turkish version: empty fields are allowed
+ * (the page shows the built-in translation, else the English text) and
+ * `placeholders` shows the English beside each field.
+ */
 export function ContentForm({
   pageKey,
   fields,
   values,
   previewValues,
+  lang,
+  placeholders = {},
 }: {
   pageKey: string;
+  lang?: "ar" | "tr";
+  placeholders?: Record<string, string>;
   fields: ContentField[];
   values: Record<string, string>;
   /** Filled in the preview, like the contact details on legal pages. */
@@ -30,12 +39,25 @@ export function ContentForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-5">
       <input type="hidden" name="key" value={pageKey} />
+      {lang ? <input type="hidden" name="lang" value={lang} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
       {fields.map((field) => {
         const id = `f-${field.name}`;
         const error = state.errors?.[field.name];
         if (field.kind === "line") {
-          return <Field key={field.name} label={field.label} name={field.name} maxLength={field.max} defaultValue={v(field.name)} hint={field.hint} error={error} />;
+          return (
+            <Field
+              key={field.name}
+              label={field.label}
+              name={field.name}
+              maxLength={field.max}
+              defaultValue={v(field.name)}
+              hint={field.hint}
+              error={error}
+              dir={lang ? "auto" : undefined}
+              placeholder={placeholders[field.name]}
+            />
+          );
         }
         if (field.kind === "text") {
           return (
@@ -49,6 +71,8 @@ export function ContentForm({
                 rows={3}
                 maxLength={field.max}
                 defaultValue={v(field.name)}
+                dir={lang ? "auto" : undefined}
+                placeholder={placeholders[field.name]}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? `${id}-error` : undefined}
                 className="input min-h-20 py-3"
@@ -75,12 +99,15 @@ export function ContentForm({
                 rows={24}
                 value={drafts[field.name] ?? ""}
                 onChange={(e) => setDrafts((d) => ({ ...d, [field.name]: e.target.value }))}
+                dir={lang ? "auto" : undefined}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={[field.hint ? `${id}-hint` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined}
                 className="input min-h-80 py-3 font-mono text-[13px] leading-relaxed"
               />
               <section
                 aria-label={`Preview of ${field.label.toLowerCase()}`}
+                dir={lang === "ar" ? "rtl" : undefined}
+                lang={lang}
                 className="flex max-h-[640px] flex-col gap-3 overflow-y-auto rounded-xl border border-line bg-white p-5 text-[15px] leading-relaxed text-ink-2 [&_h2]:m-0 [&_h2]:text-lg [&_h2]:font-bold [&_h3]:m-0 [&_h3]:font-bold [&_ol]:m-0 [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-5"
               >
                 <span className="text-xs font-bold tracking-[1px] text-muted">PREVIEW</span>

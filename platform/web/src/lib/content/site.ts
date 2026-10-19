@@ -346,6 +346,8 @@ export function parseFaq(source: string): FaqSection[] {
 
 export interface GuideStepDoc {
   title: string;
+  /** 55 Its anchor when the heading gives one ("{#id}"), else one is made from the title. */
+  id?: string;
   body: Block[];
   notice: Block[] | null;
 }
@@ -372,11 +374,12 @@ export function parseGuide(source: string): GuideDoc {
     }
     if (block.t === "h" && block.level === 2 && section !== "outro") {
       const title = inlineText(block.c).trim();
-      if (/^before you start$/i.test(title) && !doc.before) {
+      // 55 "Before you start" in English, Arabic or Turkish.
+      if (/^(before you start|قبل أن تبدأ|başlamadan önce)$/i.test(title) && !doc.before) {
         doc.before = { title, items: [] };
         section = "before";
       } else {
-        doc.steps.push({ title, body: [], notice: null });
+        doc.steps.push(block.id ? { title, id: block.id, body: [], notice: null } : { title, body: [], notice: null });
         section = "step";
       }
       return;
@@ -407,12 +410,15 @@ const CONTACT_VALUES = ["contact_email", "contact_whatsapp", "contact_whatsapp_u
 export function readContentForm(
   page: ContentPage,
   input: Record<string, string>,
+  /** 55 An Arabic or Turkish version: a field left empty is left out (the page shows the built-in translation, else the English text). */
+  options: { translation?: boolean } = {},
 ): { ok: true; fields: Record<string, string> } | { ok: false; errors: Record<string, string> } {
   const fields: Record<string, string> = {};
   const errors: Record<string, string> = {};
   for (const field of page.fields) {
     const raw = (input[field.name] ?? "").replace(/\r\n?/g, "\n");
     const value = field.kind === "markdown" ? raw.trim() + "\n" : raw.replace(/\s+/g, " ").trim();
+    if (!value.trim() && options.translation) continue;
     if (!value.trim()) errors[field.name] = `Enter the ${field.label.toLowerCase()}.`;
     else if (value.length > field.max) errors[field.name] = `Use at most ${field.max.toLocaleString("en-US")} characters.`;
     // Tags in `code` and in code blocks are shown as they are.
@@ -423,10 +429,10 @@ export function readContentForm(
     }
     fields[field.name] = value;
   }
-  if (!errors.entries && page.key === "faq" && parseFaq(fields.entries!).length === 0) {
+  if (!errors.entries && page.key === "faq" && fields.entries !== undefined && parseFaq(fields.entries).length === 0) {
     errors.entries = "Add at least one ## group with a ### question.";
   }
-  if (!errors.body && page.group === "Guides" && parseGuide(fields.body!).steps.length === 0) {
+  if (!errors.body && page.group === "Guides" && fields.body !== undefined && parseGuide(fields.body).steps.length === 0) {
     errors.body = "Add at least one ## section.";
   }
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, fields };

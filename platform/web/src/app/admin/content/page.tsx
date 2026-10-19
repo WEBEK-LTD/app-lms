@@ -4,6 +4,7 @@ import { Badge, formatDateTime } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth/session";
 import { CONTENT_PAGES, type ContentGroup } from "@/lib/content/site";
 import { getStore } from "@/lib/data";
+import { LANG_INFO, PREFIXED_LANGS } from "@/i18n/config";
 
 export const metadata: Metadata = { title: "Website content" };
 export const dynamic = "force-dynamic";
@@ -19,7 +20,8 @@ export default async function ContentPage() {
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Website content</h1>
         <span className="text-[15px] text-muted">
-          The texts of yallapp.com.tr. A saved change shows on the website at once; pages you haven&apos;t changed show the default text.
+          The texts of yallapp.com.tr. A saved change shows on the website at once; pages you haven&apos;t changed show the default text. Each page has an
+          English, an Arabic and a Turkish version: open a page and pick the language.
         </span>
       </div>
       {GROUPS.map((group) => (
@@ -38,7 +40,13 @@ export default async function ContentPage() {
                     </th>
                     <td className="px-4 py-3 font-mono text-[13px] text-muted">{page.path}</td>
                     <td className="px-4 py-3">
-                      {edit ? <Badge tone="info">Edited</Badge> : <Badge tone="neutral">Default</Badge>}
+                      <span className="flex flex-wrap gap-1.5">
+                        {edit ? <Badge tone="info">Edited</Badge> : <Badge tone="neutral">Default</Badge>}
+                        {/* 55 The Arabic and Turkish versions the team edited. */}
+                        {PREFIXED_LANGS.filter((lang) => saved.has(`${page.key}@${lang}`)).map((lang) => (
+                          <Badge key={lang} tone="info">{`${LANG_INFO[lang].name} edited`}</Badge>
+                        ))}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-muted">{edit ? `${formatDateTime(edit.updatedAt)} by ${edit.updatedBy}` : ""}</td>
                   </tr>

@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { LANG_INFO, LANGS, type Lang } from "@/i18n/config";
+import { messagesFor } from "@/i18n";
+import { languageAlternates, localePath } from "@/i18n/paths";
 import { COMPANY } from "./company";
 import { inlineText, type Block } from "./content/markdown";
 import { planShownPrice, POUNDS_VIEW, type PlanInfo, type PriceView } from "./plans";
@@ -36,6 +39,43 @@ export function pageMetadata({ title, description, path, image }: { title?: stri
     description,
     alternates: { canonical: path },
     openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", url: path, title: shared, description, images },
+    twitter: { card: "summary_large_image", title: shared, description, images },
+  };
+}
+
+/**
+ * 55 A public page's metadata in a language: its title and description, the
+ * canonical address of this language's version, hreflang alternates for
+ * English, Arabic and Turkish (English as x-default), and the Open Graph
+ * card with `og:locale` and the other languages as `og:locale:alternate`.
+ * `path` and `image` are the English addresses; the share image of an
+ * Arabic or Turkish page is its own, with the translated text.
+ */
+export function siteMetadata(
+  lang: Lang,
+  { title, description, path, image }: { title?: string; description: string; path: string; image?: string },
+): Metadata {
+  const base = pageMetadata({ title, description, path, image });
+  if (lang === "en") return { ...base, alternates: { canonical: path, languages: languageAlternates(path) } };
+  const m = messagesFor(lang).meta;
+  const shared = title ? `${title} · ${SITE_NAME}` : m.defaultTitle;
+  const url = localePath(lang, path);
+  const imageUrl = `/${lang}${(image ?? DEFAULT_SHARE_IMAGE.url).replace(/^\/(ar|tr)(?=\/)/, "")}`;
+  const images = [{ ...DEFAULT_SHARE_IMAGE, url: imageUrl, alt: shared }];
+  return {
+    title: title ?? { absolute: m.defaultTitle },
+    description,
+    alternates: { canonical: url, languages: languageAlternates(path) },
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: LANG_INFO[lang].ogLocale,
+      alternateLocale: LANGS.filter((l) => l !== lang).map((l) => LANG_INFO[l].ogLocale),
+      url,
+      title: shared,
+      description,
+      images,
+    },
     twitter: { card: "summary_large_image", title: shared, description, images },
   };
 }
@@ -83,14 +123,14 @@ export function organizationLd(base: string, contact: { email: string; whatsapp:
   };
 }
 
-export function websiteLd(base: string): JsonLd {
+export function websiteLd(base: string, lang: Lang = "en"): JsonLd {
   return {
     "@context": CONTEXT,
     "@type": "WebSite",
     "@id": `${base}/#website`,
     name: SITE_NAME,
-    url: `${base}/`,
-    inLanguage: "en",
+    url: `${base}${lang === "en" ? "/" : localePath(lang, "/")}`,
+    inLanguage: lang,
     publisher: { "@id": `${base}/#organization` },
   };
 }
@@ -100,7 +140,7 @@ export function websiteLd(base: string): JsonLd {
  * "On request" have none). 52 In the currency the page shows: pounds in
  * Egypt, dollars elsewhere.
  */
-export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = POUNDS_VIEW): JsonLd {
+export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = POUNDS_VIEW, lang?: Lang): JsonLd {
   const offers = plans.flatMap((plan) => {
     const shown = planShownPrice(plan, view);
     if (!shown) return [];
@@ -112,7 +152,7 @@ export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = PO
         description: plan.tagline,
         price,
         priceCurrency: shown.currency,
-        url: `${base}/pricing`,
+        url: `${base}${localePath(lang ?? "en", "/pricing")}`,
         category: "subscription",
         priceSpecification: {
           "@type": "UnitPriceSpecification",
@@ -127,8 +167,9 @@ export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = PO
     "@context": CONTEXT,
     "@type": "SoftwareApplication",
     name: SITE_NAME,
-    url: `${base}/`,
-    description: DEFAULT_DESCRIPTION,
+    url: `${base}${localePath(lang ?? "en", "/")}`,
+    description: lang ? messagesFor(lang).meta.defaultDescription : DEFAULT_DESCRIPTION,
+    ...(lang ? { inLanguage: lang } : {}),
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Android, iOS",
     publisher: { "@id": `${base}/#organization` },
@@ -157,10 +198,11 @@ export function blocksText(blocks: Block[]): string {
   return blocks.map(text).filter(Boolean).join("\n\n");
 }
 
-export function faqLd(items: { question: string; answer: string }[]): JsonLd {
+export function faqLd(items: { question: string; answer: string }[], lang?: Lang): JsonLd {
   return {
     "@context": CONTEXT,
     "@type": "FAQPage",
+    ...(lang ? { inLanguage: lang } : {}),
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
@@ -170,15 +212,16 @@ export function faqLd(items: { question: string; answer: string }[]): JsonLd {
 }
 
 /** The trail to a page, home first: [{ name: "Solutions", path: "/solutions" }, …]. */
-export function breadcrumbLd(base: string, trail: { name: string; path: string }[]): JsonLd {
+export function breadcrumbLd(base: string, trail: { name: string; path: string }[], lang?: Lang): JsonLd {
+  // 55 In Arabic and Turkish the trail's names and addresses are that language's (the paths given are English).
+  const home = lang ? messagesFor(lang).nav.home : "Home";
   return {
     "@context": CONTEXT,
     "@type": "BreadcrumbList",
-    itemListElement: [{ name: "Home", path: "/" }, ...trail].map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: `${base}${item.path === "/" ? "/" : item.path}`,
-    })),
+    ...(lang ? { inLanguage: lang } : {}),
+    itemListElement: [{ name: home, path: "/" }, ...trail].map((item, index) => {
+      const path = lang ? localePath(lang, item.path) : item.path;
+      return { "@type": "ListItem", position: index + 1, name: item.name, item: `${base}${path === "/" ? "/" : path}` };
+    }),
   };
 }

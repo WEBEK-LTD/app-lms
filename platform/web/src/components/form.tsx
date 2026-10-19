@@ -63,6 +63,8 @@ export function PasswordField({
   hint,
   autoComplete,
   aside,
+  showLabel = "Show password",
+  hideLabel = "Hide password",
 }: {
   label: string;
   name: string;
@@ -70,6 +72,9 @@ export function PasswordField({
   hint?: ReactNode;
   autoComplete: string;
   aside?: ReactNode;
+  /** 55 The eye button's names in the page's language. */
+  showLabel?: string;
+  hideLabel?: string;
 }) {
   const [visible, setVisible] = useState(false);
   const id = `f-${name}`;
@@ -89,16 +94,16 @@ export function PasswordField({
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
           required
-          className="input pr-12"
+          className="input pe-12"
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? hideLabel : showLabel}
           aria-pressed={visible}
-          className="absolute top-0.5 right-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:text-midnight"
+          className="absolute end-0.5 top-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:text-midnight"
         >
           <Icon name={visible ? "visibility_off" : "visibility"} size={22} />
         </button>

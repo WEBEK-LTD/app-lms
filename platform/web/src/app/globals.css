@@ -59,6 +59,13 @@
     color: var(--color-midnight);
     font-family: var(--font-sans);
   }
+  /*
+   * 55 Arabic text in IBM Plex Sans Arabic (only its Arabic letters are
+   * loaded), Latin words and numbers in it still in Bricolage Grotesque.
+   */
+  :lang(ar) {
+    font-family: var(--font-arabic), var(--font-sans);
+  }
   a {
     color: var(--color-accent);
   }
@@ -216,7 +223,8 @@
   flex: none;
   gap: 12px;
   margin: 0;
-  padding: 2px 12px 2px 0;
+  padding-block: 2px;
+  padding-inline: 0 12px;
   list-style: none;
 }
 @keyframes marquee {
@@ -225,6 +233,18 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+/* 55 Right to left, the rows start on the right and run the other way. */
+.marquee-track:dir(rtl) {
+  animation-name: marquee-rtl;
+}
+@keyframes marquee-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -408,4 +428,20 @@
   .phone-button {
     display: none;
   }
+}
+
+/*
+ * 55 Arabic pages. Arabic letters join, so they get no letter spacing
+ * (the headings' tight tracking is for Latin type), and they need a little
+ * more room between lines.
+ */
+:lang(ar) {
+  letter-spacing: normal;
+}
+:lang(ar) :is(h1, h2) {
+  line-height: 1.3;
+}
+/* Arrows and chevrons point the way the page reads (components/icon.tsx). */
+.icon-flip:dir(rtl) {
+  transform: scaleX(-1);
 }
