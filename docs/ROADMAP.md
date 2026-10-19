@@ -1182,3 +1182,27 @@ website instead of the email; and the menus had no Home link. No migration, no c
 | [x] | 54.5 **Home** is the first entry of the main menu (marked on the home page) and of the footer's Product list | `website-seo.test.ts`, `public.spec.ts` |
 | [ ] | 54.6 A session that ended on the server (signed out on another device, a password change) leaves the readable cookie until it expires: the header says Dashboard and the dashboard asks to sign in again | Acceptable; the sign-in page could clear it later |
 
+
+## Phase 55: yallapp.com.tr in Arabic and Turkish, with English staying the default
+
+The owner asked for the whole system in Arabic and Turkish, with English as
+the main language: Arabic at yallapp.com.tr/ar, Turkish at yallapp.com.tr/tr,
+set up for search engines, and a button to change the language. This phase is
+the website and the shared language foundation (`docs/ARCHITECTURE.md` › The
+website in Arabic and Turkish); Phase 56 puts the client dashboard on it. The
+admin stays in English. No migration, no contract change.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 55.1 English addresses unchanged; every public page also at `/ar/…` and `/tr/…` (home, solutions, features, integrations, how it works, pricing, demo, contact, FAQ, docs and every article, developers, terms, privacy, refund, sign-in, sign-up, forgot and reset password, page not found) through a `[lang]` segment and shared page modules (`src/site`), no proxy or rewrite. Each page keeps its static or dynamic rendering; dashboard, admin, API and the app-facing pages have no prefix; `/ar/xyz` is "page not found" in Arabic, `/xyz` in English | `next build` (the `/ar` and `/tr` pages made ahead of time), `site-i18n.test.ts`, `site-languages.spec.ts` |
+| [x] | 55.2 The foundation (`src/i18n`): typed catalogs per language with English as the source, ICU messages and rich-text tags, `messagesFor`/`getT`/`formatMessage` on server and client, number, date and list formats per language (Arabic with Latin digits; prices written the same in every language), `<html lang dir>` from the route, the `yallapp_lang` cookie, no redirect by the browser's languages | `site-i18n.test.ts` (missing keys, wrong placeholders and tags fail) |
+| [x] | 55.3 The language switcher, "English · العربية · Türkçe", in the header (a menu on wide screens, a row in the phone menu), the footer and the sign-in pages: same page, `lang` and `hreflang` on each link, the Material Symbols "language" icon, keyboard and Escape, the choice kept in `yallapp_lang`; signing in or up from an Arabic or Turkish page keeps it too and still lands on the dashboard | `site-languages.spec.ts` (/pricing ↔ /ar/pricing ↔ /tr/pricing, sign-up and sign-in from /ar) |
+| [x] | 55.4 Search engines: a title, description and canonical per language, `hreflang` alternates (en, ar, tr, x-default) on every page, `og:locale` with its alternates, JSON-LD `inLanguage`, the sitemap with the three versions and their alternates, sign-in pages `noindex`, `robots.txt` unchanged; share images per language, the Arabic ones in IBM Plex Sans Arabic | `site-i18n.test.ts`, `site-languages.spec.ts` (hreflang, canonical, sitemap) |
+| [x] | 55.5 Right to left: logical spacing and positions, mirrored arrows and chevrons, the Works-with strip and the step timeline running the other way, phone and browser frames not mirrored, the comparison table and the plan cards in order; code, addresses, phone numbers and the API reference left to right. IBM Plex Sans Arabic for Arabic (`docs/BRAND.md` › Type); Turkish letters checked in Bricolage Grotesque | Screenshots at 1280 and 390 px |
+| [x] | 55.6 Every visible text in natural Arabic and Turkish: menus, sections, plans and the pricing table (prices still from Phase 52), the comparison, FAQ, Works-with, footer, forms and their messages, page titles, all 51 documentation articles and the developer guide (code examples as they are, headings keeping their English anchors), and the legal pages with a line that the English version prevails. The privacy policy names the language cookie | `site-i18n.test.ts` (every article and legal page has the same sections, links and contact placeholders as English) |
+| [x] | 55.7 Admin › Website content in English, Arabic and Turkish tabs: the built-in translations as defaults, each field editable per language, empty fields falling back; stored as `<key>@ar` and `<key>@tr` in `site_content` | `site-i18n.test.ts`, `site-languages.spec.ts` (the Turkish home title edited and reset) |
+| [x] | 55.8 `CLAUDE.md`: English is the default; the website and the client dashboard are in English, Arabic and Turkish, every new string in all three; the admin stays English; client apps keep their own languages | Review |
+| [ ] | 55.9 The client dashboard in Arabic and Turkish | Phase 56 |
+| [ ] | 55.10 Plan texts edited in Admin › Plans, and English texts the team edits after this phase, aren't translated by themselves: the translated pages show the team's edit (plans) or keep the built-in translation until the team edits that language | The team edits each language in Admin › Website content |
+| [ ] | 55.11 The Arabic share images use a simple letter shaper (joined letters, right-to-left words, no diacritics); a phrase with marks or mixed scripts may look plain | Acceptable; a full shaper if the images need more |
+| [ ] | 55.12 Checked in Chrome at 1280 and 390 px; not yet on real iPhones and Android phones, or by a native Arabic and Turkish reader | Before announcing the new languages |
