@@ -313,6 +313,7 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           <LinkCard href="/docs/app-store" icon="menu_book" title="Publish on the App Store" text="Step-by-step guide" />
           <LinkCard href="/docs/galaxy-store" icon="menu_book" title="Publish on Galaxy Store" text="Step-by-step guide" />
           <LinkCard href="/docs/huawei-appgallery" icon="menu_book" title="Publish on AppGallery" text="Step-by-step guide" />
+          <LinkCard href="/docs/xiaomi-getapps" icon="menu_book" title="Publish on GetApps" text="Step-by-step guide" />
         </div>
       </section>
 

@@ -27,8 +27,8 @@ export const STORE_FACTS: Record<AppStore, StoreFacts> = {
   app_store: { id: "app_store", name: "Apple App Store", short: "App Store", platform: "ios", docs: "/docs/app-store" },
   galaxy_store: { id: "galaxy_store", name: "Samsung Galaxy Store", short: "Galaxy Store", platform: "android", docs: "/docs/galaxy-store" },
   appgallery: { id: "appgallery", name: "Huawei AppGallery", short: "AppGallery", platform: "android", docs: "/docs/huawei-appgallery" },
-  // 41 Uploads to Xiaomi GetApps come with Phase 42, on the same terms as Galaxy Store and AppGallery.
-  getapps: { id: "getapps", name: "Xiaomi GetApps", short: "GetApps", platform: "android" },
+  // 42 Uploads to Xiaomi GetApps, on the same terms as Galaxy Store and AppGallery.
+  getapps: { id: "getapps", name: "Xiaomi GetApps", short: "GetApps", platform: "android", docs: "/docs/xiaomi-getapps" },
 };
 
 /** The five stores in a sentence. */

@@ -70,6 +70,7 @@ export async function SiteFooter({ full = false }: { full?: boolean }) {
             <Link href="/docs/app-store" className={footerLink}>Publish on the App Store</Link>
             <Link href="/docs/galaxy-store" className={footerLink}>Publish on Galaxy Store</Link>
             <Link href="/docs/huawei-appgallery" className={footerLink}>Publish on AppGallery</Link>
+            <Link href="/docs/xiaomi-getapps" className={footerLink}>Publish on GetApps</Link>
             <Link href="/developers" className={footerLink}>API reference</Link>
             <Link href="/faq" className={footerLink}>FAQ</Link>
           </nav>
