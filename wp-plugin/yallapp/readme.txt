@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,11 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= 0.4.4 =
+* Videos from your Yallapp Media library in lessons: paste a video's link from Media in your Yallapp dashboard into the lesson's new "Yallapp video" box (any LMS), or use it as the lesson's video address in your LMS. Once the LMS lets the student into the lesson, the app plays it in its own player, from a link made for that request that stops working after a few hours (the app asks for a new one and carries on where it was). Saving the lesson for offline viewing gets its own short-lived link. The video file never passes through your site.
+* New [yallapp_video link="…"] shortcode: shows a Media video on the website, and in the app it is the lesson's video when the lesson has none of the above.
+* The plugin asks Yallapp for these links with its license (POST /api/v1/licenses/media), and keeps one for other students while it has enough time left.
+
 = 0.4.3 =
 * Your site's own addresses open the app too: the course and lesson pages (Academy apps), product and product category pages (Store apps), posts (News & blog apps) and the pages with your booking plugin's form (Bookings apps), as your permalinks make them. On iPhone, apple-app-site-association lists them after what always stays on the website: wp-admin, sign-in, the REST API, feeds, the home page and the cart, checkout, account and payment pages of WooCommerce, Tutor LMS, LearnPress, LifterLMS and Masteriyo (add others with the yallapp_link_excluded_page_ids filter). On Android, the paths that start with a fixed folder (/courses/, /product/, /blog/) are sent to Yallapp with the license check and open the app from its next build; posts whose permalinks start at the root (/%postname%/) open it on iPhone only.
 * New endpoint GET /links/resolve tells the app what an address of the site is; anything the app doesn't show opens in its in-app browser.
@@ -50,9 +55,6 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 * Screen protection for every app type: "Block screenshots & screen recording" moved to Settings › General, and academies choose what it protects: course content only (lessons, quizzes, attachments and videos) or the whole app. The app gets it as `app.screen_protection`. The choice made on the Yallapp dashboard's Screen protection page, when there is one, replaces the setting. New sites start with it off; sites that saved their settings keep their choice (course content, as before).
 * Private courses: a course set to Private (Tutor LMS's "Visibility: Private", or WordPress's Private visibility with the other LMSs) stays out of the app's catalog, and shows in My courses and opens with its lessons for the students enrolled in it, however they were enrolled (bought, free or added by an administrator), and for its author, editors and administrators. Anyone else, with a direct link too, gets "not found", the course's free preview lessons included. Before, a private course disappeared from its students' app. Sensei LMS counts no one as enrolled in a course that isn't published, so there a private course stays closed to students, as on the website.
 * A lesson of a private course links to the lessons before and after it for its students.
-* Videos from your Yallapp Media library in lessons: paste a video's link from Media in your Yallapp dashboard into the lesson's new "Yallapp video" box (any LMS), or use it as the lesson's video address in your LMS. Once the LMS lets the student into the lesson, the app plays it in its own player, from a link made for that request that stops working after a few hours (the app asks for a new one and carries on where it was). Saving the lesson for offline viewing gets its own short-lived link. The video file never passes through your site.
-* New [yallapp_video link="…"] shortcode: shows a Media video on the website, and in the app it is the lesson's video when the lesson has none of the above.
-* The plugin asks Yallapp for these links with its license (POST /api/v1/licenses/media), and keeps one for other students while it has enough time left.
 
 = 0.4.2 =
 * The app's default tabs and pages come in Arabic and Turkish when the app offers them and you haven't written your own, and the app's other languages reach it from your Yallapp dashboard's Languages page.
