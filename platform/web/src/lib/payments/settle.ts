@@ -1,6 +1,7 @@
 import "server-only";
 import { sendPlanPaidMail } from "../billing/plan-mail";
 import { completePlanPayment } from "../billing/plan-payment";
+import { sendStoragePaidMail } from "../media/mail";
 import { fulfilmentOf } from "../catalog/fulfilment";
 import { completePayment, deliverPaidOrder, newOrderMailValues } from "../catalog/payment";
 import { accountForOrder } from "../catalog/settings";
@@ -52,7 +53,8 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
   const payment = await store.getPlanPaymentByToken(sha256Hex(token));
   if (!payment) return { status: "not_found", path: "/pending" };
   const client = await store.getClientById(payment.clientId);
-  const page = client?.status === "active" ? "/dashboard/license" : "/pending";
+  // 51 Storage packs come back to the Media page.
+  const page = client?.status !== "active" ? "/pending" : payment.purpose === "storage" ? "/dashboard/media" : "/dashboard/license";
   const failed: Settled = { status: "failed", path: `${page}?payment=failed` };
   if ((payment.paymentProvider ?? "iyzico") !== trigger.provider) return failed;
   const account = await yallappAccountFor(store, trigger.provider, encryptionKey());
@@ -70,6 +72,10 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
   });
   if (outcome.kind === "failed") return failed;
   if (outcome.kind === "pending") return { status: "pending", path: `${page}?payment=pending` };
+  if (outcome.kind === "storage_paid") {
+    await sendStoragePaidMail(store, client, outcome);
+    return { status: "paid", path: "/dashboard/media?payment=paid", paidApp: payment.appId };
+  }
   if (outcome.kind === "paid") await sendPlanPaidMail(store, client, outcome);
   // The dashboard opens on the app that was paid for.
   const paidApp = outcome.kind === "paid" ? (outcome.activation.app?.id ?? null) : payment.appId;

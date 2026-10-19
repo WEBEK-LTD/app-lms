@@ -52,7 +52,10 @@ export type EmailTemplateKey =
   | "donation_receipt"
 
   // 47 Refunds from the dashboard
-  | "payment_refunded";
+  | "payment_refunded"
+  // 51 Media and storage
+  | "storage_pack_added"
+  | "storage_pack_ended";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -86,6 +89,12 @@ const RENEW_PLACEHOLDERS: Placeholder[] = [
   PLAN,
   { name: "end_date", description: "The last day of the plan", sample: "31 Mar 2027" },
   { name: "renew_url", description: "The link to renew the app's plan by card", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=renew" },
+];
+
+const STORAGE_PLACEHOLDERS: Placeholder[] = [
+  { name: "used", description: "What the app's files take now", sample: "23.4 GB" },
+  { name: "storage", description: "The app's storage now (the plan's, with the packs still running)", sample: "45 GB" },
+  { name: "media_url", description: "The link to the app's Media page", sample: "https://yallapp.com.tr/dashboard/open?app=sample&to=media" },
 ];
 
 export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
@@ -461,6 +470,29 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{customer_name}},\n\n{{org_name}} refunded {{amount}} of your payment for {{what}}.\n\n" +
       "Refunded so far: {{total_refunded}}\nDate: {{date}}\n\n" +
       "The money goes back to the card you paid with. Banks usually show it within a few working days.\n\nIf you have a question about it, contact {{org_name}} and mention {{what}}.",
+  },
+  {
+    key: "storage_pack_added",
+    name: "Storage pack added",
+    description: "To a client when a storage pack for an app's Media library is paid by card.",
+    placeholders: [NAME, APP_NAME, { name: "pack", description: "The pack", sample: "+25 GB" }, { name: "end_date", description: "The last day of the pack (the plan's period)", sample: "31 Mar 2027" }, ...STORAGE_PLACEHOLDERS],
+    subject: "{{app_name}}: {{pack}} of storage added",
+    body:
+      "Hello {{name}},\n\nThanks for your payment. {{app_name}} now has {{pack}} more storage for its videos, pictures and PDFs, until {{end_date}}. " +
+      "Its files take {{used}} of {{storage}}.\n\nWhen you renew your plan by card, you can renew the pack with it.\n\nYour Media library: {{media_url}}" +
+      SIGNATURE,
+  },
+  {
+    key: "storage_pack_ended",
+    name: "Storage pack ended, files over the storage",
+    description: "To a client when a storage pack of an app ended and its files take more than the storage left (once per pack and end date). Nothing is deleted.",
+    placeholders: [NAME, APP_NAME, { name: "pack", description: "The pack that ended", sample: "+25 GB" }, ...STORAGE_PLACEHOLDERS],
+    subject: "{{app_name}}: your storage pack ended",
+    body:
+      "Hello {{name}},\n\nThe {{pack}} storage pack of {{app_name}} has ended. Its files take {{used}}, more than its {{storage}} of storage now.\n\n" +
+      "Nothing has been deleted and your videos keep playing in the app, but new uploads are paused until you buy more storage or delete files you don't need.\n\n" +
+      "Your Media library: {{media_url}}" +
+      SIGNATURE,
   },
   {
     key: "own_whatsapp_failed",

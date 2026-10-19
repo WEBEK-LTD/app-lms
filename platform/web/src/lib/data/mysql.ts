@@ -28,6 +28,8 @@ import type {
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
+// 51 Media and storage
+import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
@@ -2941,6 +2943,94 @@ export class MysqlStore implements DataStore {
     const t = schema.analyticsEvents;
     const [result] = await this.run((db) => db.delete(t).where(lt(t.day, beforeDay)));
     return result.affectedRows;
+  }
+
+  // 51 Videos and pictures hosted by Yallapp
+  async createMediaFile(file: MediaFile): Promise<void> {
+    await this.run((db) => db.insert(schema.mediaFiles).values(file));
+  }
+
+  async getMediaFile(appId: string, id: string): Promise<MediaFile | null> {
+    const m = schema.mediaFiles;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.appId, appId), eq(m.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getMediaFileById(id: string): Promise<MediaFile | null> {
+    const [row] = await this.run((db) => db.select().from(schema.mediaFiles).where(eq(schema.mediaFiles.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async listMediaFiles(appId: string, input: { kind?: MediaKind; status?: MediaStatus; limit?: number } = {}): Promise<MediaFile[]> {
+    const m = schema.mediaFiles;
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(and(eq(m.appId, appId), input.kind ? eq(m.kind, input.kind) : undefined, input.status ? eq(m.status, input.status) : undefined))
+        .orderBy(desc(m.createdAt), asc(m.id))
+        .limit(input.limit ?? 1000),
+    );
+  }
+
+  async updateMediaFile(appId: string, id: string, patch: MediaFilePatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    const m = schema.mediaFiles;
+    await this.run((db) => db.update(m).set(patch).where(and(eq(m.appId, appId), eq(m.id, id))));
+  }
+
+  async deleteMediaFile(appId: string, id: string): Promise<void> {
+    const m = schema.mediaFiles;
+    await this.run((db) => db.delete(m).where(and(eq(m.appId, appId), eq(m.id, id))));
+  }
+
+  async mediaUsage(appId: string): Promise<number> {
+    const m = schema.mediaFiles;
+    const [row] = await this.run((db) => db.select({ total: sql<string | null>`sum(${m.sizeBytes})` }).from(m).where(eq(m.appId, appId)));
+    return Number(row?.total ?? 0);
+  }
+
+  async listStaleMediaUploads(before: Date, limit: number): Promise<MediaFile[]> {
+    const m = schema.mediaFiles;
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(and(eq(m.status, "uploading"), lt(m.updatedAt, before)))
+        .orderBy(asc(m.updatedAt))
+        .limit(limit),
+    );
+  }
+
+  async createStoragePack(pack: StoragePack): Promise<void> {
+    await this.run((db) => db.insert(schema.storagePacks).values(pack));
+  }
+
+  async listStoragePacks(appId: string): Promise<StoragePack[]> {
+    const p = schema.storagePacks;
+    return this.run((db) => db.select().from(p).where(eq(p.appId, appId)).orderBy(desc(p.activeUntil), asc(p.id)));
+  }
+
+  async updateStoragePack(id: string, patch: StoragePackPatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.storagePacks).set(patch).where(eq(schema.storagePacks.id, id)));
+  }
+
+  async deleteStoragePack(appId: string, id: string): Promise<void> {
+    const p = schema.storagePacks;
+    await this.run((db) => db.delete(p).where(and(eq(p.appId, appId), eq(p.id, id))));
+  }
+
+  async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
+    const p = schema.storagePacks;
+    return this.run((db) =>
+      db
+        .select()
+        .from(p)
+        .where(and(lt(p.activeUntil, now), isNull(p.endedNoticeAt)))
+        .orderBy(asc(p.activeUntil))
+        .limit(limit),
+    );
   }
 }
 

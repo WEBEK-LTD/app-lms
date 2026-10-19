@@ -67,6 +67,8 @@ import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } fr
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
 // 47 Refunds
 import type { PaymentRefund, RefundKind } from "./types";
+// 51 Media and storage
+import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -704,4 +706,26 @@ export interface DataStore {
   listAnalyticsAppIds(fromDay: string): Promise<string[]>;
   /** Deletes raw events of days before `beforeDay`; returns how many. */
   purgeAnalyticsEvents(beforeDay: string): Promise<number>;
+
+  // 51 Videos and pictures hosted by Yallapp (lib/media)
+  createMediaFile(file: MediaFile): Promise<void>;
+  /** One app's file. */
+  getMediaFile(appId: string, id: string): Promise<MediaFile | null>;
+  /** Any app's file, for its public link and the plugin's signed links (the caller checks the app). */
+  getMediaFileById(id: string): Promise<MediaFile | null>;
+  /** Newest first. */
+  listMediaFiles(appId: string, input?: { kind?: MediaKind; status?: MediaStatus; limit?: number }): Promise<MediaFile[]>;
+  updateMediaFile(appId: string, id: string, patch: MediaFilePatch): Promise<void>;
+  deleteMediaFile(appId: string, id: string): Promise<void>;
+  /** Bytes the app's files take, uploads in progress included (their announced size). */
+  mediaUsage(appId: string): Promise<number>;
+  /** Uploads of every app not finished since `before` (the daily job cancels them). */
+  listStaleMediaUploads(before: Date, limit: number): Promise<MediaFile[]>;
+  createStoragePack(pack: StoragePack): Promise<void>;
+  /** An app's packs, the latest ending first. */
+  listStoragePacks(appId: string): Promise<StoragePack[]>;
+  updateStoragePack(id: string, patch: StoragePackPatch): Promise<void>;
+  deleteStoragePack(appId: string, id: string): Promise<void>;
+  /** Packs of every app that ended before `now` and whose end the owner wasn't told of yet. */
+  listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]>;
 }

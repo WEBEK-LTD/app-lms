@@ -12,6 +12,7 @@ import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { formatAmount } from "@/lib/billing/prices";
+import { paymentWhat } from "@/lib/billing/receipt";
 import { getStore } from "@/lib/data";
 import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
@@ -82,7 +83,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                   </td>
                   <td className="px-4 py-3">{p.appId ? appNames.get(p.appId) : <span className="text-muted">Before the first app</span>}</td>
                   <td className="px-4 py-3">
-                    {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"}
+                    {paymentWhat(p, planName(p.plan, plans))}
                   </td>
                   <td className="px-4 py-3 font-semibold">
                     {formatAmount(p.amountCents, p.currency)}

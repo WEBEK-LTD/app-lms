@@ -43,7 +43,7 @@ export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/
       <PageHeader title={`Receipt ${receiptNumber(payment)}`} description="Keep it for your records, or print it from your browser." />
       <section aria-labelledby="h-receipt" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-receipt" className="m-0 text-lg font-bold">
-          Yallapp plan payment
+          {payment.purpose === "storage" ? "Yallapp storage payment" : "Yallapp plan payment"}
         </h2>
         <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5 text-[15px]">
           {rows.map(([label, value]) => (

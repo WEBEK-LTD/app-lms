@@ -24,6 +24,7 @@ import {
   type QuickLink,
 } from "@/lib/pages/types";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, SelectInput, TextInput, type Lang } from "./controls";
+import { MediaPicker } from "@/components/media-picker";
 
 export interface BlockContext {
   lang: Lang;
@@ -221,6 +222,7 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
                   value={s.image_url ?? ""}
                   onChange={(v) => setSlide({ ...s, image_url: v || null })}
                 />
+                <MediaPicker kind="image" onPick={(link) => setSlide({ ...s, image_url: link })} />
                 <LangText id={`${id}-s${i}-heading`} label="Heading" value={s} field="heading" lang={lang} onChange={setSlide} />
                 <LangText id={`${id}-s${i}-subheading`} label="Text under the heading" value={s} field="subheading" lang={lang} onChange={setSlide} />
                 <ActionEditor id={`${id}-s${i}-action`} label="On tap" action={s.action} optional onChange={(action) => setSlide({ ...s, action })} {...actionProps} />
@@ -483,6 +485,8 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "banner" ? (
         <>
           <TextInput id={`${id}-image`} label="Image address" type="url" inputMode="url" placeholder="https://" value={block.image_url ?? ""} onChange={(image_url) => set({ image_url })} />
+          {/* 51 Pictures and videos from the Media library. */}
+          <MediaPicker kind="image" onPick={(image_url) => set({ image_url })} />
           <LangText id={`${id}-heading`} label="Heading" value={block} field="heading" lang={lang} onChange={onChange} />
           <LangText id={`${id}-subheading`} label="Text under the heading" value={block} field="subheading" lang={lang} onChange={onChange} />
           <ActionEditor id={`${id}-action`} label="On tap" action={block.action} optional onChange={(action) => set({ action })} {...actionProps} />
@@ -503,6 +507,7 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "image" ? (
         <>
           <TextInput id={`${id}-image`} label="Image address" type="url" inputMode="url" placeholder="https://" value={block.image_url ?? ""} onChange={(image_url) => set({ image_url })} />
+          <MediaPicker kind="image" onPick={(image_url) => set({ image_url })} />
           <TextInput
             id={`${id}-ratio`}
             label="Shape (width divided by height)"
@@ -517,8 +522,10 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       ) : null}
       {block.type === "video" ? (
         <>
-          <TextInput id={`${id}-url`} label="Video address" type="url" inputMode="url" placeholder="https://" hint="An MP4 link, or a YouTube or Vimeo page." value={block.url ?? ""} onChange={(url) => set({ url })} />
+          <TextInput id={`${id}-url`} label="Video address" type="url" inputMode="url" placeholder="https://" hint="A video from Media, an MP4 link, or a YouTube or Vimeo page." value={block.url ?? ""} onChange={(url) => set({ url })} />
+          <MediaPicker kind="video" share onPick={(url) => set({ url })} />
           <TextInput id={`${id}-poster`} label="Cover image address" type="url" inputMode="url" placeholder="https://" hint="Optional." value={block.poster_url ?? ""} onChange={(v) => set({ poster_url: v || null })} />
+          <MediaPicker kind="image" label="Choose a cover from Media" onPick={(poster_url) => set({ poster_url })} />
         </>
       ) : null}
       {block.type === "button" ? (

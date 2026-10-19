@@ -57,6 +57,9 @@ export const AUDIT_ACTIONS = {
   "demo.setup": "Demo apps created or refreshed",
   "demo.build": "Demo app build started",
   "demo.download": "Demo download changed",
+  // 51 Media storage
+  "storage.add": "Storage pack added",
+  "storage.remove": "Storage pack removed",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

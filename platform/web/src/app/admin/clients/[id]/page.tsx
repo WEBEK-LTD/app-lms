@@ -22,6 +22,7 @@ import { appLabel } from "@/lib/app/label";
 import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatAmount } from "@/lib/billing/prices";
+import { paymentWhat } from "@/lib/billing/receipt";
 import { getStore } from "@/lib/data";
 import type { App, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
@@ -43,11 +44,20 @@ import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../../payments/labels";
 import { ClientNotificationForm, ConnectionCheckForm, WordpressReadyForm } from "./forms";
+import { addStoragePackAction, removeStoragePackAction } from "@/app/actions/admin-clients";
+import { packOffers } from "@/lib/media/packs";
+import { formatBytes } from "@/lib/media/quota";
+import { appStorage } from "@/lib/media/usage";
+import { platformSetting } from "@/lib/settings/platform";
 
 export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
+  // 51 Storage packs added or removed by the team.
+  "storage-added": "Storage pack added.",
+  "storage-removed": "Storage pack removed.",
+  "storage-refused": "The storage pack wasn't changed: check the pack and the date.",
   activated: "Activated. The license key was emailed to the client.",
   renewed: "Saved. The client was emailed the new date.",
   suspended: "Suspended. The plugin now reports the license as suspended.",
@@ -293,7 +303,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                 <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                   <span>
-                    {formatAmount(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"} ·{" "}
+                    {formatAmount(p.amountCents, p.currency)} · {paymentWhat(p, planName(p.plan, plans))} ·{" "}
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                     {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
                   </span>
@@ -589,6 +599,7 @@ async function AppEntry({
       ) : null}
 
       {app ? <AnalyticsCard app={app} now={now} /> : null}
+      {app ? <StorageCard clientId={client.id} app={app} until={license?.expiresAt ?? null} now={now} may={{ edit: may.license }} /> : null}
 
       {app?.backend === "hosted" ? (
         <HostedSection clientId={client.id} app={app} q={usersQuery} page={usersPage} may={{ edit: may.edit }} />
@@ -687,6 +698,67 @@ function AppCard({
           <input type="hidden" name="from" value="client" />
           <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
             {app.backend === "hosted" ? "Stop the hosted API" : "Use the hosted API"}
+          </SubmitButton>
+        </form>
+      ) : null}
+    </Card>
+  );
+}
+
+/** 51 The app's Media library: what it takes of its storage, and its storage packs (added here when paid another way). */
+async function StorageCard({ clientId, app, until, now, may }: { clientId: string; app: App; until: Date | null; now: Date; may: { edit: boolean } }) {
+  const store = await getStore();
+  const [usage, setting] = await Promise.all([appStorage(store, app, await effectivePlans(store), now), platformSetting(store, "storagePacks")]);
+  const offers = packOffers(setting?.value);
+  return (
+    <Card id={`h-storage-${app.id}`} title="Media storage" level={3}>
+      <p className="m-0 text-sm" data-admin-storage="">
+        {formatBytes(usage.usedBytes)} used of {usage.limitBytes === null ? "unlimited" : formatBytes(usage.limitBytes)}
+        {usage.over ? " · over: uploads paused" : ""}
+      </p>
+      {usage.packs.length ? (
+        <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+          {usage.packs.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <span>
+                +{p.gb} GB until {formatDate(p.activeUntil)} {p.activeUntil.getTime() <= now.getTime() ? "(ended)" : ""} · {p.paymentId ? "paid by card" : "added by the team"}
+              </span>
+              {may.edit ? (
+                <form action={removeStoragePackAction}>
+                  <input type="hidden" name="clientId" value={clientId} />
+                  <input type="hidden" name="appId" value={app.id} />
+                  <input type="hidden" name="packId" value={p.id} />
+                  <SubmitButton variant="secondary" className="h-8 px-3 text-sm">
+                    Remove
+                  </SubmitButton>
+                </form>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="m-0 text-sm text-muted">No storage packs.</p>
+      )}
+      {may.edit ? (
+        <form action={addStoragePackAction} className="flex flex-wrap items-end gap-2">
+          <input type="hidden" name="clientId" value={clientId} />
+          <input type="hidden" name="appId" value={app.id} />
+          <label className="flex flex-col gap-1 text-sm font-semibold">
+            Pack
+            <select name="offer" className="input input-sm">
+              {offers.map((o) => (
+                <option key={o.id} value={o.id}>
+                  +{o.gb} GB
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-semibold">
+            Until
+            <input type="date" name="until" defaultValue={until ? until.toISOString().slice(0, 10) : ""} className="input input-sm" />
+          </label>
+          <SubmitButton variant="secondary" className="h-10 px-3 text-sm">
+            Add storage pack
           </SubmitButton>
         </form>
       ) : null}

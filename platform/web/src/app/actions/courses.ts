@@ -18,6 +18,8 @@ import type { FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { hostedSettings } from "@/lib/hosted/service";
 import { imageType } from "@/lib/images";
+import { appUrl } from "@/lib/env";
+import { parseMediaLink } from "@/lib/media/files";
 
 const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -155,7 +157,7 @@ export async function saveLessonAction(_: FormState, formData: FormData): Promis
   const setup = courseSetup(app);
   const topic = setup.courses.find((c) => c.id === courseId)?.topics.find((t) => t.id === topicId);
   if (!topic) return { message: "This section no longer exists." };
-  const parsed = parseLesson(v);
+  const parsed = parseLesson(v, (url) => parseMediaLink(url, appUrl()) !== null);
   if (!parsed.ok) return { errors: parsed.errors, values: v };
   const id = v.id ? Number(v.id) : null;
   if (id !== null && !topic.lessons.some((l) => l.id === id)) return { message: "This lesson no longer exists." };

@@ -12,6 +12,7 @@ import {
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { btn } from "@/components/ui";
 import { initialFormState } from "@/lib/forms";
+import { MediaImagesPicker } from "@/components/media-picker";
 
 export interface ProductFormValues {
   id: number | null;
@@ -160,6 +161,8 @@ export function ProductForm({
         <span id="f-images-hint" className="text-[13px] text-muted">
           PNG or JPEG, up to 2 MB each and 6 per product. The first photo is shown in lists. Square photos look best.
         </span>
+        {/* 51 Or pictures already in the Media library. */}
+        <MediaImagesPicker />
         <FieldError id="f-images-error" error={state.errors?.images} />
       </fieldset>
       <OptionGroupsEditor initial={product.optionGroups} currency={currency} restaurant={restaurant} error={state.errors?.optionGroups} />

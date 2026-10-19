@@ -87,6 +87,8 @@ import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } fr
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import { mergeCrash } from "../crashes/report";
+// 51 Media and storage
+import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -2297,5 +2299,82 @@ export class MemoryStore implements DataStore {
       }
     }
     return removed;
+  }
+
+  // 51 Videos and pictures hosted by Yallapp
+  private mediaFiles = new Map<string, MediaFile>();
+  private storagePacks = new Map<string, StoragePack>();
+
+  async createMediaFile(file: MediaFile): Promise<void> {
+    this.mediaFiles.set(file.id, clone(file));
+  }
+
+  async getMediaFile(appId: string, id: string): Promise<MediaFile | null> {
+    const file = this.mediaFiles.get(id);
+    return file && file.appId === appId ? clone(file) : null;
+  }
+
+  async getMediaFileById(id: string): Promise<MediaFile | null> {
+    const file = this.mediaFiles.get(id);
+    return file ? clone(file) : null;
+  }
+
+  async listMediaFiles(appId: string, input: { kind?: MediaKind; status?: MediaStatus; limit?: number } = {}): Promise<MediaFile[]> {
+    return [...this.mediaFiles.values()]
+      .filter((f) => f.appId === appId && (!input.kind || f.kind === input.kind) && (!input.status || f.status === input.status))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id))
+      .slice(0, input.limit ?? 1000)
+      .map(clone);
+  }
+
+  async updateMediaFile(appId: string, id: string, patch: MediaFilePatch): Promise<void> {
+    const file = this.mediaFiles.get(id);
+    if (file && file.appId === appId) this.mediaFiles.set(id, { ...file, ...clone(patch) });
+  }
+
+  async deleteMediaFile(appId: string, id: string): Promise<void> {
+    if (this.mediaFiles.get(id)?.appId === appId) this.mediaFiles.delete(id);
+  }
+
+  async mediaUsage(appId: string): Promise<number> {
+    let total = 0;
+    for (const file of this.mediaFiles.values()) if (file.appId === appId) total += file.sizeBytes;
+    return total;
+  }
+
+  async listStaleMediaUploads(before: Date, limit: number): Promise<MediaFile[]> {
+    return [...this.mediaFiles.values()]
+      .filter((f) => f.status === "uploading" && f.updatedAt.getTime() < before.getTime())
+      .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async createStoragePack(pack: StoragePack): Promise<void> {
+    this.storagePacks.set(pack.id, clone(pack));
+  }
+
+  async listStoragePacks(appId: string): Promise<StoragePack[]> {
+    return [...this.storagePacks.values()]
+      .filter((p) => p.appId === appId)
+      .sort((a, b) => b.activeUntil.getTime() - a.activeUntil.getTime() || a.id.localeCompare(b.id))
+      .map(clone);
+  }
+
+  async updateStoragePack(id: string, patch: StoragePackPatch): Promise<void> {
+    const pack = this.storagePacks.get(id);
+    if (pack) this.storagePacks.set(id, { ...pack, ...clone(patch) });
+  }
+
+  async deleteStoragePack(appId: string, id: string): Promise<void> {
+    if (this.storagePacks.get(id)?.appId === appId) this.storagePacks.delete(id);
+  }
+
+  async listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]> {
+    return [...this.storagePacks.values()]
+      .filter((p) => p.activeUntil.getTime() < now.getTime() && p.endedNoticeAt === null)
+      .sort((a, b) => a.activeUntil.getTime() - b.activeUntil.getTime())
+      .slice(0, limit)
+      .map(clone);
   }
 }

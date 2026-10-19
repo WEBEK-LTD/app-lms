@@ -1669,6 +1669,45 @@ A membership is for classes at your place, used in person, so Apple allows payin
 `,
   }),
   doc({
+    slug: "media",
+    section: "Your content",
+    title: "Media and storage",
+    description: "Upload your videos, pictures and PDFs to Yallapp, use them in lessons and pages, and add storage when you need it.",
+    steps: false,
+    body: `The dashboard's **Media** page keeps your app's videos, pictures and PDFs on Yallapp's servers. A lesson video from Media plays in your app's own player, with your watermark and without anything showing where it's hosted, and only for the people who may watch the lesson.
+
+## Upload
+
+Drop files on **Media**, or select **Choose files**. You can upload:
+
+- **Videos**: MP4, MOV or WebM, up to 5 GB each. MP4 (H.264) plays on every phone; record or export in it when you can.
+- **Pictures**: JPEG, PNG, WebP or GIF, up to 20 MB each.
+- **PDFs**: up to 200 MB each.
+
+Big videos upload in parts. If the connection drops, the upload tries again by itself; if you close the page, choose the same file again and it carries on from where it stopped. Uploads not finished within two days are cancelled and their space comes back.
+
+## Use your files
+
+- **In a lesson** (courses without a website): open the course, then **Choose from Media** next to **Video address**.
+- **In a WordPress lesson** (Tutor LMS, LearnPress and the others): select **Copy link** on Media and paste the link as the lesson's video address (an external or embedded video), or in the **Yallapp video** box the Yallapp plugin adds to every lesson. The app plays it in its own player; the plugin checks that the student may open the lesson first. On your website, the shortcode \`[yallapp_video link="…"]\` shows the video to the people who can see the lesson.
+- **In pages, products and listings**: **Choose from Media** next to an image or video address. A video you put on a page plays for everyone who opens the app.
+
+A picture's link works for anyone. A video's or PDF's link plays only in lessons, unless you select **Share the link**. Each file can be renamed; deleting it frees its space at once, and lessons that used it lose their video.
+
+Downloads for offline viewing work with videos from Media when your plan has offline mode.
+
+## Storage
+
+Each plan includes storage: **2 GB** on Starter, **20 GB** on Growth, **100 GB** on Pro and **500 GB** on Business. The top of **Media** shows how much your files take. A file counts as soon as its upload starts.
+
+## More storage
+
+Select **Buy more storage** on Media and choose a pack, such as **+25 GB** or **+100 GB**. You pay by card a month's price for each month left in your plan's period, and the pack runs until the plan's period ends. When you renew your plan by card, the payment page offers to renew your packs with it. Paying another way? Message us on WhatsApp and we add the pack.
+
+If a pack ends while your files take more than your storage, nothing is deleted and everything keeps playing, but new uploads wait until you delete files or add storage. We tell you by email and on your dashboard.
+`,
+  }),
+  doc({
     slug: "courses",
     section: "Selling and bookings",
     title: "Courses without a website",
@@ -1682,7 +1721,7 @@ Select **Add course** and give it a title, a description, a cover image (PNG or 
 
 ## Sections and lessons
 
-Open a course to add sections, and lessons inside them. A lesson has a **video address** (YouTube, Vimeo or a video file's https address), **text** shown under the video or as the whole lesson, and its length in minutes. Turn on **Free preview for everyone** to let anyone open a lesson before enrolling.
+Open a course to add sections, and lessons inside them. A lesson has a **video address** (a video from your [Media library](/docs/media), YouTube, Vimeo or a video file's https address), **text** shown under the video or as the whole lesson, and its length in minutes. Turn on **Free preview for everyone** to let anyone open a lesson before enrolling.
 
 ## Free and paid courses
 
@@ -2021,7 +2060,7 @@ Still not working? Message us on WhatsApp with the phone number and the time of 
     title: "Videos don't play",
     description: "What to check when a lesson video doesn't play in the app.",
     steps: true,
-    body: `The app plays the same video sources your courses use: uploaded videos, YouTube, Vimeo and embedded players.
+    body: `The app plays the same video sources your courses use: uploaded videos, videos from your [Media library](/docs/media), YouTube, Vimeo and embedded players.
 
 ## Play the lesson on your website or platform
 

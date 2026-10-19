@@ -13,6 +13,7 @@ import {
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
+import { MediaPickButton } from "@/components/media-picker";
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
   return (
@@ -170,17 +171,21 @@ export function LessonForm({ courseId, topicId, current, submit }: { courseId: n
         <Field label="Lesson title" name="title" id={`${key}-title`} defaultValue={v.title} error={e.title} small />
         <Field label="Minutes" name="duration" id={`${key}-duration`} inputMode="numeric" defaultValue={v.duration} error={e.duration} small />
       </div>
-      <Field
-        label="Video address"
-        name="videoUrl"
-        id={`${key}-video`}
-        type="url"
-        placeholder="https://www.youtube.com/watch?v=…"
-        defaultValue={v.videoUrl}
-        hint="YouTube, Vimeo or a video file's https address. Optional."
-        error={e.videoUrl}
-        small
-      />
+      <div className="flex flex-col gap-1.5">
+        <Field
+          label="Video address"
+          name="videoUrl"
+          id={`${key}-video`}
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=…"
+          defaultValue={v.videoUrl}
+          hint="A video from your Media library (it plays with your app's own player, with nothing showing where it's hosted), YouTube, Vimeo or a video file's https address. Optional."
+          error={e.videoUrl}
+          small
+        />
+        {/* 51 Videos uploaded to Yallapp. */}
+        <MediaPickButton kind="video" inputId={`${key}-video`} label="Choose from Media" />
+      </div>
       <TextArea id={`${key}-text`} label="Text" name="text" value={v.text} rows={3} error={e.text} hint="Shown under the video, or as the whole lesson." />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="preview" label="Free preview for everyone" checked={v.preview === "on"} />

@@ -104,9 +104,9 @@ describe("32 the home page's texts and counts", () => {
   });
 
   it("shows each plan's key limits in a few words", () => {
-    expect(planLimitLines(PLAN_INFO.starter).map((l) => l.text)).toEqual(["Up to 1,000 users", "1 language", "Android"]);
-    expect(planLimitLines(PLAN_INFO.growth).map((l) => l.text)).toEqual(["Up to 10,000 users", "3 languages", "Android and iOS"]);
-    expect(planLimitLines(PLAN_INFO.pro).map((l) => l.text)).toEqual(["Unlimited users", "All languages", "Android and iOS"]);
+    expect(planLimitLines(PLAN_INFO.starter).map((l) => l.text)).toEqual(["Up to 1,000 users", "1 language", "Android", "2 GB for videos and files"]);
+    expect(planLimitLines(PLAN_INFO.growth).map((l) => l.text)).toEqual(["Up to 10,000 users", "3 languages", "Android and iOS", "20 GB for videos and files"]);
+    expect(planLimitLines(PLAN_INFO.pro).map((l) => l.text)).toEqual(["Unlimited users", "All languages", "Android and iOS", "100 GB for videos and files"]);
   });
 });
 

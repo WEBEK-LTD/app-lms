@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { savePlanAction, savePlanLimitsAction } from "@/app/actions/admin-settings";
+import { savePlanAction, savePlanLimitsAction, saveStoragePacksAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 
@@ -111,6 +111,59 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
   );
 }
 
+export interface StoragePackValues {
+  id: string;
+  gb: string;
+  /** 52 A month's price in pounds (charged) and, optionally, in dollars (shown outside Egypt). */
+  egpPrice: string;
+  usdPrice: string;
+  /** 52 The dollar price at the exchange rate, for the hint; empty without a rate or a price. */
+  usdAtRate: string;
+}
+
+/** 51 The storage packs owners buy for their Media library: size and a month's price each, 52 in pounds like the plans. */
+export function StoragePacksForm({ offers }: { offers: StoragePackValues[] }) {
+  const [state, action] = useActionState(saveStoragePacksAction, initialFormState);
+  const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" aria-label="Storage packs">
+      <FormMessage message={state.message} ok={state.ok} />
+      {offers.map((o, i) => (
+        <fieldset key={o.id} className="m-0 grid gap-4 rounded-xl border border-line-soft p-3.5 sm:grid-cols-[120px_1fr_1fr]">
+          <legend className="px-1 text-sm font-semibold">Pack {i + 1}</legend>
+          <input type="hidden" name={`id${i}`} value={o.id} />
+          <Field id={`pack-${o.id}-gb`} label="Gigabytes" name={`gb${i}`} inputMode="numeric" defaultValue={v(`gb${i}`, o.gb)} error={state.errors?.[`gb${i}`]} small />
+          <Field
+            id={`pack-${o.id}-egp`}
+            label="Monthly price in EGP"
+            name={`egp${i}`}
+            inputMode="decimal"
+            defaultValue={v(`egp${i}`, o.egpPrice)}
+            hint="What everyone is charged. Empty: not sold by card (add it by hand on the client's page)."
+            error={state.errors?.[`egp${i}`]}
+            small
+          />
+          <Field
+            id={`pack-${o.id}-usd`}
+            label="Monthly price in USD (optional)"
+            name={`usd${i}`}
+            inputMode="decimal"
+            defaultValue={v(`usd${i}`, o.usdPrice)}
+            hint={o.usdAtRate ? `Shown outside Egypt. Empty: ${o.usdAtRate} at the exchange rate.` : "Shown outside Egypt. Empty: the EGP price at the exchange rate in Settings."}
+            error={state.errors?.[`usd${i}`]}
+            small
+          />
+        </fieldset>
+      ))}
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save storage packs
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
 export interface PlanLimitsValues {
   id: string;
   name: string;
@@ -118,6 +171,7 @@ export interface PlanLimitsValues {
   appUsers: string;
   languages: string;
   sources: string;
+  storageGb: string;
   teamMembers: string;
   support: string;
   accountManager: boolean;
@@ -137,7 +191,7 @@ export function PlanLimitsForm({
 }: {
   plan: PlanLimitsValues;
   features: { id: string; label: string; description: string; enforced: string }[];
-  limits: { id: "appUsers" | "languages" | "sources"; label: string; enforced: string }[];
+  limits: { id: "appUsers" | "languages" | "sources" | "storageGb"; label: string; enforced: string }[];
   supportLevels: { id: string; label: string }[];
 }) {
   const [state, action] = useActionState(savePlanLimitsAction, initialFormState);
@@ -160,7 +214,7 @@ export function PlanLimitsForm({
           </label>
         ))}
       </fieldset>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         {limits.map((l) => (
           <Field
             key={l.id}

@@ -35,6 +35,11 @@ import type {
   ApiWebhookStatus,
   PaymentRefund,
   RefundKind,
+  // 51 Media and storage
+  MediaKind,
+  MediaStatus,
+  PaidStoragePack,
+  PlanPaymentPurpose,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -592,6 +597,9 @@ export const planPayments = mysqlTable(
     // 52 The price as the client saw it, when another currency than the charge (dollars outside Egypt).
     shownCents: bigint("shown_cents", { mode: "number", unsigned: true }),
     shownCurrency: varchar("shown_currency", { length: 3 }).$type<CatalogCurrency>(),
+    // 51 A plan (with the storage packs renewed with it) or storage packs only (null: a plan).
+    purpose: varchar("purpose", { length: 8 }).$type<PlanPaymentPurpose>(),
+    storagePacks: jsonText<PaidStoragePack[]>("storage_packs"),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -1452,4 +1460,46 @@ export const paymentRefunds = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId)],
+);
+
+// 51 Videos and pictures hosted by Yallapp: each app's Media library and its storage packs.
+export const mediaFiles = mysqlTable(
+  "media_files",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 200 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<MediaKind>(),
+    contentType: varchar("content_type", { length: 100 }).notNull(),
+    sizeBytes: bigint("size_bytes", { mode: "number", unsigned: true }).notNull(),
+    storageKey: varchar("storage_key", { length: 300 }).notNull(),
+    status: varchar("status", { length: 12 }).notNull().$type<MediaStatus>(),
+    public: boolean("public").notNull().default(false),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("media_files_app_idx").on(t.appId, t.createdAt), index("media_files_status_idx").on(t.status, t.updatedAt)],
+);
+
+export const storagePacks = mysqlTable(
+  "storage_packs",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    offer: varchar("offer", { length: 32 }).notNull(),
+    gb: int("gb").notNull(),
+    activeUntil: time("active_until").notNull(),
+    paymentId: id("payment_id"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    endedNoticeAt: time("ended_notice_at"),
+  },
+  (t) => [index("storage_packs_app_idx").on(t.appId, t.activeUntil), index("storage_packs_until_idx").on(t.activeUntil)],
 );

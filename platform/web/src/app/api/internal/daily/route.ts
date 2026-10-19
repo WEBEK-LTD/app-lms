@@ -5,6 +5,10 @@ import { sendTemplate } from "@/lib/email/send";
 import { appUrl, internalJobSecret } from "@/lib/env";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runDailyNotices } from "@/lib/notices";
+import { effectivePlans } from "@/lib/entitlements";
+import { cancelStaleUploads } from "@/lib/media/files";
+import { getMediaStorage } from "@/lib/media/storage";
+import { noticeEndedPacks } from "@/lib/media/usage";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -13,7 +17,9 @@ import { runDailyNotices } from "@/lib/notices";
  * date came, sends the plan-ending reminders (7 days, 1 day, the day) and
  * the app users notices, each once. 44 Then it counts each app's usage
  * statistics for the finished days and deletes raw events older than 40
- * days. Safe to call again.
+ * days. 51 Then storage packs that ended are looked at (a notice and an
+ * email when the files are over the storage left) and uploads left unfinished
+ * for two days are cancelled. Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -21,11 +27,16 @@ export async function POST(request: Request): Promise<Response> {
   }
   const store = await getStore();
   const now = new Date();
-  const report = await runDailyNotices({ store, baseUrl: appUrl(), mail: sendTemplate, now });
+  const deps = { store, baseUrl: appUrl(), mail: sendTemplate, now };
+  const report = await runDailyNotices(deps);
   // 47 Each app's days in its time zone.
   const analytics = await runAnalyticsNightly(store, now, undefined, async (appId) => {
     const app = await store.getAppById(appId);
     return app ? appZone(store, app) : "UTC";
   });
-  return json({ ...report, analytics });
+  const media = {
+    storageNotices: (await noticeEndedPacks(deps, await effectivePlans(store))).length,
+    uploadsCancelled: await cancelStaleUploads({ store, storage: getMediaStorage(), now }),
+  };
+  return json({ ...report, analytics, media });
 }

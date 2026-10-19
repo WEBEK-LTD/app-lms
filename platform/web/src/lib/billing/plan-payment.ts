@@ -1,14 +1,16 @@
 import { activateClient, type ActivationOutcome } from "../admin/clients";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import type { App, Client, PlanPayment, User } from "../data/types";
+import type { App, Client, PlanPayment, StoragePack, User } from "../data/types";
+import { applyPaidPacks } from "../media/packs";
 import { PaymentError } from "../payments/errors";
 import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
 import { planPriceOf, type Plan, type PlanInfo } from "../plans";
 import { getPlans } from "../settings/platform";
 import type { CouponCheck } from "./coupons";
 import { planChangeFor, type PlanChange } from "./plan-change";
-import { chargedPrice, formatAmount, type Money, type Offer } from "./prices";
+import type { StorageRenewal } from "../media/packs";
+import { chargedPrice, formatAmount, shownOf, sumOffers, type Money, type Offer } from "./prices";
 
 /**
  * Clients pay an app's Yallapp plan by card on the provider's page (37
@@ -79,14 +81,19 @@ export async function startPlanPayment(
     callbackUrls: (token: string) => { returnUrl: string; webhookUrl: string | null };
     /** 11.6: a coupon checked for this client and plan (checkCoupon); `offer` is already its lowered price. */
     coupon?: Extract<CouponCheck, { ok: true }>;
-    /** 52 What is charged (pounds with Kashier), and what the client saw (dollars outside Egypt). */
+    /** 52 What is charged for the plan (pounds with Kashier), and what the client saw (dollars outside Egypt); with a coupon, its lowered price. */
     offer: Pick<Offer, "charged" | "shown">;
+    /** 51 Storage packs renewed with the plan (lib/media/packs.ts › renewablePacks), added to the price; the coupon is for the plan only. */
+    storagePacks?: StorageRenewal | null;
   },
 ): Promise<string> {
   const { client, user, plan, coupon, account, offer } = deps;
   if (!planPriceOf(plan)) throw new Error("This plan has no card price");
-  if (offer.charged.cents <= 0) throw new Error("A free payment doesn't go to the provider");
   if (coupon && offer.charged.cents !== coupon.amountCents) throw new Error("The offer isn't the coupon's price");
+  const packs = deps.storagePacks?.lines ?? [];
+  // 51 The packs' charges (and shown prices) add to the plan's.
+  const total = deps.storagePacks ? sumOffers([{ ...offer, line: null }, deps.storagePacks.offer]) : offer;
+  if (total.charged.cents <= 0) throw new Error("A free payment doesn't go to the provider");
   const token = randomToken(24);
   const payment: PlanPayment = {
     id: newId(),
@@ -94,8 +101,8 @@ export async function startPlanPayment(
     appId: deps.app?.id ?? null,
     plan: plan.id,
     months: plan.billingMonths,
-    amountCents: offer.charged.cents,
-    currency: offer.charged.currency,
+    amountCents: total.charged.cents,
+    currency: total.charged.currency,
     status: "pending",
     tokenHash: sha256Hex(token),
     paymentId: null,
@@ -103,9 +110,12 @@ export async function startPlanPayment(
     paidAt: null,
     paymentProvider: account.provider,
     providerRef: null,
-    ...shownOf(offer),
+    ...shownOf(total),
+    purpose: "plan",
+    storagePacks: packs.length ? packs : null,
   };
   const name = `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`;
+  const planCents = offer.charged.cents;
   const { returnUrl, webhookUrl } = deps.callbackUrls(token);
   // 37 The payment is recorded once the provider has started it, with the provider's reference to read it back.
   const started = await startCheckout(
@@ -115,7 +125,11 @@ export async function startPlanPayment(
       amountCents: payment.amountCents,
       currency: payment.currency,
       description: name,
-      lines: [{ id: `plan-${plan.id}`, name, cents: payment.amountCents, category: "Subscription", digital: true }],
+      lines: [
+        { id: `plan-${plan.id}`, name, cents: planCents, category: "Subscription", digital: true },
+        // 51 Each storage pack renewed with the plan.
+        ...packs.map((p) => ({ id: `storage-${p.offer}`, name: `Yallapp storage +${p.gb} GB`, cents: p.cents, category: "Subscription", digital: true })),
+      ].filter((line) => line.cents > 0),
       customer: {
         id: `client-${client.id}`,
         name: user.name,
@@ -138,6 +152,8 @@ export async function startPlanPayment(
 
 export type PlanPaymentOutcome =
   | { kind: "paid"; activation: ActivationOutcome; activeUntil: Date; payment: PlanPayment; change: PlanChange }
+  /** 51 Storage packs bought: they run until the plan's period ends. */
+  | { kind: "storage_paid"; payment: PlanPayment; packs: StoragePack[] }
   | { kind: "already_paid" }
   /** 37 Kashier or Fawaterk haven't confirmed it (yet): it stays pending, and their webhook may still confirm it. */
   | { kind: "pending" }
@@ -193,6 +209,12 @@ export async function completePlanPayment(
   await deps.store.settleCouponRedemption(payment.id, "redeemed", deps.now);
   // The payment's app: the one it was started for (or the account's first app, which took it).
   const license = await deps.store.getLicenseForApp(payment.clientId, payment.appId);
+  const paid: PlanPayment = { ...payment, status: "paid", paymentId: result.paymentId, paidAt: deps.now };
+  if (payment.purpose === "storage") {
+    // 51 Packs run until the plan's period ends (today, if the plan ended meanwhile: the team sees the payment).
+    const packs = await applyPaidPacks(deps.store, paid, license?.expiresAt ?? deps.now, deps.now);
+    return { kind: "storage_paid", payment: paid, packs };
+  }
   // 13.3 An upgrade starts now with the old plan's days credited; a downgrade starts when the paid period ends.
   const plans = await getPlans(deps.store);
   const change = planChangeFor(license, plans[payment.plan], payment.months, plans, deps.now);
@@ -210,24 +232,15 @@ export async function completePlanPayment(
     deps.encryptionKey,
     deps.now,
   );
-  return {
-    kind: "paid",
-    activation,
-    activeUntil: change.activeUntil,
-    payment: { ...payment, status: "paid", paymentId: result.paymentId, paidAt: deps.now },
-    change,
-  };
+  // 51 Storage packs renewed with the plan run until its new end.
+  await applyPaidPacks(deps.store, paid, change.activeUntil, deps.now);
+  return { kind: "paid", activation, activeUntil: change.activeUntil, payment: paid, change };
 }
 
 function noteFor(change: PlanChange, plans: Record<Plan, PlanInfo>): string {
   if (change.kind === "upgrade") return `, upgrade to ${plans[change.plan].name}${change.creditDays ? ` with ${change.creditDays} days credited` : ""}`;
   if (change.kind === "downgrade" && change.nextPlan) return `, moves to ${plans[change.nextPlan].name} when the current period ends`;
   return "";
-}
-
-/** 52 The shown price, kept when it isn't in the charge's currency. */
-function shownOf(offer: Pick<Offer, "charged" | "shown">): Pick<PlanPayment, "shownCents" | "shownCurrency"> {
-  return offer.shown.currency === offer.charged.currency ? { shownCents: null, shownCurrency: null } : { shownCents: offer.shown.cents, shownCurrency: offer.shown.currency };
 }
 
 // 11.6 Coupons

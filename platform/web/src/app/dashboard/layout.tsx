@@ -51,6 +51,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard", label: "Overview", icon: "dashboard", exact: true },
         { href: "/dashboard/setup", label: "App setup", icon: "tune", prefix: "/dashboard/app-type" },
         { href: "/dashboard/pages", label: "Pages & look", icon: "palette" },
+        // 51 The app's videos, pictures and PDFs, kept by Yallapp.
+        ...(app ? [{ href: "/dashboard/media", label: "Media", icon: "photo_library" as const }] : []),
         // 43 The app's languages and every text in them.
         { href: "/dashboard/languages", label: "Languages", icon: "language" },
         // 53 Screenshots and screen recording in the app.

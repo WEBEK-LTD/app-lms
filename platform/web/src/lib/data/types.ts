@@ -2,6 +2,7 @@ import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutContent } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
+import type { YallappPrice } from "../billing/prices";
 
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
@@ -1056,6 +1057,10 @@ export interface PlanPayment {
    */
   shownCents?: number | null;
   shownCurrency?: CatalogCurrency | null;
+  /** 51 What it pays: the plan (with the storage packs renewed with it), or only storage packs. Missing: "plan". */
+  purpose?: PlanPaymentPurpose | null;
+  /** 51 The storage packs it pays for (bought now, or renewed with the plan); null or missing: none. */
+  storagePacks?: PaidStoragePack[] | null;
 }
 
 // Bookings managed in the dashboard (connector "bookings").
@@ -1829,7 +1834,9 @@ export type OwnerNoticeKind =
   | "wordpress_ready"
   | "api_check_failed"
   // 49 A ticket payment came after its places were released and the event was full.
-  | "ticket_refund_due";
+  | "ticket_refund_due"
+  // 51 Media and storage: a storage pack ended while the app's files are over what it now has.
+  | "storage_pack_ended";
 
 export interface OwnerNotice {
   id: number;
@@ -2167,3 +2174,87 @@ export interface ApiWebhook {
 }
 
 export type ApiWebhookPatch = Partial<Pick<ApiWebhook, "status" | "attempts" | "nextAttemptAt" | "lastAttemptAt" | "lastStatus" | "lastError" | "deliveredAt">>;
+
+// 51 Videos and pictures hosted by Yallapp, with storage per plan
+
+export type MediaKind = "video" | "image" | "pdf";
+
+/** "uploading" until the browser's upload is checked and completed; its size counts (reserved) all along. */
+export type MediaStatus = "uploading" | "ready";
+
+/** A file in an app's Media library, kept in Yallapp's object storage (lib/media). */
+export interface MediaFile {
+  id: string;
+  appId: string;
+  /** The owner's name for it (the file's name at first). */
+  name: string;
+  kind: MediaKind;
+  contentType: string;
+  /** What it takes of the app's storage: the size announced while uploading, the real size once ready. */
+  sizeBytes: number;
+  /** Where it is in the media folder on Yallapp's server: <app>/<id>.<ext>. */
+  storageKey: string;
+  status: MediaStatus;
+  /**
+   * Anyone with its link may open it (/m/<id>): pictures, and videos the
+   * owner put on a page. Otherwise only signed links made for a student who
+   * may open the lesson.
+   */
+  public: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MediaFilePatch = Partial<Pick<MediaFile, "name" | "sizeBytes" | "status" | "public" | "updatedAt">>;
+
+/** A storage pack an app has: extra gigabytes until a date (the end of the plan's paid period when bought). */
+export interface StoragePack {
+  id: string;
+  appId: string;
+  clientId: string;
+  /** The offer it came from (StoragePackOffer.id). */
+  offer: string;
+  gb: number;
+  activeUntil: Date;
+  /** The card payment that bought or last renewed it; null when the team added it. */
+  paymentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  /** When the owner was told it ended (once per end date). */
+  endedNoticeAt: Date | null;
+}
+
+export type StoragePackPatch = Partial<Pick<StoragePack, "activeUntil" | "paymentId" | "updatedAt" | "endedNoticeAt">>;
+
+export type PlanPaymentPurpose = "plan" | "storage";
+
+/** One storage pack a card payment pays for. */
+export interface PaidStoragePack {
+  offer: string;
+  gb: number;
+  /** What this pack costs in the payment. */
+  cents: number;
+  /** The pack renewed by the payment; null: a new pack. */
+  packId: string | null;
+}
+
+/** A storage pack owners can buy: extra gigabytes for a monthly price. */
+export interface StoragePackOffer {
+  id: string;
+  gb: number;
+  /**
+   * 51 A month's price, set like the plans' (52): pounds charged, an
+   * optional dollar figure shown outside Egypt (lib/billing/prices.ts).
+   * Null: not sold by card (the team adds it by hand).
+   */
+  price: YallappPrice | null;
+}
+
+export interface StoragePacksSetting {
+  offers: StoragePackOffer[];
+}
+
+export interface PlatformSettingValues {
+  /** 51 The storage packs and their prices. Unset: the defaults in lib/media/packs.ts. */
+  storagePacks: StoragePacksSetting;
+}

@@ -1266,6 +1266,10 @@ export const FAQ: FaqGroup[] = [
         a: "Renew from your dashboard. A payment adds its period to the end of your current plan, so no days are lost. If the plan isn't renewed, the license becomes inactive and new builds stop.",
       },
       {
+        q: "Can I upload my own videos and pictures?",
+        a: "Yes. Each plan includes storage for videos, pictures and PDFs on our servers: 2 GB on Starter, 20 GB on Growth, 100 GB on Pro and 500 GB on Business. Your lesson videos then play in your app's own player, with nothing showing where they're hosted, and only for the people who may watch them. Need more room? Buy a storage pack from your dashboard's Media page; it renews with your plan. If a pack ends while your files take more than your storage, nothing is deleted: new uploads wait until you make room or add storage.",
+      },
+      {
         q: "Can I cancel?",
         a: "You can cancel within 3 days of your account being activated for a full refund. Depending on your bank, refunds take 5 to 14 business days. See our [Refund policy](/refund).",
       },
