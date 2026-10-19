@@ -68,6 +68,7 @@ class LocalSettings {
   /// 44 "Share usage statistics": on by default; off stops the app sending
   /// them and deletes what it hadn't sent.
   final bool shareUsage;
+
   /// 46 The user lets the app send crash reports (on by default; the
   /// owner's switch in the dashboard comes first).
   final bool crashReports;

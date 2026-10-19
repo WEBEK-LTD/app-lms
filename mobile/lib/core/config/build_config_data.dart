@@ -138,6 +138,7 @@ class BuildConfigData {
   /// them the app sends nothing; the app preview never has them.
   final String? analyticsUrl;
   final String? analyticsKey;
+
   /// 46 The platform's app ID and its links on Yallapp's link domain
   /// (`https://yallapp.com.tr/a/<app_id>`), a WordPress site's own
   /// (`<site>/a`), and where crash reports go (build config `links`). Null

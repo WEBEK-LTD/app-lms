@@ -256,7 +256,7 @@ Nothing to set on Netlify: the preview is served from the site's own files
 
 ## 7g. Links that open the app, the rating prompt and crash reports (Phase 46)
 
-- [ ] Apply migration `0037_app_links_crashes.sql` (the fingerprints, the
+- [ ] Apply migration `0036_app_links_crashes.sql` (the fingerprints, the
       Team ID, the last link check and the two switches on apps; the crash
       groups and the runs per day). The lead may renumber it with the other
       phases' migrations.
