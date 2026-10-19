@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,7 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
-= Unreleased =
+= 0.4.1 =
 * A course on sale with WooCommerce shows its sale price in the app ("$250.00"). Before, the app showed WooCommerce's text for screen readers with both prices ("$300.00 Original price was: $300.00.$250.00Current price is: $250.00.").
 * "Continue" in My courses goes to the next lesson or quiz. Before, it stopped at the first assignment, which opens on the website, for good.
 * Tutor LMS: My courses leaves out a course Tutor no longer counts the student as enrolled in (for example an enrollment that has expired), the same as its lessons.
