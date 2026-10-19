@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildConfigFor, newApp } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import { applyPipelineStatus, pipelineStatusSchema, saveSigningFacts } from "@/lib/builds/pipeline";
-import { crashFreeShare, mergeCrash, parseCrashBatch, screenPattern, scrubCrashText } from "@/lib/crashes/report";
+import { crashFreeShare, mergeCrash, parseCrashBatch, screenPattern, scrubCrashText, trimStack } from "@/lib/crashes/report";
 import { CRASH_RATE_LIMITS, receiveCrashReports, stabilityOf } from "@/lib/crashes/service";
 import type { MemoryStore } from "@/lib/data/memory";
 import type { Activation, App, AppLinkTarget, CrashReportInput } from "@/lib/data/types";
@@ -178,7 +178,7 @@ describe("46 the license status, build config and hosted config", () => {
     await activateLicense(store, site.value, NOW);
     const result = await checkLicense(store, site.value, NOW);
     expect(result.status).toBe(200);
-    const body = (result as { body: Record<string, unknown> }).body;
+    const body = (result as unknown as { body: Record<string, unknown> }).body;
     expect(body.app_links).toEqual({
       android: { package_name: "com.ada.academy", sha256_cert_fingerprints: [PLAY] },
       ios: { app_ids: ["A1B2C3D4E5.com.ada.academy"] },
@@ -333,6 +333,10 @@ describe("46 crash reports", () => {
     expect(text).not.toContain("123456");
     expect(text).toContain("https://academy.test/wp-json/yallapp/v1/me");
     expect(screenPattern("/course/12?tab=lessons")).toBe("/course/:id");
+    // A frame's path stays readable.
+    expect(trimStack("#0 ProductScreen.build (package:yallapp/modules/store/screens/product_screen.dart:42:7)")).toContain(
+      "package:yallapp/modules/store/screens/product_screen.dart:42:7",
+    );
     expect(screenPattern("/article/abcdefghijklmnopqrstuv")).toBe("/article/:id");
   });
 

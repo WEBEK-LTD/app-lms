@@ -30,8 +30,9 @@ async function load(appId: string, rest: string[]) {
   if (!target) return null;
   const store = await getStore();
   const app = await store.getAppById(appId);
-  if (!app || !app.appName) return null;
-  return { store, app, target };
+  const name = app?.appName ?? app?.storeTitle;
+  if (!app || !name) return null;
+  return { store, app, target, name };
 }
 
 type Params = { params: Promise<{ appId: string; rest: string[] }> };
@@ -41,10 +42,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const found = await load(appId, rest);
   if (!found) return { title: "Link" };
   const item = found.app.backend === "wordpress" ? null : await linkItem(found.store, found.app, found.target.kind, found.target.id);
-  const title = item ? `${item.title} · ${found.app.appName}` : (found.app.appName ?? "App");
+  const title = item ? `${item.title} · ${found.name}` : found.name;
   return {
     title: { absolute: title },
-    description: found.app.shortDescription ?? `Open it in the ${found.app.appName} app.`,
+    description: found.app.shortDescription ?? `Open it in the ${found.name} app.`,
     openGraph: { title, ...(item?.imageAssetId ? { images: [assetUrl(item.imageAssetId)] } : {}) },
     robots: { index: false },
   };
@@ -76,14 +77,13 @@ export default async function AppLinkPage({ params }: Params) {
   const { appId, rest } = await params;
   const found = await load(appId, rest);
   if (!found) notFound();
-  const { store, app, target } = found;
+  const { store, app, target, name } = found;
   const license = await store.getLicenseForApp(app.clientId, app.id);
   const onSite = wordpressTarget(app, license ? await store.getActivation(license.id) : null, target.kind, target.id);
   if (onSite) redirect(onSite);
 
   const item: LinkItem | null = app.backend === "wordpress" ? null : await linkItem(store, app, target.kind, target.id);
   const links = storeLinks(app, await store.getPublishingRequest(app.id));
-  const name = app.appName!;
   const website = app.backend === "wordpress" && app.siteUrl ? app.siteUrl : null;
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col gap-5 bg-white px-4 py-6 sm:my-8 sm:min-h-0 sm:rounded-2xl sm:border sm:border-line sm:px-7">

@@ -622,7 +622,7 @@ export interface DataStore {
    * seen, versions and platforms; a resolved group seen again opens again.
    * Adds the runs to the day's counts. One transaction.
    */
-  recordCrashReports(appId: string, reports: CrashReportInput[], runs: { day: string; sessions: number; crashed: number }, now: Date): Promise<void>;
+  recordCrashReports(appId: string, reports: CrashReportInput[], runs: { day: string; sessions: number; crashed: number }): Promise<void>;
   /** Groups, last seen first: one app's, or every app's for the team. */
   listCrashIssues(input: { appId?: string; status?: CrashIssueStatus; limit: number }): Promise<CrashIssue[]>;
   getCrashIssue(id: string): Promise<CrashIssue | null>;

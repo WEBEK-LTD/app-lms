@@ -30,7 +30,8 @@ const SCRUBBERS: [RegExp, string][] = [
   // Phone numbers and other long numbers (7 digits or more, with spaces, dashes or a leading +).
   [/\+?\d(?:[\s-]?\d){6,}/g, "<number>"],
   [/\b[A-Fa-f0-9]{24,}\b/g, "<hex>"],
-  [/\b[A-Za-z0-9+/_-]{32,}={0,2}/g, "<redacted>"],
+  // Long tokens (no slash: a stack frame's path must stay readable).
+  [/\b[A-Za-z0-9+_-]{32,}={0,2}/g, "<redacted>"],
 ];
 
 /** Removes what could identify a person or open an account. Applied by the app and again here. */

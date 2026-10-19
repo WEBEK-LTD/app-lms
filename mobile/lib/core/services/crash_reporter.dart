@@ -43,7 +43,8 @@ final _scrubbers = <(RegExp, String Function(Match))>[
   (RegExp(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'), (_) => '<email>'),
   (RegExp(r'\+?\d(?:[\s-]?\d){6,}'), (_) => '<number>'),
   (RegExp(r'\b[A-Fa-f0-9]{24,}\b'), (_) => '<hex>'),
-  (RegExp(r'\b[A-Za-z0-9+/_-]{32,}={0,2}'), (_) => '<redacted>'),
+  // Long tokens (no slash: a stack frame's path must stay readable).
+  (RegExp(r'\b[A-Za-z0-9+_-]{32,}={0,2}'), (_) => '<redacted>'),
 ];
 
 /// Removes what could identify a person or open an account.

@@ -79,56 +79,59 @@ void main() {
       status = 204;
     });
 
-    test(
-      "Flutter's error handler sends a scrubbed report, once per run",
-      () async {
-        final previous = FlutterError.onError;
-        final previousPlatform = PlatformDispatcher.instance.onError;
-        addTearDown(() {
-          FlutterError.onError = previous;
-          PlatformDispatcher.instance.onError = previousPlatform;
-        });
-        final r = reporter()
-          ..allowed = (() => true)
-          ..startSession();
-        // Flutter still presents the error; the test only listens.
-        FlutterError.onError = (_) {};
-        r.install();
-        final error = StateError('No course for ada@academy.test');
-        for (var i = 0; i < 2; i++) {
-          FlutterError.reportError(
-            FlutterErrorDetails(
-              exception: error,
-              stack: StackTrace.fromString(_stack),
-              library: 'widgets library',
-            ),
-          );
-        }
-        expect(r.queued, hasLength(1));
-        await r.flush();
-        expect(sent, hasLength(1));
-        final body = sent.single;
-        expect(body['sessions'], 1);
-        expect(body['crashed_sessions'], 1);
-        final report = (body['reports'] as List).single as Map<String, dynamic>;
-        expect(report['error'], 'StateError: Bad state: No course for <email>');
-        expect(report['fatal'], isFalse);
-        expect(report['library'], 'widgets library');
-        expect(report['app_version'], '1.4.0');
-        expect(report['build_number'], 14);
-        expect(report['platform'], 'android');
-        expect(report['os_version'], '14');
-        expect(report['device'], 'phone');
-        expect(report['screen'], '/course/:id');
-        expect(report['at'], '2026-10-19T12:00:00.000Z');
-        expect(report['fingerprint'], matches(RegExp(r'^[0-9a-f]{32}$')));
-        expect(report.keys, isNot(contains('device_name')));
-        // Sent: nothing waits any more.
-        expect(r.queued, isEmpty);
-        await r.flush();
-        expect(sent, hasLength(1));
-      },
-    );
+    test("Flutter's error handler sends a scrubbed report, once per run", () async {
+      final previous = FlutterError.onError;
+      final previousPlatform = PlatformDispatcher.instance.onError;
+      addTearDown(() {
+        FlutterError.onError = previous;
+        PlatformDispatcher.instance.onError = previousPlatform;
+      });
+      final r = reporter()
+        ..allowed = (() => true)
+        ..startSession();
+      // Flutter still presents the error; the test only listens.
+      FlutterError.onError = (_) {};
+      r.install();
+      final error = StateError('No course for ada@academy.test');
+      for (var i = 0; i < 2; i++) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: error,
+            stack: StackTrace.fromString(_stack),
+            library: 'widgets library',
+          ),
+        );
+      }
+      expect(r.queued, hasLength(1));
+      await r.flush();
+      expect(sent, hasLength(1));
+      final body = sent.single;
+      expect(body['sessions'], 1);
+      expect(body['crashed_sessions'], 1);
+      final report = (body['reports'] as List).single as Map<String, dynamic>;
+      expect(report['error'], 'StateError: Bad state: No course for <email>');
+      expect(report['fatal'], isFalse);
+      expect(report['library'], 'widgets library');
+      expect(report['app_version'], '1.4.0');
+      expect(report['build_number'], 14);
+      expect(report['platform'], 'android');
+      expect(report['os_version'], '14');
+      expect(report['device'], 'phone');
+      expect(report['screen'], '/course/:id');
+      expect(report['at'], '2026-10-19T12:00:00.000Z');
+      expect(report['fingerprint'], matches(RegExp(r'^[0-9a-f]{32}$')));
+      expect(
+        report['stack'],
+        contains(
+          'package:yallapp/modules/lms/courses/course_detail_screen.dart:120:7',
+        ),
+      );
+      expect(report.keys, isNot(contains('device_name')));
+      // Sent: nothing waits any more.
+      expect(r.queued, isEmpty);
+      await r.flush();
+      expect(sent, hasLength(1));
+    });
 
     test('an error outside any handler is fatal', () {
       final previous = PlatformDispatcher.instance.onError;

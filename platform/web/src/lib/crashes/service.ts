@@ -42,7 +42,7 @@ export async function receiveCrashReports(store: DataStore, app: App, raw: strin
   // The owner turned crash reports off: taken and dropped, so the app doesn't keep them.
   if (app.crashReports === false) return { status: 204 };
   // The same fingerprint twice in one batch counts twice; the app sends each at most once per run.
-  await store.recordCrashReports(app.id, parsed.batch.reports, { day: crashDay(now), sessions: parsed.batch.sessions, crashed: parsed.batch.crashed }, now);
+  await store.recordCrashReports(app.id, parsed.batch.reports, { day: crashDay(now), sessions: parsed.batch.sessions, crashed: parsed.batch.crashed });
   return { status: 204 };
 }
 
