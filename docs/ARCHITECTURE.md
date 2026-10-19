@@ -827,7 +827,7 @@ fingerprinting; reports show totals only.
   counted in `dropped`. The country comes from the request (`x-nf-geo` or
   `x-country` on Netlify, or our proxy's `X-Yallapp-Client-Country` with its
   secret); the IP is used only as a rate-limit key.
-- **Storage** (`lib/analytics`, migration `0036_analytics`).
+- **Storage** (`lib/analytics`, migration `0035_analytics`).
   `analytics_events` keeps raw events for 40 days, without the search text.
   `analytics_daily` (app, UTC day, metric, key, label, value) keeps totals
   until the app is deleted (both cascade with `apps`). Search texts are

@@ -876,7 +876,7 @@ ID, no fingerprinting, a random install ID that isn't the account, no IP
 kept, search texts never stored with an install, totals only in every
 report. Store downloads aren't available to us, and the dashboard says
 installs are counted when the app is first opened. Migration
-`drizzle/0036_analytics.sql` (numbered after 0034 and 0035 of other phases).
+`drizzle/0035_analytics.sql`.
 
 | | Step | Done when |
 |---|---|---|
