@@ -35,7 +35,20 @@ function isCurrent(item: DashboardNavItem, pathname: string): boolean {
  * groups. From md up it is a fixed column; on phones a top bar with a Menu
  * button that opens the links as a sheet (the app switcher stays in view).
  */
-export function DashboardSidebar({ logo, switcher, groups, footer }: { logo: ReactNode; switcher: ReactNode; groups: DashboardNavGroup[]; footer: ReactNode }) {
+export function DashboardSidebar({
+  logo,
+  actions,
+  switcher,
+  groups,
+  footer,
+}: {
+  logo: ReactNode;
+  /** 57 Next to the logo, in the phone's top bar too: the bell. */
+  actions?: ReactNode;
+  switcher: ReactNode;
+  groups: DashboardNavGroup[];
+  footer: ReactNode;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
@@ -70,17 +83,20 @@ export function DashboardSidebar({ logo, switcher, groups, footer }: { logo: Rea
     <aside className="z-30 flex w-full flex-col border-b border-line bg-white md:sticky md:top-0 md:h-screen md:w-[264px] md:flex-none md:border-r md:border-b-0">
       <div className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line-soft bg-white px-4 md:static md:h-auto md:border-b-0 md:px-5 md:pt-6 md:pb-5">
         {logo}
-        <button
-          ref={button}
-          type="button"
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={() => setOpen((value) => !value)}
-          className="inline-flex h-10 items-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-semibold text-midnight md:hidden"
-        >
-          <Icon name={open ? "close" : "menu"} size={22} />
-          Menu
-        </button>
+        <div className="flex items-center gap-2">
+          {actions}
+          <button
+            ref={button}
+            type="button"
+            aria-expanded={open}
+            aria-controls={panelId}
+            onClick={() => setOpen((value) => !value)}
+            className="inline-flex h-10 items-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-semibold text-midnight md:hidden"
+          >
+            <Icon name={open ? "close" : "menu"} size={22} />
+            Menu
+          </button>
+        </div>
       </div>
       {switcher ? <div className="px-4 py-3 md:px-3.5 md:pt-0 md:pb-3">{switcher}</div> : null}
       <div

@@ -610,7 +610,7 @@ export interface DataStore {
   // 11.8 Announcements
   createAnnouncement(announcement: Announcement): Promise<void>;
   updateAnnouncement(id: string, patch: AnnouncementPatch, now: Date): Promise<void>;
-  /** Also forgets who dismissed it. */
+  /** Also forgets who dismissed it (57: and who read it). */
   deleteAnnouncement(id: string): Promise<void>;
   getAnnouncement(id: string): Promise<Announcement | null>;
   /** Newest start first. */
@@ -619,6 +619,12 @@ export interface DataStore {
   dismissAnnouncement(input: { announcementId: string; clientId: string; now: Date }): Promise<void>;
   /** The announcements a client dismissed. */
   listDismissedAnnouncementIds(clientId: string): Promise<string[]>;
+
+  // 57 The dashboard's bell: what each person read (per user; lib/updates.ts makes the item keys)
+  /** Marks items read for a user (`announcement:<id>`, `notice:<id>`, …); an item read before keeps its first time. */
+  markUpdatesRead(input: { userId: string; items: string[]; now: Date }): Promise<void>;
+  /** Which of these items the user read. */
+  listReadUpdates(userId: string, items: string[]): Promise<string[]>;
 
   // 14.1 We publish for you
   getPublishingRequest(appId: string): Promise<PublishingRequest | null>;

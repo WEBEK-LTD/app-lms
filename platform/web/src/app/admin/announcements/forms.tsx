@@ -19,6 +19,7 @@ export function AnnouncementForm({
   plans,
   appTypes,
   states,
+  kinds,
 }: {
   id?: string;
   announcement: AnnouncementFormValues;
@@ -26,6 +27,8 @@ export function AnnouncementForm({
   plans: Option[];
   appTypes: Option[];
   states: Option[];
+  /** 57 Update, Announcement, Maintenance, Offer. */
+  kinds: Option[];
 }) {
   const [state, action] = useActionState(id ? updateAnnouncementAction : createAnnouncementAction, initialFormState);
   const s = state.values;
@@ -33,6 +36,27 @@ export function AnnouncementForm({
   const [audience, setAudience] = useState(v("audience"));
   const [body, setBody] = useState(v("body"));
   const e = state.errors ?? {};
+  // 57 The Arabic and Turkish texts are folded away until one is written.
+  const translated = Boolean(v("titleAr") || v("bodyAr") || v("titleTr") || v("bodyTr") || e.titleAr || e.bodyAr || e.titleTr || e.bodyTr);
+  const textarea = (name: "bodyAr" | "bodyTr", label: string, lang: "ar" | "tr") => (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={`f-${name}`} className="text-sm font-semibold">
+        {label}
+      </label>
+      <textarea
+        id={`f-${name}`}
+        name={name}
+        rows={5}
+        lang={lang}
+        dir={lang === "ar" ? "rtl" : undefined}
+        defaultValue={v(name)}
+        aria-invalid={e[name] ? true : undefined}
+        aria-describedby={e[name] ? `f-${name}-error` : undefined}
+        className="input min-h-28 py-3 text-[15px] leading-relaxed"
+      />
+      <FieldError id={`f-${name}-error`} error={e[name]} />
+    </div>
+  );
   const group = (name: "plans" | "appTypes" | "states", options: Option[]) => (
     <div className="flex flex-wrap gap-x-5 gap-y-2 pl-6">
       {options.map((o) => (
@@ -47,7 +71,7 @@ export function AnnouncementForm({
     <form action={action} noValidate className="flex flex-col gap-5">
       {id ? <input type="hidden" name="id" value={id} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
-      <Field label="Title" name="title" maxLength={120} defaultValue={v("title")} error={e.title} />
+      <Field label="Title" name="title" maxLength={120} defaultValue={v("title")} hint="In English: everyone sees it in English unless an Arabic or Turkish text is written below." error={e.title} />
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-body" className="text-sm font-semibold">
           Message
@@ -74,6 +98,56 @@ export function AnnouncementForm({
         <FieldError id="f-body-error" error={e.body} />
       </div>
 
+      {/* 57 Optional Arabic and Turkish texts; the dashboard shows English until it follows the client's language. */}
+      <details open={translated} className="rounded-xl border border-line-soft px-4 py-3 [&[open]>summary]:mb-3">
+        <summary className="cursor-pointer text-sm font-semibold">Arabic and Turkish (optional)</summary>
+        <div className="flex flex-col gap-4">
+          <span className="text-xs text-muted">Write both the title and the message for a language, or neither. Clients reading in that language get them; everyone else gets the English ones.</span>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="flex flex-col gap-4">
+              <Field label="Arabic title" name="titleAr" maxLength={120} lang="ar" dir="rtl" defaultValue={v("titleAr")} error={e.titleAr} />
+              {textarea("bodyAr", "Arabic message", "ar")}
+            </div>
+            <div className="flex flex-col gap-4">
+              <Field label="Turkish title" name="titleTr" maxLength={120} lang="tr" defaultValue={v("titleTr")} error={e.titleTr} />
+              {textarea("bodyTr", "Turkish message", "tr")}
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1 text-sm font-semibold">Kind</legend>
+          <span className="text-xs text-muted">The label clients see on it in the dashboard&apos;s bell.</span>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {kinds.map((k) => (
+              <label key={k.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                <input type="radio" name="kind" value={k.id} defaultChecked={v("kind") === k.id} className="h-4 w-4 accent-midnight" />
+                {k.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1 text-sm font-semibold">Where it shows</legend>
+          <label className="flex cursor-pointer items-start gap-2 text-[15px]">
+            <input type="radio" name="placement" value="banner" defaultChecked={v("placement") !== "bell"} className="mt-1 h-4 w-4 accent-midnight" />
+            <span>
+              Show as a banner too
+              <span className="block text-xs text-muted">In the bell, and on the overview until the client closes it.</span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-2 text-[15px]">
+            <input type="radio" name="placement" value="bell" defaultChecked={v("placement") === "bell"} className="mt-1 h-4 w-4 accent-midnight" />
+            <span>
+              Bell only
+              <span className="block text-xs text-muted">In the bell and the Updates from Yallapp list.</span>
+            </span>
+          </label>
+        </fieldset>
+      </div>
+
       <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
         <legend className="mb-1 text-sm font-semibold">Who sees it</legend>
         {audienceKinds.map((kind) => (
@@ -93,7 +167,7 @@ export function AnnouncementForm({
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-severity" className="text-sm font-semibold">
-            Kind
+            Style
           </label>
           <select id="f-severity" name="severity" defaultValue={v("severity")} className="input">
             <option value="info">Information</option>

@@ -250,12 +250,12 @@ test("the team publishes an announcement; the client sees it, gets the email and
   const title = `Planned maintenance ${suffix}`;
   await admin.goto("/admin/announcements");
   await admin.getByRole("link", { name: "New announcement" }).click();
-  await admin.getByLabel("Title").fill(title);
+  await admin.getByLabel("Title", { exact: true }).fill(title);
   await admin.getByLabel("Message", { exact: true }).fill("Builds pause tonight from **22:00** to 23:00 UTC.");
   await expect(admin.getByRole("region", { name: "Preview of the message" })).toContainText("Builds pause tonight from 22:00 to 23:00 UTC.");
   await admin.getByRole("radio", { name: "Clients in chosen states" }).check();
   await admin.getByRole("checkbox", { name: "Active", exact: true }).check();
-  await admin.getByLabel("Kind").selectOption("warning");
+  await admin.getByLabel("Style").selectOption("warning");
   await admin.getByLabel("Link", { exact: true }).fill("/dashboard/builds");
   await admin.getByLabel("Link text").fill("See your builds");
   await admin.getByLabel("Also email it to these clients now").check();
@@ -274,8 +274,9 @@ test("the team publishes an announcement; the client sees it, gets the email and
   await expect(banner).toHaveCount(0);
   await own.reload();
   await expect(own.getByRole("region", { name: `Announcement: ${title}` })).toHaveCount(0);
-  await own.getByRole("link", { name: "Announcements" }).click();
-  await expect(own.getByRole("region", { name: `Announcement: ${title}` })).toBeVisible();
+  // 57 Closed on the overview, still on the full list behind the bell.
+  await own.getByRole("link", { name: "Updates from Yallapp", exact: true }).click();
+  await expect(own.getByRole("article", { name: title })).toContainText("Builds pause tonight from 22:00 to 23:00 UTC.");
 
   await admin.goto(announcementUrl);
   await admin.getByRole("button", { name: "Delete" }).click();

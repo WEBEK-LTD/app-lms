@@ -742,6 +742,28 @@ mobile/
   overview (and on the waiting page) until they close them, and all of
   them on the Announcements page. The team can email one to its audience
   with the Announcement template, in batches of 20.
+- The dashboard's bell, "Notifications from Yallapp" (Phase 57,
+  `lib/updates.ts`, `components/updates-bell.tsx`): next to the logo in the
+  sidebar and in the phone's top bar, with the unread count (9+ above 9).
+  Each announcement has a kind (`update`, `announcement`, `maintenance`,
+  `offer`; older ones `announcement`), says whether it is also a banner
+  (`show_as_banner`; older ones are) and may have Arabic and Turkish titles
+  and messages (`announcementText(a, lang)` falls back to English; the
+  dashboard passes "en" until it follows the user's language). The bell
+  holds the live announcements for the account and the account's own items,
+  "Your account", made from data the dashboard already has: owner notices
+  still true (60 days, also the ones closed on the overview), builds that
+  finished or failed (14 days, three per app) and payments received (30
+  days). Read state is per person, not per client (`update_reads`: user,
+  item key such as `announcement:<id>`, `notice:<id>`, `build:<id>`,
+  `payment:<id>`, first read time), so our team member managing a
+  dashboard has their own; closing a banner stays per client. The count is
+  worked out by the layout on each load of the dashboard; opening the panel
+  marks what it shows read (a server action that answers with the new
+  count), "Mark all as read" marks everything listed, the full list
+  (Dashboard › Announcements, now "Updates from Yallapp", ended
+  announcements included) marks its items once shown, and when the window
+  comes back after a minute or more the bell asks again. No polling.
 
 - We publish for you (Phase 14, `publishing_requests`, `publishing_events`,
   `apps.publishing_mode`): each app is published by its client ("self", with

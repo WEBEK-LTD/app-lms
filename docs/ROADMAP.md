@@ -1182,3 +1182,31 @@ website instead of the email; and the menus had no Home link. No migration, no c
 | [x] | 54.5 **Home** is the first entry of the main menu (marked on the home page) and of the footer's Product list | `website-seo.test.ts`, `public.spec.ts` |
 | [ ] | 54.6 A session that ended on the server (signed out on another device, a password change) leaves the readable cookie until it expires: the header says Dashboard and the dashboard asks to sign in again | Acceptable; the sign-in page could clear it later |
 
+## Phase 57: A notifications bell in the dashboard for what Yallapp sends
+
+The owner asked for a notifications button in the client dashboard for what
+comes from our system: updates, announcements and the like. The dashboard
+now has a bell, "Notifications from Yallapp", next to the logo (and in the
+phone's top bar) with the unread count. It holds the team's announcements,
+which now have a kind (Update, Announcement, Maintenance, Offer) and can be
+in the bell only or also on the overview's banner, and the account's own
+news ("Your account"): notices about the plan, users, storage and the site,
+finished or failed builds and payments received. Each person who opens a
+dashboard has their own read state. The Announcements page became the full
+list, "Updates from Yallapp", at the same address. Proved with unit tests
+and a browser test on memory and on MariaDB. Migration
+`drizzle/0041_dashboard_bell.sql`. No contract change.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 57.1 The bell next to the logo on desktop and next to Menu on phones: Material Symbols "notifications", a badge with the unread count (9+ above 9) in Ember with Midnight text, named "Notifications from Yallapp, 3 unread". It opens a panel (a popover from md up, a full-width sheet on phones) with the newest 8: the kind's chip (Update, Announcement, Maintenance, Offer, Your account), the title, a line of text, the date, the link; new ones marked; "Mark all as read"; "See all". Escape, a click outside or Close shut it and focus goes back to the bell; focus starts on its heading | `dashboard-bell.spec.ts`, screenshots |
+| [x] | 57.2 Read state per person, not per client (`update_reads`: user, item, first read time): opening the panel marks what it shows read (they stay marked new until it closes), "Mark all as read" marks everything listed, the full list marks its items once shown; our team member managing a dashboard reads for themselves. Closing a banner stays separate and per client. Item keys are checked before they're stored; an announcement's reads go with it | `updates.test.ts` (per user, first time kept, bad keys ignored, owner vs team member), `updates-mysql.test.ts`, `dashboard-bell.spec.ts` |
+| [x] | 57.3 "Your account" items, from data the dashboard already had: owner notices still true (plan ending, app users near the limit, storage over after a pack ended, the site ready, the app's API failing, a ticket refund due; 60 days, also the ones closed on the overview), builds that finished or failed (14 days, 3 per app; opened through `/dashboard/open?to=builds` on the right app), payments received (30 days, with the receipt); the app's name when the account has several | `updates.test.ts` |
+| [x] | 57.4 Admin › Announcements: **Kind** (Update, Announcement, Maintenance, Offer; Announcement by default) and **Where it shows** ("Show as a banner too", the default and how older ones work, or "Bell only"); the old Information/Warning choice is now **Style**; optional **Arabic and Turkish** title and message (both or neither); `announcementText(announcement, lang)` falls back to English and is ready for the user's language (Phase 56); the list shows the kind and "bell only" | `announcements.test.ts` (the form, the fallback, banner vs bell), `updates-mysql.test.ts` (older rows read as Announcement on the banner), `dashboard-bell.spec.ts`, `admin-content.spec.ts` |
+| [x] | 57.5 Dashboard › Announcements is the full list, "Updates from Yallapp" (same address, renamed in the menu): every announcement for the account, live or ended, also the ones closed on the overview, and the account items, newest first, with "New" on unread ones. The banner shows only announcements marked as a banner; its link reads "All updates from Yallapp". The help page's Announcements section explains the bell | `dashboard-bell.spec.ts`, `admin-content.spec.ts` |
+| [x] | 57.6 Counted by the layout on each load of the dashboard (no websockets, no polling); when the window comes back after a minute or more the bell asks again | Code review |
+| [x] | 57.7 Unit, MySQL and browser tests; the bell and announcement specs on memory and MariaDB; the full suites | `vitest`, `tsc`, `eslint`, `next build`, `playwright` |
+| [ ] | 57.8 Clients have one sign-in today (no team members of their own yet), so "per person" is the owner and our team members managing the dashboard; members, when they come, get their own read state with no change | When client team members are built |
+| [ ] | 57.9 Email clients when a Maintenance announcement is published (today the team ticks "Also email it to these clients now") | Owner's decision |
+| [ ] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56 |
+| [ ] | 57.11 The bell counts only on a page load, a focus after a minute, or what the person does; a build that finishes while the dashboard stays open shows on the next load | Acceptable |

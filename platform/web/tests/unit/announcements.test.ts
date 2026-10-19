@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { announcementFormValues, announcementsFor, audienceRecipients, inAudience, isLive, readAnnouncementForm, sendInBatches } from "@/lib/announcements";
+import {
+  announcementFormValues,
+  announcementsFor,
+  announcementText,
+  audienceRecipients,
+  inAudience,
+  isLive,
+  readAnnouncementForm,
+  sendInBatches,
+} from "@/lib/announcements";
 import { activateClient } from "@/lib/admin/clients";
 import { registerClient } from "@/lib/auth/accounts";
 import { MemoryStore } from "@/lib/data/memory";
@@ -13,6 +22,12 @@ function announcement(patch: Partial<Announcement> = {}): Announcement {
     body: "Salons can take bookings.",
     audience: { kind: "all" },
     severity: "info",
+    kind: "announcement",
+    showAsBanner: true,
+    titleAr: null,
+    bodyAr: null,
+    titleTr: null,
+    bodyTr: null,
     linkUrl: null,
     linkLabel: null,
     startsAt: days(-1),
@@ -61,6 +76,21 @@ describe("announcement audiences", () => {
     const { live, banner } = announcementsFor(all, subject, ["new"], NOW);
     expect(live.map((a) => a.id)).toEqual(["new", "old"]);
     expect(banner.map((a) => a.id)).toEqual(["old"]);
+  });
+
+  it("57 keeps bell-only announcements off the banner, and lists ended ones in the history", () => {
+    const all = [
+      announcement({ id: "banner", startsAt: days(-2) }),
+      announcement({ id: "bell", kind: "maintenance", showAsBanner: false, startsAt: days(-1) }),
+      announcement({ id: "ended", kind: "offer", startsAt: days(-9), endsAt: days(-3) }),
+      announcement({ id: "later", startsAt: days(2) }),
+      announcement({ id: "store", kind: "update", audience: { kind: "app_type", appTypes: ["store"] } }),
+    ];
+    const subject = { state: "active" as const, license: { plan: "starter" as const }, app: academy };
+    const { live, banner, history } = announcementsFor(all, subject, [], NOW);
+    expect(live.map((a) => a.id)).toEqual(["bell", "banner"]);
+    expect(banner.map((a) => a.id)).toEqual(["banner"]);
+    expect(history.map((a) => a.id)).toEqual(["bell", "banner", "ended"]);
   });
 
   it("finds the clients to email", async () => {
@@ -112,6 +142,13 @@ describe("the admin's announcement form", () => {
         body: "We update **tonight**.",
         audience: { kind: "plan", plans: ["pro"] },
         severity: "warning",
+        // 57 Before Phase 57 the form had no kind or placement: an announcement, also a banner.
+        kind: "announcement",
+        showAsBanner: true,
+        titleAr: null,
+        bodyAr: null,
+        titleTr: null,
+        bodyTr: null,
         linkUrl: "/pricing",
         linkLabel: "See plans",
         startsAt: NOW,
@@ -142,6 +179,43 @@ describe("the admin's announcement form", () => {
       ok: true,
       announcement: { audience: { kind: "state", states: ["active", "expired"] }, startsAt: saved.startsAt, endsAt: saved.endsAt },
     });
+  });
+
+  it("57 reads the kind, the placement and the Arabic and Turkish texts", () => {
+    const values = { title: "Builds pause tonight", body: "From 22:00.", audience: "all", kind: "maintenance", placement: "bell", titleAr: " توقف  البناء ", bodyAr: "من ٢٢:٠٠.", titleTr: "", bodyTr: "" };
+    expect(read(values)).toMatchObject({
+      ok: true,
+      announcement: { kind: "maintenance", showAsBanner: false, titleAr: "توقف البناء", bodyAr: "من ٢٢:٠٠.", titleTr: null, bodyTr: null },
+    });
+    // An unknown kind is an announcement; anything but "bell" is a banner too.
+    expect(read({ ...values, kind: "promo", placement: "" })).toMatchObject({ ok: true, announcement: { kind: "announcement", showAsBanner: true } });
+    expect(read({ ...values, titleAr: "", titleTr: "Bakım", bodyTr: "<b>Gece</b>" })).toEqual({
+      ok: false,
+      errors: { titleAr: "Enter the title too, or remove the message.", bodyTr: "HTML isn't allowed. Use Markdown for bold text and links." },
+    });
+    expect(read({ ...values, titleAr: "x".repeat(121) })).toEqual({ ok: false, errors: { titleAr: "Use at most 120 characters." } });
+    expect(read({ ...values, titleTr: "Bakım" })).toEqual({ ok: false, errors: { bodyTr: "Enter the message too, or remove the title." } });
+    // A saved one shows as it was written.
+    expect(announcementFormValues(announcement({ kind: "offer", showAsBanner: false, titleTr: "İndirim", bodyTr: "Yüzde 20" }))).toMatchObject({
+      kind: "offer",
+      placement: "bell",
+      titleTr: "İndirim",
+      bodyTr: "Yüzde 20",
+      titleAr: "",
+    });
+    expect(announcementFormValues(null)).toMatchObject({ kind: "announcement", placement: "banner" });
+  });
+
+  it("57 gives the text in a language, falling back to English", () => {
+    const a = announcement({ title: "Sale", body: "20% off", titleAr: "تخفيض", bodyAr: "خصم ٢٠٪", titleTr: "İndirim", bodyTr: null });
+    expect(announcementText(a, "ar")).toEqual({ title: "تخفيض", body: "خصم ٢٠٪", lang: "ar" });
+    expect(announcementText(a, "ar-EG")).toMatchObject({ lang: "ar" });
+    // Turkish has a title but no message: English, never a mix of the two.
+    expect(announcementText(a, "tr")).toEqual({ title: "Sale", body: "20% off", lang: "en" });
+    expect(announcementText(a, "en")).toEqual({ title: "Sale", body: "20% off", lang: "en" });
+    expect(announcementText(a, "de")).toMatchObject({ lang: "en" });
+    expect(announcementText(announcement({ titleTr: "Bakım", bodyTr: "  " }), "TR")).toMatchObject({ lang: "en" });
+    expect(announcementText(announcement({ titleTr: "Bakım", bodyTr: "Bu gece" }), "TR")).toEqual({ title: "Bakım", body: "Bu gece", lang: "tr" });
   });
 
   it("stores who dismissed what", async () => {

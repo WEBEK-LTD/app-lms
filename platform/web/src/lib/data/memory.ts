@@ -1939,6 +1939,7 @@ export class MemoryStore implements DataStore {
   async deleteAnnouncement(id: string): Promise<void> {
     this.announcements.delete(id);
     for (const dismissed of this.announcementDismissals.values()) dismissed.delete(id);
+    for (const read of this.updateReads.values()) read.delete(`announcement:${id}`);
   }
 
   async getAnnouncement(id: string): Promise<Announcement | null> {
@@ -1959,6 +1960,21 @@ export class MemoryStore implements DataStore {
 
   async listDismissedAnnouncementIds(clientId: string): Promise<string[]> {
     return [...(this.announcementDismissals.get(clientId) ?? [])];
+  }
+
+  // 57 The dashboard's bell: per user, item → when it was first read.
+  private updateReads = new Map<string, Map<string, Date>>();
+
+  async markUpdatesRead(input: { userId: string; items: string[]; now: Date }): Promise<void> {
+    if (!input.items.length) return;
+    const read = this.updateReads.get(input.userId) ?? new Map<string, Date>();
+    for (const item of input.items) if (!read.has(item)) read.set(item, new Date(input.now));
+    this.updateReads.set(input.userId, read);
+  }
+
+  async listReadUpdates(userId: string, items: string[]): Promise<string[]> {
+    const read = this.updateReads.get(userId);
+    return read ? [...new Set(items)].filter((item) => read.has(item)) : [];
   }
 
   // 14.1 We publish for you
