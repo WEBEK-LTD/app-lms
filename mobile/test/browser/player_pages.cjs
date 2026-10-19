@@ -203,7 +203,7 @@ async function noSiteReachable(p, label) {
     assert(vsrc.get('dnt') === '1', 'Vimeo: dnt=1');
     // 4:3 video: the frame is as wide as the picture, centred.
     const box = await p.page.evaluate(() => { const f = document.getElementById('frame'); return [f.offsetWidth, f.offsetLeft, f.offsetHeight]; });
-    assert(Math.abs(box[0] - 219 * 4 / 3) < 1 && Math.abs(box[1] - (390 - 292) / 2) < 1 && box[2] === 657, 'Vimeo: 4:3 picture fits the box ' + box);
+    assert(Math.abs(box[0] - 219 * 4 / 3) < 1 && Math.abs(box[1] - (390 - 292) / 2) < 1 && box[2] === 219 * 5, 'Vimeo: 4:3 picture fits the box, the frame five boxes tall ' + box);
     await noSiteReachable(p, 'Vimeo');
     await p.send({ command: 'play' });
     await p.wait(800);

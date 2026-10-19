@@ -12,10 +12,10 @@ import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
-import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
+import '../../lms/lesson/video/video_screen.dart';
 import '../data/real_estate_providers.dart';
 import '../widgets/listing_widgets.dart';
 import '../../../core/services/share_links.dart';
@@ -229,11 +229,14 @@ class _ListingBody extends ConsumerWidget {
                           child: SecondaryButton(
                             label: l10n.watchVideo,
                             icon: AppIcons.playCircle,
-                            onPressed: () => context.push(
-                              Paths.web,
-                              extra: WebPageArgs(
-                                url: listing.videoUrl!,
-                                title: s.title,
+                            // 51 In the app's own player: a video site's
+                            // page would show where it's hosted.
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => VideoScreen(
+                                  url: listing.videoUrl!,
+                                  title: s.title,
+                                ),
                               ),
                             ),
                           ),
