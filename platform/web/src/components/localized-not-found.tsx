@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { SiteNavEntry } from "@/lib/site-nav";
-import { isPrefixedLang, type PrefixedLang } from "@/i18n/config";
+import { DEFAULT_LANG, isPrefixedLang, type Lang } from "@/i18n/config";
 import { localePath } from "@/i18n/paths";
 import { LogoLink } from "./brand";
 import { Icon } from "./icon";
@@ -11,7 +11,7 @@ import { LanguageList, type LanguageLabels } from "./language-switcher";
 import { SiteNav, type SiteNavLabels } from "./site-nav";
 import { btn } from "./ui";
 
-/** 55 What the Arabic and Turkish "page not found" says, given by the server (src/app/[lang]/not-found.tsx). */
+/** 55 What "page not found" says in each language, given by the server (src/app/[lang]/not-found.tsx). */
 export interface NotFoundText {
   nav: SiteNavEntry[];
   labels: SiteNavLabels;
@@ -27,9 +27,9 @@ export interface NotFoundText {
  * 55 The "page not found" of /ar/… and /tr/…: a not-found page gets no
  * route parameters, so it picks its language here from the address.
  */
-export function LocalizedNotFound({ texts }: { texts: Record<PrefixedLang, NotFoundText> }) {
+export function LocalizedNotFound({ texts }: { texts: Record<Lang, NotFoundText> }) {
   const params = useParams<{ lang?: string }>();
-  const lang: PrefixedLang = isPrefixedLang(params?.lang) ? params.lang : "ar";
+  const lang: Lang = isPrefixedLang(params?.lang) ? params.lang : DEFAULT_LANG;
   const t = texts[lang];
   return (
     <div className="flex min-h-screen flex-col bg-ivory">

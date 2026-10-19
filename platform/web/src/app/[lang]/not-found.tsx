@@ -1,16 +1,16 @@
 import { LocalizedNotFound, type NotFoundText } from "@/components/localized-not-found";
 import { languageLabels } from "@/components/site-chrome";
-import { formatMessage, messagesFor, PREFIXED_LANGS, type PrefixedLang } from "@/i18n";
+import { formatMessage, LANGS, messagesFor, type Lang } from "@/i18n";
 import { siteNavFor } from "@/lib/site-nav";
 
 /**
- * 55 "Page not found" in Arabic and Turkish. A not-found page gets no route
- * parameters, so both languages' few words go to the page, which shows the
- * one of its address.
+ * 55 "Page not found" under /ar and /tr, and in English for any other first
+ * segment (/xyz). A not-found page gets no route parameters, so each
+ * language's few words go to the page, which shows the one of its address.
  */
 export default function NotFound() {
   const texts = Object.fromEntries(
-    PREFIXED_LANGS.map((lang): [PrefixedLang, NotFoundText] => {
+    LANGS.map((lang): [Lang, NotFoundText] => {
       const m = messagesFor(lang);
       return [
         lang,
@@ -26,6 +26,6 @@ export default function NotFound() {
         },
       ];
     }),
-  ) as Record<PrefixedLang, NotFoundText>;
+  ) as Record<Lang, NotFoundText>;
   return <LocalizedNotFound texts={texts} />;
 }
