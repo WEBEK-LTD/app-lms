@@ -740,6 +740,43 @@ set_settings( array( 'device_limit_action' => 'block' ) );
 $token = in_array( 'dev-a', $ids, true ) ? $token : ( $d['json']['access_token'] ?? $token );
 $rotated = in_array( 'dev-a', $ids, true ) ? $rotated : $d['json'];
 
+echo "Links that open the app (46)\n";
+// What the platform's license status would send; restored at the end.
+$saved_license = wp_eval( 'echo wp_json_encode( get_option( "yallapp_license", null ) );' );
+$play          = '14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5';
+$root          = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );
+$r             = call( 'GET', $root . '/.well-known/assetlinks.json' );
+check( 'links: no file before the platform sends the app\'s fingerprints', 404 === $r['status'], $r['status'] );
+wp_eval( 'update_option( "yallapp_license", array_merge( (array) get_option( "yallapp_license", array() ), array( "app_links" => array( "android" => array( "package_name" => "com.ada.academy", "sha256_cert_fingerprints" => array( "' . $play . '" ) ), "ios" => array( "app_ids" => array( "A1B2C3D4E5.com.ada.academy" ) ) ), "review_prompt" => false ) ), false );' );
+$r = call( 'GET', $root . '/.well-known/assetlinks.json' );
+check(
+	'links: assetlinks.json at the root, as JSON, with the package and fingerprint',
+	200 === $r['status'] && false !== strpos( $r['headers'], 'content-type: application/json' ) && 'com.ada.academy' === ( $r['json'][0]['target']['package_name'] ?? '' ) && array( $play ) === ( $r['json'][0]['target']['sha256_cert_fingerprints'] ?? null ) && array( 'delegate_permission/common.handle_all_urls' ) === ( $r['json'][0]['relation'] ?? null ),
+	$r['headers'] . $r['raw']
+);
+$r = call( 'GET', $root . '/.well-known/apple-app-site-association' );
+check(
+	'links: apple-app-site-association without an extension, as JSON, for /a/* only',
+	200 === $r['status'] && false !== strpos( $r['headers'], 'content-type: application/json' ) && array( 'A1B2C3D4E5.com.ada.academy' ) === ( $r['json']['applinks']['details'][0]['appIDs'] ?? null ) && array( array( '/' => '/a/*' ) ) === ( $r['json']['applinks']['details'][0]['components'] ?? null ),
+	$r['raw']
+);
+$course_url = wp_eval( 'echo get_permalink( ' . (int) $seed['python'] . ' );' );
+$r          = call( 'GET', $root . '/a/course/' . (int) $seed['python'] );
+check( 'links: a course link without the app goes to the course\'s own page', 302 === $r['status'] && false !== strpos( $r['headers'], 'location: ' . strtolower( $course_url ) ), $r['headers'] );
+$draft = (int) wp_eval( 'echo wp_insert_post( array( "post_type" => "post", "post_status" => "draft", "post_title" => "Not yet" ) );' );
+foreach ( array( '/a/course/999999', '/a/article/' . $draft, '/a/page/home' ) as $path ) {
+	$r = call( 'GET', $root . $path );
+	check( 'links: ' . $path . ' goes to the home page (nothing public there)', 302 === $r['status'] && preg_match( '#location: ' . preg_quote( strtolower( $root ), '#' ) . '/?\r?\n#', $r['headers'] ), $r['headers'] );
+}
+$r = call( 'GET', $root . '/a/lesson/1' );
+check( 'links: other paths under /a/ are left to WordPress', 302 !== $r['status'], $r['status'] );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'links: config shares <site>/a and carries the owner\'s switches', $root . '/a' === ( $r['json']['links']['share_base_url'] ?? '' ) && false === ( $r['json']['app']['review_prompt'] ?? null ) && true === ( $r['json']['app']['crash_reports'] ?? null ), $r['json']['app'] ?? $r['raw'] );
+wp_eval( 'wp_delete_post( ' . $draft . ', true );' );
+wp_eval( '$v = json_decode( ' . var_export( $saved_license, true ) . ', true ); if ( null === $v ) { delete_option( "yallapp_license" ); } else { update_option( "yallapp_license", $v, false ); }' );
+$r = call( 'GET', $root . '/.well-known/assetlinks.json' );
+check( 'links: back to no file', 404 === $r['status'], $r['status'] );
+
 echo "Sign-out\n";
 $r = call( 'POST', '/auth/logout', array(), $token );
 check( 'logout 204', 204 === $r['status'], $r['raw'] );

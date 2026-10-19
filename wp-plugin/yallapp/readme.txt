@@ -42,6 +42,10 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= Unreleased =
+* Links that open the app: the plugin serves /.well-known/assetlinks.json and /.well-known/apple-app-site-association on your site, from what your Yallapp dashboard knows about your app (its package name, signing key fingerprints and Apple Team ID), so links like yoursite.com/a/course/12 open the app on phones that have it. Without the app, the same link takes the visitor to the course's own page on your site (or the home page when it has none or isn't public). The app's Share buttons share these links. Your site must be at the root of its domain, and your server must pass /.well-known to WordPress.
+* The app's rating prompt and crash reports follow the switches on your Yallapp dashboard's Stability page.
+
 = 0.4.1 =
 * A course on sale with WooCommerce shows its sale price in the app ("$250.00"). Before, the app showed WooCommerce's text for screen readers with both prices ("$300.00 Original price was: $300.00.$250.00Current price is: $250.00.").
 * "Continue" in My courses goes to the next lesson or quiz. Before, it stopped at the first assignment, which opens on the website, for good.

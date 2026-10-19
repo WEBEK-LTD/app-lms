@@ -204,7 +204,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, app_type: string|null, vertical: string|null, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -217,6 +217,9 @@ class License_Client {
 				'email_sign_in'   => null,
 				'app_type'        => null,
 				'vertical'        => null,
+				'app_links'       => null,
+				'review_prompt'   => true,
+				'crash_reports'   => true,
 				'expires_at'      => null,
 				'checked_at'      => null,
 				'message'         => null,
@@ -429,6 +432,10 @@ class License_Client {
 			// The app's type and kind of business, as the owner chose them; null when unknown.
 			'app_type'        => $app['app_type'],
 			'vertical'        => $app['vertical'],
+			// 46 What the site's link files say (only well-formed values), and the owner's switches.
+			'app_links'       => \Yallapp\App_Links::sanitize( $result['app_links'] ?? null ),
+			'review_prompt'   => false !== ( $result['review_prompt'] ?? true ),
+			'crash_reports'   => false !== ( $result['crash_reports'] ?? true ),
 			'expires_at'      => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
 			'checked_at'      => gmdate( 'c' ),
 			'message'         => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,

@@ -91,6 +91,7 @@ class Plugin {
 		$this->magic_links()->register();
 		$this->push()->register();
 		$this->license()->register();
+		( new App_Links( $this->license() ) )->register();
 		$this->layout_client()->register();
 		$this->store_checkout()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
