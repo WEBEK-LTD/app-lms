@@ -16,6 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/news_providers.dart';
+import '../../../core/services/share_links.dart';
 
 /// "Ayla Demir · 13 Oct 2026", as the owner's settings allow.
 String articleMeta(BuildContext context, ArticleSummary a, NewsConfig config) {
@@ -36,9 +37,10 @@ final shareArticleProvider = Provider<Future<void> Function(String text)>(
       (text) async => SharePlus.instance.share(ShareParams(text: text)),
 );
 
-/// What sharing [article] sends.
-String shareText(ArticleSummary article, String appName) {
-  final url = article.url;
+/// What sharing [article] sends: 46 the link that opens it in the app when
+/// there is one, else its page on the website, else the app's name.
+String shareText(ArticleSummary article, String appName, {String? link}) {
+  final url = link ?? article.url;
   return url == null || url.isEmpty
       ? '${article.title}\n$appName'
       : '${article.title}\n$url';
@@ -302,7 +304,11 @@ class ShareButton extends ConsumerWidget {
               title: article.title,
             );
         ref.read(shareArticleProvider)(
-          shareText(article, ref.read(appConfigProvider).site.name),
+          shareText(
+            article,
+            ref.read(appConfigProvider).site.name,
+            link: itemLink(ref, 'article', article.id),
+          ),
         );
       },
     );

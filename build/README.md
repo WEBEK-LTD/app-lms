@@ -20,6 +20,10 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
    - Creates the app's upload key on its first build and saves it on the
      platform before building. Every later build reuses that key, and the
      platform never replaces a saved key.
+   - 46 Reports the upload key's SHA-256 fingerprint (`scripts/fingerprint.py`,
+     `signing` in the status report) for the link files; with the build
+     config's `links`, release builds get a verified App Links intent filter
+     per link host (`tool/apply_config.dart`).
    - Builds the APK and App Bundle and uploads them, plus the upload key
      (zip) and the store assets (zip: store icons, a feature graphic, the
      client's screenshots and the listing texts), to `files.yallapp.com.tr`.
@@ -41,7 +45,9 @@ talks to the platform through [`docs/api/pipeline.yaml`](../docs/api/pipeline.ya
      `ready` with a message for the client.
 4. **iOS** (macOS), per build, only when the client added an App Store Connect
    key:
-   - Registers the App ID (with push when the app has Firebase).
+   - Registers the App ID (with push when the app has Firebase, and 46
+     Associated Domains with the `applinks:` hosts of the build config's
+     `links`), and reports the profile's Team ID for the link files.
    - Creates an Apple Distribution certificate once and saves it on the
      platform.
    - Gets an App Store profile, signs and exports the IPA, and uploads it.
@@ -155,6 +161,7 @@ and the team publishes from the admin's Publishing page.
 | `scripts/appgallery.py` | Uploads the APK to Huawei AppGallery and submits it (36) |
 | `scripts/xiaomi_getapps.py` | Uploads the APK to Xiaomi GetApps, which submits it (42) |
 | `scripts/report.py` | Sends the final status |
+| `scripts/fingerprint.py` | The upload key's SHA-256 fingerprint for the link files (46) |
 | `scripts/make_icons.py` | Writes launcher icons from the client's 1024 px icon |
 | `scripts/store_assets.py` | Packs the store assets zip: icons, feature graphic, screenshots, listing |
 | `fastlane/Fastfile` | iOS signing, Google Play and TestFlight uploads (fastlane 2.240.1, `Gemfile.lock`) |

@@ -1,6 +1,7 @@
 import { randomInt } from "node:crypto";
 import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
+import { yallappLinkBase } from "../links/table";
 import type { DataStore } from "../data/store";
 import {
   DEFAULT_HOSTED_SETTINGS,
@@ -322,6 +323,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       orders: false,
       ...extra.features,
       offline: ctx.plan === undefined ? false : hasFeature(ctx.plan, "offline_downloads"),
+      // 45 Lessons saved for offline viewing: the connector offers them (courses managed in
+      // Yallapp, when the owner left them on) and the plan has offline mode.
+      downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
     auth: authConfig(app),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
@@ -330,7 +334,10 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       ...(platform === "ios" || (ctx.plan !== undefined && !hasFeature(ctx.plan, "card_payments")) ? { enroll_button: false } : {}),
     },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
-    app: { update_required: false, maintenance: false, maintenance_message: null },
+    // 46 The owner's switches: the store's rating prompt and crash reports.
+    app: { update_required: false, maintenance: false, maintenance_message: null, review_prompt: app.reviewPrompt !== false, crash_reports: app.crashReports !== false },
+    // 46 Links that open the app: on Yallapp's link domain for apps without WordPress.
+    links: { share_base_url: yallappLinkBase(ctx.platformUrl, app.id) },
     // 20 The kind of business: wording and defaults in the app, never its screens.
     vertical: toVertical(app.vertical),
     ...(extra.store ? { store: extra.store } : {}),

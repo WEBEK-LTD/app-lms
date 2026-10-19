@@ -7,6 +7,7 @@
 //   android/app/yallapp.properties                    applicationId, namespace
 //   android/app/src/main/res/values/yallapp_config.xml    launcher label, splash color
 //   ios/Flutter/YallappBuild.xcconfig                 bundle id, display name
+//   android/app/src/links/AndroidManifest.xml         46 App Links (when the config has links)
 //   pubspec.yaml                                      version line
 // and, when the config lists Firebase files, downloads them to
 //   android/app/google-services.json, ios/Runner/GoogleService-Info.plist
@@ -121,6 +122,17 @@ Future<void> main(List<String> args) async {
     File('${root.path}/ios/Flutter/YallappBuild.xcconfig'),
     renderIosXcconfig(config),
   );
+  // 46 App Links for release builds; the iOS entitlement is written when the
+  // build is signed (build/fastlane/Fastfile).
+  final linksManifest = File(
+    '${root.path}/android/app/src/links/AndroidManifest.xml',
+  );
+  final links = renderAndroidLinksManifest(config);
+  if (links == null) {
+    _remove(linksManifest);
+  } else {
+    _write(linksManifest, links);
+  }
   final pubspec = File('${root.path}/pubspec.yaml');
   _write(pubspec, updatePubspecVersion(pubspec.readAsStringSync(), config));
 

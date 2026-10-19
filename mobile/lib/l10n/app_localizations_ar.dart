@@ -3290,4 +3290,237 @@ class AppLocalizationsAr extends AppLocalizations {
   String shareUsageNote(String app) {
     return 'تساعد $app على معرفة كيفية استخدام التطبيق، مثل الشاشات والعناصر التي تُفتح. لا يُرسل اسمك أو رقم هاتفك أو بريدك الإلكتروني أبدًا.';
   }
+
+  @override
+  String get shareLink => 'مشاركة';
+
+  @override
+  String get sendCrashReports => 'إرسال تقارير الأعطال';
+
+  @override
+  String get sendCrashReportsHint =>
+      'عند حدوث خطأ، يرسل التطبيق ما حدث وإصداره ونوع الهاتف لإصلاحه. لا يرسل أبدًا اسمك أو رقمك أو ما كتبته.';
+
+  @override
+  String get downloadNeedsInternetVideo =>
+      'يُعرض فيديو هذا الدرس من موقع فيديو، لذا يحتاج إلى الإنترنت. لا يمكن حفظه للمشاهدة دون اتصال.';
+
+  @override
+  String get downloadNeedsInternetPage =>
+      'يعرض هذا الدرس صفحة ويب، لذا يحتاج إلى الإنترنت. لا يمكن حفظه للمشاهدة دون اتصال.';
+
+  @override
+  String get downloadsOff =>
+      'حفظ الدروس للمشاهدة دون اتصال غير متاح في هذا التطبيق.';
+
+  @override
+  String get downloadNotAvailable =>
+      'لا يمكن حفظ هذا الدرس للمشاهدة دون اتصال.';
+
+  @override
+  String get downloadFailed => 'لم يكتمل التنزيل. حاول مرة أخرى.';
+
+  @override
+  String get downloadWaitsForConnection => 'بانتظار الاتصال.';
+
+  @override
+  String downloadsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'لم يُحفظ $count من الدروس: تُعرض مقاطع الفيديو الخاصة بها من موقع فيديو، لذا تحتاج إلى الإنترنت.',
+      one: 'لم يُحفظ درس واحد: يُعرض الفيديو الخاص به من موقع فيديو، لذا يحتاج إلى الإنترنت.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadsExpired(int days) {
+    return 'حُذفت دروسك المحفوظة: لم يتمكن التطبيق من التحقق من وصولك لمدة $days يومًا. اتصل بالإنترنت واحفظها مرة أخرى.';
+  }
+
+  @override
+  String get downloadsTurnedOff =>
+      'حُذفت دروسك المحفوظة: لم يعد حفظ الدروس متاحًا في هذا التطبيق.';
+
+  @override
+  String downloadsAccessEnded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حُذف $count من الدروس المحفوظة لأن وصولك إليها انتهى.',
+      one: 'حُذف درس محفوظ واحد لأن وصولك إليه انتهى.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsNotificationRunning => 'جارٍ الحفظ للمشاهدة دون اتصال';
+
+  @override
+  String get downloadsNotificationPaused => 'التنزيل متوقف مؤقتًا';
+
+  @override
+  String get downloadsNotificationDone => 'محفوظ للمشاهدة دون اتصال';
+
+  @override
+  String get downloadsNotificationDoneBody =>
+      'دروسك جاهزة للمشاهدة دون إنترنت.';
+
+  @override
+  String get downloadsNotificationFailed => 'فشل التنزيل';
+
+  @override
+  String get downloads => 'التنزيلات';
+
+  @override
+  String get downloadLesson => 'احفظ للمشاهدة دون اتصال';
+
+  @override
+  String get downloadCourse => 'احفظ الدورة للمشاهدة دون اتصال';
+
+  @override
+  String downloadSaving(int saved, int total) {
+    return 'جارٍ الحفظ للمشاهدة دون اتصال · $saved من $total';
+  }
+
+  @override
+  String downloadSavingLesson(int percent) {
+    return 'جارٍ الحفظ للمشاهدة دون اتصال · $percent%';
+  }
+
+  @override
+  String get downloadSaved => 'محفوظ للمشاهدة دون اتصال';
+
+  @override
+  String downloadCourseSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count من الدروس محفوظة للمشاهدة دون اتصال',
+      one: 'درس واحد محفوظ للمشاهدة دون اتصال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadQueued => 'بانتظار التنزيل';
+
+  @override
+  String get downloadPaused => 'متوقف مؤقتًا';
+
+  @override
+  String get downloadPause => 'إيقاف مؤقت';
+
+  @override
+  String get downloadResume => 'استئناف';
+
+  @override
+  String get downloadRetry => 'حاول مرة أخرى';
+
+  @override
+  String get downloadCancel => 'إلغاء التنزيل';
+
+  @override
+  String get downloadDelete => 'احذف من هذا الهاتف';
+
+  @override
+  String get downloadsDeleteAll => 'احذف كل التنزيلات';
+
+  @override
+  String get downloadsDeleteAllConfirm =>
+      'هل تريد حذف كل الدروس المحفوظة من هذا الهاتف؟ يمكنك حفظها مرة أخرى عند الاتصال.';
+
+  @override
+  String get downloadsDeleteCourseConfirm =>
+      'هل تريد حذف دروس هذه الدورة المحفوظة من هذا الهاتف؟';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get downloadsStorage => 'المساحة المستخدمة';
+
+  @override
+  String get downloadsWifiOnly => 'التنزيل عبر Wi-Fi فقط';
+
+  @override
+  String get downloadsWifiOnlyHint =>
+      'يوفّر بيانات الجوال: تنتظر التنزيلات حتى تتصل بشبكة Wi-Fi.';
+
+  @override
+  String get downloadsEmptyTitle => 'لا توجد تنزيلات بعد';
+
+  @override
+  String get downloadsEmptyMessage =>
+      'احفظ درسًا أو دورة كاملة لمشاهدتها وقراءتها دون إنترنت: ابحث عن «احفظ للمشاهدة دون اتصال» في الدورة أو الدرس.';
+
+  @override
+  String downloadsNote(int days) {
+    return 'تُحفظ الدروس مشفّرة داخل هذا التطبيق، ولا تظهر أبدًا في معرض الصور أو الملفات. تُحذف عندما ينتهي وصولك إلى الدورة، أو بعد $days يومًا دون اتصال.';
+  }
+
+  @override
+  String downloadsKeptFor(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'تُحفظ $days يومًا آخر دون اتصال',
+      one: 'تُحفظ ليوم واحد آخر دون اتصال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsUnsupported => 'تعمل التنزيلات في التطبيق على هاتفك.';
+
+  @override
+  String get downloadStarted =>
+      'جارٍ الحفظ للمشاهدة دون اتصال. يمكنك متابعة استخدام التطبيق.';
+
+  @override
+  String downloadCourseStarted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'جارٍ حفظ $count من الدروس للمشاهدة دون اتصال.',
+      one: 'جارٍ حفظ درس واحد للمشاهدة دون اتصال.',
+      zero: 'كل الدروس المتاحة لك محفوظة بالفعل.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadCourseSize(String lessons, String size) {
+    return '$lessons · $size';
+  }
+
+  @override
+  String sizeGigabytes(String size) {
+    return '$size غيغابايت';
+  }
+
+  @override
+  String get lessonCompleteOffline =>
+      'تم وضع علامة مكتمل. سيُرسل عند عودتك للاتصال.';
+
+  @override
+  String get reviewCourse => 'مراجعة الدورة';
+
+  @override
+  String courseCompletedOn(String date) {
+    return 'اكتملت في $date';
+  }
+
+  @override
+  String get courseCompletedTitle => 'لقد أكملت هذه الدورة';
+
+  @override
+  String get viewCertificate => 'عرض الشهادة';
+
+  @override
+  String completedCourseLabel(String title) {
+    return '$title، مكتملة';
+  }
 }

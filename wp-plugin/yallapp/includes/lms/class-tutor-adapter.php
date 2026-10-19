@@ -519,12 +519,15 @@ class Tutor_Adapter implements Lms_Adapter {
 	 */
 	public function progress( $course_id, $user_id ) {
 		$stats = (array) tutor_utils()->get_course_completed_percent( $course_id, $user_id, true );
+		$done  = tutor_utils()->is_completed_course( $course_id, $user_id );
 		return array(
 			'course_id'        => (int) $course_id,
 			'completed_items'  => (int) ( $stats['completed_count'] ?? 0 ),
 			'total_items'      => (int) ( $stats['total_count'] ?? 0 ),
 			'percent'          => min( 100, (int) ( $stats['completed_percent'] ?? 0 ) ),
-			'course_completed' => (bool) tutor_utils()->is_completed_course( $course_id, $user_id ),
+			'course_completed' => (bool) $done,
+			// 45 Tutor keeps the completion as a comment, dated in the site's time zone.
+			'completed_at'     => is_object( $done ) && ! empty( $done->completion_date ) ? gmdate( 'Y-m-d\TH:i:s\Z', (int) strtotime( get_gmt_from_date( (string) $done->completion_date ) . ' UTC' ) ) : null,
 		);
 	}
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
@@ -6,6 +8,8 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/providers.dart';
 import '../../../core/data/paged_controller.dart';
+import '../downloads/download_manager.dart';
+import '../downloads/progress_queue.dart';
 
 /// Signed-in state, so lists reload when the student signs in or out.
 final _signedInProvider = Provider<bool>(
@@ -37,9 +41,58 @@ final curriculumProvider = FutureProvider.autoDispose.family<List<Topic>, int>((
   return ref.contentApi.getCurriculum(id);
 });
 
-final lessonProvider = FutureProvider.autoDispose.family<Lesson, int>(
-  (ref, id) => ref.contentApi.getLesson(id),
-);
+/// A lesson. 45 A lesson saved on the phone plays its saved files, and
+/// opens without a connection; progress made offline shows until it's sent.
+final lessonProvider = FutureProvider.autoDispose.family<Lesson, int>((
+  ref,
+  id,
+) async {
+  final api = ref.contentApi;
+  final downloads = ref.read(downloadManagerProvider.notifier);
+  await downloads.ready;
+  final saved = ref.read(downloadManagerProvider).isSaved(id);
+  Lesson lesson;
+  try {
+    lesson = await api.getLesson(id);
+    if (saved) lesson = await downloads.localize(lesson);
+  } on ApiException catch (e) {
+    final offline = saved && e.isOffline
+        ? await downloads.offlineLesson(id)
+        : null;
+    if (offline == null) {
+      // The student's access ended: the saved copy goes too.
+      if (saved && e.statusCode == 403) unawaited(downloads.delete(id));
+      rethrow;
+    }
+    lesson = offline;
+  }
+  final queue = ref.read(progressQueueProvider);
+  final waiting = queue.items.where((i) => i.lessonId == id && !i.complete);
+  return lesson.copyWith(
+    completed: lesson.completed || queue.completedOffline(id),
+    positionSeconds: waiting.isEmpty ? null : waiting.last.positionSeconds,
+  );
+});
+
+/// 45 Courses the student completed (the first page of My courses ›
+/// Completed), so course cards say "Completed". Empty when signed out or
+/// offline.
+final completedCourseIdsProvider = FutureProvider.autoDispose<Set<int>>((
+  ref,
+) async {
+  if (!ref.watch(_signedInProvider)) return const {};
+  try {
+    final page = await ref
+        .read(yallappApiProvider)
+        .listMyCourses(status: MyCoursesStatus.completed);
+    return {
+      for (final c in page.items)
+        if (c.progress.courseCompleted) c.course.id,
+    };
+  } on ApiException {
+    return const {};
+  }
+});
 
 final quizProvider = FutureProvider.autoDispose.family<Quiz, int>(
   (ref, id) => ref.contentApi.getQuiz(id),
@@ -113,6 +166,7 @@ void invalidateCourse(WidgetRef ref, int courseId) {
     ..invalidate(courseDetailProvider(courseId))
     ..invalidate(curriculumProvider(courseId))
     ..invalidate(myCoursesProvider)
+    ..invalidate(completedCourseIdsProvider)
     ..invalidate(homeSectionsProvider);
 }
 

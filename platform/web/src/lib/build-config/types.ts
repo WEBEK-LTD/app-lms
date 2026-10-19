@@ -53,6 +53,13 @@ export interface BuildConfig {
   huawei?: {
     agconnect_config_url?: string;
   };
+  /** 46 Links that open the app (App Links, Universal Links) and where crash reports go. */
+  links?: {
+    app_id: string;
+    yallapp_base_url: string;
+    site_base_url?: string;
+    crash_report_url: string;
+  };
 }
 
 /** Field rules, kept identical to the patterns in the schema. */

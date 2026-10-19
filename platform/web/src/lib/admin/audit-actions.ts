@@ -20,6 +20,8 @@ export const AUDIT_ACTIONS = {
   "client.notification": "Notification sent",
   "build.rerun": "Build run again",
   "build.mark_failed": "Build marked as not finished",
+  // 46
+  "crash.status": "Crash marked resolved or opened again",
   "publishing.status": "Publishing status changed",
   "publishing.notes": "Publishing notes saved",
   "release.upload": "Plugin release uploaded",

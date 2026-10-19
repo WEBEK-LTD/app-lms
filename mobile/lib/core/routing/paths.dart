@@ -26,6 +26,9 @@ abstract final class Paths {
   static const devices = '/account/settings/devices';
   static const certificates = '/account/certificates';
   static const quizResults = '/account/quiz-results';
+
+  /// 45 Lessons saved for offline viewing.
+  static const downloads = '/account/downloads';
   static const orders = '/account/orders';
   static const notifications = '/notifications';
 

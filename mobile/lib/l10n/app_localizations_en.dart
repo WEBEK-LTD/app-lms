@@ -3232,4 +3232,238 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareUsageNote(String app) {
     return 'Helps $app see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.';
   }
+
+  @override
+  String get shareLink => 'Share';
+
+  @override
+  String get sendCrashReports => 'Send crash reports';
+
+  @override
+  String get sendCrashReportsHint =>
+      'When something goes wrong, the app sends what happened, its version and the kind of phone, so it can be fixed. Never your name, number or what you typed.';
+
+  @override
+  String get downloadNeedsInternetVideo =>
+      'This lesson\'s video plays from a video site, so it needs the internet. It can\'t be saved for offline viewing.';
+
+  @override
+  String get downloadNeedsInternetPage =>
+      'This lesson shows a web page, so it needs the internet. It can\'t be saved for offline viewing.';
+
+  @override
+  String get downloadsOff =>
+      'Saving lessons for offline viewing isn\'t available in this app.';
+
+  @override
+  String get downloadNotAvailable =>
+      'This lesson can\'t be saved for offline viewing.';
+
+  @override
+  String get downloadFailed => 'The download didn\'t finish. Try again.';
+
+  @override
+  String get downloadWaitsForConnection => 'Waiting for a connection.';
+
+  @override
+  String downloadsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count lessons weren\'t saved: their videos play from a video site, so they need the internet.',
+      one: '1 lesson wasn\'t saved: its video plays from a video site, so it needs the internet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadsExpired(int days) {
+    return 'Your saved lessons were deleted: the app couldn\'t check your access for $days days. Connect to the internet and save them again.';
+  }
+
+  @override
+  String get downloadsTurnedOff =>
+      'Your saved lessons were deleted: saving lessons is no longer available in this app.';
+
+  @override
+  String downloadsAccessEnded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count saved lessons were deleted because your access to them ended.',
+      one: '1 saved lesson was deleted because your access to it ended.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsNotificationRunning => 'Saving for offline';
+
+  @override
+  String get downloadsNotificationPaused => 'Download paused';
+
+  @override
+  String get downloadsNotificationDone => 'Saved for offline';
+
+  @override
+  String get downloadsNotificationDoneBody =>
+      'Your lessons are ready to watch without the internet.';
+
+  @override
+  String get downloadsNotificationFailed => 'Download failed';
+
+  @override
+  String get downloads => 'Downloads';
+
+  @override
+  String get downloadLesson => 'Save for offline';
+
+  @override
+  String get downloadCourse => 'Save course for offline';
+
+  @override
+  String downloadSaving(int saved, int total) {
+    return 'Saving for offline · $saved of $total';
+  }
+
+  @override
+  String downloadSavingLesson(int percent) {
+    return 'Saving for offline · $percent%';
+  }
+
+  @override
+  String get downloadSaved => 'Saved for offline';
+
+  @override
+  String downloadCourseSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons saved for offline',
+      one: '1 lesson saved for offline',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadQueued => 'Waiting to download';
+
+  @override
+  String get downloadPaused => 'Paused';
+
+  @override
+  String get downloadPause => 'Pause';
+
+  @override
+  String get downloadResume => 'Resume';
+
+  @override
+  String get downloadRetry => 'Try again';
+
+  @override
+  String get downloadCancel => 'Cancel download';
+
+  @override
+  String get downloadDelete => 'Delete from this phone';
+
+  @override
+  String get downloadsDeleteAll => 'Delete all downloads';
+
+  @override
+  String get downloadsDeleteAllConfirm =>
+      'Delete every saved lesson from this phone? You can save them again with a connection.';
+
+  @override
+  String get downloadsDeleteCourseConfirm =>
+      'Delete this course\'s saved lessons from this phone?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get downloadsStorage => 'Storage used';
+
+  @override
+  String get downloadsWifiOnly => 'Download on Wi-Fi only';
+
+  @override
+  String get downloadsWifiOnlyHint =>
+      'Saves your mobile data: downloads wait until you\'re on Wi-Fi.';
+
+  @override
+  String get downloadsEmptyTitle => 'No downloads yet';
+
+  @override
+  String get downloadsEmptyMessage =>
+      'Save a lesson or a whole course to watch and read it without the internet: look for Save for offline on a course or a lesson.';
+
+  @override
+  String downloadsNote(int days) {
+    return 'Saved lessons are kept encrypted inside this app, never in your gallery or files. They\'re deleted when your access to the course ends, or after $days days without a connection.';
+  }
+
+  @override
+  String downloadsKeptFor(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Kept for $days more days without a connection',
+      one: 'Kept for 1 more day without a connection',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadsUnsupported => 'Downloads work in the app on your phone.';
+
+  @override
+  String get downloadStarted =>
+      'Saving for offline. You can keep using the app.';
+
+  @override
+  String downloadCourseStarted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saving $count lessons for offline.',
+      one: 'Saving 1 lesson for offline.',
+      zero: 'Every lesson you can open is already saved.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadCourseSize(String lessons, String size) {
+    return '$lessons · $size';
+  }
+
+  @override
+  String sizeGigabytes(String size) {
+    return '$size GB';
+  }
+
+  @override
+  String get lessonCompleteOffline =>
+      'Marked complete. It\'s sent when you\'re back online.';
+
+  @override
+  String get reviewCourse => 'Review course';
+
+  @override
+  String courseCompletedOn(String date) {
+    return 'Completed on $date';
+  }
+
+  @override
+  String get courseCompletedTitle => 'You\'ve completed this course';
+
+  @override
+  String get viewCertificate => 'View certificate';
+
+  @override
+  String completedCourseLabel(String title) {
+    return '$title, completed';
+  }
 }

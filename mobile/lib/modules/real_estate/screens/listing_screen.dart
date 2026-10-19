@@ -18,6 +18,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../data/real_estate_providers.dart';
 import '../widgets/listing_widgets.dart';
+import '../../../core/services/share_links.dart';
 
 /// A listing: photos, price, key facts, features, description, location,
 /// the office's contacts, a message to the office and similar listings.
@@ -390,10 +391,23 @@ class _GalleryState extends State<_Gallery> {
           PositionedDirectional(
             top: top + 8,
             end: 16,
-            child: FavoriteButton(
-              listingId: listing.id,
-              favorited: listing.summary.favorited,
-              size: 44,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 46 A link that opens the listing in the app.
+                ShareLinkButton(
+                  kind: 'listing',
+                  id: listing.id,
+                  title: listing.summary.title,
+                  onImage: true,
+                ),
+                const SizedBox(width: 4),
+                FavoriteButton(
+                  listingId: listing.id,
+                  favorited: listing.summary.favorited,
+                  size: 44,
+                ),
+              ],
             ),
           ),
           if (images.length > 1)

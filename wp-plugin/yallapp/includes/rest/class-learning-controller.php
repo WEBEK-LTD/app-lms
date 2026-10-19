@@ -11,10 +11,12 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_REST_Server;
+use Yallapp\Content\Downloads;
+use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Lms_Adapter;
 
 /**
- * /me/courses, /me/wishlist, /lessons/* and /me/certificates.
+ * /me/courses, /me/wishlist, /lessons/*, /me/certificates and 45 /me/downloads/check.
  */
 class Learning_Controller extends Controller {
 
@@ -107,6 +109,30 @@ class Learning_Controller extends Controller {
 			)
 		);
 		$this->route(
+			'/lessons/(?P<lesson_id>\d+)/download',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'download' ),
+				'permission_callback' => $auth,
+			)
+		);
+		$this->route(
+			'/me/downloads/check',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'check_downloads' ),
+				'permission_callback' => $auth,
+				'args'                => array(
+					'lesson_ids' => array(
+						'type'     => 'array',
+						'items'    => array( 'type' => 'integer' ),
+						'maxItems' => Downloads::MAX_CHECK,
+						'required' => true,
+					),
+				),
+			)
+		);
+		$this->route(
 			'/me/certificates',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -127,8 +153,20 @@ class Learning_Controller extends Controller {
 		if ( ! $lms instanceof Lms_Adapter ) {
 			return $lms;
 		}
-		$result = $lms->my_courses( get_current_user_id(), (string) $request['status'], (int) $request['page'], (int) $request['per_page'] );
-		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $result['items'] ) ) );
+		$user_id = get_current_user_id();
+		$result  = $lms->my_courses( $user_id, (string) $request['status'], (int) $request['page'], (int) $request['per_page'] );
+		$items   = array();
+		foreach ( $result['items'] as $item ) {
+			// 45 When each completed course was completed, when known.
+			if ( isset( $item['progress'] ) && is_array( $item['progress'] ) ) {
+				$certificate      = ! empty( $item['progress']['course_completed'] ) && ! empty( $item['certificate_url'] )
+					? array( 'issued_at' => self::certificate_date( $lms, (int) $item['progress']['course_id'], $user_id ) )
+					: null;
+				$item['progress'] = Course_Completion::fill( $item['progress'], $user_id, $certificate );
+			}
+			$items[] = $item;
+		}
+		return $this->ok( array_merge( self::page_meta( $request, $result['total'] ), array( 'items' => $items ) ) );
 	}
 
 	/**
@@ -186,7 +224,80 @@ class Learning_Controller extends Controller {
 				? self::error( 'not_enrolled', __( 'Enroll in this course to open this lesson.', 'yallapp' ), 403 )
 				: self::error( 'unauthorized', __( 'Please sign in.', 'yallapp' ), 401 );
 		}
-		return $this->ok( $this->plugin->lesson_renderer()->render( $lesson, $user_id ) );
+		$data            = $this->plugin->lesson_renderer()->render( $lesson, $user_id );
+		$data['offline'] = $this->plugin->downloads()->offline( $data, $lesson );
+		return $this->ok( $data );
+	}
+
+	/**
+	 * 45 POST /lessons/{id}/download: signed links to the lesson's files for offline viewing.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function download( WP_REST_Request $request ) {
+		$lms = $this->lms();
+		if ( ! $lms instanceof Lms_Adapter ) {
+			return $lms;
+		}
+		$downloads = $this->plugin->downloads();
+		if ( ! $downloads->enabled() ) {
+			return self::error( 'feature_disabled', __( 'Lessons can\'t be saved for offline viewing in this app.', 'yallapp' ), 403 );
+		}
+		$user_id   = get_current_user_id();
+		$lesson_id = (int) $request['lesson_id'];
+		$lesson    = $lms->lesson( $lesson_id, $user_id );
+		if ( ! $lesson ) {
+			return self::error( 'not_found', __( 'Lesson not found.', 'yallapp' ), 404 );
+		}
+		if ( ! $lms->can_view_lesson( $lesson_id, $user_id ) ) {
+			return self::error( 'not_enrolled', __( 'Enroll in this course to open this lesson.', 'yallapp' ), 403 );
+		}
+		$data   = $this->plugin->lesson_renderer()->render( $lesson, $user_id );
+		$reason = Downloads::blocker( $data, $lesson['video'] ?? null );
+		if ( null !== $reason ) {
+			return self::error(
+				'not_downloadable',
+				'video_site' === $reason
+					? __( 'This lesson\'s video plays from a video site, so it needs the internet.', 'yallapp' )
+					: __( 'This lesson shows a web page, so it needs the internet.', 'yallapp' ),
+				409,
+				array( 'details' => array( 'reason' => $reason ) )
+			);
+		}
+		return $this->ok( $downloads->package( $data, $lesson, $user_id ) );
+	}
+
+	/**
+	 * 45 POST /me/downloads/check: which saved lessons the student may keep.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function check_downloads( WP_REST_Request $request ) {
+		$lms = $this->lms();
+		if ( ! $lms instanceof Lms_Adapter ) {
+			return $lms;
+		}
+		$user_id = get_current_user_id();
+		$enabled = $this->plugin->downloads()->enabled();
+		$allowed = array();
+		$refused = array();
+		foreach ( array_unique( array_map( 'intval', (array) $request['lesson_ids'] ) ) as $lesson_id ) {
+			if ( $enabled && $lesson_id > 0 && $lms->lesson( $lesson_id, $user_id ) && $lms->can_view_lesson( $lesson_id, $user_id ) ) {
+				$allowed[] = $lesson_id;
+			} else {
+				$refused[] = $lesson_id;
+			}
+		}
+		return $this->ok(
+			array(
+				'allowed'   => $allowed,
+				'refused'   => $refused,
+				'downloads' => $enabled,
+				'keep_days' => Downloads::KEEP_DAYS,
+			)
+		);
 	}
 
 	/**
@@ -242,7 +353,13 @@ class Learning_Controller extends Controller {
 				);
 			}
 		}
-		return $this->result( $lms->complete_lesson( $lesson_id, $user_id ) );
+		$progress = $lms->complete_lesson( $lesson_id, $user_id );
+		if ( is_array( $progress ) ) {
+			// 45 The moment the app completed the course's last item.
+			Course_Completion::record( $progress, $user_id );
+			$progress = Course_Completion::fill( $progress, $user_id );
+		}
+		return $this->result( $progress );
 	}
 
 	/**
@@ -253,6 +370,19 @@ class Learning_Controller extends Controller {
 	public function certificates() {
 		$lms = $this->lms();
 		return $lms instanceof Lms_Adapter ? $this->ok( array( 'items' => $lms->certificates( get_current_user_id() ) ) ) : $lms;
+	}
+
+	/**
+	 * 45 The date of the student's certificate for a course, when the LMS gives one.
+	 *
+	 * @param Lms_Adapter $lms       Adapter.
+	 * @param int         $course_id Course.
+	 * @param int         $user_id   Student.
+	 * @return string|null
+	 */
+	private static function certificate_date( Lms_Adapter $lms, $course_id, $user_id ) {
+		$certificate = Course_Completion::certificate( $lms, $course_id, $user_id );
+		return $certificate && ! empty( $certificate['issued_at'] ) ? (string) $certificate['issued_at'] : null;
 	}
 
 	/**

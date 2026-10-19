@@ -92,6 +92,9 @@ class SettingsScreen extends ConsumerWidget {
     final env = ref.watch(appEnvironmentProvider);
     final look = ref.watch(appLookProvider);
     final analytics = ref.watch(analyticsProvider);
+    final crashReportsOn =
+        env.build.crashReportUrl != null &&
+        ref.watch(appConfigProvider).app.crashReports;
     final n = settings.notifications;
     final l10n = context.l10n;
 
@@ -288,22 +291,39 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
           // 44 Usage statistics for the app's owner: on by default; off stops
-          // sending and deletes what wasn't sent.
-          if (analytics.available) ...[
+          // sending and deletes what wasn't sent. 46 Crash reports, when this
+          // build sends them and the owner allows it.
+          if (analytics.available || crashReportsOn) ...[
             const SizedBox(height: 16),
             SettingsGroup(
               title: l10n.privacyGroup,
               children: [
-                toggle(
-                  l10n.shareUsageStatistics,
-                  settings.shareUsage,
-                  controller.setShareUsage,
-                  icon: AppIcons.usageStats,
-                  subtitle: l10n.shareUsageNote(env.build.appName),
-                  key: const ValueKey('share-usage'),
-                ),
+                if (analytics.available)
+                  toggle(
+                    l10n.shareUsageStatistics,
+                    settings.shareUsage,
+                    controller.setShareUsage,
+                    icon: AppIcons.usageStats,
+                    subtitle: l10n.shareUsageNote(env.build.appName),
+                    key: const ValueKey('share-usage'),
+                  ),
+                if (crashReportsOn)
+                  toggle(
+                    l10n.sendCrashReports,
+                    settings.crashReports,
+                    ref.read(localSettingsProvider.notifier).setCrashReports,
+                    icon: AppIcons.crashReports,
+                  ),
               ],
             ),
+            if (crashReportsOn)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(4, 6, 4, 0),
+                child: Text(
+                  l10n.sendCrashReportsHint,
+                  style: TextStyle(fontSize: 12, color: p.textSecondary),
+                ),
+              ),
           ],
           const SizedBox(height: 16),
           SettingsGroup(

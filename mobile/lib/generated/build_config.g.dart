@@ -27,4 +27,8 @@ const buildConfig = BuildConfigData(
   huaweiAppId: null,
   analyticsUrl: null,
   analyticsKey: null,
+  appId: null,
+  linkBaseUrl: null,
+  siteLinkBaseUrl: null,
+  crashReportUrl: null,
 );

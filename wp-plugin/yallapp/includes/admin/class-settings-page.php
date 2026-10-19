@@ -921,7 +921,11 @@ class Settings_Page {
 				100 => '100%',
 			)
 		);
-		$this->toggle( 'offline_downloads', __( 'Allow offline downloads', 'yallapp' ), __( 'Files are stored encrypted inside the app.', 'yallapp' ) );
+		$this->toggle( 'offline_downloads', __( 'Allow offline downloads', 'yallapp' ), __( 'Students can save lessons and whole courses to watch and read without the internet. Files are stored encrypted inside the app and deleted when the student\'s access ends. Lessons whose video plays from YouTube, Vimeo or another video site can\'t be saved. Needs a plan with offline mode; a choice made on the Yallapp dashboard\'s Courses page wins.', 'yallapp' ) );
+		$chosen = $this->plugin->license()->has_key() ? ( $this->plugin->license()->status()['offline_downloads'] ?? null ) : null;
+		if ( is_bool( $chosen ) ) {
+			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $chosen ? __( 'Chosen on your Yallapp dashboard: downloads on. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: downloads off. That choice replaces this setting.', 'yallapp' ) ) . '</span></p>';
+		}
 		$this->close();
 	}
 

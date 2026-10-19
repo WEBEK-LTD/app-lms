@@ -297,12 +297,15 @@ class _CompletedCard extends StatelessWidget {
                         children: [
                           AppIcon(AppIcons.check, size: 14, color: p.success),
                           const SizedBox(width: 4),
-                          Text(
-                            context.l10n.completed,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: p.success,
+                          Flexible(
+                            child: Text(
+                              // 45 With the date when known.
+                              completedLine(course.progress),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: p.success,
+                              ),
                             ),
                           ),
                         ],
@@ -313,8 +316,17 @@ class _CompletedCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          // 45 Back to the course's curriculum.
+          SecondaryButton(
+            key: ValueKey('review-${course.course.id}'),
+            label: context.l10n.reviewCourse,
+            icon: AppIcons.review,
+            height: 44,
+            onPressed: () => openCourse(context, course.course.id),
+          ),
           if (certificate != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Material(
               color: p.accentSoft,
               borderRadius: BorderRadius.circular(12),

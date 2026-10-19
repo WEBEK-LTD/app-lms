@@ -4,6 +4,7 @@
 require "base64"
 require "json"
 require "securerandom"
+require "uri"
 
 default_platform(:ios)
 
@@ -39,7 +40,8 @@ platform :ios do
   # Signs and exports the IPA.
   #
   # options: secrets and config (paths to the build's JSON files), mobile (path to mobile/),
-  #          out (output folder), signing_out (where to write signing keys created here)
+  #          out (output folder), signing_out (where to write signing keys created here),
+  #          team_out (46: where to write the Team ID, for the link files)
   lane :build_ipa do |options|
     secrets = JSON.parse(File.read(options[:secrets]))
     config = JSON.parse(File.read(options[:config]))
@@ -53,12 +55,18 @@ platform :ios do
     )
     bundle_id = config.fetch("ios_bundle_id")
     push = !(config["firebase"] || {})["ios_config_url"].to_s.empty?
+    # 46 Universal Links: Yallapp's link domain and a WordPress site's own (build config `links`).
+    links = config["links"] || {}
+    link_hosts = [links["yallapp_base_url"], links["site_base_url"]].compact.map { |url| URI.parse(url).host }.uniq
 
     # The App ID, with push notifications when the app has Firebase.
     bundle = Spaceship::ConnectAPI::BundleId.find(bundle_id) ||
              Spaceship::ConnectAPI::BundleId.create(name: config.fetch("app_name")[0, 60], identifier: bundle_id, platform: "IOS")
     if push && bundle.get_capabilities.none? { |c| c.capability_type == "PUSH_NOTIFICATIONS" }
       bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS)
+    end
+    if link_hosts.any? && bundle.get_capabilities.none? { |c| c.capability_type == "ASSOCIATED_DOMAINS" }
+      bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::ASSOCIATED_DOMAINS)
     end
 
     keychain = "yallapp-build.keychain"
@@ -90,18 +98,24 @@ platform :ios do
     profile_name = lane_context[SharedValues::SIGH_NAME]
     profile = FastlaneCore::ProvisioningProfile.parse(File.join(options[:out], "distribution.mobileprovision"))
     team_id = profile["TeamIdentifier"].first
+    File.write(options[:team_out], team_id) if options[:team_out]
 
     ios_dir = File.join(options[:mobile], "ios")
     entitlements = nil
-    if push
+    if push || link_hosts.any?
       entitlements = "Runner/Runner.entitlements"
+      keys = []
+      keys << "\t<key>aps-environment</key>\n\t<string>production</string>" if push
+      if link_hosts.any?
+        domains = link_hosts.map { |host| "\t\t<string>applinks:#{host}</string>" }.join("\n")
+        keys << "\t<key>com.apple.developer.associated-domains</key>\n\t<array>\n#{domains}\n\t</array>"
+      end
       File.write(File.join(ios_dir, entitlements), <<~PLIST)
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists/PLIST-1.0.dtd">
         <plist version="1.0">
         <dict>
-        	<key>aps-environment</key>
-        	<string>production</string>
+        #{keys.join("\n")}
         </dict>
         </plist>
       PLIST

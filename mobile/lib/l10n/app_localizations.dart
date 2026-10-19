@@ -5331,6 +5331,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Helps {app} see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.'**
   String shareUsageNote(String app);
+
+  /// No description provided for @shareLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareLink;
+
+  /// No description provided for @sendCrashReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Send crash reports'**
+  String get sendCrashReports;
+
+  /// No description provided for @sendCrashReportsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When something goes wrong, the app sends what happened, its version and the kind of phone, so it can be fixed. Never your name, number or what you typed.'**
+  String get sendCrashReportsHint;
+
+  /// No description provided for @downloadNeedsInternetVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson\'s video plays from a video site, so it needs the internet. It can\'t be saved for offline viewing.'**
+  String get downloadNeedsInternetVideo;
+
+  /// No description provided for @downloadNeedsInternetPage.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson shows a web page, so it needs the internet. It can\'t be saved for offline viewing.'**
+  String get downloadNeedsInternetPage;
+
+  /// No description provided for @downloadsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving lessons for offline viewing isn\'t available in this app.'**
+  String get downloadsOff;
+
+  /// No description provided for @downloadNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson can\'t be saved for offline viewing.'**
+  String get downloadNotAvailable;
+
+  /// No description provided for @downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The download didn\'t finish. Try again.'**
+  String get downloadFailed;
+
+  /// No description provided for @downloadWaitsForConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a connection.'**
+  String get downloadWaitsForConnection;
+
+  /// No description provided for @downloadsSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 lesson wasn\'t saved: its video plays from a video site, so it needs the internet.} other{{count} lessons weren\'t saved: their videos play from a video site, so they need the internet.}}'**
+  String downloadsSkipped(int count);
+
+  /// No description provided for @downloadsExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved lessons were deleted: the app couldn\'t check your access for {days} days. Connect to the internet and save them again.'**
+  String downloadsExpired(int days);
+
+  /// No description provided for @downloadsTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved lessons were deleted: saving lessons is no longer available in this app.'**
+  String get downloadsTurnedOff;
+
+  /// No description provided for @downloadsAccessEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 saved lesson was deleted because your access to it ended.} other{{count} saved lessons were deleted because your access to them ended.}}'**
+  String downloadsAccessEnded(int count);
+
+  /// No description provided for @downloadsNotificationRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving for offline'**
+  String get downloadsNotificationRunning;
+
+  /// No description provided for @downloadsNotificationPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Download paused'**
+  String get downloadsNotificationPaused;
+
+  /// No description provided for @downloadsNotificationDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved for offline'**
+  String get downloadsNotificationDone;
+
+  /// No description provided for @downloadsNotificationDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your lessons are ready to watch without the internet.'**
+  String get downloadsNotificationDoneBody;
+
+  /// No description provided for @downloadsNotificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get downloadsNotificationFailed;
+
+  /// No description provided for @downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get downloads;
+
+  /// No description provided for @downloadLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Save for offline'**
+  String get downloadLesson;
+
+  /// No description provided for @downloadCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Save course for offline'**
+  String get downloadCourse;
+
+  /// No description provided for @downloadSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving for offline · {saved} of {total}'**
+  String downloadSaving(int saved, int total);
+
+  /// No description provided for @downloadSavingLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving for offline · {percent}%'**
+  String downloadSavingLesson(int percent);
+
+  /// No description provided for @downloadSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved for offline'**
+  String get downloadSaved;
+
+  /// No description provided for @downloadCourseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 lesson saved for offline} other{{count} lessons saved for offline}}'**
+  String downloadCourseSaved(int count);
+
+  /// No description provided for @downloadQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to download'**
+  String get downloadQueued;
+
+  /// No description provided for @downloadPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get downloadPaused;
+
+  /// No description provided for @downloadPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get downloadPause;
+
+  /// No description provided for @downloadResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get downloadResume;
+
+  /// No description provided for @downloadRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get downloadRetry;
+
+  /// No description provided for @downloadCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel download'**
+  String get downloadCancel;
+
+  /// No description provided for @downloadDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete from this phone'**
+  String get downloadDelete;
+
+  /// No description provided for @downloadsDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all downloads'**
+  String get downloadsDeleteAll;
+
+  /// No description provided for @downloadsDeleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete every saved lesson from this phone? You can save them again with a connection.'**
+  String get downloadsDeleteAllConfirm;
+
+  /// No description provided for @downloadsDeleteCourseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this course\'s saved lessons from this phone?'**
+  String get downloadsDeleteCourseConfirm;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @downloadsStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage used'**
+  String get downloadsStorage;
+
+  /// No description provided for @downloadsWifiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Download on Wi-Fi only'**
+  String get downloadsWifiOnly;
+
+  /// No description provided for @downloadsWifiOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves your mobile data: downloads wait until you\'re on Wi-Fi.'**
+  String get downloadsWifiOnlyHint;
+
+  /// No description provided for @downloadsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloads yet'**
+  String get downloadsEmptyTitle;
+
+  /// No description provided for @downloadsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a lesson or a whole course to watch and read it without the internet: look for Save for offline on a course or a lesson.'**
+  String get downloadsEmptyMessage;
+
+  /// No description provided for @downloadsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved lessons are kept encrypted inside this app, never in your gallery or files. They\'re deleted when your access to the course ends, or after {days} days without a connection.'**
+  String downloadsNote(int days);
+
+  /// No description provided for @downloadsKeptFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Kept for 1 more day without a connection} other{Kept for {days} more days without a connection}}'**
+  String downloadsKeptFor(int days);
+
+  /// No description provided for @downloadsUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads work in the app on your phone.'**
+  String get downloadsUnsupported;
+
+  /// No description provided for @downloadStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving for offline. You can keep using the app.'**
+  String get downloadStarted;
+
+  /// No description provided for @downloadCourseStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Every lesson you can open is already saved.} =1{Saving 1 lesson for offline.} other{Saving {count} lessons for offline.}}'**
+  String downloadCourseStarted(int count);
+
+  /// No description provided for @downloadCourseSize.
+  ///
+  /// In en, this message translates to:
+  /// **'{lessons} · {size}'**
+  String downloadCourseSize(String lessons, String size);
+
+  /// No description provided for @sizeGigabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} GB'**
+  String sizeGigabytes(String size);
+
+  /// No description provided for @lessonCompleteOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked complete. It\'s sent when you\'re back online.'**
+  String get lessonCompleteOffline;
+
+  /// No description provided for @reviewCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Review course'**
+  String get reviewCourse;
+
+  /// No description provided for @courseCompletedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed on {date}'**
+  String courseCompletedOn(String date);
+
+  /// No description provided for @courseCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve completed this course'**
+  String get courseCompletedTitle;
+
+  /// No description provided for @viewCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'View certificate'**
+  String get viewCertificate;
+
+  /// No description provided for @completedCourseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, completed'**
+  String completedCourseLabel(String title);
 }
 
 class _AppLocalizationsDelegate

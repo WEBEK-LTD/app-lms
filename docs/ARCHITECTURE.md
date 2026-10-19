@@ -213,6 +213,30 @@ mobile/
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number, also over videos
   played from video sites.
+- Lessons offline (Phase 45, `modules/lms/downloads/`): with
+  `features.downloads` (offline mode in the plan and the owner's choice) a
+  student saves a lesson or a whole course: the lesson itself, then
+  `POST /lessons/{id}/download` gives links to its files (the uploaded or
+  direct video file, attachments, images in the text), signed for the
+  student for 15 minutes (the plugin's `/media/{id}` with a `download|`
+  signature of its own). background_downloader transfers them (in the
+  background, pausable, Wi-Fi only when asked, one notification when the
+  batch is done) into the app's cache; each file is then sealed with
+  AES-256-GCM in 256 KiB chunks (the header and chunk index as associated
+  data) into the app's support folder, the key in the Keystore or Keychain
+  (this device only), and the plain copy deleted. Nothing is in the gallery
+  or the Files app. A saved video plays from a loopback server with a random
+  path that decrypts the chunks a range asks for, so the app's own player,
+  watermark and capture cover apply; images in the text come from it too, and
+  an attachment opens from a temporary decrypted copy deleted at the next
+  start. Lessons whose video plays from a video site can't be saved (409
+  `not_downloadable`). At each start online the app asks
+  `POST /me/downloads/check` and deletes what the student may no longer open
+  (and everything when downloads are off); without a check for `keep_days`
+  (30) days everything is deleted. Signing out deletes it all. Watch progress
+  and "Mark as complete" made offline wait on the phone and go out with the
+  usual calls when the connection is back (places first). The web build (the
+  app preview) has no downloads.
 
 ## Platform (yallapp.com.tr)
 
@@ -376,7 +400,11 @@ mobile/
     plugin's `features.push` and `features.offline` follow them when the
     license is enforced.
   - **App:** offline mode keeps GET answers (never sign-in calls, at most 150,
-    forgotten on sign-out) and shows them without a connection.
+    forgotten on sign-out) and shows them without a connection. Saving
+    lessons for offline viewing (Phase 45) needs the same plan feature and
+    the owner's choice on the Courses page (`apps.hosted_settings.offlineDownloads`:
+    on by default for courses managed in Yallapp; on WordPress null leaves the
+    plugin's "Allow offline downloads", sent as `LicenseStatus.offline_downloads`).
 
   Changing plans (License & plugin, `#change-plan`): an upgrade is paid by
   card and starts at once; the days left on the old plan are credited at
@@ -1076,6 +1104,68 @@ without a new build. The app renders whatever the API sends.
     The preview gets the draft's pack.
 - **Purchases.** The iOS rule applies to every block: no purchase actions for
   paid content on iOS. Prices are display text only.
+
+## Links, ratings and crash reports (Phase 46)
+
+- **Links that open the app** (Android App Links, iOS Universal Links;
+  `docs/api/openapi.yaml`, tag Links). A link is `<base>/<kind>/<id>`;
+  the kinds and the screens they open are one table,
+  `docs/api/app-links.json`, which the app (`core/routing/app_links.dart`),
+  the platform (`lib/links/table.ts`) and the plugin (`App_Links`) follow,
+  each with a test against the file. Two bases:
+  - Yallapp's link domain, every app: `https://yallapp.com.tr/a/<app_id>`.
+    The platform serves `/.well-known/assetlinks.json` (every app's package
+    with the Play App Signing key's and the upload key's SHA-256) and
+    `/.well-known/apple-app-site-association` (each `<Team ID>.<bundle ID>`
+    for its own `/a/<app_id>/*`) at the root (`next.config.ts` rewrites to
+    `/api/links/*`; the reverse proxy passes these two files through). Without
+    the app, `/a/<app_id>/<kind>/<id>` sends a WordPress app's visitor on to
+    the site's own link (once its plugin serves them, `LINKS_PLUGIN_VERSION`),
+    and otherwise shows the item's name and picture in the app's branding
+    with its store buttons; never a price or a purchase button.
+  - A WordPress site: `<site>/a`. The plugin serves the same two files at
+    the root of the site's domain from `LicenseStatus.app_links` (only
+    well-formed values), for `/a/*`, and redirects `/a/<kind>/<id>` to the
+    item's permalink (a published, public post) or the home page.
+  The Play signing fingerprint is entered by the owner (Publishing › Links
+  to your app); the build pipeline reports the upload key's fingerprint and
+  the Team ID of the provisioning profile (`StatusReport.signing`). The
+  build config's `links` gives the Android build one verified intent filter
+  per host (`android/app/src/links/AndroidManifest.xml`, release builds) and
+  the iOS build the Associated Domains entitlement; Flutter's deep linking
+  hands an opened link to go_router, whose redirect maps it with the table
+  (an unknown kind opens the home page). Push notifications and inbox
+  notifications may carry a `link`, which goes through the same redirect.
+  Share buttons share `Config.links.share_base_url` (the site's on
+  WordPress, else Yallapp's). "Check links" (App setup, Publishing › Links
+  to your app) fetches a WordPress site's two files as the phones do (https,
+  no redirect, JSON, never a private address) and keeps the result on the
+  app (`apps.links_check`).
+- **Rating prompt** (`core/services/review_prompt.dart`): the store's own
+  prompt (`in_app_review`: Google Play In-App Review, SKStoreReviewController)
+  after a finished lesson, an order, a booking, a ticket, a donation or the
+  third run; not before three runs over two days, at most once in 120 days
+  and three times a year, never in the preview, off when the owner turns
+  it off (`Config.app.review_prompt`, `apps.review_prompt`). No question
+  first: everyone gets the store's prompt, which the stores require.
+- **Crash reports** (`core/services/crash_reporter.dart`): `FlutterError.onError`
+  (silent errors left out), `PlatformDispatcher.onError`, `runZonedGuarded`
+  around the app and the isolate's error listener record a report: the
+  error and stack scrubbed of addresses' queries, emails, numbers, tokens
+  and codes, the app version and build, the system version, phone or
+  tablet, the route's pattern and the time. Each fingerprint (the error's
+  type and its first frames in the app's code, without line numbers) once
+  per run; at most 10 wait on the phone. They go to `POST /crashes` on the
+  hosted API's address of every app (`links.crash_report_url`) with the runs
+  counted since the last batch, when the owner (`Config.app.crash_reports`)
+  and the user (Settings › Privacy) allow it, never from development builds
+  or the preview. The platform scrubs again, rate limits per address and per
+  app, and groups by fingerprint (`crash_issues`: count, first and last
+  seen, versions, platforms, open or resolved; reported again after being
+  resolved opens it again) with the runs per day (`crash_sessions`). The
+  team sees them in Admin › Crashes; the owner's Stability page and
+  overview card show crash-free sessions over 30 days and the top problems.
+  Native crashes (Java/Kotlin, Swift) aren't caught yet.
 
 ## Build pipeline
 

@@ -19,6 +19,7 @@ import { normalizeSiteUrl } from "@/lib/license/site-url";
 import { siteMatch } from "@/lib/app/site-match";
 import { hasFeature, lowestPlanWith, planName } from "@/lib/plans";
 import { BrandingStep, ListingStep, PublishingStep, WebsiteStep, type BrandingDesigns } from "./steps";
+import { CheckLinksPanel } from "../publishing/links/forms";
 import type { DataStore } from "@/lib/data/store";
 import type { App } from "@/lib/data/types";
 import { designById, designFits, designsFor } from "@/lib/pages/designs";
@@ -257,6 +258,26 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
             firebase: { android: Boolean(app.firebaseAndroidAssetId), ios: Boolean(app.firebaseIosAssetId) },
           }}
         />
+      ) : null}
+
+      {/* 46 Links that open the app: the link files' status, with "Check links". */}
+      {step === "publishing" || complete ? (
+        <section aria-labelledby="h-links" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="h-links" className="m-0 flex items-center gap-2 text-lg font-bold">
+              <Icon name="link" size={22} />
+              Links to your app
+            </h2>
+            <Link href="/dashboard/publishing/links" className="text-sm font-semibold">
+              Fingerprint and Team ID
+            </Link>
+          </div>
+          <p className="m-0 text-sm leading-relaxed text-ink-4">
+            Shared links open your app when it&apos;s installed. Check that the files phones read are in place
+            {app.backend === "wordpress" ? ", on your website too" : ""}.
+          </p>
+          <CheckLinksPanel last={app.linksCheck ?? null} />
+        </section>
       ) : null}
 
       {upcoming.length ? (

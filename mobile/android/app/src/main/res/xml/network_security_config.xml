@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 45 Saved lessons play from a server inside the app on 127.0.0.1, which
+     decrypts as the player reads: plain http there only. Everything else
+     stays https. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

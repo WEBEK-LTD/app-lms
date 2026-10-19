@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
 import type { AppType, AppVertical, Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
 import { toVertical } from "../app/kinds";
+import { downloadsChoice } from "../courses/downloads";
 import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
@@ -11,6 +12,8 @@ import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
 import { licenseState } from "./status";
+import { appLinkTargetOf } from "../links/app";
+import { licenseAppLinks } from "../links/well-known";
 
 /**
  * The license and update API from docs/api/platform.yaml, independent of HTTP
@@ -32,9 +35,16 @@ export interface LicenseStatusBody {
   sign_in_methods: SignInMethod[] | null;
   /** 24 How email sign-in works on WordPress, as the owner chose on App sign-in; null: the plugin's own setting. */
   email_sign_in: "code" | "password" | null;
+  /** 45 Offline downloads on or off, as the owner chose on the Courses page; null: the plugin's own setting. */
+  offline_downloads: boolean | null;
   /** 20 The app's engine and kind of business, so the plugin doesn't guess them; null without an app. */
   app_type: AppType | null;
   vertical: AppVertical | null;
+  /** 46 What the site's link files say; null when the app has no package, fingerprint or Team ID yet. */
+  app_links: ReturnType<typeof licenseAppLinks>;
+  /** 46 The owner's switches for the app: the store's rating prompt, crash reports. */
+  review_prompt: boolean;
+  crash_reports: boolean;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -129,6 +139,12 @@ interface AppFacts {
   emailSignIn: "code" | "password" | null;
   appType: AppType | null;
   vertical: AppVertical | null;
+  /** 46 */
+  appLinks: ReturnType<typeof licenseAppLinks>;
+  reviewPrompt: boolean;
+  crashReports: boolean;
+  /** 45 */
+  offlineDownloads: boolean | null;
 }
 
 function statusBody(
@@ -147,8 +163,12 @@ function statusBody(
     limits: plan ? { app_users: plan.limits.appUsers, languages: plan.limits.languages, sources: plan.limits.sources } : null,
     sign_in_methods: facts.methods,
     email_sign_in: facts.emailSignIn,
+    offline_downloads: facts.offlineDownloads,
     app_type: facts.appType,
     vertical: facts.vertical,
+    app_links: facts.appLinks,
+    review_prompt: facts.reviewPrompt,
+    crash_reports: facts.crashReports,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,
@@ -169,8 +189,18 @@ function inactiveMessage(state: LicenseState, license: License): string {
 /** 18 The owner's sign-in methods for the license's app (null until they choose); 24 how email works; 20 its engine and vertical. */
 async function appFactsOf(store: DataStore, license: License): Promise<AppFacts> {
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null };
-  return { methods: chosenSignInMethods(app), emailSignIn: chosenEmailSignIn(app), appType: app.appType, vertical: toVertical(app.vertical) };
+  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null, appLinks: null, reviewPrompt: true, crashReports: true, offlineDownloads: null };
+  return {
+    methods: chosenSignInMethods(app),
+    emailSignIn: chosenEmailSignIn(app),
+    appType: app.appType,
+    vertical: toVertical(app.vertical),
+    // 46 Links that open the app, and the owner's switches.
+    appLinks: licenseAppLinks(appLinkTargetOf(app)),
+    reviewPrompt: app.reviewPrompt !== false,
+    crashReports: app.crashReports !== false,
+    offlineDownloads: downloadsChoice(app),
+  };
 }
 
 async function findLicense(store: DataStore, key: string): Promise<{ license: License; client: Client } | null> {

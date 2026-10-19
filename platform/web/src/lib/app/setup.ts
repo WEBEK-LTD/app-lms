@@ -4,6 +4,7 @@ import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, AppVertical, Build, BuildStages, Client, License, StoreListing } from "../data/types";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
+import { buildConfigLinks } from "../links/app";
 import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans } from "../entitlements";
@@ -179,6 +180,7 @@ export function buildConfigFor(
   // 36 Huawei Push Kit, for phones without Google Play services.
   const huawei = app.huaweiAgconnectAssetId ? { agconnect_config_url: assetUrl(app.huaweiAgconnectAssetId) } : null;
   const analytics = analyticsBuildConfig(app.id, appUrl(), signingSecret());
+  const links = buildConfigLinks(app, appUrl());
   return {
     schema_version: 1,
     client_id: client.id,
@@ -202,6 +204,8 @@ export function buildConfigFor(
     ...(huawei ? { huawei } : {}),
     // 44 Usage statistics go to Yallapp, whatever the app's backend.
     ...(analytics ? { analytics } : {}),
+    // 46 Links that open the app, and where crash reports go.
+    ...(links ? { links } : {}),
   };
 }
 

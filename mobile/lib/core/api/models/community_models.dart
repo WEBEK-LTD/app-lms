@@ -33,6 +33,7 @@ class InboxNotification {
     this.articleId,
     this.eventId,
     this.campaignId,
+    this.link,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -50,6 +51,7 @@ class InboxNotification {
     articleId: optString(json, 'article_id'),
     eventId: optInt(json, 'event_id'),
     campaignId: optInt(json, 'campaign_id'),
+    link: optString(json, 'link'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -70,6 +72,9 @@ class InboxNotification {
 
   /// For [NotificationType.campaignUpdate]: the campaign to open (29).
   final int? campaignId;
+
+  /// 46 A link that opens the app (`<base>/<kind>/<id>`), when no id says.
+  final String? link;
   final DateTime createdAt;
   final bool read;
 
@@ -82,6 +87,7 @@ class InboxNotification {
     'article_id': ?articleId,
     'event_id': ?eventId,
     'campaign_id': ?campaignId,
+    'link': ?link,
   };
 }
 

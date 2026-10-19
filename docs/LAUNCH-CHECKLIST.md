@@ -218,8 +218,8 @@ Nothing to set on Netlify: the preview is served from the site's own files
 
 ## 7d. WordPress apps follow their type (Phase 30)
 
-- [ ] **Release plugin 0.4.1** (Admin › App & plugin versions; it
-      includes 0.3.8 and 0.4.0) with the changelog from `wp-plugin/yallapp/readme.txt`.
+- [ ] **Release plugin 0.4.2** (Admin › App & plugin versions; it
+      includes 0.3.8 to 0.4.1) with the changelog from `wp-plugin/yallapp/readme.txt`.
       Clients whose app type
       doesn't match the plugins on their site need it for the right tabs and
       home, and the dashboard needs it to say what their site runs.
@@ -253,6 +253,37 @@ Nothing to set on Netlify: the preview is served from the site's own files
 - [ ] Find out whether apps on Xiaomi's international developer site
       (global.developer.mi.com) have the automatic publishing page too, and
       fix the guide's wording if they don't.
+
+## 7g. Links that open the app, the rating prompt and crash reports (Phase 46)
+
+- [ ] Apply migration `0036_app_links_crashes.sql` (the fingerprints, the
+      Team ID, the last link check and the two switches on apps; the crash
+      groups and the runs per day). The lead may renumber it with the other
+      phases' migrations.
+- [ ] Reinstall the reverse proxy config (`platform/web/deploy/apache-proxy.conf`):
+      `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association`
+      must reach Netlify, while the rest of `/.well-known` stays on the server
+      for AutoSSL. Then `curl -i https://yallapp.com.tr/.well-known/assetlinks.json`
+      answers 200 with `application/json`, without a redirect.
+- [ ] Set `LINKS_PLUGIN_VERSION` in `platform/web/src/lib/links/fallback.ts`
+      to the plugin release that ships the link files, and **release that
+      plugin version** (readme.txt "Unreleased"): until then links of
+      WordPress apps show Yallapp's link page instead of the site's.
+- [ ] Each owner enters the **Play App Signing key's SHA-256 fingerprint** on
+      Publishing › Links to your app (Play Console › App integrity › App
+      signing). Without it the app from Google Play opens links in the
+      browser; APKs from Builds & downloads and the other Android stores
+      (signed with the upload key) work once a build has reported the upload
+      key's fingerprint. With "Publish it for me", our team enters it.
+- [ ] iPhone apps need the **Apple Team ID**: the next iOS build reports it
+      (and adds the Associated Domains capability to the App ID); for apps
+      published by hand the owner enters it on the same page. Rebuild every
+      app once so the builds carry the link hosts and the crash report address.
+- [ ] On a real Android phone and iPhone: a shared course link opens the app
+      (installed from the store), and opens the site or the link page without
+      it; "Check links" is green for a WordPress client.
+- [ ] Watch Admin › Crashes after the first rebuilt versions reach people,
+      and the owner's Stability card.
 
 ## 8. Accounts the remaining roadmap steps wait on
 

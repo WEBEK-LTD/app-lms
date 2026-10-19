@@ -353,6 +353,19 @@ describe("email codes for WordPress sites", () => {
     expectPlatformContract("POST", "/licenses/check", checked);
   });
 
+  it("45 tells the plugin whether the owner turned offline downloads on or off", async () => {
+    const { store, licenseKey, app } = await activeSite();
+    const site = parseSiteInfo({ license_key: licenseKey, site_url: SITE, plugin_version: "0.4.1" });
+    if (!site.ok) throw new Error("bad site");
+    expect(await checkLicense(store, site.value, NOW)).toMatchObject({ status: 200, body: { offline_downloads: null } });
+    await store.updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, offlineDownloads: false } }, NOW);
+    const off = await checkLicense(store, site.value, NOW);
+    expect(off).toMatchObject({ status: 200, body: { offline_downloads: false } });
+    expectPlatformContract("POST", "/licenses/check", off);
+    await store.updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, offlineDownloads: true } }, NOW);
+    expect(await checkLicense(store, site.value, NOW)).toMatchObject({ body: { offline_downloads: true } });
+  });
+
   it("go out through the route from Yallapp's address with the app's name, or the own server with a fallback", async () => {
     const store = (await getStore()) as MemoryStore;
     const now = new Date();

@@ -507,6 +507,12 @@ abstract class YallappApi {
   });
   Future<Progress> completeLesson(int lessonId);
 
+  /// 45 Short-lived links to a lesson's files, to save it for offline viewing.
+  Future<LessonDownload> downloadLesson(int lessonId);
+
+  /// 45 Which saved lessons the student may keep.
+  Future<DownloadCheck> checkDownloads(List<int> lessonIds);
+
   Future<Quiz> getQuiz(int quizId);
   Future<Attempt> startAttempt(int quizId);
   Future<AttemptResult> submitAttempt(
@@ -1195,6 +1201,23 @@ class HttpYallappApi implements YallappApi {
     '/lessons/$lessonId/complete',
     _required,
     (data) => Progress.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<LessonDownload> downloadLesson(int lessonId) => _send(
+    'POST',
+    '/lessons/$lessonId/download',
+    _required,
+    (data) => LessonDownload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<DownloadCheck> checkDownloads(List<int> lessonIds) => _send(
+    'POST',
+    '/me/downloads/check',
+    _required,
+    (data) => DownloadCheck.fromJson(asJson(data)),
+    body: {'lesson_ids': lessonIds},
   );
 
   @override

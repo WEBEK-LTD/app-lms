@@ -3342,4 +3342,241 @@ class OverlayLocalizations extends AppLocalizations {
   String shareUsageNote(String app) =>
       overlay.format('shareUsageNote', {'app': app}) ??
       base.shareUsageNote(app);
+
+  @override
+  String get shareLink => overlay.text('shareLink') ?? base.shareLink;
+
+  @override
+  String get sendCrashReports =>
+      overlay.text('sendCrashReports') ?? base.sendCrashReports;
+
+  @override
+  String get sendCrashReportsHint =>
+      overlay.text('sendCrashReportsHint') ?? base.sendCrashReportsHint;
+
+  @override
+  String get downloadNeedsInternetVideo =>
+      overlay.text('downloadNeedsInternetVideo') ??
+      base.downloadNeedsInternetVideo;
+
+  @override
+  String get downloadNeedsInternetPage =>
+      overlay.text('downloadNeedsInternetPage') ??
+      base.downloadNeedsInternetPage;
+
+  @override
+  String get downloadsOff => overlay.text('downloadsOff') ?? base.downloadsOff;
+
+  @override
+  String get downloadNotAvailable =>
+      overlay.text('downloadNotAvailable') ?? base.downloadNotAvailable;
+
+  @override
+  String get downloadFailed =>
+      overlay.text('downloadFailed') ?? base.downloadFailed;
+
+  @override
+  String get downloadWaitsForConnection =>
+      overlay.text('downloadWaitsForConnection') ??
+      base.downloadWaitsForConnection;
+
+  @override
+  String downloadsSkipped(int count) =>
+      overlay.format('downloadsSkipped', {'count': count}) ??
+      base.downloadsSkipped(count);
+
+  @override
+  String downloadsExpired(int days) =>
+      overlay.format('downloadsExpired', {'days': days}) ??
+      base.downloadsExpired(days);
+
+  @override
+  String get downloadsTurnedOff =>
+      overlay.text('downloadsTurnedOff') ?? base.downloadsTurnedOff;
+
+  @override
+  String downloadsAccessEnded(int count) =>
+      overlay.format('downloadsAccessEnded', {'count': count}) ??
+      base.downloadsAccessEnded(count);
+
+  @override
+  String get downloadsNotificationRunning =>
+      overlay.text('downloadsNotificationRunning') ??
+      base.downloadsNotificationRunning;
+
+  @override
+  String get downloadsNotificationPaused =>
+      overlay.text('downloadsNotificationPaused') ??
+      base.downloadsNotificationPaused;
+
+  @override
+  String get downloadsNotificationDone =>
+      overlay.text('downloadsNotificationDone') ??
+      base.downloadsNotificationDone;
+
+  @override
+  String get downloadsNotificationDoneBody =>
+      overlay.text('downloadsNotificationDoneBody') ??
+      base.downloadsNotificationDoneBody;
+
+  @override
+  String get downloadsNotificationFailed =>
+      overlay.text('downloadsNotificationFailed') ??
+      base.downloadsNotificationFailed;
+
+  @override
+  String get downloads => overlay.text('downloads') ?? base.downloads;
+
+  @override
+  String get downloadLesson =>
+      overlay.text('downloadLesson') ?? base.downloadLesson;
+
+  @override
+  String get downloadCourse =>
+      overlay.text('downloadCourse') ?? base.downloadCourse;
+
+  @override
+  String downloadSaving(int saved, int total) =>
+      overlay.format('downloadSaving', {'saved': saved, 'total': total}) ??
+      base.downloadSaving(saved, total);
+
+  @override
+  String downloadSavingLesson(int percent) =>
+      overlay.format('downloadSavingLesson', {'percent': percent}) ??
+      base.downloadSavingLesson(percent);
+
+  @override
+  String get downloadSaved =>
+      overlay.text('downloadSaved') ?? base.downloadSaved;
+
+  @override
+  String downloadCourseSaved(int count) =>
+      overlay.format('downloadCourseSaved', {'count': count}) ??
+      base.downloadCourseSaved(count);
+
+  @override
+  String get downloadQueued =>
+      overlay.text('downloadQueued') ?? base.downloadQueued;
+
+  @override
+  String get downloadPaused =>
+      overlay.text('downloadPaused') ?? base.downloadPaused;
+
+  @override
+  String get downloadPause =>
+      overlay.text('downloadPause') ?? base.downloadPause;
+
+  @override
+  String get downloadResume =>
+      overlay.text('downloadResume') ?? base.downloadResume;
+
+  @override
+  String get downloadRetry =>
+      overlay.text('downloadRetry') ?? base.downloadRetry;
+
+  @override
+  String get downloadCancel =>
+      overlay.text('downloadCancel') ?? base.downloadCancel;
+
+  @override
+  String get downloadDelete =>
+      overlay.text('downloadDelete') ?? base.downloadDelete;
+
+  @override
+  String get downloadsDeleteAll =>
+      overlay.text('downloadsDeleteAll') ?? base.downloadsDeleteAll;
+
+  @override
+  String get downloadsDeleteAllConfirm =>
+      overlay.text('downloadsDeleteAllConfirm') ??
+      base.downloadsDeleteAllConfirm;
+
+  @override
+  String get downloadsDeleteCourseConfirm =>
+      overlay.text('downloadsDeleteCourseConfirm') ??
+      base.downloadsDeleteCourseConfirm;
+
+  @override
+  String get delete => overlay.text('delete') ?? base.delete;
+
+  @override
+  String get downloadsStorage =>
+      overlay.text('downloadsStorage') ?? base.downloadsStorage;
+
+  @override
+  String get downloadsWifiOnly =>
+      overlay.text('downloadsWifiOnly') ?? base.downloadsWifiOnly;
+
+  @override
+  String get downloadsWifiOnlyHint =>
+      overlay.text('downloadsWifiOnlyHint') ?? base.downloadsWifiOnlyHint;
+
+  @override
+  String get downloadsEmptyTitle =>
+      overlay.text('downloadsEmptyTitle') ?? base.downloadsEmptyTitle;
+
+  @override
+  String get downloadsEmptyMessage =>
+      overlay.text('downloadsEmptyMessage') ?? base.downloadsEmptyMessage;
+
+  @override
+  String downloadsNote(int days) =>
+      overlay.format('downloadsNote', {'days': days}) ??
+      base.downloadsNote(days);
+
+  @override
+  String downloadsKeptFor(int days) =>
+      overlay.format('downloadsKeptFor', {'days': days}) ??
+      base.downloadsKeptFor(days);
+
+  @override
+  String get downloadsUnsupported =>
+      overlay.text('downloadsUnsupported') ?? base.downloadsUnsupported;
+
+  @override
+  String get downloadStarted =>
+      overlay.text('downloadStarted') ?? base.downloadStarted;
+
+  @override
+  String downloadCourseStarted(int count) =>
+      overlay.format('downloadCourseStarted', {'count': count}) ??
+      base.downloadCourseStarted(count);
+
+  @override
+  String downloadCourseSize(String lessons, String size) =>
+      overlay.format('downloadCourseSize', {
+        'lessons': lessons,
+        'size': size,
+      }) ??
+      base.downloadCourseSize(lessons, size);
+
+  @override
+  String sizeGigabytes(String size) =>
+      overlay.format('sizeGigabytes', {'size': size}) ??
+      base.sizeGigabytes(size);
+
+  @override
+  String get lessonCompleteOffline =>
+      overlay.text('lessonCompleteOffline') ?? base.lessonCompleteOffline;
+
+  @override
+  String get reviewCourse => overlay.text('reviewCourse') ?? base.reviewCourse;
+
+  @override
+  String courseCompletedOn(String date) =>
+      overlay.format('courseCompletedOn', {'date': date}) ??
+      base.courseCompletedOn(date);
+
+  @override
+  String get courseCompletedTitle =>
+      overlay.text('courseCompletedTitle') ?? base.courseCompletedTitle;
+
+  @override
+  String get viewCertificate =>
+      overlay.text('viewCertificate') ?? base.viewCertificate;
+
+  @override
+  String completedCourseLabel(String title) =>
+      overlay.format('completedCourseLabel', {'title': title}) ??
+      base.completedCourseLabel(title);
 }

@@ -154,12 +154,17 @@ describe("saves that change what the license status carries ask the site", () =>
   it.each([
     ["app/actions/dashboard.ts", "chooseAppTypeAction"],
     ["app/actions/app-sign-in.ts", "saveSignInMethodsAction"],
+    // 45 Offline downloads on or off.
+    ["app/actions/courses.ts", "saveOfflineDownloadsAction"],
     ["app/actions/pages.ts", "publishLayoutAction"],
     ["app/actions/admin.ts", "activateClientAction"],
     ["app/actions/admin.ts", "suspendClientAction"],
     ["app/actions/admin.ts", "reinstateClientAction"],
     // 37 Every provider's plan payment settles here (iyzico, Kashier, Fawaterk).
     ["lib/payments/settle.ts", "settlePlanPayment"],
+    // 46 The link files (fingerprint, Team ID) and the rating prompt and crash report switches.
+    ["app/actions/app-links.ts", "saveAppLinksAction"],
+    ["app/actions/app-links.ts", "saveAppHealthAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -175,8 +180,12 @@ describe("saves that change what the license status carries ask the site", () =>
       "limits",
       "sign_in_methods",
       "email_sign_in",
+      "offline_downloads",
       "app_type",
       "vertical",
+      "app_links",
+      "review_prompt",
+      "crash_reports",
       "expires_at",
       "checked_at",
       "message",

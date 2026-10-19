@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yallapp/app.dart';
+import 'package:yallapp/modules/lms/downloads/download_manager.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/app_environment.dart';
 import 'package:yallapp/core/auth/token_manager.dart';
@@ -19,6 +20,7 @@ import 'package:yallapp/core/web/web_view.dart';
 import 'package:yallapp/modules/lms/lesson/embeds/embed_frame.dart';
 
 import 'fake_api.dart';
+import 'fake_downloads.dart';
 
 const testBuild = BuildConfigData(
   appName: 'Your Academy',
@@ -91,10 +93,19 @@ class TestApp {
     this.preview,
     this.overrides = const [],
     this.analytics = false,
-  }) : api = api ?? FakeApi();
+    this.build,
+    FakeDownloadBackend? downloads,
+  }) : api = api ?? FakeApi(),
+       downloads = downloads ?? FakeDownloadBackend();
+
+  /// 45 Saved lessons, in memory.
+  final FakeDownloadBackend downloads;
 
   /// 44 The build has `analytics` (usage statistics go to Yallapp).
   final bool analytics;
+
+  /// 46 Changes to the build config (link addresses, crash reports).
+  final BuildConfigData Function(BuildConfigData build)? build;
 
   /// More provider overrides (for example sharing in News & blog apps).
   final List<Override> overrides;
@@ -139,13 +150,15 @@ class TestApp {
       sharedPreferencesProvider.overrideWithValue(prefs),
       appEnvironmentProvider.overrideWithValue(
         AppEnvironment(
-          build: testBuild.copyWith(
-            template: template,
-            appType: appType,
-            analyticsUrl: analytics
-                ? 'https://yallapp.com.tr/api/v1/apps/app-1/events'
-                : null,
-            analyticsKey: analytics ? 'k3y-for-the-tests-0123456789' : null,
+          build: (build ?? (b) => b)(
+            testBuild.copyWith(
+              template: template,
+              appType: appType,
+              analyticsUrl: analytics
+                  ? 'https://yallapp.com.tr/api/v1/apps/app-1/events'
+                  : null,
+              analyticsKey: analytics ? 'k3y-for-the-tests-0123456789' : null,
+            ),
           ),
           platform: platform,
           appVersion: '1.0.0',
@@ -161,6 +174,7 @@ class TestApp {
       webViewBuilderProvider.overrideWithValue(webViews.build),
       screenSecurityProvider.overrideWithValue(security),
       framingCheckProvider.overrideWithValue((_) async => framingAllowed),
+      downloadBackendProvider.overrideWithValue(downloads),
       ...this.overrides,
     ];
     container = ProviderContainer(overrides: overrides, retry: (_, _) => null);

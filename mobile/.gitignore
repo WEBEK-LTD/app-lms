@@ -59,3 +59,5 @@ key.properties
 *.mobileprovision
 .env
 .env.*
+# 46 App Links intent filters, written by tool/apply_config.dart from a build config.
+android/app/src/links/

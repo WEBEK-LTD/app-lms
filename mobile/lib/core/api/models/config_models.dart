@@ -29,6 +29,7 @@ class AppConfig {
     this.events,
     this.donations,
     this.vertical,
+    this.shareBaseUrl,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
@@ -48,7 +49,19 @@ class AppConfig {
     events: optObject(json, 'events', EventsConfig.fromJson),
     donations: optObject(json, 'donations', DonationsConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
+    shareBaseUrl: _shareBase(json['links']),
   );
+
+  /// `Config.links.share_base_url` when it is an https address.
+  static String? _shareBase(Object? links) {
+    if (links is! Map) return null;
+    final value = links['share_base_url'];
+    if (value is! String) return null;
+    final uri = Uri.tryParse(value);
+    return uri != null && uri.scheme == 'https' && uri.host.isNotEmpty
+        ? value.replaceAll(RegExp(r'/+$'), '')
+        : null;
+  }
 
   final SiteInfo site;
   final RemoteBranding branding;
@@ -86,6 +99,11 @@ class AppConfig {
   /// The kind of business (wording and defaults only); null for none, on
   /// older servers, and for values this app doesn't know.
   final AppVertical? vertical;
+
+  /// 46 What Share buttons put before `/<kind>/<id>` (`Config.links`):
+  /// `<site>/a` on WordPress, else Yallapp's link domain. Null on older
+  /// servers: the build config's link domain is used.
+  final String? shareBaseUrl;
 }
 
 /// `Config.languages`. Codes the app doesn't ship are dropped.
@@ -306,6 +324,7 @@ class SiteFeatures {
     required this.push,
     this.orders = false,
     this.offline = false,
+    this.downloads = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -322,6 +341,7 @@ class SiteFeatures {
     push: reqBool(json, 'push'),
     orders: boolOr(json, 'orders', false),
     offline: boolOr(json, 'offline', false),
+    downloads: boolOr(json, 'downloads', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -342,6 +362,10 @@ class SiteFeatures {
   /// Offline mode, when the app's plan includes it: the app keeps what the
   /// user last saw and shows it without a connection.
   final bool offline;
+
+  /// 45 Students can save lessons and courses on the phone to watch and read
+  /// offline: offline mode in the plan and the owner turned downloads on.
+  final bool downloads;
 }
 
 enum SignupField { name, email, city }
@@ -476,17 +500,28 @@ class AppRules {
     required this.updateRequired,
     required this.maintenance,
     this.maintenanceMessage,
+    this.reviewPrompt = true,
+    this.crashReports = true,
   });
 
   factory AppRules.fromJson(Json json) => AppRules(
     updateRequired: reqBool(json, 'update_required'),
     maintenance: reqBool(json, 'maintenance'),
     maintenanceMessage: optString(json, 'maintenance_message'),
+    reviewPrompt: boolOr(json, 'review_prompt', true),
+    crashReports: boolOr(json, 'crash_reports', true),
   );
 
   final bool updateRequired;
   final bool maintenance;
   final String? maintenanceMessage;
+
+  /// 46 The owner lets the app ask for a rating with the store's own
+  /// prompt after good moments. Missing on older servers: true.
+  final bool reviewPrompt;
+
+  /// 46 The owner lets the app send crash reports. Missing: true.
+  final bool crashReports;
 }
 
 enum AppearanceMode { system, light, dark }

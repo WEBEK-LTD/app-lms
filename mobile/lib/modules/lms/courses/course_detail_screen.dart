@@ -21,10 +21,13 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/format/dates.dart';
 import '../data/lms_providers.dart';
+import '../downloads/download_widgets.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/services/share_links.dart';
 
 /// A course page with overview, curriculum, reviews summary, wishlist and
 /// the main action decided by [resolveCourseCta] (design: CourseDetail).
@@ -195,6 +198,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       enrolled: course.enrolled,
     );
     final wishlisted = _wishlisted ?? course.wishlisted;
+    // 45 A finished course says so, and its button reviews the curriculum.
+    final finished = courseFinished(course, topics.value);
     // Q&A is for enrolled students, when the site and the course have it on.
     final showQna =
         config.features.qna && (course.qna ?? true) && course.enrolled;
@@ -240,21 +245,35 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           start: 20,
                           child: const AppBackButton(),
                         ),
-                        if (config.features.wishlist)
-                          PositionedDirectional(
-                            top: MediaQuery.paddingOf(context).top + 16,
-                            end: 20,
-                            child: SquareIconButton(
-                              icon: AppIcons.favorite,
-                              filled: wishlisted,
-                              foreground: wishlisted ? p.link : p.text,
-                              bordered: false,
-                              label: wishlisted
-                                  ? l10n.removeFromWishlist
-                                  : l10n.addToWishlist,
-                              onPressed: () => _toggleWishlist(course),
-                            ),
+                        PositionedDirectional(
+                          top: MediaQuery.paddingOf(context).top + 16,
+                          end: 20,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 46 A link that opens the course in the app.
+                              ShareLinkButton(
+                                kind: 'course',
+                                id: course.id,
+                                title: course.title,
+                                bordered: false,
+                              ),
+                              if (config.features.wishlist) ...[
+                                const SizedBox(width: 4),
+                                SquareIconButton(
+                                  icon: AppIcons.favorite,
+                                  filled: wishlisted,
+                                  foreground: wishlisted ? p.link : p.text,
+                                  bordered: false,
+                                  label: wishlisted
+                                      ? l10n.removeFromWishlist
+                                      : l10n.addToWishlist,
+                                  onPressed: () => _toggleWishlist(course),
+                                ),
+                              ],
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -310,6 +329,20 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                               ),
                           ],
                         ),
+                        if (finished) ...[
+                          const SizedBox(height: 16),
+                          CourseCompletedBanner(
+                            completedAt: course.progress?.completedAt,
+                            certificateUrl: course.certificateUrl,
+                          ),
+                        ],
+                        if (course.enrolled) ...[
+                          const SizedBox(height: 12),
+                          CourseDownloadButton(
+                            course: course,
+                            topics: topics.value,
+                          ),
+                        ],
                         const SizedBox(height: 16),
                         SegmentedTabs(
                           labels: [
@@ -349,6 +382,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
             course: course,
             cta: cta,
             busy: _busy,
+            finished: finished,
+            onReview: () =>
+                setState(() => _tab = tabs.indexOf(_CourseTab.curriculum)),
             onContinue: () => _continue(topics.value, course),
             onEnrollFree: () => _enrollFree(course),
             onCheckout: () => _checkout(course),
@@ -722,6 +758,8 @@ class _CtaBar extends StatelessWidget {
     required this.course,
     required this.cta,
     required this.busy,
+    required this.finished,
+    required this.onReview,
     required this.onContinue,
     required this.onEnrollFree,
     required this.onCheckout,
@@ -730,6 +768,10 @@ class _CtaBar extends StatelessWidget {
   final CourseDetail course;
   final CourseCta cta;
   final bool busy;
+
+  /// 45 Every lesson is done: "Review course" opens the curriculum.
+  final bool finished;
+  final VoidCallback onReview;
   final VoidCallback onContinue;
   final VoidCallback onEnrollFree;
   final VoidCallback onCheckout;
@@ -738,6 +780,16 @@ class _CtaBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     switch (cta) {
+      case CourseCta.continueLearning when finished:
+        return BottomActionBar(
+          child: PrimaryButton(
+            key: const ValueKey('cta-review'),
+            label: context.l10n.reviewCourse,
+            icon: AppIcons.review,
+            height: 54,
+            onPressed: onReview,
+          ),
+        );
       case CourseCta.continueLearning:
         return BottomActionBar(
           child: PrimaryButton(
@@ -837,6 +889,85 @@ class _PriceColumn extends StatelessWidget {
         ),
         PriceLabel(price, size: 20),
       ],
+    );
+  }
+}
+
+/// 45 "You've completed this course", with the date when known and the
+/// certificate where the LMS has one.
+class CourseCompletedBanner extends StatelessWidget {
+  const CourseCompletedBanner({
+    super.key,
+    this.completedAt,
+    this.certificateUrl,
+  });
+
+  final DateTime? completedAt;
+  final String? certificateUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final date = completedAt;
+    final certificate = certificateUrl;
+    return Container(
+      key: const ValueKey('course-completed'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: p.successSoft,
+        borderRadius: BorderRadius.circular(context.shapes.r(14)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            container: true,
+            child: Row(
+              children: [
+                AppIcon(
+                  AppIcons.checkCircle,
+                  size: 24,
+                  color: p.success,
+                  filled: true,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.courseCompletedTitle,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: p.text,
+                        ),
+                      ),
+                      Text(
+                        date == null
+                            ? l10n.completed
+                            : l10n.courseCompletedOn(shortDate(date)),
+                        style: TextStyle(fontSize: 13, color: p.textBody),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (certificate != null) ...[
+            const SizedBox(height: 12),
+            SecondaryButton(
+              key: const ValueKey('course-certificate'),
+              label: l10n.viewCertificate,
+              icon: AppIcons.certificate,
+              height: 46,
+              onPressed: () => openExternal(certificate),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -376,6 +376,8 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_TR: Record<string, string> = {
+  "Lessons can't be saved for offline viewing in this app.": "Bu uygulamada dersler çevrimdışı izlemek için kaydedilemez.",
+  "This lesson's video plays from a video site, so it needs the internet.": "Bu dersin videosu bir video sitesinden oynatılıyor, bu yüzden internet gerekiyor.",
   "{0} isn't taking new members right now. Please contact {1}.": "{0} şu anda yeni üye almıyor. Lütfen {1} ile iletişime geçin.",
   "{0} is paused right now. Please contact {1} to bring it back.": "{0} şu anda duraklatıldı. Yeniden açılması için lütfen {1} ile iletişime geçin.",
   "Appointment not found.": "Randevu bulunamadı.",

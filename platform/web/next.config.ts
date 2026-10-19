@@ -45,6 +45,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // 46 Links that open the apps: the files phones read at the root of the domain (lib/links/files.ts).
+  async rewrites() {
+    return [
+      { source: "/.well-known/assetlinks.json", destination: "/api/links/assetlinks" },
+      { source: "/.well-known/apple-app-site-association", destination: "/api/links/apple-app-site-association" },
+    ];
+  },
   // The guides moved into the documentation (src/content/docs.ts); old links keep working.
   async redirects() {
     return [

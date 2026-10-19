@@ -173,6 +173,52 @@ tags:
       Calls from the Yallapp platform to a client's WordPress site (roadmap
       31), never from the app. Only the Yallapp plugin serves them; the hosted
       API and a client's own API don't.
+  - name: Links
+    description: |
+      Links that open the app (roadmap 46): Android App Links and iOS
+      Universal Links. A shared course, product, service, listing, article,
+      event, campaign or page is a link `<base>/<kind>/<id>`. It opens that
+      screen in the app when the app is installed, and the website otherwise.
+
+      - On Yallapp's link domain, for every app: `<base>` is
+        `https://yallapp.com.tr/a/<app_id>`. Without the app, that address
+        shows a page in the app's branding with its store links; for a
+        WordPress app it sends the visitor on to the site's own link.
+      - On a WordPress site with the Yallapp plugin: `<base>` is
+        `<site>/a` (`Config.links.share_base_url`). Without the app, the
+        plugin sends the visitor to the item's own page on the site (its
+        permalink), or to the home page when the item has none or isn't public.
+
+      | Kind | Link | Opens in the app | `id` |
+      |---|---|---|---|
+      | `course` | `<base>/course/12` | the course (Academy) | a number |
+      | `product` | `<base>/product/12` | the product (Store) | a number |
+      | `service` | `<base>/service/12` | the service (Bookings) | a number |
+      | `listing` | `<base>/listing/12` | the listing (Real estate) | a number |
+      | `article` | `<base>/article/431` | the article (News & blog) | letters, digits, `-` and `_` |
+      | `event` | `<base>/event/12` | the event (Events & tickets) | a number |
+      | `campaign` | `<base>/campaign/12` | the campaign (Charity & donations) | a number |
+      | `page` | `<base>/page/offers` | a page built in the dashboard | its slug |
+
+      The same table, with examples, is `docs/api/app-links.json`; the app,
+      the platform and the plugin follow it. A link of a kind the app type
+      doesn't have, or that doesn't match, opens the app's home.
+
+      The phone checks that the domain trusts the app with two files the
+      domain serves at its root, as JSON (`application/json`), without a
+      redirect: `/.well-known/assetlinks.json` (Android: the package name and
+      the SHA-256 fingerprints of the Play App Signing key and the upload key)
+      and `/.well-known/apple-app-site-association` (iOS: `<Team ID>.<bundle
+      ID>` with the paths `/a/*`, or `/a/<app_id>/*` on Yallapp's domain). The
+      plugin builds them from its license status (`LicenseStatus.app_links`
+      in `docs/api/platform.yaml`). Push notifications and notifications in
+      the inbox may carry a `link` in the same format.
+  - name: Crash reports
+    description: |
+      Crash reports (roadmap 46). Served by Yallapp for every app, at
+      `https://yallapp.com.tr/api/app/{app_id}`, also when the app's content
+      comes from WordPress or an own API: the app sends its crashes to
+      Yallapp, never to the site. Off when `Config.app.crash_reports` is false.
 
 paths:
   /config:
@@ -596,6 +642,39 @@ paths:
       responses:
         '204': { description: Signed out }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /crashes:
+    post:
+      tags: [Crash reports]
+      operationId: sendCrashReports
+      summary: Send crash reports
+      description: |
+        The app sends what went wrong (an uncaught error in the app's code),
+        at most 10 reports per call, each one at most once per app run, with
+        the sessions it counted since it last sent. Reports that couldn't be
+        sent are kept on the phone (at most 10) and sent on the next start.
+
+        A report carries no personal data: no names, phone numbers, emails,
+        tokens, codes or addresses with query strings. The app removes them
+        before sending, and Yallapp removes what still looks like one before
+        it stores the report. Yallapp groups reports by `fingerprint` (the
+        error's type and its first frames in the app's own code), counting
+        them, the first and last time seen and the app versions.
+
+        Rate limited per app and per address (`rate_limited`, 429 with
+        `retry_after_seconds`). Answers 204 also when crash reports are off for the
+        app, so the app doesn't keep them.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CrashReportBatch' }
+      responses:
+        '204': { description: Received (or crash reports are off). }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /.well-known/jwks.json:
     get:
@@ -1265,6 +1344,71 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /lessons/{lesson_id}/download:
+    post:
+      tags: [Learning]
+      operationId: downloadLesson
+      summary: Links to save a lesson for offline viewing
+      description: |
+        Roadmap 45. When `features.downloads` is true and the lesson's
+        `offline.available` is true, the app asks for the lesson's files here
+        and keeps them on the phone, encrypted, in its own storage. Each link
+        is for this student only and works for a short time (`expires_at`):
+        the app downloads at once, and asks again to resume a download after
+        that. A lesson whose video plays from a video site (YouTube, Vimeo,
+        Bunny Stream and other players) can't be saved: 409
+        `not_downloadable`, with `details.reason` as in `LessonOffline`.
+        403 `feature_disabled` when downloads are off for the app, 403
+        `not_enrolled` when the student can't open the lesson.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: The lesson's files
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LessonDownload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/downloads/check:
+    post:
+      tags: [Learning]
+      operationId: checkDownloads
+      summary: Whether the student may keep their saved lessons
+      description: |
+        Roadmap 45. The app sends the lessons it keeps for offline viewing
+        when it starts with a connection. A lesson is `refused` when the
+        student can't open it any more (their enrollment ended, was
+        refunded or expired, or the lesson is gone); the app deletes it. The
+        app also deletes everything when `downloads` is false (the owner
+        turned downloads off or the plan no longer includes offline mode),
+        and a lesson it hasn't been able to check for `keep_days` days.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lesson_ids]
+              properties:
+                lesson_ids:
+                  type: array
+                  maxItems: 500
+                  items: { type: integer }
+      responses:
+        '200':
+          description: The lessons the student may keep and those to delete
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
   /quizzes/{quiz_id}:
@@ -2959,6 +3103,7 @@ components:
             - cancel_not_allowed
             - campaign_closed
             - donations_unavailable
+            - not_downloadable
         message: { type: string, description: "A message safe to show to the student, in the language the app asked for with `Accept-Language` when the server has it (the hosted API: English, Arabic and Turkish), else in English." }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -3023,6 +3168,16 @@ components:
             push: { type: boolean, description: "Whether push notifications are set up and included in the app's plan." }
             orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
             offline: { type: boolean, description: "Offline mode, when the app's plan includes it: the app keeps what the user last saw and shows it without a connection. Missing means false." }
+            downloads:
+              type: boolean
+              description: |
+                Roadmap 45. Students can save lessons and whole courses on the
+                phone to watch and read offline (`POST /lessons/{lesson_id}/download`):
+                the app's plan includes offline mode (`offline`) and the owner
+                turned downloads on (the dashboard's Courses page or, on
+                WordPress, the plugin's "Allow offline downloads"; the
+                dashboard's choice wins when it made one). Missing means false;
+                when it turns false the app deletes what it saved.
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
@@ -3097,6 +3252,36 @@ components:
             update_required: { type: boolean }
             maintenance: { type: boolean }
             maintenance_message: { type: [string, 'null'] }
+            review_prompt:
+              type: boolean
+              description: |
+                46 Whether the app may ask for a rating with the phone's own
+                review prompt (Google Play In-App Review, the App Store's
+                SKStoreReviewController) after a good moment, as the app's
+                owner chose in the Yallapp dashboard. The store decides whether
+                the prompt shows; the app never asks first who is happy. Missing
+                means true.
+            crash_reports:
+              type: boolean
+              description: |
+                46 Whether the app sends crash reports to Yallapp (`POST
+                /crashes`, tag Crash reports), as the app's owner chose. Missing
+                means true.
+        links:
+          type: object
+          description: |
+            46 Links that open the app (tag Links). Missing on older servers:
+            the app then shares links on Yallapp's link domain.
+          required: [share_base_url]
+          properties:
+            share_base_url:
+              type: string
+              format: uri
+              example: https://academy.example.com/a
+              description: |
+                What the app's Share buttons put before `/<kind>/<id>`: `<site>/a`
+                on a WordPress site whose plugin serves the link files, else
+                `https://yallapp.com.tr/a/<app_id>`.
         appearance: { $ref: '#/components/schemas/Appearance' }
         languages: { $ref: '#/components/schemas/Languages' }
         listings: { $ref: '#/components/schemas/ListingsConfig' }
@@ -3282,6 +3467,13 @@ components:
                 audience: { type: array, items: { type: string } }
                 includes: { type: array, items: { type: string }, example: [12 hours of video, A certificate] }
             qna: { type: boolean, description: "Whether students can ask questions in this course: features.qna and the course's own setting. Missing on older plugins means features.qna." }
+            progress:
+              $ref: '#/components/schemas/Progress'
+              description: Roadmap 45. The signed-in student's progress in the course, when enrolled. With `course_completed` the course page says "Completed" and its button reviews the course. Missing for visitors and on older servers.
+            certificate_url:
+              type: [string, 'null']
+              format: uri
+              description: Roadmap 45. The student's certificate for this course (the LMS's own certificate page or file), once earned. Null otherwise, and when the LMS has no certificates.
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
@@ -3347,6 +3539,69 @@ components:
         position_seconds: { type: integer }
         previous_id: { type: [integer, 'null'], description: The previous lesson in the course. Quizzes and other items are skipped. }
         next_id: { type: [integer, 'null'], description: The next lesson in the course. Quizzes and other items are skipped. }
+        offline: { $ref: '#/components/schemas/LessonOffline' }
+
+    LessonOffline:
+      type: object
+      description: |
+        Roadmap 45. Whether the lesson can be saved for offline viewing. Missing
+        means it can't (older servers, and platforms whose API doesn't give the
+        files).
+      required: [available]
+      properties:
+        available: { type: boolean }
+        reason:
+          type: [string, 'null']
+          enum: [video_site, web_page, disabled, null]
+          description: |
+            Why it can't: `video_site`, the video plays from a video site
+            (YouTube, Vimeo, Bunny Stream or another player) and needs the
+            internet; `web_page`, the lesson shows a web page or embedded
+            content; `disabled`, downloads aren't on for this app. Null when
+            available.
+        size_bytes: { type: [integer, 'null'], description: "The files' total (video, attachments, images) when known." }
+
+    LessonDownload:
+      type: object
+      description: Roadmap 45. A lesson's files for offline viewing. The app keeps the lesson itself (`GET /lessons/{lesson_id}`) with them.
+      required: [lesson_id, course_id, files, expires_at, keep_days]
+      properties:
+        lesson_id: { type: integer }
+        course_id: { type: integer }
+        files:
+          type: array
+          items: { $ref: '#/components/schemas/DownloadFile' }
+        expires_at: { type: string, format: date-time, description: When the links stop working. Ask again to resume after that. }
+        keep_days: { type: integer, minimum: 1, example: 30, description: "How long the app may keep the lesson without checking the student's access (`POST /me/downloads/check`)." }
+
+    DownloadFile:
+      type: object
+      required: [kind, url]
+      properties:
+        kind: { type: string, enum: [video, attachment, image] }
+        url:
+          type: string
+          format: uri
+          description: |
+            Where to download the file. On WordPress a link signed for this
+            student that works for 15 minutes (`/media/{id}` with its own
+            signature); for a file on another server, its address.
+        source_url:
+          type: [string, 'null']
+          format: uri
+          description: The address the lesson uses for this file (an attachment's `url`, an image's `src` in `html`), so the app shows the saved copy in its place. Null for the video, which is `Lesson.video`.
+        name: { type: [string, 'null'] }
+        size_bytes: { type: [integer, 'null'] }
+        mime_type: { type: [string, 'null'] }
+
+    DownloadCheck:
+      type: object
+      required: [allowed, refused, downloads, keep_days]
+      properties:
+        allowed: { type: array, items: { type: integer }, description: Lessons the student may keep. }
+        refused: { type: array, items: { type: integer }, description: Lessons to delete. }
+        downloads: { type: boolean, description: "`features.downloads` now: when false the app deletes everything it saved." }
+        keep_days: { type: integer, minimum: 1, example: 30 }
 
     Embed:
       type: object
@@ -3390,6 +3645,10 @@ components:
         total_items: { type: integer }
         percent: { type: integer, minimum: 0, maximum: 100 }
         course_completed: { type: boolean }
+        completed_at:
+          type: [string, 'null']
+          format: date-time
+          description: Roadmap 45. When the student completed the course, when known (the LMS's record, the certificate's date, or when the app completed the last item). Null while not completed, or when the date isn't known.
 
     MyCourse:
       type: object
@@ -3492,6 +3751,47 @@ components:
         url: { type: string, format: uri }
         issued_at: { type: [string, 'null'], format: date-time }
 
+    CrashReportBatch:
+      type: object
+      additionalProperties: false
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/CrashReport' }
+        sessions:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: App runs started since the app last sent this (for the crash-free share). Missing means 0.
+        crashed_sessions:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: Of those, the runs that had at least one report. Missing means 0.
+
+    CrashReport:
+      type: object
+      additionalProperties: false
+      required: [fingerprint, error, stack, app_version, build_number, platform, at]
+      properties:
+        fingerprint:
+          type: string
+          pattern: '^[0-9a-f]{16,64}$'
+          description: The app's hash of the error's type and its first frames in the app's own code (no line numbers), so the same bug in a new version groups with the old one. Yallapp groups by it.
+        fatal: { type: boolean, description: "True when the error stopped what the user was doing (an error outside any handler). Missing means false." }
+        error: { type: string, maxLength: 300, description: "The error's type and message, scrubbed.", example: "RangeError: Invalid value: Not in inclusive range 0..2: 3" }
+        stack: { type: string, maxLength: 8000, description: "The stack trace, scrubbed, at most 40 frames." }
+        library: { type: [string, 'null'], maxLength: 60, description: "Where Flutter caught it (`widgets library`, `rendering library`...), or null.", example: widgets library }
+        app_version: { type: string, maxLength: 32, example: 1.4.0 }
+        build_number: { type: integer, minimum: 0 }
+        platform: { type: string, enum: [android, ios] }
+        os_version: { type: [string, 'null'], maxLength: 40, description: "The system's version only.", example: '14' }
+        device: { type: [string, 'null'], enum: [phone, tablet, null], description: "The kind of device only, never its model or name." }
+        screen: { type: [string, 'null'], maxLength: 80, description: "The route's pattern, without ids or query (`/course/:id`).", example: '/course/:id' }
+        at: { type: string, format: date-time }
+
     Notification:
       type: object
       required: [id, title, body, type, created_at, read]
@@ -3506,6 +3806,7 @@ components:
         article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
         event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
         campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
+        link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. Push notifications carry it in their data too. Missing on older servers." }
         created_at: { type: string, format: date-time }
         read: { type: boolean }
 

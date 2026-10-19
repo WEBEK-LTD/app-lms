@@ -46,6 +46,7 @@ class LocalSettings {
     this.guestMode = false,
     this.language,
     this.shareUsage = true,
+    this.crashReports = true,
   });
 
   final ThemeMode themeMode;
@@ -68,6 +69,10 @@ class LocalSettings {
   /// them and deletes what it hadn't sent.
   final bool shareUsage;
 
+  /// 46 The user lets the app send crash reports (on by default; the
+  /// owner's switch in the dashboard comes first).
+  final bool crashReports;
+
   LocalSettings copyWith({
     ThemeMode? themeMode,
     bool? themeModeChosen,
@@ -78,6 +83,7 @@ class LocalSettings {
     bool? guestMode,
     String? language,
     bool? shareUsage,
+    bool? crashReports,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
     themeModeChosen: themeModeChosen ?? this.themeModeChosen,
@@ -88,6 +94,7 @@ class LocalSettings {
     guestMode: guestMode ?? this.guestMode,
     language: language ?? this.language,
     shareUsage: shareUsage ?? this.shareUsage,
+    crashReports: crashReports ?? this.crashReports,
   );
 }
 
@@ -112,6 +119,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _news = 'settings.notify_news';
   static const _donations = 'settings.notify_donations';
   static const _guest = 'settings.guest_mode';
+  static const _crashReports = 'settings.crash_reports';
   static const _language = languageKey;
   static const shareUsageKey = 'settings.share_usage';
 
@@ -147,6 +155,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
       guestMode: p.getBool(_guest) ?? false,
       language: p.getString(_language),
       shareUsage: p.getBool(shareUsageKey) ?? true,
+      crashReports: p.getBool(_crashReports) ?? true,
     );
   }
 
@@ -188,6 +197,11 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   void setGuestMode(bool value) {
     _prefs.setBool(_guest, value);
     state = state.copyWith(guestMode: value);
+  }
+
+  void setCrashReports(bool value) {
+    _prefs.setBool(_crashReports, value);
+    state = state.copyWith(crashReports: value);
   }
 
   void setLanguage(String code) {

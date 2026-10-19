@@ -14,6 +14,8 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../lms/downloads/download_manager.dart';
+import '../../lms/downloads/download_widgets.dart';
 
 /// The Account tab (design: Profile).
 class ProfileScreen extends ConsumerWidget {
@@ -45,6 +47,11 @@ class ProfileScreen extends ConsumerWidget {
     final showOrders =
         config.features.orders &&
         (store || (lms && env.platform == DevicePlatform.android));
+    // 45 Academy apps whose students can save lessons on this phone.
+    final downloads = lms && downloadsOffered(ref);
+    final savedBytes = downloads
+        ? ref.watch(downloadManagerProvider.select((s) => s.index.bytes))
+        : 0;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -146,10 +153,20 @@ class ProfileScreen extends ConsumerWidget {
                       title: context.l10n.myOrders,
                       onTap: () => context.push(Paths.orders),
                     ),
+                  // 45 Lessons saved for offline viewing.
+                  if (downloads)
+                    SettingsTile(
+                      key: const ValueKey('account-downloads'),
+                      icon: AppIcons.downloads,
+                      title: context.l10n.downloads,
+                      value: savedBytes > 0 ? formatBytes(savedBytes) : null,
+                      onTap: () => context.push(Paths.downloads),
+                    ),
                   if (!config.features.certificates &&
                       !config.features.quizzes &&
                       !config.features.wishlist &&
-                      !showOrders)
+                      !showOrders &&
+                      !downloads)
                     SettingsTile(
                       icon: AppIcons.myCourses,
                       title: context.l10n.tabMyCourses,

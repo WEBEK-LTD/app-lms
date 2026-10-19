@@ -63,6 +63,8 @@ export function connectorFor(
     onInquiry?: ListingsDeps["onInquiry"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
+    /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
+    downloads?: boolean;
     /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */
     signingSecret?: string;
   },

@@ -76,6 +76,13 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
 
+// 46 Links that open the app (Android App Links): the intent filters for the
+// app's link hosts, written by tool/apply_config.dart from the build config
+// (never committed), in release builds only.
+if (file("src/links/AndroidManifest.xml").exists()) {
+    android.sourceSets.getByName("release").manifest.srcFile("src/links/AndroidManifest.xml")
+}
+
 // 36 Huawei push for phones without Google Play services: only when the
 // client's agconnect-services.json is present (downloaded by
 // tool/apply_config.dart, never committed). The channel to Dart

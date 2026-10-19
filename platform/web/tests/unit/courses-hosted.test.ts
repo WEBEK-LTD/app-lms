@@ -181,7 +181,7 @@ describe("courses on the hosted API", () => {
 
     expect((await call("PUT", "/lessons/{lesson_id}/progress", { params: ["12"], token, body: { position_seconds: 95, watched_percent: 20 } })).status).toBe(204);
     expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ position_seconds: 95, completed: false });
-    expect((await call("POST", "/lessons/{lesson_id}/complete", { params: ["12"], token })).body).toEqual({ course_id: 10, completed_items: 1, total_items: 2, percent: 50, course_completed: false });
+    expect((await call("POST", "/lessons/{lesson_id}/complete", { params: ["12"], token })).body).toEqual({ course_id: 10, completed_items: 1, total_items: 2, percent: 50, course_completed: false, completed_at: null });
     // Saving a position later doesn't undo completing.
     await call("PUT", "/lessons/{lesson_id}/progress", { params: ["12"], token, body: { position_seconds: 10, watched_percent: 5 } });
     expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ completed: true, position_seconds: 10 });

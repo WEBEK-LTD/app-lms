@@ -2365,5 +2365,156 @@
         "type": "String"
       }
     }
+  },
+  "shareLink": "Share",
+  "sendCrashReports": "Send crash reports",
+  "sendCrashReportsHint": "When something goes wrong, the app sends what happened, its version and the kind of phone, so it can be fixed. Never your name, number or what you typed.",
+  "downloadNeedsInternetVideo": "This lesson's video plays from a video site, so it needs the internet. It can't be saved for offline viewing.",
+  "downloadNeedsInternetPage": "This lesson shows a web page, so it needs the internet. It can't be saved for offline viewing.",
+  "downloadsOff": "Saving lessons for offline viewing isn't available in this app.",
+  "downloadNotAvailable": "This lesson can't be saved for offline viewing.",
+  "downloadFailed": "The download didn't finish. Try again.",
+  "downloadWaitsForConnection": "Waiting for a connection.",
+  "downloadsSkipped": "{count, plural, =1{1 lesson wasn't saved: its video plays from a video site, so it needs the internet.} other{{count} lessons weren't saved: their videos play from a video site, so they need the internet.}}",
+  "@downloadsSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsExpired": "Your saved lessons were deleted: the app couldn't check your access for {days} days. Connect to the internet and save them again.",
+  "@downloadsExpired": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsTurnedOff": "Your saved lessons were deleted: saving lessons is no longer available in this app.",
+  "downloadsAccessEnded": "{count, plural, =1{1 saved lesson was deleted because your access to it ended.} other{{count} saved lessons were deleted because your access to them ended.}}",
+  "@downloadsAccessEnded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsNotificationRunning": "Saving for offline",
+  "downloadsNotificationPaused": "Download paused",
+  "downloadsNotificationDone": "Saved for offline",
+  "downloadsNotificationDoneBody": "Your lessons are ready to watch without the internet.",
+  "downloadsNotificationFailed": "Download failed",
+  "downloads": "Downloads",
+  "downloadLesson": "Save for offline",
+  "downloadCourse": "Save course for offline",
+  "downloadSaving": "Saving for offline · {saved} of {total}",
+  "@downloadSaving": {
+    "placeholders": {
+      "saved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadSavingLesson": "Saving for offline · {percent}%",
+  "@downloadSavingLesson": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadSaved": "Saved for offline",
+  "downloadCourseSaved": "{count, plural, =1{1 lesson saved for offline} other{{count} lessons saved for offline}}",
+  "@downloadCourseSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadQueued": "Waiting to download",
+  "downloadPaused": "Paused",
+  "downloadPause": "Pause",
+  "downloadResume": "Resume",
+  "downloadRetry": "Try again",
+  "downloadCancel": "Cancel download",
+  "downloadDelete": "Delete from this phone",
+  "downloadsDeleteAll": "Delete all downloads",
+  "downloadsDeleteAllConfirm": "Delete every saved lesson from this phone? You can save them again with a connection.",
+  "downloadsDeleteCourseConfirm": "Delete this course's saved lessons from this phone?",
+  "delete": "Delete",
+  "downloadsStorage": "Storage used",
+  "downloadsWifiOnly": "Download on Wi-Fi only",
+  "downloadsWifiOnlyHint": "Saves your mobile data: downloads wait until you're on Wi-Fi.",
+  "downloadsEmptyTitle": "No downloads yet",
+  "downloadsEmptyMessage": "Save a lesson or a whole course to watch and read it without the internet: look for Save for offline on a course or a lesson.",
+  "downloadsNote": "Saved lessons are kept encrypted inside this app, never in your gallery or files. They're deleted when your access to the course ends, or after {days} days without a connection.",
+  "@downloadsNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsKeptFor": "{days, plural, =1{Kept for 1 more day without a connection} other{Kept for {days} more days without a connection}}",
+  "@downloadsKeptFor": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsUnsupported": "Downloads work in the app on your phone.",
+  "downloadStarted": "Saving for offline. You can keep using the app.",
+  "downloadCourseStarted": "{count, plural, =0{Every lesson you can open is already saved.} =1{Saving 1 lesson for offline.} other{Saving {count} lessons for offline.}}",
+  "@downloadCourseStarted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadCourseSize": "{lessons} · {size}",
+  "@downloadCourseSize": {
+    "placeholders": {
+      "lessons": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeGigabytes": "{size} GB",
+  "@sizeGigabytes": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "lessonCompleteOffline": "Marked complete. It's sent when you're back online.",
+  "reviewCourse": "Review course",
+  "courseCompletedOn": "Completed on {date}",
+  "@courseCompletedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "courseCompletedTitle": "You've completed this course",
+  "viewCertificate": "View certificate",
+  "completedCourseLabel": "{title}, completed",
+  "@completedCourseLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -76,6 +76,14 @@ String pushTargetLocation(Map<String, dynamic> data) {
       final campaign = id('campaign_id');
       if (campaign != null) return Paths.campaign(campaign);
   }
+  // 46 A link (`<base>/<kind>/<id>`): its path, which the router maps with
+  // the same table as a link opened from outside the app.
+  final link = Uri.tryParse('${data['link'] ?? ''}'.trim());
+  if (link != null &&
+      link.scheme == 'https' &&
+      link.pathSegments.contains('a')) {
+    return link.path;
+  }
   return Paths.home;
 }
 

@@ -64,8 +64,9 @@ class App_Controller extends Controller {
 		if ( $blocked && in_array( $blocked['code'], array( 'license_inactive', 'account_suspended' ), true ) ) {
 			return self::error( $blocked['code'], $blocked['message'], 503, array( 'contact' => $blocked['contact'] ) );
 		}
-		$contact = $gate->contact();
-		$license = $this->plugin->license();
+		$contact        = $gate->contact();
+		$license        = $this->plugin->license();
+		$license_status = $license->status();
 
 		$lms        = $this->plugin->lms();
 		$features   = $lms ? $lms->features() : array();
@@ -104,6 +105,8 @@ class App_Controller extends Controller {
 					// The app's plan decides push and offline mode (license features).
 					'push'         => $this->plugin->push()->is_configured() && $license->has_feature( 'push' ),
 					'offline'      => $license->has_feature( 'offline_downloads' ),
+					// 45 Lessons saved for offline viewing: the plan and the owner's choice.
+					'downloads'    => $lms && $this->plugin->downloads()->enabled(),
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,
@@ -136,9 +139,14 @@ class App_Controller extends Controller {
 					'update_required'     => '' !== $min && version_compare( (string) $request['app_version'], $min, '<' ),
 					'maintenance'         => null !== $blocked,
 					'maintenance_message' => $blocked ? $blocked['message'] : null,
+					// 46 The owner's switches in the Yallapp dashboard.
+					'review_prompt'       => $license_status['review_prompt'],
+					'crash_reports'       => $license_status['crash_reports'],
 				),
+				// 46 Links that open the app: <site>/a/<kind>/<id> (App_Links).
+				'links'     => array( 'share_base_url' => untrailingslashit( home_url( '/a' ) ) ),
 				// The kind of business the owner chose in the dashboard: wording and defaults only.
-				'vertical'  => $license->status()['vertical'],
+				'vertical'  => $license_status['vertical'],
 			) + $this->look()
 		);
 	}

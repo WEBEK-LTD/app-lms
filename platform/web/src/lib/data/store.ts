@@ -61,6 +61,8 @@ import type { AppAuthKey } from "./types";
 // 29 Charity & donations
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
+// 46 Links and crash reports
+import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -611,6 +613,22 @@ export interface DataStore {
   updateOwnerNotice(clientId: string, id: number, patch: OwnerNoticePatch): Promise<void>;
   /** Marks the app's open notices of these kinds resolved. */
   resolveOwnerNotices(appId: string, kinds: OwnerNoticeKind[], now: Date): Promise<void>;
+
+  // 46 Links that open the app and crash reports
+  /** Every app with a package name or bundle ID, with what its link files need (oldest first). */
+  listAppLinkTargets(): Promise<AppLinkTarget[]>;
+  /**
+   * Adds reports to their groups (one per app and fingerprint): counts, last
+   * seen, versions and platforms; a resolved group seen again opens again.
+   * Adds the runs to the day's counts. One transaction.
+   */
+  recordCrashReports(appId: string, reports: CrashReportInput[], runs: { day: string; sessions: number; crashed: number }): Promise<void>;
+  /** Groups, last seen first: one app's, or every app's for the team. */
+  listCrashIssues(input: { appId?: string; status?: CrashIssueStatus; limit: number }): Promise<CrashIssue[]>;
+  getCrashIssue(id: string): Promise<CrashIssue | null>;
+  setCrashIssueStatus(id: string, status: CrashIssueStatus, now: Date): Promise<void>;
+  /** The runs and the runs with a crash of an app since a day (YYYY-MM-DD, UTC), inclusive. */
+  crashSessionTotals(appId: string, sinceDay: string): Promise<{ sessions: number; crashed: number }>;
 
   // 16 Demo apps
   /**

@@ -19,6 +19,7 @@ import '../data/store_providers.dart';
 import '../widgets/option_sheet.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/services/share_links.dart';
 
 /// A product: images, price, options, quantity and Add to cart.
 class ProductScreen extends ConsumerWidget {
@@ -203,6 +204,12 @@ class _ProductViewState extends ConsumerState<_ProductView> {
             backgroundColor: p.surface,
             leading: const AppBarBackButton(),
             actions: [
+              // 46 A link that opens the product in the app.
+              ShareLinkButton(
+                kind: 'product',
+                id: product.id,
+                title: product.name,
+              ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 18),
                 child: SquareIconButton(

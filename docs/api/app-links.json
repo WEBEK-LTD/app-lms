@@ -1,0 +1,31 @@
+{
+  "$comment": "46 Links that open the app: the one table the app (mobile/lib/core/routing/app_links.dart), the platform (platform/web/src/lib/links/table.ts) and the plugin (includes/class-app-links.php) follow. Each one's tests read this file. A link is <base>/<kind>/<id>: on Yallapp's link domain <base> is https://yallapp.com.tr/a/<app_id>, on a WordPress site it is <site>/a. See docs/api/openapi.yaml, tag Links.",
+  "yallapp_path": "/a/{app_id}/",
+  "site_path": "/a/",
+  "kinds": [
+    { "kind": "course", "route": "/course/{id}", "id": "number", "app_types": ["lms"] },
+    { "kind": "product", "route": "/product/{id}", "id": "number", "app_types": ["store"] },
+    { "kind": "service", "route": "/service/{id}", "id": "number", "app_types": ["booking"] },
+    { "kind": "listing", "route": "/listing/{id}", "id": "number", "app_types": ["real_estate"] },
+    { "kind": "article", "route": "/article/{id}", "id": "text", "app_types": ["news"] },
+    { "kind": "event", "route": "/event/{id}", "id": "number", "app_types": ["events"] },
+    { "kind": "campaign", "route": "/campaign/{id}", "id": "number", "app_types": ["donations"] },
+    { "kind": "page", "route": "/page/{id}", "id": "slug", "app_types": ["lms", "store", "booking", "real_estate", "news", "events", "donations"] }
+  ],
+  "id_patterns": {
+    "number": "^[1-9][0-9]{0,17}$",
+    "text": "^[A-Za-z0-9_-]{1,64}$",
+    "slug": "^[a-z0-9-]{1,64}$"
+  },
+  "examples": [
+    { "link": "https://yallapp.com.tr/a/00000000-0000-0000-0000-000000000000/course/12", "app_type": "lms", "route": "/course/12" },
+    { "link": "https://academy.example.com/a/course/12", "app_type": "lms", "route": "/course/12" },
+    { "link": "https://academy.example.com/a/page/summer-offer", "app_type": "lms", "route": "/page/summer-offer" },
+    { "link": "https://news.example.com/a/article/431", "app_type": "news", "route": "/article/431" },
+    { "link": "https://yallapp.com.tr/a/00000000-0000-0000-0000-000000000000/event/7", "app_type": "events", "route": "/event/7" },
+    { "link": "https://academy.example.com/a/product/3", "app_type": "lms", "route": null },
+    { "link": "https://academy.example.com/a/course/0", "app_type": "lms", "route": null },
+    { "link": "https://academy.example.com/a/course/12/extra", "app_type": "lms", "route": null },
+    { "link": "https://academy.example.com/courses/intro/", "app_type": "lms", "route": null }
+  ]
+}

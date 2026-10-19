@@ -23,6 +23,7 @@ import '../widgets/fulfilment_widgets.dart';
 import '../widgets/product_widgets.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
+import '../../../core/services/review_prompt.dart';
 
 /// The shop's order received page, reached at the end of the checkout:
 /// WooCommerce's and the hosted payment page's `order-received`, Shopify's
@@ -221,6 +222,8 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       _later = false;
     });
     showMessage(context, context.l10n.orderPlaced);
+    // 46 A good moment to ask for a rating.
+    reportGoodMoment(ref, GoodMoment.orderPlaced);
     // 26 A restaurant's customer follows the order from their orders.
     if (restaurant) context.push(Paths.orders);
   }

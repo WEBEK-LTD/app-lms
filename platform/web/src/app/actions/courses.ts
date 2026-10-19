@@ -10,6 +10,10 @@ import { courseSetup } from "@/lib/courses/setup";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCurrency, Course, CourseSetup } from "@/lib/data/types";
+import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
+import { recordStaffChange } from "@/lib/admin/audit";
+import { offersDownloads, parseDownloadsChoice } from "@/lib/courses/downloads";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import type { FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { hostedSettings } from "@/lib/hosted/service";
@@ -185,4 +189,32 @@ export async function addStudentAction(_: FormState, formData: FormData): Promis
   const added = await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date() });
   revalidatePath(`/dashboard/courses/${courseId}`);
   return { ok: true, message: added ? `${user.name} can now open this course.` : `${user.name} was already enrolled.` };
+}
+
+/** 45 Offline downloads on or off (WordPress: or the plugin's own setting). */
+export async function saveOfflineDownloadsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await getClientContext();
+  if (!context) redirect("/sign-in");
+  if (!mayUseDashboard(context)) redirect("/pending");
+  const app = context.app;
+  if (!app || !offersDownloads(app)) redirect("/dashboard");
+  const choice = String(formData.get("downloads") ?? "");
+  const value = parseDownloadsChoice(choice, app);
+  if (value === undefined) return { errors: { downloads: "Choose whether students can save lessons." }, values: { downloads: choice } };
+  const before = app.hostedSettings?.offlineDownloads ?? null;
+  const next = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), offlineDownloads: value };
+  await (await getStore()).updateApp(app.id, { hostedSettings: next }, new Date());
+  await recordStaffChange(context, "Changed offline downloads for the app", { offlineDownloads: before }, { offlineDownloads: value });
+  // 31 The plugin reads the choice from its license status: ask the site to check now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
+  revalidatePath("/dashboard/courses");
+  const message =
+    app.backend === "setup_requested"
+      ? "Saved. It applies as soon as your WordPress site and the Yallapp plugin are ready."
+      : app.connector?.kind !== "courses"
+        ? "Saved. Your website gets it within a minute when it can be reached, otherwise at its next check (twice a day)."
+        : value
+          ? "Saved. Students can save lessons from the next time the app opens."
+          : "Saved. The app deletes saved lessons the next time it opens with a connection.";
+  return { ok: true, message, values: { downloads: choice } };
 }

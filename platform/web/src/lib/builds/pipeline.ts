@@ -1,3 +1,4 @@
+import { FINGERPRINT, TEAM_ID } from "../links/well-known";
 import { z } from "zod";
 import type { DataStore } from "../data/store";
 import type { Artifact, Build, BuildStages, BuildStatus, StageKey } from "../data/types";
@@ -46,6 +47,14 @@ export const pipelineStatusSchema = z
       )
       .max(20)
       .optional(),
+    // 46 Public signing facts for the link files: the upload key's SHA-256 and the Apple Team ID.
+    signing: z
+      .object({
+        android_upload_sha256: z.string().regex(FINGERPRINT).optional(),
+        apple_team_id: z.string().regex(TEAM_ID).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -82,6 +91,22 @@ export async function applyPipelineStatus(
   };
   await store.updateBuild(build.id, patch, now);
   return { ok: true, build: { ...build, ...patch, updatedAt: now } };
+}
+
+/**
+ * 46 Saves what a build reported about the app's signing on the app. True
+ * when something changed: the link files (and the site's license status) differ.
+ */
+export async function saveSigningFacts(store: DataStore, appId: string, signing: PipelineStatusUpdate["signing"], now: Date): Promise<boolean> {
+  if (!signing) return false;
+  const app = await store.getAppById(appId);
+  if (!app) return false;
+  const patch: { androidUploadSha256?: string; appleTeamId?: string } = {};
+  if (signing.android_upload_sha256 && signing.android_upload_sha256 !== app.androidUploadSha256) patch.androidUploadSha256 = signing.android_upload_sha256;
+  if (signing.apple_team_id && signing.apple_team_id !== app.appleTeamId) patch.appleTeamId = signing.apple_team_id;
+  if (Object.keys(patch).length === 0) return false;
+  await store.updateApp(appId, patch, now);
+  return true;
 }
 
 /** The JSON the pipeline gets about a build (without the config). */

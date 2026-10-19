@@ -27,6 +27,8 @@ import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/events_providers.dart';
 import '../widgets/event_widgets.dart';
 import '../widgets/order_sheet.dart';
+import '../../../core/services/review_prompt.dart';
+import '../../../core/services/share_links.dart';
 
 /// An event: its pictures, day and time, place (with the map) or online
 /// note, description and tickets. Free tickets are taken here; paid ones go
@@ -137,6 +139,8 @@ class _EventBodyState extends ConsumerState<_EventBody> {
   }
 
   void _issued(String message) {
+    // 46 A good moment to ask for a rating.
+    reportGoodMoment(ref, GoodMoment.ticketBooked);
     ref.invalidate(eventProvider(event.id));
     ref.invalidate(ticketWalletProvider);
     ScaffoldMessenger.maybeOf(context)
@@ -173,7 +177,8 @@ class _EventBodyState extends ConsumerState<_EventBody> {
         event.title,
         eventWhen(event),
         eventPlace(context, event),
-        site.name,
+        // 46 The link that opens the event in the app, else the app's name.
+        itemLink(ref, 'event', event.id) ?? site.name,
       ].join('\n'),
     );
   }
