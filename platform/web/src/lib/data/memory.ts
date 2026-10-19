@@ -1,6 +1,7 @@
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
 import { membershipToUse } from "../bookings/memberships";
+import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type {
   AppPatch,
@@ -124,6 +125,9 @@ export class MemoryStore implements DataStore {
   private nextClassId = 1;
   private courseEnrollments: CourseEnrollment[] = [];
   private lessonProgress = new Map<string, LessonProgress>();
+  // 44 Analytics: raw events, and daily totals keyed by app, day, metric and key.
+  private analyticsEvents: AnalyticsEventRow[] = [];
+  private analyticsDaily = new Map<string, AnalyticsDailyRecord & { appId: string }>();
 
   async createUser(input: { email: string; name: string; passwordHash: string | null; now: Date }): Promise<User> {
     const email = input.email.toLowerCase();
@@ -2039,5 +2043,61 @@ export class MemoryStore implements DataStore {
       }
     }
     return counts;
+  }
+
+  // 44 Analytics for app owners
+
+  async insertAnalyticsEvents(events: AnalyticsEventRow[]): Promise<void> {
+    for (const event of events) this.analyticsEvents.push({ ...event, at: new Date(event.at) });
+  }
+
+  async listAnalyticsEvents(appId: string, day: string): Promise<AnalyticsEventRow[]> {
+    return this.analyticsEvents.filter((e) => e.appId === appId && e.day === day).map((e) => ({ ...e, at: new Date(e.at) }));
+  }
+
+  async countAnalyticsActive(appId: string, fromDay: string, toDay: string): Promise<number> {
+    return new Set(this.analyticsEvents.filter((e) => e.appId === appId && e.day >= fromDay && e.day <= toDay).map((e) => e.installId)).size;
+  }
+
+  async countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number> {
+    const cohort = new Set(
+      this.analyticsEvents.filter((e) => e.appId === appId && e.day === cohortDay && e.type === "app_open" && e.firstOpen).map((e) => e.installId),
+    );
+    return new Set(this.analyticsEvents.filter((e) => e.appId === appId && e.day === day && cohort.has(e.installId)).map((e) => e.installId)).size;
+  }
+
+  private analyticsKey(appId: string, day: string, metric: string, key: string): string {
+    return JSON.stringify([appId, day, metric, key]);
+  }
+
+  async saveAnalyticsDaily(appId: string, day: string, rows: AnalyticsDailyRow[]): Promise<void> {
+    for (const row of rows) this.analyticsDaily.set(this.analyticsKey(appId, day, row.metric, row.key), { ...row, appId, day });
+  }
+
+  async addAnalyticsDaily(appId: string, day: string, row: AnalyticsDailyRow): Promise<void> {
+    const key = this.analyticsKey(appId, day, row.metric, row.key);
+    const found = this.analyticsDaily.get(key);
+    this.analyticsDaily.set(key, { ...row, appId, day, label: row.label ?? found?.label ?? null, value: (found?.value ?? 0) + row.value });
+  }
+
+  async listAnalyticsDaily(appId: string, fromDay: string, toDay: string, metrics?: AnalyticsMetric[]): Promise<AnalyticsDailyRecord[]> {
+    return [...this.analyticsDaily.values()]
+      .filter((r) => r.appId === appId && r.day >= fromDay && r.day <= toDay && (!metrics || metrics.includes(r.metric)))
+      .sort((a, b) => a.day.localeCompare(b.day))
+      .map(({ day, metric, key, label, value }) => ({ day, metric, key, label, value }));
+  }
+
+  async listAnalyticsEventDays(appId: string, fromDay: string): Promise<string[]> {
+    return [...new Set(this.analyticsEvents.filter((e) => e.appId === appId && e.day >= fromDay).map((e) => e.day))].sort();
+  }
+
+  async listAnalyticsAppIds(fromDay: string): Promise<string[]> {
+    return [...new Set(this.analyticsEvents.filter((e) => e.day >= fromDay).map((e) => e.appId))];
+  }
+
+  async purgeAnalyticsEvents(beforeDay: string): Promise<number> {
+    const before = this.analyticsEvents.length;
+    this.analyticsEvents = this.analyticsEvents.filter((e) => e.day >= beforeDay);
+    return before - this.analyticsEvents.length;
   }
 }

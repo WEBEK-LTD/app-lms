@@ -8,7 +8,8 @@ import { hasFeature, isPlan, PLAN_INFO, type Plan, type PlanInfo } from "../plan
 import { currentPlanId } from "../billing/plan-change";
 import { effectivePlans } from "../entitlements";
 import { compareVersions } from "../semver";
-import { appUrl } from "../env";
+import { appUrl, signingSecret } from "../env";
+import { analyticsBuildConfig } from "../analytics/ingest";
 import { hostedApiUrl } from "../hosted/urls";
 import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { hostedOnly } from "./kinds";
@@ -177,6 +178,7 @@ export function buildConfigFor(
   if (app.firebaseIosAssetId) firebase.ios_config_url = assetUrl(app.firebaseIosAssetId);
   // 36 Huawei Push Kit, for phones without Google Play services.
   const huawei = app.huaweiAgconnectAssetId ? { agconnect_config_url: assetUrl(app.huaweiAgconnectAssetId) } : null;
+  const analytics = analyticsBuildConfig(app.id, appUrl(), signingSecret());
   return {
     schema_version: 1,
     client_id: client.id,
@@ -198,6 +200,8 @@ export function buildConfigFor(
     branding,
     ...(Object.keys(firebase).length > 0 ? { firebase } : {}),
     ...(huawei ? { huawei } : {}),
+    // 44 Usage statistics go to Yallapp, whatever the app's backend.
+    ...(analytics ? { analytics } : {}),
   };
 }
 

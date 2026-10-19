@@ -1,3 +1,5 @@
+import 'analytics_providers.dart';
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,6 +59,8 @@ final pushNavigationProvider = Provider<void>((ref) {
   final router = ref.watch(appRouterProvider);
 
   void open(Map<String, dynamic> data) {
+    // 44 Which notifications people open, for the owner's statistics.
+    ref.read(analyticsProvider).pushOpened(data);
     final location = pushTargetLocation(data);
     if (location == Paths.home) {
       router.go(location);

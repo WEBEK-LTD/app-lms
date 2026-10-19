@@ -59,6 +59,7 @@ import type { CheckInResult, EventInput, EventRecord, EventSettings, EventTicket
 // 34 Yallapp sign-in for own API apps
 import type { AppAuthKey } from "./types";
 // 29 Charity & donations
+import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -620,4 +621,24 @@ export interface DataStore {
    * for demo apps (lib/demo/cleanup.ts checks).
    */
   purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts>;
+
+  // 44 Analytics for app owners (lib/analytics). Days are UTC, YYYY-MM-DD.
+  insertAnalyticsEvents(events: AnalyticsEventRow[]): Promise<void>;
+  /** The raw events of one app and day. */
+  listAnalyticsEvents(appId: string, day: string): Promise<AnalyticsEventRow[]>;
+  /** Distinct installs with any event from `fromDay` to `toDay` (both included). */
+  countAnalyticsActive(appId: string, fromDay: string, toDay: string): Promise<number>;
+  /** Of the installs first opened on `cohortDay`, how many have an event on `day`. */
+  countAnalyticsReturning(appId: string, cohortDay: string, day: string): Promise<number>;
+  /** Sets daily totals (each metric and key replaces what the day had). */
+  saveAnalyticsDaily(appId: string, day: string, rows: AnalyticsDailyRow[]): Promise<void>;
+  /** Adds to one daily total (search counts, pushes sent, late-event marks). */
+  addAnalyticsDaily(appId: string, day: string, row: AnalyticsDailyRow): Promise<void>;
+  listAnalyticsDaily(appId: string, fromDay: string, toDay: string, metrics?: AnalyticsMetric[]): Promise<AnalyticsDailyRecord[]>;
+  /** The days from `fromDay` on with raw events of the app. */
+  listAnalyticsEventDays(appId: string, fromDay: string): Promise<string[]>;
+  /** Apps with raw events on `fromDay` or later. */
+  listAnalyticsAppIds(fromDay: string): Promise<string[]>;
+  /** Deletes raw events of days before `beforeDay`; returns how many. */
+  purgeAnalyticsEvents(beforeDay: string): Promise<number>;
 }

@@ -3221,4 +3221,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String slideOf(int index, int count) {
     return 'Slide $index of $count';
   }
+
+  @override
+  String get privacyGroup => 'Privacy';
+
+  @override
+  String get shareUsageStatistics => 'Share usage statistics';
+
+  @override
+  String shareUsageNote(String app) {
+    return 'Helps $app see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.';
+  }
 }

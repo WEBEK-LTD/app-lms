@@ -45,6 +45,7 @@ class LocalSettings {
     this.notifications = const NotificationPreferences(),
     this.guestMode = false,
     this.language,
+    this.shareUsage = true,
   });
 
   final ThemeMode themeMode;
@@ -63,6 +64,10 @@ class LocalSettings {
   /// they pick one.
   final String? language;
 
+  /// 44 "Share usage statistics": on by default; off stops the app sending
+  /// them and deletes what it hadn't sent.
+  final bool shareUsage;
+
   LocalSettings copyWith({
     ThemeMode? themeMode,
     bool? themeModeChosen,
@@ -72,6 +77,7 @@ class LocalSettings {
     NotificationPreferences? notifications,
     bool? guestMode,
     String? language,
+    bool? shareUsage,
   }) => LocalSettings(
     themeMode: themeMode ?? this.themeMode,
     themeModeChosen: themeModeChosen ?? this.themeModeChosen,
@@ -81,6 +87,7 @@ class LocalSettings {
     notifications: notifications ?? this.notifications,
     guestMode: guestMode ?? this.guestMode,
     language: language ?? this.language,
+    shareUsage: shareUsage ?? this.shareUsage,
   );
 }
 
@@ -106,6 +113,7 @@ class LocalSettingsController extends Notifier<LocalSettings> {
   static const _donations = 'settings.notify_donations';
   static const _guest = 'settings.guest_mode';
   static const _language = languageKey;
+  static const shareUsageKey = 'settings.share_usage';
 
   /// Where the language the user picked is kept (the app preview sets it
   /// from its link, 17).
@@ -138,7 +146,13 @@ class LocalSettingsController extends Notifier<LocalSettings> {
       ),
       guestMode: p.getBool(_guest) ?? false,
       language: p.getString(_language),
+      shareUsage: p.getBool(shareUsageKey) ?? true,
     );
+  }
+
+  void setShareUsage(bool on) {
+    _prefs.setBool(shareUsageKey, on);
+    state = state.copyWith(shareUsage: on);
   }
 
   void setThemeMode(ThemeMode mode) {

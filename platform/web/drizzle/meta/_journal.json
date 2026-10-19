@@ -246,6 +246,13 @@
       "when": 1792403468609,
       "tag": "0034_xiaomi_getapps",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1792407272098,
+      "tag": "0035_analytics",
+      "breakpoints": true
     }
   ]
 }

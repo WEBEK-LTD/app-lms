@@ -3330,4 +3330,16 @@ class OverlayLocalizations extends AppLocalizations {
   String slideOf(int index, int count) =>
       overlay.format('slideOf', {'index': index, 'count': count}) ??
       base.slideOf(index, count);
+
+  @override
+  String get privacyGroup => overlay.text('privacyGroup') ?? base.privacyGroup;
+
+  @override
+  String get shareUsageStatistics =>
+      overlay.text('shareUsageStatistics') ?? base.shareUsageStatistics;
+
+  @override
+  String shareUsageNote(String app) =>
+      overlay.format('shareUsageNote', {'app': app}) ??
+      base.shareUsageNote(app);
 }

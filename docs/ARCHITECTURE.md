@@ -798,6 +798,77 @@ Yallapp: App sign-in › "Who signs people in" (`apps.hosted_settings.signInBy`:
   `/me/orders` when the Store has orders) answers 401 without a token and
   200 with a test token.
 
+## Analytics for app owners (Phase 44)
+
+First-party usage statistics, so each owner sees how their app is used
+(Dashboard › Analytics). No third-party analytics SDK, no advertising ID, no
+fingerprinting; reports show totals only.
+
+- **Every backend sends to Yallapp.** WordPress, hosted, connected platforms
+  and own APIs alike: the build config's `analytics` (`events_url`,
+  `key`) points the app at `POST /api/v1/apps/{app_id}/events`
+  (`docs/api/platform.yaml`, tag Analytics). The key is
+  `HMAC(SIGNING_SECRET, "analytics:v1:" + app_id)`, the same in every build,
+  stored nowhere. It is in every copy of the app, so it isn't a secret: it
+  keeps out batches made up from an app ID alone, and the limits (60
+  requests a minute per IP, 30 per 10 minutes per install, 3000 a minute per
+  app, 100 events and 64 KB a request) cap what a copied key can do. The
+  build config gets it only when the platform's address is https; the app
+  preview's config never has it, so the preview never sends.
+- **What arrives.** A batch carries a random install ID (a version 4 UUID the
+  app makes, not its device ID, renewed when sharing is turned off and on),
+  the platform, app and system versions and the language, and up to 100
+  events: `app_open` (with `first_open` once per install; each one is a
+  session: a start, or back after 30 minutes), `screen_view` (a screen kind,
+  never an address), `item_view` (kind, ID, title), `add_to_cart`,
+  `purchase_click`, `enroll`, `book`, `donate`, `ticket`, `share` (with the
+  amount when known), `search` and `push_open`. One invalid event fails the
+  batch (400); events older than 7 days or 10 minutes ahead are skipped and
+  counted in `dropped`. The country comes from the request (`x-nf-geo` or
+  `x-country` on Netlify, or our proxy's `X-Yallapp-Client-Country` with its
+  secret); the IP is used only as a rate-limit key.
+- **Storage** (`lib/analytics`, migration `0035_analytics`).
+  `analytics_events` keeps raw events for 40 days, without the search text.
+  `analytics_daily` (app, UTC day, metric, key, label, value) keeps totals
+  until the app is deleted (both cascade with `apps`). Search texts are
+  counted there at once (`search`, lower case; texts that look like a phone
+  number or an email address are dropped), as are the phones each dashboard
+  notification was pushed to (`push_sent`, written by `announce`).
+- **Counting** (`aggregate.ts`). `totalsOfDay` turns a day's raw events into
+  installs (first opens), active installs, sessions, splits (platform,
+  system, app version, country, language: each install once a day),
+  screens, items (top 200 a day), event counts, checkout value per
+  currency and notification opens (distinct installs). `aggregateDay` adds
+  the installs active over the 7 and 30 days ending that day and writes the
+  returns of the cohorts that first opened 1, 7 and 30 days before on the
+  cohort's day (`ret_d1`, `ret_d7`, `ret_d30`), and marks a finished day
+  `done`. A batch with events of an earlier day marks that day `dirty`.
+  The daily job (`POST /api/internal/daily`) counts every app with events
+  in the last week (finished days not done or dirty, within a 15-second
+  budget) and deletes raw events older than 40 days; the dashboard counts
+  what is still due, and today so far, before each report.
+- **Reports** (`report.ts`). Ranges of 7, 30 or 90 days or custom (at most
+  366), compared with the period just before: installs, average daily,
+  weekly and monthly active users, sessions and sessions per user, day 1, 7
+  and 30 retention (only cohorts whose day N is over), the splits, top
+  screens and items (named per app type), the funnel (views, then add to
+  cart / enroll / book / tickets / give, then checkout), each dashboard
+  notification's open rate (installs that opened it over phones pushed) and
+  website notifications by type, and searches made at least twice. The CSV
+  export (`/api/dashboard/analytics/export`) has the same totals; a cell
+  that would run as a spreadsheet formula starts with an apostrophe. Admin ›
+  a client's page shows each app's last 30 days.
+- **App** (`mobile/lib/core/services/analytics.dart`). Events queue in memory
+  and in the app's preferences (at most 500, each dropped after 7 days),
+  are sent every 30 seconds and when the app goes to the background, and a
+  failed batch is retried with a growing pause (30 seconds to 30 minutes;
+  400 drops it, 404 stops sending until the next start). A route observer
+  sends screen kinds; the shared item, cart, checkout, booking, ticket and
+  donation flows send their events. Settings › "Share usage statistics" (on
+  by default, with a short note) turns it off: sending stops and the queue
+  and install ID are deleted. The preview (`env.isPreview`) and builds
+  without `analytics` never send.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

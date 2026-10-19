@@ -868,5 +868,8 @@
   "countdownSeconds": "ثوانٍ",
   "socialWhatsappChannel": "قناة واتساب",
   "ratingOutOfFive": "{count} من 5 نجوم",
-  "slideOf": "الشريحة {index} من {count}"
+  "slideOf": "الشريحة {index} من {count}",
+  "privacyGroup": "الخصوصية",
+  "shareUsageStatistics": "مشاركة إحصاءات الاستخدام",
+  "shareUsageNote": "تساعد {app} على معرفة كيفية استخدام التطبيق، مثل الشاشات والعناصر التي تُفتح. لا يُرسل اسمك أو رقم هاتفك أو بريدك الإلكتروني أبدًا."
 }

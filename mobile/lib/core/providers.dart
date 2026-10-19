@@ -11,6 +11,8 @@ import 'config/build_config.dart';
 import 'gate/app_gate.dart';
 import 'l10n/language.dart';
 import 'preview/preview.dart';
+import 'services/analytics_interceptor.dart';
+import 'services/analytics_providers.dart';
 
 /// Must be overridden with the environment loaded at start-up.
 final appEnvironmentProvider = Provider<AppEnvironment>(
@@ -66,6 +68,12 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     offline: ref.read(offlineCacheProvider),
   );
   if (contentIsHosted) dio.options.headers.addAll(previewHeaders);
+  // 44 Items opened, enrolments, bookings, tickets, donations, checkouts
+  // and searches, from the content API's answers.
+  dio.interceptors.insert(
+    0,
+    AnalyticsInterceptor(() => ref.read(analyticsProvider)),
+  );
   final authDio = createHttpClient(
     baseUrl: accountUrl,
     tokens: tokens,

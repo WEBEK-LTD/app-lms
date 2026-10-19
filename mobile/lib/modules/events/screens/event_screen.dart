@@ -1,3 +1,5 @@
+import '../../../core/services/analytics_providers.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -163,6 +165,9 @@ class _EventBodyState extends ConsumerState<_EventBody> {
 
   Future<void> _share() async {
     final site = ref.read(appConfigProvider).site;
+    ref
+        .read(analyticsProvider)
+        .item('share', kind: 'event', id: event.id, title: event.title);
     await ref.read(shareEventTextProvider)(
       [
         event.title,

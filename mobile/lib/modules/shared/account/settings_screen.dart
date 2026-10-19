@@ -9,6 +9,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/language.dart';
 import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
+import '../../../core/services/analytics_providers.dart';
 import '../../../core/services/push_registration.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
@@ -90,6 +91,7 @@ class SettingsScreen extends ConsumerWidget {
     final devices = ref.watch(devicesProvider).value;
     final env = ref.watch(appEnvironmentProvider);
     final look = ref.watch(appLookProvider);
+    final analytics = ref.watch(analyticsProvider);
     final n = settings.notifications;
     final l10n = context.l10n;
 
@@ -98,10 +100,14 @@ class SettingsScreen extends ConsumerWidget {
       bool value,
       ValueChanged<bool> onChanged, {
       IconData? icon,
+      String? subtitle,
+      Key? key,
     }) => MergeSemantics(
+      key: key,
       child: SettingsTile(
         icon: icon,
         title: title,
+        subtitle: subtitle,
         chevron: false,
         onTap: () => onChanged(!value),
         trailing: Switch(value: value, onChanged: onChanged),
@@ -277,6 +283,24 @@ class SettingsScreen extends ConsumerWidget {
                   n.dailyReminder,
                   (v) =>
                       controller.setNotifications(n.copyWith(dailyReminder: v)),
+                ),
+              ],
+            ),
+          ],
+          // 44 Usage statistics for the app's owner: on by default; off stops
+          // sending and deletes what wasn't sent.
+          if (analytics.available) ...[
+            const SizedBox(height: 16),
+            SettingsGroup(
+              title: l10n.privacyGroup,
+              children: [
+                toggle(
+                  l10n.shareUsageStatistics,
+                  settings.shareUsage,
+                  controller.setShareUsage,
+                  icon: AppIcons.usageStats,
+                  subtitle: l10n.shareUsageNote(env.build.appName),
+                  key: const ValueKey('share-usage'),
                 ),
               ],
             ),

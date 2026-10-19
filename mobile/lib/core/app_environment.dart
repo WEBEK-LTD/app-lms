@@ -19,6 +19,7 @@ class AppEnvironment {
     required this.deviceId,
     required this.deviceName,
     this.preview,
+    this.osVersion,
   });
 
   /// Reads the platform, version and device facts once at start-up.
@@ -45,6 +46,7 @@ class AppEnvironment {
       // 17 The app preview runs in a browser, which has no phone model.
       deviceName: kIsWeb ? 'App preview' : await _deviceName(platform),
       preview: preview,
+      osVersion: kIsWeb ? null : await _osVersion(platform),
     );
   }
 
@@ -60,6 +62,10 @@ class AppEnvironment {
   /// A stable ID generated once per install.
   final String deviceId;
   final String deviceName;
+
+  /// 44 The system and its version ("Android 14", "iOS 18.1"), for the
+  /// owner's usage statistics; null when unknown.
+  final String? osVersion;
 
   bool get isIos => platform == DevicePlatform.ios;
   bool get isAndroid => platform == DevicePlatform.android;
@@ -92,6 +98,18 @@ class AppEnvironment {
     final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
         '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
+  }
+
+  static Future<String?> _osVersion(DevicePlatform platform) async {
+    try {
+      final plugin = DeviceInfoPlugin();
+      if (platform == DevicePlatform.ios) {
+        return 'iOS ${(await plugin.iosInfo).systemVersion}';
+      }
+      return 'Android ${(await plugin.androidInfo).version.release}';
+    } on Object {
+      return null;
+    }
   }
 
   static Future<String> _deviceName(DevicePlatform platform) async {

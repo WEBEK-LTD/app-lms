@@ -101,6 +101,8 @@ export function previewConfigFor(
   if (!built.branding.icon_url) placeholders.push("branding.icon_url");
   // No push in the preview: the Firebase files stay out.
   delete built.firebase;
+  // 44 The preview never sends usage statistics.
+  delete built.analytics;
   const draft = grant.draft && draftPreviewSupported(app);
   return {
     config: built,

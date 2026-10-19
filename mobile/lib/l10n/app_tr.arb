@@ -868,5 +868,8 @@
   "countdownSeconds": "Sn",
   "socialWhatsappChannel": "WhatsApp kanalı",
   "ratingOutOfFive": "5 üzerinden {count} yıldız",
-  "slideOf": "Slayt {index}/{count}"
+  "slideOf": "Slayt {index}/{count}",
+  "privacyGroup": "Gizlilik",
+  "shareUsageStatistics": "Kullanım istatistiklerini paylaş",
+  "shareUsageNote": "{app}, uygulamanın nasıl kullanıldığını, örneğin hangi ekranların ve öğelerin açıldığını görür. Adınız, telefon numaranız ve e-posta adresiniz asla gönderilmez."
 }

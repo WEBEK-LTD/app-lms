@@ -8,6 +8,7 @@ import 'core/l10n/l10n.dart';
 import 'core/l10n/language.dart';
 import 'core/providers.dart';
 import 'core/routing/app_router.dart';
+import 'core/services/analytics_providers.dart';
 import 'core/services/push_registration.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
@@ -32,7 +33,9 @@ class YallappApp extends ConsumerWidget {
     setCurrentLanguage(language, packs[language]);
     ref
       ..watch(pushRegistrationProvider)
-      ..watch(pushNavigationProvider);
+      ..watch(pushNavigationProvider)
+      // 44 Usage statistics: the session and the screens.
+      ..watch(analyticsRoutesProvider);
 
     return MaterialApp.router(
       title: env.build.appName,

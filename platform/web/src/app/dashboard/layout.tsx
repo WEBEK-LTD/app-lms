@@ -54,6 +54,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         // 43 The app's languages and every text in them.
         { href: "/dashboard/languages", label: "Languages", icon: "language" },
         { href: "/dashboard/preview", label: "Preview your app", icon: "visibility" },
+        // 44 How people use the app.
+        { href: "/dashboard/analytics", label: "Analytics", icon: "monitoring" },
       ],
     },
     ...(content ? [{ label: content.label, items: content.items }] : []),

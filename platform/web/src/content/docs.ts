@@ -1021,6 +1021,55 @@ People can delete their account from the app's settings, as Apple and Google req
 `,
   }),
 
+  // 44 Analytics for app owners
+  doc({
+    slug: "analytics",
+    section: "Your app",
+    title: "Analytics",
+    description: "How many people install and use your app, what they look at and buy, and exactly what the app sends to count it.",
+    steps: false,
+    body: `Open **Analytics** in your dashboard to see how people use your app: installs, daily, weekly and monthly active users, sessions, how many come back, the phones and app versions they use, their countries and languages, the screens, courses, products, services and other items they open, how many go on to buy, enroll, book or give, how many open your notifications, and what they search for. Choose the last 7, 30 or 90 days or your own dates; each number is compared with the period before. **Export CSV** downloads the same numbers for a spreadsheet.
+
+## Where the numbers come from
+
+Your app counts them itself and sends them to Yallapp, whatever your content comes from (WordPress, a connected platform, the dashboard or your own API). No other company's analytics tools are in your app, and nothing is used for advertising.
+
+- **Installs** are counted when the app is first opened. Google Play, the App Store and the other stores don't share their download numbers with us, so your store consoles may show more.
+- **Active users** are installs that opened the app that day, in the last 7 days (weekly) or the last 30 days (monthly).
+- **Sessions** are app opens: a start, or coming back after 30 minutes or more in the background.
+- **Retention** is the share of people who first opened the app in your range and came back 1, 7 or 30 days later.
+- **Conversions** count views of your courses, products, services, events or campaigns, the next step (added to cart, enrolled, booked, got tickets or chose to give) and the checkout page opening. The payment itself happens on the checkout page; your orders and donations pages have the payments.
+- **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Notifications your website sends are counted by kind.
+- **Searches** show what people searched for, never who. A search shows once it was made at least twice.
+
+Numbers appear a minute or so after someone uses the app. Days are in UTC. The app preview in your dashboard isn't counted.
+
+## What the app sends
+
+Every 30 seconds while it's open, and when it goes to the background, the app sends what happened since:
+
+- that it was opened, and whether for the first time;
+- the kind of screen opened (Home, a course, the cart…), never its address;
+- the courses, products and other items opened, with their name and number, and the actions above with the amount when there is one;
+- what was searched for, and the notification a person opened;
+- a random install number made by the app, the platform (Android or iOS), the app's and the system's versions, and the app's language.
+
+We work out the country from the connection when the numbers arrive, and never keep the IP address. The app sends no name, phone number, email address, account or advertising ID, and the install number isn't the person's account: it changes when they turn sharing off and on again.
+
+## Turning it off
+
+People can turn off **Share usage statistics** in the app's **Settings**. The app then stops sending and forgets what it hadn't sent yet. It's on by default, with a short note saying what it does.
+
+## How long it's kept
+
+What the app sends is kept for 40 days, then only daily totals remain. Everything is deleted when your app is deleted. Your app's privacy policy should say you use first-party usage statistics: see the store answers in [Publish on Google Play](/docs/google-play) and [Publish on the App Store](/docs/app-store).
+
+---
+
+Analytics comes with every plan. It counts from your first build made after it arrived: build and publish a new version to start.
+`,
+  }),
+
   // -------------------------------------------------------------------------
   doc({
     slug: "developer-accounts",
@@ -1085,6 +1134,8 @@ Add the short and full description, then upload the icon (512 × 512), feature g
 
 Add your privacy policy link, content rating, target audience and data safety answers. In data safety, declare that your app collects phone numbers for sign-in, and anything else your app asks for (name, email, city, orders).
 
+Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics)). In the data safety form, declare under **App activity**: **App interactions**, **In-app search history** and **Other actions**; under **Device or other IDs**, the random install ID. For each: **Collected**, not shared (Yallapp processes it for you), **processed ephemerally: no**, **optional** (people can turn it off in the app's Settings), and the purpose **Analytics**. Data is encrypted in transit, and people can ask for deletion through you.
+
 > Under **App access**, give reviewers your review phone number and fixed code: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress. Without it, reviewers can’t sign in and the app may be rejected.
 
 ## Run a closed test
@@ -1131,6 +1182,8 @@ Add the subtitle, description, keywords, support URL and iPhone screenshots from
 ## Complete App Privacy and review information
 
 Answer the App Privacy questions (your app collects phone numbers for sign-in, plus anything else you ask for) and add your privacy policy link.
+
+Your app also sends usage statistics to Yallapp (see [Analytics](/docs/analytics)). In App Privacy, add **Usage Data › Product Interaction** and **Search History**, and **Identifiers › Device ID** for the random install ID. For each choose the purpose **Analytics**, answer **No** to "linked to the user's identity" and **No** to "used for tracking". The app doesn't ask for tracking permission and needs no App Tracking Transparency prompt: it uses no advertising ID and shares nothing with data brokers.
 
 > Under **App Review Information**, add your review phone number and fixed code, so reviewers can sign in: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
 
