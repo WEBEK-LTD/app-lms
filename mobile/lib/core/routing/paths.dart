@@ -49,6 +49,12 @@ abstract final class Paths {
   static const campaigns = '/campaigns';
   static const myDonations = '/my-donations';
 
+  /// 48 One of the site's own pages opened the app: asks the site what it
+  /// is, then opens that screen or the page in the in-app browser.
+  static const openLink = '/open';
+  static String openSitePage(String url) =>
+      Uri(path: openLink, queryParameters: {'url': url}).toString();
+
   static const embed = '/embed';
   static const web = '/web';
 

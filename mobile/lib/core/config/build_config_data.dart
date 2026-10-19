@@ -89,6 +89,7 @@ class BuildConfigData {
     this.linkBaseUrl,
     this.siteLinkBaseUrl,
     this.crashReportUrl,
+    this.sitePaths = const [],
   });
 
   final AppType appType;
@@ -148,6 +149,13 @@ class BuildConfigData {
   final String? siteLinkBaseUrl;
   final String? crashReportUrl;
 
+  /// 48 The paths of the WordPress site's own pages that open the app on
+  /// Android (permalink bases like `/courses/`, build config
+  /// `links.site_paths`). An incoming address under one of them that isn't
+  /// one of the app's own screens is a page of the site: the app asks the
+  /// site what it is (`GET /links/resolve`).
+  final List<String> sitePaths;
+
   BuildConfigData copyWith({
     String? siteUrl,
     bool clearApiBaseUrl = false,
@@ -159,6 +167,7 @@ class BuildConfigData {
     String? linkBaseUrl,
     String? siteLinkBaseUrl,
     String? crashReportUrl,
+    List<String>? sitePaths,
   }) => BuildConfigData(
     appType: appType ?? this.appType,
     vertical: vertical,
@@ -187,5 +196,6 @@ class BuildConfigData {
     linkBaseUrl: linkBaseUrl ?? this.linkBaseUrl,
     siteLinkBaseUrl: siteLinkBaseUrl ?? this.siteLinkBaseUrl,
     crashReportUrl: crashReportUrl ?? this.crashReportUrl,
+    sitePaths: sitePaths ?? this.sitePaths,
   );
 }

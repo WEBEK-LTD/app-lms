@@ -213,6 +213,32 @@ tags:
       plugin builds them from its license status (`LicenseStatus.app_links`
       in `docs/api/platform.yaml`). Push notifications and notifications in
       the inbox may carry a `link` in the same format.
+
+      **The site's own pages** (roadmap 48). On a WordPress site, the plugin
+      also lists in `apple-app-site-association` the paths of the site's own
+      pages for what the app shows: courses and lessons, products and product
+      categories, posts, and the pages with a booking plugin's booking form,
+      as the site's permalinks make them. It leaves out, before them, what
+      must stay on the website: `wp-admin`, `wp-login.php`, the REST API,
+      feeds, `xmlrpc.php`, `wp-content` and `wp-includes`, the cart,
+      checkout, account and payment pages of WooCommerce and the course
+      plugins, and addresses with `add-to-cart`, `wc-api`, `rest_route` or
+      `preview` in their query. Android's App Links have no exclusions, and
+      the app's intent filters are fixed when it's built: the plugin reports
+      the permalink bases that start with a fixed folder (`/courses/`,
+      `/product/`, `/product-category/`, `/blog/`) with its license check
+      (`SiteInfo.link_paths`), and the next build lists them. Posts whose
+      permalinks start at the root of the site (`/%postname%/`) open the app on
+      iPhone only.
+
+      The app asks `GET /links/resolve` what a page of the site is. When the
+      answer is an item it shows, it opens that screen; otherwise (`kind`
+      null, an error, an older plugin) it opens the address in its own in-app
+      browser, which never hands the address back to the app, so a link never
+      loops. A site in a folder (`example.com/learn`) can't serve the two files
+      at its domain's root: the plugin serves them at `<site>/.well-known/…`
+      too, for the domain's own server to copy, and until it does only
+      Yallapp's links open the app.
   - name: Crash reports
     description: |
       Crash reports (roadmap 46). Served by Yallapp for every app, at
@@ -675,6 +701,37 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /links/resolve:
+    get:
+      tags: [Links]
+      operationId: resolveLink
+      summary: What a page of the site is in the app
+      description: |
+        Roadmap 48. The app asks what an address on the site that opened it
+        is: a course, a lesson, a product, a product category, a post, or a
+        page with a booking form. `kind` is null when the address is something
+        else (the home page, a page, the cart, an account page, another
+        site): the app then opens it in its in-app browser. Only public,
+        published items are named. Served by the Yallapp plugin; the hosted
+        API answers 404 (its links are always `<base>/<kind>/<id>`), and so do
+        plugins released before this endpoint: the app then opens the in-app
+        browser too.
+      security: []
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The whole address, as the phone opened it.
+          schema: { type: string, format: uri, maxLength: 2048, example: 'https://academy.example.com/courses/intro-to-python/' }
+      responses:
+        '200':
+          description: What the address is
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LinkResolution' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /.well-known/jwks.json:
     get:
@@ -3751,6 +3808,28 @@ components:
         url: { type: string, format: uri }
         issued_at: { type: [string, 'null'], format: date-time }
 
+    LinkResolution:
+      type: object
+      description: |
+        48 What an address on the site is (`GET /links/resolve`). The kinds
+        and the screens they open are in `docs/api/app-links.json`
+        (`resolved_kinds`); a kind this app type has no screen for opens the
+        in-app browser, like null.
+      required: [kind, id]
+      properties:
+        kind:
+          type: [string, 'null']
+          enum: [course, lesson, product, product_category, article, bookings, service, null]
+          description: |
+            `course`, `lesson`, `product`, `product_category` (the shop on that
+            category), `article` (a post, in News & blog apps), `bookings` (a
+            page with the booking plugin's form: the app's services) or
+            `service` (a page whose booking form is for one service). Null:
+            not something the app shows.
+        id:
+          type: [string, 'null']
+          description: The item's ID as the app's other endpoints use it; null for `bookings` and when `kind` is null.
+          example: '12'
     CrashReportBatch:
       type: object
       additionalProperties: false

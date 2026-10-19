@@ -205,6 +205,12 @@ export interface HostedSettings {
    * offline mode in the plan either way (lib/courses/downloads.ts).
    */
   offlineDownloads?: boolean | null;
+  /**
+   * 48 WordPress apps: the site's own paths that open the app on Android
+   * (permalink bases like `/courses/`), as the plugin reported them with its
+   * last license check. The next build lists them (`links.site_paths`).
+   */
+  sitePaths?: string[] | null;
 }
 
 /**

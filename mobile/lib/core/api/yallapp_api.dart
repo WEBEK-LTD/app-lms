@@ -474,6 +474,10 @@ abstract class YallappApi {
   /// Android only. Callers must check the platform first.
   Future<CheckoutLink> createCheckoutLink(int courseId);
 
+  /// 48 What an address on the site is: the app opened one of the site's
+  /// own pages (its permalink). Plugin only; 404 elsewhere.
+  Future<LinkResolution> resolveLink(String url);
+
   Future<User> getMe();
   Future<User> updateMe({String? name, String? email, String? city});
   Future<void> deleteMe();
@@ -1044,6 +1048,14 @@ class HttpYallappApi implements YallappApi {
       query: {'platform': platform.name},
     );
   }
+
+  @override
+  Future<LinkResolution> resolveLink(String url) => _get(
+    '/links/resolve',
+    _public,
+    LinkResolution.fromJson,
+    query: {'url': url},
+  );
 
   @override
   Future<User> getMe() => _get('/me', _required, User.fromJson, account: true);

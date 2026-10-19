@@ -154,7 +154,9 @@ class Push_Service {
 			return;
 		}
 		$data['course_id'] = (string) $course_id;
-		$title             = 'new_lessons' === $kind
+		// 48 What the notification opens, in the format of the Links tag (46.13).
+		$data['link'] = \Yallapp\App_Links::link( 'course', $course_id );
+		$title        = 'new_lessons' === $kind
 			/* translators: %s: course title. */
 			? sprintf( __( 'New lesson in %s', 'yallapp' ), get_the_title( $course_id ) )
 			: get_the_title( $course_id );
@@ -199,6 +201,7 @@ class Push_Service {
 				array(
 					'type'       => 'article',
 					'article_id' => (string) $post->ID,
+					'link'       => \Yallapp\App_Links::link( 'article', $post->ID ),
 				)
 			);
 		}
@@ -248,6 +251,7 @@ class Push_Service {
 				array(
 					'type'      => 'enrolled',
 					'course_id' => (string) $course_id,
+					'link'      => \Yallapp\App_Links::link( 'course', $course_id ),
 				)
 			);
 		}
@@ -281,6 +285,7 @@ class Push_Service {
 					'type'        => 'qna_answer',
 					'course_id'   => (string) $course_id,
 					'question_id' => (string) $question_id,
+					'link'        => \Yallapp\App_Links::link( 'course', $course_id ),
 				)
 			);
 		}
@@ -305,6 +310,7 @@ class Push_Service {
 		$data  = array( 'type' => 'announcement' );
 		if ( $course_id ) {
 			$data['course_id'] = (string) $course_id;
+			$data['link']      = \Yallapp\App_Links::link( 'course', $course_id );
 		}
 		$this->queue(
 			$users,

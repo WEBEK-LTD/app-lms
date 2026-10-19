@@ -73,9 +73,10 @@ void main() {
       );
       final route = example['route'] as String?;
       final isLink = link.path.startsWith('/a/');
+      // 48 Another page of the site: the app asks the site what it is.
       expect(
         location,
-        route ?? (isLink ? Paths.home : null),
+        route ?? (isLink ? Paths.home : Paths.openSitePage('$link')),
         reason: example['link'] as String,
       );
     }

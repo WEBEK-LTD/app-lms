@@ -72,7 +72,11 @@ String? linkLocation(Uri location, BuildConfigData build) {
       segments[sitePath.length] == 'a') {
     start = sitePath.length;
   }
-  if (segments.length <= start || segments[start] != 'a') return null;
+  if (segments.length <= start || segments[start] != 'a') {
+    // 48 Not a link of the table: maybe one of the site's own pages.
+    final page = sitePageUrl(location, build);
+    return page == null ? null : Paths.openSitePage(page);
+  }
   final rest = segments.sublist(start + 1);
   if (rest.length == 3 && _appIdPattern.hasMatch(rest[0])) {
     final own = build.appId;
@@ -113,3 +117,59 @@ String? shareBaseUrl({String? configBase, required BuildConfigData build}) {
 /// A shared link, `<base>/<kind>/<id>`, or null without a base.
 String? shareLink(String? base, String kind, Object id) =>
     base == null ? null : '$base/$kind/${Uri.encodeComponent('$id')}';
+
+/// 48 What `GET /links/resolve` may name, and the screen each opens
+/// (`docs/api/app-links.json`, `resolved_kinds`; `app_links_test.dart` keeps
+/// this copy identical).
+typedef ResolvedKindRule = ({String route, Set<AppType> types});
+
+const resolvedKinds = <String, ResolvedKindRule>{
+  'course': (route: '/course/{id}', types: {AppType.lms}),
+  'lesson': (route: '/lesson/{id}', types: {AppType.lms}),
+  'product': (route: '/product/{id}', types: {AppType.store}),
+  'product_category': (route: '/shop?category={id}', types: {AppType.store}),
+  'article': (route: '/article/{id}', types: {AppType.news}),
+  'bookings': (route: '/services', types: {AppType.booking}),
+  'service': (route: '/service/{id}', types: {AppType.booking}),
+};
+
+/// The screen an answer of `GET /links/resolve` opens in this app type, or
+/// null (no kind, a kind this app type lacks, a malformed id): the page
+/// then opens in the in-app browser.
+String? resolvedRoute(String? kind, String? id, AppType appType) {
+  final rule = resolvedKinds[kind];
+  if (rule == null || !rule.types.contains(appType)) return null;
+  if (!rule.route.contains('{id}')) return rule.route;
+  if (id == null || !linkIdPatterns['number']!.hasMatch(id)) return null;
+  return rule.route.replaceFirst('{id}', id);
+}
+
+/// The app's own screens that sit under a folder the site may use too
+/// (Woo's `/product/`): a number after them, and maybe one more part.
+final _appScreen = RegExp(
+  r'^/(course|lesson|quiz|question|product|service|appointment|listing|'
+  r'event|campaign|order)/[0-9]+(/[a-z-]+)?$',
+);
+final _appTextScreen = RegExp(r'^/(ticket|article|page|messages)/[^/]+$');
+
+/// 48 The whole address of one of the site's own pages that opened the app,
+/// or null. iOS hands the router the whole address: any address on the
+/// site's host (the association file only sends its own pages). Android may
+/// hand it the path only: a path under one of the site's paths
+/// (`links.site_paths`) that isn't one of the app's own screens.
+String? sitePageUrl(Uri location, BuildConfigData build) {
+  final base = build.siteLinkBaseUrl;
+  if (base == null) return null;
+  final site = Uri.parse(base);
+  if (location.hasScheme) {
+    if (location.scheme != 'https' && location.scheme != 'http') return null;
+    final host = location.host.toLowerCase();
+    return host == site.host.toLowerCase() ? location.toString() : null;
+  }
+  final path = location.path;
+  if (_appScreen.hasMatch(path) || _appTextScreen.hasMatch(path)) return null;
+  if (!build.sitePaths.any(path.startsWith)) return null;
+  return site
+      .replace(path: path, query: location.hasQuery ? location.query : null)
+      .toString();
+}

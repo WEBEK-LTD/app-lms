@@ -436,6 +436,20 @@ components:
         lms: { type: string, example: tutor }
         store: { type: string, description: 'The shop plugin the site runs (woocommerce), or empty.', example: woocommerce }
         bookings: { type: string, description: 'The booking plugin the plugin reads (amelia, bookly, latepoint...), or empty.', example: '' }
+        link_paths:
+          type: array
+          maxItems: 20
+          description: |
+            Roadmap 48. The paths of the site's own pages that open the app on
+            Android: the permalink bases of what the app shows that start with
+            a fixed folder (`/courses/`, `/product/`, `/product-category/`,
+            `/blog/`), and the pages with a booking form, each with the site's
+            folder before it. The next build of the app lists them in its App
+            Links intent filters (`links.site_paths` in the build config).
+            Permalinks at the root of the site (`/%postname%/`) aren't listed:
+            an intent filter can't leave out the site's other pages. Missing
+            on older plugins.
+          items: { type: string, maxLength: 100, pattern: '^/([A-Za-z0-9._~%-]+/)+$', example: /courses/ }
 
     SignInCodeRequest:
       allOf:

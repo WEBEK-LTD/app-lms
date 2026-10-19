@@ -1,5 +1,5 @@
 {
-  "$comment": "46 Links that open the app: the one table the app (mobile/lib/core/routing/app_links.dart), the platform (platform/web/src/lib/links/table.ts) and the plugin (includes/class-app-links.php) follow. Each one's tests read this file. A link is <base>/<kind>/<id>: on Yallapp's link domain <base> is https://yallapp.com.tr/a/<app_id>, on a WordPress site it is <site>/a. See docs/api/openapi.yaml, tag Links.",
+  "$comment": "46 Links that open the app: the one table the app (mobile/lib/core/routing/app_links.dart), the platform (platform/web/src/lib/links/table.ts) and the plugin (includes/class-app-links.php) follow. Each one's tests read this file. A link is <base>/<kind>/<id>: on Yallapp's link domain <base> is https://yallapp.com.tr/a/<app_id>, on a WordPress site it is <site>/a. See docs/api/openapi.yaml, tag Links. 48 resolved_kinds: what GET /links/resolve may answer for a page of the site (its permalink), and the screen each opens; ids are numbers there, and a kind the app type lacks opens the in-app browser.",
   "yallapp_path": "/a/{app_id}/",
   "site_path": "/a/",
   "kinds": [
@@ -11,6 +11,15 @@
     { "kind": "event", "route": "/event/{id}", "id": "number", "app_types": ["events"] },
     { "kind": "campaign", "route": "/campaign/{id}", "id": "number", "app_types": ["donations"] },
     { "kind": "page", "route": "/page/{id}", "id": "slug", "app_types": ["lms", "store", "booking", "real_estate", "news", "events", "donations"] }
+  ],
+  "resolved_kinds": [
+    { "kind": "course", "route": "/course/{id}", "app_types": ["lms"] },
+    { "kind": "lesson", "route": "/lesson/{id}", "app_types": ["lms"] },
+    { "kind": "product", "route": "/product/{id}", "app_types": ["store"] },
+    { "kind": "product_category", "route": "/shop?category={id}", "app_types": ["store"] },
+    { "kind": "article", "route": "/article/{id}", "app_types": ["news"] },
+    { "kind": "bookings", "route": "/services", "app_types": ["booking"] },
+    { "kind": "service", "route": "/service/{id}", "app_types": ["booking"] }
   ],
   "id_patterns": {
     "number": "^[1-9][0-9]{0,17}$",

@@ -80,6 +80,7 @@
         "app_id": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", "description": "The platform's app ID." },
         "yallapp_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^/?#]+/a/[0-9a-f-]{36}$", "description": "The app's links on Yallapp's link domain: https://yallapp.com.tr/a/{app_id}." },
         "site_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+/a$", "description": "A WordPress app's links on its own site: <site URL>/a, which the plugin serves; the link files themselves are at the root of the site's domain. Left out for apps without WordPress." },
+        "site_paths": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 100, "pattern": "^/([A-Za-z0-9._~%-]+/)+$" }, "description": "48 The paths of the WordPress site's own pages that open the app (permalink bases like /courses/ and /product/, as the plugin reported them with its license check): the Android build adds an intent filter for each on the site's host. Needs site_base_url. Left out when there are none." },
         "crash_report_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+/crashes$", "description": "POST /crashes at Yallapp for this app: https://yallapp.com.tr/api/app/{app_id}/crashes." }
       }
     }

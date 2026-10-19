@@ -58,6 +58,8 @@ export interface BuildConfig {
     app_id: string;
     yallapp_base_url: string;
     site_base_url?: string;
+    /** 48 The site's own paths that open the app on Android (permalink bases). */
+    site_paths?: string[];
     crash_report_url: string;
   };
 }

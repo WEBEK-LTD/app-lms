@@ -1141,6 +1141,25 @@ without a new build. The app renders whatever the API sends.
   to your app) fetches a WordPress site's two files as the phones do (https,
   no redirect, JSON, never a private address) and keeps the result on the
   app (`apps.links_check`).
+- **The site's own pages** (Phase 48). On WordPress, `Link_Paths` works out
+  the permalink bases of what the app type shows (course and lesson post
+  types, `product` and `product_cat`, the posts' permalink structure, pages
+  with the booking plugin's shortcode; a sample item's permalink catches a
+  base that doesn't follow its post type, like Tutor LMS's lessons under
+  `/courses/`) and lists them in `apple-app-site-association` after the
+  exclusions (wp-admin, wp-login.php, REST, feeds, the home page, the cart,
+  checkout, account and payment pages, `add-to-cart` and similar queries).
+  The bases that start with a fixed folder go to the platform with each
+  license check (`SiteInfo.link_paths`), which keeps them on the app
+  (`apps.hosted_settings.sitePaths`, written only when they change) for the
+  build config's `links.site_paths`: the Android build adds an intent filter
+  per path on the site's host. In the app, go_router's redirect sends an
+  address on the site's host (iOS) or a path under a site path that isn't
+  one of the app's screens (Android) to `/open?url=`, whose screen asks
+  `GET /links/resolve` (`Link_Resolver`: `url_to_postid`, then the slug in
+  the entry's post types; only public, published items) and opens the
+  screen (`resolved_kinds` in `docs/api/app-links.json`) or the address in
+  the in-app web view, which never hands an address back to the phone.
 - **Rating prompt** (`core/services/review_prompt.dart`): the store's own
   prompt (`in_app_review`: Google Play In-App Review, SKStoreReviewController)
   after a finished lesson, an order, a booking, a ticket, a donation or the

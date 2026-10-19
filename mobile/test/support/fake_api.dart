@@ -140,6 +140,18 @@ class FakeApi implements YallappApi {
     }),
   );
 
+  /// 48 What `GET /links/resolve` answers, by address (none: kind null).
+  final resolvedLinks = <String, Map<String, dynamic>>{};
+  final resolvedUrls = <String>[];
+
+  @override
+  Future<LinkResolution> resolveLink(String url) => _answer('resolveLink', () {
+    resolvedUrls.add(url);
+    return LinkResolution.fromJson(
+      resolvedLinks[url] ?? {'kind': null, 'id': null},
+    );
+  });
+
   @override
   Future<User> getMe() => _answer('getMe', () => User.fromJson(userJson()));
 

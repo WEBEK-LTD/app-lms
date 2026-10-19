@@ -538,6 +538,22 @@ $r = call( 'GET', '/me/notifications', null, $token );
 $types = array_map( function ( $n ) { return $n['type']; }, $r['json']['items'] ?? array() );
 check( 'inbox has announcement, new lesson and enrollment, newest first', array( 'announcement', 'new_lesson', 'enrolled' ) === $types, $r['raw'] );
 check( 'new lesson notification opens the lesson', $new_lesson === ( $r['json']['items'][1]['lesson_id'] ?? 0 ), $r['json']['items'] ?? null );
+$site_root = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );
+check( '48 inbox items carry the link they open (the course), none without one', $site_root . '/a/course/' . (int) $seed['python'] === ( $r['json']['items'][1]['link'] ?? '' ) && array_key_exists( 'link', $r['json']['items'][0] ?? array() ) && null === $r['json']['items'][0]['link'], $r['json']['items'] ?? null );
+// 48 Pushes carry the link too (46.13): what announce() queues, with push set up for the call.
+$queued = json_decode(
+	wp_eval(
+		'$events = array(); add_filter( "pre_schedule_event", function ( $pre, $event ) use ( &$events ) { $events[] = $event; return true; }, 10, 2 );'
+		. ' $settings = Yallapp\Plugin::instance()->settings(); $before = $settings->all();'
+		. ' $settings->update( array( "huawei_push_app_id" => "104123456", "huawei_push_app_secret" => "app-secret-0123456789" ) );'
+		. ' Yallapp\Plugin::instance()->push()->announce( "Exam", "Friday", ' . (int) $seed['python'] . ' );'
+		. ' $settings->update( array( "huawei_push_app_id" => $before["huawei_push_app_id"], "huawei_push_app_secret" => $before["huawei_push_app_secret"] ) );'
+		. ' echo wp_json_encode( array_map( function ( $e ) { return $e->args[3] ?? null; }, $events ) );'
+	),
+	true
+);
+check( '48 a push about a course carries its link', $site_root . '/a/course/' . (int) $seed['python'] === ( $queued[0]['link'] ?? '' ) && 'announcement' === ( $queued[0]['type'] ?? '' ), $queued );
+wp_eval( 'global $wpdb; $wpdb->query( "DELETE FROM " . Yallapp\Installer::tables()["notifications"] . " WHERE title = \'Exam\'" );' );
 check( 'all unread', 3 === ( $r['json']['unread_count'] ?? -1 ) && false === ( $r['json']['items'][0]['read'] ?? null ), $r['json'] );
 $r = call( 'GET', '/me/notifications?per_page=1', null, $token );
 check( 'inbox pages', 3 === ( $r['json']['total'] ?? 0 ) && 3 === ( $r['json']['total_pages'] ?? 0 ) && 1 === count( $r['json']['items'] ?? array() ), $r['raw'] );
@@ -821,8 +837,8 @@ check(
 );
 $r = call( 'GET', $root . '/.well-known/apple-app-site-association' );
 check(
-	'links: apple-app-site-association without an extension, as JSON, for /a/* only',
-	200 === $r['status'] && false !== strpos( $r['headers'], 'content-type: application/json' ) && array( 'A1B2C3D4E5.com.ada.academy' ) === ( $r['json']['applinks']['details'][0]['appIDs'] ?? null ) && array( array( '/' => '/a/*' ) ) === ( $r['json']['applinks']['details'][0]['components'] ?? null ),
+	'links: apple-app-site-association without an extension, as JSON, for /a/* (48 and the site\'s own pages)',
+	200 === $r['status'] && false !== strpos( $r['headers'], 'content-type: application/json' ) && array( 'A1B2C3D4E5.com.ada.academy' ) === ( $r['json']['applinks']['details'][0]['appIDs'] ?? null ) && in_array( array( '/' => '/a/*' ), $r['json']['applinks']['details'][0]['components'] ?? array(), true ),
 	$r['raw']
 );
 $course_url = wp_eval( 'echo get_permalink( ' . (int) $seed['python'] . ' );' );
@@ -837,6 +853,69 @@ $r = call( 'GET', $root . '/a/lesson/1' );
 check( 'links: other paths under /a/ are left to WordPress', 302 !== $r['status'], $r['status'] );
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'links: config shares <site>/a and carries the owner\'s switches', $root . '/a' === ( $r['json']['links']['share_base_url'] ?? '' ) && false === ( $r['json']['app']['review_prompt'] ?? null ) && true === ( $r['json']['app']['crash_reports'] ?? null ), $r['json']['app'] ?? $r['raw'] );
+echo "The site's own pages open the app (48)\n";
+$aasa_paths = function () use ( $root ) {
+	$r = call( 'GET', $root . '/.well-known/apple-app-site-association' );
+	return $r['json']['applinks']['details'][0]['components'] ?? array();
+};
+$resolve    = function ( $url ) {
+	return call( 'GET', '/links/resolve?url=' . rawurlencode( $url ) );
+};
+$glob       = function ( $pattern, $path ) {
+	return 1 === preg_match( '#^' . str_replace( array( '\\*', '\\?' ), array( '.*', '.' ), preg_quote( $pattern, '#' ) ) . '$#', $path );
+};
+// What iOS does with a path: the first component that matches decides.
+$opens_app  = function ( array $components, $path ) use ( $glob ) {
+	foreach ( $components as $c ) {
+		if ( isset( $c['/'] ) && ! isset( $c['?'] ) && $glob( $c['/'], $path ) ) {
+			return empty( $c['exclude'] );
+		}
+	}
+	return false;
+};
+$structure  = wp_eval( 'echo get_option( "permalink_structure" );' );
+$dashboard  = wp_eval( 'echo wp_parse_url( get_permalink( tutor_utils()->get_option( "tutor_dashboard_page_id" ) ), PHP_URL_PATH );' );
+$lesson_id  = (int) $seed['lesson_video'];
+$quiz_id    = (int) $seed['quiz'];
+foreach ( array( '/%postname%/', '/blog/%postname%/', '/%year%/%monthnum%/%postname%/' ) as $permalinks ) {
+	wp_eval( 'global $wp_rewrite; $wp_rewrite->set_permalink_structure( ' . var_export( $permalinks, true ) . ' ); flush_rewrite_rules( false );' );
+	$course_url = wp_eval( 'echo get_permalink( ' . (int) $seed['python'] . ' );' );
+	$lesson_url = wp_eval( 'echo get_permalink( ' . $lesson_id . ' );' );
+	$quiz_url   = wp_eval( 'echo get_permalink( ' . $quiz_id . ' );' );
+	$components = $aasa_paths();
+	$label      = '48 ' . $permalinks . ': ';
+	check( $label . 'the course and lesson pages open the app', $opens_app( $components, (string) parse_url( $course_url, PHP_URL_PATH ) ) && $opens_app( $components, (string) parse_url( $lesson_url, PHP_URL_PATH ) ), array( $course_url, $lesson_url, $components ) );
+	check( $label . '/a/ links still do', $opens_app( $components, '/a/course/' . (int) $seed['python'] ), $components );
+	$stays = array( '/', '/wp-admin/', '/wp-login.php', '/wp-json/yallapp/v1/config', '/feed/', '/courses/feed/', $dashboard, $dashboard . 'enrolled-courses/' );
+	$opened = array_values( array_filter( $stays, function ( $p ) use ( $opens_app, $components ) { return $opens_app( $components, $p ); } ) );
+	check( $label . 'admin, sign-in, REST, feeds, home and the student dashboard stay on the website', array() === $opened, $opened );
+	check( $label . 'exclusions come before the pages', ! empty( $components[0]['exclude'] ) && empty( end( $components )['exclude'] ), $components );
+	$r = $resolve( $course_url );
+	check( $label . 'resolve: the course', 200 === $r['status'] && array( 'kind' => 'course', 'id' => (string) $seed['python'] ) === $r['json'], array( $course_url, $r['raw'] ) );
+	$r = $resolve( $lesson_url );
+	check( $label . 'resolve: the lesson', array( 'kind' => 'lesson', 'id' => (string) $lesson_id ) === $r['json'], array( $lesson_url, $r['raw'] ) );
+	$r = $resolve( $quiz_url );
+	check( $label . 'resolve: a quiz page is not something the app opens from a link', array( 'kind' => null, 'id' => null ) === $r['json'], $r['raw'] );
+}
+wp_eval( 'global $wp_rewrite; $wp_rewrite->set_permalink_structure( ' . var_export( $structure, true ) . ' ); flush_rewrite_rules( false );' );
+$sample = wp_eval( 'echo get_permalink( get_page_by_path( "sample-page" ) );' );
+foreach ( array( $root . $dashboard => 'the student dashboard (excluded)', $sample => 'a page', $root . '/' => 'the home page', 'https://elsewhere.example.com/courses/python-programming-basics/' => 'another site', $root . '/courses/python-programming-basics/?add-to-cart=1' => 'add to cart', $root . '/courses/no-such-course/' => 'a course that does not exist' ) as $url => $what ) {
+	$r = $resolve( $url );
+	check( '48 resolve: ' . $what . ' opens the in-app browser (kind null)', 200 === $r['status'] && array( 'kind' => null, 'id' => null ) === $r['json'], array( $url, $r['raw'] ) );
+}
+$r = $resolve( 'not an address' );
+check( '48 resolve: anything but an address is refused', 400 === $r['status'] && 'invalid_request' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/links/resolve' );
+check( '48 resolve: url is required', 400 === $r['status'], $r['raw'] );
+$private = (int) wp_eval( 'echo wp_insert_post( array( "post_type" => tutor()->course_post_type, "post_status" => "private", "post_title" => "Staff only", "post_name" => "staff-only" ) );' );
+$r       = $resolve( $root . '/courses/staff-only/' );
+check( '48 resolve: a course that is not public is not named', array( 'kind' => null, 'id' => null ) === $r['json'], $r['raw'] );
+wp_eval( 'wp_delete_post( ' . $private . ', true );' );
+$paths = json_decode( wp_eval( 'echo wp_json_encode( Yallapp\Plugin::instance()->license()->site_info( "YALL-TEST" )["link_paths"] );' ), true );
+check( '48 the license check reports the paths for Android', array( '/courses/', '/lesson/' ) === $paths, $paths );
+$r = call( 'GET', $root . '/learn/.well-known/apple-app-site-association' );
+check( '48 a path in a folder that is not the site is left to WordPress', 200 !== $r['status'] || null === ( $r['json']['applinks'] ?? null ), $r['status'] );
+
 wp_eval( 'wp_delete_post( ' . $draft . ', true );' );
 wp_eval( '$v = json_decode( ' . var_export( $saved_license, true ) . ', true ); if ( null === $v ) { delete_option( "yallapp_license" ); } else { update_option( "yallapp_license", $v, false ); }' );
 $r = call( 'GET', $root . '/.well-known/assetlinks.json' );

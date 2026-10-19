@@ -457,5 +457,37 @@ check( 'an unknown order is not found', 404 === $r['status'] && 'not_found' === 
 $r = call( 'GET', '/me/orders/' . (int) ( $order['id'] ?? 0 ), null, null );
 check( 'orders need a session', 401 === $r['status'], $r['raw'] );
 
+echo "The site's own pages open the app (48)\n";
+require_once __DIR__ . '/links-helpers.php';
+$root         = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );
+$saved_links  = links_enable( array( 'app_type' => 'store' ) );
+$product_url  = wp_eval( 'echo get_permalink( ' . (int) $seed['sunflowers'] . ' );' );
+$category_url = wp_eval( 'echo get_term_link( ' . (int) $seed['flowers'] . ', "product_cat" );' );
+$checkout     = wp_eval( 'echo get_permalink( wc_get_page_id( "checkout" ) );' );
+$cart         = wp_eval( 'echo get_permalink( wc_get_page_id( "cart" ) );' );
+$account      = wp_eval( 'echo get_permalink( wc_get_page_id( "myaccount" ) );' );
+$components   = links_components( $root );
+check( '48 product and category pages open the app', links_opens_app( $components, (string) parse_url( $product_url, PHP_URL_PATH ) ) && links_opens_app( $components, (string) parse_url( $category_url, PHP_URL_PATH ) ), array( $product_url, $category_url, $components ) );
+$opened = array_values(
+	array_filter(
+		array( $checkout, $cart, $account, $account . 'orders/', $checkout . 'order-received/12/' ),
+		function ( $url ) use ( $components ) {
+			return links_opens_app( $components, (string) parse_url( $url, PHP_URL_PATH ) );
+		}
+	)
+);
+check( '48 the cart, checkout and account pages stay on the website', array() === $opened && in_array( array( '?' => array( 'add-to-cart' => '*' ), 'exclude' => true ), $components, true ), $opened );
+$r = links_resolve( $product_url );
+check( '48 resolve: the product', array( 'kind' => 'product', 'id' => (string) $seed['sunflowers'] ) === $r['json'], array( $product_url, $r['raw'] ) );
+$r = links_resolve( $category_url );
+check( '48 resolve: the product category', array( 'kind' => 'product_category', 'id' => (string) $seed['flowers'] ) === $r['json'], array( $category_url, $r['raw'] ) );
+foreach ( array( $checkout, $cart, $account, $product_url . '?add-to-cart=' . (int) $seed['sunflowers'] ) as $url ) {
+	$r = links_resolve( $url );
+	check( '48 resolve: ' . parse_url( $url, PHP_URL_PATH ) . ' is not something the app opens', array( 'kind' => null, 'id' => null ) === $r['json'], array( $url, $r['raw'] ) );
+}
+$paths = json_decode( wp_eval( 'echo wp_json_encode( Yallapp\Plugin::instance()->license()->site_info( "YALL-TEST" )["link_paths"] );' ), true );
+check( '48 the license check reports the product bases for Android', array( '/product-category/', '/product/' ) === $paths, $paths );
+links_restore( $saved_links );
+
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

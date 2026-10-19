@@ -1,7 +1,7 @@
 import { httpsSiteAddress, moveToWordpress } from "../app/wordpress-ready";
 import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
-import type { AppType, AppVertical, Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
+import { DEFAULT_HOSTED_SETTINGS, type App, type AppType, type AppVertical, type Client, type License, type LicenseState, type PluginRelease, type SignInMethod } from "../data/types";
 import { toVertical } from "../app/kinds";
 import { downloadsChoice } from "../courses/downloads";
 import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-methods";
@@ -12,7 +12,7 @@ import { compareVersions, parseVersion } from "../semver";
 import { hashLicenseKey, isWellFormedLicenseKey } from "./key";
 import { normalizeSiteUrl } from "./site-url";
 import { licenseState } from "./status";
-import { appLinkTargetOf } from "../links/app";
+import { appLinkTargetOf, LINK_PATH, MAX_LINK_PATHS } from "../links/app";
 import { licenseAppLinks } from "../links/well-known";
 
 /**
@@ -75,6 +75,8 @@ export interface SiteInfo {
   store: string | null;
   /** 30 The booking plugin the plugin reads, or "" for none; null: the plugin didn't say. */
   bookings: string | null;
+  /** 48 The site's own paths that open the app on Android (permalink bases); null: the plugin didn't say. */
+  linkPaths?: string[] | null;
 }
 
 const bad = (message: string): { status: 400; body: ApiError } => ({
@@ -98,6 +100,16 @@ function reportedPlugin(value: unknown): string | null | undefined {
   if (value === undefined || value === null) return null;
   if (typeof value !== "string" || value.length > 64) return undefined;
   return value.trim();
+}
+
+/**
+ * 48 `SiteInfo.link_paths`: the well-formed ones, at most 20, sorted and without repeats; null
+ * when the plugin sent none (older plugins). A malformed list never fails the license check.
+ */
+export function parseLinkPaths(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null;
+  const paths = value.filter((p): p is string => typeof p === "string" && p.length <= 100 && LINK_PATH.test(p) && !p.split("/").some((part) => part === "." || part === ".."));
+  return [...new Set(paths)].sort().slice(0, MAX_LINK_PATHS);
 }
 
 /** Validates the SiteInfo request body. */
@@ -125,7 +137,7 @@ export function parseSiteInfo(body: unknown): { ok: true; value: SiteInfo } | { 
   if (bookings === undefined) return { ok: false, result: bad("bookings must be a string.") };
   return {
     ok: true,
-    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings },
+    value: { licenseKey, siteUrlRaw: siteUrlRaw.trim(), siteUrl, pluginVersion: pluginVersion.trim(), wpVersion, lms, store, bookings, linkPaths: parseLinkPaths(input.link_paths) },
   };
 }
 
@@ -253,6 +265,7 @@ export async function activateLicense(store: DataStore, site: SiteInfo, now: Dat
   }
   // 19 The app waited for its WordPress site: this is it.
   const app = license.appId ? await store.getAppById(license.appId) : null;
+  if (app) await saveSitePaths(store, app, site.linkPaths ?? null, now);
   const siteUrl = httpsSiteAddress(site.siteUrlRaw);
   if (app?.backend === "setup_requested" && siteUrl) {
     try {
@@ -293,7 +306,21 @@ export async function checkLicense(store: DataStore, site: SiteInfo, now: Date):
     bookings: site.bookings,
     lastCheckedAt: now,
   });
+  const app = license.appId ? await store.getAppById(license.appId) : null;
+  if (app) await saveSitePaths(store, app, site.linkPaths ?? null, now);
   return { status: 200, body: statusBody(facts, plans, "active", license, now, null) };
+}
+
+/**
+ * 48 Keeps the paths the site reported for the app's next build (`links.site_paths`), only
+ * when they changed, so a license check every 12 hours writes nothing.
+ */
+export async function saveSitePaths(store: DataStore, app: App, paths: string[] | null, now: Date): Promise<boolean> {
+  if (paths === null || app.backend !== "wordpress") return false;
+  const current = app.hostedSettings?.sitePaths ?? null;
+  if (current && current.length === paths.length && current.every((p, i) => p === paths[i])) return false;
+  await store.updateApp(app.id, { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...app.hostedSettings, sitePaths: paths } }, now);
+  return true;
 }
 
 export async function deactivateLicense(store: DataStore, body: unknown): Promise<ApiResult<never>> {

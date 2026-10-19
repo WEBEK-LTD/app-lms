@@ -21,6 +21,7 @@ import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
 import 'auth/signup_screen.dart';
 import 'pages/page_actions.dart';
+import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
 import '../../core/l10n/l10n.dart';
 
@@ -133,6 +134,14 @@ List<RouteBase> sharedPageRoutes() => [
         fullscreen: true,
       );
     },
+  ),
+  // 48 One of the site's own pages opened the app.
+  GoRoute(
+    path: Paths.openLink,
+    pageBuilder: (context, state) => appPage(
+      state,
+      LinkOpenScreen(url: state.uri.queryParameters['url'] ?? ''),
+    ),
   ),
   GoRoute(
     path: Paths.web,
