@@ -93,6 +93,7 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   await expect(own.getByRole("region", { name: "Storage", exact: true })).toContainText("Starter plan: 2 GB");
 
   // 6 MB: two chunks of 5 MB and 1 MB.
+  await expect(own.getByLabel("Choose files")).toBeEnabled();
   await own.getByLabel("Choose files").setInputFiles([
     { name: "Lesson one.mp4", mimeType: "video/mp4", buffer: bytes(6 * 1024 * 1024) },
     { name: "Cover.png", mimeType: "image/png", buffer: bytes(2048, 3) },
@@ -174,6 +175,7 @@ test("uploads past the storage are refused, with Buy more storage", async () => 
 
   await own.goto("/dashboard/media");
   await expect(own.locator("[data-storage-used]")).toContainText("of 10.2 MB used");
+  await expect(own.getByLabel("Choose files")).toBeEnabled();
   await own.getByLabel("Choose files").setInputFiles([{ name: "Lesson two.mp4", mimeType: "video/mp4", buffer: bytes(6 * 1024 * 1024, 5) }]);
   const job = own.getByRole("list", { name: "Uploads" }).locator('[data-upload="Lesson two.mp4"]');
   await expect(job.getByRole("alert")).toContainText("There isn't room for Lesson two.mp4 (6 MB)");
@@ -222,6 +224,7 @@ test("the owner buys a storage pack by card, then uploads", async () => {
   await expect(own.getByRole("region", { name: "Storage", exact: true })).toContainText("+25 GB until");
   await expect(own.locator("[data-storage-used]")).toContainText("of 25 GB used");
 
+  await expect(own.getByLabel("Choose files")).toBeEnabled();
   await own.getByLabel("Choose files").setInputFiles([{ name: "Lesson two.mp4", mimeType: "video/mp4", buffer: bytes(6 * 1024 * 1024, 5) }]);
   await expect(own.getByRole("list", { name: "Uploads" }).locator('[data-upload="Lesson two.mp4"]')).toContainText("Uploaded", { timeout: 30_000 });
   await expect(own.getByRole("list", { name: "Files" }).locator('[data-media="Lesson two.mp4"]')).toContainText("Video · 6 MB");

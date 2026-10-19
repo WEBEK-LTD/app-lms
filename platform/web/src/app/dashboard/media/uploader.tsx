@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cancelMediaUploadAction, completeMediaUploadAction, resumeMediaUploadAction, startMediaUploadAction } from "@/app/actions/media";
 import { Icon } from "@/components/icon";
 import { btn, ProgressBar } from "@/components/ui";
@@ -78,10 +78,14 @@ async function serverOffset(url: string): Promise<{ status: number; offset: numb
   return { status: response.status, offset: header && /^\d+$/.test(header) ? Number(header) : null };
 }
 
+const noSubscribe = () => () => {};
+
 export function MediaUploader({ appId, accept, disabled }: { appId: string; accept: string; disabled: string | null }) {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [dragging, setDragging] = useState(false);
+  // Until the page has loaded its scripts, a chosen file would go nowhere: the input waits for them.
+  const hydrated = useSyncExternalStore(noSubscribe, () => true, () => false);
   const input = useRef<HTMLInputElement>(null);
   const xhr = useRef<XMLHttpRequest | null>(null);
   const running = useRef(false);
@@ -256,7 +260,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
         <p className="m-0 text-[15px] font-semibold">Drop videos, pictures or PDFs here</p>
         <label className={`${btn.primary} h-10 cursor-pointer ${disabled ? "pointer-events-none opacity-60" : ""}`}>
           Choose files
-          <input ref={input} type="file" multiple accept={accept} disabled={disabled !== null} className="sr-only" onChange={(e) => add(e.target.files)} />
+          <input ref={input} type="file" multiple accept={accept} disabled={disabled !== null || !hydrated} className="sr-only" onChange={(e) => add(e.target.files)} />
         </label>
         <span className="text-[13px] text-muted">{disabled ?? "Big videos upload in parts: if the connection drops, choose the same file again to carry on."}</span>
       </div>
