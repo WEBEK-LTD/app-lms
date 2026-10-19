@@ -13,7 +13,9 @@ Read `README.md`, `docs/ROADMAP.md` and `docs/ARCHITECTURE.md` first.
 ## Product rules
 
 - Every user-facing string in the apps and on yallapp.com.tr is English.
-- Icons come from Google Material Symbols (Rounded) only.
+- Icons come from Google Material Symbols (Rounded) only. The one exception is
+  the logos of stores and platforms Yallapp works with, used as
+  `docs/BRAND.md` › "Third-party brand marks" says.
 - No imagery, icons or wording that suggests AI.
 - Yallapp's own pages follow `docs/BRAND.md`. Client apps use each client's
   branding; Yallapp's palette is only the default.
