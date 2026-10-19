@@ -3479,4 +3479,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String completedCourseLabel(String title) {
     return '$title, tamamlandı';
   }
+
+  @override
+  String get screenProtected =>
+      'Bu içerik korunuyor. Ekran kaydedilirken veya paylaşılırken gizlenir.';
+
+  @override
+  String get screenshotProtected =>
+      'Bu içerik korunuyor: ekran görüntüsü alınamaz.';
+
+  @override
+  String get fileOpenFailed => 'Bu dosya açılamadı.';
+
+  @override
+  String get fileInAppOnly => 'Bu dosya burada gösterilemiyor';
+
+  @override
+  String get fileInAppOnlyMessage =>
+      'Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin.';
+
+  @override
+  String pageOf(int page, int total) {
+    return 'Sayfa $page / $total';
+  }
 }

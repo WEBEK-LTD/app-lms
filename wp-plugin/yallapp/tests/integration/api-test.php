@@ -916,6 +916,24 @@ check( '48 the license check reports the paths for Android', array( '/courses/',
 $r = call( 'GET', $root . '/learn/.well-known/apple-app-site-association' );
 check( '48 a path in a folder that is not the site is left to WordPress', 200 !== $r['status'] || null === ( $r['json']['applinks'] ?? null ), $r['status'] );
 
+
+echo "Screen protection (53)\n";
+$protection = function () {
+	$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+	return array( $r['json']['app']['screen_protection'] ?? null, $r['json']['content']['block_screen_capture'] ?? null );
+};
+set_settings( array( 'block_screen_capture' => false ) );
+check( 'protection: off when the plugin setting is off', array( 'off', false ) === $protection(), $protection() );
+set_settings( array( 'block_screen_capture' => true, 'screen_protection_scope' => 'content' ) );
+check( 'protection: course content, and older apps protect lessons', array( 'content', true ) === $protection(), $protection() );
+set_settings( array( 'screen_protection_scope' => 'app' ) );
+check( 'protection: the whole app', array( 'app', true ) === $protection(), $protection() );
+// The license sync brings the dashboard's choice, which wins; anything else is ignored.
+wp_eval( 'update_option( "yallapp_license", array_merge( (array) get_option( "yallapp_license", array() ), array( "screen_protection" => "off" ) ), false );' );
+check( 'protection: the dashboard\'s choice wins over the plugin setting', array( 'off', false ) === $protection(), $protection() );
+wp_eval( 'update_option( "yallapp_license", array_merge( (array) get_option( "yallapp_license", array() ), array( "screen_protection" => "everything" ) ), false );' );
+check( 'protection: an unknown choice leaves the plugin setting', array( 'app', true ) === $protection(), $protection() );
+set_settings( array( 'block_screen_capture' => false, 'screen_protection_scope' => 'content' ) );
 wp_eval( 'wp_delete_post( ' . $draft . ', true );' );
 wp_eval( '$v = json_decode( ' . var_export( $saved_license, true ) . ', true ); if ( null === $v ) { delete_option( "yallapp_license" ); } else { update_option( "yallapp_license", $v, false ); }' );
 $r = call( 'GET', $root . '/.well-known/assetlinks.json' );

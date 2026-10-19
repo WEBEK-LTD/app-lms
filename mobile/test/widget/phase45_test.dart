@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/config/build_config.dart';
+import 'package:yallapp/core/widgets/file_viewer.dart';
 import 'package:yallapp/modules/lms/downloads/download_manager.dart';
 import 'package:yallapp/modules/lms/downloads/progress_queue.dart';
 
@@ -276,10 +277,12 @@ void main() {
         find.textContaining('Saved notes for the train.', findRichText: true),
         findsOneWidget,
       );
-      // Its attachment opens from the phone.
+      // Its attachment opens (53: in the app's own viewer, as this config
+      // protects lessons; phase53_test.dart opens it from the phone without).
       await tester.tap(find.text('Slides.pdf'));
       await TestApp.settle(tester);
-      expect(app.downloads.opened, ['Slides.pdf']);
+      expect(find.byType(FileViewerScreen), findsOneWidget);
+      expect(app.downloads.opened, isEmpty);
     });
 
     testWidgets("a video site's lesson explains it needs the internet", (

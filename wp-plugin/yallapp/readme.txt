@@ -47,6 +47,7 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 * New endpoint GET /links/resolve tells the app what an address of the site is; anything the app doesn't show opens in its in-app browser.
 * A site in a folder (example.com/learn) also serves the two link files under its own folder, for the domain's own server to copy: phones only read them at the root of the domain.
 * Push notifications and the app's inbox carry the link they open (the course, or the post), in the same format as shared links.
+* Screen protection for every app type: "Block screenshots & screen recording" moved to Settings › General, and academies choose what it protects: course content only (lessons, quizzes, attachments and videos) or the whole app. The app gets it as `app.screen_protection`. The choice made on the Yallapp dashboard's Screen protection page, when there is one, replaces the setting. New sites start with it off; sites that saved their settings keep their choice (course content, as before).
 
 = 0.4.2 =
 * The app's default tabs and pages come in Arabic and Turkish when the app offers them and you haven't written your own, and the app's other languages reach it from your Yallapp dashboard's Languages page.

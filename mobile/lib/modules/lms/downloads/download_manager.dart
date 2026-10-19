@@ -566,6 +566,18 @@ class DownloadManager extends Notifier<DownloadsState> {
         file.name: ?await _backend.serve(file.name, mimeType: file.mimeType),
   };
 
+  /// 53 A saved attachment's content, decrypted in memory for the app's own
+  /// viewer (`yallapp-saved:<name>`); null when it isn't saved.
+  Future<Uint8List?> savedBytes(String url) async {
+    final name = url.substring(savedFileScheme.length + 1);
+    for (final lesson in state.index.lessons.values) {
+      for (final file in lesson.files) {
+        if (file.name == name) return _backend.openBytes(file.name);
+      }
+    }
+    return null;
+  }
+
   /// Opens a saved attachment (`yallapp-saved:<name>`).
   Future<bool> openSaved(String url) async {
     final name = url.substring(savedFileScheme.length + 1);

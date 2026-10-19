@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 53 Replaces background_downloader's own list (same resource name, the
+     app's wins), which shared any file in the app's storage and the phone's
+     shared storage. The app hands another app only an attachment it opens
+     with the phone's viewer while screen protection is off: a decrypted copy
+     in this one cache folder, deleted at the next start. Saved lessons (in
+     the app's files) can't be given out. -->
+<paths>
+    <cache-path name="opened" path="yallapp_downloads/open/" />
+</paths>

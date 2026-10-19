@@ -5667,6 +5667,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{title}, completed'**
   String completedCourseLabel(String title);
+
+  /// No description provided for @screenProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'This content is protected. It\'s hidden while the screen is recorded or shared.'**
+  String get screenProtected;
+
+  /// No description provided for @screenshotProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'This content is protected: screenshots of it aren\'t allowed.'**
+  String get screenshotProtected;
+
+  /// No description provided for @fileOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file couldn\'t be opened.'**
+  String get fileOpenFailed;
+
+  /// No description provided for @fileInAppOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This file can\'t be shown here'**
+  String get fileInAppOnly;
+
+  /// No description provided for @fileInAppOnlyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.'**
+  String get fileInAppOnlyMessage;
+
+  /// No description provided for @pageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String pageOf(int page, int total);
 }
 
 class _AppLocalizationsDelegate

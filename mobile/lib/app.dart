@@ -11,6 +11,7 @@ import 'core/routing/app_router.dart';
 import 'core/services/analytics_providers.dart';
 import 'core/services/app_health.dart';
 import 'core/services/push_registration.dart';
+import 'core/services/screen_security.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
 import 'core/theme/app_theme.dart';
@@ -41,7 +42,9 @@ class YallappApp extends ConsumerWidget {
       // 46 Crash reports and the rating prompt's count of app runs.
       ..watch(appHealthProvider)
       // 45 Offline progress sent, saved lessons checked, at each start.
-      ..watch(learningSyncProvider);
+      ..watch(learningSyncProvider)
+      // 53 Screenshots and screen recording blocked as the owner chose.
+      ..watch(screenProtectionSyncProvider);
 
     return MaterialApp.router(
       title: env.build.appName,
@@ -61,7 +64,10 @@ class YallappApp extends ConsumerWidget {
         value: overlayStyleOn(Theme.of(context).scaffoldBackgroundColor),
         child: Directionality(
           textDirection: direction,
-          child: GateView(child: child ?? const SizedBox()),
+          // 53 Covers protected screens while the screen is recorded (iOS).
+          child: ScreenProtectionShield(
+            child: GateView(child: child ?? const SizedBox()),
+          ),
         ),
       ),
     );

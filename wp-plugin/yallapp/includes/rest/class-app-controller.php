@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_REST_Server;
+use Yallapp\Content\Screen_Protection;
 use Yallapp\Lms\Purchase_Rules;
 use Yallapp\Otp\Methods;
 
@@ -78,6 +79,9 @@ class App_Controller extends Controller {
 		$whatsapp   = (string) $settings->get( 'support_whatsapp' );
 		$methods    = $this->plugin->sign_in()->methods();
 		$by_email   = in_array( 'email', $methods, true );
+		// 53 Screenshots and screen recording: the dashboard's choice, else the plugin's settings.
+		$academy    = 'lms' === ( $license_status['app_type'] ?? null ) || ( null === ( $license_status['app_type'] ?? null ) && null !== $lms );
+		$protection = Screen_Protection::mode( $license_status['screen_protection'] ?? null, (bool) $settings->get( 'block_screen_capture' ), (string) $settings->get( 'screen_protection_scope' ), $academy );
 
 		return $this->ok(
 			array(
@@ -128,7 +132,8 @@ class App_Controller extends Controller {
 					'checkout_opens_in' => (string) $settings->get( 'checkout_opens_in' ),
 				),
 				'content'   => array(
-					'block_screen_capture'    => (bool) $settings->get( 'block_screen_capture' ),
+					// Apps built before 53 protect lessons only, when this is true.
+					'block_screen_capture'    => 'off' !== $protection,
 					'watermark'               => (string) $settings->get( 'watermark' ),
 					'embed_fullscreen_button' => (bool) $settings->get( 'embed_fullscreen_button' ),
 					'embed_height'            => (string) $settings->get( 'embed_height' ),
@@ -142,6 +147,7 @@ class App_Controller extends Controller {
 					// 46 The owner's switches in the Yallapp dashboard.
 					'review_prompt'       => $license_status['review_prompt'],
 					'crash_reports'       => $license_status['crash_reports'],
+					'screen_protection'   => $protection,
 				),
 				// 46 Links that open the app: <site>/a/<kind>/<id> (App_Links).
 				'links'     => array( 'share_base_url' => untrailingslashit( home_url( '/a' ) ) ),

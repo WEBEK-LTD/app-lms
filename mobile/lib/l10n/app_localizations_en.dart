@@ -3474,4 +3474,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String completedCourseLabel(String title) {
     return '$title, completed';
   }
+
+  @override
+  String get screenProtected =>
+      'This content is protected. It\'s hidden while the screen is recorded or shared.';
+
+  @override
+  String get screenshotProtected =>
+      'This content is protected: screenshots of it aren\'t allowed.';
+
+  @override
+  String get fileOpenFailed => 'This file couldn\'t be opened.';
+
+  @override
+  String get fileInAppOnly => 'This file can\'t be shown here';
+
+  @override
+  String get fileInAppOnlyMessage =>
+      'Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.';
+
+  @override
+  String pageOf(int page, int total) {
+    return 'Page $page of $total';
+  }
 }

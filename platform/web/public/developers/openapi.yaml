@@ -3354,7 +3354,13 @@ components:
           type: object
           required: [block_screen_capture, watermark, embed_fullscreen_button, embed_height]
           properties:
-            block_screen_capture: { type: boolean }
+            block_screen_capture:
+              type: boolean
+              description: |
+                Whether lesson content is protected from screenshots and screen
+                recording. Since roadmap 53 the same as `app.screen_protection`
+                not being `off`, for apps built before it (which protect
+                lessons only).
             watermark: { type: string, enum: [off, phone, name, name_and_phone] }
             embed_fullscreen_button: { type: boolean }
             embed_height: { type: string, enum: [auto, fit_screen, as_set] }
@@ -3384,6 +3390,23 @@ components:
                 46 Whether the app sends crash reports to Yallapp (`POST
                 /crashes`, tag Crash reports), as the app's owner chose. Missing
                 means true.
+            screen_protection:
+              type: string
+              enum: ['off', content, app]
+              description: |
+                53 Screenshots and screen recording, as the app's owner chose:
+                `off`; `content`, course content only (lessons, quizzes, their
+                attachments and videos, full screen included); or `app`, every
+                screen. Android blocks captures of protected screens
+                (`FLAG_SECURE`: they come out black, and the app is hidden in
+                the recent apps). iOS can't block screenshots: the app hides
+                protected screens while the screen is recorded or mirrored,
+                leaves them out of screenshots where iOS allows it, says so
+                after a screenshot and blurs the app switcher's picture. While
+                protection is on, course attachments open only in the app's own
+                viewer (no sharing, saving or printing). The web preview can't
+                protect anything. Missing on older servers: `content` when
+                `content.block_screen_capture` is true, else `off`.
         links:
           type: object
           description: |

@@ -6,6 +6,7 @@ import '../../core/api/yallapp_api.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
+import '../../core/services/screen_security.dart';
 import '../../core/theme/app_icons.dart';
 import '../shared/account/lists_screens.dart';
 import '../shared/account/profile_screen.dart';
@@ -144,7 +145,10 @@ List<RouteBase> _pushedRoutes() => [
       final id = intParam(state, 'id');
       return appPage(
         state,
-        id == null ? const NotFoundScreen() : LessonScreen(lessonId: id),
+        // 53 Course content: protected when the owner protects it.
+        id == null
+            ? const NotFoundScreen()
+            : ProtectedContent(child: LessonScreen(lessonId: id)),
       );
     },
   ),
@@ -154,7 +158,9 @@ List<RouteBase> _pushedRoutes() => [
       final id = intParam(state, 'id');
       return appPage(
         state,
-        id == null ? const NotFoundScreen() : QuizScreen(quizId: id),
+        id == null
+            ? const NotFoundScreen()
+            : ProtectedContent(child: QuizScreen(quizId: id)),
         fullscreen: true,
       );
     },

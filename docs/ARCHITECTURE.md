@@ -219,6 +219,16 @@ mobile/
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number, also over videos
   played from video sites.
+- Screen protection (Phase 53, `core/services/screen_security.dart`):
+  `Config.app.screen_protection` is `off`, `content` (lessons, quizzes and
+  their attachments, under `ProtectedContent`) or `app`, as the owner chose
+  on the dashboard (WordPress: else the plugin's setting). Android sets
+  `FLAG_SECURE` on the window while it applies; iOS draws the window inside a
+  secure text field's layer (left out of screenshots where iOS allows it),
+  covers protected screens while the screen is recorded or mirrored, says so
+  after a screenshot and blurs the app switcher's picture. While it's on,
+  attachments open only in the app's own viewer (PDFs drawn by the phone's
+  renderer, in memory). The web preview protects nothing.
 - Lessons offline (Phase 45, `modules/lms/downloads/`): with
   `features.downloads` (offline mode in the plan and the owner's choice) a
   student saves a lesson or a whole course: the lesson itself, then

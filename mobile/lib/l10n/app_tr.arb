@@ -927,5 +927,11 @@
   "courseCompletedOn": "{date} tarihinde tamamlandı",
   "courseCompletedTitle": "Bu kursu tamamladınız",
   "viewCertificate": "Sertifikayı görüntüle",
-  "completedCourseLabel": "{title}, tamamlandı"
+  "completedCourseLabel": "{title}, tamamlandı",
+  "screenProtected": "Bu içerik korunuyor. Ekran kaydedilirken veya paylaşılırken gizlenir.",
+  "screenshotProtected": "Bu içerik korunuyor: ekran görüntüsü alınamaz.",
+  "fileOpenFailed": "Bu dosya açılamadı.",
+  "fileInAppOnly": "Bu dosya burada gösterilemiyor",
+  "fileInAppOnlyMessage": "Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin.",
+  "pageOf": "Sayfa {page} / {total}"
 }

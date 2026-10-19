@@ -18,6 +18,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_view.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/file_viewer.dart';
 import '../data/lms_providers.dart';
 import '../downloads/download_manager.dart';
 import '../downloads/download_widgets.dart';
@@ -100,12 +101,8 @@ class LessonScreen extends ConsumerStatefulWidget {
 }
 
 class _LessonScreenState extends ConsumerState<LessonScreen> {
-  StreamSubscription<bool>? _captureSub;
-  bool _captured = false;
-  bool _secure = false;
   bool? _completedOverride;
   bool _completing = false;
-  late final ScreenSecurity _security = ref.read(screenSecurityProvider);
 
   /// 40 Read once: the video player saves its place when it closes, after
   /// this screen has left the tree.
@@ -118,22 +115,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     _api;
     _signedIn;
     _queue;
-    final rules = ref.read(appConfigProvider).content;
-    if (rules.blockScreenCapture) {
-      final security = _security;
-      _secure = true;
-      unawaited(security.setSecure(true));
-      _captureSub = security.captureChanges().listen((captured) {
-        if (mounted) setState(() => _captured = captured);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _captureSub?.cancel();
-    if (_secure) unawaited(_security.setSecure(false));
-    super.dispose();
   }
 
   Future<Video?> _reloadVideo() async {
@@ -325,7 +306,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         subtitle: subtitle,
         position: position,
         footer: footer,
-        captured: _captured,
+        // 53 Paused and covered while a protected lesson is recorded (iOS);
+        // the route is under ProtectedContent (lms_routes.dart).
+        captured:
+            ref.watch(screenProtectedProvider) &&
+            (ref.watch(screenCaptureProvider).value ?? false),
         reloadVideo: _reloadVideo,
         onProgress: _saveProgress,
         onEnded: () {
@@ -811,8 +796,24 @@ class _Attachments extends ConsumerWidget {
   final List<Attachment> attachments;
 
   /// 45 A saved attachment opens from the phone; the others from the web.
-  Future<void> _open(BuildContext context, WidgetRef ref, String url) async {
-    if (!url.startsWith('$savedFileScheme:')) {
+  /// 53 While screen protection is on, both open only in the app's own
+  /// viewer: no other app gets the file, and nothing offers to share, save
+  /// or print it.
+  Future<void> _open(BuildContext context, WidgetRef ref, Attachment a) async {
+    final url = a.url;
+    final saved = url.startsWith('$savedFileScheme:');
+    if (ref.read(attachmentsInAppProvider)) {
+      final downloads = ref.read(downloadManagerProvider.notifier);
+      final fetch = ref.read(attachmentFetcherProvider);
+      await openInViewer(
+        context,
+        name: a.name,
+        mimeType: a.mimeType,
+        load: () => saved ? downloads.savedBytes(url) : fetch(url),
+      );
+      return;
+    }
+    if (!saved) {
       await openExternal(url);
       return;
     }
@@ -839,7 +840,7 @@ class _Attachments extends ConsumerWidget {
               size: 20,
               color: context.palette.textSecondary,
             ),
-            onTap: () => _open(context, ref, a.url),
+            onTap: () => _open(context, ref, a),
           ),
         ],
       ],

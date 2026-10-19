@@ -217,6 +217,13 @@ export interface HostedSettings {
    * last license check. The next build lists them (`links.site_paths`).
    */
   sitePaths?: string[] | null;
+  /**
+   * 53 Screenshots and screen recording in the app, as the owner chose on the
+   * Screen protection page: `off`, `content` (course content only, academies)
+   * or `app` (every screen). Missing until they choose: off, or the plugin's
+   * own setting on WordPress (lib/app/screen-protection.ts).
+   */
+  screenProtection?: "off" | "content" | "app" | null;
 }
 
 /**

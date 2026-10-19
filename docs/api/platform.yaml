@@ -571,6 +571,16 @@ components:
             applies. Downloads also need `offline_downloads` in `features`.
             The plugin serves the result as `Config.features.downloads`.
             Missing on older platforms.
+        screen_protection:
+          type: [string, 'null']
+          enum: ['off', content, app, null]
+          description: |
+            Roadmap 53. Screenshots and screen recording in the app, as the
+            app's owner chose on the dashboard's Screen protection page: `off`,
+            `content` (course content only) or `app` (every screen). Null when
+            the owner hasn't chosen: the plugin's own "Block screenshots &
+            screen recording" applies. The plugin serves the result as
+            `Config.app.screen_protection`. Missing on older platforms.
         expires_at: { type: [string, 'null'], format: date-time }
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }

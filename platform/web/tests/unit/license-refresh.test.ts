@@ -169,6 +169,8 @@ describe("saves that change what the license status carries ask the site", () =>
     // 46 The link files (fingerprint, Team ID) and the rating prompt and crash report switches.
     ["app/actions/app-links.ts", "saveAppLinksAction"],
     ["app/actions/app-links.ts", "saveAppHealthAction"],
+    // 53 Screen protection.
+    ["app/actions/screen-protection.ts", "saveScreenProtectionAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -185,6 +187,7 @@ describe("saves that change what the license status carries ask the site", () =>
       "sign_in_methods",
       "email_sign_in",
       "offline_downloads",
+      "screen_protection",
       "app_type",
       "vertical",
       "app_links",

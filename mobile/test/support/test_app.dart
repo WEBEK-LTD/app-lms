@@ -77,6 +77,12 @@ class FakeScreenSecurity implements ScreenSecurity {
 
   @override
   Stream<bool> captureChanges() => captures.stream;
+
+  /// 53 Tests add an event when someone takes a screenshot (iOS).
+  final shots = StreamController<void>.broadcast();
+
+  @override
+  Stream<void> screenshots() => shots.stream;
 }
 
 class TestApp {
