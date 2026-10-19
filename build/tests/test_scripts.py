@@ -214,3 +214,41 @@ class AppStoreKeyTest(unittest.TestCase):
         import p8_key
 
         self.assertEqual(2, p8_key.main(str(self.secrets(""))))
+
+
+class FingerprintTest(unittest.TestCase):
+    """46 The upload key's SHA-256 for the link files, as keytool prints it."""
+
+    @unittest.skipUnless(shutil.which("keytool"), "keytool is needed")
+    def test_matches_keytool(self):
+        import re
+        import subprocess
+
+        folder = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, folder)
+        store = folder / "upload.jks"
+        subprocess.run(
+            ["keytool", "-genkeypair", "-noprompt", "-storetype", "PKCS12", "-keystore", str(store), "-alias", "upload",
+             "-keyalg", "RSA", "-keysize", "2048", "-validity", "30", "-storepass", "test-password-123456", "-keypass",
+             "test-password-123456", "-dname", "CN=Test"],
+            check=True, capture_output=True,
+        )
+        der = subprocess.run(
+            ["keytool", "-exportcert", "-keystore", str(store), "-storepass", "test-password-123456", "-alias", "upload"],
+            check=True, capture_output=True,
+        ).stdout
+        listing = subprocess.run(
+            ["keytool", "-list", "-v", "-keystore", str(store), "-storepass", "test-password-123456", "-alias", "upload"],
+            check=True, capture_output=True, text=True,
+        ).stdout
+        expected = re.search(r"SHA256:\s*([0-9A-F:]{95})", listing).group(1)
+        out = subprocess.run([sys.executable, str(ROOT / "build" / "scripts" / "fingerprint.py")], input=der, capture_output=True, check=True)
+        self.assertEqual(expected, out.stdout.decode().strip())
+        self.assertRegex(expected, r"^([0-9A-F]{2}:){31}[0-9A-F]{2}$")
+
+    def test_nothing_without_a_certificate(self):
+        import subprocess
+
+        out = subprocess.run([sys.executable, str(ROOT / "build" / "scripts" / "fingerprint.py")], input=b"", capture_output=True)
+        self.assertEqual(1, out.returncode)
+        self.assertEqual(b"", out.stdout)

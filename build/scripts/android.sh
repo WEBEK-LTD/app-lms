@@ -70,6 +70,11 @@ if [ -n "${GITHUB_ACTIONS:-}" ]; then
 	echo "::add-mask::$PASSWORD"
 	echo "::add-mask::$KEY_PASSWORD"
 fi
+# 46 The upload key's SHA-256 fingerprint, for the link files (App Links). Never fails the build.
+UPLOAD_SHA256=$(keytool -exportcert -keystore "$KEYSTORE" -storepass "$PASSWORD" -alias "$ALIAS" 2>/dev/null | python3 "$SCRIPTS/fingerprint.py" || true)
+if [ -n "$UPLOAD_SHA256" ]; then
+	platform status "$BUILD_ID" "{\"signing\":{\"android_upload_sha256\":\"$UPLOAD_SHA256\"}}" || true
+fi
 cat > "$MOBILE/android/key.properties" <<PROPS
 storeFile=$KEYSTORE
 storePassword=$PASSWORD

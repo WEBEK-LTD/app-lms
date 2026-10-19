@@ -324,6 +324,18 @@ components:
           maxItems: 20
           description: Replaces the build's artifact list.
           items: { $ref: '#/components/schemas/Artifact' }
+        signing:
+          type: object
+          additionalProperties: false
+          description: |
+            46 What the build learnt about the app's signing, for the link files
+            (`docs/api/openapi.yaml`, tag Links): the SHA-256 fingerprint of the
+            upload key's certificate (uppercase hex pairs with colons) and the
+            Apple Team ID of the provisioning profile. Saved on the app; only
+            public values.
+          properties:
+            android_upload_sha256: { type: string, pattern: '^([0-9A-F]{2}:){31}[0-9A-F]{2}$' }
+            apple_team_id: { type: string, pattern: '^[A-Z0-9]{10}$' }
       example:
         status: ready
         stages: { android: done, ios: done, upload_play: done, upload_testflight: done }

@@ -1,4 +1,6 @@
-import { applyPipelineStatus, buildSummary, pipelineStatusSchema } from "@/lib/builds/pipeline";
+import { applyPipelineStatus, buildSummary, pipelineStatusSchema, saveSigningFacts } from "@/lib/builds/pipeline";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
+import { forgetLinkTargets } from "@/lib/links/files";
 import { notifyBuildFinished } from "@/lib/builds/notify";
 import { errorResponse, json, readJson } from "@/lib/http";
 import { authorizePipeline } from "@/lib/pipeline-auth";
@@ -19,6 +21,11 @@ export async function POST(request: Request, { params }: RouteContext<"/api/v1/b
   }
   const result = await applyPipelineStatus(store, build, parsed.data, new Date());
   if (!result.ok) return errorResponse(409, result.code, result.message);
+  // 46 The upload key's fingerprint and the Team ID go into the link files, here and on the client's site.
+  if (await saveSigningFacts(store, build.appId, parsed.data.signing, new Date())) {
+    forgetLinkTargets();
+    refreshSitesSoon([build.appId]);
+  }
 
   // Finished just now: the client is emailed, and the team too when it failed.
   const finished = result.build.status !== build.status && (result.build.status === "ready" || result.build.status === "failed");

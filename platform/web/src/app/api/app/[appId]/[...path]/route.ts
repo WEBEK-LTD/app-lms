@@ -27,6 +27,7 @@ import { PREVIEW_HEADER, previewKey, verifyPreviewToken } from "@/lib/preview/to
 import { isLanguageCode } from "@/lib/i18n/locales";
 import { stringPack } from "@/lib/i18n/packs";
 import { etagValues } from "@/lib/pages/plugin";
+import { receiveCrashReports } from "@/lib/crashes/service";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -59,6 +60,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
   if (path.length === 2 && path[0] === ".well-known" && path[1] === "jwks.json") return jwksResponse(request, app, store, now);
   // 43 The owner's interface strings for a language, for every app (WordPress and own API apps too).
   if (path.length === 2 && path[0] === "strings") return stringPackResponse(request, app, store, path[1]!, now);
+  // 46 Crash reports, for every app whatever serves its content.
+  if (path.length === 1 && path[0] === "crashes") return crashesResponse(request, app, store, now);
   const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
   const url = new URL(request.url);
   // Logout and "mark as read" come without a body; anything else sent must be JSON.
@@ -188,6 +191,18 @@ async function stringPackResponse(request: Request, app: App, store: DataStore, 
   const headers = { "cache-control": draft ? "no-store" : "public, max-age=300", etag: `"${pack.version}"`, vary: "X-Yallapp-Preview" };
   if (etagValues(request.headers.get("if-none-match")).includes(pack.version)) return new Response(null, { status: 304, headers });
   return json(pack, 200, headers);
+}
+
+/**
+ * 46 `POST /crashes`: the app's crash reports, grouped by fingerprint. Rate
+ * limited per app and address; 204 also when the owner turned them off.
+ */
+async function crashesResponse(request: Request, app: App, store: DataStore, now: Date): Promise<Response> {
+  if (request.method !== "POST") return errorResponse(405, "method_not_allowed", "Use POST.");
+  const answer = await receiveCrashReports(store, app, await request.text(), ipFromHeaders(request.headers), now);
+  if (answer.status === 204) return noContent();
+  const retry = answer.body.retry_after_seconds;
+  return json(answer.body, answer.status, retry ? { "retry-after": String(retry) } : {});
 }
 
 export const GET = handle;

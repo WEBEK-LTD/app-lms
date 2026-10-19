@@ -79,6 +79,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       items: [
         { href: "/dashboard/builds", label: "Builds & downloads", icon: "build" },
         { href: "/dashboard/publishing", label: "Publishing", icon: "publish" },
+        // 46 Crash-free sessions, the rating prompt and crash reports.
+        { href: "/dashboard/stability", label: "Stability", icon: "monitoring" },
       ],
     },
     {

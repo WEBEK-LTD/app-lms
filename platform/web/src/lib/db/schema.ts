@@ -29,6 +29,8 @@ import type {
   MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
+  LinksCheckSnapshot,
+  CrashIssueStatus,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -229,6 +231,15 @@ export const apps = mysqlTable(
     xiaomiPasswordEncrypted: text("xiaomi_password_encrypted"),
     xiaomiCertificate: text("xiaomi_certificate"),
     xiaomiReleaseNotes: varchar("xiaomi_release_notes", { length: 500 }),
+    // 46 Links that open the app: the Play App Signing key's SHA-256 (the owner enters it), the upload key's and the Apple
+    // Team ID (the build pipeline reports them; the owner may enter the Team ID), and the last "Check links".
+    playSigningSha256: varchar("play_signing_sha256", { length: 95 }),
+    androidUploadSha256: varchar("android_upload_sha256", { length: 95 }),
+    appleTeamId: varchar("apple_team_id", { length: 10 }),
+    linksCheck: jsonText<LinksCheckSnapshot>("links_check"),
+    // 46 The owner's switches: the store's own rating prompt after good moments, and crash reports.
+    reviewPrompt: boolean("review_prompt").notNull().default(true),
+    crashReports: boolean("crash_reports").notNull().default(true),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -1335,4 +1346,43 @@ export const analyticsDaily = mysqlTable(
     value: bigint("value", { mode: "number" }).notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.day, t.metric, t.key] })],
+);
+
+// 46 Crash reports from the apps, grouped by fingerprint, and the app runs counted for the crash-free share.
+export const crashIssues = mysqlTable(
+  "crash_issues",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    fingerprint: varchar("fingerprint", { length: 64 }).notNull(),
+    title: varchar("title", { length: 300 }).notNull(),
+    stack: text("stack").notNull(),
+    library: varchar("library", { length: 60 }),
+    screen: varchar("screen", { length: 80 }),
+    fatal: boolean("fatal").notNull(),
+    platforms: jsonText<string[]>("platforms").notNull(),
+    versions: jsonText<string[]>("versions").notNull(),
+    lastOs: varchar("last_os", { length: 60 }),
+    count: int("count").notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<CrashIssueStatus>(),
+    firstSeenAt: time("first_seen_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+    resolvedAt: time("resolved_at"),
+  },
+  (t) => [uniqueIndex("crash_issues_app_fingerprint_unique").on(t.appId, t.fingerprint), index("crash_issues_last_seen_idx").on(t.lastSeenAt)],
+);
+
+export const crashSessions = mysqlTable(
+  "crash_sessions",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    day: varchar("day", { length: 10 }).notNull(),
+    sessions: int("sessions").notNull(),
+    crashed: int("crashed").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.day] })],
 );

@@ -57,10 +57,15 @@ BUNDLE_ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["ios
 mkdir -p "$WORK/ipa"
 (cd "$ROOT/build" && bundle exec fastlane ios build_ipa \
 	secrets:"$WORK/secrets.json" config:"$WORK/config.json" \
-	mobile:"$MOBILE" out:"$WORK/ipa" signing_out:"$WORK/signing.json")
+	mobile:"$MOBILE" out:"$WORK/ipa" signing_out:"$WORK/signing.json" team_out:"$WORK/team.txt")
 if [ -f "$WORK/signing.json" ]; then
 	platform signing "$BUILD_ID" "$WORK/signing.json"
 	rm -f "$WORK/signing.json"
+fi
+# 46 The Team ID of the profile, for the link files (Universal Links). Never fails the build.
+TEAM_ID=$(tr -cd 'A-Z0-9' < "$WORK/team.txt" 2>/dev/null || true)
+if [ "${#TEAM_ID}" = 10 ]; then
+	platform status "$BUILD_ID" "{\"signing\":{\"apple_team_id\":\"$TEAM_ID\"}}" || true
 fi
 
 IPA="$WORK/ipa/app.ipa"

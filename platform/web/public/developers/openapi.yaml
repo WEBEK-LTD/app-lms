@@ -173,6 +173,52 @@ tags:
       Calls from the Yallapp platform to a client's WordPress site (roadmap
       31), never from the app. Only the Yallapp plugin serves them; the hosted
       API and a client's own API don't.
+  - name: Links
+    description: |
+      Links that open the app (roadmap 46): Android App Links and iOS
+      Universal Links. A shared course, product, service, listing, article,
+      event, campaign or page is a link `<base>/<kind>/<id>`. It opens that
+      screen in the app when the app is installed, and the website otherwise.
+
+      - On Yallapp's link domain, for every app: `<base>` is
+        `https://yallapp.com.tr/a/<app_id>`. Without the app, that address
+        shows a page in the app's branding with its store links; for a
+        WordPress app it sends the visitor on to the site's own link.
+      - On a WordPress site with the Yallapp plugin: `<base>` is
+        `<site>/a` (`Config.links.share_base_url`). Without the app, the
+        plugin sends the visitor to the item's own page on the site (its
+        permalink), or to the home page when the item has none or isn't public.
+
+      | Kind | Link | Opens in the app | `id` |
+      |---|---|---|---|
+      | `course` | `<base>/course/12` | the course (Academy) | a number |
+      | `product` | `<base>/product/12` | the product (Store) | a number |
+      | `service` | `<base>/service/12` | the service (Bookings) | a number |
+      | `listing` | `<base>/listing/12` | the listing (Real estate) | a number |
+      | `article` | `<base>/article/431` | the article (News & blog) | letters, digits, `-` and `_` |
+      | `event` | `<base>/event/12` | the event (Events & tickets) | a number |
+      | `campaign` | `<base>/campaign/12` | the campaign (Charity & donations) | a number |
+      | `page` | `<base>/page/offers` | a page built in the dashboard | its slug |
+
+      The same table, with examples, is `docs/api/app-links.json`; the app,
+      the platform and the plugin follow it. A link of a kind the app type
+      doesn't have, or that doesn't match, opens the app's home.
+
+      The phone checks that the domain trusts the app with two files the
+      domain serves at its root, as JSON (`application/json`), without a
+      redirect: `/.well-known/assetlinks.json` (Android: the package name and
+      the SHA-256 fingerprints of the Play App Signing key and the upload key)
+      and `/.well-known/apple-app-site-association` (iOS: `<Team ID>.<bundle
+      ID>` with the paths `/a/*`, or `/a/<app_id>/*` on Yallapp's domain). The
+      plugin builds them from its license status (`LicenseStatus.app_links`
+      in `docs/api/platform.yaml`). Push notifications and notifications in
+      the inbox may carry a `link` in the same format.
+  - name: Crash reports
+    description: |
+      Crash reports (roadmap 46). Served by Yallapp for every app, at
+      `https://yallapp.com.tr/api/app/{app_id}`, also when the app's content
+      comes from WordPress or an own API: the app sends its crashes to
+      Yallapp, never to the site. Off when `Config.app.crash_reports` is false.
 
 paths:
   /config:
@@ -596,6 +642,39 @@ paths:
       responses:
         '204': { description: Signed out }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /crashes:
+    post:
+      tags: [Crash reports]
+      operationId: sendCrashReports
+      summary: Send crash reports
+      description: |
+        The app sends what went wrong (an uncaught error in the app's code),
+        at most 10 reports per call, each one at most once per app run, with
+        the sessions it counted since it last sent. Reports that couldn't be
+        sent are kept on the phone (at most 10) and sent on the next start.
+
+        A report carries no personal data: no names, phone numbers, emails,
+        tokens, codes or addresses with query strings. The app removes them
+        before sending, and Yallapp removes what still looks like one before
+        it stores the report. Yallapp groups reports by `fingerprint` (the
+        error's type and its first frames in the app's own code), counting
+        them, the first and last time seen and the app versions.
+
+        Rate limited per app and per address (`rate_limited`, 429 with
+        `retry_after_seconds`). Answers 204 also when crash reports are off for the
+        app, so the app doesn't keep them.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CrashReportBatch' }
+      responses:
+        '204': { description: Received (or crash reports are off). }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /.well-known/jwks.json:
     get:
@@ -3097,6 +3176,36 @@ components:
             update_required: { type: boolean }
             maintenance: { type: boolean }
             maintenance_message: { type: [string, 'null'] }
+            review_prompt:
+              type: boolean
+              description: |
+                46 Whether the app may ask for a rating with the phone's own
+                review prompt (Google Play In-App Review, the App Store's
+                SKStoreReviewController) after a good moment, as the app's
+                owner chose in the Yallapp dashboard. The store decides whether
+                the prompt shows; the app never asks first who is happy. Missing
+                means true.
+            crash_reports:
+              type: boolean
+              description: |
+                46 Whether the app sends crash reports to Yallapp (`POST
+                /crashes`, tag Crash reports), as the app's owner chose. Missing
+                means true.
+        links:
+          type: object
+          description: |
+            46 Links that open the app (tag Links). Missing on older servers:
+            the app then shares links on Yallapp's link domain.
+          required: [share_base_url]
+          properties:
+            share_base_url:
+              type: string
+              format: uri
+              example: https://academy.example.com/a
+              description: |
+                What the app's Share buttons put before `/<kind>/<id>`: `<site>/a`
+                on a WordPress site whose plugin serves the link files, else
+                `https://yallapp.com.tr/a/<app_id>`.
         appearance: { $ref: '#/components/schemas/Appearance' }
         languages: { $ref: '#/components/schemas/Languages' }
         listings: { $ref: '#/components/schemas/ListingsConfig' }
@@ -3492,6 +3601,47 @@ components:
         url: { type: string, format: uri }
         issued_at: { type: [string, 'null'], format: date-time }
 
+    CrashReportBatch:
+      type: object
+      additionalProperties: false
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/CrashReport' }
+        sessions:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: App runs started since the app last sent this (for the crash-free share). Missing means 0.
+        crashed_sessions:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: Of those, the runs that had at least one report. Missing means 0.
+
+    CrashReport:
+      type: object
+      additionalProperties: false
+      required: [fingerprint, error, stack, app_version, build_number, platform, at]
+      properties:
+        fingerprint:
+          type: string
+          pattern: '^[0-9a-f]{16,64}$'
+          description: The app's hash of the error's type and its first frames in the app's own code (no line numbers), so the same bug in a new version groups with the old one. Yallapp groups by it.
+        fatal: { type: boolean, description: "True when the error stopped what the user was doing (an error outside any handler). Missing means false." }
+        error: { type: string, maxLength: 300, description: "The error's type and message, scrubbed.", example: "RangeError: Invalid value: Not in inclusive range 0..2: 3" }
+        stack: { type: string, maxLength: 8000, description: "The stack trace, scrubbed, at most 40 frames." }
+        library: { type: [string, 'null'], maxLength: 60, description: "Where Flutter caught it (`widgets library`, `rendering library`...), or null.", example: widgets library }
+        app_version: { type: string, maxLength: 32, example: 1.4.0 }
+        build_number: { type: integer, minimum: 0 }
+        platform: { type: string, enum: [android, ios] }
+        os_version: { type: [string, 'null'], maxLength: 40, description: "The system's version only.", example: '14' }
+        device: { type: [string, 'null'], enum: [phone, tablet, null], description: "The kind of device only, never its model or name." }
+        screen: { type: [string, 'null'], maxLength: 80, description: "The route's pattern, without ids or query (`/course/:id`).", example: '/course/:id' }
+        at: { type: string, format: date-time }
+
     Notification:
       type: object
       required: [id, title, body, type, created_at, read]
@@ -3506,6 +3656,7 @@ components:
         article_id: { type: [string, 'null'], description: "For article, the article to open (News & blog apps). Missing on older servers." }
         event_id: { type: [integer, 'null'], description: "For event, the event that changed or was cancelled (Events & tickets apps, sent to its ticket holders). Missing on older servers." }
         campaign_id: { type: [integer, 'null'], description: "For campaign_update, the campaign to open (Charity & donations apps). Missing on older servers." }
+        link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. Push notifications carry it in their data too. Missing on older servers." }
         created_at: { type: string, format: date-time }
         read: { type: boolean }
 

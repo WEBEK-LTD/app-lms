@@ -30,6 +30,9 @@ import type {
 import { BuildRunningError, DuplicateEmailError } from "./store";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
+// 46 Links and crash reports
+import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
+import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
   App,
@@ -2466,6 +2469,82 @@ export class MysqlStore implements DataStore {
     if (!kinds.length) return;
     const n = schema.ownerNotices;
     await this.run((db) => db.update(n).set({ resolvedAt: now }).where(and(eq(n.appId, appId), inArray(n.kind, kinds), isNull(n.resolvedAt))));
+  }
+
+  // 46 Links that open the app and crash reports
+  async listAppLinkTargets(): Promise<AppLinkTarget[]> {
+    const a = schema.apps;
+    return this.run((db) =>
+      db
+        .select({
+          id: a.id,
+          androidPackage: a.androidPackage,
+          iosBundleId: a.iosBundleId,
+          playSigningSha256: a.playSigningSha256,
+          androidUploadSha256: a.androidUploadSha256,
+          appleTeamId: a.appleTeamId,
+        })
+        .from(a)
+        .where(or(isNotNull(a.androidPackage), isNotNull(a.iosBundleId)))
+        .orderBy(asc(a.createdAt), asc(a.id)),
+    );
+  }
+
+  async recordCrashReports(appId: string, reports: CrashReportInput[], runs: { day: string; sessions: number; crashed: number }): Promise<void> {
+    const c = schema.crashIssues;
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        // Locks the app's row, so two batches with the same new fingerprint can't both start a group.
+        await tx.select({ id: schema.apps.id }).from(schema.apps).where(eq(schema.apps.id, appId)).for("update");
+        for (const report of reports) {
+          const [row] = await tx
+            .select()
+            .from(c)
+            .where(and(eq(c.appId, appId), eq(c.fingerprint, report.fingerprint)))
+            .limit(1);
+          const merged = mergeCrash(row ?? null, appId, report);
+          if (row) await tx.update(c).set(merged).where(eq(c.id, row.id));
+          else await tx.insert(c).values(merged);
+        }
+        if (runs.sessions > 0 || runs.crashed > 0) {
+          await tx.execute(
+            sql`insert into crash_sessions (app_id, day, sessions, crashed) values (${appId}, ${runs.day}, ${runs.sessions}, ${runs.crashed})
+                on duplicate key update sessions = sessions + values(sessions), crashed = crashed + values(crashed)`,
+          );
+        }
+      }),
+    );
+  }
+
+  async listCrashIssues(input: { appId?: string; status?: CrashIssueStatus; limit: number }): Promise<CrashIssue[]> {
+    const c = schema.crashIssues;
+    const where = and(input.appId === undefined ? undefined : eq(c.appId, input.appId), input.status === undefined ? undefined : eq(c.status, input.status));
+    return this.run((db) => db.select().from(c).where(where).orderBy(desc(c.lastSeenAt), asc(c.id)).limit(input.limit));
+  }
+
+  async getCrashIssue(id: string): Promise<CrashIssue | null> {
+    const rows = await this.run((db) => db.select().from(schema.crashIssues).where(eq(schema.crashIssues.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async setCrashIssueStatus(id: string, status: CrashIssueStatus, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .update(schema.crashIssues)
+        .set({ status, resolvedAt: status === "resolved" ? now : null })
+        .where(eq(schema.crashIssues.id, id)),
+    );
+  }
+
+  async crashSessionTotals(appId: string, sinceDay: string): Promise<{ sessions: number; crashed: number }> {
+    const r = schema.crashSessions;
+    const [row] = await this.run((db) =>
+      db
+        .select({ sessions: sql<string | null>`sum(${r.sessions})`, crashed: sql<string | null>`sum(${r.crashed})` })
+        .from(r)
+        .where(and(eq(r.appId, appId), gte(r.day, sinceDay))),
+    );
+    return { sessions: Number(row?.sessions ?? 0), crashed: Number(row?.crashed ?? 0) };
   }
 
   // 16 Demo apps

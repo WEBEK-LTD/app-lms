@@ -97,7 +97,19 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const autoUpload = hasFeature(current, "auto_publish");
 
   // 41 Every store Yallapp publishes to.
-  const header = <PageHeader title="Publishing" description={<>{appLabel(app)} on {ALL_STORES_TEXT}.</>} />;
+  // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
+  const header = (
+    <PageHeader
+      title="Publishing"
+      description={<>{appLabel(app)} on {ALL_STORES_TEXT}.</>}
+      actions={
+        <Link href="/dashboard/publishing/links" className={`${btn.secondary} h-10 px-4 text-sm`}>
+          <Icon name="link" size={18} />
+          Links to your app
+        </Link>
+      }
+    />
+  );
 
   const passwords = (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">

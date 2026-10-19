@@ -27,6 +27,7 @@ import { dashboardFileHref, fileLink } from "@/lib/files";
 import { CLIENT_STATUS_LABEL, isLiveSomewhere, requestStores, statusTone, STORE_ICON, STORE_TITLE, trackOf } from "@/lib/publishing/steps";
 import type { App } from "@/lib/data/types";
 import { paymentsSetUp } from "@/lib/catalog/settings";
+import { stabilityOf } from "@/lib/crashes/service";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -82,6 +83,8 @@ export default async function OverviewPage() {
   const builds = await store.listBuildsByApp(app.id, 10);
   const latest = builds[0] ?? null;
   const lastReady = builds.find((b) => b.status === "ready") ?? null;
+  // 46 Crash-free sessions and the top crashes, once a build is ready.
+  const stability = lastReady ? await stabilityOf(store, app.id, now) : null;
   const publishing = app.publishingMode === "managed" ? await store.getPublishingRequest(app.id) : null;
   const plugin = usesPlugin(app);
   const activation = license && plugin ? await store.getActivation(license.id) : null;
@@ -366,6 +369,45 @@ export default async function OverviewPage() {
             </div>
           ) : null}
         </Tile>
+
+        {/* 46 How often the app crashes, once it has been built. */}
+        {stability ? (
+          <Tile
+            id="h-stability"
+            title="Stability"
+            icon="monitoring"
+            actions={
+              <Link href="/dashboard/stability" className={`${btn.secondary} h-10 px-4 text-sm`}>
+                Stability
+              </Link>
+            }
+          >
+            {app.crashReports === false ? (
+              <span className="text-[15px] leading-relaxed text-muted">Crash reports are off for this app.</span>
+            ) : (
+              <>
+                <span className="text-2xl font-extrabold" data-crash-free="">
+                  {stability.crashFree === null ? "No data yet" : `${stability.crashFree.toLocaleString("en-GB")}% crash-free`}
+                </span>
+                <span className="text-sm text-muted">
+                  {stability.crashFree === null
+                    ? "Figures appear once people use the new version of your app."
+                    : `Of ${stability.sessions.toLocaleString("en-GB")} app ${stability.sessions === 1 ? "session" : "sessions"} in the last 30 days.`}
+                </span>
+                {stability.top.length ? (
+                  <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                    {stability.top.map((issue) => (
+                      <li key={issue.id} className="flex justify-between gap-3">
+                        <span className="min-w-0 truncate font-mono text-[13px]">{issue.title}</span>
+                        <span className="flex-none text-muted">{issue.count}×</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </>
+            )}
+          </Tile>
+        ) : null}
       </div>
 
       <section aria-labelledby="h-shortcuts" className="flex flex-col gap-3">

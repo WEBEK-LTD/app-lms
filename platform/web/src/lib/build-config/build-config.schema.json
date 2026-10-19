@@ -70,6 +70,18 @@
       "properties": {
         "agconnect_config_url": { "type": "string", "format": "uri", "description": "agconnect-services.json from AppGallery Connect" }
       }
+    },
+    "links": {
+      "type": "object",
+      "description": "Optional. 46 Links that open the app (docs/api/openapi.yaml, tag Links). The Android build adds an App Links intent filter (autoVerify) for each host and path, and the iOS build the Associated Domains entitlement (applinks:<host>). The app sends crash reports to crash_report_url.",
+      "additionalProperties": false,
+      "required": ["app_id", "yallapp_base_url", "crash_report_url"],
+      "properties": {
+        "app_id": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", "description": "The platform's app ID." },
+        "yallapp_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^/?#]+/a/[0-9a-f-]{36}$", "description": "The app's links on Yallapp's link domain: https://yallapp.com.tr/a/{app_id}." },
+        "site_base_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+/a$", "description": "A WordPress app's links on its own site: <site URL>/a, which the plugin serves; the link files themselves are at the root of the site's domain. Left out for apps without WordPress." },
+        "crash_report_url": { "type": "string", "format": "uri", "pattern": "^https://[^?#]+/crashes$", "description": "POST /crashes at Yallapp for this app: https://yallapp.com.tr/api/app/{app_id}/crashes." }
+      }
     }
   }
 }

@@ -82,6 +82,9 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { DemoPurgeCounts } from "./types";
+// 46 Links and crash reports
+import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
+import { mergeCrash } from "../crashes/report";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -1954,6 +1957,68 @@ export class MemoryStore implements DataStore {
     for (const [id, notice] of this.ownerNotices) {
       if (notice.appId === appId && kinds.includes(notice.kind) && notice.resolvedAt === null) this.ownerNotices.set(id, { ...notice, resolvedAt: now });
     }
+  }
+
+  // 46 Links that open the app and crash reports
+  private crashIssues = new Map<string, CrashIssue>();
+  private crashRuns = new Map<string, { sessions: number; crashed: number }>();
+
+  async listAppLinkTargets(): Promise<AppLinkTarget[]> {
+    return [...this.apps.values()]
+      .filter((a) => a.androidPackage || a.iosBundleId)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .map((a) => ({
+        id: a.id,
+        androidPackage: a.androidPackage,
+        iosBundleId: a.iosBundleId,
+        playSigningSha256: a.playSigningSha256 ?? null,
+        androidUploadSha256: a.androidUploadSha256 ?? null,
+        appleTeamId: a.appleTeamId ?? null,
+      }));
+  }
+
+  async recordCrashReports(appId: string, reports: CrashReportInput[], runs: { day: string; sessions: number; crashed: number }): Promise<void> {
+    for (const report of reports) {
+      const existing = [...this.crashIssues.values()].find((i) => i.appId === appId && i.fingerprint === report.fingerprint) ?? null;
+      const merged = mergeCrash(existing, appId, report);
+      this.crashIssues.set(merged.id, clone(merged));
+    }
+    if (runs.sessions > 0 || runs.crashed > 0) {
+      const key = `${appId}:${runs.day}`;
+      const day = this.crashRuns.get(key) ?? { sessions: 0, crashed: 0 };
+      this.crashRuns.set(key, { sessions: day.sessions + runs.sessions, crashed: day.crashed + runs.crashed });
+    }
+  }
+
+  async listCrashIssues(input: { appId?: string; status?: CrashIssueStatus; limit: number }): Promise<CrashIssue[]> {
+    return [...this.crashIssues.values()]
+      .filter((i) => (input.appId === undefined || i.appId === input.appId) && (input.status === undefined || i.status === input.status))
+      .sort((a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime() || a.id.localeCompare(b.id))
+      .slice(0, input.limit)
+      .map(clone);
+  }
+
+  async getCrashIssue(id: string): Promise<CrashIssue | null> {
+    const issue = this.crashIssues.get(id);
+    return issue ? clone(issue) : null;
+  }
+
+  async setCrashIssueStatus(id: string, status: CrashIssueStatus, now: Date): Promise<void> {
+    const issue = this.crashIssues.get(id);
+    if (issue) this.crashIssues.set(id, { ...issue, status, resolvedAt: status === "resolved" ? now : null });
+  }
+
+  async crashSessionTotals(appId: string, sinceDay: string): Promise<{ sessions: number; crashed: number }> {
+    let sessions = 0;
+    let crashed = 0;
+    for (const [key, day] of this.crashRuns) {
+      const [app, date = ""] = key.split(":");
+      if (app === appId && date >= sinceDay) {
+        sessions += day.sessions;
+        crashed += day.crashed;
+      }
+    }
+    return { sessions, crashed };
   }
 
   // 16 Demo apps

@@ -253,6 +253,13 @@
       "when": 1792407272098,
       "tag": "0035_analytics",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1792410691275,
+      "tag": "0036_app_links_crashes",
+      "breakpoints": true
     }
   ]
 }

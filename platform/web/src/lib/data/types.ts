@@ -360,6 +360,21 @@ export interface App {
   xiaomiPasswordEncrypted?: string | null;
   xiaomiCertificate?: string | null;
   xiaomiReleaseNotes?: string | null;
+  /**
+   * 46 Links that open the app: the SHA-256 fingerprint of the Play App
+   * Signing key (the owner copies it from Play Console), the upload key's
+   * (reported by the build pipeline), both as uppercase hex pairs with
+   * colons, and the Apple Team ID (reported by the iOS build or entered by the
+   * owner). Public values: they're in the link files.
+   */
+  playSigningSha256?: string | null;
+  androidUploadSha256?: string | null;
+  appleTeamId?: string | null;
+  /** 46 The last "Check links" on the dashboard. */
+  linksCheck?: LinksCheckSnapshot | null;
+  /** 46 The owner's switches (missing means on): the store's rating prompt after good moments, and crash reports. */
+  reviewPrompt?: boolean;
+  crashReports?: boolean;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -381,6 +396,71 @@ export interface App {
   demoBuildId?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 46 One check of "Check links": what was looked at and what was wrong, in plain words. */
+export interface LinksCheckItem {
+  id: string;
+  label: string;
+  ok: boolean;
+  detail?: string;
+}
+
+export interface LinksCheckSnapshot {
+  /** ISO time of the check. */
+  at: string;
+  ok: boolean;
+  checks: LinksCheckItem[];
+}
+
+/** 46 A crash group: the reports of one fingerprint for one app. */
+export type CrashIssueStatus = "open" | "resolved";
+
+export interface CrashIssue {
+  id: string;
+  appId: string;
+  fingerprint: string;
+  /** The error's type and message, scrubbed. */
+  title: string;
+  stack: string;
+  library: string | null;
+  screen: string | null;
+  fatal: boolean;
+  /** android and/or ios. */
+  platforms: string[];
+  /** App versions it was seen in, as "1.4.0 (14)", newest last, at most 20. */
+  versions: string[];
+  /** The last report's system, as "Android 14" or "iOS 18.1". */
+  lastOs: string | null;
+  count: number;
+  status: CrashIssueStatus;
+  firstSeenAt: Date;
+  lastSeenAt: Date;
+  resolvedAt: Date | null;
+}
+
+/** 46 A report as the store saves it: already checked and scrubbed (lib/crashes). */
+export interface CrashReportInput {
+  fingerprint: string;
+  title: string;
+  stack: string;
+  library: string | null;
+  screen: string | null;
+  fatal: boolean;
+  platform: "android" | "ios";
+  version: string;
+  os: string | null;
+  at: Date;
+}
+
+/** 46 What a WordPress site and the platform's own link files need to know about an app. */
+export interface AppLinkTarget {
+  id: string;
+  androidPackage: string | null;
+  iosBundleId: string | null;
+  playSigningSha256: string | null;
+  androidUploadSha256: string | null;
+  appleTeamId: string | null;
 }
 
 export interface Artifact {

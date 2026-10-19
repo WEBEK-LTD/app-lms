@@ -787,6 +787,19 @@
           "access": "public"
         }
       ]
+    },
+    {
+      "name": "Crash reports",
+      "description": "Crash reports (roadmap 46). Served by Yallapp for every app, at `https://yallapp.com.tr/api/app/{app_id}`, also when the app's content comes from WordPress or an own API: the app sends its crashes to Yallapp, never to the site. Off when `Config.app.crash_reports` is false.",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/crashes",
+          "summary": "Send crash reports",
+          "description": "The app sends what went wrong (an uncaught error in the app's code), at most 10 reports per call, each one at most once per app run, with the sessions it counted since it last sent. Reports that couldn't be sent are kept on the phone (at most 10) and sent on the next start.\n\nA report carries no personal data: no names, phone numbers, emails, tokens, codes or addresses with query strings. The app removes them before sending, and Yallapp removes what still looks like one before it stores the report. Yallapp groups reports by `fingerprint` (the error's type and its first frames in the app's own code), counting them, the first and last time seen and the app versions.\n\nRate limited per app and per address (`rate_limited`, 429 with `retry_after_seconds`). Answers 204 also when crash reports are off for the app, so the app doesn't keep them.",
+          "access": "public"
+        }
+      ]
     }
   ]
 }

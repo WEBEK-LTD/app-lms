@@ -26,6 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             { href: "/admin", label: "Overview", exact: true },
             { href: "/admin/clients", label: "Clients" },
             { href: "/admin/builds", label: "Build queue" },
+            { href: "/admin/crashes", label: "Crashes" },
             { href: "/admin/publishing", label: "Publishing", badge: { count: openPublishing, label: openPublishing === 1 ? "open request" : "open requests" } },
             { href: "/admin/demos", label: "Demo apps" },
             { href: "/admin/releases", label: "App & plugin versions" },
