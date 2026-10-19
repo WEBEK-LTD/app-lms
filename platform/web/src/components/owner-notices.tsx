@@ -1,5 +1,6 @@
 import { dismissNoticeAction } from "@/app/actions/billing";
 import type { OwnerNotice } from "@/lib/data/types";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { Icon } from "./icon";
 import { btn } from "./ui";
 
@@ -9,10 +10,12 @@ import { btn } from "./ui";
  * the account, until closed or no longer true. 19 Also: the WordPress site
  * our team set up is ready, and the app's own API failed its last check.
  */
-export function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
+export async function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
   if (!notices.length) return null;
+  // 56 Notices are saved in English; they show in the dashboard's language when their words are known.
+  const { t, k } = await dashboardText();
   return (
-    <section aria-label="Notices about your apps" className="flex flex-col gap-2.5">
+    <section aria-label={t("nav.noticesLabel")} className="flex flex-col gap-2.5">
       {notices.map((n) => (
         <div
           key={n.id}
@@ -26,18 +29,18 @@ export function OwnerNotices({ notices }: { notices: OwnerNotice[] }) {
             className={n.tone === "warn" ? "text-warn" : "text-accent"}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <strong>{n.title}</strong>
-            <span>{n.body}</span>
+            <strong>{k(n.title)}</strong>
+            <span>{k(n.body)}</span>
           </div>
           <div className="flex items-center gap-2">
             {n.linkUrl ? (
               <a href={n.linkUrl.replace(/^https?:\/\/[^/]+/, "")} className={`${btn.primary} h-9 px-3.5 text-sm`}>
-                {n.linkLabel ?? "Open"}
+                {n.linkLabel ? k(n.linkLabel) : t("common.open")}
               </a>
             ) : null}
             <form action={dismissNoticeAction}>
               <input type="hidden" name="id" value={n.id} />
-              <button type="submit" aria-label={`Close: ${n.title}`} className={`${btn.ghost} h-9 px-2`}>
+              <button type="submit" aria-label={t("nav.closeNotice", { title: k(n.title) })} className={`${btn.ghost} h-9 px-2`}>
                 <Icon name="close" size={20} />
               </button>
             </form>

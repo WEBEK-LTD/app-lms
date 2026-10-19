@@ -14,7 +14,8 @@ import { sendTemplate } from "@/lib/email/send";
 import { countryFromHeaders } from "@/lib/geo";
 import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
-import { LANG_COOKIE, LANG_COOKIE_MAX_AGE, langOf, translateKnown, type Lang } from "@/i18n";
+import { isLang, LANG_COOKIE, LANG_COOKIE_MAX_AGE, langOf, translateKnown, type Lang } from "@/i18n";
+import type { User } from "@/lib/data/types";
 
 /**
  * 55 The sign-in pages in Arabic and Turkish send their language (a hidden
@@ -35,9 +36,11 @@ function inLang(lang: Lang, state: FormState): FormState {
   };
 }
 
-async function rememberLang(lang: Lang): Promise<void> {
+async function rememberLang(lang: Lang, user?: Pick<User, "id" | "language">): Promise<void> {
   if (lang === "en") return;
   (await cookies()).set(LANG_COOKIE, lang, { path: "/", maxAge: LANG_COOKIE_MAX_AGE, sameSite: "lax", httpOnly: false });
+  // 56 Signing in from an Arabic or Turkish page gives the dashboard that language, unless the person already chose one.
+  if (user && !isLang(user.language)) await (await getStore()).updateUser(user.id, { language: lang }, new Date());
 }
 
 const TOO_MANY = "Too many attempts. Please wait a few minutes and try again.";
@@ -64,7 +67,7 @@ async function signUp(formData: FormData, lang: Lang): Promise<FormState> {
     // 52 The country the sign-up came from: Yallapp's prices show in its currency.
     const { user } = await registerClient(store, { ...parsed.data, country: countryFromHeaders(await headers()) }, now);
     await startSession(user);
-    await rememberLang(lang);
+    await rememberLang(lang, user);
   } catch (error) {
     if (error instanceof DuplicateEmailError) {
       return { errors: { email: "An account with this email already exists. Sign in instead." }, values };
@@ -95,7 +98,7 @@ async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
   await startSession(user);
-  await rememberLang(lang);
+  await rememberLang(lang, user);
   redirect(await homeFor(user));
 }
 
@@ -162,6 +165,6 @@ async function resetPassword(formData: FormData, lang: Lang): Promise<FormState>
     };
   }
   await startSession(result.user);
-  await rememberLang(lang);
+  await rememberLang(lang, result.user);
   redirect(await homeFor(result.user));
 }

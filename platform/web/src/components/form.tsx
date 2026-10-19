@@ -2,6 +2,7 @@
 
 import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { useKnownText, useOptionalDashT } from "./dashboard-i18n";
 import { Icon } from "./icon";
 import { btn } from "./ui";
 
@@ -47,11 +48,17 @@ export function Field({
   );
 }
 
+/**
+ * 56 In the dashboard, server actions' English messages (and the lib
+ * parsers' field errors) show in the dashboard's language when the catalogs
+ * know them (`known` parts of src/i18n/dashboard); elsewhere as they are.
+ */
 export function FieldError({ id, error }: { id: string; error?: string }) {
+  const known = useKnownText();
   if (!error) return null;
   return (
     <span id={id} className="text-[13px] font-semibold text-danger">
-      {error}
+      {known(error)}
     </span>
   );
 }
@@ -139,6 +146,7 @@ export function SubmitButton({
   describedBy?: string;
 }) {
   const { pending } = useFormStatus();
+  const t = useOptionalDashT();
   return (
     <button
       type="submit"
@@ -151,7 +159,7 @@ export function SubmitButton({
       {pending ? (
         <>
           <Icon name="progress_activity" size={20} className="animate-spin" />
-          {pendingText ?? "Saving…"}
+          {pendingText ?? (t ? t("common.saving") : "Saving…")}
         </>
       ) : (
         children
@@ -161,13 +169,14 @@ export function SubmitButton({
 }
 
 export function FormMessage({ message, ok }: { message?: string; ok?: boolean }) {
+  const known = useKnownText();
   if (!message) return null;
   return (
     <p
       role={ok ? "status" : "alert"}
       className={`m-0 rounded-xl px-4 py-3 text-[15px] font-semibold ${ok ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}
     >
-      {message}
+      {known(message)}
     </p>
   );
 }

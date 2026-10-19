@@ -107,6 +107,8 @@ export const users = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
     lastSignInAt: time("last_sign_in_at"),
+    // 56 The dashboard's language this person chose ("en", "ar", "tr"); null until they choose one.
+    language: varchar("language", { length: 8 }),
   },
   (t) => [uniqueIndex("users_email_unique").on(t.email)],
 );

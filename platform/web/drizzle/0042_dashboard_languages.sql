@@ -1,0 +1,2 @@
+-- The client dashboard in English, Arabic and Turkish (roadmap 56): the language each person chose for the dashboard and Yallapp's emails to them; null until they choose one (the yallapp_lang cookie, else English, decides).
+ALTER TABLE `users` ADD `language` varchar(8);

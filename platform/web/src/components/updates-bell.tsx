@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { loadBellAction, markUpdatesReadAction } from "@/app/actions/updates";
-import { badgeText, bellLabel, shownLine } from "@/lib/updates-words";
+import { badgeText } from "@/lib/updates-words";
 import type { BellData, BellItem } from "@/lib/updates-view";
+import { useDashT } from "./dashboard-i18n";
 import { Icon } from "./icon";
 import { KIND_CHIP, KIND_ICON_BG, updateIcon } from "./update-look";
 
@@ -16,6 +17,7 @@ export const UPDATES_EVENT = "yallapp:updates";
 const STALE_MS = 60_000;
 
 function ItemLink({ item, onFollow }: { item: BellItem; onFollow: () => void }) {
+  const t = useDashT();
   if (!item.linkUrl || !item.linkLabel) return null;
   const className = "inline-flex items-center gap-1 self-start text-sm font-semibold";
   return item.linkUrl.startsWith("/") ? (
@@ -27,7 +29,7 @@ function ItemLink({ item, onFollow }: { item: BellItem; onFollow: () => void }) 
     <a href={item.linkUrl} target="_blank" rel="noreferrer" className={className}>
       {item.linkLabel}
       <Icon name="open_in_new" size={16} />
-      <span className="sr-only"> (opens in a new tab)</span>
+      <span className="sr-only">{t("common.opensInNewTab")}</span>
     </a>
   );
 }
@@ -41,6 +43,7 @@ function ItemLink({ item, onFollow }: { item: BellItem; onFollow: () => void }) 
  */
 export function UpdatesBell({ initial }: { initial: BellData }) {
   const pathname = usePathname();
+  const t = useDashT();
   const [data, setData] = useState(initial);
   const [open, setOpen] = useState(false);
   // What was unread when the panel opened: marked as new until it closes.
@@ -154,7 +157,7 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
       <button
         ref={button}
         type="button"
-        aria-label={bellLabel(data.unread)}
+        aria-label={data.unread > 0 ? t("nav.bellUnread", { count: data.unread }) : t("nav.bell")}
         aria-expanded={open}
         aria-controls={PANEL_ID}
         aria-haspopup="dialog"
@@ -168,7 +171,7 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
           <span
             aria-hidden="true"
             data-badge
-            className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ember px-1 text-[11px] leading-none font-extrabold text-midnight ring-2 ring-white"
+            className="absolute -end-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ember px-1 text-[11px] leading-none font-extrabold text-midnight ring-2 ring-white"
           >
             {badge}
           </span>
@@ -181,23 +184,23 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
           id={PANEL_ID}
           role="dialog"
           aria-labelledby={`${PANEL_ID}-title`}
-          className="fixed inset-x-0 top-16 bottom-0 z-40 flex flex-col bg-white md:absolute md:inset-x-auto md:top-full md:bottom-auto md:left-0 md:mt-2 md:max-h-[min(600px,calc(100vh-110px))] md:w-[400px] md:rounded-2xl md:border md:border-line md:shadow-[0_18px_48px_-12px_rgba(14,13,36,0.28)]"
+          className="fixed inset-x-0 top-16 bottom-0 z-40 flex flex-col bg-white md:absolute md:inset-x-auto md:start-0 md:top-full md:bottom-auto md:mt-2 md:max-h-[min(600px,calc(100vh-110px))] md:w-[400px] md:rounded-2xl md:border md:border-line md:shadow-[0_18px_48px_-12px_rgba(14,13,36,0.28)]"
         >
           <div className="flex items-center justify-between gap-3 border-b border-line-soft px-4 py-3">
             <h2 ref={heading} id={`${PANEL_ID}-title`} tabIndex={-1} className="m-0 text-base font-bold text-midnight outline-none">
-              Notifications from Yallapp
+              {t("nav.bell")}
             </h2>
             <button
               type="button"
               onClick={() => close(true)}
-              aria-label="Close notifications"
+              aria-label={t("nav.closeBell")}
               className="-my-1 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-[10px] text-ink-3 hover:bg-ivory md:hidden"
             >
               <Icon name="close" size={20} />
             </button>
           </div>
           {data.items.length ? (
-            <ul aria-label="Newest notifications" className="m-0 min-h-0 flex-1 list-none overflow-y-auto p-0">
+            <ul aria-label={t("nav.newest")} className="m-0 min-h-0 flex-1 list-none overflow-y-auto p-0">
               {data.items.map((item) => {
                 const isNew = fresh.includes(item.key) || (item.unread && !open);
                 return (
@@ -215,13 +218,13 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
                         <span className={`rounded-full px-2 py-0.5 font-bold ${KIND_CHIP[item.kind]}`}>{item.kindLabel}</span>
                         <time dateTime={item.datetime}>{item.date}</time>
                         {item.app ? <span className="truncate">{item.app}</span> : null}
-                        {isNew ? <span className="sr-only">Unread</span> : null}
+                        {isNew ? <span className="sr-only">{t("nav.unread")}</span> : null}
                       </div>
-                      <p lang={item.lang} dir={item.lang === "ar" ? "rtl" : undefined} className="m-0 text-[15px] leading-snug font-semibold text-midnight">
+                      <p lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"} className="m-0 text-[15px] leading-snug font-semibold text-midnight">
                         {item.title}
                       </p>
                       {item.summary ? (
-                        <p lang={item.lang} dir={item.lang === "ar" ? "rtl" : undefined} className="m-0 line-clamp-2 text-sm leading-relaxed text-ink-3">
+                        <p lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"} className="m-0 line-clamp-2 text-sm leading-relaxed text-ink-3">
                           {item.summary}
                         </p>
                       ) : null}
@@ -235,10 +238,8 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
           ) : (
             <div className="flex flex-1 flex-col items-center gap-2 px-6 py-10 text-center">
               <Icon name="notifications" size={32} className="text-faint" />
-              <p className="m-0 font-semibold text-midnight">Nothing new from Yallapp</p>
-              <p className="m-0 text-sm text-muted">
-                Updates, announcements, maintenance notices and offers from our team show up here, with news about your account.
-              </p>
+              <p className="m-0 font-semibold text-midnight">{t("nav.nothingNew")}</p>
+              <p className="m-0 text-sm text-muted">{t("nav.nothingNewText")}</p>
             </div>
           )}
           <div className="flex items-center justify-between gap-3 border-t border-line-soft px-4 py-3">
@@ -246,16 +247,16 @@ export function UpdatesBell({ initial }: { initial: BellData }) {
               <button
                 type="button"
                 onClick={markAll}
-                className="-ml-2.5 inline-flex h-9 cursor-pointer items-center gap-1 rounded-[10px] px-2.5 text-sm font-semibold text-accent hover:bg-ivory"
+                className="-ms-2.5 inline-flex h-9 cursor-pointer items-center gap-1 rounded-[10px] px-2.5 text-sm font-semibold text-accent hover:bg-ivory"
               >
                 <Icon name="check" size={18} />
-                Mark all as read
+                {t("nav.markAll")}
               </button>
             ) : (
-              <span className="text-xs text-muted">{shownLine(data.items.length, data.total)}</span>
+              <span className="text-xs text-muted">{data.total > data.items.length ? t("nav.shown", { shown: data.items.length, total: data.total }) : ""}</span>
             )}
             <Link href="/dashboard/announcements" onClick={() => setOpen(false)} className="inline-flex items-center gap-1 text-sm font-semibold">
-              See all
+              {t("common.seeAll")}
               <Icon name="arrow_forward" size={16} />
             </Link>
           </div>
