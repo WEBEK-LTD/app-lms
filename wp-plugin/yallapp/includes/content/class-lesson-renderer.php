@@ -88,9 +88,10 @@ class Lesson_Renderer {
 		if ( ! $video ) {
 			return null;
 		}
-		$url     = $video['url'];
-		$expires = null;
-		if ( 'upload' === $video['source'] && $video['attachment_id'] ) {
+		$url = $video['url'];
+		// 51 A Yallapp Media library video comes signed by Yallapp, with its end.
+		$expires = $video['expires_at'] ?? null;
+		if ( 'upload' === $video['source'] && ! empty( $video['attachment_id'] ) ) {
 			$signed  = $this->media->signed_url( (int) $video['attachment_id'], (int) $user_id );
 			$url     = $signed['url'];
 			$expires = $signed['expires_at'];

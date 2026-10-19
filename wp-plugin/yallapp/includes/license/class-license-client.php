@@ -17,7 +17,8 @@ use Yallapp\Settings;
  * Talks to the platform API in docs/api/platform.yaml.
  *
  * Only the site URL, plugin version, WordPress version and LMS are sent, plus, for sign-in codes
- * sent by Yallapp, the phone number and the code to deliver (the platform keeps neither).
+ * sent by Yallapp, the phone number and the code to deliver (the platform keeps neither), and
+ * 51 the IDs of Media library videos a lesson plays.
  * Enforcement is off until the platform is live: define YALLAPP_ENFORCE_LICENSE as true to turn it on.
  */
 class License_Client {
@@ -157,6 +158,33 @@ class License_Client {
 			)
 		);
 		return is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
+	 * 51 Links signed for this request to videos in the app's Yallapp Media library
+	 * (docs/api/platform.yaml, mediaLinks). The caller has checked that the student may open
+	 * the lesson that uses them.
+	 *
+	 * @param string[] $media   Media IDs or Yallapp links.
+	 * @param string   $purpose play|download.
+	 * @return array|WP_Error The MediaLinks body: `items` and `missing`.
+	 */
+	public function media_links( array $media, $purpose = 'play' ) {
+		$key = (string) $this->settings->get( 'license_key' );
+		if ( '' === $key ) {
+			return new WP_Error( 'license_missing', __( 'Activate your Yallapp license to play videos from Yallapp.', 'yallapp' ) );
+		}
+		return $this->call(
+			'POST',
+			'/licenses/media',
+			array_merge(
+				$this->site_info( $key ),
+				array(
+					'media'   => array_values( array_map( 'strval', $media ) ),
+					'purpose' => 'download' === $purpose ? 'download' : 'play',
+				)
+			)
+		);
 	}
 
 	/**

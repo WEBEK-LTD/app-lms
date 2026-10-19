@@ -753,7 +753,7 @@ echo "Settings reach the site at once (31)\n";
 $r = call( 'POST', '/license/refresh', array( 'timestamp' => time(), 'signature' => str_repeat( 'a', 64 ) ) );
 check( 'refresh: an unsigned nudge over HTTP 401', 401 === $r['status'] && 'invalid_signature' === ( $r['json']['code'] ?? '' ), $r['raw'] );
 // Inside the site, with the platform replaced by a pre_http_request filter.
-foreach ( array( 'license-refresh-check.php', 'settings-page-check.php' ) as $file ) {
+foreach ( array( 'license-refresh-check.php', 'settings-page-check.php', 'media-check.php' ) as $file ) {
 	$out    = (string) wp_cli( 'eval-file ' . escapeshellarg( __DIR__ . '/' . $file ) );
 	$result = json_decode( trim( $out ), true );
 	if ( ! is_array( $result ) || empty( $result['checks'] ) ) {
