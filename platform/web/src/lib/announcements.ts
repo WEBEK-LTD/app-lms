@@ -1,4 +1,4 @@
-import type { Announcement, AnnouncementAudience, AnnouncementSeverity, App, License } from "./data/types";
+import type { Announcement, AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, App, License } from "./data/types";
 import { APP_TYPES, ENGINES } from "./app/kinds";
 import { safeHref } from "./content/markdown";
 import type { DataStore } from "./data/store";
@@ -45,15 +45,53 @@ export function isLive(announcement: Pick<Announcement, "startsAt" | "endsAt">, 
   return announcement.startsAt.getTime() <= now.getTime() && (announcement.endsAt === null || announcement.endsAt.getTime() > now.getTime());
 }
 
-/** A client's live announcements, newest first, and the ones still on their banner (not dismissed). */
+/**
+ * A client's live announcements, newest first, and the ones still on their
+ * banner: 57 shown as a banner too, and not dismissed. Also every one that
+ * started for this audience, live or ended (`history`, newest first): the
+ * full list behind the dashboard's bell.
+ */
 export function announcementsFor(
   all: Announcement[],
   subject: AudienceSubject,
   dismissed: string[],
   now: Date,
-): { live: Announcement[]; banner: Announcement[] } {
-  const live = all.filter((a) => isLive(a, now) && inAudience(a.audience, subject)).sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime());
-  return { live, banner: live.filter((a) => !dismissed.includes(a.id)) };
+): { live: Announcement[]; banner: Announcement[]; history: Announcement[] } {
+  const history = all
+    .filter((a) => a.startsAt.getTime() <= now.getTime() && inAudience(a.audience, subject))
+    .sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime());
+  const live = history.filter((a) => isLive(a, now));
+  return { live, banner: live.filter((a) => a.showAsBanner && !dismissed.includes(a.id)), history };
+}
+
+/** 57 The kinds of announcement, as the admin's form and the bell's chips name them. */
+export const ANNOUNCEMENT_KINDS: { id: AnnouncementKind; label: string }[] = [
+  { id: "update", label: "Update" },
+  { id: "announcement", label: "Announcement" },
+  { id: "maintenance", label: "Maintenance" },
+  { id: "offer", label: "Offer" },
+];
+
+export const ANNOUNCEMENT_KIND_LABEL: Record<AnnouncementKind, string> = { update: "Update", announcement: "Announcement", maintenance: "Maintenance", offer: "Offer" };
+
+/** 57 The languages an announcement can be written in; English is always there. */
+export type AnnouncementLanguage = "en" | "ar" | "tr";
+
+/**
+ * 57 An announcement's title and message in a language ("ar", "tr-TR", …):
+ * the Arabic or Turkish ones when the team wrote them, else the English ones.
+ * The dashboard passes "en" until it follows the user's language (Phase 56).
+ */
+export function announcementText(
+  announcement: Pick<Announcement, "title" | "body" | "titleAr" | "bodyAr" | "titleTr" | "bodyTr">,
+  lang: string,
+): { title: string; body: string; lang: AnnouncementLanguage } {
+  const code = lang.toLowerCase().split(/[-_]/)[0];
+  const pair =
+    code === "ar" ? { title: announcement.titleAr, body: announcement.bodyAr } : code === "tr" ? { title: announcement.titleTr, body: announcement.bodyTr } : null;
+  // The form keeps a title with its message; both are needed, so a page never mixes two languages.
+  if (pair && pair.title?.trim() && pair.body?.trim()) return { title: pair.title, body: pair.body, lang: code as AnnouncementLanguage };
+  return { title: announcement.title, body: announcement.body, lang: "en" };
 }
 
 const PLAN_IDS: Plan[] = [...PLANS];
@@ -87,6 +125,12 @@ export interface AnnouncementInput {
   body: string;
   audience: AnnouncementAudience;
   severity: AnnouncementSeverity;
+  kind: AnnouncementKind;
+  showAsBanner: boolean;
+  titleAr: string | null;
+  bodyAr: string | null;
+  titleTr: string | null;
+  bodyTr: string | null;
   linkUrl: string | null;
   linkLabel: string | null;
   startsAt: Date;
@@ -114,6 +158,13 @@ export interface AnnouncementFormValues {
   appTypes: string;
   states: string;
   severity: string;
+  /** 57 The kind, "banner" (also a banner) or "bell" (bell only), and the Arabic and Turkish texts. */
+  kind: string;
+  placement: string;
+  titleAr: string;
+  bodyAr: string;
+  titleTr: string;
+  bodyTr: string;
   linkUrl: string;
   linkLabel: string;
   startsAt: string;
@@ -131,6 +182,12 @@ export function announcementFormValues(a: Announcement | null): AnnouncementForm
     appTypes: audience.kind === "app_type" ? audience.appTypes.join(",") : "",
     states: audience.kind === "state" ? audience.states.join(",") : "",
     severity: a?.severity ?? "info",
+    kind: a?.kind ?? "announcement",
+    placement: a && !a.showAsBanner ? "bell" : "banner",
+    titleAr: a?.titleAr ?? "",
+    bodyAr: a?.bodyAr ?? "",
+    titleTr: a?.titleTr ?? "",
+    bodyTr: a?.bodyTr ?? "",
     linkUrl: a?.linkUrl ?? "",
     linkLabel: a?.linkLabel ?? "",
     startsAt: dateTimeValue(a?.startsAt ?? null),
@@ -146,6 +203,8 @@ export function audienceOptions(planNames: Record<Plan, string>) {
     // 20 Every engine (Real estate was missing).
     appTypes: APP_TYPES.map((id) => ({ id, label: ENGINES[id].name })),
     states: STATES.map((id) => ({ id, label: STATE_LABELS[id] })),
+    // 57 The kinds of announcement.
+    kinds: ANNOUNCEMENT_KINDS,
   };
 }
 
@@ -156,13 +215,20 @@ export function readAnnouncementForm(
 ): { ok: true; announcement: AnnouncementInput } | { ok: false; errors: Record<string, string> } {
   const v = input.values;
   const errors: Record<string, string> = {};
-  const title = (v.title ?? "").replace(/\s+/g, " ").trim();
-  if (!title) errors.title = "Enter a title.";
-  else if (title.length > 120) errors.title = "Use at most 120 characters.";
-  const body = (v.body ?? "").replace(/\r\n?/g, "\n").trim();
-  if (!body) errors.body = "Enter the message.";
-  else if (body.length > 5_000) errors.body = "Use at most 5,000 characters.";
-  else if (/<\/?[a-z][^>]*>/i.test(body.replace(/`[^`\n]*`/g, ""))) errors.body = "HTML isn't allowed. Use Markdown for bold text and links.";
+  const title = readTitle(v.title, "title", errors, true);
+  const body = readBody(v.body, "body", errors, true);
+  // 57 Arabic and Turkish are optional, but come as a title with its message.
+  const translated = (lang: "Ar" | "Tr") => {
+    const t = readTitle(v[`title${lang}`], `title${lang}`, errors, false);
+    const b = readBody(v[`body${lang}`], `body${lang}`, errors, false);
+    if (t && !b && !errors[`body${lang}`]) errors[`body${lang}`] = "Enter the message too, or remove the title.";
+    if (b && !t && !errors[`title${lang}`]) errors[`title${lang}`] = "Enter the title too, or remove the message.";
+    return { title: t || null, body: b || null };
+  };
+  const ar = translated("Ar");
+  const tr = translated("Tr");
+  const kind: AnnouncementKind = ANNOUNCEMENT_KINDS.find((k) => k.id === v.kind)?.id ?? "announcement";
+  const showAsBanner = v.placement !== "bell";
 
   let audience: AnnouncementAudience | null = null;
   switch (v.audience) {
@@ -207,7 +273,27 @@ export function readAnnouncementForm(
   else if (startsAt && endsAt && endsAt.getTime() <= startsAt.getTime()) errors.endsAt = "Choose a time after the start.";
 
   if (Object.keys(errors).length || !audience || !startsAt) return { ok: false, errors };
-  return { ok: true, announcement: { title, body, audience, severity, linkUrl, linkLabel, startsAt, endsAt } };
+  return {
+    ok: true,
+    announcement: { title, body, audience, severity, kind, showAsBanner, titleAr: ar.title, bodyAr: ar.body, titleTr: tr.title, bodyTr: tr.body, linkUrl, linkLabel, startsAt, endsAt },
+  };
+}
+
+/** A title on one line, at most 120 characters; required in English. */
+function readTitle(value: string | undefined, field: string, errors: Record<string, string>, required: boolean): string {
+  const title = (value ?? "").replace(/\s+/g, " ").trim();
+  if (!title && required) errors[field] = "Enter a title.";
+  else if (title.length > 120) errors[field] = "Use at most 120 characters.";
+  return title;
+}
+
+/** A Markdown message without HTML, at most 5,000 characters; required in English. */
+function readBody(value: string | undefined, field: string, errors: Record<string, string>, required: boolean): string {
+  const body = (value ?? "").replace(/\r\n?/g, "\n").trim();
+  if (!body && required) errors[field] = "Enter the message.";
+  else if (body.length > 5_000) errors[field] = "Use at most 5,000 characters.";
+  else if (/<\/?[a-z][^>]*>/i.test(body.replace(/`[^`\n]*`/g, ""))) errors[field] = "HTML isn't allowed. Use Markdown for bold text and links.";
+  return body;
 }
 
 /** The clients (their account email and name) an announcement is for, now. */

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDateTime } from "@/components/ui";
-import { describeAudience, isLive } from "@/lib/announcements";
+import { ANNOUNCEMENT_KIND_LABEL, describeAudience, isLive } from "@/lib/announcements";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { Announcement } from "@/lib/data/types";
@@ -31,7 +31,9 @@ export default async function AnnouncementsPage({ searchParams }: PageProps<"/ad
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1.5">
           <h1 className="m-0 text-[28px] font-extrabold">Announcements</h1>
-          <span className="text-[15px] text-muted">Shown on the clients&apos; dashboard until they close them, and emailed when you choose.</span>
+          <span className="text-[15px] text-muted">
+            In the bell of the clients&apos; dashboard, as a banner too when you choose (until they close it), and emailed when you choose.
+          </span>
         </div>
         <Link href="/admin/announcements/new" className={`${btn.primary} h-10`}>
           <Icon name="add" size={20} />
@@ -64,6 +66,11 @@ export default async function AnnouncementsPage({ searchParams }: PageProps<"/ad
                   <tr key={a.id} className="border-t border-line-soft">
                     <th scope="row" className="px-4 py-3 text-left font-semibold">
                       <Link href={`/admin/announcements/${a.id}`}>{a.title}</Link>
+                      {/* 57 Its kind, and whether it is only in the bell. */}
+                      <span className="ml-2 text-xs font-semibold text-muted">
+                        {ANNOUNCEMENT_KIND_LABEL[a.kind]}
+                        {a.showAsBanner ? "" : " · bell only"}
+                      </span>
                       {a.severity === "warning" ? (
                         <span className="ml-2">
                           <Badge tone="warn">Warning</Badge>

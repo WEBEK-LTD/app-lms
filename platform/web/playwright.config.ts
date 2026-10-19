@@ -73,6 +73,8 @@ export const E2E = {
   wpRefreshPort: Number(process.env.E2E_WP_REFRESH_PORT ?? 3294),
   /** The super admin of tests/e2e/media.spec.ts (roadmap 51). */
   mediaAdminEmail: "media-admin@yallapp.test",
+  /** The super admin of tests/e2e/dashboard-bell.spec.ts (roadmap 57). */
+  bellAdminEmail: "bell-admin@yallapp.test",
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
   signingSecret: "e2e-signing-secret-0123456789abcdef0123456789",
 };
@@ -111,7 +113,7 @@ export default defineConfig({
       YALLAPP_MEDIA: "fs",
       YALLAPP_MEDIA_DIR: ".data/e2e-media",
       YALLAPP_MAIL_DIR: E2E.mailDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail},${E2E.mediaAdminEmail},${E2E.bellAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,

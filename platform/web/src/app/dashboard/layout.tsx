@@ -7,12 +7,16 @@ import { Icon } from "@/components/icon";
 import { DashboardSidebar, type DashboardNavGroup } from "@/components/dashboard-nav";
 import { SignOutButton } from "@/components/sign-out";
 import { AppSwitcher } from "@/components/app-switcher";
+import { UpdatesBell } from "@/components/updates-bell";
 import { appLabel, licensePageName, MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { appTypeName, contentNavOf, kindOf, usersLabelOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import type { App } from "@/lib/data/types";
+import { getStore } from "@/lib/data";
 import { ACCOUNT_STATE_LABEL, appState } from "@/lib/license/status";
+import { loadUpdates } from "@/lib/updates";
+import { bellData, readerOf } from "@/lib/updates-view";
 
 export const metadata: Metadata = { title: { default: "Dashboard", template: "%s · Yallapp" }, robots: { index: false } };
 
@@ -23,8 +27,11 @@ function contentNav(app: App | null): { label: string; items: DashboardNavGroup[
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const contact = await getContact();
-  const { user, staff, app, apps, client, licenses, state } = await requireClient();
+  const context = await requireClient();
+  const { user, staff, app, apps, client, licenses, state } = context;
   const now = new Date();
+  // 57 The bell: counted on each load of the dashboard, for whoever is reading (our team member managing it has their own).
+  const bell = bellData(await loadUpdates(await getStore(), readerOf(context), now));
   // Every app of the account, each on its own plan: the switcher shows which one the dashboard works on.
   const switcherApps = apps.map((a) => ({
     id: a.id,
@@ -91,7 +98,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: "Account",
       items: [
         { href: "/dashboard/license", label: licensePageName(app), icon: "workspace_premium" },
-        { href: "/dashboard/announcements", label: "Announcements", icon: "campaign" },
+        // 57 The full list behind the bell (the address stays).
+        { href: "/dashboard/announcements", label: "Updates from Yallapp", icon: "campaign" },
         { href: contact.whatsappUrl, label: "Support", icon: "support_agent", external: true },
       ],
     },
@@ -111,6 +119,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <Logo height={28} alt="Yallapp dashboard" />
           </Link>
         }
+        actions={<UpdatesBell initial={bell} />}
         switcher={
           apps.length ? (
             <AppSwitcher apps={switcherApps} current={app?.id ?? null} currentApp={currentApp} canAdd={apps.length < MAX_APPS_PER_CLIENT} />

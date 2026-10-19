@@ -42,7 +42,7 @@ import type {
   PlanPaymentPurpose,
 } from "../data/types";
 // 11.6 and 11.8
-import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
+import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutContent } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
@@ -1215,6 +1215,13 @@ export const announcements = mysqlTable(
     body: text("body").notNull(),
     audience: jsonText<AnnouncementAudience>("audience").notNull(),
     severity: varchar("severity", { length: 16 }).notNull().$type<AnnouncementSeverity>(),
+    // 57 Its chip in the dashboard's bell, whether it is also a banner, and the Arabic and Turkish texts.
+    kind: varchar("kind", { length: 16 }).notNull().default("announcement").$type<AnnouncementKind>(),
+    showAsBanner: boolean("show_as_banner").notNull().default(true),
+    titleAr: varchar("title_ar", { length: 120 }),
+    bodyAr: text("body_ar"),
+    titleTr: varchar("title_tr", { length: 120 }),
+    bodyTr: text("body_tr"),
     linkUrl: varchar("link_url", { length: 500 }),
     linkLabel: varchar("link_label", { length: 60 }),
     startsAt: time("starts_at").notNull(),
@@ -1241,6 +1248,27 @@ export const announcementDismissals = mysqlTable(
     dismissedAt: time("dismissed_at").notNull(),
   },
   (t) => [primaryKey({ columns: [t.clientId, t.announcementId] })],
+);
+
+/**
+ * 57 What each person has read in the dashboard's bell ("Notifications from
+ * Yallapp"): per user, not per client, so everyone who opens a client's
+ * dashboard (our team too) has their own. `item` is the bell's key of what
+ * was read: `announcement:<id>`, or one of the account's own items
+ * (`notice:<id>`, `build:<id>`, `payment:<id>`); an announcement's reads are
+ * deleted with it. Separate from closing a banner (`announcement_dismissals`).
+ */
+export const updateReads = mysqlTable(
+  "update_reads",
+  {
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    item: varchar("item", { length: 64 }).notNull(),
+    readAt: time("read_at").notNull(),
+  },
+  // The item's own index: deleting an announcement deletes its reads.
+  (t) => [primaryKey({ columns: [t.userId, t.item] }), index("update_reads_item_idx").on(t.item)],
 );
 
 // 14.1 We publish for you

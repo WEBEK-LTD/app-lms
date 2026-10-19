@@ -1666,6 +1666,9 @@ export interface CouponRedemption {
 
 export type AnnouncementSeverity = "info" | "warning";
 
+/** 57 What an announcement is, shown as a chip in the dashboard's bell: an update, an announcement (the default), maintenance or an offer. */
+export type AnnouncementKind = "update" | "announcement" | "maintenance" | "offer";
+
 /** Which clients see an announcement. */
 export type AnnouncementAudience =
   | { kind: "all" }
@@ -1680,6 +1683,15 @@ export interface Announcement {
   body: string;
   audience: AnnouncementAudience;
   severity: AnnouncementSeverity;
+  /** 57 Its chip in the bell ("announcement" for every announcement from before Phase 57). */
+  kind: AnnouncementKind;
+  /** 57 Also on the overview's banner until closed (as before Phase 57); false: only in the bell and the list. */
+  showAsBanner: boolean;
+  /** 57 Optional Arabic and Turkish title and message (`announcementText` falls back to English). */
+  titleAr: string | null;
+  bodyAr: string | null;
+  titleTr: string | null;
+  bodyTr: string | null;
   /** An optional link under the text. */
   linkUrl: string | null;
   linkLabel: string | null;

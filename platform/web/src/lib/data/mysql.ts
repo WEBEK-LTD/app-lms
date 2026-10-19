@@ -2544,7 +2544,8 @@ export class MysqlStore implements DataStore {
   }
 
   async deleteAnnouncement(id: string): Promise<void> {
-    // Dismissals go with it (foreign key on delete cascade).
+    // Dismissals go with it (foreign key on delete cascade); 57 its reads in the bell too.
+    await this.run((db) => db.delete(schema.updateReads).where(eq(schema.updateReads.item, `announcement:${id}`)));
     await this.run((db) => db.delete(schema.announcements).where(eq(schema.announcements.id, id)));
   }
 
@@ -2575,6 +2576,32 @@ export class MysqlStore implements DataStore {
         .where(eq(schema.announcementDismissals.clientId, clientId)),
     );
     return rows.map((r) => r.id);
+  }
+
+  // 57 The dashboard's bell
+
+  async markUpdatesRead(input: { userId: string; items: string[]; now: Date }): Promise<void> {
+    const items = [...new Set(input.items)];
+    if (!items.length) return;
+    await this.run((db) =>
+      db
+        .insert(schema.updateReads)
+        .values(items.map((item) => ({ userId: input.userId, item, readAt: input.now })))
+        // Read before: keeps its first time.
+        .onDuplicateKeyUpdate({ set: { item: sql`${schema.updateReads.item}` } }),
+    );
+  }
+
+  async listReadUpdates(userId: string, items: string[]): Promise<string[]> {
+    const wanted = [...new Set(items)];
+    if (!wanted.length) return [];
+    const rows = await this.run((db) =>
+      db
+        .select({ item: schema.updateReads.item })
+        .from(schema.updateReads)
+        .where(and(eq(schema.updateReads.userId, userId), inArray(schema.updateReads.item, wanted))),
+    );
+    return rows.map((r) => r.item);
   }
 
   // 13 Plans, limits and owner notices

@@ -2007,7 +2007,7 @@ Share your dashboard sign-in only with people you trust. Our team can open your 
 
 ## Announcements
 
-We post news about Yallapp, new features and planned maintenance on your dashboard's **Announcements** page, and sometimes by email.
+The bell at the top of your dashboard shows what our team sends you (updates, announcements, planned maintenance and offers) and what happened on your account: a plan about to end, a finished build, a payment received. A number on it says how many you haven't seen; opening it marks them as seen, for you only. **See all**, or **Updates from Yallapp** in the menu, lists everything. Some announcements also show above your overview until you close them, and some come by email too.
 
 ## Getting help
 
