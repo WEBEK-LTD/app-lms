@@ -1178,6 +1178,10 @@ paths:
       tags: [Catalog]
       operationId: listCourses
       summary: List courses
+      description: >-
+        Published courses. A private course (WordPress's Private visibility, which the LMS
+        uses to hide a course from its catalog) is never listed, not even to its students:
+        they find it in `GET /me/courses` (50).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -1216,6 +1220,11 @@ paths:
       tags: [Catalog]
       operationId: getCourse
       summary: Get a course
+      description: >-
+        A private course opens only for the students enrolled in it (bought, free or added by
+        an administrator) and for whoever may read it on the website (its author, editors and
+        administrators); anyone else gets `404 not_found`, as for a course that doesn't
+        exist (50).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/CourseId'
@@ -1234,7 +1243,13 @@ paths:
       tags: [Catalog]
       operationId: getCurriculum
       summary: Get a course's topics and items
-      description: Items the student can't open are returned with `locked` set and no content.
+      description: >-
+        The course's topics (Tutor LMS topics, LearnPress, LearnDash and MasterStudy
+        sections, LifterLMS sections, Sensei modules...) in the order the LMS shows them, each
+        with its lessons, quizzes, assignments and live classes in order. Items the student
+        can't open are returned with `locked` set and no content. A private course's
+        curriculum is `404 not_found` for whoever can't open the course (`GET
+        /courses/{course_id}`, 50).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/CourseId'
@@ -1276,6 +1291,7 @@ paths:
       tags: [Learning]
       operationId: listMyCourses
       summary: List the student's courses
+      description: Private courses the student is enrolled in are listed too (50).
       parameters:
         - name: status
           in: query
@@ -1352,7 +1368,10 @@ paths:
       tags: [Learning]
       operationId: getLesson
       summary: Get a lesson
-      description: Free-preview lessons are public; everything else requires enrollment.
+      description: >-
+        Free-preview lessons are public; everything else requires enrollment. A lesson of a
+        private course is `404 not_found`, free previews included, for whoever can't open the
+        course (`GET /courses/{course_id}`, 50).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/LessonId'
@@ -2883,7 +2902,7 @@ paths:
       tags: [Donations]
       operationId: listMyDonations
       summary: List the signed-in user's donations
-      description: Confirmed donations started from the app while signed in, newest first, each with its receipt.
+      description: Confirmed donations started from the app while signed in, newest first, each with its receipt; 47 refunded ones too, with `refunded_total`.
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -3354,7 +3373,13 @@ components:
           type: object
           required: [block_screen_capture, watermark, embed_fullscreen_button, embed_height]
           properties:
-            block_screen_capture: { type: boolean }
+            block_screen_capture:
+              type: boolean
+              description: |
+                Whether lesson content is protected from screenshots and screen
+                recording. Since roadmap 53 the same as `app.screen_protection`
+                not being `off`, for apps built before it (which protect
+                lessons only).
             watermark: { type: string, enum: [off, phone, name, name_and_phone] }
             embed_fullscreen_button: { type: boolean }
             embed_height: { type: string, enum: [auto, fit_screen, as_set] }
@@ -3384,6 +3409,23 @@ components:
                 46 Whether the app sends crash reports to Yallapp (`POST
                 /crashes`, tag Crash reports), as the app's owner chose. Missing
                 means true.
+            screen_protection:
+              type: string
+              enum: ['off', content, app]
+              description: |
+                53 Screenshots and screen recording, as the app's owner chose:
+                `off`; `content`, course content only (lessons, quizzes, their
+                attachments and videos, full screen included); or `app`, every
+                screen. Android blocks captures of protected screens
+                (`FLAG_SECURE`: they come out black, and the app is hidden in
+                the recent apps). iOS can't block screenshots: the app hides
+                protected screens while the screen is recorded or mirrored,
+                leaves them out of screenshots where iOS allows it, says so
+                after a screenshot and blurs the app switcher's picture. While
+                protection is on, course attachments open only in the app's own
+                viewer (no sharing, saving or printing). The web preview can't
+                protect anything. Missing on older servers: `content` when
+                `content.block_screen_capture` is true, else `off`.
         links:
           type: object
           description: |
@@ -3958,6 +4000,15 @@ components:
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
         status_label: { type: string, description: The site's own wording for the status., example: Completed }
         total: { type: string, description: Formatted with the site's currency., example: ₺450.00 }
+        refunded_total:
+          type: [string, 'null']
+          example: ₺100.00
+          description: |
+            47 What the shop refunded of this order so far, formatted like
+            `total`; null or missing when nothing was. A fully refunded order
+            has `status` `refunded` (and the label "Refunded"); a partly
+            refunded one keeps its status, and the app shows this amount as
+            "Refunded". Missing on older servers and on WordPress sites.
         created_at: { type: string, format: date-time }
         items:
           type: array
@@ -5634,6 +5685,12 @@ components:
         online_url: { type: [string, 'null'], format: uri, description: 'For an online event, the link to join; null for a cancelled ticket.' }
         used_at: { type: [string, 'null'], format: date-time, description: 'When it was checked in at the door.' }
         can_cancel: { type: boolean, description: 'Whether `POST /me/tickets/{ticket_code}/cancel` would work now.' }
+        refunded:
+          type: boolean
+          description: |
+            47 The organiser refunded this ticket: `status` is `cancelled`
+            (never a new value, which older apps would read as valid) and its
+            place went back on sale. Missing on older servers: false.
         created_at: { type: string, format: date-time }
 
     DonationsConfig:
@@ -5738,3 +5795,11 @@ components:
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
         receipt_url: { type: string, format: uri, description: 'The receipt as a web page, to open in the browser or share.' }
+        refunded_total:
+          type: [string, 'null']
+          example: ₺250.00
+          description: |
+            47 What the charity refunded of this donation, formatted like
+            `amount_formatted`; null or missing when nothing was. A fully
+            refunded donation stays in `GET /me/donations` with this equal
+            to its amount, and no longer counts towards the campaign.

@@ -21,7 +21,7 @@ import { can, type AdminPermission } from "@/lib/admin/permissions";
 import { appLabel } from "@/lib/app/label";
 import { SETUP_STEPS, stepStatus } from "@/lib/app/setup";
 import { requireAdmin } from "@/lib/auth/session";
-import { formatCents } from "@/lib/catalog/money";
+import { formatAmount } from "@/lib/billing/prices";
 import { getStore } from "@/lib/data";
 import type { App, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
@@ -37,6 +37,7 @@ import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
 import { appTypeName, wordsOf } from "@/lib/app/kinds";
 import { BarList, KpiTiles, RetentionTiles } from "@/components/analytics-report";
 import { loadReport, rangeFrom } from "@/lib/analytics/report";
+import { appZone } from "@/lib/analytics/zone";
 import { siteMatch } from "@/lib/app/site-match";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
@@ -292,7 +293,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
                 <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                   <span>
-                    {formatCents(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"} ·{" "}
+                    {formatAmount(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"} ·{" "}
                     {formatDateTime(p.paidAt ?? p.createdAt)}
                     {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
                   </span>
@@ -695,7 +696,10 @@ function AppCard({
 
 /** 44 The app's usage over the last 30 days, as its owner sees it on Analytics: totals only. */
 async function AnalyticsCard({ app, now }: { app: App; now: Date }) {
-  const report = await loadReport(await getStore(), app.id, rangeFrom({ range: "30" }, now), now);
+  const store = await getStore();
+  // 47 In the owner's time zone, as they see it.
+  const zone = await appZone(store, app);
+  const report = await loadReport(store, app.id, rangeFrom({ range: "30" }, now, zone), now, zone);
   const items = wordsOf(app).items;
   return (
     <Card id={`h-analytics-${app.id}`} title="Analytics, last 30 days" level={3}>

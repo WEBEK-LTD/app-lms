@@ -1,9 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { savePlanAction, savePlanLimitsAction } from "@/app/actions/admin-settings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
-import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 
 export interface PlanFormValues {
@@ -12,15 +11,20 @@ export interface PlanFormValues {
   tagline: string;
   highlights: string;
   price: string;
-  cardPrice: string;
-  currency: string;
+  /** 52 "price" or "request". */
+  pricing: string;
+  egpPrice: string;
+  usdPrice: string;
   months: string;
+  /** 52 The dollar price at the exchange rate, for the hint ("$30 at the rate"); empty without a rate. */
+  usdAtRate: string;
 }
 
 export function PlanForm({ plan }: { plan: PlanFormValues }) {
   const [state, action] = useActionState(savePlanAction, initialFormState);
   const v = (name: keyof PlanFormValues & string, fallback: string) => state.values?.[name] ?? fallback;
   const id = (name: string) => `${plan.id}-${name}`;
+  const [pricing, setPricing] = useState(v("pricing", plan.pricing));
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="plan" value={plan.id} />
@@ -35,28 +39,50 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
         <span className="text-[13px] text-muted">One line per point on the pricing page.</span>
         <FieldError id={`${id("highlights")}-error`} error={state.errors?.highlights} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-[1fr_110px_150px]">
-        <Field
-          id={id("cardPrice")}
-          label="Card price"
-          name="cardPrice"
-          inputMode="decimal"
-          defaultValue={v("cardPrice", plan.cardPrice)}
-          hint="Empty: prices are agreed on WhatsApp."
-          error={state.errors?.cardPrice}
-        />
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={id("currency")} className="text-sm font-semibold">
-            Currency
-          </label>
-          <select id={id("currency")} name="currency" defaultValue={v("currency", plan.currency)} className="input">
-            {CATALOG_CURRENCIES.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-          {/* 37 Card payments take the plan only in a currency Yallapp's provider takes. */}
-          <span className="text-[13px] text-muted">iyzico takes TRY, USD and EUR; Kashier and Fawaterk take EGP.</span>
+      {/* 52 A price in pounds (charged through Kashier), shown in dollars outside Egypt; or the price text ("On request"). */}
+      {/* The choice is sent from state: React resets the form's own radios after each submit. */}
+      <input type="hidden" name="pricing" value={pricing} />
+      <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+        <legend className="mb-1 text-sm font-semibold">Price</legend>
+        <div className="flex flex-wrap gap-5">
+          {[
+            { value: "price", label: "A price" },
+            { value: "request", label: "On request" },
+          ].map((option) => (
+            <label key={option.value} className="flex cursor-pointer items-center gap-2 text-[15px]">
+              <input
+                type="radio"
+                name={id("pricing-choice")}
+                value={option.value}
+                checked={pricing === option.value}
+                onChange={() => setPricing(option.value)}
+                className="h-4 w-4 accent-midnight"
+              />
+              {option.label}
+            </label>
+          ))}
         </div>
+        <FieldError id={`${id("pricing")}-error`} error={state.errors?.pricing} />
+      </fieldset>
+      <div className="grid gap-4 sm:grid-cols-[1fr_1fr_150px]">
+        <Field
+          id={id("egpPrice")}
+          label="Price in EGP"
+          name="egpPrice"
+          inputMode="decimal"
+          defaultValue={v("egpPrice", plan.egpPrice)}
+          hint="What everyone is charged, in Egypt or not. Shown to people in Egypt."
+          error={state.errors?.egpPrice}
+        />
+        <Field
+          id={id("usdPrice")}
+          label="Price in USD (optional)"
+          name="usdPrice"
+          inputMode="decimal"
+          defaultValue={v("usdPrice", plan.usdPrice)}
+          hint={plan.usdAtRate ? `Shown outside Egypt. Empty: ${plan.usdAtRate} at the exchange rate.` : "Shown outside Egypt. Empty: the EGP price at the exchange rate in Settings."}
+          error={state.errors?.usdPrice}
+        />
         <div className="flex flex-col gap-1.5">
           <label htmlFor={id("months")} className="text-sm font-semibold">
             Billed
@@ -73,7 +99,7 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
         name="price"
         maxLength={30}
         defaultValue={v("price", plan.price)}
-        hint="Shown when there's no card price."
+        hint="Shown instead of a price when the plan is On request."
         error={state.errors?.price}
       />
       <div className="flex justify-end">

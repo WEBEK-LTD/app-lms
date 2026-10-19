@@ -37,7 +37,13 @@ Client's WordPress site                    Yallapp (WEBEK)
   private address. The plugin accepts it within 5 minutes of its clock, at
   most once every 30 seconds (a nudge too soon schedules one check for when
   the 30 seconds are over), and then runs its usual license check and layout
-  fetch: nothing in the nudge is trusted.
+  fetch: nothing in the nudge is trusted. 47 When the team edits what a plan
+  includes (or puts it back to its defaults), every WordPress site whose
+  license is on that plan now gets the nudge (`refreshPlanSites`): five at
+  once, a second between batches, at most 500 and within 20 seconds; sites
+  past that get the change at their next check (within 12 hours). Local
+  tests send every nudge to a fake site (`LICENSE_REFRESH_TEST_URL`,
+  refused on Netlify).
 
 ## WordPress plugin
 
@@ -213,6 +219,16 @@ mobile/
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
   iOS) and a watermark with the student's phone number, also over videos
   played from video sites.
+- Screen protection (Phase 53, `core/services/screen_security.dart`):
+  `Config.app.screen_protection` is `off`, `content` (lessons, quizzes and
+  their attachments, under `ProtectedContent`) or `app`, as the owner chose
+  on the dashboard (WordPress: else the plugin's setting). Android sets
+  `FLAG_SECURE` on the window while it applies; iOS draws the window inside a
+  secure text field's layer (left out of screenshots where iOS allows it),
+  covers protected screens while the screen is recorded or mirrored, says so
+  after a screenshot and blurs the app switcher's picture. While it's on,
+  attachments open only in the app's own viewer (PDFs drawn by the phone's
+  renderer, in memory). The web preview protects nothing.
 - Lessons offline (Phase 45, `modules/lms/downloads/`): with
   `features.downloads` (offline mode in the plan and the owner's choice) a
   student saves a lesson or a whole course: the lesson itself, then
@@ -634,9 +650,52 @@ mobile/
   with `paymentProvider` choosing which takes new plan payments and
   marketplace sales; a client's own keys stay in `catalogSettings.payment`
   (provider `iyzico`, `kashier` or `fawaterk`, encrypted as
-  `app:payment:<app id>`). Refunds are made in each provider's panel.
+  `app:payment:<app id>`). Refunds: see below.
   Test runs point `IYZICO_API_URL`, `KASHIER_API_URL` and
   `FAWATERK_API_URL` at fake servers (refused on Netlify).
+
+- Refunds from the dashboard (Phase 47, `lib/payments/refund.ts`,
+  `lib/refunds/service.ts`, migration `0039_refunds_time_zone`): the owner
+  refunds a paid order (products, a restaurant's order, tickets, paid
+  courses, memberships) or a donation, all of it or part, under it on
+  Orders or Donations, with the account the payment was taken with.
+  iyzico: a whole payment on the day it was taken (Istanbul's day) is
+  cancelled (`POST /payment/cancel` with its `paymentId`); otherwise, or
+  when iyzico refuses the cancel, the payment's item transactions are read
+  (`POST /payment/detail`) and refunded one by one (`POST /payment/refund`,
+  `paymentTransactionId`, `price`, `currency`, `ip`, `reason`), never more
+  than was paid for an item less what earlier refunds took from it; all
+  signed IYZWSv2 like the payments. Kashier: the session is read back for
+  its `kashierOrderId` and `transactionId`, then `PUT
+  /v3/orders/{orderId}/` on its fep host (`fep.kashier.io`,
+  `test-fep.kashier.io`) with the secret key, `apiOperation: "REFUND"`,
+  the amount in major units and `targetTransactionId`. Fawaterk's API v2
+  has no refund call, so its refunds are made in Fawaterk's panel and
+  recorded (`method: manual`, with its reference if given); an owner can
+  record one made in any provider's panel the same way, except for
+  marketplace payments, which are in Yallapp's account. A refund that stops
+  half-way (an iyzico item refused) records what was done; a provider that
+  doesn't answer is never retried by itself (the owner checks the panel).
+  `payment_refunds` keeps each refund (amount, reason, note, provider,
+  method, the provider's calls and references, the commission given back,
+  what was taken back, who, when); `recordRefund` adds it to the order's or
+  donation's `refunded_cents` in one statement that refuses more than the
+  total, so two refunds at once never refund more than was paid. All of it
+  refunded makes the status `refunded`. What it took back: tickets are
+  cancelled with `refunded_at` (their places go back on sale), course
+  enrolments of the order are removed (progress stays), memberships end;
+  with a refund in part only what the owner ticked. A donation's refund
+  comes off its campaign's total, and a fully refunded donor stops counting
+  unless they gave another. The customer gets `payment_refunded` in the
+  app's name; the audit log gets `payment.refund`. Marketplace orders:
+  Yallapp's commission is given back in proportion to what is refunded of
+  what is left (all of it with the last refund) and `commission_cents`
+  goes down by it; with iyzico the item's own transaction is refunded, so
+  iyzico takes it from the item's split; with Kashier the shop's share of
+  a refund after its payout was released comes off the next transfer. The
+  app sees `Order.refunded_total`, `Ticket.refunded` (status stays
+  `cancelled`: a new status would read as valid in older apps) and
+  `Donation.refunded_total`.
 
 - App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
   dashboard's App sign-in page sets whether new customers can sign up and
@@ -884,7 +943,7 @@ fingerprinting; reports show totals only.
   secret); the IP is used only as a rate-limit key.
 - **Storage** (`lib/analytics`, migration `0035_analytics`).
   `analytics_events` keeps raw events for 40 days, without the search text.
-  `analytics_daily` (app, UTC day, metric, key, label, value) keeps totals
+  `analytics_daily` (app, day, metric, key, label, value) keeps totals
   until the app is deleted (both cascade with `apps`). Search texts are
   counted there at once (`search`, lower case; texts that look like a phone
   number or an email address are dropped), as are the phones each dashboard
@@ -902,6 +961,20 @@ fingerprinting; reports show totals only.
   in the last week (finished days not done or dirty, within a 15-second
   budget) and deletes raw events older than 40 days; the dashboard counts
   what is still due, and today so far, before each report.
+- **Days in the owner's time zone** (Phase 47, `zone.ts`). A day is the
+  app's day: its time zone is the owner's choice (Analytics › Time zone,
+  `apps.time_zone`), else the zone of the account's country (from its
+  WhatsApp number's calling code), else Europe/Istanbul. The simplest
+  correct way: each event is filed under the date in the app's zone when it
+  arrives (`analytics_events.day`), so the daily totals, the 7 and 30-day
+  users, retention, search counts and push counts are all counted in that
+  zone with no change to the tables or the counting; "today", the ranges,
+  the daily job and the CSV use the same zone. Regrouping UTC totals
+  couldn't be exact (a UTC day spans two local days), and re-filing raw
+  events on a change would only reach 40 days back, so a change of zone
+  applies from then on: days counted before keep the zone they were
+  counted in (before Phase 47: UTC), and the day of the change may hold a
+  few hours more or less. The page says which zone its days are in.
 - **Reports** (`report.ts`). Ranges of 7, 30 or 90 days or custom (at most
   366), compared with the period just before: installs, average daily,
   weekly and monthly active users, sessions and sessions per user, day 1, 7
@@ -923,6 +996,64 @@ fingerprinting; reports show totals only.
   by default, with a short note) turns it off: sending stops and the queue
   and install ID are deleted. The preview (`env.isPreview`) and builds
   without `analytics` never send.
+
+## Yallapp's prices in pounds and dollars (Phase 52)
+
+Yallapp's own prices (the plans clients pay Yallapp for, and any add-on) are
+set in Egyptian pounds and charged in pounds through Kashier, wherever the
+client is. People in Egypt see pounds; everyone else sees US dollars. What
+app owners sell to their own customers keeps each app's own currency.
+
+- **One place for the money rules** (`lib/billing/prices.ts`). A
+  `YallappPrice` is `{ egpCents, usdCents }`: the charged price in piastres
+  and the dollar price set by hand (null: the pounds at the team's rate,
+  `egpPerUsd`, rounded to whole dollars, at least $1). `shownPrice` gives the
+  visitor's price, `chargedPrice` what a gateway charges (Kashier and
+  Fawaterk: pounds; iyzico takes no pounds, so with iyzico the dollar price
+  is charged), `offerFor` both and the line "You'll be charged EGP X (about
+  $Y); your bank may convert it." when they differ, `loweredOffer` the same
+  after a coupon (the coupon lowers the charge; the shown price drops in the
+  same proportion, to the cent). `formatMoney` writes "EGP 1,500" and "$29"
+  (English pages; "ج.م" would be for Arabic ones only). Plans use it through
+  `planPriceOf` (null when "On request"); an add-on only needs a
+  `YallappPrice` to get the same display, charge, coupon and receipt rules.
+- **Settings.** Each plan's edit (`platform_settings.plans`) keeps
+  `priceCents` (pounds), `usdCents` and `onRequest` (the team can keep a
+  price and still show "On request"). `platform_settings.billing` holds the
+  gateway for plans and add-ons (Kashier until set) and the rate. The
+  marketplace keeps its own provider (`paymentProvider`). Edits from before
+  Phase 52 named a currency: pounds stay the price, dollars become the
+  shown dollar price, other currencies are dropped.
+- **The visitor's country** (`lib/geo.ts`), first that answers: our reverse
+  proxy's `X-Yallapp-Client-Country` (trusted only with
+  `X-Yallapp-Proxy-Secret`; the proxy looks the visitor up with
+  `mod_maxminddb`, because Netlify sees the proxy's own country), Netlify's
+  `x-nf-geo` (JSON, base64 or plain) and `x-country`, Cloudflare's
+  `cf-ipcountry` (if a Cloudflare zone is ever put in front), then the region
+  of the browser's preferred language (`Accept-Language: ar-EG`); none:
+  dollars. A signed-in client's account country (`clients.country`, saved
+  from the request at sign-up) comes before the request's
+  (`lib/billing/display.ts`). Spoofing a header only changes what is shown:
+  the charge is the same pounds.
+- **Caching.** The pages with prices (`/`, `/pricing`, the dashboard) are
+  rendered per request (`dynamic = "force-dynamic"`, so Next.js sends
+  `Cache-Control: private, no-cache, no-store`): no CDN or proxy keeps a
+  copy, and the country is read on each request. As a second guard,
+  `next.config.ts` sends `Netlify-Vary: header=X-Yallapp-Client-Country|
+  X-Country|CF-IPCountry|Accept-Language,country=eg` on `/` and `/pricing`
+  (`lib/geo-vary.ts`), so Netlify's cache, if turned on for them later,
+  keeps one copy per country. A plain `Vary` can't be added: Next.js
+  replaces it on app pages with its own. Static or ISR pages must never show
+  a price: a page that needs one reads `priceView` (which makes it dynamic)
+  or shows prices from the client side.
+- **Payments.** `payPlanAction` works out the offer on the server (never from
+  the browser), checks a coupon against the charge, and starts the payment
+  with the charge; the payment keeps `shown_cents` and `shown_currency` when
+  the client saw dollars (migration 0038). Kashier is asked for pounds
+  (`currency: "EGP"`) and the read-back must match the pounds. The receipt
+  (`/dashboard/license/receipts/<id>`, `lib/billing/receipt.ts`), the
+  activation and renewal emails (`{{payment_line}}`) and Admin › Payments
+  show the pounds charged and the dollar price as "about".
 
 ## Demo apps (Phase 16)
 

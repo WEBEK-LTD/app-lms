@@ -33,6 +33,7 @@ import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
+import type { PaymentRefund, RefundKind } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -186,7 +187,7 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.users).set({ ...patch, updatedAt: now }).where(eq(schema.users.id, id)));
   }
 
-  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client> {
+  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client> {
     const client: Client = {
       id: newId(),
       userId: input.userId,
@@ -195,6 +196,7 @@ export class MysqlStore implements DataStore {
       status: "pending",
       paymentNote: null,
       activatedAt: null,
+      country: input.country ?? null,
       createdAt: input.now,
       updatedAt: input.now,
     };
@@ -1059,6 +1061,85 @@ export class MysqlStore implements DataStore {
     return { items, total: totals[0]?.n ?? 0 };
   }
 
+  // 47 Refunds
+
+  async recordRefund(input: Omit<PaymentRefund, "id">): Promise<PaymentRefund | null> {
+    if (input.amountCents <= 0) return null;
+    const now = input.createdAt;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        if (input.kind === "order") {
+          const o = schema.catalogOrders;
+          // The total is checked in the same statement: two refunds at once never refund more than was paid.
+          const [result] = await tx
+            .update(o)
+            .set({
+              refundedCents: sql`${o.refundedCents} + ${input.amountCents}`,
+              status: sql`case when ${o.refundedCents} + ${input.amountCents} = ${o.totalCents} then 'refunded' else ${o.status} end`,
+              ...(input.commissionCents ? { commissionCents: sql`case when ${o.commissionCents} is null then null else greatest(cast(${o.commissionCents} as signed) - ${input.commissionCents}, 0) end` } : {}),
+              updatedAt: now,
+            })
+            .where(and(eq(o.appId, input.appId), eq(o.id, input.targetId), sql`${o.refundedCents} + ${input.amountCents} <= ${o.totalCents}`));
+          if (result.affectedRows !== 1) return null;
+        } else {
+          const d = schema.donations;
+          const c = schema.campaigns;
+          const [donation] = await tx
+            .select()
+            .from(d)
+            .where(and(eq(d.appId, input.appId), eq(d.id, input.targetId)))
+            .for("update");
+          if (!donation || (donation.status !== "paid" && donation.status !== "refunded")) return null;
+          const refunded = donation.refundedCents + input.amountCents;
+          if (refunded > donation.amountCents) return null;
+          const full = refunded === donation.amountCents;
+          await tx
+            .update(d)
+            .set({ refundedCents: refunded, updatedAt: now, ...(full ? { status: "refunded" as const } : {}) })
+            .where(eq(d.id, donation.id));
+          if (donation.campaignId !== null) {
+            const [another] =
+              donation.donorEmail === null
+                ? [{ n: 0 }]
+                : await tx
+                    .select({ n: count() })
+                    .from(d)
+                    .where(
+                      and(
+                        eq(d.appId, input.appId),
+                        eq(d.campaignId, donation.campaignId),
+                        eq(d.status, "paid"),
+                        eq(d.donorEmail, donation.donorEmail),
+                        not(eq(d.id, donation.id)),
+                      ),
+                    );
+            await tx
+              .update(c)
+              .set({
+                raisedCents: sql`greatest(cast(${c.raisedCents} as signed) - ${input.amountCents}, 0)`,
+                ...(full && (another?.n ?? 0) === 0 ? { donorCount: sql`greatest(cast(${c.donorCount} as signed) - 1, 0)` } : {}),
+              })
+              .where(and(eq(c.appId, input.appId), eq(c.id, donation.campaignId)));
+          }
+        }
+        const [result] = await tx.insert(schema.paymentRefunds).values(input);
+        return { id: Number(result.insertId), ...input };
+      }),
+    );
+  }
+
+  async listRefunds(appId: string, kind: RefundKind, targetIds: number[]): Promise<PaymentRefund[]> {
+    if (targetIds.length === 0) return [];
+    const t = schema.paymentRefunds;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.kind, kind), inArray(t.targetId, targetIds)))
+        .orderBy(asc(t.createdAt), asc(t.id)),
+    );
+  }
+
   // Platform settings
 
   async createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null> {
@@ -1377,6 +1458,12 @@ export class MysqlStore implements DataStore {
 
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
     const [result] = await this.run((db) => db.insert(schema.courseEnrollments).ignore().values(input));
+    return result.affectedRows === 1;
+  }
+
+  async leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean> {
+    const t = schema.courseEnrollments;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.courseId, courseId))));
     return result.affectedRows === 1;
   }
 
@@ -1851,14 +1938,14 @@ export class MysqlStore implements DataStore {
     return { ok: false, reason: ticket.status === "valid" ? "used" : ticket.status, ticket };
   }
 
-  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number> {
+  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number; refunded?: boolean }, now: Date): Promise<number> {
     if (input.ids === undefined && input.eventId === undefined) return 0;
     if (input.ids !== undefined && input.ids.length === 0) return 0;
     const t = schema.eventTickets;
     const [result] = await this.run((db) =>
       db
         .update(t)
-        .set({ status: "cancelled", cancelledAt: now })
+        .set({ status: "cancelled", cancelledAt: now, ...(input.refunded ? { refundedAt: now } : {}) })
         .where(
           and(
             eq(t.appId, appId),

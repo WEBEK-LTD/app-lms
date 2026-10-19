@@ -3070,6 +3070,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ticketStatusCancelled => 'ملغاة';
 
   @override
+  String get ticketStatusRefunded => 'مستردة';
+
+  @override
+  String refundedAmount(String amount) {
+    return 'تم استرداد $amount';
+  }
+
+  @override
   String ticketUsedAt(String time) {
     return 'سُجّل الدخول $time';
   }
@@ -3522,5 +3530,28 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String completedCourseLabel(String title) {
     return '$title، مكتملة';
+  }
+
+  @override
+  String get screenProtected =>
+      'هذا المحتوى محمي، ويُخفى أثناء تسجيل الشاشة أو مشاركتها.';
+
+  @override
+  String get screenshotProtected =>
+      'هذا المحتوى محمي: لا يُسمح بالتقاط صور الشاشة له.';
+
+  @override
+  String get fileOpenFailed => 'تعذّر فتح هذا الملف.';
+
+  @override
+  String get fileInAppOnly => 'لا يمكن عرض هذا الملف هنا';
+
+  @override
+  String get fileInAppOnlyMessage =>
+      'تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.';
+
+  @override
+  String pageOf(int page, int total) {
+    return 'صفحة $page من $total';
   }
 }

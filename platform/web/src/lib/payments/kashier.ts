@@ -22,8 +22,8 @@ export interface KashierKeys {
 }
 
 export class KashierError extends PaymentError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options: { unreachable?: boolean } = {}) {
+    super(message, options);
     this.name = "KashierError";
   }
 }
@@ -46,27 +46,35 @@ export function validKashierMerchantId(value: string): boolean {
   return /^MID-[A-Za-z0-9-]{3,60}$/.test(value);
 }
 
+/** 47 Kashier's order operations (refunds) live on its "fep" host. */
+export const KASHIER_FEP_URLS = { live: "https://fep.kashier.io", sandbox: "https://test-fep.kashier.io" };
+
+export function kashierFepUrl(keys: Pick<KashierKeys, "sandbox">, override?: string | null): string {
+  return (override || (keys.sandbox ? KASHIER_FEP_URLS.sandbox : KASHIER_FEP_URLS.live)).replace(/\/+$/, "");
+}
+
 async function call(
   keys: KashierKeys,
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "PUT",
   path: string,
   body: unknown,
   options: Options,
+  base: string = kashierBaseUrl(keys, options.baseUrl),
 ): Promise<{ status: number; json: Record<string, unknown> | null }> {
   let response: Response;
   try {
-    response = await (options.fetcher ?? fetch)(`${kashierBaseUrl(keys, options.baseUrl)}${path}`, {
+    response = await (options.fetcher ?? fetch)(`${base}${path}`, {
       method,
       headers: {
         authorization: keys.secretKey,
-        ...(method === "POST" ? { "api-key": keys.apiKey, "content-type": "application/json" } : {}),
+        ...(method === "POST" ? { "api-key": keys.apiKey, "content-type": "application/json" } : method === "PUT" ? { "content-type": "application/json" } : {}),
         accept: "application/json",
       },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       signal: AbortSignal.timeout(20_000),
     });
   } catch {
-    throw new KashierError("Kashier can't be reached.");
+    throw new KashierError("Kashier can't be reached.", { unreachable: true });
   }
   const json = (await response.json().catch(() => null)) as Record<string, unknown> | null;
   return { status: response.status, json: json && typeof json === "object" ? json : null };
@@ -155,6 +163,8 @@ export interface KashierPayment {
   /** The `order` we sent. */
   merchantOrderId: string | null;
   transactionId: string | null;
+  /** 47 Kashier's own order ID, which a refund names. */
+  kashierOrderId?: string | null;
 }
 
 const PAID = new Set(["SUCCESS", "PAID", "CAPTURED"]);
@@ -174,7 +184,42 @@ export async function getKashierSessionPayment(keys: KashierKeys, sessionId: str
     currency: text(data.currency) ?? text(params?.currency),
     merchantOrderId: text(data.merchantOrderId) ?? text(data.order) ?? text(params?.order),
     transactionId: text(data.transactionId) ?? text(data.kashierOrderId) ?? text(data.orderId),
+    kashierOrderId: text(data.kashierOrderId) ?? text(data.orderId) ?? null,
   };
+}
+
+const REFUNDED = new Set(["SUCCESS", "REFUNDED", "APPROVED"]);
+
+/**
+ * 47 Refunds part or all of a payment: `PUT /v3/orders/{orderId}/` on
+ * Kashier's fep host with the secret key, `apiOperation: "REFUND"`, the
+ * amount in major units and the payment's transaction as the target (its
+ * documented refund call; the key's role needs the refund permission).
+ * Returns Kashier's reference for the refund. Throws KashierError when
+ * Kashier refuses it or can't be reached.
+ */
+export async function refundKashierPayment(
+  keys: KashierKeys,
+  input: { kashierOrderId: string; transactionId: string | null; cents: number; reason: string },
+  options: Options = {},
+): Promise<{ reference: string }> {
+  const { status, json } = await call(
+    keys,
+    "PUT",
+    `/v3/orders/${encodeURIComponent(input.kashierOrderId)}/`,
+    {
+      apiOperation: "REFUND",
+      reason: input.reason.slice(0, 200),
+      transaction: { amount: Number((input.cents / 100).toFixed(2)), ...(input.transactionId ? { targetTransactionId: input.transactionId } : {}) },
+    },
+    options,
+    kashierFepUrl(keys, options.baseUrl),
+  );
+  const body = record(json?.response) ?? json;
+  const transaction = record(body?.transaction);
+  const state = (text(body?.status) ?? text(transaction?.status))?.toUpperCase() ?? null;
+  if (status >= 400 || !json || (state !== null && !REFUNDED.has(state))) throw new KashierError(errorOf(json, "Kashier couldn't make the refund."));
+  return { reference: text(transaction?.transactionId) ?? text(body?.transactionId) ?? text(body?.refundId) ?? input.kashierOrderId };
 }
 
 /** PHP's rawurlencode: everything but letters, digits and -_.~ */

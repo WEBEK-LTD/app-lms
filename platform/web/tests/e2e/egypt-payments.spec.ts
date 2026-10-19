@@ -97,11 +97,13 @@ test("the team adds Yallapp's Kashier and Fawaterk accounts and picks Kashier", 
   await provider.getByLabel("Provider").selectOption("kashier");
   await provider.getByRole("button", { name: "Save provider" }).click();
   await expect(provider.getByText("Payments go to Yallapp's Kashier account.")).toBeVisible();
+  // 52 Plans go through Kashier, in pounds, until the team chooses another gateway.
+  await expect(admin.getByRole("region", { name: "Yallapp's plan payments" })).toContainText(/Now: Kashier[,( ]/);
 
   await admin.goto("/admin/plans");
   const pro = admin.getByRole("region", { name: "Pro" });
-  await pro.getByLabel("Card price").fill("12000");
-  await pro.getByLabel("Currency").selectOption("EGP");
+  await pro.getByLabel("A price").check();
+  await pro.getByLabel("Price in EGP").fill("12000");
   await pro.getByLabel("Billed").selectOption("12");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(pro.getByText("Pro saved.")).toBeVisible();
@@ -110,7 +112,7 @@ test("the team adds Yallapp's Kashier and Fawaterk accounts and picks Kashier", 
 test("a new client pays the plan in Egyptian pounds on Kashier", async () => {
   await signUp(own, client, "+20 100 123 4567");
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText("E£12,000.00")).toBeVisible();
+  await expect(own.getByText(/EGP\s12,000 \/ year/)).toBeVisible();
   await expect(own.getByText("You enter your card on Kashier's secure page.")).toBeVisible();
   await own.getByLabel("City").fill("Cairo");
   await own.getByLabel("Billing address").fill("12 Tahrir Street, Downtown");
@@ -132,6 +134,11 @@ test("with Fawaterk chosen, the client extends the plan there", async () => {
   await provider.getByLabel("Provider").selectOption("fawaterk");
   await provider.getByRole("button", { name: "Save provider" }).click();
   await expect(provider.getByText("Payments go to Yallapp's Fawaterk account.")).toBeVisible();
+  // 52 Plans have their own gateway.
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("fawaterk");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's Fawaterk account.")).toBeVisible();
 
   await own.goto("/dashboard/license");
   const renew = own.getByRole("region", { name: "Extend by card or change plan" });
@@ -148,7 +155,7 @@ test("with Fawaterk chosen, the client extends the plan there", async () => {
   await admin.goto("/admin/payments");
   const rows = admin.getByRole("row", { name: new RegExp(client.name) });
   await expect(rows).toHaveCount(2);
-  await expect(rows.filter({ hasText: "Kashier" })).toContainText("E£12,000.00");
+  await expect(rows.filter({ hasText: "Kashier" })).toContainText(/EGP\s12,000/);
   await expect(rows.filter({ hasText: "Fawaterk" })).toContainText("Paid");
 });
 
@@ -228,6 +235,10 @@ test("the team puts the settings back", async () => {
   await provider.getByLabel("Provider").selectOption("iyzico");
   await provider.getByRole("button", { name: "Save provider" }).click();
   await expect(provider.getByText("Payments go to Yallapp's iyzico account.")).toBeVisible();
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("kashier");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's Kashier account.")).toBeVisible();
   await admin.getByRole("region", { name: "Yallapp's Kashier account" }).getByRole("button", { name: "Remove keys" }).click();
   await expect(admin.getByRole("region", { name: "Yallapp's Kashier account" })).toContainText("Now: not set.");
   await admin.getByRole("region", { name: "Yallapp's Fawaterk account" }).getByRole("button", { name: "Remove key" }).click();

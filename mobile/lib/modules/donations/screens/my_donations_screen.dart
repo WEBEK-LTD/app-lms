@@ -139,6 +139,18 @@ class DonationTile extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(meta, style: TextStyle(fontSize: 13, color: p.textSecondary)),
+          // 47 What the charity refunded of it.
+          if (donation.refundedTotal != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              l10n.refundedAmount(donation.refundedTotal!),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: p.danger,
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           Wrap(
             spacing: 4,

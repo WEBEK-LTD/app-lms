@@ -439,6 +439,8 @@ export class CatalogConnector implements Connector {
       status: order.status,
       status_label: ORDER_STATUS_LABELS[order.status],
       total: formatCents(order.totalCents, order.currency),
+      // 47 What the shop refunded of it; all of it: the status is "refunded".
+      refunded_total: order.refundedCents ? formatCents(order.refundedCents, order.currency) : null,
       created_at: (order.paidAt ?? order.createdAt).toISOString(),
       items: order.lines.map((l) => ({
         name: l.name,
@@ -451,7 +453,7 @@ export class CatalogConnector implements Connector {
       // 26 A restaurant's order: how it's collected and where it is.
       ...(order.fulfilment
         ? {
-            status_label: order.fulfilmentStatus ? FULFILMENT_LABELS[order.fulfilmentStatus] : ORDER_STATUS_LABELS[order.status],
+            status_label: order.fulfilmentStatus && order.status !== "refunded" ? FULFILMENT_LABELS[order.fulfilmentStatus] : ORDER_STATUS_LABELS[order.status],
             fulfilment: {
               type: order.fulfilment.type,
               scheduled_for: order.fulfilment.scheduledFor,

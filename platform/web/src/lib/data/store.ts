@@ -65,6 +65,8 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
+// 47 Refunds
+import type { PaymentRefund, RefundKind } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -116,7 +118,7 @@ export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" |
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
 export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt">>;
-export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt">>;
+export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
 /** Signing keys created by the build pipeline. Written only through `saveSigningKeys`, which never replaces one. */
@@ -140,7 +142,8 @@ export interface DataStore {
   updateUser(id: string, patch: UserPatch, now: Date): Promise<void>;
 
   // Clients
-  createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client>;
+  /** 52 `country`: the request's, at sign-up (null when unknown). */
+  createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client>;
   getClientById(id: string): Promise<Client | null>;
   getClientByUserId(userId: string): Promise<Client | null>;
   updateClient(id: string, patch: ClientPatch, now: Date): Promise<void>;
@@ -385,6 +388,22 @@ export interface DataStore {
     limit: number;
   }): Promise<{ items: CatalogOrder[]; total: number }>;
 
+  // 47 Refunds
+  /**
+   * Records a refund and applies it to its order or donation, in one
+   * transaction: it is added to `refundedCents` only while that stays within
+   * the total (otherwise nothing is written and null comes back); all of it
+   * makes the status "refunded"; a marketplace order's commission goes down
+   * by the refund's `commissionCents`; a donation's campaign total goes down
+   * by it, and a fully refunded donation's donor stops counting unless they
+   * gave another paid donation to the campaign.
+   */
+  recordRefund(input: Omit<PaymentRefund, "id">): Promise<PaymentRefund | null>;
+  /** The refunds of these orders or donations, oldest first. */
+  listRefunds(appId: string, kind: RefundKind, targetIds: number[]): Promise<PaymentRefund[]>;
+  /** 47 Takes a course away (a refunded purchase); its progress stays. False when they weren't in it. */
+  leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean>;
+
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
@@ -483,7 +502,7 @@ export interface DataStore {
   /** Marks a valid ticket used, once: a second check-in is refused with the ticket as it is. */
   checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult>;
   /** Cancels valid tickets (these, or every one of an event); returns how many. Their places go back on sale. */
-  cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number>;
+  cancelTickets(appId: string, input: { ids?: number[]; eventId?: number; /** 47 Marks them refunded too. */ refunded?: boolean }, now: Date): Promise<number>;
   /** How events show and sell in the app; null until saved (the defaults apply). */
   getEventSettings(appId: string): Promise<EventSettings | null>;
   saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void>;

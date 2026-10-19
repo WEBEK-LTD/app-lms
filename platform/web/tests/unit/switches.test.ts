@@ -89,8 +89,8 @@ describe("switches", () => {
 
   it("offers card payments only for plans where they're on", () => {
     const plans = plansWith({
-      starter: { ...PLAN_INFO.starter, priceCents: 100_000 },
-      pro: { ...PLAN_INFO.pro, priceCents: 200_000 },
+      starter: { ...PLAN_INFO.starter, priceCents: 100_000, onRequest: false },
+      pro: { ...PLAN_INFO.pro, priceCents: 200_000, onRequest: false },
     });
     expect(cardPlanOptions(plans).map((p) => p.id)).toEqual(["starter", "pro"]);
     expect(cardPlanOptions(plans, setting).map((p) => p.id)).toEqual(["pro"]);

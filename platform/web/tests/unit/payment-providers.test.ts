@@ -287,19 +287,22 @@ describe("Yallapp's account", () => {
     expect(await yallappAccountFor(store, "fawaterk", KEY)).toEqual(FAWATERK_ACCOUNT);
   });
 
-  it("offers plans by card only in a currency the provider takes", () => {
+  it("offers plans by card only when the gateway can charge them (52 iyzico needs a dollar price)", () => {
     const plans = plansWith({
-      pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, currency: "TRY", billingMonths: 12 },
-      business: { ...PLAN_INFO.business, highlights: [...PLAN_INFO.business.highlights], features: [...PLAN_INFO.business.features], priceCents: 1500000, currency: "EGP", billingMonths: 12 },
+      pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 480000, onRequest: false, billingMonths: 12 },
+      business: { ...PLAN_INFO.business, highlights: [...PLAN_INFO.business.highlights], features: [...PLAN_INFO.business.features], priceCents: 1500000, usdCents: 30000, onRequest: false, billingMonths: 12 },
     });
     expect(cardPlans(plans).map((p) => p.id)).toEqual(["pro", "business"]);
-    expect(cardPlans(plans, "iyzico").map((p) => p.id)).toEqual(["pro"]);
-    expect(cardPlans(plans, "kashier").map((p) => p.id)).toEqual(["business"]);
+    expect(cardPlans(plans, "kashier").map((p) => p.id)).toEqual(["pro", "business"]);
+    expect(cardPlans(plans, "fawaterk").map((p) => p.id)).toEqual(["pro", "business"]);
+    expect(cardPlans(plans, "iyzico").map((p) => p.id)).toEqual(["business"]);
+    expect(cardPlans(plans, "iyzico", 48).map((p) => p.id)).toEqual(["pro", "business"]);
   });
 });
 
 describe("plan payments with Kashier", () => {
-  const PLANS = plansWith({ pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 1200000, currency: "EGP", billingMonths: 12 } });
+  const PLANS = plansWith({ pro: { ...PLAN_INFO.pro, highlights: [...PLAN_INFO.pro.highlights], features: [...PLAN_INFO.pro.features], priceCents: 1200000, onRequest: false, billingMonths: 12 } });
+  const OFFER = { charged: { cents: 1200000, currency: "EGP" as const }, shown: { cents: 1200000, currency: "EGP" as const } };
 
   it("starts the session, keeps it on the payment, and activates once Kashier confirms it, once", async () => {
     const setup = await setupClient({ activate: false });
@@ -319,6 +322,7 @@ describe("plan payments with Kashier", () => {
         token = t;
         return callbackUrls("https://yallapp.test", "plan", "kashier", t);
       },
+      offer: OFFER,
     });
     expect(url).toBe("https://payments.kashier.test/session/sess1abcdef?mode=test");
     expect(kashier.calls[0]!.body).toMatchObject({ amount: "12000.00", currency: "EGP", merchantRedirect: `https://yallapp.test/api/pay/kashier/plan/${token}` });
@@ -362,6 +366,7 @@ describe("plan payments with Kashier", () => {
       billing: { city: "Cairo", address: "12 Tahrir St, Downtown" },
       ip: "203.0.113.5",
       callbackUrls: (t) => ((token = t), callbackUrls("https://yallapp.test", "plan", "kashier", t)),
+      offer: OFFER,
     });
     kashier.pay("sess1abcdef");
     const payment = (await setup.store.getPlanPaymentByToken(sha256Hex(token)))!;

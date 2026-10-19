@@ -10,7 +10,7 @@ import { ReadOnly } from "@/components/read-only";
 import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { couponFormValues, couponStatus, describeDiscount } from "@/lib/billing/coupons";
-import { formatCents } from "@/lib/catalog/money";
+import { formatAmount } from "@/lib/billing/prices";
 import { getStore } from "@/lib/data";
 import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
@@ -100,9 +100,9 @@ export default async function CouponPage({ params, searchParams }: PageProps<"/a
                     <Link href={`/admin?client=${u.clientId}`}>{names.get(u.clientId)}</Link>
                   </td>
                   <td className="px-4 py-3">{planName(u.plan, plans)}</td>
-                  <td className="px-4 py-3">{formatCents(u.fullCents, u.currency)}</td>
-                  <td className="px-4 py-3">{formatCents(u.discountCents, u.currency)}</td>
-                  <td className="px-4 py-3 font-semibold">{formatCents(u.fullCents - u.discountCents, u.currency)}</td>
+                  <td className="px-4 py-3">{formatAmount(u.fullCents, u.currency)}</td>
+                  <td className="px-4 py-3">{formatAmount(u.discountCents, u.currency)}</td>
+                  <td className="px-4 py-3 font-semibold">{formatAmount(u.fullCents - u.discountCents, u.currency)}</td>
                   <td className="px-4 py-3">
                     <Badge tone={USE_TONE[u.status]}>{USE_STATUS[u.status]}</Badge>
                   </td>

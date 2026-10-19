@@ -1,14 +1,14 @@
 import { activateClient, type ActivationOutcome } from "../admin/clients";
-import { formatCents } from "../catalog/money";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, Client, PlanPayment, User } from "../data/types";
 import { PaymentError } from "../payments/errors";
 import { confirmCheckout, PROVIDER_NAME, providerTakes, startCheckout, type PaymentAccount, type ProviderUrls } from "../payments/provider";
-import type { Plan, PlanInfo } from "../plans";
+import { planPriceOf, type Plan, type PlanInfo } from "../plans";
 import { getPlans } from "../settings/platform";
 import type { CouponCheck } from "./coupons";
 import { planChangeFor, type PlanChange } from "./plan-change";
+import { chargedPrice, formatAmount, type Money, type Offer } from "./prices";
 
 /**
  * Clients pay an app's Yallapp plan by card on the provider's page (37
@@ -17,6 +17,10 @@ import { planChangeFor, type PlanChange } from "./plan-change";
  * app): a confirmed payment activates that app, or extends its license from
  * its current end date (or from today when it ended). Other apps of the
  * account are unchanged.
+ *
+ * 52 The plan's price is in Egyptian pounds and Kashier charges it in
+ * pounds, wherever the client is; outside Egypt the client saw dollars,
+ * kept on the payment for the receipt (lib/billing/prices.ts).
  */
 
 export interface BillingDetails {
@@ -24,9 +28,19 @@ export interface BillingDetails {
   address: string;
 }
 
-/** Plans with a card price, the ones clients can pay online; 37 with a provider, only those in a currency it takes. */
-export function cardPlans(plans: Record<Plan, PlanInfo>, provider?: PaymentAccount["provider"]): PlanInfo[] {
-  return Object.values(plans).filter((p) => p.priceCents !== null && p.priceCents > 0 && (!provider || providerTakes(provider, p.currency)));
+/**
+ * Plans with a price (not "On request"), the ones clients can pay online;
+ * 52 with a gateway, only those it can charge (iyzico charges dollars, so
+ * it needs a dollar price: by hand or at the rate).
+ */
+export function cardPlans(plans: Record<Plan, PlanInfo>, provider?: PaymentAccount["provider"], egpPerUsd: number | null = null): PlanInfo[] {
+  return Object.values(plans).filter((p) => {
+    const price = planPriceOf(p);
+    if (!price) return false;
+    if (!provider) return true;
+    const charged = chargedPrice(price, provider, egpPerUsd);
+    return charged !== null && providerTakes(provider, charged.currency);
+  });
 }
 
 export function readBilling(input: Record<string, unknown>): { ok: true; billing: BillingDetails } | { ok: false; errors: Record<string, string> } {
@@ -63,13 +77,16 @@ export async function startPlanPayment(
     ip: string;
     /** Where the provider sends the client back, and posts its webhook (lib/payments/routes.ts). */
     callbackUrls: (token: string) => { returnUrl: string; webhookUrl: string | null };
-    /** 11.6: a coupon checked for this client and plan (checkCoupon); the payment is its lowered price. */
+    /** 11.6: a coupon checked for this client and plan (checkCoupon); `offer` is already its lowered price. */
     coupon?: Extract<CouponCheck, { ok: true }>;
+    /** 52 What is charged (pounds with Kashier), and what the client saw (dollars outside Egypt). */
+    offer: Pick<Offer, "charged" | "shown">;
   },
 ): Promise<string> {
-  const { client, user, plan, coupon, account } = deps;
-  if (plan.priceCents === null) throw new Error("This plan has no card price");
-  if (coupon && coupon.amountCents === 0) throw new Error("A free payment doesn't go to the provider");
+  const { client, user, plan, coupon, account, offer } = deps;
+  if (!planPriceOf(plan)) throw new Error("This plan has no card price");
+  if (offer.charged.cents <= 0) throw new Error("A free payment doesn't go to the provider");
+  if (coupon && offer.charged.cents !== coupon.amountCents) throw new Error("The offer isn't the coupon's price");
   const token = randomToken(24);
   const payment: PlanPayment = {
     id: newId(),
@@ -77,8 +94,8 @@ export async function startPlanPayment(
     appId: deps.app?.id ?? null,
     plan: plan.id,
     months: plan.billingMonths,
-    amountCents: coupon ? coupon.amountCents : plan.priceCents,
-    currency: plan.currency,
+    amountCents: offer.charged.cents,
+    currency: offer.charged.currency,
     status: "pending",
     tokenHash: sha256Hex(token),
     paymentId: null,
@@ -86,6 +103,7 @@ export async function startPlanPayment(
     paidAt: null,
     paymentProvider: account.provider,
     providerRef: null,
+    ...shownOf(offer),
   };
   const name = `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`;
   const { returnUrl, webhookUrl } = deps.callbackUrls(token);
@@ -187,7 +205,7 @@ export async function completePlanPayment(
       activeUntil: change.activeUntil,
       nextPlan: change.nextPlan,
       nextPlanAt: change.nextPlanAt,
-      paymentNote: `Paid ${formatCents(payment.amountCents, payment.currency)} by card (${PROVIDER_NAME[provider]} ${result.paymentId})${noteFor(change, plans)}`,
+      paymentNote: `Paid ${formatAmount(payment.amountCents, payment.currency)} by card (${PROVIDER_NAME[provider]} ${result.paymentId})${noteFor(change, plans)}`,
     },
     deps.encryptionKey,
     deps.now,
@@ -205,6 +223,11 @@ function noteFor(change: PlanChange, plans: Record<Plan, PlanInfo>): string {
   if (change.kind === "upgrade") return `, upgrade to ${plans[change.plan].name}${change.creditDays ? ` with ${change.creditDays} days credited` : ""}`;
   if (change.kind === "downgrade" && change.nextPlan) return `, moves to ${plans[change.nextPlan].name} when the current period ends`;
   return "";
+}
+
+/** 52 The shown price, kept when it isn't in the charge's currency. */
+function shownOf(offer: Pick<Offer, "charged" | "shown">): Pick<PlanPayment, "shownCents" | "shownCurrency"> {
+  return offer.shown.currency === offer.charged.currency ? { shownCents: null, shownCurrency: null } : { shownCents: offer.shown.cents, shownCurrency: offer.shown.currency };
 }
 
 // 11.6 Coupons
@@ -237,10 +260,12 @@ export async function activateWithFreeCoupon(deps: {
   app?: Pick<App, "id"> | null;
   plan: PlanInfo;
   coupon: Extract<CouponCheck, { ok: true }>;
+  /** 52 The full charge the coupon took (its currency is the payment's). */
+  charged: Money;
   encryptionKey: Buffer;
   now: Date;
 }): Promise<Extract<PlanPaymentOutcome, { kind: "paid" }>> {
-  const { store, client, plan, coupon, now } = deps;
+  const { store, client, plan, coupon, now, charged } = deps;
   if (coupon.amountCents !== 0) throw new Error("This coupon doesn't take the whole price");
   const payment: PlanPayment = {
     id: newId(),
@@ -249,7 +274,7 @@ export async function activateWithFreeCoupon(deps: {
     plan: plan.id,
     months: plan.billingMonths,
     amountCents: 0,
-    currency: plan.currency,
+    currency: charged.currency,
     status: "paid",
     // Nobody calls back with this token: the payment is complete.
     tokenHash: sha256Hex(randomToken(24)),
@@ -271,7 +296,7 @@ export async function activateWithFreeCoupon(deps: {
       activeUntil: change.activeUntil,
       nextPlan: change.nextPlan,
       nextPlanAt: change.nextPlanAt,
-      paymentNote: `Free with coupon ${coupon.coupon.code} (${formatCents(coupon.fullCents, plan.currency)} off)${noteFor(change, plans)}`,
+      paymentNote: `Free with coupon ${coupon.coupon.code} (${formatAmount(coupon.fullCents, charged.currency)} off)${noteFor(change, plans)}`,
     },
     deps.encryptionKey,
     now,

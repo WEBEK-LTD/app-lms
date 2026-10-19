@@ -916,10 +916,86 @@ check( '48 the license check reports the paths for Android', array( '/courses/',
 $r = call( 'GET', $root . '/learn/.well-known/apple-app-site-association' );
 check( '48 a path in a folder that is not the site is left to WordPress', 200 !== $r['status'] || null === ( $r['json']['applinks'] ?? null ), $r['status'] );
 
+
+echo "Screen protection (53)\n";
+$protection = function () {
+	$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+	return array( $r['json']['app']['screen_protection'] ?? null, $r['json']['content']['block_screen_capture'] ?? null );
+};
+set_settings( array( 'block_screen_capture' => false ) );
+check( 'protection: off when the plugin setting is off', array( 'off', false ) === $protection(), $protection() );
+set_settings( array( 'block_screen_capture' => true, 'screen_protection_scope' => 'content' ) );
+check( 'protection: course content, and older apps protect lessons', array( 'content', true ) === $protection(), $protection() );
+set_settings( array( 'screen_protection_scope' => 'app' ) );
+check( 'protection: the whole app', array( 'app', true ) === $protection(), $protection() );
+// The license sync brings the dashboard's choice, which wins; anything else is ignored.
+wp_eval( 'update_option( "yallapp_license", array_merge( (array) get_option( "yallapp_license", array() ), array( "screen_protection" => "off" ) ), false );' );
+check( 'protection: the dashboard\'s choice wins over the plugin setting', array( 'off', false ) === $protection(), $protection() );
+wp_eval( 'update_option( "yallapp_license", array_merge( (array) get_option( "yallapp_license", array() ), array( "screen_protection" => "everything" ) ), false );' );
+check( 'protection: an unknown choice leaves the plugin setting', array( 'app', true ) === $protection(), $protection() );
+set_settings( array( 'block_screen_capture' => false, 'screen_protection_scope' => 'content' ) );
 wp_eval( 'wp_delete_post( ' . $draft . ', true );' );
 wp_eval( '$v = json_decode( ' . var_export( $saved_license, true ) . ', true ); if ( null === $v ) { delete_option( "yallapp_license" ); } else { update_option( "yallapp_license", $v, false ); }' );
 $r = call( 'GET', $root . '/.well-known/assetlinks.json' );
 check( 'links: back to no file', 404 === $r['status'], $r['status'] );
+
+echo "A private course (50)\n";
+// WordPress's Private visibility, which Tutor LMS, LearnPress and the other LMSs use to hide a
+// course from the catalog: its students still find it in My courses and open it.
+$python_status = function ( $status ) use ( $seed ) {
+	wp_eval( 'wp_update_post( array( "ID" => ' . (int) $seed['python'] . ', "post_status" => "' . $status . '" ) ); wp_cache_flush();' );
+};
+$course_ids = function ( $r ) {
+	return array_map( function ( $c ) { return $c['course']['id'] ?? $c['id']; }, $r['json']['items'] ?? array() );
+};
+$topics_of = function ( $r ) {
+	return array_map( function ( $t ) { return array( $t['title'], array_column( $t['items'], 'id' ) ); }, $r['json']['topics'] ?? array() );
+};
+$python_lessons = array( $seed['lesson_video'], $seed['lesson_html'], $seed['lesson_script'] );
+$public_topics  = $topics_of( call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $token ) );
+check( 'curriculum: topics in course order, each with its items', count( $public_topics ) >= 1 && array_values( $python_lessons ) === array_values( array_intersect( array_merge( ...array_column( $public_topics, 1 ) ), $python_lessons ) ), $public_topics );
+// A student who has just enrolled, free, from the app (the suite's own student may have
+// finished the course by now, which some LMSs close).
+$member   = sign_in( '53' . str_pad( (string) random_int( 0, 99999999 ), 8, '0', STR_PAD_LEFT ), device( 'dev-member' ), 'Lina Saad' );
+$member_t = $member['json']['access_token'] ?? '';
+$r        = call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $member_t );
+check( 'a second student enrolls', in_array( $r['status'], array( 200, 201 ), true ), $r['raw'] );
+$python_status( 'private' );
+$outsider   = sign_in( '53' . str_pad( (string) random_int( 0, 99999999 ), 8, '0', STR_PAD_LEFT ), device( 'dev-outsider' ), 'Omar Nabil' );
+$outsider_t = $outsider['json']['access_token'] ?? '';
+check( 'private: not in the catalog', ! in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
+check( 'private: not in the catalog for its students either', ! in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50', null, $member_t ) ), true ) );
+foreach ( array( 'signed out' => null, 'not enrolled' => $outsider_t ) as $who => $t ) {
+	$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $t );
+	check( "private: not found, $who", 404 === $r['status'] && 'not_found' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+	$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $t );
+	check( "private: no curriculum, $who", 404 === $r['status'], $r['raw'] );
+	foreach ( $python_lessons as $lesson_id ) {
+		$r = call( 'GET', '/lessons/' . $lesson_id, null, $t );
+		check( "private: lesson $lesson_id not found, $who", 404 === $r['status'], $r['raw'] );
+	}
+}
+$r = call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $outsider_t );
+check( 'private: no enrolling from the app', 404 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $member_t );
+check( 'private: opens for its student', 200 === $r['status'] && true === ( $r['json']['enrolled'] ?? null ) && 'Python Programming Basics' === ( $r['json']['title'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $member_t );
+check( 'private: the same topics in the same order', $public_topics === $topics_of( $r ), $r['raw'] );
+$mine = array_merge( $course_ids( call( 'GET', '/me/courses?status=in_progress', null, $member_t ) ), $course_ids( call( 'GET', '/me/courses?status=completed', null, $member_t ) ) );
+check( 'private: in My courses', in_array( $seed['python'], $mine, true ), $mine );
+$lessons = array();
+foreach ( $r['json']['topics'] ?? array() as $topic ) {
+	foreach ( $topic['items'] as $item ) {
+		if ( 'lesson' === $item['type'] ) {
+			$lessons[] = $item['id'];
+		}
+	}
+}
+$at = array_search( $python_lessons[1], $lessons, true );
+$r  = call( 'GET', '/lessons/' . $python_lessons[1], null, $member_t );
+check( 'private: its lessons open, linked to the ones before and after', 200 === $r['status'] && false !== $at && ( $lessons[ $at - 1 ] ?? null ) === ( $r['json']['previous_id'] ?? null ) && ( $lessons[ $at + 1 ] ?? null ) === ( $r['json']['next_id'] ?? null ), $r['raw'] );
+$python_status( 'publish' );
+check( 'published again: back in the catalog', in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
 
 echo "Sign-out\n";
 $r = call( 'POST', '/auth/logout', array(), $token );

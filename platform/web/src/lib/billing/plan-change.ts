@@ -1,6 +1,6 @@
 import type { DataStore } from "../data/store";
 import type { License } from "../data/types";
-import { comparePlans, isPlan, type Plan, type PlanInfo } from "../plans";
+import { comparePlans, isPlan, planPriceOf, type Plan, type PlanInfo } from "../plans";
 
 /**
  * Moving an app to another plan (roadmap 13.3).
@@ -55,10 +55,11 @@ function active(license: Pick<License, "expiresAt"> | null, now: Date): license 
 export function creditDays(from: PlanInfo, to: PlanInfo, remainingMs: number, now: Date): number {
   if (remainingMs <= 0) return 0;
   const remainingDays = remainingMs / DAY;
-  const priced = from.priceCents !== null && to.priceCents !== null && from.priceCents > 0 && to.priceCents > 0 && from.currency === to.currency;
-  if (!priced) return Math.floor(remainingDays);
-  const perDay = (plan: PlanInfo) => plan.priceCents! / ((extendedUntil(null, plan.billingMonths, now).getTime() - now.getTime()) / DAY);
-  return Math.floor((remainingDays * perDay(from)) / perDay(to));
+  // 52 Both priced in pounds (the charged price), or the days as they are.
+  const [a, b] = [planPriceOf(from), planPriceOf(to)];
+  if (!a || !b) return Math.floor(remainingDays);
+  const perDay = (plan: PlanInfo, egpCents: number) => egpCents / ((extendedUntil(null, plan.billingMonths, now).getTime() - now.getTime()) / DAY);
+  return Math.floor((remainingDays * perDay(from, a.egpCents)) / perDay(to, b.egpCents));
 }
 
 export type PlanChangeKind = "activate" | "renew" | "upgrade" | "downgrade";

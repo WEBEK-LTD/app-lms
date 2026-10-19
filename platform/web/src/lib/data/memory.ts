@@ -85,6 +85,7 @@ import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
+import type { PaymentRefund, RefundKind } from "./types";
 import { mergeCrash } from "../crashes/report";
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -170,7 +171,7 @@ export class MemoryStore implements DataStore {
     if (user) this.users.set(id, clone({ ...user, ...patch, updatedAt: now }));
   }
 
-  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; now: Date }): Promise<Client> {
+  async createClient(input: { userId: string; whatsapp: string; siteUrl: string; country?: string | null; now: Date }): Promise<Client> {
     const client: Client = {
       id: newId(),
       userId: input.userId,
@@ -179,6 +180,7 @@ export class MemoryStore implements DataStore {
       status: "pending",
       paymentNote: null,
       activatedAt: null,
+      country: input.country ?? null,
       createdAt: input.now,
       updatedAt: input.now,
     };
@@ -848,6 +850,52 @@ export class MemoryStore implements DataStore {
     return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
   }
 
+  // 47 Refunds
+
+  private refunds = new Map<number, PaymentRefund>();
+  private nextRefundId = 1;
+
+  async recordRefund(input: Omit<PaymentRefund, "id">): Promise<PaymentRefund | null> {
+    const now = input.createdAt;
+    if (input.kind === "order") {
+      const order = this.catalogOrders.get(input.targetId);
+      if (!order || order.appId !== input.appId) return null;
+      const refunded = (order.refundedCents ?? 0) + input.amountCents;
+      if (input.amountCents <= 0 || refunded > order.totalCents) return null;
+      order.refundedCents = refunded;
+      if (refunded === order.totalCents) order.status = "refunded";
+      if (order.commissionCents !== null && input.commissionCents) order.commissionCents = Math.max(0, order.commissionCents - input.commissionCents);
+      order.updatedAt = now;
+    } else {
+      const donation = this.donations.get(input.targetId);
+      if (!donation || donation.appId !== input.appId || (donation.status !== "paid" && donation.status !== "refunded")) return null;
+      const refunded = (donation.refundedCents ?? 0) + input.amountCents;
+      if (input.amountCents <= 0 || refunded > donation.amountCents) return null;
+      const full = refunded === donation.amountCents;
+      const campaign = donation.campaignId !== null ? this.campaigns.get(donation.campaignId) : undefined;
+      if (campaign) {
+        campaign.raisedCents = Math.max(0, campaign.raisedCents - input.amountCents);
+        const another =
+          donation.donorEmail !== null &&
+          [...this.donations.values()].some(
+            (d) => d.id !== donation.id && d.appId === donation.appId && d.campaignId === donation.campaignId && d.status === "paid" && d.donorEmail === donation.donorEmail,
+          );
+        if (full && !another) campaign.donorCount = Math.max(0, campaign.donorCount - 1);
+      }
+      Object.assign(donation, { refundedCents: refunded, updatedAt: now, ...(full ? { status: "refunded" } : {}) });
+    }
+    const refund: PaymentRefund = { ...clone(input), id: this.nextRefundId++ };
+    this.refunds.set(refund.id, clone(refund));
+    return refund;
+  }
+
+  async listRefunds(appId: string, kind: RefundKind, targetIds: number[]): Promise<PaymentRefund[]> {
+    return [...this.refunds.values()]
+      .filter((r) => r.appId === appId && r.kind === kind && targetIds.includes(r.targetId))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
   // Platform settings
 
   async createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null> {
@@ -1059,6 +1107,13 @@ export class MemoryStore implements DataStore {
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
     if (this.courseEnrollments.some((e) => e.appId === input.appId && e.userId === input.userId && e.courseId === input.courseId)) return false;
     this.courseEnrollments.push(clone(input));
+    return true;
+  }
+
+  async leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean> {
+    const index = this.courseEnrollments.findIndex((e) => e.appId === appId && e.userId === userId && e.courseId === courseId);
+    if (index < 0) return false;
+    this.courseEnrollments.splice(index, 1);
     return true;
   }
 
@@ -1372,7 +1427,7 @@ export class MemoryStore implements DataStore {
     return { ok: true, ticket: clone(ticket) };
   }
 
-  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number> {
+  async cancelTickets(appId: string, input: { ids?: number[]; eventId?: number; refunded?: boolean }, now: Date): Promise<number> {
     if (input.ids === undefined && input.eventId === undefined) return 0;
     let cancelled = 0;
     for (const t of this.tickets.values()) {
@@ -1381,6 +1436,7 @@ export class MemoryStore implements DataStore {
       if (input.eventId !== undefined && t.eventId !== input.eventId) continue;
       t.status = "cancelled";
       t.cancelledAt = now;
+      if (input.refunded) t.refundedAt = now;
       cancelled++;
     }
     return cancelled;

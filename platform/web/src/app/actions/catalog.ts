@@ -368,10 +368,9 @@ export async function removePaymentKeysAction(): Promise<void> {
 
 // Orders
 
+// 47 Refunds go through the Refund form (app/actions/refunds.ts), which records them: never a bare status.
 const NEXT_STATUSES: Partial<Record<CatalogOrderStatus, CatalogOrderStatus[]>> = {
   processing: ["completed", "cancelled"],
-  completed: ["refunded"],
-  cancelled: ["refunded"],
 };
 
 export async function setOrderStatusAction(formData: FormData): Promise<void> {

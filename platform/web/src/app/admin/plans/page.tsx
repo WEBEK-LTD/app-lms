@@ -8,7 +8,8 @@ import { centsToDecimal } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { PLAN_FEATURES, PLAN_LIMITS, planPrice, PLANS, SUPPORT_LABEL, SUPPORT_LEVELS, type Plan } from "@/lib/plans";
-import { getPlans, platformSetting } from "@/lib/settings/platform";
+import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platform";
+import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
 import { PlanForm, PlanLimitsForm } from "./forms";
@@ -20,14 +21,20 @@ export const dynamic = "force-dynamic";
 export default async function PlansPage() {
   const { adminRole } = await requireAdmin();
   const store = await getStore();
-  const [plans, edits, switches] = await Promise.all([getPlans(store), platformSetting(store, "plans"), getSwitches(store, { fresh: true })]);
+  const [plans, edits, switches, billing] = await Promise.all([
+    getPlans(store),
+    platformSetting(store, "plans"),
+    getSwitches(store, { fresh: true }),
+    yallappBilling(store, { fresh: true }),
+  ]);
   return (
     <>
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold">Plans</h1>
         <span className="text-[15px] text-muted">
           Changes show on the pricing page at once. Features and limits are what each app on the plan may use: the platform, the builds, the hosted
-          API, the plugin and the app hold to them. A card price lets clients pay online once card payments for plans are on.
+          API, the plugin and the app hold to them. A price lets clients pay online once card payments for plans are on. Prices are in Egyptian
+          pounds, charged to everyone; people outside Egypt see US dollars (set the exchange rate in Settings › Yallapp&apos;s plan payments).
         </span>
       </div>
       <ReadOnly when={!can(adminRole, "plans.edit")} what="change plans or prices">
@@ -35,6 +42,9 @@ export default async function PlansPage() {
         {PLANS.map((id) => {
           const plan = plans[id];
           const shown = planPrice(plan);
+          // 52 The dollar price people outside Egypt see: the plan's own, or the pounds at the rate.
+          const usd = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: plan.usdCents }, billing.egpPerUsd) : null;
+          const usdAtRate = plan.priceCents ? usdCentsOf({ egpCents: plan.priceCents, usdCents: null }, billing.egpPerUsd) : null;
           return (
             <section key={id} aria-labelledby={`h-${id}`} className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -43,6 +53,7 @@ export default async function PlansPage() {
                 </h2>
                 <span className="text-sm font-semibold text-muted">
                   {shown.price}
+                  {shown.period && usd !== null ? ` (${formatMoney({ cents: usd, currency: "USD" })} outside Egypt)` : ""}
                   {shown.period ? ` / ${shown.period}` : ""}
                 </span>
               </div>
@@ -53,9 +64,11 @@ export default async function PlansPage() {
                   tagline: plan.tagline,
                   highlights: plan.highlights.join("\n"),
                   price: plan.price,
-                  cardPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
-                  currency: plan.currency,
+                  pricing: plan.onRequest ? "request" : "price",
+                  egpPrice: plan.priceCents !== null ? centsToDecimal(plan.priceCents) : "",
+                  usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
                   months: String(plan.billingMonths),
+                  usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
                 }}
               />
               <div className="flex flex-col gap-3 border-t border-line-soft pt-4">

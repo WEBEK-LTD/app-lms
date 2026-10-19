@@ -135,7 +135,7 @@ Open [Create an account](/sign-up) and enter your full name, email, WhatsApp num
 
 New accounts wait for activation. On the waiting page you can:
 
-- **Pay by card**, when card prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk), and your account is activated as soon as the payment is confirmed.
+- **Pay by card**, when prices are shown: choose your plan, enter your billing city and address and, if you have one, a coupon code. You pay on the secure page of our payment provider, Kashier, in Egyptian pounds (outside Egypt the price is shown in US dollars and your bank converts the charge), and your account is activated as soon as the payment is confirmed.
 - **Message us on WhatsApp** to arrange your plan with our team. We activate your account once the payment is confirmed.
 
 We email you when your account is active.
@@ -1042,7 +1042,7 @@ Your app counts them itself and sends them to Yallapp, whatever your content com
 - **Notifications**: for each notification you send from the dashboard, how many phones it went to and how many opened the app from it. Notifications your website sends are counted by kind.
 - **Searches** show what people searched for, never who. A search shows once it was made at least twice.
 
-Numbers appear a minute or so after someone uses the app. Days are in UTC. The app preview in your dashboard isn't counted.
+Numbers appear a minute or so after someone uses the app. Days run from midnight to midnight in your time zone: the one of your account's country until you pick another under **Time zone** at the top of the page (days already counted keep the zone they were counted in). The app preview in your dashboard isn't counted.
 
 ## What the app sends
 
@@ -1454,7 +1454,7 @@ Customers pay by card on a secure page of your provider (iyzico, Kashier or Fawa
 
 ## Orders
 
-Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **refunded** or **cancelled** when needed. Customers see their orders and their status in the app.
+Paid orders appear on the **Orders** page, and you get an email for each one. Mark an order **completed** when it's delivered, or **cancelled** when needed, and refund it, in full or in part, with **Refund** under it (see [Card payments](/docs/card-payments)). Customers see their orders, their status and what was refunded in the app.
 `,
   }),
   doc({
@@ -1493,7 +1493,7 @@ When you're closed, the app says **Closed now** and when you open. Orders as soo
 
 Paid orders appear on **Kitchen** with what was chosen, pickup or delivery, the time and the address. You also get an email for each one. Move each order on with one button: **Preparing**, **Ready**, **Out for delivery** (deliveries only) and **Completed**, or **Cancel order**. An order only moves forward. Each step reaches the customer as a notification, and their order in the app shows where it is. The page refreshes by itself every 30 seconds.
 
-> Cancelled orders aren't refunded automatically: refund them in your payment provider's panel.
+> Cancelled orders aren't refunded automatically: refund them with **Refund** under the order in **Finished orders**.
 
 ## Payments
 
@@ -1535,7 +1535,12 @@ Choose **No payment account? Sell through Yallapp** and say who gets paid. Custo
 
 ## Refunds
 
-Refunds are made in your provider's merchant panel (iyzico, Kashier or Fawaterk); then mark the order **refunded** on the **Orders** page.
+Refund a paid order, ticket, course or donation with **Refund** under it on the **Orders** or **Donations** page: all of it or part of it, with a reason.
+
+- **iyzico** and **Kashier**: Yallapp makes the refund through your provider with your keys. iyzico cancels a payment made the same day (nothing shows on the customer's statement) and refunds it otherwise, item by item. Your Kashier secret key needs the refund permission.
+- **Fawaterk**: make the refund in Fawaterk's panel, then record it with **Refund** (and Fawaterk's reference, if you like).
+- What follows: the order or donation says **Refunded** (or how much was refunded), the customer gets an email and sees it in the app. Refunding all of an order takes back what it paid for: tickets are cancelled and their places go back on sale, a course is no longer open to the student, a membership ends; with a refund in part you tick what to take back. A refunded donation no longer counts in the campaign's total.
+- Sold through Yallapp: the refund comes out of Yallapp's account and Yallapp gives its commission back in proportion. If your share was already transferred (Kashier or Fawaterk), Yallapp takes your share of the refund from your next transfer. A Fawaterk payment in Yallapp's account is refunded by our team: message us on WhatsApp.
 
 ## Paid courses
 
@@ -1797,7 +1802,7 @@ Free tickets are taken in the app. Paid tickets are paid by card on a secure pay
 
 **On iPhones**, Apple lets apps sell tickets to events that happen at a place, but not to online-only events, which count as digital content. So in the iPhone app, paid tickets to an event without a venue show no buy button; free tickets work everywhere. On Android, everything can be bought in the app.
 
-In **Event settings** on the same page you choose your currency and time zone, whether events show **Open in maps**, and until how many hours before an event people can **cancel free tickets** in the app (their place goes back on sale). Paid tickets are refunded by you, in your payment provider's panel.
+In **Event settings** on the same page you choose your currency and time zone, whether events show **Open in maps**, and until how many hours before an event people can **cancel free tickets** in the app (their place goes back on sale). Paid tickets are refunded by you, with **Refund** under the order on the **Orders** page: the ticket is cancelled and its place goes back on sale.
 
 ## Sales and attendees
 
@@ -1857,7 +1862,7 @@ When a donation is confirmed, the donor gets an email in your app's name with th
 
 ## Donations and donors
 
-The **Donations** page lists every paid donation, newest first, by campaign. **Export CSV** downloads them as a spreadsheet, with the donor's name, email, phone and message. Donors who chose to give anonymously are listed too: only the app hides their name. The **Donors** page groups donations by email address, the most generous first. Refunds are made in your payment provider's panel.
+The **Donations** page lists every paid donation, newest first, by campaign. **Export CSV** downloads them as a spreadsheet, with the donor's name, email, phone and message. Donors who chose to give anonymously are listed too: only the app hides their name. The **Donors** page groups donations by email address, the most generous first. Refund a donation, in full or in part, with **Refund** under it: the donor gets an email, the receipt and the app show it, and it no longer counts in the campaign's total (see [Card payments](/docs/card-payments)).
 
 ## Updates to donors
 
@@ -1897,7 +1902,9 @@ We email you, and show a notice on your dashboard, 7 days and 1 day before an ap
 
 ## Paying by card
 
-When card prices are shown, you pay on the secure page of our payment provider (iyzico, Kashier or Fawaterk): on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed. You can also arrange your payment with our team on WhatsApp.
+When prices are shown, you pay on the secure page of our payment provider, Kashier: on the waiting page before your account is active, and on **License & plugin** (or **Plan & license**) to renew. Choose your plan, enter your billing city and address, and pay. You get an email when the payment is confirmed, and a receipt for each payment under **Payments** on the same page. You can also arrange your payment with our team on WhatsApp.
+
+Prices are shown in Egyptian pounds in Egypt and in US dollars everywhere else. Every card payment is charged in Egyptian pounds: outside Egypt the form says, for example, "You'll be charged EGP 1,500 (about $30)", and your bank converts the amount at its own rate. The receipt shows the amount charged in pounds.
 
 ## Coupons
 

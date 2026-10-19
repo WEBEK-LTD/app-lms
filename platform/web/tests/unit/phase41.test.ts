@@ -8,7 +8,7 @@ import { PlanCards } from "@/components/plan-cards";
 import { DOCS } from "@/content/docs";
 import { integrationMark, STORES, TRADEMARK_NOTE, WORKS_WITH_BRANDS, WORKS_WITH_ROWS } from "@/lib/brands";
 import { FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, STEPS } from "@/lib/marketing";
-import { comparisonRows, PLAN_FEATURES, PLAN_INFO, PLANS, planStores, planStoresLine, plansWith } from "@/lib/plans";
+import { comparisonRows, PLAN_FEATURES, PLAN_INFO, PLANS, planStores, planStoresLine, plansWith, POUNDS_VIEW } from "@/lib/plans";
 import { DEFAULT_DESCRIPTION } from "@/lib/seo";
 import { ALL_STORES_TEXT, APP_STORES, storesFor } from "@/lib/stores";
 
@@ -48,7 +48,7 @@ describe("41 the stores", () => {
   });
 
   it("show on every plan card as marks with their names", () => {
-    const html = renderToStaticMarkup(createElement(PlanCards, { plans: PLANS.map((id) => PLAN_INFO[id]) }));
+    const html = renderToStaticMarkup(createElement(PlanCards, { plans: PLANS.map((id) => PLAN_INFO[id]), view: POUNDS_VIEW }));
     for (const id of PLANS) {
       const card = html.slice(html.indexOf(`data-plan="${id}"`), html.indexOf("Start with", html.indexOf(`data-plan="${id}"`)));
       const marks = [...card.matchAll(/data-store="([a-z_]+)"/g)].map((m) => m[1]);

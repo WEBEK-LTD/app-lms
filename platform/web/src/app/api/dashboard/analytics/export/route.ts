@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { reportCsv } from "@/lib/analytics/csv";
 import { loadReport, rangeFrom } from "@/lib/analytics/report";
 import { itemWord } from "@/lib/analytics/words";
+import { zoneOf } from "@/lib/analytics/zone";
 import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl } from "@/lib/env";
@@ -18,8 +19,11 @@ export async function GET(request: Request): Promise<Response> {
   if (!app) return new Response("Not found.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
   const query = new URL(request.url).searchParams;
   const now = new Date();
-  const range = rangeFrom({ range: query.get("range"), from: query.get("from"), to: query.get("to") }, now);
-  const report = await loadReport(await getStore(), app.id, range, now);
+  // 47 Days in the app's time zone.
+  const store = await getStore();
+  const zone = zoneOf(app, context.client);
+  const range = rangeFrom({ range: query.get("range"), from: query.get("from"), to: query.get("to") }, now, zone);
+  const report = await loadReport(store, app.id, range, now, zone);
   // A byte order mark, so spreadsheets read titles in any language correctly.
   return new Response(`﻿${reportCsv(report, itemWord)}`, {
     headers: {

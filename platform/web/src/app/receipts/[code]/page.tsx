@@ -39,7 +39,12 @@ export default async function ReceiptPage({ params }: { params: Promise<{ code: 
     <PayShell app={app}>
       <h1 className="m-0 text-[24px] font-extrabold">Donation receipt</h1>
       {app.demo ? <p className="m-0 text-[15px] text-muted">A demo donation: nothing was charged.</p> : null}
-      {donation.status === "refunded" ? <p className="m-0 text-[15px] font-semibold text-danger">This donation was refunded.</p> : null}
+      {donation.status === "refunded" ? (
+        <p className="m-0 text-[15px] font-semibold text-danger">This donation was refunded.</p>
+      ) : donation.refundedCents ? (
+        // 47 Refunded in part.
+        <p className="m-0 text-[15px] font-semibold text-danger">{formatCents(donation.refundedCents, donation.currency)} of this donation was refunded.</p>
+      ) : null}
       <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-xl border border-line p-4 text-[15px]">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">

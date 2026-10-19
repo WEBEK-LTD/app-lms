@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
@@ -10,6 +11,7 @@ import { DuplicateEmailError } from "@/lib/data/store";
 import { appUrl, superAdminEmails } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { sendTemplate } from "@/lib/email/send";
+import { countryFromHeaders } from "@/lib/geo";
 import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
 
@@ -29,7 +31,8 @@ export async function signUpAction(_: FormState, formData: FormData): Promise<Fo
     return { errors: { email: "This email can't be used for a client account." }, values };
   }
   try {
-    const { user } = await registerClient(store, parsed.data, now);
+    // 52 The country the sign-up came from: Yallapp's prices show in its currency.
+    const { user } = await registerClient(store, { ...parsed.data, country: countryFromHeaders(await headers()) }, now);
     await startSession(user);
   } catch (error) {
     if (error instanceof DuplicateEmailError) {

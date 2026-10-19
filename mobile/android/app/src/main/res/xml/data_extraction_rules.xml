@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 53 Android 12 and later: neither Google's cloud backup nor moving to a
+     new phone takes the saved lessons (encrypted files in the app's own
+     storage), the key that opens them (secure storage, tied to this phone
+     anyway). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="yallapp_downloads/" />
+        <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="yallapp_downloads/" />
+        <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+    </device-transfer>
+</data-extraction-rules>

@@ -251,7 +251,7 @@ class Settings_Page {
 		if ( 'notifications' === $card ) {
 			$this->notifications_card( $type );
 		} elseif ( isset( $cards[ $card ] ) ) {
-			$this->{$cards[ $card ]}();
+			$this->{$cards[ $card ]}( $type );
 		}
 	}
 
@@ -579,9 +579,10 @@ class Settings_Page {
 	/**
 	 * General card.
 	 *
+	 * @param string|null $type App type.
 	 * @return void
 	 */
-	private function general_card() {
+	private function general_card( $type = null ) {
 		$this->open( __( 'General', 'yallapp' ) );
 		$this->toggle( 'api_enabled', __( 'Enable the app API', 'yallapp' ), __( 'Turn off to stop the app from loading anything from this site.', 'yallapp' ) );
 		$this->text( 'app_name', __( 'App name', 'yallapp' ), get_bloginfo( 'name' ) );
@@ -591,7 +592,37 @@ class Settings_Page {
 		$this->text( 'support_email', __( 'Support email', 'yallapp' ), 'help@example.com' );
 		$this->page( 'terms_page_id', __( 'Terms & Conditions page', 'yallapp' ) );
 		$this->page( 'privacy_page_id', __( 'Privacy Policy page', 'yallapp' ) );
+		$this->screen_protection( $type );
 		$this->close();
+	}
+
+	/**
+	 * 53 Screenshots and screen recording in the app, for every app type; academies choose what it protects.
+	 *
+	 * @param string|null $type App type.
+	 * @return void
+	 */
+	private function screen_protection( $type ) {
+		$this->toggle( 'block_screen_capture', __( 'Block screenshots & screen recording', 'yallapp' ), __( 'On Android, screenshots and screen recordings of protected screens come out black and the app is hidden in the recent apps. iPhones can\'t block screenshots: the app covers protected screens while the screen is recorded or shared, and shows a notice after a screenshot. Course attachments then open only in the app\'s own viewer. A choice made on the Yallapp dashboard\'s Screen protection page wins.', 'yallapp' ) );
+		if ( 'lms' === $type ) {
+			$this->radios(
+				'screen_protection_scope',
+				__( 'What it protects', 'yallapp' ),
+				array(
+					'content' => __( 'Course content only (lessons, quizzes, attachments and videos)', 'yallapp' ),
+					'app'     => __( 'The whole app', 'yallapp' ),
+				)
+			);
+		}
+		$chosen = $this->plugin->license()->has_key() ? \Yallapp\Content\Screen_Protection::from_status( $this->plugin->license()->status()['screen_protection'] ?? null ) : null;
+		if ( null !== $chosen ) {
+			$labels = array(
+				'off'     => __( 'Chosen on your Yallapp dashboard: off. That choice replaces this setting.', 'yallapp' ),
+				'content' => __( 'Chosen on your Yallapp dashboard: course content only. That choice replaces this setting.', 'yallapp' ),
+				'app'     => __( 'Chosen on your Yallapp dashboard: the whole app. That choice replaces this setting.', 'yallapp' ),
+			);
+			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $labels[ $chosen ] ) . '</span></p>';
+		}
 	}
 
 	/**
@@ -892,7 +923,6 @@ class Settings_Page {
 	 */
 	private function video_card() {
 		$this->open( __( 'Video & content protection', 'yallapp' ) );
-		$this->toggle( 'block_screen_capture', __( 'Block screenshots & screen recording', 'yallapp' ) );
 		$this->select(
 			'watermark',
 			__( 'Video watermark', 'yallapp' ),

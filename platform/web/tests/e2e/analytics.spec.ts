@@ -212,3 +212,29 @@ test("the team sees the summary on the client's admin page, and the daily job co
   expect(daily.status()).toBe(200);
   expect((await daily.json()).analytics).toMatchObject({ finished: true, apps: expect.any(Number) });
 });
+
+test("47 days are counted in the owner's time zone, which they change on the page", async ({ request }) => {
+  await own.goto("/dashboard/analytics?range=7");
+  // The account's WhatsApp number is Turkish: Istanbul's days until the owner picks a zone.
+  await expect(own.getByText("Days in Europe/Istanbul (GMT+3), from your account's country · Change")).toBeVisible();
+  await own.getByText("Days in Europe/Istanbul").click();
+  const form = own.getByRole("form", { name: "Time zone" });
+  await form.getByLabel("Time zone").selectOption("Pacific/Kiritimati");
+  await form.getByRole("button", { name: "Save time zone" }).click();
+  await expect(form.getByRole("status")).toHaveText("Time zone saved: days are counted in Pacific/Kiritimati from now on.");
+
+  // An event sent now is filed under Kiritimati's date (UTC+14), whatever the UTC date is.
+  const kiritimatiToday = new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Kiritimati", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const c = randomUUID();
+  expect((await send(request, {
+        install_id: c,
+        platform: "android",
+        app_version: "1.2.0",
+        os_version: "Android 14",
+        locale: "tr",
+        events: [{ type: "app_open", at: new Date(Date.now() - 30_000).toISOString(), first_open: true }],
+      })).status()).toBe(202);
+  await own.goto(`/dashboard/analytics?range=custom&from=${kiritimatiToday}&to=${kiritimatiToday}`);
+  await expect(own.locator('[data-kpi="installs"] [data-value]')).toHaveText("1");
+  await expect(own.getByText(/Days in Pacific\/Kiritimati \(GMT\+14\) · Change/)).toBeVisible();
+});

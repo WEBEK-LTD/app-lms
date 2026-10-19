@@ -207,6 +207,43 @@ abstract class Base_Adapter implements Lms_Adapter {
 	}
 
 	/**
+	 * 50 A course the user may open (Course_Visibility): published, or private and the user
+	 * is enrolled in it or may read it. Null otherwise, as for a course that doesn't exist.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User, or 0.
+	 * @return WP_Post|null
+	 */
+	protected function course_post( $course_id, $user_id ) {
+		$post = $this->live( $course_id, $this->post_types()['course'] );
+		return ( $post && Course_Visibility::viewable( $post, $user_id, array( $this, 'is_enrolled' ) ) ) ? $post : null;
+	}
+
+	/**
+	 * 50 Whether a user may see and open a course.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User, or 0.
+	 * @return bool
+	 */
+	public function course_visible( $course_id, $user_id ) {
+		return null !== $this->course_post( $course_id, $user_id );
+	}
+
+	/**
+	 * 50 A published or private post of a type (Course_Visibility::STATUSES), or null: a
+	 * course the LMS keeps, whoever may open it.
+	 *
+	 * @param int             $post_id   Post ID.
+	 * @param string|string[] $post_type Post type(s).
+	 * @return WP_Post|null
+	 */
+	protected function live( $post_id, $post_type ) {
+		$post = $post_id ? get_post( (int) $post_id ) : null;
+		return Course_Visibility::live( $post, $post_type ) ? $post : null;
+	}
+
+	/**
 	 * WP_Query arguments shared by course lists: paging, search, category, order and IDs.
 	 * The adapter adds its price filter.
 	 *
@@ -484,11 +521,12 @@ abstract class Base_Adapter implements Lms_Adapter {
 	 *
 	 * @param int $course_id Course ID.
 	 * @param int $lesson_id Lesson ID.
+	 * @param int $user_id   50 The student, so a private course's lessons link to each other.
 	 * @return array{0: int|null, 1: int|null} Previous and next lesson IDs.
 	 */
-	protected function neighbours( $course_id, $lesson_id ) {
+	protected function neighbours( $course_id, $lesson_id, $user_id = 0 ) {
 		$lessons = array();
-		foreach ( (array) $this->curriculum( $course_id, 0 ) as $topic ) {
+		foreach ( (array) $this->curriculum( $course_id, $user_id ) as $topic ) {
 			foreach ( $topic['items'] as $item ) {
 				if ( 'lesson' === $item['type'] ) {
 					$lessons[] = (int) $item['id'];
@@ -535,7 +573,8 @@ abstract class Base_Adapter implements Lms_Adapter {
 		$ids       = 'completed' === $status ? array_values( array_intersect( $ids, $completed ) ) : array_values( array_diff( $ids, $completed ) );
 		$items     = array();
 		foreach ( self::slice( $ids, $page, $per_page ) as $course_id ) {
-			$post = $this->published( $course_id, $this->post_types()['course'] );
+			// 50 Private courses too: they show in My courses for their students.
+			$post = $this->course_post( $course_id, $user_id );
 			if ( $post ) {
 				$items[] = $this->my_course( $post, $user_id );
 			}

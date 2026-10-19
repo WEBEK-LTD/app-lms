@@ -808,6 +808,8 @@
 {"key":"ticketStatusValid","en":"Valid","ar":"صالحة","tr":"Geçerli"},
 {"key":"ticketStatusUsed","en":"Used","ar":"مستخدمة","tr":"Kullanıldı"},
 {"key":"ticketStatusCancelled","en":"Cancelled","ar":"ملغاة","tr":"İptal edildi"},
+{"key":"ticketStatusRefunded","en":"Refunded","ar":"مستردة","tr":"İade edildi","description":"47 A ticket the organiser refunded (it is cancelled and its place freed)."},
+{"key":"refundedAmount","en":"Refunded {amount}","ar":"تم استرداد {amount}","tr":"{amount} iade edildi","description":"47 What the business refunded of an order or donation, like \"Refunded ₺100.00\".","placeholders":{"amount":"String"}},
 {"key":"ticketUsedAt","en":"Checked in {time}","ar":"سُجّل الدخول {time}","tr":"Giriş yapıldı: {time}","placeholders":{"time":"String"}},
 {"key":"ticketShowAtDoor","en":"Show this code at the door","ar":"اعرض هذا الرمز عند الدخول","tr":"Bu kodu girişte gösterin"},
 {"key":"ticketCancel","en":"Cancel ticket","ar":"إلغاء التذكرة","tr":"Bileti iptal et"},
@@ -923,4 +925,10 @@
 {"key":"courseCompletedOn","en":"Completed on {date}","ar":"اكتملت في {date}","tr":"{date} tarihinde tamamlandı","placeholders":{"date":"String"}},
 {"key":"courseCompletedTitle","en":"You've completed this course","ar":"لقد أكملت هذه الدورة","tr":"Bu kursu tamamladınız"},
 {"key":"viewCertificate","en":"View certificate","ar":"عرض الشهادة","tr":"Sertifikayı görüntüle"},
-{"key":"completedCourseLabel","en":"{title}, completed","ar":"{title}، مكتملة","tr":"{title}, tamamlandı","placeholders":{"title":"String"}}]}
+{"key":"completedCourseLabel","en":"{title}, completed","ar":"{title}، مكتملة","tr":"{title}, tamamlandı","placeholders":{"title":"String"}},
+{"key":"screenProtected","en":"This content is protected. It's hidden while the screen is recorded or shared.","ar":"هذا المحتوى محمي، ويُخفى أثناء تسجيل الشاشة أو مشاركتها.","tr":"Bu içerik korunuyor. Ekran kaydedilirken veya paylaşılırken gizlenir."},
+{"key":"screenshotProtected","en":"This content is protected: screenshots of it aren't allowed.","ar":"هذا المحتوى محمي: لا يُسمح بالتقاط صور الشاشة له.","tr":"Bu içerik korunuyor: ekran görüntüsü alınamaz."},
+{"key":"fileOpenFailed","en":"This file couldn't be opened.","ar":"تعذّر فتح هذا الملف.","tr":"Bu dosya açılamadı."},
+{"key":"fileInAppOnly","en":"This file can't be shown here","ar":"لا يمكن عرض هذا الملف هنا","tr":"Bu dosya burada gösterilemiyor"},
+{"key":"fileInAppOnlyMessage","en":"Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.","ar":"تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.","tr":"Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin."},
+{"key":"pageOf","en":"Page {page} of {total}","ar":"صفحة {page} من {total}","tr":"Sayfa {page} / {total}","placeholders":{"page":"int","total":"int"}}]}

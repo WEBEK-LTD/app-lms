@@ -1,17 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Screen capture protection for lesson content.
+import '../api/models/models.dart';
+import '../gate/app_gate.dart';
+import '../l10n/l10n.dart';
+import '../theme/app_icons.dart';
+import '../theme/palette.dart';
+import '../widgets/common.dart';
+
+/// Screen capture protection (53: as the owner chose, course content or the
+/// whole app).
 ///
 /// Android: `FLAG_SECURE` on the activity window (MainActivity.kt) blocks
-/// screenshots and recordings. iOS can't block recording, so it reports
-/// capture changes (AppDelegate.swift) and the player blanks the video.
+/// screenshots and recordings (they come out black) and hides the app in the
+/// recent apps; Flutter's dialogs, sheets and the video's full screen are
+/// drawn in that window, so they're covered too. iOS can't block screenshots:
+/// `setSecure` draws the app inside a secure text field's layer, which iOS
+/// leaves out of screenshots and recordings where it allows it, and blurs the
+/// app switcher's picture; it reports capture changes (recording, mirroring)
+/// so protected screens are covered, and screenshots so the app can say so
+/// (AppDelegate.swift).
 class ScreenSecurity {
   const ScreenSecurity();
 
   static const _methods = MethodChannel('yallapp/screen_security');
   static const _events = EventChannel('yallapp/screen_capture');
+  static const _shots = EventChannel('yallapp/screenshots');
 
   Future<void> setSecure(bool enabled) async {
     try {
@@ -33,8 +51,190 @@ class ScreenSecurity {
         .map((event) => event == true)
         .handleError((Object _) {});
   }
+
+  /// 53 One event each time someone takes a screenshot (iOS; Android blocks
+  /// them instead).
+  Stream<void> screenshots() {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
+      return const Stream<void>.empty();
+    }
+    return _shots
+        .receiveBroadcastStream()
+        .map((_) {})
+        .handleError((Object _) {});
+  }
 }
 
 final screenSecurityProvider = Provider<ScreenSecurity>(
   (ref) => const ScreenSecurity(),
 );
+
+/// 53 The owner's choice from `/config`; nothing is protected before it's
+/// loaded.
+final screenProtectionModeProvider = Provider<ScreenProtection>((ref) {
+  final gate = ref.watch(appGateProvider);
+  return gate is GateReady
+      ? gate.config.screenProtection
+      : ScreenProtection.off;
+});
+
+/// 53 How many protected screens (lessons, quizzes, attachments, the video's
+/// full screen) are open, under [ProtectedContent].
+class ProtectedScreens extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void enter() {
+    if (ref.mounted) state = state + 1;
+  }
+
+  void leave() {
+    if (ref.mounted && state > 0) state = state - 1;
+  }
+}
+
+final protectedScreensProvider = NotifierProvider<ProtectedScreens, int>(
+  ProtectedScreens.new,
+);
+
+/// 53 Whether protection applies now: the whole app, or a protected screen
+/// is open (anywhere in the navigation stack).
+final screenProtectedProvider = Provider<bool>((ref) {
+  return switch (ref.watch(screenProtectionModeProvider)) {
+    ScreenProtection.off => false,
+    ScreenProtection.app => true,
+    ScreenProtection.content => ref.watch(protectedScreensProvider) > 0,
+  };
+});
+
+/// 53 Course attachments open only in the app's own viewer while protection
+/// is on (not on the web preview, which can't protect anything).
+final attachmentsInAppProvider = Provider<bool>(
+  (ref) =>
+      !kIsWeb &&
+      ref.watch(screenProtectionModeProvider) != ScreenProtection.off,
+);
+
+/// The screen is being recorded or mirrored (iOS). One native subscription
+/// for the whole app: screens read this instead of listening themselves.
+final screenCaptureProvider = StreamProvider<bool>(
+  (ref) => ref.watch(screenSecurityProvider).captureChanges(),
+);
+
+/// 53 Screenshots taken while the app runs (iOS), counted.
+final screenshotCountProvider = StreamProvider<int>((ref) {
+  var count = 0;
+  return ref.watch(screenSecurityProvider).screenshots().map((_) => ++count);
+});
+
+/// 53 Sends [screenProtectedProvider] to the platform when it changes (the
+/// window starts unprotected). Watched by the app root.
+final screenProtectionSyncProvider = Provider<void>((ref) {
+  final security = ref.watch(screenSecurityProvider);
+  var sent = false;
+  ref.listen<bool>(screenProtectedProvider, (_, next) {
+    if (next == sent) return;
+    sent = next;
+    unawaited(security.setSecure(next));
+  }, fireImmediately: true);
+  ref.onDispose(() {
+    if (sent) unawaited(security.setSecure(false));
+  });
+});
+
+/// 53 Marks a screen as course content: protected while it's open when the
+/// owner protects course content.
+class ProtectedContent extends ConsumerStatefulWidget {
+  const ProtectedContent({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<ProtectedContent> createState() => _ProtectedContentState();
+}
+
+class _ProtectedContentState extends ConsumerState<ProtectedContent> {
+  late final ProtectedScreens _screens = ref.read(
+    protectedScreensProvider.notifier,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // Providers can't change while the tree builds: right after.
+    scheduleMicrotask(_screens.enter);
+  }
+
+  @override
+  void dispose() {
+    scheduleMicrotask(_screens.leave);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// 53 Over the whole app (MaterialApp's builder, so routes, dialogs and the
+/// video's full screen are under it): a blank cover while protected content
+/// is on screen and the screen is recorded or mirrored (iOS), and a short
+/// notice after a screenshot of protected content.
+class ScreenProtectionShield extends ConsumerWidget {
+  const ScreenProtectionShield({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AsyncValue<int>>(screenshotCountProvider, (_, next) {
+      if (next.hasValue && ref.read(screenProtectedProvider)) {
+        showMessage(context, context.l10n.screenshotProtected);
+      }
+    });
+    // Both watched always: the capture state is known before it's needed.
+    final protected = ref.watch(screenProtectedProvider);
+    final captured = ref.watch(screenCaptureProvider).value ?? false;
+    final covered = protected && captured;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        if (covered) const Positioned.fill(child: CaptureShield()),
+      ],
+    );
+  }
+}
+
+/// What a recording or a mirrored screen shows instead of protected content.
+class CaptureShield extends StatelessWidget {
+  const CaptureShield({super.key});
+
+  @override
+  Widget build(BuildContext context) => Material(
+    key: const ValueKey('capture-shield'),
+    color: context.palette.background,
+    child: SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppIcon(
+                AppIcons.visibilityOff,
+                size: 40,
+                color: context.palette.textSecondary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                context.l10n.screenProtected,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}

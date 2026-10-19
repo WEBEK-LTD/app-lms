@@ -435,6 +435,31 @@ describe("catalog shop on the hosted API", () => {
           },
         ],
       });
+      expect(((await list()).body as { items: { refunded_total: unknown }[] }).items[0]!.refunded_total).toBeNull();
+      // 47 A refund in part shows as what was refunded; all of it turns the order "Refunded".
+      const refund = (amountCents: number) =>
+        store.recordRefund({
+          appId: app.id,
+          kind: "order",
+          targetId: order.id,
+          amountCents,
+          currency: "TRY",
+          reason: "buyer_request",
+          note: null,
+          provider: "iyzico",
+          method: "api",
+          parts: [],
+          providerRef: null,
+          commissionCents: null,
+          revoked: { tickets: [], courses: [], memberships: [] },
+          byUserId: null,
+          byEmail: "owner@shop.test",
+          createdAt: now,
+        });
+      await refund(20000);
+      expect((await list()).body).toMatchObject({ items: [{ status: "processing", status_label: "Paid", refunded_total: "₺200.00" }] });
+      await refund(75000);
+      expect((await list()).body).toMatchObject({ items: [{ status: "refunded", status_label: "Refunded", refunded_total: "₺950.00" }] });
       expect((await call("GET", "/me/orders")).status).toBe(401);
     });
   });

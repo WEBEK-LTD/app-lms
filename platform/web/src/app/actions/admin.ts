@@ -121,8 +121,9 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
             active_until: until,
             license_key: outcome.licenseKey,
             dashboard_url: dashboard,
+            payment_line: "",
           })
-        : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard })
+        : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard, payment_line: "" })
     ).catch((error: unknown) => console.error("[mail] activation email failed", error));
   }
   // 31 The plan and its features reach the app's WordPress site at once.

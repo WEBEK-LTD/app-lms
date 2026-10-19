@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { hostedScreenProtection } from "../app/screen-protection";
 import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
 import { yallappLinkBase } from "../links/table";
@@ -349,9 +350,17 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),
       ...(platform === "ios" || (ctx.plan !== undefined && !hasFeature(ctx.plan, "card_payments")) ? { enroll_button: false } : {}),
     },
-    content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
+    // 53 Screenshots and screen recording, as the owner chose (apps built before it read `block_screen_capture`).
+    content: { block_screen_capture: hostedScreenProtection(app) !== "off", watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     // 46 The owner's switches: the store's rating prompt and crash reports.
-    app: { update_required: false, maintenance: false, maintenance_message: null, review_prompt: app.reviewPrompt !== false, crash_reports: app.crashReports !== false },
+    app: {
+      update_required: false,
+      maintenance: false,
+      maintenance_message: null,
+      review_prompt: app.reviewPrompt !== false,
+      crash_reports: app.crashReports !== false,
+      screen_protection: hostedScreenProtection(app),
+    },
     // 46 Links that open the app: on Yallapp's link domain for apps without WordPress.
     links: { share_base_url: yallappLinkBase(ctx.platformUrl, app.id) },
     // 20 The kind of business: wording and defaults in the app, never its screens.

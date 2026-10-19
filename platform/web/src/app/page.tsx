@@ -6,12 +6,13 @@ import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
 import { StoreMarks, WorksWithStrip } from "@/components/brand-marks";
 import { Chip, Comparison, ContactBand, FeatureIcon, MoreLink, Section, SectionTitle } from "@/components/marketing";
-import { PlanCards } from "@/components/plan-cards";
+import { currencyNote, PlanCards } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { COMPARISON, FEATURE_GROUPS, INTEGRATION_GROUPS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { APP_STORES } from "@/lib/stores";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
+import { visitorPriceView } from "@/lib/billing/display";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
 import { DEFAULT_DESCRIPTION, organizationLd, pageMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
@@ -33,7 +34,9 @@ const LOOKS = [
 export default async function LandingPage() {
   const contact = await getContact();
   // 32 The same plans as the pricing page.
-  const all = await effectivePlans(await getStore());
+  const store = await getStore();
+  // 52 Prices in the visitor's currency: pounds in Egypt, dollars elsewhere.
+  const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   const plans = PLANS.map((id) => all[id]);
   const base = siteUrl();
   const text = await getSiteContent("home");
@@ -41,7 +44,7 @@ export default async function LandingPage() {
   return (
     <div className="bg-white">
       <SiteHeader current="home" />
-      <JsonLdScript data={[organizationLd(base, { email: contact.email, whatsapp: contact.whatsappDisplay }), websiteLd(base), softwareLd(base, plans)]} />
+      <JsonLdScript data={[organizationLd(base, { email: contact.email, whatsapp: contact.whatsappDisplay }), websiteLd(base), softwareLd(base, plans, view)]} />
       <main>
         <section className="overflow-hidden bg-ivory">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-12 gap-y-14 px-4 pt-12 pb-16 sm:px-6 sm:pt-[72px] sm:pb-24">
@@ -219,7 +222,10 @@ export default async function LandingPage() {
 
         <Section tinted id="plans">
           <SectionTitle title={text.plansTitle!} text={text.plansText} />
-          <PlanCards plans={plans} headingLevel={3} />
+          <PlanCards plans={plans} view={view} headingLevel={3} />
+          <p data-currency-note="" className="m-0 text-[15px] text-ink-4">
+            {currencyNote(view)}
+          </p>
           <MoreLink href="/pricing">Compare all features</MoreLink>
         </Section>
 

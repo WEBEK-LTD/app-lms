@@ -15,6 +15,8 @@ export interface CardPlan {
   tagline: string;
   /** 13.3 What paying for this plan does to the app's current plan: "Starts today, …". */
   note?: string | null;
+  /** 52 "You'll be charged EGP 1,500 (about $30); your bank may convert it.", when the charge isn't in the shown currency. */
+  charge?: string | null;
 }
 
 /** Plan choice, billing address and an optional coupon; the card itself is entered on the provider's page (37 iyzico, Kashier or Fawaterk). */
@@ -41,6 +43,10 @@ export function PlanPaymentForm({
   // A price shows lowered only while the field still holds the coupon that was applied.
   const applied = couponState.code && couponState.code === coupon.trim().toUpperCase() ? couponState.prices : undefined;
   const free = Boolean(applied?.[plan]?.free);
+  // 52 The charge line of the chosen plan, with the coupon's when one is applied.
+  const chosen = plans.find((p) => p.id === plan);
+  const withCoupon = applied?.[plan];
+  const charge = free ? null : withCoupon ? withCoupon.charge : chosen?.charge;
   const couponError = state.errors?.coupon ?? (couponState.code === undefined ? couponState.error : undefined);
   // Not a form submission: React would empty the address fields afterwards.
   const applyCoupon = () => {
@@ -125,6 +131,11 @@ export function PlanPaymentForm({
           </p>
         ) : null}
       </div>
+      {charge ? (
+        <p data-charge-line="" className="m-0 flex items-start gap-2 rounded-xl bg-ivory px-4 py-3 text-sm font-semibold text-ink-2">
+          {charge}
+        </p>
+      ) : null}
       <SubmitButton className="h-11" pendingText={free ? "Activating…" : "Opening the payment page…"}>
         {free ? "Activate with the coupon" : cta}
       </SubmitButton>

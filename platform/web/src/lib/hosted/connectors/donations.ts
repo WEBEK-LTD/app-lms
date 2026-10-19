@@ -175,7 +175,8 @@ export class DonationsConnector implements Connector {
     const { items, total } = await this.deps.store.listDonations({
       appId: this.deps.app.id,
       userId: request.user.id,
-      statuses: ["paid"],
+      // 47 Refunded ones stay, with what was refunded.
+      statuses: ["paid", "refunded"],
       offset: (page - 1) * perPage,
       limit: perPage,
     });

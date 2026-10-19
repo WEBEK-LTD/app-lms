@@ -11,6 +11,7 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
+import { formatAmount } from "@/lib/billing/prices";
 import { getStore } from "@/lib/data";
 import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
@@ -59,7 +60,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
       </div>
       <section aria-label="Card payments" className="overflow-x-auto rounded-2xl border border-line bg-white">
         {payments.length === 0 ? (
-          <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s payment account in Settings and a card price in Plans.</p>
+          <p className="m-0 p-6 text-[15px] text-muted">No card payments yet. Set Yallapp&apos;s Kashier account in Settings and a price in Plans.</p>
         ) : (
           <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
@@ -84,10 +85,14 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/admin/p
                     {planName(p.plan, plans)} · {p.months === 1 ? "1 month" : "1 year"}
                   </td>
                   <td className="px-4 py-3 font-semibold">
-                    {formatCents(p.amountCents, p.currency)}
+                    {formatAmount(p.amountCents, p.currency)}
+                    {/* 52 Charged in pounds; the client outside Egypt saw dollars. */}
+                    {p.shownCents && p.shownCurrency ? (
+                      <span className="block text-xs font-normal text-muted">Shown as {formatAmount(p.shownCents, p.shownCurrency)}</span>
+                    ) : null}
                     {coupons.has(p.id) ? (
                       <span className="block text-xs font-normal text-muted">
-                        Coupon {coupons.get(p.id)!.code}, {formatCents(coupons.get(p.id)!.discountCents, p.currency)} off
+                        Coupon {coupons.get(p.id)!.code}, {formatAmount(coupons.get(p.id)!.discountCents, p.currency)} off
                       </span>
                     ) : null}
                   </td>

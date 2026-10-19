@@ -133,6 +133,33 @@ test("45 offline downloads come with the plan, and the owner turns them off and 
   expect((await config()).downloads).toBe(true);
 });
 
+test("53 the owner blocks screenshots in course content, then in the whole app", async ({ request }) => {
+  const config = async () => (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { app: { screen_protection: string }; content: { block_screen_capture: boolean } };
+  // Off until the owner chooses.
+  expect((await config()).app.screen_protection).toBe("off");
+  expect((await config()).content.block_screen_capture).toBe(false);
+
+  await own.goto("/dashboard");
+  await own.getByRole("link", { name: "Screen protection" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Screen protection" })).toBeVisible();
+  await expect(own.getByText("The preview in your browser can't block screenshots")).toBeVisible();
+  const section = own.getByRole("region", { name: "Screenshots and screen recording" });
+  // Courses managed in Yallapp have no plugin setting to follow.
+  await expect(section.getByText("As set in the Yallapp plugin")).toHaveCount(0);
+  await expect(section.getByRole("radio", { name: /^Off/ })).toBeChecked();
+  await section.getByRole("radio", { name: /^Course content only/ }).check();
+  await section.getByRole("button", { name: "Save" }).click();
+  await expect(section.getByText("The app follows it the next time it opens.")).toBeVisible();
+  expect(await config()).toMatchObject({ app: { screen_protection: "content" }, content: { block_screen_capture: true } });
+
+  await own.reload();
+  await expect(section.getByRole("radio", { name: /^Course content only/ })).toBeChecked();
+  await section.getByRole("radio", { name: /^The whole app/ }).check();
+  await section.getByRole("button", { name: "Save" }).click();
+  await expect(section.getByText("The app follows it the next time it opens.")).toBeVisible();
+  expect((await config()).app.screen_protection).toBe("app");
+});
+
 /**
  * 40 A stand-in for YouTube's IFrame Player API and its player (this machine can't reach YouTube): the player
  * draws a title bar, "Watch on YouTube" and a logo along its edges, like the real one.

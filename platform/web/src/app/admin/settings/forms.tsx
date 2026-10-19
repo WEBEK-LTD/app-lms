@@ -8,6 +8,7 @@ import {
   saveIyzicoSettingAction,
   saveKashierSettingAction,
   savePaymentProviderAction,
+  savePlanBillingAction,
   savePublishingSettingAction,
   saveMarketplaceAction,
   saveOtpSettingAction,
@@ -247,7 +248,7 @@ export function IyzicoSettingForm({ sandbox }: { sandbox: boolean }) {
   );
 }
 
-/** 37 Which of Yallapp's accounts takes plan payments and marketplace sales. */
+/** 37 Which of Yallapp's accounts takes marketplace sales (52 plans: PlanBillingForm). */
 export function PaymentProviderForm({ provider }: { provider: "iyzico" | "kashier" | "fawaterk" }) {
   const [state, action] = useActionState(savePaymentProviderAction, initialFormState);
   return (
@@ -267,6 +268,43 @@ export function PaymentProviderForm({ provider }: { provider: "iyzico" | "kashie
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save provider
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 52 The gateway for Yallapp's own plans and add-ons, and the pound-to-dollar rate for their dollar prices. */
+export function PlanBillingForm({ provider, rate }: { provider: "iyzico" | "kashier" | "fawaterk"; rate: string }) {
+  const [state, action] = useActionState(savePlanBillingAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-plan-provider" className="text-sm font-semibold">
+            Gateway for plans
+          </label>
+          <select id="f-plan-provider" name="planProvider" defaultValue={state.values?.planProvider ?? provider} className="input">
+            <option value="kashier">Kashier (charges in EGP)</option>
+            <option value="fawaterk">Fawaterk (charges in EGP)</option>
+            <option value="iyzico">iyzico (charges the USD price)</option>
+          </select>
+          <FieldError id="f-plan-provider-error" error={state.errors?.planProvider} />
+        </div>
+        <Field
+          id="f-egp-per-usd"
+          label="EGP for 1 US dollar"
+          name="egpPerUsd"
+          inputMode="decimal"
+          defaultValue={state.values?.egpPerUsd ?? rate}
+          hint="Turns pound prices into the dollar prices shown outside Egypt, rounded to whole dollars. A plan's own dollar price comes first."
+          error={state.errors?.egpPerUsd}
+        />
+      </div>
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save plan payments
         </SubmitButton>
       </div>
     </form>

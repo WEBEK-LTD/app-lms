@@ -2194,6 +2194,19 @@
   "ticketStatusValid": "Valid",
   "ticketStatusUsed": "Used",
   "ticketStatusCancelled": "Cancelled",
+  "ticketStatusRefunded": "Refunded",
+  "@ticketStatusRefunded": {
+    "description": "47 A ticket the organiser refunded (it is cancelled and its place freed)."
+  },
+  "refundedAmount": "Refunded {amount}",
+  "@refundedAmount": {
+    "description": "47 What the business refunded of an order or donation, like \"Refunded ₺100.00\".",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "ticketUsedAt": "Checked in {time}",
   "@ticketUsedAt": {
     "placeholders": {
@@ -2514,6 +2527,22 @@
     "placeholders": {
       "title": {
         "type": "String"
+      }
+    }
+  },
+  "screenProtected": "This content is protected. It's hidden while the screen is recorded or shared.",
+  "screenshotProtected": "This content is protected: screenshots of it aren't allowed.",
+  "fileOpenFailed": "This file couldn't be opened.",
+  "fileInAppOnly": "This file can't be shown here",
+  "fileInAppOnlyMessage": "Course files open only inside the app, which shows PDFs, pictures and text. Ask your teacher for this one as a PDF.",
+  "pageOf": "Page {page} of {total}",
+  "@pageOf": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
   }

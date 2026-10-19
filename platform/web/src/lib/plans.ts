@@ -1,5 +1,5 @@
 import type { IconName } from "@/components/icon-names";
-import type { CatalogCurrency } from "./data/types";
+import { formatMoney, shownPrice, type DisplayCurrency, type Money, type YallappPrice } from "./billing/prices";
 import { ALL_STORES_TEXT, APP_STORES, STORE_FACTS, storesFor, type AppStore } from "./stores";
 
 /**
@@ -68,10 +68,12 @@ export interface PlanInfo {
   /** Shown on the pricing page when there's no fixed price, e.g. "On request". */
   price: string;
   period: string | null;
-  /** The price clients pay by card; null while prices are agreed on WhatsApp. */
+  /** 52 The price in Egyptian pounds (piastres): what is charged. Null until the team sets one. */
   priceCents: number | null;
-  /** 37 Card payments take it only when Yallapp's provider takes it (EGP with Kashier and Fawaterk). */
-  currency: CatalogCurrency;
+  /** 52 The dollar price shown outside Egypt, set by hand; null: the pounds at the team's exchange rate. */
+  usdCents: number | null;
+  /** 52 The team shows the price text ("On request") instead of the price, and clients can't pay by card. */
+  onRequest: boolean;
   /** How long a payment keeps the plan active. */
   billingMonths: 1 | 12;
 }
@@ -81,8 +83,17 @@ export interface PlanInfo {
  * (Phase 13); an edit without it was saved for the old Starter and Pro plans
  * and only its price is kept (migration 0017 moved the old Starter's edit to
  * Growth, the tier its clients moved to).
+ *
+ * 52 Prices are in Egyptian pounds. An edit from before Phase 52 has a
+ * `currency`: a price in pounds is kept, a dollar price becomes the shown
+ * dollar price, and any other price is dropped (the plan shows its price
+ * text until the team sets a price in pounds).
  */
-export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "currency" | "billingMonths"> & {
+export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths"> & {
+  usdCents?: number | null;
+  onRequest?: boolean;
+  /** Before Phase 52: the price's currency. */
+  currency?: string;
   limits?: PlanLimits;
   version?: 2;
 };
@@ -110,7 +121,8 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     price: "On request",
     period: null,
     priceCents: null,
-    currency: "TRY",
+    usdCents: null,
+    onRequest: true,
     billingMonths: 12,
   },
   growth: {
@@ -132,7 +144,8 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     price: "On request",
     period: null,
     priceCents: null,
-    currency: "TRY",
+    usdCents: null,
+    onRequest: true,
     billingMonths: 12,
   },
   pro: {
@@ -152,7 +165,8 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     price: "On request",
     period: null,
     priceCents: null,
-    currency: "TRY",
+    usdCents: null,
+    onRequest: true,
     billingMonths: 12,
   },
   business: {
@@ -165,7 +179,8 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     price: "On request",
     period: null,
     priceCents: null,
-    currency: "TRY",
+    usdCents: null,
+    onRequest: true,
     billingMonths: 12,
   },
 };
@@ -274,13 +289,18 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
     const base = PLAN_INFO[plan];
     const edit = settings?.[plan];
     if (!edit) return base;
+    const cents = (x: unknown) => (typeof x === "number" && Number.isInteger(x) && x > 0 ? x : null);
+    // 52 An edit from before Phase 52 named its currency: only pounds are charged now.
+    const legacy = typeof edit.currency === "string" && edit.currency !== "EGP" ? edit.currency : null;
+    const priceCents = legacy ? null : cents(edit.priceCents);
     const price = {
       price: typeof edit.price === "string" && edit.price ? edit.price : base.price,
-      priceCents: typeof edit.priceCents === "number" ? edit.priceCents : null,
-      currency: edit.currency ?? base.currency,
+      priceCents,
+      usdCents: cents(edit.usdCents) ?? (legacy === "USD" ? cents(edit.priceCents) : null),
+      onRequest: edit.onRequest === true || priceCents === null,
       billingMonths: edit.billingMonths === 1 ? (1 as const) : (12 as const),
     };
-    const period = price.priceCents !== null ? (price.billingMonths === 1 ? "month" : "year") : null;
+    const period = !price.onRequest ? (price.billingMonths === 1 ? "month" : "year") : null;
     // An edit from before the four tiers: only its price still means something.
     if (edit.version !== 2) return { ...base, ...price, period };
     return {
@@ -309,7 +329,8 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     highlights: [...plan.highlights],
     price: plan.price,
     priceCents: plan.priceCents,
-    currency: plan.currency,
+    usdCents: plan.usdCents,
+    onRequest: plan.onRequest,
     billingMonths: plan.billingMonths,
   };
 }
@@ -323,11 +344,31 @@ export function planName(plan: Plan | null | undefined, plans: Record<Plan, Plan
   return plan && isPlan(plan) ? plans[plan].name : "Not set";
 }
 
-/** "₺4,800.00" with "year", or the plan's text ("On request") without a period. */
-export function planPrice(plan: PlanInfo): { price: string; period: string | null } {
-  if (plan.priceCents === null) return { price: plan.price, period: null };
-  const price = new Intl.NumberFormat("en-US", { style: "currency", currency: plan.currency, currencyDisplay: "narrowSymbol" }).format(plan.priceCents / 100);
-  return { price, period: plan.billingMonths === 1 ? "month" : "year" };
+/** 52 The plan's price as the team set it (pounds, and dollars by hand or at the rate); null when it's "On request". */
+export function planPriceOf(plan: Pick<PlanInfo, "priceCents" | "usdCents" | "onRequest">): YallappPrice | null {
+  return plan.onRequest || plan.priceCents === null || plan.priceCents <= 0 ? null : { egpCents: plan.priceCents, usdCents: plan.usdCents };
+}
+
+/** 52 How a page shows Yallapp's prices: the visitor's currency and the team's exchange rate (lib/billing/display.ts). */
+export interface PriceView {
+  display: DisplayCurrency;
+  egpPerUsd: number | null;
+}
+
+/** Pounds, as the team set them: the admin's view. */
+export const POUNDS_VIEW: PriceView = { display: "EGP", egpPerUsd: null };
+
+/** 52 The plan's price in the view's currency; null when it's "On request". */
+export function planShownPrice(plan: PlanInfo, view: PriceView): Money | null {
+  const price = planPriceOf(plan);
+  return price ? shownPrice(price, view.display, view.egpPerUsd) : null;
+}
+
+/** "EGP 4,800" or "$96" with "year", or the plan's text ("On request") without a period. */
+export function planPrice(plan: PlanInfo, view: PriceView = POUNDS_VIEW): { price: string; period: string | null } {
+  const shown = planShownPrice(plan, view);
+  if (!shown) return { price: plan.price, period: null };
+  return { price: formatMoney(shown), period: plan.billingMonths === 1 ? "month" : "year" };
 }
 
 /** 32 A plan's key limits, in a few words each: app users, languages and the platforms its apps run on. */

@@ -347,6 +347,7 @@ class Ticket {
     this.onlineUrl,
     this.usedAt,
     this.canCancel = false,
+    this.refunded = false,
   });
 
   factory Ticket.fromJson(Json json) {
@@ -363,6 +364,7 @@ class Ticket {
       onlineUrl: optString(json, 'online_url'),
       usedAt: optDate(json, 'used_at'),
       canCancel: boolOr(json, 'can_cancel', false),
+      refunded: boolOr(json, 'refunded', false),
       createdAt: reqDate(json, 'created_at'),
     );
   }
@@ -380,6 +382,9 @@ class Ticket {
   final String? onlineUrl;
   final DateTime? usedAt;
   final bool canCancel;
+
+  /// 47 The organiser refunded it (`status` is cancelled).
+  final bool refunded;
   final DateTime createdAt;
 
   /// "K7QM-4XP2-HD9W", for typing at the door.
@@ -409,6 +414,7 @@ class Ticket {
     'online_url': onlineUrl,
     'used_at': usedAt?.toUtc().toIso8601String(),
     'can_cancel': canCancel,
+    'refunded': refunded,
     'created_at': createdAt.toUtc().toIso8601String(),
   };
 }

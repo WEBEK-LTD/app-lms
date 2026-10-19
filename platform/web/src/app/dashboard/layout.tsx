@@ -53,6 +53,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/pages", label: "Pages & look", icon: "palette" },
         // 43 The app's languages and every text in them.
         { href: "/dashboard/languages", label: "Languages", icon: "language" },
+        // 53 Screenshots and screen recording in the app.
+        { href: "/dashboard/protection", label: "Screen protection", icon: "lock" },
         { href: "/dashboard/preview", label: "Preview your app", icon: "visibility" },
         // 44 How people use the app.
         { href: "/dashboard/analytics", label: "Analytics", icon: "monitoring" },

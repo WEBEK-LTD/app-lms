@@ -155,7 +155,7 @@ class LifterLMS_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'course' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -184,7 +184,7 @@ class LifterLMS_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'course' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -261,7 +261,7 @@ class LifterLMS_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, 'course' ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		$course = new LLMS_Course( (int) $course_id );
@@ -330,7 +330,7 @@ class LifterLMS_Adapter extends Base_Adapter {
 		}
 		$lesson     = new LLMS_Lesson( $post );
 		$course_id  = (int) $lesson->get( 'parent_course' );
-		$neighbours = $this->neighbours( $course_id, $post->ID );
+		$neighbours = $this->neighbours( $course_id, $post->ID, $user_id );
 		$student    = $user_id ? llms_get_student( $user_id ) : false;
 		// The app shows the lesson body and its own navigation and buttons, so LifterLMS's page
 		// template parts (back link, favorites, mark complete, lesson navigation) are left out.
@@ -683,7 +683,18 @@ class LifterLMS_Adapter extends Base_Adapter {
 				'status' => 'enrolled',
 			)
 		);
-		return array_map( 'intval', (array) ( $courses['results'] ?? array() ) );
+		$ids     = array_map( 'intval', (array) ( $courses['results'] ?? array() ) );
+		// 50 LifterLMS lists published courses only; its private courses the student is
+		// enrolled in show in My courses too.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- LifterLMS's enrollment table.
+		$private = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT upm.post_id FROM {$wpdb->prefix}lifterlms_user_postmeta upm INNER JOIN {$wpdb->posts} p ON p.ID = upm.post_id WHERE p.post_type = %s AND p.post_status = %s AND upm.meta_key = %s AND upm.user_id = %d ORDER BY upm.updated_date DESC", 'course', 'private', '_status', (int) $user_id ) );
+		foreach ( array_map( 'intval', (array) $private ) as $course_id ) {
+			if ( $this->is_enrolled( $course_id, $user_id ) ) {
+				$ids[] = $course_id;
+			}
+		}
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

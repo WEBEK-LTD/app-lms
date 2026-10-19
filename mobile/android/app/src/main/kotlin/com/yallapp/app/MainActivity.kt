@@ -21,7 +21,11 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     // Blocks screenshots, screen recording and the preview in
-                    // the recent apps list while protected content is shown.
+                    // the recent apps list while protected content is shown
+                    // (53: course content or the whole app, as the owner
+                    // chose). The flag is on the activity's window, where
+                    // Flutter draws everything: dialogs, sheets, the video's
+                    // full screen and web views (lesson embeds) included.
                     "setSecure" -> {
                         val enabled = call.argument<Boolean>("enabled") ?: false
                         if (enabled) {
@@ -36,6 +40,8 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // 53 Course PDFs in the app's own viewer.
+        PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
     }
 
     override fun onNewIntent(intent: Intent) {

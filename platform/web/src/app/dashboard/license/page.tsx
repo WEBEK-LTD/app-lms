@@ -18,7 +18,9 @@ import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-
 import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
-import { getPlans, yallappPaymentAccount } from "@/lib/settings/platform";
+import { getPlans, yallappPlanAccount } from "@/lib/settings/platform";
+import { priceView } from "@/lib/billing/display";
+import { formatAmount } from "@/lib/billing/prices";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -61,9 +63,12 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const effective = await effectivePlans(store);
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
   const scheduled = scheduledPlan(license, now);
-  // 37 Paid into Yallapp's account with the provider the team chose; only plans in a currency it takes.
-  const yallappAccount = await yallappPaymentAccount(store, encryptionKey());
-  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider) : [];
+  // 52 Paid into Yallapp's account with the gateway the team chose for plans (Kashier, in pounds); prices in the client's currency.
+  const yallappAccount = await yallappPlanAccount(store, encryptionKey());
+  const view = await priceView(store, client);
+  const payable = yallappAccount ? cardPlanOptions(plans, await getSwitches(store), yallappAccount.provider, view) : [];
+  // 52 This app's card payments, with their receipts (before the first app exists, the account's).
+  const paid = (await store.listPlanPayments({ clientId: client.id, limit: 50 })).filter((p) => p.status === "paid" && p.appId === (app?.id ?? null)).slice(0, 20);
   // 13.3 What paying for each plan does: an upgrade starts today with the old days credited, a downgrade waits for the end of the period.
   const notes = payable.map((p) => {
     const info = plans[p.id];
@@ -240,7 +245,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr))]">
           {PLANS.map((id) => {
             const plan = effective[id];
-            const shown = planPrice(plans[id]);
+            const shown = planPrice(plans[id], view);
             const isCurrent = id === currentId;
             const direction = currentId ? comparePlans(currentId, id) : 1;
             const canPay = payable.some((p) => p.id === id);
@@ -313,6 +318,30 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             </p>
           </div>
           <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"} />
+        </section>
+      ) : null}
+
+      {paid.length ? (
+        <section aria-labelledby="h-payments" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 id="h-payments" className="m-0 text-lg font-bold">
+            Payments
+          </h2>
+          <ul className="m-0 flex list-none flex-col p-0">
+            {paid.map((p) => (
+              <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft py-3 first:border-t-0">
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-semibold">
+                    {planName(p.plan, effective)} · {p.months === 1 ? "1 month" : "1 year"} · {formatAmount(p.amountCents, p.currency)}
+                  </span>
+                  <span className="text-[13px] text-muted">Paid on {formatDate(p.paidAt ?? p.createdAt)}</span>
+                </span>
+                <Link href={`/dashboard/license/receipts/${p.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                  <Icon name="receipt_long" size={18} />
+                  Receipt
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

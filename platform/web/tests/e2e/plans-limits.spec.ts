@@ -294,9 +294,16 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await keys.getByLabel("Secret key").fill("sandbox-yallapp-secret");
   await keys.getByRole("button", { name: "Save keys" }).click();
   await expect(keys.getByText("iyzico account saved.")).toBeVisible();
+  // 52 Plans through iyzico: it charges the dollar price (the same figure here).
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("iyzico");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
   await admin.goto("/admin/plans");
   const business = admin.getByRole("region", { name: "Business" });
-  await business.getByLabel("Card price").fill("9000");
+  await business.getByLabel("A price").check();
+  await business.getByLabel("Price in EGP").fill("9000");
+  await business.getByLabel("Price in USD (optional)").fill("9000");
   await business.getByLabel("Billed").selectOption("12");
   await business.getByRole("button", { name: "Save plan" }).click();
   await expect(business.getByText("Business saved.")).toBeVisible();
@@ -318,6 +325,10 @@ test("changing plans: a lower plan from the end of the period, an upgrade by car
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Business" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings");
+  const billingBack = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billingBack.getByLabel("Gateway for plans").selectOption("kashier");
+  await billingBack.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billingBack.getByText(/Plans are paid through Yallapp's Kashier account\./)).toBeVisible();
   await admin.getByRole("region", { name: "Yallapp's iyzico account" }).getByRole("button", { name: "Remove keys" }).click();
 });
 

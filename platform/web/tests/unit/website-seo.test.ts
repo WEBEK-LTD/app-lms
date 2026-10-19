@@ -225,31 +225,37 @@ describe("32 structured data", () => {
     expect(onRequest).not.toHaveProperty("offers");
 
     const plans = plansWith({
-      growth: { ...PLAN_INFO.growth, priceCents: 480000, currency: "TRY", billingMonths: 12, version: 2 },
-      pro: { ...PLAN_INFO.pro, priceCents: 9900, currency: "USD", billingMonths: 1, version: 2 },
+      growth: { ...PLAN_INFO.growth, priceCents: 480000, onRequest: false, billingMonths: 12, version: 2 },
+      pro: { ...PLAN_INFO.pro, priceCents: 495000, usdCents: 9900, onRequest: false, billingMonths: 1, version: 2 },
     });
-    const priced = softwareLd(BASE, Object.values(plans));
+    // 52 In the currency the page shows: pounds in Egypt, dollars elsewhere (by hand, or at the rate).
+    const priced = softwareLd(BASE, Object.values(plans), { display: "EGP", egpPerUsd: 50 });
     expect(priced.offers).toEqual([
       {
         "@type": "Offer",
         name: "Growth",
         description: PLAN_INFO.growth.tagline,
         price: "4800.00",
-        priceCurrency: "TRY",
+        priceCurrency: "EGP",
         url: `${BASE}/pricing`,
         category: "subscription",
-        priceSpecification: { "@type": "UnitPriceSpecification", price: "4800.00", priceCurrency: "TRY", billingDuration: "P1Y" },
+        priceSpecification: { "@type": "UnitPriceSpecification", price: "4800.00", priceCurrency: "EGP", billingDuration: "P1Y" },
       },
       {
         "@type": "Offer",
         name: "Pro",
         description: PLAN_INFO.pro.tagline,
-        price: "99.00",
-        priceCurrency: "USD",
+        price: "4950.00",
+        priceCurrency: "EGP",
         url: `${BASE}/pricing`,
         category: "subscription",
-        priceSpecification: { "@type": "UnitPriceSpecification", price: "99.00", priceCurrency: "USD", billingDuration: "P1M" },
+        priceSpecification: { "@type": "UnitPriceSpecification", price: "4950.00", priceCurrency: "EGP", billingDuration: "P1M" },
       },
+    ]);
+    const abroad = softwareLd(BASE, Object.values(plans), { display: "USD", egpPerUsd: 50 });
+    expect((abroad.offers as { price: string; priceCurrency: string }[]).map((o) => [o.price, o.priceCurrency])).toEqual([
+      ["96.00", "USD"],
+      ["99.00", "USD"],
     ]);
   });
 

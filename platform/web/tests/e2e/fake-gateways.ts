@@ -15,6 +15,10 @@ export interface FakeGateway {
   calls: { method: string; path: string; authorization: string | undefined }[];
   /** The webhooks posted to our server, and its answers. */
   webhooks: { url: string; status: number; body: unknown }[];
+  /** 52 Kashier: the payments our server started (amount and currency as sent). */
+  started?: Record<string, unknown>[];
+  /** 47 Kashier: the refunds asked for (PUT /v3/orders/{orderId}/), with their order, auth header and body. */
+  refunds: { orderId: string; authorization: string | undefined; body: Record<string, unknown> }[];
   close: () => Promise<void>;
 }
 
@@ -38,7 +42,9 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
   const base = `http://localhost:${port}`;
   const calls: FakeGateway["calls"] = [];
   const webhooks: FakeGateway["webhooks"] = [];
+  const refunds: FakeGateway["refunds"] = [];
   const sessions = new Map<string, { body: Record<string, unknown>; apiKey: string; paid: boolean }>();
+  const started: Record<string, unknown>[] = [];
   const server = createServer(async (request, response) => {
     const body = await readBody(request);
     const url = new URL(request.url ?? "/", base);
@@ -51,6 +57,7 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
       if (!authorization || !request.headers["api-key"]) return send({ messages: { en: "Missing keys" } }, 401);
       const id = `66f0${(sessions.size + 1).toString().padStart(4, "0")}aa`;
       sessions.set(id, { body: input, apiKey: String(request.headers["api-key"]), paid: false });
+      started.push(input);
       return send({ _id: id, status: "CREATED", sessionUrl: `${base}/session/${id}?mode=test` });
     }
     const read = /^\/v3\/payment\/sessions\/([^/]+)\/payment$/.exec(url.pathname);
@@ -58,14 +65,23 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
       const session = sessions.get(read[1]!);
       if (!session) return send({ message: "Not found" }, 404);
       const { body: s } = session;
-      return send({ data: { status: session.paid ? "SUCCESS" : "PENDING", amount: s.amount, currency: s.currency, merchantOrderId: s.order, transactionId: `TX-${read[1]}` } });
+      return send({
+        data: { status: session.paid ? "SUCCESS" : "PENDING", amount: s.amount, currency: s.currency, merchantOrderId: s.order, transactionId: `TX-${read[1]}`, kashierOrderId: `KO-${read[1]}` },
+      });
+    }
+    // 47 Refunds: PUT /v3/orders/{orderId}/ with the secret key, as on Kashier's fep host.
+    const refund = /^\/v3\/orders\/([^/]+)\/?$/.exec(url.pathname);
+    if (refund && request.method === "PUT") {
+      if (!authorization) return send({ status: "FAILURE", messages: { en: "Unauthorized" } }, 401);
+      refunds.push({ orderId: decodeURIComponent(refund[1]!), authorization, body: JSON.parse(body) as Record<string, unknown> });
+      return send({ status: "SUCCESS", response: { status: "SUCCESS", transaction: { transactionId: `RF-${refunds.length}`, status: "SUCCESS" } } });
     }
     const hosted = /^\/session\/([^/]+)(\/pay)?$/.exec(url.pathname);
     if (hosted) {
       const id = hosted[1]!;
       const session = sessions.get(id)!;
       if (!hosted[2]) {
-        response.writeHead(200, { "content-type": "text/html" }).end(page("Kashier", String(session.body.amount), `${base}/session/${id}/pay`));
+        response.writeHead(200, { "content-type": "text/html" }).end(page("Kashier", `${String(session.body.amount)} ${String(session.body.currency)}`, `${base}/session/${id}/pay`));
         return;
       }
       session.paid = true;
@@ -96,7 +112,7 @@ export async function startFakeKashier(port: number): Promise<FakeGateway> {
     send({ message: "Not found" }, 404);
   });
   await listen(server, port);
-  return { server, calls, webhooks, close: () => new Promise((resolve) => server.close(() => resolve())) };
+  return { server, calls, webhooks, started, refunds, close: () => new Promise((resolve) => server.close(() => resolve())) };
 }
 
 /** Fawaterk: invoices, their read-back, the payment methods (connection test), and the invoice page. */
@@ -151,5 +167,5 @@ export async function startFakeFawaterk(port: number): Promise<FakeGateway> {
     send({ status: "error", message: "Not found" }, 404);
   });
   await listen(server, port);
-  return { server, calls, webhooks, close: () => new Promise((resolve) => server.close(() => resolve())) };
+  return { server, calls, webhooks, refunds: [], close: () => new Promise((resolve) => server.close(() => resolve())) };
 }

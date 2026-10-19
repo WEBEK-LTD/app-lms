@@ -2,7 +2,9 @@ import { createHmac } from "node:crypto";
 import { revealLicenseKey } from "../admin/clients";
 import { isPrivateAddress, resolveHost } from "../app/api-check";
 import { httpsSiteAddress } from "../app/wordpress-ready";
+import { currentPlanId } from "../billing/plan-change";
 import type { DataStore } from "../data/store";
+import type { Plan } from "../plans";
 import { normalizeLicenseKey } from "./key";
 
 /**
@@ -41,6 +43,8 @@ export interface RefreshDeps {
   now?: Date;
   fetcher?: Fetch;
   resolve?: Resolve;
+  /** 47 Local tests only (LICENSE_REFRESH_TEST_URL, refused on Netlify): every site's refresh goes to this fake site instead. */
+  testSiteUrl?: string | null;
 }
 
 /**
@@ -59,10 +63,12 @@ export async function refreshSite(deps: RefreshDeps, appId: string): Promise<Ref
     if (!app || app.backend !== "wordpress") return "not_wordpress";
     const license = await deps.store.getLicenseForApp(app.clientId, app.id);
     const activation = license ? await deps.store.getActivation(license.id) : null;
-    const url = license && activation ? refreshUrl(activation.siteUrlRaw) : null;
+    const url = license && activation ? (deps.testSiteUrl ? `${deps.testSiteUrl.replace(/\/+$/, "")}${REFRESH_PATH}` : refreshUrl(activation.siteUrlRaw)) : null;
     if (!license || !url) return "no_site";
-    const addresses = await (deps.resolve ?? resolveHost)(new URL(url).hostname);
-    if (addresses.length === 0 || addresses.some(isPrivateAddress)) return "private_address";
+    if (!deps.testSiteUrl) {
+      const addresses = await (deps.resolve ?? resolveHost)(new URL(url).hostname);
+      if (addresses.length === 0 || addresses.some(isPrivateAddress)) return "private_address";
+    }
     const timestamp = Math.floor((deps.now ?? new Date()).getTime() / 1000);
     const response = await (deps.fetcher ?? fetch)(url, {
       method: "POST",
@@ -83,4 +89,54 @@ export async function refreshSites(deps: RefreshDeps, appIds: readonly string[])
   const outcomes: RefreshOutcome[] = [];
   for (const id of new Set(appIds)) outcomes.push(await refreshSite(deps, id));
   return outcomes;
+}
+
+/** 47 How a plan's sites are asked: a few at once, with a pause between batches, within the time a request may run on. */
+export const PLAN_REFRESH = { batchSize: 5, pauseMs: 1000, maxSites: 500, budgetMs: 20_000 };
+
+export interface PlanRefreshResult {
+  /** WordPress apps whose license is on the plan now. */
+  apps: number;
+  sent: number;
+  /** Not asked: over the batch budget; they get it at their next check, within 12 hours. */
+  left: number;
+}
+
+/**
+ * 47 When the team edits what a plan includes, every WordPress site on that
+ * plan gets the signed refresh: the apps whose license is on the plan now
+ * (a scheduled downgrade counts from its date), in batches of `batchSize`
+ * at once with `pauseMs` between batches, so neither the sites nor our
+ * outgoing connections are flooded. It stops at `maxSites` or after
+ * `budgetMs`: the rest get the change at their next license check.
+ */
+export async function refreshPlanSites(
+  deps: RefreshDeps & { sleep?: (ms: number) => Promise<void>; clock?: () => number },
+  plan: Plan,
+  limits: typeof PLAN_REFRESH = PLAN_REFRESH,
+): Promise<PlanRefreshResult> {
+  const now = deps.now ?? new Date();
+  const licenses = (await deps.store.listLicenses()).filter((l) => l.appId && l.expiresAt.getTime() > now.getTime() && currentPlanId(l, now) === plan);
+  const appIds: string[] = [];
+  for (const license of licenses) {
+    const app = await deps.store.getAppById(license.appId!);
+    if (app?.backend === "wordpress") appIds.push(app.id);
+  }
+  const clock = deps.clock ?? Date.now;
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+  const started = clock();
+  let sent = 0;
+  let asked = 0;
+  const last = Math.min(appIds.length, limits.maxSites);
+  for (let i = 0; i < last; i += limits.batchSize) {
+    if (i > 0) {
+      if (clock() - started + limits.pauseMs > limits.budgetMs) break;
+      await sleep(limits.pauseMs);
+    }
+    const batch = appIds.slice(i, Math.min(i + limits.batchSize, last));
+    const outcomes = await Promise.all(batch.map((id) => refreshSite(deps, id)));
+    asked += batch.length;
+    sent += outcomes.filter((o) => o === "sent").length;
+  }
+  return { apps: appIds.length, sent, left: appIds.length - asked };
 }

@@ -81,12 +81,13 @@ This is the smallest answer the app accepts for an Academy app. Store apps add \
     "block_screen_capture": true, "watermark": "phone",
     "embed_fullscreen_button": true, "embed_height": "auto"
   },
-  "app": { "update_required": false, "maintenance": false }
+  "app": { "update_required": false, "maintenance": false, "screen_protection": "content" }
 }
 ~~~
 
 - \`app.update_required\`: true makes the app ask people to update (compare the \`app_version\` the app sends).
 - \`app.maintenance\`: true shows only \`app.maintenance_message\`.
+- \`app.screen_protection\`: \`off\`, \`content\` (lessons, quizzes and their attachments) or \`app\` (every screen) blocks screenshots and screen recording in the app.
 - \`purchases.enroll_button\` must be false when \`platform=ios\`.
 
 ## The sign-in flow, simply

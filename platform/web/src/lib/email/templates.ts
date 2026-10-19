@@ -49,7 +49,10 @@ export type EmailTemplateKey =
   | "own_email_failed"
 
   // 29 Charity & donations
-  | "donation_receipt";
+  | "donation_receipt"
+
+  // 47 Refunds from the dashboard
+  | "payment_refunded";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -119,10 +122,11 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "active_until", description: "The last day of the plan", sample: "12 Oct 2027" },
       { name: "license_key", description: "The license key", sample: "YALL-AB12-CD34-EF56" },
       { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
+      { name: "payment_line", description: "52 The card payment and its receipt, and a blank line, after a card payment; empty when the team activated it", sample: "Paid: EGP 1,500 (about $30) by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
     ],
     subject: "Your Yallapp account is active",
     body:
-      "Hello {{name}},\n\nYour Yallapp account is active.\n\nApp: {{app_name}}\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n" +
+      "Hello {{name}},\n\nYour Yallapp account is active.\n\nApp: {{app_name}}\nPlan: {{plan}}\nActive until: {{active_until}}\nLicense key: {{license_key}}\n\n{{payment_line}}" +
       "Next steps:\n1. Install the Yallapp plugin on your WordPress site and paste your license key.\n" +
       "2. Set up your app in your dashboard: {{dashboard_url}}\n\n" +
       "You can always find your license key on the License & plugin page." +
@@ -138,9 +142,10 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       { name: "plan", description: "The plan's name", sample: "Pro" },
       { name: "active_until", description: "The new last day of the plan", sample: "12 Oct 2027" },
       { name: "dashboard_url", description: "The client dashboard's address", sample: "https://yallapp.com.tr/dashboard" },
+      { name: "payment_line", description: "52 The card payment and its receipt, and a blank line, after a card payment; empty when the team activated it", sample: "Paid: EGP 1,500 (about $30) by card through Kashier.\nReceipt: https://yallapp.com.tr/dashboard/license/receipts/0f8e\n\n" },
     ],
     subject: "Your Yallapp plan has been renewed",
-    body: "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} is now active until {{active_until}}.\n\nDashboard: {{dashboard_url}}" + SIGNATURE,
+    body: "Hello {{name}},\n\nThe {{plan}} plan of {{app_name}} is now active until {{active_until}}.\n\n{{payment_line}}Dashboard: {{dashboard_url}}" + SIGNATURE,
   },
   {
     key: "build_ready",
@@ -436,6 +441,26 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{donor_name}},\n\nThank you for your donation to {{org_name}}.\n\n" +
       "Amount: {{amount}}\nCampaign: {{campaign}}\nDate: {{date}}\nReference: {{reference}}\n\n" +
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your donation, contact {{org_name}} and give the reference above.",
+  },
+  {
+    // 47 Sent in the business's name, like the donation receipt.
+    key: "payment_refunded",
+    name: "Payment refunded",
+    description:
+      "To a customer or donor when the business refunds their order, ticket, course or donation from the dashboard (apps without a website). Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's or donor's name", sample: "Elif Yılmaz" },
+      { name: "amount", description: "The amount refunded now", sample: "₺150.00" },
+      { name: "what", description: "What was paid for", sample: "order 1042" },
+      { name: "total_refunded", description: "Everything refunded of it so far, and of what", sample: "₺150.00 of ₺450.00" },
+      { name: "date", description: "The day of the refund", sample: "14 October 2026" },
+    ],
+    subject: "{{org_name}} refunded {{amount}} of {{what}}",
+    body:
+      "Dear {{customer_name}},\n\n{{org_name}} refunded {{amount}} of your payment for {{what}}.\n\n" +
+      "Refunded so far: {{total_refunded}}\nDate: {{date}}\n\n" +
+      "The money goes back to the card you paid with. Banks usually show it within a few working days.\n\nIf you have a question about it, contact {{org_name}} and mention {{what}}.",
   },
   {
     key: "own_whatsapp_failed",

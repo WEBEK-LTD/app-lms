@@ -242,6 +242,8 @@ export function ticketJson(data: EventsData, ticket: EventTicket, deps: JsonDeps
     online_url: status === "cancelled" ? null : event.onlineUrl,
     used_at: ticket.usedAt ? ticket.usedAt.toISOString() : null,
     can_cancel: mayCancel(ticket, event, data.settings, data.now),
+    // 47 Refunded by the organiser: cancelled (never a new status, which older apps would read as valid).
+    refunded: Boolean(ticket.refundedAt),
     created_at: ticket.createdAt.toISOString(),
   };
 }

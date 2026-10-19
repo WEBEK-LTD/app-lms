@@ -5,19 +5,20 @@ import { getClientContext, requestIp } from "@/lib/auth/session";
 import { cardPlans, readBilling, startPlanPayment, activateWithFreeCoupon } from "@/lib/billing/plan-payment";
 import { COUPON_CHECK_LIMIT, findCoupon, type CouponCheck } from "@/lib/billing/coupons";
 import { sendPlanPaidMail } from "@/lib/billing/plan-mail";
-import { formatCents } from "@/lib/catalog/money";
+import { priceView } from "@/lib/billing/display";
+import { formatMoney, loweredOffer, offerFor } from "@/lib/billing/prices";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { PaymentError } from "@/lib/payments/errors";
 import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { getPlans, yallappPaymentAccount, yallappProvider } from "@/lib/settings/platform";
+import { getPlans, yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { cancelScheduledPlan, scheduleDowngrade } from "@/lib/billing/plan-change";
-import { isPlan } from "@/lib/plans";
+import { isPlan, planPriceOf } from "@/lib/plans";
 
 /**
  * The client pays the current app's plan by card: off to the provider's payment
@@ -37,17 +38,21 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   const store = await getStore();
   const plans = await getPlans(store);
   const plan = isPlan(values.plan) ? plans[values.plan] : null;
-  if (!plan || plan.priceCents === null) return { errors: { plan: "Choose a plan." }, values };
+  const price = plan ? planPriceOf(plan) : null;
+  if (!plan || !price) return { errors: { plan: "Choose a plan." }, values };
   // 11.5 Switches: card payments can be switched off, for everyone or per plan.
   if (!featureOn(await getSwitches(store), "plan_card_payments", plan.id)) {
     return { message: "Card payments aren't available for this plan. Message us on WhatsApp to pay.", values };
   }
   const billing = readBilling(values);
   if (!billing.ok) return { errors: billing.errors, values };
-  // 37 Yallapp's account with the provider the team chose (iyzico, Kashier or Fawaterk).
-  const account = await yallappPaymentAccount(store, encryptionKey());
+  // 52 Yallapp's account with the gateway the team chose for its plans (Kashier unless set otherwise).
+  const account = await yallappPlanAccount(store, encryptionKey());
   if (!account) return { message: "Card payments aren't available right now. Message us on WhatsApp to pay.", values };
-  if (!cardPlans(plans, account.provider).some((p) => p.id === plan.id)) {
+  const view = await priceView(store, context.client, { fresh: true });
+  // 52 Charged in pounds through Kashier wherever the client is; shown in dollars outside Egypt.
+  let offer = offerFor(price, view.display, account.provider, view.egpPerUsd);
+  if (!offer || !cardPlans(plans, account.provider, view.egpPerUsd).some((p) => p.id === plan.id)) {
     return { message: "This plan can't be paid by card right now. Message us on WhatsApp to pay.", values };
   }
   const now = new Date();
@@ -57,15 +62,25 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   // The price comes from the plan and the coupon here, never from the browser.
   let coupon: Extract<CouponCheck, { ok: true }> | undefined;
   if (values.coupon) {
-    const check = await findCoupon(store, { code: values.coupon, plan, client: context.client, license: context.license, now });
+    const check = await findCoupon(store, { code: values.coupon, plan, charged: offer.charged, client: context.client, license: context.license, now });
     if (!check.ok) return { errors: { coupon: check.error }, values };
     coupon = check;
   }
   if (coupon && coupon.amountCents === 0) {
-    const outcome = await activateWithFreeCoupon({ store, client: context.client, app: context.app, plan, coupon, encryptionKey: encryptionKey(), now });
+    const outcome = await activateWithFreeCoupon({
+      store,
+      client: context.client,
+      app: context.app,
+      plan,
+      coupon,
+      charged: offer.charged,
+      encryptionKey: encryptionKey(),
+      now,
+    });
     await sendPlanPaidMail(store, context.client, outcome);
     redirect("/dashboard/license?payment=paid");
   }
+  if (coupon) offer = loweredOffer(offer, coupon.amountCents);
   let url: string;
   try {
     url = await startPlanPayment({
@@ -81,6 +96,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       ip: await requestIp(),
       callbackUrls: (token) => callbackUrls(appUrl(), "plan", account.provider, token),
       coupon,
+      offer,
     });
   } catch (e) {
     if (e instanceof PaymentError) return { message: `The payment couldn't start: ${e.message}`, values };
@@ -95,7 +111,8 @@ export interface CouponState {
   error?: string;
   /** "20% off" and the price per plan with the coupon. */
   message?: string;
-  prices?: Record<string, { price: string; was: string; free: boolean }>;
+  /** 52 In the client's currency; `charge`: the line about the charge in pounds, when the price shows in dollars. */
+  prices?: Record<string, { price: string; was: string; free: boolean; charge: string | null }>;
 }
 
 /** Shows what a coupon takes off each plan the client can pay by card; the payment checks it again. */
@@ -109,16 +126,21 @@ export async function checkCouponAction(_: CouponState, formData: FormData): Pro
   if (!(await hitRateLimit(store, COUPON_CHECK_LIMIT, context.client.id, now)).allowed) {
     return { error: "Too many coupon codes tried. Try again in an hour." };
   }
-  const plans = cardPlans(await getPlans(store), await yallappProvider(store));
+  // 52 The prices as the form shows them: the client's currency, lowered from the charge in pounds.
+  const [{ planProvider }, view] = await Promise.all([yallappBilling(store, { fresh: true }), priceView(store, context.client, { fresh: true })]);
+  const plans = cardPlans(await getPlans(store), planProvider, view.egpPerUsd);
   const prices: NonNullable<CouponState["prices"]> = {};
   let firstError: string | undefined;
   for (const plan of plans) {
-    const check = await findCoupon(store, { code, plan, client: context.client, license: context.license, now });
+    const offer = offerFor(planPriceOf(plan)!, view.display, planProvider, view.egpPerUsd);
+    if (!offer) continue;
+    const check = await findCoupon(store, { code, plan, charged: offer.charged, client: context.client, license: context.license, now });
     if (!check.ok) {
       firstError ??= check.error;
       continue;
     }
-    prices[plan.id] = { price: formatCents(check.amountCents, plan.currency), was: formatCents(check.fullCents, plan.currency), free: check.amountCents === 0 };
+    const lowered = loweredOffer(offer, check.amountCents);
+    prices[plan.id] = { price: formatMoney(lowered.shown), was: formatMoney(offer.shown), free: check.amountCents === 0, charge: lowered.line };
   }
   if (!Object.keys(prices).length) return { error: firstError ?? "This coupon code isn't valid." };
   const applies = plans.filter((p) => prices[p.id]).map((p) => p.name);

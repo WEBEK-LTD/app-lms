@@ -1,14 +1,19 @@
-import { CATALOG_CURRENCIES, formatCents, parsePrice } from "../catalog/money";
+import { formatCents, parsePrice } from "../catalog/money";
 import type { DataStore } from "../data/store";
 import type { CatalogCurrency, Client, Coupon, CouponDiscount, CouponRedemption, License } from "../data/types";
 import { PLANS, type Plan, type PlanInfo } from "../plans";
 import type { RateLimitRule } from "../rate-limit";
+import type { Money } from "./prices";
 
 /**
  * Coupons lower a plan's card payment (roadmap 11.6). The server works out
  * the price from the plan and the coupon each time; the browser only sends
  * the code. A coupon that takes the whole price activates or extends the
  * plan without a card payment.
+ *
+ * 52 A coupon lowers what is charged (pounds with Kashier): a percentage
+ * of it, or a fixed amount in its currency. The price shown in dollars
+ * outside Egypt is lowered in the same proportion (lib/billing/prices.ts).
  */
 
 /** iyzico doesn't take card payments under 1.00 in any currency (37 the same minimum is kept for Kashier and Fawaterk); a smaller discounted price is raised to this. */
@@ -33,14 +38,14 @@ export interface CouponPrice {
   amountCents: number;
 }
 
-/** The plan's price with the coupon; null when the coupon has no amount in the plan's currency. */
-export function couponPrice(discount: CouponDiscount, plan: Pick<PlanInfo, "priceCents" | "currency">): CouponPrice | null {
-  const full = plan.priceCents ?? 0;
+/** 52 The charged price with the coupon; null when the coupon has no amount in the charge's currency. */
+export function couponPrice(discount: CouponDiscount, charged: Money): CouponPrice | null {
+  const full = charged.cents;
   let off: number;
   if (discount.kind === "percent") {
     off = Math.round((full * discount.percent) / 100);
   } else {
-    const amount = discount.amounts[plan.currency];
+    const amount = discount.amounts[charged.currency];
     if (amount === undefined) return null;
     off = amount;
   }
@@ -72,6 +77,8 @@ const PERIOD_NAME = { 1: "monthly", 12: "yearly" } as const;
 export function checkCoupon(input: {
   coupon: Coupon | null;
   plan: PlanInfo;
+  /** 52 What the plan costs with Yallapp's gateway, before the coupon. */
+  charged: Money;
   client: Pick<Client, "id" | "activatedAt">;
   license?: Pick<License, "id"> | null;
   redemptions: CouponRedemption[];
@@ -92,20 +99,20 @@ export function checkCoupon(input: {
   if (coupon.maxPerClient !== null && counted.filter((r) => r.clientId === client.id).length >= coupon.maxPerClient) {
     return { ok: false, error: "You've already used this coupon." };
   }
-  const price = couponPrice(coupon.discount, plan);
-  if (!price || price.discountCents === 0) return { ok: false, error: `This coupon doesn't apply to payments in ${plan.currency}.` };
+  const price = couponPrice(coupon.discount, input.charged);
+  if (!price || price.discountCents === 0) return { ok: false, error: `This coupon doesn't apply to payments in ${input.charged.currency}.` };
   return { ok: true, coupon, ...price };
 }
 
 /** Looks the code up (in any case) and checks it for this client, the app's license (see checkCoupon) and plan. */
 export async function findCoupon(
   store: Pick<DataStore, "getCouponByCode" | "listCouponRedemptions">,
-  input: { code: string; plan: PlanInfo; client: Pick<Client, "id" | "activatedAt">; license?: Pick<License, "id"> | null; now: Date },
+  input: { code: string; plan: PlanInfo; charged: Money; client: Pick<Client, "id" | "activatedAt">; license?: Pick<License, "id"> | null; now: Date },
 ): Promise<CouponCheck> {
   const code = normalizeCouponCode(input.code);
   const coupon = COUPON_CODE.test(code) ? await store.getCouponByCode(code) : null;
   const redemptions = coupon ? await store.listCouponRedemptions({ couponId: coupon.id }) : [];
-  return checkCoupon({ coupon, plan: input.plan, client: input.client, license: input.license, redemptions, now: input.now });
+  return checkCoupon({ coupon, plan: input.plan, charged: input.charged, client: input.client, license: input.license, redemptions, now: input.now });
 }
 
 /** The admin's coupon form: text values, checkbox groups as comma-separated values. */
@@ -114,9 +121,9 @@ export interface CouponFormValues {
   note: string;
   kind: "percent" | "fixed";
   percent: string;
-  amountTRY: string;
+  /** 52 Off a charge in pounds (Kashier, Fawaterk), and off one in dollars (iyzico). */
+  amountEGP: string;
   amountUSD: string;
-  amountEUR: string;
   plans: string;
   periods: string;
   validFrom: string;
@@ -132,9 +139,8 @@ export const NEW_COUPON: CouponFormValues = {
   note: "",
   kind: "percent",
   percent: "",
-  amountTRY: "",
+  amountEGP: "",
   amountUSD: "",
-  amountEUR: "",
   plans: "starter,pro",
   periods: "1,12",
   validFrom: "",
@@ -154,9 +160,8 @@ export function couponFormValues(coupon: Coupon): CouponFormValues {
     note: coupon.note,
     kind: coupon.discount.kind,
     percent: coupon.discount.kind === "percent" ? String(coupon.discount.percent) : "",
-    amountTRY: amount("TRY"),
+    amountEGP: amount("EGP"),
     amountUSD: amount("USD"),
-    amountEUR: amount("EUR"),
     plans: (coupon.plans ?? ALL_PLANS).join(","),
     periods: (coupon.periods ?? ALL_PERIODS).join(","),
     validFrom: coupon.validFrom?.toISOString().slice(0, 10) ?? "",
@@ -176,7 +181,7 @@ export function couponStatus(coupon: Coupon, now: Date): { label: string; tone: 
   return { label: "On", tone: "success" };
 }
 
-/** "20% off" or "₺500.00 / $20.00 off". */
+/** "20% off" or "E£500.00 / $20.00 off". */
 export function describeDiscount(discount: CouponDiscount): string {
   if (discount.kind === "percent") return `${discount.percent}% off`;
   const parts = (Object.entries(discount.amounts) as [CatalogCurrency, number][]).map(([currency, cents]) => formatCents(cents, currency));
@@ -199,7 +204,8 @@ export interface CouponInput {
 
 const ALL_PLANS: Plan[] = [...PLANS];
 const ALL_PERIODS: (1 | 12)[] = [1, 12];
-const CURRENCIES: CatalogCurrency[] = CATALOG_CURRENCIES;
+/** 52 What Yallapp charges in: pounds (Kashier, Fawaterk) or dollars (iyzico). */
+const CURRENCIES: CatalogCurrency[] = ["EGP", "USD"];
 
 /** The admin's coupon form, checked; or an error per field. Every plan or period ticked is stored as "all". */
 export function readCouponForm(input: {
@@ -228,7 +234,7 @@ export function readCouponForm(input: {
       if (cents === null || cents === 0) errors[`amount${currency}`] = "Enter an amount, like 250 or 99.90.";
       else amounts[currency] = cents;
     }
-    if (!Object.keys(amounts).length && !CURRENCIES.some((c) => errors[`amount${c}`])) errors.amountTRY = "Enter the amount off in at least one currency.";
+    if (!Object.keys(amounts).length && !CURRENCIES.some((c) => errors[`amount${c}`])) errors.amountEGP = "Enter the amount off in at least one currency.";
     discount = { kind: "fixed", amounts };
   } else {
     errors.kind = "Choose a percentage or a fixed amount.";

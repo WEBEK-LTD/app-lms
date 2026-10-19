@@ -35,9 +35,14 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] **Settings › Yallapp's Fawaterk account:** the API key with
       **Staging key** on, then **Test connection**.
 - [ ] **Settings › Yallapp's payment provider:** choose iyzico, Kashier or
-      Fawaterk for plan payments and shop sales through Yallapp. With Kashier
-      or Fawaterk, price the plans in EGP on **Plans** (plans in another
-      currency can't be paid by card then).
+      Fawaterk for shop sales through Yallapp (the marketplace). Plans have
+      their own gateway since Phase 52 (next item).
+- [ ] **Settings › Yallapp's plan payments (Phase 52):** the gateway for
+      Yallapp's own plans and add-ons is **Kashier** unless changed here;
+      everyone is charged in Egyptian pounds. Enter **EGP for 1 US dollar**
+      (the exchange rate that turns pound prices into the dollar prices shown
+      outside Egypt) and review it when the pound moves. Leave it empty only
+      if every plan has its own dollar price.
 - [ ] **Kashier and Fawaterk test payments, before going live:** with test
       keys, pay a plan and a shop order with their test cards and check that
       each is confirmed (the plan activates, the order shows on **Orders**).
@@ -46,6 +51,13 @@ devices. Everything else is in the code. Tick each line when it's done.
       test payment stays "not confirmed yet", send us what the provider's
       dashboard shows for it. Then save the live keys and turn the test
       switch off.
+- [ ] **Test refunds on each provider (roadmap 47.9):** with test keys,
+      refund a test order from **Orders** in part, then the rest: on iyzico
+      once on the day it was paid (a cancel) and once on a later day (item
+      refunds), on Kashier (its refund call; the secret key's role needs the
+      refund permission), and record one made in Fawaterk's panel. Check the
+      provider's panel shows each refund and that the order says
+      **Refunded**; send us what the provider answered if one fails.
 - [ ] **Kashier and Fawaterk webhooks:** nothing to set: each payment tells
       the provider its own webhook address
       (`/api/pay/kashier/…` and `/api/pay/fawaterk/…`). If Fawaterk's
@@ -72,7 +84,16 @@ devices. Everything else is in the code. Tick each line when it's done.
       automatic rebuilds, "We publish for you"); check the pricing page. Plan
       edits saved before Phase 13 kept only their price (the old Starter's
       moved to Growth): review the texts.
-- [ ] **Plans › card payments:** the prices clients pay by card for each plan.
+- [ ] **Plans › prices (Phase 52):** for each plan, **A price** or **On
+      request**; the **Price in EGP** (what everyone is charged, shown in
+      Egypt) and, if the rate's figure isn't the one we want, a **Price in
+      USD** (shown everywhere else). Prices saved before Phase 52 in lira or
+      euros were dropped (those plans show "On request" until priced in
+      EGP); a dollar price was kept as the USD price. Then open the pricing
+      page from Egypt and from elsewhere (or with a VPN) and check both.
+- [ ] **Coupons (Phase 52):** fixed-amount coupons need an amount **Off in
+      EGP** (Kashier charges pounds); amounts in lira or euros no longer
+      apply. Percent coupons need nothing.
 - [ ] **Emails:** check the five owner notices (app users at 80% and 100%,
       plan ending in 7 days, tomorrow and today).
 - [ ] **Team:** invite the rest of the team with the right role (admin,
@@ -289,6 +310,45 @@ Nothing to set on Netlify: the preview is served from the site's own files
       it; "Check links" is green for a WordPress client.
 - [ ] Watch Admin › Crashes after the first rebuilt versions reach people,
       and the owner's Stability card.
+
+## 7h. Yallapp's prices in pounds and dollars (Phase 52)
+
+- [ ] Apply migration `0038_yallapp_prices.sql` (the account's country on
+      clients; the dollar price shown on plan payments), then
+      `0039_refunds_time_zone.sql` (Phase 47: refunds of payments, and each
+      app's time zone for its analytics).
+- [ ] **Yallapp's Kashier account:** live merchant ID, Payment API key and
+      secret key in Settings › Yallapp's Kashier account (encrypted there;
+      never in the repository or Netlify files), **Test connection**, then a
+      test payment of a plan with Kashier's test card from outside Egypt:
+      the page says "You'll be charged EGP … (about $…)", Kashier's page
+      shows pounds, and the receipt (License › Payments › Receipt) shows the
+      amount in pounds and the dollar price.
+- [ ] **Set the EGP and USD prices and the rate** (Settings › Yallapp's
+      plan payments, then Plans), as in section 2.
+- [ ] **The visitor's country through the reverse proxy:** install
+      `mod_maxminddb` and the GeoLite2 Country database (with `geoipupdate`)
+      on the server, reinstall `platform/web/deploy/apache-proxy.conf`, and
+      check that a visit from Egypt shows pounds and one from elsewhere
+      dollars. Until then the proxy sends no country and prices follow the
+      browser's language region (Arabic set to Egypt shows pounds), else
+      dollars.
+- [ ] Clients who signed up before Phase 52 have no country saved: their
+      dashboard follows the request's country like a visitor's.
+
+## 7i. Plugin 0.4.3 (Phases 47 to 53)
+
+- [ ] **Release plugin 0.4.3** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`: the site's own links
+      open the app, private courses for their students, and screen
+      protection in Settings › General for every app type.
+- [ ] On a test site with Tutor LMS, set a course to Private, enrol a
+      student and check that the app shows the course in My courses and
+      opens its topics and lessons, while another account gets "not found".
+- [ ] On real phones, turn on **Block screenshots & screen recording** and
+      check that a screenshot and a screen recording of a lesson come out
+      blank (Android), or that the lesson is hidden in recordings and a
+      screenshot shows the notice (iPhone).
 
 ## 8. Accounts the remaining roadmap steps wait on
 

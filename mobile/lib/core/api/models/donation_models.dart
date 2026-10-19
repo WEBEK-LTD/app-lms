@@ -220,6 +220,7 @@ class Donation {
     this.anonymous = false,
     required this.createdAt,
     required this.receiptUrl,
+    this.refundedTotal,
   });
 
   factory Donation.fromJson(Json json) => Donation(
@@ -233,6 +234,7 @@ class Donation {
     anonymous: boolOr(json, 'anonymous', false),
     createdAt: reqDate(json, 'created_at'),
     receiptUrl: reqString(json, 'receipt_url'),
+    refundedTotal: optString(json, 'refunded_total'),
   );
 
   final int id;
@@ -245,6 +247,9 @@ class Donation {
   final bool anonymous;
   final DateTime createdAt;
   final String receiptUrl;
+
+  /// 47 What the charity refunded of it, formatted; null for nothing.
+  final String? refundedTotal;
 }
 
 /// `POST /donations/checkout-link`.

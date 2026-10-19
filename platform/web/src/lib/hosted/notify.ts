@@ -1,6 +1,7 @@
 import { keyContext } from "../builds/signing";
 import { decrypt } from "../crypto/encryption";
 import { dayOf } from "../analytics/days";
+import { appZone } from "../analytics/zone";
 import type { DataStore } from "../data/store";
 import type { App, HostedNotification } from "../data/types";
 import { parseServiceAccount, pushTarget, sendPush, type HmsCredentials, type ServiceAccount } from "./push";
@@ -124,7 +125,7 @@ export async function announce(input: {
     for (const token of result.invalidTokens) await input.store.clearHostedPushToken(input.app.id, token);
     // 44 How many phones it went to, for its open rate in Analytics.
     if (result.sent > 0) {
-      await input.store.addAnalyticsDaily(input.app.id, dayOf(input.now), { metric: "push_sent", key: String(notification.id), label: input.title.slice(0, 120), value: result.sent });
+      await input.store.addAnalyticsDaily(input.app.id, dayOf(input.now, await appZone(input.store, input.app)), { metric: "push_sent", key: String(notification.id), label: input.title.slice(0, 120), value: result.sent });
     }
     return { notification, pushed: result.sent, pushError: null };
   } catch (e) {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 53 Android 11 and older (backup is off in the manifest; this is in case
+     a phone backs up anyway): never the saved lessons (encrypted files in
+     the app's own storage), or the key that opens them. -->
+<full-backup-content>
+    <exclude domain="file" path="yallapp_downloads/" />
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+</full-backup-content>

@@ -154,6 +154,7 @@ class Order {
     required this.items,
     this.fulfilmentStatus,
     this.fulfilment,
+    this.refundedTotal,
   });
 
   factory Order.fromJson(Json json) => Order(
@@ -170,6 +171,7 @@ class Order {
     items: reqListOf(json, 'items', OrderLine.fromJson),
     fulfilmentStatus: fulfilmentStatusFrom(json['fulfilment_status']),
     fulfilment: optObject(json, 'fulfilment', OrderFulfilment.fromJson),
+    refundedTotal: optString(json, 'refunded_total'),
   );
 
   final int id;
@@ -185,6 +187,9 @@ class Order {
 
   /// 26 How a restaurant's order is collected.
   final OrderFulfilment? fulfilment;
+
+  /// 47 What the business refunded of it, formatted; null for nothing.
+  final String? refundedTotal;
 
   /// Whether the app shows its steps.
   bool get trackable => fulfilmentStatus != null;

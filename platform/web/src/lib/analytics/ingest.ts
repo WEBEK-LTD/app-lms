@@ -1,6 +1,5 @@
 import { hmacSha256, safeEqual } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
-import { trustedProxySecret } from "../env";
 import { addDays, dayOf } from "./days";
 import {
   ANALYTICS_EVENT_TYPES,
@@ -42,7 +41,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 const SCREEN = /^[a-z][a-z0-9_]{0,39}$/;
 const PUSH_TYPE = /^[a-z][a-z0-9_]{0,31}$/;
 const CURRENCY = /^[A-Z]{3}$/;
-const COUNTRY = /^[A-Z]{2}$/;
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
 
 const BATCH_FIELDS = new Set(["install_id", "platform", "app_version", "os_version", "locale", "events"]);
@@ -87,7 +85,7 @@ function cleanText(value: unknown, max: number): string | null {
  * fails the batch, so a broken build is noticed; events too old or ahead
  * are only skipped and counted.
  */
-export function parseBatch(body: unknown, now: Date): ({ ok: true } & ParsedBatch) | Failure {
+export function parseBatch(body: unknown, now: Date, zone = "UTC"): ({ ok: true } & ParsedBatch) | Failure {
   const fail = (message: string): Failure => ({ ok: false, message });
   if (!body || typeof body !== "object" || Array.isArray(body)) return fail("The body must be a JSON object.");
   const batch = body as Record<string, unknown>;
@@ -139,7 +137,8 @@ export function parseBatch(body: unknown, now: Date): ({ ok: true } & ParsedBatc
       continue;
     }
     const t = type as AnalyticsEventType;
-    const day = dayOf(at);
+    // 47 Filed under the day in the app's time zone.
+    const day = dayOf(at, zone);
     const hasItem = ITEM_EVENTS.has(t) && typeof event.item_kind === "string" && typeof event.item_id === "string";
     const amount = hasItem && typeof event.amount === "number" && typeof event.currency === "string" ? Math.round(event.amount * 100) : null;
     events.push({
@@ -165,34 +164,8 @@ export function parseBatch(body: unknown, now: Date): ({ ok: true } & ParsedBatc
   return { ok: true, events, searches, dropped };
 }
 
-/**
- * The visitor's country, from the request as it arrived: our reverse proxy's
- * header (with its shared secret), else Netlify's. The IP itself is never kept.
- */
-export function countryFromHeaders(list: Headers, proxySecret: string | undefined = trustedProxySecret()): string | null {
-  const valid = (value: string | null | undefined) => {
-    const code = value?.trim().toUpperCase();
-    return code && COUNTRY.test(code) && code !== "XX" ? code : null;
-  };
-  if (proxySecret) {
-    const sent = list.get("x-yallapp-proxy-secret");
-    if (sent && safeEqual(sent, proxySecret)) {
-      const proxied = valid(list.get("x-yallapp-client-country"));
-      if (proxied) return proxied;
-    }
-  }
-  const geo = list.get("x-nf-geo");
-  if (geo) {
-    try {
-      const parsed = JSON.parse(Buffer.from(geo, "base64").toString("utf8")) as { country?: { code?: string } };
-      const code = valid(parsed.country?.code);
-      if (code) return code;
-    } catch {
-      // Not Netlify's geo header: try the next one.
-    }
-  }
-  return valid(list.get("x-country"));
-}
+/** The visitor's country (lib/geo.ts); the IP itself is never kept. */
+export { countryFromHeaders } from "../geo";
 
 /**
  * Stores a parsed batch: the events, the day's search counts, and marks
@@ -204,12 +177,13 @@ export async function storeBatch(
   batch: ParsedBatch,
   country: string | null,
   now: Date,
+  zone = "UTC",
 ): Promise<void> {
   if (batch.events.length > 0) await store.insertAnalyticsEvents(batch.events.map((event) => ({ ...event, appId, country })));
   for (const { day, query } of batch.searches) {
     await store.addAnalyticsDaily(appId, day, { metric: "search", key: query, label: null, value: 1 });
   }
-  const today = dayOf(now);
+  const today = dayOf(now, zone);
   const late = new Set(batch.events.map((e) => e.day).filter((day) => day < today && day >= addDays(today, -MAX_EVENT_AGE_DAYS - 1)));
   for (const day of late) await store.addAnalyticsDaily(appId, day, { metric: "dirty", key: "", label: null, value: 1 });
 }

@@ -36,6 +36,12 @@ export interface Client {
   status: ClientStatus;
   paymentNote: string | null;
   activatedAt: Date | null;
+  /**
+   * 52 The account's country (ISO 3166-1 alpha-2): set from the request at
+   * sign-up and from the billing country on the payment form. It decides
+   * the currency Yallapp's prices are shown in, before the request's own.
+   */
+  country?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -211,6 +217,13 @@ export interface HostedSettings {
    * last license check. The next build lists them (`links.site_paths`).
    */
   sitePaths?: string[] | null;
+  /**
+   * 53 Screenshots and screen recording in the app, as the owner chose on the
+   * Screen protection page: `off`, `content` (course content only, academies)
+   * or `app` (every screen). Missing until they choose: off, or the plugin's
+   * own setting on WordPress (lib/app/screen-protection.ts).
+   */
+  screenProtection?: "off" | "content" | "app" | null;
 }
 
 /**
@@ -388,6 +401,8 @@ export interface App {
   /** 46 The owner's switches (missing means on): the store's rating prompt after good moments, and crash reports. */
   reviewPrompt?: boolean;
   crashReports?: boolean;
+  /** 47 The owner's IANA time zone, which Analytics counts days in; null or missing: from the account's country (lib/analytics/zone.ts). */
+  timeZone?: string | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -855,6 +870,44 @@ export interface CatalogOrder {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment (Kashier's session, Fawaterk's invoice), read back to confirm it. */
   providerRef?: string | null;
+  /** 47 What was refunded so far (PaymentRefund); missing: nothing. All of it: the status is "refunded". */
+  refundedCents?: number;
+}
+
+/** 47 What a refund is of: a shop's order (products, paid courses, memberships, tickets, a restaurant's order) or a donation. */
+export type RefundKind = "order" | "donation";
+
+/**
+ * 47 A refund the owner made from the dashboard: through the provider's API
+ * ("api": iyzico, Kashier), or in the provider's panel and recorded here
+ * ("manual": Fawaterk, or when the API can't).
+ */
+export interface PaymentRefund {
+  id: number;
+  appId: string;
+  kind: RefundKind;
+  /** The order's or donation's ID. */
+  targetId: number;
+  amountCents: number;
+  currency: CatalogCurrency;
+  /** lib/payments/refund.ts REFUND_REASONS. */
+  reason: string;
+  /** The owner's words; null for none. */
+  note: string | null;
+  provider: PaymentProviderId;
+  method: "api" | "manual";
+  /** The provider's calls: iyzico's cancel or a refund per item, with their references. Empty for "manual". */
+  parts: { kind: "cancel" | "refund"; transactionId: string | null; cents: number; reference: string }[];
+  /** The provider's reference (the parts' references, or what the owner entered); null for none. */
+  providerRef: string | null;
+  /** Marketplace orders: Yallapp's commission given back with it (proportionally); null otherwise. */
+  commissionCents: number | null;
+  /** What it took back: tickets cancelled, courses left, memberships ended (their IDs). */
+  revoked: { tickets: number[]; courses: number[]; memberships: number[] };
+  /** Who made it: the owner, or a team member managing the dashboard. */
+  byUserId: string | null;
+  byEmail: string;
+  createdAt: Date;
 }
 
 /** 26 Where a restaurant's order is: forward only, or cancelled. */
@@ -915,9 +968,20 @@ export interface YallappFawaterkSetting {
   sandbox: boolean;
 }
 
-/** 37 Which of Yallapp's accounts takes plan payments and marketplace sales; unset: iyzico. */
+/** 37 Which of Yallapp's accounts takes marketplace sales (and plan payments until Phase 52 gave them their own setting, `billing`); unset: iyzico. */
 export interface PaymentProviderSetting {
   provider: PaymentProviderId;
+}
+
+/**
+ * 52 Yallapp's own billing: the gateway its plans and add-ons are paid
+ * through (unset: Kashier, in Egyptian pounds), and the exchange rate that
+ * turns their pound prices into the dollar prices shown outside Egypt.
+ */
+export interface YallappBillingSetting {
+  planProvider: PaymentProviderId;
+  /** Egyptian pounds for one US dollar; null: only prices with their own dollar figure show in dollars. */
+  egpPerUsd: number | null;
 }
 
 export interface PlatformSettingValues {
@@ -928,6 +992,8 @@ export interface PlatformSettingValues {
   kashier: YallappKashierSetting;
   fawaterk: YallappFawaterkSetting;
   paymentProvider: PaymentProviderSetting;
+  /** 52 The gateway for Yallapp's own plans and add-ons, and the pound-to-dollar rate. */
+  billing: YallappBillingSetting;
   /** The team's edits to the plans; plans without one keep the defaults in code. */
   plans: Partial<Record<Plan, PlanSetting>>;
   /** Shops selling through Yallapp's iyzico account; off until set. */
@@ -984,6 +1050,12 @@ export interface PlanPayment {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment, read back to confirm it. */
   providerRef?: string | null;
+  /**
+   * 52 The price as the client saw it, when it was in another currency than
+   * the charge (dollars outside Egypt): the receipt shows it as "about".
+   */
+  shownCents?: number | null;
+  shownCurrency?: CatalogCurrency | null;
 }
 
 // Bookings managed in the dashboard (connector "bookings").
@@ -1936,6 +2008,8 @@ export interface EventTicket {
   usedAt: Date | null;
   cancelledAt: Date | null;
   createdAt: Date;
+  /** 47 Cancelled because the organiser refunded it; null or missing otherwise. */
+  refundedAt?: Date | null;
 }
 
 /** Tickets to take in one go: they all get a place, or none does. */
@@ -2047,6 +2121,8 @@ export interface Donation {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment, read back to confirm it. */
   providerRef?: string | null;
+  /** 47 What was refunded so far; missing: nothing. All of it: the status is "refunded". */
+  refundedCents?: number;
 }
 
 export type DonationInput = Omit<Donation, "id">;

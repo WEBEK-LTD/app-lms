@@ -1,4 +1,5 @@
 import { runAnalyticsNightly } from "@/lib/analytics/aggregate";
+import { appZone } from "@/lib/analytics/zone";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
 import { appUrl, internalJobSecret } from "@/lib/env";
@@ -21,6 +22,10 @@ export async function POST(request: Request): Promise<Response> {
   const store = await getStore();
   const now = new Date();
   const report = await runDailyNotices({ store, baseUrl: appUrl(), mail: sendTemplate, now });
-  const analytics = await runAnalyticsNightly(store, now);
+  // 47 Each app's days in its time zone.
+  const analytics = await runAnalyticsNightly(store, now, undefined, async (appId) => {
+    const app = await store.getAppById(appId);
+    return app ? appZone(store, app) : "UTC";
+  });
   return json({ ...report, analytics });
 }

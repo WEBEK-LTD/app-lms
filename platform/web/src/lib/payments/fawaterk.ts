@@ -16,8 +16,8 @@ export interface FawaterkKeys {
 }
 
 export class FawaterkError extends PaymentError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options: { unreachable?: boolean } = {}) {
+    super(message, options);
     this.name = "FawaterkError";
   }
 }
@@ -49,7 +49,7 @@ async function call(keys: FawaterkKeys, method: "GET" | "POST", path: string, bo
       signal: AbortSignal.timeout(20_000),
     });
   } catch {
-    throw new FawaterkError("Fawaterk can't be reached.");
+    throw new FawaterkError("Fawaterk can't be reached.", { unreachable: true });
   }
   const json = (await response.json().catch(() => null)) as Record<string, unknown> | null;
   return { status: response.status, json: json && typeof json === "object" ? json : null };

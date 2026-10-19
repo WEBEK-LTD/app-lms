@@ -12,6 +12,7 @@ import { buildReport, loadReport, rangeFrom } from "@/lib/analytics/report";
 import { receiveEvents } from "@/lib/analytics/service";
 import type { AnalyticsEventRow } from "@/lib/analytics/types";
 import { itemWord } from "@/lib/analytics/words";
+import { appZone, DEFAULT_ZONE, isTimeZone, zoneLabel, zoneOf, zoneOfPhone } from "@/lib/analytics/zone";
 import { buildConfigFor, newApp } from "@/lib/app/setup";
 import { validateBuildConfig } from "@/lib/build-config/validate";
 import { MemoryStore } from "@/lib/data/memory";
@@ -463,5 +464,59 @@ describe("44 the report", () => {
     expect(csvCell("-1")).toBe("'-1");
     expect(csvCell(0.25)).toBe("0.25");
     expect(csvCell("a,b")).toBe('"a,b"');
+  });
+});
+
+describe("47 days in the owner's time zone", () => {
+  const send = (store: MemoryStore, app: App, body: unknown, now = NOW) =>
+    receiveEvents(store, {
+      appId: app.id,
+      headers: new Headers({ "x-yallapp-analytics-key": analyticsKey(app.id, SECRET), "x-nf-client-connection-ip": "203.0.113.9", "x-country": "EG" }),
+      raw: JSON.stringify(body),
+      secret: SECRET,
+      now,
+    });
+
+  it("dates a moment in a zone, and finds the zone of the account's country", () => {
+    const late = new Date("2026-10-19T22:30:00Z");
+    expect(dayOf(late)).toBe("2026-10-19");
+    expect(dayOf(late, "Europe/Istanbul")).toBe("2026-10-20");
+    expect(dayOf(late, "America/New_York")).toBe("2026-10-19");
+    expect(dayOf(new Date("2026-10-19T02:00:00Z"), "America/New_York")).toBe("2026-10-18");
+    expect(zoneOfPhone("+20 100 123 4567")).toBe("Africa/Cairo");
+    expect(zoneOfPhone("+966501234567")).toBe("Asia/Riyadh");
+    expect(zoneOfPhone("+90 544 673 19 42")).toBe("Europe/Istanbul");
+    expect(zoneOfPhone("+1 555 0100")).toBeNull();
+    expect(zoneOf({ timeZone: null }, { whatsapp: "+201001234567" })).toBe("Africa/Cairo");
+    expect(zoneOf({ timeZone: null }, { whatsapp: "+15550100" })).toBe(DEFAULT_ZONE);
+    expect(zoneOf({ timeZone: "Asia/Tokyo" }, { whatsapp: "+201001234567" })).toBe("Asia/Tokyo");
+    expect(zoneOf({ timeZone: "Mars/Olympus" }, null)).toBe(DEFAULT_ZONE);
+    expect(isTimeZone("Africa/Cairo")).toBe(true);
+    expect(isTimeZone("UTC")).toBe(true);
+    expect(isTimeZone("Nowhere/City")).toBe(false);
+    expect(zoneLabel("Africa/Cairo", NOW)).toBe("Africa/Cairo (GMT+3)");
+  });
+
+  it("files events under the app's day, and the report's today is the app's", async () => {
+    const store = new MemoryStore();
+    const app = { ...(await appIn(store)), timeZone: "Asia/Tokyo" };
+    await store.updateApp(app.id, { timeZone: "Asia/Tokyo" }, NOW);
+    // 20:00 UTC on the 19th is the 20th in Tokyo.
+    const now = new Date("2026-10-19T20:00:00Z");
+    expect((await send(store, app, batch([{ type: "app_open", at: "2026-10-19T19:59:00Z", first_open: true }]), now)).status).toBe(202);
+    expect(await store.listAnalyticsEvents(app.id, "2026-10-19")).toHaveLength(0);
+    expect(await store.listAnalyticsEvents(app.id, "2026-10-20")).toHaveLength(1);
+    const range = rangeFrom({ range: "7" }, now, "Asia/Tokyo");
+    expect(range.to).toBe("2026-10-20");
+    const report = await loadReport(store, app.id, range, now, "Asia/Tokyo");
+    expect(report.kpis.installs).toBe(1);
+    expect(report.daily.at(-1)).toMatchObject({ day: "2026-10-20", installs: 1 });
+  });
+
+  it("uses the account's country when the owner hasn't chosen", async () => {
+    const store = new MemoryStore();
+    const app = await appIn(store);
+    expect(await appZone(store, app)).toBe(DEFAULT_ZONE);
+    expect(await appZone({ getClientById: async () => ({ whatsapp: "+201001234567" }) as never }, app)).toBe("Africa/Cairo");
   });
 });

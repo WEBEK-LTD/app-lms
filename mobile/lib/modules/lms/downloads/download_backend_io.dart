@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:background_downloader/background_downloader.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../core/l10n/l10n.dart';
@@ -60,8 +60,34 @@ class IoDownloadBackend implements DownloadBackend {
     final base = _rootOverride ?? await getApplicationSupportDirectory();
     final dir = _rootOverride ?? Directory('${base.path}/$_folder');
     await dir.create(recursive: true);
-    // iOS: not in iCloud or iTunes backups (the key isn't either).
+    // iOS: not in iCloud or computer backups (53; the key isn't either).
+    // Android leaves the folder out in the manifest's backup rules.
+    await _private('excludeFromBackup', dir.path);
+    if (Platform.isIOS && _rootOverride == null) {
+      // Lessons saved before 53.
+      await for (final entry in dir.list()) {
+        if (entry is File && !entry.path.endsWith('/$_indexName')) {
+          await _private('protect', entry.path);
+        }
+      }
+    }
     return _root = dir;
+  }
+
+  /// 53 iOS only (AppDelegate.swift, `yallapp/private_files`): keeps the
+  /// folder out of backups, and gives each saved lesson file complete data
+  /// protection (unreadable while the phone is locked). The index stays
+  /// readable after the first unlock, so downloads that finish while the
+  /// phone is locked can be recorded.
+  static const _privateFiles = MethodChannel('yallapp/private_files');
+
+  Future<void> _private(String method, String path) async {
+    if (!Platform.isIOS || _rootOverride != null) return;
+    try {
+      await _privateFiles.invokeMethod<bool>(method, {'path': path});
+    } on Object {
+      // Best effort: the files are encrypted either way.
+    }
   }
 
   /// Unencrypted files waiting to be sealed, and attachments being opened.
@@ -219,6 +245,7 @@ class IoDownloadBackend implements DownloadBackend {
     final size = await Isolate.run(
       () => sealFileSync(path, target.path, key, chunkSize),
     );
+    await _private('protect', target.path);
     return size;
   }
 
@@ -229,6 +256,7 @@ class IoDownloadBackend implements DownloadBackend {
     final part = File('${file.path}.part');
     await part.writeAsBytes(sealed, flush: true);
     await part.rename(file.path);
+    if (name != _indexName) await _private('protect', file.path);
   }
 
   @override

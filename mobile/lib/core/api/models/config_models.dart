@@ -52,6 +52,15 @@ class AppConfig {
     shareBaseUrl: _shareBase(json['links']),
   );
 
+  /// 53 What the app protects from screenshots and screen recording. An
+  /// older server without `app.screen_protection` protects lessons when
+  /// `content.block_screen_capture` says so.
+  ScreenProtection get screenProtection =>
+      app.screenProtection ??
+      (content.blockScreenCapture
+          ? ScreenProtection.content
+          : ScreenProtection.off);
+
   /// `Config.links.share_base_url` when it is an https address.
   static String? _shareBase(Object? links) {
     if (links is! Map) return null;
@@ -495,6 +504,11 @@ class ContentRules {
   final int? requiredWatchPercent;
 }
 
+/// 53 What the app protects from screenshots and screen recording
+/// (`Config.app.screen_protection`): nothing, course content only (lessons,
+/// quizzes, their attachments and videos) or every screen.
+enum ScreenProtection { off, content, app }
+
 class AppRules {
   const AppRules({
     required this.updateRequired,
@@ -502,6 +516,7 @@ class AppRules {
     this.maintenanceMessage,
     this.reviewPrompt = true,
     this.crashReports = true,
+    this.screenProtection,
   });
 
   factory AppRules.fromJson(Json json) => AppRules(
@@ -510,6 +525,10 @@ class AppRules {
     maintenanceMessage: optString(json, 'maintenance_message'),
     reviewPrompt: boolOr(json, 'review_prompt', true),
     crashReports: boolOr(json, 'crash_reports', true),
+    screenProtection: enumOrNull(
+      ScreenProtection.values,
+      json['screen_protection'],
+    ),
   );
 
   final bool updateRequired;
@@ -522,6 +541,10 @@ class AppRules {
 
   /// 46 The owner lets the app send crash reports. Missing: true.
   final bool crashReports;
+
+  /// 53 The owner's screen protection; null on older servers (see
+  /// [AppConfig.screenProtection]).
+  final ScreenProtection? screenProtection;
 }
 
 enum AppearanceMode { system, light, dark }

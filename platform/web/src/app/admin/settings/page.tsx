@@ -19,6 +19,7 @@ import {
   OtpSettingForm,
   PartnerAppForm,
   PaymentProviderForm,
+  PlanBillingForm,
   PublishingSettingForm,
   SmtpSettingForm,
   TestCodeForm,
@@ -92,6 +93,9 @@ export default async function SettingsPage() {
   const paymentProvider = settings.get("paymentProvider") as PlatformSetting<"paymentProvider"> | undefined;
   const provider = paymentProvider && isPaymentProvider(paymentProvider.value.provider) ? paymentProvider.value.provider : "iyzico";
   const accounts = { iyzico: Boolean(iyzico), kashier: Boolean(kashier), fawaterk: Boolean(fawaterk) };
+  // 52 Yallapp's own plans: their gateway (Kashier until set) and the pound-to-dollar rate.
+  const billing = settings.get("billing") as PlatformSetting<"billing"> | undefined;
+  const planProvider = billing && isPaymentProvider(billing.value.planProvider) ? billing.value.planProvider : "kashier";
   const marketplace = settings.get("marketplace") as PlatformSetting<"marketplace"> | undefined;
   const contact = settings.get("contact") as PlatformSetting<"contact"> | undefined;
   const appDefaults = settings.get("appDefaults") as PlatformSetting<"appDefaults"> | undefined;
@@ -226,11 +230,26 @@ export default async function SettingsPage() {
         <TestEmailForm />
       </Section>
 
+      {/* 52 Yallapp's own plans and add-ons: the gateway they're paid through and the rate for their dollar prices. */}
+      <Section
+        id="h-plan-billing"
+        title="Yallapp's plan payments"
+        text="Clients pay Yallapp's plans and add-ons through this gateway. Prices are set in Egyptian pounds on the Plans page: people in Egypt see pounds, everyone else sees US dollars, and Kashier and Fawaterk charge everyone in pounds. iyzico takes no pounds, so with iyzico the dollar price is charged. Payments already started finish with the account they started with."
+      >
+        <p className="m-0 text-sm text-muted">
+          Now: {PROVIDER_NAME[planProvider]}
+          {billing ? `, set by ${billing.updatedBy}, ${formatDateTime(billing.updatedAt)}` : " (the default)"}.
+          {billing?.value.egpPerUsd ? ` 1 US dollar = ${billing.value.egpPerUsd} Egyptian pounds.` : " No exchange rate: only prices with their own dollar figure show in dollars."}
+          {accounts[planProvider] ? "" : ` Yallapp's ${PROVIDER_NAME[planProvider]} account isn't set: card payments for plans are off.`}
+        </p>
+        <PlanBillingForm provider={planProvider} rate={billing?.value.egpPerUsd ? String(billing.value.egpPerUsd) : ""} />
+      </Section>
+
       {/* 37 Which of Yallapp's accounts takes payments: iyzico, Kashier or Fawaterk. */}
       <Section
         id="h-payment-provider"
         title="Yallapp's payment provider"
-        text="Which of Yallapp's merchant accounts below takes clients' plan payments and shop sales through Yallapp. Payments already started finish with the account they started with. Plans are paid by card only when priced in a currency the provider takes (set it on the Plans page)."
+        text="Which of Yallapp's merchant accounts below takes shop sales through Yallapp (the marketplace). Plans have their own gateway above. Payments already started finish with the account they started with."
       >
         <p className="m-0 text-sm text-muted">
           Now: {PROVIDER_NAME[provider]}
@@ -243,7 +262,7 @@ export default async function SettingsPage() {
       <Section
         id="h-iyzico"
         title="Yallapp's iyzico account"
-        text="Yallapp's own iyzico merchant account (Türkiye), for plan payments and shops selling through Yallapp while iyzico is the provider above. Clients with their own account add their keys on their Products page."
+        text="Yallapp's own iyzico merchant account (Türkiye), for plan payments and shops selling through Yallapp while iyzico is chosen above. Clients with their own account add their keys on their Products page."
       >
         {iyzico ? (
           <div className="flex flex-wrap items-center justify-between gap-3">

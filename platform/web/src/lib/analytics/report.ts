@@ -16,9 +16,9 @@ export interface AnalyticsRange {
   previous: { from: string; to: string };
 }
 
-/** The range from the page's query (`range`, `from`, `to`); last 30 days by default. Days are UTC. */
-export function rangeFrom(query: { range?: string | null; from?: string | null; to?: string | null }, now: Date): AnalyticsRange {
-  const today = dayOf(now);
+/** The range from the page's query (`range`, `from`, `to`); last 30 days by default. 47 Days are in the app's time zone. */
+export function rangeFrom(query: { range?: string | null; from?: string | null; to?: string | null }, now: Date, zone = "UTC"): AnalyticsRange {
+  const today = dayOf(now, zone);
   let preset = query.range ?? "30";
   let from: string;
   let to = today;
@@ -293,9 +293,10 @@ export async function loadReport(
   appId: string,
   range: AnalyticsRange,
   now: Date,
+  zone = "UTC",
 ): Promise<AnalyticsReport> {
   // The last day of each period gives its weekly and monthly users.
-  await refreshAnalytics(store, appId, now, [range.to, range.previous.to]);
+  await refreshAnalytics(store, appId, now, [range.to, range.previous.to], zone);
   const [rows, sent] = await Promise.all([store.listAnalyticsDaily(appId, range.previous.from, range.to), store.listHostedBroadcasts(appId, 100)]);
-  return buildReport(rows, range, dayOf(now), sent);
+  return buildReport(rows, range, dayOf(now, zone), sent);
 }

@@ -204,7 +204,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -216,6 +216,7 @@ class License_Client {
 				'sign_in_methods'   => null,
 				'email_sign_in'     => null,
 				'offline_downloads' => null,
+				'screen_protection' => null,
 				'app_type'          => null,
 				'vertical'          => null,
 				'app_links'         => null,
@@ -432,6 +433,8 @@ class License_Client {
 			'email_sign_in'     => in_array( $result['email_sign_in'] ?? null, array( 'code', 'password' ), true ) ? $result['email_sign_in'] : null,
 			// 45 Offline downloads on or off, as the owner chose on the dashboard; null: the plugin setting.
 			'offline_downloads' => isset( $result['offline_downloads'] ) && is_bool( $result['offline_downloads'] ) ? $result['offline_downloads'] : null,
+			// 53 Screenshots and screen recording, as the owner chose on the dashboard; null: the plugin settings.
+			'screen_protection' => \Yallapp\Content\Screen_Protection::from_status( $result['screen_protection'] ?? null ),
 			// The app's type and kind of business, as the owner chose them; null when unknown.
 			'app_type'          => $app['app_type'],
 			'vertical'          => $app['vertical'],

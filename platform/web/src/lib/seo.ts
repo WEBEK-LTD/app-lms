@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { COMPANY } from "./company";
 import { inlineText, type Block } from "./content/markdown";
-import type { PlanInfo } from "./plans";
+import { planShownPrice, POUNDS_VIEW, type PlanInfo, type PriceView } from "./plans";
 
 /**
  * 32 What search engines and link previews read: canonical addresses, Open
@@ -95,28 +95,34 @@ export function websiteLd(base: string): JsonLd {
   };
 }
 
-/** Yallapp as a product, with an offer for each plan that has a price (plans "On request" have none). */
-export function softwareLd(base: string, plans: PlanInfo[]): JsonLd {
-  const offers = plans
-    .filter((plan) => plan.priceCents !== null)
-    .map((plan) => {
-      const price = (plan.priceCents! / 100).toFixed(2);
-      return {
+/**
+ * Yallapp as a product, with an offer for each plan that has a price (plans
+ * "On request" have none). 52 In the currency the page shows: pounds in
+ * Egypt, dollars elsewhere.
+ */
+export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = POUNDS_VIEW): JsonLd {
+  const offers = plans.flatMap((plan) => {
+    const shown = planShownPrice(plan, view);
+    if (!shown) return [];
+    const price = (shown.cents / 100).toFixed(2);
+    return [
+      {
         "@type": "Offer",
         name: plan.name,
         description: plan.tagline,
         price,
-        priceCurrency: plan.currency,
+        priceCurrency: shown.currency,
         url: `${base}/pricing`,
         category: "subscription",
         priceSpecification: {
           "@type": "UnitPriceSpecification",
           price,
-          priceCurrency: plan.currency,
+          priceCurrency: shown.currency,
           billingDuration: plan.billingMonths === 1 ? "P1M" : "P1Y",
         },
-      };
-    });
+      },
+    ];
+  });
   return {
     "@context": CONTEXT,
     "@type": "SoftwareApplication",

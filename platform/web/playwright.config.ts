@@ -65,6 +65,12 @@ export const E2E = {
   analyticsAdminEmail: "analytics-admin@yallapp.test",
   /** The super admin of tests/e2e/links-crashes.spec.ts (roadmap 46). */
   linksAdminEmail: "links-admin@yallapp.test",
+  /** The super admin of tests/e2e/yallapp-prices.spec.ts (roadmap 52). */
+  pricesAdminEmail: "prices-admin@yallapp.test",
+  /** The super admin of tests/e2e/refunds.spec.ts (roadmap 47). */
+  refundsAdminEmail: "refunds-admin@yallapp.test",
+  /** 47 A fake WordPress site that every license refresh goes to (LICENSE_REFRESH_TEST_URL); tests/e2e/refunds.spec.ts runs it. */
+  wpRefreshPort: Number(process.env.E2E_WP_REFRESH_PORT ?? 3294),
   /** SIGNING_SECRET below: the analytics spec makes the app's analytics key with it, as the build config would. */
   signingSecret: "e2e-signing-secret-0123456789abcdef0123456789",
 };
@@ -100,7 +106,7 @@ export default defineConfig({
       YALLAPP_BLOBS: "fs",
       YALLAPP_BLOBS_DIR: ".data/e2e-blobs",
       YALLAPP_MAIL_DIR: E2E.mailDir,
-      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail}`,
+      SUPER_ADMIN_EMAILS: `${E2E.adminEmail},${E2E.settingsAdminEmail},${E2E.listingsAdminEmail},${E2E.pagesAdminEmail},${E2E.teamAdminEmail},${E2E.contentAdminEmail},${E2E.appsAdminEmail},${E2E.publishingAdminEmail},${E2E.plansAdminEmail},${E2E.demosAdminEmail},${E2E.clinicAdminEmail},${E2E.newsAdminEmail},${E2E.restaurantAdminEmail},${E2E.fitnessAdminEmail},${E2E.eventsAdminEmail},${E2E.charityAdminEmail},${E2E.paymentsAdminEmail},${E2E.signInAdminEmail},${E2E.translationsAdminEmail},${E2E.analyticsAdminEmail},${E2E.linksAdminEmail},${E2E.pricesAdminEmail},${E2E.refundsAdminEmail}`,
       YALLAPP_SEED_ADMIN_PASSWORD: E2E.adminPassword,
       SESSION_SECRET: "e2e-session-secret-0123456789abcdef0123456789",
       SIGNING_SECRET: E2E.signingSecret,
@@ -114,6 +120,7 @@ export default defineConfig({
       IYZICO_API_URL: `http://localhost:${E2E.iyzicoPort}`,
       KASHIER_API_URL: `http://localhost:${E2E.kashierPort}`,
       FAWATERK_API_URL: `http://localhost:${E2E.fawaterkPort}`,
+      LICENSE_REFRESH_TEST_URL: `http://localhost:${E2E.wpRefreshPort}`,
     },
   },
 });

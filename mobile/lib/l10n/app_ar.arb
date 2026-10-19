@@ -810,6 +810,8 @@
   "ticketStatusValid": "صالحة",
   "ticketStatusUsed": "مستخدمة",
   "ticketStatusCancelled": "ملغاة",
+  "ticketStatusRefunded": "مستردة",
+  "refundedAmount": "تم استرداد {amount}",
   "ticketUsedAt": "سُجّل الدخول {time}",
   "ticketShowAtDoor": "اعرض هذا الرمز عند الدخول",
   "ticketCancel": "إلغاء التذكرة",
@@ -925,5 +927,11 @@
   "courseCompletedOn": "اكتملت في {date}",
   "courseCompletedTitle": "لقد أكملت هذه الدورة",
   "viewCertificate": "عرض الشهادة",
-  "completedCourseLabel": "{title}، مكتملة"
+  "completedCourseLabel": "{title}، مكتملة",
+  "screenProtected": "هذا المحتوى محمي، ويُخفى أثناء تسجيل الشاشة أو مشاركتها.",
+  "screenshotProtected": "هذا المحتوى محمي: لا يُسمح بالتقاط صور الشاشة له.",
+  "fileOpenFailed": "تعذّر فتح هذا الملف.",
+  "fileInAppOnly": "لا يمكن عرض هذا الملف هنا",
+  "fileInAppOnlyMessage": "تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.",
+  "pageOf": "صفحة {page} من {total}"
 }

@@ -209,9 +209,16 @@ test("a card payment for one app doesn't change the other", async () => {
   await iyzico.getByLabel("Secret key").fill("sandbox-yallapp-secret");
   await iyzico.getByRole("button", { name: "Save keys" }).click();
   await expect(iyzico.getByText("iyzico account saved.")).toBeVisible();
+  // 52 Plans through iyzico: it charges the dollar price.
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("iyzico");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText("Plans are paid through Yallapp's iyzico account.")).toBeVisible();
   await admin.goto("/admin/plans");
   const starter = admin.getByRole("region", { name: "Starter" });
-  await starter.getByLabel("Card price").fill("300");
+  await starter.getByLabel("A price").check();
+  await starter.getByLabel("Price in EGP").fill("300");
+  await starter.getByLabel("Price in USD (optional)").fill("6");
   await starter.getByLabel("Billed").selectOption("1");
   await starter.getByRole("button", { name: "Save plan" }).click();
   await expect(starter.getByText("Starter saved.")).toBeVisible();
@@ -226,7 +233,7 @@ test("a card payment for one app doesn't change the other", async () => {
   await own.getByLabel("City").fill("Izmir");
   await own.getByLabel("Billing address").fill("Kordon Boyu 5, Konak");
   await own.getByRole("button", { name: "Pay by card" }).click();
-  await expect(own.getByText("Total 300.00")).toBeVisible();
+  await expect(own.getByText("Total 6.00")).toBeVisible();
   await own.getByRole("button", { name: "Pay with test card" }).click();
   await expect(own).toHaveURL(/\/dashboard\/license\?payment=paid$/);
   await expect(own.getByRole("status")).toContainText("Payment received.");
@@ -246,6 +253,10 @@ test("the team puts the settings back", async () => {
   await admin.goto("/admin/plans");
   await admin.getByRole("region", { name: "Starter" }).getByRole("button", { name: "Back to the default plan" }).click();
   await admin.goto("/admin/settings");
+  const billing = admin.getByRole("region", { name: "Yallapp's plan payments" });
+  await billing.getByLabel("Gateway for plans").selectOption("kashier");
+  await billing.getByRole("button", { name: "Save plan payments" }).click();
+  await expect(billing.getByText(/Plans are paid through Yallapp's Kashier account\./)).toBeVisible();
   const iyzico = admin.getByRole("region", { name: "Yallapp's iyzico account" });
   await iyzico.getByRole("button", { name: "Remove keys" }).click();
   await expect(iyzico).toContainText("Now: not set.");

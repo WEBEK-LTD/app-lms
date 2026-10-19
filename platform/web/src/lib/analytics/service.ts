@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import { ipFromHeaders } from "../http";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { analyticsKeyMatches, ANALYTICS_KEY_HEADER, countryFromHeaders, MAX_BATCH_BYTES, parseBatch, storeBatch } from "./ingest";
+import { appZone } from "./zone";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -44,11 +45,13 @@ export async function receiveEvents(
   } catch {
     return { status: 400, body: { code: "invalid_request", message: "The request body must be JSON." } };
   }
-  const parsed = parseBatch(body, input.now);
+  // 47 Events are filed under the app's days (its time zone).
+  const zone = await appZone(store, app);
+  const parsed = parseBatch(body, input.now, zone);
   if (!parsed.ok) return { status: 400, body: { code: "invalid_request", message: parsed.message } };
   const installId = parsed.events[0]?.installId ?? String((body as { install_id?: unknown }).install_id);
   const perInstall = await hitRateLimit(store, RATE_LIMITS.analyticsInstall, `${app.id}:${installId}`, input.now);
   if (!perInstall.allowed) return limited(perInstall.retryAfter);
-  await storeBatch(store, app.id, parsed, countryFromHeaders(input.headers), input.now);
+  await storeBatch(store, app.id, parsed, countryFromHeaders(input.headers), input.now, zone);
   return { status: 202, body: { accepted: parsed.events.length, dropped: parsed.dropped } };
 }

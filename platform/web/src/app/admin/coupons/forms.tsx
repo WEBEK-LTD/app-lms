@@ -41,10 +41,17 @@ export function CouponForm({ id, coupon, planNames }: { id?: string; coupon: Cou
         {kind === "percent" ? (
           <Field label="Percent off" name="percent" inputMode="numeric" defaultValue={v("percent")} hint="100 makes the plan free: no card payment." error={e.percent} className="max-w-[220px]" />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Off in TRY" name="amountTRY" inputMode="decimal" defaultValue={v("amountTRY")} error={e.amountTRY} hint="Leave a currency empty to not discount it." />
-            <Field label="Off in USD" name="amountUSD" inputMode="decimal" defaultValue={v("amountUSD")} error={e.amountUSD} />
-            <Field label="Off in EUR" name="amountEUR" inputMode="decimal" defaultValue={v("amountEUR")} error={e.amountEUR} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* 52 Kashier charges in pounds; dollars only when Yallapp's plans are paid through iyzico. */}
+            <Field
+              label="Off in EGP"
+              name="amountEGP"
+              inputMode="decimal"
+              defaultValue={v("amountEGP")}
+              error={e.amountEGP}
+              hint="Off the charge in pounds. The dollar price shown outside Egypt drops in the same proportion."
+            />
+            <Field label="Off in USD" name="amountUSD" inputMode="decimal" defaultValue={v("amountUSD")} error={e.amountUSD} hint="Only when plans are paid through iyzico, in dollars." />
           </div>
         )}
       </fieldset>

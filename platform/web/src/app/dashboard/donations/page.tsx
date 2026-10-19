@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
+import { Fragment } from "react";
 import { Badge, btn, EmptyState, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { DonationStatus } from "@/lib/data/types";
 import { donationReference } from "@/lib/donations/service";
+import { encryptionKey } from "@/lib/env";
+import { donationRefundOptions, refundedLine } from "@/lib/refunds/service";
+import { RefundSection } from "../orders/refunds-view";
 import { DonationTabs } from "./tabs";
 
 export const metadata: Metadata = { title: "Donations" };
@@ -36,12 +40,18 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
     store.listDonations({
       appId: app.id,
       campaignId,
-      statuses: status === "all" ? undefined : ["paid"],
+      statuses: status === "all" ? undefined : ["paid", "refunded"],
       offset: (page - 1) * PER_PAGE,
       limit: PER_PAGE,
     }),
   ]);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+  // 47 Each donation's refunds and its Refund form.
+  const key = encryptionKey();
+  const [refunds, options] = await Promise.all([
+    store.listRefunds(app.id, "donation", items.map((d) => d.id)),
+    Promise.all(items.map((d) => donationRefundOptions({ key }, app, d))),
+  ]);
   const filter = new URLSearchParams({ ...(campaignId ? { campaign: String(campaignId) } : {}), ...(status === "all" ? { status } : {}) });
   const pageLink = (p: number) => `/dashboard/donations?${new URLSearchParams({ ...Object.fromEntries(filter), page: String(p) })}`;
 
@@ -51,7 +61,7 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
         <div className="flex max-w-[620px] flex-col gap-2">
           <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donations</h1>
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            Donations from your app, newest first. Each donor gets a receipt by email. Refunds are made in your payment provider&apos;s panel.
+            Donations from your app, newest first. Each donor gets a receipt by email. Refund one, in full or in part, under it.
           </p>
         </div>
         <a href={`/api/dashboard/donations?${filter}`} className={`${btn.secondary} h-11`} download>
@@ -80,7 +90,7 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
             Show
           </label>
           <select id="f-status" name="status" defaultValue={status} className="input input-sm">
-            <option value="paid">Paid donations</option>
+            <option value="paid">Paid and refunded donations</option>
             <option value="all">Also started but not paid</option>
           </select>
         </div>
@@ -119,8 +129,9 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
               </tr>
             </thead>
             <tbody>
-              {items.map((d) => (
-                <tr key={d.id} className="border-b border-line-soft align-top last:border-b-0">
+              {items.map((d, index) => (
+                <Fragment key={d.id}>
+                <tr className="border-b border-line-soft align-top last:border-b-0">
                   <td className="px-4 py-3 font-semibold whitespace-nowrap">{donationReference(d)}</td>
                   <td className="px-4 py-3">
                     <span className="flex flex-col gap-0.5">
@@ -135,9 +146,29 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
                   <td className="px-4 py-3 text-right whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
                   <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt)}</td>
                   <td className="px-4 py-3">
-                    <Badge tone={TONES[d.status]}>{STATUS_LABELS[d.status]}</Badge>
+                    <span className="flex flex-col items-start gap-1">
+                      <Badge tone={TONES[d.status]}>{STATUS_LABELS[d.status]}</Badge>
+                      {d.status === "paid" && d.refundedCents ? <span className="text-[13px] text-muted">{refundedLine(d.refundedCents, d.amountCents, d.currency)}</span> : null}
+                    </span>
                   </td>
                 </tr>
+                {options[index]!.refundable || refunds.some((r) => r.targetId === d.id) ? (
+                  <tr className="border-b border-line-soft">
+                    <td colSpan={6} className="px-4 pb-4">
+                      <div className="flex flex-col gap-2">
+                        <RefundSection
+                          kind="donation"
+                          id={d.id}
+                          label={`donation ${donationReference(d)}`}
+                          currency={d.currency}
+                          refunds={refunds.filter((r) => r.targetId === d.id)}
+                          options={options[index]!}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ) : null}
+                </Fragment>
               ))}
             </tbody>
           </table>

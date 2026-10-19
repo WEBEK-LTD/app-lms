@@ -27,7 +27,7 @@ import { planName, planNamesOf } from "@/lib/plans";
 import { ActivateForm, AddClientForm, ClientDetailsForm } from "../forms";
 import { getPlans } from "@/lib/settings/platform";
 import { PAYMENT_STATUS, PAYMENT_TONE } from "../payments/labels";
-import { formatCents } from "@/lib/catalog/money";
+import { formatAmount } from "@/lib/billing/prices";
 
 export const metadata: Metadata = { title: "Clients" };
 
@@ -450,7 +450,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
               <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
                 <span>
-                  {formatCents(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {formatDateTime(p.paidAt ?? p.createdAt)}
+                  {formatAmount(p.amountCents, p.currency)} · {planName(p.plan, plans)} · {formatDateTime(p.paidAt ?? p.createdAt)}
                 </span>
               </li>
             ))}

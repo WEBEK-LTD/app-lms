@@ -38,10 +38,15 @@ describe("13.1 plans", () => {
     const edited = plansWith({
       starter: { ...planSettingOf(PLAN_INFO.starter), features: ["push", "ios"], limits: { ...PLAN_INFO.starter.limits, appUsers: 2000 } },
       growth: { name: "Starter", tagline: "old", highlights: ["old"], price: "On request", priceCents: 99_00, currency: "USD", billingMonths: 1, features: [] },
+      pro: { name: "Pro", tagline: "old", highlights: ["old"], price: "On request", priceCents: 1500_00, currency: "EGP", billingMonths: 12, features: [] },
+      business: { name: "Business", tagline: "old", highlights: ["old"], price: "On request", priceCents: 4800_00, currency: "TRY", billingMonths: 12, features: [] },
     });
     expect(edited.starter.features).toEqual(["push", "ios"]);
     expect(edited.starter.limits.appUsers).toBe(2000);
-    expect(edited.growth).toMatchObject({ name: "Growth", features: PLAN_INFO.growth.features, priceCents: 9900, currency: "USD", period: "month" });
+    // 52 Prices are in pounds now: an old dollar price is kept as the shown dollar price, a pound price as the price, any other is dropped.
+    expect(edited.growth).toMatchObject({ name: "Growth", features: PLAN_INFO.growth.features, priceCents: null, usdCents: 9900, onRequest: true, period: null });
+    expect(edited.pro).toMatchObject({ priceCents: 150000, usdCents: null, onRequest: false, period: "year" });
+    expect(edited.business).toMatchObject({ priceCents: null, usdCents: null, onRequest: true, period: null });
   });
 
   it("finds the plan to upgrade to and builds the comparison table", () => {
@@ -66,12 +71,12 @@ describe("13.1 plans", () => {
 
 describe("13.3 plan changes", () => {
   const priced = plansWith({
-    growth: { ...planSettingOf(PLAN_INFO.growth), priceCents: 1_200_00, currency: "TRY", billingMonths: 12 },
-    pro: { ...planSettingOf(PLAN_INFO.pro), priceCents: 3_600_00, currency: "TRY", billingMonths: 12 },
+    growth: { ...planSettingOf(PLAN_INFO.growth), priceCents: 1_200_00, onRequest: false, billingMonths: 12 },
+    pro: { ...planSettingOf(PLAN_INFO.pro), priceCents: 3_600_00, onRequest: false, billingMonths: 12 },
   });
 
   it("credits the days left at their value on an upgrade", () => {
-    // 100 days of ₺1,200/year are worth a third of 100 days of ₺3,600/year.
+    // 100 days of EGP 1,200/year are worth a third of 100 days of EGP 3,600/year.
     expect(creditDays(priced.growth, priced.pro, 100 * 86_400_000, NOW)).toBe(33);
     // Without card prices to compare, the days carry over one for one.
     expect(creditDays(PLAN_INFO.growth, PLAN_INFO.pro, 100.5 * 86_400_000, NOW)).toBe(100);
@@ -114,7 +119,7 @@ describe("13.3 plan changes", () => {
     await setup.store.createApp(app);
     await scheduleDowngrade(setup.store, setup.license!, "starter", NOW);
     const coupon = { ok: true as const, coupon: { id: "c1", code: "FREE" } as never, fullCents: 0, discountCents: 0, amountCents: 0 };
-    const outcome = await activateWithFreeCoupon({ store: setup.store, client: setup.client, app, plan: PLAN_INFO.pro, coupon, encryptionKey: KEY, now: NOW });
+    const outcome = await activateWithFreeCoupon({ store: setup.store, client: setup.client, app, plan: PLAN_INFO.pro, coupon, charged: { cents: 0, currency: "EGP" }, encryptionKey: KEY, now: NOW });
     expect(outcome.change).toMatchObject({ kind: "upgrade", plan: "pro", creditDays: 50 });
     const license = (await setup.store.getLicenseForApp(setup.client.id, app.id))!;
     expect(license).toMatchObject({ plan: "pro", nextPlan: null });
