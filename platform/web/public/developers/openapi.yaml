@@ -3718,7 +3718,7 @@ components:
             internet; `web_page`, the lesson shows a web page or embedded
             content; `disabled`, downloads aren't on for this app. Null when
             available.
-        size_bytes: { type: [integer, 'null'], description: "The files' total (video, attachments, images) when known." }
+        size_bytes: { type: [integer, 'null'], description: "The files' total (video, attachments, images) when known (always for a video from the Yallapp Media library, roadmap 51)." }
 
     LessonDownload:
       type: object
@@ -3778,10 +3778,23 @@ components:
     Video:
       type: object
       required: [source]
+      description: |
+        A lesson's video. Roadmap 51: a video from the owner's Yallapp Media
+        library (a lesson whose video address is a Yallapp media link,
+        `https://yallapp.com.tr/m/<id>`, on the hosted API or a WordPress
+        site, where the plugin asks Yallapp for it with
+        `POST /api/v1/licenses/media` after checking the student may open
+        the lesson) comes as `upload`, with a `url` signed for this request
+        on Yallapp's media server: a progressive MP4 (or MOV or WebM)
+        answering HTTP range requests, played in the app's own player. It
+        works until `expires_at` (4 hours); the app fetches the lesson again
+        for a new `url` before then, or when the player stops on an expired
+        link, and carries on where it was. A media link that no longer
+        exists leaves the lesson without `video`.
       properties:
         source: { type: string, enum: [upload, youtube, vimeo, external, embed] }
-        url: { type: [string, 'null'], format: uri, description: Signed and expiring for uploaded videos. }
-        expires_at: { type: [string, 'null'], format: date-time }
+        url: { type: [string, 'null'], format: uri, description: Signed and expiring for uploaded videos and for videos from the Yallapp Media library. }
+        expires_at: { type: [string, 'null'], format: date-time, description: When `url` stops working (uploaded and Media library videos); fetch the lesson again for a new one. }
         embed_html: { type: [string, 'null'] }
         duration_seconds: { type: [integer, 'null'] }
         poster_url: { type: [string, 'null'], format: uri }

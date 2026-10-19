@@ -124,9 +124,15 @@ where it is hosted (roadmap 40). YouTube (IFrame Player API), Vimeo (its
 player.js) and Bunny Stream (the Player.js protocol) play in a web view
 behind the app's own controls, the same as for uploaded files: the site's
 player loads with its controls, title, related videos and sharing turned
-off, three times as tall as the visible box so what it still draws along its
-edges falls outside it, under a transparent layer that takes every touch,
-and under the poster before it starts and after it ends. The page reports
+off, five times as tall as the visible box (51: three before) so what it
+still draws along its edges, its pause overlay included, falls outside it,
+under a transparent layer that takes every touch, and under the poster
+before it starts, in its last half second and after it ends. A listing's
+"Watch the video" plays in the same player (51: it opened the site's page
+before). What a site draws over the picture itself can't be cropped: a
+creator's end-screen cards in the last seconds, a paid-promotion label, ads
+on a monetized video. For a guaranteed player without any site, owners
+upload to the Media library (below). The page reports
 state, time and duration to the app over a JavaScript channel (watch
 tracking, resume, the watermark and the screen-capture cover work as for
 files) and takes play, pause, seek, speed, captions and quality commands.
@@ -1343,6 +1349,64 @@ without a new build. The app renders whatever the API sends.
   team sees them in Admin › Crashes; the owner's Stability page and
   overview card show crash-free sessions over 30 days and the top problems.
   Native crashes (Java/Kotlin, Swift) aren't caught yet.
+
+### Media library (roadmap 51)
+
+Owners' videos, pictures and PDFs are kept by Yallapp, on our own host and
+in our own database, never a third-party host. The platform's functions on
+Netlify can't take a 5 GB upload or stream a video (request and response
+sizes are limited), so the bytes go through the **media gate** instead:
+`platform/web/deploy/media-host/index.php`, PHP under the Apache that
+already serves yallapp.com.tr (`ProxyPass /media/ !` keeps `/media/*` on the
+host), with the files in a folder outside the web root. In local runs and
+tests the platform's own `/media` route does the same on `.data/media`
+(`lib/media/disk.ts`, the same protocol, checked against the PHP gate by
+`media.test.ts` with PHP's built-in server).
+
+- **Signed links** (`lib/media/signing.ts`): `/media/<op>/<app>/<id>.<ext>`
+  with `expires` and an HMAC-SHA256 `sig` over the path and parameters, with
+  `MEDIA_SIGNING_SECRET` (the gate's `config.php`). `v` plays (GET/HEAD with
+  range requests; `dl=1` as an attachment), `u` uploads, `s` reports what's
+  on disk, `d` deletes. The operation is signed, so a playing link can't
+  upload, and an upload link can't write past its signed `size`.
+- **Uploads**: the dashboard's Media page starts an upload (type and size per
+  file checked, the size reserved in the app's storage at once, a
+  `media_files` row "uploading"), then the browser sends 5 MB chunks straight
+  to the gate (`PUT` with `Upload-Offset`, written to `<id>.part` with a lock
+  and renamed when the last byte arrives; a wrong offset answers 409 with
+  where it stands). A broken connection retries; choosing the same file again
+  after a reload resumes from the server's offset (the upload's ID is kept in
+  the browser). The platform then asks the gate (`s`) and marks the file
+  ready only when its size is the one announced. Uploads left for two days
+  are cancelled by the daily job.
+- **Playback**: a hosted lesson whose video address is a file's Yallapp link
+  (`https://yallapp.com.tr/m/<id>`) answers `Video.source: upload` with a
+  `v` link for 4 hours and `expires_at`; the app renews it five minutes
+  before the end and when the player stops on an old link, and carries on
+  (`SignedVideoLink`). Offline downloads get a 15-minute `dl` link with the
+  file's size. `/m/<id>` itself redirects (302) to a 6-hour link for pictures
+  and for files the owner shared (page videos), and refuses lesson videos.
+  Products' and listings' photos from Media are `media:<id>` asset IDs.
+- **WordPress**: a lesson's "Yallapp video" box, its LMS video address or a
+  `[yallapp_video]` shortcode holding a media link; after the LMS lets the
+  student in, the plugin asks `POST /api/v1/licenses/media` with its license
+  (only its app's ready files; 4-hour play links cached for an hour, download
+  links not cached) and serves it as an upload. The shortcode shows a
+  `<video>` on the website.
+- **Storage**: `PlanLimits.storageGb` (2, 20, 100 and 500 GB by default,
+  editable in Admin › Plans, decimals allowed) plus `storage_packs` still
+  running. Uploads that don't fit are refused with "Buy more storage";
+  nothing is ever deleted for being over. Packs (+25 GB, +100 GB; a month's
+  price set in Admin › Plans as a `YallappPrice`, like the plans: pounds
+  charged, dollars shown outside Egypt, `lib/billing/prices.ts`) are bought
+  by card through the plans' gateway (`yallappPlanAccount`, Kashier in
+  pounds) as a `plan_payments` row with `purpose: storage` and the shown
+  price kept, priced for the months left in the plan's period and running
+  until it ends; a plan renewal by card offers them (`storage_packs` on the
+  payment, their charge added to the plan's, the coupon on the plan only)
+  and extends them to the new end. Tables: migration `0040_media_storage`. The daily job tells the owner once (notice and email) when a
+  pack ended and the files are over; the team adds or removes packs by hand
+  on the client's admin page.
 
 ## Build pipeline
 

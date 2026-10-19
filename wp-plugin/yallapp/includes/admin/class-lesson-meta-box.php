@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_Post;
 use Yallapp\Content\Lesson_Renderer;
+use Yallapp\Content\Yallapp_Media;
 
 /**
  * Adds an "In the app" box to the lesson edit screen.
@@ -80,6 +81,11 @@ class Lesson_Meta_Box {
 				'as_set'     => __( 'Keep the height set in the lesson', 'yallapp' ),
 			)
 		);
+		// 51 A video from the app's Media library in the Yallapp dashboard.
+		$link = (string) get_post_meta( $post->ID, Yallapp_Media::META, true );
+		echo '<p><label for="' . esc_attr( Yallapp_Media::META ) . '"><strong>' . esc_html__( 'Yallapp video', 'yallapp' ) . '</strong></label><br>';
+		echo '<input type="url" id="' . esc_attr( Yallapp_Media::META ) . '" name="' . esc_attr( Yallapp_Media::META ) . '" value="' . esc_attr( $link ) . '" class="widefat" placeholder="' . esc_attr( Yallapp_Media::origin() . '/m/…' ) . '">';
+		echo '<span class="description">' . esc_html__( 'Paste a video\'s link from Media in your Yallapp dashboard. The app plays it as this lesson\'s video, in its own player, for students who may open the lesson.', 'yallapp' ) . '</span></p>';
 	}
 
 	/**
@@ -107,6 +113,13 @@ class Lesson_Meta_Box {
 			} else {
 				delete_post_meta( $post_id, $key );
 			}
+		}
+		// 51 Only a Yallapp media link is kept.
+		$link = isset( $_POST[ Yallapp_Media::META ] ) ? trim( sanitize_text_field( wp_unslash( $_POST[ Yallapp_Media::META ] ) ) ) : '';
+		if ( '' !== $link && Yallapp_Media::id_of( $link, Yallapp_Media::origin() ) ) {
+			update_post_meta( $post_id, Yallapp_Media::META, esc_url_raw( $link ) );
+		} else {
+			delete_post_meta( $post_id, Yallapp_Media::META );
 		}
 	}
 

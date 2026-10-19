@@ -12,14 +12,16 @@ const playerChannel = 'YallappPlayer';
 ///   videos, sharing and keyboard turned off as far as the site allows
 ///   (YouTube's IFrame Player API, Vimeo's player.js, Bunny's Player.js
 ///   protocol).
-/// - The player frame is three times as tall as what shows: the site keeps
-///   the picture in the middle and draws what it still shows (title, logo,
-///   "More videos", buttons) along the frame's top and bottom edges, which
-///   fall outside the visible box. The frame is as wide as the picture, so
-///   portrait and 4:3 videos show whole.
+/// - The player frame is five times as tall as what shows (51: three before):
+///   the site keeps the picture in the middle and draws what it still shows
+///   (title, logo, "More videos" when paused, buttons) along the frame's top
+///   and bottom edges, two box heights outside the visible box, so even an
+///   overlay that grows with the player's height stays out of sight. The
+///   frame is as wide as the picture, so portrait and 4:3 videos show whole.
 /// - A transparent layer covers the frame, so no touch ever reaches the
 ///   site's player, and a black cover hides it before it starts and after it
-///   ends (end screens). `window.open` does nothing.
+///   ends (end screens), and already in the last half second, before the
+///   site's end screen can flash. `window.open` does nothing.
 /// - Events go to the app through the `YallappPlayer` channel as JSON:
 ///   `ready` (duration, speeds, caption tracks, qualities), `state`
 ///   (loading, ready, playing, paused, buffering, ended), `time` (position,
@@ -53,7 +55,7 @@ String brandlessPlayerHtml(
 <style>
 html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
 #stage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #000; }
-#frame { position: absolute; left: 0; top: -100%; width: 100%; height: 300%; border: 0; pointer-events: none; }
+#frame { position: absolute; left: 0; top: -200%; width: 100%; height: 500%; border: 0; pointer-events: none; }
 #cover { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000; z-index: 1; }
 #cover.off { display: none; }
 #shield { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: transparent; z-index: 2; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -101,8 +103,8 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     var width = Math.min(w, h * aspect);
     frame.style.width = width + 'px';
     frame.style.left = ((w - width) / 2) + 'px';
-    frame.style.height = (h * 3) + 'px';
-    frame.style.top = (-h) + 'px';
+    frame.style.height = (h * 5) + 'px';
+    frame.style.top = (-2 * h) + 'px';
   }
   window.addEventListener('resize', layout);
   layout();
@@ -111,6 +113,10 @@ html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
     position = num(p);
     if (num(d)) duration = num(d);
     if (b !== undefined) buffered = Math.min(1, num(b));
+    // 51 The last half second: covered before the site's end screen shows (and uncovered after a seek back).
+    if (state === 'playing' || state === 'paused' || state === 'buffering') {
+      cover.className = duration && duration - position < 0.5 && state === 'playing' ? '' : 'off';
+    }
     send({ type: 'time', position: position, duration: duration, buffered: buffered });
   }
   function tick() { if (api && api.poll) api.poll(); }

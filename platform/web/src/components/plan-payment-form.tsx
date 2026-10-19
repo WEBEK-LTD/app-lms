@@ -26,6 +26,7 @@ export function PlanPaymentForm({
   cta,
   appId,
   provider,
+  storageRenewal = {},
 }: {
   plans: CardPlan[];
   current: Plan | null;
@@ -34,6 +35,8 @@ export function PlanPaymentForm({
   appId: string | null;
   /** 37 The name of the provider taking the payment: "iyzico", "Kashier" or "Fawaterk". */
   provider: string;
+  /** 51 Per plan, the app's storage packs a card renewal can include: "Renew my storage pack (+25 GB) for $60 (charged as EGP 3,000)". */
+  storageRenewal?: Partial<Record<Plan, string>>;
 }) {
   const [state, action] = useActionState(payPlanAction, initialFormState);
   const [couponState, couponAction, couponPending] = useActionState(checkCouponAction, {} as CouponState);
@@ -93,6 +96,12 @@ export function PlanPaymentForm({
         })}
         <FieldError id="f-plan-error" error={state.errors?.plan} />
       </fieldset>
+      {storageRenewal[plan as Plan] ? (
+        <label className="flex cursor-pointer items-center gap-2 text-[15px]">
+          <input type="checkbox" name="renewStorage" defaultChecked={state.values ? state.values.renewStorage === "on" : true} className="h-4 w-4 accent-midnight" />
+          {storageRenewal[plan as Plan]}
+        </label>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
         <Field label="City" name="city" autoComplete="address-level2" defaultValue={v.city} error={state.errors?.city} small />
         <Field label="Billing address" name="address" autoComplete="street-address" defaultValue={v.address} error={state.errors?.address} small />

@@ -7,6 +7,7 @@ import {
   saveFawaterkSettingAction,
   saveIyzicoSettingAction,
   saveKashierSettingAction,
+  checkMediaGateAction,
   savePaymentProviderAction,
   savePlanBillingAction,
   savePublishingSettingAction,
@@ -222,6 +223,21 @@ export function TestEmailForm() {
       <div>
         <SubmitButton variant="secondary" className="h-10" pendingText="Sending…">
           Send a test email to me
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 51 Checks the media gate on our server. */
+export function CheckMediaForm() {
+  const [state, action] = useActionState(checkMediaGateAction, initialFormState);
+  return (
+    <form action={action} className="flex flex-col gap-2">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div>
+        <SubmitButton variant="secondary" className="h-10" pendingText="Checking…">
+          Check the media server
         </SubmitButton>
       </div>
     </form>

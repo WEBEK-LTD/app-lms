@@ -45,6 +45,8 @@ export interface PlanLimits {
   languages: number | null;
   /** Connected content sources the pages can list (null: all). Enforced: the page editor and the served layout. */
   sources: number | null;
+  /** 51 Gigabytes (decimals allowed, like 0.5) for the Media library's videos, pictures and PDFs, before storage packs (null: unlimited). Enforced: uploads past it are refused. */
+  storageGb: number | null;
   // Display-only: shown on the pricing page and the dashboard, handled by the team.
   /** Display-only: team members (several sign-ins per account aren't built yet). */
   teamMembers: number | null;
@@ -98,7 +100,7 @@ export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "high
   version?: 2;
 };
 
-const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
+const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, storageGb: 2, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
 
 export const PLAN_INFO: Record<Plan, PlanInfo> = {
   starter: {
@@ -106,7 +108,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Starter",
     tagline: "An Android app, published by you with our guides",
     features: ["push"],
-    limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1 },
+    limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2 },
     highlights: [
       "Android app (APK & AAB)",
       "For Google Play, Galaxy Store, AppGallery and GetApps",
@@ -130,7 +132,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Growth",
     tagline: "Android and iOS apps that grow with you",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild"],
-    limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, support: "whatsapp" },
+    limits: { ...BASE_LIMITS, appUsers: 10000, languages: 3, sources: null, storageGb: 20, support: "whatsapp" },
     highlights: [
       "Android & iOS apps",
       "Up to 10,000 app users",
@@ -153,7 +155,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Pro",
     tagline: "We publish your apps for you",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
-    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, teamMembers: 3, support: "priority" },
+    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 100, teamMembers: 3, support: "priority" },
     highlights: [
       "Everything in Growth",
       "Unlimited app users",
@@ -174,7 +176,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     name: "Business",
     tagline: "A partner for your app",
     features: ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish"],
-    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
+    limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 500, teamMembers: 10, support: "dedicated", accountManager: true, customFeatures: true },
     highlights: ["Everything in Pro", "A dedicated account manager", "Custom features on request", "Several team members", "Fastest support"],
     price: "On request",
     period: null,
@@ -238,12 +240,13 @@ export function planFeaturesFor(cardPayments: string | null): PlanFeatureDef[] {
   return PLAN_FEATURES.flatMap((f) => (f.id !== "card_payments" ? [f] : cardPayments ? [{ ...f, description: cardPayments }] : []));
 }
 
-export type PlanLimitId = "appUsers" | "languages" | "sources";
+export type PlanLimitId = "appUsers" | "languages" | "sources" | "storageGb";
 
 export const PLAN_LIMITS: { id: PlanLimitId; label: string; unlimited: string; enforced: string }[] = [
   { id: "appUsers", label: "App users", unlimited: "Unlimited", enforced: "The hosted API refuses new users past the limit (WordPress sites keep their own users: no limit)." },
   { id: "languages", label: "App languages", unlimited: "All languages", enforced: "The page editor, publishing and the served layout." },
   { id: "sources", label: "Connected platforms", unlimited: "All", enforced: "The page editor and the served layout leave out lists from other sources." },
+  { id: "storageGb", label: "Storage (GB)", unlimited: "Unlimited", enforced: "Media uploads past it are refused; storage packs add to it." },
 ];
 
 export function isPlan(value: unknown): value is Plan {
@@ -276,6 +279,8 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
     appUsers: count(v.appUsers, fallback.appUsers),
     languages: count(v.languages, fallback.languages),
     sources: count(v.sources, fallback.sources),
+    // 51 Edits saved before storage was a limit keep the plan's default.
+    storageGb: v.storageGb === undefined ? fallback.storageGb : v.storageGb === null ? null : typeof v.storageGb === "number" && Number.isFinite(v.storageGb) && v.storageGb > 0 ? v.storageGb : fallback.storageGb,
     teamMembers: count(v.teamMembers, fallback.teamMembers),
     support: SUPPORT_LEVELS.includes(v.support as SupportLevel) ? (v.support as SupportLevel) : fallback.support,
     accountManager: typeof v.accountManager === "boolean" ? v.accountManager : fallback.accountManager,
@@ -379,6 +384,8 @@ export function planLimitLines(plan: PlanInfo): { icon: IconName; text: string }
     { icon: "group", text: users === null ? "Unlimited users" : `Up to ${formatLimit(users)} users` },
     { icon: "language", text: languages === null ? "All languages" : `${languages} ${languages === 1 ? "language" : "languages"}` },
     { icon: "smartphone", text: hasFeature(plan, "ios") ? "Android and iOS" : "Android" },
+    // 51 Storage for the owner's videos and pictures.
+    { icon: "photo_library", text: `${formatStorage(plan.limits.storageGb)} for videos and files` },
   ];
 }
 
@@ -395,6 +402,12 @@ export function planStores(plan: Pick<PlanInfo, "features">): { stores: AppStore
 export function planStoresLine(plan: Pick<PlanInfo, "features">): string {
   const { stores, publisher } = planStores(plan);
   return `${stores.length} app stores · ${publisher === "us" ? "We publish for you" : "You publish with our guides"}`;
+}
+
+/** 51 "20 GB", "1 TB", or "Unlimited storage". */
+export function formatStorage(gb: number | null): string {
+  if (gb === null) return "Unlimited storage";
+  return gb >= 1000 && gb % 1000 === 0 ? `${gb / 1000} TB` : `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 3 }).format(gb)} GB`;
 }
 
 /** "1,000", or the limit's word for unlimited. */
@@ -424,6 +437,7 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "Connected platforms", values: each((p) => formatLimit(p.limits.sources, "All")) },
     { label: "App users", values: each((p) => formatLimit(p.limits.appUsers)) },
     { label: "App languages", values: each((p) => formatLimit(p.limits.languages, "All")) },
+    { label: "Storage for videos and files", values: each((p) => (p.limits.storageGb === null ? "Unlimited" : formatStorage(p.limits.storageGb))) },
     { label: "Push notifications", values: has("push") },
     { label: "Pages", values: each((p) => (hasFeature(p, "page_editor") ? "Full page editor" : "Ready-made templates")) },
     { label: "Card payments in the app", values: has("card_payments") },

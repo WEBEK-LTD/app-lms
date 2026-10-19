@@ -89,6 +89,11 @@ export const RATE_LIMITS = {
   analyticsIp: { name: "analytics:ip", limit: 60, windowSeconds: 60 },
   analyticsInstall: { name: "analytics:install", limit: 30, windowSeconds: 10 * 60 },
   analyticsApp: { name: "analytics:app", limit: 3000, windowSeconds: 60 },
+  // 51 Signed media links WordPress sites ask for (POST /api/v1/license/media): per IP and per license.
+  mediaLinksIp: { name: "media-links:ip", limit: 120, windowSeconds: 60 },
+  mediaLinksLicense: { name: "media-links:license", limit: 3000, windowSeconds: 60 * 60 },
+  // 51 Uploads an owner starts in the Media library, per app.
+  mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

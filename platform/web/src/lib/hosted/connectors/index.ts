@@ -5,7 +5,7 @@ import type { BookingAppointment } from "../../data/types";
 import { ArticlesConnector } from "./articles";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
-import { CoursesConnector } from "./courses";
+import { CoursesConnector, type CoursesMedia } from "./courses";
 import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
 import { ListingsConnector, type ListingsDeps } from "./listings";
@@ -65,6 +65,8 @@ export function connectorFor(
     cardPayments?: boolean;
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
     downloads?: boolean;
+    /** 51 Lesson videos from the app's Media library (lib/media/hosted.ts). */
+    media?: CoursesMedia;
     /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */
     signingSecret?: string;
   },

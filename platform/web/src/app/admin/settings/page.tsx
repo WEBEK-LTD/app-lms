@@ -7,10 +7,11 @@ import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { PlatformSetting, PlatformSettingKey } from "@/lib/data/types";
-import { appUrl, blobsMode, buildPipelineToken, dataMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
+import { appUrl, blobsMode, buildPipelineToken, dataMode, mediaBaseUrl, mediaMode, otpSenderConfig, smtpConfig, superAdminEmails } from "@/lib/env";
 import { platformSettings } from "@/lib/settings/platform";
 import { DEFAULT_CONTACT } from "@/lib/contact";
 import {
+  CheckMediaForm,
   ContactForm,
   FawaterkSettingForm,
   IyzicoSettingForm,
@@ -131,6 +132,12 @@ export default async function SettingsPage() {
     },
   ];
   const data = dataMode();
+  let media: "host" | "fs" | null = null;
+  try {
+    media = mediaMode();
+  } catch {
+    media = null;
+  }
   let envOtp = "Not set: sign-in on the hosted API fails";
   try {
     const config = otpSenderConfig();
@@ -416,9 +423,12 @@ export default async function SettingsPage() {
           <Row label="Site address" ok={appUrl().startsWith("https://")} value={appUrl()} />
           <Row label="Database" ok={data === "mysql"} value={data === "mysql" ? "MySQL over TLS" : "In memory (development only)"} />
           <Row label="File storage" ok={blobsMode() === "netlify"} value={blobsMode() === "netlify" ? "Netlify Blobs" : "Local folder (development only)"} />
+          {/* 51 Owners' videos, pictures and PDFs: on our own server, behind the media gate. */}
+          <Row label="Media library" ok={media === "host"} value={media === "host" ? `Our server, through the media gate at ${mediaBaseUrl()}` : media === "fs" ? "Local folder (development only)" : "Not set up: owners can't upload. Set MEDIA_BASE_URL and MEDIA_SIGNING_SECRET."} />
           <Row label="Build pipeline token" ok={Boolean(buildPipelineToken())} value={buildPipelineToken() ? "Set" : "Not set: the pipeline API refuses every request"} />
           <Row label="Super admins" ok={superAdminEmails().length > 0} value={superAdminEmails().join(", ")} />
         </div>
+        <CheckMediaForm />
       </Section>
       </ReadOnly>
     </>

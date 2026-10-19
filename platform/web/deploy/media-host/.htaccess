@@ -1,0 +1,11 @@
+# The media gate (roadmap 51): every request under /media goes through index.php,
+# which checks the platform's signature before it touches a file.
+Options -Indexes
+RewriteEngine On
+RewriteRule ^config(\.sample)?\.php$ - [F,L]
+RewriteCond %{REQUEST_URI} !/media/index\.php$
+RewriteRule ^ index.php [L,QSA]
+# Uploads come in chunks of up to 6 MB.
+LimitRequestBody 7340032
+# Video is already compressed: no gzip on its way out, and nothing buffered.
+SetEnv no-gzip 1

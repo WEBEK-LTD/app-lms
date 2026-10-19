@@ -8,6 +8,15 @@ import type { App, Course, CourseLesson, CourseSetup, LessonProgress } from "../
 import { descriptionHtml, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
+import type { ResolvedMedia } from "../../media/files";
+
+/** 51 Videos in the app's Media library (a lesson's video address is its Yallapp link). */
+export interface CoursesMedia {
+  /** Whether the address is a Yallapp media link. */
+  isLink(url: string): boolean;
+  /** The file signed for playing or saving, or null when it's gone. */
+  resolve(url: string, purpose: "play" | "download"): Promise<ResolvedMedia | null>;
+}
 
 interface CoursesDeps {
   store: DataStore;
@@ -18,6 +27,8 @@ interface CoursesDeps {
   cardPayments?: boolean;
   /** 45 Lessons may be saved for offline viewing: offline mode in the plan and the owner's choice (default false). */
   downloads?: boolean;
+  /** 51 Videos from the Media library; without it, a Yallapp link is a plain address. */
+  media?: CoursesMedia;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -295,6 +306,8 @@ export class CoursesConnector implements Connector {
     const progress = await this.progressOf(request, course.id);
     const lessons = lessonsOf(course);
     const index = lessons.findIndex((l) => l.id === lesson.id);
+    // 51 A video from the Media library plays from a link signed for this request; the app asks again when it expires.
+    const hosted = lesson.videoUrl && this.isMedia(lesson.videoUrl) ? await this.deps.media!.resolve(lesson.videoUrl, "play") : null;
     return {
       status: 200,
       body: {
@@ -306,12 +319,12 @@ export class CoursesConnector implements Connector {
         webview_url: null,
         embeds: [],
         embed_height: null,
-        ...(lesson.videoUrl
+        ...(lesson.videoUrl && !(this.isMedia(lesson.videoUrl) && !hosted)
           ? {
               video: {
-                source: videoSource(lesson.videoUrl),
-                url: lesson.videoUrl,
-                expires_at: null,
+                source: hosted ? "upload" : videoSource(lesson.videoUrl),
+                url: hosted ? hosted.url : lesson.videoUrl,
+                expires_at: hosted ? hosted.expiresAt.toISOString() : null,
                 embed_html: null,
                 duration_seconds: lesson.durationMinutes ? lesson.durationMinutes * 60 : null,
                 poster_url: null,
@@ -323,9 +336,13 @@ export class CoursesConnector implements Connector {
         position_seconds: progress.get(lesson.id)?.positionSeconds ?? 0,
         previous_id: lessons[index - 1]?.id ?? null,
         next_id: lessons[index + 1]?.id ?? null,
-        offline: this.offline(lesson),
+        offline: this.offline(lesson, hosted),
       },
     };
+  }
+
+  private isMedia(url: string): boolean {
+    return this.deps.media?.isLink(url) === true;
   }
 
   // 45 Offline lessons
@@ -333,13 +350,13 @@ export class CoursesConnector implements Connector {
   /** Why a lesson can't be saved for offline viewing, or null when it can. */
   private blocker(lesson: CourseLesson): "video_site" | "disabled" | null {
     if (this.deps.downloads !== true) return "disabled";
-    return lesson.videoUrl && !isVideoFile(lesson.videoUrl) ? "video_site" : null;
+    return lesson.videoUrl && !isVideoFile(lesson.videoUrl) && !this.isMedia(lesson.videoUrl) ? "video_site" : null;
   }
 
-  /** `Lesson.offline`. A video file's size isn't known: it's on the owner's own server. */
-  private offline(lesson: CourseLesson) {
+  /** `Lesson.offline`. A video file's size isn't known (it's on the owner's own server), except a Media library file's. */
+  private offline(lesson: CourseLesson, hosted: ResolvedMedia | null = null) {
     const reason = this.blocker(lesson);
-    return { available: reason === null, reason, size_bytes: null };
+    return { available: reason === null, reason, size_bytes: hosted?.sizeBytes ?? null };
   }
 
   /** May the student open this lesson: enrolled in its course, or a free preview. */
@@ -360,12 +377,19 @@ export class CoursesConnector implements Connector {
     if (this.blocker(lesson) === "video_site") {
       return { status: 409, body: { code: "not_downloadable", message: "This lesson's video plays from a video site, so it needs the internet.", details: { reason: "video_site" } } };
     }
+    // 51 A Media library video: a 15-minute link to save it, with its size and type.
+    const saved = lesson.videoUrl && this.isMedia(lesson.videoUrl) ? await this.deps.media!.resolve(lesson.videoUrl, "download") : null;
+    const video = saved
+      ? { kind: "video", url: saved.url, source_url: null, name: saved.name, size_bytes: saved.sizeBytes, mime_type: saved.mimeType }
+      : lesson.videoUrl && !this.isMedia(lesson.videoUrl)
+        ? { kind: "video", url: lesson.videoUrl, source_url: null, name: null, size_bytes: null, mime_type: null }
+        : null;
     return {
       status: 200,
       body: {
         lesson_id: lesson.id,
         course_id: course.id,
-        files: lesson.videoUrl ? [{ kind: "video", url: lesson.videoUrl, source_url: null, name: null, size_bytes: null, mime_type: null }] : [],
+        files: video ? [video] : [],
         expires_at: new Date(request.now.getTime() + DOWNLOAD_LINK_MINUTES * 60_000).toISOString(),
         keep_days: DOWNLOAD_KEEP_DAYS,
       },

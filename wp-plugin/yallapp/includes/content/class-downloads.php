@@ -206,7 +206,8 @@ class Downloads {
 		$files = array();
 		$video = $raw['video'] ?? null;
 		if ( is_array( $video ) && self::video_file( $video ) ) {
-			$files[] = $this->file( 'video', (string) $video['url'], (int) ( $video['attachment_id'] ?? 0 ), null, null, $user_id, $sign );
+			// 51 A Yallapp Media library video comes with its own link to save it, its size and type.
+			$files[] = $this->file( 'video', (string) $video['url'], (int) ( $video['attachment_id'] ?? 0 ), $video['name'] ?? null, $video['size_bytes'] ?? null, $user_id, $sign, $video['mime_type'] ?? null );
 		}
 		foreach ( (array) ( $raw['attachments'] ?? array() ) as $attachment ) {
 			if ( empty( $attachment['url'] ) ) {

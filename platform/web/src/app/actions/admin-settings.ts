@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { recordAudit, type AuditInput } from "@/lib/admin/audit";
 import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting } from "@/lib/data/types";
+import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting, StoragePackOffer } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
 import { appUrl, encryptionKey, iyzicoApiUrl, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
@@ -35,6 +35,9 @@ import {
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
+import { newId } from "@/lib/crypto/tokens";
+import { storageKeyOf } from "@/lib/media/signing";
+import { getMediaStorage } from "@/lib/media/storage";
 import { clearPlatformSettingsCache, encryptSetting, getPlans, platformSetting, resolvedOtpSenderConfig, yallappAccountFor } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
@@ -53,6 +56,7 @@ const SETTING_LABELS: Partial<Record<PlatformSettingKey, string>> = {
   publishing: "publishing team email",
   sallaApp: "Salla partner app",
   zidApp: "Zid partner app",
+  storagePacks: "storage packs",
 };
 
 /** Saves a setting (null: back to the defaults) and logs it, secrets redacted; `audit` replaces parts of the log entry. */
@@ -238,6 +242,20 @@ export async function sendTestEmailAction(): Promise<FormState> {
     return { message: `The email couldn't be sent: ${e instanceof Error ? e.message : "unknown error"}.` };
   }
   return { ok: true, message: `Test email sent to ${admin.email}. Check the inbox and the spam folder.` };
+}
+
+/** 51 Asks the media gate about a file that doesn't exist: proves the address and the shared secret. */
+export async function checkMediaGateAction(): Promise<FormState> {
+  await requireAdmin("settings.edit");
+  const storage = getMediaStorage();
+  if (!storage) return { message: "Media isn't set up: set MEDIA_BASE_URL and MEDIA_SIGNING_SECRET in Netlify (see the launch checklist)." };
+  try {
+    const stat = await storage.stat(storageKeyOf(newId(), newId(), "mp4"));
+    if (stat.exists) return { message: "The media server answered, but oddly: it reports a file that can't exist." };
+  } catch (e) {
+    return { message: `The media server didn't answer as it should: ${e instanceof Error ? e.message : "unknown error"}. Check MEDIA_BASE_URL, and that its config.php has the same secret as MEDIA_SIGNING_SECRET.` };
+  }
+  return { ok: true, message: storage.mode === "host" ? "The media server answers and accepts our signed links." : "Media files are kept in the local folder (development only)." };
 }
 
 export async function saveIyzicoSettingAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -456,7 +474,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   if (!isPlan(plan)) return { message: "Unknown plan." };
   const features = formData.getAll("features").map(String);
   const values: Record<string, string> = { features: features.join(",") };
-  for (const name of ["appUsers", "languages", "sources", "teamMembers", "support"]) values[name] = str(formData, name);
+  for (const name of ["appUsers", "languages", "sources", "storageGb", "teamMembers", "support"]) values[name] = str(formData, name);
   values.accountManager = formData.get("accountManager") === "on" ? "on" : "";
   values.customFeatures = formData.get("customFeatures") === "on" ? "on" : "";
   const errors: Record<string, string> = {};
@@ -471,6 +489,11 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
     if (limit === undefined || (limit !== null && limit < min)) errors[name] = "Enter a whole number from 1, or leave it empty for no limit.";
     else limits[name] = limit;
   }
+  // 51 Gigabytes of media storage: decimals allowed (0.5 is 512 MB).
+  const storage = values.storageGb!;
+  if (storage === "" || storage.toLowerCase() === "unlimited") limits.storageGb = null;
+  else if (/^\d{1,6}(\.\d{1,3})?$/.test(storage) && Number(storage) > 0) limits.storageGb = Number(storage);
+  else errors.storageGb = "Enter the gigabytes, like 20 or 0.5, or leave it empty for no limit.";
   if (!SUPPORT_LEVELS.includes(values.support as SupportLevel)) errors.support = "Choose the support level.";
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
@@ -481,6 +504,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
       appUsers: limits.appUsers ?? null,
       languages: limits.languages ?? null,
       sources: limits.sources ?? null,
+      storageGb: limits.storageGb ?? null,
       teamMembers: limits.teamMembers ?? null,
       support: values.support as SupportLevel,
       accountManager: values.accountManager === "on",
@@ -497,6 +521,32 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
   await revalidatePlans();
   refreshPlanSitesSoon(plan);
   return { ok: true, message: `${setting.name}: features and limits saved. Apps on this plan follow them now.`, values };
+}
+
+/** 51 The storage packs owners can buy: gigabytes, and a month's price (empty: not sold by card); 52 in pounds, with an optional dollar price, like the plans. */
+export async function saveStoragePacksAction(_: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin("plans.edit");
+  const values: Record<string, string> = {};
+  const errors: Record<string, string> = {};
+  const offers: StoragePackOffer[] = [];
+  for (let i = 0; i < 4; i++) {
+    const id = str(formData, `id${i}`);
+    if (!id) break;
+    for (const name of ["gb", "egp", "usd"]) values[`${name}${i}`] = str(formData, `${name}${i}`);
+    const gb = Number(values[`gb${i}`]);
+    if (!/^\d{1,5}$/.test(values[`gb${i}`]!) || gb < 1) errors[`gb${i}`] = "Enter a whole number of gigabytes.";
+    const egpCents = values[`egp${i}`] ? parsePrice(values[`egp${i}`]!) : null;
+    if (values[`egp${i}`] && (egpCents === null || egpCents === 0)) errors[`egp${i}`] = "Enter a monthly price in Egyptian pounds, like 250, or leave it empty.";
+    const usdCents = values[`usd${i}`] ? parsePrice(values[`usd${i}`]!) : null;
+    if (values[`usd${i}`] && (usdCents === null || usdCents === 0)) errors[`usd${i}`] = "Enter a monthly price in US dollars, like 5, or leave it empty to use the rate.";
+    else if (usdCents && !egpCents) errors[`egp${i}`] = "Enter the price in Egyptian pounds too: that's what is charged.";
+    if (/^[a-z0-9]{2,32}$/.test(id)) offers.push({ id, gb, price: egpCents ? { egpCents, usdCents: usdCents || null } : null });
+  }
+  if (Object.keys(errors).length) return { errors, values };
+  if (!offers.length) return { message: "Nothing to save.", values };
+  await save("storagePacks", { offers }, admin);
+  revalidatePath("/dashboard/media");
+  return { ok: true, message: "Storage packs saved.", values };
 }
 
 export async function resetPlanAction(formData: FormData): Promise<void> {

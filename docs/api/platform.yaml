@@ -21,6 +21,9 @@ info:
       `/apps/layout` as usual (roadmap 31).
     - If the platform can't be reached, the plugin keeps its last known status
       for a 72-hour grace period before treating the license as inactive.
+    - Videos from the app's Media library (tag Media, roadmap 51) play from
+      links the plugin asks for per request, after checking the student may
+      open the lesson; no student data is sent with it.
     - Only the site URL, plugin version, WordPress version and LMS are sent.
       No student data ever reaches the platform, except for sign-in codes sent
       by Yallapp (tag Sign-in codes): the phone number and the code pass
@@ -57,6 +60,16 @@ tags:
       the number nor the code; it counts requests per license and per number
       (as a one-way hash) to stop abuse, and keeps a daily count of codes sent
       per license for the Yallapp team.
+  - name: Media
+    description: |
+      Roadmap 51. Videos, pictures and PDFs the app's owner uploaded to the
+      Media library in the Yallapp dashboard, kept on Yallapp's own server
+      (not a third-party host) and played straight from it with HTTP range
+      requests, through links the platform signs. Each file has a Yallapp
+      link, `https://yallapp.com.tr/m/<id>`: pictures (and files the owner
+      shared) open from it for anyone; a lesson's video plays only from links
+      signed for a student who may open the lesson. Storage comes with the
+      plan, and the owner can buy storage packs.
   - name: Preview
     description: |
       The app preview: the client's app running in a browser, in the Yallapp
@@ -267,6 +280,53 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
 
+  /licenses/media:
+    post:
+      tags: [Media]
+      operationId: mediaLinks
+      summary: Signed links to play or save videos from the app's Media library
+      description: |
+        A Tutor LMS, LearnPress or other lesson whose video is a Yallapp
+        media link (the lesson's video address, the plugin's "Yallapp video"
+        box, or the `[yallapp_video]` shortcode): the plugin checks that the
+        student may open the lesson, then asks here, with the license, for a
+        link signed for that request, and gives it to the app as
+        `Video.source: upload` with its `expires_at` (or, for `download`, as
+        the lesson's video file in `POST /lessons/{lesson_id}/download`).
+        Only files of the license's own app that finished uploading; others
+        come back in `missing`. `play` links work for 4 hours, `download`
+        links for 15 minutes (as an attachment). The license must be active
+        on this site. Limits: 120 requests a minute per IP, 3000 an hour per
+        license.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MediaLinksRequest' }
+      responses:
+        '200':
+          description: The signed links
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaLinks' }
+        '400':
+          description: The request is invalid (`invalid_request`), such as a link that isn't a Yallapp media link.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: The license isn't active, or not on this site (`license_inactive`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503':
+          description: Media isn't available right now (`media_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /preview/{token}/config:
     servers:
       - url: https://yallapp.com.tr/api
@@ -466,6 +526,47 @@ components:
             email: { type: string, format: email, maxLength: 191, description: "The person's email address. Required with `channel: email`.", example: sara@example.com }
             code: { type: string, pattern: '^[0-9]{6}$', description: The code the plugin made. Sent once and never stored., example: '482913' }
             app_name: { type: string, maxLength: 60, description: "The app's name on the site, used only when the license's app has no name on the platform yet.", example: Nour Academy }
+
+    MediaLinksRequest:
+      allOf:
+        - $ref: '#/components/schemas/SiteInfo'
+        - type: object
+          required: [media]
+          properties:
+            media:
+              type: array
+              minItems: 1
+              maxItems: 20
+              description: Yallapp media links (`https://yallapp.com.tr/m/<id>`) or their IDs.
+              items: { type: string, maxLength: 200 }
+              example: ['https://yallapp.com.tr/m/3f1c2a9e-8d4b-4c6a-9e2f-1b7d5a0c4e88']
+            purpose:
+              type: string
+              enum: [play, download]
+              default: play
+              description: "`play`: a link for the app's player (4 hours). `download`: a link to save the file for offline viewing (15 minutes, as an attachment)."
+
+    MediaLinks:
+      type: object
+      required: [items, missing]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, kind, url, expires_at, size_bytes, mime_type, name]
+            properties:
+              id: { type: string, format: uuid }
+              kind: { type: string, enum: [video, image, pdf] }
+              url: { type: string, format: uri, description: "Signed for this request on Yallapp's media server; answers range requests." }
+              expires_at: { type: string, format: date-time }
+              size_bytes: { type: integer }
+              mime_type: { type: string, example: video/mp4 }
+              name: { type: string, description: The owner's name for the file. }
+        missing:
+          type: array
+          description: IDs that aren't the app's files (deleted, never finished uploading, or another app's).
+          items: { type: string }
 
     LicenseStatus:
       type: object

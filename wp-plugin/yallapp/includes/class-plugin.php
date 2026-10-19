@@ -94,6 +94,8 @@ class Plugin {
 		( new App_Links( $this->license(), new Link_Paths( $this ) ) )->register();
 		$this->layout_client()->register();
 		$this->store_checkout()->register();
+		// 51 [yallapp_video] on the website.
+		$this->yallapp_media()->register();
 		( new Rest\Gatekeeper( $this ) )->register();
 		// The app preview in the Yallapp dashboard runs in a browser.
 		Rest\Cors::register();
@@ -327,6 +329,20 @@ class Plugin {
 			'media',
 			function () {
 				return new Media( $this->settings() );
+			}
+		);
+	}
+
+	/**
+	 * 51 Videos from the app's Yallapp Media library.
+	 *
+	 * @return Content\Yallapp_Media
+	 */
+	public function yallapp_media() {
+		return $this->service(
+			'yallapp_media',
+			function () {
+				return new Content\Yallapp_Media( $this->license() );
 			}
 		);
 	}

@@ -12,7 +12,8 @@ import { getPlans, platformSetting, yallappBilling } from "@/lib/settings/platfo
 import { formatMoney, usdCentsOf } from "@/lib/billing/prices";
 import { getSwitches, LICENSE_FEATURE_SWITCHES, switchGroups, switchKey } from "@/lib/switches";
 import { PlanAvailabilityForm, type AvailabilityGroup } from "./availability";
-import { PlanForm, PlanLimitsForm } from "./forms";
+import { PlanForm, PlanLimitsForm, StoragePacksForm } from "./forms";
+import { packOffers } from "@/lib/media/packs";
 
 export const metadata: Metadata = { title: "Plans" };
 export const dynamic = "force-dynamic";
@@ -21,11 +22,12 @@ export const dynamic = "force-dynamic";
 export default async function PlansPage() {
   const { adminRole } = await requireAdmin();
   const store = await getStore();
-  const [plans, edits, switches, billing] = await Promise.all([
+  const [plans, edits, switches, billing, packs] = await Promise.all([
     getPlans(store),
     platformSetting(store, "plans"),
     getSwitches(store, { fresh: true }),
     yallappBilling(store, { fresh: true }),
+    platformSetting(store, "storagePacks", { fresh: true }),
   ]);
   return (
     <>
@@ -81,6 +83,7 @@ export default async function PlansPage() {
                     appUsers: plan.limits.appUsers === null ? "" : String(plan.limits.appUsers),
                     languages: plan.limits.languages === null ? "" : String(plan.limits.languages),
                     sources: plan.limits.sources === null ? "" : String(plan.limits.sources),
+                    storageGb: plan.limits.storageGb === null ? "" : String(plan.limits.storageGb),
                     teamMembers: plan.limits.teamMembers === null ? "" : String(plan.limits.teamMembers),
                     support: plan.limits.support,
                     accountManager: plan.limits.accountManager,
@@ -112,6 +115,31 @@ export default async function PlansPage() {
           );
         })}
       </div>
+      {/* 51 Extra storage for the Media library, bought by card with the plans' gateway; 52 priced in pounds like the plans. */}
+      <section aria-labelledby="h-storage-packs" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-storage-packs" className="m-0 text-xl font-bold">
+            Storage packs
+          </h2>
+          <p className="m-0 text-sm text-muted">
+            Extra storage on top of a plan&apos;s, for an app&apos;s videos, pictures and PDFs. A pack runs until the app&apos;s plan period ends (a month&apos;s price
+            times the months left) and renews with the plan when the client renews by card. Like the plans&apos; prices, a pack&apos;s price is in Egyptian
+            pounds, charged to everyone; people outside Egypt see US dollars. The plans&apos; own storage is set above, in GB.
+          </p>
+        </div>
+        <StoragePacksForm
+          offers={packOffers(packs?.value).map((o) => {
+            const usdAtRate = o.price ? usdCentsOf({ egpCents: o.price.egpCents, usdCents: null }, billing.egpPerUsd) : null;
+            return {
+              id: o.id,
+              gb: String(o.gb),
+              egpPrice: o.price ? centsToDecimal(o.price.egpCents) : "",
+              usdPrice: o.price?.usdCents ? centsToDecimal(o.price.usdCents) : "",
+              usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
+            };
+          })}
+        />
+      </section>
       </ReadOnly>
     </>
   );

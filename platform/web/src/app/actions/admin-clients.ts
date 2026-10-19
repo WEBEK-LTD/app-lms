@@ -18,6 +18,11 @@ import type { FormState } from "@/lib/forms";
 import { announce, NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
 import { sendTemplate } from "@/lib/email/send";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { newId } from "@/lib/crypto/tokens";
+import { effectivePlans } from "@/lib/entitlements";
+import { packOffers } from "@/lib/media/packs";
+import { resolveStorageNotices } from "@/lib/media/usage";
+import { platformSetting } from "@/lib/settings/platform";
 import { getPlans } from "@/lib/settings/platform";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { formatDate } from "@/components/ui";
@@ -191,4 +196,55 @@ export async function checkConnectionAction(_: ConnectionCheckState, formData: F
   const limited = await hitRateLimit(store, RATE_LIMITS.apiCheck, client.id);
   if (!limited.allowed) return { status: { ok: false, message: "Too many checks. Try again in a few minutes.", problems: [] } };
   return { status: await checkConnection(store, app, encryptionKey()) };
+}
+
+// 51 Storage packs the team adds by hand (paid on WhatsApp) or removes.
+
+/** Adds a storage pack to the app until a date (the plan's end by default). */
+export async function addStoragePackAction(formData: FormData): Promise<void> {
+  const { admin, store, client, app, apps, license } = await clientFrom(formData, "clients.license");
+  if (!app) back(client.id, "done=storage-refused");
+  const offer = packOffers((await platformSetting(store, "storagePacks", { fresh: true }))?.value).find((o) => o.id === String(formData.get("offer") ?? ""));
+  const untilText = String(formData.get("until") ?? "");
+  const until = /^\d{4}-\d{2}-\d{2}$/.test(untilText) ? new Date(`${untilText}T23:59:59.999Z`) : (license?.expiresAt ?? null);
+  const now = new Date();
+  if (!offer || !until || Number.isNaN(until.getTime()) || until.getTime() <= now.getTime()) back(client.id, "done=storage-refused");
+  await store.createStoragePack({
+    id: newId(),
+    appId: app!.id,
+    clientId: client.id,
+    offer: offer!.id,
+    gb: offer!.gb,
+    activeUntil: until!,
+    paymentId: null,
+    createdAt: now,
+    updatedAt: now,
+    endedNoticeAt: null,
+  });
+  await resolveStorageNotices(store, app!, await effectivePlans(store), now);
+  await recordAudit({
+    actor: admin,
+    action: "storage.add",
+    target: { type: "app", id: app!.id },
+    clientId: client.id,
+    summary: `Added a +${offer!.gb} GB storage pack until ${until!.toISOString().slice(0, 10)}${onApp(app, apps)}`,
+  });
+  back(client.id, "done=storage-added");
+}
+
+export async function removeStoragePackAction(formData: FormData): Promise<void> {
+  const { admin, store, client, app, apps } = await clientFrom(formData, "clients.license");
+  const id = String(formData.get("packId") ?? "");
+  if (!app || !ID.test(id)) back(client.id, "done=storage-refused");
+  const pack = (await store.listStoragePacks(app!.id)).find((p) => p.id === id);
+  if (!pack) back(client.id, "done=storage-refused");
+  await store.deleteStoragePack(app!.id, id);
+  await recordAudit({
+    actor: admin,
+    action: "storage.remove",
+    target: { type: "app", id: app!.id },
+    clientId: client.id,
+    summary: `Removed a +${pack!.gb} GB storage pack${onApp(app, apps)}`,
+  });
+  back(client.id, "done=storage-removed");
 }

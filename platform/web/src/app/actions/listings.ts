@@ -11,6 +11,7 @@ import { encryptionKey } from "@/lib/env";
 import { formValues, type FormState } from "@/lib/forms";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { imageType } from "@/lib/images";
+import { chosenPictures } from "@/lib/media/pictures";
 import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX, OFFICE_REPLY_MAX, parseListingForm, parseOfficeForm } from "@/lib/listings/forms";
 import { notifyInquiryReply } from "@/lib/listings/notify";
 import { listingSettingsFor } from "@/lib/listings/types";
@@ -50,7 +51,9 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
   const saved = new Set(existing?.imageAssetIds ?? []);
   const kept = [...new Set(formData.getAll("imageOrder").map(String))].filter((a) => saved.has(a));
   const files = formData.getAll("images").filter((f): f is File => typeof f !== "string" && f.size > 0);
-  if (kept.length + files.length > LISTING_IMAGES_MAX) errors.images = `A listing can have up to ${LISTING_IMAGES_MAX} photos.`;
+  // 51 Pictures chosen from the Media library.
+  const fromMedia = (await chosenPictures(store, app.id, formData)).filter((a) => !kept.includes(a));
+  if (kept.length + files.length + fromMedia.length > LISTING_IMAGES_MAX) errors.images = `A listing can have up to ${LISTING_IMAGES_MAX} photos.`;
   const uploads: { data: Buffer; type: { contentType: string; extension: string } }[] = [];
   for (const file of errors.images ? [] : files) {
     if (file.size > LISTING_IMAGE_MAX_BYTES) {
@@ -83,6 +86,7 @@ export async function saveListingAction(_: FormState, formData: FormData): Promi
     });
     imageAssetIds.push(assetId);
   }
+  imageAssetIds.push(...fromMedia);
   if (existing) {
     await store.updateListing(app.id, existing.id, { ...parsed.value, imageAssetIds }, now);
   } else {

@@ -13,7 +13,8 @@ import type { FormState } from "@/lib/forms";
 import { PaymentError } from "@/lib/payments/errors";
 import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
-import { getPlans, yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
+import { getPlans, platformSetting, yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
+import { packOffers, renewablePacks } from "@/lib/media/packs";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -30,7 +31,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   if (!context) redirect("/sign-in");
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
-  for (const name of ["plan", "city", "address", "coupon"]) values[name] = String(formData.get(name) ?? "").trim();
+  for (const name of ["plan", "city", "address", "coupon", "renewStorage"]) values[name] = String(formData.get(name) ?? "").trim();
   // The form names the app it was shown for: never pay for another app because the switcher changed in another tab.
   if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) {
     return { message: "You switched to another app in the meantime. Reload the page and check which app you're paying for.", values };
@@ -66,7 +67,18 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
     if (!check.ok) return { errors: { coupon: check.error }, values };
     coupon = check;
   }
-  if (coupon && coupon.amountCents === 0) {
+  // 51 The app's storage packs renewed with the plan, when the owner left them ticked: for the plan's months, charged with it.
+  const storagePacks =
+    values.renewStorage === "on" && context.app
+      ? renewablePacks(await store.listStoragePacks(context.app.id), packOffers((await platformSetting(store, "storagePacks", { fresh: true }))?.value), {
+          provider: account.provider,
+          view,
+          months: plan.billingMonths,
+          now,
+        })
+      : null;
+  // The coupon is for the plan only: with packs to pay, the card payment still goes ahead.
+  if (coupon && coupon.amountCents === 0 && !storagePacks) {
     const outcome = await activateWithFreeCoupon({
       store,
       client: context.client,
@@ -97,6 +109,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       callbackUrls: (token) => callbackUrls(appUrl(), "plan", account.provider, token),
       coupon,
       offer,
+      storagePacks,
     });
   } catch (e) {
     if (e instanceof PaymentError) return { message: `The payment couldn't start: ${e.message}`, values };

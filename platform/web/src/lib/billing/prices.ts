@@ -1,4 +1,4 @@
-import type { PaymentProviderId } from "../data/types";
+import type { PaymentProviderId, PlanPayment } from "../data/types";
 
 /**
  * 52 Yallapp's own prices: the plans clients pay Yallapp for, and any
@@ -145,6 +145,35 @@ export function loweredOffer(offer: Offer, chargedNow: number): Offer {
   const charged = { cents: chargedNow, currency: offer.charged.currency };
   const shown = lowerShown(offer.shown, offer.charged, chargedNow);
   return { shown, charged, line: chargeLine(charged, shown) };
+}
+
+/** 51 An offer for several months of a monthly price (a storage pack until the plan's period ends): the shown and the charged price each times `months`. */
+export function timesOffer(offer: Offer, months: number): Offer {
+  const charged = { cents: offer.charged.cents * months, currency: offer.charged.currency };
+  const shown = { cents: offer.shown.cents * months, currency: offer.shown.currency };
+  return { shown, charged, line: chargeLine(charged, shown) };
+}
+
+/**
+ * 51 Items paid together (a plan and the storage packs renewed with it):
+ * the charges add up (one gateway, one currency), and so do the shown
+ * prices when they're all in one currency; otherwise the total shows as
+ * charged.
+ */
+export function sumOffers(offers: Offer[]): Offer {
+  const first = offers[0];
+  if (!first) throw new Error("Nothing to add up");
+  if (offers.some((o) => o.charged.currency !== first.charged.currency)) throw new Error("The items aren't charged in one currency");
+  const charged = { cents: offers.reduce((sum, o) => sum + o.charged.cents, 0), currency: first.charged.currency };
+  const shown = offers.every((o) => o.shown.currency === first.shown.currency)
+    ? { cents: offers.reduce((sum, o) => sum + o.shown.cents, 0), currency: first.shown.currency }
+    : charged;
+  return { shown, charged, line: chargeLine(charged, shown) };
+}
+
+/** 52 The shown price, kept on a payment when it isn't in the charge's currency (the receipt shows it as "about"). */
+export function shownOf(offer: Pick<Offer, "charged" | "shown">): Pick<PlanPayment, "shownCents" | "shownCurrency"> {
+  return offer.shown.currency === offer.charged.currency ? { shownCents: null, shownCurrency: null } : { shownCents: offer.shown.cents, shownCurrency: offer.shown.currency };
 }
 
 /** The team's exchange rate as typed ("50.5"): pounds for one dollar, or null for none. Undefined when it isn't a rate. */

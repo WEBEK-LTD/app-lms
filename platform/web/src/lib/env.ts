@@ -308,6 +308,51 @@ export function blobsDir(): string {
   return read("YALLAPP_BLOBS_DIR") ?? ".data/blobs";
 }
 
+// 51 Videos and pictures hosted by Yallapp
+
+/**
+ * Where owners' media files live:
+ * - "host": on Yallapp's own server, behind the media gate (deploy/media-host,
+ *   PHP under Apache on the host that serves yallapp.com.tr), which takes the
+ *   uploads in chunks and plays the files with range requests from links the
+ *   platform signs. The platform's functions never carry the bytes.
+ * - "fs": a folder on the machine running the platform, served by its own
+ *   /media route (local runs and tests; never on Netlify, whose disk isn't kept).
+ * Null: not set up, so the Media library takes no uploads.
+ */
+export function mediaMode(): "host" | "fs" | null {
+  const explicit = read("YALLAPP_MEDIA");
+  if (explicit === "fs") {
+    if (isNetlify()) throw new Error("YALLAPP_MEDIA=fs is for local runs and tests only: use the media gate on our server.");
+    return "fs";
+  }
+  if (explicit === "host" || read("MEDIA_BASE_URL")) return read("MEDIA_BASE_URL") && read("MEDIA_SIGNING_SECRET") ? "host" : null;
+  return isNetlify() ? null : "fs";
+}
+
+/** The media gate's address, like https://yallapp.com.tr/media; in "fs" mode the platform's own /media route. */
+export function mediaBaseUrl(): string {
+  if (mediaMode() === "host") {
+    const url = new URL(required("MEDIA_BASE_URL"));
+    if (url.protocol !== "https:" && !(url.protocol === "http:" && !isNetlify())) throw new Error("MEDIA_BASE_URL must use https.");
+    return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+  }
+  return `${appUrl()}/media`;
+}
+
+/** Shared with the media gate (its config.php), which checks every link's `sig`. In "fs" mode SIGNING_SECRET. */
+export function mediaSigningSecret(): string {
+  if (mediaMode() !== "host") return signingSecret();
+  const secret = required("MEDIA_SIGNING_SECRET");
+  if (secret.length < 32) throw new Error("MEDIA_SIGNING_SECRET must be at least 32 characters.");
+  return secret;
+}
+
+/** "fs" mode's folder. */
+export function mediaDir(): string {
+  return read("YALLAPP_MEDIA_DIR") ?? ".data/media";
+}
+
 // 11.4 Email templates
 
 /**

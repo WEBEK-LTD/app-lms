@@ -12,15 +12,17 @@ import { getStore } from "@/lib/data";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatLimit, hasFeature, isPlan, PLANS, planName, planPrice, SUPPORT_LABEL, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatLimit, formatStorage, hasFeature, isPlan, PLANS, planName, planPrice, SUPPORT_LABEL, type Plan, type PlanInfo } from "@/lib/plans";
+import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getSwitches } from "@/lib/switches";
 import { PlanPaymentForm } from "@/components/plan-payment-form";
-import { getPlans, yallappPlanAccount } from "@/lib/settings/platform";
+import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
+import { paymentWhat } from "@/lib/billing/receipt";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -46,6 +48,8 @@ function planLines(plan: PlanInfo): string[] {
     hasFeature(plan, "ios") ? "Android & iOS apps" : "Android app",
     `${formatLimit(plan.limits.appUsers)} app users`,
     `${formatLimit(plan.limits.languages, "All")} app language${plan.limits.languages === 1 ? "" : "s"}`,
+    // 51
+    `${formatStorage(plan.limits.storageGb)} for videos and files`,
     hasFeature(plan, "page_editor") ? "Full page editor" : "Ready-made page templates",
     hasFeature(plan, "auto_publish") ? "We publish for you" : "You publish with our guides",
     SUPPORT_LABEL[plan.limits.support].replace(", with your account manager", ""),
@@ -83,6 +87,16 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
             : null;
     return { ...p, note };
   });
+  // 51 The app's storage packs renew with the plan, for each plan's months; 52 shown in the client's currency, charged with the plan.
+  const packs = app && yallappAccount ? await store.listStoragePacks(app.id) : [];
+  const offers = packs.length ? packOffers((await platformSetting(store, "storagePacks"))?.value) : [];
+  const storageRenewal: Partial<Record<Plan, string>> = {};
+  if (yallappAccount && packs.length) {
+    for (const p of payable) {
+      const renewal = renewablePacks(packs, offers, { provider: yallappAccount.provider, view, months: plans[p.id].billingMonths, now });
+      if (renewal) storageRenewal[p.id] = renewalLabel(renewal);
+    }
+  }
   const selected = isPlan(wanted) ? wanted : (scheduled?.plan ?? currentId);
   const activation = license ? await store.getActivation(license.id) : null;
   const release = latestRelease(await store.listReleases());
@@ -317,7 +331,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 : "Paying for your current plan adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
             </p>
           </div>
-          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"} />
+          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"} storageRenewal={storageRenewal} />
         </section>
       ) : null}
 
@@ -331,7 +345,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft py-3 first:border-t-0">
                 <span className="flex flex-col gap-0.5">
                   <span className="text-[15px] font-semibold">
-                    {planName(p.plan, effective)} · {p.months === 1 ? "1 month" : "1 year"} · {formatAmount(p.amountCents, p.currency)}
+                    {paymentWhat(p, planName(p.plan, effective))} · {formatAmount(p.amountCents, p.currency)}
                   </span>
                   <span className="text-[13px] text-muted">Paid on {formatDate(p.paidAt ?? p.createdAt)}</span>
                 </span>

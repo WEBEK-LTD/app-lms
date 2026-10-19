@@ -6,6 +6,7 @@ import { saveListingAction, saveOfficeAction } from "@/app/actions/listings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
+import { MediaImagesPicker } from "@/components/media-picker";
 
 export interface ListingFormValues {
   id: number | null;
@@ -310,6 +311,8 @@ export function ListingForm({
           <span id="f-images-hint" className="text-[13px] text-muted">
             PNG or JPEG, up to 2 MB each and 20 per listing. New photos go after the others; the first photo is shown in lists.
           </span>
+          {/* 51 Or pictures already in the Media library. */}
+          <MediaImagesPicker />
           <FieldError id="f-images-error" error={e.images} />
         </div>
       </Group>

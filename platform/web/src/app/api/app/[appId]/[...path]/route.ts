@@ -21,6 +21,7 @@ import { appMailDelivered, sendTemplate } from "@/lib/email/send";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { hostedDownloadsOn } from "@/lib/courses/downloads";
+import { mediaForApp } from "@/lib/media/hosted";
 import { checkAppUserNotices } from "@/lib/notices";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { demoOfficeReply } from "@/lib/demo/cleanup";
@@ -130,6 +131,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         cardPayments: hasFeature(plan, "card_payments"),
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
         downloads: hostedDownloadsOn(app, plan),
+        // 51 Lesson videos from the Media library, signed for each request.
+        media: mediaForApp(store, app.id),
         signingSecret: signingSecret(),
         onBooked: async (appointment: BookingAppointment) => {
           if (app.demo) return;

@@ -224,6 +224,8 @@ class Learning_Controller extends Controller {
 				? self::error( 'not_enrolled', __( 'Enroll in this course to open this lesson.', 'yallapp' ), 403 )
 				: self::error( 'unauthorized', __( 'Please sign in.', 'yallapp' ), 401 );
 		}
+		// 51 A video from the Yallapp Media library: signed by Yallapp now that the LMS let the student in.
+		$lesson          = $this->plugin->yallapp_media()->apply( $lesson, 'play' );
 		$data            = $this->plugin->lesson_renderer()->render( $lesson, $user_id );
 		$data['offline'] = $this->plugin->downloads()->offline( $data, $lesson );
 		return $this->ok( $data );
@@ -252,6 +254,11 @@ class Learning_Controller extends Controller {
 		}
 		if ( ! $lms->can_view_lesson( $lesson_id, $user_id ) ) {
 			return self::error( 'not_enrolled', __( 'Enroll in this course to open this lesson.', 'yallapp' ), 403 );
+		}
+		// 51 A Yallapp Media library video: a link to save it, never the lesson without it.
+		$lesson = $this->plugin->yallapp_media()->apply( $lesson, 'download' );
+		if ( is_wp_error( $lesson ) ) {
+			return self::error( $lesson->get_error_code(), $lesson->get_error_message(), 503 );
 		}
 		$data   = $this->plugin->lesson_renderer()->render( $lesson, $user_id );
 		$reason = Downloads::blocker( $data, $lesson['video'] ?? null );

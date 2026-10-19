@@ -38,16 +38,17 @@ export function parseCourse(
   };
 }
 
-export function parseLesson(v: Values): Parsed<Omit<CourseLesson, "id">> {
+/** `isMediaLink`: 51 a Yallapp Media library link (on the platform's own address, http in local runs). */
+export function parseLesson(v: Values, isMediaLink: (url: string) => boolean = () => false): Parsed<Omit<CourseLesson, "id">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > 120) errors.title = "Enter a title of up to 120 characters.";
   const video = (v.videoUrl ?? "").trim();
-  if (video) {
+  if (video && !isMediaLink(video)) {
     try {
-      if (new URL(video).protocol !== "https:") throw new Error("not https");
+      if (new URL(video).protocol !== "https:" || video.length > 500) throw new Error("not https");
     } catch {
-      errors.videoUrl = "Enter the video's https address (YouTube, Vimeo or a video file), or leave it empty.";
+      errors.videoUrl = "Enter the video's https address (YouTube, Vimeo or a video file), choose one from Media, or leave it empty.";
     }
   }
   const text = (v.text ?? "").trim();

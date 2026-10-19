@@ -4,6 +4,9 @@ import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
+import 'package:yallapp/core/web/web_page_screen.dart';
+import 'package:yallapp/modules/lms/lesson/video/embed_player.dart';
+import 'package:yallapp/modules/lms/lesson/video/video_screen.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -258,4 +261,44 @@ void main() {
     expect(find.text('Message the office'), findsNothing);
     semantics.dispose();
   });
+
+  testWidgets(
+    "51 a listing's YouTube video plays in the app's own player, never the site's page",
+    (tester) async {
+      tester.view
+        ..physicalSize = const Size(390, 844) * 2
+        ..devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final api = realEstateApi()
+        ..listing = {
+          ...listingDetailJson(),
+          'video_url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        };
+      final app = realEstateApp(api);
+      await app.pump(tester);
+      app.container.read(appRouterProvider).push('/listing/42');
+      await TestApp.settle(tester);
+      await tester.scrollUntilVisible(
+        find.text('Watch the video'),
+        300,
+        scrollable: find
+            .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+            )
+            .last,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Watch the video'));
+      await TestApp.settle(tester);
+      expect(find.byType(VideoScreen), findsOneWidget);
+      expect(find.byType(BrandlessVideo), findsOneWidget);
+      expect(find.byType(WebPageScreen), findsNothing);
+      final player = app.webViews.requests.lastWhere(
+        (r) => r.debugLabel == 'video-player',
+      );
+      // Our page, with the site's player cropped behind our controls.
+      expect(player.html, contains('height: 500%'));
+      expect(player.interactive, isFalse);
+    },
+  );
 }

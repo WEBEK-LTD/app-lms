@@ -13,6 +13,7 @@ import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder, catalogSettings, encryptOwnPayment, encryptPayout, marketplaceTerms, type OwnPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
+import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
 import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput, FulfilmentStatus, MarketplacePayment } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl, paymentApiUrls } from "@/lib/env";
@@ -125,7 +126,9 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   const remove = new Set(formData.getAll("removeImage").map(String));
   const kept = (existing?.imageAssetIds ?? []).filter((a) => !remove.has(a));
   const files = formData.getAll("images").filter((f): f is File => typeof f !== "string" && f.size > 0);
-  if (kept.length + files.length > PRODUCT_IMAGES_MAX) errors.images = `A product can have up to ${PRODUCT_IMAGES_MAX} photos.`;
+  // 51 Pictures chosen from the Media library.
+  const fromMedia = (await chosenPictures(store, app.id, formData)).filter((id) => !kept.includes(id));
+  if (kept.length + files.length + fromMedia.length > PRODUCT_IMAGES_MAX) errors.images = `A product can have up to ${PRODUCT_IMAGES_MAX} photos.`;
   const uploads: { data: Buffer; type: { contentType: string; extension: string } }[] = [];
   for (const file of errors.images ? [] : files) {
     if (file.size > PRODUCT_IMAGE_MAX_BYTES) {
@@ -158,6 +161,7 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
     });
     imageAssetIds.push(assetId);
   }
+  imageAssetIds.push(...fromMedia);
   const input: CatalogProductInput = {
     appId: app.id,
     name: values.name!,

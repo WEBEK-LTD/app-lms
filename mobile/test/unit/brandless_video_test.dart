@@ -169,9 +169,17 @@ void main() {
       // The IFrame Player API, with the page's own address as origin.
       expect(html, contains('https://www.youtube.com/iframe_api'));
       expect(html, contains("'&origin=' + encodeURIComponent(origin())"));
-      // The frame is three times as tall as the box, so the site's title,
-      // logo and buttons fall outside it; a layer takes every touch.
-      expect(html, contains('height: 300%'));
+      // 51 The frame is five times as tall as the box, so the site's title,
+      // logo, buttons and pause overlay fall outside it; a layer takes every
+      // touch; the last half second is covered before an end screen.
+      expect(html, contains('height: 500%'));
+      expect(html, contains('top: -200%'));
+      expect(
+        html,
+        contains(
+          "duration - position < 0.5 && state === 'playing' ? '' : 'off'",
+        ),
+      );
       expect(html, contains('pointer-events: none'));
       expect(html, contains('id="shield"'));
       expect(html, contains('id="cover"'));

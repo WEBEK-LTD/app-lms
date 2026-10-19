@@ -15,6 +15,7 @@ import '../embeds/embed_frame.dart';
 import 'embed_player.dart';
 import 'hosted_video.dart';
 import 'player_controls.dart';
+import 'signed_link.dart';
 import 'watch_tracker.dart';
 import 'watermark.dart';
 import '../../../../core/l10n/l10n.dart';
@@ -72,6 +73,13 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   Duration _lastPosition = Duration.zero;
   late final ValueNotifier<bool> _captured = ValueNotifier(widget.captured);
 
+  /// 51 The signed link, renewed before it ends and when it stops working.
+  late final SignedVideoLink _link = SignedVideoLink(
+    widget.video,
+    reload: widget.reloadVideo,
+  );
+  Timer? _refreshTimer;
+
   /// 40 The video site and video, when it's on one.
   late final HostedVideo? _hosted = hostedLessonVideo(widget.video);
 
@@ -81,11 +89,31 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     _tracker = WatchTracker(durationSeconds: widget.video.durationSeconds);
     _lastPosition = Duration(seconds: widget.startSeconds);
     if (_hosted == null && widget.video.playsNatively) {
-      unawaited(_init(widget.video, _lastPosition));
+      unawaited(_init(_lastPosition));
       _progressTimer = Timer.periodic(const Duration(seconds: 15), (_) {
         if (_controller?.value.isPlaying ?? false) _report();
       });
+      _scheduleRefresh();
     }
+  }
+
+  /// 51 A new link shortly before this one ends. A paused video moves to it
+  /// at once, so it resumes without a hitch; a playing one keeps the bytes it
+  /// has and moves to it if the old link stops working.
+  void _scheduleRefresh() {
+    _refreshTimer?.cancel();
+    final wait = _link.refreshIn();
+    if (wait == null) return;
+    _refreshTimer = Timer(wait, () async {
+      final changed = await _link.renew();
+      if (!mounted) return;
+      final c = _controller;
+      if (changed && c != null && !c.value.isPlaying && !_loading) {
+        c.removeListener(_onTick);
+        unawaited(_init(_lastPosition));
+      }
+      _scheduleRefresh();
+    });
   }
 
   @override
@@ -95,16 +123,14 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     _captured.value = widget.captured;
   }
 
-  Future<void> _init(Video video, Duration at) async {
+  Future<void> _init(Duration at, {bool resume = false}) async {
     setState(() {
       _loading = true;
       _error = null;
     });
-    var current = video;
     try {
-      if (current.isExpired(DateTime.now().toUtc())) {
-        current = await widget.reloadVideo() ?? current;
-      }
+      // A link that has ended (or is about to) is replaced first.
+      final current = await _link.current();
       final url = current.url;
       if (url == null) throw StateError('No video URL');
       final controller = VideoPlayerController.networkUrl(Uri.parse(url));
@@ -115,6 +141,8 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
       await controller.setPlaybackSpeed(
         ref.read(localSettingsProvider).playbackSpeed,
       );
+      // 51 Carries on playing after a new link.
+      if (resume) await controller.play();
       controller.addListener(_onTick);
       _tracker.durationSeconds = controller.value.duration.inSeconds;
       final old = _controller;
@@ -126,14 +154,15 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
         _controller = controller;
         _loading = false;
       });
+      _reloaded = false;
       await old?.dispose();
     } on Object catch (e) {
       if (!mounted) return;
       if (!_reloaded) {
         // A signed link may have expired: fetch a fresh one once.
         _reloaded = true;
-        final fresh = await widget.reloadVideo();
-        if (fresh != null && mounted) return _init(fresh, at);
+        await _link.renew();
+        if (mounted) return _init(at, resume: resume);
       }
       setState(() {
         _loading = false;
@@ -147,9 +176,10 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
     if (c == null) return;
     final value = c.value;
     if (value.hasError) {
+      // 51 Usually the signed link ended mid-video: a new one, from where it was.
       c.removeListener(_onTick);
       _reloaded = false;
-      unawaited(_init(widget.video, _lastPosition));
+      unawaited(_init(_lastPosition, resume: _wasPlaying));
       return;
     }
     _lastPosition = value.position;
@@ -173,6 +203,7 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
   @override
   void dispose() {
     _progressTimer?.cancel();
+    _refreshTimer?.cancel();
     if (_controller != null) _report();
     _controller?.removeListener(_onTick);
     _controller?.dispose();
@@ -230,7 +261,7 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
         actionLabel: context.l10n.tryAgain,
         onAction: () {
           _reloaded = false;
-          unawaited(_init(widget.video, _lastPosition));
+          unawaited(_init(_lastPosition));
         },
       );
     } else if (_loading || _controller == null) {
