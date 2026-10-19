@@ -976,7 +976,7 @@ app owners sell to their own customers keeps each app's own currency.
 - **Payments.** `payPlanAction` works out the offer on the server (never from
   the browser), checks a coupon against the charge, and starts the payment
   with the charge; the payment keeps `shown_cents` and `shown_currency` when
-  the client saw dollars (migration 0040). Kashier is asked for pounds
+  the client saw dollars (migration 0038). Kashier is asked for pounds
   (`currency: "EGP"`) and the read-back must match the pounds. The receipt
   (`/dashboard/license/receipts/<id>`, `lib/billing/receipt.ts`), the
   activation and renewal emails (`{{payment_line}}`) and Admin › Payments
