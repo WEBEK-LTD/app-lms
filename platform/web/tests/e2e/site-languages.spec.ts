@@ -138,6 +138,37 @@ test("every page names its other languages", async ({ page }) => {
   await expect(head.locator('link[rel="alternate"][hreflang="ar"]')).toHaveAttribute("href", /\/ar\/docs\/getting-started$/);
 });
 
+test("the team edits the Turkish home page, and the English one stays", async ({ page, browser }) => {
+  const admin = await browser.newPage({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.155" } });
+  await admin.goto("/sign-in");
+  await admin.getByLabel("Email").fill(E2E.languagesAdminEmail);
+  await admin.getByLabel("Password", { exact: true }).fill(E2E.adminPassword);
+  await admin.getByRole("button", { name: "Sign in" }).click();
+  await admin.waitForURL((url) => url.pathname !== "/sign-in");
+
+  await admin.goto("/admin/content/home");
+  await admin.getByRole("navigation", { name: "Languages" }).getByRole("link", { name: "Turkish" }).click();
+  await expect(admin).toHaveURL(/\/admin\/content\/home\?lang=tr$/);
+  const title = admin.getByLabel("Title", { exact: true });
+  await expect(title).toHaveValue(TR_SITE.home!.title!);
+  await title.fill("Akademiniz, öğrencilerinizin cebinde.");
+  await admin.getByRole("button", { name: "Save and publish" }).click();
+  await expect(admin.getByText("Home page (Turkish) saved. It shows on the website now.")).toBeVisible();
+
+  await page.goto("/tr");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akademiniz, öğrencilerinizin cebinde.");
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your business, as your own mobile app.");
+
+  // Back to the built-in translation, as the other checks expect it.
+  await admin.goto("/admin/content/home?lang=tr");
+  await admin.getByRole("button", { name: "Back to the default text" }).click();
+  await expect(admin.getByText("Back to the default text. The website shows it now.")).toBeVisible();
+  await page.goto("/tr");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(TR_SITE.home!.title!);
+  await admin.close();
+});
+
 test("the sitemap lists the three languages", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
   expect(xml).toMatch(/<loc>[^<]*\/ar\/pricing<\/loc>/);
