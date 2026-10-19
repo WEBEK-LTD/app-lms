@@ -110,7 +110,7 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
  * app 1, 7 and 30 days before (written on the cohort's day). A finished day
  * is marked as counted.
  */
-export async function aggregateDay(store: AnalyticsStore, appId: string, day: string, now: Date): Promise<void> {
+export async function aggregateDay(store: AnalyticsStore, appId: string, day: string, now: Date, zone = "UTC"): Promise<void> {
   const events = await store.listAnalyticsEvents(appId, day);
   const rows = totalsOfDay(events);
   const [week, month] = await Promise.all([
@@ -118,13 +118,13 @@ export async function aggregateDay(store: AnalyticsStore, appId: string, day: st
     store.countAnalyticsActive(appId, addDays(day, -29), day),
   ]);
   rows.push({ metric: "active_7", key: "", label: null, value: week }, { metric: "active_30", key: "", label: null, value: month });
-  const finished = day < dayOf(now);
+  const finished = day < dayOf(now, zone);
   if (finished) rows.push({ metric: "done", key: "", label: null, value: Math.floor(now.getTime() / 1000) }, { metric: "dirty", key: "", label: null, value: 0 });
   await store.saveAnalyticsDaily(appId, day, rows);
   for (const n of RETENTION_DAYS) {
     const cohort = addDays(day, -n);
     // The cohort's first opens are still in the raw events (kept 40 days).
-    if (cohort < addDays(dayOf(now), -RAW_RETENTION_DAYS + 1)) continue;
+    if (cohort < addDays(dayOf(now, zone), -RAW_RETENTION_DAYS + 1)) continue;
     const returned = await store.countAnalyticsReturning(appId, cohort, day);
     await store.saveAnalyticsDaily(appId, cohort, [{ metric: `ret_d${n}`, key: "", label: null, value: returned }]);
   }
@@ -142,8 +142,9 @@ export async function daysToCount(
   appId: string,
   now: Date,
   also: string[] = [],
+  zone = "UTC",
 ): Promise<string[]> {
-  const today = dayOf(now);
+  const today = dayOf(now, zone);
   const oldest = addDays(today, -RAW_RETENTION_DAYS + 1);
   const yesterday = addDays(today, -1);
   const [rows, eventDays] = await Promise.all([store.listAnalyticsDaily(appId, oldest, yesterday, ["done", "dirty"]), store.listAnalyticsEventDays(appId, oldest)]);
@@ -158,9 +159,9 @@ export async function daysToCount(
  * need it (so the report is right even before the nightly count ran) and
  * today so far.
  */
-export async function refreshAnalytics(store: AnalyticsStore, appId: string, now: Date, also: string[] = []): Promise<void> {
-  for (const day of await daysToCount(store, appId, now, also)) await aggregateDay(store, appId, day, now);
-  await aggregateDay(store, appId, dayOf(now), now);
+export async function refreshAnalytics(store: AnalyticsStore, appId: string, now: Date, also: string[] = [], zone = "UTC"): Promise<void> {
+  for (const day of await daysToCount(store, appId, now, also, zone)) await aggregateDay(store, appId, day, now, zone);
+  await aggregateDay(store, appId, dayOf(now, zone), now, zone);
 }
 
 /**
@@ -169,7 +170,13 @@ export async function refreshAnalytics(store: AnalyticsStore, appId: string, now
  * days are deleted. Stops before `budgetMs`; what is left is counted when
  * the owner opens Analytics, or the next night.
  */
-export async function runAnalyticsNightly(store: AnalyticsStore, now: Date, budgetMs = 15_000): Promise<{ apps: number; days: number; purged: number; finished: boolean }> {
+export async function runAnalyticsNightly(
+  store: AnalyticsStore,
+  now: Date,
+  budgetMs = 15_000,
+  /** 47 Each app's time zone (lib/analytics/zone.ts); UTC without it. */
+  zoneOf: (appId: string) => Promise<string> = async () => "UTC",
+): Promise<{ apps: number; days: number; purged: number; finished: boolean }> {
   const started = Date.now();
   const today = dayOf(now);
   const appIds = await store.listAnalyticsAppIds(addDays(today, -MAX_EVENT_AGE_DAYS - 1));
@@ -181,8 +188,9 @@ export async function runAnalyticsNightly(store: AnalyticsStore, now: Date, budg
       finished = false;
       break;
     }
-    const due = await daysToCount(store, appId, now);
-    for (const day of due) await aggregateDay(store, appId, day, now);
+    const zone = await zoneOf(appId);
+    const due = await daysToCount(store, appId, now, [], zone);
+    for (const day of due) await aggregateDay(store, appId, day, now, zone);
     apps += 1;
     days += due.length;
   }

@@ -208,7 +208,11 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
                     ],
                   ),
                 ),
-                ticketStatusChip(context, ticket.status),
+                ticketStatusChip(
+                  context,
+                  ticket.status,
+                  refunded: ticket.refunded,
+                ),
               ],
             ),
             if (ticket.usedAt != null) ...[

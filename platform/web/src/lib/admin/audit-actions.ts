@@ -29,6 +29,8 @@ export const AUDIT_ACTIONS = {
   "release.unpublish": "Plugin release unpublished",
   "release.delete": "Plugin release deleted",
   "payout.release": "Payout released",
+  // 47
+  "payment.refund": "Payment refunded",
   "settings.save": "Platform setting saved",
   "settings.reset": "Platform setting removed",
   "plan.save": "Plan saved",
@@ -65,6 +67,7 @@ export const AUDIT_TARGETS = {
   build: "Build",
   release: "Plugin release",
   order: "Shop order",
+  donation: "Donation",
   setting: "Platform setting",
   plan: "Plan",
   switches: "Switches",

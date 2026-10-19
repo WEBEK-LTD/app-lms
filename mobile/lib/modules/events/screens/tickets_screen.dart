@@ -15,9 +15,17 @@ import '../../real_estate/widgets/listing_widgets.dart'
 import '../data/events_providers.dart';
 import '../widgets/event_widgets.dart';
 
-/// "Valid", "Used" or "Cancelled", coloured.
-StatusChip ticketStatusChip(BuildContext context, TicketStatus status) {
+/// "Valid", "Used" or "Cancelled", coloured; 47 "Refunded" for a cancelled
+/// ticket the organiser refunded.
+StatusChip ticketStatusChip(
+  BuildContext context,
+  TicketStatus status, {
+  bool refunded = false,
+}) {
   final l10n = context.l10n;
+  if (status == TicketStatus.cancelled && refunded) {
+    return StatusChip(label: l10n.ticketStatusRefunded, tone: ChipTone.bad);
+  }
   return switch (status) {
     TicketStatus.valid => StatusChip(
       label: l10n.ticketStatusValid,
@@ -199,7 +207,11 @@ class _TicketTile extends StatelessWidget {
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
                 ),
                 const SizedBox(height: 6),
-                ticketStatusChip(context, ticket.status),
+                ticketStatusChip(
+                  context,
+                  ticket.status,
+                  refunded: ticket.refunded,
+                ),
               ],
             ),
           ),

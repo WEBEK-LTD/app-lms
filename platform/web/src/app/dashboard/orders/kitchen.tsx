@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { moveOrderAction, setOrderStatusAction } from "@/app/actions/catalog";
+import { moveOrderAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Badge, EmptyState, formatDateTime } from "@/components/ui";
 import { FULFILMENT_LABELS, nextStep } from "@/lib/catalog/fulfilment";
@@ -9,7 +9,10 @@ import { scheduledText } from "@/lib/catalog/payment";
 import { ORDER_STATUS_LABELS, orderNumber } from "@/lib/catalog/settings";
 import type { App, CatalogOrder, FulfilmentSettings, FulfilmentStatus } from "@/lib/data/types";
 import { getStore } from "@/lib/data";
+import { encryptionKey } from "@/lib/env";
+import { orderRefundOptions } from "@/lib/refunds/service";
 import { AutoRefresh } from "./refresh";
+import { RefundSection } from "./refunds-view";
 
 const PER_PAGE = 25;
 const STEP_TONES = { received: "warn", preparing: "info", ready: "success", out_for_delivery: "info", completed: "neutral", cancelled: "neutral" } as const;
@@ -80,6 +83,12 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
     store.listCatalogOrders({ appId: app.id, statuses: ["processing"], offset: 0, limit: 100 }),
     store.listCatalogOrders({ appId: app.id, statuses: ["completed", "cancelled", "refunded"], offset: (page - 1) * PER_PAGE, limit: PER_PAGE }),
   ]);
+  // 47 The finished orders' refunds and Refund forms.
+  const key = encryptionKey();
+  const [refunds, options] = await Promise.all([
+    store.listRefunds(app.id, "order", past.items.map((o) => o.id)),
+    Promise.all(past.items.map((o) => orderRefundOptions({ store, key }, app, o))),
+  ]);
   const queue = [...active.items].reverse();
   const pages = Math.max(1, Math.ceil(past.total / PER_PAGE));
   const money = (order: CatalogOrder, cents: number) => formatCents(cents, order.currency);
@@ -137,7 +146,7 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
           <p className="m-0 text-[15px] text-muted">Completed and cancelled orders show here.</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {past.items.map((order) => (
+            {past.items.map((order, index) => (
               <li key={order.id} aria-label={`Order ${orderNumber(order)}`} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[16px] font-bold">
@@ -146,15 +155,16 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
                   <Badge tone="neutral">{order.status === "refunded" ? ORDER_STATUS_LABELS.refunded : FULFILMENT_LABELS[order.fulfilmentStatus ?? "completed"]}</Badge>
                 </div>
                 <OrderDetails order={order} kitchen={kitchen} />
-                {order.status === "completed" || order.status === "cancelled" ? (
-                  <form action={setOrderStatusAction}>
-                    <input type="hidden" name="id" value={order.id} />
-                    <input type="hidden" name="status" value="refunded" />
-                    <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                      Mark refunded
-                    </SubmitButton>
-                  </form>
-                ) : null}
+                {/* 47 Refunds, in full or in part, through the provider or recorded. */}
+                <RefundSection
+                  kind="order"
+                  id={order.id}
+                  label={`order ${orderNumber(order)}`}
+                  currency={order.currency}
+                  refunds={refunds.filter((r) => r.targetId === order.id)}
+                  options={options[index]!}
+                  payoutReleased={Boolean(order.payoutApprovedAt)}
+                />
               </li>
             ))}
           </ul>

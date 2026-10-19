@@ -394,6 +394,8 @@ export interface App {
   /** 46 The owner's switches (missing means on): the store's rating prompt after good moments, and crash reports. */
   reviewPrompt?: boolean;
   crashReports?: boolean;
+  /** 47 The owner's IANA time zone, which Analytics counts days in; null or missing: from the account's country (lib/analytics/zone.ts). */
+  timeZone?: string | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -861,6 +863,44 @@ export interface CatalogOrder {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment (Kashier's session, Fawaterk's invoice), read back to confirm it. */
   providerRef?: string | null;
+  /** 47 What was refunded so far (PaymentRefund); missing: nothing. All of it: the status is "refunded". */
+  refundedCents?: number;
+}
+
+/** 47 What a refund is of: a shop's order (products, paid courses, memberships, tickets, a restaurant's order) or a donation. */
+export type RefundKind = "order" | "donation";
+
+/**
+ * 47 A refund the owner made from the dashboard: through the provider's API
+ * ("api": iyzico, Kashier), or in the provider's panel and recorded here
+ * ("manual": Fawaterk, or when the API can't).
+ */
+export interface PaymentRefund {
+  id: number;
+  appId: string;
+  kind: RefundKind;
+  /** The order's or donation's ID. */
+  targetId: number;
+  amountCents: number;
+  currency: CatalogCurrency;
+  /** lib/payments/refund.ts REFUND_REASONS. */
+  reason: string;
+  /** The owner's words; null for none. */
+  note: string | null;
+  provider: PaymentProviderId;
+  method: "api" | "manual";
+  /** The provider's calls: iyzico's cancel or a refund per item, with their references. Empty for "manual". */
+  parts: { kind: "cancel" | "refund"; transactionId: string | null; cents: number; reference: string }[];
+  /** The provider's reference (the parts' references, or what the owner entered); null for none. */
+  providerRef: string | null;
+  /** Marketplace orders: Yallapp's commission given back with it (proportionally); null otherwise. */
+  commissionCents: number | null;
+  /** What it took back: tickets cancelled, courses left, memberships ended (their IDs). */
+  revoked: { tickets: number[]; courses: number[]; memberships: number[] };
+  /** Who made it: the owner, or a team member managing the dashboard. */
+  byUserId: string | null;
+  byEmail: string;
+  createdAt: Date;
 }
 
 /** 26 Where a restaurant's order is: forward only, or cancelled. */
@@ -1961,6 +2001,8 @@ export interface EventTicket {
   usedAt: Date | null;
   cancelledAt: Date | null;
   createdAt: Date;
+  /** 47 Cancelled because the organiser refunded it; null or missing otherwise. */
+  refundedAt?: Date | null;
 }
 
 /** Tickets to take in one go: they all get a place, or none does. */
@@ -2072,6 +2114,8 @@ export interface Donation {
   paymentProvider?: PaymentProviderId | null;
   /** 37 The provider's own reference for the started payment, read back to confirm it. */
   providerRef?: string | null;
+  /** 47 What was refunded so far; missing: nothing. All of it: the status is "refunded". */
+  refundedCents?: number;
 }
 
 export type DonationInput = Omit<Donation, "id">;

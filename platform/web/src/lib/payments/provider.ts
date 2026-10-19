@@ -10,7 +10,7 @@ import { checkKashierKeys, createKashierSession, getKashierSessionPayment, type 
  * tickets, a restaurant's orders, donations) starts a checkout on the
  * provider's hosted page and confirms it afterwards by reading the payment
  * back from the provider with our own keys: a callback, redirect or webhook
- * is only a trigger. Refunds are made in each provider's merchant panel.
+ * is only a trigger. 47 Refunds: refund.ts.
  */
 
 export type { PaymentProviderId };

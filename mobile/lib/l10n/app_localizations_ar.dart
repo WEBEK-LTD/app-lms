@@ -3070,6 +3070,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ticketStatusCancelled => 'ملغاة';
 
   @override
+  String get ticketStatusRefunded => 'مستردة';
+
+  @override
+  String refundedAmount(String amount) {
+    return 'تم استرداد $amount';
+  }
+
+  @override
   String ticketUsedAt(String time) {
     return 'سُجّل الدخول $time';
   }

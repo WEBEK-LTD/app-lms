@@ -2883,7 +2883,7 @@ paths:
       tags: [Donations]
       operationId: listMyDonations
       summary: List the signed-in user's donations
-      description: Confirmed donations started from the app while signed in, newest first, each with its receipt.
+      description: Confirmed donations started from the app while signed in, newest first, each with its receipt; 47 refunded ones too, with `refunded_total`.
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
@@ -3958,6 +3958,15 @@ components:
         status: { type: string, enum: [pending, processing, on_hold, completed, cancelled, refunded, failed] }
         status_label: { type: string, description: The site's own wording for the status., example: Completed }
         total: { type: string, description: Formatted with the site's currency., example: ₺450.00 }
+        refunded_total:
+          type: [string, 'null']
+          example: ₺100.00
+          description: |
+            47 What the shop refunded of this order so far, formatted like
+            `total`; null or missing when nothing was. A fully refunded order
+            has `status` `refunded` (and the label "Refunded"); a partly
+            refunded one keeps its status, and the app shows this amount as
+            "Refunded". Missing on older servers and on WordPress sites.
         created_at: { type: string, format: date-time }
         items:
           type: array
@@ -5634,6 +5643,12 @@ components:
         online_url: { type: [string, 'null'], format: uri, description: 'For an online event, the link to join; null for a cancelled ticket.' }
         used_at: { type: [string, 'null'], format: date-time, description: 'When it was checked in at the door.' }
         can_cancel: { type: boolean, description: 'Whether `POST /me/tickets/{ticket_code}/cancel` would work now.' }
+        refunded:
+          type: boolean
+          description: |
+            47 The organiser refunded this ticket: `status` is `cancelled`
+            (never a new value, which older apps would read as valid) and its
+            place went back on sale. Missing on older servers: false.
         created_at: { type: string, format: date-time }
 
     DonationsConfig:
@@ -5738,3 +5753,11 @@ components:
         anonymous: { type: boolean }
         created_at: { type: string, format: date-time, description: 'When the payment was confirmed.' }
         receipt_url: { type: string, format: uri, description: 'The receipt as a web page, to open in the browser or share.' }
+        refunded_total:
+          type: [string, 'null']
+          example: ₺250.00
+          description: |
+            47 What the charity refunded of this donation, formatted like
+            `amount_formatted`; null or missing when nothing was. A fully
+            refunded donation stays in `GET /me/donations` with this equal
+            to its amount, and no longer counts towards the campaign.

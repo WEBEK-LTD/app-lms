@@ -7,11 +7,14 @@ import { EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
 import { compact } from "@/lib/analytics/format";
 import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
+import { timeZones, zoneLabel, zoneOf } from "@/lib/analytics/zone";
 import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
+
+import { ZoneForm } from "./zone-form";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -73,7 +76,7 @@ function NoData({ app }: { app: App }) {
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
-  const { app } = await requireClient();
+  const { app, client } = await requireClient();
   if (!app) {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
@@ -84,8 +87,10 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
   const query = await searchParams;
   const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? null;
   const now = new Date();
-  const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now);
-  const report = await loadReport(await getStore(), app.id, range, now);
+  // 47 Days in the owner's time zone.
+  const zone = zoneOf(app, client);
+  const range = rangeFrom({ range: one(query.range), from: one(query.from), to: one(query.to) }, now, zone);
+  const report = await loadReport(await getStore(), app.id, range, now, zone);
   const items = wordsOf(app).items;
   const funnel = funnelWords(app.appType);
   const days = report.daily.map((d) => d.day);
@@ -97,7 +102,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
         title="Analytics"
         description={
           <>
-            How people use your app, {dayText(range.from)} to {dayText(range.to)} (days in UTC). Totals only: no one is identified.
+            How people use your app, {dayText(range.from)} to {dayText(range.to)} ({zoneLabel(zone, now)}). Totals only: no one is identified.
           </>
         }
         actions={
@@ -108,6 +113,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
         }
       />
       <RangeFilter report={report} />
+      <ZoneForm zone={zone} label={zoneLabel(zone, now)} zones={timeZones()} chosen={Boolean(app.timeZone)} />
       <Notice>
         Installs are counted when the app is first opened. Downloads from Google Play, the App Store and the other stores aren&apos;t shared with Yallapp, so
         your store consoles may show more. People who turn off &ldquo;Share usage statistics&rdquo; in the app&apos;s Settings aren&apos;t counted.

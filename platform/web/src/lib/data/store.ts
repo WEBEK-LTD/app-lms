@@ -65,6 +65,8 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
+// 47 Refunds
+import type { PaymentRefund, RefundKind } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -386,6 +388,22 @@ export interface DataStore {
     limit: number;
   }): Promise<{ items: CatalogOrder[]; total: number }>;
 
+  // 47 Refunds
+  /**
+   * Records a refund and applies it to its order or donation, in one
+   * transaction: it is added to `refundedCents` only while that stays within
+   * the total (otherwise nothing is written and null comes back); all of it
+   * makes the status "refunded"; a marketplace order's commission goes down
+   * by the refund's `commissionCents`; a donation's campaign total goes down
+   * by it, and a fully refunded donation's donor stops counting unless they
+   * gave another paid donation to the campaign.
+   */
+  recordRefund(input: Omit<PaymentRefund, "id">): Promise<PaymentRefund | null>;
+  /** The refunds of these orders or donations, oldest first. */
+  listRefunds(appId: string, kind: RefundKind, targetIds: number[]): Promise<PaymentRefund[]>;
+  /** 47 Takes a course away (a refunded purchase); its progress stays. False when they weren't in it. */
+  leaveCourse(appId: string, userId: number, courseId: number): Promise<boolean>;
+
   // Rate limits: fixed windows
   /** Records one hit in the window starting at `windowStart` and returns the hits so far. */
   hitRateLimit(bucket: string, windowStart: number, now: Date): Promise<number>;
@@ -484,7 +502,7 @@ export interface DataStore {
   /** Marks a valid ticket used, once: a second check-in is refused with the ticket as it is. */
   checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult>;
   /** Cancels valid tickets (these, or every one of an event); returns how many. Their places go back on sale. */
-  cancelTickets(appId: string, input: { ids?: number[]; eventId?: number }, now: Date): Promise<number>;
+  cancelTickets(appId: string, input: { ids?: number[]; eventId?: number; /** 47 Marks them refunded too. */ refunded?: boolean }, now: Date): Promise<number>;
   /** How events show and sell in the app; null until saved (the defaults apply). */
   getEventSettings(appId: string): Promise<EventSettings | null>;
   saveEventSettings(appId: string, settings: EventSettings, now: Date): Promise<void>;

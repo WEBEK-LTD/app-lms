@@ -149,6 +149,16 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               value: order.total,
               strong: true,
             ),
+            // 47 What the business refunded of it.
+            if (order.refundedTotal != null)
+              Text(
+                l10n.refundedAmount(order.refundedTotal!),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: p.danger,
+                ),
+              ),
             const SizedBox(height: 8),
             Text(
               shortDate(order.createdAt),

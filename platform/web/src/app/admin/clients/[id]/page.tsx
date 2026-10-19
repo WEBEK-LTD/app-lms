@@ -37,6 +37,7 @@ import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
 import { appTypeName, wordsOf } from "@/lib/app/kinds";
 import { BarList, KpiTiles, RetentionTiles } from "@/components/analytics-report";
 import { loadReport, rangeFrom } from "@/lib/analytics/report";
+import { appZone } from "@/lib/analytics/zone";
 import { siteMatch } from "@/lib/app/site-match";
 import type { SwitchesSetting } from "@/lib/data/types";
 import { ActivateForm, ClientDetailsForm } from "../../forms";
@@ -695,7 +696,10 @@ function AppCard({
 
 /** 44 The app's usage over the last 30 days, as its owner sees it on Analytics: totals only. */
 async function AnalyticsCard({ app, now }: { app: App; now: Date }) {
-  const report = await loadReport(await getStore(), app.id, rangeFrom({ range: "30" }, now), now);
+  const store = await getStore();
+  // 47 In the owner's time zone, as they see it.
+  const zone = await appZone(store, app);
+  const report = await loadReport(store, app.id, rangeFrom({ range: "30" }, now, zone), now, zone);
   const items = wordsOf(app).items;
   return (
     <Card id={`h-analytics-${app.id}`} title="Analytics, last 30 days" level={3}>

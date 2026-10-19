@@ -674,7 +674,7 @@
           "method": "GET",
           "path": "/me/donations",
           "summary": "List the signed-in user's donations",
-          "description": "Confirmed donations started from the app while signed in, newest first, each with its receipt.",
+          "description": "Confirmed donations started from the app while signed in, newest first, each with its receipt; 47 refunded ones too, with `refunded_total`.",
           "access": "signed-in"
         }
       ]

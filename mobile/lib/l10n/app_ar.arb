@@ -810,6 +810,8 @@
   "ticketStatusValid": "صالحة",
   "ticketStatusUsed": "مستخدمة",
   "ticketStatusCancelled": "ملغاة",
+  "ticketStatusRefunded": "مستردة",
+  "refundedAmount": "تم استرداد {amount}",
   "ticketUsedAt": "سُجّل الدخول {time}",
   "ticketShowAtDoor": "اعرض هذا الرمز عند الدخول",
   "ticketCancel": "إلغاء التذكرة",

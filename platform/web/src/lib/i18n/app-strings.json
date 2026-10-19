@@ -808,6 +808,8 @@
 {"key":"ticketStatusValid","en":"Valid","ar":"صالحة","tr":"Geçerli"},
 {"key":"ticketStatusUsed","en":"Used","ar":"مستخدمة","tr":"Kullanıldı"},
 {"key":"ticketStatusCancelled","en":"Cancelled","ar":"ملغاة","tr":"İptal edildi"},
+{"key":"ticketStatusRefunded","en":"Refunded","ar":"مستردة","tr":"İade edildi","description":"47 A ticket the organiser refunded (it is cancelled and its place freed)."},
+{"key":"refundedAmount","en":"Refunded {amount}","ar":"تم استرداد {amount}","tr":"{amount} iade edildi","description":"47 What the business refunded of an order or donation, like \"Refunded ₺100.00\".","placeholders":{"amount":"String"}},
 {"key":"ticketUsedAt","en":"Checked in {time}","ar":"سُجّل الدخول {time}","tr":"Giriş yapıldı: {time}","placeholders":{"time":"String"}},
 {"key":"ticketShowAtDoor","en":"Show this code at the door","ar":"اعرض هذا الرمز عند الدخول","tr":"Bu kodu girişte gösterin"},
 {"key":"ticketCancel","en":"Cancel ticket","ar":"إلغاء التذكرة","tr":"Bileti iptal et"},

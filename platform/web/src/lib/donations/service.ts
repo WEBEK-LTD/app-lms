@@ -151,6 +151,8 @@ export function donationJson(d: Donation, platformUrl: string) {
     anonymous: d.anonymous,
     created_at: (d.paidAt ?? d.createdAt).toISOString(),
     receipt_url: receiptUrl(platformUrl, d.receiptCode),
+    // 47 What the charity refunded of it.
+    refunded_total: d.refundedCents ? formatCents(d.refundedCents, d.currency) : null,
   };
 }
 

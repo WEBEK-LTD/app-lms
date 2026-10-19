@@ -4,8 +4,12 @@ import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import type { App } from "@/lib/data/types";
-import { refreshSignature, refreshSite, refreshSites, refreshUrl, REFRESH_TIMEOUT_MS } from "@/lib/license/refresh";
-import { KEY, NOW, setupClient } from "./helpers";
+import { activateClient } from "@/lib/admin/clients";
+import { registerClient } from "@/lib/auth/accounts";
+import { MemoryStore } from "@/lib/data/memory";
+import { PLAN_REFRESH, refreshPlanSites, refreshSignature, refreshSite, refreshSites, refreshUrl, REFRESH_TIMEOUT_MS } from "@/lib/license/refresh";
+import type { Plan } from "@/lib/plans";
+import { days, KEY, NOW, setupClient } from "./helpers";
 
 // 31 Settings saved in the dashboard reach a WordPress site within seconds.
 
@@ -190,5 +194,93 @@ describe("saves that change what the license status carries ask the site", () =>
       "checked_at",
       "message",
     ]);
+  });
+});
+
+describe("47 the team's edits to a plan reach every WordPress site on it", () => {
+  /** Accounts in one store, each with an app on `plan` (WordPress unless said), active on its own site. */
+  async function accounts(list: { plan: Plan; backend?: App["backend"]; expired?: boolean }[]) {
+    const store = new MemoryStore();
+    const apps: App[] = [];
+    for (const [i, item] of list.entries()) {
+      const { client } = await registerClient(store, { name: `Site ${i}`, email: `site${i}@academy.test`, whatsapp: "+905446731942", siteUrl: `https://site${i}.test`, password: null }, NOW);
+      await activateClient(store, { clientId: client.id, plan: item.plan, activeUntil: item.expired ? days(-1) : days(30), paymentNote: "bank transfer" }, KEY, item.expired ? days(-40) : NOW);
+      const app: App = { ...newApp(client.id, `https://site${i}.test`, NOW, "store"), backend: item.backend ?? "wordpress" };
+      await store.createApp(app);
+      const license = await store.getLicenseForApp(client.id, app.id);
+      await store.claimActivation({
+        licenseId: license!.id,
+        siteUrl: `site${i}.test`,
+        siteUrlRaw: `https://site${i}.test/`,
+        pluginVersion: "0.4.2",
+        wpVersion: "7.1.3",
+        lms: "",
+        store: "woocommerce",
+        bookings: "",
+        activatedAt: NOW,
+        lastCheckedAt: NOW,
+      });
+      apps.push(app);
+    }
+    return { store, apps };
+  }
+
+  it("asks only the plan's WordPress sites, signed, in batches with a pause between them", async () => {
+    const { store, apps } = await accounts([
+      { plan: "growth" },
+      { plan: "growth" },
+      { plan: "pro" },
+      { plan: "growth", backend: "hosted" },
+      { plan: "growth" },
+      { plan: "growth", expired: true },
+      { plan: "growth" },
+    ]);
+    const { sent, fetcher } = fakeFetch();
+    const pauses: number[] = [];
+    const result = await refreshPlanSites(
+      { store, key: KEY, now: NOW, fetcher, resolve: async () => PUBLIC, sleep: async (ms) => void pauses.push(ms) },
+      "growth",
+      { ...PLAN_REFRESH, batchSize: 2 },
+    );
+    expect(result).toEqual({ apps: 4, sent: 4, left: 0 });
+    expect(sent.map((s) => s.url).sort()).toEqual([0, 1, 4, 6].map((i) => `https://site${i}.test/wp-json/yallapp/v1/license/refresh`));
+    // Two batches of two: one pause between them.
+    expect(pauses).toEqual([PLAN_REFRESH.pauseMs]);
+    for (const s of sent) {
+      const body = JSON.parse(String(s.init.body)) as { timestamp: number; signature: string };
+      expect(body.signature).toMatch(/^[0-9a-f]{64}$/);
+    }
+    expect(apps).toHaveLength(7);
+  });
+
+  it("stops at the time budget and the most sites; the rest check at their next check", async () => {
+    const { store } = await accounts(Array.from({ length: 6 }, () => ({ plan: "growth" as Plan })));
+    const { sent, fetcher } = fakeFetch();
+    let now = 0;
+    const result = await refreshPlanSites(
+      { store, key: KEY, now: NOW, fetcher, resolve: async () => PUBLIC, sleep: async (ms) => void (now += ms), clock: () => now },
+      "growth",
+      { batchSize: 2, pauseMs: 1000, maxSites: 500, budgetMs: 1500 },
+    );
+    expect(result).toEqual({ apps: 6, sent: 4, left: 2 });
+    expect(sent).toHaveLength(4);
+    const capped = await refreshPlanSites({ store, key: KEY, now: NOW, fetcher, resolve: async () => PUBLIC, sleep: async () => undefined }, "growth", { ...PLAN_REFRESH, maxSites: 3 });
+    expect(capped).toEqual({ apps: 6, sent: 3, left: 3 });
+  });
+
+  it("goes to the local tests' fake site when one is set", async () => {
+    const { store } = await accounts([{ plan: "pro" }]);
+    const { sent, fetcher } = fakeFetch();
+    await refreshPlanSites({ store, key: KEY, now: NOW, fetcher, resolve: async () => [], testSiteUrl: "http://localhost:3294/" }, "pro");
+    expect(sent.map((s) => s.url)).toEqual(["http://localhost:3294/wp-json/yallapp/v1/license/refresh"]);
+  });
+
+  it("savePlanLimitsAction and resetPlanAction ask the plan's sites", () => {
+    const text = readFileSync(path.resolve(__dirname, "../../src/app/actions/admin-settings.ts"), "utf8");
+    for (const name of ["savePlanLimitsAction", "resetPlanAction"]) {
+      const start = text.indexOf(`export async function ${name}(`);
+      const next = text.indexOf("\nexport ", start + 1);
+      expect(text.slice(start, next)).toContain("refreshPlanSitesSoon(plan)");
+    }
   });
 });

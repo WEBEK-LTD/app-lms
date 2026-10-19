@@ -1,10 +1,23 @@
-/** 44 UTC days as YYYY-MM-DD, the unit of every analytics total. */
+/**
+ * 44 Days as YYYY-MM-DD, the unit of every analytics total. 47 A day is the
+ * owner's day: each event is filed under the date in the app's time zone
+ * when it arrives (lib/analytics/zone.ts); "UTC" by default.
+ */
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const MS_PER_DAY = 86_400_000;
+const formatters = new Map<string, Intl.DateTimeFormat>();
 
-export function dayOf(date: Date): string {
-  return date.toISOString().slice(0, 10);
+/** The date of `date` in `zone` (an IANA time zone). */
+export function dayOf(date: Date, zone = "UTC"): string {
+  if (zone === "UTC") return date.toISOString().slice(0, 10);
+  let formatter = formatters.get(zone);
+  if (!formatter) {
+    // en-CA writes dates as YYYY-MM-DD.
+    formatter = new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" });
+    formatters.set(zone, formatter);
+  }
+  return formatter.format(date);
 }
 
 export function isDay(value: unknown): value is string {
@@ -13,6 +26,7 @@ export function isDay(value: unknown): value is string {
   return !Number.isNaN(date.getTime()) && dayOf(date) === value;
 }
 
+/** Calendar arithmetic on the labels (no zone involved). */
 export function addDays(day: string, days: number): string {
   return dayOf(new Date(Date.parse(`${day}T00:00:00Z`) + days * MS_PER_DAY));
 }

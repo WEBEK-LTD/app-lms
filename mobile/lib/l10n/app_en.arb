@@ -2194,6 +2194,19 @@
   "ticketStatusValid": "Valid",
   "ticketStatusUsed": "Used",
   "ticketStatusCancelled": "Cancelled",
+  "ticketStatusRefunded": "Refunded",
+  "@ticketStatusRefunded": {
+    "description": "47 A ticket the organiser refunded (it is cancelled and its place freed)."
+  },
+  "refundedAmount": "Refunded {amount}",
+  "@refundedAmount": {
+    "description": "47 What the business refunded of an order or donation, like \"Refunded ₺100.00\".",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "ticketUsedAt": "Checked in {time}",
   "@ticketUsedAt": {
     "placeholders": {

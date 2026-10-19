@@ -16,8 +16,8 @@ export interface IyzicoKeys {
 }
 
 export class IyzicoError extends PaymentError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options: { unreachable?: boolean } = {}) {
+    super(message, options);
     this.name = "IyzicoError";
   }
 }
@@ -59,7 +59,7 @@ async function post(keys: IyzicoKeys, path: string, payload: unknown, options: {
       signal: AbortSignal.timeout(20_000),
     });
   } catch {
-    throw new IyzicoError("iyzico can't be reached.");
+    throw new IyzicoError("iyzico can't be reached.", { unreachable: true });
   }
   const json = (await response.json().catch(() => null)) as IyzicoResponse | null;
   if (!json) throw new IyzicoError(`iyzico answered HTTP ${response.status}.`);
@@ -221,4 +221,134 @@ export async function checkIyzicoKeys(keys: IyzicoKeys, options: { fetcher?: Fet
   } catch {
     return null;
   }
+}
+
+// 47 Refunds: iyzico's Cancel and Refund APIs, called as its own SDKs call them.
+
+/** 47 iyzico's refund reasons. */
+export type IyzicoRefundReason = "double_payment" | "buyer_request" | "fraud" | "other";
+
+export interface IyzicoPaymentItem {
+  paymentTransactionId: string;
+  /** What the customer paid for this item (iyzico's `paidPrice`). */
+  paidCents: number;
+  /** Marketplace: the shop selling it. */
+  subMerchantKey: string | null;
+}
+
+export interface IyzicoPaymentDetail {
+  paymentId: string;
+  paidCents: number;
+  currency: string | null;
+  items: IyzicoPaymentItem[];
+}
+
+const idText = (value: unknown): string | null => (typeof value === "string" && value !== "" ? value : typeof value === "number" ? String(value) : null);
+
+/** 47 A payment as iyzico has it (Retrieve Payment, `POST /payment/detail`): its item transactions, to refund them one by one. */
+export async function retrieveIyzicoPayment(
+  keys: IyzicoKeys,
+  input: { paymentId: string; conversationId: string },
+  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
+): Promise<IyzicoPaymentDetail> {
+  const result = await post(
+    keys,
+    "/payment/detail",
+    {
+      locale: "en",
+      conversationId: input.conversationId,
+      paymentId: input.paymentId,
+    },
+    options,
+  );
+  if (result.status !== "success") throw new IyzicoError(result.errorMessage ?? "iyzico couldn't find the payment.");
+  const items = Array.isArray(result.itemTransactions) ? (result.itemTransactions as Record<string, unknown>[]) : [];
+  return {
+    paymentId: idText(result.paymentId) ?? input.paymentId,
+    paidCents: Math.round(Number(result.paidPrice ?? 0) * 100),
+    currency: typeof result.currency === "string" ? result.currency : null,
+    items: items
+      .map((t) => ({
+        paymentTransactionId: idText(t.paymentTransactionId) ?? "",
+        paidCents: Math.round(Number(t.paidPrice ?? t.price ?? 0) * 100),
+        subMerchantKey: typeof t.subMerchantKey === "string" && t.subMerchantKey ? t.subMerchantKey : null,
+      }))
+      .filter((t) => t.paymentTransactionId !== ""),
+  };
+}
+
+/**
+ * 47 Cancels a whole payment (`POST /payment/cancel`): only on the day it
+ * was taken, before iyzico's end-of-day report, and never in part. The
+ * customer's statement shows nothing. Returns iyzico's reference.
+ */
+export async function cancelIyzicoPayment(
+  keys: IyzicoKeys,
+  input: {
+    paymentId: string;
+    conversationId: string;
+    ip: string;
+    reason: IyzicoRefundReason;
+    description: string;
+  },
+  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
+): Promise<{ reference: string }> {
+  const result = await post(
+    keys,
+    "/payment/cancel",
+    {
+      locale: "en",
+      conversationId: input.conversationId,
+      paymentId: input.paymentId,
+      ip: input.ip,
+      reason: input.reason,
+      description: input.description.slice(0, 200),
+    },
+    options,
+  );
+  if (result.status !== "success") throw new IyzicoError(result.errorMessage ?? "iyzico couldn't cancel the payment.");
+  return {
+    reference: idText(result.hostReference) ?? idText(result.authCode) ?? input.paymentId,
+  };
+}
+
+/**
+ * 47 Refunds part or all of one item transaction (`POST /payment/refund`):
+ * iyzico refunds per basket item, never more than what was paid for it, up
+ * to 365 days later. A marketplace item's own transaction is refunded, so
+ * iyzico takes the refund from the shares the item was split into.
+ * Returns iyzico's reference.
+ */
+export async function refundIyzicoItem(
+  keys: IyzicoKeys,
+  input: {
+    paymentTransactionId: string;
+    cents: number;
+    currency: string;
+    conversationId: string;
+    ip: string;
+    reason: IyzicoRefundReason;
+    description: string;
+  },
+  options: { fetcher?: Fetch; baseUrl?: string | null } = {},
+): Promise<{ reference: string }> {
+  const result = await post(
+    keys,
+    "/payment/refund",
+    {
+      locale: "en",
+      conversationId: input.conversationId,
+      paymentTransactionId: input.paymentTransactionId,
+      price: (input.cents / 100).toFixed(2),
+      currency: input.currency,
+      ip: input.ip,
+      reason: input.reason,
+      description: input.description.slice(0, 200),
+    },
+    options,
+  );
+  if (result.status !== "success") throw new IyzicoError(result.errorMessage ?? "iyzico couldn't make the refund.");
+  return {
+    reference: idText(result.hostReference) ?? idText(result.authCode) ?? input.paymentTransactionId,
+  };
 }

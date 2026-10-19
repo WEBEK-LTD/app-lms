@@ -3018,6 +3018,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get ticketStatusCancelled => 'İptal edildi';
 
   @override
+  String get ticketStatusRefunded => 'İade edildi';
+
+  @override
+  String refundedAmount(String amount) {
+    return '$amount iade edildi';
+  }
+
+  @override
   String ticketUsedAt(String time) {
     return 'Giriş yapıldı: $time';
   }

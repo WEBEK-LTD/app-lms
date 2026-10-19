@@ -85,7 +85,7 @@ function cleanText(value: unknown, max: number): string | null {
  * fails the batch, so a broken build is noticed; events too old or ahead
  * are only skipped and counted.
  */
-export function parseBatch(body: unknown, now: Date): ({ ok: true } & ParsedBatch) | Failure {
+export function parseBatch(body: unknown, now: Date, zone = "UTC"): ({ ok: true } & ParsedBatch) | Failure {
   const fail = (message: string): Failure => ({ ok: false, message });
   if (!body || typeof body !== "object" || Array.isArray(body)) return fail("The body must be a JSON object.");
   const batch = body as Record<string, unknown>;
@@ -137,7 +137,8 @@ export function parseBatch(body: unknown, now: Date): ({ ok: true } & ParsedBatc
       continue;
     }
     const t = type as AnalyticsEventType;
-    const day = dayOf(at);
+    // 47 Filed under the day in the app's time zone.
+    const day = dayOf(at, zone);
     const hasItem = ITEM_EVENTS.has(t) && typeof event.item_kind === "string" && typeof event.item_id === "string";
     const amount = hasItem && typeof event.amount === "number" && typeof event.currency === "string" ? Math.round(event.amount * 100) : null;
     events.push({
@@ -176,12 +177,13 @@ export async function storeBatch(
   batch: ParsedBatch,
   country: string | null,
   now: Date,
+  zone = "UTC",
 ): Promise<void> {
   if (batch.events.length > 0) await store.insertAnalyticsEvents(batch.events.map((event) => ({ ...event, appId, country })));
   for (const { day, query } of batch.searches) {
     await store.addAnalyticsDaily(appId, day, { metric: "search", key: query, label: null, value: 1 });
   }
-  const today = dayOf(now);
+  const today = dayOf(now, zone);
   const late = new Set(batch.events.map((e) => e.day).filter((day) => day < today && day >= addDays(today, -MAX_EVENT_AGE_DAYS - 1)));
   for (const day of late) await store.addAnalyticsDaily(appId, day, { metric: "dirty", key: "", label: null, value: 1 });
 }

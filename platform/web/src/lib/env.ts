@@ -249,6 +249,13 @@ export function paymentApiUrls(): { iyzico: string | null; kashier: string | nul
   return { iyzico: iyzicoApiUrl(), kashier: kashierApiUrl(), fawaterk: fawaterkApiUrl() };
 }
 
+/** 47 A fake WordPress site for local tests: every license refresh goes there (lib/license/refresh.ts). Refused on Netlify. */
+export function licenseRefreshTestUrl(): string | null {
+  const url = read("LICENSE_REFRESH_TEST_URL");
+  if (url && isNetlify()) throw new Error("LICENSE_REFRESH_TEST_URL is for local tests only.");
+  return url ?? null;
+}
+
 export interface DatabaseConfig {
   url: string;
   ssl: "required" | "disabled";

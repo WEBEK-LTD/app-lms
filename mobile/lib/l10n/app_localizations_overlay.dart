@@ -3097,6 +3097,15 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('ticketStatusCancelled') ?? base.ticketStatusCancelled;
 
   @override
+  String get ticketStatusRefunded =>
+      overlay.text('ticketStatusRefunded') ?? base.ticketStatusRefunded;
+
+  @override
+  String refundedAmount(String amount) =>
+      overlay.format('refundedAmount', {'amount': amount}) ??
+      base.refundedAmount(amount);
+
+  @override
   String ticketUsedAt(String time) =>
       overlay.format('ticketUsedAt', {'time': time}) ?? base.ticketUsedAt(time);
 

@@ -33,6 +33,8 @@ import type {
   CrashIssueStatus,
   ApiWebhookEvent,
   ApiWebhookStatus,
+  PaymentRefund,
+  RefundKind,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -244,6 +246,8 @@ export const apps = mysqlTable(
     // 46 The owner's switches: the store's own rating prompt after good moments, and crash reports.
     reviewPrompt: boolean("review_prompt").notNull().default(true),
     crashReports: boolean("crash_reports").notNull().default(true),
+    // 47 The owner's time zone for Analytics; null: from the account's country.
+    timeZone: varchar("time_zone", { length: 64 }),
     appTypeDoneAt: time("app_type_done_at"),
     websiteDoneAt: time("website_done_at"),
     brandingDoneAt: time("branding_done_at"),
@@ -545,6 +549,8 @@ export const catalogOrders = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there (Kashier's session, Fawaterk's invoice).
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 47 What was refunded so far (payment_refunds).
+    refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
   },
   (t) => [
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
@@ -899,6 +905,8 @@ export const eventTickets = mysqlTable(
     usedAt: time("used_at"),
     cancelledAt: time("cancelled_at"),
     createdAt: time("created_at").notNull(),
+    // 47 Cancelled because the organiser refunded it.
+    refundedAt: time("refunded_at"),
   },
   (t) => [
     uniqueIndex("event_tickets_code_unique").on(t.code),
@@ -975,6 +983,8 @@ export const donations = mysqlTable(
     // 37 Who takes the payment (null: iyzico) and its reference there.
     paymentProvider: varchar("payment_provider", { length: 16 }).$type<PaymentProviderId>(),
     providerRef: varchar("provider_ref", { length: 191 }),
+    // 47 What was refunded so far (payment_refunds).
+    refundedCents: bigint("refunded_cents", { mode: "number", unsigned: true }).notNull().default(0),
   },
   (t) => [
     uniqueIndex("donations_token_unique").on(t.tokenHash),
@@ -1415,4 +1425,31 @@ export const apiWebhooks = mysqlTable(
     deliveredAt: time("delivered_at"),
   },
   (t) => [index("api_webhooks_due_idx").on(t.status, t.nextAttemptAt), index("api_webhooks_app_idx").on(t.appId, t.createdAt)],
+);
+
+// 47 Refunds made from the dashboard: of an order (catalog_orders) or a donation, through the provider's API or recorded.
+export const paymentRefunds = mysqlTable(
+  "payment_refunds",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 16 }).notNull().$type<RefundKind>(),
+    targetId: bigint("target_id", { mode: "number", unsigned: true }).notNull(),
+    amountCents: bigint("amount_cents", { mode: "number", unsigned: true }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    reason: varchar("reason", { length: 32 }).notNull(),
+    note: varchar("note", { length: 300 }),
+    provider: varchar("provider", { length: 16 }).notNull().$type<PaymentProviderId>(),
+    method: varchar("method", { length: 8 }).notNull().$type<PaymentRefund["method"]>(),
+    parts: jsonText<PaymentRefund["parts"]>("parts").notNull(),
+    providerRef: varchar("provider_ref", { length: 191 }),
+    commissionCents: bigint("commission_cents", { mode: "number", unsigned: true }),
+    revoked: jsonText<PaymentRefund["revoked"]>("revoked").notNull(),
+    byUserId: varchar("by_user_id", { length: 36 }),
+    byEmail: varchar("by_email", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("payment_refunds_target_idx").on(t.appId, t.kind, t.targetId)],
 );

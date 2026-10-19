@@ -4960,6 +4960,18 @@ abstract class AppLocalizations {
   /// **'Cancelled'**
   String get ticketStatusCancelled;
 
+  /// 47 A ticket the organiser refunded (it is cancelled and its place freed).
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get ticketStatusRefunded;
+
+  /// 47 What the business refunded of an order or donation, like "Refunded ₺100.00".
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded {amount}'**
+  String refundedAmount(String amount);
+
   /// No description provided for @ticketUsedAt.
   ///
   /// In en, this message translates to:

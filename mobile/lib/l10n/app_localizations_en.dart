@@ -3012,6 +3012,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ticketStatusCancelled => 'Cancelled';
 
   @override
+  String get ticketStatusRefunded => 'Refunded';
+
+  @override
+  String refundedAmount(String amount) {
+    return 'Refunded $amount';
+  }
+
+  @override
   String ticketUsedAt(String time) {
     return 'Checked in $time';
   }

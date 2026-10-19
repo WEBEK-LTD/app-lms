@@ -810,6 +810,8 @@
   "ticketStatusValid": "Geçerli",
   "ticketStatusUsed": "Kullanıldı",
   "ticketStatusCancelled": "İptal edildi",
+  "ticketStatusRefunded": "İade edildi",
+  "refundedAmount": "{amount} iade edildi",
   "ticketUsedAt": "Giriş yapıldı: {time}",
   "ticketShowAtDoor": "Bu kodu girişte gösterin",
   "ticketCancel": "Bileti iptal et",

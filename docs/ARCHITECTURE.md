@@ -37,7 +37,13 @@ Client's WordPress site                    Yallapp (WEBEK)
   private address. The plugin accepts it within 5 minutes of its clock, at
   most once every 30 seconds (a nudge too soon schedules one check for when
   the 30 seconds are over), and then runs its usual license check and layout
-  fetch: nothing in the nudge is trusted.
+  fetch: nothing in the nudge is trusted. 47 When the team edits what a plan
+  includes (or puts it back to its defaults), every WordPress site whose
+  license is on that plan now gets the nudge (`refreshPlanSites`): five at
+  once, a second between batches, at most 500 and within 20 seconds; sites
+  past that get the change at their next check (within 12 hours). Local
+  tests send every nudge to a fake site (`LICENSE_REFRESH_TEST_URL`,
+  refused on Netlify).
 
 ## WordPress plugin
 
@@ -634,9 +640,52 @@ mobile/
   with `paymentProvider` choosing which takes new plan payments and
   marketplace sales; a client's own keys stay in `catalogSettings.payment`
   (provider `iyzico`, `kashier` or `fawaterk`, encrypted as
-  `app:payment:<app id>`). Refunds are made in each provider's panel.
+  `app:payment:<app id>`). Refunds: see below.
   Test runs point `IYZICO_API_URL`, `KASHIER_API_URL` and
   `FAWATERK_API_URL` at fake servers (refused on Netlify).
+
+- Refunds from the dashboard (Phase 47, `lib/payments/refund.ts`,
+  `lib/refunds/service.ts`, migration `0039_refunds_time_zone`): the owner
+  refunds a paid order (products, a restaurant's order, tickets, paid
+  courses, memberships) or a donation, all of it or part, under it on
+  Orders or Donations, with the account the payment was taken with.
+  iyzico: a whole payment on the day it was taken (Istanbul's day) is
+  cancelled (`POST /payment/cancel` with its `paymentId`); otherwise, or
+  when iyzico refuses the cancel, the payment's item transactions are read
+  (`POST /payment/detail`) and refunded one by one (`POST /payment/refund`,
+  `paymentTransactionId`, `price`, `currency`, `ip`, `reason`), never more
+  than was paid for an item less what earlier refunds took from it; all
+  signed IYZWSv2 like the payments. Kashier: the session is read back for
+  its `kashierOrderId` and `transactionId`, then `PUT
+  /v3/orders/{orderId}/` on its fep host (`fep.kashier.io`,
+  `test-fep.kashier.io`) with the secret key, `apiOperation: "REFUND"`,
+  the amount in major units and `targetTransactionId`. Fawaterk's API v2
+  has no refund call, so its refunds are made in Fawaterk's panel and
+  recorded (`method: manual`, with its reference if given); an owner can
+  record one made in any provider's panel the same way, except for
+  marketplace payments, which are in Yallapp's account. A refund that stops
+  half-way (an iyzico item refused) records what was done; a provider that
+  doesn't answer is never retried by itself (the owner checks the panel).
+  `payment_refunds` keeps each refund (amount, reason, note, provider,
+  method, the provider's calls and references, the commission given back,
+  what was taken back, who, when); `recordRefund` adds it to the order's or
+  donation's `refunded_cents` in one statement that refuses more than the
+  total, so two refunds at once never refund more than was paid. All of it
+  refunded makes the status `refunded`. What it took back: tickets are
+  cancelled with `refunded_at` (their places go back on sale), course
+  enrolments of the order are removed (progress stays), memberships end;
+  with a refund in part only what the owner ticked. A donation's refund
+  comes off its campaign's total, and a fully refunded donor stops counting
+  unless they gave another. The customer gets `payment_refunded` in the
+  app's name; the audit log gets `payment.refund`. Marketplace orders:
+  Yallapp's commission is given back in proportion to what is refunded of
+  what is left (all of it with the last refund) and `commission_cents`
+  goes down by it; with iyzico the item's own transaction is refunded, so
+  iyzico takes it from the item's split; with Kashier the shop's share of
+  a refund after its payout was released comes off the next transfer. The
+  app sees `Order.refunded_total`, `Ticket.refunded` (status stays
+  `cancelled`: a new status would read as valid in older apps) and
+  `Donation.refunded_total`.
 
 - App sign-in (`apps.hosted_settings`): for apps on the hosted API, the
   dashboard's App sign-in page sets whether new customers can sign up and
@@ -884,7 +933,7 @@ fingerprinting; reports show totals only.
   secret); the IP is used only as a rate-limit key.
 - **Storage** (`lib/analytics`, migration `0035_analytics`).
   `analytics_events` keeps raw events for 40 days, without the search text.
-  `analytics_daily` (app, UTC day, metric, key, label, value) keeps totals
+  `analytics_daily` (app, day, metric, key, label, value) keeps totals
   until the app is deleted (both cascade with `apps`). Search texts are
   counted there at once (`search`, lower case; texts that look like a phone
   number or an email address are dropped), as are the phones each dashboard
@@ -902,6 +951,20 @@ fingerprinting; reports show totals only.
   in the last week (finished days not done or dirty, within a 15-second
   budget) and deletes raw events older than 40 days; the dashboard counts
   what is still due, and today so far, before each report.
+- **Days in the owner's time zone** (Phase 47, `zone.ts`). A day is the
+  app's day: its time zone is the owner's choice (Analytics › Time zone,
+  `apps.time_zone`), else the zone of the account's country (from its
+  WhatsApp number's calling code), else Europe/Istanbul. The simplest
+  correct way: each event is filed under the date in the app's zone when it
+  arrives (`analytics_events.day`), so the daily totals, the 7 and 30-day
+  users, retention, search counts and push counts are all counted in that
+  zone with no change to the tables or the counting; "today", the ranges,
+  the daily job and the CSV use the same zone. Regrouping UTC totals
+  couldn't be exact (a UTC day spans two local days), and re-filing raw
+  events on a change would only reach 40 days back, so a change of zone
+  applies from then on: days counted before keep the zone they were
+  counted in (before Phase 47: UTC), and the day of the change may hold a
+  few hours more or less. The page says which zone its days are in.
 - **Reports** (`report.ts`). Ranges of 7, 30 or 90 days or custom (at most
   366), compared with the period just before: installs, average daily,
   weekly and monthly active users, sessions and sessions per user, day 1, 7

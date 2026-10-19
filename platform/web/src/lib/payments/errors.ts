@@ -4,9 +4,13 @@
  * what it said, never a key.
  */
 export class PaymentError extends Error {
-  constructor(message: string) {
+  /** 47 No answer came: the provider may or may not have done it. */
+  readonly unreachable: boolean;
+
+  constructor(message: string, options: { unreachable?: boolean } = {}) {
     super(message);
     this.name = "PaymentError";
+    this.unreachable = options.unreachable ?? false;
   }
 }
 

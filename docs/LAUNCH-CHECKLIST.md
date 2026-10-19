@@ -51,6 +51,13 @@ devices. Everything else is in the code. Tick each line when it's done.
       test payment stays "not confirmed yet", send us what the provider's
       dashboard shows for it. Then save the live keys and turn the test
       switch off.
+- [ ] **Test refunds on each provider (roadmap 47.9):** with test keys,
+      refund a test order from **Orders** in part, then the rest: on iyzico
+      once on the day it was paid (a cancel) and once on a later day (item
+      refunds), on Kashier (its refund call; the secret key's role needs the
+      refund permission), and record one made in Fawaterk's panel. Check the
+      provider's panel shows each refund and that the order says
+      **Refunded**; send us what the provider answered if one fails.
 - [ ] **Kashier and Fawaterk webhooks:** nothing to set: each payment tells
       the provider its own webhook address
       (`/api/pay/kashier/…` and `/api/pay/fawaterk/…`). If Fawaterk's

@@ -34,6 +34,7 @@ import {
   type SupportLevel,
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
 import { clearPlatformSettingsCache, encryptSetting, getPlans, platformSetting, resolvedOtpSenderConfig, yallappAccountFor } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
@@ -446,7 +447,8 @@ function readLimit(raw: string): number | null | undefined {
 /**
  * 13.1 What a plan includes: its features (enforced where PLAN_FEATURES
  * says) and limits, plus the display-only items. Apps on the plan get the
- * change at once; WordPress sites with their next license check.
+ * change at once; 47 WordPress sites on it are asked to check their license
+ * now (in batches, refreshPlanSitesSoon), the rest at their next check.
  */
 export async function savePlanLimitsAction(_: FormState, formData: FormData): Promise<FormState> {
   const admin = await requireAdmin("plans.edit");
@@ -493,6 +495,7 @@ export async function savePlanLimitsAction(_: FormState, formData: FormData): Pr
     after: { features: setting.features, limits: setting.limits },
   });
   await revalidatePlans();
+  refreshPlanSitesSoon(plan);
   return { ok: true, message: `${setting.name}: features and limits saved. Apps on this plan follow them now.`, values };
 }
 
@@ -510,6 +513,8 @@ export async function resetPlanAction(formData: FormData): Promise<void> {
     after: null,
   });
   await revalidatePlans();
+  // 47 Its sites follow the defaults now too.
+  refreshPlanSitesSoon(plan);
 }
 
 /** Shops without their own iyzico account sell through Yallapp's, for this commission. */

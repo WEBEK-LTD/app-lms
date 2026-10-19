@@ -49,7 +49,10 @@ export type EmailTemplateKey =
   | "own_email_failed"
 
   // 29 Charity & donations
-  | "donation_receipt";
+  | "donation_receipt"
+
+  // 47 Refunds from the dashboard
+  | "payment_refunded";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -438,6 +441,26 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Dear {{donor_name}},\n\nThank you for your donation to {{org_name}}.\n\n" +
       "Amount: {{amount}}\nCampaign: {{campaign}}\nDate: {{date}}\nReference: {{reference}}\n\n" +
       "Your receipt: {{receipt_url}}\n\nKeep this email for your records. If you have a question about your donation, contact {{org_name}} and give the reference above.",
+  },
+  {
+    // 47 Sent in the business's name, like the donation receipt.
+    key: "payment_refunded",
+    name: "Payment refunded",
+    description:
+      "To a customer or donor when the business refunds their order, ticket, course or donation from the dashboard (apps without a website). Sent in the business's name, from the app's own email server when its owner set one.",
+    placeholders: [
+      { name: "org_name", description: "The business's name (the app's name)", sample: "Harbour Books" },
+      { name: "customer_name", description: "The customer's or donor's name", sample: "Elif Yılmaz" },
+      { name: "amount", description: "The amount refunded now", sample: "₺150.00" },
+      { name: "what", description: "What was paid for", sample: "order 1042" },
+      { name: "total_refunded", description: "Everything refunded of it so far, and of what", sample: "₺150.00 of ₺450.00" },
+      { name: "date", description: "The day of the refund", sample: "14 October 2026" },
+    ],
+    subject: "{{org_name}} refunded {{amount}} of {{what}}",
+    body:
+      "Dear {{customer_name}},\n\n{{org_name}} refunded {{amount}} of your payment for {{what}}.\n\n" +
+      "Refunded so far: {{total_refunded}}\nDate: {{date}}\n\n" +
+      "The money goes back to the card you paid with. Banks usually show it within a few working days.\n\nIf you have a question about it, contact {{org_name}} and mention {{what}}.",
   },
   {
     key: "own_whatsapp_failed",

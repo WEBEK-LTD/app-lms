@@ -266,7 +266,10 @@ class _OrderCard extends StatelessWidget {
       _ => false,
     };
     // 26 A restaurant's order shows its step and opens its tracking screen.
-    final step = order.fulfilmentStatus;
+    // 47 A refunded order says so, whatever step it reached.
+    final step = order.status == OrderStatus.refunded
+        ? null
+        : order.fulfilmentStatus;
     final status = step != null
         ? OrderSteps.label(
             context,
@@ -371,6 +374,20 @@ class _OrderCard extends StatelessWidget {
               ),
             ],
           ),
+          // 47 A refund in part shows under the total.
+          if (order.refundedTotal != null &&
+              order.status != OrderStatus.refunded) ...[
+            const SizedBox(height: 4),
+            Text(
+              context.l10n.refundedAmount(order.refundedTotal!),
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: p.danger,
+              ),
+            ),
+          ],
         ],
       ),
     );
