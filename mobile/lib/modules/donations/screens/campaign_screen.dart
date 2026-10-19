@@ -19,6 +19,8 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../data/donations_providers.dart';
 import '../widgets/campaign_widgets.dart';
+import '../../../core/services/review_prompt.dart';
+import '../../../core/services/share_links.dart';
 
 /// A campaign: its pictures, progress and story, the donation form and the
 /// latest donations.
@@ -93,6 +95,16 @@ class _CampaignBody extends ConsumerWidget {
             top: top + 8,
             start: 16,
             child: const AppBackButton(),
+          ),
+          // 46 A link that opens the campaign in the app.
+          PositionedDirectional(
+            top: top + 8,
+            end: 16,
+            child: ShareLinkButton(
+              kind: 'campaign',
+              id: campaign.id,
+              title: campaign.title,
+            ),
           ),
         ],
       ),
@@ -319,6 +331,8 @@ class _DonationFormState extends ConsumerState<DonationForm> {
             ..invalidate(myDonationsProvider)
             ..invalidate(campaignsProvider);
           showMessage(context, l10n.donateThanks);
+          // 46 A good moment to ask for a rating.
+          reportGoodMoment(ref, GoodMoment.donationMade);
         }
       } else {
         final opened = await ref.read(openExternalProvider)(link.url);

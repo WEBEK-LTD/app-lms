@@ -9,6 +9,7 @@ import 'core/l10n/language.dart';
 import 'core/providers.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/analytics_providers.dart';
+import 'core/services/app_health.dart';
 import 'core/services/push_registration.dart';
 import 'core/storage/local_settings.dart';
 import 'core/theme/app_look.dart';
@@ -35,7 +36,9 @@ class YallappApp extends ConsumerWidget {
       ..watch(pushRegistrationProvider)
       ..watch(pushNavigationProvider)
       // 44 Usage statistics: the session and the screens.
-      ..watch(analyticsRoutesProvider);
+      ..watch(analyticsRoutesProvider)
+      // 46 Crash reports and the rating prompt's count of app runs.
+      ..watch(appHealthProvider);
 
     return MaterialApp.router(
       title: env.build.appName,

@@ -25,6 +25,7 @@ import '../data/lms_providers.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/services/share_links.dart';
 
 /// A course page with overview, curriculum, reviews summary, wishlist and
 /// the main action decided by [resolveCourseCta] (design: CourseDetail).
@@ -240,21 +241,35 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           start: 20,
                           child: const AppBackButton(),
                         ),
-                        if (config.features.wishlist)
-                          PositionedDirectional(
-                            top: MediaQuery.paddingOf(context).top + 16,
-                            end: 20,
-                            child: SquareIconButton(
-                              icon: AppIcons.favorite,
-                              filled: wishlisted,
-                              foreground: wishlisted ? p.link : p.text,
-                              bordered: false,
-                              label: wishlisted
-                                  ? l10n.removeFromWishlist
-                                  : l10n.addToWishlist,
-                              onPressed: () => _toggleWishlist(course),
-                            ),
+                        PositionedDirectional(
+                          top: MediaQuery.paddingOf(context).top + 16,
+                          end: 20,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 46 A link that opens the course in the app.
+                              ShareLinkButton(
+                                kind: 'course',
+                                id: course.id,
+                                title: course.title,
+                                bordered: false,
+                              ),
+                              if (config.features.wishlist) ...[
+                                const SizedBox(width: 4),
+                                SquareIconButton(
+                                  icon: AppIcons.favorite,
+                                  filled: wishlisted,
+                                  foreground: wishlisted ? p.link : p.text,
+                                  bordered: false,
+                                  label: wishlisted
+                                      ? l10n.removeFromWishlist
+                                      : l10n.addToWishlist,
+                                  onPressed: () => _toggleWishlist(course),
+                                ),
+                              ],
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),

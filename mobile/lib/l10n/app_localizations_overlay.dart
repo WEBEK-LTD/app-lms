@@ -3342,4 +3342,15 @@ class OverlayLocalizations extends AppLocalizations {
   String shareUsageNote(String app) =>
       overlay.format('shareUsageNote', {'app': app}) ??
       base.shareUsageNote(app);
+
+  @override
+  String get shareLink => overlay.text('shareLink') ?? base.shareLink;
+
+  @override
+  String get sendCrashReports =>
+      overlay.text('sendCrashReports') ?? base.sendCrashReports;
+
+  @override
+  String get sendCrashReportsHint =>
+      overlay.text('sendCrashReportsHint') ?? base.sendCrashReportsHint;
 }

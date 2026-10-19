@@ -20,6 +20,8 @@ import '../widgets/booking_widgets.dart';
 import '../widgets/intake_form.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/l10n/vertical_wording.dart';
+import '../../../core/services/review_prompt.dart';
+import '../../../core/services/share_links.dart';
 
 /// The `slot_taken` error: someone booked the time first.
 const slotTaken = 'slot_taken';
@@ -194,6 +196,17 @@ class _ServiceViewState extends ConsumerState<_ServiceView> {
               expandedHeight: hasImage ? 220 : null,
               backgroundColor: p.surface,
               leading: const AppBarBackButton(),
+              // 46 A link that opens the service in the app.
+              actions: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 14),
+                  child: ShareLinkButton(
+                    kind: 'service',
+                    id: service.id,
+                    title: service.name,
+                  ),
+                ),
+              ],
               title: AnimatedOpacity(
                 opacity: _collapsed || !hasImage ? 1 : 0,
                 duration: const Duration(milliseconds: 160),
@@ -708,6 +721,8 @@ class _ConfirmSheetState extends ConsumerState<_ConfirmSheet> {
             notes: widget.notes ? _notes.text : null,
             answers: widget.answers,
           );
+      // 46 A good moment to ask for a rating.
+      reportGoodMoment(ref, GoodMoment.bookingMade);
       if (mounted) Navigator.of(context).pop(appointment);
     } catch (e) {
       if (!mounted) return;

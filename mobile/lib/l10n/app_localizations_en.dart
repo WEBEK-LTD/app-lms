@@ -3232,4 +3232,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareUsageNote(String app) {
     return 'Helps $app see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.';
   }
+
+  @override
+  String get shareLink => 'Share';
+
+  @override
+  String get sendCrashReports => 'Send crash reports';
+
+  @override
+  String get sendCrashReportsHint =>
+      'When something goes wrong, the app sends what happened, its version and the kind of phone, so it can be fixed. Never your name, number or what you typed.';
 }

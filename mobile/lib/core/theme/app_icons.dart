@@ -101,6 +101,8 @@ abstract final class AppIcons {
   static const newspaper = Symbols.newspaper_rounded;
   static const bookmark = Symbols.bookmark_rounded;
   static const share = Symbols.share_rounded;
+  // 46
+  static const crashReports = Symbols.bug_report_rounded;
 
   // 26 Restaurants and cafés.
   static const menu = Symbols.restaurant_menu_rounded;

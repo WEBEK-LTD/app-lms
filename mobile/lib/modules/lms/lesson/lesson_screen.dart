@@ -25,6 +25,7 @@ import 'embeds/inline_embed.dart';
 import 'video/lesson_video_player.dart';
 import 'video/watermark.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/services/review_prompt.dart';
 
 /// Where a lesson sits in its course.
 class LessonPosition {
@@ -171,6 +172,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             ? context.l10n.courseComplete
             : context.l10n.lessonComplete(progress.percent),
       );
+      // 46 A good moment to ask for a rating.
+      reportGoodMoment(ref, GoodMoment.lessonCompleted);
     } on ApiException catch (e) {
       if (!mounted) return;
       if (e.code == ApiException.watchRequirementNotMet) {

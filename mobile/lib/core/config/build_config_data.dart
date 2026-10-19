@@ -85,6 +85,10 @@ class BuildConfigData {
     this.huaweiAppId,
     this.analyticsUrl,
     this.analyticsKey,
+    this.appId,
+    this.linkBaseUrl,
+    this.siteLinkBaseUrl,
+    this.crashReportUrl,
   });
 
   final AppType appType;
@@ -134,6 +138,14 @@ class BuildConfigData {
   /// them the app sends nothing; the app preview never has them.
   final String? analyticsUrl;
   final String? analyticsKey;
+  /// 46 The platform's app ID and its links on Yallapp's link domain
+  /// (`https://yallapp.com.tr/a/<app_id>`), a WordPress site's own
+  /// (`<site>/a`), and where crash reports go (build config `links`). Null
+  /// in builds made before Phase 46 and in development builds.
+  final String? appId;
+  final String? linkBaseUrl;
+  final String? siteLinkBaseUrl;
+  final String? crashReportUrl;
 
   BuildConfigData copyWith({
     String? siteUrl,
@@ -142,6 +154,10 @@ class BuildConfigData {
     AppType? appType,
     String? analyticsUrl,
     String? analyticsKey,
+    String? appId,
+    String? linkBaseUrl,
+    String? siteLinkBaseUrl,
+    String? crashReportUrl,
   }) => BuildConfigData(
     appType: appType ?? this.appType,
     vertical: vertical,
@@ -166,5 +182,9 @@ class BuildConfigData {
     huaweiAppId: huaweiAppId,
     analyticsUrl: analyticsUrl ?? this.analyticsUrl,
     analyticsKey: analyticsKey ?? this.analyticsKey,
+    appId: appId ?? this.appId,
+    linkBaseUrl: linkBaseUrl ?? this.linkBaseUrl,
+    siteLinkBaseUrl: siteLinkBaseUrl ?? this.siteLinkBaseUrl,
+    crashReportUrl: crashReportUrl ?? this.crashReportUrl,
   );
 }

@@ -5331,6 +5331,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Helps {app} see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.'**
   String shareUsageNote(String app);
+
+  /// No description provided for @shareLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareLink;
+
+  /// No description provided for @sendCrashReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Send crash reports'**
+  String get sendCrashReports;
+
+  /// No description provided for @sendCrashReportsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When something goes wrong, the app sends what happened, its version and the kind of phone, so it can be fixed. Never your name, number or what you typed.'**
+  String get sendCrashReportsHint;
 }
 
 class _AppLocalizationsDelegate

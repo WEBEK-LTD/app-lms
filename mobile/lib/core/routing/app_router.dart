@@ -17,6 +17,7 @@ import '../providers.dart';
 import '../auth/auth_controller.dart';
 import '../storage/local_settings.dart';
 import '../theme/symbol_names.dart';
+import 'app_links.dart';
 import 'app_module.dart';
 import 'paths.dart';
 
@@ -162,11 +163,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: Paths.home,
     refreshListenable: refresh,
     debugLogDiagnostics: false,
-    redirect: (context, state) => redirectFor(
-      location: state.uri.toString(),
-      auth: ref.read(authControllerProvider),
-      guestMode: ref.read(localSettingsProvider).guestMode,
-    ),
+    redirect: (context, state) =>
+        // 46 A link that opens the app (App Links, Universal Links, a
+        // notification's link): its screen, then the sign-in rules below.
+        linkLocation(state.uri, ref.read(appEnvironmentProvider).build) ??
+        redirectFor(
+          location: state.uri.toString(),
+          auth: ref.read(authControllerProvider),
+          guestMode: ref.read(localSettingsProvider).guestMode,
+        ),
     routes: tabbedRoutes(module: module, tabs: ref.read(shellTabsProvider)),
     errorBuilder: (context, state) => const NotFoundScreen(),
   );

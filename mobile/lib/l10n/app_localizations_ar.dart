@@ -3290,4 +3290,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String shareUsageNote(String app) {
     return 'تساعد $app على معرفة كيفية استخدام التطبيق، مثل الشاشات والعناصر التي تُفتح. لا يُرسل اسمك أو رقم هاتفك أو بريدك الإلكتروني أبدًا.';
   }
+
+  @override
+  String get shareLink => 'مشاركة';
+
+  @override
+  String get sendCrashReports => 'إرسال تقارير الأعطال';
+
+  @override
+  String get sendCrashReportsHint =>
+      'عند حدوث خطأ، يرسل التطبيق ما حدث وإصداره ونوع الهاتف لإصلاحه. لا يرسل أبدًا اسمك أو رقمك أو ما كتبته.';
 }

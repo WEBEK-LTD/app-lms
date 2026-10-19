@@ -3237,4 +3237,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String shareUsageNote(String app) {
     return '$app, uygulamanın nasıl kullanıldığını, örneğin hangi ekranların ve öğelerin açıldığını görür. Adınız, telefon numaranız ve e-posta adresiniz asla gönderilmez.';
   }
+
+  @override
+  String get shareLink => 'Paylaş';
+
+  @override
+  String get sendCrashReports => 'Hata raporlarını gönder';
+
+  @override
+  String get sendCrashReportsHint =>
+      'Bir sorun olduğunda uygulama, düzeltilebilmesi için ne olduğunu, sürümünü ve telefon türünü gönderir. Adınızı, numaranızı veya yazdıklarınızı asla göndermez.';
 }
