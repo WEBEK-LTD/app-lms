@@ -314,8 +314,9 @@ Nothing to set on Netlify: the preview is served from the site's own files
 ## 7h. Yallapp's prices in pounds and dollars (Phase 52)
 
 - [ ] Apply migration `0038_yallapp_prices.sql` (the account's country on
-      clients; the dollar price shown on plan payments). The lead may
-      renumber it with the other phases' migrations.
+      clients; the dollar price shown on plan payments), then
+      `0039_refunds_time_zone.sql` (Phase 47: refunds of payments, and each
+      app's time zone for its analytics).
 - [ ] **Yallapp's Kashier account:** live merchant ID, Payment API key and
       secret key in Settings › Yallapp's Kashier account (encrypted there;
       never in the repository or Netlify files), **Test connection**, then a
@@ -334,6 +335,20 @@ Nothing to set on Netlify: the preview is served from the site's own files
       dollars.
 - [ ] Clients who signed up before Phase 52 have no country saved: their
       dashboard follows the request's country like a visitor's.
+
+## 7i. Plugin 0.4.3 (Phases 47 to 53)
+
+- [ ] **Release plugin 0.4.3** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`: the site's own links
+      open the app, private courses for their students, and screen
+      protection in Settings › General for every app type.
+- [ ] On a test site with Tutor LMS, set a course to Private, enrol a
+      student and check that the app shows the course in My courses and
+      opens its topics and lessons, while another account gets "not found".
+- [ ] On real phones, turn on **Block screenshots & screen recording** and
+      check that a screenshot and a screen recording of a lesson come out
+      blank (Android), or that the lesson is hidden in recordings and a
+      screenshot shows the notice (iPhone).
 
 ## 8. Accounts the remaining roadmap steps wait on
 

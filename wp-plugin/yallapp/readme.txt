@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.2
+Stable tag: 0.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,7 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
-= Unreleased =
+= 0.4.3 =
 * Your site's own addresses open the app too: the course and lesson pages (Academy apps), product and product category pages (Store apps), posts (News & blog apps) and the pages with your booking plugin's form (Bookings apps), as your permalinks make them. On iPhone, apple-app-site-association lists them after what always stays on the website: wp-admin, sign-in, the REST API, feeds, the home page and the cart, checkout, account and payment pages of WooCommerce, Tutor LMS, LearnPress, LifterLMS and Masteriyo (add others with the yallapp_link_excluded_page_ids filter). On Android, the paths that start with a fixed folder (/courses/, /product/, /blog/) are sent to Yallapp with the license check and open the app from its next build; posts whose permalinks start at the root (/%postname%/) open it on iPhone only.
 * New endpoint GET /links/resolve tells the app what an address of the site is; anything the app doesn't show opens in its in-app browser.
 * A site in a folder (example.com/learn) also serves the two link files under its own folder, for the domain's own server to copy: phones only read them at the root of the domain.
