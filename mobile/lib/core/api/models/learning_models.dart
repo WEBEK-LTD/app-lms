@@ -72,6 +72,16 @@ CurriculumItem? nextItemToOpen(List<Topic> topics) {
   return open.where((item) => !item.completed).firstOrNull ?? open.firstOrNull;
 }
 
+/// 50 The topic a course page opens at: the one holding [nextItemToOpen]
+/// (where the student is), else the first.
+int currentTopicIndex(List<Topic> topics) {
+  final next = nextItemToOpen(topics);
+  final index = next == null
+      ? -1
+      : topics.indexWhere((t) => t.items.any((i) => identical(i, next)));
+  return index < 0 ? 0 : index;
+}
+
 /// 45 Whether an enrolled student finished the course: the server's
 /// progress says so (`CourseDetail.progress.course_completed`); from an older
 /// server without it, every lesson and quiz of the curriculum is complete.

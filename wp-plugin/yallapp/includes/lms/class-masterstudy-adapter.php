@@ -179,7 +179,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'stm-courses' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -208,7 +208,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'stm-courses' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -283,7 +283,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, 'stm-courses' ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		if ( ! $this->is_free( $course_id ) ) {
@@ -336,7 +336,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 			return null;
 		}
 		$course_id   = $this->course_of( $post->ID );
-		$neighbours  = $this->neighbours( $course_id, $post->ID );
+		$neighbours  = $this->neighbours( $course_id, $post->ID, $user_id );
 		$attachments = array();
 		foreach ( ( new FileMaterialRepository() )->get_files( get_post_meta( $post->ID, 'lesson_files', true ) ) as $file ) {
 			$shape = self::attachment_shape( $file->ID );
@@ -664,7 +664,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 			return (int) $post_id;
 		}
 		foreach ( ( new CurriculumRepository() )->get_lesson_course_ids( (int) $post_id ) as $course_id ) {
-			if ( $this->published( (int) $course_id, 'stm-courses' ) ) {
+			if ( $this->live( (int) $course_id, 'stm-courses' ) ) {
 				return (int) $course_id;
 			}
 		}
@@ -694,7 +694,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 		$ids = array();
 		foreach ( (array) stm_lms_get_user_courses( (int) $user_id, '', '', array( 'course_id' ) ) as $row ) {
 			$course_id = (int) $row['course_id'];
-			if ( $this->published( $course_id, 'stm-courses' ) && ! STM_LMS_Course::is_course_time_expired( (int) $user_id, $course_id ) ) {
+			if ( $this->live( $course_id, 'stm-courses' ) && ! STM_LMS_Course::is_course_time_expired( (int) $user_id, $course_id ) ) {
 				$ids[] = $course_id;
 			}
 		}

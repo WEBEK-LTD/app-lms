@@ -218,11 +218,13 @@ update_option(
 		'design_locked'  => $design_locked,
 		'instructor'     => $instructor_id,
 		'expect'         => array(
-			'video'       => 'youtube',
-			'paid'        => false,
-			'qna'         => false,
-			'free_orders' => false,
-			'certificate' => false,
+			'video'           => 'youtube',
+			'paid'            => false,
+			'qna'             => false,
+			'free_orders'     => false,
+			'certificate'     => false,
+			// 50 Sensei counts no one as enrolled in a course that isn't published.
+			'private_courses' => false,
 		),
 	)
 );

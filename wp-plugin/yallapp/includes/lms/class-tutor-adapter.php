@@ -205,7 +205,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post = $this->published( $course_id, tutor()->course_post_type );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -245,7 +245,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$course = $this->published( $course_id, tutor()->course_post_type );
+		$course = $this->course_post( $course_id, $user_id );
 		if ( ! $course ) {
 			return null;
 		}
@@ -263,6 +263,17 @@ class Tutor_Adapter implements Lms_Adapter {
 			);
 		}
 		return $topics;
+	}
+
+	/**
+	 * 50 Whether a user may see and open a course.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User, or 0.
+	 * @return bool
+	 */
+	public function course_visible( $course_id, $user_id ) {
+		return null !== $this->course_post( $course_id, $user_id );
 	}
 
 	/**
@@ -294,7 +305,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, tutor()->course_post_type ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
 		}
 		if ( ! $this->is_free( $course_id ) ) {
@@ -338,7 +349,8 @@ class Tutor_Adapter implements Lms_Adapter {
 		$ids       = array_slice( $ids, ( max( 1, $page ) - 1 ) * $per_page, $per_page );
 		$items     = array();
 		foreach ( $ids as $course_id ) {
-			$post = $this->published( $course_id, tutor()->course_post_type );
+			// 50 Private courses too: they show in My courses for their students.
+			$post = $this->course_post( $course_id, $user_id );
 			if ( $post ) {
 				$items[] = $this->my_course( $post, $user_id );
 			}
@@ -357,7 +369,7 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return array|null
 	 */
 	public function my_course_by_id( $course_id, $user_id ) {
-		$post = $this->published( $course_id, tutor()->course_post_type );
+		$post = $this->course_post( $course_id, $user_id );
 		return $post ? $this->my_course( $post, $user_id ) : null;
 	}
 
@@ -1768,6 +1780,19 @@ class Tutor_Adapter implements Lms_Adapter {
 	private function topic_contents( $topic_id ) {
 		$query = tutor_utils()->get_course_contents_by_topic( $topic_id, -1 );
 		return ( $query instanceof WP_Query ) ? $query->posts : array();
+	}
+
+	/**
+	 * 50 A course the user may open (Course_Visibility): published, or private (Tutor's
+	 * "Visibility: Private") and the user is enrolled in it or may read it.
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User, or 0.
+	 * @return WP_Post|null
+	 */
+	private function course_post( $course_id, $user_id ) {
+		$post = $course_id ? get_post( (int) $course_id ) : null;
+		return ( Course_Visibility::live( $post, tutor()->course_post_type ) && Course_Visibility::viewable( $post, $user_id, array( $this, 'is_enrolled' ) ) ) ? $post : null;
 	}
 
 	/**

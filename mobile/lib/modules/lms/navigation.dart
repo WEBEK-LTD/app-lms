@@ -38,19 +38,9 @@ void openCurriculumItem(
   }
 }
 
-/// Continues an enrolled course at its next item, or opens the course.
-void continueCourse(BuildContext context, MyCourse course) {
-  // 45 A finished course opens on its page, to review it.
-  if (course.progress.courseCompleted) {
+/// Opens an enrolled course from My courses, a "continue" card or a page
+/// block: always on its course page (50), the same for every LMS and for
+/// academies without a website. The student sees the course, its topics and
+/// where they are, and "Continue learning" there opens the next lesson.
+void continueCourse(BuildContext context, MyCourse course) =>
     openCourse(context, course.course.id);
-    return;
-  }
-  final next = course.nextItem;
-  // 39 Earlier plugins could send an assignment here; it opens on the
-  // website, so the course page is the better place to continue from.
-  if (next != null && !next.locked && next.opensInApp) {
-    openCurriculumItem(context, next, courseId: course.course.id);
-  } else {
-    openCourse(context, course.course.id);
-  }
-}

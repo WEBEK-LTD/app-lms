@@ -1043,6 +1043,30 @@ no automatic refund, which stays with the refunds work). Migration
 | [ ] | 49.7 A late payment for a full event is refunded by the owner from the provider's panel (the notice says so); refunding it from the dashboard comes with the refunds work | With the dashboard's refunds |
 | [ ] | 49.8 The webhook's address is fixed (`<API address>/webhooks/yallapp`); notices for other events (a changed phone or email) and a "Send again" button for failed notices aren't offered. The "Places released" and "No places left" pages need the hold to pass, so they're covered by unit tests, not the browser tests | When a client asks |
 
+## Phase 50: WordPress courses look and open like courses without a website; private courses for their students
+
+The owner tried a Tutor LMS app: tapping a course in My courses opened its next
+lesson straight away, to be flipped through one by one, and a course the admin
+had set to Private vanished from its own students' app. Now every way into a
+course (My courses, the home screen's Continue card, a Continue page block, a
+link) opens its course page first, the same screen for every LMS and for
+academies without a website: the header, the overview and the whole
+curriculum by topic (Tutor LMS topics, LearnPress and LearnDash sections,
+Sensei modules...), each topic opening to its lessons, quizzes and
+assignments, the student's topic open. A private course stays out of the
+catalog and opens fully for its students. Reproduced side by side in the app
+preview with a Tutor LMS 4.1.1 + WooCommerce site and the Nour Academy demo
+app, before and after. No migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 50.1 Contract first: `docs/api/openapi.yaml` says the catalog never lists a private course, `GET /courses/{id}`, its curriculum and its lessons (free previews too) are `404 not_found` for whoever can't open it, `GET /me/courses` lists the private courses the student is in, and the curriculum comes in the LMS's topic order | `redocly lint` passes, the API reference regenerated |
+| [x] | 50.2 App: `continueCourse` (My courses, the home screen's Continue cards, the Continue page block) opens the course page, never a lesson; the course page's topics open and close (title, "2 of 4 lessons · 21 min", a tick when done), the topic holding the next lesson open (the first for visitors); a lesson opens from its topic and keeps previous and next; "Continue learning" on the course page still opens the next lesson | `phase50_test.dart` (My courses and the Continue card open the course page with no lesson fetched, topics toggle, a lesson opens from its topic, a visitor's first topic open) |
+| [x] | 50.3 Plugin: `Course_Visibility` decides for every adapter: a published course for everyone; a private one for the students enrolled in it (however enrolled) and whoever may read it on the website (`read_post`: its author, editors, administrators). Course, curriculum, free enrollment, My courses (Tutor LMS, LearnPress, LearnDash, LifterLMS, Sensei, MasterStudy, Masteriyo; LearnDash's and Sensei's enrolled-course queries take private courses, and LifterLMS's private enrollments are read from its table since its own list has published courses only), lesson neighbours for the student; the lesson, download, progress and completion endpoints refuse a private course's lessons to others (`Lms_Adapter::course_visible`); "Unreleased" in readme.txt | `CourseVisibilityTest`; the integration suites' "A private course (50)" checks (not in the catalog, 404 signed out and not enrolled for the course, curriculum and every lesson, no enrolling, opens for a freshly enrolled student with the same topics in order, in My courses, lesson neighbours) with Tutor LMS (316 checks), LearnPress (139), LifterLMS (128), Masteriyo (136) and MasterStudy (135); Sensei (119) counts no one as enrolled in an unpublished course, so there it stays closed to students as on the website (`expect.private_courses`). LearnDash not run (not on wordpress.org) |
+| [x] | 50.4 The preview bundle rebuilt; screenshots before and after for Tutor LMS and the Nour Academy demo | `build_preview.sh --check` |
+| [ ] | 50.5 A password-protected course still shows in the catalog (as on the website) and its password can't be typed in the app; private lessons inside a course stay hidden as the LMS hides them from students (Tutor LMS and LearnPress don't show them) | Owner's decision |
+| [ ] | 50.6 A "new lesson" notification still opens the lesson itself (Back goes home), and the wishlist leaves private courses out | When needed |
+
 ## Phase 52: Yallapp's prices in Egyptian pounds for Egypt and US dollars elsewhere, paid through Kashier in pounds
 
 The owner's decision: Yallapp's own prices (its plans, and any add-on) are

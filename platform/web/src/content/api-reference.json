@@ -187,21 +187,21 @@
           "method": "GET",
           "path": "/courses",
           "summary": "List courses",
-          "description": null,
+          "description": "Published courses. A private course (WordPress's Private visibility, which the LMS uses to hide a course from its catalog) is never listed, not even to its students: they find it in `GET /me/courses` (50).",
           "access": "optional"
         },
         {
           "method": "GET",
           "path": "/courses/{course_id}",
           "summary": "Get a course",
-          "description": null,
+          "description": "A private course opens only for the students enrolled in it (bought, free or added by an administrator) and for whoever may read it on the website (its author, editors and administrators); anyone else gets `404 not_found`, as for a course that doesn't exist (50).",
           "access": "optional"
         },
         {
           "method": "GET",
           "path": "/courses/{course_id}/curriculum",
           "summary": "Get a course's topics and items",
-          "description": "Items the student can't open are returned with `locked` set and no content.",
+          "description": "The course's topics (Tutor LMS topics, LearnPress, LearnDash and MasterStudy sections, LifterLMS sections, Sensei modules...) in the order the LMS shows them, each with its lessons, quizzes, assignments and live classes in order. Items the student can't open are returned with `locked` set and no content. A private course's curriculum is `404 not_found` for whoever can't open the course (`GET /courses/{course_id}`, 50).",
           "access": "optional"
         }
       ]
@@ -214,7 +214,7 @@
           "method": "GET",
           "path": "/me/courses",
           "summary": "List the student's courses",
-          "description": null,
+          "description": "Private courses the student is enrolled in are listed too (50).",
           "access": "signed-in"
         },
         {
@@ -242,7 +242,7 @@
           "method": "GET",
           "path": "/lessons/{lesson_id}",
           "summary": "Get a lesson",
-          "description": "Free-preview lessons are public; everything else requires enrollment.",
+          "description": "Free-preview lessons are public; everything else requires enrollment. A lesson of a private course is `404 not_found`, free previews included, for whoever can't open the course (`GET /courses/{course_id}`, 50).",
           "access": "optional"
         },
         {

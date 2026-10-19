@@ -178,7 +178,7 @@ class Sensei_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'course' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -207,7 +207,7 @@ class Sensei_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'course' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -310,7 +310,7 @@ class Sensei_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, 'course' ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		if ( ! $this->is_free( $course_id ) ) {
@@ -368,7 +368,7 @@ class Sensei_Adapter extends Base_Adapter {
 			return null;
 		}
 		$course_id  = $this->course_of( $post->ID );
-		$neighbours = $this->neighbours( $course_id, $post->ID );
+		$neighbours = $this->neighbours( $course_id, $post->ID, $user_id );
 		return array(
 			'id'          => (int) $post->ID,
 			'course_id'   => $course_id,
@@ -651,6 +651,8 @@ class Sensei_Adapter extends Base_Adapter {
 				'fields'         => 'ids',
 				'order'          => 'DESC',
 				'orderby'        => 'date',
+				// 50 Private courses too: they show in My courses for their students.
+				'post_status'    => Course_Visibility::STATUSES,
 			)
 		);
 		return array_map( 'intval', (array) $query->posts );

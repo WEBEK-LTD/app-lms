@@ -176,7 +176,7 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post   = $this->published( $course_id, LP_COURSE_CPT );
+		$post   = $this->course_post( $course_id, $user_id );
 		$course = $post ? CourseModel::find( $post->ID, true ) : null;
 		if ( ! $course ) {
 			return null;
@@ -235,7 +235,7 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post   = $this->published( $course_id, LP_COURSE_CPT );
+		$post   = $this->course_post( $course_id, $user_id );
 		$course = $post ? CourseModel::find( $post->ID, true ) : null;
 		if ( ! $course ) {
 			return null;
@@ -353,7 +353,7 @@ class LearnPress_Adapter extends Base_Adapter {
 	 * @throws \Exception Never: thrown and caught inside to abandon a half-made order.
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		$course = $this->published( $course_id, LP_COURSE_CPT ) ? CourseModel::find( (int) $course_id, true ) : null;
+		$course = $this->course_post( $course_id, $user_id ) ? CourseModel::find( (int) $course_id, true ) : null;
 		if ( ! $course ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
@@ -416,7 +416,7 @@ class LearnPress_Adapter extends Base_Adapter {
 			return null;
 		}
 		$statuses   = $this->item_statuses( $course_id, $user_id );
-		$neighbours = $this->neighbours( $course_id, $post->ID );
+		$neighbours = $this->neighbours( $course_id, $post->ID, $user_id );
 		return array(
 			'id'          => (int) $post->ID,
 			'course_id'   => $course_id,

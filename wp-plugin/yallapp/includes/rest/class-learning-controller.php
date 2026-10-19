@@ -215,7 +215,7 @@ class Learning_Controller extends Controller {
 		}
 		$user_id   = get_current_user_id();
 		$lesson_id = (int) $request['lesson_id'];
-		$lesson    = $lms->lesson( $lesson_id, $user_id );
+		$lesson    = self::visible_lesson( $lms, $lesson_id, $user_id );
 		if ( ! $lesson ) {
 			return self::error( 'not_found', __( 'Lesson not found.', 'yallapp' ), 404 );
 		}
@@ -246,7 +246,7 @@ class Learning_Controller extends Controller {
 		}
 		$user_id   = get_current_user_id();
 		$lesson_id = (int) $request['lesson_id'];
-		$lesson    = $lms->lesson( $lesson_id, $user_id );
+		$lesson    = self::visible_lesson( $lms, $lesson_id, $user_id );
 		if ( ! $lesson ) {
 			return self::error( 'not_found', __( 'Lesson not found.', 'yallapp' ), 404 );
 		}
@@ -284,7 +284,7 @@ class Learning_Controller extends Controller {
 		$allowed = array();
 		$refused = array();
 		foreach ( array_unique( array_map( 'intval', (array) $request['lesson_ids'] ) ) as $lesson_id ) {
-			if ( $enabled && $lesson_id > 0 && $lms->lesson( $lesson_id, $user_id ) && $lms->can_view_lesson( $lesson_id, $user_id ) ) {
+			if ( $enabled && $lesson_id > 0 && self::visible_lesson( $lms, $lesson_id, $user_id ) && $lms->can_view_lesson( $lesson_id, $user_id ) ) {
 				$allowed[] = $lesson_id;
 			} else {
 				$refused[] = $lesson_id;
@@ -313,7 +313,7 @@ class Learning_Controller extends Controller {
 		}
 		$user_id   = get_current_user_id();
 		$lesson_id = (int) $request['lesson_id'];
-		if ( ! $lms->lesson( $lesson_id, $user_id ) || ! $lms->can_view_lesson( $lesson_id, $user_id ) ) {
+		if ( ! self::visible_lesson( $lms, $lesson_id, $user_id ) || ! $lms->can_view_lesson( $lesson_id, $user_id ) ) {
 			return self::error( 'not_enrolled', __( 'Enroll in this course to continue.', 'yallapp' ), 403 );
 		}
 		update_user_meta( $user_id, self::POSITION_META . $lesson_id, (int) $request['position_seconds'] );
@@ -337,7 +337,7 @@ class Learning_Controller extends Controller {
 		}
 		$user_id   = get_current_user_id();
 		$lesson_id = (int) $request['lesson_id'];
-		$lesson    = $lms->lesson( $lesson_id, $user_id );
+		$lesson    = self::visible_lesson( $lms, $lesson_id, $user_id );
 		if ( ! $lesson ) {
 			return self::error( 'not_found', __( 'Lesson not found.', 'yallapp' ), 404 );
 		}
@@ -360,6 +360,21 @@ class Learning_Controller extends Controller {
 			$progress = Course_Completion::fill( $progress, $user_id );
 		}
 		return $this->result( $progress );
+	}
+
+	/**
+	 * 50 The raw lesson, or null when there is none or its course is private and the user may
+	 * not open it (Course_Visibility), its free preview lessons included: as if it didn't exist.
+	 *
+	 * @param Lms_Adapter $lms       LMS.
+	 * @param int         $lesson_id Lesson ID.
+	 * @param int         $user_id   User, or 0.
+	 * @return array|null
+	 */
+	private static function visible_lesson( Lms_Adapter $lms, $lesson_id, $user_id ) {
+		$lesson    = $lms->lesson( $lesson_id, $user_id );
+		$course_id = $lesson ? (int) ( $lesson['course_id'] ?? 0 ) : 0;
+		return ( $lesson && ( $course_id <= 0 || $lms->course_visible( $course_id, $user_id ) ) ) ? $lesson : null;
 	}
 
 	/**

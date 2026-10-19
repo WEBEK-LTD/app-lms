@@ -196,7 +196,7 @@ class LearnDash_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post = $this->published( $course_id, self::COURSE );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -227,7 +227,7 @@ class LearnDash_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post = $this->published( $course_id, self::COURSE );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -388,7 +388,7 @@ class LearnDash_Adapter extends Base_Adapter {
 	 * @return bool
 	 */
 	public function is_enrolled( $course_id, $user_id ) {
-		return $user_id > 0 && $this->published( $course_id, self::COURSE ) && (bool) $this->ld( 'sfwd_lms_has_access', false, (int) $course_id, (int) $user_id );
+		return $user_id > 0 && $this->live( $course_id, self::COURSE ) && (bool) $this->ld( 'sfwd_lms_has_access', false, (int) $course_id, (int) $user_id );
 	}
 
 	/**
@@ -411,7 +411,7 @@ class LearnDash_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, self::COURSE ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		if ( ! $this->is_free( $course_id ) ) {
@@ -500,7 +500,7 @@ class LearnDash_Adapter extends Base_Adapter {
 			$post               = clone $post;
 			$post->post_content = $post->post_content . "\n\n<h3>" . esc_html__( 'Materials', 'yallapp' ) . "</h3>\n" . $materials;
 		}
-		$neighbours = $this->neighbours( $course_id, $post->ID );
+		$neighbours = $this->neighbours( $course_id, $post->ID, $user_id );
 		return array(
 			'id'          => (int) $post->ID,
 			'course_id'   => $course_id,
@@ -858,12 +858,12 @@ class LearnDash_Adapter extends Base_Adapter {
 			return 0;
 		}
 		$course_id = (int) $this->ld( 'learndash_get_course_id', 0, (int) $post_id );
-		if ( $this->published( $course_id, self::COURSE ) ) {
+		if ( $this->live( $course_id, self::COURSE ) ) {
 			return $course_id;
 		}
 		// With shared steps, a step added to a course in the builder is linked by `ld_course_<ID>`.
 		foreach ( array_keys( (array) get_post_meta( (int) $post_id ) ) as $key ) {
-			if ( preg_match( '/^ld_course_(\d+)$/', (string) $key, $match ) && $this->published( (int) $match[1], self::COURSE ) ) {
+			if ( preg_match( '/^ld_course_(\d+)$/', (string) $key, $match ) && $this->live( (int) $match[1], self::COURSE ) ) {
 				return (int) $match[1];
 			}
 		}
@@ -899,7 +899,7 @@ class LearnDash_Adapter extends Base_Adapter {
 			array(),
 			(int) $user_id,
 			array(
-				'post_status' => 'publish',
+				'post_status' => Course_Visibility::STATUSES, // 50 Private courses too.
 				'orderby'     => 'date',
 				'order'       => 'DESC',
 			),

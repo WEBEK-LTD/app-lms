@@ -178,7 +178,7 @@ class Masteriyo_Adapter extends Base_Adapter {
 	 * @return array|null
 	 */
 	public function course( $course_id, $user_id ) {
-		$post   = $this->published( $course_id, 'mto-course' );
+		$post   = $this->course_post( $course_id, $user_id );
 		$course = $post ? masteriyo_get_course( $post->ID ) : null;
 		if ( ! $course ) {
 			return null;
@@ -208,7 +208,7 @@ class Masteriyo_Adapter extends Base_Adapter {
 	 * @return array[]|null
 	 */
 	public function curriculum( $course_id, $user_id ) {
-		$post = $this->published( $course_id, 'mto-course' );
+		$post = $this->course_post( $course_id, $user_id );
 		if ( ! $post ) {
 			return null;
 		}
@@ -280,7 +280,7 @@ class Masteriyo_Adapter extends Base_Adapter {
 	 * @return array|WP_Error
 	 */
 	public function enroll_free( $course_id, $user_id ) {
-		if ( ! $this->published( $course_id, 'mto-course' ) ) {
+		if ( ! $this->course_post( $course_id, $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		if ( ! $this->is_free( $course_id ) ) {
@@ -341,7 +341,7 @@ class Masteriyo_Adapter extends Base_Adapter {
 			return null;
 		}
 		$course_id  = (int) $lesson->get_course_id();
-		$neighbours = $this->neighbours( $course_id, $post->ID );
+		$neighbours = $this->neighbours( $course_id, $post->ID, $user_id );
 		$seconds    = (int) $lesson->get_video_playback_time();
 		$video      = 'self-hosted' === $lesson->get_video_source()
 			? self::video_from_attachment( (int) $lesson->get_video_source_id(), $seconds )
@@ -650,7 +650,7 @@ class Masteriyo_Adapter extends Base_Adapter {
 		$ids   = array();
 		foreach ( (array) $query->get_user_courses() as $user_course ) {
 			$course_id = (int) $user_course->get_course_id();
-			if ( $this->published( $course_id, 'mto-course' ) && masteriyo_can_start_course( $course_id, (int) $user_id ) ) {
+			if ( $this->live( $course_id, 'mto-course' ) && masteriyo_can_start_course( $course_id, (int) $user_id ) ) {
 				$ids[] = $course_id;
 			}
 		}

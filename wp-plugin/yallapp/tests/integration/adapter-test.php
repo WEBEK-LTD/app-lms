@@ -17,6 +17,8 @@
  * - quiz_on_website: whether the quiz is taken on the LMS's own quiz page (LearnDash). An attempt is then
  *   one web view question, and SEED_IDS' `website_quiz` is PHP (with %1$d for the user ID) that records
  *   the student finishing the quiz there.
+ * - private_courses: whether the LMS lets enrolled students into a private course (Sensei doesn't:
+ *   it counts no one as enrolled in a course that isn't published), 50.
  * Everything else follows from the features GET /config reports.
  *
  * @package Yallapp
@@ -43,6 +45,7 @@ $expect = array_merge(
 		'reviews_moderated' => false,
 		'lesson_preview'    => true,
 		'quiz_on_website'   => false,
+		'private_courses'   => true,
 	),
 	(array) ( $seed['expect'] ?? array() )
 );
@@ -622,6 +625,70 @@ if ( 'learnpress' === $lms_id ) {
 	wp_eval( 'LP_User_Items_DB::getInstance()->delete_user_items_old( ' . $given_id . ', ' . (int) $seed['design'] . ' );' );
 	check( 'unassigned: no access', $blocked === lp_opens( $given_t, $seed['design'], $locked ), lp_opens( $given_t, $seed['design'], $locked ) );
 }
+
+echo "A private course (50)\n";
+// WordPress's Private visibility, which Tutor LMS, LearnPress and the other LMSs use to hide a
+// course from the catalog: its students still find it in My courses and open it.
+$python_status = function ( $status ) use ( $seed ) {
+	wp_eval( 'wp_update_post( array( "ID" => ' . (int) $seed['python'] . ', "post_status" => "' . $status . '" ) ); wp_cache_flush();' );
+};
+$course_ids = function ( $r ) {
+	return array_map( function ( $c ) { return $c['course']['id'] ?? $c['id']; }, $r['json']['items'] ?? array() );
+};
+$topics_of = function ( $r ) {
+	return array_map( function ( $t ) { return array( $t['title'], array_column( $t['items'], 'id' ) ); }, $r['json']['topics'] ?? array() );
+};
+$python_lessons = array( $seed['lesson_video'], $seed['lesson_html'], $seed['lesson_script'] );
+$public_topics  = $topics_of( call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $token ) );
+check( 'curriculum: topics in course order, each with its items', count( $public_topics ) >= 1 && array_values( $python_lessons ) === array_values( array_intersect( array_merge( ...array_column( $public_topics, 1 ) ), $python_lessons ) ), $public_topics );
+// A student who has just enrolled, free, from the app (the suite's own student may have
+// finished the course by now, which some LMSs close).
+$member   = sign_up( 'Lina Saad' );
+$member_t = $member['json']['access_token'] ?? '';
+$r        = call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $member_t );
+check( 'a second student enrolls', in_array( $r['status'], array( 200, 201 ), true ), $r['raw'] );
+$python_status( 'private' );
+$outsider   = sign_up( 'Omar Nabil' );
+$outsider_t = $outsider['json']['access_token'] ?? '';
+check( 'private: not in the catalog', ! in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
+check( 'private: not in the catalog for its students either', ! in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50', null, $member_t ) ), true ) );
+foreach ( array( 'signed out' => null, 'not enrolled' => $outsider_t ) as $who => $t ) {
+	$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $t );
+	check( "private: not found, $who", 404 === $r['status'] && 'not_found' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+	$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $t );
+	check( "private: no curriculum, $who", 404 === $r['status'], $r['raw'] );
+	foreach ( $python_lessons as $lesson_id ) {
+		$r = call( 'GET', '/lessons/' . $lesson_id, null, $t );
+		check( "private: lesson $lesson_id not found, $who", 404 === $r['status'], $r['raw'] );
+	}
+}
+$r = call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $outsider_t );
+check( 'private: no enrolling from the app', 404 === $r['status'], $r['raw'] );
+if ( $expect['private_courses'] ) {
+	$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $member_t );
+	check( 'private: opens for its student', 200 === $r['status'] && true === ( $r['json']['enrolled'] ?? null ) && 'Python Programming Basics' === ( $r['json']['title'] ?? '' ), $r['raw'] );
+	$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $member_t );
+	check( 'private: the same topics in the same order', $public_topics === $topics_of( $r ), $r['raw'] );
+	$mine = array_merge( $course_ids( call( 'GET', '/me/courses?status=in_progress', null, $member_t ) ), $course_ids( call( 'GET', '/me/courses?status=completed', null, $member_t ) ) );
+	check( 'private: in My courses', in_array( $seed['python'], $mine, true ), $mine );
+	$lessons = array();
+	foreach ( $r['json']['topics'] ?? array() as $topic ) {
+		foreach ( $topic['items'] as $item ) {
+			if ( 'lesson' === $item['type'] ) {
+				$lessons[] = $item['id'];
+			}
+		}
+	}
+	$at = array_search( $python_lessons[1], $lessons, true );
+	$r  = call( 'GET', '/lessons/' . $python_lessons[1], null, $member_t );
+	check( 'private: its lessons open, linked to the ones before and after', 200 === $r['status'] && false !== $at && ( $lessons[ $at - 1 ] ?? null ) === ( $r['json']['previous_id'] ?? null ) && ( $lessons[ $at + 1 ] ?? null ) === ( $r['json']['next_id'] ?? null ), $r['raw'] );
+} else {
+	// As on the LMS's own site: closed to its students too.
+	$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $member_t );
+	check( 'private: closed to its students too, as on the website', 404 === $r['status'], $r['raw'] );
+}
+$python_status( 'publish' );
+check( 'published again: back in the catalog', in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
 
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

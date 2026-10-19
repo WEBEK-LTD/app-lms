@@ -48,6 +48,9 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
   bool _busy = false;
   bool _awaitingCheckout = false;
 
+  /// 50 The curriculum's open topics, by position; null until it loads.
+  Set<int>? _openTopics;
+
   @override
   void initState() {
     super.initState();
@@ -147,6 +150,18 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  /// 50 Topics start closed but for the one the student is at, the way
+  /// Tutor LMS shows a course: every topic's title shows, and the student's
+  /// place is open.
+  Set<int> _topicsOpen(List<Topic> topics) =>
+      _openTopics ??= {if (topics.isNotEmpty) currentTopicIndex(topics)};
+
+  void _toggleTopic(List<Topic> topics, int index) => setState(() {
+    final open = {..._topicsOpen(topics)};
+    if (!open.remove(index)) open.add(index);
+    _openTopics = open;
+  });
 
   void _continue(List<Topic>? topics, CourseDetail course) {
     final next = nextItemToOpen(topics ?? const <Topic>[]);
@@ -369,6 +384,13 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           _CourseTab.curriculum => _Curriculum(
                             topics: topics,
                             courseId: course.id,
+                            enrolled: course.enrolled,
+                            open: switch (topics) {
+                              AsyncData(:final value) => _topicsOpen(value),
+                              _ => const {},
+                            },
+                            onToggle: (index) =>
+                                _toggleTopic(topics.value ?? const [], index),
                           ),
                         },
                       ],
@@ -569,11 +591,25 @@ class _AboutList extends StatelessWidget {
   }
 }
 
+/// The curriculum the way the LMS groups it: one card per topic (Tutor LMS
+/// topics, LearnPress and LearnDash sections, modules), each opening to its
+/// lessons, quizzes and assignments (50).
 class _Curriculum extends ConsumerWidget {
-  const _Curriculum({required this.topics, required this.courseId});
+  const _Curriculum({
+    required this.topics,
+    required this.courseId,
+    required this.enrolled,
+    required this.open,
+    required this.onToggle,
+  });
 
   final AsyncValue<List<Topic>> topics;
   final int courseId;
+  final bool enrolled;
+
+  /// 50 The open topics, by position.
+  final Set<int> open;
+  final ValueChanged<int> onToggle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -591,7 +627,14 @@ class _Curriculum extends ConsumerWidget {
         children: [
           for (final (i, topic) in value.indexed) ...[
             if (i > 0) const SizedBox(height: 12),
-            _TopicCard(topic: topic, courseId: courseId),
+            _TopicCard(
+              key: ValueKey('topic-$i'),
+              topic: topic,
+              courseId: courseId,
+              enrolled: enrolled,
+              open: open.contains(i),
+              onToggle: () => onToggle(i),
+            ),
           ],
         ],
       ),
@@ -610,50 +653,119 @@ class _Curriculum extends ConsumerWidget {
 }
 
 class _TopicCard extends StatelessWidget {
-  const _TopicCard({required this.topic, required this.courseId});
+  const _TopicCard({
+    super.key,
+    required this.topic,
+    required this.courseId,
+    required this.enrolled,
+    required this.open,
+    required this.onToggle,
+  });
 
   final Topic topic;
   final int courseId;
+  final bool enrolled;
+
+  /// 50 Whether the topic shows its items; its header toggles it.
+  final bool open;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = context.l10n;
     final lessons = topic.items
         .where((i) => i.type == CurriculumItemType.lesson)
-        .length;
+        .toList();
+    final minutes = topic.items.fold<int>(
+      0,
+      (sum, i) => sum + (i.durationMinutes ?? 0),
+    );
+    final done = lessons.where((i) => i.completed).length;
+    final finished = enrolled && lessons.isNotEmpty && done == lessons.length;
+    final facts = [
+      enrolled && lessons.isNotEmpty
+          ? l10n.lessonsDone(done, lessons.length)
+          : l10n.lessonCount(lessons.length),
+      if (minutes > 0) formatMinutes(minutes),
+    ].join(' · ');
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            color: p.surfaceMuted,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      topic.title,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: p.text,
-                      ),
+          Semantics(
+            button: true,
+            expanded: open,
+            label: '${topic.title}, $facts',
+            excludeSemantics: true,
+            child: Material(
+              color: p.surfaceMuted,
+              child: InkWell(
+                onTap: onToggle,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 56),
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      16,
+                      12,
+                      12,
+                      12,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                topic.title,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: p.text,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                facts,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: p.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (finished) ...[
+                          AppIcon(
+                            AppIcons.checkCircle,
+                            size: 20,
+                            color: p.success,
+                            filled: true,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        AnimatedRotation(
+                          turns: open ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: AppIcon(
+                            AppIcons.expand,
+                            size: 24,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                Text(
-                  context.l10n.lessonCount(lessons),
-                  style: TextStyle(fontSize: 12, color: p.textSecondary),
-                ),
-              ],
+              ),
             ),
           ),
-          for (final item in topic.items) ...[
-            Divider(height: 1, color: p.divider),
-            _CurriculumRow(item: item, courseId: courseId),
-          ],
+          if (open)
+            for (final item in topic.items) ...[
+              Divider(height: 1, color: p.divider),
+              _CurriculumRow(item: item, courseId: courseId),
+            ],
         ],
       ),
     );

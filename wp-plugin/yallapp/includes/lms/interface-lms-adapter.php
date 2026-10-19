@@ -98,6 +98,16 @@ interface Lms_Adapter {
 	public function curriculum( $course_id, $user_id );
 
 	/**
+	 * 50 Whether a user may see and open a course: a published one, or a private one they are
+	 * enrolled in or may read on the website (Course_Visibility).
+	 *
+	 * @param int $course_id Course ID.
+	 * @param int $user_id   User ID, or 0.
+	 * @return bool
+	 */
+	public function course_visible( $course_id, $user_id );
+
+	/**
 	 * Whether a user is enrolled.
 	 *
 	 * @param int $course_id Course ID.
