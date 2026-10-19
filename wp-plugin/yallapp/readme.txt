@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,8 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
-= Unreleased =
+= 0.4.2 =
+* The app's default tabs and pages come in Arabic and Turkish when the app offers them and you haven't written your own, and the app's other languages reach it from your Yallapp dashboard's Languages page.
 * Links that open the app: the plugin serves /.well-known/assetlinks.json and /.well-known/apple-app-site-association on your site, from what your Yallapp dashboard knows about your app (its package name, signing key fingerprints and Apple Team ID), so links like yoursite.com/a/course/12 open the app on phones that have it. Without the app, the same link takes the visitor to the course's own page on your site (or the home page when it has none or isn't public). The app's Share buttons share these links. Your site must be at the root of its domain, and your server must pass /.well-known to WordPress.
 * The app's rating prompt and crash reports follow the switches on your Yallapp dashboard's Stability page.
 * Offline lessons: with "Allow offline downloads" on (Settings › Video & content protection) and a plan with offline mode, students can save a lesson or a whole course in the app and watch and read it without the internet: the uploaded video, the lesson text and its images, and the attachments. The app keeps them encrypted and deletes them when the student's access ends (checked each time the app starts online, and after 30 days without a check). Lessons whose video plays from YouTube, Vimeo or another video site say they need the internet. The choice made on the Yallapp dashboard's Courses page, when there is one, replaces the setting.
