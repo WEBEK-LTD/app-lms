@@ -24,7 +24,8 @@ class PreviewLaunch {
   final String? language;
 
   static final _token = RegExp(r'^[A-Za-z0-9._-]{20,200}$');
-  static final _language = RegExp(r'^[a-z]{2}$');
+  // 43 Any app language: two or three letters ("fil").
+  static final _language = RegExp(r'^[a-z]{2,3}$');
 
   /// The launch parameters in the page address, or null without a token.
   static PreviewLaunch? fromUri(Uri uri) {

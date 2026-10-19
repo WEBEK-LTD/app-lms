@@ -127,6 +127,8 @@ class Default_Layout {
 				),
 			),
 		);
+		// 43 Yallapp's Arabic and Turkish for the texts above, for apps asking in those languages.
+		$layout = Builtin_Texts::layout( $layout );
 		/**
 		 * Filters the pages an app gets before a layout is published in the dashboard.
 		 *

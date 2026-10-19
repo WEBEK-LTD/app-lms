@@ -6,6 +6,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use Yallapp\Pages\Builtin_Texts;
 use Yallapp\Pages\Translator;
 
 class TranslatorTest extends TestCase {
@@ -50,7 +51,76 @@ class TranslatorTest extends TestCase {
 			array( 'default' => 'tr', 'available' => array( 'tr', 'ar' ) ),
 			Translator::languages( array( 'default' => 'tr', 'available' => array( 'ar' ) ) )
 		);
-		$this->assertSame( 'en', Translator::languages( array( 'default' => 'fr', 'available' => array( 'fr' ) ) )['default'] );
+		// 43 Any language the owner adds.
+		$this->assertSame( 'fr', Translator::languages( array( 'default' => 'fr', 'available' => array( 'fr' ) ) )['default'] );
+		$this->assertSame( 'en', Translator::languages( array( 'default' => 'French', 'available' => array( 'fr' ) ) )['default'] );
+		$this->assertSame( 'fil', Translator::pick( 'fil-PH', array( 'default' => 'en', 'available' => array( 'en', 'fil' ) ) ) );
+	}
+
+	public function test_language_list_passes_on_in_the_owners_order() {
+		$raw = array(
+			'default'   => 'en',
+			'available' => array( 'fr', 'en', 'ug' ),
+			'list'      => array(
+				array( 'code' => 'en', 'name' => 'English', 'native_name' => 'English', 'direction' => 'ltr', 'strings' => null ),
+				array(
+					'code'        => 'ug',
+					'name'        => 'Uyghur',
+					'native_name' => 'ئۇيغۇرچە',
+					'direction'   => 'rtl',
+					'strings'     => array( 'url' => 'http://insecure.test/x', 'version' => '1' ),
+				),
+				array(
+					'code'        => 'fr',
+					'name'        => 'French',
+					'native_name' => 'Français',
+					'direction'   => 'ltr',
+					'strings'     => array( 'url' => 'https://yallapp.com.tr/api/app/a/strings/fr?v=4f2a', 'version' => '4f2a' ),
+					'extra'       => 'dropped',
+				),
+			),
+		);
+		$languages = Translator::languages( $raw );
+		$this->assertSame( array( 'fr', 'en', 'ug' ), $languages['available'] );
+		$this->assertSame( array( 'fr', 'en', 'ug' ), array_column( $languages['list'], 'code' ) );
+		$this->assertSame(
+			array( 'code' => 'fr', 'name' => 'French', 'native_name' => 'Français', 'direction' => 'ltr', 'strings' => array( 'url' => 'https://yallapp.com.tr/api/app/a/strings/fr?v=4f2a', 'version' => '4f2a' ) ),
+			$languages['list'][0]
+		);
+		$this->assertSame( 'rtl', $languages['list'][2]['direction'] );
+		$this->assertNull( $languages['list'][2]['strings'], 'Only https packs.' );
+		// A list that doesn't cover every language is left out: the app names them itself.
+		$raw['available'][] = 'de';
+		$this->assertArrayNotHasKey( 'list', Translator::languages( $raw ) );
+	}
+
+	public function test_default_pages_carry_yallapps_arabic_and_turkish() {
+		$layout = Builtin_Texts::layout(
+			array(
+				'tabs'  => array(
+					array( 'id' => 'home', 'label' => 'Home' ),
+					array( 'id' => 'mine', 'label' => 'Mine', 'translations' => array( 'ar' => array( 'label' => 'لي' ) ) ),
+					array( 'id' => 'courses', 'label' => 'Courses', 'translations' => array( 'ar' => array( 'label' => 'الكورسات' ) ) ),
+				),
+				'pages' => array(
+					array(
+						'slug'   => 'home',
+						'title'  => 'Home',
+						'blocks' => array( array( 'id' => 'search', 'type' => 'search', 'title' => null, 'placeholder' => 'Search courses' ) ),
+					),
+				),
+			)
+		);
+		$this->assertSame( 'الرئيسية', Translator::apply( $layout['tabs'][0], 'ar' )['label'] );
+		$this->assertSame( 'Ana sayfa', Translator::apply( $layout['tabs'][0], 'tr' )['label'] );
+		$this->assertSame( 'Home', Translator::apply( $layout['tabs'][0], 'en' )['label'] );
+		// The site's own texts aren't Yallapp's: no translation.
+		$this->assertSame( 'Mine', Translator::apply( $layout['tabs'][1], 'tr' )['label'] );
+		// A translation already there wins.
+		$this->assertSame( 'الكورسات', Translator::apply( $layout['tabs'][2], 'ar' )['label'] );
+		$this->assertSame( 'Kurslar', Translator::apply( $layout['tabs'][2], 'tr' )['label'] );
+		$this->assertSame( 'Kurslarda ara', Translator::apply( $layout['pages'][0]['blocks'][0], 'tr' )['placeholder'] );
+		$this->assertSame( 'الرئيسية', Translator::apply( $layout['pages'][0], 'ar' )['title'] );
 	}
 
 	public function test_translations_override_text_fields_with_fallback() {

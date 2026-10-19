@@ -6,6 +6,7 @@ import '../api/offline_cache.dart';
 import '../api/yallapp_api.dart';
 import 'owner_contact.dart';
 import '../l10n/language.dart';
+import '../l10n/string_packs.dart';
 import '../providers.dart';
 
 /// Where the app stands after `GET /config`.
@@ -93,6 +94,10 @@ class AppGate extends Notifier<GateState> {
       final api = ref.read(yallappApiProvider);
       final config = await api.getConfig();
       ref.read(remoteLanguagesProvider.notifier).update(config.languages);
+      // 43 The owner's strings for the app's languages, when they changed.
+      await ref
+          .read(stringPacksProvider.notifier)
+          .refresh(ref.read(remoteLanguagesProvider)!);
       await _remember(config);
       final next = gateStateForConfig(config);
       if (next is! GateReady) {
