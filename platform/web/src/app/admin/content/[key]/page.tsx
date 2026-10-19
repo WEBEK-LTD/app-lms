@@ -10,7 +10,10 @@ import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getContact } from "@/lib/contact";
 import { contentPage, contentWith } from "@/lib/content/site";
+import { langContentKey, translatedDefaults } from "@/lib/content/site-lang";
 import { getStore } from "@/lib/data";
+import { isPrefixedLang, LANG_INFO, LANGS } from "@/i18n/config";
+import { localePath } from "@/i18n/paths";
 import { ContentForm } from "../forms";
 
 export const metadata: Metadata = { title: "Website content" };
@@ -20,8 +23,17 @@ export default async function EditContentPage({ params, searchParams }: PageProp
   const { adminRole } = await requireAdmin();
   const page = contentPage((await params).key);
   if (!page) notFound();
-  const { done } = await searchParams;
-  const [saved, contact] = await Promise.all([(await getStore()).getSiteContent(page.key), getContact()]);
+  const query = await searchParams;
+  const { done } = query;
+  // 55 The English texts, or their Arabic or Turkish version.
+  const lang = isPrefixedLang(query.lang) ? query.lang : null;
+  const store = await getStore();
+  const [english, saved, contact] = await Promise.all([store.getSiteContent(page.key), lang ? store.getSiteContent(langContentKey(page.key, lang)) : null, getContact()]);
+  const edit = lang ? saved : english;
+  const englishTexts = contentWith(page, english?.fields);
+  // A translation's form starts from the team's edit in that language, else the built-in translation; empty fields show the English.
+  const values = lang ? { ...translatedDefaults(page, lang), ...(saved?.fields ?? {}) } : englishTexts;
+  const path = localePath(lang ?? "en", page.path);
   return (
     <ReadOnly when={!can(adminRole, "settings.edit")} what="change the website's texts">
       <div className="flex flex-col gap-1.5">
@@ -31,23 +43,46 @@ export default async function EditContentPage({ params, searchParams }: PageProp
         </Link>
         <h1 className="m-0 text-[28px] font-extrabold">{page.title}</h1>
         <span className="text-[15px] text-muted">
-          {saved ? `Edited ${formatDateTime(saved.updatedAt)} by ${saved.updatedBy}.` : "Showing the default text."} Saving publishes the change on{" "}
-          <span className="font-mono text-[13px]">{page.path}</span> at once.
+          {edit ? `Edited ${formatDateTime(edit.updatedAt)} by ${edit.updatedBy}.` : lang ? "Showing the built-in translation." : "Showing the default text."} Saving publishes the change on{" "}
+          <span className="font-mono text-[13px]">{path}</span> at once.
         </span>
       </div>
+      {/* 55 One tab per language of the website. */}
+      <nav aria-label="Languages" className="flex flex-wrap gap-2">
+        {LANGS.map((l) => {
+          const here = (lang ?? "en") === l;
+          return (
+            <Link
+              key={l}
+              href={`/admin/content/${page.key}${l === "en" ? "" : `?lang=${l}`}`}
+              aria-current={here ? "page" : undefined}
+              className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold no-underline ${here ? "border-midnight bg-midnight text-white hover:text-white" : "border-line bg-white text-midnight hover:border-midnight"}`}
+            >
+              {LANG_INFO[l].name}
+            </Link>
+          );
+        })}
+      </nav>
+      {lang ? (
+        <Notice tone="info" icon="language">
+          The {LANG_INFO[lang].name} version of this page, at <span className="font-mono text-[13px]">{path}</span>. A field you leave empty shows the built-in
+          translation, or the English text where there is none. The English is shown in each empty field.
+        </Notice>
+      ) : null}
       {done === "reset" ? (
         <Notice tone="success" icon="check_circle" role="status">
           Back to the default text. The website shows it now.
         </Notice>
       ) : null}
       <div className="flex flex-wrap gap-3">
-        <a href={page.path} target="_blank" rel="noreferrer" className={`${btn.secondary} h-10`}>
+        <a href={path} target="_blank" rel="noreferrer" className={`${btn.secondary} h-10`}>
           <Icon name="open_in_new" size={18} />
           Preview on the website
         </a>
-        {saved ? (
+        {edit ? (
           <form action={resetSiteContentAction}>
             <input type="hidden" name="key" value={page.key} />
+            {lang ? <input type="hidden" name="lang" value={lang} /> : null}
             <SubmitButton variant="secondary" className="h-10" pendingText="Going back…">
               Back to the default text
             </SubmitButton>
@@ -56,11 +91,13 @@ export default async function EditContentPage({ params, searchParams }: PageProp
       </div>
       <section aria-label="Texts" className="rounded-2xl border border-line bg-white p-5 sm:p-6">
         <ContentForm
-          // Going back to the default text starts the form again from it.
-          key={done === "reset" ? "reset" : "edit"}
+          // Going back to the default text, or another language, starts the form again.
+          key={`${lang ?? "en"}-${done === "reset" ? "reset" : "edit"}`}
           pageKey={page.key}
           fields={page.fields}
-          values={contentWith(page, saved?.fields)}
+          values={values}
+          lang={lang ?? undefined}
+          placeholders={lang ? englishTexts : {}}
           previewValues={{ contact_email: contact.email, contact_whatsapp: contact.whatsappDisplay, contact_whatsapp_url: contact.whatsappUrl }}
         />
       </section>

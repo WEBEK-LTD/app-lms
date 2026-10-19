@@ -407,12 +407,15 @@ const CONTACT_VALUES = ["contact_email", "contact_whatsapp", "contact_whatsapp_u
 export function readContentForm(
   page: ContentPage,
   input: Record<string, string>,
+  /** 55 An Arabic or Turkish version: a field left empty is left out (the page shows the built-in translation, else the English text). */
+  options: { translation?: boolean } = {},
 ): { ok: true; fields: Record<string, string> } | { ok: false; errors: Record<string, string> } {
   const fields: Record<string, string> = {};
   const errors: Record<string, string> = {};
   for (const field of page.fields) {
     const raw = (input[field.name] ?? "").replace(/\r\n?/g, "\n");
     const value = field.kind === "markdown" ? raw.trim() + "\n" : raw.replace(/\s+/g, " ").trim();
+    if (!value.trim() && options.translation) continue;
     if (!value.trim()) errors[field.name] = `Enter the ${field.label.toLowerCase()}.`;
     else if (value.length > field.max) errors[field.name] = `Use at most ${field.max.toLocaleString("en-US")} characters.`;
     // Tags in `code` and in code blocks are shown as they are.
@@ -423,10 +426,10 @@ export function readContentForm(
     }
     fields[field.name] = value;
   }
-  if (!errors.entries && page.key === "faq" && parseFaq(fields.entries!).length === 0) {
+  if (!errors.entries && page.key === "faq" && fields.entries !== undefined && parseFaq(fields.entries).length === 0) {
     errors.entries = "Add at least one ## group with a ### question.";
   }
-  if (!errors.body && page.group === "Guides" && parseGuide(fields.body!).steps.length === 0) {
+  if (!errors.body && page.group === "Guides" && fields.body !== undefined && parseGuide(fields.body).steps.length === 0) {
     errors.body = "Add at least one ## section.";
   }
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, fields };
