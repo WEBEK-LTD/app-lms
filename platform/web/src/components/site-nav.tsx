@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { AccountLink } from "./account-link";
 import { activeEntry, SITE_NAV, type SiteGroup, type SiteLink, type SitePage } from "@/lib/site-nav";
 import { LogoLink } from "./brand";
 import { Icon } from "./icon";
@@ -303,21 +304,28 @@ function MobileMenu({ current }: { current?: SitePage }) {
               )}
             </ul>
           </nav>
-          <div className="grid grid-cols-2 gap-3 border-t border-line bg-sand px-4 py-4 sm:px-6">
-            <Link
+          <div className="grid auto-cols-fr grid-flow-col gap-3 border-t border-line bg-sand px-4 py-4 sm:px-6">
+            <AccountLink
               href="/sign-in"
+              signedIn={null}
               onClick={() => setOpen(false)}
               className="flex h-12 items-center justify-center rounded-xl border border-midnight bg-white text-base font-bold text-midnight no-underline hover:text-midnight"
             >
               Sign in
-            </Link>
-            <Link
+            </AccountLink>
+            <AccountLink
               href="/sign-up"
+              signedIn={
+                <>
+                  <Icon name="dashboard" size={20} />
+                  Go to your dashboard
+                </>
+              }
               onClick={() => setOpen(false)}
-              className="flex h-12 items-center justify-center rounded-xl bg-midnight text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-midnight text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
             >
               Get started
-            </Link>
+            </AccountLink>
           </div>
         </div>
       ) : null}
@@ -331,18 +339,26 @@ export function SiteNav({ current }: { current?: SitePage }) {
     <>
       <DesktopNav current={current} />
       <div className="ml-auto flex items-center gap-2">
-        <Link
+        {/* Signed in on this browser: one "Dashboard" button instead of Sign in and Get started. */}
+        <AccountLink
           href="/sign-in"
+          signedIn={null}
           className="hidden h-[42px] items-center rounded-[10px] px-3 text-[15px] font-semibold text-midnight no-underline hover:text-midnight hover:underline lg:flex"
         >
           Sign in
-        </Link>
-        <Link
+        </AccountLink>
+        <AccountLink
           href="/sign-up"
-          className="hidden h-[42px] items-center rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white sm:flex"
+          signedIn={
+            <>
+              <Icon name="dashboard" size={18} />
+              Dashboard
+            </>
+          }
+          className="hidden h-[42px] items-center gap-2 rounded-[10px] bg-midnight px-[18px] text-[15px] font-semibold text-white no-underline hover:bg-ink-3 hover:text-white sm:flex"
         >
           Get started
-        </Link>
+        </AccountLink>
         <MobileMenu current={current} />
       </div>
     </>

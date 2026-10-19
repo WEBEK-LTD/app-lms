@@ -37,8 +37,11 @@ Designs: [Yallapp design canvas](https://claude.ai/artifact/KXsMPBp2at8HgoCssXzt
 The Material Symbols rule is for interface icons. Logos of the stores and
 platforms Yallapp really works with may appear only in the website's
 **Works with** strip, as store marks on the plans and publishing texts, on
-integration cards, and (46) on an app's link page as its "Get it on Google
-Play" and "Download on the App Store" buttons. Use them unaltered (the CC0 paths of the `simple-icons`
+integration cards, (46) on an app's link page as its "Get it on Google
+Play" and "Download on the App Store" buttons, and (54) WhatsApp's mark on
+the buttons and links that open a WhatsApp chat with Yallapp ("Get started on
+WhatsApp", "Talk to us on WhatsApp", the number in the footer), in the
+button's own text color. Use them unaltered (the CC0 paths of the `simple-icons`
 package; only the view box may be fitted to a wordmark), grey until hovered,
 with the brand's name as the accessible name. A brand without a mark there is
 shown as its name, never as a made-up logo. Never call these brands

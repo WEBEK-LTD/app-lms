@@ -965,43 +965,51 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
 ];
 
 /** "A typical app builder" next to Yallapp. No names: only what is often true elsewhere and always true here. */
-export const COMPARISON: { topic: string; typical: string; yallapp: string }[] = [
+export const COMPARISON: { icon: IconName; topic: string; typical: string; yallapp: string }[] = [
   {
+    icon: "link",
     topic: "Your content",
     typical: "Often copied into the builder by hand, then kept up to date in two places",
     yallapp: "Read live from your website or platform, or managed once in the dashboard",
   },
   {
+    icon: "smartphone",
     topic: "The screens",
     typical: "Often your website wrapped in a web view",
     yallapp: "Native screens for courses, products, bookings and listings; complex lessons shown like your website",
   },
   {
+    icon: "workspace_premium",
     topic: "Whose app it is",
     typical: "Sometimes published under the builder's account",
     yallapp: "Published under your own accounts on all five app stores, with your signing key to download",
   },
   {
+    icon: "tune",
     topic: "Changing the app",
     typical: "Layout changes often need a new store release",
     yallapp: "Pages, look and languages change from the dashboard without a new build",
   },
   {
+    icon: "language",
     topic: "Languages",
     typical: "One language, left to right",
-    yallapp: "English, Arabic (right to left) and Turkish, with your texts translated per language",
+    yallapp: "English, Arabic (right to left), Turkish and any other language you add, with your own translations",
   },
   {
+    icon: "lock",
     topic: "Sign-in",
     typical: "Email and password",
     yallapp: "Phone number and a one-time code, with device limits and a review number for the stores",
   },
   {
+    icon: "shield",
     topic: "Store rules",
     typical: "Left to you to get right",
     yallapp: "No purchase buttons for digital content on iOS, account deletion in the app, review access built in",
   },
   {
+    icon: "payments",
     topic: "Payments",
     typical: "Often only through the builder's own payment provider",
     yallapp: "Your own checkout, or card payments into your own iyzico, Kashier or Fawaterk account",

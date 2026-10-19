@@ -16,6 +16,7 @@ import { visitorPriceView } from "@/lib/billing/display";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
 import { DEFAULT_DESCRIPTION, organizationLd, pageMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
+import { WhatsAppMark } from "@/components/brand-marks";
 
 /** Plans and prices come from the admin. */
 export const dynamic = "force-dynamic";
@@ -62,7 +63,7 @@ export default async function LandingPage() {
                   href={contact.whatsappUrl}
                   className="flex h-[54px] items-center gap-2.5 rounded-xl bg-midnight px-6 text-base font-bold text-white no-underline shadow-[0_12px_24px_-14px_rgba(14,13,36,0.6)] transition-colors hover:bg-ink-3 hover:text-white"
                 >
-                  <Icon name="chat" size={20} />
+                  <WhatsAppMark size={20} />
                   {text.primaryCta}
                 </a>
                 <Link

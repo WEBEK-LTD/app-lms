@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AccountLink } from "./account-link";
 import { FEATURED_PLAN, planLimitLines, planPrice, planStores, planStoresLine, type PlanInfo, type PriceView } from "@/lib/plans";
 
 /** 52 The line under the plans: which currency the prices are in, and what a card is charged in. */
@@ -77,14 +77,16 @@ export function PlanCards({ plans, view, headingLevel = 2 }: { plans: PlanInfo[]
                 </li>
               ))}
             </ul>
-            <Link
+            <AccountLink
               href="/sign-up"
+              signedInHref="/dashboard/license#change-plan"
+              signedIn={`Choose ${plan.name}`}
               className={`mt-auto flex h-[50px] items-center justify-center rounded-xl text-base font-bold no-underline transition-colors ${
                 featured ? "bg-midnight text-white hover:bg-ink-3 hover:text-white" : "border border-midnight text-midnight hover:bg-midnight hover:text-white"
               }`}
             >
               Start with {plan.name}
-            </Link>
+            </AccountLink>
           </li>
         );
       })}

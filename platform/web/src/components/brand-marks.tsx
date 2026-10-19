@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { STORES, TRADEMARK_NOTE, WORKS_WITH_ROWS, type Brand, type BrandMark } from "@/lib/brands";
+import { STORES, TRADEMARK_NOTE, WHATSAPP_MARK, WORKS_WITH_ROWS, type Brand, type BrandMark } from "@/lib/brands";
 import type { AppStore } from "@/lib/stores";
 
 /**
@@ -29,6 +29,18 @@ export function MarkSvg({ mark, height }: { mark: BrandMark; height: number }) {
   return (
     <svg aria-hidden="true" focusable="false" viewBox={mark.viewBox} width={Math.round(h * mark.ratio)} height={h}>
       <path d={mark.path} />
+    </svg>
+  );
+}
+
+/**
+ * WhatsApp's mark in the text color, on a button or link that opens a chat
+ * with Yallapp on WhatsApp. Decorative: the button's text says "WhatsApp".
+ */
+export function WhatsAppMark({ size = 20, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg aria-hidden="true" focusable="false" viewBox={WHATSAPP_MARK.viewBox} width={size} height={size} fill="currentColor" className={`flex-none ${className}`} data-whatsapp-mark="">
+      <path d={WHATSAPP_MARK.path} />
     </svg>
   );
 }

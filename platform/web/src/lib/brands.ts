@@ -135,6 +135,9 @@ export const WORKS_WITH_BRANDS: Brand[] = WORKS_WITH_ROWS.flatMap((row) => row.b
 /** 41 The small print under the strip and the store marks. */
 export const TRADEMARK_NOTE = "The names and logos shown are trademarks of their owners and don't mean they endorse Yallapp.";
 
+/** WhatsApp's mark, on the buttons and links that open a WhatsApp chat with Yallapp (docs/BRAND.md). */
+export const WHATSAPP_MARK: BrandMark = mark(siWhatsapp);
+
 /** 41 The marks on the Integrations page's cards, by the card's name (lib/marketing.ts); the others show their name only. */
 export function integrationMark(name: string): BrandMark | undefined {
   const byName: Record<string, BrandMark | undefined> = {

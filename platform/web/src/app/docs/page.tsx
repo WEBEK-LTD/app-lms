@@ -7,6 +7,7 @@ import type { IconName } from "@/components/icon-names";
 import type { DocSection } from "@/content/docs";
 import { getContact } from "@/lib/contact";
 import { getSiteContent } from "@/lib/content/get";
+import { WhatsAppMark } from "@/components/brand-marks";
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = await getSiteContent("docs");
@@ -80,7 +81,7 @@ export default async function DocsIndexPage() {
       ))}
 
       <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
-        <Icon name="chat" size={20} />
+        <WhatsAppMark size={20} />
         Can&apos;t find an answer? <a href={contact.whatsappUrl}>Message us on WhatsApp</a> or read the <Link href="/faq">FAQ</Link>.
       </p>
     </DocsShell>

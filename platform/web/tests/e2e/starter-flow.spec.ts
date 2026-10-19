@@ -60,6 +60,33 @@ test("a Growth client signs up and is activated", async ({ page }) => {
   await expect(page.getByRole("status")).toContainText("Activated");
 });
 
+test("signed in, the website's header says Dashboard instead of Sign in and Get started", async ({ page }) => {
+  await page.goto("/");
+  const header = page.getByRole("banner");
+  await expect(header.getByRole("link", { name: "Get started" })).toBeVisible();
+  await expect(header.getByRole("link", { name: "Sign in" })).toBeVisible();
+
+  await signIn(page, client.email, client.password);
+  await page.goto("/pricing");
+  await expect(header.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/dashboard");
+  await expect(header.getByRole("link", { name: "Sign in" })).toHaveCount(0);
+  await expect(header.getByRole("link", { name: "Get started" })).toHaveCount(0);
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Your dashboard" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose Growth" })).toHaveAttribute("href", "/dashboard/license#change-plan");
+
+  // The session cookie stays HttpOnly; only the "signed in" note is readable.
+  const cookies = await page.context().cookies();
+  expect(cookies.find((c) => c.name === "yallapp_session")?.httpOnly).toBe(true);
+  expect(cookies.find((c) => c.name === "yallapp_signed_in")).toMatchObject({ value: "1", httpOnly: false });
+
+  await page.goto("/dashboard");
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await page.goto("/");
+  await expect(header.getByRole("link", { name: "Get started" })).toBeVisible();
+  expect((await page.context().cookies()).some((c) => c.name === "yallapp_signed_in")).toBe(false);
+});
+
 test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   // This client builds a Store app.
