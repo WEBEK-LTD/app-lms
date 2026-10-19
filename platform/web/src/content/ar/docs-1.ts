@@ -167,11 +167,11 @@ export const AR_DOCS_1: Record<string, DocTranslation> = {
 
 ## نزّل الإضافة
 
-في لوحة التحكم، افتح **الترخيص والإضافة** واختر **تنزيل الإضافة**. ستحصل على ملف ‎.zip. لا تفك ضغطه.
+في لوحة التحكم، افتح **الترخيص والإضافة** واختر **تنزيل الإضافة**. ستحصل على ملف ZIP. لا تفك ضغطه.
 
 ## ارفعها إلى WordPress
 
-في لوحة إدارة WordPress، انتقل إلى **Plugins › Add New Plugin › Upload Plugin**، واختر ملف ‎.zip، ثم اختر **Install Now** ثم **Activate**.
+في لوحة إدارة WordPress، انتقل إلى **Plugins › Add New Plugin › Upload Plugin**، واختر ملف ZIP، ثم اختر **Install Now** ثم **Activate**.
 
 ## فعّل ترخيصك
 

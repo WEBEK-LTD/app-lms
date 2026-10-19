@@ -51,10 +51,11 @@ function titleSize(title: string): number {
 }
 
 /** Text in a box: as it is, or for Arabic one word per item in a right-to-left row (the renderer only lays out left to right). */
-function Text({ value, rtl, style }: { value: string; rtl: boolean; style: CSSProperties }): ReactNode {
+function Text({ value, rtl, style, wrap = true }: { value: string; rtl: boolean; style: CSSProperties; wrap?: boolean }): ReactNode {
   if (!rtl) return <div style={{ display: "flex", ...style }}>{value}</div>;
+  // 55 A short label stays on one line: a wrapping row would shrink to its widest word.
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row-reverse", columnGap: "0.27em", ...style }}>
+    <div style={{ display: "flex", flexWrap: wrap ? "wrap" : "nowrap", flexDirection: "row-reverse", columnGap: "0.27em", ...style }}>
       {rtlWords(value).map((word, i) => (
         <span key={i} style={{ display: "flex" }}>
           {word}
@@ -68,7 +69,8 @@ export async function ogImage({ eyebrow, title, text, lang = DEFAULT_LANG }: { e
   const rtl = lang === "ar";
   const fonts = await loadFonts(rtl ? ["IBM Plex Sans Arabic", "Bricolage Grotesque"] : ["Bricolage Grotesque"]);
   const family = fonts ? (rtl ? '"IBM Plex Sans Arabic", "Bricolage Grotesque"' : "Bricolage Grotesque") : undefined;
-  const clipped = text && text.length > 150 ? `${text.slice(0, 147).trimEnd()}…` : text;
+  // 55 Cut at a word, not inside one.
+  const clipped = text && text.length > 150 ? `${text.slice(0, 147).replace(/\s+\S*$/, "").replace(/[,;:،]$/, "")}…` : text;
   const footer = messagesFor(lang).og.footer;
   return new ImageResponse(
     (
@@ -95,7 +97,7 @@ export async function ogImage({ eyebrow, title, text, lang = DEFAULT_LANG }: { e
           {eyebrow ? (
             <div style={{ display: "flex" }}>
               <span style={{ display: "flex", background: IVORY, color: MIDNIGHT, borderRadius: 999, padding: "8px 20px", fontSize: 26, fontWeight: 800 }}>
-                <Text value={eyebrow} rtl={rtl} style={{}} />
+                <Text value={eyebrow} rtl={rtl} style={{}} wrap={false} />
               </span>
             </div>
           ) : null}
@@ -107,7 +109,7 @@ export async function ogImage({ eyebrow, title, text, lang = DEFAULT_LANG }: { e
           {clipped ? <Text value={clipped} rtl={rtl} style={{ fontSize: 28, lineHeight: 1.45, color: NIGHT_TEXT, maxWidth: 960 }} /> : null}
         </div>
         <div style={{ display: "flex", flexDirection: rtl ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", alignSelf: "stretch", fontSize: 24, color: NIGHT_TEXT }}>
-          <Text value={footer} rtl={rtl} style={{}} />
+          <Text value={footer} rtl={rtl} style={{}} wrap={false} />
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ display: "flex", width: 14, height: 14, borderRadius: 7, background: EMBER }} />
             <span style={{ color: IVORY, fontFamily: fonts ? "Bricolage Grotesque" : undefined }}>yallapp.com.tr</span>
