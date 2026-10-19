@@ -612,6 +612,71 @@ echo "Settings\n";
 function set_settings( array $values ) {
 	wp_cli( 'eval ' . escapeshellarg( 'Yallapp\Plugin::instance()->settings()->update( json_decode( ' . var_export( json_encode( $values ), true ) . ', true ) );' ) );
 }
+
+echo "Offline lessons and a finished course (45)\n";
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'downloads off by default', false === ( $r['json']['features']['downloads'] ?? null ), $r['json']['features'] ?? null );
+$r = call( 'GET', '/lessons/' . $seed['lesson_video'], null, $token );
+check( 'lesson says downloads are off', false === ( $r['json']['offline']['available'] ?? null ) && 'disabled' === ( $r['json']['offline']['reason'] ?? '' ), $r['json']['offline'] ?? null );
+$r = call( 'POST', '/lessons/' . $seed['lesson_video'] . '/download', array(), $token );
+check( 'download refused while off', 403 === $r['status'] && 'feature_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'offline_downloads' => true ) );
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'downloads on in config', true === ( $r['json']['features']['downloads'] ?? null ), $r['json']['features'] ?? null );
+$size = strlen( str_repeat( 'yallapp-video-bytes-', 4096 ) );
+$r    = call( 'GET', '/lessons/' . $seed['lesson_video'], null, $token );
+check( 'uploaded video lesson can be saved, with its size', true === ( $r['json']['offline']['available'] ?? null ) && $size === ( $r['json']['offline']['size_bytes'] ?? 0 ), $r['json']['offline'] ?? null );
+$r = call( 'GET', '/lessons/' . $seed['lesson_html'], null, $token );
+check( 'lesson with a YouTube embed needs the internet', false === ( $r['json']['offline']['available'] ?? null ) && 'video_site' === ( $r['json']['offline']['reason'] ?? '' ), $r['json']['offline'] ?? null );
+$r = call( 'GET', '/lessons/' . $seed['lesson_script'], null, $token );
+check( 'web view lesson needs the internet', 'web_page' === ( $r['json']['offline']['reason'] ?? '' ), $r['json']['offline'] ?? null );
+$r = call( 'POST', '/lessons/' . $seed['lesson_html'] . '/download', array(), $token );
+check( 'video site lesson: 409 not_downloadable', 409 === $r['status'] && 'not_downloadable' === ( $r['json']['code'] ?? '' ) && 'video_site' === ( $r['json']['details']['reason'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/lessons/' . $seed['lesson_video'] . '/download', array() );
+check( 'download needs sign-in', 401 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/lessons/' . $seed['design_locked'] . '/download', array(), $token );
+check( 'download of a course not enrolled in refused', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r     = call( 'POST', '/lessons/' . $seed['lesson_video'] . '/download', array(), $token );
+$file  = $r['json']['files'][0] ?? array();
+$until = strtotime( (string) ( $r['json']['expires_at'] ?? '' ) );
+check( 'download links: the video, signed for 15 minutes, kept 30 days', 200 === $r['status'] && 'video' === ( $file['kind'] ?? '' ) && false !== strpos( (string) ( $file['url'] ?? '' ), 'dl=1' ) && $size === ( $file['size_bytes'] ?? 0 ) && 30 === ( $r['json']['keep_days'] ?? 0 ) && $until > time() + 800 && $until <= time() + 905, $r['raw'] );
+$link = (string) ( $file['url'] ?? '' );
+if ( $link ) {
+	$m = call( 'GET', $link );
+	check( 'download link gives the whole file as an attachment', 200 === $m['status'] && $size === strlen( $m['raw'] ) && false !== strpos( $m['headers'], 'content-disposition: attachment' ), $m['status'] . ' ' . strlen( $m['raw'] ) );
+	$m = call( 'GET', preg_replace( '/sig=[^&]+/', 'sig=bad', $link ) );
+	check( 'tampered download link 403', 403 === $m['status'], $m['status'] );
+	$m = call( 'GET', str_replace( array( '&dl=1', 'dl=1&' ), '', $link ) );
+	check( 'a download signature does not stream', 403 === $m['status'], $m['status'] );
+	$m = call( 'GET', preg_replace( '/e=(\d+)/', 'e=' . ( time() + 86400 ), $link ) );
+	check( 'a download link can not be extended', 403 === $m['status'], $m['status'] );
+}
+$r = call( 'GET', '/lessons/' . $seed['lesson_video'], null, $token );
+$stream = (string) ( $r['json']['video']['url'] ?? '' );
+if ( $stream ) {
+	$m = call( 'GET', $stream . '&dl=1' );
+	check( 'a streaming signature does not download', 403 === $m['status'], $m['status'] );
+}
+$r = call( 'POST', '/me/downloads/check', array( 'lesson_ids' => array( $seed['lesson_html'], $seed['design_locked'], 999999 ) ), $token );
+check( 'access check: enrolled lesson kept, others refused', 200 === $r['status'] && array( $seed['lesson_html'] ) === ( $r['json']['allowed'] ?? null ) && array( $seed['design_locked'], 999999 ) === ( $r['json']['refused'] ?? null ) && true === ( $r['json']['downloads'] ?? null ), $r['raw'] );
+$r = call( 'POST', '/me/downloads/check', array( 'lesson_ids' => array( $seed['lesson_html'] ) ) );
+check( 'access check needs sign-in', 401 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $token );
+check( 'course page has the student\'s progress, not completed', 200 === $r['status'] && false === ( $r['json']['progress']['course_completed'] ?? null ) && array_key_exists( 'completed_at', $r['json']['progress'] ?? array() ) && array_key_exists( 'certificate_url', $r['json'] ?? array() ) && null === $r['json']['certificate_url'], array( $r['json']['progress'] ?? null, $r['json']['certificate_url'] ?? null ) );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android' );
+check( 'visitors get no progress', 200 === $r['status'] && ! isset( $r['json']['progress'] ), $r['raw'] );
+// Access ends: the enrollment is cancelled on the website.
+$me = call( 'GET', '/me', null, $token );
+wp_cli( 'eval ' . escapeshellarg( 'tutor_utils()->cancel_course_enrol( ' . (int) $seed['python'] . ', ' . (int) ( $me['json']['id'] ?? 0 ) . ' );' ) );
+$r = call( 'POST', '/me/downloads/check', array( 'lesson_ids' => array( $seed['lesson_html'] ) ), $token );
+check( 'access ended: the saved lesson is refused', 200 === $r['status'] && array() === ( $r['json']['allowed'] ?? null ) && array( $seed['lesson_html'] ) === ( $r['json']['refused'] ?? null ), $r['raw'] );
+$r = call( 'POST', '/lessons/' . $seed['lesson_html'] . '/download', array(), $token );
+check( 'access ended: no new download links', 403 === $r['status'] && 'not_enrolled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+set_settings( array( 'offline_downloads' => false ) );
+call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $token );
+$r = call( 'POST', '/me/downloads/check', array( 'lesson_ids' => array( $seed['lesson_html'] ) ), $token );
+check( 'downloads turned off: everything refused', 200 === $r['status'] && false === ( $r['json']['downloads'] ?? null ) && array( $seed['lesson_html'] ) === ( $r['json']['refused'] ?? null ), $r['raw'] );
+
 set_settings( array( 'required_watch_percent' => 80 ) );
 $r = call( 'POST', '/lessons/' . $seed['lesson_video'] . '/complete', array(), $token );
 check( 'watch requirement enforced', 409 === $r['status'] && 'watch_requirement_not_met' === ( $r['json']['code'] ?? '' ), $r['raw'] );

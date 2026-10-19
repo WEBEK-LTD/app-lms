@@ -8,21 +8,59 @@ import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
 import { CardPayments } from "../catalog/payments";
-import { CourseCategoryForm, CourseForm, CurrencyForm } from "./forms";
+import { UpgradeHint } from "@/components/upgrade";
+import { currentPlanId } from "@/lib/billing/plan-change";
+import { downloadsFormValue, offersDownloads } from "@/lib/courses/downloads";
+import { effectivePlans } from "@/lib/entitlements";
+import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import type { App, License } from "@/lib/data/types";
+import { CourseCategoryForm, CourseForm, CurrencyForm, OfflineDownloadsForm } from "./forms";
 
 export const metadata: Metadata = { title: "Courses" };
 
+/** 45 Offline downloads: on or off for the app's students, with offline mode in the plan. */
+async function OfflineDownloads({ app, license }: { app: App; license: License | null }) {
+  if (!offersDownloads(app)) return null;
+  const effective = await effectivePlans(await getStore());
+  const planId = license ? currentPlanId(license, new Date()) : null;
+  const plan = planId ? effective[planId] : null;
+  const included = hasFeature(plan, "offline_downloads");
+  return (
+    <section aria-labelledby="h-offline" className="flex max-w-[720px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <div className="flex flex-col gap-1">
+        <h2 id="h-offline" className="m-0 text-lg font-bold">
+          Offline downloads
+        </h2>
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          Students save lessons and whole courses in the app to watch and read without the internet: uploaded videos, lesson text and its images, and
+          attachments. They&apos;re stored encrypted inside the app, never in the phone&apos;s gallery or files, and deleted when the student&apos;s access
+          ends or after 30 days without a connection. Lessons whose video plays from YouTube, Vimeo or another video site need the internet.
+        </p>
+      </div>
+      {included ? null : (
+        <UpgradeHint title="Offline downloads" to={lowestPlanWith(effective, (p) => hasFeature(p, "offline_downloads"), planId)}>
+          Offline mode, with lessons saved in the app, isn&apos;t in this app&apos;s plan.
+        </UpgradeHint>
+      )}
+      <OfflineDownloadsForm current={downloadsFormValue(app)} wordpress={app.connector?.kind !== "courses"} disabled={!included} />
+    </section>
+  );
+}
+
 /** Courses, categories and payments for Academy apps without a website. */
 export default async function CoursesPage() {
-  const { app } = await requireClient();
+  const { app, license } = await requireClient();
   if (!app || app.connector?.kind !== "courses") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Courses</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app gets its courses from your website. To manage them here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
-          <Link href="/dashboard/setup?step=website">Website step</Link>.
-        </p>
+      <div className="flex flex-col gap-6">
+        <div className="flex max-w-[620px] flex-col gap-3">
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Courses</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+            Your app gets its courses from your website. To manage them here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
+            <Link href="/dashboard/setup?step=website">Website step</Link>.
+          </p>
+        </div>
+        {app ? <OfflineDownloads app={app} license={license} /> : null}
       </div>
     );
   }
@@ -110,6 +148,8 @@ export default async function CoursesPage() {
       </div>
 
       <CardPayments app={app} currency={setup.currency} />
+
+      <OfflineDownloads app={app} license={license} />
     </div>
   );
 }

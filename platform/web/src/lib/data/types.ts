@@ -198,6 +198,13 @@ export interface HostedSettings {
    * app's public keys (lib/hosted/app-auth.ts).
    */
   signInBy?: "api" | "yallapp" | null;
+  /**
+   * 45 Academy apps: whether students may save lessons for offline viewing,
+   * as the owner chose on the Courses page. Missing until they choose: on for
+   * courses managed in Yallapp, the plugin's own setting on WordPress. Needs
+   * offline mode in the plan either way (lib/courses/downloads.ts).
+   */
+  offlineDownloads?: boolean | null;
 }
 
 /**

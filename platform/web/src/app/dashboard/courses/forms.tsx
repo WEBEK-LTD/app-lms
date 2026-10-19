@@ -8,6 +8,7 @@ import {
   saveCourseAction,
   saveCourseCurrencyAction,
   saveLessonAction,
+  saveOfflineDownloadsAction,
 } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -212,6 +213,42 @@ export function StudentForm({ courseId }: { courseId: number }) {
         </SubmitButton>
       </div>
       <FormMessage message={state.message} ok={state.ok} />
+    </form>
+  );
+}
+
+/** 45 Whether students can save lessons for offline viewing. */
+export function OfflineDownloadsForm({ current, wordpress, disabled }: { current: "on" | "off" | "plugin"; wordpress: boolean; disabled: boolean }) {
+  const [state, action] = useActionState(saveOfflineDownloadsAction, initialFormState);
+  const value = state.values?.downloads ?? current;
+  const choices = [
+    { value: "on", label: "On", hint: "Students can save a lesson or a whole course in the app and watch and read it without the internet." },
+    { value: "off", label: "Off", hint: "Lessons open only with a connection. Lessons students saved before are deleted." },
+    ...(wordpress ? [{ value: "plugin", label: "As set in the Yallapp plugin", hint: "Follows \"Allow offline downloads\" in the plugin's settings on your website." }] : []),
+  ];
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={value}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <fieldset disabled={disabled} className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={state.errors?.downloads ? "downloads-error" : undefined}>
+        <legend className="sr-only">Offline downloads</legend>
+        {choices.map((c) => (
+          <label key={c.value} className="flex cursor-pointer items-start gap-2.5 text-[15px]">
+            <input type="radio" name="downloads" value={c.value} defaultChecked={value === c.value} className="mt-1 h-4 w-4 accent-midnight" />
+            <span className="flex flex-col">
+              <span className="font-semibold">{c.label}</span>
+              <span className="text-sm text-muted">{c.hint}</span>
+            </span>
+          </label>
+        ))}
+        <FieldError id="downloads-error" error={state.errors?.downloads} />
+      </fieldset>
+      {disabled ? null : (
+        <div className="flex justify-end">
+          <SubmitButton className="h-11" pendingText="Saving…">
+            Save
+          </SubmitButton>
+        </div>
+      )}
     </form>
   );
 }

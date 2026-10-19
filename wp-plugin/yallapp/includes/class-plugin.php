@@ -331,6 +331,20 @@ class Plugin {
 	}
 
 	/**
+	 * 45 Lessons saved for offline viewing.
+	 *
+	 * @return Content\Downloads
+	 */
+	public function downloads() {
+		return $this->service(
+			'downloads',
+			function () {
+				return new Content\Downloads( $this->settings(), $this->license(), $this->media() );
+			}
+		);
+	}
+
+	/**
 	 * Lesson renderer.
 	 *
 	 * @return Lesson_Renderer

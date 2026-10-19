@@ -19,6 +19,7 @@ import { newInquiryMailValues } from "@/lib/listings/notify";
 import { appMailDelivered, sendTemplate } from "@/lib/email/send";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
+import { hostedDownloadsOn } from "@/lib/courses/downloads";
 import { checkAppUserNotices } from "@/lib/notices";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { demoOfficeReply } from "@/lib/demo/cleanup";
@@ -122,6 +123,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         assetUrl,
         platformUrl: appUrl(),
         cardPayments: hasFeature(plan, "card_payments"),
+        // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
+        downloads: hostedDownloadsOn(app, plan),
         signingSecret: signingSecret(),
         onBooked: async (appointment: BookingAppointment) => {
           if (app.demo) return;

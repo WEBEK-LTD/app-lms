@@ -548,6 +548,15 @@ components:
                   items: { type: string, pattern: '^[A-Z0-9]{10}\.[A-Za-z0-9.-]+$', example: ABCDE12345.com.example.academy }
         review_prompt: { type: boolean, description: "46 Whether the app may ask for a rating (`Config.app.review_prompt`), as the owner chose. Missing means true." }
         crash_reports: { type: boolean, description: "46 Whether the app sends crash reports to Yallapp (`Config.app.crash_reports`), as the owner chose. Missing means true." }
+        offline_downloads:
+          type: [boolean, 'null']
+          description: |
+            Roadmap 45. Whether students may save lessons for offline viewing,
+            as the app's owner chose on the dashboard's Courses page. Null when
+            the owner hasn't chosen: the plugin's own "Allow offline downloads"
+            applies. Downloads also need `offline_downloads` in `features`.
+            The plugin serves the result as `Config.features.downloads`.
+            Missing on older platforms.
         expires_at: { type: [string, 'null'], format: date-time }
         checked_at: { type: string, format: date-time }
         message: { type: [string, 'null'], description: Shown to the site admin. }

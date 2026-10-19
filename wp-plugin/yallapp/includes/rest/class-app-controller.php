@@ -105,6 +105,8 @@ class App_Controller extends Controller {
 					// The app's plan decides push and offline mode (license features).
 					'push'         => $this->plugin->push()->is_configured() && $license->has_feature( 'push' ),
 					'offline'      => $license->has_feature( 'offline_downloads' ),
+					// 45 Lessons saved for offline viewing: the plan and the owner's choice.
+					'downloads'    => $lms && $this->plugin->downloads()->enabled(),
 					'orders'       => $lms ? $lms->sells_courses() : \Yallapp\Commerce\Woo_Orders::available(),
 				),
 				'store'     => \Yallapp\Store\Catalog::available() ? $this->plugin->store_checkout()->config() : null,

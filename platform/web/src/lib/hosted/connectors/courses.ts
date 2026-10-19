@@ -1,5 +1,6 @@
 import { centsToDecimal, formatCents } from "../../catalog/money";
 import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
+import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoFile } from "../../courses/downloads";
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
@@ -15,6 +16,8 @@ interface CoursesDeps {
   platformUrl: string;
   /** 13.1 Card payments in the app are in the app's plan (default true); without them paid courses show no purchase action. */
   cardPayments?: boolean;
+  /** 45 Lessons may be saved for offline viewing: offline mode in the plan and the owner's choice (default false). */
+  downloads?: boolean;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -41,7 +44,17 @@ export class CoursesConnector implements Connector {
 
   async config() {
     return {
-      features: { lms: "yallapp", lms_version: "1", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false },
+      features: {
+        lms: "yallapp",
+        lms_version: "1",
+        pro: false,
+        certificates: false,
+        quizzes: false,
+        wishlist: false,
+        reviews: false,
+        qna: false,
+        downloads: this.deps.downloads === true,
+      },
       purchases: { enroll_button: this.canSell, free_enrollment: true },
     };
   }
@@ -63,6 +76,8 @@ export class CoursesConnector implements Connector {
         return request.user ? { status: 200, body: { items: [] } } : signIn();
       case "POST /auth/checkout-link":
         return this.checkoutLink(request);
+      case "POST /me/downloads/check":
+        return this.checkDownloads(request);
     }
     const [first, second, third] = request.path;
     if (first === "me" && second === "wishlist" && third) return error(403, "feature_disabled", "Wishlists aren't available in this app.");
@@ -78,6 +93,7 @@ export class CoursesConnector implements Connector {
       if (request.method === "GET" && request.path.length === 2) return this.lesson(request, ok);
       if (request.method === "PUT" && third === "progress" && request.path.length === 3) return this.progress(request, ok);
       if (request.method === "POST" && third === "complete" && request.path.length === 3) return this.complete(request, ok);
+      if (request.method === "POST" && third === "download" && request.path.length === 3) return this.download(request, ok);
     }
     return null;
   }
@@ -131,7 +147,17 @@ export class CoursesConnector implements Connector {
     const lessons = lessonsOf(c);
     const done = lessons.filter((l) => progress.get(l.id)?.completedAt).length;
     const percent = lessons.length ? Math.round((done / lessons.length) * 100) : 0;
-    return { course_id: c.id, completed_items: done, total_items: lessons.length, percent, course_completed: lessons.length > 0 && done === lessons.length };
+    const completed = lessons.length > 0 && done === lessons.length;
+    // 45 A finished course was finished when its last lesson was completed.
+    const last = completed ? Math.max(...lessons.map((l) => progress.get(l.id)?.completedAt?.getTime() ?? 0)) : 0;
+    return {
+      course_id: c.id,
+      completed_items: done,
+      total_items: lessons.length,
+      percent,
+      course_completed: completed,
+      completed_at: last > 0 ? new Date(last).toISOString() : null,
+    };
   }
 
   private item(l: CourseLesson, open: boolean, progress: Map<number, LessonProgress>) {
@@ -220,6 +246,8 @@ export class CoursesConnector implements Connector {
         qna: false,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
         purchase: { action },
+        // 45 The student's progress, so a finished course says so. Courses managed in Yallapp have no certificates yet.
+        ...(enrolled.has(c.id) ? { progress: this.progressJson(c, await this.progressOf(request, c.id)), certificate_url: null } : {}),
       },
     };
   }
@@ -295,8 +323,72 @@ export class CoursesConnector implements Connector {
         position_seconds: progress.get(lesson.id)?.positionSeconds ?? 0,
         previous_id: lessons[index - 1]?.id ?? null,
         next_id: lessons[index + 1]?.id ?? null,
+        offline: this.offline(lesson),
       },
     };
+  }
+
+  // 45 Offline lessons
+
+  /** Why a lesson can't be saved for offline viewing, or null when it can. */
+  private blocker(lesson: CourseLesson): "video_site" | "disabled" | null {
+    if (this.deps.downloads !== true) return "disabled";
+    return lesson.videoUrl && !isVideoFile(lesson.videoUrl) ? "video_site" : null;
+  }
+
+  /** `Lesson.offline`. A video file's size isn't known: it's on the owner's own server. */
+  private offline(lesson: CourseLesson) {
+    const reason = this.blocker(lesson);
+    return { available: reason === null, reason, size_bytes: null };
+  }
+
+  /** May the student open this lesson: enrolled in its course, or a free preview. */
+  private async mayOpen(request: ConnectorRequest, found: { course: Course; lesson: CourseLesson }): Promise<boolean> {
+    return found.lesson.preview || (await this.enrolled(request)).has(found.course.id);
+  }
+
+  /**
+   * The lesson's files: its video when it's a file (the owner's own address,
+   * which the app already plays). The text comes with `GET /lessons/{id}`.
+   */
+  private async download(request: ConnectorRequest, found: { course: Course; lesson: CourseLesson } | null): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (this.deps.downloads !== true) return error(403, "feature_disabled", "Lessons can't be saved for offline viewing in this app.");
+    if (!found) return error(404, "not_found", "Lesson not found.");
+    if (!(await this.mayOpen(request, found))) return error(403, "not_enrolled", "Enroll in the course to open this lesson.");
+    const { course, lesson } = found;
+    if (this.blocker(lesson) === "video_site") {
+      return { status: 409, body: { code: "not_downloadable", message: "This lesson's video plays from a video site, so it needs the internet.", details: { reason: "video_site" } } };
+    }
+    return {
+      status: 200,
+      body: {
+        lesson_id: lesson.id,
+        course_id: course.id,
+        files: lesson.videoUrl ? [{ kind: "video", url: lesson.videoUrl, source_url: null, name: null, size_bytes: null, mime_type: null }] : [],
+        expires_at: new Date(request.now.getTime() + DOWNLOAD_LINK_MINUTES * 60_000).toISOString(),
+        keep_days: DOWNLOAD_KEEP_DAYS,
+      },
+    };
+  }
+
+  /** Which saved lessons the student may keep: those they can still open, while downloads are on. */
+  private async checkDownloads(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const ids = (request.body as { lesson_ids?: unknown } | null)?.lesson_ids;
+    if (!Array.isArray(ids) || ids.length > DOWNLOAD_CHECK_MAX || !ids.every((id) => Number.isSafeInteger(id))) {
+      return error(400, "invalid_request", `lesson_ids must be a list of up to ${DOWNLOAD_CHECK_MAX} lesson IDs.`);
+    }
+    const on = this.deps.downloads === true;
+    const enrolled = await this.enrolled(request);
+    const allowed: number[] = [];
+    const refused: number[] = [];
+    for (const id of new Set(ids as number[])) {
+      const found = findLesson(this.setup, id);
+      const open = on && found !== null && found.course.active && (found.lesson.preview || enrolled.has(found.course.id));
+      (open ? allowed : refused).push(id);
+    }
+    return { status: 200, body: { allowed, refused, downloads: on, keep_days: DOWNLOAD_KEEP_DAYS } };
   }
 
   private async mayLearn(request: ConnectorRequest, course: Course): Promise<boolean> {

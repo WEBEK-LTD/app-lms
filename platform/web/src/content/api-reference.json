@@ -253,6 +253,20 @@
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/lessons/{lesson_id}/download",
+          "summary": "Links to save a lesson for offline viewing",
+          "description": "Roadmap 45. When `features.downloads` is true and the lesson's `offline.available` is true, the app asks for the lesson's files here and keeps them on the phone, encrypted, in its own storage. Each link is for this student only and works for a short time (`expires_at`): the app downloads at once, and asks again to resume a download after that. A lesson whose video plays from a video site (YouTube, Vimeo, Bunny Stream and other players) can't be saved: 409 `not_downloadable`, with `details.reason` as in `LessonOffline`. 403 `feature_disabled` when downloads are off for the app, 403 `not_enrolled` when the student can't open the lesson.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/downloads/check",
+          "summary": "Whether the student may keep their saved lessons",
+          "description": "Roadmap 45. The app sends the lessons it keeps for offline viewing when it starts with a connection. A lesson is `refused` when the student can't open it any more (their enrollment ended, was refunded or expired, or the lesson is gone); the app deletes it. The app also deletes everything when `downloads` is false (the owner turned downloads off or the plan no longer includes offline mode), and a lesson it hasn't been able to check for `keep_days` days.",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/me/certificates",
           "summary": "List the student's certificates",

@@ -1346,6 +1346,71 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /lessons/{lesson_id}/download:
+    post:
+      tags: [Learning]
+      operationId: downloadLesson
+      summary: Links to save a lesson for offline viewing
+      description: |
+        Roadmap 45. When `features.downloads` is true and the lesson's
+        `offline.available` is true, the app asks for the lesson's files here
+        and keeps them on the phone, encrypted, in its own storage. Each link
+        is for this student only and works for a short time (`expires_at`):
+        the app downloads at once, and asks again to resume a download after
+        that. A lesson whose video plays from a video site (YouTube, Vimeo,
+        Bunny Stream and other players) can't be saved: 409
+        `not_downloadable`, with `details.reason` as in `LessonOffline`.
+        403 `feature_disabled` when downloads are off for the app, 403
+        `not_enrolled` when the student can't open the lesson.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: The lesson's files
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LessonDownload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/downloads/check:
+    post:
+      tags: [Learning]
+      operationId: checkDownloads
+      summary: Whether the student may keep their saved lessons
+      description: |
+        Roadmap 45. The app sends the lessons it keeps for offline viewing
+        when it starts with a connection. A lesson is `refused` when the
+        student can't open it any more (their enrollment ended, was
+        refunded or expired, or the lesson is gone); the app deletes it. The
+        app also deletes everything when `downloads` is false (the owner
+        turned downloads off or the plan no longer includes offline mode),
+        and a lesson it hasn't been able to check for `keep_days` days.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lesson_ids]
+              properties:
+                lesson_ids:
+                  type: array
+                  maxItems: 500
+                  items: { type: integer }
+      responses:
+        '200':
+          description: The lessons the student may keep and those to delete
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadCheck' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
   /quizzes/{quiz_id}:
     get:
       tags: [Quizzes]
@@ -3038,6 +3103,7 @@ components:
             - cancel_not_allowed
             - campaign_closed
             - donations_unavailable
+            - not_downloadable
         message: { type: string, description: "A message safe to show to the student, in the language the app asked for with `Accept-Language` when the server has it (the hosted API: English, Arabic and Turkish), else in English." }
         retry_after_seconds: { type: integer }
         details: { type: object, additionalProperties: true }
@@ -3102,6 +3168,16 @@ components:
             push: { type: boolean, description: "Whether push notifications are set up and included in the app's plan." }
             orders: { type: boolean, description: "Whether the site sells (courses or products), so customers have orders. Missing on older plugins means false." }
             offline: { type: boolean, description: "Offline mode, when the app's plan includes it: the app keeps what the user last saw and shows it without a connection. Missing means false." }
+            downloads:
+              type: boolean
+              description: |
+                Roadmap 45. Students can save lessons and whole courses on the
+                phone to watch and read offline (`POST /lessons/{lesson_id}/download`):
+                the app's plan includes offline mode (`offline`) and the owner
+                turned downloads on (the dashboard's Courses page or, on
+                WordPress, the plugin's "Allow offline downloads"; the
+                dashboard's choice wins when it made one). Missing means false;
+                when it turns false the app deletes what it saved.
         auth:
           type: object
           required: [signup_allowed, signup_fields, default_country_code]
@@ -3391,6 +3467,13 @@ components:
                 audience: { type: array, items: { type: string } }
                 includes: { type: array, items: { type: string }, example: [12 hours of video, A certificate] }
             qna: { type: boolean, description: "Whether students can ask questions in this course: features.qna and the course's own setting. Missing on older plugins means features.qna." }
+            progress:
+              $ref: '#/components/schemas/Progress'
+              description: Roadmap 45. The signed-in student's progress in the course, when enrolled. With `course_completed` the course page says "Completed" and its button reviews the course. Missing for visitors and on older servers.
+            certificate_url:
+              type: [string, 'null']
+              format: uri
+              description: Roadmap 45. The student's certificate for this course (the LMS's own certificate page or file), once earned. Null otherwise, and when the LMS has no certificates.
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
@@ -3456,6 +3539,69 @@ components:
         position_seconds: { type: integer }
         previous_id: { type: [integer, 'null'], description: The previous lesson in the course. Quizzes and other items are skipped. }
         next_id: { type: [integer, 'null'], description: The next lesson in the course. Quizzes and other items are skipped. }
+        offline: { $ref: '#/components/schemas/LessonOffline' }
+
+    LessonOffline:
+      type: object
+      description: |
+        Roadmap 45. Whether the lesson can be saved for offline viewing. Missing
+        means it can't (older servers, and platforms whose API doesn't give the
+        files).
+      required: [available]
+      properties:
+        available: { type: boolean }
+        reason:
+          type: [string, 'null']
+          enum: [video_site, web_page, disabled, null]
+          description: |
+            Why it can't: `video_site`, the video plays from a video site
+            (YouTube, Vimeo, Bunny Stream or another player) and needs the
+            internet; `web_page`, the lesson shows a web page or embedded
+            content; `disabled`, downloads aren't on for this app. Null when
+            available.
+        size_bytes: { type: [integer, 'null'], description: "The files' total (video, attachments, images) when known." }
+
+    LessonDownload:
+      type: object
+      description: Roadmap 45. A lesson's files for offline viewing. The app keeps the lesson itself (`GET /lessons/{lesson_id}`) with them.
+      required: [lesson_id, course_id, files, expires_at, keep_days]
+      properties:
+        lesson_id: { type: integer }
+        course_id: { type: integer }
+        files:
+          type: array
+          items: { $ref: '#/components/schemas/DownloadFile' }
+        expires_at: { type: string, format: date-time, description: When the links stop working. Ask again to resume after that. }
+        keep_days: { type: integer, minimum: 1, example: 30, description: "How long the app may keep the lesson without checking the student's access (`POST /me/downloads/check`)." }
+
+    DownloadFile:
+      type: object
+      required: [kind, url]
+      properties:
+        kind: { type: string, enum: [video, attachment, image] }
+        url:
+          type: string
+          format: uri
+          description: |
+            Where to download the file. On WordPress a link signed for this
+            student that works for 15 minutes (`/media/{id}` with its own
+            signature); for a file on another server, its address.
+        source_url:
+          type: [string, 'null']
+          format: uri
+          description: The address the lesson uses for this file (an attachment's `url`, an image's `src` in `html`), so the app shows the saved copy in its place. Null for the video, which is `Lesson.video`.
+        name: { type: [string, 'null'] }
+        size_bytes: { type: [integer, 'null'] }
+        mime_type: { type: [string, 'null'] }
+
+    DownloadCheck:
+      type: object
+      required: [allowed, refused, downloads, keep_days]
+      properties:
+        allowed: { type: array, items: { type: integer }, description: Lessons the student may keep. }
+        refused: { type: array, items: { type: integer }, description: Lessons to delete. }
+        downloads: { type: boolean, description: "`features.downloads` now: when false the app deletes everything it saved." }
+        keep_days: { type: integer, minimum: 1, example: 30 }
 
     Embed:
       type: object
@@ -3499,6 +3645,10 @@ components:
         total_items: { type: integer }
         percent: { type: integer, minimum: 0, maximum: 100 }
         course_completed: { type: boolean }
+        completed_at:
+          type: [string, 'null']
+          format: date-time
+          description: Roadmap 45. When the student completed the course, when known (the LMS's record, the certificate's date, or when the app completed the last item). Null while not completed, or when the date isn't known.
 
     MyCourse:
       type: object

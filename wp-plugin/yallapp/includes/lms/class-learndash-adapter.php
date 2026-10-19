@@ -632,7 +632,11 @@ class LearnDash_Adapter extends Base_Adapter {
 	public function progress( $course_id, $user_id ) {
 		$total     = (int) $this->ld( 'learndash_get_course_steps_count', 0, (int) $course_id );
 		$completed = $user_id > 0 ? (int) $this->ld( 'learndash_course_get_completed_steps', 0, (int) $user_id, (int) $course_id ) : 0;
-		return self::progress_shape( $course_id, min( $completed, $total ), $total, $this->course_completed( $course_id, $user_id ) );
+		$progress  = self::progress_shape( $course_id, min( $completed, $total ), $total, $this->course_completed( $course_id, $user_id ) );
+		// 45 LearnDash keeps when the course was completed as a timestamp.
+		$done                     = $progress['course_completed'] ? (int) get_user_meta( (int) $user_id, 'course_completed_' . $course_id, true ) : 0;
+		$progress['completed_at'] = $done > 0 ? gmdate( 'Y-m-d\TH:i:s\Z', $done ) : null;
+		return $progress;
 	}
 
 	/**

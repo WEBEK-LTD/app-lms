@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
 use WP_REST_Server;
+use Yallapp\Lms\Course_Completion;
 use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Purchase_Rules;
 
@@ -148,6 +149,14 @@ class Catalog_Controller extends Controller {
 		);
 		$course['intro_video'] = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
 		unset( $course['has_checkout'] );
+		// 45 An enrolled student's progress, so a finished course says so, and their certificate.
+		$user_id = get_current_user_id();
+		if ( $user_id && $course['enrolled'] ) {
+			$progress                  = $lms->progress( (int) $course['id'], $user_id );
+			$certificate               = ! empty( $progress['course_completed'] ) ? Course_Completion::certificate( $lms, (int) $course['id'], $user_id ) : null;
+			$course['progress']        = Course_Completion::fill( $progress, $user_id, $certificate );
+			$course['certificate_url'] = $certificate ? (string) $certificate['url'] : null;
+		}
 		return $this->ok( $course );
 	}
 

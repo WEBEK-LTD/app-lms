@@ -96,6 +96,43 @@ test("the app sees the course and its preview lesson", async ({ request }) => {
   expect(await (await request.get(`${api}/lessons/${lesson.id}`)).json()).toMatchObject({ video: { source: "youtube", url: "https://www.youtube.com/watch?v=abc123" } });
 });
 
+test("45 offline downloads come with the plan, and the owner turns them off and on", async ({ request }) => {
+  const config = async () => (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()).features;
+  const before = await config();
+  // On by default when the plan has offline mode.
+  expect(before.downloads).toBe(before.offline === true);
+  // The YouTube lesson needs the internet either way.
+  expect((await (await request.get(`${api}/lessons/${lessonId}`)).json()).offline).toMatchObject({
+    available: false,
+    reason: before.downloads ? "video_site" : "disabled",
+  });
+
+  await own.goto("/dashboard/courses");
+  const section = own.getByRole("region", { name: "Offline downloads" });
+  await expect(section).toContainText("never in the phone's gallery or files");
+  // Courses managed in Yallapp have no plugin setting to follow.
+  await expect(section.getByText("As set in the Yallapp plugin")).toHaveCount(0);
+  if (!before.offline) {
+    await expect(section.locator("[data-upgrade-hint]")).toContainText("Offline downloads");
+    await expect(section.getByRole("radio", { name: /^On/ })).toBeDisabled();
+    return;
+  }
+  await expect(section.getByRole("radio", { name: /^On/ })).toBeChecked();
+  await section.getByRole("radio", { name: /^Off/ }).check();
+  await section.getByRole("button", { name: "Save" }).click();
+  await expect(section.getByText("The app deletes saved lessons the next time it opens")).toBeVisible();
+  expect((await config()).downloads).toBe(false);
+  const refused = await request.post(`${api}/lessons/${lessonId}/download`);
+  expect(refused.status()).toBe(401);
+
+  await own.reload();
+  await expect(section.getByRole("radio", { name: /^Off/ })).toBeChecked();
+  await section.getByRole("radio", { name: /^On/ }).check();
+  await section.getByRole("button", { name: "Save" }).click();
+  await expect(section.getByText("Students can save lessons from the next time the app opens.")).toBeVisible();
+  expect((await config()).downloads).toBe(true);
+});
+
 /**
  * 40 A stand-in for YouTube's IFrame Player API and its player (this machine can't reach YouTube): the player
  * draws a title bar, "Watch on YouTube" and a logo along its edges, like the real one.

@@ -154,6 +154,8 @@ describe("saves that change what the license status carries ask the site", () =>
   it.each([
     ["app/actions/dashboard.ts", "chooseAppTypeAction"],
     ["app/actions/app-sign-in.ts", "saveSignInMethodsAction"],
+    // 45 Offline downloads on or off.
+    ["app/actions/courses.ts", "saveOfflineDownloadsAction"],
     ["app/actions/pages.ts", "publishLayoutAction"],
     ["app/actions/admin.ts", "activateClientAction"],
     ["app/actions/admin.ts", "suspendClientAction"],
@@ -178,6 +180,7 @@ describe("saves that change what the license status carries ask the site", () =>
       "limits",
       "sign_in_methods",
       "email_sign_in",
+      "offline_downloads",
       "app_type",
       "vertical",
       "app_links",

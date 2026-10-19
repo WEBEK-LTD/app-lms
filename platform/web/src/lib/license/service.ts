@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { Mailer } from "../notices";
 import type { AppType, AppVertical, Client, License, LicenseState, PluginRelease, SignInMethod } from "../data/types";
 import { toVertical } from "../app/kinds";
+import { downloadsChoice } from "../courses/downloads";
 import { chosenEmailSignIn, chosenSignInMethods } from "../hosted/sign-in-methods";
 import type { Plan, PlanFeature, PlanInfo } from "../plans";
 import { currentPlanId } from "../billing/plan-change";
@@ -34,6 +35,8 @@ export interface LicenseStatusBody {
   sign_in_methods: SignInMethod[] | null;
   /** 24 How email sign-in works on WordPress, as the owner chose on App sign-in; null: the plugin's own setting. */
   email_sign_in: "code" | "password" | null;
+  /** 45 Offline downloads on or off, as the owner chose on the Courses page; null: the plugin's own setting. */
+  offline_downloads: boolean | null;
   /** 20 The app's engine and kind of business, so the plugin doesn't guess them; null without an app. */
   app_type: AppType | null;
   vertical: AppVertical | null;
@@ -140,6 +143,8 @@ interface AppFacts {
   appLinks: ReturnType<typeof licenseAppLinks>;
   reviewPrompt: boolean;
   crashReports: boolean;
+  /** 45 */
+  offlineDownloads: boolean | null;
 }
 
 function statusBody(
@@ -158,6 +163,7 @@ function statusBody(
     limits: plan ? { app_users: plan.limits.appUsers, languages: plan.limits.languages, sources: plan.limits.sources } : null,
     sign_in_methods: facts.methods,
     email_sign_in: facts.emailSignIn,
+    offline_downloads: facts.offlineDownloads,
     app_type: facts.appType,
     vertical: facts.vertical,
     app_links: facts.appLinks,
@@ -183,7 +189,7 @@ function inactiveMessage(state: LicenseState, license: License): string {
 /** 18 The owner's sign-in methods for the license's app (null until they choose); 24 how email works; 20 its engine and vertical. */
 async function appFactsOf(store: DataStore, license: License): Promise<AppFacts> {
   const app = license.appId ? await store.getAppById(license.appId) : null;
-  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null, appLinks: null, reviewPrompt: true, crashReports: true };
+  if (!app) return { methods: null, emailSignIn: null, appType: null, vertical: null, appLinks: null, reviewPrompt: true, crashReports: true, offlineDownloads: null };
   return {
     methods: chosenSignInMethods(app),
     emailSignIn: chosenEmailSignIn(app),
@@ -193,6 +199,7 @@ async function appFactsOf(store: DataStore, license: License): Promise<AppFacts>
     appLinks: licenseAppLinks(appLinkTargetOf(app)),
     reviewPrompt: app.reviewPrompt !== false,
     crashReports: app.crashReports !== false,
+    offlineDownloads: downloadsChoice(app),
   };
 }
 

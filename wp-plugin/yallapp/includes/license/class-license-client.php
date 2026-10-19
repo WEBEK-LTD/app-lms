@@ -204,26 +204,27 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
 		return array_merge(
 			array(
-				'status'          => '' === (string) $this->settings->get( 'license_key' ) ? 'none' : 'invalid',
-				'plan'            => null,
-				'features'        => array(),
-				'sign_in_methods' => null,
-				'email_sign_in'   => null,
-				'app_type'        => null,
-				'vertical'        => null,
-				'app_links'       => null,
-				'review_prompt'   => true,
-				'crash_reports'   => true,
-				'expires_at'      => null,
-				'checked_at'      => null,
-				'message'         => null,
-				'contacted_at'    => 0,
+				'status'            => '' === (string) $this->settings->get( 'license_key' ) ? 'none' : 'invalid',
+				'plan'              => null,
+				'features'          => array(),
+				'sign_in_methods'   => null,
+				'email_sign_in'     => null,
+				'offline_downloads' => null,
+				'app_type'          => null,
+				'vertical'          => null,
+				'app_links'         => null,
+				'review_prompt'     => true,
+				'crash_reports'     => true,
+				'expires_at'        => null,
+				'checked_at'        => null,
+				'message'           => null,
+				'contacted_at'      => 0,
 			),
 			is_array( $stored ) ? $stored : array()
 		);
@@ -422,24 +423,26 @@ class License_Client {
 		$app      = self::app_of( $result );
 		$methods  = isset( $result['sign_in_methods'] ) && is_array( $result['sign_in_methods'] ) ? array_values( array_intersect( array( 'phone', 'email' ), $result['sign_in_methods'] ) ) : array();
 		$status   = array(
-			'status'          => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
-			'plan'            => in_array( $result['plan'] ?? null, array( 'starter', 'growth', 'pro', 'business' ), true ) ? $result['plan'] : null,
-			'features'        => $features,
+			'status'            => in_array( $result['status'] ?? '', $allowed, true ) ? $result['status'] : 'invalid',
+			'plan'              => in_array( $result['plan'] ?? null, array( 'starter', 'growth', 'pro', 'business' ), true ) ? $result['plan'] : null,
+			'features'          => $features,
 			// How people sign in, as the owner chose on the dashboard; null: the plugin setting applies.
-			'sign_in_methods' => $methods ? $methods : null,
+			'sign_in_methods'   => $methods ? $methods : null,
 			// How email sign-in works (a code, or the password), as the owner chose; null: the plugin setting.
-			'email_sign_in'   => in_array( $result['email_sign_in'] ?? null, array( 'code', 'password' ), true ) ? $result['email_sign_in'] : null,
+			'email_sign_in'     => in_array( $result['email_sign_in'] ?? null, array( 'code', 'password' ), true ) ? $result['email_sign_in'] : null,
+			// 45 Offline downloads on or off, as the owner chose on the dashboard; null: the plugin setting.
+			'offline_downloads' => isset( $result['offline_downloads'] ) && is_bool( $result['offline_downloads'] ) ? $result['offline_downloads'] : null,
 			// The app's type and kind of business, as the owner chose them; null when unknown.
-			'app_type'        => $app['app_type'],
-			'vertical'        => $app['vertical'],
+			'app_type'          => $app['app_type'],
+			'vertical'          => $app['vertical'],
 			// 46 What the site's link files say (only well-formed values), and the owner's switches.
-			'app_links'       => \Yallapp\App_Links::sanitize( $result['app_links'] ?? null ),
-			'review_prompt'   => false !== ( $result['review_prompt'] ?? true ),
-			'crash_reports'   => false !== ( $result['crash_reports'] ?? true ),
-			'expires_at'      => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
-			'checked_at'      => gmdate( 'c' ),
-			'message'         => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
-			'contacted_at'    => time(),
+			'app_links'         => \Yallapp\App_Links::sanitize( $result['app_links'] ?? null ),
+			'review_prompt'     => false !== ( $result['review_prompt'] ?? true ),
+			'crash_reports'     => false !== ( $result['crash_reports'] ?? true ),
+			'expires_at'        => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,
+			'checked_at'        => gmdate( 'c' ),
+			'message'           => isset( $result['message'] ) ? sanitize_text_field( (string) $result['message'] ) : null,
+			'contacted_at'      => time(),
 		);
 		update_option( self::STATUS_OPTION, $status, false );
 		delete_transient( 'yallapp_release' );

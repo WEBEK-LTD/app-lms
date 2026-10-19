@@ -323,6 +323,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       orders: false,
       ...extra.features,
       offline: ctx.plan === undefined ? false : hasFeature(ctx.plan, "offline_downloads"),
+      // 45 Lessons saved for offline viewing: the connector offers them (courses managed in
+      // Yallapp, when the owner left them on) and the plan has offline mode.
+      downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
     auth: authConfig(app),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).

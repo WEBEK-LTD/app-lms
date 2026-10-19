@@ -23,6 +23,12 @@ class Media {
 	const CHUNK = 1048576;
 
 	/**
+	 * 45 How long a download link for offline viewing works: the app downloads at once and asks
+	 * for a new link to resume later.
+	 */
+	const DOWNLOAD_TTL = 900;
+
+	/**
 	 * Settings.
 	 *
 	 * @var Settings
@@ -55,6 +61,7 @@ class Media {
 					'u'   => array( 'required' => true ),
 					'e'   => array( 'required' => true ),
 					'sig' => array( 'required' => true ),
+					'dl'  => array( 'required' => false ),
 				),
 			)
 		);
@@ -69,7 +76,7 @@ class Media {
 	 */
 	public function signed_url( $attachment_id, $user_id ) {
 		$expires = time() + max( 60, (int) $this->settings->get( 'video_link_ttl' ) );
-		$sig     = Crypto::sign( self::payload( $attachment_id, $user_id, $expires ) );
+		$sig     = Crypto::sign( self::payload( $attachment_id, $user_id, $expires, false ) );
 		$url     = add_query_arg(
 			array(
 				'u'   => (int) $user_id,
@@ -85,17 +92,60 @@ class Media {
 	}
 
 	/**
+	 * 45 A link to download an attachment for offline viewing: signed for the student with its
+	 * own payload (a streaming link can't be turned into one), working for 15 minutes.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @param int $user_id       Student.
+	 * @return array{url: string, expires_at: string}
+	 */
+	public function download_url( $attachment_id, $user_id ) {
+		$expires = time() + self::DOWNLOAD_TTL;
+		$url     = add_query_arg(
+			array(
+				'u'   => (int) $user_id,
+				'e'   => $expires,
+				'dl'  => 1,
+				'sig' => Crypto::sign( self::payload( $attachment_id, $user_id, $expires, true ) ),
+			),
+			rest_url( 'yallapp/v1/media/' . (int) $attachment_id )
+		);
+		return array(
+			'url'        => $url,
+			'expires_at' => gmdate( 'c', $expires ),
+		);
+	}
+
+	/**
+	 * Whether a link's signature and time are valid.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param int    $user_id       Student.
+	 * @param int    $expires       Expiry time.
+	 * @param string $signature     Signature.
+	 * @param bool   $download      45 A download link (its own payload).
+	 * @param int    $now           Current time.
+	 * @return bool
+	 */
+	public static function valid( $attachment_id, $user_id, $expires, $signature, $download, $now ) {
+		return (int) $expires >= (int) $now && Crypto::verify( self::payload( $attachment_id, $user_id, $expires, $download ), (string) $signature );
+	}
+
+	/**
 	 * Streams the file when the signature is valid.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_Error|void
 	 */
 	public function stream( WP_REST_Request $request ) {
-		$id      = (int) $request['id'];
-		$user_id = (int) $request['u'];
-		$expires = (int) $request['e'];
-		if ( $expires < time() || ! Crypto::verify( self::payload( $id, $user_id, $expires ), (string) $request['sig'] ) ) {
-			return new WP_Error( 'link_expired', __( 'This video link has expired.', 'yallapp' ), array( 'status' => 403 ) );
+		$id       = (int) $request['id'];
+		$user_id  = (int) $request['u'];
+		$expires  = (int) $request['e'];
+		$download = '1' === (string) $request['dl'];
+		if ( ! self::valid( $id, $user_id, $expires, (string) $request['sig'], $download, time() ) ) {
+			return $download
+				? new WP_Error( 'link_expired', __( 'This download link has expired.', 'yallapp' ), array( 'status' => 403 ) )
+				: new WP_Error( 'link_expired', __( 'This video link has expired.', 'yallapp' ), array( 'status' => 403 ) );
 		}
 		$file = get_attached_file( $id );
 		if ( ! $file || ! is_readable( $file ) ) {
@@ -129,7 +179,7 @@ class Media {
 		header( 'Accept-Ranges: bytes' );
 		header( 'Content-Length: ' . ( $end - $start + 1 ) );
 		header( 'Cache-Control: private, max-age=0, no-store' );
-		header( 'Content-Disposition: inline' );
+		header( $download ? 'Content-Disposition: attachment' : 'Content-Disposition: inline' );
 
 		// phpcs:disable WordPress.WP.AlternativeFunctions -- Streaming a large file in chunks.
 		$handle = fopen( $file, 'rb' );
@@ -149,12 +199,13 @@ class Media {
 	/**
 	 * Signed payload.
 	 *
-	 * @param int $attachment_id Attachment ID.
-	 * @param int $user_id       Student.
-	 * @param int $expires       Expiry time.
+	 * @param int  $attachment_id Attachment ID.
+	 * @param int  $user_id       Student.
+	 * @param int  $expires       Expiry time.
+	 * @param bool $download      45 A download link.
 	 * @return string
 	 */
-	private static function payload( $attachment_id, $user_id, $expires ) {
-		return 'media|' . (int) $attachment_id . '|' . (int) $user_id . '|' . (int) $expires;
+	private static function payload( $attachment_id, $user_id, $expires, $download = false ) {
+		return ( $download ? 'download|' : 'media|' ) . (int) $attachment_id . '|' . (int) $user_id . '|' . (int) $expires;
 	}
 }
