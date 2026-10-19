@@ -285,12 +285,18 @@ void main() {
       'yallapp DELETE /me Bearer jwt-1',
     ]);
 
-    // A client that fails keeps the account: the person tries again.
-    servers
-      ..clientDeleteStatus = 500
-      ..seen.clear();
-    await expectLater(c.api.deleteMe(), throwsA(isA<ApiException>()));
-    expect(servers.seen, ['client DELETE /me Bearer jwt-1']);
+    // 49 A client that fails no longer keeps the account: Yallapp deletes
+    // it and sends the client's API a signed notice.
+    for (final status in [500, 503]) {
+      servers
+        ..clientDeleteStatus = status
+        ..seen.clear();
+      await c.api.deleteMe();
+      expect(servers.seen, [
+        'client DELETE /me Bearer jwt-1',
+        'yallapp DELETE /me Bearer jwt-1',
+      ], reason: '$status');
+    }
   });
 
   test('reads auth_base_url from the preview\'s build config', () {

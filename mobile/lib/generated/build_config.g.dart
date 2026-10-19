@@ -31,4 +31,5 @@ const buildConfig = BuildConfigData(
   linkBaseUrl: null,
   siteLinkBaseUrl: null,
   crashReportUrl: null,
+  sitePaths: [],
 );

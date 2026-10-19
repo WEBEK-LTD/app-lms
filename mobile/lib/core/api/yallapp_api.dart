@@ -474,6 +474,10 @@ abstract class YallappApi {
   /// Android only. Callers must check the platform first.
   Future<CheckoutLink> createCheckoutLink(int courseId);
 
+  /// 48 What an address on the site is: the app opened one of the site's
+  /// own pages (its permalink). Plugin only; 404 elsewhere.
+  Future<LinkResolution> resolveLink(String url);
+
   Future<User> getMe();
   Future<User> updateMe({String? name, String? email, String? city});
   Future<void> deleteMe();
@@ -1046,6 +1050,14 @@ class HttpYallappApi implements YallappApi {
   }
 
   @override
+  Future<LinkResolution> resolveLink(String url) => _get(
+    '/links/resolve',
+    _public,
+    LinkResolution.fromJson,
+    query: {'url': url},
+  );
+
+  @override
   Future<User> getMe() => _get('/me', _required, User.fromJson, account: true);
 
   @override
@@ -1062,11 +1074,15 @@ class HttpYallappApi implements YallappApi {
   Future<void> deleteMe() async {
     // 34 Yallapp signs people in: the client's API deletes its own data
     // first (404 or 405 when it keeps none), then Yallapp the account.
+    // 49 Whatever the client's API answers (an error, no answer), Yallapp
+    // still deletes the account and sends the client's API a signed notice,
+    // retried until it's received: a person is never stuck with an account
+    // they asked to delete.
     if (_yallappAuth && _authDio != null) {
       try {
         await _send('DELETE', '/me', _required, _ignore);
-      } on ApiException catch (e) {
-        if (e.statusCode != 404 && e.statusCode != 405) rethrow;
+      } on ApiException {
+        // Yallapp's notice tells the client's API.
       }
     }
     await _send('DELETE', '/me', _required, _ignore, account: true);

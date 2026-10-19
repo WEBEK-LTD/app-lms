@@ -14,6 +14,7 @@ import { withDemoChecked } from "@/lib/demo/apps";
 import { Icon } from "@/components/icon";
 import { PayForm } from "./form";
 import { PayShell, textOn } from "./shell";
+import { holdEnded } from "@/lib/events/holds";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -42,6 +43,10 @@ export default async function PayPage({
   if (order.status === "processing" || order.status === "completed") redirect(`/pay/${token}/order-received`);
   if (order.status !== "pending") return note("Order closed", "This order is closed. Go back to the app and check out again.");
   if (payLinkExpired(order, new Date())) return note("Link expired", "This payment link has expired. Go back to the app and check out again.");
+  // 49 Tickets: the places held for this order were released (the provider's page ended without a payment).
+  if (app.connector?.kind === "events" && holdEnded(await store.listTickets({ appId: app.id, orderId: order.id }), new Date())) {
+    return note("Places released", "The places held for this order were released. Go back to the app and get your tickets again.");
+  }
   // 16 A demo app never takes a payment: the order goes through with one tap.
   const checkout = app.demo ? null : await checkoutAccount(store, app, encryptionKey());
   if (!app.demo && !checkout) return note("Payments are off", "This shop can't take payments right now. Please try again later.");

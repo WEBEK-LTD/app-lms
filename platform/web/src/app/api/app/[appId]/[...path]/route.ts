@@ -1,4 +1,5 @@
 import { assetUrl } from "@/lib/assets";
+import { sendAccountDeleted } from "@/lib/hosted/api-webhooks";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, signingSecret, waabekApiUrl } from "@/lib/env";
 import { appOtpSender, recordOwnWhatsappFailure, senderWithFallback } from "@/lib/hosted/app-sender";
@@ -100,6 +101,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
       secret: hmacSha256(signingSecret(), "hosted-api"),
       // 34 Own API apps Yallapp signs people in to: ES256 tokens with the app's own keys.
       yallappSignIn: yallappSignsIn(app) ? appSignIn(store, app.id, { encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => now }) : null,
+      // 49 The client's API hears of a deleted account (signed, retried by the webhook job).
+      onAccountDeleted: async (sub) => {
+        await sendAccountDeleted({ store, encryptionKey: encryptionKey(), platformUrl: appUrl(), now: () => new Date() }, app, sub);
+      },
       // 18 The owner's own WhatsApp number when they connected one, else Yallapp's sender.
       // 19 When the own number fails, Yallapp's sender sends that code and the owner is told.
       sender: senderWithFallback(

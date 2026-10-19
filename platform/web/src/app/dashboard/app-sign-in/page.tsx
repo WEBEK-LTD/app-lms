@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Notice, btn } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import type { App } from "@/lib/data/types";
+import type { ApiWebhook, App } from "@/lib/data/types";
+import { WEBHOOK_PATH, webhookStateText, webhookUrl } from "@/lib/hosted/api-webhooks";
 import { appMailFormValues } from "@/lib/email/app-mail";
 import { appUrl, isProduction } from "@/lib/env";
 import { failureDate } from "@/lib/hosted/app-sender";
@@ -46,7 +47,7 @@ function ProviderSection({ app }: { app: App }) {
 }
 
 /** 34 For the developer of the own API: the keys, the claims to check, a test token. */
-function DeveloperSection({ app }: { app: App }) {
+function DeveloperSection({ app, webhooks }: { app: App; webhooks: ApiWebhook[] }) {
   const path = signedInPath(app.appType);
   return (
     <section aria-labelledby="h-developer" className={sectionClass}>
@@ -60,6 +61,35 @@ function DeveloperSection({ app }: { app: App }) {
         authBaseUrl={hostedApiUrl(appUrl(), app.id)}
         tryUrl={path && app.apiBaseUrl ? `${app.apiBaseUrl.replace(/\/+$/, "")}${path}` : null}
       />
+      {/* 49 Account deletions sent to the client's API, signed, with their last try. */}
+      <div className="flex flex-col gap-2" aria-labelledby="h-deletions">
+        <h3 id="h-deletions" className="m-0 text-[16px] font-bold">
+          Account deletions sent to your API
+        </h3>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
+          When someone deletes their account in the app, Yallapp deletes it at once and sends your API a signed notice,{" "}
+          <code>POST {app.apiBaseUrl ? webhookUrl(app.apiBaseUrl) : WEBHOOK_PATH}</code>, tried again for about two days until it answers 2xx. The
+          app still calls your <code>DELETE /me</code> first when your API answers it.
+        </p>
+        {webhooks.length === 0 ? (
+          <p className="m-0 text-sm text-muted">None in the last 30 days.</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]" data-testid="account-deletions">
+            {webhooks.map((w) => (
+              <li key={w.id} className="flex flex-wrap gap-x-3">
+                <span className="text-muted">{failureDate(w.createdAt.toISOString())}</span>
+                <span>
+                  User <code>{w.subject}</code>
+                </span>
+                <span className={w.status === "delivered" ? "text-success" : w.status === "failed" ? "text-danger" : "text-ink-4"}>{webhookStateText(w)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link href="/docs/my-own-api#account-deletion-notices" className="text-sm font-semibold underline">
+          How to check a notice
+        </Link>
+      </div>
     </section>
   );
 }
@@ -173,7 +203,7 @@ export default async function AppSignInPage() {
         </p>
       </div>
       {ownApi ? <ProviderSection app={app} /> : null}
-      {ownApi ? <DeveloperSection app={app} /> : null}
+      {ownApi ? <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20)} /> : null}
       {waiting ? (
         <Notice icon="hourglass_top">
           Our team is still setting up your WordPress site. Choose now: what you save here applies as soon as your site and the Yallapp plugin are ready.

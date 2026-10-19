@@ -483,6 +483,8 @@ class License_Client {
 			'lms'            => $lms ? $lms['id'] : '',
 			'store'          => $this->detector->woocommerce()['active'] ? 'woocommerce' : '',
 			'bookings'       => $booking ? $booking['id'] : '',
+			// 48 The site's own pages that open the app on Android, for the app's next build.
+			'link_paths'     => \Yallapp\Link_Paths::android_paths( ( new \Yallapp\Link_Paths( \Yallapp\Plugin::instance() ) )->entries() ),
 		);
 	}
 

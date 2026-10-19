@@ -17,7 +17,9 @@ use Yallapp\License\License_Client;
  *
  * - `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association` at the root of
  *   the domain, as JSON, built from the license status (`LicenseStatus.app_links`), so phones
- *   open `<site>/a/<kind>/<id>` in the app;
+ *   open `<site>/a/<kind>/<id>` in the app; 48 and the site's own pages for what the app shows
+ *   (Link_Paths), after what stays on the website. A site in a folder gets them at
+ *   `<site>/.well-known/…` too, for the domain's own server to copy;
  * - `<site>/a/<kind>/<id>` itself, for visitors without the app: a redirect to the item's own
  *   page (its permalink), or to the home page when it has none or isn't public.
  */
@@ -54,12 +56,21 @@ class App_Links {
 	private $license;
 
 	/**
+	 * 48 The site's own pages that open the app; null in tests without WordPress.
+	 *
+	 * @var Link_Paths|null
+	 */
+	private $paths;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param License_Client $license License client.
+	 * @param License_Client  $license License client.
+	 * @param Link_Paths|null $paths   The site's own pages that open the app.
 	 */
-	public function __construct( License_Client $license ) {
+	public function __construct( License_Client $license, $paths = null ) {
 		$this->license = $license;
+		$this->paths   = $paths;
 	}
 
 	/**
@@ -77,10 +88,15 @@ class App_Links {
 	 * @return void
 	 */
 	public function handle() {
-		$uri  = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only its path is compared below.
-		$path = (string) wp_parse_url( $uri, PHP_URL_PATH );
-		$home = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
-		$file = self::file_for( $path, $this->license->status()['app_links'] ?? null, $home );
+		$uri   = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only its path is compared below.
+		$path  = (string) wp_parse_url( $uri, PHP_URL_PATH );
+		$home  = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+		$links = $this->license->status()['app_links'] ?? null;
+		$file  = null;
+		if ( is_array( $links ) && self::is_link_file( $path, $home ) ) {
+			// 48 The site's own pages, worked out only when the file is asked for.
+			$file = self::file_for( self::file_path( $path, $home ), $links, $home, $this->paths ? $this->paths->patterns() : array(), $this->paths ? $this->paths->excluded_page_paths() : array() );
+		}
 		if ( null !== $file ) {
 			status_header( 200 );
 			header( 'Content-Type: application/json' );
@@ -145,15 +161,46 @@ class App_Links {
 	}
 
 	/**
-	 * The link file a request asks for, or null (another path, a site in a folder, or nothing
-	 * known yet: WordPress then answers as usual). Pure.
+	 * 48 Whether a path asks for a link file: at the domain's root, or under a site in a folder
+	 * (`/learn/.well-known/…`, for the domain's own server to copy). Pure.
 	 *
-	 * @param string     $path      Request path.
-	 * @param array|null $links     `LicenseStatus.app_links` as the license client keeps it.
-	 * @param string     $home_path The site's path.
+	 * @param string $path      Request path.
+	 * @param string $home_path The site's path.
+	 * @return bool
+	 */
+	public static function is_link_file( $path, $home_path = '/' ) {
+		return null !== self::file_path( $path, $home_path );
+	}
+
+	/**
+	 * The link file's root path a request names, or null. Pure.
+	 *
+	 * @param string $path      Request path.
+	 * @param string $home_path The site's path.
+	 * @return string|null
+	 */
+	public static function file_path( $path, $home_path = '/' ) {
+		$folder = rtrim( (string) $home_path, '/' );
+		foreach ( array( self::ASSET_LINKS, self::APPLE ) as $file ) {
+			if ( $file === $path || ( '' !== $folder && $folder . $file === $path ) ) {
+				return $file;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The link file a request asks for, or null (another path, or nothing known yet: WordPress
+	 * then answers as usual). Pure.
+	 *
+	 * @param string     $path       Request path (the file's root path).
+	 * @param array|null $links      `LicenseStatus.app_links` as the license client keeps it.
+	 * @param string     $home_path  The site's path.
+	 * @param string[]   $patterns   48 The site's own pages that open the app (Link_Paths).
+	 * @param string[]   $page_paths 48 The pages that stay on the website.
 	 * @return array|null
 	 */
-	public static function file_for( $path, $links, $home_path = '/' ) {
+	public static function file_for( $path, $links, $home_path = '/', array $patterns = array(), array $page_paths = array() ) {
 		if ( ! is_array( $links ) ) {
 			return null;
 		}
@@ -161,7 +208,7 @@ class App_Links {
 			return self::asset_links( $links['android'] );
 		}
 		if ( self::APPLE === $path && ! empty( $links['ios'] ) ) {
-			return self::apple_association( $links['ios'], $home_path );
+			return self::apple_association( $links['ios'], $home_path, $patterns, $page_paths );
 		}
 		return null;
 	}
@@ -186,23 +233,38 @@ class App_Links {
 	}
 
 	/**
-	 * `apple-app-site-association`: the app for `<home path>a/*` only. Pure.
+	 * `apple-app-site-association`: the app for `<home path>a/*` and, 48, the site's own pages
+	 * for what the app shows, after what stays on the website (Link_Paths::components). Pure.
 	 *
-	 * @param array  $ios       `app_ids`.
-	 * @param string $home_path The site's path.
+	 * @param array    $ios        `app_ids`.
+	 * @param string   $home_path  The site's path.
+	 * @param string[] $patterns   The site's own pages that open the app.
+	 * @param string[] $page_paths The pages that stay on the website.
 	 * @return array
 	 */
-	public static function apple_association( array $ios, $home_path = '/' ) {
+	public static function apple_association( array $ios, $home_path = '/', array $patterns = array(), array $page_paths = array() ) {
 		return array(
 			'applinks' => array(
 				'details' => array(
 					array(
 						'appIDs'     => array_values( (array) $ios['app_ids'] ),
-						'components' => array( array( '/' => rtrim( (string) $home_path, '/' ) . '/a/*' ) ),
+						'components' => Link_Paths::components( $home_path, $patterns, $page_paths ),
 					),
 				),
 			),
 		);
+	}
+
+	/**
+	 * 48 A link in the format of the Links tag on this site, `<site>/a/<kind>/<id>`: what push
+	 * notifications and the inbox carry as `link`.
+	 *
+	 * @param string     $kind Kind.
+	 * @param int|string $id   Id.
+	 * @return string
+	 */
+	public static function link( $kind, $id ) {
+		return untrailingslashit( home_url( '/a' ) ) . '/' . rawurlencode( (string) $kind ) . '/' . rawurlencode( (string) $id );
 	}
 
 	/**

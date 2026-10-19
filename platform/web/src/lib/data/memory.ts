@@ -84,6 +84,7 @@ import type { PublishingEvent, PublishingRequest } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
+import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import { mergeCrash } from "../crashes/report";
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -1324,17 +1325,42 @@ export class MemoryStore implements DataStore {
     return ticket ? clone(ticket) : null;
   }
 
-  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number> {
-    void now;
-    let issued = 0;
+  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<{ issued: number; released: number }> {
+    // No await: nothing can claim a place in between, in one process.
+    const pending = [...this.tickets.values()].filter((t) => t.appId === appId && t.orderId === orderId && t.status === "pending");
+    const held = pending.filter((t) => this.holdsPlace(t, now));
+    const lapsed = pending.filter((t) => !this.holdsPlace(t, now));
+    for (const t of held) {
+      t.status = "valid";
+      t.holdUntil = null;
+    }
+    if (lapsed.length === 0) return { issued: held.length, released: 0 };
+    // 49 Paid after the hold ended: only while the places are still free.
+    const event = this.events.get(lapsed[0]!.eventId);
+    const holding = [...this.tickets.values()].filter((t) => t.eventId === lapsed[0]!.eventId && this.holdsPlace(t, now));
+    let free = event !== undefined && event.status === "published" && (event.capacity === null || holding.length + lapsed.length <= event.capacity);
+    for (const typeId of new Set(lapsed.map((t) => t.ticketTypeId))) {
+      const type = this.ticketTypes.get(typeId);
+      const wanted = lapsed.filter((t) => t.ticketTypeId === typeId).length;
+      if (!type || (type.capacity !== null && holding.filter((t) => t.ticketTypeId === typeId).length + wanted > type.capacity)) free = false;
+    }
+    for (const t of lapsed) {
+      t.status = free ? "valid" : "cancelled";
+      t.cancelledAt = free ? null : now;
+      t.holdUntil = null;
+    }
+    return free ? { issued: pending.length, released: 0 } : { issued: held.length, released: lapsed.length };
+  }
+
+  async holdOrderTickets(appId: string, orderId: number, until: Date, now: Date): Promise<number> {
+    let held = 0;
     for (const t of this.tickets.values()) {
-      if (t.appId === appId && t.orderId === orderId && t.status === "pending") {
-        t.status = "valid";
-        t.holdUntil = null;
-        issued++;
+      if (t.appId === appId && t.orderId === orderId && t.status === "pending" && this.holdsPlace(t, now)) {
+        t.holdUntil = until;
+        held++;
       }
     }
-    return issued;
+    return held;
   }
 
   async checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult> {
@@ -2164,5 +2190,56 @@ export class MemoryStore implements DataStore {
     const before = this.analyticsEvents.length;
     this.analyticsEvents = this.analyticsEvents.filter((e) => e.day >= beforeDay);
     return before - this.analyticsEvents.length;
+  }
+
+  // 49 Signed notices to an app's own API
+  private apiWebhooks = new Map<string, ApiWebhook>();
+
+  async createApiWebhook(webhook: ApiWebhook): Promise<void> {
+    this.apiWebhooks.set(webhook.id, clone(webhook));
+  }
+
+  async getApiWebhook(id: string): Promise<ApiWebhook | null> {
+    const found = this.apiWebhooks.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listDueApiWebhooks(now: Date, limit: number): Promise<ApiWebhook[]> {
+    return [...this.apiWebhooks.values()]
+      .filter((w) => w.status === "pending" && w.nextAttemptAt !== null && w.nextAttemptAt.getTime() <= now.getTime())
+      .sort((a, b) => a.nextAttemptAt!.getTime() - b.nextAttemptAt!.getTime() || a.createdAt.getTime() - b.createdAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async claimApiWebhook(id: string, until: Date, now: Date): Promise<boolean> {
+    const found = this.apiWebhooks.get(id);
+    if (!found || found.status !== "pending" || found.nextAttemptAt === null || found.nextAttemptAt.getTime() > now.getTime()) return false;
+    found.nextAttemptAt = until;
+    return true;
+  }
+
+  async updateApiWebhook(id: string, patch: ApiWebhookPatch): Promise<void> {
+    const found = this.apiWebhooks.get(id);
+    if (found) this.apiWebhooks.set(id, clone({ ...found, ...patch }));
+  }
+
+  async listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]> {
+    return [...this.apiWebhooks.values()]
+      .filter((w) => w.appId === appId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async purgeApiWebhooks(before: Date): Promise<number> {
+    let removed = 0;
+    for (const [id, w] of this.apiWebhooks) {
+      if (w.createdAt.getTime() < before.getTime()) {
+        this.apiWebhooks.delete(id);
+        removed++;
+      }
+    }
+    return removed;
   }
 }

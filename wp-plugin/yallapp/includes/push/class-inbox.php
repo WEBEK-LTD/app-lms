@@ -96,6 +96,8 @@ class Inbox {
 				'lesson_id'   => (int) $row->lesson_id ? (int) $row->lesson_id : null,
 				'question_id' => (int) $row->question_id ? (int) $row->question_id : null,
 				'article_id'  => ! empty( $row->article_id ) ? (string) (int) $row->article_id : null,
+				// 48 What it opens, in the format of the Links tag.
+				'link'        => self::link_of( (string) $row->type, (int) $row->course_id, (int) ( $row->article_id ?? 0 ) ),
 				'created_at'  => mysql2date( 'Y-m-d\TH:i:s\Z', $row->created_at, false ),
 				'read'        => (int) $row->id <= $read_id,
 			);
@@ -122,6 +124,22 @@ class Inbox {
 		if ( $newest > (int) get_user_meta( $user_id, self::READ_META, true ) ) {
 			update_user_meta( $user_id, self::READ_META, $newest );
 		}
+	}
+
+	/**
+	 * 48 The link a notification opens (`<site>/a/<kind>/<id>`): its article, else its course;
+	 * null for one that opens neither.
+	 *
+	 * @param string $type       Type.
+	 * @param int    $course_id  Course.
+	 * @param int    $article_id Article.
+	 * @return string|null
+	 */
+	public static function link_of( $type, $course_id, $article_id ) {
+		if ( 'article' === $type && $article_id > 0 ) {
+			return \Yallapp\App_Links::link( 'article', $article_id );
+		}
+		return $course_id > 0 ? \Yallapp\App_Links::link( 'course', $course_id ) : null;
 	}
 
 	/**

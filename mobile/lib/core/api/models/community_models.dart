@@ -355,3 +355,16 @@ class QuestionThread {
   final CourseQuestion question;
   final List<QuestionAnswer> answers;
 }
+
+/// 48 What an address on the site is (`GET /links/resolve`, `LinkResolution`):
+/// a kind of `docs/api/app-links.json`'s `resolved_kinds` and its id, or no
+/// kind for something the app doesn't show.
+class LinkResolution {
+  const LinkResolution({this.kind, this.id});
+
+  factory LinkResolution.fromJson(Json json) =>
+      LinkResolution(kind: optString(json, 'kind'), id: optString(json, 'id'));
+
+  final String? kind;
+  final String? id;
+}

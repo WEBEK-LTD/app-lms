@@ -93,6 +93,8 @@ export interface KashierSessionRequest {
   serverWebhook: string | null;
   customer: { email: string; reference: string };
   description: string;
+  /** 49 When the session stops taking the payment (`expireAt`); missing: Kashier's own default. */
+  expiresAt?: Date | null;
 }
 
 /** Creates a hosted payment session; returns its ID (to read the payment back) and its page. */
@@ -122,6 +124,7 @@ export async function createKashierSession(
       customer: request.customer,
       description: request.description.slice(0, 120),
       metaData: { reference: request.order },
+      ...(request.expiresAt ? { expireAt: request.expiresAt.toISOString() } : {}),
     },
     options,
   );

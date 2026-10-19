@@ -311,7 +311,37 @@ Keep your own user for each Yallapp account, and find it by \`sub\`. The first t
 
 From then on, find them by \`sub\` only: people can change their name in the app, and \`sub\` stays the same. Each signed-in call works on that user's data: their courses, orders or appointments.
 
-When someone deletes their account in the app, the app first calls your \`DELETE /me\` with their token, so you can delete what you keep about them (answer 204, or 404 when you keep nothing), and then Yallapp deletes their account. Signing out, and removing a device in the app, end that device's sign-in at Yallapp: its tokens stop being renewed and stop working within 15 minutes.
+When someone deletes their account in the app, the app first calls your \`DELETE /me\` with their token, so you can delete what you keep about them (answer 204, or 404 when you keep nothing). Then Yallapp deletes their account, also when your API didn't answer, and sends your API a signed notice of it (below), so you can delete their data later even if that first call never reached you. Signing out, and removing a device in the app, end that device's sign-in at Yallapp: its tokens stop being renewed and stop working within 15 minutes.
+
+### Account deletion notices
+
+When a person deletes their account, Yallapp posts a notice to \`<your API address>/webhooks/yallapp\`. The body is a signed token (a Security Event Token), with \`Content-Type: application/secevent+jwt\`, signed with your app's key like its access tokens and checked with the same key set:
+
+- \`typ\` (in the header): \`secevent+jwt\`. \`iss\`: \`https://yallapp.com.tr\`. \`aud\`: your app's ID followed by \`:events\`, so a notice never passes as an access token, and an access token never as a notice.
+- \`sub\`: the person whose account was deleted. \`events\`: \`{ "account.deleted": {} }\`.
+- \`jti\`: the notice's ID, also in the \`Yallapp-Delivery\` header. It stays the same when a notice is sent again: delete once, and answer 2xx to repeats.
+- \`iat\` and \`exp\`: each try is signed again and works for 5 minutes.
+
+Answer 2xx (202 or 204) once you have it. A 5xx, 408 or 429 answer, no answer within 10 seconds, or an API that can't be reached is tried again after 1, 5 and 30 minutes, then 2, 6, 12 and 24 hours. Any other answer (404 when you don't take notices yet) stops it. Notices aren't sent on through redirects. **App sign-in › For your developer** lists the notices of the last 30 days and how each went. The notice can arrive before or after your \`DELETE /me\`, or without it: delete the user by \`sub\` either way.
+
+~~~js
+import { createRemoteJWKSet, jwtVerify } from "jose";
+
+const APP_ID = "your app's ID";
+const keys = createRemoteJWKSet(new URL("https://yallapp.com.tr/api/app/" + APP_ID + "/.well-known/jwks.json"));
+
+// POST /webhooks/yallapp, with the raw body as text
+export async function yallappNotice(body) {
+  const { payload } = await jwtVerify(body, keys, {
+    issuer: "https://yallapp.com.tr",
+    audience: APP_ID + ":events",
+    algorithms: ["ES256"],
+    typ: "secevent+jwt",
+  });
+  if (payload.events?.["account.deleted"]) await deleteUserBySub(payload.sub);
+  return 204;
+}
+~~~
 
 ### Try it
 
@@ -431,7 +461,7 @@ The preview never sends sign-in codes. To let your client try the signed-in scre
 - \`/config\` passes the live check and turns off what you don't support
 - Sign-in works end to end for each method in \`auth.methods\`, including a new number (or email address), refresh and sign-out. When Yallapp signs people in: your API accepts a test token, and finds or creates the user by \`sub\`
 - Signed-in calls answer 401 with an expired token, and refresh works once per refresh token
-- Deleting the account (\`DELETE /me\`) works, as Apple and Google require
+- Deleting the account (\`DELETE /me\`) works, as Apple and Google require. When Yallapp signs people in: your API takes the signed notice at \`/webhooks/yallapp\` and deletes the user by \`sub\`
 - On iOS, no paid digital content offers a purchase
 - A test number with a fixed code works for store reviewers, and a test email address too when you offer email sign-in
 - The app preview reaches your API: requests from https://yallapp.com.tr are allowed

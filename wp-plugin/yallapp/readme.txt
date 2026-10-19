@@ -42,6 +42,12 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= Unreleased =
+* Your site's own addresses open the app too: the course and lesson pages (Academy apps), product and product category pages (Store apps), posts (News & blog apps) and the pages with your booking plugin's form (Bookings apps), as your permalinks make them. On iPhone, apple-app-site-association lists them after what always stays on the website: wp-admin, sign-in, the REST API, feeds, the home page and the cart, checkout, account and payment pages of WooCommerce, Tutor LMS, LearnPress, LifterLMS and Masteriyo (add others with the yallapp_link_excluded_page_ids filter). On Android, the paths that start with a fixed folder (/courses/, /product/, /blog/) are sent to Yallapp with the license check and open the app from its next build; posts whose permalinks start at the root (/%postname%/) open it on iPhone only.
+* New endpoint GET /links/resolve tells the app what an address of the site is; anything the app doesn't show opens in its in-app browser.
+* A site in a folder (example.com/learn) also serves the two link files under its own folder, for the domain's own server to copy: phones only read them at the root of the domain.
+* Push notifications and the app's inbox carry the link they open (the course, or the post), in the same format as shared links.
+
 = 0.4.2 =
 * The app's default tabs and pages come in Arabic and Turkish when the app offers them and you haven't written your own, and the app's other languages reach it from your Yallapp dashboard's Languages page.
 * Links that open the app: the plugin serves /.well-known/assetlinks.json and /.well-known/apple-app-site-association on your site, from what your Yallapp dashboard knows about your app (its package name, signing key fingerprints and Apple Team ID), so links like yoursite.com/a/course/12 open the app on phones that have it. Without the app, the same link takes the visitor to the course's own page on your site (or the home page when it has none or isn't public). The app's Share buttons share these links. Your site must be at the root of its domain, and your server must pass /.well-known to WordPress.

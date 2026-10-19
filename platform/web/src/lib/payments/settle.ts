@@ -102,7 +102,7 @@ export async function settleOrderPayment(token: string, trigger: Trigger): Promi
   });
   if (outcome === "paid") {
     // Courses enrol the student, 27 a gym's membership starts, 28 tickets are issued only now, after the provider confirmed the payment.
-    await deliverPaidOrder(store, app, order, new Date());
+    await deliverPaidOrder(store, app, order, new Date(), appUrl());
     const client = await store.getClientById(app.clientId);
     const owner = client ? await store.getUserById(client.userId) : null;
     const paid = await store.getCatalogOrder(app.id, order.id);

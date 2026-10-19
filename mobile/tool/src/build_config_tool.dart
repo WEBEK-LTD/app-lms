@@ -387,6 +387,19 @@ ValidationResult validateBuildConfig(Object? decoded) {
           errors.add('"links.${entry.key}" doesn\'t look right.');
         }
       }
+      // 48 The site's own pages that open the app (permalink bases).
+      final paths = links['site_paths'];
+      if (paths != null) {
+        if (paths is! List ||
+            paths.length > 20 ||
+            paths.any((p) => p is! String || !isSitePath(p))) {
+          errors.add(
+            '"links.site_paths" must be at most 20 paths like "/courses/".',
+          );
+        } else if (links['site_base_url'] == null) {
+          errors.add('"links.site_paths" needs "links.site_base_url".');
+        }
+      }
     }
   }
   return ValidationResult(errors);
@@ -396,8 +409,16 @@ const _linkKeys = {
   'app_id',
   'yallapp_base_url',
   'site_base_url',
+  'site_paths',
   'crash_report_url',
 };
+
+/// 48 A path of the site's own pages: folders of plain characters, ending
+/// with `/`, at most 100 characters, without `.` or `..` folders.
+bool isSitePath(String path) =>
+    path.length <= 100 &&
+    RegExp(r'^/([A-Za-z0-9._~%-]+/)+$').hasMatch(path) &&
+    !path.split('/').any((part) => part == '.' || part == '..');
 final _appId = RegExp(
   r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
 );
@@ -600,6 +621,7 @@ const buildConfig = BuildConfigData(
   linkBaseUrl: ${_dartString(_links(c)['yallapp_base_url'])},
   siteLinkBaseUrl: ${_dartString(_links(c)['site_base_url'])},
   crashReportUrl: ${_dartString(_links(c)['crash_report_url'])},
+  sitePaths: [${sitePaths(c).map(_dartString).join(', ')}],
 );
 ''';
 }
@@ -607,17 +629,33 @@ const buildConfig = BuildConfigData(
 Map<String, String?> _links(Map<String, dynamic> c) {
   final links = c['links'];
   if (links is! Map<String, dynamic>) return const {};
-  return links.map((key, value) => MapEntry(key, value as String?));
+  return {
+    for (final entry in links.entries)
+      if (entry.value is String?) entry.key: entry.value as String?,
+  };
+}
+
+/// 48 `links.site_paths`: the site's own pages that open the app.
+List<String> sitePaths(Map<String, dynamic> c) {
+  final links = c['links'];
+  final paths = links is Map<String, dynamic> ? links['site_paths'] : null;
+  return paths is List ? [...paths.whereType<String>()] : const [];
 }
 
 /// 46 The hosts and paths that open the app: Yallapp's link domain for this
 /// app (`/a/<app_id>/`) and a WordPress site's own (`<site path>/a/`).
+/// 48 And each of the site's own paths (`links.site_paths`) on the site's
+/// host.
 List<({String host, String pathPrefix})> linkTargets(Map<String, dynamic> c) {
   final links = _links(c);
+  final site = links['site_base_url'];
   return [
-    for (final url in [links['yallapp_base_url'], links['site_base_url']])
+    for (final url in [links['yallapp_base_url'], site])
       if (url != null)
         (host: Uri.parse(url).host, pathPrefix: '${Uri.parse(url).path}/'),
+    if (site != null)
+      for (final path in sitePaths(c))
+        (host: Uri.parse(site).host, pathPrefix: path),
   ];
 }
 

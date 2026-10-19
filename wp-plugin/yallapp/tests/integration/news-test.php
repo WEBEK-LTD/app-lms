@@ -23,7 +23,7 @@ if ( ! is_array( $seed ) ) {
 
 function call( $method, $path, $body = null, $token = null ) {
 	global $base;
-	$ch = curl_init( $base . $path );
+	$ch = curl_init( 0 === strpos( $path, 'http' ) ? $path : $base . $path );
 	$h  = array( 'Accept: application/json' );
 	if ( null !== $body ) {
 		$h[] = 'Content-Type: application/json';
@@ -222,6 +222,33 @@ check(
 );
 $r = call( 'GET', '/news/articles' );
 check( 'the new post is an article', in_array( (string) $new, ids( $r['json']['items'] ?? null ), true ), $r['raw'] );
+
+echo "The site's own pages open the app (48)\n";
+require_once __DIR__ . '/links-helpers.php';
+$root        = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );
+$saved_links = links_enable( array( 'app_type' => 'news' ) );
+$structure   = wp_eval( 'echo get_option( "permalink_structure" );' );
+foreach ( array( '/%postname%/' => array(), '/blog/%postname%/' => array( '/blog/' ), '/%year%/%monthnum%/%postname%/' => array() ) as $permalinks => $android ) {
+	wp_eval( 'global $wp_rewrite; $wp_rewrite->set_permalink_structure( ' . var_export( $permalinks, true ) . ' ); flush_rewrite_rules( false );' );
+	$post_url   = wp_eval( 'echo get_permalink( ' . (int) $seed['ferry'] . ' );' );
+	$page_url   = wp_eval( 'echo get_permalink( ' . (int) $seed['page'] . ' );' );
+	$components = links_components( $root );
+	$label      = '48 ' . $permalinks . ': ';
+	check( $label . 'a post opens the app', links_opens_app( $components, (string) parse_url( $post_url, PHP_URL_PATH ) ), array( $post_url, $components ) );
+	check( $label . 'the home page, admin, sign-in, REST and feeds stay on the website', ! links_opens_app( $components, '/' ) && ! links_opens_app( $components, '/wp-admin/' ) && ! links_opens_app( $components, '/wp-login.php' ) && ! links_opens_app( $components, '/wp-json/wp/v2/posts' ) && ! links_opens_app( $components, '/feed/' ), $components );
+	$r = links_resolve( $post_url );
+	check( $label . 'resolve: the post is an article', array( 'kind' => 'article', 'id' => (string) $seed['ferry'] ) === $r['json'], array( $post_url, $r['raw'] ) );
+	$r = links_resolve( $page_url );
+	check( $label . 'resolve: a page opens the in-app browser', array( 'kind' => null, 'id' => null ) === $r['json'], array( $page_url, $r['raw'] ) );
+	$paths = json_decode( wp_eval( 'echo wp_json_encode( Yallapp\Plugin::instance()->license()->site_info( "YALL-TEST" )["link_paths"] );' ), true );
+	check( $label . 'Android gets the posts only under a fixed folder', $android === $paths, $paths );
+}
+$r = links_resolve( wp_eval( 'echo get_permalink( ' . (int) $seed['draft'] . ' );' ) );
+check( '48 resolve: a draft is not named', array( 'kind' => null, 'id' => null ) === $r['json'], $r['raw'] );
+$r = links_resolve( wp_eval( 'echo get_permalink( ' . (int) $seed['locked'] . ' );' ) );
+check( '48 resolve: a post with a password is not named', array( 'kind' => null, 'id' => null ) === $r['json'], $r['raw'] );
+wp_eval( 'global $wp_rewrite; $wp_rewrite->set_permalink_structure( ' . var_export( $structure, true ) . ' ); flush_rewrite_rules( false );' );
+links_restore( $saved_links );
 
 printf( "\n%d checks, %d failed\n", $count, $fails );
 exit( $fails ? 1 : 0 );

@@ -33,13 +33,12 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = { currency: "TRY", timeZone
 export const MAX_TICKETS_PER_ORDER = 20;
 
 /**
- * How long places are held for an unpaid order: longer than the payment page
- * link works (PAY_LINK_MINUTES) plus iyzico's own card page (30 minutes), so a
- * payment iyzico confirms always finds its places still held. 37 Kashier's and
- * Fawaterk's pages may stay open longer than this (a follow-up in
- * docs/ROADMAP.md, Phase 37).
+ * How long places are held for an unpaid order: as long as the payment page
+ * link works (PAY_LINK_MINUTES). 49 When the buyer starts paying, the hold is
+ * set to when the provider's page ends (lib/events/holds.ts), and a payment
+ * confirmed after the hold ended gets its tickets only if places are still free.
  */
-export const HOLD_MINUTES = PAY_LINK_MINUTES + 60;
+export const HOLD_MINUTES = PAY_LINK_MINUTES;
 
 export const NAME_MAX = 80;
 

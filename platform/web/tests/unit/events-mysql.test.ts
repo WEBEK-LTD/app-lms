@@ -141,8 +141,8 @@ describe.skipIf(!url)("28 tickets on MySQL", () => {
     const another = (now: Date) =>
       store.claimTickets({ appId: app.id, eventId: event.id, ticketTypeId: type.id, userId: null, orderId: null, tickets: [{ code: newTicketCode(), holderName: "C" }], priceCents: 0, status: "valid", holdUntil: null, now });
     expect(await another(NOW)).toEqual({ ok: false, reason: "sold_out" });
-    expect(await store.issueOrderTickets(app.id, order.id, NOW)).toBe(2);
-    expect(await store.issueOrderTickets(app.id, order.id, NOW)).toBe(0);
+    expect(await store.issueOrderTickets(app.id, order.id, NOW)).toEqual({ issued: 2, released: 0 });
+    expect(await store.issueOrderTickets(app.id, order.id, NOW)).toEqual({ issued: 0, released: 0 });
     // Issued tickets keep their places after the hold would have ended.
     expect(await another(new Date(NOW.getTime() + 120_000))).toEqual({ ok: false, reason: "sold_out" });
   });

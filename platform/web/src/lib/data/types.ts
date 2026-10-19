@@ -205,6 +205,12 @@ export interface HostedSettings {
    * offline mode in the plan either way (lib/courses/downloads.ts).
    */
   offlineDownloads?: boolean | null;
+  /**
+   * 48 WordPress apps: the site's own paths that open the app on Android
+   * (permalink bases like `/courses/`), as the plugin reported them with its
+   * last license check. The next build lists them (`links.site_paths`).
+   */
+  sitePaths?: string[] | null;
 }
 
 /**
@@ -1749,7 +1755,9 @@ export type OwnerNoticeKind =
   | "plan_ends_0"
   // 19 The WordPress site our team set up is ready; the app's own API failed its last check.
   | "wordpress_ready"
-  | "api_check_failed";
+  | "api_check_failed"
+  // 49 A ticket payment came after its places were released and the event was full.
+  | "ticket_refund_due";
 
 export interface OwnerNotice {
   id: number;
@@ -2051,3 +2059,35 @@ export interface DonationSettings {
   /** "browser": the iPhone app's button opens the donation page in the browser; "off": no donate button on iPhone. */
   iosMode: "browser" | "off";
 }
+
+/**
+ * 49 A signed notice Yallapp sends an app's own API (roadmap 34.8): today
+ * `account.deleted` when a person deletes their account in an app Yallapp
+ * signs people in to. Retried with backoff (lib/hosted/api-webhooks.ts),
+ * listed on App sign-in › For your developer, kept 30 days (`api_webhooks`).
+ */
+export type ApiWebhookEvent = "account.deleted";
+/** pending: waiting for its next try; delivered: the API answered 2xx; failed: no more tries. */
+export type ApiWebhookStatus = "pending" | "delivered" | "failed";
+
+export interface ApiWebhook {
+  /** Also the notice's `jti` and `Yallapp-Delivery`: the same on every try. */
+  id: string;
+  appId: string;
+  event: ApiWebhookEvent;
+  /** The person's `sub` (Yallapp user ID), as in their access tokens. */
+  subject: string;
+  status: ApiWebhookStatus;
+  attempts: number;
+  /** When it's tried next; null once delivered or failed. */
+  nextAttemptAt: Date | null;
+  lastAttemptAt: Date | null;
+  /** The API's HTTP status at the last try; null when it couldn't be reached. */
+  lastStatus: number | null;
+  /** Why the last try failed, in plain words; null after a delivery. */
+  lastError: string | null;
+  createdAt: Date;
+  deliveredAt: Date | null;
+}
+
+export type ApiWebhookPatch = Partial<Pick<ApiWebhook, "status" | "attempts" | "nextAttemptAt" | "lastAttemptAt" | "lastStatus" | "lastError" | "deliveredAt">>;

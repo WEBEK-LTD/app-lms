@@ -79,7 +79,7 @@ describe("Kashier", () => {
   it("creates a payment session with the secret key, the Payment API key and the amount in pounds", async () => {
     const kashier = fakeKashier();
     const started = await startCheckout(KASHIER_ACCOUNT, request(), { fetcher: kashier.fetcher });
-    expect(started).toEqual({ url: "https://payments.kashier.test/session/sess1abcdef?mode=test", providerRef: "sess1abcdef" });
+    expect(started).toEqual({ url: "https://payments.kashier.test/session/sess1abcdef?mode=test", providerRef: "sess1abcdef", expiresAt: null });
     const call = kashier.calls[0]!;
     expect(call.method).toBe("POST");
     expect(call.url).toBe("https://test-api.kashier.io/v3/payment/sessions");
@@ -188,7 +188,7 @@ describe("Fawaterk", () => {
     const started = await startCheckout(FAWATERK_ACCOUNT, request({ returnUrl: "https://y.test/api/pay/fawaterk/order/tok", webhookUrl: "https://y.test/api/pay/fawaterk/order/tok" }), {
       fetcher: fawaterk.fetcher,
     });
-    expect(started).toEqual({ url: "https://staging.fawaterk.test/invoice/1001/key1001", providerRef: "1001" });
+    expect(started).toEqual({ url: "https://staging.fawaterk.test/invoice/1001/key1001", providerRef: "1001", expiresAt: null });
     const call = fawaterk.calls[0]!;
     expect(call).toMatchObject({ method: "POST", url: "https://staging.fawaterk.com/api/v2/createInvoiceLink", headers: { authorization: "Bearer fawaterk-vendor-key" } });
     expect(call.body).toEqual({
