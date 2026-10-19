@@ -7,10 +7,13 @@ import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { planReceiptRows, receiptNumber } from "@/lib/billing/receipt";
 import { getStore } from "@/lib/data";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { planName } from "@/lib/plans";
 import { getPlans } from "@/lib/settings/platform";
 
-export const metadata: Metadata = { title: "Receipt", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("license.receipt"), robots: { index: false } };
+}
 export const dynamic = "force-dynamic";
 
 /**
@@ -21,6 +24,7 @@ export const dynamic = "force-dynamic";
 export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/license/receipts/[id]">) {
   const { id } = await params;
   const { client, user } = await requireClient();
+  const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const payment = (await store.listPlanPayments({ clientId: client.id, limit: 200 })).find((p) => p.id === id && p.status === "paid");
   if (!payment) notFound();
@@ -33,30 +37,30 @@ export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/
   const rows = planReceiptRows({
     payment,
     planName: planName(payment.plan, plans),
-    appName: app && app.clientId === client.id ? appLabel(app) : "Your app",
+    appName: app && app.clientId === client.id ? (appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app)) : t("license.yourApp"),
     billedTo: { name: user.name, email: user.email },
-    paidOn: formatDate(payment.paidAt ?? payment.createdAt),
+    paidOn: formatDate(payment.paidAt ?? payment.createdAt, lang),
     coupon,
   });
   return (
     <>
-      <PageHeader title={`Receipt ${receiptNumber(payment)}`} description="Keep it for your records, or print it from your browser." />
+      <PageHeader title={t("license.receiptTitle", { number: receiptNumber(payment) })} description={t("license.receiptText")} />
       <section aria-labelledby="h-receipt" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-receipt" className="m-0 text-lg font-bold">
-          {payment.purpose === "storage" ? "Yallapp storage payment" : "Yallapp plan payment"}
+          {payment.purpose === "storage" ? t("license.storagePayment") : t("license.planPayment")}
         </h2>
         <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5 text-[15px]">
           {rows.map(([label, value]) => (
             <div key={label} className="contents">
-              <dt className="font-semibold text-muted">{label}</dt>
-              <dd className="m-0 min-w-0 break-words">{value}</dd>
+              <dt className="font-semibold text-muted">{k(label)}</dt>
+              <dd className="m-0 min-w-0 break-words">{k(value)}</dd>
             </div>
           ))}
         </dl>
       </section>
       <Link href="/dashboard/license" className="inline-flex items-center gap-1.5 text-[15px] font-semibold">
         <Icon name="arrow_back" size={18} />
-        Back to your plan
+        {t("license.backToPlan")}
       </Link>
     </>
   );

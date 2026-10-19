@@ -156,7 +156,7 @@ export function DashboardSidebar({
       </div>
       {/* Without JavaScript the Menu button can't open the sheet: show the links in the page instead. */}
       <noscript>
-        <style>{`#${PANEL_ID} { display: flex !important; position: static !important; }`}</style>
+        <style>{`#${PANEL_ID} { display: flex !important; position: static !important; }`}</style> {/* i18n-ok */}
       </noscript>
     </aside>
   );

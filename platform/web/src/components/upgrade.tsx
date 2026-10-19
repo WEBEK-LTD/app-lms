@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Lang } from "@/i18n/config";
+import { formatNumber } from "@/i18n/format";
 import type { Plan } from "@/lib/plans";
 import { Icon } from "./icon";
 import { btn } from "./ui";
@@ -17,12 +19,15 @@ export function UpgradeHint({
   children,
   to,
   compact = false,
+  cta,
 }: {
   title: string;
   children?: React.ReactNode;
   /** The plan that has it; null when none does (then no button). */
   to: { id: Plan; name: string } | null;
   compact?: boolean;
+  /** 56 The button in the dashboard's language ("Upgrade to Pro" by default); client components use it too, so no catalog here. */
+  cta?: string;
 }) {
   return (
     <div
@@ -39,7 +44,7 @@ export function UpgradeHint({
       {to ? (
         <Link href={upgradeHref(to.id)} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
           <Icon name="upgrade" size={18} />
-          Upgrade to {to.name}
+          {/* i18n-ok: the admin's English; the dashboard passes `cta` */ cta ?? `Upgrade to ${to.name}`}
         </Link>
       ) : null}
     </div>
@@ -47,8 +52,21 @@ export function UpgradeHint({
 }
 
 /** "812 / 1,000 app users", with a bar; red from 100%, amber from 80%. */
-export function UsageMeter({ used, limit, label }: { used: number; limit: number | null; label: string }) {
-  const n = new Intl.NumberFormat("en-US");
+export function UsageMeter({
+  used,
+  limit,
+  label,
+  lang = "en",
+  words,
+}: {
+  used: number;
+  limit: number | null;
+  label: string;
+  lang?: Lang;
+  /** 56 In the dashboard's language: the line without a limit and the bar's name ("{label}: {used} of {limit}"). */
+  words?: { noLimit: string; usage: (used: string, limit: string) => string };
+}) {
+  const n = { format: (value: number) => formatNumber(lang, value) };
   const share = limit === null || limit === 0 ? 0 : Math.min(1, used / limit);
   const tone = limit !== null && used >= limit ? "bg-danger" : share >= 0.8 ? "bg-warn" : "bg-ember";
   return (
@@ -58,7 +76,7 @@ export function UsageMeter({ used, limit, label }: { used: number; limit: number
         {limit === null ? "" : ` / ${n.format(limit)}`} <span className="text-base font-semibold text-muted">{label}</span>
       </span>
       {limit === null ? (
-        <span className="text-sm text-muted">No limit on your plan.</span>
+        <span className="text-sm text-muted">{/* i18n-ok: English default */ words?.noLimit ?? "No limit on your plan."}</span>
       ) : (
         <div
           className="h-2 rounded-full bg-ivory"
@@ -66,7 +84,7 @@ export function UsageMeter({ used, limit, label }: { used: number; limit: number
           aria-valuemin={0}
           aria-valuemax={limit}
           aria-valuenow={Math.min(used, limit)}
-          aria-label={`${label}: ${n.format(used)} of ${n.format(limit)}`}
+          aria-label={words ? words.usage(n.format(used), n.format(limit)) : `${label}: ${n.format(used)} of ${n.format(limit)}`} // i18n-ok: English default
         >
           <div className={`h-full rounded-full ${tone}`} style={{ width: `${share * 100}%` }} />
         </div>

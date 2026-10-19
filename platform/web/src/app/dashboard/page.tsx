@@ -6,14 +6,16 @@ import { BuildBadge } from "@/components/build-status";
 import { AppStateBadge, LinkCard } from "@/components/dashboard";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
-import { Badge, Notice, PageHeader, ProgressBar, btn, formatDate } from "@/components/ui";
+import { Badge, Notice, PageHeader, ProgressBar, btn } from "@/components/ui";
+import { richText } from "@/i18n/rich";
 import { kindOf, wordsOf } from "@/lib/app/kinds";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { daysUntil } from "@/lib/license/status";
-import { formatLimit, hasFeature, lowestPlanWith, planFeaturesFor, planName } from "@/lib/plans";
+import { hasFeature, lowestPlanWith, planFeaturesFor, planName } from "@/lib/plans";
 import { OwnerNotices } from "@/components/owner-notices";
 import { UpgradeHint, UsageMeter, upgradeHref } from "@/components/upgrade";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
@@ -29,7 +31,9 @@ import type { App } from "@/lib/data/types";
 import { paymentsSetUp } from "@/lib/catalog/settings";
 import { stabilityOf } from "@/lib/crashes/service";
 
-export const metadata: Metadata = { title: "Overview" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("overview.title") };
+}
 
 /** One card of the overview: a small heading, what it says, and its links at the bottom. */
 function Tile({ id, title, icon, children, actions }: { id: string; title: string; icon: IconName; children: React.ReactNode; actions?: React.ReactNode }) {
@@ -51,19 +55,19 @@ function stepHref(step: SetupStep): string {
 }
 
 /** The shortcuts that fit the app: its content, its users, its files and help. */
-function shortcuts(app: App, whatsappUrl: string): { href: string; icon: IconName; title: string; text: string; external?: boolean }[] {
+function shortcuts(app: App, whatsappUrl: string, { t }: DashboardText): { href: string; icon: IconName; title: string; text: string; external?: boolean }[] {
   const content: Record<string, { href: string; icon: IconName; title: string; text: string }> = {
-    catalog: { href: "/dashboard/catalog/new", icon: "inventory_2", title: "Add a product", text: "Price, stock, photos and categories" },
-    courses: { href: "/dashboard/courses", icon: "school", title: "Add a course", text: "Sections, lessons and price" },
-    bookings: { href: "/dashboard/services", icon: "groups", title: "Add a service", text: "What you offer, who does it and when" },
-    listings: { href: "/dashboard/listings/new", icon: "home_work", title: "Add a property", text: "Photos, price, rooms and location" },
+    catalog: { href: "/dashboard/catalog/new", icon: "inventory_2", title: t("overview.addProduct"), text: t("overview.addProductText") },
+    courses: { href: "/dashboard/courses", icon: "school", title: t("overview.addCourse"), text: t("overview.addCourseText") },
+    bookings: { href: "/dashboard/services", icon: "groups", title: t("overview.addService"), text: t("overview.addServiceText") },
+    listings: { href: "/dashboard/listings/new", icon: "home_work", title: t("overview.addProperty"), text: t("overview.addPropertyText") },
   };
   return [
-    { href: "/dashboard/pages", icon: "palette", title: "Edit your app's pages", text: "Blocks, bottom tabs, colors and languages" },
+    { href: "/dashboard/pages", icon: "palette", title: t("overview.editPages"), text: t("overview.editPagesText") },
     ...(app.connector && content[app.connector.kind] ? [content[app.connector.kind]!] : []),
-    ...(app.backend === "hosted" ? [{ href: "/dashboard/notifications", icon: "notifications" as const, title: "Send a notification", text: "A message to everyone who uses your app" }] : []),
-    { href: "/dashboard/builds", icon: "download", title: "Get your app files", text: "Builds, downloads and the upload key" },
-    { href: whatsappUrl, icon: "support_agent", title: "Get help", text: "Message our team on WhatsApp", external: true },
+    ...(app.backend === "hosted" ? [{ href: "/dashboard/notifications", icon: "notifications" as const, title: t("overview.sendNotification"), text: t("overview.sendNotificationText") }] : []),
+    { href: "/dashboard/builds", icon: "download", title: t("overview.getFiles"), text: t("overview.getFilesText") },
+    { href: whatsappUrl, icon: "support_agent", title: t("overview.getHelp"), text: t("overview.getHelpText"), external: true },
   ];
 }
 
@@ -72,6 +76,8 @@ export default async function OverviewPage() {
   const context = await requireClient();
   const { user, app, license, state } = context;
   if (!app) redirect("/dashboard/app-type");
+  const text = await dashboardText();
+  const { t, k, lang, date, num } = text;
   const store = await getStore();
   const plans = await getPlans(store);
   const now = new Date();
@@ -104,7 +110,9 @@ export default async function OverviewPage() {
   const userLimit = current?.limits.appUsers ?? null;
   const moreUsers = current ? lowestPlanWith(effective, (p) => p.limits.appUsers === null || (userLimit !== null && p.limits.appUsers > userLimit), plan) : null;
   const notices = await store.listOwnerNotices({ clientId: context.client.id, open: true, limit: 10 });
-  const licenseName = licensePageName(app);
+  const licenseName = k(licensePageName(app));
+  const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
+  const step = (s: SetupStep) => k(STEP_LABEL[s]);
 
   // The latest Android APK, to try the app at once (signed when clicked, like on Builds & downloads).
   const apk = lastReady?.artifacts.find((a) => a.kind === "apk");
@@ -114,20 +122,28 @@ export default async function OverviewPage() {
   // The one thing to do next, as the main button of the app card.
   const primary =
     state === "expired"
-      ? { href: "/dashboard/license#renew", label: "Renew by card", icon: "refresh" as const }
+      ? { href: "/dashboard/license#renew", label: t("overview.renewByCard"), icon: "refresh" as const }
       : next
-        ? { href: stepHref(next === "app-type" ? "website" : next), label: `Continue setup: ${STEP_LABEL[next === "app-type" ? "website" : next]}`, icon: "arrow_forward" as const }
+        ? { href: stepHref(next === "app-type" ? "website" : next), label: t("overview.continueStep", { step: step(next === "app-type" ? "website" : next) }), icon: "arrow_forward" as const }
         : state === "pending"
-          ? { href: "/dashboard/license", label: "Activate this app", icon: "key" as const }
+          ? { href: "/dashboard/license", label: t("overview.activate"), icon: "key" as const }
           : !latest
-            ? { href: "/dashboard/builds", label: "Start your first build", icon: "build" as const }
+            ? { href: "/dashboard/builds", label: t("overview.firstBuild"), icon: "build" as const }
             : !app.publishingMode
-              ? { href: "/dashboard/publishing", label: "Choose how to publish", icon: "publish" as const }
-              : { href: "/dashboard/pages", label: "Edit your app's pages", icon: "palette" as const };
+              ? { href: "/dashboard/publishing", label: t("overview.choosePublish"), icon: "publish" as const }
+              : { href: "/dashboard/pages", label: t("overview.editPages"), icon: "palette" as const };
+
+  // The links inside the notices.
+  const links = {
+    license: (chunk: string) => <Link href="/dashboard/license">{chunk}</Link>,
+    renew: (chunk: string) => <Link href="/dashboard/license#renew">{chunk}</Link>,
+    whatsapp: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a>,
+    link: (chunk: string) => <Link href="/dashboard/catalog#h-payments">{chunk}</Link>,
+  };
 
   return (
     <>
-      <PageHeader title={`Hello, ${user.name.split(" ")[0]}`} description={<>Here&apos;s where {appLabel(app)} stands, and what to do next.</>} />
+      <PageHeader title={t("overview.hello", { name: user.name.split(" ")[0] ?? "" })} description={t("overview.stands", { app: name })} />
 
       <AnnouncementBanner context={context} />
 
@@ -135,35 +151,34 @@ export default async function OverviewPage() {
 
       {state === "pending" ? (
         <Notice tone="warn" icon="hourglass_top">
-          {appLabel(app)} is waiting for activation. Each app has its own plan: set it up now, then pay its plan on{" "}
-          <Link href="/dashboard/license">{licenseName}</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>. Its first build starts once
-          it&apos;s active.
+          {richText(t("overview.pending", { app: name, page: licenseName }), links)}
         </Notice>
       ) : state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan ended on {formatDate(license?.expiresAt)} and {appLabel(app)} is paused. <Link href="/dashboard/license#renew">Renew by card</Link> or{" "}
-          <a href={contact.whatsappUrl}>message us on WhatsApp</a> to bring it back.
+          {richText(t("overview.expired", { date: date(license!.expiresAt), app: name }), links)}
         </Notice>
       ) : license && daysLeft <= 14 && !notices.some((n) => n.appId === app.id && n.kind.startsWith("plan_ends_")) ? (
         <Notice icon="schedule">
-          Your plan ends on {formatDate(license?.expiresAt)}
-          {scheduled ? ` and moves to ${effective[scheduled.plan].name}` : ""}. <Link href="/dashboard/license#renew">Renew by card</Link> or{" "}
-          <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
+          {richText(
+            scheduled
+              ? t("overview.endsSoonMoves", { date: date(license.expiresAt), plan: effective[scheduled.plan].name })
+              : t("overview.endsSoon", { date: date(license.expiresAt) }),
+            links,
+          )}
         </Notice>
       ) : null}
 
       {/* 19 Products managed here show without a cart until the shop can take card payments. */}
       {app.connector?.kind === "catalog" && !paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
-          Customers can see your products in the app but can&apos;t pay for them until you set up{" "}
-          <Link href="/dashboard/catalog#h-payments">Card payments</Link> on the Products page.
+          {richText(t("overview.noPayments"), links)}
         </Notice>
       ) : null}
 
       {site?.warning ? (
         <Notice tone="warn" icon="warning" role="alert">
-          {site.warning}
-          {site.suggestion ? ` ${site.suggestion}` : ""} <Link href="/dashboard/app-type">Change the app type</Link>
+          {k(site.warning)}
+          {site.suggestion ? ` ${k(site.suggestion)}` : ""} <Link href="/dashboard/app-type">{t("overview.changeType")}</Link>
         </Notice>
       ) : null}
 
@@ -179,17 +194,17 @@ export default async function OverviewPage() {
           )}
           <div className="flex min-w-0 flex-col gap-1.5">
             <h2 id="h-app" className="m-0 text-xl leading-tight font-extrabold break-words">
-              {appLabel(app)}
+              {name}
             </h2>
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
-              <Badge tone="neutral">{kindOf(app).name}</Badge>
-              <AppStateBadge state={state} />
+              <Badge tone="neutral">{k(kindOf(app).name)}</Badge>
+              <AppStateBadge state={state} lang={lang} />
               <span>
                 {license
                   ? state === "expired"
-                    ? `${planName(plan, plans)} plan · ended ${formatDate(license.expiresAt)}`
-                    : `${planName(plan, plans)} plan · ${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`
-                  : "No plan yet"}
+                    ? t("overview.planEnded", { plan: planName(plan, plans), date: date(license.expiresAt) })
+                    : t("overview.planDaysLeft", { plan: planName(plan, plans), days: daysLeft })
+                  : t("overview.noPlan")}
               </span>
             </div>
           </div>
@@ -197,7 +212,7 @@ export default async function OverviewPage() {
         <div className="flex w-full flex-wrap gap-2.5 sm:w-auto">
           <Link href="/dashboard/preview" className={`${btn.secondary} h-11 w-full sm:w-auto`}>
             <Icon name="visibility" size={20} />
-            Preview your app
+            {t("overview.preview")}
           </Link>
           <Link href={primary.href} className={`${btn.primary} h-11 w-full sm:w-auto`}>
             {primary.label}
@@ -209,34 +224,34 @@ export default async function OverviewPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Tile
           id="h-setup"
-          title="App setup"
+          title={t("overview.setup")}
           icon="tune"
           actions={
             <Link href={next ? stepHref(next === "app-type" ? "website" : next) : "/dashboard/setup"} className={`${next ? btn.primary : btn.secondary} h-10 px-4 text-sm`}>
-              {next ? "Continue setup" : "Review setup"}
+              {next ? t("overview.continueSetup") : t("overview.reviewSetup")}
             </Link>
           }
         >
-          <span className="text-2xl font-extrabold">{next ? `${done} of ${SETUP_STEPS.length} steps` : "Complete"}</span>
-          <ProgressBar value={done} max={SETUP_STEPS.length} label="Setup progress" tone={next ? "accent" : "success"} />
+          <span className="text-2xl font-extrabold">{next ? t("overview.stepsDone", { done, total: SETUP_STEPS.length }) : t("overview.complete")}</span>
+          <ProgressBar value={done} max={SETUP_STEPS.length} label={t("overview.setupProgress")} tone={next ? "accent" : "success"} />
           <ol className="m-0 mt-1 flex list-none flex-col gap-1.5 p-0 text-sm">
-            {SETUP_STEPS.map((step) =>
-              step === "publishing" && teamOnIt ? (
+            {SETUP_STEPS.map((s) =>
+              s === "publishing" && teamOnIt ? (
                 // 19 The step counts as done ("Publish it for me" needs no keys), but nothing is live yet.
-                <li key={step} className="flex items-center gap-2 text-ink-4">
+                <li key={s} className="flex items-center gap-2 text-ink-4">
                   <Icon name="hourglass_top" size={18} className="text-accent" />
-                  {STEP_LABEL[step]}: our team is on it
+                  {t("overview.teamOnIt", { step: step(s) })}
                 </li>
               ) : (
-                <li key={step} className={`flex items-center gap-2 ${status[step] ? "text-ink-4" : step === next ? "font-bold" : "text-muted"}`}>
+                <li key={s} className={`flex items-center gap-2 ${status[s] ? "text-ink-4" : s === next ? "font-bold" : "text-muted"}`}>
                   <Icon
-                    name={status[step] ? "check_circle" : step === next ? "arrow_forward" : "radio_button_unchecked"}
+                    name={status[s] ? "check_circle" : s === next ? "arrow_forward" : "radio_button_unchecked"}
                     size={18}
-                    filled={status[step]}
-                    className={status[step] ? "text-success" : step === next ? "text-accent" : "text-faint"}
+                    filled={status[s]}
+                    className={status[s] ? "text-success" : s === next ? "text-accent" : "text-faint"}
                   />
-                  {STEP_LABEL[step]}
-                  <span className="sr-only">{status[step] ? " (done)" : step === next ? " (next)" : " (to do)"}</span>
+                  {step(s)}
+                  <span className="sr-only">{status[s] ? t("overview.stepDone") : s === next ? t("overview.stepNext") : t("overview.stepTodo")}</span>
                 </li>
               ),
             )}
@@ -245,18 +260,18 @@ export default async function OverviewPage() {
 
         <Tile
           id="h-build"
-          title="Latest build"
+          title={t("overview.latestBuild")}
           icon="build"
           actions={
             <>
               {apkHref ? (
                 <a href={apkHref} className={`${btn.primary} h-10 px-4 text-sm`}>
                   <Icon name="download" size={18} />
-                  Download APK
+                  {t("overview.downloadApk")}
                 </a>
               ) : null}
               <Link href="/dashboard/builds" className={`${btn.secondary} h-10 px-4 text-sm`}>
-                All builds
+                {t("overview.allBuilds")}
               </Link>
             </>
           }
@@ -264,38 +279,34 @@ export default async function OverviewPage() {
           {latest ? (
             <>
               <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-                #{latest.number} <BuildBadge status={latest.status} />
+                #{latest.number} <BuildBadge status={latest.status} lang={lang} />
               </span>
-              <span className="text-sm text-muted">
-                App version {latest.versionName} · {formatDate(latest.createdAt)}
-              </span>
-              {building || latest.status === "failed" ? <span className="text-sm leading-relaxed text-ink-4">{statusExplanation(latest, now)}</span> : null}
+              <span className="text-sm text-muted">{t("overview.buildVersion", { version: latest.versionName, date: date(latest.createdAt) })}</span>
+              {building || latest.status === "failed" ? <span className="text-sm leading-relaxed text-ink-4">{k(statusExplanation(latest, now))}</span> : null}
               {lastReady && lastReady.id !== latest.id ? (
-                <span className="text-sm text-muted">
-                  Files from build #{lastReady.number} (version {lastReady.versionName}) are ready to download.
-                </span>
+                <span className="text-sm text-muted">{t("overview.filesFrom", { number: String(lastReady.number), version: lastReady.versionName })}</span>
               ) : null}
             </>
           ) : (
             <span className="text-[15px] leading-relaxed text-muted">
-              {next ? "Your first build starts when the setup is complete." : state === "active" ? "No builds yet. Start one on Builds & downloads; it takes 15 to 45 minutes." : "Your first build starts once this app is active."}
+              {next ? t("overview.firstBuildAfterSetup") : state === "active" ? t("overview.noBuilds") : t("overview.firstBuildWhenActive")}
             </span>
           )}
         </Tile>
 
         <Tile
           id="h-publishing"
-          title="Publishing"
+          title={t("overview.publishing")}
           icon="publish"
           actions={
             <Link href="/dashboard/publishing" className={`${btn.secondary} h-10 px-4 text-sm`}>
-              {app.publishingMode ? "Publishing" : "Choose how to publish"}
+              {app.publishingMode ? t("overview.publishing") : t("overview.choosePublish")}
             </Link>
           }
         >
           {publishing ? (
             <>
-              <span className="text-sm text-muted">{teamOnIt ? "Our team is on it: it isn't live on a store yet." : "Our team publishes it for you."}</span>
+              <span className="text-sm text-muted">{teamOnIt ? t("overview.teamOnItStore") : t("overview.teamPublishes")}</span>
               <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
                 {requestStores(publishing).map((which) => (
                   <li key={which} className="flex flex-wrap items-center justify-between gap-2">
@@ -303,69 +314,73 @@ export default async function OverviewPage() {
                       <Icon name={STORE_ICON[which]} size={20} className="text-muted" />
                       {STORE_TITLE[which]}
                     </span>
-                    <Badge tone={statusTone(trackOf(publishing, which).status)}>{CLIENT_STATUS_LABEL[trackOf(publishing, which).status]}</Badge>
+                    <Badge tone={statusTone(trackOf(publishing, which).status)}>{k(CLIENT_STATUS_LABEL[trackOf(publishing, which).status])}</Badge>
                   </li>
                 ))}
               </ul>
             </>
           ) : (
-            <span className="text-[15px] leading-relaxed text-muted">
-              {app.publishingMode === "self" ? "You publish your app yourself, with our guides." : "Publish it yourself, or let our team publish it for you."}
-            </span>
+            <span className="text-[15px] leading-relaxed text-muted">{app.publishingMode === "self" ? t("overview.selfPublish") : t("overview.publishChoice")}</span>
           )}
         </Tile>
 
         <Tile
           id="h-plan"
-          title="Plan"
+          title={t("overview.plan")}
           icon="workspace_premium"
           actions={
             <>
               {state === "expired" || (license && daysLeft <= 14) ? (
                 <Link href="/dashboard/license#renew" className={`${btn.primary} h-10 px-4 text-sm`}>
-                  Renew
+                  {t("overview.renew")}
                 </Link>
               ) : null}
               {hosted && userLimit !== null && moreUsers ? (
                 <Link href={upgradeHref(moreUsers.id)} className={`${btn.secondary} h-10 px-4 text-sm`}>
                   <Icon name="upgrade" size={18} />
-                  Upgrade
+                  {t("overview.upgrade")}
                 </Link>
               ) : (
                 <Link href={license ? "/dashboard/license#change-plan" : "/dashboard/license"} className={`${btn.secondary} h-10 px-4 text-sm`}>
-                  {license ? "Change plan" : licenseName}
+                  {license ? t("overview.changePlan") : licenseName}
                 </Link>
               )}
             </>
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">
-            {planName(plan, plans)} <AppStateBadge state={state} />
+            {planName(plan, plans)} <AppStateBadge state={state} lang={lang} />
           </span>
           <span className="text-sm text-muted">
             {license
               ? state === "expired"
-                ? `Ended on ${formatDate(license.expiresAt)}`
-                : `Active until ${formatDate(license.expiresAt)} · ${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`
-              : "Pay its plan or message us to activate it."}
+                ? t("overview.endedOn", { date: date(license.expiresAt) })
+                : t("overview.activeUntil", { date: date(license.expiresAt), days: daysLeft })
+              : t("overview.payToActivate")}
           </span>
-          {scheduled ? (
-            <span className="text-sm text-muted">
-              Moves to {effective[scheduled.plan].name} on {formatDate(scheduled.at)}
-            </span>
-          ) : null}
+          {scheduled ? <span className="text-sm text-muted">{t("overview.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span> : null}
           {plugin ? (
             <span className="flex items-center gap-1.5 text-sm text-muted">
               <Icon name={activation ? "link" : "link_off"} size={18} />
-              {activation ? `Connected to ${activation.siteUrl}` : "Plugin not connected yet"}
+              {activation ? (
+                <span>{richText(t("overview.connectedTo"), { site: () => <bdi dir="ltr">{activation.siteUrl}</bdi> })}</span>
+              ) : (
+                t("overview.pluginNotConnected")
+              )}
             </span>
           ) : null}
-          {site?.reported ? <span className="text-sm text-muted">{siteRunsLine(site)}</span> : null}
+          {site?.reported ? <span className="text-sm text-muted">{k(siteRunsLine(site))}</span> : null}
           {/* 13.2 App users against the plan's limit, for apps on the hosted API. */}
           {current && hosted ? (
             <div className="mt-2 flex flex-col gap-1.5 border-t border-line-soft pt-3">
-              <span className="text-sm font-semibold text-muted">App users</span>
-              <UsageMeter used={users} limit={userLimit} label="app users" />
+              <span className="text-sm font-semibold text-muted">{t("overview.appUsers")}</span>
+              <UsageMeter
+                used={users}
+                limit={userLimit}
+                label={t("overview.appUsersWord")}
+                lang={lang}
+                words={{ noLimit: t("overview.noLimit"), usage: (used, limit) => t("overview.usage", { label: t("overview.appUsers"), used, limit }) }}
+              />
             </div>
           ) : null}
         </Tile>
@@ -374,32 +389,30 @@ export default async function OverviewPage() {
         {stability ? (
           <Tile
             id="h-stability"
-            title="Stability"
+            title={t("overview.stability")}
             icon="monitoring"
             actions={
               <Link href="/dashboard/stability" className={`${btn.secondary} h-10 px-4 text-sm`}>
-                Stability
+                {t("overview.stability")}
               </Link>
             }
           >
             {app.crashReports === false ? (
-              <span className="text-[15px] leading-relaxed text-muted">Crash reports are off for this app.</span>
+              <span className="text-[15px] leading-relaxed text-muted">{t("overview.crashOff")}</span>
             ) : (
               <>
                 <span className="text-2xl font-extrabold" data-crash-free="">
-                  {stability.crashFree === null ? "No data yet" : `${stability.crashFree.toLocaleString("en-GB")}% crash-free`}
+                  {stability.crashFree === null ? t("overview.noData") : t("overview.crashFree", { percent: num(stability.crashFree) })}
                 </span>
-                <span className="text-sm text-muted">
-                  {stability.crashFree === null
-                    ? "Figures appear once people use the new version of your app."
-                    : `Of ${stability.sessions.toLocaleString("en-GB")} app ${stability.sessions === 1 ? "session" : "sessions"} in the last 30 days.`}
-                </span>
+                <span className="text-sm text-muted">{stability.crashFree === null ? t("overview.figuresLater") : t("overview.sessions", { count: stability.sessions })}</span>
                 {stability.top.length ? (
                   <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
                     {stability.top.map((issue) => (
                       <li key={issue.id} className="flex justify-between gap-3">
-                        <span className="min-w-0 truncate font-mono text-[13px]">{issue.title}</span>
-                        <span className="flex-none text-muted">{issue.count}×</span>
+                        <span className="min-w-0 truncate font-mono text-[13px]" dir="ltr">
+                          {issue.title}
+                        </span>
+                        <span className="flex-none text-muted">{num(issue.count)}×</span>
                       </li>
                     ))}
                   </ul>
@@ -412,10 +425,10 @@ export default async function OverviewPage() {
 
       <section aria-labelledby="h-shortcuts" className="flex flex-col gap-3">
         <h2 id="h-shortcuts" className="m-0 text-lg font-bold">
-          Shortcuts
+          {t("overview.shortcuts")}
         </h2>
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-          {shortcuts(app, contact.whatsappUrl).map((s) => (
+          {shortcuts(app, contact.whatsappUrl, text).map((s) => (
             <LinkCard key={s.href} {...s} />
           ))}
         </div>
@@ -425,32 +438,35 @@ export default async function OverviewPage() {
         <section aria-labelledby="h-plan-features" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="h-plan-features" className="m-0 text-lg font-bold">
-              In your {current.name} plan
+              {t("overview.inPlan", { plan: current.name })}
             </h2>
             <Link href="/dashboard/license#change-plan" className="text-sm font-semibold">
-              Compare plans
+              {t("overview.comparePlans")}
             </Link>
           </div>
           <ul className="m-0 grid list-none gap-x-6 gap-y-2 p-0 text-[15px] [grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))]">
             <li className="flex items-center gap-2">
               <Icon name="check" size={18} className="text-success" />
-              {formatLimit(current.limits.languages, "All")} app language{current.limits.languages === 1 ? "" : "s"}
+              {current.limits.languages === null ? t("overview.allLanguages") : t("overview.languages", { count: current.limits.languages })}
             </li>
             {features.filter((f) => hasFeature(current, f.id)).map((f) => (
               <li key={f.id} className="flex items-center gap-2">
                 <Icon name="check" size={18} className="text-success" />
-                {f.label}
+                {k(f.label)}
               </li>
             ))}
           </ul>
           {features.some((f) => !hasFeature(current, f.id)) ? (
             <div className="flex flex-col gap-2 border-t border-line-soft pt-4">
-              <span className="text-sm font-semibold text-muted">Not in your plan</span>
-              {features.filter((f) => !hasFeature(current, f.id)).map((f) => (
-                <UpgradeHint key={f.id} title={f.label} to={lowestPlanWith(effective, (p) => hasFeature(p, f.id), plan)} compact>
-                  {f.description}
-                </UpgradeHint>
-              ))}
+              <span className="text-sm font-semibold text-muted">{t("overview.notInPlan")}</span>
+              {features.filter((f) => !hasFeature(current, f.id)).map((f) => {
+                const to = lowestPlanWith(effective, (p) => hasFeature(p, f.id), plan);
+                return (
+                  <UpgradeHint key={f.id} title={k(f.label)} to={to} compact cta={to ? t("overview.upgradeTo", { plan: to.name }) : undefined}>
+                    {k(f.description)}
+                  </UpgradeHint>
+                );
+              })}
             </div>
           ) : null}
         </section>

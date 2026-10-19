@@ -6,13 +6,16 @@ import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { encryptionKey } from "@/lib/env";
 import { latestRelease } from "@/lib/license/service";
 import { ACCOUNT_STATE_LABEL } from "@/lib/license/status";
-import { comparePlans, formatLimit, formatStorage, hasFeature, isPlan, PLANS, planName, planPrice, SUPPORT_LABEL, type Plan, type PlanInfo } from "@/lib/plans";
+import { comparePlans, formatStorage, hasFeature, isPlan, PLANS, planName, planPrice, type Plan, type PlanInfo } from "@/lib/plans";
 import { packOffers, renewablePacks, renewalLabel } from "@/lib/media/packs";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { currentPlanId, planChangeFor, scheduledPlan } from "@/lib/billing/plan-change";
@@ -23,6 +26,7 @@ import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/pl
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
+import { planFor } from "@/lib/marketing-lang";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -30,7 +34,7 @@ import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient();
-  return { title: licensePageName(app) };
+  return { title: (await dashboardText()).k(licensePageName(app)) };
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -42,27 +46,39 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+const SUPPORT_KEY = {
+  email: "license.supportEmail",
+  whatsapp: "license.supportWhatsapp",
+  priority: "license.supportPriority",
+  dedicated: "license.supportDedicated",
+} as const;
+
 /** The few lines that tell the tiers apart, on a plan card. */
-function planLines(plan: PlanInfo): string[] {
+function planLines(plan: PlanInfo, { t, num }: DashboardText): string[] {
+  const { appUsers, languages, storageGb } = plan.limits;
   return [
-    hasFeature(plan, "ios") ? "Android & iOS apps" : "Android app",
-    `${formatLimit(plan.limits.appUsers)} app users`,
-    `${formatLimit(plan.limits.languages, "All")} app language${plan.limits.languages === 1 ? "" : "s"}`,
+    hasFeature(plan, "ios") ? t("license.lineAndroidIos") : t("license.lineAndroid"),
+    appUsers === null ? t("license.lineUsersUnlimited") : t("license.lineUsers", { count: num(appUsers) }),
+    languages === null ? t("license.lineLanguagesAll") : t("license.lineLanguages", { count: languages }),
     // 51
-    `${formatStorage(plan.limits.storageGb)} for videos and files`,
-    hasFeature(plan, "page_editor") ? "Full page editor" : "Ready-made page templates",
-    hasFeature(plan, "auto_publish") ? "We publish for you" : "You publish with our guides",
-    SUPPORT_LABEL[plan.limits.support].replace(", with your account manager", ""),
+    storageGb === null ? t("license.lineStorageUnlimited") : t("license.lineStorage", { size: formatStorage(storageGb) }),
+    hasFeature(plan, "page_editor") ? t("license.lineEditor") : t("license.lineTemplates"),
+    hasFeature(plan, "auto_publish") ? t("license.lineWePublish") : t("license.lineYouPublish"),
+    t(SUPPORT_KEY[plan.limits.support]),
   ];
 }
 
 export default async function LicensePage({ searchParams }: PageProps<"/dashboard/license">) {
   const contact = await getContact();
   const { license, state, app, apps, client } = await requireClient();
+  const text = await dashboardText();
+  const { t, k, lang } = text;
+  const date = (d: Date | null | undefined) => formatDate(d, lang);
   const { released, payment, plan: wanted, plan_change: planChange } = await searchParams;
   const store = await getStore();
   const now = new Date();
-  const plans = await getPlans(store);
+  // 56 The plans' default taglines in the dashboard's language (the website's translations).
+  const plans = Object.fromEntries(Object.entries(await getPlans(store)).map(([id, info]) => [id, planFor(lang, info)])) as Record<Plan, PlanInfo>;
   // 13.1 What each plan includes for apps (switches applied); prices from the admin.
   const effective = await effectivePlans(store);
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
@@ -79,13 +95,17 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     const change = planChangeFor(license, info, info.billingMonths, plans, now);
     const note =
       change.kind === "upgrade"
-        ? `Upgrade: starts today${change.creditDays ? `, with ${change.creditDays} days credited for your current plan` : ""}. Active until ${formatDate(change.activeUntil)}.`
+        ? change.creditDays
+          ? t("license.noteUpgradeCredit", { days: change.creditDays, date: date(change.activeUntil) })
+          : t("license.noteUpgrade", { date: date(change.activeUntil) })
         : change.kind === "downgrade"
-          ? `Starts on ${formatDate(change.nextPlanAt)}, when your current plan ends. Active until ${formatDate(change.activeUntil)}.`
+          ? t("license.noteDowngrade", { start: date(change.nextPlanAt), date: date(change.activeUntil) })
           : change.kind === "renew" && state === "active"
-            ? `Adds ${info.billingMonths === 1 ? "a month" : "a year"}: active until ${formatDate(change.activeUntil)}.`
+            ? info.billingMonths === 1
+              ? t("license.noteMonth", { date: date(change.activeUntil) })
+              : t("license.noteYear", { date: date(change.activeUntil) })
             : null;
-    return { ...p, note };
+    return { ...p, period: p.period ? k(p.period) : null, charge: p.charge ? k(p.charge) : p.charge, note };
   });
   // 51 The app's storage packs renew with the plan, for each plan's months; 52 shown in the client's currency, charged with the plan.
   const packs = app && yallappAccount ? await store.listStoragePacks(app.id) : [];
@@ -94,7 +114,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   if (yallappAccount && packs.length) {
     for (const p of payable) {
       const renewal = renewablePacks(packs, offers, { provider: yallappAccount.provider, view, months: plans[p.id].billingMonths, now });
-      if (renewal) storageRenewal[p.id] = renewalLabel(renewal);
+      if (renewal) storageRenewal[p.id] = k(renewalLabel(renewal));
     }
   }
   const selected = isPlan(wanted) ? wanted : (scheduled?.plan ?? currentId);
@@ -106,129 +126,114 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const plugin = usesPlugin(app);
   // 30 What the site runs, as its plugin reports it.
   const site = activation && app ? siteMatch(app, activation) : null;
+  const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
+  const tags = {
+    b: (chunk: string) => <strong className="text-ink-2">{chunk}</strong>,
+    whatsapp: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a>,
+    install: (chunk: string) => <Link href={localePath(lang, "/docs/wordpress-plugin")}>{chunk}</Link>,
+    activate: (chunk: string) => <Link href={localePath(lang, "/docs/wordpress-license")}>{chunk}</Link>,
+  };
 
   return (
     <>
       <PageHeader
-        title={licensePageName(app)}
-        description={
-          apps.length > 1 ? (
-            <>
-              The plan and license of <strong className="text-ink-2">{appLabel(app)}</strong>. Each app has its own plan, license key and website.
-            </>
-          ) : plugin ? (
-            "Your license connects the Yallapp plugin on your website to your plan."
-          ) : (
-            "Your app's plan, how long it runs and how to change it."
-          )
-        }
+        title={k(licensePageName(app))}
+        description={apps.length > 1 ? richText(t("license.manyApps", { app: name }), tags) : plugin ? t("license.pluginText") : t("license.planText")}
       />
 
       {released ? (
         <Notice tone="success" icon="check_circle" role="status">
-          The license is released. Activate it in the plugin on your new website.
+          {t("license.released")}
         </Notice>
       ) : null}
       {payment === "paid" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Payment received. Your plan is active until {formatDate(license?.expiresAt)}, and we emailed you the details.
+          {t("license.paid", { date: date(license?.expiresAt) })}
         </Notice>
       ) : null}
       {payment === "failed" ? (
         <Notice tone="danger" icon="error" role="alert">
-          The payment didn&apos;t go through, and nothing was charged. Try again, or message us on WhatsApp.
+          {t("license.failed")}
         </Notice>
       ) : null}
       {payment === "pending" ? (
         <Notice icon="schedule" role="status">
-          Your payment isn&apos;t confirmed yet. If you paid, your plan starts within a few minutes and we email you; otherwise, try again.
+          {t("license.pendingPayment")}
         </Notice>
       ) : null}
       {planChange === "scheduled" && scheduled ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Done. {appLabel(app)} moves to {effective[scheduled.plan].name} on {formatDate(scheduled.at)}, when the current period ends. Nothing is charged now.
+          {t("license.scheduledDone", { app: name, plan: effective[scheduled.plan].name, date: date(scheduled.at) })}
         </Notice>
       ) : null}
       {planChange === "kept" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          {appLabel(app)} stays on {planName(currentId, effective)}.
+          {t("license.kept", { app: name, plan: planName(currentId, effective) })}
         </Notice>
       ) : null}
       {planChange === "refused" || planChange === "switched" ? (
         <Notice tone="warn" icon="warning" role="alert">
-          {planChange === "switched"
-            ? "You switched to another app in the meantime. Check which app you're changing and try again."
-            : "That plan change isn't possible now. Choose a lower plan while your plan is active, or pay for a plan below."}
+          {planChange === "switched" ? t("license.switched") : t("license.refused")}
         </Notice>
       ) : null}
       {state === "pending" ? (
         <Notice tone="warn" icon="hourglass_top">
-          This app isn&apos;t activated yet. {payable.length ? "Pay its plan by card below, or " : ""}
-          <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to activate it. You get its license key
-          as soon as it&apos;s active.
+          {richText(payable.length ? t("license.notActivatedPay") : t("license.notActivated"), tags)}
         </Notice>
       ) : null}
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan ended on {formatDate(license?.expiresAt)}. The app is paused: the plugin reports the license as expired, and your app users see that you
-          can bring it back. {payable.length ? "Renew it by card below, or " : ""}
-          <a href={contact.whatsappUrl}>{payable.length ? "message us on WhatsApp" : "Message us on WhatsApp"}</a> to renew.
+          {richText(payable.length ? t("license.expiredPay", { date: date(license?.expiresAt) }) : t("license.expired", { date: date(license?.expiresAt) }), tags)}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-license" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="h-license" className="m-0 text-lg font-bold">
-            License
+            {t("license.license")}
           </h2>
-          <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+          <Badge tone={state === "active" ? "success" : state === "expired" ? "danger" : "warn"}>{k(ACCOUNT_STATE_LABEL[state])}</Badge>
         </div>
-        {app ? (
-          <p className="m-0 text-sm text-muted">
-            App: <span className="font-semibold text-ink-2">{appLabel(app)}</span>
-          </p>
-        ) : null}
+        {app ? <p className="m-0 text-sm text-muted">{richText(t("license.app", { app: name }), { b: (chunk) => <span className="font-semibold text-ink-2">{chunk}</span> })}</p> : null}
         {key ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl bg-ivory px-4 py-3">
-            <code className="min-w-0 flex-1 font-mono text-lg font-bold tracking-wider break-all" aria-label="License key">
+            <code dir="ltr" className="min-w-0 flex-1 font-mono text-lg font-bold tracking-wider break-all" aria-label={t("license.licenseKey")}>
               {key}
             </code>
-            <CopyButton value={key} label="Copy key" />
+            <CopyButton value={key} label={t("license.copyKey")} copiedLabel={t("common.copied")} />
           </div>
         ) : null}
         <dl className="m-0">
-          <Row label="Plan">
+          <Row label={t("license.plan")}>
             {planName(currentId, effective)}
             {scheduled ? (
-              <span className="block text-[13px] font-normal text-muted">
-                Moves to {effective[scheduled.plan].name} on {formatDate(scheduled.at)}
-              </span>
+              <span className="block text-[13px] font-normal text-muted">{t("license.movesTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) })}</span>
             ) : null}
           </Row>
-          <Row label="Active until">{formatDate(license?.expiresAt)}</Row>
+          <Row label={t("license.activeUntil")}>{date(license?.expiresAt)}</Row>
           {plugin || activation ? (
-          <Row label="Activated on">
-            {activation ? (
-              <span className="flex flex-col gap-0.5">
-                <span>{activation.siteUrl}</span>
-                <span className="text-[13px] font-normal text-muted">
-                  Plugin {activation.pluginVersion} · last check {formatDateTime(activation.lastCheckedAt)}
+            <Row label={t("license.activatedOn")}>
+              {activation ? (
+                <span className="flex flex-col gap-0.5">
+                  <bdi dir="ltr">{activation.siteUrl}</bdi>
+                  <span className="text-[13px] font-normal text-muted">
+                    {t("license.pluginCheck", { version: activation.pluginVersion ?? "", date: formatDateTime(activation.lastCheckedAt, lang) })}
+                  </span>
+                  {site?.reported ? <span className="text-[13px] font-normal text-muted">{k(siteRunsLine(site))}</span> : null}
                 </span>
-                {site?.reported ? <span className="text-[13px] font-normal text-muted">{siteRunsLine(site)}</span> : null}
-              </span>
-            ) : (
-              <span className="font-normal text-muted">Not activated on a website yet</span>
-            )}
-          </Row>
+              ) : (
+                <span className="font-normal text-muted">{t("license.notActivatedSite")}</span>
+              )}
+            </Row>
           ) : null}
         </dl>
         {activation ? (
           <form action={releaseSiteAction} className="flex flex-wrap items-center gap-3 border-t border-line-soft pt-4">
-            <SubmitButton variant="secondary" className="h-10" pendingText="Releasing…">
+            <SubmitButton variant="secondary" className="h-10" pendingText={t("license.releasing")}>
               <Icon name="link_off" size={18} />
-              Release from this website
+              {t("license.release")}
             </SubmitButton>
-            <span className="text-[13px] text-muted">Do this when you move to a new domain. The plugin on the old site stops working.</span>
+            <span className="text-[13px] text-muted">{t("license.releaseText")}</span>
           </form>
         ) : null}
       </section>
@@ -236,23 +241,18 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-change-plan" className="m-0 text-lg font-bold">
-            {currentId ? "Change plan" : "Plans"}
+            {currentId ? t("license.changePlan") : t("license.plans")}
           </h2>
           <p className="m-0 text-sm text-muted">
-            {active
-              ? "Upgrades start today: you pay the new plan and the days left on your current plan are credited at their value. Moving to a lower plan never loses days: it starts when your current plan ends."
-              : "Each app has its own plan. Pay for the plan you choose below."}{" "}
-            <Link href="/pricing">Compare every feature</Link>
+            {active ? t("license.changeActive") : t("license.changeInactive")} <Link href={localePath(lang, "/pricing")}>{t("license.compare")}</Link>
           </p>
         </div>
         {scheduled && client.status !== "suspended" ? (
           <form action={cancelScheduledPlanAction} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ivory px-4 py-3">
             <input type="hidden" name="appId" value={app?.id ?? ""} />
-            <span className="text-[15px]">
-              Moving to <strong>{effective[scheduled.plan].name}</strong> on {formatDate(scheduled.at)}.
-            </span>
+            <span className="text-[15px]">{richText(t("license.movingTo", { plan: effective[scheduled.plan].name, date: date(scheduled.at) }), tags)}</span>
             <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-              Keep {planName(currentId, effective)}
+              {t("license.keep", { plan: planName(currentId, effective) })}
             </SubmitButton>
           </form>
         ) : null}
@@ -271,14 +271,18 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[17px] font-bold">{plan.name}</span>
-                  {isCurrent ? <Badge tone="success">Current plan</Badge> : scheduled?.plan === id ? <Badge tone="warn">From {formatDate(scheduled.at)}</Badge> : null}
+                  {isCurrent ? (
+                    <Badge tone="success">{t("license.currentPlan")}</Badge>
+                  ) : scheduled?.plan === id ? (
+                    <Badge tone="warn">{t("license.from", { date: date(scheduled.at) })}</Badge>
+                  ) : null}
                 </div>
                 <span className="text-[15px] font-bold">
-                  {shown.price}
-                  {shown.period ? <span className="font-normal text-muted"> / {shown.period}</span> : null}
+                  <bdi dir="ltr">{shown.price}</bdi>
+                  {shown.period ? <span className="font-normal text-muted"> / {k(shown.period)}</span> : null}
                 </span>
                 <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[13px] text-ink-4">
-                  {planLines(plan).map((line) => (
+                  {planLines(plan, text).map((line) => (
                     <li key={line} className="flex items-start gap-1.5">
                       <Icon name="check" size={16} className="mt-px text-success" />
                       {line}
@@ -292,7 +296,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                         <input type="hidden" name="appId" value={app?.id ?? ""} />
                         <input type="hidden" name="plan" value={id} />
                         <SubmitButton variant="secondary" className="min-h-9 w-full px-3 py-1.5 text-sm leading-snug">
-                          Switch when this period ends
+                          {t("license.switchAtEnd")}
                         </SubmitButton>
                       </form>
                     )
@@ -301,15 +305,15 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                       {direction > 0 && currentId ? (
                         <>
                           <Icon name="upgrade" size={18} />
-                          Upgrade to {plan.name}
+                          {t("license.upgradeTo", { plan: plan.name })}
                         </>
                       ) : (
-                        `Choose ${plan.name}`
+                        t("license.choose", { plan: plan.name })
                       )}
                     </Link>
                   ) : (
                     <a href={contact.whatsappUrl} className={`${btn.secondary} h-9 w-full px-3 text-sm`}>
-                      Ask us on WhatsApp
+                      {t("license.askWhatsapp")}
                     </a>
                   )}
                 </div>
@@ -323,35 +327,39 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 id="h-pay" className="m-0 text-lg font-bold">
-              {state === "pending" ? "Pay by card" : state === "expired" ? "Renew by card" : "Extend by card or change plan"}
+              {state === "pending" ? t("license.payByCard") : state === "expired" ? t("license.renewByCard") : t("license.extend")}
             </h2>
-            <p className="m-0 text-sm text-muted">
-              {state === "pending"
-                ? `The payment activates ${appLabel(app)} on the plan you choose. Your other apps keep their own plans.`
-                : "Paying for your current plan adds its period to the end of this app's plan, so no days are lost. Your other apps keep their own plans."}
-            </p>
+            <p className="m-0 text-sm text-muted">{state === "pending" ? t("license.payPending", { app: name }) : t("license.payActive")}</p>
           </div>
-          <PlanPaymentForm key={selected ?? "none"} plans={notes} current={selected} cta={state === "pending" ? "Pay and activate" : "Pay by card"} appId={app?.id ?? null} provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"} storageRenewal={storageRenewal} />
+          <PlanPaymentForm
+            key={selected ?? "none"}
+            plans={notes}
+            current={selected}
+            cta={state === "pending" ? t("license.payAndActivate") : t("license.payByCard")}
+            appId={app?.id ?? null}
+            provider={yallappAccount ? PROVIDER_NAME[yallappAccount.provider] : "iyzico"}
+            storageRenewal={storageRenewal}
+          />
         </section>
       ) : null}
 
       {paid.length ? (
         <section aria-labelledby="h-payments" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-payments" className="m-0 text-lg font-bold">
-            Payments
+            {t("license.payments")}
           </h2>
           <ul className="m-0 flex list-none flex-col p-0">
             {paid.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft py-3 first:border-t-0">
                 <span className="flex flex-col gap-0.5">
                   <span className="text-[15px] font-semibold">
-                    {paymentWhat(p, planName(p.plan, effective))} · {formatAmount(p.amountCents, p.currency)}
+                    {k(paymentWhat(p, planName(p.plan, effective)))} · <bdi dir="ltr">{formatAmount(p.amountCents, p.currency)}</bdi>
                   </span>
-                  <span className="text-[13px] text-muted">Paid on {formatDate(p.paidAt ?? p.createdAt)}</span>
+                  <span className="text-[13px] text-muted">{t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}</span>
                 </span>
                 <Link href={`/dashboard/license/receipts/${p.id}`} className={`${btn.secondary} h-9 px-3 text-sm`}>
                   <Icon name="receipt_long" size={18} />
-                  Receipt
+                  {t("license.receipt")}
                 </Link>
               </li>
             ))}
@@ -360,35 +368,30 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
       ) : null}
 
       {plugin ? (
-      <section aria-labelledby="h-plugin" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-plugin" className="m-0 text-lg font-bold">
-          WordPress plugin
-        </h2>
-        {release ? (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[15px] font-bold">Yallapp plugin {release.version}</span>
-              <span className="text-[13px] text-muted">
-                Requires WordPress {release.requiresWp} and PHP {release.requiresPhp} · released {formatDate(release.createdAt)}
-              </span>
+        <section aria-labelledby="h-plugin" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+          <h2 id="h-plugin" className="m-0 text-lg font-bold">
+            {t("license.plugin")}
+          </h2>
+          {release ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{t("license.pluginVersion", { version: release.version })}</span>
+                <span className="text-[13px] text-muted">{t("license.requires", { wp: release.requiresWp, php: release.requiresPhp, date: date(release.createdAt) })}</span>
+              </div>
+              {state === "active" ? (
+                <a href="/api/dashboard/plugin" className={`${btn.primary} h-11`}>
+                  <Icon name="download" size={20} />
+                  {t("license.downloadPlugin")}
+                </a>
+              ) : (
+                <span className="text-sm text-muted">{t("license.needsActive")}</span>
+              )}
             </div>
-            {state === "active" ? (
-              <a href="/api/dashboard/plugin" className={`${btn.primary} h-11`}>
-                <Icon name="download" size={20} />
-                Download plugin
-              </a>
-            ) : (
-              <span className="text-sm text-muted">Downloads need an active plan.</span>
-            )}
-          </div>
-        ) : (
-          <p className="m-0 text-[15px] text-muted">The plugin download appears here as soon as it&apos;s published.</p>
-        )}
-        <p className="m-0 text-sm text-muted">
-          After you install it, the plugin updates itself from WordPress like any other plugin. See{" "}
-          <Link href="/docs/wordpress-plugin">Install the plugin</Link> and <Link href="/docs/wordpress-license">Activate your license</Link>.
-        </p>
-      </section>
+          ) : (
+            <p className="m-0 text-[15px] text-muted">{t("license.pluginSoon")}</p>
+          )}
+          <p className="m-0 text-sm text-muted">{richText(t("license.pluginUpdates"), tags)}</p>
+        </section>
       ) : null}
     </>
   );

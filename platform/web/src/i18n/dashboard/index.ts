@@ -3,7 +3,10 @@ import { flattenMessages, formatMessage, lookup, relocalizeDate, translateFrom, 
 import type { Leaves } from "..";
 import type { Strings } from "../types";
 import * as common from "./common";
+import * as lib from "./lib";
+import * as license from "./license";
 import * as nav from "./nav";
+import * as overview from "./overview";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -24,26 +27,21 @@ import * as nav from "./nav";
  * and doesn't use these.
  */
 
-const en = {
-  common: common.en,
-  nav: nav.en,
-} as const;
+/** Every area. A new area is one import and one entry here. */
+const AREAS = { common, nav, lib, overview, license } as const;
 
-export type DashboardMessages = Strings<typeof en>;
-export type DashKey = Leaves<typeof en>;
+type Areas = typeof AREAS;
+type English = { [K in keyof Areas]: Areas[K]["en"] };
+
+export type DashboardMessages = Strings<English>;
+export type DashKey = Leaves<English>;
 export type DashT = (key: DashKey, values?: MessageValues) => string;
 
-const ar: DashboardMessages = {
-  common: common.ar,
-  nav: nav.ar,
-};
+function catalog(lang: Lang): DashboardMessages {
+  return Object.fromEntries(Object.entries(AREAS).map(([name, area]) => [name, area[lang]])) as DashboardMessages;
+}
 
-const tr: DashboardMessages = {
-  common: common.tr,
-  nav: nav.tr,
-};
-
-const CATALOGS: Record<Lang, DashboardMessages> = { en, ar, tr };
+const CATALOGS: Record<Lang, DashboardMessages> = { en: catalog("en"), ar: catalog("ar"), tr: catalog("tr") };
 
 export function dashboardMessages(lang: Lang): DashboardMessages {
   return CATALOGS[lang];

@@ -1,21 +1,24 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { Lang } from "@/i18n/config";
+import { getDashT } from "@/i18n/dashboard";
 import type { AccountState } from "@/lib/license/status";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { Badge } from "./ui";
 
-/** An app's state as a badge: Active, Pending activation, Paused (its plan ended) or Suspended. */
-export function AppStateBadge({ state }: { state: AccountState }) {
+/** An app's state as a badge: Active, Pending activation, Paused (its plan ended) or Suspended; 56 in the dashboard's language. */
+export function AppStateBadge({ state, lang = "en" }: { state: AccountState; lang?: Lang }) {
+  const t = getDashT(lang);
   switch (state) {
     case "active":
-      return <Badge tone="success">Active</Badge>;
+      return <Badge tone="success">{t("overview.stateActive")}</Badge>;
     case "pending":
-      return <Badge tone="warn">Pending activation</Badge>;
+      return <Badge tone="warn">{t("overview.statePending")}</Badge>;
     case "expired":
-      return <Badge tone="danger">Paused</Badge>;
+      return <Badge tone="danger">{t("overview.statePaused")}</Badge>;
     case "suspended":
-      return <Badge tone="danger">Suspended</Badge>;
+      return <Badge tone="danger">{t("overview.stateSuspended")}</Badge>;
   }
 }
 
