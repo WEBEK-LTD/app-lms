@@ -350,6 +350,55 @@ Nothing to set on Netlify: the preview is served from the site's own files
       blank (Android), or that the lesson is hidden in recordings and a
       screenshot shows the notice (iPhone).
 
+## 7j. Videos and pictures hosted by Yallapp (Phase 51)
+
+Owners' media lives on our own host (the one behind yallapp.com.tr) and its
+records and storage in our MariaDB. The platform on Netlify never carries
+the bytes: the media gate on the host takes the uploads and plays the files.
+
+- [ ] Apply migration `0040_media_storage.sql` (`media_files`,
+      `storage_packs`, and `purpose` and `storage_packs` on `plan_payments`),
+      after `0038_yallapp_prices.sql` and `0039_refunds_time_zone.sql`.
+- [ ] **The media folder:** create `/home/CPANEL_USER/yallapp-media`, outside
+      `public_html`, writable by the account PHP runs as, on a disk with room
+      for the plans' storage (Starter 2 GB … Business 500 GB per app, plus
+      packs). Include it in the server's backups.
+- [ ] **The media gate:** copy `platform/web/deploy/media-host/index.php` and
+      `.htaccess` to a `media/` folder in yallapp.com.tr's document root, and
+      `config.sample.php` there as `config.php` with `signing_secret`
+      (`openssl rand -hex 32`) and `storage_dir`. Never commit config.php.
+- [ ] Reinstall the reverse proxy config (`platform/web/deploy/apache-proxy.conf`):
+      `ProxyPass /media/ !` keeps `/media/*` on the host, above `ProxyPass /`.
+      Then `curl -i https://yallapp.com.tr/media/v/x` answers 404 from the gate
+      (plain text "Not found."), not from Netlify.
+- [ ] Optional, for less PHP work per video: install **mod_xsendfile**, add
+      `XSendFile On` and `XSendFilePath /home/CPANEL_USER/yallapp-media` for
+      the `media/` folder, and set `'x_sendfile' => true` in config.php; Apache
+      then sends the files and answers range requests itself. Without it, PHP
+      streams each range in 256 KB pieces (check `max_execution_time` doesn't
+      cut long downloads: the gate calls `set_time_limit(0)`).
+- [ ] In Netlify: `MEDIA_BASE_URL=https://yallapp.com.tr/media` and
+      `MEDIA_SIGNING_SECRET` (the same value as `signing_secret`). Redeploy,
+      then Admin › Settings › Server shows "Media library: Our server" and
+      **Check the media server** answers that it accepts our signed links.
+- [ ] Uploads come in 5 MB chunks: Apache's `LimitRequestBody` (7 MB in the
+      proxy config and the gate's .htaccess) must stay above that, and PHP's
+      `upload_max_filesize`/`post_max_size` don't apply (chunks are raw PUT
+      bodies read from `php://input`).
+- [ ] Admin › Plans: check each plan's **Storage (GB)** and set the storage
+      packs' monthly prices like the plans' (section 7h): in Egyptian pounds,
+      charged through Yallapp's Kashier account, with an optional US dollar
+      price shown outside Egypt (empty: the pounds at the rate). Without a
+      pound price the team adds packs by hand on the client's page. Storage
+      packs saved before Phase 52's prices have no price until set again.
+- [ ] Try it on the live site: upload a 1 GB video in Media, pause and resume
+      it, pick it for a lesson, watch it in a rebuilt app (seek, leave it paused
+      for over 4 hours and resume: the link renews), save it for offline
+      viewing, and buy a storage pack with a test card.
+- [ ] WordPress: release plugin 0.4.4 with the "Yallapp video" box and
+      `[yallapp_video]` (readme.txt), and try a Tutor LMS lesson with a media
+      link on a phone.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

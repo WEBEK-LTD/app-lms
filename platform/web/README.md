@@ -186,6 +186,8 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | yes in production | Outgoing email (cPanel mail works: port 465, `SMTP_SECURE=true`). The admin's Settings page can set this instead, with a test email. |
 | `YALLAPP_SEED_ADMIN_PASSWORD` | no | Memory mode only: password for the super admins at start-up. |
 | `YALLAPP_BLOBS`, `YALLAPP_BLOBS_DIR` | no | `netlify` or `fs`; defaults to Netlify Blobs on Netlify and `.data/blobs` elsewhere. |
+| `MEDIA_BASE_URL`, `MEDIA_SIGNING_SECRET` | for Media (Phase 51) | The media gate on our host (`deploy/media-host`, usually `https://yallapp.com.tr/media`) and the secret in its `config.php` (32+ characters). It takes owners' uploads in chunks and plays their files with range requests from links the platform signs. Unset on Netlify: Media takes no uploads. |
+| `YALLAPP_MEDIA`, `YALLAPP_MEDIA_DIR` | no | Local runs and tests: `fs` keeps media in `.data/media`, served by the platform's own `/media` route with the same signed links. Refused on Netlify. |
 
 Generate secrets with `openssl rand -base64 48` (session, signing) and
 `openssl rand -hex 32` (encryption key, pipeline token, files signing secret).
