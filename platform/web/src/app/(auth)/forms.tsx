@@ -4,80 +4,98 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { forgotPasswordAction, resetPasswordAction, signInAction, signUpAction } from "@/app/actions/auth";
 import { Field, FieldError, FormMessage, PasswordField, SubmitButton } from "@/components/form";
+import { DEFAULT_LANG, type Lang } from "@/i18n/config";
+import type { Messages } from "@/i18n/messages/en";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
 import { initialFormState } from "@/lib/forms";
 
 const card = "flex w-full flex-col rounded-[20px] border border-line bg-white px-5 py-8 sm:px-8 sm:py-9";
 
-export function SignInForm({ notice }: { notice?: string }) {
+/** 55 The forms' words come from the page (the catalog's `auth`, in the page's language), and the forms send the language to the actions. */
+interface FormText {
+  lang?: Lang;
+  m: Messages["auth"];
+}
+
+function LangField({ lang }: { lang: Lang }) {
+  return lang === DEFAULT_LANG ? null : <input type="hidden" name="lang" value={lang} />;
+}
+
+export function SignInForm({ notice, lang = DEFAULT_LANG, m }: { notice?: string } & FormText) {
   const [state, action] = useActionState(signInAction, initialFormState);
   return (
     <form action={action} noValidate className={`${card} max-w-[440px] gap-5`}>
+      <LangField lang={lang} />
       <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">Sign in</h1>
-        <p className="m-0 text-[15px] text-muted">Manage your apps, builds and license.</p>
+        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.signInTitle}</h1>
+        <p className="m-0 text-[15px] text-muted">{m.signInText}</p>
       </div>
       {notice && !state.message ? <FormMessage ok message={notice} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        label="Email"
+        label={m.email}
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="you@academy.com"
+        placeholder={m.emailPlaceholder}
         required
         defaultValue={state.values?.email}
         error={state.errors?.email}
       />
       <PasswordField
-        label="Password"
+        label={m.password}
         name="password"
         autoComplete="current-password"
         error={state.errors?.password}
+        showLabel={m.showPassword}
+        hideLabel={m.hidePassword}
         aside={
-          <Link href="/forgot-password" className="text-sm font-semibold no-underline hover:underline">
-            Forgot password?
+          <Link href={localePath(lang, "/forgot-password")} className="text-sm font-semibold no-underline hover:underline">
+            {m.forgot}
           </Link>
         }
       />
-      <SubmitButton className="h-[50px] text-base" pendingText="Signing in…">
-        Sign in
+      <SubmitButton className="h-[50px] text-base" pendingText={m.signingIn}>
+        {m.signIn}
       </SubmitButton>
       <p className="m-0 text-center text-[15px] text-muted">
-        New to Yallapp?{" "}
-        <Link href="/sign-up" className="font-bold">
-          Create an account
+        {m.newHere}{" "}
+        <Link href={localePath(lang, "/sign-up")} className="font-bold">
+          {m.createAccount}
         </Link>
       </p>
     </form>
   );
 }
 
-export function SignUpForm() {
+export function SignUpForm({ lang = DEFAULT_LANG, m }: FormText) {
   const [state, action] = useActionState(signUpAction, initialFormState);
   const v = state.values ?? {};
   return (
     <form action={action} noValidate className={`${card} min-w-0 flex-[3_1_420px] gap-[18px]`}>
+      <LangField lang={lang} />
       <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">Create your account</h1>
-        <p className="m-0 text-[15px] text-muted">Tell us about you and your business.</p>
+        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.signUpTitle}</h1>
+        <p className="m-0 text-[15px] text-muted">{m.signUpText}</p>
       </div>
       <FormMessage message={state.message} />
-      <Field label="Full name" name="name" autoComplete="name" required defaultValue={v.name} error={state.errors?.name} />
+      <Field label={m.fullName} name="name" autoComplete="name" required defaultValue={v.name} error={state.errors?.name} />
       <div className="flex flex-wrap gap-3.5">
         <Field
           className="flex-[1_1_200px]"
-          label="Email"
+          label={m.email}
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@your-business.com"
+          placeholder={m.businessEmailPlaceholder}
           required
           defaultValue={v.email}
           error={state.errors?.email}
         />
         <Field
           className="flex-[1_1_200px]"
-          label="WhatsApp number"
+          label={m.whatsapp}
           name="whatsapp"
           type="tel"
           autoComplete="tel"
@@ -88,15 +106,23 @@ export function SignUpForm() {
         />
       </div>
       <Field
-        label="Your website (optional)"
+        label={m.website}
         name="siteUrl"
         type="url"
         placeholder="https://your-site.com"
-        hint="Apps can also come from Shopify and other platforms, or from no website at all. You choose that later."
+        hint={m.websiteHint}
         defaultValue={v.siteUrl}
         error={state.errors?.siteUrl}
       />
-      <PasswordField label="Password" name="password" autoComplete="new-password" hint="At least 10 characters." error={state.errors?.password} />
+      <PasswordField
+        label={m.password}
+        name="password"
+        autoComplete="new-password"
+        hint={m.passwordHint}
+        error={state.errors?.password}
+        showLabel={m.showPassword}
+        hideLabel={m.hidePassword}
+      />
       <div className="flex flex-col gap-1.5">
         <label className="flex items-start gap-2.5 text-sm leading-normal text-ink-3">
           <input
@@ -108,65 +134,90 @@ export function SignUpForm() {
             className="mt-0.5 h-[18px] w-[18px] flex-none accent-midnight"
           />
           <span>
-            I agree to the <Link href="/terms">Terms of service</Link> and have read the <Link href="/privacy">Privacy policy</Link>. I’m signing up for my business.
+            {richText(m.agree, {
+              terms: (chunk) => <Link href={localePath(lang, "/terms")}>{chunk}</Link>,
+              privacy: (chunk) => <Link href={localePath(lang, "/privacy")}>{chunk}</Link>,
+            })}
           </span>
         </label>
         <FieldError id="f-terms-error" error={state.errors?.terms} />
       </div>
-      <SubmitButton className="h-[50px] text-base" pendingText="Creating your account…">
-        Create account
+      <SubmitButton className="h-[50px] text-base" pendingText={m.creating}>
+        {m.createButton}
       </SubmitButton>
     </form>
   );
 }
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ lang = DEFAULT_LANG, m }: FormText) {
   const [state, action] = useActionState(forgotPasswordAction, initialFormState);
   return (
     <form action={action} noValidate className={`${card} max-w-[440px] gap-5`}>
+      <LangField lang={lang} />
       <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">Reset your password</h1>
-        <p className="m-0 text-[15px] text-muted">Enter your account email and we’ll send you a link to choose a new password.</p>
+        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.forgotTitle}</h1>
+        <p className="m-0 text-[15px] text-muted">{m.forgotText}</p>
       </div>
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        label="Email"
+        label={m.email}
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="you@academy.com"
+        placeholder={m.emailPlaceholder}
         required
         defaultValue={state.values?.email}
         error={state.errors?.email}
       />
-      <SubmitButton className="h-[50px] text-base" pendingText="Sending…">
-        Send reset link
+      <SubmitButton className="h-[50px] text-base" pendingText={m.sending}>
+        {m.sendLink}
       </SubmitButton>
       <p className="m-0 text-center text-[15px] text-muted">
-        Remembered it? <Link href="/sign-in" className="font-bold">Sign in</Link>
+        {m.remembered}{" "}
+        <Link href={localePath(lang, "/sign-in")} className="font-bold">
+          {m.signIn}
+        </Link>
       </p>
     </form>
   );
 }
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({ token, lang = DEFAULT_LANG, m }: { token: string } & FormText) {
   const [state, action] = useActionState(resetPasswordAction, initialFormState);
   return (
     <form action={action} noValidate className={`${card} max-w-[440px] gap-5`}>
+      <LangField lang={lang} />
       <div className="flex flex-col gap-1.5">
-        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">Choose a new password</h1>
-        <p className="m-0 text-[15px] text-muted">You’ll be signed in on this device and signed out everywhere else.</p>
+        <h1 className="m-0 text-[30px] font-extrabold tracking-[-0.5px]">{m.resetTitle}</h1>
+        <p className="m-0 text-[15px] text-muted">{m.resetText}</p>
       </div>
       <FormMessage message={state.message} ok={state.ok} />
       {state.message ? (
-        <Link href="/forgot-password" className="font-bold">
-          Ask for a new link
+        <Link href={localePath(lang, "/forgot-password")} className="font-bold">
+          {m.newLink}
         </Link>
       ) : null}
       <input type="hidden" name="token" value={token} />
-      <PasswordField label="New password" name="password" autoComplete="new-password" hint="At least 10 characters." error={state.errors?.password ?? state.errors?.token} />
-      <PasswordField label="Repeat the new password" name="confirm" autoComplete="new-password" error={state.errors?.confirm} />
-      <SubmitButton className="h-[50px] text-base">Save password and sign in</SubmitButton>
+      <PasswordField
+        label={m.newPassword}
+        name="password"
+        autoComplete="new-password"
+        hint={m.passwordHint}
+        error={state.errors?.password ?? state.errors?.token}
+        showLabel={m.showPassword}
+        hideLabel={m.hidePassword}
+      />
+      <PasswordField
+        label={m.repeatPassword}
+        name="confirm"
+        autoComplete="new-password"
+        error={state.errors?.confirm}
+        showLabel={m.showPassword}
+        hideLabel={m.hidePassword}
+      />
+      <SubmitButton className="h-[50px] text-base" pendingText={m.saving}>
+        {m.savePassword}
+      </SubmitButton>
     </form>
   );
 }

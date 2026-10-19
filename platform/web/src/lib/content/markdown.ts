@@ -285,7 +285,8 @@ export function headingId(text: string): string {
       .toLowerCase()
       .normalize("NFKD")
       .replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
+      // 55 Arabic letters stay, so Arabic headings get their own ids (other letters as before).
+      .replace(/[^a-z0-9\u0621-\u0655\u0660-\u0669]+/g, "-")
       .replace(/^-+|-+$/g, "") || "section"
   );
 }

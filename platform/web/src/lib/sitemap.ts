@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { DOCS } from "@/content/docs";
+import { LANGS } from "@/i18n/config";
+import { languageAlternates, localePath } from "@/i18n/paths";
 import { SOLUTIONS } from "./marketing";
 
 /** 32 The sitemap and robots.txt: only yallapp.com.tr's public pages are listed, and the private areas are kept out. */
@@ -55,6 +57,19 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
     entry("/privacy", 0.3),
     entry("/refund", 0.3),
   ];
+}
+
+/**
+ * 55 The sitemap: every public page in English, Arabic and Turkish, each
+ * entry naming all three versions (hreflang, English as x-default).
+ */
+export function siteSitemap(base: string, updated: Record<string, string | undefined> = {}): MetadataRoute.Sitemap {
+  const url = (path: string) => `${base}${path === "/" ? "" : path}`;
+  return sitemapEntries(base, updated).flatMap((entry) => {
+    const path = entry.url.slice(base.length) || "/";
+    const languages = Object.fromEntries(Object.entries(languageAlternates(path)).map(([lang, href]) => [lang, url(href)]));
+    return LANGS.map((lang) => ({ ...entry, url: url(localePath(lang, path)), alternates: { languages } }));
+  });
 }
 
 export function robotsRules(base: string): MetadataRoute.Robots {

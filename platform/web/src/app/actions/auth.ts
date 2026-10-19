@@ -1,6 +1,6 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authenticate, registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
@@ -14,10 +14,40 @@ import { sendTemplate } from "@/lib/email/send";
 import { countryFromHeaders } from "@/lib/geo";
 import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
+import { LANG_COOKIE, LANG_COOKIE_MAX_AGE, langOf, translateKnown, type Lang } from "@/i18n";
+
+/**
+ * 55 The sign-in pages in Arabic and Turkish send their language (a hidden
+ * `lang` field): the form's errors and messages come back in it, and it is
+ * remembered in the `yallapp_lang` cookie for the dashboard (Phase 56).
+ */
+function formLang(formData: FormData): Lang {
+  return langOf(formData.get("lang"));
+}
+
+function inLang(lang: Lang, state: FormState): FormState {
+  if (lang === "en") return state;
+  const t = (text: string) => translateKnown(lang, "formErrors", text);
+  return {
+    ...state,
+    ...(state.message ? { message: t(state.message) } : {}),
+    ...(state.errors ? { errors: Object.fromEntries(Object.entries(state.errors).map(([k, v]) => [k, t(v)])) } : {}),
+  };
+}
+
+async function rememberLang(lang: Lang): Promise<void> {
+  if (lang === "en") return;
+  (await cookies()).set(LANG_COOKIE, lang, { path: "/", maxAge: LANG_COOKIE_MAX_AGE, sameSite: "lax", httpOnly: false });
+}
 
 const TOO_MANY = "Too many attempts. Please wait a few minutes and try again.";
 
 export async function signUpAction(_: FormState, formData: FormData): Promise<FormState> {
+  const lang = formLang(formData);
+  return inLang(lang, await signUp(formData, lang));
+}
+
+async function signUp(formData: FormData, lang: Lang): Promise<FormState> {
   const values = formValues(formData, ["password"]);
   const parsed = signUpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -34,6 +64,7 @@ export async function signUpAction(_: FormState, formData: FormData): Promise<Fo
     // 52 The country the sign-up came from: Yallapp's prices show in its currency.
     const { user } = await registerClient(store, { ...parsed.data, country: countryFromHeaders(await headers()) }, now);
     await startSession(user);
+    await rememberLang(lang);
   } catch (error) {
     if (error instanceof DuplicateEmailError) {
       return { errors: { email: "An account with this email already exists. Sign in instead." }, values };
@@ -44,6 +75,11 @@ export async function signUpAction(_: FormState, formData: FormData): Promise<Fo
 }
 
 export async function signInAction(_: FormState, formData: FormData): Promise<FormState> {
+  const lang = formLang(formData);
+  return inLang(lang, await signIn(formData, lang));
+}
+
+async function signIn(formData: FormData, lang: Lang): Promise<FormState> {
   const values = formValues(formData, ["password"]);
   const parsed = signInSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -59,6 +95,7 @@ export async function signInAction(_: FormState, formData: FormData): Promise<Fo
   const user = await authenticate(store, parsed.data.email, parsed.data.password, now);
   if (!user) return { message: "The email or password is incorrect.", values };
   await startSession(user);
+  await rememberLang(lang);
   redirect(await homeFor(user));
 }
 
@@ -68,6 +105,10 @@ export async function signOutAction(): Promise<void> {
 }
 
 export async function forgotPasswordAction(_: FormState, formData: FormData): Promise<FormState> {
+  return inLang(formLang(formData), await forgotPassword(formData));
+}
+
+async function forgotPassword(formData: FormData): Promise<FormState> {
   const values = formValues(formData);
   const parsed = forgotSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -98,6 +139,11 @@ export async function forgotPasswordAction(_: FormState, formData: FormData): Pr
 }
 
 export async function resetPasswordAction(_: FormState, formData: FormData): Promise<FormState> {
+  const lang = formLang(formData);
+  return inLang(lang, await resetPassword(formData, lang));
+}
+
+async function resetPassword(formData: FormData, lang: Lang): Promise<FormState> {
   const parsed = resetSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error) };
 
@@ -116,5 +162,6 @@ export async function resetPasswordAction(_: FormState, formData: FormData): Pro
     };
   }
   await startSession(result.user);
+  await rememberLang(lang);
   redirect(await homeFor(result.user));
 }

@@ -1,4 +1,7 @@
 import type { IconName } from "@/components/icon-names";
+import type { Lang } from "@/i18n/config";
+import type { Messages } from "@/i18n/messages/en";
+import { localePath } from "@/i18n/paths";
 
 /**
  * 32 The public website's main menu: Product and Resources open a short list,
@@ -66,4 +69,27 @@ export function activeEntry(current: SitePage | undefined): string | null {
     if (entry.kind === "group" && entry.items.some((item) => item.id === current)) return entry.id;
   }
   return null;
+}
+
+/** 55 The menu in a language: its labels from the catalog (nav), its links to that language's pages. */
+export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
+  const label: Record<string, [string, string?]> = {
+    home: [m.home],
+    product: [m.product],
+    pricing: [m.pricing],
+    demo: [m.demo],
+    resources: [m.resources],
+    contact: [m.contact],
+    solutions: [m.solutions, m.solutionsText],
+    features: [m.features, m.featuresText],
+    integrations: [m.integrations, m.integrationsText],
+    how: [m.how, m.howText],
+    docs: [m.docs, m.docsText],
+    faq: [m.faq, m.faqText],
+    developers: [m.developers, m.developersText],
+  };
+  const link = (item: SiteLink): SiteLink => ({ ...item, href: localePath(lang, item.href), label: label[item.id]![0], description: item.description && label[item.id]![1] });
+  return SITE_NAV.map((entry) =>
+    entry.kind === "group" ? { ...entry, label: label[entry.id]![0], items: entry.items.map(link) } : { kind: "link" as const, ...link(entry) },
+  );
 }

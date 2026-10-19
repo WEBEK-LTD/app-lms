@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { DEFAULT_LANG, formatMessage, messagesFor, type Lang } from "@/i18n";
+import { localePath } from "@/i18n/paths";
 import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
 
 export interface DocNavGroup {
@@ -14,7 +16,10 @@ export function DocLayout({
   current,
   site,
   children,
+  lang = DEFAULT_LANG,
 }: {
+  /** 55 The page's language. */
+  lang?: Lang;
   groups: DocNavGroup[];
   current: string;
   /** The header link to mark, e.g. "guides". */
@@ -23,7 +28,7 @@ export function DocLayout({
 }) {
   return (
     <div className="bg-ivory">
-      <SiteHeader current={site} />
+      <SiteHeader current={site} lang={lang} />
       <main className="mx-auto flex max-w-[1160px] flex-wrap items-start gap-10 px-4 pt-12 pb-20 sm:px-6">
         <div className="flex flex-[1_1_220px] flex-col gap-[22px] text-[15px]">
           {groups.map((group) => (
@@ -35,7 +40,7 @@ export function DocLayout({
                     key={link.href}
                     href={link.href}
                     aria-current="page"
-                    className="rounded-lg border-l-[3px] border-ember bg-white px-3 py-2 font-bold text-midnight no-underline hover:text-midnight"
+                    className="rounded-lg border-s-[3px] border-ember bg-white px-3 py-2 font-bold text-midnight no-underline hover:text-midnight"
                   >
                     {link.label}
                   </Link>
@@ -48,11 +53,11 @@ export function DocLayout({
             </nav>
           ))}
         </div>
-        <article className="flex min-w-0 max-w-[780px] flex-[999_1_560px] flex-col gap-3.5 rounded-[20px] border border-line bg-white px-5 py-8 text-base leading-[1.7] text-ink-2 sm:p-10 [&_h2]:mt-4 [&_h2]:mb-0 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-midnight [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-5">
+        <article className="flex min-w-0 max-w-[780px] flex-[999_1_560px] flex-col gap-3.5 rounded-[20px] border border-line bg-white px-5 py-8 text-base leading-[1.7] text-ink-2 sm:p-10 [&_h2]:mt-4 [&_h2]:mb-0 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-midnight [&_p]:m-0 [&_ul]:m-0 [&_ul]:ps-5">
           {children}
         </article>
       </main>
-      <SiteFooter />
+      <SiteFooter lang={lang} />
     </div>
   );
 }
@@ -73,6 +78,23 @@ export const LEGAL_NAV: DocNavGroup[] = [
   },
 ];
 
-export function LastUpdated({ date }: { date: string }) {
-  return <span className="text-sm text-muted">Last updated: {date}</span>;
+export function LastUpdated({ date, lang = DEFAULT_LANG }: { date: string; lang?: Lang }) {
+  return <span className="text-sm text-muted">{formatMessage(lang, messagesFor(lang).legal.updated, { date })}</span>;
+}
+
+/** 55 The legal pages' menu in a language. */
+export function legalNav(lang: Lang): DocNavGroup[] {
+  if (lang === "en") return LEGAL_NAV;
+  const m = messagesFor(lang);
+  return [
+    {
+      title: m.legal.nav,
+      label: m.legal.navLabel,
+      links: [
+        { href: localePath(lang, "/terms"), label: m.footer.terms },
+        { href: localePath(lang, "/privacy"), label: m.footer.privacy },
+        { href: localePath(lang, "/refund"), label: m.footer.refund },
+      ],
+    },
+  ];
 }

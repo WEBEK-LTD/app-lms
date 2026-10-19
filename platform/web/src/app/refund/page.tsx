@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import { pageMetadata } from "@/lib/seo";
 import { LegalPage } from "@/components/legal-page";
+import { legalMetadata } from "@/site/legal";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Refund policy",
-  description: "Cancel within 3 days of your account being activated for a full refund. How refunds and renewals work.",
-  path: "/refund",
-});
+export const metadata: Metadata = legalMetadata("en", "refund");
 
-export default function RefundPage() {
+export default function Page() {
   return <LegalPage contentKey="refund" path="/refund" />;
 }
