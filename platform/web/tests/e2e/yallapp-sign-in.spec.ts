@@ -187,6 +187,30 @@ test("the app preview signs in at Yallapp and reads content from the client's AP
   await own.context().unroute(`${new URL(clientApiAddress).origin}/**`);
 });
 
+test("49 deleting an account tells the client's API, and the owner sees it", async ({ request }) => {
+  // The review account signs in again (it exists: tokens at once) and deletes itself.
+  const requested = await request.post(`${hosted}/auth/otp/request`, { headers: extraHTTPHeaders, data: { country_code: "+90", phone: "5320000034" } });
+  const { request_id } = (await requested.json()) as { request_id: string };
+  const verified = await request.post(`${hosted}/auth/otp/verify`, { headers: extraHTTPHeaders, data: { request_id, code: "343434", device: DEVICE } });
+  expect(verified.status()).toBe(200);
+  const session = (await verified.json()) as { access_token: string; user: { id: number } };
+  expect(session.access_token).toMatch(/^eyJ/);
+  // The app asked the client's API first; whatever it answered, Yallapp deletes the account.
+  const deleted = await request.delete(`${hosted}/me`, { headers: { ...extraHTTPHeaders, authorization: `Bearer ${session.access_token}` } });
+  expect(deleted.status()).toBe(204);
+  expect((await request.get(`${hosted}/me`, { headers: { ...extraHTTPHeaders, authorization: `Bearer ${session.access_token}` } })).status()).toBe(401);
+
+  // The client's address doesn't resolve here: the notice waits for its next try, and the owner sees why.
+  await own.goto("/dashboard/app-sign-in");
+  const developer = own.getByRole("region", { name: "For your developer" });
+  await expect(developer.getByRole("heading", { name: "Account deletions sent to your API" })).toBeVisible();
+  await expect(developer.getByText(`POST ${clientApiAddress}/webhooks/yallapp`)).toBeVisible();
+  const row = developer.getByTestId("account-deletions").getByRole("listitem").first();
+  await expect(row).toContainText(`User ${session.user.id}`);
+  await expect(row).toContainText("Your API couldn't be reached. Trying again (1 of 8 tries made).");
+  await expect(developer.getByRole("link", { name: "How to check a notice" })).toHaveAttribute("href", "/docs/my-own-api#account-deletion-notices");
+});
+
 test("back to the client's own sign-in", async ({ request }) => {
   await own.goto("/dashboard/app-sign-in");
   await own.getByRole("radio", { name: /Your API signs people in/ }).check();

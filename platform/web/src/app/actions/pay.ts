@@ -14,6 +14,7 @@ import { callbackUrls } from "@/lib/payments/routes";
 import { settleOrderPayment } from "@/lib/payments/settle";
 import { withDemoChecked } from "@/lib/demo/apps";
 import { placeDemoOrder } from "@/lib/demo/checkout";
+import { HoldEndedError } from "@/lib/events/holds";
 
 /** 16 A demo app's payment page: places the order without taking any payment. */
 export async function demoPayAction(token: string): Promise<void> {
@@ -59,6 +60,7 @@ export async function payAction(token: string, _: FormState, formData: FormData)
       callbackUrls: callbackUrls(appUrl(), "order", account.account.provider, token),
     });
   } catch (e) {
+    if (e instanceof HoldEndedError) return { message: "The places held for this order were released. Go back to the app and get your tickets again." };
     if (!(e instanceof PaymentError)) throw e;
     return { message: "The card payment couldn't start. Please try again in a moment.", values };
   }

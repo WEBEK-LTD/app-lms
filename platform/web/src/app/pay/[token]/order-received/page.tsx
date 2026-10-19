@@ -4,6 +4,7 @@ import { orderNumber } from "@/lib/catalog/settings";
 import { sha256Hex } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import { PayShell } from "../shell";
+import { paidWithoutPlaces } from "@/lib/events/holds";
 
 export const metadata: Metadata = { title: "Order received", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -15,9 +16,19 @@ export default async function OrderReceivedPage({ params }: { params: Promise<{ 
   const order = await store.getCatalogOrderByToken(sha256Hex(token));
   const app = order ? await store.getAppById(order.appId) : null;
   const paid = order?.status === "processing" || order?.status === "completed";
+  // 49 Paid after the places held for it were released, and the event filled up meanwhile.
+  const noPlaces = Boolean(order && app?.connector?.kind === "events" && paidWithoutPlaces(order, await store.listTickets({ appId: app.id, orderId: order.id })));
   return (
     <PayShell app={app}>
-      {paid ? (
+      {noPlaces ? (
+        <>
+          <Icon name="info" size={48} className="text-ink-4" />
+          <h1 className="m-0 text-[24px] font-extrabold">No places left</h1>
+          <p className="m-0 text-[16px] leading-relaxed text-ink-4">
+            {`Your payment for order ${orderNumber(order!)} arrived after the places held for you were released, and the event is now full, so no tickets were issued. ${app?.appName ?? "The organiser"} will refund your payment.`}
+          </p>
+        </>
+      ) : paid ? (
         <>
           <Icon name="check_circle" size={48} filled className="text-success" />
           <h1 className="m-0 text-[24px] font-extrabold">Thank you!</h1>

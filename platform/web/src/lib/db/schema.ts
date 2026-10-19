@@ -31,6 +31,8 @@ import type {
   OwnerNoticeKind,
   LinksCheckSnapshot,
   CrashIssueStatus,
+  ApiWebhookEvent,
+  ApiWebhookStatus,
 } from "../data/types";
 // 11.6 and 11.8
 import type { AnnouncementAudience, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
@@ -1385,4 +1387,27 @@ export const crashSessions = mysqlTable(
     crashed: int("crashed").notNull(),
   },
   (t) => [primaryKey({ columns: [t.appId, t.day] })],
+);
+
+// 49 Signed notices to an app's own API (account.deleted), with their tries; kept 30 days.
+
+export const apiWebhooks = mysqlTable(
+  "api_webhooks",
+  {
+    id: id("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    event: varchar("event", { length: 32 }).notNull().$type<ApiWebhookEvent>(),
+    subject: varchar("subject", { length: 64 }).notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<ApiWebhookStatus>(),
+    attempts: int("attempts").notNull(),
+    nextAttemptAt: time("next_attempt_at"),
+    lastAttemptAt: time("last_attempt_at"),
+    lastStatus: int("last_status"),
+    lastError: varchar("last_error", { length: 200 }),
+    createdAt: time("created_at").notNull(),
+    deliveredAt: time("delivered_at"),
+  },
+  (t) => [index("api_webhooks_due_idx").on(t.status, t.nextAttemptAt), index("api_webhooks_app_idx").on(t.appId, t.createdAt)],
 );

@@ -32,6 +32,7 @@ import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
+import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -1756,14 +1757,81 @@ export class MysqlStore implements DataStore {
     return row ?? null;
   }
 
-  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number> {
-    void now;
+  async issueOrderTickets(appId: string, orderId: number, now: Date): Promise<{ issued: number; released: number }> {
+    const e = schema.events;
+    const tt = schema.eventTicketTypes;
+    const tk = schema.eventTickets;
+    // The event first, outside the transaction: the transaction's first read is
+    // the lock, so its counts see every claim that ended before it got it.
+    const [first] = await this.run((db) =>
+      db
+        .select({ eventId: tk.eventId })
+        .from(tk)
+        .where(and(eq(tk.appId, appId), eq(tk.orderId, orderId), eq(tk.status, "pending")))
+        .limit(1),
+    );
+    if (!first) return { issued: 0, released: 0 };
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // The event's row is the lock, as for a claim: no place is taken while this counts.
+        const [event] = await tx
+          .select({ id: e.id, status: e.status, capacity: e.capacity })
+          .from(e)
+          .where(and(eq(e.appId, appId), eq(e.id, first.eventId)))
+          .for("update");
+        const pending = await tx
+          .select()
+          .from(tk)
+          .where(and(eq(tk.appId, appId), eq(tk.orderId, orderId), eq(tk.status, "pending")));
+        const lapsed = pending.filter((t) => t.holdUntil === null || t.holdUntil.getTime() <= now.getTime());
+        const held = pending.length - lapsed.length;
+        if (held > 0) {
+          await tx
+            .update(tk)
+            .set({ status: "valid", holdUntil: null })
+            .where(and(eq(tk.appId, appId), eq(tk.orderId, orderId), eq(tk.status, "pending"), gt(tk.holdUntil, now)));
+        }
+        if (lapsed.length === 0) return { issued: held, released: 0 };
+        // 49 Paid after the hold ended: only while the places are still free.
+        const holdsPlace = or(inArray(tk.status, ["valid", "used"]), and(eq(tk.status, "pending"), gt(tk.holdUntil, now)));
+        const counts = await tx
+          .select({ ticketTypeId: tk.ticketTypeId, n: count() })
+          .from(tk)
+          .where(and(eq(tk.eventId, first.eventId), holdsPlace))
+          .groupBy(tk.ticketTypeId);
+        const total = counts.reduce((sum, c) => sum + Number(c.n), 0);
+        let free = Boolean(event) && event!.status === "published" && (event!.capacity === null || total + lapsed.length <= event!.capacity);
+        for (const typeId of new Set(lapsed.map((t) => t.ticketTypeId))) {
+          const [type] = await tx.select({ capacity: tt.capacity }).from(tt).where(and(eq(tt.appId, appId), eq(tt.id, typeId))).limit(1);
+          const wanted = lapsed.filter((t) => t.ticketTypeId === typeId).length;
+          const taken = Number(counts.find((c) => c.ticketTypeId === typeId)?.n ?? 0);
+          if (!type || (type.capacity !== null && taken + wanted > type.capacity)) free = false;
+        }
+        await tx
+          .update(tk)
+          .set(free ? { status: "valid", holdUntil: null } : { status: "cancelled", holdUntil: null, cancelledAt: now })
+          .where(
+            and(
+              eq(tk.appId, appId),
+              inArray(
+                tk.id,
+                lapsed.map((t) => t.id),
+              ),
+              eq(tk.status, "pending"),
+            ),
+          );
+        return free ? { issued: pending.length, released: 0 } : { issued: held, released: lapsed.length };
+      }),
+    );
+  }
+
+  async holdOrderTickets(appId: string, orderId: number, until: Date, now: Date): Promise<number> {
     const t = schema.eventTickets;
     const [result] = await this.run((db) =>
       db
         .update(t)
-        .set({ status: "valid", holdUntil: null })
-        .where(and(eq(t.appId, appId), eq(t.orderId, orderId), eq(t.status, "pending"))),
+        .set({ holdUntil: until })
+        .where(and(eq(t.appId, appId), eq(t.orderId, orderId), eq(t.status, "pending"), gt(t.holdUntil, now))),
     );
     return result.affectedRows;
   }
@@ -2534,6 +2602,54 @@ export class MysqlStore implements DataStore {
         .set({ status, resolvedAt: status === "resolved" ? now : null })
         .where(eq(schema.crashIssues.id, id)),
     );
+  }
+
+  // 49 Signed notices to an app's own API
+  async createApiWebhook(webhook: ApiWebhook): Promise<void> {
+    await this.run((db) => db.insert(schema.apiWebhooks).values(webhook));
+  }
+
+  async getApiWebhook(id: string): Promise<ApiWebhook | null> {
+    const rows = await this.run((db) => db.select().from(schema.apiWebhooks).where(eq(schema.apiWebhooks.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async listDueApiWebhooks(now: Date, limit: number): Promise<ApiWebhook[]> {
+    const w = schema.apiWebhooks;
+    return this.run((db) =>
+      db
+        .select()
+        .from(w)
+        .where(and(eq(w.status, "pending"), lte(w.nextAttemptAt, now)))
+        .orderBy(asc(w.nextAttemptAt), asc(w.createdAt))
+        .limit(limit),
+    );
+  }
+
+  async claimApiWebhook(id: string, until: Date, now: Date): Promise<boolean> {
+    const w = schema.apiWebhooks;
+    const [result] = await this.run((db) =>
+      db
+        .update(w)
+        .set({ nextAttemptAt: until })
+        .where(and(eq(w.id, id), eq(w.status, "pending"), lte(w.nextAttemptAt, now))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async updateApiWebhook(id: string, patch: ApiWebhookPatch): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    await this.run((db) => db.update(schema.apiWebhooks).set(patch).where(eq(schema.apiWebhooks.id, id)));
+  }
+
+  async listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]> {
+    const w = schema.apiWebhooks;
+    return this.run((db) => db.select().from(w).where(eq(w.appId, appId)).orderBy(desc(w.createdAt), asc(w.id)).limit(limit));
+  }
+
+  async purgeApiWebhooks(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.apiWebhooks).where(lt(schema.apiWebhooks.createdAt, before)));
+    return result.affectedRows;
   }
 
   async crashSessionTotals(appId: string, sinceDay: string): Promise<{ sessions: number; crashed: number }> {

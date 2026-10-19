@@ -88,6 +88,9 @@ devices. Everything else is in the code. Tick each line when it's done.
       `INTERNAL_JOB_SECRET` set, Netlify › Logs › Functions shows
       `daily-notices` as a scheduled function; its next run logs a JSON report.
       To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/daily`.
+- [ ] The webhook job (49): Netlify › Logs › Functions shows `api-webhooks`
+      running every 5 minutes (account deletion notices to apps' own APIs
+      tried again). To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/webhooks`.
 - [ ] `files.yallapp.com.tr`, GitHub secrets and variables: `build/README.md`
       › One-time setup.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch

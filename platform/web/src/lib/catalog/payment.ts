@@ -11,6 +11,7 @@ import { formatCents } from "./money";
 import { optionsText } from "./options";
 import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
+import { checkTicketHold, holdForPayment, noticeRefundDue, providerPageExpiry } from "../events/holds";
 
 /** What the payment page asks for, checked; or the errors per field. */
 export function readCustomer(
@@ -56,6 +57,9 @@ export async function startPayment(
 ): Promise<string> {
   const { order, customer } = deps;
   const { account, marketplace } = deps.account;
+  // 49 Tickets: never start a payment for places already released.
+  await checkTicketHold(deps.store, deps.app, order, deps.now);
+  const tickets = deps.app.connector?.kind === "events";
   // Yallapp's commission is on the products; shipping goes to the shop in full. Only iyzico splits the payment (sub-merchants).
   const split = marketplace && account.provider === "iyzico" ? marketplace : null;
   const share = (cents: number, commissioned: boolean) =>
@@ -94,9 +98,12 @@ export async function startPayment(
       returnUrl: deps.callbackUrls.returnUrl,
       webhookUrl: deps.callbackUrls.webhookUrl,
       iyzico: { conversationId: `order-${orderNumber(order)}`, basketId: String(order.id), shipping: order.lines.some((l) => !l.digital) },
+      ...(tickets ? { pageExpiresAt: providerPageExpiry(deps.now) } : {}),
     },
     { fetcher: deps.fetcher, urls: deps.urls },
   );
+  // 49 The places are held exactly as long as the provider's page takes the payment.
+  if (tickets) await holdForPayment(deps.store, deps.app, order, started.expiresAt, deps.now);
   // 37 The provider and its reference stay on the order: the payment is read back from that provider.
   await deps.store.updateCatalogOrder(order.appId, order.id, {
     customer,
@@ -280,17 +287,22 @@ export async function enrollPaidCourses(store: DataStore, app: App, order: Catal
  * confirmed the payment, or a demo order was placed). Apps whose events are
  * managed in the dashboard only.
  */
-export async function issuePaidTickets(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<number> {
+export async function issuePaidTickets(store: DataStore, app: App, order: CatalogOrder, now: Date, baseUrl = ""): Promise<number> {
   if (app.connector?.kind !== "events") return 0;
-  const issued = await store.issueOrderTickets(app.id, order.id, now);
+  const { issued, released } = await store.issueOrderTickets(app.id, order.id, now);
+  if (released > 0 && issued === 0) {
+    // 49 Paid after the hold ended and the event filled up: no tickets, the order stays paid, the owner refunds it.
+    await noticeRefundDue(store, app, order, now, baseUrl);
+    return 0;
+  }
   // Nothing to deliver: the tickets are in the buyer's app.
   await store.updateCatalogOrder(app.id, order.id, { status: "completed", updatedAt: now });
   return issued;
 }
 
 /** What a paid order delivers right away: enrolments for courses, 27 a gym's membership, 28 tickets for events. */
-export async function deliverPaidOrder(store: DataStore, app: App, order: CatalogOrder, now: Date): Promise<void> {
+export async function deliverPaidOrder(store: DataStore, app: App, order: CatalogOrder, now: Date, baseUrl = ""): Promise<void> {
   await enrollPaidCourses(store, app, order, now);
   await startPaidMemberships(store, app, order, now);
-  await issuePaidTickets(store, app, order, now);
+  await issuePaidTickets(store, app, order, now, baseUrl);
 }

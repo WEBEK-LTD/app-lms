@@ -63,6 +63,8 @@ import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, Analyt
 import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, DonationSettings, DonationStatus } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
+// 49
+import type { ApiWebhook, ApiWebhookPatch } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
@@ -469,8 +471,15 @@ export interface DataStore {
   /** Tickets of the app, by event, holder or order, oldest first. */
   listTickets(input: { appId: string; eventId?: number; userId?: number; orderId?: number }): Promise<EventTicket[]>;
   getTicketByCode(appId: string, code: string): Promise<EventTicket | null>;
-  /** A paid order's pending tickets become valid (once); returns how many. */
-  issueOrderTickets(appId: string, orderId: number, now: Date): Promise<number>;
+  /**
+   * A paid order's pending tickets become valid (once). 49 Tickets whose hold
+   * ended before the payment was confirmed become valid only while their
+   * places are still free (counted like a claim, atomically); otherwise
+   * they're cancelled. Returns how many were issued and how many released.
+   */
+  issueOrderTickets(appId: string, orderId: number, now: Date): Promise<{ issued: number; released: number }>;
+  /** 49 An order's pending tickets whose hold hasn't ended are held until then; returns how many. */
+  holdOrderTickets(appId: string, orderId: number, until: Date, now: Date): Promise<number>;
   /** Marks a valid ticket used, once: a second check-in is refused with the ticket as it is. */
   checkInTicket(appId: string, code: string, now: Date): Promise<CheckInResult>;
   /** Cancels valid tickets (these, or every one of an event); returns how many. Their places go back on sale. */
@@ -629,6 +638,23 @@ export interface DataStore {
   setCrashIssueStatus(id: string, status: CrashIssueStatus, now: Date): Promise<void>;
   /** The runs and the runs with a crash of an app since a day (YYYY-MM-DD, UTC), inclusive. */
   crashSessionTotals(appId: string, sinceDay: string): Promise<{ sessions: number; crashed: number }>;
+
+  // 49 Signed notices to an app's own API
+  createApiWebhook(webhook: ApiWebhook): Promise<void>;
+  getApiWebhook(id: string): Promise<ApiWebhook | null>;
+  /** Pending notices due at `now`, oldest first. */
+  listDueApiWebhooks(now: Date, limit: number): Promise<ApiWebhook[]>;
+  /**
+   * Takes a pending notice due at `now` for one try: moves its next try to
+   * `until`, so another run doesn't send it at the same time. False when it
+   * isn't pending and due any more.
+   */
+  claimApiWebhook(id: string, until: Date, now: Date): Promise<boolean>;
+  updateApiWebhook(id: string, patch: ApiWebhookPatch): Promise<void>;
+  /** An app's notices, newest first. */
+  listApiWebhooks(appId: string, limit: number): Promise<ApiWebhook[]>;
+  /** Deletes notices created before `before`; returns how many. */
+  purgeApiWebhooks(before: Date): Promise<number>;
 
   // 16 Demo apps
   /**

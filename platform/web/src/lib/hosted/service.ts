@@ -105,6 +105,12 @@ export interface HostedContext {
    * Yallapp signs people in to. Without it such an app answers not_found.
    */
   yallappSignIn?: AppSignIn | null;
+  /**
+   * 49 A person deleted their account in an app Yallapp signs people in to:
+   * tells the client's API (`account.deleted`, lib/hosted/api-webhooks.ts).
+   * Called after the account is gone; a failure never undoes the deletion.
+   */
+  onAccountDeleted?: (sub: string) => Promise<void>;
 }
 
 export interface HostedRequest {
@@ -245,7 +251,17 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       case "DELETE /me":
         // 16 Deleting the shared demo account would sign everyone out: it signs out this phone only.
         if (ctx.app.demo) await ctx.store.deleteHostedDevice(ctx.app.id, session.device.id);
-        else await ctx.store.deleteHostedUser(ctx.app.id, session.user.id);
+        else {
+          await ctx.store.deleteHostedUser(ctx.app.id, session.user.id);
+          // 49 The client's API hears of it, signed, even when the app couldn't reach its DELETE /me.
+          if (signInOnly) {
+            try {
+              await ctx.onAccountDeleted?.(String(session.user.id));
+            } catch (e) {
+              console.error(`[hosted] app ${ctx.app.id}: the account deletion notice failed: ${errorText(e)}`);
+            }
+          }
+        }
         return noContent;
       case "GET /me/devices":
         return listDevices(ctx, session);

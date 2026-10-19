@@ -73,5 +73,22 @@ export function buildApiReference(contract: unknown): ApiReference {
       });
     }
   }
+  // 49 Webhooks: calls Yallapp makes to the client's API, at the path their `x-path` names.
+  for (const [name, item] of Object.entries(obj(root.webhooks))) {
+    for (const method of METHODS) {
+      const operation = obj(obj(item)[method]);
+      if (!Object.keys(operation).length) continue;
+      const tag = byName.get(str((Array.isArray(operation.tags) ? operation.tags : [])[0]));
+      if (!tag) continue;
+      const description = tidy(str(operation.description));
+      tag.endpoints.push({
+        method: method.toUpperCase(),
+        path: str(operation["x-path"]) || name,
+        summary: str(operation.summary),
+        description: description || null,
+        access: "public",
+      });
+    }
+  }
   return { title: str(info.title), version: str(info.version), tags: tags.filter((t) => t.endpoints.length > 0) };
 }

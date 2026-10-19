@@ -113,7 +113,7 @@ export async function initializeCheckoutForm(
   keys: IyzicoKeys,
   request: CheckoutFormRequest,
   options: { fetcher?: Fetch; baseUrl?: string | null } = {},
-): Promise<{ token: string; paymentPageUrl: string }> {
+): Promise<{ token: string; paymentPageUrl: string; tokenExpireSeconds: number | null }> {
   const result = await post(
     keys,
     "/payment/iyzipos/checkoutform/initialize/auth/ecom",
@@ -123,7 +123,9 @@ export async function initializeCheckoutForm(
   if (result.status !== "success" || typeof result.token !== "string" || typeof result.paymentPageUrl !== "string") {
     throw new IyzicoError(result.errorMessage ?? "iyzico couldn't start the payment.");
   }
-  return { token: result.token, paymentPageUrl: result.paymentPageUrl };
+  // 49 How long the page takes the payment (iyzico says 1800 seconds).
+  const seconds = Number((result as { tokenExpireTime?: unknown }).tokenExpireTime);
+  return { token: result.token, paymentPageUrl: result.paymentPageUrl, tokenExpireSeconds: Number.isFinite(seconds) && seconds > 0 ? seconds : null };
 }
 
 export interface CheckoutFormResult {

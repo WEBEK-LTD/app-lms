@@ -100,6 +100,8 @@ export interface CheckoutRequest {
   webhookUrl: string | null;
   /** iyzico's own IDs, as before Phase 37, and whether a shipping address is sent. */
   iyzico: { conversationId: string; basketId: string; shipping: boolean };
+  /** 49 When the provider's page should stop taking the payment (Kashier takes it); missing: the provider's default. */
+  pageExpiresAt?: Date | null;
 }
 
 export interface StartedCheckout {
@@ -107,6 +109,12 @@ export interface StartedCheckout {
   url: string;
   /** The provider's reference, kept on the payment to read it back: iyzico's token, Kashier's session, Fawaterk's invoice. */
   providerRef: string;
+  /**
+   * 49 When the provider's page stops taking the payment, as far as we know:
+   * iyzico's token life, the expiry we gave Kashier; null for Fawaterk, whose
+   * invoice takes no expiry to the minute.
+   */
+  expiresAt: Date | null;
 }
 
 /** Starts a payment on the provider's page. Throws PaymentError when it can't start. */
@@ -131,10 +139,11 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
         serverWebhook: request.webhookUrl,
         customer: { email: request.customer.email, reference: request.customer.id },
         description: request.description,
+        expiresAt: request.pageExpiresAt ?? null,
       },
       { fetcher: options.fetcher, baseUrl: options.urls?.kashier },
     );
-    return { url: sessionUrl, providerRef: sessionId };
+    return { url: sessionUrl, providerRef: sessionId, expiresAt: request.pageExpiresAt ?? null };
   }
   if (account.provider === "fawaterk") {
     const { invoiceId, url } = await createFawaterkInvoice(
@@ -152,13 +161,14 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
       },
       { fetcher: options.fetcher, baseUrl: options.urls?.fawaterk },
     );
-    return { url, providerRef: invoiceId };
+    return { url, providerRef: invoiceId, expiresAt: null };
   }
   const decimal = (cents: number) => (cents / 100).toFixed(2);
   const { customer } = request;
   const address = { contactName: customer.name, city: customer.city, country: "Turkey", address: customer.address ?? customer.city };
   const price = decimal(request.amountCents);
-  const { token, paymentPageUrl } = await initializeCheckoutForm(
+  const startedAt = Date.now();
+  const { token, paymentPageUrl, tokenExpireSeconds } = await initializeCheckoutForm(
     account.keys,
     {
       conversationId: request.iyzico.conversationId,
@@ -193,7 +203,7 @@ export async function startCheckout(account: PaymentAccount, request: CheckoutRe
     },
     { fetcher: options.fetcher, baseUrl: options.urls?.iyzico },
   );
-  return { url: paymentPageUrl, providerRef: token };
+  return { url: paymentPageUrl, providerRef: token, expiresAt: new Date(startedAt + (tokenExpireSeconds ?? 1800) * 1000) };
 }
 
 /** What a payment should be: ours, for this amount and currency. */

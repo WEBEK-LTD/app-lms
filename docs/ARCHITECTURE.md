@@ -599,7 +599,18 @@ mobile/
   merchant order; Fawaterk's `payLoad.reference`), for the exact amount
   (iyzico: at least it) and the same currency; `checkAccount` is the
   harmless "Test connection" call (iyzico: a BIN lookup; Kashier: the
-  merchant; Fawaterk: the payment methods). Amounts go out as decimal
+  merchant; Fawaterk: the payment methods).
+  49 Ticket holds end with the provider's page (`lib/events/holds.ts`): a
+  checkout link holds the places for the pay link's hour; starting the card
+  payment sets the hold to when the page stops taking it (iyzico's
+  `tokenExpireTime`, the `expireAt` we give Kashier's session: 30 minutes;
+  Fawaterk takes no expiry to the minute, so the same 30 minutes) plus 5
+  minutes for the confirmation to arrive (`holdOrderTickets`). A payment
+  can't start once the hold ended. A payment confirmed later gets its
+  tickets only while the places are free (`issueOrderTickets`, the event's
+  row locked like a claim); otherwise the tickets are cancelled, the order
+  stays paid, the buyer's page says the organiser will refund them and the
+  owner gets a `ticket_refund_due` notice. Amounts go out as decimal
   strings in major units ("450.00"). Each provider takes its own
   currencies: iyzico TRY, USD, EUR; Kashier EGP, USD, EUR; Fawaterk EGP,
   USD, SAR, AED, EUR. Kashier: `POST /v3/payment/sessions` with the secret
@@ -814,8 +825,24 @@ Yallapp: App sign-in › "Who signs people in" (`apps.hosted_settings.signInBy`:
   follows the client's `/config` when it says `auth.provider: yallapp`; when
   Yallapp's `/config` answers 404 (the owner went back) sign-in returns to
   the client's API. Deleting the account calls the client's `DELETE /me`
-  first (404 or 405 ignored), then Yallapp's. The preview sends its token
-  (`X-Yallapp-Preview`) only to Yallapp.
+  first, then Yallapp's whatever the first answered (49). The preview sends
+  its token (`X-Yallapp-Preview`) only to Yallapp.
+- **Account deletion notices** (Phase 49, `lib/hosted/api-webhooks.ts`).
+  Yallapp's `DELETE /me` deletes the account at once and queues
+  `account.deleted` in `api_webhooks` (`drizzle/0038_api_webhooks.sql`):
+  `POST <API address>/webhooks/yallapp`, a Security Event Token
+  (`application/secevent+jwt`, `typ` `secevent+jwt`) signed with the app's
+  key, `aud` `<app id>:events` (never an access token's), `sub`, `jti` (the
+  row's ID, also `Yallapp-Delivery`), signed again for each try with a
+  5-minute `exp`. The first try goes with the deletion (5 seconds); the
+  webhook job (`netlify/functions/api-webhooks.mts` every 5 minutes →
+  `POST /api/internal/webhooks`) takes due rows one run at a time
+  (`claimApiWebhook`) and tries again after 1, 5 and 30 minutes, 2, 6, 12
+  and 24 hours on 5xx, 408, 425, 429, timeouts and unreachable APIs; other
+  answers, redirects (never followed) and private addresses fail at once.
+  App sign-in › For your developer lists the last 30 days, which the job
+  then deletes. Contract: the `accountDeleted` webhook in
+  `docs/api/openapi.yaml`.
 - **The client's API** checks the token with the key set (signature, `iss`,
   `aud`, `exp`) and maps `sub` to its own users (the developer guide, with
   samples for jose, firebase/php-jwt and PyJWT). "Copy a test token" (20 per

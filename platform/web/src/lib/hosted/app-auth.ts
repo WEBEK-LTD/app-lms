@@ -129,6 +129,33 @@ export async function signWithKey(key: AppAuthKey, encryptionKey: Buffer, claims
     .sign(privateKey);
 }
 
+/** 49 The claims of a Security Event Token (RFC 8417) Yallapp sends an app's own API (lib/hosted/api-webhooks.ts). */
+export interface SecurityEventClaims {
+  iss: string;
+  /** `<app ID>:events`: never an access token's audience. */
+  aud: string;
+  sub: string;
+  jti: string;
+  iat: number;
+  exp: number;
+  events: Record<string, Record<string, never>>;
+}
+
+/** 49 Signs a notice with the app's key, as `secevent+jwt`. */
+export async function signSecurityEvent(key: AppAuthKey, encryptionKey: Buffer, claims: SecurityEventClaims): Promise<string> {
+  if (!key.privateKeyEncrypted) throw new Error("This key no longer signs.");
+  const privateKey = await importPKCS8(decrypt(key.privateKeyEncrypted, encryptionKey, keyContext(key.appId)), SIGN_IN_ALG);
+  return new SignJWT({ events: claims.events })
+    .setProtectedHeader({ alg: SIGN_IN_ALG, typ: "secevent+jwt", kid: key.kid })
+    .setIssuer(claims.iss)
+    .setAudience(claims.aud)
+    .setSubject(claims.sub)
+    .setJti(claims.jti)
+    .setIssuedAt(claims.iat)
+    .setExpirationTime(claims.exp)
+    .sign(privateKey);
+}
+
 /** The claims, or null when the token isn't one of these keys', is for another app or issuer, or has expired. */
 export async function verifyWithKeys(
   token: string,
