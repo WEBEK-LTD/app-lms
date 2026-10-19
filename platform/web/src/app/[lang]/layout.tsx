@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { langParams } from "@/site/lang";
 
 /**

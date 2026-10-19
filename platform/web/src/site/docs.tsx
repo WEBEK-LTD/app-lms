@@ -278,7 +278,10 @@ export async function DevelopersPage({ lang }: { lang: Lang }) {
   const m = messagesFor(lang);
   const d = m.developers;
   const access: Record<ApiEndpoint["access"], string> = { public: d.noSignIn, "signed-in": d.signedIn, optional: d.optional };
-  const code = (value: string) => () => <code dir="ltr">{value}</code>;
+  const code = (value: string) => {
+    const Code = () => <code dir="ltr">{value}</code>;
+    return Code;
+  };
   return (
     <DocsShell current="/developers" lang={lang}>
       <DocArticle>
