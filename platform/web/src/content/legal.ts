@@ -72,7 +72,7 @@ You can ask to access, correct or delete your data, restrict or object to how we
 
 ## 10. Cookies
 
-We use only the cookies needed to keep you signed in. We don’t use advertising or tracking cookies.
+We use only the cookies needed to keep you signed in, and one that remembers the site language you choose. We don’t use advertising or tracking cookies.
 
 ## 11. Changes and contact
 
