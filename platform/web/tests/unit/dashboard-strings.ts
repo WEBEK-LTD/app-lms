@@ -41,7 +41,10 @@ export interface Finding {
   text: string;
 }
 
-const hasWords = (text: string) => /[A-Za-z]{2,}/.test(text) && !SAME_EVERYWHERE.test(text.trim());
+/** One token with a dot, slash, @, _ or digit: an address, a file name, an example ID ("your-shop.myshopify.com", "2X9R4HXF34"). */
+const IDENTIFIER = /^\S*[./@_\d]\S*$/;
+
+const hasWords = (text: string) => /[A-Za-z]{2,}/.test(text) && !SAME_EVERYWHERE.test(text.trim()) && !IDENTIFIER.test(text.trim());
 
 export function findHardcodedText(file: string, source = readFileSync(file, "utf8")): Finding[] {
   const sf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

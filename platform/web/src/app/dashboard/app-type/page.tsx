@@ -6,14 +6,19 @@ import Link from "next/link";
 import { Notice, btn } from "@/components/ui";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
 import { getStore } from "@/lib/data";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { KINDS, kindOf } from "@/lib/app/kinds";
 
-export const metadata: Metadata = { title: "Choose app type" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("setup.typeTitle") };
+}
 
 export default async function AppTypePage({ searchParams }: PageProps<"/dashboard/app-type">) {
   const context = await requireClient();
+  const { t, k } = await dashboardText();
   const query = await searchParams;
   // "Add an app": a new app for the same account, with its own plan. The account's first app is created here too.
   const adding = query.new === "1" && context.apps.length > 0;
@@ -28,9 +33,9 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
   if (adding && context.apps.length >= MAX_APPS_PER_CLIENT) {
     return (
       <div className="flex max-w-[620px] flex-col gap-4">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Add an app</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("setup.addApp")}</h1>
         <Notice tone="warn" icon="warning" role="alert">
-          This account has {MAX_APPS_PER_CLIENT} apps, the most it can have. Message us on WhatsApp if you need more.
+          {t("setup.maxApps", { max: MAX_APPS_PER_CLIENT })}
         </Notice>
       </div>
     );
@@ -41,25 +46,23 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
       <div className="flex max-w-[620px] flex-col gap-2">
         {adding ? (
           <>
-            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Add an app</h1>
-            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-              A new app for this account, with its own plan, license key and builds. Pick its type first; it waits for activation
-              until we activate it or you pay its plan.
-            </p>
+            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("setup.addApp")}</h1>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("setup.addAppText")}</p>
           </>
         ) : (
           <>
-            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">What kind of app do you want?</h1>
-            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-              Pick the type that matches your business. You can change it later; your next build follows it.
-            </p>
+            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("setup.whatKind")}</h1>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("setup.whatKindText")}</p>
             {app ? (
               <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-                <Link href="/dashboard/preview" className="inline-flex items-center gap-1.5 font-semibold">
-                  <Icon name="visibility" size={18} />
-                  Preview your app
-                </Link>{" "}
-                to try it with the type it has now.
+                {richText(t("setup.previewNow"), {
+                  link: (chunk) => (
+                    <Link href="/dashboard/preview" className="inline-flex items-center gap-1.5 font-semibold">
+                      <Icon name="visibility" size={18} />
+                      {chunk}
+                    </Link>
+                  ),
+                })}
               </p>
             ) : null}
           </>
@@ -68,12 +71,12 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
 
       {unavailable ? (
         <Notice tone="warn" icon="warning" role="alert">
-          This app type isn&apos;t available. Choose another one, or message us on WhatsApp.
+          {t("setup.unavailable")}
         </Notice>
       ) : null}
 
       <fieldset className="m-0 grid gap-5 border-0 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
-        <legend className="sr-only">App type</legend>
+        <legend className="sr-only">{t("setup.appType")}</legend>
         {types.map((type) => (
           <label
             key={type.id}
@@ -89,10 +92,10 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
             </div>
             <span className="flex items-center gap-2 text-xl font-extrabold">
               <input type="radio" name="kind" value={type.id} defaultChecked={type.id === current} className="sr-only" />
-              {type.name}
+              {k(type.name)}
             </span>
-            <span className="text-[15px] leading-relaxed text-ink-4">{type.description}</span>
-            <span className="text-[13px] leading-normal text-muted">{type.requires}</span>
+            <span className="text-[15px] leading-relaxed text-ink-4">{k(type.description)}</span>
+            <span className="text-[13px] leading-normal text-muted">{k(type.requires)}</span>
           </label>
         ))}
 
@@ -101,11 +104,11 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
       <div className="flex flex-wrap items-center justify-end gap-3">
         {adding ? (
           <Link href="/dashboard" className={`${btn.secondary} h-12`}>
-            Cancel
+            {t("common.cancel")}
           </Link>
         ) : null}
-        <SubmitButton className="h-12 px-6" pendingText={adding ? "Adding…" : "Continuing…"}>
-          {adding ? "Add the app" : "Continue"}
+        <SubmitButton className="h-12 px-6" pendingText={adding ? t("common.adding") : t("setup.continuing")}>
+          {adding ? t("setup.addTheApp") : t("common.continue")}
         </SubmitButton>
       </div>
     </form>

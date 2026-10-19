@@ -3,10 +3,13 @@ import { flattenMessages, formatMessage, lookup, relocalizeDate, translateFrom, 
 import type { Leaves } from "..";
 import type { Strings } from "../types";
 import * as common from "./common";
+import * as forms from "./forms";
+import * as kinds from "./kinds";
 import * as lib from "./lib";
 import * as license from "./license";
 import * as nav from "./nav";
 import * as overview from "./overview";
+import * as setup from "./setup";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -28,7 +31,7 @@ import * as overview from "./overview";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, overview, license } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };
