@@ -90,7 +90,11 @@ class TestApp {
     this.wrap,
     this.preview,
     this.overrides = const [],
+    this.analytics = false,
   }) : api = api ?? FakeApi();
+
+  /// 44 The build has `analytics` (usage statistics go to Yallapp).
+  final bool analytics;
 
   /// More provider overrides (for example sharing in News & blog apps).
   final List<Override> overrides;
@@ -135,7 +139,14 @@ class TestApp {
       sharedPreferencesProvider.overrideWithValue(prefs),
       appEnvironmentProvider.overrideWithValue(
         AppEnvironment(
-          build: testBuild.copyWith(template: template, appType: appType),
+          build: testBuild.copyWith(
+            template: template,
+            appType: appType,
+            analyticsUrl: analytics
+                ? 'https://yallapp.com.tr/api/v1/apps/app-1/events'
+                : null,
+            analyticsKey: analytics ? 'k3y-for-the-tests-0123456789' : null,
+          ),
           platform: platform,
           appVersion: '1.0.0',
           deviceId: 'device-1',

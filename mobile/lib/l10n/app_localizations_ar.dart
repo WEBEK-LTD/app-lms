@@ -3279,4 +3279,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String slideOf(int index, int count) {
     return 'الشريحة $index من $count';
   }
+
+  @override
+  String get privacyGroup => 'الخصوصية';
+
+  @override
+  String get shareUsageStatistics => 'مشاركة إحصاءات الاستخدام';
+
+  @override
+  String shareUsageNote(String app) {
+    return 'تساعد $app على معرفة كيفية استخدام التطبيق، مثل الشاشات والعناصر التي تُفتح. لا يُرسل اسمك أو رقم هاتفك أو بريدك الإلكتروني أبدًا.';
+  }
 }

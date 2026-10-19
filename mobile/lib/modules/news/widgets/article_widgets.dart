@@ -1,3 +1,5 @@
+import '../../../core/services/analytics_providers.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -290,9 +292,19 @@ class ShareButton extends ConsumerWidget {
       bordered: !onImage,
       background: onImage ? p.surface : null,
       foreground: p.text,
-      onPressed: () => ref.read(shareArticleProvider)(
-        shareText(article, ref.read(appConfigProvider).site.name),
-      ),
+      onPressed: () {
+        ref
+            .read(analyticsProvider)
+            .item(
+              'share',
+              kind: 'article',
+              id: article.id,
+              title: article.title,
+            );
+        ref.read(shareArticleProvider)(
+          shareText(article, ref.read(appConfigProvider).site.name),
+        );
+      },
     );
   }
 }

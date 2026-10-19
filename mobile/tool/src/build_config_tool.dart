@@ -23,6 +23,7 @@ const _topLevelKeys = {
   'branding',
   'firebase',
   'huawei',
+  'analytics',
 };
 
 const _required = [
@@ -294,6 +295,41 @@ ValidationResult validateBuildConfig(Object? decoded) {
     }
   }
 
+  // 44 Where the app sends its usage statistics.
+  final analytics = c['analytics'];
+  if (analytics != null) {
+    if (analytics is! Map<String, dynamic>) {
+      errors.add('"analytics" must be an object.');
+    } else {
+      for (final key in analytics.keys) {
+        if (key != 'events_url' && key != 'key') {
+          errors.add('Unknown field "analytics.$key".');
+        }
+      }
+      final url = _string(
+        analytics,
+        'events_url',
+        errors,
+        prefix: 'analytics.',
+      );
+      final uri = url == null ? null : Uri.tryParse(url);
+      if (url != null &&
+          (!url.startsWith('https://') ||
+              uri == null ||
+              uri.host.isEmpty ||
+              uri.hasQuery ||
+              uri.hasFragment)) {
+        errors.add(
+          '"analytics.events_url" must be an https:// URL without query or fragment.',
+        );
+      }
+      final key = _string(analytics, 'key', errors, prefix: 'analytics.');
+      if (key != null && !RegExp(r'^[A-Za-z0-9_-]{16,64}$').hasMatch(key)) {
+        errors.add('"analytics.key" must be 16 to 64 letters, digits, - or _.');
+      }
+    }
+  }
+
   // 36 Huawei Push Kit, for phones without Google Play services.
   final huawei = c['huawei'];
   if (huawei != null) {
@@ -511,6 +547,8 @@ const buildConfig = BuildConfigData(
   firebaseAndroid: ${_firebaseDart(firebaseAndroid)},
   firebaseIos: ${_firebaseDart(firebaseIos)},
   huaweiAppId: ${_dartString(huaweiAppId)},
+  analyticsUrl: ${_dartString((c['analytics'] as Map<String, dynamic>?)?['events_url'] as String?)},
+  analyticsKey: ${_dartString((c['analytics'] as Map<String, dynamic>?)?['key'] as String?)},
 );
 ''';
 }

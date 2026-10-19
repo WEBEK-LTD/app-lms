@@ -25,4 +25,6 @@ const buildConfig = BuildConfigData(
   firebaseAndroid: null,
   firebaseIos: null,
   huaweiAppId: null,
+  analyticsUrl: null,
+  analyticsKey: null,
 );

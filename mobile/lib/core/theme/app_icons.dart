@@ -44,6 +44,9 @@ abstract final class AppIcons {
   static const quality = Symbols.hd_rounded;
   static const autoplay = Symbols.autoplay_rounded;
   static const devices = Symbols.devices_rounded;
+
+  /// 44 Settings › Share usage statistics.
+  static const usageStats = Symbols.bar_chart_rounded;
   static const phoneAndroid = Symbols.smartphone_rounded;
   static const phoneIphone = Symbols.phone_iphone_rounded;
   static const delete = Symbols.delete_rounded;

@@ -1,3 +1,5 @@
+import '../../../core/services/analytics_providers.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -161,6 +163,19 @@ class CartController extends Notifier<List<CartItem>> {
       items.add(item.withQuantity(_cap(item.quantity, item.maxQuantity)));
     }
     _save(items);
+    // 44 For the owner's statistics; counting never stops the cart.
+    try {
+      ref
+          .read(analyticsProvider)
+          .item(
+            'add_to_cart',
+            kind: 'product',
+            id: item.productId,
+            title: item.name,
+          );
+    } on Object {
+      // Not counted.
+    }
     return true;
   }
 

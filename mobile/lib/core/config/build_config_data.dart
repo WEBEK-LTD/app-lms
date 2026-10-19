@@ -83,6 +83,8 @@ class BuildConfigData {
     this.firebaseAndroid,
     this.firebaseIos,
     this.huaweiAppId,
+    this.analyticsUrl,
+    this.analyticsKey,
   });
 
   final AppType appType;
@@ -127,11 +129,19 @@ class BuildConfigData {
   /// for Android phones without Google Play services.
   final String? huaweiAppId;
 
+  /// 44 Where the app sends its usage statistics (`analytics.events_url`)
+  /// and the app's analytics key (`analytics.key`, not a secret). Without
+  /// them the app sends nothing; the app preview never has them.
+  final String? analyticsUrl;
+  final String? analyticsKey;
+
   BuildConfigData copyWith({
     String? siteUrl,
     bool clearApiBaseUrl = false,
     AppTemplate? template,
     AppType? appType,
+    String? analyticsUrl,
+    String? analyticsKey,
   }) => BuildConfigData(
     appType: appType ?? this.appType,
     vertical: vertical,
@@ -154,5 +164,7 @@ class BuildConfigData {
     firebaseAndroid: firebaseAndroid,
     firebaseIos: firebaseIos,
     huaweiAppId: huaweiAppId,
+    analyticsUrl: analyticsUrl ?? this.analyticsUrl,
+    analyticsKey: analyticsKey ?? this.analyticsKey,
   );
 }

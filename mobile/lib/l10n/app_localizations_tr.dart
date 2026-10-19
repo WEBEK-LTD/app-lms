@@ -3226,4 +3226,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String slideOf(int index, int count) {
     return 'Slayt $index/$count';
   }
+
+  @override
+  String get privacyGroup => 'Gizlilik';
+
+  @override
+  String get shareUsageStatistics => 'Kullanım istatistiklerini paylaş';
+
+  @override
+  String shareUsageNote(String app) {
+    return '$app, uygulamanın nasıl kullanıldığını, örneğin hangi ekranların ve öğelerin açıldığını görür. Adınız, telefon numaranız ve e-posta adresiniz asla gönderilmez.';
+  }
 }

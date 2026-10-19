@@ -2355,5 +2355,15 @@
         "type": "int"
       }
     }
+  },
+  "privacyGroup": "Privacy",
+  "shareUsageStatistics": "Share usage statistics",
+  "shareUsageNote": "Helps {app} see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.",
+  "@shareUsageNote": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
   }
 }

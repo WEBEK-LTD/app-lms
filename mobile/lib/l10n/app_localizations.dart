@@ -5313,6 +5313,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Slide {index} of {count}'**
   String slideOf(int index, int count);
+
+  /// No description provided for @privacyGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacyGroup;
+
+  /// No description provided for @shareUsageStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Share usage statistics'**
+  String get shareUsageStatistics;
+
+  /// No description provided for @shareUsageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps {app} see how the app is used, like which screens and items are opened. Your name, phone number and email address are never sent.'**
+  String shareUsageNote(String app);
 }
 
 class _AppLocalizationsDelegate
