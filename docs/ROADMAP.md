@@ -997,7 +997,7 @@ free; otherwise the order stays paid without tickets, the buyer is told the
 organiser will refund them and the owner gets a notice to refund it (the
 safe choice: a place is never sold twice and no payment is kept silently;
 no automatic refund, which stays with the refunds work). Migration
-`drizzle/0038_api_webhooks.sql`.
+`drizzle/0037_api_webhooks.sql`.
 
 | | Step | Done when |
 |---|---|---|

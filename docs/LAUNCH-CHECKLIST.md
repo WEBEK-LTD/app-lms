@@ -261,8 +261,10 @@ Nothing to set on Netlify: the preview is served from the site's own files
 
 - [ ] Apply migration `0036_app_links_crashes.sql` (the fingerprints, the
       Team ID, the last link check and the two switches on apps; the crash
-      groups and the runs per day). The lead may renumber it with the other
-      phases' migrations.
+      groups and the runs per day).
+- [ ] Apply migration `0035_analytics.sql` (Phase 44: usage events and daily
+      totals) before 0036, and `0037_api_webhooks.sql` (Phase 49: the signed
+      `account.deleted` notices to own-API apps) after it.
 - [ ] Reinstall the reverse proxy config (`platform/web/deploy/apache-proxy.conf`):
       `/.well-known/assetlinks.json` and `/.well-known/apple-app-site-association`
       must reach Netlify, while the rest of `/.well-known` stays on the server

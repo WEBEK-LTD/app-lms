@@ -829,7 +829,7 @@ Yallapp: App sign-in › "Who signs people in" (`apps.hosted_settings.signInBy`:
   its token (`X-Yallapp-Preview`) only to Yallapp.
 - **Account deletion notices** (Phase 49, `lib/hosted/api-webhooks.ts`).
   Yallapp's `DELETE /me` deletes the account at once and queues
-  `account.deleted` in `api_webhooks` (`drizzle/0038_api_webhooks.sql`):
+  `account.deleted` in `api_webhooks` (`drizzle/0037_api_webhooks.sql`):
   `POST <API address>/webhooks/yallapp`, a Security Event Token
   (`application/secevent+jwt`, `typ` `secevent+jwt`) signed with the app's
   key, `aud` `<app id>:events` (never an access token's), `sub`, `jti` (the
