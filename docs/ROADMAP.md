@@ -726,6 +726,33 @@ preview. About 530 screenshots; what was found is below. No migration.
 | [ ] | 38.21 Designs offer Wishlist and Orders tiles to hosted academies, which have neither (the app now leaves them out); the designs could leave them out too | With the next design update |
 | [ ] | 38.22 Share does nothing in a desktop browser without the Web Share API (the preview only); the largest donation isn't in `DonationsConfig`, so a too large amount is refused only after Donate; a course's illustration is cropped large on a tablet's hero | Owner's review |
 
+## Phase 40: Lesson videos without the video site's branding
+
+The owner asked that a lesson video never show where it is hosted: no
+YouTube or Vimeo logo, no title bar with the channel, no "Watch on YouTube",
+"More videos", related videos or end screens, no share or "Watch later"
+buttons, and no tap that opens the site, its app or a browser. The student
+sees only the app's player. YouTube, Vimeo and Bunny Stream videos now play
+behind the app's own controls, the same controls as uploaded files, wherever
+they appear (the lesson video, videos in lesson text, page video and embed
+blocks). The sites can't be reached from the build machine, so the player
+page was checked in Chromium against stand-in players that implement the
+same JavaScript APIs and draw a title bar, "Watch on YouTube", a logo and
+"More videos" along their edges. No contract change, no migration.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 40.1 YouTube through the IFrame Player API with `controls=0`, `rel=0`, `iv_load_policy=3`, `disablekb=1`, `fs=0`, `playsinline=1`, `modestbranding=1`, `cc_load_policy=0` and the page's own `origin`; Vimeo through player.js with `title`, `byline`, `portrait`, `badge`, `controls`, `transparent`, `pip`, `autopause` and `keyboard` off and `dnt=1` (an unlisted video keeps its `h`); Bunny Stream through the Player.js protocol, its signed link kept (`video/hosted_video.dart`, `video/brandless_player_html.dart`) | `brandless_video_test.dart` (every link shape, the parameters) |
+| [x] | 40.2 What the sites still draw stays hidden: the player frame is three times as tall as the visible box (the site keeps the picture in the middle and draws its title, logo, "More videos" and buttons along the frame's edges, outside the box) and as wide as the picture (4:3 and Shorts show whole); a transparent layer takes every touch; the poster covers the player before it starts and after it ends (end screens), with our play and replay buttons; a paused frame stays visible | `tool/check_player_pages.sh`: every point of the video hits our layer, taps and `window.open` open nothing, the cover before the start and at the end, for YouTube, Vimeo and Bunny |
+| [x] | 40.3 The app's own controls for these videos and for uploaded files alike (`video/player_controls.dart`): play and pause, 10 seconds back and forward, a seek bar with the loaded part, the time, speed from 0.5x to 2x (the speeds the player allows; 0.5x added to the settings too), captions on and off when the video has tracks, quality when the player offers several (Vimeo), and full screen in the app, turned to landscape (portrait videos stay upright), carrying on at the same second | `lesson_video_test.dart`, `brandless_video_test.dart` (the controller from loading to the end, speeds, captions, quality, errors) |
+| [x] | 40.4 Nothing opens the site: in every video web view (also Wistia, Dailymotion, Loom and other embed code, and the full-screen embed view) the page can't be replaced, so links, `window.open` and `target="_blank"` go nowhere, frames can't load the sites' own pages (watch pages, channels, sign-in, short links) and no app links (`intent:`, `vnd.youtube:`) load; touches never reach the web view under our controls; the host name no longer shows under a video in lesson text | `brandless_video_test.dart` (the navigation rules), `lesson_video_test.dart`, `lesson_embed_test.dart` |
+| [x] | 40.5 The watermark, watch tracking (distinct seconds played, as for files), resume, saving the place on pause, every 15 seconds and on leaving, mark complete and the next lesson at the end, and the screen-capture cover (the video pauses under it and keeps its place) work with these videos; the page reports state, time, duration and loaded share over the `YallappPlayer` channel | `lesson_video_test.dart` |
+| [x] | 40.6 Wistia, Dailymotion and Loom keep their own player with the branding options they offer turned off (Wistia: no copy-link menu; Dailymotion: no logo, start-screen info, sharing, queue or end screen; Loom: no owner, title, sharing or top bar); navigation blocked as in 40.4 | `brandless_video_test.dart`, `lesson_video_test.dart` |
+| [x] | 40.7 The app preview shows the same player in a sandboxed frame (no popups, no top-level navigation; touches go to the app's controls); the preview bundle rebuilt | `courses-hosted.spec.ts`: a hosted academy's YouTube lesson in the preview, the parameters, our layer everywhere, a real click on our Play reaching the player, no popup; `build_preview.sh --check` |
+| [ ] | 40.8 Known risk for the owner: YouTube's API terms ask apps not to hide, cover or change YouTube's branding or player, which this player does on purpose; YouTube could object or block the app's embeds. Videos on Vimeo (a paid plan, which also hides its controls and logo itself), Bunny Stream or uploaded to the site carry no such risk | Owner's decision |
+| [ ] | 40.9 Partial: Wistia, Dailymotion and Loom still show their own controls, and whatever branding their plan and parameters don't remove (their logo on free plans); Vimeo on a free plan ignores `controls=0` and refuses speeds (the speed button then goes), its controls being hidden only by the tall frame; YouTube's `setPlaybackQuality` no longer does anything, so YouTube has no quality button | A JavaScript API from those sites, or videos moved to YouTube, Vimeo, Bunny Stream or the site |
+| [ ] | 40.10 To check on phones with real videos: that YouTube and Vimeo draw captions inside the picture (not along the frame's bottom edge, outside the box) and that nothing of theirs shows on Android and iOS web views; full screen loads a second player at the same second (about a second of loading) instead of moving the playing one | A device test with the owner's videos |
+
 ## Phase 41: Five app stores everywhere, a Works with strip, and a design pass
 
 Since Phases 35 and 36 Yallapp publishes to Samsung Galaxy Store and Huawei

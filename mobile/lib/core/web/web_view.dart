@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../services/external_links.dart';
@@ -25,6 +26,11 @@ class WebViewRequest {
     this.openLinksOutside = false,
     this.transparent = false,
     this.scrollable = true,
+    this.interactive = true,
+    this.channels = const {},
+    this.onCreated,
+    this.allowNavigation,
+    this.browserFrame = false,
     this.debugLabel,
   }) : assert(url != null || html != null);
 
@@ -53,7 +59,37 @@ class WebViewRequest {
   /// False for inline embeds that are sized to their content: vertical drags
   /// then scroll the lesson instead of the web view.
   final bool scrollable;
+
+  /// 40 False when the app draws its own controls over the page: touches
+  /// never reach the page.
+  final bool interactive;
+
+  /// 40 JavaScript channels the page posts text to (`Name.postMessage(text)`),
+  /// besides `YallappHeight`.
+  final Map<String, ValueChanged<String>> channels;
+
+  /// 40 Called once the page can be sent text (see [WebViewHandle]).
+  final ValueChanged<WebViewHandle>? onCreated;
+
+  /// 40 Decides every navigation, in the page and in its frames, instead of
+  /// [openLinksOutside]: refused ones open nowhere.
+  final NavigationPolicy? allowNavigation;
+
+  /// 40 The page also works in a frame in a browser, so the app preview (the
+  /// web build) shows it instead of its "installed app only" note.
+  final bool browserFrame;
   final String? debugLabel;
+}
+
+/// 40 Whether a web view may load [uri], in the page itself ([mainFrame]) or
+/// in one of its frames.
+typedef NavigationPolicy = bool Function(Uri uri, bool mainFrame);
+
+/// 40 Sends text to the page in a web view, which receives it in
+/// `window.yallappReceive(text)` (or, in a browser frame, as a `message`
+/// event whose data is `{yallappMessage: text}`).
+abstract interface class WebViewHandle {
+  Future<void> postToPage(String message);
 }
 
 typedef WebViewBuilder = Widget Function(WebViewRequest request);
@@ -75,7 +111,8 @@ class PlatformWebView extends StatefulWidget {
   State<PlatformWebView> createState() => _PlatformWebViewState();
 }
 
-class _PlatformWebViewState extends State<PlatformWebView> {
+class _PlatformWebViewState extends State<PlatformWebView>
+    implements WebViewHandle {
   late final WebViewController _controller;
   String? _initialHost;
 
@@ -112,11 +149,29 @@ class _PlatformWebViewState extends State<PlatformWebView> {
           if (value != null && value > 0) widget.request.onHeight?.call(value);
         },
       );
+    for (final name in widget.request.channels.keys) {
+      _controller.addJavaScriptChannel(
+        name,
+        onMessageReceived: (message) =>
+            widget.request.channels[name]?.call(message.message),
+      );
+    }
+    final platform = _controller.platform;
+    if (platform is AndroidWebViewController) {
+      // 40 The app's own play button starts the video from the page's code.
+      unawaited(platform.setMediaPlaybackRequiresUserGesture(false));
+    }
     if (widget.request.transparent) {
       _controller.setBackgroundColor(const Color(0x00000000));
     }
     _load();
+    widget.request.onCreated?.call(this);
   }
+
+  @override
+  Future<void> postToPage(String message) => _controller.runJavaScript(
+    'window.yallappReceive && window.yallappReceive(${jsonEncode(message)});',
+  );
 
   @override
   void didUpdateWidget(PlatformWebView old) {
@@ -139,6 +194,13 @@ class _PlatformWebViewState extends State<PlatformWebView> {
   }
 
   FutureOr<NavigationDecision> _onNavigation(NavigationRequest request) {
+    final policy = widget.request.allowNavigation;
+    if (policy != null) {
+      final uri = Uri.tryParse(request.url);
+      return uri != null && policy(uri, request.isMainFrame)
+          ? NavigationDecision.navigate
+          : NavigationDecision.prevent;
+    }
     if (!widget.request.openLinksOutside || !request.isMainFrame) {
       return NavigationDecision.navigate;
     }
@@ -154,16 +216,22 @@ class _PlatformWebViewState extends State<PlatformWebView> {
   }
 
   @override
-  Widget build(BuildContext context) => WebViewWidget(
-    controller: _controller,
-    gestureRecognizers: widget.request.scrollable
-        ? {
-            Factory<VerticalDragGestureRecognizer>(
-              VerticalDragGestureRecognizer.new,
-            ),
-          }
-        : const {},
-  );
+  Widget build(BuildContext context) {
+    final interactive = widget.request.interactive;
+    return IgnorePointer(
+      ignoring: !interactive,
+      child: WebViewWidget(
+        controller: _controller,
+        gestureRecognizers: interactive && widget.request.scrollable
+            ? {
+                Factory<VerticalDragGestureRecognizer>(
+                  VerticalDragGestureRecognizer.new,
+                ),
+              }
+            : const {},
+      ),
+    );
+  }
 }
 
 /// Escapes text for use inside an HTML attribute.

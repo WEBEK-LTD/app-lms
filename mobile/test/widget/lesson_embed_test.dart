@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/lms/lesson/content/code_block.dart';
+import 'package:yallapp/modules/lms/lesson/video/embed_player.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -19,12 +20,17 @@ Future<TestApp> openLesson(
   bool framingAllowed = true,
   String? embedHeight,
   String configEmbedHeight = 'auto',
+  String? pageHeight,
 }) async {
+  final lesson = textLessonJson(embedHeight: embedHeight);
+  if (pageHeight != null) {
+    ((lesson['embeds'] as List)[1] as Map)['height'] = pageHeight;
+  }
   final app = TestApp(
     signedIn: true,
     framingAllowed: framingAllowed,
     api: FakeApi(
-      lesson: textLessonJson(embedHeight: embedHeight),
+      lesson: lesson,
       config: configJson(embedHeight: configEmbedHeight),
     ),
   );
@@ -33,6 +39,13 @@ Future<TestApp> openLesson(
   await TestApp.settle(tester, 20);
   return app;
 }
+
+Size videoSize(WidgetTester tester, String placeholder) => tester.getSize(
+  find.descendant(
+    of: find.byKey(ValueKey('embed-$placeholder')),
+    matching: find.byType(BrandlessVideo),
+  ),
+);
 
 Size frameSize(WidgetTester tester, String placeholder) => tester.getSize(
   find.descendant(
@@ -71,27 +84,35 @@ void main() {
     expect(find.text('Copy'), findsOneWidget);
     expect(app.security.calls, [true], reason: 'screen capture blocked');
 
-    // Both placeholders became inline web views.
+    // Both placeholders became inline web views: 40 the YouTube video in
+    // the app's own player, nothing saying where it's hosted.
     final labels = app.webViews.requests.map((r) => r.debugLabel).toSet();
-    expect(labels, containsAll(['yallapp-embed-1', 'yallapp-embed-2']));
+    expect(labels, containsAll(['video-player', 'yallapp-embed-2']));
     final youtube = app.webViews.requests.firstWhere(
-      (r) => r.debugLabel == 'yallapp-embed-1',
+      (r) => r.debugLabel == 'video-player',
     );
-    expect(youtube.html, contains('https://www.youtube.com/embed/abc123'));
+    expect(youtube.html, contains('https://www.youtube.com/embed/abc123?'));
+    expect(youtube.html, contains('controls=0'));
     expect(youtube.baseUrl, 'https://your-academy.com/');
+    expect(youtube.interactive, isFalse);
+    expect(youtube.openLinksOutside, isFalse);
+    expect(youtube.allowNavigation, isNotNull);
+    expect(find.text('youtube.com'), findsNothing);
+    expect(find.text('www.youtube.com'), findsNothing);
 
     // Content width is the screen minus the 20 px article padding.
     const contentWidth = _width - 40 - 2; // and the 1 px frame border
-    final video = frameSize(tester, 'yallapp-embed-1');
-    expect(video.width, closeTo(contentWidth, 0.01));
-    expect(video.height, closeTo(contentWidth / 1.7778, 0.5));
+    final video = videoSize(tester, 'yallapp-embed-1');
+    expect(video.width, closeTo(contentWidth + 2, 0.01));
+    expect(video.height, closeTo((contentWidth + 2) * 9 / 16, 0.5));
 
     // "640" wide, "900" high: never wider than the screen, height capped.
     final page = frameSize(tester, 'yallapp-embed-2');
     expect(page.width, closeTo(contentWidth, 0.01));
     expect(page.height, closeTo(_height - _chrome, 0.01));
 
-    expect(find.bySemanticsLabel('Open full screen'), findsNWidgets(2));
+    // The video has its own full screen (in its controls).
+    expect(find.bySemanticsLabel('Open full screen'), findsOneWidget);
 
     // Attachments follow the article.
     await tester.scrollUntilVisible(
@@ -132,8 +153,15 @@ void main() {
   testWidgets("the lesson's embed_height overrides the site setting", (
     tester,
   ) async {
-    await openLesson(tester, embedHeight: 'fit_screen');
-    final video = frameSize(tester, 'yallapp-embed-1');
-    expect(video.height, closeTo(_height - _chrome, 0.01));
+    await openLesson(tester, pageHeight: '300');
+    expect(frameSize(tester, 'yallapp-embed-2').height, closeTo(300, 0.01));
+    await tester.pumpWidget(const SizedBox());
+
+    await openLesson(tester, embedHeight: 'fit_screen', pageHeight: '300');
+    final page = frameSize(tester, 'yallapp-embed-2');
+    expect(page.height, closeTo(_height - _chrome, 0.01));
+    // 40 Videos stay 16:9 whatever the setting.
+    final video = videoSize(tester, 'yallapp-embed-1');
+    expect(video.height, closeTo(video.width * 9 / 16, 0.5));
   });
 }

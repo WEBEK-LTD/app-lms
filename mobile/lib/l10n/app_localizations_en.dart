@@ -1636,6 +1636,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullScreen => 'Full screen';
 
   @override
+  String get back10Seconds => 'Back 10 seconds';
+
+  @override
+  String get forward10Seconds => 'Forward 10 seconds';
+
+  @override
+  String get captionsTurnOn => 'Turn captions on';
+
+  @override
+  String get captionsTurnOff => 'Turn captions off';
+
+  @override
+  String get videoQuality => 'Video quality';
+
+  @override
   String get loadingEmbed => 'Loading embedded content';
 
   @override

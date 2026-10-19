@@ -8,6 +8,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/buttons.dart';
+import '../video/hosted_video.dart';
 import 'embed_frame.dart';
 import '../../../../core/l10n/l10n.dart';
 
@@ -78,10 +79,17 @@ class _EmbedFullscreenScreenState extends ConsumerState<EmbedFullscreenScreen> {
     final site = ref.watch(appEnvironmentProvider).siteUrl;
     final embed = widget.args.embed;
     final builder = ref.watch(webViewBuilderProvider);
+    final page = Uri.parse('$site/');
+    // 40 A video site's player can't open the site.
+    final video = HostedVideo.parse(embed.src) != null;
     final request = widget.args.frameable
         ? WebViewRequest(
             html: embedWrapperHtml(src: embed.src, measure: false),
             baseUrl: '$site/',
+            allowNavigation: video
+                ? (uri, mainFrame) =>
+                      videoNavigationAllowed(uri, mainFrame, page: page)
+                : null,
             debugLabel: 'fullscreen',
           )
         : WebViewRequest(

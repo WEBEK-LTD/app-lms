@@ -12,6 +12,8 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
 import '../../../../core/widgets/buttons.dart';
+import '../video/embed_player.dart';
+import '../video/hosted_video.dart';
 import 'embed_frame.dart';
 import 'embed_fullscreen_screen.dart';
 import 'embed_sizing.dart';
@@ -34,6 +36,10 @@ class LessonChrome extends InheritedWidget {
 /// An iframe from the lesson, shown inline at the size chosen by
 /// [computeEmbedSize], with an optional full-screen button (design:
 /// EmbedLesson).
+///
+/// 40 A YouTube, Vimeo or Bunny Stream video plays in the app's own player
+/// instead ([BrandlessVideo]); another video site's player can't open the
+/// site, and neither shows where the video is hosted.
 class InlineEmbed extends ConsumerStatefulWidget {
   const InlineEmbed({
     super.key,
@@ -61,12 +67,27 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
   bool _failed = false;
   Size? _lastScreen;
 
-  Embed get _embed => widget.embed;
+  /// 40 The video site and video, when the frame is one.
+  late final HostedVideo? _hosted = HostedVideo.parse(widget.embed.src);
+
+  Embed get _embed {
+    final hosted = _hosted;
+    if (hosted == null || hosted.ownControls) return widget.embed;
+    return Embed(
+      placeholder: widget.embed.placeholder,
+      src: hosted.playerUrl().toString(),
+      provider: widget.embed.provider,
+      width: widget.embed.width,
+      height: widget.embed.height,
+      aspectRatio: widget.embed.aspectRatio ?? 16 / 9,
+      allowFullscreen: widget.embed.allowFullscreen,
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    if (knownFrameable(_embed)) {
+    if (knownFrameable(_embed) || _hosted != null) {
       _frameable = true;
     } else {
       final uri = Uri.tryParse(_embed.src);
@@ -127,7 +148,29 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
       keyboardInset: media.viewInsets.bottom,
       chrome: LessonChrome.of(context),
     );
-    final host = Uri.tryParse(_embed.src)?.host ?? '';
+    final hosted = _hosted;
+    if (hosted != null && hosted.ownControls) {
+      return Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: context.l10n.video,
+        child: Container(
+          key: ValueKey('embed-${_embed.placeholder}'),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: BrandlessVideo(video: hosted),
+          ),
+        ),
+      );
+    }
+    // 40 A video site's name never shows.
+    final host = hosted != null ? '' : (Uri.tryParse(_embed.src)?.host ?? '');
 
     if (_frameable == false || _failed) {
       return _OpenCard(host: host, onOpen: _openFullScreen);
@@ -147,6 +190,7 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
         final showFullscreen =
             config.content.embedFullscreenButton && _embed.allowFullscreen;
         final site = ref.watch(appEnvironmentProvider).siteUrl;
+        final page = Uri.parse('$site/');
         final frame = _frameable == null
             ? Center(
                 child: CircularProgressIndicator(
@@ -164,7 +208,11 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
                   onMainFrameError: () {
                     if (mounted) setState(() => _failed = true);
                   },
-                  openLinksOutside: true,
+                  openLinksOutside: hosted == null,
+                  allowNavigation: hosted == null
+                      ? null
+                      : (uri, mainFrame) =>
+                            videoNavigationAllowed(uri, mainFrame, page: page),
                   transparent: true,
                   scrollable: !size.sizedToContent,
                   debugLabel: _embed.placeholder,
@@ -173,7 +221,9 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
         return Semantics(
           container: true,
           explicitChildNodes: true,
-          label: context.l10n.embedFrom(host),
+          label: hosted != null
+              ? context.l10n.video
+              : context.l10n.embedFrom(host),
           child: Container(
             key: ValueKey('embed-${_embed.placeholder}'),
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -207,7 +257,8 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
                       ),
                   ],
                 ),
-                _Caption(host: host, provider: _embed.provider),
+                if (hosted == null)
+                  _Caption(host: host, provider: _embed.provider),
               ],
             ),
           ),

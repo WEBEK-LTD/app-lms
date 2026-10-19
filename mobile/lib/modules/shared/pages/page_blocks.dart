@@ -19,6 +19,7 @@ import '../../../core/widgets/common.dart';
 import '../../lms/lesson/content/html_content.dart';
 import '../../lms/lesson/embeds/embed_frame.dart';
 import '../../lms/lesson/embeds/inline_embed.dart';
+import '../../lms/lesson/video/hosted_video.dart';
 import '../../lms/navigation.dart';
 import '../../lms/widgets/course_cards.dart';
 import 'content_blocks.dart';
@@ -288,8 +289,9 @@ class _Image extends ConsumerWidget {
 
 // ------------------------------------------------------------------ Video
 
-/// YouTube and Vimeo play inline like lesson embeds; other links (MP4) play
-/// in the in-app web view from a poster.
+/// YouTube, Vimeo and other video sites play inline like lesson embeds (40:
+/// in the app's own player, see [InlineEmbed]); other links (MP4) play in
+/// the in-app web view from a poster.
 class _Video extends StatelessWidget {
   const _Video({required this.block, required this.style});
 
@@ -300,11 +302,13 @@ class _Video extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final player = embeddableVideoUrl(block.url);
-    final host = Uri.tryParse(player)?.host ?? '';
-    final provider = host.contains('youtube')
-        ? EmbedProvider.youtube
-        : (host.contains('vimeo') ? EmbedProvider.vimeo : null);
-    if (provider != null) {
+    final hosted = HostedVideo.parse(block.url);
+    if (hosted != null) {
+      final provider = switch (hosted.host) {
+        VideoHost.youtube => EmbedProvider.youtube,
+        VideoHost.vimeo => EmbedProvider.vimeo,
+        _ => EmbedProvider.other,
+      };
       return InlineEmbed(
         embed: Embed(
           placeholder: 'block-${block.id}',

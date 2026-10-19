@@ -111,6 +111,25 @@ Width always matches the content width. Height, in order of preference:
 Height is measured again on rotation and when the keyboard opens. Pages that
 refuse to be framed show an "Open" card that opens them full screen.
 
+### Videos on video sites
+
+A lesson video, a video in lesson text or a page's video block never shows
+where it is hosted (roadmap 40). YouTube (IFrame Player API), Vimeo (its
+player.js) and Bunny Stream (the Player.js protocol) play in a web view
+behind the app's own controls, the same as for uploaded files: the site's
+player loads with its controls, title, related videos and sharing turned
+off, three times as tall as the visible box so what it still draws along its
+edges falls outside it, under a transparent layer that takes every touch,
+and under the poster before it starts and after it ends. The page reports
+state, time and duration to the app over a JavaScript channel (watch
+tracking, resume, the watermark and the screen-capture cover work as for
+files) and takes play, pause, seek, speed, captions and quality commands.
+Wistia, Dailymotion and Loom keep their own player with the branding options
+they offer. In every video web view nothing may replace the page and frames
+may not load the sites' own pages or app links, so no tap opens the site,
+its app or a browser. The app preview shows the same player in a sandboxed
+frame.
+
 ## Flutter app
 
 ```
@@ -192,7 +211,8 @@ mobile/
   apply. Payment, when there is one, happens at the business; the app never
   takes payment for an appointment.
 - Video: screen capture blocked (`FLAG_SECURE` on Android, capture detection on
-  iOS) and a watermark with the student's phone number.
+  iOS) and a watermark with the student's phone number, also over videos
+  played from video sites.
 
 ## Platform (yallapp.com.tr)
 

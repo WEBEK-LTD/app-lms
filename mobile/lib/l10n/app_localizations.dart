@@ -2602,6 +2602,36 @@ abstract class AppLocalizations {
   /// **'Full screen'**
   String get fullScreen;
 
+  /// No description provided for @back10Seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Back 10 seconds'**
+  String get back10Seconds;
+
+  /// No description provided for @forward10Seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward 10 seconds'**
+  String get forward10Seconds;
+
+  /// No description provided for @captionsTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn captions on'**
+  String get captionsTurnOn;
+
+  /// No description provided for @captionsTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn captions off'**
+  String get captionsTurnOff;
+
+  /// No description provided for @videoQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Video quality'**
+  String get videoQuality;
+
   /// No description provided for @loadingEmbed.
   ///
   /// In en, this message translates to:
