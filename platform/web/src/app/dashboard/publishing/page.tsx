@@ -39,12 +39,20 @@ import { ALL_STORES_TEXT } from "@/lib/stores";
 
 export const metadata: Metadata = { title: "Publishing" };
 
-const GROUP: Record<string, string> = { android: "Google Play", ios: "App Store", both: "Push notifications", galaxy: "Galaxy Store", huawei: "AppGallery" };
+const GROUP: Record<string, string> = {
+  android: "Google Play",
+  ios: "App Store",
+  both: "Push notifications",
+  galaxy: "Galaxy Store",
+  huawei: "AppGallery",
+  xiaomi: "Xiaomi GetApps",
+};
 
-/** 35, 36 What the extra stores are, on the Publishing page. */
+/** 35, 36, 42 What the extra stores are, on the Publishing page. */
 const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], string> = {
   galaxy: "Samsung's own app store, on every Samsung Galaxy phone and tablet.",
   huawei: "Huawei's app store, for Huawei phones without Google Play.",
+  xiaomi: "Xiaomi's app store, on Xiaomi, Redmi and POCO phones.",
 };
 
 function Choice({ mode, title, text, points, disabled }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string }) {
@@ -163,7 +171,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
               Follow our guides: <Link href="/guides/google-play">Publish on Google Play</Link> and <Link href="/guides/app-store">Publish on the App Store</Link>.
             </li>
             <li>
-              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store and Huawei AppGallery</Link>, with their guides.
+              More Android stores: <Link href="/dashboard/publishing/more-stores">Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps</Link>, with their
+              guides.
             </li>
             {autoUpload ? (
               <li>
@@ -247,7 +256,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         </div>
       </section>
 
-      {/* 35, 36 Samsung Galaxy Store and Huawei AppGallery, when the client wants them too. */}
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
       <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-more-stores" className="m-0 text-lg font-bold">
           More Android stores

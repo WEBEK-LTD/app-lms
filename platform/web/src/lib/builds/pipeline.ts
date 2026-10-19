@@ -18,6 +18,8 @@ export const pipelineStatusSchema = z
         // 35, 36
         upload_galaxy: stageStatus.optional(),
         upload_appgallery: stageStatus.optional(),
+        // 42
+        upload_xiaomi: stageStatus.optional(),
       })
       .strict()
       .optional(),

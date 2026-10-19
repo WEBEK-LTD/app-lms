@@ -14,7 +14,8 @@ import { DEVELOPER_GUIDE } from "./docs-developer";
  * services Yallapp runs on; the only ones to name are webek.org (hosting),
  * waabek.com (WhatsApp codes), the platforms clients connect, Firebase,
  * Google Play Console, App Store Connect, Galaxy Store Seller Portal,
- * AppGallery Connect (and Huawei Push Kit) and iyzico.
+ * AppGallery Connect (and Huawei Push Kit), the Xiaomi developer platform
+ * (Xiaomi GetApps) and iyzico.
  */
 
 export type DocSection =
@@ -1200,6 +1201,51 @@ In AppGallery Connect, open **Users and permissions › API key › Connect API*
 ## When our team publishes for you
 
 With **Publish it for me**, tick Huawei AppGallery on the **Publishing** page. Then, in AppGallery Connect, open **Users and permissions** and add our team email as a team member with the **App administrator** and **Operations** roles. Huawei sends us the invitation; you never share your password.
+`,
+  }),
+  // 42 Xiaomi GetApps
+  doc({
+    slug: "xiaomi-getapps",
+    section: "Publishing",
+    title: "Publish on Xiaomi GetApps",
+    description: "Put your Android app on GetApps, the app store on Xiaomi, Redmi and POCO phones, under your own developer account.",
+    steps: true,
+    body: `Xiaomi, Redmi and POCO phones come with GetApps, Xiaomi's own app store. Publish your Android app there under your own developer account: it's the same Android app as on Google Play. You submit the first version yourself; on the Pro and Business plans we upload every version after that.
+
+## Before you start
+
+- A Xiaomi account, and a developer account on the Xiaomi developer platform
+- Your Android app (.apk) from [Builds & downloads](/dashboard/builds)
+- Your store assets: icon (512 × 512), screenshots and the listing texts
+- A privacy policy page on your website, or anywhere public
+
+## Create your developer account
+
+Register as a developer on the Xiaomi developer platform (dev.mi.com) with your Xiaomi account, as a company or as an individual, and complete Xiaomi's identity check. Xiaomi also has an international developer site for GetApps (global.developer.mi.com).
+
+## Add your app and submit the first version
+
+Create your app with your app's package name (from your Store listing step) and upload the .apk file from Builds & downloads. Xiaomi may ask you to show that the app is yours: follow the steps it gives, and contact us if it asks for a file signed with your app's key.
+
+> Upload the .apk, not the App Bundle. The .apk is signed with your app's upload key, the same key every later version uses.
+
+## Fill in the listing and submit
+
+Add the description, icon, screenshots, your privacy policy link and the age rating, then submit. Xiaomi reviews the app, usually within a few working days.
+
+> Give the reviewers your review phone number and fixed code in the notes for the review: from the dashboard's **App sign-in** page, or the plugin's **Store review access** setting on WordPress.
+
+## Pro and Business: let us upload every update
+
+Once your app is on GetApps, open the automatic publishing API page from the developer platform's app management. Copy the **private key** it shows and download Xiaomi's **public certificate**. Then open **Publishing › More Android stores** in your dashboard and enter them with the email you sign in with. You can also write what's new; Xiaomi shows it with the update. From then on, every build you start is uploaded to Xiaomi GetApps and sent for review.
+
+> Xiaomi sends each upload straight to review, with your app's icon. Resetting the private key in Xiaomi's console stops the old one working: enter the new one in your dashboard.
+
+If your developer account has no automatic publishing page, uploads stay by hand: download the .apk from Builds & downloads and submit it as a new version.
+
+## When our team publishes for you
+
+With **Publish it for me**, tick Xiaomi GetApps on the **Publishing** page. Then add our team email as a member of your Xiaomi developer account who may manage your apps. If you can't find where to add members, contact us and we'll find the way with you. You never share your password.
 `,
   }),
   doc({

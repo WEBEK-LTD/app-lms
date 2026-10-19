@@ -87,7 +87,7 @@ export async function savePublishingChecklistAction(_: FormState, formData: Form
 }
 
 /**
- * 35, 36 "Publish it for me" on Samsung Galaxy Store and Huawei AppGallery
+ * 35, 36, 42 "Publish it for me" on Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps
  * too: the client ticks the extra stores. A new store starts waiting for the
  * client's steps (in the checklist) and the team is told.
  */

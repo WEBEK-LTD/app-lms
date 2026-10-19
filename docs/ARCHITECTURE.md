@@ -967,6 +967,18 @@ without a new build. The app renders whatever the API sends.
   store's first version is published by hand. The keys are on the dashboard's
   Publishing › More Android stores page, encrypted like the other store keys,
   and `/builds/{id}/secrets` sends them only to builds whose plan uploads.
+- 42 Pro plan, optional: the APK to Xiaomi GetApps through the Xiaomi
+  developer platform's automatic publishing API (`build/scripts/xiaomi_getapps.py`):
+  `/dev/query` checks the app is on the store under the account and may take
+  an update, then one multipart `/dev/push` sends RequestData (the account
+  email, update type 1 and appInfo: the name on the store, the package, what's
+  new, the privacy link), the APK and the 512 px icon, which submits it.
+  Every request carries SIG: the MD5s of RequestData and each file with the
+  API private key, as JSON, encrypted with Xiaomi's public certificate (RSA,
+  PKCS#1 v1.5, in blocks) as hex. The keys (`apps.xiaomi_*`, the private key
+  encrypted with its own context, the certificate kept as PEM) are on the
+  same page; a push is never repeated, since a lost answer may still have
+  submitted the update.
 - 36 Huawei push: with the client's agconnect-services.json in the build
   config, the Android build includes `android/hms_push` (Huawei's Push Kit
   SDK) and the app's channel to it (`android/app/src/huawei`); builds without

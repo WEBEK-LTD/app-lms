@@ -144,6 +144,7 @@ paths:
         key only signs the iOS app. 35, 36 The Samsung Galaxy Store and Huawei
         AppGallery keys are only used for uploading, so they are returned only
         when the build's plan includes "We publish for you" (`auto_publish`).
+        42 The same for the Xiaomi GetApps keys.
       parameters:
         - $ref: '#/components/parameters/BuildId'
       responses:
@@ -266,7 +267,8 @@ components:
         `upload_galaxy` (Samsung Galaxy Store) and `upload_appgallery` (Huawei
         AppGallery) start as `skipped` unless the plan includes "We publish for
         you" and the client saved that store's keys; builds queued before these
-        stages existed don't have them.
+        stages existed don't have them. 42 `upload_xiaomi` (Xiaomi GetApps) the
+        same way.
       additionalProperties: false
       properties:
         queued: { $ref: '#/components/schemas/StageStatus' }
@@ -276,6 +278,7 @@ components:
         upload_testflight: { $ref: '#/components/schemas/StageStatus' }
         upload_galaxy: { $ref: '#/components/schemas/StageStatus' }
         upload_appgallery: { $ref: '#/components/schemas/StageStatus' }
+        upload_xiaomi: { $ref: '#/components/schemas/StageStatus' }
 
     Artifact:
       type: object
@@ -309,7 +312,7 @@ components:
           description: >-
             Shown to the client and put in their email, so it must be plain words without
             technical details: why a build failed, or a note on a ready build (for example
-            that the Google Play, Galaxy Store or AppGallery upload didn't work). Without
+            that the Google Play, Galaxy Store, AppGallery or Xiaomi GetApps upload didn't work). Without
             one, the platform says which stage failed.
         log_url:
           type: [string, 'null']
@@ -402,7 +405,7 @@ components:
 
     BuildSecrets:
       type: object
-      required: [android_upload_key, ios_distribution, google_play, app_store_connect, galaxy_store, huawei_appgallery]
+      required: [android_upload_key, ios_distribution, google_play, app_store_connect, galaxy_store, huawei_appgallery, xiaomi_getapps]
       properties:
         android_upload_key:
           oneOf:
@@ -458,4 +461,33 @@ components:
                 app_id: { type: string, pattern: '^[0-9]{6,20}$', description: The app ID in AppGallery Connect. }
                 client_id: { type: string, description: "The Connect API client ID (Users and permissions › API key › Connect API, App administrator role)." }
                 client_secret: { type: string, description: The Connect API client's key. }
+            - { type: 'null' }
+        xiaomi_getapps:
+          description: >-
+            42 Xiaomi GetApps (the automatic publishing API of the Xiaomi developer
+            platform). Null when the client saved no Xiaomi keys, or when the build's plan
+            doesn't include "We publish for you". The app must already be on the store under
+            this developer account: its first version is submitted by hand. Each request is
+            signed with `password`, encrypted with Xiaomi's public certificate; the APK, the
+            app's 512 px icon and `release_notes` are sent as an update.
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [user_name, password, public_certificate, release_notes]
+              properties:
+                user_name: { type: string, format: email, maxLength: 254, description: "The email the developer account signs in with (Xiaomi's `userName`)." }
+                password:
+                  type: string
+                  description: >-
+                    The private key shown on the automatic publishing page of the Xiaomi
+                    developer platform (the `password` in the signature). It isn't the
+                    account's sign-in password.
+                public_certificate:
+                  type: string
+                  description: Xiaomi's public certificate (X.509, PEM) from the same page, which encrypts the signature.
+                release_notes:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                  description: "What's new in this version (Xiaomi's `updateDesc`): the client's text from the dashboard, or a short default."
             - { type: 'null' }

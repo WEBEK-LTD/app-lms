@@ -7,8 +7,8 @@ export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
 export type BuildStatus = "queued" | "building" | "ready" | "failed";
 export type StageKey = "queued" | "android" | "ios" | "upload_play" | "upload_testflight" | MoreStoreStage;
-/** 35, 36 Uploads to Samsung Galaxy Store and Huawei AppGallery: builds queued before them don't have these stages. */
-export type MoreStoreStage = "upload_galaxy" | "upload_appgallery";
+/** 35, 36, 42 Uploads to Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: builds queued before them don't have these stages. */
+export type MoreStoreStage = "upload_galaxy" | "upload_appgallery" | "upload_xiaomi";
 /** A build's stages. */
 export type BuildStages = Record<Exclude<StageKey, MoreStoreStage>, StageStatus> & Partial<Record<MoreStoreStage, StageStatus>>;
 export type StageStatus = "pending" | "running" | "done" | "failed" | "skipped";
@@ -350,6 +350,16 @@ export interface App {
   huaweiClientSecretEncrypted?: string | null;
   huaweiAgconnectAssetId?: string | null;
   huaweiPushSecretEncrypted?: string | null;
+  /**
+   * 42 Xiaomi GetApps: the developer account's email, the automatic publishing
+   * API's private key (encrypted), Xiaomi's public certificate (PEM, public)
+   * and what's new in each update. Used to upload builds on plans with "We
+   * publish for you".
+   */
+  xiaomiUserName?: string | null;
+  xiaomiPasswordEncrypted?: string | null;
+  xiaomiCertificate?: string | null;
+  xiaomiReleaseNotes?: string | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -1520,11 +1530,11 @@ export type AnnouncementPatch = Partial<Omit<Announcement, "id" | "createdAt" | 
 
 export type PublishingMode = "self" | "managed";
 
-/** The stores, as the publishing service tracks them: Google Play, the App Store and (35, 36) the extra Android stores. */
+/** The stores, as the publishing service tracks them: Google Play, the App Store and (35, 36, 42) the extra Android stores. */
 export type PublishingStore = "android" | "ios" | MoreStore;
 
-/** 35, 36 Samsung Galaxy Store and Huawei AppGallery: only when the client asks for them. */
-export type MoreStore = "galaxy" | "huawei";
+/** 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: only when the client asks for them. */
+export type MoreStore = "galaxy" | "huawei" | "xiaomi";
 
 /** Where publishing on one store stands, as the team moves it along. */
 export type PublishingStatus = "waiting_client" | "accounts_ready" | "submitted" | "in_review" | "live" | "rejected";
@@ -1576,6 +1586,8 @@ export interface PublishingRequest {
   /** 35, 36 Galaxy Store and AppGallery: null (or absent) when the client doesn't want the app there. */
   galaxy?: PublishingTrack | null;
   huawei?: PublishingTrack | null;
+  /** 42 Xiaomi GetApps, the same way. */
+  xiaomi?: PublishingTrack | null;
   /** The team's own notes, never shown to the client. */
   teamNotes: string | null;
   /** When the client chose "Publish it for me" (the queue's order). */

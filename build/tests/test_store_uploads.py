@@ -1,8 +1,9 @@
-"""Tests for the Galaxy Store and AppGallery uploads (roadmap 35, 36), against a mocked store API.
+"""Tests for the Galaxy Store, AppGallery and Xiaomi GetApps uploads (roadmap 35, 36, 42), against a mocked store API.
 
 Run: python3 -m unittest discover build/tests
 """
 import base64
+import hashlib
 import importlib
 import io
 import json
@@ -282,6 +283,213 @@ class AppGalleryTest(unittest.TestCase):
     @staticmethod
     def server_url(store):
         return store.url
+
+
+def form_parts(request):
+    """The multipart fields of a recorded request: {name: (filename or None, bytes)}."""
+    boundary = request["headers"]["content-type"].split("boundary=", 1)[1].encode()
+    parts = {}
+    for chunk in request["body"].split(b"--" + boundary):
+        if not chunk.startswith(b"\r\n"):
+            continue
+        head, _, content = chunk[2:].partition(b"\r\n\r\n")
+        disposition = head.split(b"\r\n")[0].decode()
+        name = disposition.split('name="', 1)[1].split('"', 1)[0]
+        filename = disposition.split('filename="', 1)[1].split('"', 1)[0] if 'filename="' in disposition else None
+        parts[name] = (filename, content[:-2])
+    return parts
+
+
+@unittest.skipUnless(shutil.which("openssl"), "openssl missing")
+class XiaomiGetAppsTest(unittest.TestCase):
+    """42 Xiaomi GetApps' automatic publishing API, with a certificate of our own in place of Xiaomi's."""
+
+    PASSWORD = "xiaomi-api-private-key-0123456789"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.mkdtemp()
+        cls.key = Path(cls.tmp) / "key.pem"
+        cert = Path(cls.tmp) / "cert.pem"
+        # Xiaomi's certificate is a 1024-bit RSA key: 117-byte blocks.
+        subprocess.run(
+            ["openssl", "req", "-x509", "-newkey", "rsa:1024", "-nodes", "-keyout", str(cls.key), "-out", str(cert), "-days", "2", "-subj", "/CN=dev.xiaomi.test"],
+            check=True,
+            capture_output=True,
+        )
+        cls.certificate = cert.read_text()
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp)
+
+    def credentials(self):
+        return {"user_name": "owner@academy.test", "password": self.PASSWORD, "public_certificate": self.certificate, "release_notes": "New courses and faster lessons."}
+
+    def config(self, version_code=7):
+        return {"app_name": "Academy", "android_package": "com.academy.app", "version_code": version_code}
+
+    def server(self, query=None, push=None):
+        store = MockStore({})
+        store.routes.update({
+            ("POST", "/devupload/dev/query"): query or {"result": 0, "packageInfo": {"appName": "Academy Online", "packageName": "com.academy.app", "versionCode": 6, "versionName": "1.0.5"}, "updateVersion": True},
+            ("POST", "/devupload/dev/push"): push or {"result": 0, "message": "ok"},
+        })
+        self.addCleanup(store.close)
+        return store
+
+    def decrypt(self, sig_hex):
+        """The SIG back to its JSON, block by block with the certificate's private key."""
+        data = bytes.fromhex(sig_hex)
+        self.assertEqual(0, len(data) % 128)
+        plain = b""
+        for start in range(0, len(data), 128):
+            out = subprocess.run(
+                ["openssl", "pkeyutl", "-decrypt", "-inkey", str(self.key), "-pkeyopt", "rsa_padding_mode:pkcs1"],
+                input=data[start : start + 128],
+                capture_output=True,
+                check=True,
+            )
+            plain += out.stdout
+        return json.loads(plain)
+
+    def files(self, tmp):
+        icon = Path(tmp) / "icon-512.png"
+        icon.write_bytes(b"\x89PNG\r\n\x1a\n an icon")
+        return apk(tmp), str(icon)
+
+    def test_checks_the_app_then_uploads_and_submits(self):
+        store = self.server()
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp:
+            package, icon = self.files(tmp)
+            listing = {"privacy_url": "https://academy.test/privacy"}
+            self.assertEqual("com.academy.app", xiaomi.publish(self.credentials(), package, self.config(), icon, listing))
+            apk_md5 = hashlib.md5(Path(package).read_bytes()).hexdigest()
+            icon_md5 = hashlib.md5(Path(icon).read_bytes()).hexdigest()
+        self.assertEqual([("POST", "/devupload/dev/query"), ("POST", "/devupload/dev/push")], store.paths())
+
+        query = form_parts(store.requests[0])
+        self.assertEqual({"RequestData", "SIG"}, set(query))
+        self.assertEqual({"packageName": "com.academy.app", "userName": "owner@academy.test"}, json.loads(query["RequestData"][1]))
+        sig = self.decrypt(query["SIG"][1].decode())
+        self.assertEqual({"sig": [{"name": "RequestData", "hash": hashlib.md5(query["RequestData"][1]).hexdigest()}], "password": self.PASSWORD}, sig)
+
+        push = form_parts(store.requests[1])
+        self.assertEqual({"RequestData", "SIG", "apk", "icon"}, set(push))
+        data = json.loads(push["RequestData"][1])
+        self.assertEqual({"userName": "owner@academy.test", "synchroType": 1, "appInfo": data["appInfo"]}, data)
+        # appInfo is a JSON string; the name already on the store is kept.
+        self.assertEqual(
+            {"appName": "Academy Online", "packageName": "com.academy.app", "updateDesc": "New courses and faster lessons.", "privacyUrl": "https://academy.test/privacy"},
+            json.loads(data["appInfo"]),
+        )
+        self.assertEqual(("app-release.apk", b"PK\x03\x04 a tiny apk"), push["apk"])
+        self.assertEqual("icon-512.png", push["icon"][0])
+        # The signature covers RequestData and both files, longer than one RSA block.
+        sig = self.decrypt(push["SIG"][1].decode())
+        self.assertEqual(
+            [
+                {"name": "RequestData", "hash": hashlib.md5(push["RequestData"][1]).hexdigest()},
+                {"name": "apk", "hash": apk_md5},
+                {"name": "icon", "hash": icon_md5},
+            ],
+            sig["sig"],
+        )
+        self.assertEqual(self.PASSWORD, sig["password"])
+        self.assertGreater(len(bytes.fromhex(push["SIG"][1].decode())), 128)
+
+    def test_an_app_not_on_the_store_is_not_uploaded(self):
+        store = self.server(query={"result": 0, "packageInfo": None})
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+            package, icon = self.files(tmp)
+            xiaomi.publish(self.credentials(), package, self.config(), icon)
+        self.assertIn("Submit the first version by hand", str(raised.exception))
+        self.assertEqual([("POST", "/devupload/dev/query")], store.paths())
+
+    def test_no_update_while_xiaomi_refuses_one_or_has_a_newer_version(self):
+        for query, words in (
+            ({"result": 0, "packageInfo": {"packageName": "com.academy.app", "versionCode": 6}, "updateVersion": False}, "doesn't take a new version"),
+            ({"result": 0, "packageInfo": {"packageName": "com.academy.app", "versionCode": 7}, "updateVersion": True}, "already has version code 7"),
+            ({"result": -7, "message": "owner@academy.test"}, "another Xiaomi developer account"),
+        ):
+            store = self.server(query=query)
+            xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+            with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+                package, icon = self.files(tmp)
+                xiaomi.publish(self.credentials(), package, self.config(), icon)
+            self.assertIn(words, str(raised.exception))
+            self.assertNotIn(("POST", "/devupload/dev/push"), store.paths())
+
+    def test_the_query_waits_while_xiaomi_is_asked_too_often(self):
+        answers = [{"result": -20035}, {"result": -20035}]
+
+        def query(_):
+            return answers.pop(0) if answers else {"result": 0, "packageInfo": {"packageName": "com.academy.app", "versionCode": 1}, "updateVersion": True}
+
+        store = self.server(query=query)
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload", "XIAOMI_QUERY_WAITS": "1,2"})
+        waits = []
+        with tempfile.TemporaryDirectory() as tmp:
+            package, icon = self.files(tmp)
+            xiaomi.publish(self.credentials(), package, self.config(), icon, sleep=waits.append)
+        self.assertEqual([1.0, 2.0], waits)
+        self.assertEqual(3, store.paths().count(("POST", "/devupload/dev/query")))
+        # The push itself is never sent twice.
+        self.assertEqual(1, store.paths().count(("POST", "/devupload/dev/push")))
+
+    def test_without_an_icon_nothing_is_sent(self):
+        store = self.server()
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+            xiaomi.publish(self.credentials(), apk(tmp), self.config(), str(Path(tmp) / "missing.png"))
+        self.assertIn("needs the app's icon", str(raised.exception))
+        self.assertEqual([], store.paths())
+
+    def test_failures_never_print_secrets(self):
+        store = self.server(push={"result": -20014, "message": f"wrong password {self.PASSWORD} for owner@academy.test"})
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp:
+            package, icon = self.files(tmp)
+            secrets_path = Path(tmp) / "secrets.json"
+            secrets_path.write_text(json.dumps({"xiaomi_getapps": self.credentials()}))
+            config_path = Path(tmp) / "config.json"
+            config_path.write_text(json.dumps(self.config()))
+            err, out = io.StringIO(), io.StringIO()
+            argv = ["xiaomi_getapps.py", str(secrets_path), package, str(config_path), icon, str(Path(tmp) / "no-store.json")]
+            with mock.patch.object(sys, "argv", argv), redirect_stderr(err), redirect_stdout(out), self.assertRaises(SystemExit) as code:
+                xiaomi.main()
+        self.assertEqual(1, code.exception.code)
+        self.assertIn("uploading the APK failed (result -20014). Xiaomi refused the API private key.", err.getvalue())
+        for text in (err.getvalue(), out.getvalue()):
+            self.assertNotIn(self.PASSWORD, text)
+            self.assertNotIn("owner@academy.test", text)
+            self.assertNotIn("BEGIN CERTIFICATE", text)
+
+    def test_a_lost_answer_to_the_push_says_to_check_the_console(self):
+        store = self.server()
+        store.routes[("POST", "/devupload/dev/push")] = (502, None)
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+            package, icon = self.files(tmp)
+            xiaomi.publish(self.credentials(), package, self.config(), icon)
+        self.assertIn("uploading the APK failed (HTTP 502)", str(raised.exception))
+        self.assertEqual(1, store.paths().count(("POST", "/devupload/dev/push")))
+        store.close()
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+            package, icon = self.files(tmp)
+            xiaomi.publish(self.credentials(), package, self.config(), icon)
+        self.assertIn("reading the app failed", str(raised.exception))
+
+    def test_an_unreadable_certificate_is_a_plain_message(self):
+        store = self.server()
+        xiaomi = load("xiaomi_getapps", {"XIAOMI_API_URL": f"{store.url}/devupload"})
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(xiaomi.StoreError) as raised:
+            package, icon = self.files(tmp)
+            xiaomi.publish({**self.credentials(), "public_certificate": "not a certificate"}, package, self.config(), icon)
+        self.assertIn("public certificate saved in the dashboard can't be read", str(raised.exception))
+        self.assertEqual([], store.paths())
 
 
 if __name__ == "__main__":

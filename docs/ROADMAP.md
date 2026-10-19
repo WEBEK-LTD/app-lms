@@ -751,3 +751,32 @@ site got a design pass and a dark mode. No migration.
 | [ ] | 41.7 Xiaomi GetApps' guide and upload keys come with Phase 42; the store mark and the wording are in place, the guide link is added when the article exists | Phase 42 merged |
 | [ ] | 41.8 The owner's texts edited in the admin (Website content) keep their wording: edits saved before this phase that mention two stores need a look in the admin | Owner's review |
 | [ ] | 41.9 A light and dark switch on the website (it follows the visitor's setting only), and dark mode for the dashboard | Owner's decision |
+
+## Phase 42: Xiaomi GetApps publishing
+
+Android apps on Xiaomi GetApps too, the app store on Xiaomi, Redmi and POCO
+phones, under the client's own developer account, the way Phases 35 and 36
+added Galaxy Store and AppGallery. The client (or our team, through "Publish
+it for me") submits the first version by hand; after that, on plans with "We
+publish for you", every build's APK is checked against the store and uploaded
+through the automatic publishing API of the Xiaomi developer platform, which
+submits it for review. Xiaomi gets the APK, signed with the app's upload key:
+its API has an `apk` field (and `secondApk`), none for an App Bundle.
+Xiaomi's documentation (dev.mi.com, in Chinese) couldn't be fetched from
+here, so the requests follow three independent open-source clients of the
+same API (one of them tested against a real account) and the parts of
+Xiaomi's guide that search results quote; built and tested against a local
+mock. Nothing has been sent to Xiaomi yet. Migration
+`drizzle/0034_xiaomi_getapps.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 42.1 Contract first: `xiaomi_getapps` in `BuildSecrets` (account email, API private key, Xiaomi's public certificate, what's new; only for builds whose plan uploads) and the `upload_xiaomi` stage in `docs/api/pipeline.yaml` | `redocly lint` passes |
+| [x] | 42.2 Platform: the keys on the app (`apps.xiaomi_*`: the private key encrypted with its own context, the certificate as PEM, what's new or the default "Improvements and fixes."), `upload_xiaomi` started as pending only with "We publish for you" and the keys, the stage on Builds & downloads and a plain failure reason; the Xiaomi track of "Publish it for me" kept with the other extra stores (no migration for it) | Unit tests (keys never sent to builds that don't upload, can't be moved to another app or column), migration generated and `drizzle-kit generate` clean |
+| [x] | 42.3 Dashboard: Publishing › More Android stores has the Xiaomi GetApps section (its setup steps, email, API private key, the certificate file checked as an unexpired X.509 RSA certificate in PEM or DER, what's new); "Publish it for me" can add Xiaomi GetApps (two more checklist steps, its track and statuses in Admin › Publishing, store links on `global.app.mi.com` or `app.mi.com`, status emails); each store's link placeholder in the admin; the docs article "Publish on Xiaomi GetApps" | Unit tests and the publishing browser test |
+| [x] | 42.4 Pipeline: `build/scripts/xiaomi_getapps.py` after the Android build: `/dev/query` (the app on the store under this account, `updateVersion`, an older version code; asked again while Xiaomi answers -20035), then one multipart `/dev/push` with RequestData (`userName`, `synchroType` 1, `appInfo` as a JSON string: the name already on the store, the package, `updateDesc`, `privacyUrl` when https), the APK and the 512 px icon from the store assets; SIG as the MD5s of RequestData and each file with the API private key, encrypted with the certificate (openssl, PKCS#1 v1.5, blocks of the key size less 11 bytes) as hex; a push is never repeated (a lost answer says to check the console); plain messages for Xiaomi's known result codes, no secret in the output | `python3 -m unittest discover build/tests` against a mock that decrypts the SIG with a test certificate's key, `bash -n` |
+| [x] | 42.5 Docs: `build/README.md`, `docs/ARCHITECTURE.md`, `docs/LAUNCH-CHECKLIST.md` (7f, section 8) | |
+| [ ] | 42.6 Uploads in the publishing history: as for Galaxy Store and AppGallery, a build's upload outcome is its `upload_xiaomi` stage and message (Builds & downloads, the build email); the pipeline writes no publishing event, and the team moves the Xiaomi track in Admin › Publishing | When the team wants uploads in the history |
+| [ ] | 42.7 Confirm with a real Xiaomi account (none of this is in an English document): the base address and both endpoints; multipart for `/dev/query` too (one client sends it form-encoded); SIG's JSON (`sig` list of `name`/`hash`, `password`), the block size from the certificate (Xiaomi's is 1024-bit: 117 bytes) and lower-case hex; `appInfo` as a JSON string (Xiaomi's guide as quoted; one client sends an object); `/dev/query`'s `packageInfo` (`packageName`, `appName`, `versionCode`) and `updateVersion` (only one client reads it; an absent value doesn't stop the upload); the result codes -7, -92, -20002, -20014, -20030, -20035; that the icon is required with every update and replaces the store's, that `privacyUrl` may be left out and `suitableType` isn't needed; the 500-character limit of `updateDesc`; whether an update without `testAccount` keeps the reviewer sign-in given in the console (the structured format one client describes since February 2026 isn't sent); and where the API private key and certificate are in the console | One build checked, uploaded and in review on a test app (LAUNCH-CHECKLIST, section 8) |
+| [ ] | 42.8 Xiaomi's international developer site (global.developer.mi.com): whether apps there have the automatic publishing API; the guide says uploads stay by hand without that page. Also how a client adds our team email as a member on the developer platform (the step doesn't name menus) | Checked on both sites with a real account |
+| [ ] | 42.9 More of the listing through the API: screenshots and the descriptions (`desc`, `brief`) are only required for a new app; whether an update takes them isn't confirmed, so they're managed in the console | After 42.7 |

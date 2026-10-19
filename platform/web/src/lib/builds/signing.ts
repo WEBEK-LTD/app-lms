@@ -2,6 +2,7 @@ import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { decrypt, encrypt } from "../crypto/encryption";
 import { rewrapPem } from "../crypto/pem";
+import { XIAOMI_DEFAULT_RELEASE_NOTES } from "../publishing/more-stores";
 import type { DataStore, SigningKeysPatch } from "../data/store";
 import type { App, Build } from "../data/types";
 
@@ -50,6 +51,8 @@ export interface BuildSecrets {
   galaxy_store: { content_id: string; service_account_id: string; private_key: string } | null;
   /** 36 Huawei AppGallery Connect (Publishing API). */
   huawei_appgallery: { app_id: string; client_id: string; client_secret: string } | null;
+  /** 42 Xiaomi GetApps (the Xiaomi developer platform's automatic publishing API). */
+  xiaomi_getapps: { user_name: string; password: string; public_certificate: string; release_notes: string } | null;
 }
 
 /** Encryption contexts (AAD) per app and kind, so a value can't be moved to another column or app. */
@@ -62,6 +65,8 @@ export const keyContext = {
   galaxyStore: (appId: string) => `app:${appId}:galaxy-store`,
   appGallery: (appId: string) => `app:${appId}:appgallery`,
   huaweiPush: (appId: string) => `app:${appId}:huawei-push`,
+  // 42
+  xiaomi: (appId: string) => `app:${appId}:xiaomi-getapps`,
 };
 
 /** Signing and store keys only go out while the build is running. */
@@ -74,7 +79,8 @@ export function isBuilding(build: Build): boolean {
  * on every plan, except the App Store Connect key for a build without iOS
  * (its plan has no iOS app, 13.1): the pipeline then skips iOS. 35, 36 The
  * Galaxy Store and AppGallery keys only upload, so they go only to builds
- * whose plan includes "We publish for you" (`autoPublish`).
+ * whose plan includes "We publish for you" (`autoPublish`). 42 So do the
+ * Xiaomi GetApps keys.
  */
 export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; autoPublish?: boolean } = {}): BuildSecrets {
   const uploads = options.autoPublish === true;
@@ -110,6 +116,15 @@ export function buildSecrets(app: App, key: Buffer, options: { ios?: boolean; au
             app_id: app.huaweiAppId,
             client_id: app.huaweiClientId,
             client_secret: decrypt(app.huaweiClientSecretEncrypted, key, keyContext.appGallery(app.id)),
+          }
+        : null,
+    xiaomi_getapps:
+      uploads && app.xiaomiPasswordEncrypted && app.xiaomiUserName && app.xiaomiCertificate
+        ? {
+            user_name: app.xiaomiUserName,
+            password: decrypt(app.xiaomiPasswordEncrypted, key, keyContext.xiaomi(app.id)),
+            public_certificate: app.xiaomiCertificate,
+            release_notes: app.xiaomiReleaseNotes?.trim() || XIAOMI_DEFAULT_RELEASE_NOTES,
           }
         : null,
   };

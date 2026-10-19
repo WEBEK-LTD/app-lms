@@ -11,16 +11,17 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { XIAOMI_DEFAULT_RELEASE_NOTES, XIAOMI_RELEASE_NOTES_MAX } from "@/lib/publishing/more-stores";
 import { publishingTeamEmail } from "@/lib/publishing/service";
-import { GalaxyStoreForm, HuaweiForm } from "./forms";
+import { GalaxyStoreForm, HuaweiForm, XiaomiForm } from "./forms";
 
 export const metadata: Metadata = { title: "More Android stores" };
 
 /**
- * 35, 36 Samsung Galaxy Store and Huawei AppGallery: the keys we upload each
- * build with ("We publish for you"), and Huawei push for phones without
- * Google Play (every plan). With "Publish it for me" our team works through
- * the client's invitations instead (the Publishing page).
+ * 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps: the
+ * keys we upload each build with ("We publish for you"), and Huawei push for
+ * phones without Google Play (every plan). With "Publish it for me" our team
+ * works through the client's invitations instead (the Publishing page).
  */
 export default async function MoreStoresPage() {
   const { app, license } = await requireClient();
@@ -39,7 +40,7 @@ export default async function MoreStoresPage() {
       <PageHeader
         eyebrow={<Link href="/dashboard/publishing">Publishing</Link>}
         title="More Android stores"
-        description={<>{appLabel(app)} on Samsung Galaxy Store and Huawei AppGallery, beside Google Play.</>}
+        description={<>{appLabel(app)} on Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, beside Google Play.</>}
       />
       {managed ? (
         <Notice tone="success" icon="check_circle">
@@ -121,6 +122,42 @@ export default async function MoreStoresPage() {
           }}
         />
         <p className="m-0 text-sm text-muted">Secrets are encrypted and never shown again. You can remove them at any time.</p>
+      </section>
+
+      {/* 42 Xiaomi GetApps */}
+      <section aria-labelledby="h-xiaomi" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 id="h-xiaomi" className="m-0 flex items-center gap-2 text-lg font-bold">
+            <Icon name="storefront" size={22} />
+            Xiaomi GetApps
+          </h2>
+          <span className="text-sm text-muted">On Xiaomi, Redmi and POCO phones. Uses the same Android app as Google Play.</span>
+        </div>
+        <ol className="m-0 list-decimal space-y-2 pl-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
+          <li>
+            Register as a developer on the <a href="https://dev.mi.com/" target="_blank" rel="noopener noreferrer">Xiaomi developer platform</a> and complete
+            Xiaomi&apos;s identity check.
+          </li>
+          <li>
+            Add your app with the package name <b>{app.androidPackage ?? "from your store listing"}</b> and submit the first version by hand: the APK from{" "}
+            <Link href="/dashboard/builds">Builds &amp; downloads</Link>. Once it&apos;s on the store, every new build is uploaded for you.
+          </li>
+          <li>
+            On the developer platform&apos;s automatic publishing page, copy the API private key and download Xiaomi&apos;s public certificate. Enter them below
+            with the email you sign in with.
+          </li>
+        </ol>
+        {uploads ? null : (
+          <UpgradeHint title="Uploads to Xiaomi GetApps" to={upgrade}>
+            Your plan gives you the APK to upload yourself. Upgrade and we upload every new build to Xiaomi GetApps for you.
+          </UpgradeHint>
+        )}
+        <XiaomiForm
+          uploads={uploads}
+          saved={keys.xiaomi ? { userName: app.xiaomiUserName ?? "" } : null}
+          notes={{ current: app.xiaomiReleaseNotes ?? "", fallback: XIAOMI_DEFAULT_RELEASE_NOTES, max: XIAOMI_RELEASE_NOTES_MAX }}
+        />
+        <p className="m-0 text-sm text-muted">The private key is encrypted and never shown again. We use it only to upload the builds you start.</p>
       </section>
     </>
   );

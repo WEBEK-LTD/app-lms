@@ -2589,16 +2589,16 @@ function toPublishingRequest(row: typeof schema.publishingRequests.$inferSelect)
   };
 }
 
-/** 35, 36 The Galaxy Store and AppGallery tracks, kept as JSON. */
+/** 35, 36, 42 The Galaxy Store, AppGallery and Xiaomi GetApps tracks, kept as JSON (no migration for a new store). */
 function moreStoresFromRow(row: MoreStoresRow | null): Pick<PublishingRequest, MoreStore> {
   const track = (value: MoreStoresRow[MoreStore]) => (value ? { ...value, updatedAt: value.updatedAt ? new Date(value.updatedAt) : null } : null);
-  return { galaxy: track(row?.galaxy), huawei: track(row?.huawei) };
+  return { galaxy: track(row?.galaxy), huawei: track(row?.huawei), xiaomi: track(row?.xiaomi) };
 }
 
 function moreStoresToRow(request: PublishingRequest): MoreStoresRow | null {
   const track = (value: PublishingTrack | null | undefined) => (value ? { ...value, updatedAt: value.updatedAt?.toISOString() ?? null } : null);
-  if (!request.galaxy && !request.huawei) return null;
-  return { galaxy: track(request.galaxy), huawei: track(request.huawei) };
+  if (!request.galaxy && !request.huawei && !request.xiaomi) return null;
+  return { galaxy: track(request.galaxy), huawei: track(request.huawei), xiaomi: track(request.xiaomi) };
 }
 
 function fromPublishingRequest(request: PublishingRequest): typeof schema.publishingRequests.$inferInsert {

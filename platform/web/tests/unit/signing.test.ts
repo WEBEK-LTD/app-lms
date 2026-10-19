@@ -100,7 +100,7 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
     const response = await secrets(build.id);
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null, galaxy_store: null, huawei_appgallery: null });
+    expect(await response.json()).toEqual({ android_upload_key: null, ios_distribution: null, google_play: null, app_store_connect: null, galaxy_store: null, huawei_appgallery: null, xiaomi_getapps: null });
   });
 
   it("decrypts the store keys the client uploaded", async () => {
@@ -119,9 +119,10 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       ios_distribution: null,
       google_play: { service_account_json: serviceAccount },
       app_store_connect: { issuer_id: "69a6de7e-0000-4000-8000-000000000000", key_id: "2X9R4HXF34", private_key: p8 },
-      // 35, 36 Only for builds that upload (auto_publish): this one doesn't.
+      // 35, 36, 42 Only for builds that upload (auto_publish): this one doesn't.
       galaxy_store: null,
       huawei_appgallery: null,
+      xiaomi_getapps: null,
     });
   });
 
@@ -143,6 +144,28 @@ describe("GET /api/v1/builds/{id}/secrets", () => {
       galaxy_store: { content_id: "000001234567", service_account_id: "sa-123456", private_key: "-----BEGIN PRIVATE KEY-----\nGALAXY\n-----END PRIVATE KEY-----" },
       huawei_appgallery: { app_id: "104123456", client_id: "client-777", client_secret: "connect-secret-0123456789" },
     });
+  });
+
+  it("42 sends the Xiaomi GetApps keys to builds that upload, with what's new or the default", async () => {
+    const appId = newId();
+    const key = encryptionKey();
+    const keys = {
+      id: appId,
+      xiaomiUserName: "owner@academy.test",
+      xiaomiPasswordEncrypted: encrypt("xiaomi-api-key-0123456789", key, keyContext.xiaomi(appId)),
+      xiaomiCertificate: "-----BEGIN CERTIFICATE-----\nXIAOMI\n-----END CERTIFICATE-----",
+    };
+    const { build } = await appWithBuild("building", keys);
+    expect((await (await secrets(build.id)).json()).xiaomi_getapps).toBeNull();
+    await store.updateBuild(build.id, { autoPublish: true } as never, NOW);
+    expect((await (await secrets(build.id)).json()).xiaomi_getapps).toEqual({
+      user_name: "owner@academy.test",
+      password: "xiaomi-api-key-0123456789",
+      public_certificate: "-----BEGIN CERTIFICATE-----\nXIAOMI\n-----END CERTIFICATE-----",
+      release_notes: "Improvements and fixes.",
+    });
+    await store.updateApp(appId, { xiaomiReleaseNotes: "New courses every week." }, NOW);
+    expect((await (await secrets(build.id)).json()).xiaomi_getapps.release_notes).toBe("New courses every week.");
   });
 
   it("returns no App Store Connect key without its Issuer ID and Key ID", async () => {

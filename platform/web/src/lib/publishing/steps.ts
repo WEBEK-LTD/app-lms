@@ -38,10 +38,13 @@ export const PUBLISHING_STEP_IDS = [
   "galaxy_invite",
   "huawei_account",
   "huawei_invite",
+  // 42
+  "xiaomi_account",
+  "xiaomi_invite",
 ] as const;
 export type PublishingStepId = (typeof PUBLISHING_STEP_IDS)[number];
 
-/** Official Google, Apple, Firebase, Samsung and Huawei pages only. */
+/** Official Google, Apple, Firebase, Samsung, Huawei and Xiaomi pages only. */
 export const PUBLISHING_STEPS: PublishingStep[] = [
   {
     id: "play_account",
@@ -133,6 +136,25 @@ export const PUBLISHING_STEPS: PublishingStep[] = [
       "In AppGallery Connect, open Users and permissions › Team account › Member and add {team_email} with the App administrator and Operations roles. Huawei emails us the invitation.",
     links: [{ label: "AppGallery Connect", href: "https://developer.huawei.com/consumer/en/service/josp/agc/index.html" }],
   },
+  {
+    id: "xiaomi_account",
+    store: "xiaomi",
+    title: "Create your Xiaomi developer account",
+    text:
+      "Register as a developer on the Xiaomi developer platform with your own Xiaomi account, in your name or your company's, and complete Xiaomi's identity check. Xiaomi GetApps is the app store on Xiaomi, Redmi and POCO phones.",
+    links: [
+      { label: "Xiaomi developer platform", href: "https://dev.mi.com/" },
+      { label: "Xiaomi GetApps for developers", href: "https://global.developer.mi.com/" },
+    ],
+  },
+  {
+    id: "xiaomi_invite",
+    store: "xiaomi",
+    title: "Give our team access to your Xiaomi developer account",
+    text:
+      "In the Xiaomi developer platform, add {team_email} as a member of your account who may manage your apps. If you can't find where to add members, contact us and we'll find the way with you: you never share your sign-in details.",
+    links: [{ label: "Xiaomi developer platform", href: "https://dev.mi.com/" }],
+  },
 ];
 
 /** 35, 36 The steps for the stores a request covers: Google Play, the App Store, push, and the extra stores the client asked for. */
@@ -146,15 +168,27 @@ export function stepText(step: PublishingStep, teamEmail: string): string {
 }
 
 export const PUBLISHING_STORES: PublishingStore[] = ["android", "ios"];
-/** 35, 36 Stores the client may add to "Publish it for me". */
-export const MORE_STORES: MoreStore[] = ["galaxy", "huawei"];
-export const STORE_NAME: Record<PublishingStore, string> = { android: "Google Play", ios: "the App Store", galaxy: "Galaxy Store", huawei: "AppGallery" };
-export const STORE_TITLE: Record<PublishingStore, string> = { android: "Google Play", ios: "App Store", galaxy: "Samsung Galaxy Store", huawei: "Huawei AppGallery" };
+/** 35, 36, 42 Stores the client may add to "Publish it for me". */
+export const MORE_STORES: MoreStore[] = ["galaxy", "huawei", "xiaomi"];
+export const STORE_NAME: Record<PublishingStore, string> = { android: "Google Play", ios: "the App Store", galaxy: "Galaxy Store", huawei: "AppGallery", xiaomi: "Xiaomi GetApps" };
+export const STORE_TITLE: Record<PublishingStore, string> = {
+  android: "Google Play",
+  ios: "App Store",
+  galaxy: "Samsung Galaxy Store",
+  huawei: "Huawei AppGallery",
+  xiaomi: "Xiaomi GetApps",
+};
 /** Material Symbols for each store's card. */
-export const STORE_ICON: Record<PublishingStore, "android" | "phone_iphone" | "storefront"> = { android: "android", ios: "phone_iphone", galaxy: "storefront", huawei: "storefront" };
+export const STORE_ICON: Record<PublishingStore, "android" | "phone_iphone" | "storefront"> = {
+  android: "android",
+  ios: "phone_iphone",
+  galaxy: "storefront",
+  huawei: "storefront",
+  xiaomi: "storefront",
+};
 
 export function isMoreStore(value: unknown): value is MoreStore {
-  return value === "galaxy" || value === "huawei";
+  return typeof value === "string" && (MORE_STORES as string[]).includes(value);
 }
 
 /** 35, 36 The stores a request covers: Google Play, the App Store and the extra stores the client asked for. */
@@ -227,7 +261,7 @@ export function publishingEventLabel(event: Pick<PublishingEvent, "store" | "sta
 
 /** What a status means for the client, in plain words. */
 export function statusText(store: PublishingStore, status: PublishingStatus): string {
-  const reviewer = { android: "Google", ios: "Apple", galaxy: "Samsung", huawei: "Huawei" }[store];
+  const reviewer = { android: "Google", ios: "Apple", galaxy: "Samsung", huawei: "Huawei", xiaomi: "Xiaomi" }[store];
   switch (status) {
     case "waiting_client":
       return `We start on ${STORE_NAME[store]} once you've ticked its steps below and we've accepted your invitation.`;
@@ -326,6 +360,7 @@ export function newPublishingRequest(app: Pick<App, "id" | "clientId">, mode: Pu
     ios: { ...EMPTY_TRACK },
     galaxy: null,
     huawei: null,
+    xiaomi: null,
     teamNotes: null,
     requestedAt: mode === "managed" ? now : null,
     readyAt: null,
@@ -392,6 +427,10 @@ export function storeUrlProblem(store: PublishingStore, value: string): string |
   if (store === "ios" && url.hostname !== "apps.apple.com") return "An App Store link starts with https://apps.apple.com/.";
   if (store === "galaxy" && url.hostname !== "galaxystore.samsung.com") return "A Galaxy Store link starts with https://galaxystore.samsung.com/.";
   if (store === "huawei" && url.hostname !== "appgallery.huawei.com") return "An AppGallery link starts with https://appgallery.huawei.com/.";
+  // 42 GetApps' web pages: app.mi.com in mainland China, global.app.mi.com elsewhere.
+  if (store === "xiaomi" && url.hostname !== "app.mi.com" && url.hostname !== "global.app.mi.com") {
+    return "A Xiaomi GetApps link starts with https://global.app.mi.com/ or https://app.mi.com/.";
+  }
   return null;
 }
 

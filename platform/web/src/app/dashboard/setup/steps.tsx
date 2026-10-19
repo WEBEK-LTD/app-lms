@@ -1264,13 +1264,13 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
   );
 }
 
-/** 35, 36 Samsung Galaxy Store and Huawei AppGallery (and Huawei push) have their own page. */
+/** 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery (and Huawei push) and Xiaomi GetApps have their own page. */
 function MoreStoresLink() {
   return (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
       <Icon name="storefront" size={20} className="text-muted" />
       <span>
-        Samsung Galaxy Store and Huawei AppGallery, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
+        Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
       </span>
     </p>
   );
