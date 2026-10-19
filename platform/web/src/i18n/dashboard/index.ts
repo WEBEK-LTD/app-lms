@@ -14,6 +14,7 @@ import * as nav from "./nav";
 import * as overview from "./overview";
 import * as media from "./media";
 import * as pages from "./pages";
+import * as preview from "./preview";
 import * as setup from "./setup";
 
 /**
@@ -36,7 +37,7 @@ import * as setup from "./setup";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

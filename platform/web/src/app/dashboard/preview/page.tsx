@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { QrCode } from "@/components/qr-code";
@@ -15,13 +16,18 @@ import { appUrl, signingSecret } from "@/lib/env";
 import { hostedSettings } from "@/lib/hosted/service";
 import { yallappSignsIn } from "@/lib/hosted/sign-in-methods";
 import { appDefaults, draftLayout, publishedLayout } from "@/lib/pages/layout";
-import { languageName } from "@/lib/i18n/locales";
+import { appLanguageName } from "@/lib/i18n/language-names";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import { localePath } from "@/i18n/paths";
 import { languagesForPlan } from "@/lib/pages/plan";
 import { draftPreviewSupported, missingSteps, previewContentSource } from "@/lib/preview/config";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
 import { PreviewPanel } from "./panel";
 
-export const metadata: Metadata = { title: "Preview your app" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("preview.title") };
+}
 export const dynamic = "force-dynamic";
 
 /** Where each setup step is edited. */
@@ -41,6 +47,7 @@ const STEP_HREF: Record<string, string> = {
 export default async function PreviewPage({ searchParams }: PageProps<"/dashboard/preview">) {
   const { app, license } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
+  const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const now = new Date();
   const plans = await effectivePlans(store);
@@ -54,93 +61,69 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const phoneUrl = `${appUrl()}${path}`;
   const missing = missingSteps(app, planId, plans);
   const source = previewContentSource(app);
-  const name = appLabel(app);
+  const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
 
   // The languages the app offers, as it will get them (draft or published, within the plan).
   const layout = draft ? await draftLayout(store, app, now) : await publishedLayout(store, app.id);
   const languages = languagesForPlan(layout?.languages ?? (await appDefaults(store)).languages, plan);
-  const languageOptions = languages.available.map((code) => ({ code, label: languageName(code) }));
+  const languageOptions = languages.available.map((code) => ({ code, label: appLanguageName(code, lang) }));
   // 43 The Languages page opens the preview in the language being translated.
   const startLanguage = typeof params.lang === "string" && languages.available.includes(params.lang) ? params.lang : languages.default;
 
-  const sourceText: Record<typeof source, string> = {
-    wordpress: `Your WordPress site, ${app.siteUrl ?? ""}, through the Yallapp plugin.`,
-    custom_api: `Your own API, ${app.apiBaseUrl ?? ""}.`,
-    hosted: "Your content in Yallapp, or the platform you connected.",
-    none:
-      app.backend === "setup_requested"
-        ? // 19 Our team is still setting up the WordPress site.
-          "Your WordPress site, once our team has set it up. Until then the preview shows your app's look."
-        : "Not connected yet. The preview shows your app's look until you choose where its content comes from.",
+  const site = (address: string) => ({ site: () => <bdi dir="ltr">{address}</bdi> });
+  const sourceText: Record<typeof source, ReactNode> = {
+    wordpress: richText(t("preview.sourceWordpress"), site(app.siteUrl ?? "")),
+    custom_api: richText(t("preview.sourceApi"), site(app.apiBaseUrl ?? "")),
+    hosted: t("preview.sourceHosted"),
+    // 19 Our team is still setting up the WordPress site.
+    none: app.backend === "setup_requested" ? t("preview.sourceSetup") : t("preview.sourceNone"),
   };
 
   const settings = hostedSettings(app);
-  const signIn = app.demo ? (
-    <>
-      Sign in with the demo number {DEMO_SIGN_IN.display} and the code {DEMO_SIGN_IN.code}.
-    </>
-  ) : app.backend === "hosted" || yallappSignsIn(app) ? (
-    settings.reviewPhone && settings.reviewCode ? (
-      <>
-        Sign in with your store review number, {settings.reviewPhone}, and its code. Change them on <Link href="/dashboard/app-sign-in">App sign-in</Link>.
-      </>
-    ) : (
-      <>
-        To try the signed-in screens, add a store review number and code on <Link href="/dashboard/app-sign-in">App sign-in</Link>, then sign in with them here.
-      </>
-    )
-  ) : app.backend === "setup_requested" ? (
-    <>
-      Signing in works in the preview once our team has set up your WordPress site with the Yallapp plugin: then sign in with the store review number and code
-      set in the plugin&apos;s settings. Choose how people sign in now on <Link href="/dashboard/app-sign-in">App sign-in</Link>.
-    </>
-  ) : app.backend === "wordpress" ? (
-    <>
-      The preview never sends sign-in codes. Sign in with the store review number and code set in the Yallapp plugin&apos;s settings on your site (Store review
-      access)
-      {app.siteUrl ? (
-        <>
-          :{" "}
-          <a href={`${app.siteUrl.replace(/\/+$/, "")}/wp-admin/admin.php?page=yallapp`} target="_blank" rel="noreferrer">
-            open the plugin&apos;s settings
-          </a>
-        </>
-      ) : null}
-      . An older plugin can&apos;t do this: the preview then says sign-in is available in the installed app.
-    </>
-  ) : (
-    <>
-      Your API signs people in the preview when it supports preview sign-in. See <Link href="/docs/my-own-api#let-the-app-preview-reach-your-api">Connect your own API</Link>.
-    </>
-  );
+  const linkTo = (href: string) => ({ link: (chunk: string) => <Link href={href}>{chunk}</Link> });
+  const signInLink = linkTo("/dashboard/app-sign-in");
+  const ltr = (text: string) => () => <bdi dir="ltr">{text}</bdi>;
+  const signIn = app.demo
+    ? richText(t("preview.demoSignIn"), { phone: ltr(DEMO_SIGN_IN.display), code: ltr(DEMO_SIGN_IN.code) })
+    : app.backend === "hosted" || yallappSignsIn(app)
+      ? settings.reviewPhone && settings.reviewCode
+        ? richText(t("preview.reviewSignIn"), { ...signInLink, phone: ltr(settings.reviewPhone) })
+        : richText(t("preview.addReview"), signInLink)
+      : app.backend === "setup_requested"
+        ? richText(t("preview.setupSignIn"), signInLink)
+        : app.backend === "wordpress"
+          ? app.siteUrl
+            ? richText(t("preview.wpSignInLink"), {
+                link: (chunk: string) => (
+                  <a href={`${app.siteUrl!.replace(/\/+$/, "")}/wp-admin/admin.php?page=yallapp`} target="_blank" rel="noreferrer">
+                    {chunk}
+                  </a>
+                ),
+              })
+            : t("preview.wpSignIn")
+          : richText(t("preview.apiSignIn"), linkTo(localePath(lang, "/docs/my-own-api") + "#let-the-app-preview-reach-your-api"));
 
   return (
     <>
       <PageHeader
-        title="Preview your app"
+        title={t("preview.title")}
         eyebrow={name}
-        description={
-          <>
-            Your real app, running in your browser with your current setup and content. Check the type, content, branding, look, pages, tabs and languages before you
-            build. Nothing here is published or sent to your app&apos;s users.
-          </>
-        }
+        description={t("preview.intro")}
       />
 
       {draftSupported ? (
-        <nav aria-label="Pages to show" className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold text-muted">Pages:</span>
+        <nav aria-label={t("preview.pagesToShow")} className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-muted">{t("preview.pages")}</span>
           <Link href="/dashboard/preview" aria-current={draft ? undefined : "page"} className={`${draft ? btn.secondary : btn.primary} h-9 px-3.5 text-sm`}>
-            Published
+            {t("preview.published")}
           </Link>
           <Link href="/dashboard/preview?pages=draft" aria-current={draft ? "page" : undefined} className={`${draft ? btn.primary : btn.secondary} h-9 px-3.5 text-sm`}>
-            Draft from Pages &amp; look
+            {t("preview.draft")}
           </Link>
         </nav>
       ) : (
         <Notice icon="info">
-          The preview shows your published pages: your {source === "wordpress" || app.backend === "setup_requested" ? "site" : "API"} gets pages from Yallapp only once they&apos;re published. Drafts show in the
-          editor on <Link href="/dashboard/pages">Pages &amp; look</Link>.
+          {richText(source === "wordpress" || app.backend === "setup_requested" ? t("preview.publishedOnlySite") : t("preview.publishedOnlyApi"), linkTo("/dashboard/pages"))}
         </Notice>
       )}
 
@@ -149,13 +132,13 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
 
         <div className="flex min-w-0 flex-col gap-4">
           {missing.length ? (
-            <Section id="missing" titleId="h-missing" title="What's missing" description="The preview fills these with placeholders until you finish them.">
+            <Section id="missing" titleId="h-missing" title={t("preview.missing")} description={t("preview.missingText")}>
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {missing.map((m) => (
                   <li key={m.step}>
                     <Link href={STEP_HREF[m.step] ?? "/dashboard/setup"} className="flex items-center gap-2 text-[15px] font-semibold">
                       <Icon name="radio_button_unchecked" size={18} className="text-faint" />
-                      {m.label}
+                      {k(m.label)}
                     </Link>
                   </li>
                 ))}
@@ -163,48 +146,45 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
             </Section>
           ) : (
             <Notice tone="success" icon="check_circle">
-              Your setup is complete. If everything looks right, start a build on <Link href="/dashboard/builds">Builds &amp; downloads</Link>.
+              {richText(t("preview.complete"), linkTo("/dashboard/builds"))}
             </Notice>
           )}
 
-          <Section id="phone" titleId="h-phone" title="Open on your phone" description="Scan the code with your phone's camera. The link works for an hour.">
+          <Section id="phone" titleId="h-phone" title={t("preview.phone")} description={t("preview.phoneText")}>
             <div className="flex flex-wrap items-center gap-4">
-              <QrCode value={phoneUrl} label={`QR code that opens the preview of ${name}`} size={152} />
+              <QrCode value={phoneUrl} label={t("preview.qr", { app: name })} size={152} />
               <div className="flex min-w-0 flex-[1_1_200px] flex-col gap-2 text-sm leading-relaxed text-ink-4">
                 <span>
-                  On a phone the preview fills the screen.{" "}
-                  {wordsOf(app).iphone ? `Opened on an iPhone, it follows the iPhone rules. ${wordsOf(app).iphone}` : "Opened on an iPhone, it shows what the iPhone app shows."}
+                  {t("preview.fillsScreen")}{" "}
+                  {wordsOf(app).iphone ? t("preview.iphoneRules", { rule: k(wordsOf(app).iphone!) }) : t("preview.iphoneSame")}
                 </span>
                 <a href={path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold">
-                  Open in a new tab
+                  {t("preview.newTab")}
                   <Icon name="open_in_new" size={16} />
                 </a>
               </div>
             </div>
           </Section>
 
-          <Section id="about" titleId="h-about" title="About the preview">
+          <Section id="about" titleId="h-about" title={t("preview.about")}>
             <dl className="m-0 flex flex-col gap-3 text-sm leading-relaxed">
               <div>
-                <dt className="font-semibold">Content</dt>
+                <dt className="font-semibold">{t("preview.content")}</dt>
                 <dd className="m-0 text-ink-4">{sourceText[source]}</dd>
               </div>
               <div>
-                <dt className="font-semibold">Signing in</dt>
-                <dd className="m-0 text-ink-4">{signIn} The preview never sends sign-in codes.</dd>
-              </div>
-              <div>
-                <dt className="font-semibold">Only in the installed app</dt>
+                <dt className="font-semibold">{t("preview.signingIn")}</dt>
                 <dd className="m-0 text-ink-4">
-                  Push notifications, protected videos, web pages inside the app (such as checkout and payment) and screen capture protection. The preview shows a short note
-                  where they would be.
+                  {signIn} {app.backend === "wordpress" && !app.demo ? null : t("preview.neverCodes")}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold">Changes</dt>
-                <dd className="m-0 text-ink-4">
-                  Saved changes show after <strong>Reload after changes</strong>. A new build is still needed for your name under the icon, the icon and the store listing.
-                </dd>
+                <dt className="font-semibold">{t("preview.installedOnly")}</dt>
+                <dd className="m-0 text-ink-4">{t("preview.installedOnlyText")}</dd>
+              </div>
+              <div>
+                <dt className="font-semibold">{t("preview.changes")}</dt>
+                <dd className="m-0 text-ink-4">{richText(t("preview.changesText"), { b: (chunk: string) => <strong>{chunk}</strong> })}</dd>
               </div>
             </dl>
           </Section>
