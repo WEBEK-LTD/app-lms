@@ -77,15 +77,21 @@ async function findMembership(store: DataStore, app: App, key: string, input: { 
     return m ?? "not_found";
   }
   // A typed code: one indexed lookup by its hash, checked in constant time.
-  const byHash = await store.findMembershipByCodeHash(app.id, memberCodeHash(key, app.id, read.code));
-  if (byHash) return safeEqual(memberCode(key, app.id, byHash.id), read.code) ? byHash : "not_found";
+  const hash = memberCodeHash(key, app.id, read.code);
+  const byHash = async () => {
+    const m = await store.findMembershipByCodeHash(app.id, hash);
+    return m && safeEqual(memberCode(key, app.id, m.id), read.code) ? m : null;
+  };
+  const found = await byHash();
+  if (found) return found;
   for (const m of await store.listMembershipsWithoutCodeHash(app.id, now, UNHASHED_LIMIT)) {
     if (safeEqual(memberCode(key, app.id, m.id), read.code)) {
       await rememberMemberCode(store, key, app.id, m);
       return m;
     }
   }
-  return "not_found";
+  // Another door may have kept its hash between the two looks.
+  return (await byHash()) ?? "not_found";
 }
 
 export async function checkInMember(input: {

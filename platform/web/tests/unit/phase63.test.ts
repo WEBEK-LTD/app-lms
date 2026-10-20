@@ -172,6 +172,18 @@ describe("63 the gym's door", () => {
     expect((await door("ZZZZ-ZZZZ-ZZZZ")).outcome).toBe("not_found");
   });
 
+  it("finds a typed code whose hash another door kept between the two looks", async () => {
+    const sara = await user("Sara Adel", "+201001112223");
+    const m = await store.createMembership(membership(gym, sara.id));
+    const code = memberCode(key, gym.id, m.id);
+    // Another door keeps the hash just as this one looks through the memberships without one.
+    store.listMembershipsWithoutCodeHash = async () => {
+      await store.setMembershipCodeHash(gym.id, m.id, memberCodeHash(key, gym.id, code));
+      return [];
+    };
+    expect((await checkInMember({ store, app: gym, key, scanned: code, by: "Desk", now: NOW })).outcome).toBe("admitted");
+  });
+
   it("pages members in the store, those who can get in first, with the right total", async () => {
     const ended = await store.createMembership(membership(gym, (await user("Old", "+201009990000")).id, { endsAt: days(-5), createdAt: days(-1) }));
     for (let i = 0; i < 25; i += 1) await store.createMembership(membership(gym, (await user(`M${i}`, `+20100300${String(i).padStart(4, "0")}`)).id, { createdAt: days(-10 - i) }));
