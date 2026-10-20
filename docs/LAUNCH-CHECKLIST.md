@@ -522,50 +522,167 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       it arrives once; create an announcement that starts in 10 minutes and
       check the phone gets it when it starts.
 
-## 7l. Yallapp Business in the stores (Phase 59)
+## 7l. Yallapp Business in the stores (Phases 59, 65)
 
-The app itself (`business/`, see its README). Store listings go under
-**Yallapp's own** Google Play and Apple developer accounts, not a client's.
+Yallapp Business (`business/`) goes to Google Play and the App Store under
+**Yallapp's own** accounts, never a client's. The workflow **Yallapp Business
+release** does the building, signing and uploading; these steps are what only
+we can do. Where it says "add a secret" or "add a variable": GitHub › this
+repository › Settings › Secrets and variables › Actions › the **Secrets** or
+**Variables** tab › New repository secret / variable. Paste values exactly,
+never in a chat or an issue.
 
-- [ ] In the Yallapp Business Firebase project (7k), register the Android app
+### Accounts (once)
+
+- [ ] **Google Play**: play.google.com/console › create a developer account
+      as an **organization** (Yallapp's company, its D-U-N-S number, the
+      USD 25 fee, a website and a contact email). Organizations skip the 14-day
+      closed test that personal accounts need.
+- [ ] **Apple**: developer.apple.com/programs › Enroll as an
+      **organization** (needs the D-U-N-S number, the legal entity's name and
+      the yearly fee; Apple may call to check). Turn on two-factor
+      authentication on a team phone.
+
+### Google Play: the app and its keys
+
+- [ ] Play Console › Create app: name **Yallapp Business**, default language
+      English (United States), App, Free.
+- [ ] The upload key, as four secrets: `YB_ANDROID_UPLOAD_KEYSTORE` (the
+      PKCS12 keystore file in base64; line breaks don't matter),
+      `YB_ANDROID_KEYSTORE_PASSWORD`, `YB_ANDROID_KEY_ALIAS` (`upload`) and
+      `YB_ANDROID_KEY_PASSWORD` (the same password). To make one on a computer
+      with Java: `keytool -genkeypair -storetype PKCS12 -keystore upload.jks
+      -alias upload -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=Yallapp
+      Business, O=Yallapp, C=TR"`, then `base64 -w0 upload.jks` (Linux) or
+      `base64 -i upload.jks` (Mac) for the first secret. Keep the file and the
+      password in the team's password manager. With Play App Signing (on by
+      default) a lost upload key can be reset from Play Console › Test and
+      release › App integrity.
+- [ ] Run the workflow once (below) with **android**. Its App Bundle is on the
+      **Yallapp Business test build** pre-release as `yallapp-business.aab`.
+- [ ] **First upload by hand** (Google Play accepts nothing else for a new
+      app): Play Console › Yallapp Business › Test and release › Testing ›
+      Internal testing › Create new release › upload `yallapp-business.aab` ›
+      Next › Save and publish. Add the team's emails as internal testers.
+- [ ] The upload robot: Google Cloud console (the same Google account) ›
+      create a project › APIs & Services › enable **Google Play Android
+      Developer API** › IAM & Admin › Service accounts › Create (any name) ›
+      Keys › Add key › JSON. Play Console › Users and permissions › Invite new
+      users › the service account's email › App permissions › Yallapp Business
+      › **Release to testing tracks** and **Manage store presence** (and
+      Release to production if wanted) › Invite. Add the whole JSON file as the
+      secret `YB_PLAY_SERVICE_ACCOUNT_JSON`.
+
+### App Store: the app and its key
+
+- [ ] App Store Connect › Users and Access › Integrations › App Store Connect
+      API › Team Keys › Generate (name "Yallapp Business release", access
+      **App Manager**; **Admin** if the run says it can't create certificates).
+      Download the .p8 file (only once). Add three secrets: `YB_ASC_KEY_ID`
+      (the Key ID), `YB_ASC_ISSUER_ID` (the Issuer ID above the list) and
+      `YB_ASC_PRIVATE_KEY` (the whole .p8 file opened in a text editor, from
+      `-----BEGIN PRIVATE KEY-----` to `-----END PRIVATE KEY-----`).
+- [ ] Run the workflow once with **ios**: it registers the App ID
+      `tr.com.yallapp.business` with push notifications and stops, saying the
+      app doesn't exist yet.
+- [ ] App Store Connect › Apps › + › New App: iOS, name **Yallapp Business**,
+      primary language English (U.S.), bundle ID **tr.com.yallapp.business**,
+      SKU `yallapp-business`, Full Access.
+- [ ] Optional: a distribution certificate of our own as
+      `YB_IOS_DISTRIBUTION_P12` (the .p12 in base64) and
+      `YB_IOS_DISTRIBUTION_PASSWORD`. Without them each run makes a
+      certificate, uses it and revokes it at the end (Apple may email about
+      it; apps already uploaded aren't affected).
+
+### Pushes (Firebase)
+
+- [ ] In the Yallapp Business Firebase project (7k): add the Android app
       `tr.com.yallapp.business` and the iOS app `tr.com.yallapp.business`.
-      Copy their API keys and app IDs into `business/config/firebase.json`
-      on the build machine (from `config/firebase.example.json`; git-ignored,
-      never committed) and build with
-      `--dart-define-from-file=config/firebase.json`. No
-      `google-services.json` or `GoogleService-Info.plist` goes in the repo.
-- [ ] iOS: in Xcode, add the Push Notifications capability (and Background
-      Modes › Remote notifications, already in Info.plist) to the Runner
-      target under Yallapp's team; upload the APNs key to the Firebase
-      project (7k).
-- [ ] Android signing: create Yallapp Business's upload key, keep it in the
-      team's password manager, and put `business/android/key.properties`
-      (storeFile, storePassword, keyAlias, keyPassword; git-ignored) on the
-      build machine. Enrol in Play App Signing. iOS: distribution
-      certificate and an App Store provisioning profile for
-      `tr.com.yallapp.business`.
-- [ ] Store listings in English, Arabic and Turkish: name "Yallapp Business",
-      the Yallapp icon (`brand/stores`), screenshots of Today, Orders, the
-      scanner and the notification composer from the demo
-      (`--dart-define=YB_DEMO=true`), Yallapp's privacy policy
-      (`https://yallapp.com.tr/privacy`), contact `info@yallapp.com.tr`.
-- [ ] Data safety / App privacy: the email, name and the device's name are
-      used to sign in and list signed-in devices; push tokens for
-      notifications; camera (tickets, pictures, videos), microphone (videos)
-      and photos (uploads) only when the owner uses them; no tracking, no ads.
-- [ ] **Review notes, both stores**: the app is a companion for businesses
-      that already have a Yallapp account; it sells nothing and has **no
-      payments of any kind** (no in-app purchases, no links presented as a
-      way to buy: plan and storage are shown read-only with "Manage on
-      yallapp.com.tr"). Give the reviewers a demo account on a test client
-      with a sample app (orders, appointments and events), and say that
-      sign-up happens on the website, not in the app (Apple 3.1.3(c)
-      "Enterprise services" / 5.1.1(v) account rules: the app has no account
-      creation and offers sign-out and the website for deletion).
-- [ ] Before submitting: sign in on a real Android phone and an iPhone,
-      check the biometric lock, a push for a test order opening the order,
-      a ticket scanned at the door, an upload of a phone video to Media,
-      and the app in Arabic.
+- [ ] Add variables (not secrets: these ship inside the app):
+      `YB_FIREBASE_PROJECT_ID`, `YB_FIREBASE_SENDER_ID` (Project settings ›
+      General: Project ID, Project number), `YB_FIREBASE_APP_ID_ANDROID`,
+      `YB_FIREBASE_API_KEY_ANDROID`, `YB_FIREBASE_APP_ID_IOS`,
+      `YB_FIREBASE_API_KEY_IOS` (Your apps › each app: App ID; its
+      `google-services.json` / `GoogleService-Info.plist` has the API key).
+      Easier: paste the whole `google-services.json` into
+      `YB_FIREBASE_APP_ID_ANDROID` and the whole `GoogleService-Info.plist`
+      into `YB_FIREBASE_APP_ID_IOS`; the workflow reads the rest from them.
+      Never commit those files.
+- [ ] Apple Developer › Certificates, Identifiers & Profiles › Keys › + ›
+      **Apple Push Notifications service (APNs)** › download the .p8. Firebase
+      › Project settings › Cloud Messaging › Apple app configuration › APNs
+      Authentication Key › upload it with its Key ID and the Team ID.
+
+### App Review's details (App Store)
+
+- [ ] A test client on yallapp.com.tr with a sample app (a restaurant with a
+      few orders is best; an events app shows the door scanner) and an owner
+      account only for Apple's reviewers. Secrets `YB_APP_REVIEW_DEMO_USER`
+      (its email) and `YB_APP_REVIEW_DEMO_PASSWORD`.
+- [ ] Variables `YB_APP_REVIEW_FIRST_NAME`, `YB_APP_REVIEW_LAST_NAME`,
+      `YB_APP_REVIEW_PHONE` (with the country code, like +90…): the person
+      Apple calls with questions. The email is info@yallapp.com.tr
+      (`YB_APP_REVIEW_EMAIL` changes it). The review notes are
+      `business/store/ios/review_notes.txt`: no payments, accounts are made
+      on the website.
+- [ ] Google Play › App content › App access › "All or some functionality is
+      restricted" › add the same demo account with "Sign in with the email and
+      password on the first screen".
+
+### Run it
+
+- [ ] Actions › **Yallapp Business release** › Run workflow: stores
+      (both, android, ios), Google Play track (internal by default), and the
+      version (empty = `business/pubspec.yaml`'s; once a version is live on
+      the App Store, type the next one, like 1.0.1). The run's summary lists
+      every secret and variable as set or missing and says what to do next.
+      Only one run at a time; the build number is the run's, so it always
+      goes up.
+
+### Questionnaires (once, by hand)
+
+- [ ] **Google Play › App content › Data safety**: collects data, encrypted
+      in transit, people can ask for deletion (info@yallapp.com.tr). Personal
+      info: **Name** and **Email address** (account management, app
+      functionality); App info and performance: none; Device or other IDs:
+      **yes** (the push token and the device's name, for notifications and
+      the signed-in devices); Photos and videos: **yes**, optional (uploads to
+      the app's Media); Messages › **Other in-app messages** (replies to
+      customers) and App activity › **Other user-generated content**
+      (notifications, answers, catalog edits). Every one: collected, not
+      shared, required (photos optional), for app functionality and account
+      management. Nothing is used for ads or tracking.
+- [ ] **Google Play › App content**: Content rating questionnaire (category
+      Utility/Productivity/Communication/Other: "Business"; no violence,
+      no sexual content, no gambling, no purchases of digital goods; users
+      can interact: **yes**, the business answers its customers' messages and
+      reviews; shares location: no), Target audience **18 and over**, Ads
+      **no**, News app **no**, Government app no, Financial features none,
+      Health no. Privacy policy `https://yallapp.com.tr/privacy`.
+- [ ] **App Store Connect › App Privacy**: Data collected, all **linked to
+      the user**, none for tracking, purpose **App Functionality** only:
+      Contact Info › Name, Email Address; Identifiers › Device ID; User
+      Content › Photos or Videos, Other User Content. (The same as the app's
+      `PrivacyInfo.xcprivacy`.) Privacy policy URL as above.
+- [ ] **Age rating**: the workflow sends the answers
+      (`business/store/ios/age_rating.json`): nothing objectionable,
+      messaging and user-generated content **yes** (customers' messages,
+      questions and reviews that the business answers or hides), no
+      unrestricted web access, no ads, no gambling.
+- [ ] App Store pricing: Free, all countries (App Store Connect › Pricing and
+      Availability). Google Play: Free, countries as wanted.
+
+### Publish
+
+- [ ] Google Play: Play Console › Test and release › the internal release ›
+      Promote release › Production › review and roll out.
+- [ ] App Store: App Store Connect › Yallapp Business › the version (the
+      build is already chosen) › Add for Review › Submit to App Review.
+- [ ] Before the first submission, on a real Android phone and an iPhone:
+      sign in, the fingerprint or face lock, a push for a test order opening
+      the order, a ticket scanned at the door, a phone video uploaded to
+      Media, and the app in Arabic. Add the App Store Connect app ID to
+      `business/README.md` › Store listing ids.
 
 ## 7m. Team members for clients (Phase 60)
 

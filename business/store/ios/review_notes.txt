@@ -1,0 +1,12 @@
+Yallapp Business is a companion app for businesses that already run an app on Yallapp (yallapp.com.tr). The people who run those apps sign in with the email and password of their Yallapp dashboard. Accounts are created on the website by the business; the app has no sign-up.
+
+The app sells nothing: no in-app purchases, no subscriptions and no payment screens. The business's plan and storage are shown read-only.
+
+The demo account in the sign-in details belongs to a test business with sample apps. After signing in, the name at the top of Today switches between them. Each screen shows only when the app has it:
+
+- Orders (a shop or restaurant app): accept an order and move it through its steps; Today > Kitchen mode shows them as big cards.
+- Door scanner (an events app): Events > Scan for this event. The camera reads a ticket's QR code; "Type the code" works without a ticket.
+- Today > Notify sends a push to the users of the business's own app.
+- Today > Upload picks a picture or a video and uploads it to the app's Media.
+
+The camera, microphone and photos are asked for only when the person scans a ticket or takes or picks a picture or video. Notifications are about the business's own orders, bookings and messages. Sign out is at the end of More.

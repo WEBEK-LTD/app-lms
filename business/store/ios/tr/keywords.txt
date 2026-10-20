@@ -1,0 +1,1 @@
+sipariş,rezervasyon,randevu,bilet,tarayıcı,mutfak,restoran,spor salonu,bağış,panel

@@ -1,0 +1,1 @@
+Yallapp Business'ın ilk sürümü: bugünün rakamları, siparişler ve Mutfak modu, randevular, kapıda bilet tarama, uygulama kullanıcılarına bildirimler, analitik ve daha fazlası.

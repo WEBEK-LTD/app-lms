@@ -1,0 +1,5 @@
+/* 65 The permission prompts in the app's languages (Info.plist has the English). */
+"NSCameraUsageDescription" = "Yallapp Business kamerayı kapıda biletleri ve üye kodlarını taramak, uygulamanız için fotoğraf ve video çekmek için kullanır.";
+"NSMicrophoneUsageDescription" = "Yallapp Business, uygulamanız için çektiğiniz videolarla birlikte sesi kaydeder.";
+"NSPhotoLibraryUsageDescription" = "Yallapp Business seçtiğiniz fotoğraf ve videoları uygulamanızın Medya kitaplığına yükler.";
+"NSFaceIDUsageDescription" = "Yallapp Business şifreniz yerine Face ID ile açılabilir.";

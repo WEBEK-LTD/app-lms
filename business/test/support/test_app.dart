@@ -99,12 +99,28 @@ class TestApp {
     appVersionProvider.overrideWith((ref) async => '1.0.0 (1)'),
   ];
 
+  /// [size] is in logical pixels. 65 The store screenshots give the
+  /// phone's own [pixelRatio], its system bars as [padding] (logical) and
+  /// [wrap] the app to capture it.
   Future<void> pump(
     WidgetTester tester, {
     Size size = const Size(400, 860),
+    double pixelRatio = 3,
+    EdgeInsets padding = EdgeInsets.zero,
+    Widget Function(Widget app)? wrap,
   }) async {
-    tester.view.physicalSize = size * 3;
-    tester.view.devicePixelRatio = 3;
+    tester.view.physicalSize = size * pixelRatio;
+    tester.view.devicePixelRatio = pixelRatio;
+    if (padding != EdgeInsets.zero) {
+      final physical = FakeViewPadding(
+        left: padding.left * pixelRatio,
+        top: padding.top * pixelRatio,
+        right: padding.right * pixelRatio,
+        bottom: padding.bottom * pixelRatio,
+      );
+      tester.view.padding = physical;
+      tester.view.viewPadding = physical;
+    }
     addTearDown(tester.view.reset);
     if (brightness != null) {
       tester.platformDispatcher.platformBrightnessTestValue = brightness!;
@@ -126,12 +142,11 @@ class TestApp {
       ],
     );
     addTearDown(container.dispose);
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const BusinessApp(),
-      ),
+    final Widget root = UncontrolledProviderScope(
+      container: container,
+      child: const BusinessApp(),
     );
+    await tester.pumpWidget(wrap == null ? root : wrap(root));
     await settle(tester);
   }
 }

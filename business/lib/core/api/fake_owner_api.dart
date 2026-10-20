@@ -1844,7 +1844,13 @@ class FakeOwnerApi implements OwnerApi {
     return CheckIn(
       outcome: 'admitted',
       admitted: true,
-      message: 'Welcome, ${ticket.holder}.',
+      // 65 As the server answers in the account's language (the store
+      // screenshots in Arabic and Turkish).
+      message: switch (language) {
+        'ar' => 'أهلاً، ${ticket.holder}.',
+        'tr' => 'Hoş geldiniz, ${ticket.holder}.',
+        _ => 'Welcome, ${ticket.holder}.',
+      },
       ticket: TicketInfo(
         code: key,
         holderName: ticket.holder,

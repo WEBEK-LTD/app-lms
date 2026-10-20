@@ -1,0 +1,1 @@
+Yallapp'te yönettiğiniz uygulamanın siparişleri, randevuları ve analitiği.

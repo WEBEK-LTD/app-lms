@@ -1442,6 +1442,14 @@ Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
 - **Kitchen mode keeps the screen on (61)** while it is open and in front
   (`wakelock_plus` through `KitchenWake`: asked again on return from the
   background, released on leaving; a phone that refuses still runs it).
+- **Releases (65)**: `.github/workflows/business-release.yml` builds the
+  App Bundle (upload key from secrets) and the IPA (App Store Connect key,
+  certificate and profile through fastlane as for clients' apps) and uploads
+  them to a Google Play testing track and TestFlight with the listings in
+  `business/store/` and screenshots drawn in CI from the demo
+  (`test/store/store_screenshots_test.dart`). It never publishes or submits;
+  the App Bundle is also on the "Yallapp Business test build" pre-release.
+  The iOS project carries the push entitlement and `PrivacyInfo.xcprivacy`.
 - **Moving appointments and sending later (61)**: Appointments › Change time
   (the free times a week at a time, a staff filter, a confirmation) and Send
   notification › Later (date and time, the scheduled ones with Edit and

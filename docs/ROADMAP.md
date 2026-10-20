@@ -1332,7 +1332,7 @@ client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
 | [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play (the server can send through Push Kit) isn't wired in the app | LAUNCH-CHECKLIST 7l |
 | [x] | 59.17 Course questions and reviews in the Inbox, and gym members at the door: done in Phase 63 (63.8) | Phase 63 |
 | [x] | 59.18 Kitchen mode keeps the screen awake: done in Phase 61 (61.7) | Phase 61 |
-| [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
+| [~] | 59.19 The store listings, screenshots and the App Store id: ready in Phase 65; published under Yallapp's own accounts once they exist | Phase 65, LAUNCH-CHECKLIST 7l |
 
 ## Phase 60: Team members for clients
 
@@ -1526,7 +1526,7 @@ and builds and publishing. Decided with the owner:
 | [x] | Same database and the same accounts as the website and the dashboard; nothing kept separately for the app |
 | [x] | Contract first: an owner API next to the existing ones (Phase 58: `docs/api/owner.yaml`, `/api/owner/v1`) |
 | [x] | Then the app (Flutter, Phase 59: `business/`) |
-| [ ] | Then the stores under Yallapp's own accounts (LAUNCH-CHECKLIST 7l) |
+| [~] | Then the stores under Yallapp's own accounts (Phase 65, LAUNCH-CHECKLIST 7l) |
 
 ## Phase 64b: uploads behind a server firewall
 
@@ -1550,3 +1550,35 @@ a refused upload says why, and the admin's check tries a real upload.
 | [x] | 64b.9 An upload that never finished is removed even when the server refuses its delete (a finished file still waits for the server); the daily job's stale uploads likewise. `deploymentId` from Netlify's `DEPLOY_ID`: a tab left open across a deploy loads the page again instead of calling server actions that are gone | `media.test.ts` |
 | [ ] | 64b.7 Not tried on the live server yet: copy the new `index.php`, run "Check the media server", then upload from the dashboard and Yallapp Business | LAUNCH-CHECKLIST 7j |
 | [ ] | 64b.8 Yallapp Business builds already on phones send `PUT` to links in the new form: they work wherever the server let `PUT` through; behind a firewall that refuses it they need the new build | The next Yallapp Business release |
+
+## Phase 65: Yallapp Business on Google Play and the App Store
+
+Everything Yallapp Business (`business/`) needs to be published under
+Yallapp's own Google Play and Apple developer accounts, with as little by hand
+as the stores allow. One workflow, **Yallapp Business release**
+(`.github/workflows/business-release.yml`, Run workflow: both stores, Android
+or iOS; the Google Play track, internal by default; the version), builds the
+App Bundle signed with the upload key and the IPA signed through the App Store
+Connect key the way the clients' pipeline does, and uploads them with the
+listings, images and screenshots in English, Arabic and Turkish. It never
+publishes: promoting to production and "Add for Review" stay a click in the
+consoles. Everything comes from GitHub secrets and variables the owner adds
+(LAUNCH-CHECKLIST 7l); a store whose secrets are missing is skipped and the
+run's summary says what to add. Nothing secret is committed; the repository is
+public, so keys only live in `$RUNNER_TEMP` and are deleted. No payments of
+any kind in the app.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 65.1 The release workflow: version from the input or `pubspec.yaml`, the build number from the run (only goes up, room for re-runs, `YB_BUILD_NUMBER_OFFSET`), one run at a time; a summary of every secret and variable as set or missing | actionlint with shellcheck |
+| [x] | 65.2 Android: the upload key from `YB_ANDROID_*` (base64 with or without line breaks; its SHA-256 fingerprint in the summary), Firebase's Android options as in the Mobile workflow (one variable may hold the whole `google-services.json`), the signed App Bundle attached and on the **Yallapp Business test build** pre-release as `yallapp-business.aab` (for the first upload by hand), then with `YB_PLAY_SERVICE_ACCOUNT_JSON` uploaded by fastlane supply to the chosen track with the listing, icon, feature graphic, screenshots and what's new (`business_play`) | actionlint; first verified in CI |
+| [x] | 65.3 iOS: the App Store Connect key checked (`p8_key.py`), the App ID registered with push, a plain message when the app doesn't exist in App Store Connect yet or the certificate limit is reached; the distribution certificate from `YB_IOS_DISTRIBUTION_P12` or made for the run and revoked once Apple has processed the build; the App Store profile, the IPA, TestFlight (waits for processing), then deliver: listing, iPhone and iPad screenshots, age rating, App Review's details with the demo account from secrets, the build chosen for the version, never submitted (`business_ipa`, `business_testflight`, `business_appstore`, `business_revoke`) | `fastlane lanes`; first verified in CI |
+| [x] | 65.4 The iOS project: push entitlement (`aps-environment` production for Release, development for Debug and Profile), `PrivacyInfo.xcprivacy` (email, name, device ID, photos or videos, other user content; app functionality; no tracking; UserDefaults CA92.1), the permission prompts in English, Arabic and Turkish (`InfoPlist.strings`), background notifications and `ITSAppUsesNonExemptEncryption` false as before; iPhone and iPad kept (Kitchen mode on a tablet), iOS 15 | the plists parse; `xcodeproj` opens the project; `flutter analyze` |
+| [x] | 65.5 Store listings in fastlane's layout (`business/store/android` en-US, ar, tr-TR; `business/store/ios` en-US, ar-SA, tr): name, subtitle, short and full descriptions, keywords, promotional text, what's new, support, marketing and privacy URLs, categories, copyright, App Review's notes, age rating answers; checked for every file in every language and the stores' limits | `build/tests/test_business_store.py` |
+| [x] | 65.6 Screenshots drawn in CI from the demo's sample apps with the app's fonts and icons: Today, Orders, the door scanner with a ticket let in, the notification composer, Stats; English, Arabic and Turkish; Google Play phone 1080 × 1920, iPhone 6.9" 1290 × 2796, iPad 13" 2064 × 2752; laid out by every `flutter test` (nothing overflows), written as PNG files only by the release workflow; the Play icon and feature graphic from `brand/stores` | `business/test/store/store_screenshots_test.dart` |
+| [x] | 65.7 Docs: LAUNCH-CHECKLIST 7l as plain steps for the owner (accounts, app records, every secret and variable and where it comes from, Firebase's iOS app and APNs key, the first upload by hand, the run, Data safety, App Privacy, content rating, publishing), `business/README.md` › Releases, `build/README.md` | Review |
+| [ ] | 65.8 Making the upload key inside GitHub on the first run and saving it straight into the `YB_ANDROID_*` secrets with a short-lived `YB_SECRETS_TOKEN` (approved by the owner) wasn't added: the permission system stopped a workflow that writes repository secrets, pending the user's own approval. Until then the four secrets are added by hand | The user's approval |
+| [ ] | 65.9 Not run yet: no Google Play or Apple account exists, and the Android SDK and Xcode aren't available where this was written, so the App Bundle, the IPA, the uploads and the certificate's revocation after processing are first verified on the first run in CI | LAUNCH-CHECKLIST 7l |
+| [ ] | 65.10 The demo's sample data (names, the apps' kinds) stays in English in the Arabic and Turkish screenshots, as the API sends it; the door's welcome follows the account's language | Acceptable |
+| [ ] | 65.11 Plan and storage say "Manage on yallapp.com.tr" on iOS too (decided in Phase 59); if App Review reads it as a way to buy outside the app (3.1.1, 3.1.3), hide that button on iOS | When App Review asks |
+

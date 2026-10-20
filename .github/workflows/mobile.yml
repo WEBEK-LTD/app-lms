@@ -6,12 +6,14 @@ on:
     paths:
       - 'mobile/**'
       - 'business/**'
+      - 'build/scripts/business_store.py'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
   pull_request:
     paths:
       - 'mobile/**'
       - 'business/**'
+      - 'build/scripts/business_store.py'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
 
@@ -52,7 +54,7 @@ jobs:
           {
             if match '^(mobile/|platform/web/public/preview-app/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
             # 59 Yallapp Business, the owners' app.
-            if match '^(business/|\.github/workflows/mobile\.yml$)'; then echo business=true; else echo business=false; fi
+            if match '^(business/|build/scripts/business_store\.py$|\.github/workflows/mobile\.yml$)'; then echo business=true; else echo business=false; fi
           } >> "$GITHUB_OUTPUT"
 
   app:
@@ -297,26 +299,8 @@ jobs:
         run: |
           # A variable may hold the whole google-services.json instead of one value:
           # the Android app's values are read from it (tr.com.yallapp.business).
-          for name in YB_FIREBASE_PROJECT_ID YB_FIREBASE_SENDER_ID YB_FIREBASE_APP_ID_ANDROID YB_FIREBASE_API_KEY_ANDROID; do
-            value="${!name}"
-            if [ "$(printf '%s' "$value" | tr -d '[:space:]' | cut -c1)" = "{" ]; then
-              printf '%s' "$value" > "$RUNNER_TEMP/google-services.json"
-              client='.client[] | select(.client_info.android_client_info.package_name == "tr.com.yallapp.business")'
-              YB_FIREBASE_PROJECT_ID=$(jq -r '.project_info.project_id' "$RUNNER_TEMP/google-services.json")
-              YB_FIREBASE_SENDER_ID=$(jq -r '.project_info.project_number' "$RUNNER_TEMP/google-services.json")
-              YB_FIREBASE_APP_ID_ANDROID=$(jq -r "$client | .client_info.mobilesdk_app_id" "$RUNNER_TEMP/google-services.json")
-              YB_FIREBASE_API_KEY_ANDROID=$(jq -r "$client | .api_key[0].current_key" "$RUNNER_TEMP/google-services.json")
-              rm -f "$RUNNER_TEMP/google-services.json"
-              echo "Read the Firebase options from the google-services.json in $name."
-              break
-            fi
-          done
-          flutter build apk --release \
-            --dart-define=YB_FIREBASE_PROJECT_ID="$YB_FIREBASE_PROJECT_ID" \
-            --dart-define=YB_FIREBASE_SENDER_ID="$YB_FIREBASE_SENDER_ID" \
-            --dart-define=YB_FIREBASE_APP_ID_ANDROID="$YB_FIREBASE_APP_ID_ANDROID" \
-            --dart-define=YB_FIREBASE_API_KEY_ANDROID="$YB_FIREBASE_API_KEY_ANDROID"
-          if [ -n "$YB_FIREBASE_APP_ID_ANDROID" ]; then echo "Pushes: on (Firebase project $YB_FIREBASE_PROJECT_ID)"; else echo "Pushes: off (no YB_FIREBASE_* variables)"; fi
+          python3 ../build/scripts/business_store.py firebase android "$RUNNER_TEMP/yb-firebase.json"
+          flutter build apk --release --dart-define-from-file="$RUNNER_TEMP/yb-firebase.json"
           mv build/app/outputs/flutter-apk/app-release.apk "$RUNNER_TEMP/yallapp-business.apk"
 
       - name: Build the demo APK
@@ -345,6 +329,6 @@ jobs:
           if ! gh release view "$tag" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             gh release create "$tag" -R "$GITHUB_REPOSITORY" --prerelease --target main \
               --title "Yallapp Business test build" \
-              --notes "Debug-signed APKs to try on a phone, replaced by every build (they can't go to Google Play). yallapp-business.apk works against yallapp.com.tr; yallapp-business-demo.apk runs on sample data (owner@example.com / yallapp-demo)."
+              --notes "Debug-signed APKs to try on a phone, replaced by every build (they can't go to Google Play). yallapp-business.apk works against yallapp.com.tr; yallapp-business-demo.apk runs on sample data (owner@example.com / yallapp-demo). yallapp-business.aab, when there, is the release App Bundle signed with the upload key, from the Yallapp Business release workflow, for Google Play."
           fi
           gh release upload "$tag" "$RUNNER_TEMP/yallapp-business.apk" "$RUNNER_TEMP/yallapp-business-demo.apk" -R "$GITHUB_REPOSITORY" --clobber

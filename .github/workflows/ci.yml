@@ -44,7 +44,7 @@ jobs:
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
             if match '^(wp-plugin/|\.github/workflows/ci\.yml$)'; then echo plugin=true; else echo plugin=false; fi
-            if match '^(build/|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
+            if match '^(build/|business/store/|brand/stores/|\.github/workflows/business-release\.yml$|wp-plugin/yallapp/tests/integration/run\.sh$|\.github/workflows/ci\.yml$)'; then echo pipeline=true; else echo pipeline=false; fi
           } >> "$GITHUB_OUTPUT"
 
   api-contract:

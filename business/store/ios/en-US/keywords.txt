@@ -1,0 +1,1 @@
+orders,bookings,appointments,tickets,scanner,check-in,kitchen,restaurant,gym,donations,dashboard

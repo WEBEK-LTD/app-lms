@@ -57,10 +57,13 @@ cp config/firebase.example.json config/firebase.json   # git-ignored
 flutter run --dart-define-from-file=config/firebase.json
 ```
 
-CI (the Mobile workflow's "Yallapp Business" job) builds the APK for
-yallapp.com.tr with the Android options from the repository's Actions
-variables `YB_FIREBASE_PROJECT_ID`, `YB_FIREBASE_SENDER_ID`,
-`YB_FIREBASE_APP_ID_ANDROID` and `YB_FIREBASE_API_KEY_ANDROID`.
+CI (the Mobile workflow's "Yallapp Business" job, and the release workflow
+below) builds with the options from the repository's Actions variables
+`YB_FIREBASE_PROJECT_ID`, `YB_FIREBASE_SENDER_ID`,
+`YB_FIREBASE_APP_ID_ANDROID`, `YB_FIREBASE_API_KEY_ANDROID`,
+`YB_FIREBASE_APP_ID_IOS` and `YB_FIREBASE_API_KEY_IOS` (one of them may hold
+the whole `google-services.json` or `GoogleService-Info.plist` instead:
+`build/scripts/business_store.py firebase`).
 
 Without these options the app works the same and Settings › Notifications
 says notifications aren't set up in this build. With them, after sign-in the
@@ -69,9 +72,10 @@ each token refresh), and a tapped push opens its screen on the right app
 (`pushTarget` in `lib/core/services/push.dart`): an order, the appointments,
 a conversation, the donations, the builds or the updates. A push that arrives
 while the app is open shows at the bottom with "Open"; Kitchen mode reloads on
-a new order. For iOS, add the Push Notifications capability to the Runner
-target in Xcode under Yallapp's team and upload the APNs key to the Firebase
-project.
+a new order. On iOS the push entitlement is in the project
+(`ios/Runner/Runner.entitlements`, production, for Release;
+`RunnerDebug.entitlements`, development, for Debug and Profile); the APNs key
+goes to the Firebase project (LAUNCH-CHECKLIST 7l).
 
 ## What's in it
 
@@ -119,7 +123,7 @@ the app has inquiries and Analytics.
 
 ```sh
 python3 tool/build_arb.py && flutter gen-l10n   # strings complete and generated
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze
 flutter test
 ```
@@ -129,10 +133,58 @@ CI runs the same in the Mobile workflow's "Yallapp Business" job when
 English and in Arabic (right to left) for the main screens; unit tests cover
 the API client (token refresh, errors, pages, the media gate).
 
+## Releases (Google Play and the App Store)
+
+Roadmap 65. Actions › **Yallapp Business release** › Run workflow
+(`.github/workflows/business-release.yml`): which stores, the Google Play
+track (internal, alpha or beta; production is promoted in Play Console) and
+the version (empty: `pubspec.yaml`'s). The build number is the run's, so it
+only goes up. It never publishes and never submits for review. The owner's
+steps, and every secret and variable with where it comes from, are in
+`docs/LAUNCH-CHECKLIST.md` › 7l; the run's summary lists them as set or
+missing.
+
+- **Android** (Linux): the App Bundle signed with the upload key
+  (`YB_ANDROID_UPLOAD_KEYSTORE` in base64, `YB_ANDROID_KEYSTORE_PASSWORD`,
+  `YB_ANDROID_KEY_ALIAS`, `YB_ANDROID_KEY_PASSWORD`, through
+  `android/key.properties` written on the runner and removed), attached to
+  the run and put on the **Yallapp Business test build** pre-release as
+  `yallapp-business.aab`, then uploaded by fastlane supply with
+  `YB_PLAY_SERVICE_ACCOUNT_JSON` (lane `business_play`). Google Play takes a
+  new app's first App Bundle only by hand in Play Console.
+- **iOS** (macOS): the App Store Connect key (`YB_ASC_KEY_ID`,
+  `YB_ASC_ISSUER_ID`, `YB_ASC_PRIVATE_KEY`) registers the App ID with push,
+  gets the certificate (`YB_IOS_DISTRIBUTION_P12` and
+  `YB_IOS_DISTRIBUTION_PASSWORD`, or one made for the run and revoked once
+  Apple has processed the build) and the App Store profile, signs the IPA,
+  uploads it to TestFlight and waits for processing, then sends the listing,
+  screenshots, age rating and App Review's details and chooses the build for
+  the version (lanes `business_ipa`, `business_testflight`,
+  `business_appstore`, `business_revoke` in `build/fastlane/Fastfile`). The
+  app record must exist in App Store Connect first; the run says so.
+- **Listings**: `store/android/<locale>/` (en-US, ar, tr-TR) and
+  `store/ios/<locale>/` (en-US, ar-SA, tr) in fastlane's file names, plus
+  `store/ios/review_notes.txt` and `store/ios/age_rating.json`. What's new
+  is `changelogs/default.txt` and `release_notes.txt`: change them before a
+  release. `python3 build/scripts/business_store.py check` (and
+  `build/tests`) checks every file in every language and the stores' limits.
+  The Play icon and feature graphic are `brand/stores`'s.
+- **Screenshots**: drawn from the demo's sample apps by
+  `test/store/store_screenshots_test.dart` with the app's fonts and icons:
+  Today, Orders, the door scanner, Send notification and Stats, in English,
+  Arabic and Turkish, for Google Play phones (1080 × 1920), the 6.9" iPhone
+  (1290 × 2796) and the 13" iPad (2064 × 2752; the app keeps iPad for Kitchen
+  mode on a tablet). `flutter test` only lays them out; to write the files:
+
+  ```sh
+  YB_SCREENSHOTS_DIR=/tmp/shots flutter test test/store
+  ```
+
 ## Store listing ids
 
 - Google Play: `tr.com.yallapp.business`, under Yallapp's developer account.
 - App Store: bundle id `tr.com.yallapp.business`, under Yallapp's team; the
   App Store Connect app id is added here once the listing exists.
-- Release signing for Android reads `android/key.properties` (git-ignored);
-  without it release builds use the debug key and can't be uploaded.
+- Release signing for Android reads `android/key.properties` (never
+  committed; the release workflow writes it from the secrets); without it
+  release builds use the debug key and can't be uploaded.
