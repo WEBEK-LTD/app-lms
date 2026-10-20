@@ -1,5 +1,5 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { copyFileSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -13,12 +13,14 @@ import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { mediaLinks, parseMediaLinksRequest } from "@/lib/license/media";
 import { activateLicense, parseSiteInfo } from "@/lib/license/service";
+import { checkMediaGate, gateRequest, type GateRequest } from "@/lib/media/check";
 import { handleMediaRequest, MediaDisk } from "@/lib/media/disk";
 import { cancelStaleUploads, cleanName, completeUpload, deleteMedia, kindOf, mediaLink, parseMediaLink, resolveMedia, startUpload } from "@/lib/media/files";
 import { applyPaidPacks, cannotBuy, cardOffers, monthlyOffer, monthsLeft, packOffers, packPrice, renewablePacks, renewalLabel, startStoragePayment } from "@/lib/media/packs";
 import { activePacks, fits, formatBytes, GB, storageLimitBytes, storageState } from "@/lib/media/quota";
-import { MEDIA_CHUNK_MAX_BYTES, mediaTokenDigest, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
+import { MEDIA_CHUNK_BYTES, MEDIA_CHUNK_MAX_BYTES, mediaSignature, mediaTokenDigest, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
 import { mediaStorageWith, type MediaStorage } from "@/lib/media/storage";
+import { chunkOutcome, chunkUrl, failureOf, FRESH_LINKS_IN_A_ROW, offsetOf } from "@/lib/media/upload-client";
 import { appStorage, noticeEndedPacks } from "@/lib/media/usage";
 import type { PaymentAccount } from "@/lib/payments/provider";
 import { offerFor, sumOffers, timesOffer } from "@/lib/billing/prices";
@@ -50,17 +52,25 @@ describe("signed media links (51)", () => {
     const { url, expiresAt } = signMediaUrl(`${BASE}/media`, "v", key, { secret: SECRET, ttlSeconds: 3600, now: NOW });
     expect(expiresAt.getTime()).toBe(NOW.getTime() + 3600_000);
     const parsed = new URL(url);
-    expect(parsed.pathname).toBe(`/media/v/${APP}/${FILE}.mp4`);
+    // 64b The extension as a segment of its own: no static-file handler takes it for a file.
+    expect(parsed.pathname).toBe(`/media/v/${APP}/${FILE}/mp4`);
     const check = verifyMediaRequest(parsed.pathname.slice("/media".length), parsed.searchParams, SECRET, NOW);
     expect(check).toMatchObject({ ok: true, op: "v", appId: APP, mediaId: FILE, extension: "mp4", key });
     // Another operation, another file, an added parameter, another secret or a later time: refused.
-    expect(verifyMediaRequest(`/u/${APP}/${FILE}.mp4`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
-    expect(verifyMediaRequest(`/v/${APP}/${FILE}.mov`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
+    expect(verifyMediaRequest(`/u/${APP}/${FILE}/mp4`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
+    expect(verifyMediaRequest(`/v/${APP}/${FILE}/mov`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
+    // The same file in the old form is another path: the signature covers the path as sent.
+    expect(verifyMediaRequest(`/v/${APP}/${FILE}.mp4`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
     const more = new URLSearchParams(parsed.searchParams);
     more.set("size", "99");
-    expect(verifyMediaRequest(`/v/${APP}/${FILE}.mp4`, more, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
-    expect(verifyMediaRequest(`/v/${APP}/${FILE}.mp4`, parsed.searchParams, `${SECRET}x`, NOW)).toMatchObject({ ok: false, status: 403 });
-    expect(verifyMediaRequest(`/v/${APP}/${FILE}.mp4`, parsed.searchParams, SECRET, new Date(NOW.getTime() + 3601_000))).toMatchObject({ ok: false, status: 410 });
+    expect(verifyMediaRequest(`/v/${APP}/${FILE}/mp4`, more, SECRET, NOW)).toMatchObject({ ok: false, status: 403 });
+    expect(verifyMediaRequest(`/v/${APP}/${FILE}/mp4`, parsed.searchParams, `${SECRET}x`, NOW)).toMatchObject({ ok: false, status: 403 });
+    expect(verifyMediaRequest(`/v/${APP}/${FILE}/mp4`, parsed.searchParams, SECRET, new Date(NOW.getTime() + 3601_000))).toMatchObject({ ok: false, status: 410 });
+    // 64b A link signed before, `<media id>.<ext>`, still works and means the same file.
+    const params: Record<string, string> = { expires: String(Math.floor(NOW.getTime() / 1000) + 60) };
+    const oldPath = `/v/${APP}/${FILE}.mp4`;
+    const old = new URLSearchParams({ ...params, sig: mediaSignature(SECRET, oldPath, params) });
+    expect(verifyMediaRequest(oldPath, old, SECRET, NOW)).toMatchObject({ ok: true, op: "v", key });
     expect(verifyMediaRequest(`/v/${APP}/../${FILE}.mp4`, parsed.searchParams, SECRET, NOW)).toMatchObject({ ok: false, status: 404 });
     expect(() => signMediaUrl(BASE, "v", key, { secret: SECRET, ttlSeconds: 60, params: { name: "a b" } })).toThrow();
   });
@@ -78,7 +88,7 @@ describe("signed media links (51)", () => {
 });
 
 /** The gate's protocol, run against `request`: the TypeScript gate in-process, or the PHP one over HTTP. */
-function gateProtocol(name: string, gate: () => { base: string; request: (url: string, init?: RequestInit) => Promise<Response>; storage: MediaStorage }) {
+function gateProtocol(name: string, gate: () => { base: string; request: (url: string, init?: RequestInit) => Promise<Response>; check: GateRequest; storage: MediaStorage }) {
   describe(name, () => {
     it("takes an upload in chunks, resumes, refuses what's out of place, then plays it with ranges", async () => {
       const { base, request, storage } = gate();
@@ -174,6 +184,69 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
       const response = await request(upload, { method: "PUT", headers: { "upload-offset": "0", "content-length": String(chunk.length) }, body: new Uint8Array(chunk) });
       expect(response.status).toBe(413);
     });
+
+    it("64b takes chunks by POST with any content type, the offset in the header or the query, and answers in JSON too", async () => {
+      const { base, request, storage } = gate();
+      const key = storageKeyOf(APP, "cccccccc-bbbb-4ccc-8ddd-eeeeeeeeeeee", "mp4");
+      // A whole 5 MB chunk first, as the uploader sends it (PHP takes a POST body up to post_max_size).
+      const M = MEDIA_CHUNK_BYTES;
+      const data = Buffer.alloc(M + 2000);
+      for (let i = 0; i < data.length; i++) data[i] = i % 241;
+      const upload = signMediaUrl(base, "u", key, { secret: SECRET, ttlSeconds: 600, params: { size: String(data.length) } }).url;
+      const post = (url: string, chunk: Buffer, headers: Record<string, string> = {}) =>
+        request(url, { method: "POST", headers: { "content-length": String(chunk.length), ...headers }, body: new Uint8Array(chunk) });
+      // GET: the offset in the header and in JSON; HEAD: in the header.
+      const status = await request(upload);
+      expect(status.status).toBe(200);
+      expect(status.headers.get("upload-offset")).toBe("0");
+      expect(await status.json()).toEqual({ offset: 0, length: data.length });
+      expect((await request(upload, { method: "HEAD" })).headers.get("upload-offset")).toBe("0");
+      // The offset in the query only (a proxy dropped the header): `offset` isn't signed, so the link still holds.
+      const first = await post(chunkUrl(upload, 0), data.subarray(0, M), { "content-type": "application/octet-stream" });
+      expect(first.status).toBe(200);
+      expect(first.headers.get("upload-offset")).toBe(String(M));
+      expect(await first.json()).toEqual({ offset: M });
+      // The header only, another content type.
+      const second = await post(upload, data.subarray(M, M + 1000), { "upload-offset": String(M), "content-type": "text/plain" });
+      expect(second.status).toBe(200);
+      expect(offsetOf(second.headers.get("upload-offset"), await second.text())).toBe(M + 1000);
+      // Out of place, or no offset at all: 409 with where it stands, in the header and the body.
+      const stale = await post(chunkUrl(upload, 0), data.subarray(0, 10), { "content-type": "application/octet-stream" });
+      expect(stale.status).toBe(409);
+      expect(stale.headers.get("upload-offset")).toBe(String(M + 1000));
+      expect(await stale.json()).toMatchObject({ offset: M + 1000 });
+      expect((await post(upload, data.subarray(0, 10))).status).toBe(409);
+      expect((await post(chunkUrl(upload, M + 1000), Buffer.alloc(2000))).status).toBe(413);
+      // Older uploaders: PUT, answered 204 with the header, as before.
+      const last = await request(upload, { method: "PUT", headers: { "upload-offset": String(M + 1000), "content-length": "1000" }, body: new Uint8Array(data.subarray(M + 1000)) });
+      expect(last.status).toBe(204);
+      expect(last.headers.get("upload-offset")).toBe(String(data.length));
+      expect(await storage.stat(key)).toEqual({ exists: true, complete: true, size: data.length });
+      const play = signMediaUrl(base, "v", key, { secret: SECRET, ttlSeconds: 600 }).url;
+      expect(Buffer.from(await (await request(play)).arrayBuffer()).equals(data)).toBe(true);
+      // A play link takes no POST; a query offset doesn't make a tampered link valid.
+      expect((await post(play, Buffer.alloc(1))).status).toBe(405);
+      expect((await request(`${upload.replace(/expires=\d+/, "expires=9999999999")}&offset=0`)).status).toBe(403);
+      // Links signed before 64b, with `<media id>.<ext>` at the end, play the same file.
+      const params: Record<string, string> = { expires: String(Math.floor(Date.now() / 1000) + 600) };
+      const oldPath = `/v/${key}`;
+      const old = await request(`${base}${oldPath}?${new URLSearchParams({ ...params, sig: mediaSignature(SECRET, oldPath, params) })}`, { headers: { range: "bytes=0-9" } });
+      expect(old.status).toBe(206);
+      expect(old.headers.get("content-type")).toBe("video/mp4");
+      expect(Buffer.from(await old.arrayBuffer()).equals(data.subarray(0, 10))).toBe(true);
+      await storage.delete(key);
+    });
+
+    it("64b the admin's check sends a test upload by POST, checks it and removes it again", async () => {
+      const { base, check, storage } = gate();
+      const ids = { appId: "dddddddd-0000-4000-8000-00000000c4ec", mediaId: "eeeeeeee-0000-4000-8000-00000000c4ec" };
+      const result = await checkMediaGate(storage, check, ids);
+      expect(result).toMatchObject({ ok: true });
+      expect(result.message).toContain("test upload by POST");
+      expect(await storage.listApps()).not.toContain(ids.appId);
+      expect(await storage.stat(storageKeyOf(ids.appId, ids.mediaId, "pdf"))).toEqual({ exists: false, complete: false, size: 0 });
+      expect(base).toBeTruthy();
+    });
   });
 }
 
@@ -188,7 +261,7 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
   gateProtocol("the media gate in TypeScript (local runs and tests)", () => {
     const base = `${BASE}/media`;
     const request = (url: string, init?: RequestInit) => handleMediaRequest(disk, new Request(url, init), new URL(url).pathname.slice("/media".length), SECRET);
-    return { base, request, storage: mediaStorageWith({ mode: "fs", base, secret: SECRET, dir }) };
+    return { base, request, check: gateRequest({ base, secret: SECRET, disk }), storage: mediaStorageWith({ mode: "fs", base, secret: SECRET, dir }) };
   });
 }
 
@@ -226,12 +299,138 @@ const php = spawnSync("php", ["--version"]).status === 0;
   if (php) {
     gateProtocol("the media gate in PHP (deploy/media-host/index.php)", () => {
       const base = `http://127.0.0.1:${port}/media`;
-      return { base, request: (url, init) => fetch(url, init), storage: mediaStorageWith({ mode: "host", base, secret: SECRET }) };
+      return { base, request: (url, init) => fetch(url, init), check: gateRequest({ base, secret: SECRET, disk: null }), storage: mediaStorageWith({ mode: "host", base, secret: SECRET }) };
     });
   } else {
     it.skip("the media gate in PHP: PHP isn't installed here", () => undefined);
   }
 }
+
+describe("64b uploads behind a server firewall", () => {
+  it("the uploader's offset and what it does with each answer", () => {
+    const url = signMediaUrl(`${BASE}/media`, "u", storageKeyOf(APP, FILE, "mp4"), { secret: SECRET, ttlSeconds: 60, now: NOW, params: { size: "10" } }).url;
+    const withOffset = new URL(chunkUrl(url, 5));
+    expect(withOffset.searchParams.get("offset")).toBe("5");
+    expect(new URL(chunkUrl(withOffset.toString(), 7)).searchParams.getAll("offset")).toEqual(["7"]);
+    expect(verifyMediaRequest(withOffset.pathname.slice("/media".length), withOffset.searchParams, SECRET, NOW)).toMatchObject({ ok: true, op: "u" });
+    // The header first, else the JSON body.
+    expect(offsetOf("12", '{"offset":3}')).toBe(12);
+    expect(offsetOf(null, '{"offset":3}')).toBe(3);
+    expect(offsetOf("", '{"offset":3,"message":"The upload is elsewhere."}')).toBe(3);
+    expect(offsetOf(null, "<html>Not Acceptable</html>")).toBeNull();
+    expect(offsetOf(null, '{"offset":-1}')).toBeNull();
+    expect(offsetOf(null, null)).toBeNull();
+    // 200 (POST) and 204 (PUT, older gates) move on; 409 moves to where the gate is.
+    expect(chunkOutcome(200, 10)).toEqual({ kind: "moved", offset: 10 });
+    expect(chunkOutcome(204, 10)).toEqual({ kind: "moved", offset: 10 });
+    expect(chunkOutcome(409, 4)).toEqual({ kind: "moved", offset: 4 });
+    // 403 and 410: a fresh link (the uploader asks for one at most twice in a row).
+    expect(chunkOutcome(403, null)).toEqual({ kind: "fresh" });
+    expect(chunkOutcome(410, null)).toEqual({ kind: "fresh" });
+    expect(FRESH_LINKS_IN_A_ROW).toBe(2);
+    // A firewall's answers stop it at once, with the reason.
+    expect(chunkOutcome(406, null)).toEqual({ kind: "fail", failure: "refused", status: 406 });
+    expect(chunkOutcome(405, null)).toEqual({ kind: "fail", failure: "refused", status: 405 });
+    expect(chunkOutcome(501, null)).toEqual({ kind: "fail", failure: "refused", status: 501 });
+    expect(chunkOutcome(200, null)).toEqual({ kind: "fail", failure: "refused", status: 200 });
+    expect(chunkOutcome(413, 0)).toEqual({ kind: "fail", failure: "tooBig", status: 413 });
+    // Others are tried again, then named.
+    expect(chunkOutcome(503, null)).toEqual({ kind: "retry", status: 503 });
+    expect(chunkOutcome(409, null)).toEqual({ kind: "retry", status: 409 });
+    expect(failureOf(503)).toBe("storage");
+    expect(failureOf(403)).toBe("refused");
+    expect(failureOf(413)).toBe("tooBig");
+    expect(failureOf(502)).toBe("status");
+  });
+
+  it("the uploader sends POST with application/octet-stream and the offset twice, and names the failure", () => {
+    const source = readFileSync(path.resolve("src/app/dashboard/media/uploader.tsx"), "utf8");
+    expect(source).toContain('xhr.open("POST", chunkUrl(url, offset))');
+    expect(source).toContain('xhr.setRequestHeader("Upload-Offset", String(offset))');
+    expect(source).toContain('xhr.setRequestHeader("Content-Type", "application/octet-stream")');
+    expect(source).not.toContain("offset+octet-stream");
+    expect(source).toContain("FRESH_LINKS_IN_A_ROW");
+    for (const key of ["refused", "storageDown", "chunkTooBig", "gateError"]) expect(source).toContain(`media.${key}`);
+  });
+
+  describe("the admin's check names the step that failed and what to do", () => {
+    let dir = "";
+    let disk: MediaDisk;
+    const base = `${BASE}/media`;
+    beforeAll(() => {
+      dir = tempDir();
+      disk = new MediaDisk(dir);
+    });
+    afterAll(() => rmSync(dir, { recursive: true, force: true }));
+    const storage = () => mediaStorageWith({ mode: "host", base, secret: SECRET });
+    /** The real gate, but `answer` first decides what a request gets (a firewall in front). */
+    const behind = (answer: (method: string, url: URL) => Response | null): typeof fetch =>
+      (async (input: string | URL | Request, init?: RequestInit) => {
+        const url = new URL(String(input));
+        const method = (init?.method ?? "GET").toUpperCase();
+        const blocked = answer(method, url);
+        if (blocked) return blocked;
+        const headers = new Headers(init?.headers);
+        if (init?.body instanceof Uint8Array) headers.set("content-length", String(init.body.byteLength));
+        return handleMediaRequest(disk, new Request(url, { ...init, headers }), url.pathname.slice("/media".length), SECRET);
+      }) as typeof fetch;
+    const run = (fetcher: typeof fetch) => checkMediaGate(storage(), gateRequest({ base, secret: SECRET, disk: null, fetcher }));
+    const html = (status: number) => new Response("<html><body><h1>Forbidden</h1></body></html>", { status, headers: { "content-type": "text/html" } });
+
+    it("passes through a gate with nothing in front", async () => {
+      expect(await run(behind(() => null))).toMatchObject({ ok: true });
+    });
+
+    it("a firewall that refuses POST: step 4 with the status and ModSecurity", async () => {
+      for (const status of [403, 406, 501]) {
+        const result = await run(behind((method) => (method === "POST" ? html(status) : null)));
+        expect(result).toMatchObject({ ok: false, step: 4, status });
+        expect(result.message).toContain(`HTTP ${status}`);
+        expect(result.message).toContain("ModSecurity");
+        expect(result.message).toContain("Imunify360");
+      }
+    });
+
+    it("an older gate, another secret, storage that isn't writable, an unreachable server", async () => {
+      const old = await run(behind((method) => (method === "POST" ? new Response("Method not allowed.", { status: 405 }) : null)));
+      expect(old).toMatchObject({ ok: false, step: 4, status: 405 });
+      expect(old.message).toContain("older version");
+      const secret = await run(behind((_, url) => (url.searchParams.has("sig") ? new Response("This link is not valid.", { status: 403 }) : null)));
+      expect(secret).toMatchObject({ ok: false, step: 2, status: 403 });
+      expect(secret.message).toContain("MEDIA_SIGNING_SECRET");
+      const storageDown = await run(behind((method) => (method === "POST" ? new Response("Media storage is not available.", { status: 503 }) : null)));
+      expect(storageDown).toMatchObject({ ok: false, step: 4, status: 503 });
+      expect(storageDown.message).toContain("storage_dir");
+      const page = await run(behind((method) => (method === "POST" ? new Response("<html>Checking your browser</html>", { status: 200 }) : null)));
+      expect(page).toMatchObject({ ok: false, step: 4, status: 200 });
+      expect(page.message).toContain("Something other than the gate answered");
+      const away = await run((() => Promise.reject(new Error("getaddrinfo ENOTFOUND"))) as typeof fetch);
+      expect(away).toMatchObject({ ok: false, step: 1 });
+      expect(away.message).toContain("couldn't be reached (getaddrinfo ENOTFOUND)");
+    });
+
+    it("64b a static-file handler in front of PHP, or an older gate: says which", async () => {
+      // The web server answers every path under /media with an extension-looking end itself.
+      const notFound = () => new Response("<html><h1>404 Not Found</h1></html>", { status: 404, headers: { "content-type": "text/html" } });
+      const nowhere = await run(behind(() => notFound()));
+      expect(nowhere).toMatchObject({ ok: false, step: 1, status: 404 });
+      expect(nowhere.message).toContain("MEDIA_BASE_URL doesn't lead to the gate");
+      const statics = await run(behind((_, url) => (url.searchParams.has("sig") && !url.pathname.includes("/l/") && !url.pathname.includes("/a/") ? notFound() : null)));
+      expect(statics).toMatchObject({ ok: false, step: 2, status: 404 });
+      expect(statics.message).toContain("The server answers these paths itself instead of passing them to the media gate");
+      // An older gate doesn't know `<media id>/<ext>`: its own "Not found.".
+      const older = await run(behind((_, url) => (/\/[0-9a-f-]{36}\/[a-z0-9]{2,4}$/.test(url.pathname) ? new Response("Not found.", { status: 404 }) : null)));
+      expect(older).toMatchObject({ ok: false, step: 2, status: 404 });
+      expect(older.message).toContain("older version");
+    });
+
+    it("a removal refused: says what is left behind", async () => {
+      const result = await run(behind((method, url) => (method === "DELETE" && url.pathname.includes("/d/") ? html(403) : null)));
+      expect(result).toMatchObject({ ok: false, step: 6, status: 403 });
+      expect(result.message).toContain("may be left in the folder");
+    });
+  });
+});
 
 describe("storage per plan (51)", () => {
   const pack = (gb: number, until: Date): StoragePack => ({
@@ -320,7 +519,7 @@ describe("the Media library (51)", () => {
     expect(first.ok).toBe(true);
     if (!first.ok) return;
     expect(first.file).toMatchObject({ status: "uploading", kind: "video", contentType: "video/mp4", public: false, storageKey: `${app.id}/${first.file.id}.mp4` });
-    expect(new URL(first.uploadUrl).pathname).toBe(`/media/u/${app.id}/${first.file.id}.mp4`);
+    expect(new URL(first.uploadUrl).pathname).toBe(`/media/u/${app.id}/${first.file.id}/mp4`);
     expect(new URL(first.uploadUrl).searchParams.get("size")).toBe(String(1.5 * GB));
     expect(await store.mediaUsage(app.id)).toBe(1.5 * GB);
     const second = await startUpload(deps(limit), { appId: app.id, name: "Lesson 2.mp4", size: GB, contentType: "video/mp4" });
@@ -675,7 +874,7 @@ describe("lesson videos from the Media library on the hosted API (51)", () => {
   it("plays the file from a link signed for the request, which the app asks again for when it expires", async () => {
     const lesson = (await call("GET", "/lessons/{lesson_id}", ["12"])).body as { video: { source: string; url: string; expires_at: string }; offline: { available: boolean; size_bytes: number } };
     expect(lesson.video.source).toBe("upload");
-    expect(new URL(lesson.video.url).pathname).toBe(`/media/v/${app.id}/${parseMediaLink(videoLink, BASE)}.mp4`);
+    expect(new URL(lesson.video.url).pathname).toBe(`/media/v/${app.id}/${parseMediaLink(videoLink, BASE)}/mp4`);
     expect(new Date(lesson.video.expires_at).getTime()).toBeGreaterThan(Date.now() + 3.9 * 3600_000);
     expect(lesson.offline).toMatchObject({ available: true, size_bytes: 4 });
     // The signed link plays from the gate.

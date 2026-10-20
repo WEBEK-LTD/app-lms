@@ -6,11 +6,19 @@
  * so uploads and playback never go through the platform's functions.
  *
  * Every request carries a link the platform signed (src/lib/media/signing.ts):
- *   /media/<op>/<app id>/<media id>.<ext>?expires=<unix seconds>[&size=<bytes>][&dl=1]&sig=<hex>
- *   sig = hex HMAC-SHA256(secret, "/<op>/<app id>/<file>?<the other parameters sorted, key=value joined by &>")
+ *   /media/<op>/<app id>/<media id>/<ext>?expires=<unix seconds>[&size=<bytes>][&dl=1]&sig=<hex>
+ *   sig = hex HMAC-SHA256(secret, "/<op>/<app id>/<media id>/<ext>?<the other parameters sorted, key=value joined by &>")
+ * 64b The extension is a path segment of its own: LiteSpeed or nginx in front of PHP answer
+ * paths ending in .mp4, .jpg… as static files (404) and never pass them here. Links signed
+ * before, /<op>/<app id>/<media id>.<ext>, still work (the signature covers the path as sent).
  * - v  GET or HEAD: the file, with range requests (video players seek with them).
  * - u  HEAD: how much has arrived (Upload-Offset). PUT: the next chunk at Upload-Offset;
  *      never past `size` in all, at most max_chunk_bytes a request. The last one completes it.
+ *      64b POST does the same as PUT, with any Content-Type, and answers 200 with
+ *      {"offset":N} as well as the header (server firewalls often refuse PUT and unusual
+ *      content types). GET answers {"offset":N,"length":size} too. The offset may come as
+ *      `&offset=N` in the query instead of the header (some proxies drop unknown headers);
+ *      it isn't part of the signature. A refused chunk answers {"offset":N,"message":…}.
  * - s  GET: what's on disk, as JSON (the platform's check after an upload).
  * - d  DELETE: removes the file and an unfinished upload.
  * 62 On an app's whole folder:
@@ -19,7 +27,8 @@
  *   /media/l/apps?expires=…&sig=…      GET: the app folders on disk, as JSON {"apps": [...]}.
  * 62 A `v` link for one student carries `t`: the first 52 bits of SHA-256 of their access token,
  * as digits. It plays only to a request with `Authorization: Bearer <that token>` (the app sends
- * it; Apache passes the header to PHP with `CGIPassAuth On`).
+ * it; Apache passes the header to PHP with `CGIPassAuth On`, or 64b on LiteSpeed with
+ * `SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1`, docs/LAUNCH-CHECKLIST.md 7j).
  * Files live outside the web root, in storage_dir/<app id>/<media id>.<ext> (an upload
  * in progress as .part). Settings come from config.php (config.sample.php); it is not in git.
  */
@@ -54,7 +63,7 @@ function media_cors(array $config): void {
 	$origin = (string) ($config['allowed_origin'] ?? '');
 	if ($origin !== '' && ($_SERVER['HTTP_ORIGIN'] ?? '') === $origin) {
 		header('Access-Control-Allow-Origin: ' . $origin);
-		header('Access-Control-Allow-Methods: GET, HEAD, PUT, DELETE');
+		header('Access-Control-Allow-Methods: GET, HEAD, PUT, POST, DELETE');
 		header('Access-Control-Allow-Headers: Upload-Offset, Content-Type, Range');
 		header('Access-Control-Expose-Headers: Upload-Offset, Upload-Length, Content-Range, Content-Length');
 		header('Access-Control-Max-Age: 3600');
@@ -78,7 +87,7 @@ $path = substr($uri, strlen($prefix));
 $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 $media_id = '';
 $ext      = '';
-if (preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')\.(mp4|mov|webm|jpg|png|webp|gif|pdf)$#', $path, $m)) {
+if (preg_match('#^/(v|u|s|d)/(' . $uuid . ')/(' . $uuid . ')[./](mp4|mov|webm|jpg|png|webp|gif|pdf)$#', $path, $m)) {
 	list(, $op, $app_id, $media_id, $ext) = $m;
 } elseif (preg_match('#^/a/(' . $uuid . ')$#', $path, $m)) {
 	$op     = 'a';
@@ -95,6 +104,9 @@ $params = array();
 parse_str((string) ($_SERVER['QUERY_STRING'] ?? ''), $params);
 $sig = $params['sig'] ?? '';
 unset($params['sig']);
+// 64b Where a chunk goes, when a proxy drops the Upload-Offset header: not signed.
+$query_offset = isset($params['offset']) && is_string($params['offset']) ? $params['offset'] : '';
+unset($params['offset']);
 if (!is_string($sig) || !preg_match('/^[0-9a-f]{64}$/', $sig) || !isset($params['expires'])) {
 	media_fail(403, 'This link is not valid.');
 }
@@ -249,7 +261,17 @@ if ($op === 'v' && ($method === 'GET' || $method === 'HEAD')) {
 	exit;
 }
 
-if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT'), true)) {
+/** 64b A chunk refused, with where the upload stands: in the header and in a small JSON body. */
+function media_refuse(int $status, int $offset, string $message): void {
+	http_response_code($status);
+	header('Content-Type: application/json');
+	header('Cache-Control: no-store');
+	header('Upload-Offset: ' . $offset);
+	echo json_encode(array('offset' => $offset, 'message' => $message));
+	exit;
+}
+
+if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT', 'POST'), true)) {
 	$total = isset($params['size']) ? (int) $params['size'] : 0;
 	if ($total < 1) {
 		media_fail(403, 'This link is not valid.');
@@ -258,23 +280,30 @@ if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT'), true)) {
 	header('Upload-Length: ' . $total);
 	$done = media_size($file);
 	$have = $done ?? (media_size($part) ?? 0);
-	if ($method !== 'PUT') {
+	if ($method === 'HEAD' || $method === 'GET') {
 		header('Upload-Offset: ' . $have);
 		http_response_code(200);
+		if ($method === 'GET') {
+			header('Content-Type: application/json');
+			echo json_encode(array('offset' => $have, 'length' => $total));
+		}
 		exit;
 	}
+	// 64b The header, else the query's `offset` (a proxy may drop the header).
 	$offset = (string) ($_SERVER['HTTP_UPLOAD_OFFSET'] ?? '');
+	if (!ctype_digit($offset)) {
+		$offset = $query_offset;
+	}
 	$length = (string) ($_SERVER['CONTENT_LENGTH'] ?? '');
 	if ($done !== null || !ctype_digit($offset) || (int) $offset !== $have) {
-		header('Upload-Offset: ' . $have);
-		media_fail(409, 'The upload is elsewhere.', array('Upload-Offset' => (string) $have));
+		media_refuse(409, $have, 'The upload is elsewhere.');
 	}
 	if (!ctype_digit($length) || (int) $length < 1) {
-		media_fail(400, 'Send the chunk with its length.', array('Upload-Offset' => (string) $have));
+		media_refuse(400, $have, 'Send the chunk with its length.');
 	}
 	$max = (int) ($config['max_chunk_bytes'] ?? 6291456);
 	if ((int) $length > $max || $have + (int) $length > $total) {
-		media_fail(413, 'This chunk is too big.', array('Upload-Offset' => (string) $have));
+		media_refuse(413, $have, 'This chunk is too big.');
 	}
 	if (!is_dir($dir) && !mkdir($dir, 0750, true) && !is_dir($dir)) {
 		media_fail(503, 'Media storage is not available.');
@@ -289,7 +318,7 @@ if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT'), true)) {
 	if ((int) filesize($part) !== $have) {
 		flock($out, LOCK_UN);
 		fclose($out);
-		media_fail(409, 'The upload is elsewhere.', array('Upload-Offset' => (string) filesize($part)));
+		media_refuse(409, (int) filesize($part), 'The upload is elsewhere.');
 	}
 	set_time_limit(0);
 	$written = 0;
@@ -311,7 +340,7 @@ if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT'), true)) {
 		ftruncate($out, $have);
 		flock($out, LOCK_UN);
 		fclose($out);
-		media_fail(400, 'The chunk didn\'t arrive whole.', array('Upload-Offset' => (string) $have));
+		media_refuse(400, $have, 'The chunk didn\'t arrive whole.');
 	}
 	flock($out, LOCK_UN);
 	fclose($out);
@@ -320,6 +349,13 @@ if ($op === 'u' && in_array($method, array('HEAD', 'GET', 'PUT'), true)) {
 		rename($part, $file);
 	}
 	header('Upload-Offset: ' . $now_at);
+	// PUT as before (older uploaders wait for 204); 64b POST answers with the offset in JSON too.
+	if ($method === 'POST') {
+		http_response_code(200);
+		header('Content-Type: application/json');
+		echo json_encode(array('offset' => $now_at));
+		exit;
+	}
 	http_response_code(204);
 	exit;
 }

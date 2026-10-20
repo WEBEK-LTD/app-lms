@@ -6,13 +6,17 @@ import { cancelMediaUploadAction, completeMediaUploadAction, resumeMediaUploadAc
 import { Icon } from "@/components/icon";
 import { btn, ProgressBar } from "@/components/ui";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { chunkOutcome, chunkUrl, failureOf, FRESH_LINKS_IN_A_ROW, offsetOf, type UploadFailure } from "@/lib/media/upload-client";
 
 /**
  * 51 The Media library's uploader. Each file goes to the media gate in 5 MB
- * chunks (PUT with Upload-Offset), straight from the browser; the platform
- * only signs the way and checks the result. An upload survives a broken
- * connection (it retries), a reload or closing the tab: picking the same file
- * again carries on from the last chunk the server has.
+ * chunks, straight from the browser; the platform only signs the way and
+ * checks the result. An upload survives a broken connection (it retries), a
+ * reload or closing the tab: picking the same file again carries on from the
+ * last chunk the server has.
+ * 64b Chunks go as POST with application/octet-stream and the offset in the
+ * header and the query (lib/media/upload-client.ts), so server firewalls let
+ * them through; a refused upload says why instead of retrying for ever.
  */
 
 type Status = "waiting" | "uploading" | "paused" | "checking" | "done" | "failed";
@@ -59,13 +63,13 @@ function sendChunk(url: string, offset: number, chunk: Blob, onProgress: (sent: 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhrRef.current = xhr;
-    xhr.open("PUT", url);
+    // 64b POST and a plain content type: what server firewalls let through.
+    xhr.open("POST", chunkUrl(url, offset));
     xhr.setRequestHeader("Upload-Offset", String(offset));
-    xhr.setRequestHeader("Content-Type", "application/offset+octet-stream");
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.upload.onprogress = (e) => onProgress(e.loaded);
     xhr.onload = () => {
-      const header = xhr.getResponseHeader("Upload-Offset");
-      resolve({ status: xhr.status, offset: header && /^\d+$/.test(header) ? Number(header) : null });
+      resolve({ status: xhr.status, offset: offsetOf(xhr.getResponseHeader("Upload-Offset"), xhr.responseText) });
     };
     xhr.onerror = () => reject(new Error("network"));
     xhr.onabort = () => reject(new Error("aborted"));
@@ -73,10 +77,18 @@ function sendChunk(url: string, offset: number, chunk: Blob, onProgress: (sent: 
   });
 }
 
+/** How much the gate has (GET: the offset in the header and, 64b, in JSON). */
 async function serverOffset(url: string): Promise<{ status: number; offset: number | null }> {
-  const response = await fetch(url, { method: "HEAD", cache: "no-store" });
-  const header = response.headers.get("Upload-Offset");
-  return { status: response.status, offset: header && /^\d+$/.test(header) ? Number(header) : null };
+  const response = await fetch(url, { cache: "no-store" });
+  const body = await response.text().catch(() => "");
+  return { status: response.status, offset: response.ok ? offsetOf(response.headers.get("Upload-Offset"), body) : null };
+}
+
+/** An HTTP answer that ends the upload, after its retries. */
+class GateAnswer extends Error {
+  constructor(readonly status: number) {
+    super(`status ${status}`);
+  }
 }
 
 const noSubscribe = () => () => {};
@@ -128,6 +140,10 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
     if (!job?.url || !job.id) return;
     update(job.key, { id: job.id, url: job.url, status: "uploading", message: null });
     let failures = 0;
+    let freshInARow = 0;
+    // 64b Why it stopped, in the owner's words: the gate's answer, or the connection.
+    const failed = (failure: UploadFailure, status: number) =>
+      failure === "refused" ? t("media.refused", { status }) : failure === "storage" ? t("media.storageDown", { status }) : failure === "tooBig" ? t("media.chunkTooBig", { status }) : t("media.gateError", { status });
     let offset = (await serverOffset(job.url).catch(() => ({ status: 0, offset: null }))).offset ?? 0;
     update(job.key, { offset });
     while (offset < job.file.size) {
@@ -139,16 +155,26 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
       const at = offset;
       try {
         const result = await sendChunk(job.url!, at, chunk, (sent) => update(job!.key, { offset: at + sent }), xhr);
-        if ((result.status === 204 || result.status === 409) && result.offset !== null) {
-          offset = result.offset;
+        const next = chunkOutcome(result.status, result.offset);
+        if (next.kind === "moved") {
+          offset = next.offset;
           failures = 0;
-        } else if (result.status === 403 || result.status === 410) {
-          // The link expired (a long pause): a fresh one, then carry on.
+          freshInARow = 0;
+        } else if (next.kind === "fresh") {
+          // The link expired (a long pause): a fresh one, then carry on. 64b Refused again
+          // with a fresh link: a firewall, or a gate with another secret; no use looping.
+          if (++freshInARow > FRESH_LINKS_IN_A_ROW) {
+            update(job.key, { status: "failed", offset: at, message: failed("refused", result.status) });
+            return;
+          }
           const fresh = await freshLink(job);
           if (!fresh?.url) return;
           job = fresh;
+        } else if (next.kind === "fail") {
+          update(job.key, { status: "failed", offset: at, message: failed(next.failure, next.status) });
+          return;
         } else {
-          throw new Error(`status ${result.status}`);
+          throw new GateAnswer(next.status);
         }
       } catch (e) {
         if (e instanceof Error && e.message === "aborted") {
@@ -157,7 +183,8 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
         }
         failures++;
         if (failures > RETRIES) {
-          update(job.key, { status: "failed", offset: at, message: t("media.dropping") });
+          // 64b "The connection keeps dropping" only when it does; the gate's own answer otherwise.
+          update(job.key, { status: "failed", offset: at, message: e instanceof GateAnswer ? failed(failureOf(e.status), e.status) : t("media.dropping") });
           return;
         }
         update(job.key, { message: t("media.lost"), offset: at });
