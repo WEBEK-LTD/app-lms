@@ -260,3 +260,31 @@ describe("62 the donations' and attendees' CSV files", () => {
     expect(knownTranslator("ar")("Checked in at")).toBe("وقت الدخول");
   });
 });
+
+describe("62 plan texts in Arabic and Turkish", () => {
+  it("show what the team wrote in the language, else the built-in translation, else the English", async () => {
+    const { planFor, plansIn } = await import("@/lib/marketing-lang");
+    const { PLAN_INFO, plansWith, planSettingOf, cleanPlanTranslations } = await import("@/lib/plans");
+    // Untouched: the built-in translation, the name as it is.
+    const growthAr = planFor("ar", PLAN_INFO.growth);
+    expect(growthAr.name).toBe("Growth");
+    expect(growthAr.tagline).not.toBe(PLAN_INFO.growth.tagline);
+    // The team's English edit, without Arabic: the English.
+    const edited = plansWith({ growth: { ...planSettingOf(PLAN_INFO.growth), tagline: "Apps that grow" } }).growth;
+    expect(planFor("ar", edited).tagline).toBe("Apps that grow");
+    // The team's Arabic: first, empty fields fall back.
+    const withAr = plansWith({
+      growth: { ...planSettingOf(PLAN_INFO.growth), tagline: "Apps that grow", translations: { ar: { name: "النمو", tagline: "تطبيقات تنمو", highlights: ["أ", " ", "ب"], price: "" } } },
+    }).growth;
+    expect(withAr.translations).toEqual({ ar: { name: "النمو", tagline: "تطبيقات تنمو", highlights: ["أ", "ب"] } });
+    const ar = planFor("ar", withAr);
+    expect([ar.name, ar.tagline, ar.highlights]).toEqual(["النمو", "تطبيقات تنمو", ["أ", "ب"]]);
+    expect(planFor("tr", withAr).name).toBe("Growth");
+    expect(planFor("tr", withAr).tagline).toBe("Apps that grow");
+    expect(planFor("en", withAr).name).toBe("Growth");
+    expect(plansIn("ar", { growth: withAr }).growth.name).toBe("النمو");
+    // Saved again, the translations stay.
+    expect(planSettingOf(withAr).translations?.ar?.name).toBe("النمو");
+    expect(cleanPlanTranslations({ fr: { name: "x" }, tr: { name: "  " } })).toBeUndefined();
+  });
+});

@@ -149,9 +149,17 @@ test("the team changes a plan's price and the pricing page shows it", async () =
   await pro.getByLabel("A price").check();
   await pro.getByLabel("Price in EGP").fill("4800");
   await pro.getByLabel("Billed").selectOption("12");
-  await pro.getByLabel("Tagline").fill("We publish the apps for you, every time");
+  await pro.getByLabel("Tagline", { exact: true }).first().fill("We publish the apps for you, every time");
+  // 62 The plan's texts in Arabic: the Arabic pricing page shows them.
+  await pro.getByText("In Arabic (optional)").click();
+  const arabic = pro.getByRole("group", { name: "Arabic texts" });
+  await arabic.getByLabel("Name").fill("برو");
+  await arabic.getByLabel("Tagline").fill("ننشر تطبيقاتك في كل مرة");
   await pro.getByRole("button", { name: "Save plan" }).click();
   await expect(pro.getByText("Pro saved.")).toBeVisible();
+  await page.goto("/ar/pricing");
+  await expect(page.locator('[data-pricing-plans] [data-plan="pro"]')).toContainText("برو");
+  await expect(page.getByText("ننشر تطبيقاتك في كل مرة")).toBeVisible();
 
   // 52 Pounds for a visitor from Egypt; elsewhere too while there's no dollar price.
   await page.goto("/pricing");

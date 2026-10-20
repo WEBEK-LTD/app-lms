@@ -18,7 +18,21 @@ export interface PlanFormValues {
   months: string;
   /** 52 The dollar price at the exchange rate, for the hint ("$30 at the rate"); empty without a rate. */
   usdAtRate: string;
+  /** 62 The texts in Arabic and Turkish (optional). */
+  arName: string;
+  arTagline: string;
+  arHighlights: string;
+  arPrice: string;
+  trName: string;
+  trTagline: string;
+  trHighlights: string;
+  trPrice: string;
 }
+
+const TEXT_LANGS = [
+  { code: "ar", name: "Arabic", dir: "rtl" },
+  { code: "tr", name: "Turkish", dir: "ltr" },
+] as const;
 
 export function PlanForm({ plan }: { plan: PlanFormValues }) {
   const [state, action] = useActionState(savePlanAction, initialFormState);
@@ -102,6 +116,30 @@ export function PlanForm({ plan }: { plan: PlanFormValues }) {
         hint="Shown instead of a price when the plan is On request."
         error={state.errors?.price}
       />
+      {/* 62 The website and the dashboard in Arabic and Turkish show these; empty: the built-in translation of the default texts, else the English. */}
+      {TEXT_LANGS.map((lang) => {
+        const key = (field: "Name" | "Tagline" | "Highlights" | "Price") => `${lang.code}${field}` as keyof PlanFormValues & string;
+        return (
+          <details key={lang.code} className="rounded-xl border border-line-soft p-3.5" open={Boolean(plan[key("Name")] || plan[key("Tagline")] || plan[key("Highlights")] || plan[key("Price")])}>
+            <summary className="cursor-pointer text-sm font-semibold">In {lang.name} (optional)</summary>
+            <div role="group" aria-label={`${lang.name} texts`} className="mt-3 flex flex-col gap-4" lang={lang.code} dir={lang.dir}>
+              <p className="m-0 text-[13px] text-muted" lang="en" dir="ltr">
+                Shown on the {lang.name} website and dashboard. An empty field shows the built-in {lang.name} text of the default plan, else the English above.
+              </p>
+              <Field id={id(key("Name"))} label="Name" name={key("Name")} maxLength={30} defaultValue={v(key("Name"), plan[key("Name")])} error={state.errors?.[key("Name")]} />
+              <Field id={id(key("Tagline"))} label="Tagline" name={key("Tagline")} maxLength={80} defaultValue={v(key("Tagline"), plan[key("Tagline")])} error={state.errors?.[key("Tagline")]} />
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor={id(key("Highlights"))} className="text-sm font-semibold">
+                  What&apos;s included
+                </label>
+                <textarea id={id(key("Highlights"))} name={key("Highlights")} rows={4} defaultValue={v(key("Highlights"), plan[key("Highlights")])} className="input min-h-24 py-3" />
+                <FieldError id={`${id(key("Highlights"))}-error`} error={state.errors?.[key("Highlights")]} />
+              </div>
+              <Field id={id(key("Price"))} label="Price text" name={key("Price")} maxLength={30} defaultValue={v(key("Price"), plan[key("Price")])} error={state.errors?.[key("Price")]} />
+            </div>
+          </details>
+        );
+      })}
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save plan

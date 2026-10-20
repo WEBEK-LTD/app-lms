@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -61,7 +62,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   const filter = FILTERS.find((f) => f.id === query.kind)?.id ?? "all";
   const store = await getStore();
   const now = new Date();
-  const plans = await effectivePlans(store);
+  const plans = plansIn(lang, await effectivePlans(store));
   const storage = getMediaStorage();
   // 52 Packs are paid like the plans (the plans' gateway, in pounds) and shown in the client's currency.
   const [usage, files, account, packsSetting, contact, view] = await Promise.all([

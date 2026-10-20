@@ -26,7 +26,7 @@ import { getPlans, platformSetting, yallappPlanAccount } from "@/lib/settings/pl
 import { priceView } from "@/lib/billing/display";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
-import { planFor } from "@/lib/marketing-lang";
+import { plansIn } from "@/lib/marketing-lang";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
@@ -78,9 +78,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
   const store = await getStore();
   const now = new Date();
   // 56 The plans' default taglines in the dashboard's language (the website's translations).
-  const plans = Object.fromEntries(Object.entries(await getPlans(store)).map(([id, info]) => [id, planFor(lang, info)])) as Record<Plan, PlanInfo>;
+  const plans = plansIn(lang, await getPlans(store));
   // 13.1 What each plan includes for apps (switches applied); prices from the admin.
-  const effective = await effectivePlans(store);
+  const effective = plansIn(lang, await effectivePlans(store));
   const currentId: Plan | null = license ? currentPlanId(license, now) : null;
   const scheduled = scheduledPlan(license, now);
   // 52 Paid into Yallapp's account with the gateway the team chose for plans (Kashier, in pounds); prices in the client's currency.

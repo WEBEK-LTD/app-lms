@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
@@ -46,7 +47,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const now = new Date();
   const record = await loadLayout(store, app, now);
   const draft = record.draft;
-  const plans = await effectivePlans(store);
+  const plans = plansIn(dashLang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const languages = draft.languages;

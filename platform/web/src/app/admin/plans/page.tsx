@@ -71,6 +71,15 @@ export default async function PlansPage() {
                   usdPrice: plan.usdCents !== null ? centsToDecimal(plan.usdCents) : "",
                   months: String(plan.billingMonths),
                   usdAtRate: usdAtRate !== null ? formatMoney({ cents: usdAtRate, currency: "USD" }) : "",
+                  // 62 The team's Arabic and Turkish texts; empty ones use the built-in translation, else the English.
+                  arName: plan.translations?.ar?.name ?? "",
+                  arTagline: plan.translations?.ar?.tagline ?? "",
+                  arHighlights: plan.translations?.ar?.highlights?.join("\n") ?? "",
+                  arPrice: plan.translations?.ar?.price ?? "",
+                  trName: plan.translations?.tr?.name ?? "",
+                  trTagline: plan.translations?.tr?.tagline ?? "",
+                  trHighlights: plan.translations?.tr?.highlights?.join("\n") ?? "",
+                  trPrice: plan.translations?.tr?.price ?? "",
                 }}
               />
               <div className="flex flex-col gap-3 border-t border-line-soft pt-4">

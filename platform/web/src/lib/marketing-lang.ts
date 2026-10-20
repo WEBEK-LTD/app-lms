@@ -145,13 +145,29 @@ export function numberWordFor(lang: Lang, n: number): string {
 }
 
 /**
- * A plan's words in a language: the default tagline and highlights are
- * translated; texts the team changed in the admin show as the team wrote them.
+ * A plan's words in a language. 62 What the team wrote in that language in
+ * Admin › Plans comes first (name, tagline, highlights, price text); else the
+ * default tagline and highlights are translated (built in); else the English
+ * the team wrote. Plan names stay as they are unless the team names them in
+ * the language.
  */
 export function planFor(lang: Lang, plan: PlanInfo): PlanInfo {
+  if (lang === "en") return plan;
+  const own = plan.translations?.[lang] ?? {};
   const x = translation(lang)?.plans[plan.id];
-  if (!x) return plan;
   const base = PLAN_INFO[plan.id];
   const sameHighlights = plan.highlights.length === base.highlights.length && plan.highlights.every((h, i) => h === base.highlights[i]);
-  return { ...plan, tagline: plan.tagline === base.tagline ? x.tagline : plan.tagline, highlights: sameHighlights ? x.highlights : plan.highlights };
+  return {
+    ...plan,
+    name: own.name ?? plan.name,
+    tagline: own.tagline ?? (x && plan.tagline === base.tagline ? x.tagline : plan.tagline),
+    highlights: own.highlights?.length ? own.highlights : x && sameHighlights ? x.highlights : plan.highlights,
+    price: own.price ?? plan.price,
+  };
+}
+
+/** 62 Every plan's words in a language (planFor), for the dashboard's pages. */
+export function plansIn<P extends string>(lang: Lang, plans: Record<P, PlanInfo>): Record<P, PlanInfo> {
+  if (lang === "en") return plans;
+  return Object.fromEntries(Object.entries<PlanInfo>(plans).map(([id, info]) => [id, planFor(lang, info)])) as Record<P, PlanInfo>;
 }

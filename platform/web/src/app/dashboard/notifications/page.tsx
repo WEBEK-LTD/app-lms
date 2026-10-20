@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { removeServiceAccountAction } from "@/app/actions/notifications";
@@ -38,7 +39,7 @@ export default async function NotificationsPage() {
   const [customers, sent] = await Promise.all([store.countHostedUsers(app.id), store.listHostedBroadcasts(app.id, 20)]);
   const account = serviceAccountOf(app, encryptionKey());
   // 13.1 Push comes with the plan; without it, notifications still reach the app's inbox.
-  const plans = await effectivePlans(store);
+  const plans = plansIn(lang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, new Date()) : null;
   const push = planId ? hasFeature(plans[planId], "push") : false;
   const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "push"), planId);
