@@ -1,0 +1,2144 @@
+import 'dart:async';
+
+import 'api_exception.dart';
+import 'models.dart';
+import 'owner_api.dart';
+
+/// 59 The Owner API in memory: sample apps of every kind, with the rules the
+/// contract describes (features per app, next statuses, check-in outcomes,
+/// limits). The widget tests drive it, and `--dart-define=YB_DEMO=true` runs
+/// the app on it.
+class FakeOwnerApi implements OwnerApi {
+  FakeOwnerApi({DateTime? now, this.latency = Duration.zero})
+    : now = now ?? DateTime.now() {
+    _seed();
+  }
+
+  static const demoEmail = 'owner@example.com';
+  static const demoPassword = 'yallapp-demo';
+
+  /// Everything relative to this moment.
+  final DateTime now;
+
+  /// Time each call takes (the demo shows its loading states).
+  final Duration latency;
+
+  // What tests change.
+  AccountState state = AccountState.active;
+  String? stateMessage;
+  bool staffOnly = false;
+  String? language;
+  bool pushAvailable = true;
+
+  /// Thrown by the next call, then cleared.
+  ApiException? failNext;
+
+  /// Every call, by its operation name.
+  final calls = <String>[];
+
+  late List<AppSummary> apps;
+  final devicesList = <Device>[];
+  var preferences = const PushPreferences({});
+  String? pushToken;
+  final updatesList = <Update>[];
+  final _orders = <String, List<Order>>{};
+  final _appointments = <String, List<Appointment>>{};
+  final _events = <String, List<EventSummary>>{};
+  final _tickets = <String, ({int eventId, String holder, DateTime? usedAt})>{};
+  final _donations = <String, List<Donation>>{};
+  final _campaigns = <String, List<CampaignTotals>>{};
+  final _products = <String, List<Product>>{};
+  final _courses = <String, List<Course>>{};
+  final _articles = <String, List<Article>>{};
+  final _listings = <String, List<Listing>>{};
+  final _media = <String, List<MediaFile>>{};
+  final uploads = <String, ({String appId, int size, List<int> bytes})>{};
+  final _inquiries = <String, List<InquiryDetail>>{};
+  final _users = <String, List<AppUser>>{};
+  final _sent = <String, List<SentNotification>>{};
+  int _sentThisHour = 0;
+  int _nextId = 5000;
+  int _sessions = 0;
+
+  static const restaurantId = '11111111-1111-4111-8111-111111111111';
+  static const clinicId = '22222222-2222-4222-8222-222222222222';
+  static const eventsId = '33333333-3333-4333-8333-333333333333';
+  static const charityId = '44444444-4444-4444-8444-444444444444';
+  static const academyId = '55555555-5555-4555-8555-555555555555';
+  static const homesId = '66666666-6666-4666-8666-666666666666';
+  static const newsId = '77777777-7777-4777-8777-777777777777';
+
+  static const ticketCode = 'YT1.A7K2-9QXM.3f9a1c';
+
+  Future<void> _call(String name, {bool needsActive = true}) async {
+    calls.add(name);
+    if (latency > Duration.zero) await Future<void>.delayed(latency);
+    final fail = failNext;
+    if (fail != null) {
+      failNext = null;
+      throw fail;
+    }
+    if (needsActive && state.blocked) {
+      throw ApiException(
+        code: state == AccountState.pending
+            ? ApiException.accountPending
+            : ApiException.accountSuspended,
+        message: stateMessage ?? '',
+        statusCode: 403,
+      );
+    }
+  }
+
+  AppSummary _app(String appId, [bool Function(AppFeatures f)? feature]) {
+    final app = apps.where((a) => a.id == appId).firstOrNull;
+    if (app == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (feature != null && !feature(app.features)) {
+      throw const ApiException(
+        code: ApiException.notAvailable,
+        statusCode: 404,
+      );
+    }
+    return app;
+  }
+
+  static Money money(int cents, [String currency = 'TRY']) {
+    final symbol = switch (currency) {
+      'TRY' => '₺',
+      'EGP' => 'E£',
+      'USD' => r'$',
+      _ => '$currency ',
+    };
+    final whole = (cents.abs() ~/ 100).toString().replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (_) => ',',
+    );
+    final sign = cents < 0 ? '-' : '';
+    return Money(
+      amountCents: cents,
+      currency: currency,
+      formatted:
+          '$sign$symbol$whole.${(cents.abs() % 100).toString().padLeft(2, '0')}',
+    );
+  }
+
+  DateTime _ago(Duration d) => now.subtract(d).toUtc();
+  String _day(DateTime t) =>
+      '${t.year.toString().padLeft(4, '0')}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')}';
+
+  void _seed() {
+    final plan = PlanSummary(
+      id: 'growth',
+      name: 'Growth',
+      expiresAt: now.add(const Duration(days: 120)).toUtc(),
+      daysLeft: 120,
+    );
+    apps = [
+      AppSummary(
+        id: restaurantId,
+        name: 'Bab Al Sham',
+        type: 'store',
+        vertical: 'restaurant',
+        typeName: 'Restaurant & café',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          orders: true,
+          kitchen: true,
+          products: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: clinicId,
+        name: 'Nour Clinic',
+        type: 'booking',
+        vertical: 'clinic',
+        typeName: 'Clinic',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          appointments: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: eventsId,
+        name: 'Cairo Nights',
+        type: 'events',
+        typeName: 'Events & tickets',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          orders: true,
+          events: true,
+          checkIn: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: charityId,
+        name: 'Hope Foundation',
+        type: 'donations',
+        vertical: 'charity',
+        typeName: 'Charity & donations',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          donations: true,
+          appUsers: true,
+          notifications: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: academyId,
+        name: 'Nile Academy',
+        type: 'lms',
+        typeName: 'Academy',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          orders: true,
+          courses: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: homesId,
+        name: 'Bosphorus Homes',
+        type: 'real_estate',
+        typeName: 'Real estate',
+        backend: 'hosted',
+        state: AccountState.active,
+        plan: plan,
+        features: const AppFeatures(
+          listings: true,
+          inquiries: true,
+          appUsers: true,
+          notifications: true,
+          media: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+      AppSummary(
+        id: newsId,
+        name: 'Daily Delta',
+        type: 'news',
+        typeName: 'News & blog',
+        backend: 'hosted',
+        state: AccountState.expired,
+        plan: null,
+        features: const AppFeatures(
+          articles: true,
+          appUsers: true,
+          notifications: true,
+          analytics: true,
+          preview: true,
+          builds: true,
+        ),
+      ),
+    ];
+
+    devicesList
+      ..clear()
+      ..add(
+        Device(
+          id: 'd0000000-0000-4000-8000-000000000002',
+          name: 'iPad of Layla',
+          platform: 'ios',
+          appVersion: '1.0.0',
+          createdAt: _ago(const Duration(days: 20)),
+          lastSeenAt: _ago(const Duration(days: 2)),
+          current: false,
+          push: true,
+        ),
+      );
+
+    updatesList
+      ..clear()
+      ..addAll([
+        Update(
+          key: 'account:build:1',
+          kind: 'account',
+          kindLabel: 'Your account',
+          title: 'Your app build is ready',
+          body: 'Version 2.3.0 is ready to download and publish.',
+          appId: restaurantId,
+          at: _ago(const Duration(hours: 3)),
+          unread: true,
+          current: true,
+        ),
+        Update(
+          key: 'announcement:maintenance',
+          kind: 'maintenance',
+          kindLabel: 'Maintenance',
+          title: 'Planned maintenance on Sunday',
+          body: 'The dashboard may be slow for a few minutes between 02:00 and 02:30.',
+          at: _ago(const Duration(days: 1)),
+          unread: true,
+          current: true,
+        ),
+        Update(
+          key: 'announcement:feature',
+          kind: 'update',
+          kindLabel: 'Update',
+          title: 'Kitchen mode is here',
+          body: 'Follow every order from the kitchen on a tablet.',
+          link: 'https://yallapp.com.tr/blog',
+          at: _ago(const Duration(days: 6)),
+          unread: false,
+          current: false,
+        ),
+      ]);
+
+    // Restaurant orders.
+    Order order(
+      int id,
+      String step,
+      Duration ago, {
+      String type = 'pickup',
+      String status = 'processing',
+    }) {
+      final next = switch (step) {
+        'received' => ['preparing', 'cancelled'],
+        'preparing' => ['ready', 'cancelled'],
+        'ready' => [
+          if (type == 'delivery') 'out_for_delivery' else 'completed',
+          'cancelled',
+        ],
+        'out_for_delivery' => ['completed', 'cancelled'],
+        _ => <String>[],
+      };
+      return Order(
+        id: id,
+        number: '#$id',
+        status: status,
+        statusLabel: _statusLabel(status),
+        kitchen: OrderKitchen(
+          type: type,
+          step: step,
+          stepLabel: _stepLabel(step),
+        ),
+        total: money(48500),
+        lines: [
+          OrderLine(
+            name: 'Chicken shawarma',
+            quantity: 2,
+            unit: money(16500),
+            options: const ['Extra garlic'],
+          ),
+          OrderLine(name: 'Fresh lemonade', quantity: 2, unit: money(7750)),
+        ],
+        customer: Customer(
+          name: id.isEven ? 'Ahmed Yilmaz' : 'Sara Hassan',
+          phone: '+90 555 010 ${id % 100}',
+          email: 'guest$id@example.com',
+          city: 'Istanbul',
+          address: type == 'delivery' ? 'Moda Cd. 12, Kadıköy' : null,
+        ),
+        createdAt: _ago(ago),
+        paidAt: _ago(ago),
+        nextStatuses: status == 'processing' ? next : const [],
+      );
+    }
+
+    _orders[restaurantId] = [
+      order(1042, 'received', const Duration(minutes: 4), type: 'delivery'),
+      order(1041, 'preparing', const Duration(minutes: 18)),
+      order(1040, 'ready', const Duration(minutes: 35), type: 'delivery'),
+      order(1039, 'completed', const Duration(hours: 3), status: 'completed'),
+      order(1038, 'cancelled', const Duration(hours: 6), status: 'cancelled'),
+    ];
+    _orders[eventsId] = [
+      Order(
+        id: 2201,
+        number: '#2201',
+        status: 'completed',
+        statusLabel: 'Completed',
+        total: money(90000),
+        lines: [
+          OrderLine(
+            name: 'Jazz on the Nile · Standard',
+            quantity: 2,
+            unit: money(45000),
+          ),
+        ],
+        customer: const Customer(
+          name: 'Omar Farouk',
+          email: 'omar@example.com',
+        ),
+        createdAt: _ago(const Duration(hours: 5)),
+        paidAt: _ago(const Duration(hours: 5)),
+        nextStatuses: const [],
+      ),
+    ];
+    _orders[academyId] = [
+      Order(
+        id: 3301,
+        number: '#3301',
+        status: 'processing',
+        statusLabel: 'In progress',
+        total: money(125000),
+        lines: [
+          OrderLine(
+            name: 'Arabic for beginners',
+            quantity: 1,
+            unit: money(125000),
+          ),
+        ],
+        customer: const Customer(name: 'Elif Demir', email: 'elif@example.com'),
+        createdAt: _ago(const Duration(hours: 2)),
+        paidAt: _ago(const Duration(hours: 2)),
+        nextStatuses: const ['completed', 'cancelled'],
+      ),
+    ];
+
+    Appointment appt(int id, String status, Duration from, String name) {
+      final start = now.add(from);
+      final hh = start.hour.toString().padLeft(2, '0');
+      final mm = start.minute.toString().padLeft(2, '0');
+      return Appointment(
+        id: id,
+        status: status,
+        statusLabel: _apptLabel(status),
+        service: 'Dental check-up',
+        staff: 'Dr. Mona Adel',
+        customerName: name,
+        customerPhone: '+20 100 000 0$id',
+        customerEmail: null,
+        startAt: start.toUtc(),
+        endAt: start.add(const Duration(minutes: 30)).toUtc(),
+        localDate: _day(start),
+        localTime: '$hh:$mm',
+        price: money(60000, 'EGP'),
+        notes: id == 701 ? 'First visit' : null,
+        answers: const [(label: 'Insurance', value: 'None')],
+        nextStatuses: _apptNext(status),
+      );
+    }
+
+    _appointments[clinicId] = [
+      appt(701, 'pending', const Duration(hours: 1), 'Yusuf Kaya'),
+      appt(702, 'approved', const Duration(hours: 3), 'Mariam Ali'),
+      appt(703, 'pending', const Duration(days: 2), 'Hasan Çelik'),
+      appt(704, 'completed', const Duration(days: -1), 'Nadia Salem'),
+    ];
+
+    _events[eventsId] = [
+      EventSummary(
+        id: 81,
+        title: 'Jazz on the Nile',
+        status: 'published',
+        startAt: now.add(const Duration(hours: 2)).toUtc(),
+        endAt: now.add(const Duration(hours: 5)).toUtc(),
+        venue: 'Cairo Opera House',
+        valid: 118,
+        used: 24,
+        capacity: 200,
+      ),
+      EventSummary(
+        id: 82,
+        title: 'Startup breakfast',
+        status: 'published',
+        startAt: now.add(const Duration(days: 3)).toUtc(),
+        endAt: now.add(const Duration(days: 3, hours: 2)).toUtc(),
+        venue: null,
+        valid: 40,
+        used: 0,
+        capacity: null,
+      ),
+    ];
+    _tickets
+      ..clear()
+      ..[ticketCode] = (eventId: 81, holder: 'Karim Mostafa', usedAt: null)
+      ..['A7K2-USED'] = (
+        eventId: 81,
+        holder: 'Laila Nasser',
+        usedAt: _ago(const Duration(minutes: 12)),
+      )
+      ..['B8Z1-OTHER'] = (eventId: 82, holder: 'Can Öztürk', usedAt: null);
+
+    _campaigns[charityId] = [
+      CampaignTotals(
+        id: 11,
+        title: 'Winter blankets',
+        status: 'active',
+        raised: money(1850000, 'EGP'),
+        donors: 214,
+        goal: money(2500000, 'EGP'),
+      ),
+      CampaignTotals(
+        id: 12,
+        title: 'School bags',
+        status: 'active',
+        raised: money(420000, 'EGP'),
+        donors: 51,
+        goal: null,
+      ),
+    ];
+    _donations[charityId] = [
+      for (var i = 0; i < 6; i++)
+        Donation(
+          id: 900 + i,
+          amount: money(25000 + i * 5000, 'EGP'),
+          status: i == 5 ? 'refunded' : 'paid',
+          refunded: i == 5 ? money(50000, 'EGP') : null,
+          donorName: i == 2
+              ? null
+              : ['Hana', 'Ali', '', 'Zeynep', 'Mahmoud', 'Rana'][i],
+          message: i == 0 ? 'For the families in Aswan' : null,
+          campaignId: i.isEven ? 11 : 12,
+          campaignTitle: i.isEven ? 'Winter blankets' : 'School bags',
+          paidAt: _ago(Duration(hours: i * 5 + 1)),
+        ),
+    ];
+
+    _products[restaurantId] = [
+      Product(
+        id: 401,
+        name: 'Chicken shawarma',
+        price: money(16500),
+        salePrice: null,
+        stock: null,
+        available: true,
+        sales: 312,
+      ),
+      Product(
+        id: 402,
+        name: 'Falafel plate',
+        price: money(12000),
+        salePrice: money(9900),
+        stock: 25,
+        available: true,
+        sales: 140,
+      ),
+      Product(
+        id: 403,
+        name: 'Kunafa',
+        price: money(9500),
+        salePrice: null,
+        stock: 0,
+        available: false,
+        sales: 88,
+      ),
+    ];
+
+    _courses[academyId] = [
+      Course(
+        id: 61,
+        title: 'Arabic for beginners',
+        published: true,
+        price: money(125000),
+        students: 86,
+        topics: const [
+          Topic(
+            id: 601,
+            title: 'Letters and sounds',
+            lessons: [
+              Lesson(
+                id: 6001,
+                title: 'The alphabet',
+                video: 'media',
+                mediaId: 'e0000000-0000-4000-8000-000000000001',
+                durationMinutes: 12,
+                preview: true,
+              ),
+              Lesson(
+                id: 6002,
+                title: 'Short vowels',
+                video: 'link',
+                durationMinutes: 9,
+                preview: false,
+              ),
+            ],
+          ),
+          Topic(id: 602, title: 'First words', lessons: []),
+        ],
+      ),
+      Course(
+        id: 62,
+        title: 'Business Turkish',
+        published: false,
+        price: money(0),
+        students: 0,
+        topics: const [Topic(id: 621, title: 'Introductions', lessons: [])],
+      ),
+    ];
+
+    _articles[newsId] = [
+      Article(
+        id: 71,
+        title: 'New bridge opens in Mansoura',
+        status: 'published',
+        featured: true,
+        publishedAt: _ago(const Duration(hours: 4)),
+        updatedAt: _ago(const Duration(hours: 4)),
+      ),
+      Article(
+        id: 72,
+        title: 'Cotton harvest starts early',
+        status: 'draft',
+        featured: false,
+        publishedAt: null,
+        updatedAt: _ago(const Duration(days: 1)),
+      ),
+    ];
+    _listings[homesId] = [
+      const Listing(
+        id: 51,
+        title: 'Sea-view flat in Beşiktaş',
+        status: 'published',
+        featured: true,
+        price: '₺12,500,000',
+        city: 'Istanbul',
+      ),
+      const Listing(
+        id: 52,
+        title: 'Garden house in Şile',
+        status: 'draft',
+        featured: false,
+        price: '₺8,900,000',
+        city: 'Istanbul',
+      ),
+    ];
+
+    _media[restaurantId] = [
+      MediaFile(
+        id: 'e0000000-0000-4000-8000-000000000011',
+        name: 'menu-cover.jpg',
+        kind: 'image',
+        contentType: 'image/jpeg',
+        sizeBytes: 820000,
+        status: 'ready',
+        public: true,
+        link: 'https://yallapp.com.tr/m/e0000000-0000-4000-8000-000000000011',
+        createdAt: _ago(const Duration(days: 3)),
+      ),
+      MediaFile(
+        id: 'e0000000-0000-4000-8000-000000000012',
+        name: 'kitchen-tour.mp4',
+        kind: 'video',
+        contentType: 'video/mp4',
+        sizeBytes: 48000000,
+        status: 'ready',
+        public: false,
+        link: 'https://yallapp.com.tr/m/e0000000-0000-4000-8000-000000000012',
+        createdAt: _ago(const Duration(days: 8)),
+      ),
+    ];
+    _media[academyId] = [
+      MediaFile(
+        id: 'e0000000-0000-4000-8000-000000000001',
+        name: 'alphabet.mp4',
+        kind: 'video',
+        contentType: 'video/mp4',
+        sizeBytes: 120000000,
+        status: 'ready',
+        public: false,
+        link: 'https://yallapp.com.tr/m/e0000000-0000-4000-8000-000000000001',
+        createdAt: _ago(const Duration(days: 30)),
+      ),
+    ];
+
+    _inquiries[homesId] = [
+      InquiryDetail(
+        inquiry: Inquiry(
+          id: 31,
+          listingId: 51,
+          listingTitle: 'Sea-view flat in Beşiktaş',
+          person: 'Deniz Arslan',
+          status: 'open',
+          lastMessage: 'Is the flat still available?',
+          unread: 1,
+          updatedAt: _ago(const Duration(minutes: 40)),
+        ),
+        phone: '+90 532 000 0031',
+        email: 'deniz@example.com',
+        messages: [
+          InquiryMessage(
+            id: 1,
+            fromOffice: false,
+            text: 'Hello, is the flat still available?',
+            createdAt: _ago(const Duration(minutes: 40)),
+          ),
+        ],
+      ),
+      InquiryDetail(
+        inquiry: Inquiry(
+          id: 32,
+          listingId: 52,
+          listingTitle: 'Garden house in Şile',
+          person: 'Mehmet Aydın',
+          status: 'closed',
+          lastMessage: 'Thank you!',
+          unread: 0,
+          updatedAt: _ago(const Duration(days: 2)),
+        ),
+        messages: [
+          InquiryMessage(
+            id: 2,
+            fromOffice: false,
+            text: 'Can I visit on Saturday?',
+            createdAt: _ago(const Duration(days: 3)),
+          ),
+          InquiryMessage(
+            id: 3,
+            fromOffice: true,
+            text: 'Yes, 11:00 works.',
+            createdAt: _ago(const Duration(days: 2, hours: 1)),
+          ),
+          InquiryMessage(
+            id: 4,
+            fromOffice: false,
+            text: 'Thank you!',
+            createdAt: _ago(const Duration(days: 2)),
+          ),
+        ],
+      ),
+    ];
+
+    for (final app in apps) {
+      _users[app.id] = [
+        for (var i = 0; i < 26; i++)
+          AppUser(
+            id: 100 + i,
+            name:
+                [
+                  'Aylin Kara',
+                  'Omar Said',
+                  'Fatma Şahin',
+                  'Youssef Adel',
+                  'Selin Koç',
+                  'Huda Kamal',
+                ][i % 6] +
+                (i < 6 ? '' : ' $i'),
+            phone: i.isEven ? '+90 555 000 ${100 + i}' : null,
+            email: i.isOdd ? 'user$i@example.com' : null,
+            city: i % 3 == 0 ? 'Istanbul' : (i % 3 == 1 ? 'Cairo' : null),
+            createdAt: _ago(Duration(days: i)),
+          ),
+      ];
+      _sent[app.id] = [
+        SentNotification(
+          id: 1,
+          title: 'Weekend offer',
+          body: '20% off every order this weekend.',
+          sentAt: _ago(const Duration(days: 4)),
+        ),
+      ];
+    }
+  }
+
+  static String _statusLabel(String status) => switch (status) {
+    'processing' => 'In progress',
+    'completed' => 'Completed',
+    'cancelled' => 'Cancelled',
+    'refunded' => 'Refunded',
+    _ => status,
+  };
+
+  static String _stepLabel(String step) => switch (step) {
+    'received' => 'New',
+    'preparing' => 'Preparing',
+    'ready' => 'Ready',
+    'out_for_delivery' => 'Out for delivery',
+    'completed' => 'Completed',
+    'cancelled' => 'Cancelled',
+    _ => step,
+  };
+
+  static String _apptLabel(String status) => switch (status) {
+    'pending' => 'To confirm',
+    'approved' => 'Confirmed',
+    'rejected' => 'Declined',
+    'cancelled' => 'Cancelled',
+    'completed' => 'Completed',
+    'no_show' => 'No-show',
+    _ => status,
+  };
+
+  static List<String> _apptNext(String status) => switch (status) {
+    'pending' => const ['approved', 'rejected'],
+    'approved' => const ['completed', 'no_show', 'cancelled'],
+    _ => const [],
+  };
+
+  Session _session() {
+    _sessions += 1;
+    return Session(
+      accessToken: 'access-$_sessions',
+      accessExpiresAt: DateTime.now().toUtc().add(const Duration(minutes: 15)),
+      refreshToken: 'refresh-$_sessions',
+      refreshExpiresAt: DateTime.now().toUtc().add(const Duration(days: 60)),
+      deviceId: 'd0000000-0000-4000-8000-000000000001',
+      accountState: state,
+    );
+  }
+
+  // Auth
+
+  @override
+  Future<Session> signIn({
+    required String email,
+    required String password,
+    required DeviceInfo device,
+  }) async {
+    await _call('signIn', needsActive: false);
+    if (email.trim().toLowerCase() != demoEmail || password != demoPassword) {
+      throw const ApiException(
+        code: ApiException.invalidCredentials,
+        message: 'The email or password is incorrect.',
+        statusCode: 401,
+      );
+    }
+    if (staffOnly) {
+      throw const ApiException(
+        code: ApiException.useWebsite,
+        message: 'This account has no apps. Use yallapp.com.tr.',
+        statusCode: 403,
+      );
+    }
+    devicesList.removeWhere((d) => d.current);
+    devicesList.insert(
+      0,
+      Device(
+        id: 'd0000000-0000-4000-8000-000000000001',
+        name: device.name,
+        platform: device.platform,
+        appVersion: device.appVersion,
+        createdAt: DateTime.now().toUtc(),
+        lastSeenAt: DateTime.now().toUtc(),
+        current: true,
+        push: false,
+      ),
+    );
+    return _session();
+  }
+
+  @override
+  Future<Session> refresh(String refreshToken) async {
+    await _call('refresh', needsActive: false);
+    return _session();
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _call('signOut', needsActive: false);
+    devicesList.removeWhere((d) => d.current);
+  }
+
+  @override
+  Future<void> signOutAll() async {
+    await _call('signOutAll', needsActive: false);
+    devicesList.clear();
+  }
+
+  @override
+  Future<String> passwordResetLink() async {
+    await _call('passwordResetLink', needsActive: false);
+    return 'https://yallapp.com.tr/forgot-password';
+  }
+
+  // Account
+
+  @override
+  Future<Me> me() async {
+    await _call('me', needsActive: false);
+    return Me(
+      user: OwnerUser(
+        id: 'u0000000-0000-4000-8000-000000000001',
+        name: 'Layla Haddad',
+        email: demoEmail,
+        language: language,
+      ),
+      state: state,
+      stateMessage: state.blocked ? stateMessage : null,
+      apps: state.blocked ? const [] : apps,
+      links: const MeLinks(
+        dashboard: 'https://yallapp.com.tr/dashboard',
+        supportWhatsapp: 'https://wa.me/201000000000',
+        supportEmail: 'info@yallapp.com.tr',
+      ),
+    );
+  }
+
+  @override
+  Future<Me> setLanguage(String? language) async {
+    await _call('setLanguage', needsActive: false);
+    this.language = language;
+    return me();
+  }
+
+  @override
+  Future<List<Device>> devices() async {
+    await _call('devices', needsActive: false);
+    return List.of(devicesList);
+  }
+
+  @override
+  Future<void> signOutDevice(String deviceId) async {
+    await _call('signOutDevice', needsActive: false);
+    final before = devicesList.length;
+    devicesList.removeWhere((d) => d.id == deviceId);
+    if (devicesList.length == before) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+  }
+
+  @override
+  Future<void> setPushToken(String token, {String provider = 'fcm'}) async {
+    await _call('setPushToken', needsActive: false);
+    pushToken = token;
+  }
+
+  @override
+  Future<void> deletePushToken() async {
+    await _call('deletePushToken', needsActive: false);
+    pushToken = null;
+  }
+
+  @override
+  Future<PushPreferences> pushPreferences() async {
+    await _call('pushPreferences', needsActive: false);
+    return PushPreferences({
+      for (final kind in PushKind.values) kind: preferences.isOn(kind),
+    });
+  }
+
+  @override
+  Future<PushPreferences> setPushPreferences(PushPreferences value) async {
+    await _call('setPushPreferences', needsActive: false);
+    preferences = PushPreferences({...preferences.values, ...value.values});
+    return pushPreferences();
+  }
+
+  @override
+  Future<AppSummary> app(String appId) async {
+    await _call('app');
+    return _app(appId);
+  }
+
+  // Updates
+
+  @override
+  Future<UpdatesList> updates() async {
+    await _call('updates');
+    return UpdatesList(
+      unread: updatesList.where((u) => u.unread && u.current).length,
+      items: List.of(updatesList),
+    );
+  }
+
+  @override
+  Future<int> markUpdatesRead({
+    List<String> keys = const [],
+    bool all = false,
+  }) async {
+    await _call('markUpdatesRead');
+    for (var i = 0; i < updatesList.length; i++) {
+      if (all || keys.contains(updatesList[i].key)) {
+        updatesList[i] = updatesList[i].read();
+      }
+    }
+    return updatesList.where((u) => u.unread && u.current).length;
+  }
+
+  // Today
+
+  @override
+  Future<Today> today(String appId) async {
+    await _call('today');
+    final app = _app(appId);
+    final f = app.features;
+    final orders = _orders[appId] ?? const [];
+    final processing = orders.where((o) => o.status == 'processing').length;
+    final toConfirm = (_appointments[appId] ?? const [])
+        .where((a) => a.status == 'pending')
+        .length;
+    final unanswered = (_inquiries[appId] ?? const [])
+        .where((i) => i.inquiry.unread > 0)
+        .length;
+    return Today(
+      date: _day(now),
+      timeZone: 'Europe/Istanbul',
+      sales: f.orders ? [money(orders.length * 48500)] : const [],
+      donations: f.donations ? [money(185000, 'EGP')] : const [],
+      counts: TodayCounts(
+        orders: f.orders ? orders.length : null,
+        appointments: f.appointments
+            ? (_appointments[appId] ?? const []).length
+            : null,
+        tickets: f.events ? 12 : null,
+        checkIns: f.checkIn ? 24 : null,
+        donations: f.donations ? 9 : null,
+        newUsers: f.appUsers ? 7 : null,
+        appOpens: f.analytics ? 342 : null,
+      ),
+      hasAppOpens: f.analytics,
+      needsYou: [
+        if (processing > 0)
+          NeedsYou(
+            kind: 'orders_in_progress',
+            count: processing,
+            title: '$processing orders in progress',
+          ),
+        if (toConfirm > 0)
+          NeedsYou(
+            kind: 'appointments_to_confirm',
+            count: toConfirm,
+            title: '$toConfirm appointments to confirm',
+          ),
+        if (unanswered > 0)
+          NeedsYou(
+            kind: 'unanswered_messages',
+            count: unanswered,
+            title: '$unanswered unanswered messages',
+          ),
+        if (app.state == AccountState.expired)
+          const NeedsYou(
+            kind: 'notice',
+            count: 1,
+            title: "The app's plan has ended",
+            noticeId: 3,
+          ),
+      ],
+    );
+  }
+
+  // Orders
+
+  @override
+  Future<Paged<Order>> orders(
+    String appId, {
+    List<String> statuses = const [],
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    await _call('orders');
+    _app(appId, (f) => f.orders);
+    final all = (_orders[appId] ?? const [])
+        .where((o) => statuses.isEmpty || statuses.contains(o.status))
+        .toList();
+    return _page(all, page, perPage);
+  }
+
+  Paged<T> _page<T>(List<T> all, int page, int perPage) {
+    final start = (page - 1) * perPage;
+    return Paged(
+      items: all.skip(start).take(perPage).toList(),
+      page: page,
+      perPage: perPage,
+      total: all.length,
+      totalPages: all.isEmpty ? 1 : (all.length / perPage).ceil(),
+    );
+  }
+
+  Order _detail(String appId, Order o) {
+    final refunded = o.refunds.fold(0, (n, r) => n + r.amount.amountCents);
+    final left = o.total.amountCents - refunded;
+    final refundable = left > 0 && o.status != 'cancelled';
+    return Order(
+      id: o.id,
+      number: o.number,
+      status: o.status,
+      statusLabel: o.statusLabel,
+      kitchen: o.kitchen,
+      total: o.total,
+      refunded: refunded > 0 ? money(refunded, o.total.currency) : null,
+      lines: o.lines,
+      customer: o.customer,
+      createdAt: o.createdAt,
+      paidAt: o.paidAt,
+      nextStatuses: o.nextStatuses,
+      refunds: o.refunds,
+      refund: RefundOptions(
+        refundable: refundable,
+        why: refundable ? null : 'Nothing is left to refund on this order.',
+        provider: 'iyzico',
+        left: money(left, o.total.currency),
+        byApi: true,
+        manual: true,
+        reasons: const [
+          IdLabel(id: 'buyer_request', label: 'The buyer asked'),
+          IdLabel(id: 'double_payment', label: 'Paid twice'),
+          IdLabel(id: 'fraud', label: 'Fraud'),
+          IdLabel(id: 'other', label: 'Other'),
+        ],
+        tickets: appId == eventsId
+            ? const [Takeable(id: 1, label: 'Ticket A7K2-9QXM')]
+            : const [],
+      ),
+    );
+  }
+
+  Order _find(String appId, int orderId) {
+    final found = (_orders[appId] ?? const []).where((o) => o.id == orderId);
+    if (found.isEmpty) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found.first;
+  }
+
+  void _replace(String appId, Order order) {
+    final list = _orders[appId]!;
+    list[list.indexWhere((o) => o.id == order.id)] = order;
+  }
+
+  @override
+  Future<Order> order(String appId, int orderId) async {
+    await _call('order');
+    _app(appId, (f) => f.orders);
+    return _detail(appId, _find(appId, orderId));
+  }
+
+  @override
+  Future<Order> changeOrderStatus(
+    String appId,
+    int orderId,
+    String status,
+  ) async {
+    await _call('changeOrderStatus:$status');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    if (!o.nextStatuses.contains(status)) {
+      throw const ApiException(
+        code: 'invalid_status',
+        message: "This order can't move to that status now.",
+        statusCode: 409,
+      );
+    }
+    final kitchen = o.kitchen;
+    final finalStatus = switch (status) {
+      'completed' => 'completed',
+      'cancelled' => 'cancelled',
+      _ => 'processing',
+    };
+    final next = kitchen == null || finalStatus != 'processing'
+        ? const <String>[]
+        : switch (status) {
+            'preparing' => ['ready', 'cancelled'],
+            'ready' => [
+              if (kitchen.type == 'delivery')
+                'out_for_delivery'
+              else
+                'completed',
+              'cancelled',
+            ],
+            'out_for_delivery' => ['completed', 'cancelled'],
+            _ => const <String>[],
+          };
+    final updated = Order(
+      id: o.id,
+      number: o.number,
+      status: finalStatus,
+      statusLabel: _statusLabel(finalStatus),
+      kitchen: kitchen == null
+          ? null
+          : OrderKitchen(
+              type: kitchen.type,
+              step: status,
+              stepLabel: _stepLabel(status),
+            ),
+      total: o.total,
+      refunded: o.refunded,
+      lines: o.lines,
+      customer: o.customer,
+      createdAt: o.createdAt,
+      paidAt: o.paidAt,
+      nextStatuses: next,
+      refunds: o.refunds,
+    );
+    _replace(appId, updated);
+    return _detail(appId, updated);
+  }
+
+  @override
+  Future<RefundResult> refundOrder(
+    String appId,
+    int orderId,
+    RefundRequest request,
+  ) async {
+    await _call('refundOrder');
+    _app(appId, (f) => f.orders);
+    final o = _find(appId, orderId);
+    final options = _detail(appId, o).refund!;
+    final cents = ((double.tryParse(request.amount) ?? 0) * 100).round();
+    if (!options.refundable) {
+      throw ApiException(
+        code: 'not_refundable',
+        message: options.why ?? '',
+        statusCode: 409,
+      );
+    }
+    if (cents <= 0 || cents > options.left.amountCents) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Check the amount.',
+        statusCode: 400,
+        fieldErrors: {'amount': 'Enter an amount up to what is left.'},
+      );
+    }
+    final refunds = [
+      ...o.refunds,
+      Refund(
+        id: _nextId++,
+        amount: money(cents, o.total.currency),
+        reason: request.reason,
+        method: request.method,
+        createdAt: DateTime.now().toUtc(),
+      ),
+    ];
+    final whole =
+        refunds.fold(0, (n, r) => n + r.amount.amountCents) >=
+        o.total.amountCents;
+    final updated = Order(
+      id: o.id,
+      number: o.number,
+      status: whole ? 'refunded' : o.status,
+      statusLabel: _statusLabel(whole ? 'refunded' : o.status),
+      kitchen: o.kitchen,
+      total: o.total,
+      lines: o.lines,
+      customer: o.customer,
+      createdAt: o.createdAt,
+      paidAt: o.paidAt,
+      nextStatuses: whole ? const [] : o.nextStatuses,
+      refunds: refunds,
+    );
+    _replace(appId, updated);
+    return RefundResult(
+      message:
+          'Refunded ${money(cents, o.total.currency).formatted}. The customer gets an email.',
+      order: _detail(appId, updated),
+    );
+  }
+
+  // Appointments
+
+  @override
+  Future<AppointmentsPage> appointments(
+    String appId, {
+    String scope = 'upcoming',
+    List<String> statuses = const [],
+    int page = 1,
+  }) async {
+    await _call('appointments:$scope');
+    _app(appId, (f) => f.appointments);
+    final today = _day(now);
+    final all = (_appointments[appId] ?? const []).where((a) {
+      if (statuses.isNotEmpty && !statuses.contains(a.status)) return false;
+      return switch (scope) {
+        'today' => a.localDate == today,
+        'past' => a.startAt.isBefore(now.toUtc()),
+        _ => !a.startAt.isBefore(now.toUtc()),
+      };
+    }).toList();
+    return AppointmentsPage(
+      page: _page(all, page, 20),
+      timeZone: 'Africa/Cairo',
+    );
+  }
+
+  @override
+  Future<Appointment> changeAppointmentStatus(
+    String appId,
+    int appointmentId,
+    String status,
+  ) async {
+    await _call('changeAppointmentStatus:$status');
+    _app(appId, (f) => f.appointments);
+    final list = _appointments[appId]!;
+    final i = list.indexWhere((a) => a.id == appointmentId);
+    if (i < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    final a = list[i];
+    if (!a.nextStatuses.contains(status)) {
+      throw const ApiException(
+        code: 'invalid_status',
+        message: "This appointment can't change that way now.",
+        statusCode: 409,
+      );
+    }
+    final updated = Appointment(
+      id: a.id,
+      status: status,
+      statusLabel: _apptLabel(status),
+      service: a.service,
+      staff: a.staff,
+      customerName: a.customerName,
+      customerPhone: a.customerPhone,
+      customerEmail: a.customerEmail,
+      startAt: a.startAt,
+      endAt: a.endAt,
+      localDate: a.localDate,
+      localTime: a.localTime,
+      price: a.price,
+      notes: a.notes,
+      answers: a.answers,
+      nextStatuses: _apptNext(status),
+    );
+    list[i] = updated;
+    return updated;
+  }
+
+  // Events
+
+  @override
+  Future<EventsList> events(String appId, {String scope = 'open'}) async {
+    await _call('events');
+    _app(appId, (f) => f.events);
+    return EventsList(
+      items: List.of(_events[appId] ?? const []),
+      timeZone: 'Africa/Cairo',
+    );
+  }
+
+  @override
+  Future<CheckIn> checkIn(String appId, String code, {int? eventId}) async {
+    await _call('checkIn');
+    _app(appId, (f) => f.checkIn);
+    final key = code.trim().toUpperCase().startsWith('YT1.')
+        ? code.trim()
+        : code.trim().toUpperCase();
+    final ticket = _tickets[key] ?? _tickets[code.trim()];
+    if (ticket == null) {
+      return CheckIn(
+        outcome: code.contains('.') ? 'forged' : 'not_found',
+        admitted: false,
+        message: code.contains('.')
+            ? "This code wasn't made by this app."
+            : 'No ticket has this code.',
+      );
+    }
+    final event = (_events[appId] ?? const []).firstWhere(
+      (e) => e.id == ticket.eventId,
+    );
+    final info = TicketInfo(
+      code: key,
+      holderName: ticket.holder,
+      typeName: 'Standard',
+      eventId: event.id,
+      eventTitle: event.title,
+      usedAt: ticket.usedAt,
+    );
+    if (eventId != null && eventId != ticket.eventId) {
+      return CheckIn(
+        outcome: 'other_event',
+        admitted: false,
+        message: 'This ticket is for ${event.title}.',
+        ticket: info,
+      );
+    }
+    if (ticket.usedAt != null) {
+      return CheckIn(
+        outcome: 'used',
+        admitted: false,
+        message: 'Already used.',
+        ticket: info,
+      );
+    }
+    final at = DateTime.now().toUtc();
+    _tickets[key] = (
+      eventId: ticket.eventId,
+      holder: ticket.holder,
+      usedAt: at,
+    );
+    final list = _events[appId]!;
+    final i = list.indexWhere((e) => e.id == event.id);
+    list[i] = EventSummary(
+      id: event.id,
+      title: event.title,
+      status: event.status,
+      startAt: event.startAt,
+      endAt: event.endAt,
+      venue: event.venue,
+      valid: event.valid - 1,
+      used: event.used + 1,
+      capacity: event.capacity,
+    );
+    return CheckIn(
+      outcome: 'admitted',
+      admitted: true,
+      message: 'Welcome, ${ticket.holder}.',
+      ticket: TicketInfo(
+        code: key,
+        holderName: ticket.holder,
+        typeName: 'Standard',
+        eventId: event.id,
+        eventTitle: event.title,
+        usedAt: at,
+      ),
+    );
+  }
+
+  // Donations
+
+  @override
+  Future<DonationsPage> donations(
+    String appId, {
+    int? campaignId,
+    int page = 1,
+  }) async {
+    await _call('donations');
+    _app(appId, (f) => f.donations);
+    final all = (_donations[appId] ?? const [])
+        .where((d) => campaignId == null || d.campaignId == campaignId)
+        .toList();
+    return DonationsPage(
+      page: _page(all, page, 20),
+      campaigns: _campaigns[appId] ?? const [],
+    );
+  }
+
+  // Catalog
+
+  @override
+  Future<List<Product>> products(String appId) async {
+    await _call('products');
+    _app(appId, (f) => f.products);
+    return List.of(_products[appId] ?? const []);
+  }
+
+  @override
+  Future<Product> updateProduct(
+    String appId,
+    int productId,
+    ProductPatch patch,
+  ) async {
+    await _call('updateProduct');
+    _app(appId, (f) => f.products);
+    final list = _products[appId]!;
+    final i = list.indexWhere((p) => p.id == productId);
+    if (i < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    final p = list[i];
+    int? cents(String? major) =>
+        major == null ? null : ((double.tryParse(major) ?? -1) * 100).round();
+    final price = cents(patch.price) ?? p.price.amountCents;
+    final sale = patch.clearSalePrice
+        ? null
+        : (cents(patch.salePrice) ?? p.salePrice?.amountCents);
+    final errors = <String, String>{
+      if (price <= 0) 'price': 'Enter a price above zero.',
+      if (sale != null && sale >= price)
+        'sale_price': 'The sale price must be lower than the price.',
+      if (patch.stock != null && (patch.stock! < 0 || patch.stock! > 1000000))
+        'stock': 'Enter a whole number from 0 to 1,000,000.',
+    };
+    if (errors.isNotEmpty) {
+      throw ApiException(
+        code: ApiException.invalidRequest,
+        message: errors.values.first,
+        statusCode: 400,
+        fieldErrors: errors,
+      );
+    }
+    final updated = Product(
+      id: p.id,
+      name: p.name,
+      price: money(price, p.price.currency),
+      salePrice: sale == null ? null : money(sale, p.price.currency),
+      stock: patch.unlimitedStock ? null : (patch.stock ?? p.stock),
+      available: patch.available ?? p.available,
+      imageUrl: p.imageUrl,
+      sales: p.sales,
+    );
+    list[i] = updated;
+    return updated;
+  }
+
+  @override
+  Future<List<Course>> courses(String appId) async {
+    await _call('courses');
+    _app(appId, (f) => f.courses);
+    return List.of(_courses[appId] ?? const []);
+  }
+
+  Course _course(String appId, int courseId) {
+    final found = (_courses[appId] ?? const []).where((c) => c.id == courseId);
+    if (found.isEmpty) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return found.first;
+  }
+
+  void _putCourse(String appId, Course course) {
+    final list = _courses[appId]!;
+    list[list.indexWhere((c) => c.id == course.id)] = course;
+  }
+
+  @override
+  Future<Course> updateCourse(
+    String appId,
+    int courseId, {
+    required bool published,
+  }) async {
+    await _call('updateCourse');
+    _app(appId, (f) => f.courses);
+    final c = _course(appId, courseId);
+    final updated = Course(
+      id: c.id,
+      title: c.title,
+      published: published,
+      price: c.price,
+      students: c.students,
+      topics: c.topics,
+    );
+    _putCourse(appId, updated);
+    return updated;
+  }
+
+  @override
+  Future<Course> addLesson(
+    String appId,
+    int courseId,
+    int topicId,
+    LessonRequest lesson,
+  ) async {
+    await _call('addLesson');
+    _app(appId, (f) => f.courses);
+    final title = lesson.title.trim();
+    if (title.length < 2 || title.length > 120) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Give the lesson a title of 2 to 120 characters.',
+        statusCode: 400,
+        fieldErrors: {
+          'title': 'Give the lesson a title of 2 to 120 characters.',
+        },
+      );
+    }
+    final c = _course(appId, courseId);
+    final updated = Course(
+      id: c.id,
+      title: c.title,
+      published: c.published,
+      price: c.price,
+      students: c.students,
+      topics: [
+        for (final t in c.topics)
+          t.id != topicId
+              ? t
+              : Topic(
+                  id: t.id,
+                  title: t.title,
+                  lessons: [
+                    ...t.lessons,
+                    Lesson(
+                      id: _nextId++,
+                      title: title,
+                      video: lesson.videoMediaId != null
+                          ? 'media'
+                          : (lesson.videoUrl != null ? 'link' : 'none'),
+                      mediaId: lesson.videoMediaId,
+                      durationMinutes: lesson.durationMinutes,
+                      preview: lesson.preview,
+                    ),
+                  ],
+                ),
+      ],
+    );
+    _putCourse(appId, updated);
+    return updated;
+  }
+
+  @override
+  Future<List<Article>> articles(String appId) async {
+    await _call('articles');
+    _app(appId, (f) => f.articles);
+    return List.of(_articles[appId] ?? const []);
+  }
+
+  @override
+  Future<Article> updateArticle(
+    String appId,
+    int articleId, {
+    String? status,
+    bool? featured,
+  }) async {
+    await _call('updateArticle');
+    _app(appId, (f) => f.articles);
+    final list = _articles[appId]!;
+    final i = list.indexWhere((a) => a.id == articleId);
+    final a = list[i];
+    final updated = Article(
+      id: a.id,
+      title: a.title,
+      status: status ?? a.status,
+      featured: featured ?? a.featured,
+      publishedAt: status == 'published'
+          ? (a.publishedAt ?? DateTime.now().toUtc())
+          : a.publishedAt,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    list[i] = updated;
+    return updated;
+  }
+
+  @override
+  Future<List<Listing>> listings(String appId) async {
+    await _call('listings');
+    _app(appId, (f) => f.listings);
+    return List.of(_listings[appId] ?? const []);
+  }
+
+  @override
+  Future<Listing> updateListing(
+    String appId,
+    int listingId, {
+    String? status,
+    bool? featured,
+  }) async {
+    await _call('updateListing');
+    _app(appId, (f) => f.listings);
+    final list = _listings[appId]!;
+    final i = list.indexWhere((l) => l.id == listingId);
+    final l = list[i];
+    final updated = Listing(
+      id: l.id,
+      title: l.title,
+      status: status ?? l.status,
+      featured: featured ?? l.featured,
+      price: l.price,
+      city: l.city,
+    );
+    list[i] = updated;
+    return updated;
+  }
+
+  // Media
+
+  Storage _storage(String appId) {
+    final used = (_media[appId] ?? const []).fold(0, (n, m) => n + m.sizeBytes);
+    const limit = 20 * 1000 * 1000 * 1000;
+    return Storage(
+      usedBytes: used,
+      limitBytes: limit,
+      used: '${(used / 1e9).toStringAsFixed(1)} GB',
+      limit: '20 GB',
+      full: used >= limit,
+      manageUrl: 'https://yallapp.com.tr/dashboard/media',
+    );
+  }
+
+  @override
+  Future<MediaList> media(String appId, {String? kind}) async {
+    await _call('media');
+    _app(appId, (f) => f.media);
+    return MediaList(
+      items: (_media[appId] ?? const [])
+          .where((m) => kind == null || m.kind == kind)
+          .toList(),
+      storage: _storage(appId),
+    );
+  }
+
+  @override
+  Future<Upload> startUpload(
+    String appId, {
+    required String name,
+    required int size,
+    required String type,
+  }) async {
+    await _call('startUpload');
+    final app = _app(appId, (f) => f.media);
+    if (app.state == AccountState.expired) {
+      throw const ApiException(
+        code: ApiException.planNotActive,
+        message: "Uploads start once the app's plan is active.",
+        statusCode: 403,
+      );
+    }
+    final kind = type.startsWith('video/')
+        ? 'video'
+        : (type.startsWith('image/')
+              ? 'image'
+              : (type == 'application/pdf' ? 'pdf' : null));
+    if (kind == null) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: "This kind of file can't go in Media.",
+        statusCode: 400,
+      );
+    }
+    final id =
+        'f${(_nextId++).toString().padLeft(7, '0')}-0000-4000-8000-000000000000';
+    _media
+        .putIfAbsent(appId, () => [])
+        .insert(
+          0,
+          MediaFile(
+            id: id,
+            name: name,
+            kind: kind,
+            contentType: type,
+            sizeBytes: size,
+            status: 'uploading',
+            public: false,
+            link: 'https://yallapp.com.tr/m/$id',
+            createdAt: DateTime.now().toUtc(),
+          ),
+        );
+    uploads[id] = (appId: appId, size: size, bytes: <int>[]);
+    return Upload(
+      id: id,
+      uploadUrl: 'https://media.example/u/$appId/$id?size=$size',
+      chunkBytes: 5 * 1024 * 1024,
+      size: size,
+    );
+  }
+
+  @override
+  Future<Upload> resumeUpload(String appId, String mediaId) async {
+    await _call('resumeUpload');
+    _app(appId, (f) => f.media);
+    final upload = uploads[mediaId];
+    if (upload == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return Upload(
+      id: mediaId,
+      uploadUrl: 'https://media.example/u/$appId/$mediaId?size=${upload.size}',
+      chunkBytes: 5 * 1024 * 1024,
+      size: upload.size,
+    );
+  }
+
+  @override
+  Future<MediaFile> completeUpload(String appId, String mediaId) async {
+    await _call('completeUpload');
+    _app(appId, (f) => f.media);
+    final upload = uploads[mediaId];
+    if (upload == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (upload.bytes.length < upload.size) {
+      throw ApiException(
+        code: ApiException.incomplete,
+        message: 'The file has not all arrived.',
+        statusCode: 409,
+        fieldErrors: {'offset': '${upload.bytes.length}'},
+      );
+    }
+    uploads.remove(mediaId);
+    final list = _media[appId]!;
+    final i = list.indexWhere((m) => m.id == mediaId);
+    final m = list[i];
+    final ready = MediaFile(
+      id: m.id,
+      name: m.name,
+      kind: m.kind,
+      contentType: m.contentType,
+      sizeBytes: m.sizeBytes,
+      status: 'ready',
+      public: m.public,
+      link: m.link,
+      createdAt: m.createdAt,
+    );
+    list[i] = ready;
+    return ready;
+  }
+
+  @override
+  Future<void> deleteMedia(String appId, String mediaId) async {
+    await _call('deleteMedia');
+    _app(appId, (f) => f.media);
+    uploads.remove(mediaId);
+    _media[appId]?.removeWhere((m) => m.id == mediaId);
+  }
+
+  /// The media gate of this fake.
+  late final UploadTransport transport = _FakeTransport(this);
+
+  // Messages
+
+  @override
+  Future<InquiriesPage> inquiries(
+    String appId, {
+    String? status,
+    int page = 1,
+  }) async {
+    await _call('inquiries');
+    _app(appId, (f) => f.inquiries);
+    final all = (_inquiries[appId] ?? const [])
+        .where((i) => status == null || i.inquiry.status == status)
+        .map((i) => i.inquiry)
+        .toList();
+    return InquiriesPage(
+      page: _page(all, page, 20),
+      unread: (_inquiries[appId] ?? const [])
+          .where((i) => i.inquiry.unread > 0)
+          .length,
+    );
+  }
+
+  InquiryDetail _withInquiry(
+    InquiryDetail d, {
+    int? unread,
+    String? status,
+    List<InquiryMessage>? messages,
+  }) {
+    final i = d.inquiry;
+    final list = messages ?? d.messages;
+    return InquiryDetail(
+      inquiry: Inquiry(
+        id: i.id,
+        listingId: i.listingId,
+        listingTitle: i.listingTitle,
+        person: i.person,
+        status: status ?? i.status,
+        lastMessage: list.isEmpty ? i.lastMessage : list.last.text,
+        unread: unread ?? i.unread,
+        updatedAt: list.isEmpty ? i.updatedAt : list.last.createdAt,
+      ),
+      phone: d.phone,
+      email: d.email,
+      messages: list,
+    );
+  }
+
+  @override
+  Future<InquiryDetail> inquiry(String appId, int inquiryId) async {
+    await _call('inquiry');
+    _app(appId, (f) => f.inquiries);
+    final list = _inquiries[appId]!;
+    final i = list.indexWhere((d) => d.inquiry.id == inquiryId);
+    if (i < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    list[i] = _withInquiry(list[i], unread: 0);
+    return list[i];
+  }
+
+  @override
+  Future<InquiryDetail> replyInquiry(
+    String appId,
+    int inquiryId,
+    String text,
+  ) async {
+    await _call('replyInquiry');
+    _app(appId, (f) => f.inquiries);
+    final list = _inquiries[appId]!;
+    final i = list.indexWhere((d) => d.inquiry.id == inquiryId);
+    list[i] = _withInquiry(
+      list[i],
+      status: 'open',
+      messages: [
+        ...list[i].messages,
+        InquiryMessage(
+          id: _nextId++,
+          fromOffice: true,
+          text: text,
+          createdAt: DateTime.now().toUtc(),
+        ),
+      ],
+    );
+    return list[i];
+  }
+
+  // App users
+
+  @override
+  Future<AppUsersPage> appUsers(
+    String appId, {
+    String? query,
+    int page = 1,
+  }) async {
+    await _call('appUsers');
+    _app(appId, (f) => f.appUsers);
+    final all = _users[appId] ?? const [];
+    final q = query?.trim().toLowerCase() ?? '';
+    final matches = all.where((u) {
+      if (q.isEmpty) return true;
+      return u.name.toLowerCase().contains(q) ||
+          (u.email ?? '').toLowerCase().contains(q) ||
+          (u.phone ?? '').replaceAll(' ', '').contains(q.replaceAll(' ', ''));
+    }).toList();
+    return AppUsersPage(page: _page(matches, page, 20), count: all.length);
+  }
+
+  // Analytics
+
+  @override
+  Future<Analytics> analytics(
+    String appId, {
+    String range = '30',
+    String? from,
+    String? to,
+  }) async {
+    await _call('analytics:$range');
+    _app(appId, (f) => f.analytics);
+    final days = switch (range) {
+      '7' => 7,
+      '90' => 90,
+      'custom' => 14,
+      _ => 30,
+    };
+    final daily = [
+      for (var i = days - 1; i >= 0; i--)
+        DailyPoint(
+          day: _day(now.subtract(Duration(days: i))),
+          active: 80 + ((i * 37) % 60),
+          installs: 3 + (i * 7) % 9,
+          sessions: 150 + ((i * 53) % 90),
+        ),
+    ];
+    return Analytics(
+      preset: range,
+      from: daily.first.day,
+      to: daily.last.day,
+      days: days,
+      timeZone: 'Europe/Istanbul',
+      hasData: true,
+      kpis: Kpis(
+        installs: daily.fold(0, (n, d) => n + d.installs),
+        activeAvg: 104.6,
+        weekly: 412,
+        monthly: 1290,
+        sessions: daily.fold(0, (n, d) => n + d.sessions),
+      ),
+      previous: const Kpis(
+        installs: 120,
+        activeAvg: 96.2,
+        weekly: 380,
+        monthly: 1210,
+        sessions: 5100,
+      ),
+      daily: daily,
+      retention: const [
+        Retention(days: 1, cohort: 120, returned: 54, rate: 0.45),
+        Retention(days: 7, cohort: 120, returned: 31, rate: 0.258),
+        Retention(days: 30, cohort: 90, returned: 14, rate: 0.156),
+      ],
+      platforms: const [
+        Share(key: 'android', label: 'Android', value: 820, share: 0.64),
+        Share(key: 'ios', label: 'iOS', value: 460, share: 0.36),
+      ],
+      countries: const [
+        Share(key: 'TR', label: 'Türkiye', value: 700, share: 0.55),
+        Share(key: 'EG', label: 'Egypt', value: 450, share: 0.35),
+        Share(key: 'DE', label: 'Germany', value: 130, share: 0.10),
+      ],
+      screens: const [
+        Share(key: 'home', label: 'Home', value: 3100, share: 0.5),
+        Share(key: 'menu', label: 'Menu', value: 1900, share: 0.3),
+        Share(key: 'cart', label: 'Cart', value: 1200, share: 0.2),
+      ],
+    );
+  }
+
+  // Notifications
+
+  @override
+  Future<SentNotifications> sentNotifications(String appId) async {
+    await _call('sentNotifications');
+    _app(appId, (f) => f.notifications);
+    return SentNotifications(
+      push: pushAvailable,
+      items: List.of(_sent[appId] ?? const []),
+    );
+  }
+
+  @override
+  Future<NotificationResult> sendNotification(
+    String appId, {
+    required String title,
+    required String body,
+  }) async {
+    await _call('sendNotification');
+    _app(appId, (f) => f.notifications);
+    if (_sentThisHour >= 10) {
+      throw const ApiException(
+        code: ApiException.rateLimited,
+        message: 'You can send 10 notifications an hour. Try again later.',
+        statusCode: 429,
+        retryAfterSeconds: 1800,
+      );
+    }
+    if (title.trim().isEmpty ||
+        title.length > 65 ||
+        body.trim().isEmpty ||
+        body.length > 240) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Check the title and the message.',
+        statusCode: 400,
+      );
+    }
+    _sentThisHour += 1;
+    _sent
+        .putIfAbsent(appId, () => [])
+        .insert(
+          0,
+          SentNotification(
+            id: _nextId++,
+            title: title,
+            body: body,
+            sentAt: DateTime.now().toUtc(),
+          ),
+        );
+    return NotificationResult(
+      message: 'Sent. Everyone sees it in the app’s inbox.',
+      pushed: pushAvailable ? 128 : 0,
+    );
+  }
+
+  // Publishing and license
+
+  @override
+  Future<Preview> preview(String appId, {bool draft = false}) async {
+    await _call('preview');
+    _app(appId, (f) => f.preview);
+    return Preview(
+      url:
+          'https://yallapp.com.tr/preview-app/?app=$appId${draft ? '&draft=1' : ''}',
+      expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+    );
+  }
+
+  @override
+  Future<Builds> builds(String appId) async {
+    await _call('builds');
+    _app(appId, (f) => f.builds);
+    return Builds(
+      items: [
+        Build(
+          id: 'b0000000-0000-4000-8000-000000000003',
+          number: 14,
+          version: '2.3.0',
+          status: 'building',
+          statusLabel: 'Building',
+          createdAt: _ago(const Duration(minutes: 20)),
+          files: const [],
+        ),
+        Build(
+          id: 'b0000000-0000-4000-8000-000000000002',
+          number: 13,
+          version: '2.2.1',
+          status: 'ready',
+          statusLabel: 'Ready',
+          createdAt: _ago(const Duration(days: 2)),
+          finishedAt: _ago(const Duration(days: 2)),
+          files: const [
+            BuildFile(
+              kind: 'aab',
+              label: 'Google Play (AAB)',
+              url: 'https://yallapp.com.tr/d/aab',
+            ),
+            BuildFile(
+              kind: 'ipa',
+              label: 'App Store (IPA)',
+              url: 'https://yallapp.com.tr/d/ipa',
+            ),
+          ],
+        ),
+        Build(
+          id: 'b0000000-0000-4000-8000-000000000001',
+          number: 12,
+          version: '2.2.0',
+          status: 'failed',
+          statusLabel: 'Failed',
+          message: 'The iOS signing certificate has expired.',
+          createdAt: _ago(const Duration(days: 9)),
+          finishedAt: _ago(const Duration(days: 9)),
+          files: const [],
+        ),
+      ],
+      publishingMode: 'managed',
+      stores: const [
+        StoreStatus(
+          store: 'Google Play',
+          status: 'Live',
+          url: 'https://play.google.com/store',
+        ),
+        StoreStatus(store: 'App Store', status: 'In review'),
+      ],
+    );
+  }
+
+  @override
+  Future<License> license(String appId) async {
+    await _call('license');
+    final app = _app(appId);
+    return License(
+      state: app.state,
+      plan: app.plan,
+      nextPlan: null,
+      features: const [
+        'Android and iOS apps',
+        'Push notifications',
+        '20 GB of Media',
+        'Up to 5,000 app users',
+      ],
+      storage: _storage(appId),
+      manageUrl: 'https://yallapp.com.tr/dashboard/license',
+    );
+  }
+}
+
+class _FakeTransport implements UploadTransport {
+  _FakeTransport(this._api);
+
+  final FakeOwnerApi _api;
+
+  /// Chunks to fail (by their offset) before they arrive, once each.
+  final failAt = <int>{};
+
+  String _id(String url) => Uri.parse(url).pathSegments.last;
+
+  @override
+  Future<int> offset(String uploadUrl) async =>
+      _api.uploads[_id(uploadUrl)]?.bytes.length ?? 0;
+
+  @override
+  Future<int> send(String uploadUrl, int offset, List<int> bytes) async {
+    final upload = _api.uploads[_id(uploadUrl)];
+    if (upload == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (failAt.remove(offset)) {
+      throw const ApiException(code: ApiException.serverError, statusCode: 503);
+    }
+    if (offset != upload.bytes.length) return upload.bytes.length;
+    upload.bytes.addAll(bytes);
+    return upload.bytes.length;
+  }
+}
+
+/// Lets tests make the fake gate fail a chunk.
+extension FakeTransportControl on FakeOwnerApi {
+  Set<int> get failChunksAt => (transport as _FakeTransport).failAt;
+}
