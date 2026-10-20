@@ -487,6 +487,17 @@ The app itself (`business/`, see its README). Store listings go under
       a ticket scanned at the door, an upload of a phone video to Media,
       and the app in Arabic.
 
+## 7m. Team members for clients (Phase 60)
+
+- [ ] Apply migration `0045_team_members.sql` after `0044` (`team_members`,
+      `team_invitations`, `team_activity`). Nothing else to set: the
+      invitation email uses the email server and the `team_invitation`
+      template (Admin › Emails), in English, Arabic and Turkish.
+- [ ] After deploying: invite a test address as Staff with Orders only from
+      a test client's Dashboard › Team, join from the email, check the
+      sidebar and Yallapp Business show only Orders, then remove them and
+      check the website and the phone sign out.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

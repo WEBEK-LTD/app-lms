@@ -1402,6 +1402,78 @@ Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
   notification › Later (date and time, the scheduled ones with Edit and
   Cancel), on the Owner API paths above.
 
+## Team members for clients (Phase 60)
+
+The people who work with a business owner sign in with their own email and
+password and see only what their role allows, on the dashboard, in the Owner
+API and in Yallapp Business. The admin stays as it was (Yallapp's team).
+
+- **Roles** (`lib/team/permissions.ts`, the one place that decides). The
+  client's own user is the **Owner**: everything. A **Manager** has every
+  area and the app's settings (`settings`: setup, pages, languages, builds,
+  publishing, app sign-in, protection, stability) but not what is the
+  owner's (`billing`: License & plugin, Yallapp's plans, storage packs,
+  receipts, and where a shop's or charity's money goes; `team`; `apps`:
+  adding or deleting apps, an app's type and content source). **Staff** have
+  only the areas the owner ticked (`orders`, `bookings`, `events`,
+  `donations`, `catalog`, `media`, `messages`, `app_users`, `analytics`,
+  `notifications`). Any member can be limited to some of the business's
+  apps; another app is as if it didn't exist. `teamCan(access, permission,
+  appId)` answers for everyone; Yallapp's team managing a dashboard has the
+  owner's access.
+- **Data** (migration `0045_team_members`): `team_members` (client, user,
+  role, areas, apps; the owner has no row), `team_invitations` (email, name,
+  role, areas, apps, the SHA-256 of the link's token, language, 7 days,
+  accepted or cancelled), `team_activity`. `lib/team/service.ts`: inviting
+  (refused for the owner's email, someone on the team, Yallapp's team and an
+  address with an invitation waiting; 20 an hour per business, 5 a day per
+  address), sending again (a new token, 7 more days), cancelling, joining
+  (`/team/join?token=`: a new account sets its name and password, an existing
+  one gives its password with the sign-in limits; the store marks the
+  invitation accepted with a conditional update, so a link works once),
+  changing access (read on every request, so it applies at once) and
+  removing: the person's session version goes up, so every website session
+  and Yallapp Business device of theirs stops on its next request, and their
+  phones signed in to that business are deleted.
+- **Dashboard.** `getClientContext` gives the signed-in person's `access`,
+  `member` (null for the owner and our team) and `businesses`: their own
+  client first, then the teams they joined; the one chosen with the switcher
+  is kept in `yallapp_business` (else the first active). Every page calls
+  `requireClient(permission)` with its address's permission
+  (`DASHBOARD_PATHS`); every client server action calls
+  `clientFor(permission)` before anything else; the download routes check
+  too. Without it the person goes to the overview, which says why. The
+  sidebar shows only what `pathPermission(href)` allows; Staff get their own
+  overview. Dashboard › Team (owner only) invites, lists the invitations,
+  changes access, removes and shows the activity. Someone on several
+  businesses picks one after signing in (`/dashboard/businesses`), with the
+  switcher above the app switcher, or on the waiting page. The bell reads for
+  the signed-in person; notices and builds show to those with `settings`,
+  Yallapp payments to the owner.
+- **Owner API.** A device is signed in to one business (`owner_devices.client_id`,
+  the person's own first) and only while they still work on it; `PUT
+  /me/business` moves it. `GET /me` gives `business`, `businesses` and
+  `AppSummary.access`; `features` lists what the app has and the role
+  allows. `appScope` refuses an area the role doesn't have with 403
+  `not_allowed`, routes without an area name theirs (License: `billing`; the
+  Team paths: `team`). Today counts only what the person has, and notices
+  for those with `settings`.
+- **Pushes** (`lib/owner/push.ts`): to every device signed in to the
+  business whose person (the owner, or a member) may see the push's area on
+  its app (`PUSH_PERMISSION`: a paid order to `orders`, a booking to
+  `bookings`, a message to `messages`, a donation to `donations`, a payment
+  to Yallapp to `billing`, builds and notices to `settings`, Yallapp's
+  updates to everyone), each in that person's language.
+- **Activity** (`lib/team/activity.ts`): order steps, refunds, appointment
+  steps and notifications sent, from the dashboard and the Owner API alike,
+  with who did them, and the team's own changes; one English line each,
+  translated on the Team page by the dashboard's `known` texts.
+- **Languages.** The dashboard's `team` catalog, the `team_invitation` email
+  in English, Arabic and Turkish (the invitee's language when they have an
+  account, else the owner's), the join page in the invitation's language,
+  Yallapp Business's `tool/strings_e.py`. The admin's client page lists the
+  team read-only, in English.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
