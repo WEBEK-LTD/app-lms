@@ -169,7 +169,17 @@ export async function completeUpload(deps: { store: DataStore; storage: MediaSto
 export async function deleteMedia(deps: { store: DataStore; storage: MediaStorage | null }, appId: string, id: string): Promise<boolean> {
   const file = await deps.store.getMediaFile(appId, id);
   if (!file) return false;
-  if (deps.storage) await deps.storage.delete(file.storageKey);
+  if (deps.storage) {
+    try {
+      await deps.storage.delete(file.storageKey);
+    } catch (e) {
+      // 64b An upload that never finished may have nothing on the server (or a gate that
+      // refused it): its record goes anyway, the daily job's folder sweep takes any leftover.
+      // A finished file stays until the server confirms it is gone.
+      if (file.status === "ready") throw e;
+      console.error(`[media] delete ${file.id}: ${e instanceof Error ? e.message : String(e)} (unfinished upload: removed anyway)`);
+    }
+  }
   await deps.store.deleteMediaFile(appId, id);
   return true;
 }
@@ -180,7 +190,10 @@ export async function cancelStaleUploads(deps: { store: DataStore; storage: Medi
   let cancelled = 0;
   for (const file of await deps.store.listStaleMediaUploads(before, 500)) {
     try {
-      if (deps.storage) await deps.storage.delete(file.storageKey);
+      if (deps.storage) {
+        // 64b Like a cancel: an unfinished upload's record goes even if the server refuses the delete.
+        await deps.storage.delete(file.storageKey).catch((e: unknown) => console.error(`[daily] media upload ${file.id}: ${e instanceof Error ? e.message : String(e)} (removed anyway)`));
+      }
       await deps.store.deleteMediaFile(file.appId, file.id);
       cancelled++;
     } catch (e) {

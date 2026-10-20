@@ -541,6 +541,20 @@ describe("the Media library (51)", () => {
     expect((await startUpload(deps(limit), { appId: app.id, name: "Lesson 2.mp4", size: GB, contentType: "video/mp4" })).ok).toBe(true);
   });
 
+  it("64b removes an unfinished upload even when the server refuses the delete, but keeps a finished file until it is gone", async () => {
+    const refusing = { ...storage, delete: async () => Promise.reject(new Error("The media server answered 404.")) } as MediaStorage;
+    const unfinished = await startUpload(deps(null), { appId: app.id, name: "Broken.jpg", size: 100, contentType: "image/jpeg" });
+    if (!unfinished.ok) throw new Error(unfinished.message);
+    expect(await deleteMedia({ store, storage: refusing }, app.id, unfinished.file.id)).toBe(true);
+    expect(await store.getMediaFile(app.id, unfinished.file.id)).toBeNull();
+    const done = await startUpload(deps(null), { appId: app.id, name: "Done.jpg", size: 100, contentType: "image/jpeg" });
+    if (!done.ok) throw new Error(done.message);
+    await uploadWhole(done.file.id, Buffer.alloc(100, 2));
+    expect(await completeUpload({ store, storage, now: NOW }, app.id, done.file.id)).toMatchObject({ ok: true });
+    await expect(deleteMedia({ store, storage: refusing }, app.id, done.file.id)).rejects.toThrow("404");
+    expect(await store.getMediaFile(app.id, done.file.id)).not.toBeNull();
+  });
+
   it("completes an upload only when the whole file is on the server", async () => {
     const started = await startUpload(deps(null), { appId: app.id, name: "Intro.mp4", size: 1000, contentType: "video/mp4" });
     if (!started.ok) throw new Error(started.message);
