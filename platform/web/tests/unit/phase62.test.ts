@@ -226,3 +226,37 @@ describe("62 screenshots of protected lessons", () => {
     expect(turkish.split("\r\n")[0]).toBe("Bölüm,Ad,Ayrıntı,Değer,Önceki dönem");
   });
 });
+
+describe("62 the donations' and attendees' CSV files", () => {
+  it("have their column names and words in the downloader's language", async () => {
+    const { donationsCsv } = await import("@/lib/donations/forms");
+    const k = knownTranslator("tr");
+    const file = donationsCsv(
+      [
+        {
+          id: 7,
+          appId: "app",
+          campaignId: 1,
+          campaignTitle: "Water wells",
+          userId: null,
+          amountCents: 10_000,
+          currency: "TRY",
+          recurring: "monthly",
+          donorName: "Ali",
+          donorEmail: "ali@example.com",
+          donorPhone: null,
+          anonymous: false,
+          message: null,
+          status: "paid",
+          createdAt: NOW,
+          paidAt: NOW,
+        } as unknown as Parameters<typeof donationsCsv>[0][number],
+      ],
+      k,
+    );
+    const [head, line] = file.replace(/^﻿/, "").split("\r\n");
+    expect(head).toBe("Referans,Tarih (UTC),Durum,Kampanya,Tutar,Para birimi,Tekrar,Bağışçı,E-posta,Telefon,Anonim,Mesaj");
+    expect(line).toContain(",ödendi,Water wells,100.00,TRY,Aylık,Ali,ali@example.com,,Hayır,");
+    expect(knownTranslator("ar")("Checked in at")).toBe("وقت الدخول");
+  });
+});

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { appUrl } from "@/lib/env";
 import { attendeesCsv } from "@/lib/events/attendees";
@@ -19,7 +20,7 @@ export async function GET(_: Request, { params }: RouteContext<"/api/dashboard/e
   if (!app || !event) return new Response("Not found.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
   const name = event.title.normalize("NFKD").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60).toLowerCase() || "event";
   // A byte order mark, so spreadsheets read names in any language correctly.
-  return new Response(`\uFEFF${await attendeesCsv(store, app, event)}`, {
+  return new Response(`\uFEFF${await attendeesCsv(store, app, event, (await dashboardText()).k)}`, {
     headers: {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": `attachment; filename="attendees-${name}.csv"`,
