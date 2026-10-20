@@ -121,7 +121,9 @@ tags:
       Course reviews and questions and answers. On Yallapp's hosted API
       (roadmap 63) the business answers questions and may reply to a review
       (`Review.reply`) or hide it from others (`hidden`, shown to its author
-      only).
+      only). Roadmap 64: the business may also hide a question or a single
+      answer (`CourseQuestion.hidden`, `QuestionAnswer.hidden`); a hidden
+      one reaches its author only, never other students' lists or counts.
   - name: Store
     description: |
       WooCommerce products, the cart and the checkout hand-off, for Store apps.
@@ -1071,7 +1073,7 @@ paths:
       tags: [Community]
       operationId: listQuestions
       summary: List a course's questions
-      description: Questions students asked in the course, newest first, without their answers. Enrolled students only.
+      description: Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others.
       parameters:
         - $ref: '#/components/parameters/CourseId'
         - $ref: '#/components/parameters/Page'
@@ -1121,6 +1123,7 @@ paths:
       tags: [Community]
       operationId: getQuestion
       summary: Get a question with its answers
+      description: A question the business hid (roadmap 64) is `404` to everyone but its author. Hidden answers are listed only for their author.
       parameters:
         - $ref: '#/components/parameters/QuestionId'
       responses:
@@ -2164,9 +2167,10 @@ paths:
         booked answers it again. Fails with `class_full` (409), `too_late`
         (409) once it has started or is closer than `min_minutes_ahead`,
         `class_cancelled` (409), `membership_required` (403) without an active
-        membership when the business asks for one, and `no_credits` (403) when
-        the membership's credits are used up. With a credit plan, one credit
-        is used.
+        membership when the business asks for one, `membership_frozen` (403,
+        roadmap 64) when the active memberships are frozen, and `no_credits`
+        (403) when the membership's credits are used up. With a credit plan,
+        one credit is used.
       parameters:
         - $ref: '#/components/parameters/ClassId'
       responses:
@@ -3258,6 +3262,7 @@ components:
             - class_full
             - class_cancelled
             - membership_required
+            - membership_frozen
             - no_credits
             - too_late
             - sold_out
@@ -4186,8 +4191,13 @@ components:
         text: { type: string }
         author: { $ref: '#/components/schemas/Person' }
         created_at: { type: string, format: date-time }
-        answer_count: { type: integer }
+        answer_count: { type: integer, description: The answers everyone sees (hidden answers aren't counted). }
         mine: { type: boolean }
+        hidden:
+          type: boolean
+          description: |
+            64 The business hid the question from others: only its author
+            gets it (`mine`), and the app tells them so. Missing: false.
 
     QuestionAnswer:
       type: object
@@ -4198,6 +4208,11 @@ components:
         author: { $ref: '#/components/schemas/Person' }
         created_at: { type: string, format: date-time }
         mine: { type: boolean }
+        hidden:
+          type: boolean
+          description: |
+            64 The business hid the answer from others: only its author gets
+            it (`mine`), and the app tells them so. Missing: false.
 
     CourseQuestionThread:
       allOf:
@@ -4616,6 +4631,20 @@ components:
         starts_at: { type: string, format: date-time }
         ends_at: { type: [string, 'null'], format: date-time, description: Null for a pack of classes. }
         credits_left: { type: [integer, 'null'], minimum: 0, description: Null for unlimited classes. }
+        frozen:
+          description: |
+            64 The gym froze the membership (Yallapp's hosted API): from
+            `from` (the member can't come in or book classes from then) until
+            `until`, the day it's back, or until the gym unfreezes it (null).
+            Its `ends_at` moves later by the days it was frozen. `status`
+            stays `active`. Null or missing: not frozen, and no freeze set.
+          oneOf:
+            - type: object
+              required: [from, until]
+              properties:
+                from: { type: string, format: date-time, description: The start of the first frozen day in the gym's time zone; may be later than now. }
+                until: { type: [string, 'null'], format: date-time, description: The start of the day it's back; null until the gym unfreezes it. }
+            - type: 'null'
         member_code:
           description: |
             63 What the member shows at the door, for an active membership of

@@ -48,7 +48,8 @@ info:
       same moments the dashboard and its emails learn of them. Each kind can be turned off per device. The data of
       each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
       ID (`order_id`, `appointment_id`, `inquiry_id`, `question_id`,
-      `review_id`, `build_id`, `donation_id`, `update_key`).
+      `review_id`, `build_id`, `donation_id`, `update_key`), and (roadmap 64)
+      the business it is about: `business_id` and `business_name`.
     - **Team members** (roadmap 60). The people who work with an owner sign
       in with their own email and password. Each has a role per business:
       `owner` (the client's own account: everything), `manager` (everything
@@ -62,7 +63,12 @@ info:
       Someone on several businesses works on one per device
       (`Me.business`), changed with `PUT /me/business`. Removing someone from
       the team signs them out everywhere at once (401 `invalid_token`).
-      Pushes reach only the devices whose person has the area of the push.
+      Pushes reach only the devices whose person has the area of the push
+      (and the push's app, when they're limited to some apps). Roadmap 64:
+      they reach every phone the person signed in on, whichever business it
+      is working on; a push of another business than the phone's starts its
+      title with that business's name, and the app switches to it
+      (`PUT /me/business`, with `business_id`) when it is tapped.
       The owner manages the team with the `Team` paths.
     - **Errors** are `{code, message}`; `message` is safe to show, in the
       person's language. 429 adds `retry_after_seconds` and `Retry-After`.
@@ -129,7 +135,9 @@ tags:
     description: |
       Conversations with the people using the app: a listing's inquiries
       (real estate), and (roadmap 63) the questions students ask in courses
-      managed in Yallapp, answered by the business (the Messages area).
+      managed in Yallapp, answered by the business (the Messages area). Roadmap
+      64: the business hides a question or a student's answer from others
+      (its author still sees it, with a note), and shows it again.
   - name: Reviews
     description: |
       63 Students' reviews of courses managed in Yallapp: the business
@@ -142,7 +150,10 @@ tags:
       checked with the app's key, or typed). A member is checked in once a
       day in the gym's time zone, however many phones scan at once; an
       expired, cancelled, not yet started or used-up membership doesn't get
-      in. The Bookings & appointments area.
+      in. Roadmap 64: a membership can be frozen from a day, until a day or
+      until it is unfrozen; while frozen the door answers `frozen` and the
+      member can't book classes, and its end moves later by the days it was
+      frozen. The Bookings & appointments area.
   - name: App users
     description: The people who signed in to an app on Yallapp's hosted API.
   - name: Analytics
@@ -314,7 +325,7 @@ paths:
       description: |
         For someone on more than one business (their own and the teams they
         joined, `Me.businesses`): this device works on that one from now on.
-        Its pushes follow it.
+        Pushes of all their businesses keep reaching it (roadmap 64).
       requestBody:
         required: true
         content:
@@ -1348,11 +1359,13 @@ paths:
         63 Questions students asked in courses managed in Yallapp (Dashboard ›
         Courses › Questions), the latest activity first. `open`: waiting for
         the business (new, or the student wrote again after its answer).
+        64 `open` and `answered` list the questions shown in the app;
+        `hidden` the ones the business hid; none: all of them.
       parameters:
         - $ref: '#/components/parameters/AppId'
         - name: status
           in: query
-          schema: { type: string, enum: [open, answered] }
+          schema: { type: string, enum: [open, answered, hidden] }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
       responses:
@@ -1366,7 +1379,7 @@ paths:
                   - type: object
                     required: [items, open]
                     properties:
-                      open: { type: integer, description: Questions waiting for the business. }
+                      open: { type: integer, description: Questions waiting for the business (64 not the hidden ones). }
                       items:
                         type: array
                         items: { $ref: '#/components/schemas/Question' }
@@ -1392,6 +1405,36 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Messages]
+      operationId: updateQuestion
+      summary: Hide a question, or show it again
+      description: |
+        64 A hidden question is seen only by its author in the app (with a
+        note), and isn't in other students' lists or counts; it stays here
+        with `hidden`. Hiding doesn't answer it.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hidden]
+              properties:
+                hidden: { type: boolean }
+      responses:
+        '200':
+          description: The question as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuestionDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /apps/{app_id}/questions/{question_id}/answers:
     post:
@@ -1414,6 +1457,39 @@ paths:
       responses:
         '201':
           description: Answered; the question as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuestionDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/questions/{question_id}/answers/{answer_id}:
+    patch:
+      tags: [Messages]
+      operationId: updateAnswer
+      summary: Hide a student's answer, or show it again
+      description: |
+        64 A hidden answer is seen only by its author in the app (with a
+        note), and isn't counted for others. The business's own answers
+        can't be hidden (400).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/QuestionId'
+        - $ref: '#/components/parameters/AnswerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hidden]
+              properties:
+                hidden: { type: boolean }
+      responses:
+        '200':
+          description: The question as it is now
           content:
             application/json:
               schema: { $ref: '#/components/schemas/QuestionDetail' }
@@ -1562,6 +1638,67 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/members/{membership_id}/freeze:
+    put:
+      tags: [Members]
+      operationId: freezeMember
+      summary: Freeze a membership
+      description: |
+        64 From `from` (today or a later day, within 90 days, in the gym's
+        time zone) until `until` (the day it's back, after `from`, at most a
+        year later) or, without `until`, until it is unfrozen. While frozen
+        the door answers `frozen` and the member can't book classes. With
+        `until`, the end moves later by the frozen days at once; without, when
+        it is unfrozen. An active, not ended membership without a freeze
+        still to come; else 409 `invalid_status`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/MembershipId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from]
+              properties:
+                from: { type: string, format: date }
+                until: { type: [string, 'null'], format: date }
+      responses:
+        '200':
+          description: The member as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Members]
+      operationId: unfreezeMember
+      summary: Unfreeze a membership
+      description: |
+        64 The member can come in again from now; the end moves later by the
+        days it was frozen until today (a freeze that hadn't started yet is
+        just removed, and a freeze with `until` gives back the days it no
+        longer takes). 409 `invalid_status` when there's no freeze now or to
+        come.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/MembershipId'
+      responses:
+        '200':
+          description: The member as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /apps/{app_id}/members/check-in:
     post:
@@ -2063,6 +2200,16 @@ components:
       schema: { type: integer }
     QuestionId:
       name: question_id
+      in: path
+      required: true
+      schema: { type: integer }
+    AnswerId:
+      name: answer_id
+      in: path
+      required: true
+      schema: { type: integer }
+    MembershipId:
+      name: membership_id
       in: path
       required: true
       schema: { type: integer }
@@ -2820,7 +2967,7 @@ components:
 
     Question:
       type: object
-      required: [id, course_id, course_title, person, text, status, answer_count, created_at, updated_at]
+      required: [id, course_id, course_title, person, text, status, hidden, answer_count, created_at, updated_at]
       properties:
         id: { type: integer }
         course_id: { type: integer }
@@ -2828,7 +2975,8 @@ components:
         person: { type: string, description: The student's name. }
         text: { type: string }
         status: { type: string, enum: [open, answered], description: '`open`: waiting for the business.' }
-        answer_count: { type: integer }
+        hidden: { type: boolean, description: 64 Hidden from others; its author still sees it. }
+        answer_count: { type: integer, description: The answers shown in the app (64 not the hidden ones). }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time, description: The latest question or answer. }
 
@@ -2842,12 +2990,13 @@ components:
               type: array
               items:
                 type: object
-                required: [id, from, name, text, created_at]
+                required: [id, from, name, text, hidden, created_at]
                 properties:
                   id: { type: integer }
                   from: { type: string, enum: [student, business] }
                   name: { type: string, description: "The student's name, or the business's as the app shows it." }
                   text: { type: string }
+                  hidden: { type: boolean, description: 64 Hidden from others; its author still sees it. }
                   created_at: { type: string, format: date-time }
 
     Review:
@@ -2874,15 +3023,27 @@ components:
 
     Member:
       type: object
-      required: [membership_id, name, phone, plan_name, status, starts_at, ends_at, credits_left, checked_in_at]
+      required: [membership_id, name, phone, plan_name, status, starts_at, ends_at, credits_left, checked_in_at, frozen]
       properties:
         membership_id: { type: integer }
         name: { type: string }
         phone: { type: [string, 'null'] }
         plan_name: { type: string }
-        status: { type: string, enum: [active, expired, cancelled] }
+        status: { type: string, enum: [active, frozen, expired, cancelled], description: '64 `frozen`: frozen now (`frozen`).' }
         starts_at: { type: string, format: date-time }
         ends_at: { type: [string, 'null'], format: date-time }
+        frozen:
+          description: |
+            64 A freeze now or to come: from the start of `from` (the gym's
+            day) until the start of `until`, the day it's back, or until it is
+            unfrozen (null). Null: no freeze.
+          oneOf:
+            - type: object
+              required: [from, until]
+              properties:
+                from: { type: string, format: date-time }
+                until: { type: [string, 'null'], format: date-time }
+            - type: 'null'
         credits_left: { type: [integer, 'null'], description: Null for unlimited classes. }
         checked_in_at: { type: [string, 'null'], format: date-time, description: When they came in today; null when not yet. }
 
@@ -2892,8 +3053,8 @@ components:
       properties:
         outcome:
           type: string
-          enum: [admitted, already_in, expired, cancelled, not_started, no_credits, not_found, forged, not_a_code]
-          description: '`already_in`: checked in earlier today (`member.checked_in_at`); `no_credits`: a class pack used up; `forged`: a QR code not made by this app.'
+          enum: [admitted, already_in, expired, cancelled, not_started, frozen, no_credits, not_found, forged, not_a_code]
+          description: '`already_in`: checked in earlier today (`member.checked_in_at`); `frozen` (64): the membership is frozen (`member.frozen_until`); `no_credits`: a class pack used up; `forged`: a QR code not made by this app.'
         admitted: { type: boolean, description: True only for `admitted`. }
         message: { type: string, description: "What to show at the door, in the person's language." }
         member:
@@ -2907,6 +3068,7 @@ components:
                 ends_at: { type: [string, 'null'], format: date-time }
                 credits_left: { type: [integer, 'null'] }
                 checked_in_at: { type: [string, 'null'], format: date-time, description: Today's check-in (now when admitted). }
+                frozen_until: { type: [string, 'null'], format: date-time, description: '64 With `frozen`: the day it''s back; null until it is unfrozen.' }
             - type: 'null'
 
     MemberVisit:
