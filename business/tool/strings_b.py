@@ -68,7 +68,6 @@ S = [
 ("appointmentChangeText", "{name}'s appointment changes, and this can't be undone.", "سيتغير موعد {name}، ولا يمكن التراجع عن ذلك.", "{name} adlı kişinin randevusu değişir ve bu geri alınamaz."),
 ("appointmentUpdated", "Appointment: {status}", "الموعد: {status}", "Randevu: {status}"),
 ("notes", "Notes", "ملاحظات", "Notlar"),
-("rescheduleNote", "To move an appointment to another time, cancel it and ask the customer to book again. The dashboard works the same way.", "لنقل موعد إلى وقت آخر، ألغِه واطلب من العميل الحجز مرة أخرى، كما في لوحة التحكم.", "Bir randevuyu başka bir saate almak için iptal edin ve müşteriden yeniden randevu almasını isteyin. Panel de aynı şekilde çalışır."),
 # Events
 ("eventsOpen", "Open", "الجارية", "Açık"),
 ("eventsAll", "All", "الكل", "Tümü"),

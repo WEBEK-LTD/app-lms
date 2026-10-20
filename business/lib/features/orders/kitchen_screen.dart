@@ -176,7 +176,7 @@ class _KitchenCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(order.number, style: theme.textTheme.headlineSmall),
+              Text(order.label, style: theme.textTheme.headlineSmall),
               const SizedBox(width: 10),
               StatusChip(
                 order.kitchen?.type == 'delivery' ? l10n.delivery : l10n.pickup,

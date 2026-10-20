@@ -159,7 +159,7 @@ class _UpdateCard extends ConsumerWidget {
               child: TextButton.icon(
                 onPressed: () => openLink(context, ref, update.link),
                 icon: const DirectionalIcon(AppIcons.web, size: 18),
-                label: Text(l10n.learnMore),
+                label: Text(update.linkLabel ?? l10n.learnMore),
               ),
             ),
         ],
@@ -167,3 +167,19 @@ class _UpdateCard extends ConsumerWidget {
     );
   }
 }
+
+/// An announcement's small Markdown as plain text: emphasis marks go,
+/// links keep their words, list items get a bullet.
+String plainText(String markdown) => markdown
+    .split('\n')
+    .map((line) {
+      var l = line.replaceFirst(RegExp(r'^\s{0,3}#{1,6}\s+'), '');
+      l = l.replaceFirst(RegExp(r'^\s*[-*+]\s+'), '• ');
+      l = l.replaceAllMapped(
+        RegExp(r'\[([^\]]+)\]\([^)]*\)'),
+        (m) => m.group(1)!,
+      );
+      return l.replaceAll(RegExp(r'(\*\*|__|`)'), '');
+    })
+    .join('\n')
+    .trim();

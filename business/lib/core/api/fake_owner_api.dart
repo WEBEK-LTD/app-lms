@@ -297,7 +297,8 @@ class FakeOwnerApi implements OwnerApi {
           kindLabel: 'Your account',
           title: 'Your app build is ready',
           body: 'Version 2.3.0 is ready to download and publish.',
-          appId: restaurantId,
+          summary: 'Version 2.3.0 is ready to download and publish.',
+          appName: 'Bab Al Sham',
           at: _ago(const Duration(hours: 3)),
           unread: true,
           current: true,
@@ -307,7 +308,8 @@ class FakeOwnerApi implements OwnerApi {
           kind: 'maintenance',
           kindLabel: 'Maintenance',
           title: 'Planned maintenance on Sunday',
-          body: 'The dashboard may be slow for a few minutes between 02:00 and 02:30.',
+          body: 'The dashboard may be **slow** for a few minutes between 02:00 and 02:30.',
+          summary: 'The dashboard may be slow for a few minutes between 02:00 and 02:30.',
           at: _ago(const Duration(days: 1)),
           unread: true,
           current: true,
@@ -318,7 +320,9 @@ class FakeOwnerApi implements OwnerApi {
           kindLabel: 'Update',
           title: 'Kitchen mode is here',
           body: 'Follow every order from the kitchen on a tablet.',
+          summary: 'Follow every order from the kitchen on a tablet.',
           link: 'https://yallapp.com.tr/blog',
+          linkLabel: 'Read about Kitchen mode',
           at: _ago(const Duration(days: 6)),
           unread: false,
           current: false,
@@ -345,7 +349,7 @@ class FakeOwnerApi implements OwnerApi {
       };
       return Order(
         id: id,
-        number: '#$id',
+        number: '$id',
         status: status,
         statusLabel: _statusLabel(status),
         kitchen: OrderKitchen(
@@ -386,7 +390,7 @@ class FakeOwnerApi implements OwnerApi {
     _orders[eventsId] = [
       Order(
         id: 2201,
-        number: '#2201',
+        number: '2201',
         status: 'completed',
         statusLabel: 'Completed',
         total: money(90000),
@@ -409,7 +413,7 @@ class FakeOwnerApi implements OwnerApi {
     _orders[academyId] = [
       Order(
         id: 3301,
-        number: '#3301',
+        number: '3301',
         status: 'processing',
         statusLabel: 'In progress',
         total: money(125000),
@@ -1114,7 +1118,7 @@ class FakeOwnerApi implements OwnerApi {
       0,
       Order(
         id: id,
-        number: '#$id',
+        number: '$id',
         status: 'processing',
         statusLabel: _statusLabel('processing'),
         kitchen: const OrderKitchen(

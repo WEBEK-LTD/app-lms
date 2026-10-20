@@ -177,7 +177,6 @@
   "appointmentChangeText": "{name} adlı kişinin randevusu değişir ve bu geri alınamaz.",
   "appointmentUpdated": "Randevu: {status}",
   "notes": "Notlar",
-  "rescheduleNote": "Bir randevuyu başka bir saate almak için iptal edin ve müşteriden yeniden randevu almasını isteyin. Panel de aynı şekilde çalışır.",
   "eventsOpen": "Açık",
   "eventsAll": "Tümü",
   "noEvents": "Burada etkinlik yok",

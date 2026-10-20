@@ -27,7 +27,7 @@ class OrderScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final order = ref.watch(orderProvider(orderId));
     return Scaffold(
-      appBar: AppBar(title: Text(order.value?.number ?? l10n.order)),
+      appBar: AppBar(title: Text(order.value?.label ?? l10n.order)),
       body: RefreshIndicator(
         onRefresh: pullToRefresh(
           context,
@@ -316,7 +316,7 @@ class _RefundSheetState extends ConsumerState<RefundSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l10n.refundTitle(widget.order.number),
+              l10n.refundTitle(widget.order.label),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 4),

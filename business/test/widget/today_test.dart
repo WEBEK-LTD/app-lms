@@ -51,7 +51,7 @@ void main() {
     expect(find.text('New'), findsNWidgets(2));
     expect(app.api.calls, contains('markUpdatesRead'));
     expect(app.api.updatesList.where((u) => u.unread), isEmpty);
-    await tapOn(tester, find.text('Learn more'));
+    await tapOn(tester, find.text('Read about Kitchen mode'));
     expect(app.opened, ['https://yallapp.com.tr/blog']);
     await tester.pageBack();
     await settle(tester);

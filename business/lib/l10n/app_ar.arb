@@ -177,7 +177,6 @@
   "appointmentChangeText": "سيتغير موعد {name}، ولا يمكن التراجع عن ذلك.",
   "appointmentUpdated": "الموعد: {status}",
   "notes": "ملاحظات",
-  "rescheduleNote": "لنقل موعد إلى وقت آخر، ألغِه واطلب من العميل الحجز مرة أخرى، كما في لوحة التحكم.",
   "eventsOpen": "الجارية",
   "eventsAll": "الكل",
   "noEvents": "لا فعاليات هنا",

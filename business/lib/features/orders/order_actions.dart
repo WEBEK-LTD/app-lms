@@ -67,7 +67,7 @@ Future<Order?> changeOrderStatus(
   if (status == 'cancelled') {
     final ok = await confirm(
       context,
-      title: l10n.cancelOrderTitle(order.number),
+      title: l10n.cancelOrderTitle(order.label),
       text: l10n.cancelOrderText,
       action: orderActionLabel(context, order, status),
       destructive: true,
@@ -81,7 +81,7 @@ Future<Order?> changeOrderStatus(
     if (context.mounted) {
       showMessage(
         context,
-        l10n.orderUpdated(order.number, orderStatusLabel(context, updated)),
+        l10n.orderUpdated(order.label, orderStatusLabel(context, updated)),
       );
     }
     return updated;

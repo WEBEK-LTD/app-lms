@@ -1162,12 +1162,6 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get notes;
 
-  /// No description provided for @rescheduleNote.
-  ///
-  /// In en, this message translates to:
-  /// **'To move an appointment to another time, cancel it and ask the customer to book again. The dashboard works the same way.'**
-  String get rescheduleNote;
-
   /// No description provided for @eventsOpen.
   ///
   /// In en, this message translates to:

@@ -570,10 +570,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notes => 'Notes';
 
   @override
-  String get rescheduleNote =>
-      'To move an appointment to another time, cancel it and ask the customer to book again. The dashboard works the same way.';
-
-  @override
   String get eventsOpen => 'Open';
 
   @override

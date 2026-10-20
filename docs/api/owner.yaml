@@ -101,10 +101,11 @@ tags:
     description: |
       The Media library (roadmap 51). Uploads go straight from the phone to
       the media gate in chunks of `chunk_bytes`, through the signed
-      `upload_url`, with the same protocol as the dashboard: `PATCH
+      `upload_url`, with the same protocol as the dashboard: `PUT
       <upload_url>` with `Upload-Offset` and the bytes
-      (`application/offset+octet-stream`), `HEAD` for the offset reached;
-      then `complete`.
+      (`application/offset+octet-stream`; a 409 answers with the offset the
+      gate has in `Upload-Offset`), `HEAD` for the offset reached; then
+      `complete`.
   - name: Messages
     description: |
       Conversations with the people using the app: a listing's inquiries

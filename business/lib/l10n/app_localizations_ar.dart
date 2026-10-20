@@ -570,10 +570,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notes => 'ملاحظات';
 
   @override
-  String get rescheduleNote =>
-      'لنقل موعد إلى وقت آخر، ألغِه واطلب من العميل الحجز مرة أخرى، كما في لوحة التحكم.';
-
-  @override
   String get eventsOpen => 'الجارية';
 
   @override

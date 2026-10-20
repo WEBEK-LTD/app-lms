@@ -5,7 +5,6 @@ import '../../core/api/models.dart';
 import '../../core/providers.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
-import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
@@ -278,22 +277,6 @@ class AppointmentCard extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Text('${answer.label}: ${answer.value}'),
               ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Brand.infoBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(AppIcons.info, color: Brand.info),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(l10n.rescheduleNote)),
-                ],
-              ),
-            ),
           ],
         ),
       ),

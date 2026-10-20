@@ -405,12 +405,14 @@ class Update {
     required this.kind,
     required this.title,
     required this.body,
+    required this.summary,
     required this.at,
     required this.unread,
     required this.current,
     this.kindLabel,
     this.link,
-    this.appId,
+    this.linkLabel,
+    this.appName,
   });
 
   factory Update.fromJson(Json json) => Update(
@@ -419,8 +421,10 @@ class Update {
     kindLabel: optStr(json, 'kind_label'),
     title: str(json, 'title'),
     body: str(json, 'body'),
+    summary: str(json, 'summary'),
     link: optStr(json, 'link'),
-    appId: optStr(json, 'app_id'),
+    linkLabel: optStr(json, 'link_label'),
+    appName: optStr(json, 'app_name'),
     at: date(json, 'at'),
     unread: boolean(json, 'unread'),
     current: boolean(json, 'current', true),
@@ -432,9 +436,17 @@ class Update {
   final String kind;
   final String? kindLabel;
   final String title;
+
+  /// Plain text for the account's items, a small Markdown for announcements.
   final String body;
+
+  /// The text on one line.
+  final String summary;
   final String? link;
-  final String? appId;
+  final String? linkLabel;
+
+  /// The app it is about, when the account has more than one.
+  final String? appName;
   final DateTime at;
   final bool unread;
   final bool current;
@@ -445,8 +457,10 @@ class Update {
     kindLabel: kindLabel,
     title: title,
     body: body,
+    summary: summary,
     link: link,
-    appId: appId,
+    linkLabel: linkLabel,
+    appName: appName,
     at: at,
     unread: false,
     current: current,
@@ -764,7 +778,12 @@ class Order {
   }
 
   final int id;
+
+  /// The order's number as the API gives it ("1042").
   final String number;
+
+  /// "#1042", as the dashboard shows it.
+  String get label => number.startsWith('#') ? number : '#$number';
 
   /// processing, completed, cancelled, refunded.
   final String status;

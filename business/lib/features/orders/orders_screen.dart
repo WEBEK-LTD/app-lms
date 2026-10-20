@@ -119,7 +119,7 @@ class OrderCard extends StatelessWidget {
                   runSpacing: 4,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Text(order.number, style: theme.textTheme.titleMedium),
+                    Text(order.label, style: theme.textTheme.titleMedium),
                     StatusChip(
                       orderStatusLabel(context, order),
                       tone: StatusChip.toneOf(orderTone(order)),

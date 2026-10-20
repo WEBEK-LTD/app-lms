@@ -236,7 +236,6 @@
     }
   },
   "notes": "Notes",
-  "rescheduleNote": "To move an appointment to another time, cancel it and ask the customer to book again. The dashboard works the same way.",
   "eventsOpen": "Open",
   "eventsAll": "All",
   "noEvents": "No events here",

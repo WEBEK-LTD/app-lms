@@ -32,16 +32,14 @@ void main() {
       expect(app.api.calls, contains('changeAppointmentStatus:rejected'));
     });
 
-    testWidgets('details say how to move an appointment', (tester) async {
+    testWidgets('details: notes and answers, no reschedule', (tester) async {
       final app = TestApp(appId: FakeOwnerApi.clinicId);
       await app.pump(tester);
       await go(tester, app, '/appointments');
       await tapOn(tester, find.text('Yusuf Kaya'));
       expect(find.text('First visit'), findsOneWidget);
-      expect(
-        find.textContaining('cancel it and ask the customer to book again'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Reschedule'), findsNothing);
+      expect(find.text('Insurance: None'), findsOneWidget);
     });
 
     testWidgets('in Arabic', (tester) async {

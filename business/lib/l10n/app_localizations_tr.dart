@@ -571,10 +571,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notes => 'Notlar';
 
   @override
-  String get rescheduleNote =>
-      'Bir randevuyu başka bir saate almak için iptal edin ve müşteriden yeniden randevu almasını isteyin. Panel de aynı şekilde çalışır.';
-
-  @override
   String get eventsOpen => 'Açık';
 
   @override
