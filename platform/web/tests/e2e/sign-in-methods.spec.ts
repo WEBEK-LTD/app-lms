@@ -161,9 +161,9 @@ test("the owner turns on email sign-in and their own WhatsApp number", async ({ 
   // 19 Email only: the store review email address signs in with the review code, and no email is sent.
   await page.getByText("Email address", { exact: true }).click();
   await page.getByRole("button", { name: "Save sign-in methods" }).click();
-  await expect(page.getByRole("status").first()).toContainText("Saved.");
-  expect((await config()).auth.methods).toEqual(["email"]);
+  // The email settings' "Saved." is still on the page: wait for what this save shows.
   await expect(page.getByText("Your app signs in by email only, so reviewers need the review email address.")).toBeVisible();
+  expect((await config()).auth.methods).toEqual(["email"]);
   const reviewer = `review-${suffix}@shop.test`;
   await page.getByLabel("Review email address").fill(reviewer);
   await page.getByLabel("Review code").fill("246810");
