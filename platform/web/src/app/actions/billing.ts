@@ -208,9 +208,9 @@ export async function dismissNoticeAction(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (Number.isSafeInteger(id) && id > 0) {
     const store = await getStore();
-    // 60 Only a notice of an app this person may use, or the account's own.
+    // 60 Only a notice of an app this person may use.
     const notice = (await store.listOwnerNotices({ clientId: context.client.id, open: true, limit: 100 })).find((n) => n.id === id);
-    if (notice && (!notice.appId || context.apps.some((a) => a.id === notice.appId))) await store.updateOwnerNotice(context.client.id, id, { dismissedAt: new Date() });
+    if (notice && context.apps.some((a) => a.id === notice.appId)) await store.updateOwnerNotice(context.client.id, id, { dismissedAt: new Date() });
   }
   revalidatePath("/dashboard", "layout");
 }
