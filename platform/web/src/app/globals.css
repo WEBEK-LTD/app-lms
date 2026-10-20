@@ -363,7 +363,7 @@
       align-items: baseline;
       gap: 16px;
       padding: 6px 0;
-      text-align: right;
+      text-align: end;
     }
     .table-cards td + td {
       border-top: 1px solid var(--color-line-soft);
@@ -373,7 +373,7 @@
       flex: none;
       color: var(--color-muted);
       font-weight: 600;
-      text-align: left;
+      text-align: start;
     }
   }
 }
