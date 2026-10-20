@@ -1298,7 +1298,9 @@ class FakeOwnerApi implements OwnerApi {
         .where((i) => i.inquiry.unread > 0)
         .length;
     final questions = f.questions
-        ? (_questions[appId] ?? const []).where((q) => q.question.open).length
+        ? (_questions[appId] ?? const [])
+              .where((q) => q.question.open && !q.question.hidden)
+              .length
         : 0;
     return Today(
       date: _day(now),
@@ -2324,14 +2326,20 @@ class FakeOwnerApi implements OwnerApi {
   // 63 Course questions and reviews
 
   void _seedCommunity() {
-    QuestionAnswer answer(int id, String name, String text, Duration ago) =>
-        QuestionAnswer(
-          id: id,
-          fromBusiness: name == 'Nile Academy',
-          name: name,
-          text: text,
-          createdAt: _ago(ago),
-        );
+    QuestionAnswer answer(
+      int id,
+      String name,
+      String text,
+      Duration ago, {
+      bool hidden = false,
+    }) => QuestionAnswer(
+      id: id,
+      fromBusiness: name == 'Nile Academy',
+      name: name,
+      text: text,
+      hidden: hidden,
+      createdAt: _ago(ago),
+    );
     QuestionDetail question(
       int id,
       int courseId,
@@ -2339,8 +2347,9 @@ class FakeOwnerApi implements OwnerApi {
       String person,
       String text,
       Duration ago,
-      List<QuestionAnswer> answers,
-    ) {
+      List<QuestionAnswer> answers, {
+      bool hidden = false,
+    }) {
       final open = answers.isEmpty || !answers.last.fromBusiness;
       return QuestionDetail(
         question: Question(
@@ -2350,7 +2359,8 @@ class FakeOwnerApi implements OwnerApi {
           person: person,
           text: text,
           status: open ? 'open' : 'answered',
-          answerCount: answers.length,
+          hidden: hidden,
+          answerCount: answers.where((a) => !a.hidden).length,
           createdAt: _ago(ago),
           updatedAt: answers.isEmpty ? _ago(ago) : answers.last.createdAt,
         ),
@@ -2398,6 +2408,14 @@ class FakeOwnerApi implements OwnerApi {
         'How long should each lesson take me?',
         const Duration(days: 2),
         [
+          // 64 A student's answer the academy hid.
+          answer(
+            4,
+            'Unknown visitor',
+            'Message me for the answers to every quiz!',
+            const Duration(days: 1, hours: 6),
+            hidden: true,
+          ),
           answer(
             3,
             'Nile Academy',
@@ -2405,6 +2423,17 @@ class FakeOwnerApi implements OwnerApi {
             const Duration(days: 1),
           ),
         ],
+      ),
+      // 64 A question the academy hid: only its author sees it in the app.
+      question(
+        34,
+        2,
+        'Business English',
+        'Unknown visitor',
+        'Visit my page for cheap followers!!!',
+        const Duration(days: 4),
+        const [],
+        hidden: true,
       ),
     ];
     _reviews[academyId] = [
@@ -2473,14 +2502,20 @@ class FakeOwnerApi implements OwnerApi {
   }) async {
     await _call('questions');
     _app(appId, (f) => f.questions);
+    // 64 Waiting and answered are the questions shown in the app.
+    bool listed(Question q) => status == null
+        ? true
+        : status == 'hidden'
+        ? q.hidden
+        : !q.hidden && q.status == status;
     final all = [
       for (final q in _questions[appId] ?? const <QuestionDetail>[])
-        if (status == null || q.question.status == status) q.question,
+        if (listed(q.question)) q.question,
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return QuestionsPage(
       page: _page(all, page, 20),
       open: (_questions[appId] ?? const [])
-          .where((q) => q.question.open)
+          .where((q) => q.question.open && !q.question.hidden)
           .length,
     );
   }
@@ -2519,6 +2554,7 @@ class FakeOwnerApi implements OwnerApi {
         person: q.person,
         text: q.text,
         status: 'answered',
+        hidden: q.hidden,
         answerCount: q.answerCount + 1,
         createdAt: q.createdAt,
         updatedAt: at,
@@ -2537,6 +2573,83 @@ class FakeOwnerApi implements OwnerApi {
     final list = _questions[appId]!;
     list[list.indexOf(old)] = updated;
     return updated;
+  }
+
+  /// 64 The question and its answers again, with `hidden` changed.
+  QuestionDetail _rehide(
+    String appId,
+    QuestionDetail old, {
+    bool? hidden,
+    int? answerId,
+    bool? answerHidden,
+  }) {
+    final q = old.question;
+    final answers = [
+      for (final a in old.answers)
+        a.id == answerId
+            ? QuestionAnswer(
+                id: a.id,
+                fromBusiness: a.fromBusiness,
+                name: a.name,
+                text: a.text,
+                hidden: answerHidden!,
+                createdAt: a.createdAt,
+              )
+            : a,
+    ];
+    final updated = QuestionDetail(
+      question: Question(
+        id: q.id,
+        courseId: q.courseId,
+        courseTitle: q.courseTitle,
+        person: q.person,
+        text: q.text,
+        status: q.status,
+        hidden: hidden ?? q.hidden,
+        answerCount: answers.where((a) => !a.hidden).length,
+        createdAt: q.createdAt,
+        updatedAt: q.updatedAt,
+      ),
+      answers: answers,
+    );
+    final list = _questions[appId]!;
+    list[list.indexOf(old)] = updated;
+    return updated;
+  }
+
+  @override
+  Future<QuestionDetail> setQuestionHidden(
+    String appId,
+    int questionId,
+    bool hidden,
+  ) async {
+    await _call('setQuestionHidden');
+    _app(appId, (f) => f.questions);
+    return _rehide(appId, _ownQuestion(appId, questionId), hidden: hidden);
+  }
+
+  @override
+  Future<QuestionDetail> setAnswerHidden(
+    String appId,
+    int questionId,
+    int answerId,
+    bool hidden,
+  ) async {
+    await _call('setAnswerHidden');
+    _app(appId, (f) => f.questions);
+    final old = _ownQuestion(appId, questionId);
+    final answer = old.answers.where((a) => a.id == answerId).firstOrNull;
+    if (answer == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (answer.fromBusiness) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: "Your own answers can't be hidden.",
+        statusCode: 400,
+      );
+    }
+    return _rehide(appId, old, answerId: answerId, answerHidden: hidden);
   }
 
   Review _ownReview(String appId, int reviewId) {
@@ -2667,6 +2780,16 @@ class FakeOwnerApi implements OwnerApi {
         endsIn: -3,
       ),
       member(6, 'Tarek Ali', '10-class pack', endsIn: 0, credits: 0),
+      // 64 Frozen for a trip, back in 9 days.
+      Member(
+        membershipId: 7,
+        name: 'Nour Hany',
+        planName: 'Monthly unlimited',
+        status: 'frozen',
+        endsAt: now.add(const Duration(days: 34)).toUtc(),
+        frozenFrom: _startOfDay(now.subtract(const Duration(days: 5))),
+        frozenUntil: _startOfDay(now.add(const Duration(days: 9))),
+      ),
     ];
     for (final m in _members[gymId]!) {
       _memberCodes[m.membershipId == 1
@@ -2703,11 +2826,130 @@ class FakeOwnerApi implements OwnerApi {
     status: m.status,
     endsAt: m.endsAt,
     creditsLeft: m.creditsLeft,
+    frozenFrom: m.frozenFrom,
+    frozenUntil: m.frozenUntil,
     checkedInAt: (_visits[gymId] ?? const <MemberVisit>[])
         .where((v) => v.name == m.name)
         .firstOrNull
         ?.checkedInAt,
   );
+
+  DateTime _startOfDay(DateTime t) => DateTime(t.year, t.month, t.day).toUtc();
+
+  /// 64 A member with its freeze (and end) changed.
+  Member _refreeze(
+    Member m, {
+    required String status,
+    required DateTime? endsAt,
+    DateTime? frozenFrom,
+    DateTime? frozenUntil,
+  }) => Member(
+    membershipId: m.membershipId,
+    name: m.name,
+    phone: m.phone,
+    planName: m.planName,
+    status: status,
+    endsAt: endsAt,
+    creditsLeft: m.creditsLeft,
+    frozenFrom: frozenFrom,
+    frozenUntil: frozenUntil,
+  );
+
+  Member _ownMember(String appId, int membershipId) {
+    final m = (_members[appId] ?? const <Member>[])
+        .where((x) => x.membershipId == membershipId)
+        .firstOrNull;
+    if (m == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    return m;
+  }
+
+  Member _saveMember(String appId, Member old, Member updated) {
+    final list = _members[appId]!;
+    list[list.indexOf(old)] = updated;
+    return _withVisit(updated);
+  }
+
+  @override
+  Future<Member> freezeMember(
+    String appId,
+    int membershipId, {
+    required String from,
+    String? until,
+  }) async {
+    await _call('freezeMember');
+    _app(appId, (f) => f.memberCheckIn);
+    final m = _ownMember(appId, membershipId);
+    if (m.status != 'active' || m.freezeSet) {
+      throw const ApiException(
+        code: 'invalid_status',
+        message: 'This membership is already frozen.',
+        statusCode: 409,
+      );
+    }
+    final start = DateTime.tryParse(from);
+    final back = until == null ? null : DateTime.tryParse(until);
+    final today = DateTime(now.year, now.month, now.day);
+    if (start == null || start.isBefore(today)) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Choose today or a later day.',
+        statusCode: 400,
+      );
+    }
+    if (back != null && !back.isAfter(start)) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        message: 'Choose a day after the first frozen day.',
+        statusCode: 400,
+      );
+    }
+    // The end moves by the frozen days at once when it has an end day.
+    final days = back == null ? 0 : back.difference(start).inDays;
+    return _saveMember(
+      appId,
+      m,
+      _refreeze(
+        m,
+        status: start.isAfter(today) ? 'active' : 'frozen',
+        endsAt: m.endsAt?.add(Duration(days: days)),
+        frozenFrom: start.toUtc(),
+        frozenUntil: back?.toUtc(),
+      ),
+    );
+  }
+
+  @override
+  Future<Member> unfreezeMember(String appId, int membershipId) async {
+    await _call('unfreezeMember');
+    _app(appId, (f) => f.memberCheckIn);
+    final m = _ownMember(appId, membershipId);
+    final from = m.frozenFrom;
+    if (from == null) {
+      throw const ApiException(
+        code: 'invalid_status',
+        message: "This membership isn't frozen.",
+        statusCode: 409,
+      );
+    }
+    final today = DateTime(now.year, now.month, now.day).toUtc();
+    final until = m.frozenUntil;
+    // Back today: the days from its first day were frozen.
+    final started = !from.isAfter(today);
+    final days = until == null
+        ? (started ? today.difference(from).inDays : 0)
+        : -until.difference(started ? today : from).inDays;
+    return _saveMember(
+      appId,
+      m,
+      _refreeze(
+        m,
+        status: 'active',
+        endsAt: m.endsAt?.add(Duration(days: days)),
+      ),
+    );
+  }
 
   @override
   Future<MembersPage> members(
@@ -2780,6 +3022,9 @@ class FakeOwnerApi implements OwnerApi {
     }
     if (m.status == 'expired') {
       return refused('expired', 'This membership has ended', withVisit);
+    }
+    if (m.status == 'frozen') {
+      return refused('frozen', 'Frozen', withVisit);
     }
     if (m.creditsLeft == 0) {
       return refused(

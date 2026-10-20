@@ -169,6 +169,21 @@ abstract class OwnerApi {
     int questionId,
     String text,
   );
+
+  /// 64 Hides a question from others (its author still sees it), or shows it.
+  Future<QuestionDetail> setQuestionHidden(
+    String appId,
+    int questionId,
+    bool hidden,
+  );
+
+  /// 64 Hides a student's answer from others, or shows it again.
+  Future<QuestionDetail> setAnswerHidden(
+    String appId,
+    int questionId,
+    int answerId,
+    bool hidden,
+  );
   Future<ReviewsPage> reviews(
     String appId, {
     String filter = 'all',
@@ -186,6 +201,18 @@ abstract class OwnerApi {
     int? membershipId,
   });
   Future<MemberVisits> memberCheckIns(String appId, {String? date});
+
+  /// 64 Freezes a membership from `from` (YYYY-MM-DD) until `until`, the day
+  /// it's back, or until it is unfrozen.
+  Future<Member> freezeMember(
+    String appId,
+    int membershipId, {
+    required String from,
+    String? until,
+  });
+
+  /// 64 Unfreezes it now, or removes a freeze to come.
+  Future<Member> unfreezeMember(String appId, int membershipId);
 
   // App users
   Future<AppUsersPage> appUsers(String appId, {String? query, int page = 1});

@@ -68,6 +68,8 @@ abstract final class AppIcons {
   static const pdf = Symbols.picture_as_pdf_rounded;
   static const delete = Symbols.delete_rounded;
   static const pause = Symbols.pause_rounded;
+  // 64 A frozen membership.
+  static const freeze = Symbols.pause_circle_rounded;
   static const play = Symbols.play_arrow_rounded;
   static const copy = Symbols.content_copy_rounded;
   static const add = Symbols.add_rounded;

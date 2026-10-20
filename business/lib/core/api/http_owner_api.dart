@@ -559,6 +559,27 @@ class HttpOwnerApi implements OwnerApi {
   );
 
   @override
+  Future<QuestionDetail> setQuestionHidden(
+    String appId,
+    int questionId,
+    bool hidden,
+  ) async => QuestionDetail.fromJson(
+    await _patch('${_app(appId)}/questions/$questionId', {'hidden': hidden}),
+  );
+
+  @override
+  Future<QuestionDetail> setAnswerHidden(
+    String appId,
+    int questionId,
+    int answerId,
+    bool hidden,
+  ) async => QuestionDetail.fromJson(
+    await _patch('${_app(appId)}/questions/$questionId/answers/$answerId', {
+      'hidden': hidden,
+    }),
+  );
+
+  @override
   Future<ReviewsPage> reviews(
     String appId, {
     String filter = 'all',
@@ -622,6 +643,25 @@ class HttpOwnerApi implements OwnerApi {
   Future<MemberVisits> memberCheckIns(String appId, {String? date}) async =>
       MemberVisits.fromJson(
         await _get('${_app(appId)}/members/check-ins', query: {'date': date}),
+      );
+
+  @override
+  Future<Member> freezeMember(
+    String appId,
+    int membershipId, {
+    required String from,
+    String? until,
+  }) async => Member.fromJson(
+    await _put('${_app(appId)}/members/$membershipId/freeze', {
+      'from': from,
+      'until': until,
+    }),
+  );
+
+  @override
+  Future<Member> unfreezeMember(String appId, int membershipId) async =>
+      Member.fromJson(
+        await _delete('${_app(appId)}/members/$membershipId/freeze'),
       );
 
   // App users

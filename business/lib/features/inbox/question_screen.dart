@@ -52,13 +52,47 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
     }
   }
 
+  /// 64 Hides the question, or a student's answer, from others (its author
+  /// still sees it), or shows it again.
+  Future<void> _setHidden(bool hidden, {int? answerId}) async {
+    final api = ref.read(apiProvider);
+    final appId = ref.read(appIdProvider);
+    try {
+      if (answerId == null) {
+        await api.setQuestionHidden(appId, widget.questionId, hidden);
+      } else {
+        await api.setAnswerHidden(appId, widget.questionId, answerId, hidden);
+      }
+      ref.invalidate(questionProvider(widget.questionId));
+      if (mounted) {
+        showMessage(
+          context,
+          hidden ? context.l10n.reviewHiddenDone : context.l10n.reviewShownDone,
+        );
+      }
+    } on Object catch (e) {
+      if (mounted) showError(context, e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final detail = ref.watch(questionProvider(widget.questionId));
     final d = detail.value;
+    final hidden = d?.question.hidden ?? false;
     return Scaffold(
-      appBar: AppBar(title: Text(d?.question.person ?? l10n.questionTitle)),
+      appBar: AppBar(
+        title: Text(d?.question.person ?? l10n.questionTitle),
+        actions: [
+          if (d != null)
+            IconButton(
+              tooltip: hidden ? l10n.showQuestion : l10n.hideQuestion,
+              onPressed: () => _setHidden(!hidden),
+              icon: Icon(hidden ? AppIcons.visible : AppIcons.hidden),
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -78,12 +112,27 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                       l10n.inCourse(d.question.courseTitle),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    if (d.question.hidden) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          StatusChip(l10n.hiddenFromOthers, tone: Tone.warn),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.questionHiddenNote,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     _Bubble(
                       name: d.question.person,
                       text: d.question.text,
                       at: d.question.createdAt,
                       mine: false,
+                      hidden: d.question.hidden,
                     ),
                     for (final a in d.answers)
                       _Bubble(
@@ -91,6 +140,14 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                         text: a.text,
                         at: a.createdAt,
                         mine: a.fromBusiness,
+                        hidden: a.hidden,
+                        // 64 A student's answer can be hidden from others.
+                        onToggleHidden: a.fromBusiness
+                            ? null
+                            : () => _setHidden(!a.hidden, answerId: a.id),
+                        toggleLabel: a.hidden
+                            ? l10n.showAnswerOf(a.name)
+                            : l10n.hideAnswerOf(a.name),
                       ),
                   ],
                 ),
@@ -138,12 +195,20 @@ class _Bubble extends StatelessWidget {
     required this.text,
     required this.at,
     required this.mine,
+    this.hidden = false,
+    this.onToggleHidden,
+    this.toggleLabel,
   });
 
   final String name;
   final String text;
   final DateTime at;
   final bool mine;
+
+  /// 64 Hidden from others (shown dimmed, with the chip).
+  final bool hidden;
+  final VoidCallback? onToggleHidden;
+  final String? toggleLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +232,28 @@ class _Bubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: theme.textTheme.labelMedium?.copyWith(color: fg)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    name,
+                    style: theme.textTheme.labelMedium?.copyWith(color: fg),
+                  ),
+                ),
+                if (hidden) ...[
+                  const SizedBox(width: 6),
+                  Icon(AppIcons.hidden, size: 16, color: context.yb.ink2),
+                ],
+              ],
+            ),
+            if (hidden)
+              Text(
+                context.l10n.hiddenFromOthers,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: context.yb.ink2,
+                ),
+              ),
             const SizedBox(height: 2),
             Text(text, style: theme.textTheme.bodyMedium?.copyWith(color: fg)),
             const SizedBox(height: 4),
@@ -177,6 +263,23 @@ class _Bubble extends StatelessWidget {
                 color: mine ? fg.withValues(alpha: 0.8) : context.yb.ink2,
               ),
             ),
+            if (onToggleHidden != null)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  onPressed: onToggleHidden,
+                  icon: Icon(hidden ? AppIcons.visible : AppIcons.hidden),
+                  label: Semantics(
+                    label: toggleLabel,
+                    excludeSemantics: true,
+                    child: Text(
+                      hidden
+                          ? context.l10n.showReview
+                          : context.l10n.hideReview,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

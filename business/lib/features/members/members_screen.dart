@@ -69,6 +69,49 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
     }
   }
 
+  /// 64 Freezes a membership from a day, until the day it's back or until
+  /// unfrozen.
+  Future<void> _freeze(Member m) async {
+    final chosen = await showModalBottomSheet<(DateTime, DateTime?)>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _FreezeSheet(member: m),
+    );
+    if (chosen == null || !mounted) return;
+    String day(DateTime d) =>
+        '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    await _change(
+      () => ref
+          .read(apiProvider)
+          .freezeMember(
+            ref.read(appIdProvider),
+            m.membershipId,
+            from: day(chosen.$1),
+            until: chosen.$2 == null ? null : day(chosen.$2!),
+          ),
+      context.l10n.frozenDone,
+    );
+  }
+
+  Future<void> _unfreeze(Member m) => _change(
+    () => ref
+        .read(apiProvider)
+        .unfreezeMember(ref.read(appIdProvider), m.membershipId),
+    context.l10n.unfrozenDone,
+  );
+
+  Future<void> _change(Future<Member> Function() run, String done) async {
+    try {
+      await run();
+      if (!mounted) return;
+      setState(() => _version++);
+      showMessage(context, done);
+    } on Object catch (e) {
+      if (mounted) showError(context, e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -110,8 +153,12 @@ class _MembersScreenState extends ConsumerState<MembersScreen> {
                 icon: AppIcons.members,
                 title: _query.isEmpty ? l10n.noMembers : l10n.noMembersFound,
               ),
-              itemBuilder: (context, m) =>
-                  _MemberTile(member: m, onCheckIn: () => _checkIn(m)),
+              itemBuilder: (context, m) => _MemberTile(
+                member: m,
+                onCheckIn: () => _checkIn(m),
+                onFreeze: () => _freeze(m),
+                onUnfreeze: () => _unfreeze(m),
+              ),
             ),
           ),
         ],
@@ -161,12 +208,17 @@ class _Today extends StatelessWidget {
                           style: theme.textTheme.bodyMedium,
                         ),
                       ),
-                      Text(
-                        l10n.checkedInBy(
-                          context.time(visit.checkedInAt),
-                          visit.by,
+                      // 64 Long names wrap instead of overflowing.
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          l10n.checkedInBy(
+                            context.time(visit.checkedInAt),
+                            visit.by,
+                          ),
+                          textAlign: TextAlign.end,
+                          style: theme.textTheme.bodySmall,
                         ),
-                        style: theme.textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -180,10 +232,17 @@ class _Today extends StatelessWidget {
 }
 
 class _MemberTile extends StatelessWidget {
-  const _MemberTile({required this.member, required this.onCheckIn});
+  const _MemberTile({
+    required this.member,
+    required this.onCheckIn,
+    required this.onFreeze,
+    required this.onUnfreeze,
+  });
 
   final Member member;
   final VoidCallback onCheckIn;
+  final VoidCallback onFreeze;
+  final VoidCallback onUnfreeze;
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +251,7 @@ class _MemberTile extends StatelessWidget {
     final m = member;
     final status = switch (m.status) {
       'active' => l10n.stateActive,
+      'frozen' => l10n.frozen,
       'expired' => l10n.ended,
       _ => l10n.statusCancelled,
     };
@@ -213,16 +273,157 @@ class _MemberTile extends StatelessWidget {
               textDirection: TextDirection.ltr,
               style: theme.textTheme.bodySmall,
             ),
-          const SizedBox(height: 8),
-          if (m.checkedInAt != null)
-            StatusChip(l10n.inAt(context.time(m.checkedInAt!)), tone: Tone.good)
-          else
-            FilledButton.icon(
-              onPressed: onCheckIn,
-              icon: const Icon(AppIcons.checkIns),
-              label: Text(l10n.checkInNamed(m.name)),
+          // 64 A freeze now or to come.
+          if (freezeText(context, m) case final freeze?)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: [
+                  const Icon(AppIcons.freeze, size: 18),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(freeze, style: theme.textTheme.bodyMedium),
+                  ),
+                ],
+              ),
             ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (m.checkedInAt != null)
+                StatusChip(
+                  l10n.inAt(context.time(m.checkedInAt!)),
+                  tone: Tone.good,
+                )
+              else if (!m.frozen)
+                FilledButton.icon(
+                  onPressed: onCheckIn,
+                  icon: const Icon(AppIcons.checkIns),
+                  label: Text(l10n.checkInNamed(m.name)),
+                ),
+              if (m.freezeSet)
+                OutlinedButton.icon(
+                  onPressed: onUnfreeze,
+                  icon: const Icon(AppIcons.play),
+                  label: Text(m.frozen ? l10n.unfreeze : l10n.removeFreeze),
+                )
+              else if (m.status == 'active')
+                Semantics(
+                  label: l10n.freezeNamed(m.name),
+                  button: true,
+                  excludeSemantics: true,
+                  child: OutlinedButton.icon(
+                    onPressed: onFreeze,
+                    icon: const Icon(AppIcons.freeze),
+                    label: Text(l10n.freeze),
+                  ),
+                ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// 64 The first frozen day (today or later) and, if chosen, the day it's back.
+class _FreezeSheet extends StatefulWidget {
+  const _FreezeSheet({required this.member});
+
+  final Member member;
+
+  @override
+  State<_FreezeSheet> createState() => _FreezeSheetState();
+}
+
+class _FreezeSheetState extends State<_FreezeSheet> {
+  late DateTime _from = _today;
+  DateTime? _back;
+
+  DateTime get _today {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  Future<void> _pickFrom() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _from,
+      firstDate: _today,
+      lastDate: _today.add(const Duration(days: 90)),
+    );
+    if (picked == null) return;
+    setState(() {
+      _from = picked;
+      if (_back != null && !_back!.isAfter(picked)) _back = null;
+    });
+  }
+
+  Future<void> _pickBack() async {
+    final first = _from.add(const Duration(days: 1));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _back ?? first.add(const Duration(days: 6)),
+      firstDate: first,
+      lastDate: _from.add(const Duration(days: 365)),
+    );
+    if (picked != null) setState(() => _back = picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.freezeNamed(widget.member.name),
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(l10n.freezeHelp, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 8),
+            ListTile(
+              key: const ValueKey('freeze-from'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(AppIcons.reschedule),
+              title: Text(l10n.freezeFrom),
+              subtitle: Text(context.date(_from)),
+              onTap: _pickFrom,
+            ),
+            ListTile(
+              key: const ValueKey('freeze-back'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(AppIcons.reschedule),
+              title: Text(l10n.freezeBackOn),
+              subtitle: Text(
+                _back == null ? l10n.freezeNoEnd : context.date(_back!),
+              ),
+              onTap: _pickBack,
+              trailing: _back == null
+                  ? null
+                  : IconButton(
+                      tooltip: l10n.freezeNoEnd,
+                      onPressed: () => setState(() => _back = null),
+                      icon: const Icon(AppIcons.close),
+                    ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(context).pop((_from, _back)),
+              icon: const Icon(AppIcons.freeze),
+              label: Text(l10n.freeze),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1824,6 +1824,80 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get questionHiddenNote =>
+      'Başkalarından gizli: uygulamada yalnızca soran öğrenci görür. Gizlemek soruyu yanıtlamaz.';
+
+  @override
+  String get hideQuestion => 'Soruyu gizle';
+
+  @override
+  String get showQuestion => 'Soruyu yeniden göster';
+
+  @override
+  String hideAnswerOf(String name) {
+    return '$name adlı öğrencinin yanıtını gizle';
+  }
+
+  @override
+  String showAnswerOf(String name) {
+    return '$name adlı öğrencinin yanıtını yeniden göster';
+  }
+
+  @override
+  String get frozen => 'Donduruldu';
+
+  @override
+  String frozenUntil(String date) {
+    return '$date tarihine kadar donduruldu';
+  }
+
+  @override
+  String get frozenUntilUnfrozen => 'Siz çözene kadar donduruldu';
+
+  @override
+  String freezesOn(String date) {
+    return '$date tarihinde dondurulacak';
+  }
+
+  @override
+  String get freeze => 'Dondur';
+
+  @override
+  String freezeNamed(String name) {
+    return '$name adlı üyenin üyeliğini dondur';
+  }
+
+  @override
+  String get unfreeze => 'Dondurmayı kaldır';
+
+  @override
+  String get removeFreeze => 'Planlanan dondurmayı kaldır';
+
+  @override
+  String get freezeFrom => 'Dondurulan ilk gün';
+
+  @override
+  String get freezeBackOn => 'Geri geleceği gün';
+
+  @override
+  String get freezeNoEnd => 'Siz çözene kadar';
+
+  @override
+  String get freezeHelp =>
+      'Dondurulduğu sürece kapıdan giriş yapamaz ve ders ayırtamaz; bitiş tarihi dondurulan gün sayısı kadar ileri kayar.';
+
+  @override
+  String get frozenDone => 'Üyelik donduruldu.';
+
+  @override
+  String get unfrozenDone => 'Üyelik artık dondurulmuş değil.';
+
+  @override
+  String switchedTo(String business) {
+    return 'Şu anda $business üzerinde çalışıyorsunuz';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

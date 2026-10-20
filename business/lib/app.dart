@@ -64,9 +64,17 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
 
   /// A tapped push: switch to its app and open its screen (after the lock
   /// or the sign-in when needed).
-  void _open(Map<String, dynamic> data) {
+  Future<void> _open(Map<String, dynamic> data) async {
     final target = pushTarget(data);
-    openTarget(ref, target);
+    final switched = await openTarget(ref, target);
+    // 64 Said when it moved to the push's business.
+    if (!mounted || !switched || target.businessName == null) return;
+    final messenger = _messenger.currentState;
+    if (messenger == null || !messenger.mounted) return;
+    final l10n = AppLocalizations.of(messenger.context);
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.switchedTo(target.businessName!))),
+    );
   }
 
   void _foreground(RemoteNotice notice) {
@@ -141,8 +149,24 @@ const _tabs = {
   Paths.more,
 };
 
-/// Opens a push's screen on its app.
-void openTarget(WidgetRef ref, PushTarget target) {
+/// Opens a push's screen on its app; 64 first switches to the push's
+/// business when the phone works on another one the person is on. True when
+/// it switched.
+Future<bool> openTarget(WidgetRef ref, PushTarget target) async {
+  var switched = false;
+  final businessId = target.businessId;
+  final before = ref.read(meProvider);
+  if (businessId != null &&
+      before != null &&
+      before.business?.id != businessId &&
+      before.businesses.any((b) => b.id == businessId)) {
+    try {
+      await ref.read(sessionProvider.notifier).setBusiness(businessId);
+      switched = true;
+    } on Object {
+      // Stays on this business; the screen opens if the app is here.
+    }
+  }
   final me = ref.read(meProvider);
   final appId = target.appId;
   if (appId != null && (me == null || me.apps.any((a) => a.id == appId))) {
@@ -150,7 +174,7 @@ void openTarget(WidgetRef ref, PushTarget target) {
   }
   if (me == null) {
     ref.read(pendingLocationProvider.notifier).set(target.location);
-    return;
+    return switched;
   }
   final router = ref.read(routerProvider);
   final path = Uri.parse(target.location).path;
@@ -162,6 +186,7 @@ void openTarget(WidgetRef ref, PushTarget target) {
     router.go(Paths.today);
     router.push(target.location);
   }
+  return switched;
 }
 
 /// While the session loads.

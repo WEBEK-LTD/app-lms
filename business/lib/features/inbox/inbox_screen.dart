@@ -141,6 +141,8 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
               [
                 ('open', l10n.questionsWaiting),
                 ('answered', l10n.questionsAnswered),
+                // 64 The questions hidden from others.
+                ('hidden', l10n.hidden),
               ],
               _questionStatus,
               (v) => setState(() => _questionStatus = v),
@@ -246,7 +248,9 @@ class _QuestionTile extends StatelessWidget {
             spacing: 8,
             runSpacing: 4,
             children: [
-              if (q.open)
+              if (q.hidden)
+                StatusChip(l10n.hiddenFromOthers, tone: Tone.warn)
+              else if (q.open)
                 StatusChip(l10n.questionsWaiting, tone: Tone.accent)
               else
                 StatusChip(l10n.questionsAnswered, tone: Tone.good),

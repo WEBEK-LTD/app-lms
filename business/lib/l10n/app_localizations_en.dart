@@ -1822,6 +1822,80 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get questionHiddenNote =>
+      'Hidden from others: only the student who asked sees it in the app. Hiding doesn\'t answer it.';
+
+  @override
+  String get hideQuestion => 'Hide the question';
+
+  @override
+  String get showQuestion => 'Show the question again';
+
+  @override
+  String hideAnswerOf(String name) {
+    return 'Hide the answer of $name';
+  }
+
+  @override
+  String showAnswerOf(String name) {
+    return 'Show again the answer of $name';
+  }
+
+  @override
+  String get frozen => 'Frozen';
+
+  @override
+  String frozenUntil(String date) {
+    return 'Frozen until $date';
+  }
+
+  @override
+  String get frozenUntilUnfrozen => 'Frozen until you unfreeze it';
+
+  @override
+  String freezesOn(String date) {
+    return 'Freezes on $date';
+  }
+
+  @override
+  String get freeze => 'Freeze';
+
+  @override
+  String freezeNamed(String name) {
+    return 'Freeze the membership of $name';
+  }
+
+  @override
+  String get unfreeze => 'Unfreeze';
+
+  @override
+  String get removeFreeze => 'Remove the freeze';
+
+  @override
+  String get freezeFrom => 'First frozen day';
+
+  @override
+  String get freezeBackOn => 'Back on';
+
+  @override
+  String get freezeNoEnd => 'Until you unfreeze it';
+
+  @override
+  String get freezeHelp =>
+      'While frozen, the door doesn\'t let them in and they can\'t book classes. The end date moves later by the days it\'s frozen.';
+
+  @override
+  String get frozenDone => 'The membership is frozen.';
+
+  @override
+  String get unfrozenDone => 'The membership isn\'t frozen any more.';
+
+  @override
+  String switchedTo(String business) {
+    return 'Now working on $business';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

@@ -3364,6 +3364,126 @@ abstract class AppLocalizations {
   /// **'{used} in · {left} to come · no capacity limit'**
   String ticketCountsNoLimit(String used, String left);
 
+  /// No description provided for @questionHiddenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from others: only the student who asked sees it in the app. Hiding doesn\'t answer it.'**
+  String get questionHiddenNote;
+
+  /// No description provided for @hideQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the question'**
+  String get hideQuestion;
+
+  /// No description provided for @showQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the question again'**
+  String get showQuestion;
+
+  /// No description provided for @hideAnswerOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the answer of {name}'**
+  String hideAnswerOf(String name);
+
+  /// No description provided for @showAnswerOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Show again the answer of {name}'**
+  String showAnswerOf(String name);
+
+  /// No description provided for @frozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get frozen;
+
+  /// No description provided for @frozenUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen until {date}'**
+  String frozenUntil(String date);
+
+  /// No description provided for @frozenUntilUnfrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen until you unfreeze it'**
+  String get frozenUntilUnfrozen;
+
+  /// No description provided for @freezesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Freezes on {date}'**
+  String freezesOn(String date);
+
+  /// No description provided for @freeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze'**
+  String get freeze;
+
+  /// No description provided for @freezeNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze the membership of {name}'**
+  String freezeNamed(String name);
+
+  /// No description provided for @unfreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfreeze'**
+  String get unfreeze;
+
+  /// No description provided for @removeFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the freeze'**
+  String get removeFreeze;
+
+  /// No description provided for @freezeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'First frozen day'**
+  String get freezeFrom;
+
+  /// No description provided for @freezeBackOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back on'**
+  String get freezeBackOn;
+
+  /// No description provided for @freezeNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you unfreeze it'**
+  String get freezeNoEnd;
+
+  /// No description provided for @freezeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'While frozen, the door doesn\'t let them in and they can\'t book classes. The end date moves later by the days it\'s frozen.'**
+  String get freezeHelp;
+
+  /// No description provided for @frozenDone.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership is frozen.'**
+  String get frozenDone;
+
+  /// No description provided for @unfrozenDone.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership isn\'t frozen any more.'**
+  String get unfrozenDone;
+
+  /// No description provided for @switchedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Now working on {business}'**
+  String switchedTo(String business);
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

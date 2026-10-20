@@ -14,11 +14,26 @@ String memberOutcomeTitle(BuildContext context, MemberCheckIn result) {
     'expired' => l10n.membershipEnded,
     'cancelled' => l10n.membershipCancelled,
     'not_started' => l10n.membershipNotStarted,
+    // 64 "Frozen until …", the day it's back.
+    'frozen' =>
+      result.member?.frozenUntil != null
+          ? l10n.frozenUntil(context.date(result.member!.frozenUntil!))
+          : l10n.frozen,
     'no_credits' => l10n.noClassesLeft,
     'not_found' => l10n.memberNotFound,
     'forged' || 'not_a_code' => l10n.notAMemberCode,
     _ => result.message,
   };
+}
+
+/// 64 A freeze now or to come, in words; null without one.
+String? freezeText(BuildContext context, Member m) {
+  final l10n = context.l10n;
+  if (!m.freezeSet) return null;
+  if (!m.frozen) return l10n.freezesOn(context.date(m.frozenFrom!));
+  return m.frozenUntil != null
+      ? l10n.frozenUntil(context.date(m.frozenUntil!))
+      : l10n.frozenUntilUnfrozen;
 }
 
 /// "Monthly unlimited · until 12 Nov · Unlimited classes".

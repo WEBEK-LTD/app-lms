@@ -203,6 +203,7 @@ class StatusChip extends StatelessWidget {
     'draft' ||
     'scheduled' ||
     'expired' => Tone.warn,
+    'frozen' => Tone.info,
     'cancelled' ||
     'rejected' ||
     'failed' ||

@@ -1077,6 +1077,68 @@
       }
     }
   },
+  "questionHiddenNote": "Hidden from others: only the student who asked sees it in the app. Hiding doesn't answer it.",
+  "hideQuestion": "Hide the question",
+  "showQuestion": "Show the question again",
+  "hideAnswerOf": "Hide the answer of {name}",
+  "@hideAnswerOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "showAnswerOf": "Show again the answer of {name}",
+  "@showAnswerOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frozen": "Frozen",
+  "frozenUntil": "Frozen until {date}",
+  "@frozenUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "frozenUntilUnfrozen": "Frozen until you unfreeze it",
+  "freezesOn": "Freezes on {date}",
+  "@freezesOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "freeze": "Freeze",
+  "freezeNamed": "Freeze the membership of {name}",
+  "@freezeNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unfreeze": "Unfreeze",
+  "removeFreeze": "Remove the freeze",
+  "freezeFrom": "First frozen day",
+  "freezeBackOn": "Back on",
+  "freezeNoEnd": "Until you unfreeze it",
+  "freezeHelp": "While frozen, the door doesn't let them in and they can't book classes. The end date moves later by the days it's frozen.",
+  "frozenDone": "The membership is frozen.",
+  "unfrozenDone": "The membership isn't frozen any more.",
+  "switchedTo": "Now working on {business}",
+  "@switchedTo": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
