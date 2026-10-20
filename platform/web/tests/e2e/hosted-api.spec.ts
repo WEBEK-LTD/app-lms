@@ -142,3 +142,39 @@ test("the app signs a customer in and receives notifications", async ({ page, re
   expect((await request.post(`${api}/auth/logout`, { headers: { authorization: `Bearer ${next.access_token}` } })).status()).toBe(204);
   expect((await request.get(`${api}/me`, { headers: { authorization: `Bearer ${next.access_token}` } })).status()).toBe(401);
 });
+
+test("61 a notification sent later waits in Scheduled, can be changed and cancelled; the frequent job needs its token", async ({ page, request }) => {
+  await signIn(page, client.email, client.password);
+  await page.getByRole("link", { name: "App notifications" }).click();
+  const date = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+  await page.getByLabel("Title").fill("Weekend market");
+  await page.getByLabel("Message").fill("Tulips on Saturday from 9.");
+  await page.getByRole("radio", { name: "Later" }).check();
+  await expect(page.getByText(/In your app's time zone, Europe\/Istanbul/)).toBeVisible();
+  await page.getByLabel("Date").fill(date);
+  await page.getByLabel("Time").fill("09:30");
+  await page.getByRole("button", { name: "Schedule" }).click();
+  await expect(page.getByRole("status")).toContainText(`Scheduled for ${date} at 09:30.`);
+  const scheduled = page.getByRole("region", { name: "Scheduled" });
+  await expect(scheduled).toContainText("Weekend market");
+  await expect(scheduled).toContainText("at 09:30");
+
+  await scheduled.locator("summary").click();
+  await scheduled.getByLabel("Time").fill("10:15");
+  await scheduled.getByRole("button", { name: "Save changes" }).click();
+  await expect(scheduled.getByRole("status")).toContainText(`Scheduled for ${date} at 10:15.`);
+  await page.reload();
+  await expect(scheduled).toContainText("at 10:15");
+
+  // The frequent job: refused without its token; with it, nothing is due yet.
+  expect((await request.post("/api/internal/frequent")).status()).toBe(401);
+  const run = await request.post("/api/internal/frequent", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
+  expect(run.status()).toBe(200);
+  expect(await run.json()).toMatchObject({ notifications: { sent: expect.any(Number) }, announcements: { announcements: expect.any(Number) } });
+  await page.reload();
+  await expect(scheduled).toContainText("Weekend market");
+  await expect(page.getByRole("region", { name: "Sent" })).not.toContainText("Weekend market");
+
+  await scheduled.getByRole("button", { name: "Cancel “Weekend market”" }).click();
+  await expect(scheduled.getByText(/Nothing scheduled\./)).toBeVisible();
+});
