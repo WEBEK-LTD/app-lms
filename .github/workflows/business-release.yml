@@ -65,6 +65,7 @@ jobs:
           OFFSET: ${{ vars.YB_BUILD_NUMBER_OFFSET }}
           # Only whether each one is set, never its value.
           HAS_YB_ANDROID_UPLOAD_KEYSTORE: ${{ secrets.YB_ANDROID_UPLOAD_KEYSTORE != '' }}
+          HAS_YB_SECRETS_TOKEN: ${{ secrets.YB_SECRETS_TOKEN != '' }}
           HAS_YB_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.YB_ANDROID_KEYSTORE_PASSWORD != '' }}
           HAS_YB_ANDROID_KEY_ALIAS: ${{ secrets.YB_ANDROID_KEY_ALIAS != '' }}
           HAS_YB_ANDROID_KEY_PASSWORD: ${{ secrets.YB_ANDROID_KEY_PASSWORD != '' }}
@@ -126,7 +127,9 @@ jobs:
               echo "|---|---|"
               set_or_missing YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD YB_ANDROID_KEY_ALIAS YB_ANDROID_KEY_PASSWORD YB_PLAY_SERVICE_ACCOUNT_JSON YB_FIREBASE_PROJECT_ID YB_FIREBASE_SENDER_ID YB_FIREBASE_APP_ID_ANDROID YB_FIREBASE_API_KEY_ANDROID
               echo
-              if ! all_set YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD; then
+              if ! all_set YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD && all_set YB_SECRETS_TOKEN; then
+                echo "**First run**: the upload key is made in this run and saved as the four \`YB_ANDROID_*\` secrets with \`YB_SECRETS_TOKEN\`."
+              elif ! all_set YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD; then
                 echo "**No upload key**: the Android part stops until \`YB_ANDROID_UPLOAD_KEYSTORE\`, \`YB_ANDROID_KEYSTORE_PASSWORD\`, \`YB_ANDROID_KEY_ALIAS\` and \`YB_ANDROID_KEY_PASSWORD\` are added."
               fi
               if ! all_set YB_PLAY_SERVICE_ACCOUNT_JSON; then
@@ -232,9 +235,14 @@ jobs:
 
       # The upload key from the four YB_ANDROID_* secrets. The repository is public: the key
       # is only written to $RUNNER_TEMP, never printed nor attached, and deleted below.
+      # On the first run, without those secrets but with YB_SECRETS_TOKEN (a fine-grained
+      # token allowed to write this repository's secrets), the key is made here and saved
+      # as the four secrets, so nobody ever holds it. Lost later? Play Console can reset
+      # an upload key (Play App Signing).
       - id: key
         name: Upload key
         env:
+          SECRETS_TOKEN: ${{ secrets.YB_SECRETS_TOKEN }}
           KEYSTORE_BASE64: ${{ secrets.YB_ANDROID_UPLOAD_KEYSTORE }}
           STORE_PASSWORD: ${{ secrets.YB_ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.YB_ANDROID_KEY_ALIAS }}
@@ -247,11 +255,35 @@ jobs:
           STORE_PASSWORD=$(trim_end "$STORE_PASSWORD")
           KEY_PASSWORD=$(trim_end "$KEY_PASSWORD")
           KEY_ALIAS=$(printf '%s' "$KEY_ALIAS" | tr -d '[:space:]')
+          if [ -z "$(printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]')" ] && [ -n "$SECRETS_TOKEN" ]; then
+            echo "::add-mask::$SECRETS_TOKEN"
+            STORE_PASSWORD=$(openssl rand -hex 24)
+            echo "::add-mask::$STORE_PASSWORD"
+            KEY_PASSWORD=$STORE_PASSWORD
+            KEY_ALIAS=upload
+            rm -f "$keystore"
+            keytool -genkeypair -noprompt -storetype PKCS12 -keystore "$keystore" -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 4096 -validity 10000 \
+              -storepass "$STORE_PASSWORD" -keypass "$KEY_PASSWORD" \
+              -dname "CN=Yallapp Business, O=Yallapp, C=TR" > /dev/null 2>&1
+            KEYSTORE_BASE64=$(base64 -w0 "$keystore")
+            # Values go to gh on stdin, never on the command line.
+            save() { printf '%s' "$2" | GH_TOKEN="$SECRETS_TOKEN" gh secret set "$1" -R "$GITHUB_REPOSITORY" > /dev/null; }
+            if ! { save YB_ANDROID_UPLOAD_KEYSTORE "$KEYSTORE_BASE64" &&
+                   save YB_ANDROID_KEYSTORE_PASSWORD "$STORE_PASSWORD" &&
+                   save YB_ANDROID_KEY_ALIAS "$KEY_ALIAS" &&
+                   save YB_ANDROID_KEY_PASSWORD "$KEY_PASSWORD"; }; then
+              rm -f "$keystore"
+              echo "YB_SECRETS_TOKEN can't save repository secrets: it needs this repository and the permission Secrets: Read and write. Nothing was signed; fix the token and run the workflow again." | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            echo "A new upload key was made and saved as the four \`YB_ANDROID_*\` secrets. \`YB_SECRETS_TOKEN\` isn't needed any more: delete it (Settings › Secrets and variables › Actions) and the token itself on GitHub." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -z "$(printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]')" ] || [ -z "$STORE_PASSWORD" ]; then
             {
               echo "### Google Play: no upload key"
               echo
-              echo "The App Bundle is signed with Yallapp Business's upload key. Add these repository secrets (Settings › Secrets and variables › Actions), then run the workflow again:"
+              echo "The App Bundle is signed with Yallapp Business's upload key. Either add \`YB_SECRETS_TOKEN\` (a fine-grained token for this repository with Secrets: Read and write; the next run makes the key and saves it, docs/LAUNCH-CHECKLIST.md 7l) or add these repository secrets (Settings › Secrets and variables › Actions), then run the workflow again:"
               echo
               echo "- \`YB_ANDROID_UPLOAD_KEYSTORE\`: the PKCS12 keystore file in base64 (line breaks are fine)"
               echo "- \`YB_ANDROID_KEYSTORE_PASSWORD\`: its password"

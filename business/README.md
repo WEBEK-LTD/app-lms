@@ -147,7 +147,9 @@ missing.
 - **Android** (Linux): the App Bundle signed with the upload key
   (`YB_ANDROID_UPLOAD_KEYSTORE` in base64, `YB_ANDROID_KEYSTORE_PASSWORD`,
   `YB_ANDROID_KEY_ALIAS`, `YB_ANDROID_KEY_PASSWORD`, through
-  `android/key.properties` written on the runner and removed), attached to
+  `android/key.properties` written on the runner and removed; on the first
+  run, with `YB_SECRETS_TOKEN` and no key yet, the key is made there and saved
+  as those secrets), attached to
   the run and put on the **Yallapp Business test build** pre-release as
   `yallapp-business.aab`, then uploaded by fastlane supply with
   `YB_PLAY_SERVICE_ACCOUNT_JSON` (lane `business_play`). Google Play takes a

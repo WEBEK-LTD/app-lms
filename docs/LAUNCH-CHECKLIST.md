@@ -547,17 +547,17 @@ never in a chat or an issue.
 
 - [ ] Play Console › Create app: name **Yallapp Business**, default language
       English (United States), App, Free.
-- [ ] The upload key, as four secrets: `YB_ANDROID_UPLOAD_KEYSTORE` (the
-      PKCS12 keystore file in base64; line breaks don't matter),
-      `YB_ANDROID_KEYSTORE_PASSWORD`, `YB_ANDROID_KEY_ALIAS` (`upload`) and
-      `YB_ANDROID_KEY_PASSWORD` (the same password). To make one on a computer
-      with Java: `keytool -genkeypair -storetype PKCS12 -keystore upload.jks
-      -alias upload -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=Yallapp
-      Business, O=Yallapp, C=TR"`, then `base64 -w0 upload.jks` (Linux) or
-      `base64 -i upload.jks` (Mac) for the first secret. Keep the file and the
-      password in the team's password manager. With Play App Signing (on by
-      default) a lost upload key can be reset from Play Console › Test and
-      release › App integrity.
+- [ ] The upload key is made by the workflow itself, so nobody ever holds it.
+      Make a token: GitHub › your picture › Settings › Developer settings ›
+      Personal access tokens › Fine-grained tokens › Generate new token: name
+      `yallapp-release-key`, resource owner **WEBEK-LTD**, 7 days, only the
+      `app-lms` repository, Repository permissions › **Secrets: Read and
+      write**. Add it as the repository secret `YB_SECRETS_TOKEN`. The first
+      run makes the key and saves it as the four `YB_ANDROID_*` secrets
+      (`YB_ANDROID_UPLOAD_KEYSTORE`, `YB_ANDROID_KEYSTORE_PASSWORD`,
+      `YB_ANDROID_KEY_ALIAS`, `YB_ANDROID_KEY_PASSWORD`); after it, delete the
+      secret and the token. With Play App Signing (on by default) a lost upload
+      key can be reset from Play Console › Test and release › App integrity.
 - [ ] Run the workflow once (below) with **android**. Its App Bundle is on the
       **Yallapp Business test build** pre-release as `yallapp-business.aab`.
 - [ ] **First upload by hand** (Google Play accepts nothing else for a new
