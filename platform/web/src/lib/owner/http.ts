@@ -7,6 +7,8 @@ import type { MediaStorage } from "../media/storage";
 import type { ProviderUrls } from "../payments/provider";
 import type { sendPush } from "../hosted/push";
 import type { RefundDeps } from "../refunds/service";
+import type { TeamAccess, TeamPermission } from "../team/permissions";
+import type { Business } from "../team/service";
 
 /**
  * 58 The Owner API's plumbing: what a handler gets, what it answers, and
@@ -27,6 +29,8 @@ export interface OwnerDeps {
   media: MediaStorage | null;
   /** The refund emails to customers (in the app's name). */
   mail: RefundDeps["mail"];
+  /** 60 The `team_invitation` email (lib/email/send.ts sendTemplate). */
+  teamMail?: (to: string, values: Record<string, string>, lang: Lang) => Promise<unknown>;
   /** Pushes to the app's own users (the kitchen's steps, inquiry replies, notifications); tests pass a fake. */
   sendPush?: typeof sendPush;
 }
@@ -53,6 +57,11 @@ export interface OwnerContext {
   user: User;
   client: Client;
   device: OwnerDevice;
+  /** 60 What the person may do on this business (the owner's, or their role on its team). */
+  access: TeamAccess;
+  /** 60 Every business the person works on, their own first. */
+  businesses: Business[];
+  /** The business's apps the person works on (all of them for the owner). */
   apps: App[];
   licenses: License[];
   /** The whole account's state, as the dashboard has it. */
@@ -80,6 +89,8 @@ export const NOT_FOUND = "Not found.";
 export const notFound = () => new OwnerError(404, "not_found", NOT_FOUND);
 export const notAvailable = () => new OwnerError(404, "not_available", "Your app doesn't have this.");
 export const invalid = (errors?: Record<string, string>, english = "The request isn't valid.") => new OwnerError(400, "invalid_request", english, errors ? { errors } : {});
+/** 60 The person's role on the team doesn't allow it. */
+export const notAllowed = () => new OwnerError(403, "not_allowed", "Your role on this team doesn't allow this. Ask the owner.");
 export const rateLimited = (retryAfter: number, english = "Too many requests. Try again shortly.") => new OwnerError(429, "rate_limited", english, { retryAfter });
 
 /** The body of an error, in a language. */
@@ -134,9 +145,11 @@ export interface Route {
   handler: Handler;
   /** Answers for pending and suspended accounts too (the person's own settings). */
   anyState?: boolean;
+  /** 60 What the person must be allowed (lib/team/permissions.ts), on the path's app when it has one. */
+  permission?: TeamPermission;
 }
 
-export function route(method: string, pattern: string, handler: Handler, options: { anyState?: boolean } = {}): Route {
+export function route(method: string, pattern: string, handler: Handler, options: { anyState?: boolean; permission?: TeamPermission } = {}): Route {
   return { method, pattern: pattern.split("/").filter(Boolean), handler, ...options };
 }
 

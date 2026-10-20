@@ -1,17 +1,20 @@
 import { isLang } from "@/i18n/config";
+import { contextFor } from "./auth";
 import { appAreas } from "../app/areas";
 import { appLabel } from "../app/label";
 import { kindOf } from "../app/kinds";
 import { contactFrom, DEFAULT_CONTACT } from "../contact";
 import type { App, OwnerDevice, OwnerPushPreferences } from "../data/types";
 import { OWNER_PUSH_KINDS } from "../data/types";
-import { appState, daysUntil, type AccountState } from "../license/status";
+import { appState, clientAccountState, daysUntil, type AccountState } from "../license/status";
 import { getPlans, platformSetting } from "../settings/platform";
 import { isPlan, type Plan, type PlanInfo } from "../plans";
 import { loadUpdates, markRead } from "../updates";
 import { readerOf, itemWords } from "../updates-view";
 import { bellWords, dashboardTextFor } from "../dashboard-words";
 import { bodyObject, invalid, notFound, OwnerError, type OwnerContext, type OwnerResult } from "./http";
+import { allowedAreas, areasOf, teamCan } from "../team/permissions";
+import { businessName } from "../team/service";
 
 /**
  * 58 The account: who is signed in, their apps (with what each has, as the
@@ -37,7 +40,8 @@ export function appStateOf(ctx: OwnerContext, app: App): AccountState {
 
 /** `AppSummary` in docs/api/owner.yaml. */
 export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, PlanInfo>) {
-  const areas = appAreas(app);
+  // 60 What the app has and the person's role allows.
+  const areas = allowedAreas(appAreas(app), ctx.access, app.id);
   const license = ctx.licenses.find((l) => l.appId === app.id) ?? null;
   const name = appLabel(app);
   return {
@@ -69,7 +73,26 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       preview: areas.preview,
       builds: areas.builds,
     },
+    access: {
+      role: ctx.access.role,
+      areas: areasOf(ctx.access),
+      license: teamCan(ctx.access, "billing", app.id),
+      team: teamCan(ctx.access, "team", app.id),
+      settings: teamCan(ctx.access, "settings", app.id),
+    },
   };
+}
+
+/** 60 `Business` in docs/api/owner.yaml. */
+async function businessesJson(ctx: OwnerContext) {
+  const { store, now } = ctx.deps;
+  return Promise.all(
+    ctx.businesses.map(async (b) => {
+      const [apps, licenses] = await Promise.all([store.listAppsByClient(b.client.id), store.listLicensesByClient(b.client.id)]);
+      const name = businessName(b.owner, apps.filter((a) => b.access.appIds === null || b.access.role === "owner" || b.access.appIds.includes(a.id)));
+      return { id: b.client.id, name: name === "Untitled app" ? ctx.k(name) : name, role: b.access.role, state: clientAccountState(b.client, licenses, now) };
+    }),
+  );
 }
 
 export async function meJson(ctx: OwnerContext) {
@@ -77,8 +100,11 @@ export async function meJson(ctx: OwnerContext) {
   const active = ctx.client.status === "active";
   const [plans, contact] = await Promise.all([getPlans(store), platformSetting(store, "contact")]);
   const support = contactFrom(contact?.value ?? DEFAULT_CONTACT);
+  const businesses = await businessesJson(ctx);
   return {
     user: { id: ctx.user.id, name: ctx.user.name, email: ctx.user.email, language: isLang(ctx.user.language) ? ctx.user.language : null },
+    business: businesses.find((b) => b.id === ctx.client.id) ?? null,
+    businesses,
     account: {
       state: ctx.state,
       message: ctx.client.status === "suspended" ? ctx.k("Your account is suspended. Message Yallapp on WhatsApp.") : ctx.client.status === "pending" ? ctx.k("Your account is waiting for activation. We'll tell you as soon as it's active.") : null,
@@ -90,6 +116,18 @@ export async function meJson(ctx: OwnerContext) {
 
 export async function getMe(ctx: OwnerContext): Promise<OwnerResult> {
   return { status: 200, body: await meJson(ctx) };
+}
+
+/** 60 `PUT /me/business`: this device works on another business the person is on; its pushes follow. */
+export async function setBusiness(ctx: OwnerContext): Promise<OwnerResult> {
+  const id = bodyObject(ctx.req.body).business_id;
+  if (typeof id !== "string" || !id) throw invalid({ business_id: "The request isn't valid." });
+  if (!ctx.businesses.some((b) => b.client.id === id)) throw notFound();
+  await ctx.deps.store.updateOwnerDevice(ctx.device.id, { clientId: id });
+  const device = { ...ctx.device, clientId: id };
+  const client = ctx.businesses.find((b) => b.client.id === id)!.client;
+  const next = await contextFor(ctx.deps, ctx.req, ctx.user, client, device);
+  return { status: 200, body: await meJson(next) };
 }
 
 /** `PUT /me/language`: the dashboard's own choice (`users.language`). */
@@ -177,7 +215,12 @@ export async function setPushPreferences(ctx: OwnerContext): Promise<OwnerResult
 // 57 The bell: "Updates from Yallapp"
 
 async function updatesOf(ctx: OwnerContext) {
-  return loadUpdates(ctx.deps.store, readerOf({ user: ctx.user, staff: null, client: ctx.client, apps: ctx.apps, account: ctx.state, licenses: ctx.licenses }, ctx.lang), ctx.deps.now);
+  // 60 The person reads for themselves, and sees what their role on the team allows.
+  return loadUpdates(
+    ctx.deps.store,
+    readerOf({ user: ctx.user, staff: null, member: null, access: ctx.access, client: ctx.client, apps: ctx.apps, account: ctx.state, licenses: ctx.licenses }, ctx.lang),
+    ctx.deps.now,
+  );
 }
 
 export async function listUpdates(ctx: OwnerContext): Promise<OwnerResult> {

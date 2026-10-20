@@ -48,6 +48,21 @@ info:
       each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
       ID (`order_id`, `appointment_id`, `inquiry_id`, `build_id`,
       `donation_id`, `update_key`).
+    - **Team members** (roadmap 60). The people who work with an owner sign
+      in with their own email and password. Each has a role per business:
+      `owner` (the client's own account: everything), `manager` (everything
+      but License, payments, the team and an app's type or content source)
+      or `staff` (only the areas the owner chose), and may be limited to some
+      of the business's apps. `GET /me` gives the role and areas for each app
+      (`AppSummary.access`); `AppSummary.features` lists only what the app
+      has *and* the person may use. Every call checks the same rules as the
+      dashboard (one helper for both): something the role doesn't allow is
+      403 `not_allowed`, an app outside their apps is 404 `not_found`.
+      Someone on several businesses works on one per device
+      (`Me.business`), changed with `PUT /me/business`. Removing someone from
+      the team signs them out everywhere at once (401 `invalid_token`).
+      Pushes reach only the devices whose person has the area of the push.
+      The owner manages the team with the `Team` paths.
     - **Errors** are `{code, message}`; `message` is safe to show, in the
       person's language. 429 adds `retry_after_seconds` and `Retry-After`.
   license:
@@ -121,6 +136,13 @@ tags:
     description: The app preview, builds and their downloads, read-only.
   - name: License
     description: The plan, its end and the storage, read-only, with the address to manage them on yallapp.com.tr.
+  - name: Team
+    description: |
+      The owner's team (roadmap 60): the people on it with their role, areas
+      and apps, invitations (an email with a link to join, single use, for 7
+      days; at most 20 an hour per business and 5 a day per address), changing
+      what someone can do and removing them. The owner only: anyone else gets
+      403 `not_allowed`.
 
 paths:
   /auth/sign-in:
@@ -263,6 +285,34 @@ paths:
               schema: { $ref: '#/components/schemas/Me' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/business:
+    put:
+      tags: [Account]
+      operationId: setBusiness
+      summary: Work on another business
+      description: |
+        For someone on more than one business (their own and the teams they
+        joined, `Me.businesses`): this device works on that one from now on.
+        Its pushes follow it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [business_id]
+              properties:
+                business_id: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The account, on that business
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /me/devices:
     get:
@@ -1374,6 +1424,116 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /team:
+    get:
+      tags: [Team]
+      operationId: getTeam
+      summary: The team and the invitations waiting
+      responses:
+        '200':
+          description: The team
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Team' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+
+  /team/invitations:
+    post:
+      tags: [Team]
+      operationId: inviteTeamMember
+      summary: Invite someone
+      description: |
+        Emails a link to join (in the invitee's language when they have a
+        Yallapp account, else the owner's). Someone who already uses Yallapp
+        joins with their own password. Refused for the owner's own email,
+        someone on the team already, Yallapp's team and an address with an
+        invitation waiting (send that one again).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeamInviteRequest' }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeamInvitation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /team/invitations/{invitation_id}:
+    delete:
+      tags: [Team]
+      operationId: cancelTeamInvitation
+      summary: Cancel an invitation
+      description: Its link stops working.
+      parameters:
+        - $ref: '#/components/parameters/InvitationId'
+      responses:
+        '204': { description: Cancelled }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /team/invitations/{invitation_id}/resend:
+    post:
+      tags: [Team]
+      operationId: resendTeamInvitation
+      summary: Send an invitation again
+      description: A new link for 7 more days; the old link stops working.
+      parameters:
+        - $ref: '#/components/parameters/InvitationId'
+      responses:
+        '200':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeamInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /team/members/{user_id}:
+    patch:
+      tags: [Team]
+      operationId: updateTeamMember
+      summary: Change what someone can do
+      description: Applies at once, on the dashboard and on their phones.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeamAccessRequest' }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeamMember' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Team]
+      operationId: removeTeamMember
+      summary: Remove someone from the team
+      description: They are signed out at once, on the website and on every phone.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1412,6 +1572,16 @@ components:
       name: page
       in: query
       schema: { type: integer, minimum: 1, default: 1 }
+    InvitationId:
+      name: invitation_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     PerPage:
       name: per_page
       in: query
@@ -1429,7 +1599,11 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     AccountNotActive:
-      description: The account isn't active yet (`account_pending`) or is suspended (`account_suspended`); `GET /me` shows its state.
+      description: |
+        The account isn't active yet (`account_pending`) or is suspended
+        (`account_suspended`); `GET /me` shows its state. Or (roadmap 60) the
+        person's role on the team doesn't allow this (`not_allowed`: "Ask the
+        owner").
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -1473,6 +1647,7 @@ components:
             - invalid_token
             - account_pending
             - account_suspended
+            - not_allowed
             - not_found
             - not_available
             - invalid_request
@@ -1549,7 +1724,7 @@ components:
 
     Me:
       type: object
-      required: [user, account, apps, links]
+      required: [user, account, business, businesses, apps, links]
       properties:
         user:
           type: object
@@ -1565,9 +1740,18 @@ components:
           properties:
             state: { $ref: '#/components/schemas/AccountState' }
             message: { type: [string, 'null'], description: "What a pending or suspended account sees, in the person's language." }
+        business:
+          description: The business this device works on (roadmap 60); null for none.
+          oneOf:
+            - $ref: '#/components/schemas/Business'
+            - type: 'null'
+        businesses:
+          type: array
+          description: Every business the person works on, their own first; more than one shows a switcher (`PUT /me/business`).
+          items: { $ref: '#/components/schemas/Business' }
         apps:
           type: array
-          description: Oldest first, as the dashboard's app switcher. Empty while the account is pending or suspended.
+          description: Oldest first, as the dashboard's app switcher; for a team member limited to some apps, only those. Empty while the account is pending or suspended.
           items: { $ref: '#/components/schemas/AppSummary' }
         links:
           type: object
@@ -1579,7 +1763,7 @@ components:
 
     AppSummary:
       type: object
-      required: [id, name, type, type_name, backend, state, icon_url, plan, features]
+      required: [id, name, type, type_name, backend, state, icon_url, plan, features, access]
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
@@ -1594,6 +1778,7 @@ components:
             - $ref: '#/components/schemas/PlanSummary'
             - type: 'null'
         features: { $ref: '#/components/schemas/AppFeatures' }
+        access: { $ref: '#/components/schemas/AppAccess' }
 
     PlanSummary:
       type: object
@@ -1606,7 +1791,7 @@ components:
 
     AppFeatures:
       type: object
-      description: What the app has, as the dashboard's menu shows it for its type and content source.
+      description: What the app has, as the dashboard's menu shows it for its type and content source, and (roadmap 60) the person's role allows.
       required: [orders, kitchen, appointments, events, check_in, donations, products, courses, articles, listings, inquiries, app_users, notifications, media, analytics, preview, builds]
       properties:
         orders: { type: boolean }
@@ -2250,3 +2435,107 @@ components:
           items: { type: string }
         storage: { $ref: '#/components/schemas/Storage' }
         manage_url: { type: string, format: uri, description: 'Renewing, changing plans and storage packs: on yallapp.com.tr only.' }
+
+    TeamRole:
+      type: string
+      enum: [owner, manager, staff]
+
+    TeamArea:
+      type: string
+      description: What a Staff member can be given (roadmap 60).
+      enum: [orders, bookings, events, donations, catalog, media, messages, app_users, analytics, notifications]
+
+    AppAccess:
+      type: object
+      description: What the signed-in person may do on this app (roadmap 60).
+      required: [role, areas, license, team, settings]
+      properties:
+        role: { $ref: '#/components/schemas/TeamRole' }
+        areas:
+          type: array
+          description: The areas they have; every area for owners and managers.
+          items: { $ref: '#/components/schemas/TeamArea' }
+        license: { type: boolean, description: 'License, payments and storage packs: the owner only. Else the app shows "Ask the owner".' }
+        team: { type: boolean, description: The Team paths. }
+        settings: { type: boolean, description: "The app's settings: builds and publishing (owners and managers)." }
+
+    Business:
+      type: object
+      required: [id, name, role, state]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, description: "Its first app's name, else its owner's." }
+        role: { $ref: '#/components/schemas/TeamRole' }
+        state: { $ref: '#/components/schemas/AccountState' }
+
+    TeamMember:
+      type: object
+      required: [user_id, name, email, role, areas, app_ids, joined_at, last_sign_in_at]
+      properties:
+        user_id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/TeamRole' }
+        areas:
+          type: array
+          items: { $ref: '#/components/schemas/TeamArea' }
+        app_ids:
+          type: [array, 'null']
+          description: The apps they work on; null for all of them.
+          items: { type: string, format: uuid }
+        joined_at: { type: [string, 'null'], format: date-time, description: Null for the owner. }
+        last_sign_in_at: { type: [string, 'null'], format: date-time }
+
+    TeamInvitation:
+      type: object
+      required: [id, name, email, role, areas, app_ids, sent_at, expires_at, expired]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/TeamRole' }
+        areas:
+          type: array
+          items: { $ref: '#/components/schemas/TeamArea' }
+        app_ids:
+          type: [array, 'null']
+          items: { type: string, format: uuid }
+        sent_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        expired: { type: boolean }
+
+    Team:
+      type: object
+      required: [members, invitations]
+      properties:
+        members:
+          type: array
+          description: The owner first, then the team in the order they joined.
+          items: { $ref: '#/components/schemas/TeamMember' }
+        invitations:
+          type: array
+          description: Invitations neither accepted nor cancelled, newest first (expired ones too, to send again).
+          items: { $ref: '#/components/schemas/TeamInvitation' }
+
+    TeamAccessRequest:
+      type: object
+      required: [role]
+      properties:
+        role: { type: string, enum: [manager, staff] }
+        areas:
+          type: array
+          description: Staff only; at least one.
+          items: { $ref: '#/components/schemas/TeamArea' }
+        app_ids:
+          type: [array, 'null']
+          description: Some of the business's apps, or null (or left out) for all of them.
+          items: { type: string, format: uuid }
+
+    TeamInviteRequest:
+      allOf:
+        - $ref: '#/components/schemas/TeamAccessRequest'
+        - type: object
+          required: [name, email]
+          properties:
+            name: { type: string, minLength: 2, maxLength: 120 }
+            email: { type: string, format: email }
