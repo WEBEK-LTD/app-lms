@@ -237,6 +237,15 @@ test("the member completes the order on the dashboard, and the owner sees who di
   await expect(own.getByTestId("team-activity")).toContainText(`${staff.name} · Order`);
   await expect(own.getByTestId("team-activity")).toContainText("Completed");
   await expect(own.locator(`[data-member="${staff.email}"]`)).toContainText("Orders & kitchen");
+  // 64 The activity of one person: the member's order step, not the owner's invitation.
+  await own.getByTestId("team-activity-filter").getByLabel("Who").selectOption({ label: staff.name });
+  await own.getByTestId("team-activity-filter").getByRole("button", { name: "Show" }).click();
+  await expect(own).toHaveURL(/person=/);
+  await expect(own.getByTestId("team-activity")).toContainText(`${staff.name} · Order`);
+  await expect(own.getByTestId("team-activity")).not.toContainText("Invited");
+  await own.getByTestId("team-activity-filter").getByLabel("Who").selectOption({ label: "Everyone" });
+  await own.getByTestId("team-activity-filter").getByRole("button", { name: "Show" }).click();
+  await expect(own.getByTestId("team-activity")).toContainText("Invited");
 });
 
 test("the member's phone sees only Orders in the Owner API", async ({ request }) => {

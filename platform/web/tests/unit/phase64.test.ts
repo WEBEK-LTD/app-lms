@@ -416,8 +416,8 @@ describe("64 pushes reach every phone of someone on several businesses", () => {
     const store = new MemoryStore();
     const cafe = await ownerOf(store, "leyla@cafe.test");
     const shop = await ownerOf(store, "omar@shop.test", "Omar Said");
-    const cafeApp = await addApp(store, cafe.client, { appType: "restaurant", appName: "Moda Café" });
-    const otherCafeApp = await addApp(store, cafe.client, { appType: "restaurant", appName: "Moda Bakery" });
+    const cafeApp = await addApp(store, cafe.client, { appType: "store", appName: "Moda Café" });
+    const otherCafeApp = await addApp(store, cafe.client, { appType: "store", appName: "Moda Bakery" });
     await addApp(store, shop.client, { appType: "store", appName: "Omar's Shop" });
     // Omar works for the café's orders on its first app only; Leyla's manager has everything.
     await store.saveTeamMember({ clientId: cafe.client.id, userId: shop.user.id, role: "staff", areas: ["orders"], appIds: [cafeApp.id], addedBy: cafe.user.email, createdAt: NOW, updatedAt: NOW });
