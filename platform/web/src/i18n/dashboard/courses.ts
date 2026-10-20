@@ -12,7 +12,8 @@ export const en = {
   paidNoPayments: "Paid courses can't be bought until you set up <link>Card payments</link> below.",
   count: "{count, plural, one {{count} course} other {{count} courses}}",
   // The English line as the page always wrote it.
-  courseLine: "{price} · {lessons} lessons · {students} students",
+  // 62 One lesson, one student: ICU plurals in every language.
+  courseLine: "{price} · {lessons, plural, one {{lessons} lesson} other {{lessons} lessons}} · {students, plural, one {{students} student} other {{students} students}}",
   noCourses: "No courses yet. Add your first one.",
   addCourse: "Add a course",
   addCourseButton: "Add course",

@@ -1,5 +1,7 @@
 import { textIn, withText } from "../pages/model";
 import { ENTRY_LISTS, TRANSLATABLE, TRANSLATABLE_ENTRIES, type EntryList, type LayoutContent, type Translations } from "../pages/types";
+import type { Lang } from "@/i18n/config";
+import { appStringNote } from "./app-string-notes";
 import { APP_STRINGS, builtInString } from "./app-strings";
 import { builtInText } from "./builtin";
 
@@ -87,13 +89,13 @@ export function contentRows(layout: LayoutContent, lang: string): TranslationRow
   return rows;
 }
 
-/** The app's interface strings in `lang`, translated from English. */
-export function interfaceRows(layout: Pick<LayoutContent, "strings">, lang: string): TranslationRow[] {
+/** The app's interface strings in `lang`, translated from English. 62 What each is for in the dashboard's language (`uiLang`). */
+export function interfaceRows(layout: Pick<LayoutContent, "strings">, lang: string, uiLang: Lang = "en"): TranslationRow[] {
   const own = layout.strings?.[lang] ?? {};
   return APP_STRINGS.map((entry) => ({
     id: entry.key,
     kind: "interface" as const,
-    where: entry.description ?? "",
+    where: appStringNote(entry.description, uiLang),
     source: entry.en,
     value: own[entry.key] ?? "",
     builtin: builtInString(entry, lang),

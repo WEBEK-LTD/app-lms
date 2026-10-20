@@ -5,7 +5,7 @@ import { savePublishingChecklistAction, savePublishingListingAction } from "@/ap
 import { FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
-import { useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 
 export interface ChecklistStepView {
   id: string;
@@ -159,6 +159,7 @@ export function ListingForm({
   playCategories,
   appStoreCategories,
   reviewNote,
+  reviewMeaning,
   ratingExample,
 }: {
   current: { playCategory: string; appStoreCategory: string; contentRatingNotes: string; reviewNotes: string };
@@ -168,8 +169,11 @@ export function ListingForm({
   ratingExample: string;
   /** 27 What the kind's apps should tell the reviewers (a gym's memberships paid outside the app). */
   reviewNote?: string;
+  /** 62 Outside English: what the suggested note (in the field, or `reviewNote`) means; the note itself stays in English for the reviewers. */
+  reviewMeaning?: string | null;
 }) {
   const t = useDashT();
+  const lang = useDashLang();
   const [state, action] = useActionState(savePublishingListingAction, initialFormState);
   const v = { ...current, ...state.values };
   const e = state.errors ?? {};
@@ -191,7 +195,13 @@ export function ListingForm({
         name="reviewNotes"
         label={t("publishing.reviewNotes")}
         value={v.reviewNotes}
-        hint={reviewNote ? t("publishing.reviewHintNote", { note: reviewNote }) : t("publishing.reviewHint")}
+        hint={[
+          reviewNote ? t("publishing.reviewHintNote", { note: reviewNote }) : t("publishing.reviewHint"),
+          lang !== "en" ? t("publishing.reviewEnglish") : null,
+          reviewMeaning ? t("publishing.reviewMeaning", { meaning: reviewMeaning }) : null,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         error={e.reviewNotes}
       />
       <FormMessage message={state.message} ok={state.ok} />

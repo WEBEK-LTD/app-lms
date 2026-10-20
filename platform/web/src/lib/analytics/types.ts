@@ -16,6 +16,8 @@ export const ANALYTICS_EVENT_TYPES = [
   "search",
   "push_open",
   "share",
+  // 62 A screenshot while protected content was open (iPhone only; Android blocks them).
+  "screenshot",
 ] as const;
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];
 
@@ -81,6 +83,8 @@ export const ANALYTICS_METRICS = [
   "event",
   "checkout_value",
   "push_open",
+  // 62 Screenshots of protected content, by `lesson:<id>` (or `other`).
+  "screenshot",
   // Written on the cohort's day when the day N later is counted.
   "ret_d1",
   "ret_d7",

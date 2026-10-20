@@ -11,6 +11,7 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { PaymentError } from "@/lib/payments/errors";
+import { explainPaymentError } from "@/lib/payments/explain";
 import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { getPlans, platformSetting, yallappBilling, yallappPlanAccount } from "@/lib/settings/platform";
@@ -112,7 +113,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       storagePacks,
     });
   } catch (e) {
-    if (e instanceof PaymentError) return { message: `The payment couldn't start: ${e.message}`, values };
+    if (e instanceof PaymentError) return { message: `The payment couldn't start: ${explainPaymentError(account.provider, e, { whose: "yallapp" })}`, values };
     throw e;
   }
   redirect(url);

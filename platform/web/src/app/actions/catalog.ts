@@ -19,6 +19,7 @@ import type { App, CatalogCurrency, CatalogProductInput, MarketplacePayment } fr
 import { encryptionKey, iyzicoApiUrl, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
+import { explainPaymentError } from "@/lib/payments/explain";
 import { validKashierMerchantId } from "@/lib/payments/kashier";
 import { checkAccount, isPaymentProvider, PROVIDER_NAME, type PaymentAccount } from "@/lib/payments/provider";
 import { recordStaffChange } from "@/lib/admin/audit";
@@ -337,7 +338,7 @@ export async function joinMarketplaceAction(_: FormState, formData: FormData): P
       { baseUrl: iyzicoApiUrl() },
     );
   } catch (e) {
-    if (e instanceof IyzicoError) return { message: `iyzico didn't accept these details: ${e.message}`, values };
+    if (e instanceof IyzicoError) return { message: explainPaymentError("iyzico", e, { fallback: "iyzico didn't accept these details." }), values };
     throw e;
   }
   return join(

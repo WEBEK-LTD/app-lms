@@ -91,6 +91,8 @@ export interface AnalyticsReport {
   push: PushRow[];
   pushFromSite: { type: string; opened: number }[];
   searches: { query: string; count: number }[];
+  /** 62 Screenshots of protected content, by lesson (`kind` "other": elsewhere in the app), the most first. */
+  screenshots: { kind: AnalyticsItemKind | "other"; id: string; title: string; count: number }[];
 }
 
 /** A search shows only once it was made at least this many times in the range. */
@@ -247,6 +249,19 @@ export function buildReport(
     .slice(0, TOP)
     .map(([query, count]) => ({ query, count }));
 
+  // 62 Screenshots of protected content, named by the lesson's latest title.
+  const shotTitles = new Map<string, string>();
+  for (const row of [...current].sort((a, b) => a.day.localeCompare(b.day))) if (row.metric === "screenshot" && row.label) shotTitles.set(row.key, row.label);
+  const screenshots = [...sumBy(current, "screenshot").entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, TOP * 2)
+    .map(([key, count]) => {
+      if (key === "other") return { kind: "other" as const, id: "", title: "", count };
+      const [kind, ...rest] = key.split(":");
+      const id = rest.join(":");
+      return { kind: (kind || "other") as AnalyticsItemKind | "other", id, title: shotTitles.get(key) ?? `#${id}`, count };
+    });
+
   return {
     range,
     hasData: current.some((r) => r.metric === "active" && r.value > 0),
@@ -266,6 +281,7 @@ export function buildReport(
     push,
     pushFromSite,
     searches,
+    screenshots,
   };
 }
 

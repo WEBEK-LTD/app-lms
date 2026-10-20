@@ -54,7 +54,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const asked = typeof params.lang === "string" ? params.lang : null;
   // The first language to translate: the one asked for, else the first besides the default.
   const lang = asked && languages.available.includes(asked) ? asked : (languages.available.find((l) => l !== languages.default) ?? languages.default);
-  const rows = [...contentRows(draft, lang), ...interfaceRows(draft, lang)];
+  const rows = [...contentRows(draft, lang), ...interfaceRows(draft, lang, dashLang)];
   const summaries = languages.available.map((code) => {
     const p = progress([...contentRows(draft, code), ...interfaceRows(draft, code)]);
     return { code, name: languageName(code), nativeName: localeInfo(code)?.nativeName ?? code, done: p.done, total: p.total };

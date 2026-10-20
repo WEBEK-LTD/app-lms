@@ -1,5 +1,6 @@
 import type { PaymentProviderId } from "../data/types";
 import { PaymentError } from "./errors";
+import { explainPaymentError } from "./explain";
 import { cancelIyzicoPayment, refundIyzicoItem, retrieveIyzicoPayment, type IyzicoRefundReason } from "./iyzico";
 import { getKashierSessionPayment, refundKashierPayment } from "./kashier";
 import { PROVIDER_NAME, type PaymentAccount, type ProviderOptions } from "./provider";
@@ -98,7 +99,7 @@ const message = (e: unknown, provider: PaymentProviderId) =>
   e instanceof PaymentError
     ? e.unreachable
       ? `${PROVIDER_NAME[provider]} didn't answer. Check its panel before trying again: the refund may have been made.`
-      : `${PROVIDER_NAME[provider]} said: ${e.message}`
+      : explainPaymentError(provider, e)
     : null;
 
 /**
