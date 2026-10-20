@@ -398,6 +398,14 @@ the bytes: the media gate on the host takes the uploads and plays the files.
 - [ ] WordPress: release plugin 0.4.4 with the "Yallapp video" box and
       `[yallapp_video]` (readme.txt), and try a Tutor LMS lesson with a media
       link on a phone.
+- [ ] Phase 62: copy the new `index.php` (an app's folder removed and the
+      folders listed, links bound to a student). Bound links need the app's
+      `Authorization` header in PHP: add `CGIPassAuth On` for the `media/`
+      folder (or `SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1`), then
+      play a lesson video from a rebuilt academy app on a hosted course: it
+      plays, and its link copied to a browser answers "This link is for
+      another student." After the first daily job, Admin's logs show no
+      "app folders have no app in the database" line.
 
 ## 7k. Yallapp Business: the Owner API and pushes to the owners' phones (Phase 58)
 
