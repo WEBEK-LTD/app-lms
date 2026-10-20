@@ -117,7 +117,11 @@ tags:
   - name: Notifications
     description: The notifications inbox.
   - name: Community
-    description: Course reviews and questions and answers.
+    description: |
+      Course reviews and questions and answers. On Yallapp's hosted API
+      (roadmap 63) the business answers questions and may reply to a review
+      (`Review.reply`) or hide it from others (`hidden`, shown to its author
+      only).
   - name: Store
     description: |
       WooCommerce products, the cart and the checkout hand-off, for Store apps.
@@ -4141,8 +4145,23 @@ components:
         text: { type: string }
         author: { $ref: '#/components/schemas/Person' }
         created_at: { type: string, format: date-time }
-        status: { type: string, enum: [approved, pending] }
+        status:
+          type: string
+          enum: [approved, pending, hidden]
+          description: |
+            `hidden` (roadmap 63, Yallapp's hosted API): the business hid the
+            review from others; only its author gets it, as `mine`. Older apps
+            read an unknown status as approved.
         mine: { type: boolean }
+        reply:
+          description: "63 The business's public reply, shown under the review. Missing or null: none."
+          oneOf:
+            - type: object
+              required: [text, created_at]
+              properties:
+                text: { type: string, maxLength: 2000 }
+                created_at: { type: string, format: date-time }
+            - type: 'null'
 
     ReviewInput:
       type: object
@@ -4596,6 +4615,19 @@ components:
         starts_at: { type: string, format: date-time }
         ends_at: { type: [string, 'null'], format: date-time, description: Null for a pack of classes. }
         credits_left: { type: [integer, 'null'], minimum: 0, description: Null for unlimited classes. }
+        member_code:
+          description: |
+            63 What the member shows at the door, for an active membership of
+            a gym on Yallapp's hosted API; null otherwise (missing on other
+            servers). The app keeps it on the phone, so it shows without a
+            connection.
+          oneOf:
+            - type: object
+              required: [code, qr_payload]
+              properties:
+                code: { type: string, pattern: '^[A-HJ-NP-Z2-9]{12}$', example: Q4MZ7KP2XH9D, description: 'Made from the membership with a key of the app, so it can''t be guessed. Shown in groups of four ("Q4MZ-7KP2-XH9D") for typing at the door.' }
+                qr_payload: { type: string, example: YM1.42.Q4MZ7KP2XH9D, description: "What the QR code holds, as it is. The gym's check-in checks it." }
+            - type: 'null'
 
     IntakeField:
       type: object

@@ -41,13 +41,14 @@ info:
     - **Push to the owner's phone.** `PUT /me/push-token` registers the
       device's Firebase (or Huawei Push Kit) token; Yallapp sends from
       Yallapp Business's own Firebase project when an order is paid, an
-      appointment is booked, a message arrives, a donation or Yallapp payment
+      appointment is booked, a message or (roadmap 63) a course question
+      arrives, a course gets a review, a donation or Yallapp payment
       is received, a build finishes, Yallapp publishes an update (when it
       starts, for one set to start later), or the account gets a notice: the
       same moments the dashboard and its emails learn of them. Each kind can be turned off per device. The data of
       each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
-      ID (`order_id`, `appointment_id`, `inquiry_id`, `build_id`,
-      `donation_id`, `update_key`).
+      ID (`order_id`, `appointment_id`, `inquiry_id`, `question_id`,
+      `review_id`, `build_id`, `donation_id`, `update_key`).
     - **Team members** (roadmap 60). The people who work with an owner sign
       in with their own email and password. Each has a role per business:
       `owner` (the client's own account: everything), `manager` (everything
@@ -127,8 +128,21 @@ tags:
   - name: Messages
     description: |
       Conversations with the people using the app: a listing's inquiries
-      (real estate). Course questions and reviews have no place in Yallapp's
-      own content yet, so they aren't here.
+      (real estate), and (roadmap 63) the questions students ask in courses
+      managed in Yallapp, answered by the business (the Messages area).
+  - name: Reviews
+    description: |
+      63 Students' reviews of courses managed in Yallapp: the business
+      replies under a review for everyone to read, or hides it from others
+      (its author still sees it). The Catalog & content area.
+  - name: Members
+    description: |
+      63 A gym's members at the door: each active membership has a member
+      code (in the customer's app as a QR code, `YM1.<membership>.<code>`,
+      checked with the app's key, or typed). A member is checked in once a
+      day in the gym's time zone, however many phones scan at once; an
+      expired, cancelled, not yet started or used-up membership doesn't get
+      in. The Bookings & appointments area.
   - name: App users
     description: The people who signed in to an app on Yallapp's hosted API.
   - name: Analytics
@@ -489,7 +503,8 @@ paths:
         each currency; `donations` the same for donations. Counts are
         included only for what the app has. `needs_you` lists what waits for
         the owner: orders in progress, appointments to confirm, unanswered
-        messages, and the account's open notices for this app.
+        messages, (63) course questions waiting for an answer, and the
+        account's open notices for this app.
       parameters:
         - $ref: '#/components/parameters/AppId'
       responses:
@@ -1324,6 +1339,293 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /apps/{app_id}/questions:
+    get:
+      tags: [Messages]
+      operationId: listQuestions
+      summary: Students' questions in the courses
+      description: |
+        63 Questions students asked in courses managed in Yallapp (Dashboard ›
+        Courses › Questions), the latest activity first. `open`: waiting for
+        the business (new, or the student wrote again after its answer).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: status
+          in: query
+          schema: { type: string, enum: [open, answered] }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Questions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, open]
+                    properties:
+                      open: { type: integer, description: Questions waiting for the business. }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Question' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/questions/{question_id}:
+    get:
+      tags: [Messages]
+      operationId: getQuestion
+      summary: A question with its answers
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/QuestionId'
+      responses:
+        '200':
+          description: The question and its answers, oldest first
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuestionDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/questions/{question_id}/answers:
+    post:
+      tags: [Messages]
+      operationId: answerQuestion
+      summary: Answer
+      description: The answer shows under the question in the app, in the business's name; the student is told in their inbox and on their phone.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Answered; the question as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuestionDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/reviews:
+    get:
+      tags: [Reviews]
+      operationId: listReviews
+      summary: The courses' reviews
+      description: 63 Newest first, with the rating of the reviews shown in the app.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: filter
+          in: query
+          description: "`unreplied`: shown and without a reply; `hidden`: hidden from others."
+          schema: { type: string, enum: [all, unreplied, hidden], default: all }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, rating, rating_count]
+                    properties:
+                      rating: { type: [number, 'null'], description: "The average of the reviews shown, to one decimal." }
+                      rating_count: { type: integer }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/reviews/{review_id}:
+    patch:
+      tags: [Reviews]
+      operationId: updateReview
+      summary: Hide a review, or show it again
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hidden]
+              properties:
+                hidden: { type: boolean }
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/reviews/{review_id}/reply:
+    put:
+      tags: [Reviews]
+      operationId: replyReview
+      summary: Reply under a review, or change the reply
+      description: Everyone sees the reply under the review in the app, in the business's name.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reviews]
+      operationId: deleteReviewReply
+      summary: Remove the reply
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ReviewId'
+      responses:
+        '200':
+          description: The review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/members:
+    get:
+      tags: [Members]
+      operationId: listMembers
+      summary: Members, to check one in by name
+      description: Memberships with their member's name, phone and whether they came in today; active ones first. `q` finds a name, phone or email.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 100 }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Members
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, time_zone]
+                    properties:
+                      time_zone: { type: string }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Member' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/members/check-in:
+    post:
+      tags: [Members]
+      operationId: checkInMember
+      summary: Check a member in at the door
+      description: |
+        The scanned QR code or the typed member code, or a membership chosen
+        by name (`membership_id`). Once a member a day: a second scan the
+        same day answers `already_in` with when they came in, on any phone.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code: { type: string, maxLength: 300 }
+                membership_id: { type: integer }
+      responses:
+        '200':
+          description: What the door should do
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MemberCheckIn' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/members/check-ins:
+    get:
+      tags: [Members]
+      operationId: listMemberCheckIns
+      summary: Who came in today
+      description: The day's check-ins in the gym's time zone, the latest first.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: date
+          in: query
+          description: A day as YYYY-MM-DD; today when missing.
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The day's check-ins
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [date, time_zone, count, items]
+                properties:
+                  date: { type: string, format: date }
+                  time_zone: { type: string }
+                  count: { type: integer }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MemberVisit' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /apps/{app_id}/users:
     get:
       tags: [App users]
@@ -1759,6 +2061,16 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    QuestionId:
+      name: question_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ReviewId:
+      name: review_id
+      in: path
+      required: true
+      schema: { type: integer }
     Page:
       name: page
       in: query
@@ -1996,6 +2308,9 @@ components:
         articles: { type: boolean }
         listings: { type: boolean }
         inquiries: { type: boolean }
+        questions: { type: boolean, description: "63 Students' questions in courses managed in Yallapp (Messages). Missing on older servers: false." }
+        reviews: { type: boolean, description: "63 Reviews of courses managed in Yallapp (Catalog & content). Missing on older servers: false." }
+        member_check_in: { type: boolean, description: "63 A gym's members checked in at the door (Bookings & appointments). Missing on older servers: false." }
         app_users: { type: boolean }
         notifications: { type: boolean }
         media: { type: boolean }
@@ -2028,9 +2343,10 @@ components:
       enum: [new_order, new_booking, new_message, new_review, payment_received, build_finished, yallapp_updates, account_notices]
       description: |
         `new_order` an order was paid; `new_booking` an appointment was
-        booked; `new_message` a message about a listing arrived;
-        `new_review` reserved (reviews aren't in Yallapp's own content
-        yet); `payment_received` a donation, or a payment to Yallapp for a
+        booked; `new_message` a message about a listing arrived, or (63) a
+        student asked a question in a course or wrote again under one
+        (`question_id`); `new_review` (63) a student reviewed a course
+        (`review_id`); `payment_received` a donation, or a payment to Yallapp for a
         plan or storage; `build_finished` a build is ready or failed;
         `yallapp_updates` Yallapp published an update or announcement;
         `account_notices` the account got a notice (plan ending, app users
@@ -2088,6 +2404,7 @@ components:
             appointments: { type: integer, description: Appointments today (pending or confirmed). }
             tickets: { type: integer, description: Tickets issued today. }
             check_ins: { type: integer, description: Tickets used today. }
+            member_check_ins: { type: integer, description: "63 A gym's members checked in today (once a member a day)." }
             donations: { type: integer }
             new_users: { type: integer }
             app_opens: { type: [integer, 'null'], description: 'Sessions today, from Analytics (apps built before roadmap 44 send none).' }
@@ -2099,7 +2416,7 @@ components:
       type: object
       required: [kind, count, title]
       properties:
-        kind: { type: string, enum: [orders_in_progress, appointments_to_confirm, unanswered_messages, notice] }
+        kind: { type: string, enum: [orders_in_progress, appointments_to_confirm, unanswered_messages, questions_to_answer, notice] }
         count: { type: integer }
         title: { type: string, description: In the person's language. }
         notice_id: { type: [integer, 'null'] }
@@ -2500,6 +2817,108 @@ components:
                   from: { type: string, enum: [user, office] }
                   text: { type: string }
                   created_at: { type: string, format: date-time }
+
+    Question:
+      type: object
+      required: [id, course_id, course_title, person, text, status, answer_count, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        person: { type: string, description: The student's name. }
+        text: { type: string }
+        status: { type: string, enum: [open, answered], description: '`open`: waiting for the business.' }
+        answer_count: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time, description: The latest question or answer. }
+
+    QuestionDetail:
+      allOf:
+        - $ref: '#/components/schemas/Question'
+        - type: object
+          required: [answers]
+          properties:
+            answers:
+              type: array
+              items:
+                type: object
+                required: [id, from, name, text, created_at]
+                properties:
+                  id: { type: integer }
+                  from: { type: string, enum: [student, business] }
+                  name: { type: string, description: "The student's name, or the business's as the app shows it." }
+                  text: { type: string }
+                  created_at: { type: string, format: date-time }
+
+    Review:
+      type: object
+      required: [id, course_id, course_title, person, rating, text, hidden, reply, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        person: { type: string }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string }
+        hidden: { type: boolean, description: Hidden from others; its author still sees it. }
+        reply:
+          oneOf:
+            - type: object
+              required: [text, created_at]
+              properties:
+                text: { type: string }
+                created_at: { type: string, format: date-time }
+            - type: 'null'
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Member:
+      type: object
+      required: [membership_id, name, phone, plan_name, status, starts_at, ends_at, credits_left, checked_in_at]
+      properties:
+        membership_id: { type: integer }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        plan_name: { type: string }
+        status: { type: string, enum: [active, expired, cancelled] }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time }
+        credits_left: { type: [integer, 'null'], description: Null for unlimited classes. }
+        checked_in_at: { type: [string, 'null'], format: date-time, description: When they came in today; null when not yet. }
+
+    MemberCheckIn:
+      type: object
+      required: [outcome, admitted, message, member]
+      properties:
+        outcome:
+          type: string
+          enum: [admitted, already_in, expired, cancelled, not_started, no_credits, not_found, forged, not_a_code]
+          description: '`already_in`: checked in earlier today (`member.checked_in_at`); `no_credits`: a class pack used up; `forged`: a QR code not made by this app.'
+        admitted: { type: boolean, description: True only for `admitted`. }
+        message: { type: string, description: "What to show at the door, in the person's language." }
+        member:
+          oneOf:
+            - type: object
+              required: [membership_id, name, plan_name, ends_at, credits_left, checked_in_at]
+              properties:
+                membership_id: { type: integer }
+                name: { type: string }
+                plan_name: { type: string }
+                ends_at: { type: [string, 'null'], format: date-time }
+                credits_left: { type: [integer, 'null'] }
+                checked_in_at: { type: [string, 'null'], format: date-time, description: Today's check-in (now when admitted). }
+            - type: 'null'
+
+    MemberVisit:
+      type: object
+      required: [id, membership_id, name, plan_name, checked_in_at, by]
+      properties:
+        id: { type: integer }
+        membership_id: { type: integer }
+        name: { type: string }
+        plan_name: { type: string }
+        checked_in_at: { type: string, format: date-time }
+        by: { type: string, description: Who checked them in. }
 
     AppUser:
       type: object

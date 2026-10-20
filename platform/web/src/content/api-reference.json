@@ -372,7 +372,7 @@
     },
     {
       "name": "Community",
-      "description": "Course reviews and questions and answers.",
+      "description": "Course reviews and questions and answers. On Yallapp's hosted API (roadmap 63) the business answers questions and may reply to a review (`Review.reply`) or hide it from others (`hidden`, shown to its author only).",
       "endpoints": [
         {
           "method": "GET",
