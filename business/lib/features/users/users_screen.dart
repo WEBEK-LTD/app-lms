@@ -128,8 +128,8 @@ class _UserTile extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: Brand.sand,
-            foregroundColor: Brand.midnight,
+            backgroundColor: context.yb.muted,
+            foregroundColor: context.yb.ink,
             child: Text(
               user.name.isEmpty
                   ? '?'

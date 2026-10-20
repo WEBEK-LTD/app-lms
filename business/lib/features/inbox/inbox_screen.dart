@@ -95,8 +95,8 @@ class _InquiryTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor: Brand.sand,
-            foregroundColor: Brand.midnight,
+            backgroundColor: context.yb.muted,
+            foregroundColor: context.yb.ink,
             child: Text(
               inquiry.person.isEmpty ? '?' : inquiry.person.characters.first,
             ),

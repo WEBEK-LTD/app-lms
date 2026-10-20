@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/account/account_state_screen.dart';
 import '../../features/account/apps_screen.dart';
 import '../../features/appointments/appointments_screen.dart';
+import '../../features/appointments/reschedule_screen.dart';
 import '../../features/auth/lock_screen.dart';
 import '../../features/auth/sign_in_screen.dart';
 import '../../features/builds/builds_screen.dart';
@@ -17,6 +18,7 @@ import '../../features/inbox/inbox_screen.dart';
 import '../../features/inbox/inquiry_screen.dart';
 import '../../features/media/media_screen.dart';
 import '../../features/more/devices_screen.dart';
+import '../../features/more/appearance_screen.dart';
 import '../../features/more/language_screen.dart';
 import '../../features/more/more_screen.dart';
 import '../../features/more/plan_screen.dart';
@@ -32,6 +34,7 @@ import '../../features/today/today_screen.dart';
 import '../../features/today/updates_screen.dart';
 import '../../features/users/users_screen.dart';
 import '../../app.dart' show SplashScreen;
+import '../api/models.dart';
 import '../session.dart';
 import 'paths.dart';
 
@@ -138,6 +141,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Paths.appointments,
             builder: (_, _) => const AppointmentsScreen(),
+            routes: [
+              // 61 Change time.
+              GoRoute(
+                path: ':id/move',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) => RescheduleScreen(
+                  appointmentId: int.parse(s.pathParameters['id']!),
+                  appointment: s.extra is Appointment
+                      ? s.extra! as Appointment
+                      : null,
+                ),
+              ),
+            ],
           ),
           GoRoute(path: Paths.events, builder: (_, _) => const EventsScreen()),
           GoRoute(
@@ -187,6 +203,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.builds, (_) => const BuildsScreen()),
       full(Paths.plan, (_) => const PlanScreen()),
       full(Paths.language, (_) => const LanguageScreen()),
+      full(Paths.appearance, (_) => const AppearanceScreen()),
       full(Paths.notifications, (_) => const PushSettingsScreen()),
       full(Paths.devices, (_) => const DevicesScreen()),
     ],

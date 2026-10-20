@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { setAppointmentStatusAction } from "@/app/actions/bookings";
 import { SubmitButton } from "@/components/form";
-import { Badge } from "@/components/ui";
+import { Badge, btn, Notice } from "@/components/ui";
+import { canReschedule } from "@/lib/bookings/reschedule";
 import { requireClient } from "@/lib/auth/session";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "@/lib/bookings/setup";
 import { utcToLocal } from "@/lib/bookings/time";
@@ -42,7 +43,7 @@ function Action({ a, status, label, variant = "secondary" }: { a: BookingAppoint
 }
 
 /** Appointments booked in the app, for Bookings apps without a website (21 a clinic's visits, with their intake answers). */
-export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<{ show?: string; page?: string }> }) {
+export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<{ show?: string; page?: string; moved?: string }> }) {
   const { app } = await requireClient();
   const { t, k } = await dashboardText();
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
@@ -79,6 +80,12 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
           {richText(t(rules.autoApprove ? "bookings.apptIntroAuto" : "bookings.apptIntroManual"), { zone: () => <bdi dir="ltr">{rules.timezone}</bdi> })}
         </p>
       </div>
+      {/* 61 Back from Change time. */}
+      {params.moved ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          {t("bookings.movedDone")}
+        </Notice>
+      ) : null}
       <nav aria-label={title} className="flex gap-2.5">
         <Link href="/dashboard/appointments" aria-current={past ? undefined : "page"} className={tab(!past)}>
           {t("bookings.upcoming")}
@@ -146,6 +153,11 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
                     </>
                   ) : null}
                   {a.status === "approved" && !ended ? <Action a={a} status="cancelled" label={t("common.cancel")} variant="danger" /> : null}
+                  {canReschedule(a, now) ? (
+                    <Link href={`/dashboard/appointments/${a.id}/move`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                      {t("bookings.changeTime")}
+                    </Link>
+                  ) : null}
                   {a.status === "approved" && ended ? (
                     <>
                       <Action a={a} status="completed" label={t("bookings.markDone")} />

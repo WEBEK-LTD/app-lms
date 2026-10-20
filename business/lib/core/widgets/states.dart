@@ -126,11 +126,11 @@ class MessageState extends StatelessWidget {
                 Container(
                   width: 72,
                   height: 72,
-                  decoration: const BoxDecoration(
-                    color: Brand.sand,
+                  decoration: BoxDecoration(
+                    color: context.yb.muted,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 34, color: Brand.midnight),
+                  child: Icon(icon, size: 34, color: context.yb.ink),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -143,7 +143,7 @@ class MessageState extends StatelessWidget {
                   Text(
                     text!,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Brand.ink2,
+                      color: context.yb.ink2,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -216,12 +216,12 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg) = switch (tone) {
-      Tone.good => (Brand.successBg, Brand.success),
-      Tone.warn => (Brand.warningBg, Brand.warning),
-      Tone.bad => (Brand.dangerBg, Brand.danger),
-      Tone.info => (Brand.infoBg, Brand.info),
+      Tone.good => (context.yb.successBg, context.yb.success),
+      Tone.warn => (context.yb.warningBg, context.yb.warning),
+      Tone.bad => (context.yb.dangerBg, context.yb.danger),
+      Tone.info => (context.yb.infoBg, context.yb.info),
       Tone.accent => (Brand.ember, Brand.midnight),
-      Tone.neutral => (Brand.sand, Brand.midnight),
+      Tone.neutral => (context.yb.muted, context.yb.ink),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -312,7 +312,10 @@ Future<bool> confirm(
         ),
         FilledButton(
           style: destructive
-              ? FilledButton.styleFrom(backgroundColor: Brand.danger)
+              ? FilledButton.styleFrom(
+                  backgroundColor: context.yb.danger,
+                  foregroundColor: context.yb.onDanger,
+                )
               : null,
           onPressed: () => Navigator.pop(context, true),
           child: Text(action),

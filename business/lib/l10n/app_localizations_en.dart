@@ -1331,6 +1331,132 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'Same as the phone';
+
+  @override
+  String get themeSystemHelp => 'Light or dark as your phone is set.';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get changeTime => 'Change time';
+
+  @override
+  String moveNow(String day, String time) {
+    return 'Now on $day at $time';
+  }
+
+  @override
+  String moveIntro(String zone) {
+    return 'The times your app offers for this service ($zone). The customer is told in the app.';
+  }
+
+  @override
+  String get anyoneFree => 'Anyone free';
+
+  @override
+  String get noFreeTimes => 'No free times in these days. Try the next days.';
+
+  @override
+  String get previousDays => 'Previous days';
+
+  @override
+  String get nextDays => 'Next days';
+
+  @override
+  String moveWhen(String day, String time) {
+    return '$day at $time';
+  }
+
+  @override
+  String moveConfirmTitle(String when) {
+    return 'Move to $when?';
+  }
+
+  @override
+  String moveConfirmText(String name) {
+    return '$name is told in the app.';
+  }
+
+  @override
+  String get theCustomer => 'The customer';
+
+  @override
+  String get moveAction => 'Move';
+
+  @override
+  String movedTo(String when) {
+    return 'Moved to $when';
+  }
+
+  @override
+  String get sendNowShort => 'Now';
+
+  @override
+  String get sendLater => 'Later';
+
+  @override
+  String laterZone(String zone) {
+    return 'In your app\'s time zone, $zone. Yallapp sends it within 5 minutes of that time.';
+  }
+
+  @override
+  String get sendOn => 'Send on';
+
+  @override
+  String get sendAt => 'Send at';
+
+  @override
+  String get schedule => 'Schedule';
+
+  @override
+  String scheduledFor(String day, String time) {
+    return 'Scheduled for $day at $time';
+  }
+
+  @override
+  String get scheduledTitle => 'Scheduled';
+
+  @override
+  String get nothingScheduled => 'Nothing scheduled.';
+
+  @override
+  String goesOut(String day, String time) {
+    return 'Goes out $day at $time';
+  }
+
+  @override
+  String get sending => 'Sending';
+
+  @override
+  String get notSent => 'Not sent';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get editScheduled => 'Change the notification';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get cancelScheduled => 'Cancel it';
+
+  @override
+  String get cancelScheduledTitle => 'Cancel this notification?';
+
+  @override
+  String get scheduledCancelled => 'Cancelled. It won\'t be sent.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

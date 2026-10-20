@@ -2494,6 +2494,222 @@ abstract class AppLocalizations {
   /// **'{matches} of {total} users'**
   String usersMatches(int matches, int total);
 
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeSystemHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Light or dark as your phone is set.'**
+  String get themeSystemHelp;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @changeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Change time'**
+  String get changeTime;
+
+  /// No description provided for @moveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now on {day} at {time}'**
+  String moveNow(String day, String time);
+
+  /// No description provided for @moveIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The times your app offers for this service ({zone}). The customer is told in the app.'**
+  String moveIntro(String zone);
+
+  /// No description provided for @anyoneFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone free'**
+  String get anyoneFree;
+
+  /// No description provided for @noFreeTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'No free times in these days. Try the next days.'**
+  String get noFreeTimes;
+
+  /// No description provided for @previousDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous days'**
+  String get previousDays;
+
+  /// No description provided for @nextDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Next days'**
+  String get nextDays;
+
+  /// No description provided for @moveWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} at {time}'**
+  String moveWhen(String day, String time);
+
+  /// No description provided for @moveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to {when}?'**
+  String moveConfirmTitle(String when);
+
+  /// No description provided for @moveConfirmText.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is told in the app.'**
+  String moveConfirmText(String name);
+
+  /// No description provided for @theCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer'**
+  String get theCustomer;
+
+  /// No description provided for @moveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get moveAction;
+
+  /// No description provided for @movedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to {when}'**
+  String movedTo(String when);
+
+  /// No description provided for @sendNowShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get sendNowShort;
+
+  /// No description provided for @sendLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get sendLater;
+
+  /// No description provided for @laterZone.
+  ///
+  /// In en, this message translates to:
+  /// **'In your app\'s time zone, {zone}. Yallapp sends it within 5 minutes of that time.'**
+  String laterZone(String zone);
+
+  /// No description provided for @sendOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Send on'**
+  String get sendOn;
+
+  /// No description provided for @sendAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send at'**
+  String get sendAt;
+
+  /// No description provided for @schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get schedule;
+
+  /// No description provided for @scheduledFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled for {day} at {time}'**
+  String scheduledFor(String day, String time);
+
+  /// No description provided for @scheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get scheduledTitle;
+
+  /// No description provided for @nothingScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing scheduled.'**
+  String get nothingScheduled;
+
+  /// No description provided for @goesOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes out {day} at {time}'**
+  String goesOut(String day, String time);
+
+  /// No description provided for @sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get sending;
+
+  /// No description provided for @notSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get notSent;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @editScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the notification'**
+  String get editScheduled;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @cancelScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel it'**
+  String get cancelScheduled;
+
+  /// No description provided for @cancelScheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this notification?'**
+  String get cancelScheduledTitle;
+
+  /// No description provided for @scheduledCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. It won\'t be sent.'**
+  String get scheduledCancelled;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

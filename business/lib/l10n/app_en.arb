@@ -750,6 +750,117 @@
       }
     }
   },
+  "appearance": "Appearance",
+  "themeSystem": "Same as the phone",
+  "themeSystemHelp": "Light or dark as your phone is set.",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "changeTime": "Change time",
+  "moveNow": "Now on {day} at {time}",
+  "@moveNow": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "moveIntro": "The times your app offers for this service ({zone}). The customer is told in the app.",
+  "@moveIntro": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "anyoneFree": "Anyone free",
+  "noFreeTimes": "No free times in these days. Try the next days.",
+  "previousDays": "Previous days",
+  "nextDays": "Next days",
+  "moveWhen": "{day} at {time}",
+  "@moveWhen": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "moveConfirmTitle": "Move to {when}?",
+  "@moveConfirmTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "moveConfirmText": "{name} is told in the app.",
+  "@moveConfirmText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "theCustomer": "The customer",
+  "moveAction": "Move",
+  "movedTo": "Moved to {when}",
+  "@movedTo": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sendNowShort": "Now",
+  "sendLater": "Later",
+  "laterZone": "In your app's time zone, {zone}. Yallapp sends it within 5 minutes of that time.",
+  "@laterZone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "sendOn": "Send on",
+  "sendAt": "Send at",
+  "schedule": "Schedule",
+  "scheduledFor": "Scheduled for {day} at {time}",
+  "@scheduledFor": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduledTitle": "Scheduled",
+  "nothingScheduled": "Nothing scheduled.",
+  "goesOut": "Goes out {day} at {time}",
+  "@goesOut": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sending": "Sending",
+  "notSent": "Not sent",
+  "edit": "Edit",
+  "editScheduled": "Change the notification",
+  "saveChanges": "Save changes",
+  "cancelScheduled": "Cancel it",
+  "cancelScheduledTitle": "Cancel this notification?",
+  "scheduledCancelled": "Cancelled. It won't be sent.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

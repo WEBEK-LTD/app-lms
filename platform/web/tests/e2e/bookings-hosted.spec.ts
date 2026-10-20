@@ -10,6 +10,8 @@ const suffix = Date.now().toString(36);
 const client = { name: "Salon Lale", email: `lale-${suffix}@salon.test`, password: "lale-strong-password-1" };
 let own: Page;
 let api = "";
+/** 61 The customer who booked by email, to read their inbox. */
+let customerToken = "";
 
 test.beforeAll(async ({ browser }) => {
   own = await browser.newPage();
@@ -143,8 +145,33 @@ test("19 someone who signs in by email books, and the business reaches them by e
     headers: { authorization: `Bearer ${token}` },
   });
   expect(booked.status()).toBe(201);
+  customerToken = token;
 
   await own.getByRole("link", { name: "Appointments" }).click();
   await expect(own.getByRole("link", { name: email })).toHaveAttribute("href", `mailto:${email}`);
   await expect(own.locator('a[href^="tel:"]')).toHaveCount(0);
+});
+
+test("61 the business moves an appointment to another free time, and the customer is told in the app", async ({ request }) => {
+  await own.getByRole("link", { name: "Appointments" }).click();
+  await expect(own.getByText("13:30 · Haircut")).toBeVisible();
+  await own.getByRole("link", { name: "Change time" }).click();
+  await expect(own.getByRole("heading", { name: "Change the time" })).toBeVisible();
+  await expect(own.getByText(/Haircut with Ayşe Kaya for Deniz Mail, now on \d{4}-\d{2}-\d{2} at 13:30\./)).toBeVisible();
+  // The appointment's Saturday: its own time is taken by itself, the rest are free.
+  const date = (await own.getByText(/now on (\d{4}-\d{2}-\d{2})/).textContent())!.match(/\d{4}-\d{2}-\d{2}/)![0];
+  await own.goto(`${own.url().split("?")[0]}?from=${date}`);
+  // Its own Saturday comes first; the next Saturday is in the same week of times.
+  const saturday = own.getByRole("main").getByRole("listitem").first();
+  await expect(saturday.getByRole("button", { name: "13:30" })).toBeDisabled();
+  await saturday.getByRole("button", { name: "10:00" }).click();
+  await expect(own).toHaveURL(/\/dashboard\/appointments\?moved=\d+$/);
+  await expect(own.getByRole("status")).toContainText("The appointment is at its new time.");
+  await expect(own.getByText(`${date} · 10:00 · Haircut`)).toBeVisible();
+
+  const inbox = await (await request.get(`${api}/me/notifications`, { headers: { authorization: `Bearer ${customerToken}` } })).json();
+  expect(inbox.items[0]).toMatchObject({ title: "Your appointment moved", body: expect.stringMatching(/^Your Haircut with Ayşe Kaya is now on \w{3} \d{1,2} \w{3}, 10:00\.$/) });
+  // The app sees the new time.
+  const mine = await (await request.get(`${api}/me/appointments`, { headers: { authorization: `Bearer ${customerToken}` } })).json();
+  expect(mine.items[0]).toMatchObject({ local_date: date, local_time: "10:00" });
 });

@@ -61,6 +61,24 @@ abstract class OwnerApi {
     String status,
   );
 
+  /// 61 The free times to move an appointment to, from [from] (a local
+  /// date; today when null) for [days] days, for [staffId] or anyone.
+  Future<RescheduleTimes> rescheduleTimes(
+    String appId,
+    int appointmentId, {
+    String? from,
+    int days = 7,
+    int? staffId,
+  });
+
+  /// 61 Moves it to a slot's [start]; the customer is told.
+  Future<Appointment> reschedule(
+    String appId,
+    int appointmentId, {
+    required DateTime start,
+    int? staffId,
+  });
+
   // Events
   Future<EventsList> events(String appId, {String scope = 'open'});
   Future<CheckIn> checkIn(String appId, String code, {int? eventId});
@@ -141,6 +159,25 @@ abstract class OwnerApi {
     required String title,
     required String body,
   });
+
+  /// 61 Notifications sent later: waiting ones, a new one, a change, cancel.
+  Future<ScheduledNotifications> scheduledNotifications(String appId);
+  Future<ScheduledNotification> scheduleNotification(
+    String appId, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  });
+  Future<ScheduledNotification> editScheduledNotification(
+    String appId,
+    int id, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  });
+  Future<void> cancelScheduledNotification(String appId, int id);
 
   // Publishing and license
   Future<Preview> preview(String appId, {bool draft = false});

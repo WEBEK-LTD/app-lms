@@ -82,8 +82,8 @@ describe("43 Yallapp's own texts in Arabic and Turkish", () => {
     // `message: "…"`), with `${…}` as {0}, {1}. Add them to lib/i18n/builtin when this fails.
     const files = ["hosted", "events", "news", "bookings", "donations", "listings", "courses", "catalog"].flatMap((d) => tsFiles(join(ROOT, "src/lib", d)));
     // Not answered to apps: a store's webhook, and the sign-in code's text message.
-    // 58 Nor what the dashboard and Yallapp Business tell the owner (their catalogs translate it).
-    const skip = /salla-webhook\.ts$|otp-sender\.ts$|send-notification\.ts$|courses\/edit\.ts$/;
+    // 58 Nor what the dashboard and Yallapp Business tell the owner (their catalogs translate it): 61 also sending later and moving appointments.
+    const skip = /salla-webhook\.ts$|otp-sender\.ts$|send-notification\.ts$|courses\/edit\.ts$|scheduled-notifications\.ts$|bookings\/reschedule\.ts$/;
     // 43 follow-up: the opening time in it is English (lib/catalog/fulfilment.ts).
     const later = new Set(["We're closed now.{0}{1}"]);
     const messages = new Set<string>();

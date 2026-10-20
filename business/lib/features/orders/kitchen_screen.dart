@@ -7,6 +7,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../app.dart';
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
+import '../../core/services/screen_wake.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
@@ -16,7 +17,8 @@ import 'order_actions.dart';
 
 /// 59 Kitchen mode for restaurants: the orders in progress as big cards by
 /// step (New, Preparing, Ready), checked every 15 seconds and on each new
-/// order push, with a chime when a new order arrives while it's open.
+/// order push, with a chime when a new order arrives while it's open. 61
+/// The screen stays on while it is open.
 class KitchenScreen extends ConsumerStatefulWidget {
   const KitchenScreen({super.key, this.interval = const Duration(seconds: 15)});
 
@@ -26,7 +28,9 @@ class KitchenScreen extends ConsumerStatefulWidget {
   ConsumerState<KitchenScreen> createState() => _KitchenScreenState();
 }
 
-class _KitchenScreenState extends ConsumerState<KitchenScreen> {
+class _KitchenScreenState extends ConsumerState<KitchenScreen>
+    with WidgetsBindingObserver {
+  late final KitchenWake _wake = KitchenWake(ref.read(screenWakeProvider));
   List<Order>? _orders;
   Object? _error;
   Set<int>? _known;
@@ -36,12 +40,21 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_wake.open());
     _load();
     _timer = Timer.periodic(widget.interval, (_) => _load());
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    unawaited(_wake.lifecycle(state));
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_wake.close());
     _timer?.cancel();
     super.dispose();
   }
@@ -169,7 +182,7 @@ class _KitchenCard extends StatelessWidget {
     final l10n = context.l10n;
     final isNew = order.kitchen?.step == 'received';
     return Panel(
-      color: isNew ? Brand.warningBg : null,
+      color: isNew ? context.yb.warningBg : null,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

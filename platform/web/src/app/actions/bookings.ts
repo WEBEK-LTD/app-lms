@@ -9,6 +9,10 @@ import { bookingSetup } from "@/lib/bookings/setup";
 import { getStore } from "@/lib/data";
 import type { App, BookingSetup } from "@/lib/data/types";
 import { changeAppointmentStatus } from "@/lib/bookings/appointments";
+import { rescheduleAppointment } from "@/lib/bookings/reschedule";
+import { encryptionKey } from "@/lib/env";
+import { serviceAccountOf } from "@/lib/hosted/notify";
+import { recordStaffChange } from "@/lib/admin/audit";
 import type { FormState } from "@/lib/forms";
 
 /** A client whose bookings are managed in the dashboard, or a redirect. */
@@ -163,4 +167,29 @@ export async function setAppointmentStatusAction(formData: FormData): Promise<vo
   const appointment = Number.isSafeInteger(id) ? await store.getBookingAppointment(app.id, id) : null;
   if (appointment) await changeAppointmentStatus(store, appointment, String(formData.get("status")), new Date());
   revalidatePath("/dashboard/appointments");
+}
+
+/**
+ * 61 Dashboard › Appointments › Change time: moves an appointment to a free
+ * time of its service (lib/bookings/reschedule.ts, as the Owner API); the
+ * customer is told. Back to the list with what happened.
+ */
+export async function rescheduleAppointmentAction(formData: FormData): Promise<void> {
+  const context = await requireBookingsApp();
+  const { app } = context;
+  const store = await getStore();
+  const id = Number(formData.get("id"));
+  const appointment = Number.isSafeInteger(id) ? await store.getBookingAppointment(app.id, id) : null;
+  if (!appointment) redirect("/dashboard/appointments");
+  const staffRaw = String(formData.get("staff") ?? "");
+  const staffId = staffRaw ? Number(staffRaw) : null;
+  const result = await rescheduleAppointment(
+    { store, app, now: new Date(), account: serviceAccountOf(app, encryptionKey()) },
+    appointment,
+    { start: new Date(String(formData.get("start") ?? "")), staffId: staffId !== null && Number.isSafeInteger(staffId) ? staffId : null },
+  );
+  revalidatePath("/dashboard/appointments");
+  if (!result.ok) redirect(`/dashboard/appointments/${appointment.id}/move?error=${result.code}`);
+  await recordStaffChange(context, `Moved appointment ${appointment.id} to ${result.appointment.startAt.toISOString()}`);
+  redirect(`/dashboard/appointments?moved=${appointment.id}`);
 }

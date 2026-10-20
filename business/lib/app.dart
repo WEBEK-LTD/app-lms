@@ -95,6 +95,7 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
+    final arabic = locale.languageCode == 'ar';
     return MaterialApp.router(
       title: 'Yallapp Business',
       debugShowCheckedModeBanner: false,
@@ -108,7 +109,10 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: buildTheme(arabic: locale.languageCode == 'ar'),
+      theme: buildTheme(arabic: arabic),
+      // 61 The dark theme, following the phone unless chosen in Settings.
+      darkTheme: buildTheme(arabic: arabic, brightness: Brightness.dark),
+      themeMode: ref.watch(themeModeProvider),
     );
   }
 }
@@ -165,8 +169,8 @@ class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    backgroundColor: Brand.ivory,
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.yb.background,
     body: Center(child: CircularProgressIndicator()),
   );
 }

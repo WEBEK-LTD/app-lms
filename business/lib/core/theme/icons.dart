@@ -90,6 +90,10 @@ abstract final class AppIcons {
   static const draft = Symbols.edit_note_rounded;
   static const archive = Symbols.archive_rounded;
   static const publish = Symbols.publish_rounded;
+  // 61
+  static const appearance = Symbols.contrast_rounded;
+  static const reschedule = Symbols.edit_calendar_rounded;
+  static const scheduled = Symbols.schedule_send_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

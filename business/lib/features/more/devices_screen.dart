@@ -83,8 +83,8 @@ class DevicesScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Brand.danger,
-                  side: const BorderSide(color: Brand.danger),
+                  foregroundColor: context.yb.danger,
+                  side: BorderSide(color: context.yb.danger),
                 ),
                 onPressed: () async {
                   final ok = await confirm(

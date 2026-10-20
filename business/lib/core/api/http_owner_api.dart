@@ -275,6 +275,33 @@ class HttpOwnerApi implements OwnerApi {
     }),
   );
 
+  @override
+  Future<RescheduleTimes> rescheduleTimes(
+    String appId,
+    int appointmentId, {
+    String? from,
+    int days = 7,
+    int? staffId,
+  }) async => RescheduleTimes.fromJson(
+    await _get(
+      '${_app(appId)}/appointments/$appointmentId/times',
+      query: {'from': ?from, 'days': '$days', 'staff_id': ?staffId?.toString()},
+    ),
+  );
+
+  @override
+  Future<Appointment> reschedule(
+    String appId,
+    int appointmentId, {
+    required DateTime start,
+    int? staffId,
+  }) async => Appointment.fromJson(
+    await _post('${_app(appId)}/appointments/$appointmentId/reschedule', {
+      'start': start.toUtc().toIso8601String(),
+      'staff_id': staffId,
+    }),
+  );
+
   // Events
 
   @override
@@ -492,6 +519,49 @@ class HttpOwnerApi implements OwnerApi {
   }) async => NotificationResult.fromJson(
     await _post('${_app(appId)}/notifications', {'title': title, 'body': body}),
   );
+
+  @override
+  Future<ScheduledNotifications> scheduledNotifications(String appId) async =>
+      ScheduledNotifications.fromJson(
+        await _get('${_app(appId)}/notifications/scheduled'),
+      );
+
+  @override
+  Future<ScheduledNotification> scheduleNotification(
+    String appId, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  }) async => ScheduledNotification.fromJson(
+    await _post('${_app(appId)}/notifications/scheduled', {
+      'title': title,
+      'body': body,
+      'date': date,
+      'time': time,
+    }),
+  );
+
+  @override
+  Future<ScheduledNotification> editScheduledNotification(
+    String appId,
+    int id, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  }) async => ScheduledNotification.fromJson(
+    await _put('${_app(appId)}/notifications/scheduled/$id', {
+      'title': title,
+      'body': body,
+      'date': date,
+      'time': time,
+    }),
+  );
+
+  @override
+  Future<void> cancelScheduledNotification(String appId, int id) =>
+      _delete('${_app(appId)}/notifications/scheduled/$id');
 
   // Publishing and license
 

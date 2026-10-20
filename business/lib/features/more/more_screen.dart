@@ -185,6 +185,16 @@ class MoreScreen extends ConsumerWidget {
               },
             ),
             tile(
+              AppIcons.appearance,
+              l10n.appearance,
+              () => context.push(Paths.appearance),
+              subtitle: switch (ref.watch(themeModeProvider)) {
+                ThemeMode.light => l10n.themeLight,
+                ThemeMode.dark => l10n.themeDark,
+                ThemeMode.system => l10n.themeSystem,
+              },
+            ),
+            tile(
               AppIcons.notificationsSettings,
               l10n.notificationSettings,
               () => context.push(Paths.notifications),
@@ -247,8 +257,8 @@ class MoreScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                foregroundColor: Brand.danger,
-                side: const BorderSide(color: Brand.danger),
+                foregroundColor: context.yb.danger,
+                side: BorderSide(color: context.yb.danger),
               ),
               onPressed: () async {
                 final ok = await confirm(
