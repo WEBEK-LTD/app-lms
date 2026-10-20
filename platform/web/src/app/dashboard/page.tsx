@@ -165,7 +165,10 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   const users = hosted ? await store.countHostedUsers(app.id) : 0;
   const userLimit = current?.limits.appUsers ?? null;
   const moreUsers = current ? lowestPlanWith(effective, (p) => p.limits.appUsers === null || (userLimit !== null && p.limits.appUsers > userLimit), plan) : null;
-  const notices = await store.listOwnerNotices({ clientId: context.client.id, open: true, limit: 10 });
+  // 60 As the bell: notices for whoever may change settings, of the apps they may use (and the account's own).
+  const notices = contextCan(context, "settings")
+    ? (await store.listOwnerNotices({ clientId: context.client.id, open: true, limit: 50 })).filter((n) => !n.appId || context.apps.some((a) => a.id === n.appId)).slice(0, 10)
+    : [];
   const licenseName = k(licensePageName(app));
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const step = (s: SetupStep) => k(STEP_LABEL[s]);

@@ -51,7 +51,23 @@ export default async function JoinTeamPage({ searchParams }: PageProps<"/team/jo
     const inviter = (await store.getUserById(invitation.invitedBy))?.name ?? owner.name;
     const business = businessName(owner, invitation.appIds ? apps.filter((a) => invitation.appIds!.includes(a.id)) : apps);
     const hasPassword = Boolean(existing?.passwordHash);
-    body = (
+    // 60 An account without a password sets it by email first: the link never sets one.
+    const needsPassword = Boolean(existing && !existing.passwordHash);
+    body = needsPassword ? (
+      <>
+        <div className="flex flex-col gap-2">
+          <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] break-words">{t("team.join.title", { business })}</h1>
+          <p className="m-0 text-base leading-relaxed text-ink-4">{t("team.join.invited", { inviter, role: t(`team.roles.${invitation.role}` as DashKey) })}</p>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <h2 className="m-0 text-lg font-bold">{t("team.join.noPasswordTitle")}</h2>
+          <p className="m-0 text-sm text-ink-4" role="status">{t("team.join.noPasswordText", { email: invitation.email })}</p>
+        </div>
+        <Link href={localePath(lang, "/forgot-password")} className={`${btn.primary} h-[50px]`}>
+          {t("team.join.forgot")}
+        </Link>
+      </>
+    ) : (
       <>
         <div className="flex flex-col gap-2">
           <h1 className="m-0 text-[28px] font-extrabold tracking-[-0.5px] break-words">{t("team.join.title", { business })}</h1>

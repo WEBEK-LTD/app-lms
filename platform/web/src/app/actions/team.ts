@@ -6,6 +6,7 @@ import { getDashT, knownTranslator } from "@/i18n/dashboard";
 import { formatDate } from "@/i18n/format";
 import { translateKnown, type Lang } from "@/i18n";
 import { recordStaffChange } from "@/lib/admin/audit";
+import { adminRoleOf, isBootstrapOwner } from "@/lib/admin/team";
 import { authenticate } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
 import { actorOf, chooseBusiness, clientFor, getCurrentUser, mayUseDashboard, requestIp, startSession, type ClientContext } from "@/lib/auth/session";
@@ -56,8 +57,11 @@ function accessValues(formData: FormData) {
 }
 
 export interface InviteState extends FormState {
-  /** The join link, shown to the owner in case the email doesn't arrive. */
-  link?: string;
+  /**
+   * When it was sent, to clear the form. The join link itself only goes to
+   * the invited email: whoever holds it can set a password for that address.
+   */
+  sent?: number;
 }
 
 export async function inviteMemberAction(_: InviteState, formData: FormData): Promise<InviteState> {
@@ -84,7 +88,7 @@ export async function inviteMemberAction(_: InviteState, formData: FormData): Pr
   if (!result.ok) return { errors: result.errors, message: result.message, values };
   await recordStaffChange(context, `Invited ${result.invitation.email} to the client's team`);
   revalidatePath("/dashboard/team");
-  return { ok: true, message: `Invitation sent to ${result.invitation.email}.`, link: result.link };
+  return { ok: true, message: `Invitation sent to ${result.invitation.email}.`, sent: Date.now() };
 }
 
 export async function resendInvitationAction(formData: FormData): Promise<void> {
@@ -161,7 +165,8 @@ const REASONS: Record<string, string> = {
   expired: "This link is invalid.",
   used: "This invitation isn't open any more.",
   owner: "You own this business already. Sign in to open it.",
-  staff: "This email is on Yallapp's team. Ask for an invitation to another email.",
+  staff: "This invitation can't be used with this email. Ask for an invitation to another email.",
+  noPassword: "Set a password for this email with “Forgot your password?” first, then open this link again.",
 };
 
 /**
@@ -181,6 +186,12 @@ export async function joinTeamAction(_: FormState, formData: FormData): Promise<
   if (!check.ok) return say({ message: REASONS[check.reason] });
 
   let user = check.existing;
+  // Yallapp's own team never joins a client's team: checked before any
+  // account is made or changed, so a link can't create an admin's sign-in.
+  if (isBootstrapOwner(check.invitation.email) || (user && (await adminRoleOf(store, user)))) return say({ message: REASONS.staff });
+  // An account without a password sets it through "Forgot your password?"
+  // (sent to the address), never with the link.
+  if (user && !user.passwordHash) return say({ message: REASONS.noPassword });
   if (user?.passwordHash) {
     const parsed = teamJoinExistingSchema.safeParse(Object.fromEntries(formData));
     if (!parsed.success) return say({ errors: fieldErrors(parsed.error) });
@@ -194,18 +205,12 @@ export async function joinTeamAction(_: FormState, formData: FormData): Promise<
     const values = { name: String(formData.get("name") ?? "") };
     if (!parsed.success) return say({ errors: fieldErrors(parsed.error), values });
     const passwordHash = await hashPassword(parsed.data.password);
-    if (user) {
-      // An account made without a password (never finished): this sets it, and signs out any old session.
-      await store.updateUser(user.id, { name: parsed.data.name, passwordHash, sessionVersion: user.sessionVersion + 1, language: user.language ?? lang }, now);
-      user = { ...user, name: parsed.data.name, passwordHash, sessionVersion: user.sessionVersion + 1 };
-    } else {
-      try {
-        user = await store.createUser({ email: check.invitation.email, name: parsed.data.name, passwordHash, now });
-        await store.updateUser(user.id, { language: lang }, now);
-      } catch (error) {
-        if (error instanceof DuplicateEmailError) return say({ message: REASONS.used });
-        throw error;
-      }
+    try {
+      user = await store.createUser({ email: check.invitation.email, name: parsed.data.name, passwordHash, now });
+      await store.updateUser(user.id, { language: lang }, now);
+    } catch (error) {
+      if (error instanceof DuplicateEmailError) return say({ message: REASONS.used });
+      throw error;
     }
   }
   const joined = await acceptInvitation(store, token, user, now);

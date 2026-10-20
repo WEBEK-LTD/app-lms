@@ -95,16 +95,8 @@ export function InviteForm({ apps }: { apps: TeamAppChoice[] }) {
   const t = useDashT();
   const [state, action] = useActionState<InviteState, FormData>(inviteMemberAction, initialFormState);
   return (
-    <form action={action} noValidate className="flex max-w-[640px] flex-col gap-4" key={state.ok ? state.link : "invite"}>
+    <form action={action} noValidate className="flex max-w-[640px] flex-col gap-4" key={state.ok ? `sent-${state.sent}` : "invite"}>
       <FormMessage message={state.message} ok={state.ok} />
-      {state.ok && state.link ? (
-        <p className="m-0 text-sm text-muted">
-          {t("team.linkNote")}{" "}
-          <span dir="ltr" className="break-all font-mono text-[13px] text-ink">
-            {state.link}
-          </span>
-        </p>
-      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t("team.name")} name="name" required maxLength={120} autoComplete="off" defaultValue={state.ok ? "" : state.values?.name} error={state.errors?.name} />
         <Field label={t("team.email")} name="email" type="email" required maxLength={191} autoComplete="off" dir="ltr" defaultValue={state.ok ? "" : state.values?.email} error={state.errors?.email} />

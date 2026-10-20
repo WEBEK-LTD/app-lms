@@ -107,7 +107,7 @@ describe("60 team members", () => {
     expect(await invite({ appIds: ["not-theirs"] })).toMatchObject({ ok: false, errors: { appIds: "Choose at least one of your apps." } });
     const admin = await newUser("support@yallapp.test");
     await store.saveAdminMember({ userId: admin.id, role: "support", addedBy: "x", addedAt: NOW, updatedAt: NOW });
-    expect(await invite({ email: "support@yallapp.test" })).toMatchObject({ ok: false, errors: { email: "This email is on Yallapp's team. Use another email." } });
+    expect(await invite({ email: "support@yallapp.test" })).toMatchObject({ ok: false, errors: { email: "This email can't be invited. Use another email." } });
     expect((await invite({})).ok).toBe(true);
     expect(await invite({})).toMatchObject({ ok: false, errors: { email: "This email has an invitation already. Send it again from the list." } });
     const member = await newUser("member@cafe.test");

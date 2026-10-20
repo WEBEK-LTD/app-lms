@@ -1,5 +1,5 @@
 import type { Lang } from "@/i18n/config";
-import { adminRoleOf } from "../admin/team";
+import { adminRoleOf, isBootstrapOwner } from "../admin/team";
 import { appLabel } from "../app/label";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
@@ -130,10 +130,11 @@ export async function inviteMember(
   if (!parsed.ok || !access.ok) return { ok: false, errors };
   const email = parsed.email;
   if (email === input.owner.email.toLowerCase()) return { ok: false, errors: { email: "That's the owner's own email." } };
+  if (isBootstrapOwner(email)) return { ok: false, errors: { email: "This email can't be invited. Use another email." } };
   const existing = await store.getUserByEmail(email);
   if (existing) {
     if (await store.getTeamMember(input.client.id, existing.id)) return { ok: false, errors: { email: "This person is on your team already." } };
-    if (await adminRoleOf(store, existing)) return { ok: false, errors: { email: "This email is on Yallapp's team. Use another email." } };
+    if (await adminRoleOf(store, existing)) return { ok: false, errors: { email: "This email can't be invited. Use another email." } };
   }
   if ((await store.listOpenTeamInvitations(input.client.id)).some((i) => i.email === email && i.expiresAt.getTime() > now.getTime())) {
     return { ok: false, errors: { email: "This email has an invitation already. Send it again from the list." } };
