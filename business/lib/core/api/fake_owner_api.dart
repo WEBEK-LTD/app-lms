@@ -33,6 +33,9 @@ class FakeOwnerApi implements OwnerApi {
   /// Thrown by the next call, then cleared.
   ApiException? failNext;
 
+  /// Thrown once by the next call of that operation (`today`, `orders`…).
+  final failOn = <String, ApiException>{};
+
   /// Every call, by its operation name.
   final calls = <String>[];
 
@@ -73,7 +76,7 @@ class FakeOwnerApi implements OwnerApi {
   Future<void> _call(String name, {bool needsActive = true}) async {
     calls.add(name);
     if (latency > Duration.zero) await Future<void>.delayed(latency);
-    final fail = failNext;
+    final fail = failNext ?? failOn.remove(name.split(':').first);
     if (fail != null) {
       failNext = null;
       throw fail;
@@ -1098,6 +1101,33 @@ class FakeOwnerApi implements OwnerApi {
         tickets: appId == eventsId
             ? const [Takeable(id: 1, label: 'Ticket A7K2-9QXM')]
             : const [],
+      ),
+    );
+  }
+
+  /// A new paid order for the restaurant (Kitchen mode's tests and demo).
+  void addOrderForTest() {
+    final list = _orders[restaurantId]!;
+    final model = list.first;
+    final id = list.map((o) => o.id).reduce((a, b) => a > b ? a : b) + 1;
+    list.insert(
+      0,
+      Order(
+        id: id,
+        number: '#$id',
+        status: 'processing',
+        statusLabel: _statusLabel('processing'),
+        kitchen: const OrderKitchen(
+          type: 'pickup',
+          step: 'received',
+          stepLabel: 'New',
+        ),
+        total: model.total,
+        lines: model.lines,
+        customer: const Customer(name: 'Mert Kaya'),
+        createdAt: DateTime.now().toUtc(),
+        paidAt: DateTime.now().toUtc(),
+        nextStatuses: const ['preparing', 'cancelled'],
       ),
     );
   }

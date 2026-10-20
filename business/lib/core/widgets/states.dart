@@ -49,6 +49,8 @@ class AsyncBody<T> extends StatelessWidget {
     return value.when(
       skipLoadingOnRefresh: true,
       skipLoadingOnReload: true,
+      // A failed refresh keeps what was there (pull to refresh says why).
+      skipError: true,
       data: builder,
       loading: () => const LoadingState(),
       error: (error, _) => ErrorState(error: error, onRetry: onRetry),
@@ -353,3 +355,16 @@ Future<void> openLink(BuildContext context, WidgetRef ref, String? url) async {
   final ok = await ref.read(openExternalProvider)(url);
   if (!ok && context.mounted) showMessage(context, context.l10n.linkFailed);
 }
+
+/// Pull to refresh that tells the owner when it failed, keeping what was
+/// on screen.
+Future<void> Function() pullToRefresh(
+  BuildContext context,
+  Future<Object?> Function() refresh,
+) => () async {
+  try {
+    await refresh();
+  } on Object catch (e) {
+    if (context.mounted) showError(context, e);
+  }
+};
