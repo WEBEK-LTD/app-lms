@@ -322,7 +322,7 @@ describe("58 the Owner API", () => {
   describe("scope", () => {
     it("refuses another client's app on every path, and paths the app doesn't have", async () => {
       const { access_token: token } = await signIn();
-      const ids = { app_id: theirs.id, order_id: 1, appointment_id: 1, product_id: 1, course_id: 1, topic_id: 1, article_id: 1, listing_id: 1, media_id: "3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f", inquiry_id: 1 };
+      const ids = { app_id: theirs.id, order_id: 1, appointment_id: 1, product_id: 1, course_id: 1, topic_id: 1, article_id: 1, listing_id: 1, media_id: "3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f", inquiry_id: 1, scheduled_id: 1 };
       const contract = (await import("yaml")).parse((await import("node:fs")).readFileSync(new URL("../../../../docs/api/owner.yaml", import.meta.url), "utf8")) as { paths: Record<string, Record<string, unknown>> };
       let checked = 0;
       for (const [route, operations] of Object.entries(contract.paths)) {

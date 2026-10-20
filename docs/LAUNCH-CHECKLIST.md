@@ -112,6 +112,12 @@ devices. Everything else is in the code. Tick each line when it's done.
 - [ ] The webhook job (49): Netlify › Logs › Functions shows `api-webhooks`
       running every 5 minutes (account deletion notices to apps' own APIs
       tried again). To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/webhooks`.
+- [ ] The frequent job (61): Netlify › Logs › Functions shows `frequent-jobs`
+      running every 5 minutes (app notifications sent later whose time came,
+      announcements that started pushed to the owners' phones). It needs the
+      same `INTERNAL_JOB_SECRET`. To try it at once: `curl -X POST -H "Authorization: Bearer $INTERNAL_JOB_SECRET" https://yallapp.com.tr/api/internal/frequent`
+      (a JSON report: `notifications` sent, waiting, cancelled, failed;
+      `announcements` pushed).
 - [ ] `files.yallapp.com.tr`, GitHub secrets and variables: `build/README.md`
       › One-time setup.
 - [ ] GitHub › Settings › Billing: keep the Actions budget (USD 20) and watch
@@ -435,6 +441,14 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       push arrives in English, then switch the dashboard to Arabic and
       check the next one is in Arabic; sign the phone out from Dashboard ›
       Your phones and check the app is signed out.
+- [ ] (61) Apply migration `0044_scheduled_notifications.sql` after `0043`:
+      the `scheduled_notifications` table, `announcements.pushed_at`
+      (announcements that already started are marked pushed, so the frequent
+      job never pushes old ones), and indexes for today's numbers. Then check
+      the frequent job above runs, schedule a notification for a few minutes
+      ahead in a test app (Dashboard › App notifications › Later) and check
+      it arrives once; create an announcement that starts in 10 minutes and
+      check the phone gets it when it starts.
 
 ## 7l. Yallapp Business in the stores (Phase 59)
 

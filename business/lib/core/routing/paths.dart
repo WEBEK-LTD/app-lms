@@ -20,6 +20,7 @@ abstract final class Paths {
   // Full screens.
   static const updates = '/updates';
   static String order(int id) => '/orders/$id';
+  static String moveAppointment(int id) => '/appointments/$id/move';
   static const kitchen = '/kitchen';
   static String scan([int? eventId]) =>
       eventId == null ? '/scan' : '/scan?event=$eventId';
@@ -33,6 +34,7 @@ abstract final class Paths {
   static const builds = '/builds';
   static const plan = '/plan';
   static const language = '/settings/language';
+  static const appearance = '/settings/appearance';
   static const notifications = '/settings/notifications';
   static const devices = '/settings/devices';
 }

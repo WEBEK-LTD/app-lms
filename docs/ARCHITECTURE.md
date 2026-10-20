@@ -1349,6 +1349,39 @@ the same database, and the same code.
   minutes); renewing: 60 per IP in 10 minutes; uploads: 200 an hour per app
   and notifications to the app's users: 10 an hour per app, both counted
   with the dashboard's.
+- **Moving an appointment (61)** (`lib/bookings/reschedule.ts`, Dashboard ›
+  Appointments › Change time and `GET …/appointments/{id}/times`, `POST
+  …/reschedule`): a pending or approved appointment that hasn't started moves
+  to one of the times booking in the app would offer for its service
+  (`freeTimes` over `busyTimes`, `lib/bookings/busy.ts`: the staff's hours
+  and days off, their other appointments and classes, the minimum notice and
+  how far ahead the business takes bookings; its own time counts as free).
+  `moveBookingAppointment` checks and writes as one step (the app's row is
+  the lock, as booking), so two moves never take one time. The status stays;
+  the customer gets "Your appointment moved" in the app's inbox and on their
+  phones when push is on (as a class called off), in the app's main language
+  (English, Arabic or Turkish).
+- **Notifications sent later (61)** (`lib/hosted/scheduled-notifications.ts`,
+  `scheduled_notifications`, migration 0044): Dashboard › App notifications ›
+  Later and `…/notifications/scheduled` take a date and time in the app's
+  time zone (Analytics', roadmap 47), later than now and within 90 days, at
+  most 50 waiting per app; those waiting are changed or cancelled. The
+  frequent job sends each through `sendAppNotification` (the same words,
+  inbox, push and hourly limit as sending now; when the hour's 10 are used it
+  waits for a later run without counting a try). A run takes a row with a
+  conditional update (`scheduled` to `sending`), so two runs never send it
+  twice; one left `sending` for 30 minutes is marked failed, never resent.
+- **The frequent job (61)**: `netlify/functions/frequent-jobs.mts` calls `POST
+  /api/internal/frequent` every 5 minutes with `INTERNAL_JOB_SECRET`
+  (`lib/jobs/frequent.ts`): notifications sent later, then announcements that
+  started (`pushStartedAnnouncements`: each live one not pushed yet is taken
+  once with `claimAnnouncementPush` and pushed to its audience's phones; one
+  created live is marked pushed at once; one that started over a day ago is
+  marked, not pushed late).
+- **Today's numbers (61)** are counted by the database for the app's whole
+  day (`sumPaidCatalogOrders`, `sumPaidDonations`, `countHostedUsersCreated`,
+  `countTicketsInWindow`: sums and counts in SQL, with indexes on the paid
+  and created times), no longer from the newest 200 rows.
 
 ## Yallapp Business, the app (Phase 59)
 
@@ -1396,6 +1429,20 @@ Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
   path, so it carries on later from where the gate is (`resumeUpload`).
 - **No payments**: nothing is bought in the app. The plan and storage are
   read-only; "Manage on yallapp.com.tr" opens `manage_url` in the browser.
+- **Light and dark (61)**: `buildTheme` makes both from Yallapp's palette;
+  screens take colors from the theme's `YbColors` (`context.yb`): Ivory pages,
+  white cards and Midnight text in light; Midnight pages, lifted Midnight
+  cards and Ivory text in dark, Ember for small accents in both; every text
+  pair at least 4.5:1 (`test/unit/theme_test.dart`). The door scanner stays
+  dark in both. Settings › Appearance: the phone's setting (default), light
+  or dark, kept on the phone.
+- **Kitchen mode keeps the screen on (61)** while it is open and in front
+  (`wakelock_plus` through `KitchenWake`: asked again on return from the
+  background, released on leaving; a phone that refuses still runs it).
+- **Moving appointments and sending later (61)**: Appointments › Change time
+  (the free times a week at a time, a staff filter, a confirmation) and Send
+  notification › Later (date and time, the scheduled ones with Edit and
+  Cancel), on the Owner API paths above.
 
 ## Demo apps (Phase 16)
 

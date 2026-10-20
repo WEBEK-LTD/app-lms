@@ -199,7 +199,7 @@ class _StorageMeter extends ConsumerWidget {
     final theme = Theme.of(context);
     final share = storage.share;
     return Panel(
-      color: storage.full ? Brand.warningBg : null,
+      color: storage.full ? context.yb.warningBg : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

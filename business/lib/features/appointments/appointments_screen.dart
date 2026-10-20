@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
+import '../../core/routing/paths.dart';
 import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/paged_list.dart';
 import '../../core/widgets/states.dart';
+import 'reschedule_screen.dart';
 
 /// 59 Appointments: today's, the upcoming ones and the past ones; confirm,
-/// decline, cancel, complete or mark a no-show (the dashboard's steps).
+/// decline, cancel, complete or mark a no-show (the dashboard's steps);
+/// 61 move one to another time.
 class AppointmentsScreen extends ConsumerStatefulWidget {
   const AppointmentsScreen({super.key});
 
@@ -173,16 +177,20 @@ class AppointmentCard extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(a.localTime, style: theme.textTheme.titleLarge),
-                  if (showDate)
-                    Text(
-                      context.day(a.localDate),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                ],
+              // 61 A long day name (Arabic) wraps instead of pushing the rest out.
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 112),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(a.localTime, style: theme.textTheme.titleLarge),
+                    if (showDate)
+                      Text(
+                        context.day(a.localDate),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -203,12 +211,22 @@ class AppointmentCard extends ConsumerWidget {
               ),
             ],
           ),
-          if (a.nextStatuses.isNotEmpty) ...[
+          if (a.nextStatuses.isNotEmpty || a.canReschedule) ...[
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
+                if (a.canReschedule)
+                  ChangeTimeButton(
+                    onPressed: () async {
+                      final moved = await context.push<bool>(
+                        Paths.moveAppointment(a.id),
+                        extra: a,
+                      );
+                      if (moved ?? false) onChanged();
+                    },
+                  ),
                 for (final s in back)
                   OutlinedButton(
                     onPressed: () => _change(context, ref, s),

@@ -1,9 +1,10 @@
 import { formatDate } from "@/i18n/format";
-import { addDays, dayOf } from "../analytics/days";
+import { addDays, dayOf, isDay } from "../analytics/days";
 import { refreshAnalytics } from "../analytics/aggregate";
 import { appZone } from "../analytics/zone";
 import { appAreas, type AppAreas } from "../app/areas";
 import { changeAppointmentStatus, nextAppointmentStatuses } from "../bookings/appointments";
+import { canReschedule, rescheduleAppointment, rescheduleTimes } from "../bookings/reschedule";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
@@ -62,9 +63,6 @@ async function todayOf(ctx: OwnerContext, app: App) {
   return { zone, date, start: localToUtc(date, "00:00", zone), end: localToUtc(addDays(date, 1), "00:00", zone) };
 }
 
-const within = (at: Date | null | undefined, day: { start: Date; end: Date }) => Boolean(at) && at!.getTime() >= day.start.getTime() && at!.getTime() < day.end.getTime();
-/** How far back today's numbers look among the newest orders, donations and users. */
-const TODAY_SCAN = 200;
 const PAID: CatalogOrderStatus[] = ["processing", "completed", "cancelled", "refunded"];
 
 /** `GET /apps/{app_id}/today`. */
@@ -77,11 +75,11 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   const given = new Map<string, number>();
   const needs: { kind: string; count: number; title: string; notice_id: number | null }[] = [];
 
+  // 61 Counted and summed by the database for the whole day, however busy.
   if (areas.orders) {
-    const { items } = await store.listCatalogOrders({ appId: app.id, statuses: PAID, offset: 0, limit: TODAY_SCAN });
-    const paidToday = items.filter((o) => within(o.paidAt, day));
-    for (const order of paidToday) addTo(sales, order.currency, order.totalCents - (order.refundedCents ?? 0));
-    counts.orders = paidToday.length;
+    const paid = await store.sumPaidCatalogOrders(app.id, day.start, day.end);
+    for (const total of paid.totals) addTo(sales, total.currency, total.cents);
+    counts.orders = paid.count;
     const waiting = (await store.listCatalogOrders({ appId: app.id, statuses: ["processing"], offset: 0, limit: 1 })).total;
     if (waiting) needs.push({ kind: "orders_in_progress", count: waiting, title: ctx.t("owner.needs.ordersInProgress", { count: waiting }), notice_id: null });
   }
@@ -91,24 +89,20 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     if (pending) needs.push({ kind: "appointments_to_confirm", count: pending, title: ctx.t("owner.needs.toConfirm", { count: pending }), notice_id: null });
   }
   if (areas.events) {
-    const tickets = await store.listTickets({ appId: app.id });
-    counts.tickets = tickets.filter((t) => (t.status === "valid" || t.status === "used") && within(t.createdAt, day)).length;
-    counts.check_ins = tickets.filter((t) => within(t.usedAt, day)).length;
+    const tickets = await store.countTicketsInWindow(app.id, day.start, day.end);
+    counts.tickets = tickets.issued;
+    counts.check_ins = tickets.checkedIn;
   }
   if (areas.donations) {
-    const { items } = await store.listDonations({ appId: app.id, statuses: ["paid", "refunded"], offset: 0, limit: TODAY_SCAN });
-    const paidToday = items.filter((d) => within(d.paidAt, day));
-    for (const donation of paidToday) addTo(given, donation.currency, donation.amountCents - (donation.refundedCents ?? 0));
-    counts.donations = paidToday.length;
+    const paid = await store.sumPaidDonations(app.id, day.start, day.end);
+    for (const total of paid.totals) addTo(given, total.currency, total.cents);
+    counts.donations = paid.count;
   }
   if (areas.inquiries) {
     const unread = await store.countUnreadListingInquiries(app.id);
     if (unread) needs.push({ kind: "unanswered_messages", count: unread, title: ctx.t("owner.needs.unanswered", { count: unread }), notice_id: null });
   }
-  if (areas.appUsers) {
-    const { items } = await store.listHostedUsers({ appId: app.id, offset: 0, limit: TODAY_SCAN });
-    counts.new_users = items.filter((u) => within(u.createdAt, day)).length;
-  }
+  if (areas.appUsers) counts.new_users = await store.countHostedUsersCreated(app.id, day.start, day.end);
   // 44 Opens today, from the app's own usage statistics (counted at read, like Analytics).
   await refreshAnalytics(store, app.id, now, [], day.zone);
   const sessions = await store.listAnalyticsDaily(app.id, day.date, day.date, ["sessions"]);
@@ -238,6 +232,7 @@ function appointmentJson(ctx: OwnerContext, a: BookingAppointment, zone: string)
     notes: a.notes,
     answers: (a.answers ?? []).map((answer) => ({ label: answer.label, value: answer.value })),
     next_statuses: nextAppointmentStatuses(a),
+    can_reschedule: canReschedule(a, ctx.deps.now),
   };
 }
 
@@ -276,6 +271,54 @@ export async function changeAppointment(ctx: OwnerContext, params: Record<string
   if (typeof status !== "string" || !status) throw invalid({ status: "The request isn't valid." });
   if (!(await changeAppointmentStatus(store, appointment, status, now))) throw new OwnerError(409, "invalid_status", "This appointment can't move to that status.");
   return { status: 200, body: appointmentJson(ctx, (await store.getBookingAppointment(app.id, appointment.id))!, bookingSetup(app).rules.timezone) };
+}
+
+/** 61 The appointment of this app, or 404. */
+async function ownAppointment(ctx: OwnerContext, params: Record<string, string>) {
+  const { app } = appScope(ctx, params.app_id, "appointments");
+  const appointment = await ctx.deps.store.getBookingAppointment(app.id, intParam(params.appointment_id));
+  if (!appointment) throw notFound();
+  return { app, appointment };
+}
+
+/** 61 `GET …/times`: the free times booking would offer, for moving it. */
+export async function listRescheduleTimes(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, appointment } = await ownAppointment(ctx, params);
+  const q = ctx.req.query;
+  const from = q.get("from");
+  if (from !== null && !isDay(from)) throw invalid({ from: "The request isn't valid." });
+  const days = q.get("days") === null ? 7 : Number(q.get("days"));
+  if (!Number.isSafeInteger(days) || days < 1 || days > 14) throw invalid({ days: "The request isn't valid." });
+  const staffId = q.get("staff_id") === null ? null : Number(q.get("staff_id"));
+  if (staffId !== null && !Number.isSafeInteger(staffId)) throw invalid({ staff_id: "The request isn't valid." });
+  if (!canReschedule(appointment, ctx.deps.now)) throw new OwnerError(409, "invalid_status", "This appointment can't be moved.");
+  const times = await rescheduleTimes({ store: ctx.deps.store, app, now: ctx.deps.now }, appointment, { from, days, staffId });
+  if (!times) throw new OwnerError(409, "not_bookable", "This service can't be booked any more, so the appointment can't be moved.");
+  return {
+    status: 200,
+    body: {
+      time_zone: times.timeZone,
+      staff: times.staff,
+      days: times.days.map((d) => ({ date: d.date, slots: d.slots.map((x) => ({ start: x.start.toISOString(), end: x.end.toISOString(), local_time: x.localTime, staff_ids: x.staffIds })) })),
+    },
+  };
+}
+
+/** 61 `POST …/reschedule`: the dashboard's Change time (lib/bookings/reschedule.ts); the customer is told. */
+export async function rescheduleOne(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app, appointment } = await ownAppointment(ctx, params);
+  const body = bodyObject(ctx.req.body);
+  const start = typeof body.start === "string" ? new Date(body.start) : null;
+  if (!start || Number.isNaN(start.getTime())) throw invalid({ start: "Choose a time." });
+  const staffId = body.staff_id === undefined || body.staff_id === null ? null : Number(body.staff_id);
+  if (staffId !== null && !Number.isSafeInteger(staffId)) throw invalid({ staff_id: "The request isn't valid." });
+  const { deps } = ctx;
+  const result = await rescheduleAppointment({ store: deps.store, app, now: deps.now, account: serviceAccountOf(app, deps.encryptionKey), send: deps.sendPush }, appointment, { start, staffId });
+  if (!result.ok) {
+    if (result.code === "invalid_request") throw invalid({ staff_id: result.message }, result.message);
+    throw new OwnerError(409, result.code, result.message);
+  }
+  return { status: 200, body: appointmentJson(ctx, result.appointment, bookingSetup(app).rules.timezone) };
 }
 
 // Events and the door

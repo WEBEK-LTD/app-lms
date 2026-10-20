@@ -13,6 +13,7 @@ class LocalSettings {
   static const _biometric = 'yb.biometric_lock';
   static const _language = 'yb.language';
   static const _uploads = 'yb.pending_uploads';
+  static const _theme = 'yb.theme';
 
   String? get selectedApp => _prefs.getString(_app);
   Future<void> setSelectedApp(String? id) =>
@@ -28,6 +29,11 @@ class LocalSettings {
   Future<void> setLanguage(String? code) => code == null
       ? _prefs.remove(_language)
       : _prefs.setString(_language, code);
+
+  /// 61 Light, dark, or null to follow the phone.
+  String? get theme => _prefs.getString(_theme);
+  Future<void> setTheme(String? mode) =>
+      mode == null ? _prefs.remove(_theme) : _prefs.setString(_theme, mode);
 
   /// Uploads to Media that haven't finished, so they can carry on later.
   List<PendingUpload> get pendingUploads {

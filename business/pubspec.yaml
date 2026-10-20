@@ -36,6 +36,8 @@ dependencies:
   webview_flutter: ^4.14.1
   webview_flutter_android: 4.14.1
   webview_flutter_wkwebview: 3.26.1
+  # 61 Kitchen mode keeps the screen awake while it is open.
+  wakelock_plus: 1.8.1
 
 dev_dependencies:
   flutter_test:

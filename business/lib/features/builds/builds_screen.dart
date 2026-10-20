@@ -136,7 +136,7 @@ class _BuildCard extends ConsumerWidget {
             Text(
               b.message!,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: b.status == 'failed' ? Brand.danger : null,
+                color: b.status == 'failed' ? context.yb.danger : null,
               ),
             ),
           ],
