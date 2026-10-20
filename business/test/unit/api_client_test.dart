@@ -391,7 +391,7 @@ void main() {
     'the media gate: HEAD for the offset, PUT chunks, 409 gives the offset',
     () async {
       final adapter = FakeAdapter((o, body) async {
-        if (o.method == 'HEAD')
+        if (o.method == 'HEAD') {
           return ResponseBody.fromString(
             '',
             200,
@@ -399,6 +399,7 @@ void main() {
               'upload-offset': ['5'],
             },
           );
+        }
         if (o.headers['Upload-Offset'] == '5') {
           return ResponseBody.fromString(
             '',
