@@ -32,6 +32,8 @@ import { isLanguageCode } from "@/lib/i18n/locales";
 import { stringPack } from "@/lib/i18n/packs";
 import { etagValues } from "@/lib/pages/plugin";
 import { receiveCrashReports } from "@/lib/crashes/service";
+import { pushNewBooking, pushNewMessage } from "@/lib/owner/push";
+import { pushOwnerSafely } from "@/lib/owner/push-env";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -142,6 +144,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
           const lang = emailLangOf(owner);
           const appName = app.appName ?? getDashT(lang)("emails.yourAppName");
           const values = newAppointmentMailValues(appointment, bookingSetup(app).rules.timezone, appName, `${appUrl()}/dashboard/appointments`, lang);
+          // 58 Also to the owner's phone (Yallapp Business), whatever the email does.
+          await pushOwnerSafely((d) => pushNewBooking(d, app, appointment, bookingSetup(app).rules.timezone));
           await sendTemplate("new_appointment", owner.email, values, { lang });
         },
         onInquiry: async ({ inquiry, listing, user, text }) => {
@@ -152,6 +156,7 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
           const url = `${appUrl()}/dashboard/inquiries/${inquiry.id}`;
           const lang = emailLangOf(owner);
           const appName = app.appName ?? getDashT(lang)("emails.yourAppName");
+          await pushOwnerSafely((d) => pushNewMessage(d, app, { inquiryId: inquiry.id, listing, name: user.name, text }));
           await sendTemplate("new_inquiry", owner.email, newInquiryMailValues({ listing, user, text, appName, url, lang }), { lang });
         },
       }),

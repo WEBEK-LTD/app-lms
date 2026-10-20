@@ -6,6 +6,8 @@ import { emailLangOf, sendTemplate } from "../email/send";
 import { knownTranslator } from "@/i18n/dashboard";
 import { appUrl, superAdminEmails } from "../env";
 import { BUILD_STATUS_LABEL, failureReason } from "./view";
+import { pushBuildFinished } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * A dashboard link that first makes `appId` the current app (an account can
@@ -55,6 +57,8 @@ export async function notifyBuildFinished(store: DataStore, build: Build, option
     };
     for (const to of superAdminEmails()) sends.push(sendTemplate("build_failed_team", to, values));
   }
+  // 58 The owner's phone too (Yallapp Business).
+  if (app) sends.push(pushOwnerSafely((d) => pushBuildFinished(d, app, build), store));
   const results = await Promise.allSettled(sends);
   for (const result of results) if (result.status === "rejected") console.error("[builds] an email about build", build.id, "wasn't sent:", result.reason);
 }

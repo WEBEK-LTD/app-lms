@@ -11,6 +11,8 @@ import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
 import { cleanDemoActivity, type DemoCleanupReport } from "./demo/cleanup";
 import { bookingSetup } from "./bookings/setup";
 import { hasClasses, syncClassSessions } from "./bookings/classes";
+import { pushNotice } from "./owner/push";
+import { pushOwnerSafely } from "./owner/push-env";
 
 /**
  * Owner notices (roadmap 13.2 and 13.4): what the dashboard and email tell
@@ -82,6 +84,8 @@ async function createAndMail(
 ): Promise<OwnerNotice | null> {
   const saved = await deps.store.createOwnerNotice({ ...notice, createdAt: deps.now, emailedAt: null, dismissedAt: null, resolvedAt: null });
   if (!saved) return null;
+  // 58 The owner's phone too (Yallapp Business).
+  await pushOwnerSafely((d) => pushNotice(d, saved), deps.store);
   if (owner) {
     try {
       await deps.mail(email.key, owner.email, { name: owner.name, ...email.values }, ...mailOptions(owner));

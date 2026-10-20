@@ -1676,15 +1676,17 @@ components:
 
     Update:
       type: object
-      required: [key, kind, title, body, at, unread, current]
+      required: [key, kind, title, body, summary, at, unread, current]
       properties:
         key: { type: string, example: 'announcement:3f1c…' }
         kind: { type: string, enum: [update, announcement, maintenance, offer, account] }
         kind_label: { type: string }
         title: { type: string }
-        body: { type: string, description: Plain text. }
+        body: { type: string, description: 'Plain text for the account''s items, a small Markdown (no HTML) for announcements.' }
+        summary: { type: string, description: The text on one line (about 160 characters). }
         link: { type: [string, 'null'], format: uri }
-        app_id: { type: [string, 'null'], format: uuid }
+        link_label: { type: [string, 'null'] }
+        app_name: { type: [string, 'null'], description: 'The app it is about, when the account has more than one.' }
         at: { type: string, format: date-time }
         unread: { type: boolean }
         current: { type: boolean, description: Still live (in the bell); false for ended announcements. }
@@ -1711,7 +1713,7 @@ components:
             check_ins: { type: integer, description: Tickets used today. }
             donations: { type: integer }
             new_users: { type: integer }
-            app_opens: { type: [integer, 'null'], description: From Analytics; null before the app sends any. }
+            app_opens: { type: [integer, 'null'], description: 'Sessions today, from Analytics (apps built before roadmap 44 send none).' }
         needs_you:
           type: array
           items: { $ref: '#/components/schemas/NeedsYou' }
@@ -1730,7 +1732,7 @@ components:
       required: [id, number, status, total, refunded, lines, customer, created_at, paid_at, next_statuses]
       properties:
         id: { type: integer }
-        number: { type: string, example: '#1042' }
+        number: { type: string, example: '1042' }
         status: { type: string, enum: [processing, completed, cancelled, refunded] }
         status_label: { type: string }
         kitchen:
@@ -2007,7 +2009,7 @@ components:
       properties:
         id: { type: integer }
         title: { type: string }
-        status: { type: string, enum: [draft, published, scheduled] }
+        status: { type: string, enum: [draft, published] }
         featured: { type: boolean }
         published_at: { type: [string, 'null'], format: date-time }
         updated_at: { type: string, format: date-time }
@@ -2195,7 +2197,7 @@ components:
               id: { type: string, format: uuid }
               number: { type: integer }
               version: { type: string }
-              status: { type: string, enum: [queued, building, ready, failed, cancelled] }
+              status: { type: string, enum: [queued, building, ready, failed] }
               status_label: { type: string }
               message: { type: [string, 'null'] }
               created_at: { type: string, format: date-time }

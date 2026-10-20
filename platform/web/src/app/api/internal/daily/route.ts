@@ -19,7 +19,8 @@ import { noticeEndedPacks } from "@/lib/media/usage";
  * statistics for the finished days and deletes raw events older than 40
  * days. 51 Then storage packs that ended are looked at (a notice and an
  * email when the files are over the storage left) and uploads left unfinished
- * for two days are cancelled. Safe to call again.
+ * for two days are cancelled. 58 Devices signed out of Yallapp Business by
+ * time (their refresh token ended) are deleted. Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -38,5 +39,7 @@ export async function POST(request: Request): Promise<Response> {
     storageNotices: (await noticeEndedPacks(deps, await effectivePlans(store))).length,
     uploadsCancelled: await cancelStaleUploads({ store, storage: getMediaStorage(), now }),
   };
-  return json({ ...report, analytics, media });
+  // 58 Yallapp Business devices whose refresh token ended are forgotten.
+  const ownerDevicesPurged = await store.purgeOwnerDevices(now);
+  return json({ ...report, analytics, media, ownerDevicesPurged });
 }
