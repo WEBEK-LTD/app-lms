@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -137,16 +138,22 @@ class PlanScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  l10n.manageOnWebsiteText,
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => openLink(context, ref, lic.manageUrl),
-                  icon: const DirectionalIcon(AppIcons.web),
-                  label: Text(l10n.manageOnWebsite),
-                ),
+                // 65 iOS shows no way to pay or manage the plan outside the
+                // App Store (App Review 3.1.1, 3.1.3): read-only, no link.
+                if (defaultTargetPlatform == TargetPlatform.iOS)
+                  Text(l10n.planReadOnlyText, style: theme.textTheme.bodyMedium)
+                else ...[
+                  Text(
+                    l10n.manageOnWebsiteText,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => openLink(context, ref, lic.manageUrl),
+                    icon: const DirectionalIcon(AppIcons.web),
+                    label: Text(l10n.manageOnWebsite),
+                  ),
+                ],
               ],
             );
           },

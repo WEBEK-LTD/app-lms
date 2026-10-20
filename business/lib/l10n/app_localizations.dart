@@ -3502,6 +3502,18 @@ abstract class AppLocalizations {
   /// **'The media server refused a part of this file as too big (HTTP {status}). Message us on WhatsApp.'**
   String uploadChunkTooBig(String status);
 
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccount;
+
+  /// No description provided for @planReadOnlyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan and storage are shown here for your information.'**
+  String get planReadOnlyText;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

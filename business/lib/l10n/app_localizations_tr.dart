@@ -1913,6 +1913,13 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get deleteAccount => 'Hesabımı sil';
+
+  @override
+  String get planReadOnlyText =>
+      'Paketiniz ve depolama alanınız burada bilgi için gösterilir.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

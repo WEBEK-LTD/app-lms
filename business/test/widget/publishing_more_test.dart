@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_business/core/api/fake_owner_api.dart';
@@ -89,7 +90,47 @@ void main() {
     await tester.scrollUntilVisible(find.text('Privacy policy'), 200);
     await tapOn(tester, find.text('Privacy policy'));
     expect(app.opened.last, 'https://yallapp.com.tr/privacy');
+    await tester.scrollUntilVisible(find.text('Delete my account'), 200);
+    await tapOn(tester, find.text('Delete my account'));
+    expect(app.opened.last, 'https://yallapp.com.tr/delete-account');
     await tester.scrollUntilVisible(find.text('Version 1.0.0 (1)'), 200);
+  });
+
+  testWidgets('iOS: plan & storage read-only, without the website link', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      final app = TestApp();
+      await app.pump(tester);
+      await tapOn(tester, find.widgetWithText(NavigationDestination, 'More'));
+      await tapOn(tester, find.text('Plan & storage'));
+      expect(find.text('Growth'), findsOneWidget);
+      expect(
+        find.text('Your plan and storage are shown here for your information.'),
+        findsOneWidget,
+      );
+      expect(find.text('Manage on yallapp.com.tr'), findsNothing);
+      expect(find.textContaining('yallapp.com.tr'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('iOS: Media shows storage without the website link', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      final app = TestApp();
+      await app.pump(tester);
+      await tapOn(tester, find.widgetWithText(NavigationDestination, 'More'));
+      await tapOn(tester, find.text('Media'));
+      expect(find.text('Storage'), findsWidgets);
+      expect(find.text('Manage on yallapp.com.tr'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
   });
 
   testWidgets('Language: Turkish for the app and the account', (tester) async {
