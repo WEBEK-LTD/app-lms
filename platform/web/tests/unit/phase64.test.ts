@@ -417,7 +417,8 @@ describe("64 pushes reach every phone of someone on several businesses", () => {
     const cafe = await ownerOf(store, "leyla@cafe.test");
     const shop = await ownerOf(store, "omar@shop.test", "Omar Said");
     const cafeApp = await addApp(store, cafe.client, { appType: "store", appName: "Moda Café" });
-    const otherCafeApp = await addApp(store, cafe.client, { appType: "store", appName: "Moda Bakery" });
+    // Its second app has no name yet, so the business is "Moda Café" whatever the apps' order.
+    const otherCafeApp = await addApp(store, cafe.client, { appType: "store", appName: "" });
     await addApp(store, shop.client, { appType: "store", appName: "Omar's Shop" });
     // Omar works for the café's orders on its first app only; Leyla's manager has everything.
     await store.saveTeamMember({ clientId: cafe.client.id, userId: shop.user.id, role: "staff", areas: ["orders"], appIds: [cafeApp.id], addedBy: cafe.user.email, createdAt: NOW, updatedAt: NOW });
@@ -459,8 +460,7 @@ describe("64 pushes reach every phone of someone on several businesses", () => {
     expect(await pushNewOrder(push, cafeApp, order)).toBe(3);
     // Each phone hears of it, named as its person knows the business (Me.businesses: the apps they work on).
     expect(sent.map((s) => [s.targets.join(), s.title, s.data.business_name]).sort()).toEqual([
-      ["token-leyla-1", "New order 1042", "Moda Bakery"],
-      ["token-omar-cafe", "New order 1042", "Moda Café"],
+      ["token-leyla-1,token-omar-cafe", "New order 1042", "Moda Café"],
       ["token-omar-own", "Moda Café · New order 1042", "Moda Café"],
     ]);
     expect(sent.every((s) => s.data.business_id === cafe.client.id)).toBe(true);
