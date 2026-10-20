@@ -12,21 +12,31 @@ import { encryptionKey } from "@/lib/env";
 import { donationRefundOptions, refundedLine } from "@/lib/refunds/service";
 import { RefundSection } from "../orders/refunds-view";
 import { DonationTabs } from "./tabs";
+import { dashboardText } from "@/lib/dashboard-lang";
+import type { DashKey } from "@/i18n/dashboard";
 
-export const metadata: Metadata = { title: "Donations" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("donations.donations") };
+}
 
 const PER_PAGE = 25;
-const STATUS_LABELS: Record<DonationStatus, string> = { paid: "Paid", pending: "Not paid", failed: "Failed", refunded: "Refunded" };
+const STATUS_LABELS: Record<DonationStatus, DashKey> = {
+  paid: "donations.known.paid",
+  pending: "donations.known.notPaid",
+  failed: "donations.known.failed",
+  refunded: "donations.known.refunded",
+};
 const TONES = { paid: "success", pending: "neutral", failed: "danger", refunded: "neutral" } as const;
 
 /** 29 Every donation made from the app: paid ones by default, by campaign, with an export. */
 export default async function DonationsPage({ searchParams }: { searchParams: Promise<{ page?: string; campaign?: string; status?: string }> }) {
   const { app } = await requireClient();
+  const { t, k, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donations</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Donations are for Charity &amp; donations apps.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donations")}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donationsNotHere")}</p>
       </div>
     );
   }
@@ -59,25 +69,23 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donations</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            Donations from your app, newest first. Each donor gets a receipt by email. Refund one, in full or in part, under it.
-          </p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donations")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donationsIntro")}</p>
         </div>
         <a href={`/api/dashboard/donations?${filter}`} className={`${btn.secondary} h-11`} download>
           <Icon name="download" size={20} />
-          Export CSV
+          {t("donations.exportCsv")}
         </a>
       </div>
-      <DonationTabs current="donations" />
+      <DonationTabs current="donations" t={t} />
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <div className="flex min-w-[200px] flex-col gap-1.5">
           <label htmlFor="f-campaign" className="text-sm font-semibold">
-            Campaign
+            {t("donations.campaignFilter")}
           </label>
           <select id="f-campaign" name="campaign" defaultValue={campaignId ? String(campaignId) : ""} className="input input-sm">
-            <option value="">All campaigns</option>
+            <option value="">{t("donations.allCampaigns")}</option>
             {campaigns.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.title}
@@ -87,44 +95,44 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-status" className="text-sm font-semibold">
-            Show
+            {t("donations.show")}
           </label>
           <select id="f-status" name="status" defaultValue={status} className="input input-sm">
-            <option value="paid">Paid and refunded donations</option>
-            <option value="all">Also started but not paid</option>
+            <option value="paid">{t("donations.paidRefunded")}</option>
+            <option value="all">{t("donations.alsoUnpaid")}</option>
           </select>
         </div>
         <button type="submit" className={`${btn.secondary} h-10`}>
-          Show
+          {t("donations.show")}
         </button>
       </form>
 
       {items.length === 0 ? (
-        <EmptyState icon="payments" title="No donations yet.">
-          Donations show here once they&apos;re paid, with the donor&apos;s name, email and message.
+        <EmptyState icon="payments" title={t("donations.noDonations")}>
+          {t("donations.noDonationsText")}
         </EmptyState>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[720px] border-collapse text-left text-[15px]">
+          <table className="w-full min-w-[720px] border-collapse text-start text-[15px]">
             <thead>
               <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Reference
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.reference")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Donor
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.donor")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Campaign
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.campaignFilter")}
                 </th>
-                <th scope="col" className="px-4 py-3 text-right font-semibold">
-                  Amount
+                <th scope="col" className="px-4 py-3 text-end font-semibold">
+                  {t("donations.amount")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Date
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("common.date")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Status
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("common.status")}
                 </th>
               </tr>
             </thead>
@@ -136,19 +144,21 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
                   <td className="px-4 py-3">
                     <span className="flex flex-col gap-0.5">
                       <span>
-                        {d.donorName ?? "Not given yet"} {d.anonymous ? <Badge tone="neutral">Anonymous</Badge> : null}
+                        {d.donorName ?? t("donations.notGiven")} {d.anonymous ? <Badge tone="neutral">{t("donations.anonymous")}</Badge> : null}
                       </span>
                       {d.donorEmail ? <span className="text-[13px] text-muted">{d.donorEmail}</span> : null}
                       {d.message ? <span className="text-[13px] text-ink-4">“{d.message}”</span> : null}
                     </span>
                   </td>
                   <td className="px-4 py-3">{d.campaignTitle}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
-                  <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt)}</td>
+                  <td className="px-4 py-3 text-end whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
+                  <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt, lang)}</td>
                   <td className="px-4 py-3">
                     <span className="flex flex-col items-start gap-1">
-                      <Badge tone={TONES[d.status]}>{STATUS_LABELS[d.status]}</Badge>
-                      {d.status === "paid" && d.refundedCents ? <span className="text-[13px] text-muted">{refundedLine(d.refundedCents, d.amountCents, d.currency)}</span> : null}
+                      <Badge tone={TONES[d.status]}>{t(STATUS_LABELS[d.status])}</Badge>
+                      {d.status === "paid" && d.refundedCents ? (
+                        <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency) ?? "")}</span>
+                      ) : null}
                     </span>
                   </td>
                 </tr>
@@ -159,7 +169,7 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
                         <RefundSection
                           kind="donation"
                           id={d.id}
-                          label={`donation ${donationReference(d)}`}
+                          label={t("donations.donationLabel", { reference: donationReference(d) })}
                           currency={d.currency}
                           refunds={refunds.filter((r) => r.targetId === d.id)}
                           options={options[index]!}
@@ -175,12 +185,10 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
         </div>
       )}
       {pages > 1 ? (
-        <nav aria-label="Pages" className="flex items-center justify-between gap-3">
-          {page > 1 ? <Link href={pageLink(page - 1)}>← Newer</Link> : <span />}
-          <span className="text-sm text-muted">
-            Page {page} of {pages}
-          </span>
-          {page < pages ? <Link href={pageLink(page + 1)}>Older →</Link> : <span />}
+        <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3">
+          {page > 1 ? <Link href={pageLink(page - 1)}>{t("donations.newer")}</Link> : <span />}
+          <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
+          {page < pages ? <Link href={pageLink(page + 1)}>{t("donations.older")}</Link> : <span />}
         </nav>
       ) : null}
     </div>

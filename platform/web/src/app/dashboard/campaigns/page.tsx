@@ -11,21 +11,26 @@ import { raisedLine } from "@/lib/donations/page-items";
 import { donationSettingsOf, donationsSetUp } from "@/lib/donations/service";
 import { DonationSettingsForm } from "./forms";
 import { DonationPayments } from "./payments";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import { itemWords } from "@/lib/hosted/pages/item-words";
 
-export const metadata: Metadata = { title: "Campaigns" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("donations.campaigns") };
+}
 
-const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" });
+const ENDS: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Istanbul" };
 
 /** 29 A charity's campaigns, its card payments and how the app takes donations. */
 export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ saved?: string; published?: string; deleted?: string }> }) {
   const { app } = await requireClient();
+  const { t, lang, date } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Campaigns</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.campaigns")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Campaigns are for Charity &amp; donations apps. Choose Charity &amp; donations on <Link href="/dashboard/app-type">App type</Link>, then Campaigns
-          managed in Yallapp on the Website step.
+          {richText(t("donations.campaignsNotHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -45,25 +50,23 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Campaigns</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            What you&apos;re raising money for. Open campaigns show in the app with their progress; totals count confirmed donations only.
-          </p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.campaigns")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.campaignsIntro")}</p>
         </div>
         <Link href="/dashboard/campaigns/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
-          Add a campaign
+          {t("donations.addCampaign")}
         </Link>
       </div>
 
       {saved ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          {published ? `Published “${saved}”.` : `Saved “${saved}”.`}
+          {t(published ? "donations.published" : "donations.saved", { title: saved })}
         </p>
       ) : null}
       {deleted ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          Deleted “{deleted}”.
+          {t("donations.deleted", { title: deleted })}
         </p>
       ) : null}
 
@@ -71,10 +74,10 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
 
       <section aria-labelledby="h-campaigns" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-campaigns" className="m-0 text-lg font-bold">
-          {campaigns.length} {campaigns.length === 1 ? "campaign" : "campaigns"}
+          {t("donations.count", { count: campaigns.length })}
         </h2>
         {campaigns.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No campaigns yet. Add your first one: a title, its story, a goal and the amounts people can choose.</p>
+          <p className="m-0 text-[15px] text-muted">{t("donations.noCampaigns")}</p>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
             {campaigns.map((c) => (
@@ -91,14 +94,18 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
                   <span className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="truncate text-[15px] font-bold">{c.title}</span>
                     <span className="truncate text-[13px] text-muted">
-                      {[raisedLine(c, settings.currency), `${c.donorCount} ${c.donorCount === 1 ? "donor" : "donors"}`, c.endsAt ? `ends ${DATE.format(c.endsAt)}` : null]
+                      {[
+                        raisedLine(c, settings.currency, itemWords(lang)),
+                        t("donations.donors", { count: c.donorCount }),
+                        c.endsAt ? t("donations.ends", { date: date(c.endsAt, ENDS) }) : null,
+                      ]
                         .filter(Boolean)
                         .join(" · ")}
                     </span>
-                    {c.goalCents ? <ProgressBar value={c.raisedCents} max={c.goalCents} label={`${c.title}: raised so far`} tone="success" /> : null}
+                    {c.goalCents ? <ProgressBar value={c.raisedCents} max={c.goalCents} label={t("donations.raisedSoFar", { title: c.title })} tone="success" /> : null}
                   </span>
-                  {c.featured ? <Badge tone="info">Featured</Badge> : null}
-                  <CampaignStatusBadge campaign={c} now={now} />
+                  {c.featured ? <Badge tone="info">{t("donations.featured")}</Badge> : null}
+                  <CampaignStatusBadge campaign={c} now={now} t={t} />
                 </Link>
               </li>
             ))}
@@ -111,12 +118,9 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
       <section aria-labelledby="h-donation-settings" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-donation-settings" className="m-0 text-lg font-bold">
-            Donations in the app
+            {t("donations.inApp")}
           </h2>
-          <p className="m-0 text-[15px] text-ink-4">
-            Apple doesn&apos;t let iPhone apps take donations themselves, unless the charity is approved by Apple and uses Apple Pay. So on iPhone, the donate
-            button opens your donation page in the browser. On Android it opens in the app.
-          </p>
+          <p className="m-0 text-[15px] text-ink-4">{t("donations.inAppText")}</p>
         </div>
         <DonationSettingsForm settings={settings} currencies={CATALOG_CURRENCIES} currencyLocked={given.total > 0} />
       </section>
