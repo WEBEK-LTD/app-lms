@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AnnouncementBanner } from "@/components/announcements";
 import { AuthShell } from "@/components/auth-shell";
@@ -152,11 +153,10 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
                 <WhatsAppMark size={20} />
                 {t("overview.messageWhatsapp")}
               </a>
-              {/* A full page load, so the status is read again from the server. */}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full load reads the account's state again. */}
-              <a href="/pending" className={`${btn.secondary} h-[50px] flex-[1_1_160px]`}>
+              {/* The page is dynamic, so going to it again reads the account's state from the server. */}
+              <Link href="/pending" className={`${btn.secondary} h-[50px] flex-[1_1_160px]`}>
                 {t("overview.checkAgain")}
-              </a>
+              </Link>
             </div>
             {suspended ? null : <p className="m-0 text-[13px] text-muted">{t("overview.emailWhenActive", { email: user.email })}</p>}
           </section>

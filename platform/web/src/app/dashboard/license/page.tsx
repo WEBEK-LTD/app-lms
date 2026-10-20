@@ -379,6 +379,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                 <span className="text-[13px] text-muted">{t("license.requires", { wp: release.requiresWp, php: release.requiresPhp, date: date(release.createdAt) })}</span>
               </div>
               {state === "active" ? (
+                // A file download from an API route, not a page.
+                // eslint-disable-next-line @next/next/no-html-link-for-pages
                 <a href="/api/dashboard/plugin" className={`${btn.primary} h-11`}>
                   <Icon name="download" size={20} />
                   {t("license.downloadPlugin")}

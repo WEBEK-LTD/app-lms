@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 import { applyDesignAction, discardLayoutDraftAction, publishLayoutAction, saveLayoutDraftAction, type LayoutSaveResult } from "@/app/actions/pages";
 import { Badge, btn, formatDateTime } from "@/components/ui";
@@ -822,9 +823,9 @@ export function PagesEditor({
               <p className="m-0 text-[15px] text-ink-4">
                 {richText(t("pages.languagesText"), {
                   link: (chunk) => (
-                    <a href="/dashboard/languages" className="font-semibold">
+                    <Link href="/dashboard/languages" className="font-semibold">
                       {chunk}
-                    </a>
+                    </Link>
                   ),
                 })}
               </p>
