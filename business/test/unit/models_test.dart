@@ -77,4 +77,70 @@ void main() {
     expect(await tokens.validAccessToken(), 'old');
     expect(await store.read(), isNotNull);
   });
+
+  test('60 a team member\'s role, areas and businesses from `me`', () {
+    final me = Me.fromJson({
+      'user': {'id': 'u1', 'name': 'Kerem', 'email': 'k@cafe.test'},
+      'account': {'state': 'active'},
+      'business': {
+        'id': 'b1',
+        'name': 'Layla Café',
+        'role': 'staff',
+        'state': 'active',
+      },
+      'businesses': [
+        {'id': 'b1', 'name': 'Layla Café', 'role': 'staff', 'state': 'active'},
+        {
+          'id': 'b2',
+          'name': 'Kerem Bakery',
+          'role': 'owner',
+          'state': 'pending',
+        },
+      ],
+      'apps': [
+        {
+          'id': 'a1',
+          'name': 'Layla Café',
+          'type': 'store',
+          'type_name': 'Restaurant',
+          'state': 'active',
+          'features': {'orders': true},
+          'access': {
+            'role': 'staff',
+            'areas': ['orders'],
+            'license': false,
+            'team': false,
+            'settings': false,
+          },
+        },
+      ],
+      'links': {'dashboard': 'https://yallapp.com.tr/dashboard'},
+    });
+    expect(me.role, TeamRole.staff);
+    expect(me.businesses.map((b) => b.role), [TeamRole.staff, TeamRole.owner]);
+    expect(me.businesses.last.state, AccountState.pending);
+    final access = me.apps.single.access;
+    expect(access.areas, ['orders']);
+    expect(access.license, isFalse);
+    expect(access.settings, isFalse);
+  });
+
+  test('60 a server without teams means the owner', () {
+    final app = AppSummary.fromJson({
+      'id': 'a1',
+      'name': 'Shop',
+      'type': 'store',
+      'type_name': 'Store',
+      'state': 'active',
+    });
+    expect(app.access.role, TeamRole.owner);
+    expect(app.access.license, isTrue);
+    expect(app.access.areas, teamAreas);
+    expect(
+      Me.fromJson({
+        'user': {'id': 'u', 'name': 'L', 'email': 'l@x.test'},
+      }).role,
+      TeamRole.owner,
+    );
+  });
 }

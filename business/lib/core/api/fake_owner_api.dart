@@ -60,6 +60,11 @@ class FakeOwnerApi implements OwnerApi {
   final _users = <String, List<AppUser>>{};
   final _sent = <String, List<SentNotification>>{};
   final _scheduled = <String, List<ScheduledNotification>>{};
+  // 60 Team members: the person's role here, their businesses, the owner's team.
+  TeamRole role = TeamRole.owner;
+  var businesses = const <Business>[];
+  final teamMembers = <TeamMember>[];
+  final invitations = <TeamInvitation>[];
   int _sentThisHour = 0;
   int _nextId = 5000;
   int _sessions = 0;
@@ -933,6 +938,13 @@ class FakeOwnerApi implements OwnerApi {
       state: state,
       stateMessage: state.blocked ? stateMessage : null,
       apps: state.blocked ? const [] : apps,
+      business: businesses.isEmpty
+          ? null
+          : businesses.firstWhere(
+              (b) => b.id == _businessId,
+              orElse: () => businesses.first,
+            ),
+      businesses: businesses,
       links: const MeLinks(
         dashboard: 'https://yallapp.com.tr/dashboard',
         supportWhatsapp: 'https://wa.me/201000000000',
@@ -989,6 +1001,194 @@ class FakeOwnerApi implements OwnerApi {
     await _call('setPushPreferences', needsActive: false);
     preferences = PushPreferences({...preferences.values, ...value.values});
     return pushPreferences();
+  }
+
+  // 60 Team members
+
+  String? _businessId;
+
+  /// Makes the signed-in person a Manager or Staff with [areas]: the apps say
+  /// so (`access`) and lose what the role doesn't allow, as the server does.
+  void joinAs(TeamRole role, {List<String> areas = const []}) {
+    this.role = role;
+    bool has(String area) => role != TeamRole.staff || areas.contains(area);
+    final settings = role != TeamRole.staff;
+    apps = [
+      for (final a in apps)
+        AppSummary(
+          id: a.id,
+          name: a.name,
+          type: a.type,
+          typeName: a.typeName,
+          state: a.state,
+          vertical: a.vertical,
+          backend: a.backend,
+          iconUrl: a.iconUrl,
+          plan: a.plan,
+          features: AppFeatures(
+            orders: a.features.orders && has('orders'),
+            kitchen: a.features.kitchen && has('orders'),
+            appointments: a.features.appointments && has('bookings'),
+            events: a.features.events && has('events'),
+            checkIn: a.features.checkIn && has('events'),
+            donations: a.features.donations && has('donations'),
+            products: a.features.products && has('catalog'),
+            courses: a.features.courses && has('catalog'),
+            articles: a.features.articles && has('catalog'),
+            listings: a.features.listings && has('catalog'),
+            inquiries: a.features.inquiries && has('messages'),
+            appUsers: a.features.appUsers && has('app_users'),
+            notifications: a.features.notifications && has('notifications'),
+            media: a.features.media && has('media'),
+            analytics: a.features.analytics && has('analytics'),
+            preview: a.features.preview,
+            builds: a.features.builds && settings,
+          ),
+          access: AppAccess(
+            role: role,
+            areas: role == TeamRole.staff ? areas : teamAreas,
+            license: false,
+            team: false,
+            settings: settings,
+          ),
+        ),
+    ];
+  }
+
+  void _ownerOnly() {
+    if (role != TeamRole.owner) {
+      throw const ApiException(
+        code: ApiException.notAllowed,
+        message: "Your role on this team doesn't allow this. Ask the owner.",
+        statusCode: 403,
+      );
+    }
+  }
+
+  @override
+  Future<Me> setBusiness(String businessId) async {
+    await _call('setBusiness', needsActive: false);
+    if (!businesses.any((b) => b.id == businessId)) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    _businessId = businessId;
+    return me();
+  }
+
+  @override
+  Future<Team> team() async {
+    await _call('team');
+    _ownerOnly();
+    return Team(
+      members: [
+        const TeamMember(
+          userId: 'u0000000-0000-4000-8000-000000000001',
+          name: 'Layla Haddad',
+          email: demoEmail,
+          role: TeamRole.owner,
+          areas: teamAreas,
+        ),
+        ...teamMembers,
+      ],
+      invitations: List.of(invitations),
+    );
+  }
+
+  @override
+  Future<TeamInvitation> inviteTeamMember({
+    required String name,
+    required String email,
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  }) async {
+    await _call('inviteTeamMember');
+    _ownerOnly();
+    if (invitations.any((i) => i.email == email) ||
+        teamMembers.any((m) => m.email == email)) {
+      throw const ApiException(
+        code: ApiException.invalidRequest,
+        statusCode: 400,
+        fieldErrors: {
+          'email': 'This email has an invitation already. Send it again from the list.',
+        },
+      );
+    }
+    final invitation = TeamInvitation(
+      id: 'i${_nextId++}',
+      name: name,
+      email: email,
+      role: role,
+      areas: areas,
+      appIds: appIds,
+      sentAt: now,
+      expiresAt: now.add(const Duration(days: 7)),
+      expired: false,
+    );
+    invitations.insert(0, invitation);
+    return invitation;
+  }
+
+  @override
+  Future<TeamInvitation> resendInvitation(String invitationId) async {
+    await _call('resendInvitation');
+    _ownerOnly();
+    final index = invitations.indexWhere((i) => i.id == invitationId);
+    if (index < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    final old = invitations[index];
+    return invitations[index] = TeamInvitation(
+      id: old.id,
+      name: old.name,
+      email: old.email,
+      role: old.role,
+      areas: old.areas,
+      appIds: old.appIds,
+      sentAt: now,
+      expiresAt: now.add(const Duration(days: 7)),
+      expired: false,
+    );
+  }
+
+  @override
+  Future<void> cancelInvitation(String invitationId) async {
+    await _call('cancelInvitation');
+    _ownerOnly();
+    invitations.removeWhere((i) => i.id == invitationId);
+  }
+
+  @override
+  Future<TeamMember> updateTeamMember(
+    String userId, {
+    required TeamRole role,
+    List<String> areas = const [],
+    List<String>? appIds,
+  }) async {
+    await _call('updateTeamMember');
+    _ownerOnly();
+    final index = teamMembers.indexWhere((m) => m.userId == userId);
+    if (index < 0) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    final old = teamMembers[index];
+    return teamMembers[index] = TeamMember(
+      userId: old.userId,
+      name: old.name,
+      email: old.email,
+      role: role,
+      areas: role == TeamRole.staff ? areas : teamAreas,
+      appIds: appIds,
+      joinedAt: old.joinedAt,
+      lastSignInAt: old.lastSignInAt,
+    );
+  }
+
+  @override
+  Future<void> removeTeamMember(String userId) async {
+    await _call('removeTeamMember');
+    _ownerOnly();
+    teamMembers.removeWhere((m) => m.userId == userId);
   }
 
   @override
@@ -2359,6 +2559,8 @@ class FakeOwnerApi implements OwnerApi {
   @override
   Future<License> license(String appId) async {
     await _call('license');
+    // 60 The owner's only.
+    _ownerOnly();
     final app = _app(appId);
     return License(
       state: app.state,

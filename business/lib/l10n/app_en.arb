@@ -861,6 +861,93 @@
   "cancelScheduled": "Cancel it",
   "cancelScheduledTitle": "Cancel this notification?",
   "scheduledCancelled": "Cancelled. It won't be sent.",
+  "askOwner": "Ask the owner",
+  "askOwnerText": "Your role on this team doesn't include this. Ask the owner of the business.",
+  "planOwnerOnly": "Only the owner of the business sees the plan, the storage and payments.",
+  "roleOwner": "Owner",
+  "roleManager": "Manager",
+  "roleStaff": "Staff",
+  "roleManagerHelp": "Everything except the plan, payments, the team, and changing an app's type or where its content comes from.",
+  "roleStaffHelp": "Only what you tick below.",
+  "areaOrders": "Orders & kitchen",
+  "areaBookings": "Bookings & appointments",
+  "areaEvents": "Events & check-in",
+  "areaDonations": "Donations",
+  "areaCatalog": "Catalog & content",
+  "areaMedia": "Media",
+  "areaMessages": "Messages",
+  "areaAppUsers": "App users",
+  "areaAnalytics": "Analytics",
+  "areaNotifications": "Notifications to app users",
+  "everything": "Everything",
+  "allApps": "All apps",
+  "switchBusiness": "Switch business",
+  "businessesTitle": "Your businesses",
+  "roleOn": "{role} on {business}",
+  "@roleOn": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "team": "Team",
+  "teamIntro": "The people who work with you. Each signs in with their own email and password and sees only what their role allows.",
+  "you": "You",
+  "invitationsWaiting": "Invitations waiting",
+  "invitationExpires": "The link works until {date}",
+  "@invitationExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invitationExpired": "Expired",
+  "resendInvite": "Send again",
+  "cancelInvite": "Cancel invitation",
+  "inviteSentAgain": "Invitation sent again.",
+  "inviteCancelled": "Invitation cancelled.",
+  "inviteSomeone": "Invite someone",
+  "inviteHelp": "We email them a link to join. It works once, for 7 days.",
+  "personName": "Name",
+  "role": "Role",
+  "whatStaff": "What Staff can work on",
+  "sendInvite": "Send invitation",
+  "inviteSent": "Invitation sent to {email}.",
+  "@inviteSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "changeAccess": "Change access",
+  "accessSaved": "Saved. It applies at once.",
+  "removeMember": "Remove from the team",
+  "removeMemberTitle": "Remove {name}?",
+  "@removeMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeMemberText": "They're signed out at once, on the website and on every phone.",
+  "memberRemoved": "{name} is off the team.",
+  "@memberRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "oneAreaAtLeast": "Choose at least one thing Staff can work on.",
+  "enterName": "Enter their name.",
+  "enterEmail": "Enter their email.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

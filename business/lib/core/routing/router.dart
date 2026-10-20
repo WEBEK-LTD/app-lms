@@ -17,6 +17,7 @@ import '../../features/events/scanner_screen.dart';
 import '../../features/inbox/inbox_screen.dart';
 import '../../features/inbox/inquiry_screen.dart';
 import '../../features/media/media_screen.dart';
+import '../../features/team/team_screen.dart';
 import '../../features/more/devices_screen.dart';
 import '../../features/more/appearance_screen.dart';
 import '../../features/more/language_screen.dart';
@@ -206,6 +207,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.appearance, (_) => const AppearanceScreen()),
       full(Paths.notifications, (_) => const PushSettingsScreen()),
       full(Paths.devices, (_) => const DevicesScreen()),
+      full(Paths.team, (_) => const TeamScreen()),
     ],
   );
   ref.onDispose(router.dispose);

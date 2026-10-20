@@ -1458,6 +1458,170 @@ class AppLocalizationsTr extends AppLocalizations {
   String get scheduledCancelled => 'İptal edildi. Gönderilmeyecek.';
 
   @override
+  String get askOwner => 'Sahibine sorun';
+
+  @override
+  String get askOwnerText =>
+      'Bu ekipteki rolünüz bunu kapsamıyor. İşletmenin sahibine sorun.';
+
+  @override
+  String get planOwnerOnly =>
+      'Planı, depolamayı ve ödemeleri yalnızca işletmenin sahibi görür.';
+
+  @override
+  String get roleOwner => 'Sahip';
+
+  @override
+  String get roleManager => 'Yönetici';
+
+  @override
+  String get roleStaff => 'Personel';
+
+  @override
+  String get roleManagerHelp =>
+      'Plan, ödemeler, ekip ve bir uygulamanın türünü ya da içeriğinin kaynağını değiştirmek dışında her şey.';
+
+  @override
+  String get roleStaffHelp => 'Yalnızca aşağıda işaretledikleriniz.';
+
+  @override
+  String get areaOrders => 'Siparişler ve mutfak';
+
+  @override
+  String get areaBookings => 'Rezervasyonlar ve randevular';
+
+  @override
+  String get areaEvents => 'Etkinlikler ve giriş kontrolü';
+
+  @override
+  String get areaDonations => 'Bağışlar';
+
+  @override
+  String get areaCatalog => 'Katalog ve içerik';
+
+  @override
+  String get areaMedia => 'Medya';
+
+  @override
+  String get areaMessages => 'Mesajlar';
+
+  @override
+  String get areaAppUsers => 'Uygulama kullanıcıları';
+
+  @override
+  String get areaAnalytics => 'Analiz';
+
+  @override
+  String get areaNotifications => 'Uygulama kullanıcılarına bildirimler';
+
+  @override
+  String get everything => 'Her şey';
+
+  @override
+  String get allApps => 'Tüm uygulamalar';
+
+  @override
+  String get switchBusiness => 'İşletme değiştir';
+
+  @override
+  String get businessesTitle => 'İşletmeleriniz';
+
+  @override
+  String roleOn(String role, String business) {
+    return '$business işletmesinde $role';
+  }
+
+  @override
+  String get team => 'Ekip';
+
+  @override
+  String get teamIntro =>
+      'Sizinle çalışan kişiler. Her biri kendi e-postası ve parolasıyla giriş yapar ve yalnızca rolünün izin verdiklerini görür.';
+
+  @override
+  String get you => 'Siz';
+
+  @override
+  String get invitationsWaiting => 'Bekleyen davetler';
+
+  @override
+  String invitationExpires(String date) {
+    return 'Bağlantı $date tarihine kadar çalışır';
+  }
+
+  @override
+  String get invitationExpired => 'Süresi doldu';
+
+  @override
+  String get resendInvite => 'Yeniden gönder';
+
+  @override
+  String get cancelInvite => 'Daveti iptal et';
+
+  @override
+  String get inviteSentAgain => 'Davet yeniden gönderildi.';
+
+  @override
+  String get inviteCancelled => 'Davet iptal edildi.';
+
+  @override
+  String get inviteSomeone => 'Birini davet edin';
+
+  @override
+  String get inviteHelp =>
+      'Katılması için e-postayla bir bağlantı göndeririz. Bir kez ve 7 gün boyunca çalışır.';
+
+  @override
+  String get personName => 'Ad';
+
+  @override
+  String get role => 'Rol';
+
+  @override
+  String get whatStaff => 'Personelin çalışabileceği alanlar';
+
+  @override
+  String get sendInvite => 'Davet gönder';
+
+  @override
+  String inviteSent(String email) {
+    return 'Davet $email adresine gönderildi.';
+  }
+
+  @override
+  String get changeAccess => 'Erişimi değiştir';
+
+  @override
+  String get accessSaved => 'Kaydedildi. Hemen geçerli olur.';
+
+  @override
+  String get removeMember => 'Ekipten çıkar';
+
+  @override
+  String removeMemberTitle(String name) {
+    return '$name çıkarılsın mı?';
+  }
+
+  @override
+  String get removeMemberText =>
+      'Web sitesinde ve tüm telefonlarda hemen oturumu kapatılır.';
+
+  @override
+  String memberRemoved(String name) {
+    return '$name artık ekipte değil.';
+  }
+
+  @override
+  String get oneAreaAtLeast =>
+      'Personelin çalışabileceği en az bir alan seçin.';
+
+  @override
+  String get enterName => 'Adını girin.';
+
+  @override
+  String get enterEmail => 'E-postasını girin.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

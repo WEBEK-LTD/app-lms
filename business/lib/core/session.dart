@@ -159,6 +159,14 @@ class SessionController extends Notifier<SessionState> {
     state = const SignedOut();
   }
 
+  /// 60 This phone works on another business the person is on.
+  Future<void> setBusiness(String businessId) async {
+    final me = await ref.read(apiProvider).setBusiness(businessId);
+    ref.read(selectedAppProvider.notifier).select(null);
+    _apply(me);
+    state = SignedIn(me);
+  }
+
   Future<void> setLanguage(String? code) async {
     ref.read(languageProvider.notifier).set(code);
     if (state case SignedIn()) {
