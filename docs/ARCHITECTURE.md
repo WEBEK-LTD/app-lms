@@ -1421,7 +1421,12 @@ Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
   them push is simply off. The token is registered after sign-in and on each
   refresh; a tapped push's `app_id` selects the app and its item opens its
   screen (after the lock or sign-in if needed); a push while the app is open
-  shows with "Open", and Kitchen mode reloads on `new_order`.
+  shows with "Open", and Kitchen mode reloads on `new_order`. 65 On Android
+  phones without Google Play that have Huawei Mobile Services, builds with
+  `YB_HMS_APP_ID` register a Huawei Push Kit token instead (`provider: hms`;
+  `lib/core/services/hms_push.dart`, the customers' app's `android/hms_push`
+  and channel, built in only with the agconnect-services.json that
+  `tool/hms_config.dart` writes at build time).
 - **Media uploads** (`lib/features/media/uploads.dart`): `startUpload`, then
   the file in `chunk_bytes` chunks straight to the media gate (64b `POST` as
   `application/octet-stream` with the offset in `Upload-Offset` and the

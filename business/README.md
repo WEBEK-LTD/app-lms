@@ -41,6 +41,7 @@ Build-time options (`--dart-define`, or `--dart-define-from-file`):
 | `YB_WEBSITE_URL` | `https://yallapp.com.tr` | The website: password reset, legal pages, guides |
 | `YB_DEMO` | `false` | Runs on the in-memory API (`lib/core/api/fake_owner_api.dart`) |
 | `YB_FIREBASE_*` | none | Push notifications, below |
+| `YB_HMS_APP_ID` | none | (65) Pushes on Huawei phones without Google Play, below |
 
 ## Push notifications
 
@@ -72,6 +73,62 @@ while the app is open shows at the bottom with "Open"; Kitchen mode reloads on
 a new order. For iOS, add the Push Notifications capability to the Runner
 target in Xcode under Yallapp's team and upload the APNs key to the Firebase
 project.
+
+### Huawei phones without Google Play (65)
+
+On Android phones without Google Play services that have Huawei Mobile
+Services (Huawei phones since 2019), Firebase can't deliver. There the app
+registers a **Huawei Push Kit** token instead (`PUT /me/push-token` with
+`"provider": "hms"`), from Yallapp Business's own AppGallery Connect app; the
+server sends those through Push Kit when `OWNER_PUSH_HMS_APP_ID` and
+`OWNER_PUSH_HMS_APP_SECRET` are set (with the Firebase service account,
+`docs/LAUNCH-CHECKLIST.md` 7k). Phones with Google Play and iPhones keep
+Firebase exactly as before. Tapped pushes open the same screens; Huawei's
+system shows them also while the app is open, so there is no "Open" bar for
+them. The choice is `choosePushService` in `lib/core/services/hms_push.dart`;
+the Android side is the customers' app's (`mobile/`, Phase 36):
+`android/hms_push` (Huawei's SDK, `com.huawei.hms:push`, from Huawei's Maven
+repository `https://developer.huawei.com/repo/`) and the channel in
+`android/app/src/huawei`, built in **only when
+`android/app/agconnect-services.json` exists**. That file is git-ignored and
+never committed.
+
+Two values, from AppGallery Connect › My projects › (Yallapp Business's
+project) › Project settings › General information, the app
+`tr.com.yallapp.business`:
+
+| Actions variable | Where | |
+|---|---|---|
+| `YB_HMS_APP_ID` | App information › **App ID** (digits) | Turns Huawei push on |
+| `YB_HMS_AGCONNECT_SERVICES` | **agconnect-services.json** (the download button), its whole contents | Optional, recommended; must be the same app |
+
+`tool/hms_config.dart` writes `android/app/agconnect-services.json` from
+them (with the app ID alone: a file with the app ID and the package name)
+and prints the app ID for `--dart-define=YB_HMS_APP_ID`; a value that doesn't
+fit (not digits, another app or package) stops the build. CI (the
+"Yallapp Business" job) does this for the yallapp.com.tr APK and logs
+"Huawei pushes: on" or "off"; without the variables the APK has nothing from
+Huawei, and a debug APK with an example app ID checks that the Huawei build
+still compiles. On the build machine:
+
+```sh
+YB_HMS_APP_ID=<app id> YB_HMS_AGCONNECT_SERVICES="$(cat agconnect-services.json)" \
+  dart run tool/hms_config.dart            # prints the app ID
+flutter build apk --dart-define-from-file=config/firebase.json \
+  --dart-define=YB_HMS_APP_ID=<app id>     # or set it in config/firebase.json
+```
+
+Also in AppGallery Connect: turn Push Kit on (Grow › Push Kit), and add the
+**SHA-256 certificate fingerprint** of every key that signs the APK (Project
+settings › General information › App information): Push Kit gives no token
+to an APK signed with another key. CI's test APKs are signed with the
+runner's debug key, which on GitHub's own runners is new on every run, so
+Huawei pushes work in them only from a runner that keeps its debug key and
+has its fingerprint registered.
+
+Without `YB_HMS_APP_ID`, or on a phone without Huawei Mobile Services, the
+app works as before (Firebase, or Settings › Notifications says
+notifications aren't set up in this build).
 
 ## What's in it
 
@@ -119,7 +176,7 @@ the app has inquiries and Analytics.
 
 ```sh
 python3 tool/build_arb.py && flutter gen-l10n   # strings complete and generated
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze
 flutter test
 ```

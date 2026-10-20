@@ -1329,7 +1329,7 @@ client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
 | [x] | 59.13 Contract sync with Phase 58's final `owner.yaml` (updates' `summary`, `link_label`, `app_name`; order numbers without `#`), and its Media text corrected to `PUT`, the method the media gate takes | `redocly lint`, `api_client_test.dart` |
 | [x] | 59.14 CI: the Mobile workflow's "Yallapp Business" job when `business/` changes (strings generated, format, analyze, test); docs: `business/README.md`, `docs/ARCHITECTURE.md` › Yallapp Business, the app, `docs/LAUNCH-CHECKLIST.md` 7l | Review |
 | [x] | 59.15 The dark theme: done in Phase 61 (61.1) | Phase 61 |
-| [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play (the server can send through Push Kit) isn't wired in the app | LAUNCH-CHECKLIST 7l |
+| [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play: done in Phase 65 (65.1 to 65.3) | LAUNCH-CHECKLIST 7l |
 | [x] | 59.17 Course questions and reviews in the Inbox, and gym members at the door: done in Phase 63 (63.8) | Phase 63 |
 | [x] | 59.18 Kitchen mode keeps the screen awake: done in Phase 61 (61.7) | Phase 61 |
 | [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
@@ -1550,3 +1550,28 @@ a refused upload says why, and the admin's check tries a real upload.
 | [x] | 64b.9 An upload that never finished is removed even when the server refuses its delete (a finished file still waits for the server); the daily job's stale uploads likewise. `deploymentId` from Netlify's `DEPLOY_ID`: a tab left open across a deploy loads the page again instead of calling server actions that are gone | `media.test.ts` |
 | [ ] | 64b.7 Not tried on the live server yet: copy the new `index.php`, run "Check the media server", then upload from the dashboard and Yallapp Business | LAUNCH-CHECKLIST 7j |
 | [ ] | 64b.8 Yallapp Business builds already on phones send `PUT` to links in the new form: they work wherever the server let `PUT` through; behind a firewall that refuses it they need the new build | The next Yallapp Business release |
+
+## Phase 65: Yallapp Business on Huawei phones without Google Play
+
+The server could already send the owners' pushes through Huawei Push Kit
+(Phase 58, `OWNER_PUSH_HMS_APP_ID` and `OWNER_PUSH_HMS_APP_SECRET`), and the
+Owner API already took `provider: hms` with a push token, but Yallapp
+Business only registered Firebase tokens, which never arrive on Huawei
+phones without Google Play (59.16). Now the app does what the customers'
+app does since Phase 36: on an Android phone without Google Play services
+that has Huawei Mobile Services it registers a Push Kit token as `hms`, and
+a tapped push opens the same screen; Google phones and iPhones keep Firebase
+as before. The Huawei app ID and agconnect-services.json come from Actions
+variables at build time and are never committed. No contract or platform
+change: `owner.yaml`'s `PushTokenRequest.provider` and the server's
+`setPushToken` already agreed. No new strings.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 65.1 App: `PushService.provider` (`fcm`, `hms`) sent with every token and refresh (`PUT /me/push-token`); `choosePushService` (`lib/core/services/hms_push.dart`): Push Kit only on Android, with `YB_HMS_APP_ID` in the build, without Google Play and with Huawei Mobile Services; otherwise Firebase or none as before; the demo never asks. `HmsPushBridge`/`HmsPushService` as the customers' app's: the token (and the notification permission on Android 13 and later), new tokens and tapped pushes as events, the push that launched the app, Push Kit's data as one JSON string | `hms_push_test.dart` (the choice, the channel faked: no Huawei SDK in tests), `push_test.dart` (an `hms` token registered and refreshed, a tapped and a launching Push Kit push open their screens, a phone without Huawei services says not set up), `api_client_test.dart` |
+| [x] | 65.2 Android: `android/hms_push` (`com.huawei.hms:push` 6.13.0.300, the app ID in the manifest, the file in the assets), the channel in `android/app/src/huawei` found by name from `MainActivity`, Huawei's Maven repository, all only when `android/app/agconnect-services.json` exists; `tool/hms_config.dart` writes it from `YB_HMS_APP_ID` and optionally `YB_HMS_AGCONNECT_SERVICES` (checked: digits, the same app, `tr.com.yallapp.business`) | `hms_push_test.dart` (the tool's values), CI builds (an APK can't be built here: Android SDK downloads are blocked) |
+| [x] | 65.3 CI ("Yallapp Business"): the yallapp.com.tr APK takes the two Actions variables, logs "Huawei pushes: on/off", builds without them and the pre-release publish is unchanged; the demo APK has nothing from Huawei; without the variables a debug APK with an example app ID checks the Huawei build; `tool/` formatted | The workflow parses; the next run |
+| [x] | 65.4 Docs: `business/README.md` › Huawei phones without Google Play (the variables and where in AppGallery Connect they are, Push Kit on, the SHA-256 fingerprints), LAUNCH-CHECKLIST 7l (65) and 7k | Review |
+| [ ] | 65.5 Not tried on a Huawei phone: needs the AppGallery Connect app (LAUNCH-CHECKLIST 7l), its variables, and an APK signed with a key whose fingerprint is registered; CI's test APKs use the runner's debug key, new on every run on GitHub's own runners | LAUNCH-CHECKLIST 7l |
+| [ ] | 65.6 The server sends owners' pushes, Huawei's included, only when `OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT` is set (`ownerPushDeps`): fine while Firebase is required (7k); Push Kit alone would need a change there | When Push Kit alone is wanted |
+

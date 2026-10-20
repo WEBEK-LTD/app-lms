@@ -505,7 +505,9 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       commit it. Redeploy.
 - [ ] Optional, for Huawei phones without Google Play: an AppGallery Connect
       project for Yallapp Business with Push Kit on, and
-      `OWNER_PUSH_HMS_APP_ID` and `OWNER_PUSH_HMS_APP_SECRET` in Netlify.
+      `OWNER_PUSH_HMS_APP_ID` and `OWNER_PUSH_HMS_APP_SECRET` in Netlify
+      (Project settings › General information › App information: App ID
+      and App secret). The app's side is in 7l (65).
 - [ ] Check `YALLAPP_OWNER_PUSH_DIR` is not set on Netlify (it is ignored
       there; it's for local runs).
 - [ ] After the app exists: sign in on a phone with a client account, allow
@@ -534,6 +536,22 @@ The app itself (`business/`, see its README). Store listings go under
       never committed) and build with
       `--dart-define-from-file=config/firebase.json`. No
       `google-services.json` or `GoogleService-Info.plist` goes in the repo.
+- [ ] (65) **Huawei phones without Google Play**: in the AppGallery Connect
+      project for Yallapp Business (7k), add the Android app
+      `tr.com.yallapp.business`, turn Push Kit on (Grow › Push Kit) and add
+      the SHA-256 fingerprints of the keys that sign the app (Project
+      settings › General information › App information: the upload key,
+      and AppGallery's signing key if it re-signs the app). Set the
+      repository's Actions variables `YB_HMS_APP_ID` (App ID, same page) and
+      `YB_HMS_AGCONNECT_SERVICES` (the downloaded agconnect-services.json,
+      whole); on the build machine run `dart run tool/hms_config.dart` with
+      the same values and build with `--dart-define=YB_HMS_APP_ID=…`
+      (`business/README.md` › Huawei phones without Google Play). The
+      file is never committed. Check the CI log says "Huawei pushes: on".
+      Then on a Huawei phone without Google Play: install the build, sign
+      in, allow notifications, check Settings › Notifications doesn't say
+      "not set up", place a test order in a client's app and tap the push:
+      it opens the order.
 - [ ] iOS: in Xcode, add the Push Notifications capability (and Background
       Modes › Remote notifications, already in Info.plist) to the Runner
       target under Yallapp's team; upload the APNs key to the Firebase
