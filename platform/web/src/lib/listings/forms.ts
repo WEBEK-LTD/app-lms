@@ -42,7 +42,7 @@ export function parseListingForm(values: Record<string, string>, now: Date): Res
     if (!raw) return null;
     const value = Number(raw);
     if (!Number.isFinite(value) || value < min || value > max || (integer && !Number.isInteger(value))) {
-      errors[name] = `Enter ${integer ? "a whole number" : "a number"} from ${min} to ${max}, or leave it empty.`;
+      errors[name] = integer ? `Enter a whole number from ${min} to ${max}, or leave it empty.` : `Enter a number from ${min} to ${max}, or leave it empty.`;
       return null;
     }
     return value;

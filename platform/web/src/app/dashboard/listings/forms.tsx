@@ -7,6 +7,8 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
+import { useDashT } from "@/components/dashboard-i18n";
+import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX } from "@/lib/listings/forms";
 
 export interface ListingFormValues {
   id: number | null;
@@ -107,6 +109,7 @@ export function ListingForm({
   currencies: readonly string[];
   areaSymbol: string;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveListingAction, initialFormState);
   const v = (key: keyof ListingFormValues & string, fallback: string) => state.values?.[key] ?? fallback;
   const checked = (key: string, fallback: boolean) => (state.values ? state.values[key] === "on" : fallback);
@@ -129,15 +132,15 @@ export function ListingForm({
       ))}
       <FormMessage message={state.message} ok={state.ok} />
 
-      <Group title="Basics">
-        <Field label="Title" name="title" required maxLength={150} defaultValue={v("title", listing.title)} error={e.title} />
+      <Group title={t("listings.basics")}>
+        <Field label={t("common.title")} name="title" required maxLength={150} defaultValue={v("title", listing.title)} error={e.title} />
         <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-1.5 text-sm font-semibold">Purpose</legend>
+          <legend className="mb-1.5 text-sm font-semibold">{t("listings.purpose")}</legend>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {(
               [
-                ["sale", "For sale"],
-                ["rent", "For rent"],
+                ["sale", t("listings.forSale")],
+                ["rent", t("listings.forRent")],
               ] as const
             ).map(([value, label]) => (
               <label key={value} className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -157,17 +160,24 @@ export function ListingForm({
         </fieldset>
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
-            label="Property type"
+            label={t("listings.propertyType")}
             name="type"
             defaultValue={v("type", listing.type)}
-            options={[{ value: "", label: "Choose a type" }, ...types.map((t) => ({ value: t.key, label: t.label }))]}
+            options={[{ value: "", label: t("listings.chooseType") }, ...types.map((type) => ({ value: type.key, label: type.label }))]}
             error={e.type}
           />
-          <Field label="Reference" name="reference" maxLength={40} defaultValue={v("reference", listing.reference)} hint="Optional. Your own code, like NH-1042." error={e.reference} />
+          <Field
+            label={t("listings.reference")}
+            name="reference"
+            maxLength={40}
+            defaultValue={v("reference", listing.reference)}
+            hint={t("listings.referenceHint")}
+            error={e.reference}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-description" className="text-sm font-semibold">
-            Description
+            {t("common.description")}
           </label>
           <textarea
             id="f-description"
@@ -179,66 +189,93 @@ export function ListingForm({
             aria-describedby="f-description-hint"
           />
           <span id="f-description-hint" className="text-[13px] text-muted">
-            Leave an empty line between paragraphs. Simple formatting (bold, lists, links) pasted from elsewhere is kept.
+            {t("listings.descriptionHint")}
           </span>
           <FieldError id="f-description-error" error={e.description} />
         </div>
       </Group>
 
-      <Group title="Price">
+      <Group title={t("listings.price")}>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Price" name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
-          <Select label="Currency" name="currency" defaultValue={v("currency", listing.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
+          <Field label={t("listings.price")} name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
+          <Select label={t("shop.currency")} name="currency" defaultValue={v("currency", listing.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
           {purpose === "rent" ? (
             <Select
-              label="Rent per"
+              label={t("listings.rentPer")}
               name="period"
               defaultValue={v("period", listing.period || "month")}
               options={[
-                { value: "month", label: "Month" },
-                { value: "year", label: "Year" },
+                { value: "month", label: t("listings.month") },
+                { value: "year", label: t("listings.year") },
               ]}
               error={e.period}
             />
           ) : null}
         </div>
-        <Check name="negotiable" label="Negotiable" hint="The app shows that the price can be discussed." defaultChecked={checked("negotiable", listing.negotiable)} />
+        <Check
+          name="negotiable"
+          label={t("listings.negotiable")}
+          hint={t("listings.negotiableHint")}
+          defaultChecked={checked("negotiable", listing.negotiable)}
+        />
       </Group>
 
-      <Group title="Location">
+      <Group title={t("listings.location")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="City" name="city" required maxLength={80} defaultValue={v("city", listing.city)} error={e.city} />
-          <Field label="District" name="district" maxLength={80} defaultValue={v("district", listing.district)} hint="Optional, like Maadi." error={e.district} />
+          <Field label={t("listings.city")} name="city" required maxLength={80} defaultValue={v("city", listing.city)} error={e.city} />
+          <Field
+            label={t("listings.district")}
+            name="district"
+            maxLength={80}
+            defaultValue={v("district", listing.district)}
+            hint={t("listings.districtHint")}
+            error={e.district}
+          />
         </div>
-        <Field label="Address" name="address" maxLength={200} defaultValue={v("address", listing.address)} hint="Optional. Shown in the app." error={e.address} />
+        <Field
+          label={t("listings.address")}
+          name="address"
+          maxLength={200}
+          defaultValue={v("address", listing.address)}
+          hint={t("listings.addressHint")}
+          error={e.address}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Latitude" name="latitude" inputMode="decimal" defaultValue={v("latitude", listing.latitude)} placeholder="29.9602" hint="Optional, for the map." error={e.latitude} />
-          <Field label="Longitude" name="longitude" inputMode="decimal" defaultValue={v("longitude", listing.longitude)} placeholder="31.2569" error={e.longitude} />
+          <Field
+            label={t("listings.latitude")}
+            name="latitude"
+            inputMode="decimal"
+            defaultValue={v("latitude", listing.latitude)}
+            placeholder="29.9602"
+            hint={t("listings.latitudeHint")}
+            error={e.latitude}
+          />
+          <Field label={t("listings.longitude")} name="longitude" inputMode="decimal" defaultValue={v("longitude", listing.longitude)} placeholder="31.2569" error={e.longitude} />
         </div>
       </Group>
 
-      <Group title="Details">
+      <Group title={t("listings.details")}>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field label={`Area (${areaSymbol})`} name="area" inputMode="decimal" defaultValue={v("area", listing.area)} error={e.area} />
-          <Field label="Bedrooms" name="bedrooms" inputMode="numeric" defaultValue={v("bedrooms", listing.bedrooms)} error={e.bedrooms} />
-          <Field label="Bathrooms" name="bathrooms" inputMode="numeric" defaultValue={v("bathrooms", listing.bathrooms)} error={e.bathrooms} />
-          <Field label="Floor" name="floor" inputMode="numeric" defaultValue={v("floor", listing.floor)} hint="0 for the ground floor." error={e.floor} />
-          <Field label="Year built" name="yearBuilt" inputMode="numeric" defaultValue={v("yearBuilt", listing.yearBuilt)} error={e.yearBuilt} />
+          <Field label={t("listings.area", { unit: areaSymbol })} name="area" inputMode="decimal" defaultValue={v("area", listing.area)} error={e.area} />
+          <Field label={t("listings.bedrooms")} name="bedrooms" inputMode="numeric" defaultValue={v("bedrooms", listing.bedrooms)} error={e.bedrooms} />
+          <Field label={t("listings.bathrooms")} name="bathrooms" inputMode="numeric" defaultValue={v("bathrooms", listing.bathrooms)} error={e.bathrooms} />
+          <Field label={t("listings.floor")} name="floor" inputMode="numeric" defaultValue={v("floor", listing.floor)} hint={t("listings.floorHint")} error={e.floor} />
+          <Field label={t("listings.yearBuilt")} name="yearBuilt" inputMode="numeric" defaultValue={v("yearBuilt", listing.yearBuilt)} error={e.yearBuilt} />
           <Select
-            label="Furnished"
+            label={t("listings.furnished")}
             name="furnished"
             defaultValue={v("furnished", listing.furnished)}
             options={[
-              { value: "", label: "Not set" },
-              { value: "yes", label: "Yes" },
-              { value: "no", label: "No" },
+              { value: "", label: t("listings.notSet") },
+              { value: "yes", label: t("common.yes") },
+              { value: "no", label: t("common.no") },
             ]}
             error={e.furnished}
           />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-features" className="text-sm font-semibold">
-            Features
+            {t("listings.features")}
           </label>
           <textarea
             id="f-features"
@@ -249,25 +286,33 @@ export function ListingForm({
             aria-describedby="f-features-hint"
           />
           <span id="f-features-hint" className="text-[13px] text-muted">
-            One per line, like Elevator, Garden or Sea view.
+            {t("listings.featuresHint")}
           </span>
           <FieldError id="f-features-error" error={e.features} />
         </div>
-        <Field label="Video address" name="videoUrl" type="url" defaultValue={v("videoUrl", listing.videoUrl)} placeholder="https://www.youtube.com/watch?v=…" hint="Optional. A YouTube or Vimeo link, or an MP4 file." error={e.videoUrl} />
+        <Field
+          label={t("listings.video")}
+          name="videoUrl"
+          type="url"
+          defaultValue={v("videoUrl", listing.videoUrl)}
+          placeholder="https://www.youtube.com/watch?v=…"
+          hint={t("listings.videoHint")}
+          error={e.videoUrl}
+        />
       </Group>
 
-      <Group title="Photos">
+      <Group title={t("listings.photos")}>
         {images.length > 0 ? (
-          <ol aria-label="Photos in order" className="m-0 flex list-none flex-wrap gap-3 p-0">
+          <ol aria-label={t("listings.photosOrder")} className="m-0 flex list-none flex-wrap gap-3 p-0">
             {images.map((image, i) => (
               <li key={image.id} className="flex flex-col items-center gap-1.5">
-                <img src={image.url} alt={`Photo ${i + 1}`} className="h-24 w-24 rounded-lg border border-line object-cover" />
+                <img src={image.url} alt={t("listings.photoN", { n: i + 1 })} className="h-24 w-24 rounded-lg border border-line object-cover" />
                 <span className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => move(i, i - 1)}
                     disabled={i === 0}
-                    aria-label={`Move photo ${i + 1} earlier`}
+                    aria-label={t("listings.earlier", { n: i + 1 })}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-midnight disabled:opacity-40"
                   >
                     <Icon name="arrow_back" size={18} />
@@ -276,7 +321,7 @@ export function ListingForm({
                     type="button"
                     onClick={() => move(i, i + 1)}
                     disabled={i === images.length - 1}
-                    aria-label={`Move photo ${i + 1} later`}
+                    aria-label={t("listings.later", { n: i + 1 })}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-midnight disabled:opacity-40"
                   >
                     <Icon name="arrow_forward" size={18} />
@@ -284,7 +329,7 @@ export function ListingForm({
                   <button
                     type="button"
                     onClick={() => setImages((list) => list.filter((x) => x.id !== image.id))}
-                    aria-label={`Remove photo ${i + 1}`}
+                    aria-label={t("listings.removePhoto", { n: i + 1 })}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-danger"
                   >
                     <Icon name="delete" size={18} />
@@ -296,7 +341,7 @@ export function ListingForm({
         ) : null}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-images" className="text-sm font-semibold">
-            Add photos
+            {t("listings.addPhotos")}
           </label>
           <input
             id="f-images"
@@ -309,7 +354,7 @@ export function ListingForm({
             aria-invalid={e.images ? true : undefined}
           />
           <span id="f-images-hint" className="text-[13px] text-muted">
-            PNG or JPEG, up to 2 MB each and 20 per listing. New photos go after the others; the first photo is shown in lists.
+            {t("listings.photosHint", { size: LISTING_IMAGE_MAX_BYTES / 1024 / 1024, max: LISTING_IMAGES_MAX })}
           </span>
           {/* 51 Or pictures already in the Media library. */}
           <MediaImagesPicker />
@@ -320,16 +365,16 @@ export function ListingForm({
       <div className="flex flex-wrap justify-end gap-3 pt-1">
         {listing.id === null ? (
           <>
-            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText="Saving…">
-              Save as draft
+            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText={t("common.saving")}>
+              {t("events.saveDraft")}
             </SubmitButton>
-            <SubmitButton className="h-11" name="intent" value="publish" pendingText="Publishing…">
-              Publish
+            <SubmitButton className="h-11" name="intent" value="publish" pendingText={t("events.publishing")}>
+              {t("listings.publish")}
             </SubmitButton>
           </>
         ) : (
-          <SubmitButton className="h-11" pendingText="Saving…">
-            Save listing
+          <SubmitButton className="h-11" pendingText={t("common.saving")}>
+            {t("listings.saveListing")}
           </SubmitButton>
         )}
       </div>
@@ -346,31 +391,32 @@ export function OfficeForm({
   currencies: readonly string[];
   units: { key: string; label: string }[];
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveOfficeAction, initialFormState);
   const v = (key: keyof typeof office & string, fallback: string) => state.values?.[key] ?? fallback;
   const e = state.errors ?? {};
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <Field label="Office name" name="contactName" required maxLength={120} defaultValue={v("contactName", office.contactName)} error={e.contactName} />
+      <Field label={t("listings.officeName")} name="contactName" required maxLength={120} defaultValue={v("contactName", office.contactName)} error={e.contactName} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Phone" name="contactPhone" type="tel" defaultValue={v("contactPhone", office.contactPhone)} placeholder="+20 100 123 4567" error={e.contactPhone} />
+        <Field label={t("common.phone")} name="contactPhone" type="tel" defaultValue={v("contactPhone", office.contactPhone)} placeholder="+20 100 123 4567" error={e.contactPhone} />
         <Field label="WhatsApp" name="contactWhatsapp" type="tel" defaultValue={v("contactWhatsapp", office.contactWhatsapp)} placeholder="+20 100 123 4567" error={e.contactWhatsapp} />
       </div>
-      <Field label="Office email" name="contactEmail" type="email" defaultValue={v("contactEmail", office.contactEmail)} error={e.contactEmail} />
+      <Field label={t("listings.officeEmail")} name="contactEmail" type="email" defaultValue={v("contactEmail", office.contactEmail)} error={e.contactEmail} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Select label="Default currency" name="currency" defaultValue={v("currency", office.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
-        <Select label="Area unit" name="areaUnit" defaultValue={v("areaUnit", office.areaUnit)} options={units.map((u) => ({ value: u.key, label: u.label }))} error={e.areaUnit} />
+        <Select label={t("listings.defaultCurrency")} name="currency" defaultValue={v("currency", office.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
+        <Select label={t("listings.areaUnit")} name="areaUnit" defaultValue={v("areaUnit", office.areaUnit)} options={units.map((u) => ({ value: u.key, label: u.label }))} error={e.areaUnit} />
       </div>
       <Check
         name="messages"
-        label="People can message the office in the app"
-        hint="Their messages arrive on the Inquiries page and by email. Turn off to only show your phone and WhatsApp."
+        label={t("listings.messages")}
+        hint={t("listings.messagesHint")}
         defaultChecked={state.values ? state.values.messages === "on" : office.messages}
       />
       <div className="flex justify-end">
-        <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-          Save office
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("listings.saveOffice")}
         </SubmitButton>
       </div>
     </form>
