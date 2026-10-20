@@ -77,7 +77,15 @@ project.
 | `lib/core/session.dart` | Sign in, the biometric lock, pending/suspended states, the app switcher's choice, the language |
 | `lib/core/routing/` | Routes for every screen; the redirect from the session; pushes' deep links |
 | `lib/features/` | One folder per screen group: auth, account, today, orders (and Kitchen mode), appointments, events (and the scanner), donations, catalog, media, inbox, users, stats, notify, preview, builds, more |
-| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages), then `flutter gen-l10n` |
+| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages; Phase 61's in `strings_d.py`), then `flutter gen-l10n` |
+
+Roadmap 61 added the dark theme (Settings › Appearance: the phone's setting,
+light or dark, kept on the phone; colors from `YbColors` in
+`lib/core/theme/theme.dart`, read with `context.yb`), Kitchen mode keeping the
+screen on while it is open (`wakelock_plus`, `KitchenWake`), moving an
+appointment to another free time (Appointments › Change time) and
+notifications sent later (Send notification › Later, with the scheduled ones
+to change or cancel).
 
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,

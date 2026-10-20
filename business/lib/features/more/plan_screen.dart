@@ -87,10 +87,10 @@ class PlanScreen extends ConsumerWidget {
                             padding: const EdgeInsets.only(bottom: 4),
                             child: Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   AppIcons.check,
                                   size: 18,
-                                  color: Brand.success,
+                                  color: context.yb.success,
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(child: Text(feature)),

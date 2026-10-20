@@ -38,6 +38,7 @@ import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
+import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -3232,6 +3233,114 @@ export class MysqlStore implements DataStore {
     return { items, total: counted?.n ?? 0 };
   }
 
+  // 61 Moving an appointment
+
+  async moveBookingAppointment(appId: string, id: number, move: BookingAppointmentMove): Promise<boolean> {
+    const t = schema.bookingAppointments;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // One booking at a time per app, as createBookingAppointment: the app's row is the lock.
+        await tx.select({ id: schema.apps.id }).from(schema.apps).where(eq(schema.apps.id, appId)).for("update");
+        const [clash] = await tx
+          .select({ id: t.id })
+          .from(t)
+          .where(and(eq(t.appId, appId), eq(t.staffId, move.staffId), not(eq(t.id, id)), inArray(t.status, ACTIVE_BOOKING_STATUSES), lt(t.startAt, move.endAt), gt(t.endAt, move.startAt)))
+          .limit(1);
+        if (clash) return false;
+        const [result] = await tx
+          .update(t)
+          .set(move)
+          .where(and(eq(t.appId, appId), eq(t.id, id), inArray(t.status, ACTIVE_BOOKING_STATUSES)));
+        return result.affectedRows === 1;
+      }),
+    );
+  }
+
+  // 61 Today's numbers: sums and counts in the database
+
+  private async paidTotals(
+    table: typeof schema.catalogOrders | typeof schema.donations,
+    amount: typeof schema.catalogOrders.totalCents | typeof schema.donations.amountCents,
+    where: ReturnType<typeof and>,
+  ): Promise<PaidTotals> {
+    const rows = await this.run((db) =>
+      db
+        .select({ currency: table.currency, n: count(), cents: sql<string | null>`sum(${amount} - ${table.refundedCents})` })
+        .from(table)
+        .where(where)
+        .groupBy(table.currency)
+        .orderBy(asc(table.currency)),
+    );
+    return { count: rows.reduce((sum, r) => sum + Number(r.n), 0), totals: rows.map((r) => ({ currency: r.currency, cents: Number(r.cents ?? 0) })) };
+  }
+
+  async sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    const t = schema.catalogOrders;
+    return this.paidTotals(t, t.totalCents, and(eq(t.appId, appId), inArray(t.status, ["processing", "completed", "cancelled", "refunded"]), gte(t.paidAt, from), lt(t.paidAt, to)));
+  }
+
+  async sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    const t = schema.donations;
+    return this.paidTotals(t, t.amountCents, and(eq(t.appId, appId), inArray(t.status, ["paid", "refunded"]), gte(t.paidAt, from), lt(t.paidAt, to)));
+  }
+
+  async countHostedUsersCreated(appId: string, from: Date, to: Date): Promise<number> {
+    const t = schema.hostedUsers;
+    const [row] = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), gte(t.createdAt, from), lt(t.createdAt, to))));
+    return row?.n ?? 0;
+  }
+
+  async countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }> {
+    const t = schema.eventTickets;
+    const [issued, checkedIn] = await Promise.all([
+      this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), inArray(t.status, ["valid", "used"]), gte(t.createdAt, from), lt(t.createdAt, to)))),
+      this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.appId, appId), gte(t.usedAt, from), lt(t.usedAt, to)))),
+    ]);
+    return { issued: issued[0]?.n ?? 0, checkedIn: checkedIn[0]?.n ?? 0 };
+  }
+
+  // 61 Notifications sent later
+
+  async createScheduledNotification(input: Omit<ScheduledNotification, "id">): Promise<ScheduledNotification> {
+    const [result] = await this.run((db) => db.insert(schema.scheduledNotifications).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getScheduledNotification(appId: string, id: number): Promise<ScheduledNotification | null> {
+    const t = schema.scheduledNotifications;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listScheduledNotifications(appId: string, statuses: ScheduledNotificationStatus[]): Promise<ScheduledNotification[]> {
+    if (statuses.length === 0) return [];
+    const t = schema.scheduledNotifications;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), inArray(t.status, statuses))).orderBy(asc(t.sendAt), asc(t.id)).limit(500));
+  }
+
+  async listDueScheduledNotifications(now: Date, limit: number): Promise<ScheduledNotification[]> {
+    const t = schema.scheduledNotifications;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "scheduled"), lte(t.sendAt, now))).orderBy(asc(t.sendAt), asc(t.id)).limit(limit));
+  }
+
+  async listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]> {
+    const t = schema.scheduledNotifications;
+    return this.run((db) => db.select().from(t).where(and(eq(t.status, "sending"), lt(t.claimedAt, before))).limit(500));
+  }
+
+  async updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean> {
+    const t = schema.scheduledNotifications;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.status, expect))));
+    return result.affectedRows === 1;
+  }
+
+  // 61 Announcements pushed when they start
+
+  async claimAnnouncementPush(id: string, now: Date): Promise<boolean> {
+    const t = schema.announcements;
+    const [result] = await this.run((db) => db.update(t).set({ pushedAt: now }).where(and(eq(t.id, id), isNull(t.pushedAt))));
+    return result.affectedRows === 1;
+  }
 }
 
 /**

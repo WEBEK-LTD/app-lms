@@ -219,7 +219,7 @@ class _OrderBody extends ConsumerWidget {
                 : Text(
                     refund.why ?? l10n.notRefundable,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Brand.ink2,
+                      color: context.yb.ink2,
                     ),
                   ),
           ),

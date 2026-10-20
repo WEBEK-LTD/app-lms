@@ -298,7 +298,7 @@ class _Change extends StatelessWidget {
   Widget build(BuildContext context) {
     final change = (now - before) / before;
     final up = change >= 0;
-    final color = up ? Brand.success : Brand.danger;
+    final color = up ? context.yb.success : context.yb.danger;
     final text = context.l10n.vsPrevious(context.percent(change.abs()));
     return Padding(
       padding: const EdgeInsets.only(top: 4),
@@ -401,7 +401,7 @@ class BarChart extends StatelessWidget {
                       heightFactor: most == 0 ? 0.02 : max(0.02, v / most),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: Brand.midnight,
+                          color: context.yb.ink,
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(3),
                           ),

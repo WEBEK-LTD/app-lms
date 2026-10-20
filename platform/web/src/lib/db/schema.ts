@@ -27,6 +27,7 @@ import type {
   PushPreferences,
   PushProvider,
   OwnerPushPreferences,
+  ScheduledNotificationStatus,
   MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
@@ -381,7 +382,12 @@ export const hostedUsers = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone), index("hosted_users_email_idx").on(t.appId, t.email)],
+  (t) => [
+    uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone),
+    index("hosted_users_email_idx").on(t.appId, t.email),
+    // 61 New users of the day, counted by the database.
+    index("hosted_users_created_idx").on(t.appId, t.createdAt),
+  ],
 );
 
 export const hostedDevices = mysqlTable(
@@ -564,6 +570,8 @@ export const catalogOrders = mysqlTable(
     uniqueIndex("catalog_orders_token_unique").on(t.tokenHash),
     index("catalog_orders_app_idx").on(t.appId, t.createdAt),
     index("catalog_orders_user_idx").on(t.appId, t.userId),
+    // 61 The day's paid orders, summed by the database.
+    index("catalog_orders_paid_idx").on(t.appId, t.paidAt),
   ],
 );
 
@@ -924,6 +932,9 @@ export const eventTickets = mysqlTable(
     index("event_tickets_event_idx").on(t.eventId, t.ticketTypeId, t.status),
     index("event_tickets_user_idx").on(t.appId, t.userId),
     index("event_tickets_order_idx").on(t.orderId),
+    // 61 Tickets issued and checked in during the day, counted by the database.
+    index("event_tickets_created_idx").on(t.appId, t.createdAt),
+    index("event_tickets_used_idx").on(t.appId, t.usedAt),
   ],
 );
 
@@ -1003,6 +1014,8 @@ export const donations = mysqlTable(
     index("donations_app_idx").on(t.appId, t.status, t.createdAt),
     index("donations_campaign_idx").on(t.campaignId, t.donorEmail),
     index("donations_user_idx").on(t.appId, t.userId),
+    // 61 The day's donations, summed by the database.
+    index("donations_paid_idx").on(t.appId, t.paidAt),
   ],
 );
 
@@ -1231,6 +1244,8 @@ export const announcements = mysqlTable(
     endsAt: time("ends_at"),
     emailedAt: time("emailed_at"),
     emailedCount: int("emailed_count").notNull().default(0),
+    // 61 When it went to the owners' phones (at creation when live, else when it started).
+    pushedAt: time("pushed_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
     createdBy: varchar("created_by", { length: 191 }).notNull(),
@@ -1643,4 +1658,31 @@ export const teamActivity = mysqlTable(
     at: time("at").notNull(),
   },
   (t) => [index("team_activity_client_idx").on(t.clientId, t.at), index("team_activity_actor_idx").on(t.actorId)],
+);
+
+/**
+ * 61 Notifications to everyone who uses an app, sent later by the frequent
+ * job (lib/hosted/scheduled-notifications.ts). A row is taken by one run
+ * (`scheduled` to `sending`, a conditional update) and kept once sent.
+ */
+export const scheduledNotifications = mysqlTable(
+  "scheduled_notifications",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    body: text("body").notNull(),
+    sendAt: time("send_at").notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<ScheduledNotificationStatus>(),
+    createdBy: varchar("created_by", { length: 36 }),
+    claimedAt: time("claimed_at"),
+    sentAt: time("sent_at"),
+    notificationId: bigint("notification_id", { mode: "number", unsigned: true }),
+    result: varchar("result", { length: 500 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("scheduled_notifications_due_idx").on(t.status, t.sendAt), index("scheduled_notifications_app_idx").on(t.appId, t.status, t.sendAt)],
 );

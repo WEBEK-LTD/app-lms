@@ -309,6 +309,20 @@
       "when": 1792482095268,
       "tag": "0043_yallapp_business",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1792493912694,
+      "tag": "0044_scheduled_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "5",
+      "when": 1792494310902,
+      "tag": "0045_team_members",
+      "breakpoints": true
     }
   ]
 }

@@ -1332,6 +1332,132 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get appearance => 'Görünüm';
+
+  @override
+  String get themeSystem => 'Telefonla aynı';
+
+  @override
+  String get themeSystemHelp => 'Telefonunuzun ayarına göre açık ya da koyu.';
+
+  @override
+  String get themeLight => 'Açık';
+
+  @override
+  String get themeDark => 'Koyu';
+
+  @override
+  String get changeTime => 'Saati değiştir';
+
+  @override
+  String moveNow(String day, String time) {
+    return 'Şu an $day saat $time';
+  }
+
+  @override
+  String moveIntro(String zone) {
+    return 'Uygulamanızın bu hizmet için sunduğu saatler ($zone). Müşteriye uygulamada haber verilir.';
+  }
+
+  @override
+  String get anyoneFree => 'Müsait olan herkes';
+
+  @override
+  String get noFreeTimes => 'Bu günlerde boş saat yok. Sonraki günlere bakın.';
+
+  @override
+  String get previousDays => 'Önceki günler';
+
+  @override
+  String get nextDays => 'Sonraki günler';
+
+  @override
+  String moveWhen(String day, String time) {
+    return '$day saat $time';
+  }
+
+  @override
+  String moveConfirmTitle(String when) {
+    return '$when saatine taşınsın mı?';
+  }
+
+  @override
+  String moveConfirmText(String name) {
+    return '$name kişisine uygulamada haber verilir.';
+  }
+
+  @override
+  String get theCustomer => 'Müşteri';
+
+  @override
+  String get moveAction => 'Taşı';
+
+  @override
+  String movedTo(String when) {
+    return '$when saatine taşındı';
+  }
+
+  @override
+  String get sendNowShort => 'Şimdi';
+
+  @override
+  String get sendLater => 'Daha sonra';
+
+  @override
+  String laterZone(String zone) {
+    return 'Uygulamanızın saat diliminde, $zone. Yallapp bunu o saatten sonraki 5 dakika içinde gönderir.';
+  }
+
+  @override
+  String get sendOn => 'Gönderim tarihi';
+
+  @override
+  String get sendAt => 'Gönderim saati';
+
+  @override
+  String get schedule => 'Zamanla';
+
+  @override
+  String scheduledFor(String day, String time) {
+    return '$day saat $time için zamanlandı';
+  }
+
+  @override
+  String get scheduledTitle => 'Zamanlananlar';
+
+  @override
+  String get nothingScheduled => 'Zamanlanmış bildirim yok.';
+
+  @override
+  String goesOut(String day, String time) {
+    return '$day saat $time gönderilecek';
+  }
+
+  @override
+  String get sending => 'Gönderiliyor';
+
+  @override
+  String get notSent => 'Gönderilmedi';
+
+  @override
+  String get edit => 'Düzenle';
+
+  @override
+  String get editScheduled => 'Bildirimi değiştir';
+
+  @override
+  String get saveChanges => 'Değişiklikleri kaydet';
+
+  @override
+  String get cancelScheduled => 'İptal et';
+
+  @override
+  String get cancelScheduledTitle => 'Bu bildirim iptal edilsin mi?';
+
+  @override
+  String get scheduledCancelled => 'İptal edildi. Gönderilmeyecek.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

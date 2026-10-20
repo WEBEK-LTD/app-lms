@@ -447,4 +447,150 @@ void main() {
     expect(u.appName, 'Bab Al Sham');
     expect(u.read().unread, isFalse);
   });
+
+  test('61 moving an appointment: its free times, then the new time', () async {
+    api = build((o, body) async {
+      if (o.uri.path.endsWith('/times')) {
+        return json(200, {
+          'time_zone': 'Africa/Cairo',
+          'staff': [
+            {'id': 20, 'name': 'Dr. Mona Adel'},
+            {'id': 21, 'name': 'Dr. Karim Nabil'},
+          ],
+          'days': [
+            {
+              'date': '2026-10-21',
+              'slots': [
+                {
+                  'start': '2026-10-21T07:00:00Z',
+                  'end': '2026-10-21T07:30:00Z',
+                  'local_time': '10:00',
+                  'staff_ids': [20, 21],
+                },
+              ],
+            },
+          ],
+        });
+      }
+      return json(200, {
+        'id': 9,
+        'status': 'approved',
+        'service': 'Check-up',
+        'staff': 'Dr. Karim Nabil',
+        'customer': {'name': 'Ali'},
+        'start_at': '2026-10-21T07:00:00Z',
+        'end_at': '2026-10-21T07:30:00Z',
+        'local_date': '2026-10-21',
+        'local_time': '10:00',
+        'price': {
+          'amount_cents': 0,
+          'currency': 'EGP',
+          'formatted': 'EGP 0.00',
+        },
+        'notes': null,
+        'next_statuses': ['cancelled'],
+        'can_reschedule': true,
+      });
+    });
+    final times = await api.rescheduleTimes(
+      'a',
+      9,
+      from: '2026-10-21',
+      staffId: 21,
+    );
+    expect(
+      adapter.requests.first.uri.path,
+      '/api/owner/v1/apps/a/appointments/9/times',
+    );
+    expect(adapter.requests.first.uri.queryParameters, {
+      'from': '2026-10-21',
+      'days': '7',
+      'staff_id': '21',
+    });
+    expect(times.staff.map((s) => s.name), [
+      'Dr. Mona Adel',
+      'Dr. Karim Nabil',
+    ]);
+    expect(times.days.single.slots.single.staffIds, [20, 21]);
+    final moved = await api.reschedule(
+      'a',
+      9,
+      start: times.days.single.slots.single.start,
+      staffId: 21,
+    );
+    expect(
+      adapter.requests.last.uri.path,
+      '/api/owner/v1/apps/a/appointments/9/reschedule',
+    );
+    expect(jsonDecode(adapter.bodies.last!), {
+      'start': '2026-10-21T07:00:00.000Z',
+      'staff_id': 21,
+    });
+    expect(moved.canReschedule, isTrue);
+    expect(moved.staff, 'Dr. Karim Nabil');
+  });
+
+  test('61 notifications sent later: list, add, change, cancel', () async {
+    final item = {
+      'id': 3,
+      'title': 'Weekend offer',
+      'body': '20% off',
+      'send_at': '2026-10-24T15:00:00Z',
+      'local_date': '2026-10-24',
+      'local_time': '18:00',
+      'status': 'scheduled',
+      'result': null,
+    };
+    api = build((o, body) async {
+      if (o.method == 'DELETE') return ResponseBody.fromString('', 204);
+      if (o.method == 'GET') {
+        return json(200, {
+          'time_zone': 'Africa/Cairo',
+          'max': 50,
+          'items': [item],
+        });
+      }
+      return json(o.method == 'POST' ? 201 : 200, item);
+    });
+    final list = await api.scheduledNotifications('a');
+    expect(list.timeZone, 'Africa/Cairo');
+    expect(list.items.single.localTime, '18:00');
+    await api.scheduleNotification(
+      'a',
+      title: 'Weekend offer',
+      body: '20% off',
+      date: '2026-10-24',
+      time: '18:00',
+    );
+    expect(adapter.requests[1].method, 'POST');
+    expect(
+      adapter.requests[1].uri.path,
+      '/api/owner/v1/apps/a/notifications/scheduled',
+    );
+    expect(jsonDecode(adapter.bodies[1]!), {
+      'title': 'Weekend offer',
+      'body': '20% off',
+      'date': '2026-10-24',
+      'time': '18:00',
+    });
+    await api.editScheduledNotification(
+      'a',
+      3,
+      title: 'Weekend offer',
+      body: '25% off',
+      date: '2026-10-24',
+      time: '18:30',
+    );
+    expect(adapter.requests[2].method, 'PUT');
+    expect(
+      adapter.requests[2].uri.path,
+      '/api/owner/v1/apps/a/notifications/scheduled/3',
+    );
+    await api.cancelScheduledNotification('a', 3);
+    expect(adapter.requests[3].method, 'DELETE');
+    expect(
+      adapter.requests[3].uri.path,
+      '/api/owner/v1/apps/a/notifications/scheduled/3',
+    );
+  });
 }

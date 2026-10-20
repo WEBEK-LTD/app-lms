@@ -42,9 +42,9 @@ info:
       device's Firebase (or Huawei Push Kit) token; Yallapp sends from
       Yallapp Business's own Firebase project when an order is paid, an
       appointment is booked, a message arrives, a donation or Yallapp payment
-      is received, a build finishes, Yallapp publishes an update, or the
-      account gets a notice: the same moments the dashboard and its emails
-      learn of them. Each kind can be turned off per device. The data of
+      is received, a build finishes, Yallapp publishes an update (when it
+      starts, for one set to start later), or the account gets a notice: the
+      same moments the dashboard and its emails learn of them. Each kind can be turned off per device. The data of
       each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
       ID (`order_id`, `appointment_id`, `inquiry_id`, `build_id`,
       `donation_id`, `update_key`).
@@ -101,7 +101,10 @@ tags:
       restaurant's order moves through the kitchen's steps, and the customer
       is told. Refunds follow roadmap 47.
   - name: Appointments
-    description: Appointments of clinics, salons, gyms and services managed in Yallapp.
+    description: |
+      Appointments of clinics, salons, gyms and services managed in Yallapp:
+      confirm, decline, cancel, close, and (roadmap 61) move to another time
+      among the times booking in the app offers, with the customer told.
   - name: Events
     description: Events, their tickets and the check-in at the door.
   - name: Donations
@@ -131,7 +134,10 @@ tags:
   - name: Analytics
     description: The numbers of Dashboard › Analytics (roadmap 44) for a range, in the app's time zone.
   - name: Notifications
-    description: Sending a notification to everyone who uses the app, with the dashboard's rules and limits (10 an hour per app).
+    description: |
+      Sending a notification to everyone who uses the app, now or (roadmap
+      61) at a date and time in the app's time zone, with the dashboard's
+      rules and limits (10 an hour per app, counted when each goes out).
   - name: Publishing
     description: The app preview, builds and their downloads, read-only.
   - name: License
@@ -663,8 +669,7 @@ paths:
       description: |
         The dashboard's steps: a pending appointment is `approved` or
         `rejected`; an approved one `cancelled`, `completed` or `no_show`.
-        Moving an appointment to another time is done by cancelling it; the
-        dashboard has no reschedule either.
+        Another time is `POST …/reschedule`.
       parameters:
         - $ref: '#/components/parameters/AppId'
         - name: appointment_id
@@ -683,6 +688,84 @@ paths:
       responses:
         '200':
           description: The appointment as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Appointment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/appointments/{appointment_id}/times:
+    get:
+      tags: [Appointments]
+      operationId: listRescheduleTimes
+      summary: Free times to move an appointment to
+      description: |
+        Roadmap 61. The times booking in the app would offer for the
+        appointment's service, from `from` for `days` days: each staff
+        member's hours and days off, their other appointments and classes,
+        the business's minimum notice and how far ahead it takes bookings.
+        The appointment's own time counts as free. 409 `invalid_status` when
+        it can't move (only pending and approved ones that haven't started
+        can), `not_bookable` when its service can't be booked any more.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/AppointmentId'
+        - name: from
+          in: query
+          description: The first local day (the business's time zone); today when missing or past.
+          schema: { type: string, format: date }
+        - name: days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 14, default: 7 }
+        - name: staff_id
+          in: query
+          description: Only this staff member's times; every staff member who provides the service when missing.
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Free times by local day
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RescheduleTimes' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/appointments/{appointment_id}/reschedule:
+    post:
+      tags: [Appointments]
+      operationId: rescheduleAppointment
+      summary: Move an appointment to another time
+      description: |
+        Roadmap 61, the same as Dashboard › Appointments › Change time: the
+        new `start` must be one of `…/times` (checked again and written as
+        one step, so two changes can't take the same time); `staff_id` null
+        keeps its staff member when free then, else the first who is. The
+        status stays. The customer gets "Your appointment moved" in the app's
+        inbox, and on their phones when the app has push, in the app's
+        language. 409 `slot_taken` when the time isn't free any more,
+        `invalid_status` or `not_bookable` as `…/times`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start]
+              properties:
+                start: { type: string, format: date-time, description: A slot's `start`. }
+                staff_id: { type: [integer, 'null'] }
+      responses:
+        '200':
+          description: The appointment at its new time
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Appointment' }
@@ -1334,8 +1417,8 @@ paths:
         a message of up to 240; everyone gets it in the app's inbox, and
         phones that allow announcements get a push when the plan has push and
         the app's Firebase key is saved. 10 an hour per app, counted with the
-        dashboard's. Sending later isn't offered (the dashboard has no
-        schedule either).
+        dashboard's and with notifications sent later as each goes out. To
+        send later, `POST /apps/{app_id}/notifications/scheduled`.
       parameters:
         - $ref: '#/components/parameters/AppId'
       requestBody:
@@ -1359,6 +1442,104 @@ paths:
         '403': { $ref: '#/components/responses/AccountNotActive' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /apps/{app_id}/notifications/scheduled:
+    get:
+      tags: [Notifications]
+      operationId: listScheduledNotifications
+      summary: Notifications waiting to be sent later
+      description: |
+        Roadmap 61. Those waiting, being sent or stopped halfway (`failed`),
+        soonest first, with the app's time zone (Analytics'). Once sent, one
+        is in `GET /apps/{app_id}/notifications`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Waiting notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [time_zone, max, items]
+                properties:
+                  time_zone: { type: string, example: Africa/Cairo }
+                  max: { type: integer, description: How many can wait at once. }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ScheduledNotification' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Notifications]
+      operationId: scheduleNotification
+      summary: Send a notification to everyone later
+      description: |
+        As Dashboard › App notifications › Send later: the same title and
+        message rules as sending now, and a local `date` and `time` in the
+        app's time zone, later than now and within 90 days (errors under
+        `send_at`). At most 50 wait at once (409 `too_many_scheduled`). Yallapp
+        sends it within 5 minutes of its time; when the hour's 10 are used,
+        it goes in the next hour.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScheduleRequest' }
+      responses:
+        '201':
+          description: Waiting to be sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScheduledNotification' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/notifications/scheduled/{scheduled_id}:
+    put:
+      tags: [Notifications]
+      operationId: editScheduledNotification
+      summary: Change a notification waiting to be sent
+      description: Its title, message, date and time, with the same rules, while it still waits (409 `already_sent` otherwise).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ScheduledId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScheduleRequest' }
+      responses:
+        '200':
+          description: As it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScheduledNotification' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Notifications]
+      operationId: cancelScheduledNotification
+      summary: Cancel a notification waiting to be sent
+      description: 409 `already_sent` once it is being sent or was sent.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/ScheduledId'
+      responses:
+        '204': { description: Cancelled }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /apps/{app_id}/preview:
     post:
@@ -1548,6 +1729,16 @@ components:
       required: true
       description: One of the signed-in client's apps (`Me.apps`).
       schema: { type: string, format: uuid }
+    AppointmentId:
+      name: appointment_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ScheduledId:
+      name: scheduled_id
+      in: path
+      required: true
+      schema: { type: integer }
     OrderId:
       name: order_id
       in: path
@@ -1613,7 +1804,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     Conflict:
-      description: The action conflicts with the current state (`invalid_status`, `not_refundable`, `incomplete`).
+      description: The action conflicts with the current state (`invalid_status`, `not_refundable`, `incomplete`, 61 `slot_taken`, `not_bookable`, `too_many_scheduled`, `already_sent`).
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -2026,7 +2217,7 @@ components:
 
     Appointment:
       type: object
-      required: [id, status, service, staff, customer, start_at, end_at, local_date, local_time, price, notes, next_statuses]
+      required: [id, status, service, staff, customer, start_at, end_at, local_date, local_time, price, notes, next_statuses, can_reschedule]
       properties:
         id: { type: integer }
         status: { type: string, enum: [pending, approved, rejected, cancelled, completed, no_show] }
@@ -2057,6 +2248,39 @@ components:
         next_statuses:
           type: array
           items: { type: string }
+        can_reschedule: { type: boolean, description: 61 Pending or approved and not started yet. }
+
+    RescheduleTimes:
+      type: object
+      required: [time_zone, staff, days]
+      properties:
+        time_zone: { type: string, example: Europe/Istanbul }
+        staff:
+          type: array
+          description: Who provides the service, the appointment's own staff member first.
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+        days:
+          type: array
+          items:
+            type: object
+            required: [date, slots]
+            properties:
+              date: { type: string, format: date }
+              slots:
+                type: array
+                items:
+                  type: object
+                  required: [start, end, local_time, staff_ids]
+                  properties:
+                    start: { type: string, format: date-time }
+                    end: { type: string, format: date-time }
+                    local_time: { type: string, example: '15:30' }
+                    staff_ids: { type: array, items: { type: integer } }
 
     EventSummary:
       type: object
@@ -2355,6 +2579,28 @@ components:
         title: { type: string }
         body: { type: string }
         sent_at: { type: string, format: date-time }
+
+    ScheduleRequest:
+      type: object
+      required: [title, body, date, time]
+      properties:
+        title: { type: string, maxLength: 65 }
+        body: { type: string, maxLength: 240 }
+        date: { type: string, format: date, description: In the app's time zone. }
+        time: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', example: '18:30' }
+
+    ScheduledNotification:
+      type: object
+      required: [id, title, body, send_at, local_date, local_time, status, result]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        send_at: { type: string, format: date-time }
+        local_date: { type: string, format: date }
+        local_time: { type: string, example: '18:30' }
+        status: { type: string, enum: [scheduled, sending, failed] }
+        result: { type: [string, 'null'], description: 'Why it failed, when it did.' }
 
     NotificationResult:
       type: object

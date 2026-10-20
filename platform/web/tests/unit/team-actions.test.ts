@@ -64,7 +64,7 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   { file: "listings", all: "catalog", only: { replyInquiryAction: "messages", setInquiryStatusAction: "messages" } },
   { file: "media", all: "media", only: { listMediaAction: ["media", "catalog", "settings"], shareMediaAction: ["media", "catalog", "settings"], buyStorageAction: "billing" } },
   { file: "more-stores", all: "settings" },
-  { file: "notifications", all: "settings", only: { sendNotificationAction: "notifications" } },
+  { file: "notifications", all: "notifications", only: { saveServiceAccountAction: "settings", removeServiceAccountAction: "settings" } },
   { file: "owner-devices", all: "dashboard" },
   { file: "pages", all: "settings" },
   { file: "publishing", all: "settings" },

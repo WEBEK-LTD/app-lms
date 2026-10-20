@@ -181,11 +181,11 @@ class _ExpiredBanner extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Panel(
-        color: Brand.warningBg,
+        color: context.yb.warningBg,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(AppIcons.warning, color: Brand.warning),
+            Icon(AppIcons.warning, color: context.yb.warning),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -285,7 +285,7 @@ class KpiGrid extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(t.icon, size: 22, color: Brand.emberText),
+                        Icon(t.icon, size: 22, color: context.yb.accentText),
                         const SizedBox(height: 10),
                         Text(
                           t.value,
@@ -322,7 +322,7 @@ class _NeedsYou extends StatelessWidget {
         child: Panel(
           child: Row(
             children: [
-              const Icon(AppIcons.checkCircle, color: Brand.success),
+              Icon(AppIcons.checkCircle, color: context.yb.success),
               const SizedBox(width: 12),
               Expanded(child: Text(l10n.allCaughtUp)),
             ],
@@ -350,7 +350,7 @@ class _NeedsYou extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Brand.sand,
+                        color: context.yb.muted,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(switch (item.kind) {
@@ -374,7 +374,7 @@ class _NeedsYou extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Brand.ember,
+                          color: context.yb.accent,
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(

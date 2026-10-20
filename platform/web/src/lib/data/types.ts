@@ -1240,6 +1240,9 @@ export interface BookingAppointment {
 
 export type BookingAppointmentPatch = Partial<Pick<BookingAppointment, "status" | "updatedAt">>;
 
+/** 61 A new time (and maybe another staff member) for an appointment. */
+export type BookingAppointmentMove = Pick<BookingAppointment, "staffId" | "staffName" | "startAt" | "endAt" | "updatedAt">;
+
 // 27 Group classes and memberships (bookings managed in the dashboard).
 
 export type ClassSessionStatus = "scheduled" | "cancelled";
@@ -1707,6 +1710,8 @@ export interface Announcement {
   /** When it was emailed to its audience, and to how many clients. */
   emailedAt: Date | null;
   emailedCount: number;
+  /** 61 When it was pushed to the owners' phones (Yallapp Business): at creation when live, else by the frequent job when it starts. */
+  pushedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
@@ -2311,6 +2316,44 @@ export interface OwnerDevice {
 }
 
 export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt" | "clientId">>;
+
+// 61 Notifications to an app's users sent later, and today's numbers by query.
+
+/**
+ * 61 Where a notification sent later is: waiting for its time, taken by the
+ * frequent job (`sending`), sent, cancelled by the owner, or stopped while
+ * sending (`failed`, never sent twice).
+ */
+export type ScheduledNotificationStatus = "scheduled" | "sending" | "sent" | "cancelled" | "failed";
+
+/** 61 A notification to everyone who uses the app, sent by the frequent job at `sendAt`. */
+export interface ScheduledNotification {
+  id: number;
+  appId: string;
+  title: string;
+  body: string;
+  sendAt: Date;
+  status: ScheduledNotificationStatus;
+  /** Who scheduled it (a dashboard user), for the record. */
+  createdBy: string | null;
+  /** When the frequent job took it. */
+  claimedAt: Date | null;
+  sentAt: Date | null;
+  /** The inbox notification it became. */
+  notificationId: number | null;
+  /** What sending said ("Sent. … went to 12 phones."), English as the dashboard's. */
+  result: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ScheduledNotificationPatch = Partial<Pick<ScheduledNotification, "title" | "body" | "sendAt" | "status" | "claimedAt" | "sentAt" | "notificationId" | "result" | "updatedAt">>;
+
+/** 61 What was paid in a window: how many, and the amounts less refunds per currency. */
+export interface PaidTotals {
+  count: number;
+  totals: { currency: string; cents: number }[];
+}
 
 // 60 Team members for clients (lib/team)
 

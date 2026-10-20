@@ -92,7 +92,7 @@ class AppList extends StatelessWidget {
         final selected = app.id == current;
         return Panel(
           onTap: () => onPick(app),
-          color: selected ? Brand.sand : null,
+          color: selected ? context.yb.muted : null,
           child: Row(
             children: [
               AppAvatar(app: app),
@@ -158,11 +158,11 @@ class AppAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      color: Brand.midnight,
+      color: context.yb.ink,
       child: Text(
         letter,
         style: Theme.of(context).textTheme.titleMedium
-            ?.copyWith(color: Brand.ivory),
+            ?.copyWith(color: context.yb.onInk),
       ),
     );
     return ExcludeSemantics(

@@ -1,4 +1,5 @@
 import { freeTimes, staffFor } from "../../bookings/availability";
+import { busyTimes } from "../../bookings/busy";
 import { hasClasses } from "../../bookings/classes";
 import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
 import { membershipActive, membershipStatus } from "../../bookings/memberships";
@@ -244,22 +245,9 @@ export class BookingsConnector implements Connector {
     return { status: 200, body: { page, per_page: perPage, total: all.length, total_pages: Math.max(1, Math.ceil(all.length / perPage)), items } };
   }
 
-  /** Active appointments around these local days (with a margin for any time zone and for appointments across midnight). */
-  private async busy(from: string, days: number): Promise<Pick<BookingAppointment, "staffId" | "startAt" | "endAt">[]> {
-    const startFrom = new Date(new Date(`${addDays(from, -1)}T00:00:00Z`).getTime() - 14 * 3_600_000);
-    const startBefore = new Date(new Date(`${addDays(from, days + 1)}T00:00:00Z`).getTime() + 14 * 3_600_000);
-    const { items } = await this.deps.store.listBookingAppointments({
-      appId: this.deps.app.id,
-      statuses: ACTIVE_BOOKING_STATUSES,
-      startFrom,
-      startBefore,
-      offset: 0,
-      limit: 5000,
-    });
-    if (!hasClasses(this.setup)) return items;
-    // 27 A coach teaching a class isn't free for a personal session then.
-    const classes = await this.deps.store.listClassSessions({ appId: this.deps.app.id, startFrom, startBefore });
-    return [...items, ...classes.filter((c) => c.status === "scheduled")];
+  /** Active appointments and classes around these local days (lib/bookings/busy.ts). */
+  private busy(from: string, days: number): Promise<Pick<BookingAppointment, "staffId" | "startAt" | "endAt">[]> {
+    return busyTimes(this.deps.store, this.deps.app.id, this.setup, from, days);
   }
 
   private async availability(request: ConnectorRequest): Promise<ConnectorResult> {

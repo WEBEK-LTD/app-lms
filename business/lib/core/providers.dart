@@ -18,6 +18,7 @@ import 'services/device.dart';
 import 'services/links.dart';
 import 'services/media_picker.dart';
 import 'services/push.dart';
+import 'services/screen_wake.dart';
 import 'services/settings.dart';
 import 'session.dart';
 
@@ -47,6 +48,9 @@ final pushServiceProvider = Provider<PushService>(
 final openExternalProvider = Provider<OpenExternal>((ref) => openExternal);
 
 final chimeProvider = Provider<Chime>((ref) => AssetChime());
+
+/// 61 Kitchen mode keeps the screen on.
+final screenWakeProvider = Provider<ScreenWake>((ref) => WakelockScreenWake());
 
 final mediaPickerProvider = Provider<MediaPicker>(
   (ref) => ImagePickerMediaPicker(),
@@ -107,6 +111,30 @@ class LanguageController extends Notifier<String?> {
 
 final languageProvider = NotifierProvider<LanguageController, String?>(
   LanguageController.new,
+);
+
+/// 61 Light or dark: the phone's setting unless chosen in Settings ›
+/// Appearance (kept on this phone).
+class ThemeModeController extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => switch (ref.watch(settingsProvider).theme) {
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
+
+  void set(ThemeMode mode) {
+    state = mode;
+    ref.read(settingsProvider).setTheme(switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => null,
+    });
+  }
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
+  ThemeModeController.new,
 );
 
 /// The language the app shows: the choice, else the phone's when it's one

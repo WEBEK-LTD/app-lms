@@ -11,7 +11,7 @@ import { teamInviteSchema } from "@/lib/validation";
 import { KEY } from "./helpers";
 
 /**
- * 60 Team members on MySQL or MariaDB (migration 0044): members with their
+ * 60 Team members on MySQL or MariaDB (migration 0045): members with their
  * areas and apps, invitations accepted once (two at the same moment: one
  * wins), the person's businesses, removal and the activity's pages.
  * Runs only with YALLAPP_TEST_DATABASE_URL (a database with the migrations applied).

@@ -83,6 +83,7 @@ import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInq
 import type { PublishingEvent, PublishingRequest } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
+import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
@@ -928,6 +929,25 @@ export class MemoryStore implements DataStore {
   async updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void> {
     const appointment = this.bookingAppointments.get(id);
     if (appointment && appointment.appId === appId) this.bookingAppointments.set(id, clone({ ...appointment, ...patch }));
+  }
+
+  async moveBookingAppointment(appId: string, id: number, move: BookingAppointmentMove): Promise<boolean> {
+    const appointment = this.bookingAppointments.get(id);
+    if (!appointment || appointment.appId !== appId || !ACTIVE_BOOKING_STATUSES.includes(appointment.status)) return false;
+    for (const other of this.bookingAppointments.values()) {
+      if (
+        other.id !== id &&
+        other.appId === appId &&
+        other.staffId === move.staffId &&
+        ACTIVE_BOOKING_STATUSES.includes(other.status) &&
+        other.startAt < move.endAt &&
+        move.startAt < other.endAt
+      ) {
+        return false;
+      }
+    }
+    this.bookingAppointments.set(id, clone({ ...appointment, ...move }));
+    return true;
   }
 
   async listBookingAppointments(input: {
@@ -2549,4 +2569,97 @@ export class MemoryStore implements DataStore {
     const offset = input.offset ?? 0;
     return { items: all.slice(offset, offset + input.limit).map(clone), total: all.length };
   }
+  // 61 Today's numbers counted from every row, as the database's aggregates
+
+  async sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    const paid = new Set(["processing", "completed", "cancelled", "refunded"]);
+    return paidTotals(
+      [...this.catalogOrders.values()]
+        .filter((o) => o.appId === appId && paid.has(o.status) && within(o.paidAt, from, to))
+        .map((o) => ({ currency: o.currency, cents: o.totalCents - (o.refundedCents ?? 0) })),
+    );
+  }
+
+  async sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals> {
+    return paidTotals(
+      [...this.donations.values()]
+        .filter((d) => d.appId === appId && (d.status === "paid" || d.status === "refunded") && within(d.paidAt, from, to))
+        .map((d) => ({ currency: d.currency, cents: d.amountCents - (d.refundedCents ?? 0) })),
+    );
+  }
+
+  async countHostedUsersCreated(appId: string, from: Date, to: Date): Promise<number> {
+    return [...this.hostedUsers.values()].filter((u) => u.appId === appId && within(u.createdAt, from, to)).length;
+  }
+
+  async countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }> {
+    const tickets = [...this.tickets.values()].filter((t) => t.appId === appId);
+    return {
+      issued: tickets.filter((t) => (t.status === "valid" || t.status === "used") && within(t.createdAt, from, to)).length,
+      checkedIn: tickets.filter((t) => within(t.usedAt, from, to)).length,
+    };
+  }
+
+  // 61 Notifications sent later
+
+  private scheduledNotifications = new Map<number, ScheduledNotification>();
+  private nextScheduledId = 1;
+
+  async createScheduledNotification(input: Omit<ScheduledNotification, "id">): Promise<ScheduledNotification> {
+    const row: ScheduledNotification = { ...clone(input), id: this.nextScheduledId++ };
+    this.scheduledNotifications.set(row.id, clone(row));
+    return row;
+  }
+
+  async getScheduledNotification(appId: string, id: number): Promise<ScheduledNotification | null> {
+    const row = this.scheduledNotifications.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async listScheduledNotifications(appId: string, statuses: ScheduledNotificationStatus[]): Promise<ScheduledNotification[]> {
+    return [...this.scheduledNotifications.values()]
+      .filter((n) => n.appId === appId && statuses.includes(n.status))
+      .sort((a, b) => a.sendAt.getTime() - b.sendAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async listDueScheduledNotifications(now: Date, limit: number): Promise<ScheduledNotification[]> {
+    return [...this.scheduledNotifications.values()]
+      .filter((n) => n.status === "scheduled" && n.sendAt.getTime() <= now.getTime())
+      .sort((a, b) => a.sendAt.getTime() - b.sendAt.getTime() || a.id - b.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]> {
+    return [...this.scheduledNotifications.values()].filter((n) => n.status === "sending" && n.claimedAt !== null && n.claimedAt.getTime() < before.getTime()).map(clone);
+  }
+
+  async updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean> {
+    const row = this.scheduledNotifications.get(id);
+    if (!row || row.appId !== appId || row.status !== expect) return false;
+    this.scheduledNotifications.set(id, clone({ ...row, ...patch }));
+    return true;
+  }
+
+  // 61 Announcements pushed when they start
+
+  async claimAnnouncementPush(id: string, now: Date): Promise<boolean> {
+    const announcement = this.announcements.get(id);
+    if (!announcement || announcement.pushedAt) return false;
+    this.announcements.set(id, clone({ ...announcement, pushedAt: now }));
+    return true;
+  }
+}
+
+/** 61 Whether `at` is in [from, to). */
+function within(at: Date | null | undefined, from: Date, to: Date): boolean {
+  return Boolean(at) && at!.getTime() >= from.getTime() && at!.getTime() < to.getTime();
+}
+
+/** 61 How many and the sum per currency (currencies in alphabetical order, as the database groups them). */
+function paidTotals(rows: { currency: string; cents: number }[]): PaidTotals {
+  const totals = new Map<string, number>();
+  for (const row of rows) totals.set(row.currency, (totals.get(row.currency) ?? 0) + row.cents);
+  return { count: rows.length, totals: [...totals].sort(([a], [b]) => a.localeCompare(b)).map(([currency, cents]) => ({ currency, cents })) };
 }

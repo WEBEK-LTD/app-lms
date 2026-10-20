@@ -1,7 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
 import { getDashT, knownTranslator, type DashT } from "@/i18n/dashboard";
-import { announcementText, isLive } from "../announcements";
+import { announcementText, audienceRecipients, isLive } from "../announcements";
 import { appLabel } from "../app/label";
 import { formatCents } from "../catalog/money";
 import { orderNumber } from "../catalog/settings";
@@ -234,4 +234,28 @@ export async function pushAnnouncement(deps: OwnerPushDeps, announcement: Announ
     );
   }
   return sent;
+}
+
+/** 61 Pushed late only within this long after it started (a job that was off doesn't push old news). */
+const LATE_START_MS = 24 * 3_600_000;
+
+/**
+ * 61 Announcements set to start later reach the owners' phones when they
+ * start: the frequent job (every 5 minutes) takes each live one not pushed
+ * yet, once (a conditional update, so two runs never push it twice), and
+ * pushes it to the clients in its audience then. Returns how many were pushed.
+ */
+export async function pushStartedAnnouncements(deps: OwnerPushDeps): Promise<{ announcements: number; phones: number }> {
+  const { store, now } = deps;
+  let announcements = 0;
+  let phones = 0;
+  for (const announcement of await store.listAnnouncements()) {
+    if (announcement.pushedAt || !isLive(announcement, now)) continue;
+    if (!(await store.claimAnnouncementPush(announcement.id, now))) continue;
+    if (now.getTime() - announcement.startsAt.getTime() > LATE_START_MS) continue;
+    const clientIds = (await audienceRecipients(store, announcement.audience, now)).map((r) => r.clientId);
+    phones += await pushAnnouncement(deps, announcement, clientIds);
+    announcements += 1;
+  }
+  return { announcements, phones };
 }

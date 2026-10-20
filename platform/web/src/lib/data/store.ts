@@ -74,6 +74,8 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 // 60 Team members for clients
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
+// 61
+import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -298,6 +300,13 @@ export interface DataStore {
   createBookingAppointment(input: Omit<BookingAppointment, "id">): Promise<BookingAppointment | null>;
   getBookingAppointment(appId: string, id: number): Promise<BookingAppointment | null>;
   updateBookingAppointment(appId: string, id: number, patch: BookingAppointmentPatch): Promise<void>;
+  /**
+   * 61 Moves a pending or approved appointment to a new time (and maybe
+   * another staff member): false, with nothing changed, when it is no longer
+   * active or another active appointment of that staff member overlaps the
+   * new time (checked and written as one step, as booking is).
+   */
+  moveBookingAppointment(appId: string, id: number, move: BookingAppointmentMove): Promise<boolean>;
   /**
    * An app's appointments. `scope` upcoming: active ones from `now`, soonest
    * first; past: the rest, newest first. Without scope, every status in the
@@ -790,4 +799,30 @@ export interface DataStore {
   addTeamActivity(entry: Omit<TeamActivity, "id">): Promise<void>;
   /** Newest first. */
   listTeamActivity(clientId: string, input: { limit: number; offset?: number; actorId?: string }): Promise<{ items: TeamActivity[]; total: number }>;
+
+  // 61 Today's numbers counted by the database, for a window [from, to)
+  /** Paid orders (in progress, completed, cancelled or refunded) whose payment came in the window. */
+  sumPaidCatalogOrders(appId: string, from: Date, to: Date): Promise<PaidTotals>;
+  /** Paid (or since refunded) donations whose payment came in the window. */
+  sumPaidDonations(appId: string, from: Date, to: Date): Promise<PaidTotals>;
+  /** App users who signed up in the window. */
+  countHostedUsersCreated(appId: string, from: Date, to: Date): Promise<number>;
+  /** Tickets issued (valid or used) and tickets checked in, in the window. */
+  countTicketsInWindow(appId: string, from: Date, to: Date): Promise<{ issued: number; checkedIn: number }>;
+
+  // 61 Notifications to an app's users sent later (lib/hosted/scheduled-notifications.ts)
+  createScheduledNotification(input: Omit<ScheduledNotification, "id">): Promise<ScheduledNotification>;
+  getScheduledNotification(appId: string, id: number): Promise<ScheduledNotification | null>;
+  /** The app's notifications in these statuses, soonest first. */
+  listScheduledNotifications(appId: string, statuses: ScheduledNotificationStatus[]): Promise<ScheduledNotification[]>;
+  /** Waiting ones of every app whose time came (`sendAt` at or before `now`), soonest first. */
+  listDueScheduledNotifications(now: Date, limit: number): Promise<ScheduledNotification[]>;
+  /** Taken by the job before `before` and still `sending`, of every app. */
+  listStaleScheduledNotifications(before: Date): Promise<ScheduledNotification[]>;
+  /** Changes it only while its status is `expect` (atomic); false otherwise, with nothing changed. */
+  updateScheduledNotification(appId: string, id: number, expect: ScheduledNotificationStatus, patch: ScheduledNotificationPatch): Promise<boolean>;
+
+  // 61 Announcements pushed to the owners' phones when they start
+  /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */
+  claimAnnouncementPush(id: string, now: Date): Promise<boolean>;
 }
