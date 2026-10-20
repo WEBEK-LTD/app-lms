@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { ORDER_KINDS } from "@/lib/app/areas";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { sendTemplate } from "@/lib/email/send";
@@ -27,9 +28,8 @@ import {
  * or donation through the provider, or records one made in its panel.
  */
 
-const ORDER_APPS = new Set(["catalog", "courses", "bookings", "events"]);
 
-async function requireApp(kinds: Set<string>): Promise<ClientContext & { app: App }> {
+async function requireApp(kinds: ReadonlySet<string>): Promise<ClientContext & { app: App }> {
   const context = await getClientContext();
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
@@ -87,7 +87,7 @@ async function run(
 }
 
 export async function refundOrderAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp(ORDER_APPS);
+  const context = await requireApp(ORDER_KINDS);
   const d = await deps(context);
   const id = Number(formData.get("id"));
   const order = Number.isSafeInteger(id) ? await d.store.getCatalogOrder(context.app.id, id) : null;

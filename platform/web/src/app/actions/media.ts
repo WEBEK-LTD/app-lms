@@ -10,12 +10,13 @@ import type { App, MediaFile, MediaKind } from "@/lib/data/types";
 import { effectivePlans } from "@/lib/entitlements";
 import { appUrl, encryptionKey, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import { cleanName, completeUpload, deleteMedia, fileUrl, isMediaId, isPublic, mediaLink, startUpload, uploadUrl } from "@/lib/media/files";
+import { cleanName, completeUpload, deleteMedia, fileUrl, isMediaId, isPublic, mediaLink, uploadUrl } from "@/lib/media/files";
 import { cannotBuy, cardOffers, packOffers, startStoragePayment } from "@/lib/media/packs";
 import { formatBytes } from "@/lib/media/quota";
 import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
 import { getMediaStorage } from "@/lib/media/storage";
-import { appStorage, resolveStorageNotices } from "@/lib/media/usage";
+import { startAppUpload } from "@/lib/media/start";
+import { resolveStorageNotices } from "@/lib/media/usage";
 import { PaymentError } from "@/lib/payments/errors";
 import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -50,22 +51,10 @@ export type StartUploadState =
 export async function startMediaUploadAction(input: { appId: string; name: string; size: number; type: string }): Promise<StartUploadState> {
   const context = await mediaContext();
   if (!sameApp(context, input.appId)) return { ok: false, message: "You switched to another app in another tab. Reload the page." };
-  const storage = getMediaStorage();
-  if (!storage) return { ok: false, message: "Uploads aren't available right now. Message us on WhatsApp." };
-  if (context.state !== "active") return { ok: false, message: "Uploads start once your plan is active." };
-  const store = await getStore();
-  const now = new Date();
-  if (!(await hitRateLimit(store, RATE_LIMITS.mediaUploads, context.app.id, now)).allowed) {
-    return { ok: false, message: "Too many uploads in an hour. Try again later." };
-  }
-  const usage = await appStorage(store, context.app, await effectivePlans(store), now);
-  const result = await startUpload(
-    { store, storage, now, limitBytes: usage.limitBytes, chunkBytes: MEDIA_CHUNK_BYTES },
-    { appId: context.app.id, name: String(input.name ?? ""), size: Number(input.size), contentType: String(input.type ?? "") },
-  );
+  const result = await startAppUpload({ store: await getStore(), storage: getMediaStorage(), now: new Date() }, context.app, context.state, input);
   if (!result.ok) return { ok: false, message: result.message, storageFull: result.code === "storage_full" };
   revalidatePath("/dashboard/media");
-  return { ok: true, id: result.file.id, uploadUrl: result.uploadUrl, chunkBytes: result.chunkBytes, size: result.file.sizeBytes };
+  return result;
 }
 
 /** A fresh link to carry on with an upload (after a reload, or a broken connection). */

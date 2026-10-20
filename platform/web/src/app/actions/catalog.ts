@@ -5,17 +5,17 @@ import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { parseFulfilmentForm } from "@/lib/catalog/fulfilment";
-import { moveOrder } from "@/lib/catalog/kitchen";
+import { changeOrderStatus, inKitchen } from "@/lib/catalog/order-status";
 import { CATALOG_CURRENCIES, parsePrice } from "@/lib/catalog/money";
+import { readProductNumbers } from "@/lib/catalog/product-fields";
 import { parseOptionGroups } from "@/lib/catalog/options";
 import { parsePayeeForm, parseSubMerchantForm } from "@/lib/catalog/marketplace";
-import { approvePayout } from "@/lib/catalog/payment";
-import { accountForOrder, catalogSettings, encryptOwnPayment, encryptPayout, marketplaceTerms, type OwnPaymentInput } from "@/lib/catalog/settings";
+import { catalogSettings, encryptOwnPayment, encryptPayout, marketplaceTerms, type OwnPaymentInput } from "@/lib/catalog/settings";
 import { newId } from "@/lib/crypto/tokens";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
 import { getStore } from "@/lib/data";
-import type { App, CatalogCurrency, CatalogOrderStatus, CatalogProductInput, FulfilmentStatus, MarketplacePayment } from "@/lib/data/types";
+import type { App, CatalogCurrency, CatalogProductInput, MarketplacePayment } from "@/lib/data/types";
 import { encryptionKey, iyzicoApiUrl, paymentApiUrls } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { createSubMerchant, IyzicoError } from "@/lib/payments/iyzico";
@@ -100,17 +100,9 @@ export async function saveProductAction(_: FormState, formData: FormData): Promi
   if (!values.name) errors.name = "Enter the product name.";
   else if (values.name.length > 120) errors.name = "Use at most 120 characters.";
   if (values.description!.length > 5000) errors.description = "Use at most 5000 characters.";
-  const price = parsePrice(values.price!);
-  if (price === null || price === 0) errors.price = "Enter a price, like 450 or 450.50.";
-  const salePrice = values.salePrice ? parsePrice(values.salePrice) : null;
-  if (values.salePrice && (salePrice === null || (price !== null && salePrice >= price))) {
-    errors.salePrice = "The sale price must be lower than the price.";
-  }
-  let stock: number | null = null;
-  if (values.stock) {
-    stock = Number(values.stock);
-    if (!Number.isInteger(stock) || stock < 0 || stock > 1_000_000) errors.stock = "Enter a whole number, or leave it empty.";
-  }
+  const numbers = readProductNumbers({ price: values.price!, salePrice: values.salePrice!, stock: values.stock! });
+  Object.assign(errors, numbers.errors);
+  const { priceCents: price, salePriceCents: salePrice, stock } = numbers;
   if (values.sku!.length > 64) errors.sku = "Use at most 64 characters.";
   // 26 Option groups (a dish's size, sauce or extras), from the options editor as JSON.
   values.optionGroups = String(formData.get("optionGroups") ?? "");
@@ -372,27 +364,14 @@ export async function removePaymentKeysAction(): Promise<void> {
 
 // Orders
 
-// 47 Refunds go through the Refund form (app/actions/refunds.ts), which records them: never a bare status.
-const NEXT_STATUSES: Partial<Record<CatalogOrderStatus, CatalogOrderStatus[]>> = {
-  processing: ["completed", "cancelled"],
-};
-
+/** Completed or cancelled (orders/page.tsx); a restaurant's order moves with the kitchen's steps (moveOrderAction). */
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const { app } = await requireCatalogApp({ courses: true });
   const store = await getStore();
   const id = Number(formData.get("id"));
-  const status = String(formData.get("status")) as CatalogOrderStatus;
+  const status = String(formData.get("status"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
-  // 26 A restaurant's order in the kitchen moves with the kitchen's steps (moveOrderAction).
-  if (order && !(order.fulfilment && order.status === "processing") && NEXT_STATUSES[order.status]?.includes(status)) {
-    const now = new Date();
-    await store.updateCatalogOrder(app.id, order.id, { status, updatedAt: now });
-    // A completed marketplace order releases the shop's share; our team can also do it from the admin.
-    if (status === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
-      const account = await accountForOrder(store, app, order, encryptionKey());
-      if (account) await approvePayout({ store, app, account, urls: paymentApiUrls(), now, order });
-    }
-  }
+  if (order && !inKitchen(order)) await changeOrderStatus({ store, app, now: new Date(), key: encryptionKey(), urls: paymentApiUrls(), account: null }, order, status);
   refresh();
 }
 
@@ -405,15 +384,10 @@ export async function moveOrderAction(formData: FormData): Promise<void> {
   const { app } = await requireCatalogApp();
   const store = await getStore();
   const id = Number(formData.get("id"));
-  const to = String(formData.get("to")) as FulfilmentStatus;
+  const to = String(formData.get("to"));
   const order = Number.isSafeInteger(id) ? await store.getCatalogOrder(app.id, id) : null;
-  if (order) {
-    const now = new Date();
-    const { moved } = await moveOrder({ store, app, order, to, account: serviceAccountOf(app, encryptionKey()), now });
-    if (moved && to === "completed" && order.commissionCents !== null && !order.payoutApprovedAt) {
-      const account = await accountForOrder(store, app, order, encryptionKey());
-      if (account) await approvePayout({ store, app, account, urls: paymentApiUrls(), now, order });
-    }
+  if (order && inKitchen(order)) {
+    await changeOrderStatus({ store, app, now: new Date(), key: encryptionKey(), urls: paymentApiUrls(), account: serviceAccountOf(app, encryptionKey()) }, order, to);
   }
   refresh();
 }

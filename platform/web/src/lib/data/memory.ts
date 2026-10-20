@@ -81,6 +81,7 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 import type { PublishingEvent, PublishingRequest } from "./types";
+import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { DemoPurgeCounts } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
@@ -2393,5 +2394,63 @@ export class MemoryStore implements DataStore {
       .sort((a, b) => a.activeUntil.getTime() - b.activeUntil.getTime())
       .slice(0, limit)
       .map(clone);
+  }
+
+  // 58 Yallapp Business: devices signed in with the dashboard's account
+  private ownerDevices = new Map<string, OwnerDevice>();
+
+  async createOwnerDevice(device: OwnerDevice): Promise<void> {
+    this.ownerDevices.set(device.id, clone(device));
+  }
+
+  async getOwnerDevice(id: string): Promise<OwnerDevice | null> {
+    const device = this.ownerDevices.get(id);
+    return device ? clone(device) : null;
+  }
+
+  async findOwnerDeviceByRefresh(refreshHash: string): Promise<OwnerDevice | null> {
+    for (const device of this.ownerDevices.values()) if (device.refreshHash === refreshHash) return clone(device);
+    return null;
+  }
+
+  async rotateOwnerRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean> {
+    const device = this.ownerDevices.get(id);
+    if (!device || device.refreshHash !== oldHash) return false;
+    Object.assign(device, clone(next));
+    return true;
+  }
+
+  async updateOwnerDevice(id: string, patch: OwnerDevicePatch): Promise<void> {
+    const device = this.ownerDevices.get(id);
+    if (device) Object.assign(device, clone(patch));
+  }
+
+  async listOwnerDevices(userId: string): Promise<OwnerDevice[]> {
+    return [...this.ownerDevices.values()]
+      .filter((d) => d.userId === userId)
+      .sort((a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime())
+      .map(clone);
+  }
+
+  async deleteOwnerDevice(userId: string, id: string): Promise<boolean> {
+    const device = this.ownerDevices.get(id);
+    if (!device || device.userId !== userId) return false;
+    return this.ownerDevices.delete(id);
+  }
+
+  async deleteOwnerDevices(userId: string): Promise<number> {
+    let count = 0;
+    for (const [id, device] of this.ownerDevices) if (device.userId === userId && this.ownerDevices.delete(id)) count += 1;
+    return count;
+  }
+
+  async clearOwnerPushToken(token: string, exceptId: string | null): Promise<void> {
+    for (const device of this.ownerDevices.values()) if (device.pushToken === token && device.id !== exceptId) device.pushToken = null;
+  }
+
+  async purgeOwnerDevices(now: Date): Promise<number> {
+    let count = 0;
+    for (const [id, device] of this.ownerDevices) if (device.refreshExpiresAt.getTime() <= now.getTime() && this.ownerDevices.delete(id)) count += 1;
+    return count;
   }
 }
