@@ -46,6 +46,9 @@ const GROUPS: { file: string; all?: unknown; only?: Expected; skip?: string[] }[
   },
   { file: "classes", all: "bookings" },
   { file: "courses", all: "catalog", only: { saveOfflineDownloadsAction: "settings" } },
+  // 63 Questions are messages; reviews are the catalog's.
+  { file: "course-community", all: "catalog", only: { answerQuestionAction: "messages" } },
+  { file: "members", all: "bookings" },
   {
     file: "dashboard",
     all: "settings",

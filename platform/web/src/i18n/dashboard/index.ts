@@ -10,6 +10,8 @@ import * as bookings from "./bookings";
 import * as builds from "./builds";
 import * as checks from "./checks";
 import * as courses from "./courses";
+import * as community from "./community";
+import * as door from "./door";
 import * as donations from "./donations";
 import * as emails from "./emails";
 import * as events from "./events";
@@ -56,7 +58,7 @@ import * as providers from "./providers";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

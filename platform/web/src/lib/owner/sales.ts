@@ -98,6 +98,8 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     counts.tickets = tickets.issued;
     counts.check_ins = tickets.checkedIn;
   }
+  // 63 A gym's members who came in today (once a member a day).
+  if (areas.memberCheckIn) counts.member_check_ins = await store.countMemberCheckIns(app.id, day.start, day.end);
   if (areas.donations) {
     const paid = await store.sumPaidDonations(app.id, day.start, day.end);
     for (const total of paid.totals) addTo(given, total.currency, total.cents);
@@ -106,6 +108,11 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   if (areas.inquiries) {
     const unread = await store.countUnreadListingInquiries(app.id);
     if (unread) needs.push({ kind: "unanswered_messages", count: unread, title: ctx.t("owner.needs.unanswered", { count: unread }), notice_id: null });
+  }
+  // 63 Course questions waiting for the business.
+  if (areas.questions) {
+    const open = (await store.listCourseQuestions({ appId: app.id, status: "open", order: "updated", offset: 0, limit: 1 })).total;
+    if (open) needs.push({ kind: "questions_to_answer", count: open, title: ctx.t("owner.needs.questions", { count: open }), notice_id: null });
   }
   if (areas.appUsers) counts.new_users = await store.countHostedUsersCreated(app.id, day.start, day.end);
   // 44 Opens today, from the app's own usage statistics (counted at read, like Analytics).

@@ -5,7 +5,7 @@ import type { BookingAppointment } from "../../data/types";
 import { ArticlesConnector } from "./articles";
 import { BookingsConnector } from "./bookings";
 import { CatalogConnector } from "./catalog";
-import { CoursesConnector, type CoursesMedia } from "./courses";
+import { CoursesConnector, type CoursesDeps, type CoursesMedia } from "./courses";
 import { EventsConnector } from "./events";
 import { DonationsConnector } from "./donations";
 import { ListingsConnector, type ListingsDeps } from "./listings";
@@ -61,6 +61,9 @@ export function connectorFor(
     platformUrl: string;
     onBooked?: (appointment: BookingAppointment) => Promise<void>;
     onInquiry?: ListingsDeps["onInquiry"];
+    /** 63 A course question or review (pushes to the business's phones). */
+    onQuestion?: CoursesDeps["onQuestion"];
+    onReview?: CoursesDeps["onReview"];
     /** 13.1 Card payments in the app (dashboard products, courses and 28 tickets) are in the app's plan. */
     cardPayments?: boolean;
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */

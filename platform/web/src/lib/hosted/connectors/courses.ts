@@ -4,7 +4,9 @@ import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoF
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
-import type { App, Course, CourseLesson, CourseSetup, LessonProgress } from "../../data/types";
+import type { App, Course, CourseLesson, CourseQuestion, CourseReview, CourseSetup, HostedUser, LessonProgress } from "../../data/types";
+import { QUESTION_LIMIT, ratingSummary, readCommunityText, readReview } from "../../courses/community";
+import { hitRateLimit } from "../../rate-limit";
 import { descriptionHtml, payUrl } from "./catalog";
 import { error, intParam } from "./common";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
@@ -18,7 +20,7 @@ export interface CoursesMedia {
   resolve(url: string, purpose: "play" | "download"): Promise<ResolvedMedia | null>;
 }
 
-interface CoursesDeps {
+export interface CoursesDeps {
   store: DataStore;
   app: App;
   assetUrl: (assetId: string) => string;
@@ -29,7 +31,13 @@ interface CoursesDeps {
   downloads?: boolean;
   /** 51 Videos from the Media library; without it, a Yallapp link is a plain address. */
   media?: CoursesMedia;
+  /** 63 Tells the business of a question, or a student writing again under one (a push to its phones); failures don't fail it. */
+  onQuestion?: (input: { question: CourseQuestion; course: Course; user: HostedUser; text: string; followUp: boolean }) => Promise<void>;
+  /** 63 Tells the business of a new review. */
+  onReview?: (input: { review: CourseReview; course: Course; user: HostedUser }) => Promise<void>;
 }
+
+type Ratings = { courseId: number; rating: number; count: number }[];
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
 const noCourse = () => error(404, "not_found", "Course not found.");
@@ -62,8 +70,9 @@ export class CoursesConnector implements Connector {
         certificates: false,
         quizzes: false,
         wishlist: false,
-        reviews: false,
-        qna: false,
+        // 63 Reviews and questions, answered from the dashboard and Yallapp Business.
+        reviews: true,
+        qna: true,
         downloads: this.deps.downloads === true,
       },
       purchases: { enroll_button: this.canSell, free_enrollment: true },
@@ -94,9 +103,18 @@ export class CoursesConnector implements Connector {
     if (first === "me" && second === "wishlist" && third) return error(403, "feature_disabled", "Wishlists aren't available in this app.");
     if (first === "courses" && second) {
       const course = this.course(Number(second));
+      // 63 Reviews and questions of a course.
+      if (third === "reviews" && request.path.length === 3 && request.method === "GET") return course ? this.reviews(request, course) : noCourse();
+      if (third === "reviews" && request.path[3] === "mine" && request.path.length === 4 && request.method === "PUT") return this.saveReview(request, course);
+      if (third === "questions" && request.path.length === 3 && request.method === "GET") return this.questions(request, course);
+      if (third === "questions" && request.path.length === 3 && request.method === "POST") return this.ask(request, course);
       if (request.method === "GET" && request.path.length === 2) return course ? this.detail(request, course) : noCourse();
       if (request.method === "GET" && third === "curriculum" && request.path.length === 3) return course ? this.curriculum(request, course) : noCourse();
       if (request.method === "POST" && third === "enroll" && request.path.length === 3) return this.enroll(request, course);
+    }
+    if (first === "questions" && second) {
+      if (request.method === "GET" && request.path.length === 2) return this.thread(request, Number(second));
+      if (request.method === "POST" && third === "answers" && request.path.length === 3) return this.reply(request, Number(second));
     }
     if (first === "lessons" && second) {
       const found = findLesson(this.setup, Number(second));
@@ -139,7 +157,12 @@ export class CoursesConnector implements Connector {
     return { is_free: false, amount: centsToDecimal(c.priceCents), sale_amount: null, currency, formatted: formatCents(c.priceCents, currency) };
   }
 
-  private summary(c: Course, enrolled: Set<number>) {
+  private async ratings(): Promise<Ratings> {
+    return this.deps.store.countCourseRatings(this.deps.app.id);
+  }
+
+  private summary(c: Course, enrolled: Set<number>, ratings: Ratings = []) {
+    const rated = ratingSummary(ratings, c.id);
     return {
       id: c.id,
       title: c.title,
@@ -147,8 +170,8 @@ export class CoursesConnector implements Connector {
       instructor: { id: 0, name: c.instructorName ?? this.deps.app.appName ?? "Instructor", avatar_url: null, bio: null },
       price: this.price(c),
       lesson_count: lessonsOf(c).length,
-      rating: null,
-      rating_count: 0,
+      rating: rated.rating,
+      rating_count: rated.count,
       enrolled: enrolled.has(c.id),
       wishlisted: false,
     };
@@ -184,10 +207,10 @@ export class CoursesConnector implements Connector {
     };
   }
 
-  private myCourse(c: Course, enrolled: Set<number>, progress: Map<number, LessonProgress>) {
+  private myCourse(c: Course, enrolled: Set<number>, progress: Map<number, LessonProgress>, ratings: Ratings = []) {
     const next = lessonsOf(c).find((l) => !progress.get(l.id)?.completedAt);
     return {
-      course: this.summary(c, enrolled),
+      course: this.summary(c, enrolled, ratings),
       progress: this.progressJson(c, progress),
       ...(next ? { next_item: this.item(next, true, progress) } : {}),
       certificate_url: null,
@@ -206,15 +229,16 @@ export class CoursesConnector implements Connector {
   private async home(request: ConnectorRequest) {
     const sections: Record<string, unknown>[] = [];
     const enrolled = await this.enrolled(request);
+    const ratings = await this.ratings();
     if (request.user && enrolled.size) {
       const progress = await this.progressOf(request);
       const current = this.active().find((c) => enrolled.has(c.id) && !this.progressJson(c, progress).course_completed);
-      if (current) sections.push({ type: "continue_learning", title: "Continue learning", course: this.myCourse(current, enrolled, progress) });
+      if (current) sections.push({ type: "continue_learning", title: "Continue learning", course: this.myCourse(current, enrolled, progress, ratings) });
     }
     const categories = this.categories();
     if (categories.length) sections.push({ type: "categories", title: "Categories", categories });
     const latest = [...this.active()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
-    if (latest.length) sections.push({ type: "latest_courses", title: "Latest courses", courses: latest.map((c) => this.summary(c, enrolled)) });
+    if (latest.length) sections.push({ type: "latest_courses", title: "Latest courses", courses: latest.map((c) => this.summary(c, enrolled, ratings)) });
     return sections;
   }
 
@@ -237,7 +261,8 @@ export class CoursesConnector implements Connector {
       for (const e of await this.deps.store.listCourseEnrollments({ appId: this.deps.app.id })) counts.set(e.courseId, (counts.get(e.courseId) ?? 0) + 1);
       all = all.sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0));
     } else all = all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    const items = all.slice((page - 1) * perPage, page * perPage).map((c) => this.summary(c, enrolled));
+    const ratings = await this.ratings();
+    const items = all.slice((page - 1) * perPage, page * perPage).map((c) => this.summary(c, enrolled, ratings));
     return { status: 200, body: { page, per_page: perPage, total: all.length, total_pages: Math.max(1, Math.ceil(all.length / perPage)), items } };
   }
 
@@ -249,12 +274,12 @@ export class CoursesConnector implements Connector {
     return {
       status: 200,
       body: {
-        ...this.summary(c, enrolled),
+        ...this.summary(c, enrolled, await this.ratings()),
         description_html: descriptionHtml(c.description),
         duration_minutes: minutes || null,
         level: c.level,
         has_certificate: false,
-        qna: false,
+        qna: true,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
         purchase: { action },
         // 45 The student's progress, so a finished course says so. Courses managed in Yallapp have no certificates yet.
@@ -294,7 +319,8 @@ export class CoursesConnector implements Connector {
       .map((id) => this.course(id))
       .filter((c): c is Course => c !== null)
       .filter((c) => this.progressJson(c, progress).course_completed === (status === "completed"));
-    const items = mine.slice((page - 1) * perPage, page * perPage).map((c) => this.myCourse(c, enrolled, progress));
+    const ratings = await this.ratings();
+    const items = mine.slice((page - 1) * perPage, page * perPage).map((c) => this.myCourse(c, enrolled, progress, ratings));
     return { status: 200, body: { page, per_page: perPage, total: mine.length, total_pages: Math.max(1, Math.ceil(mine.length / perPage)), items } };
   }
 
@@ -451,6 +477,178 @@ export class CoursesConnector implements Connector {
       updatedAt: request.now,
     });
     return { status: 200, body: this.progressJson(found.course, await this.progressOf(request, found.course.id)) };
+  }
+
+  // 63 Reviews and questions
+
+  private person(user: HostedUser | null | undefined) {
+    return { name: user?.name ?? "", avatar_url: null, instructor: false };
+  }
+
+  /** The business, as the app shows it under its answers. */
+  private business(course: Course | null) {
+    return { name: course?.instructorName ?? this.deps.app.appName ?? "Instructor", avatar_url: null, instructor: true };
+  }
+
+  private async users(ids: number[]): Promise<Map<number, HostedUser | null>> {
+    const out = new Map<number, HostedUser | null>();
+    for (const id of new Set(ids)) out.set(id, await this.deps.store.getHostedUser(this.deps.app.id, id));
+    return out;
+  }
+
+  private reviewJson(r: CourseReview, user: HostedUser | null | undefined, mine: boolean) {
+    return {
+      id: r.id,
+      rating: r.rating,
+      text: r.text,
+      author: this.person(user),
+      created_at: r.createdAt.toISOString(),
+      // Hidden reviews reach their author only.
+      status: r.hidden ? "hidden" : "approved",
+      mine,
+      reply: r.replyText ? { text: r.replyText, created_at: (r.replyAt ?? r.updatedAt).toISOString() } : null,
+    };
+  }
+
+  private async reviews(request: ConnectorRequest, c: Course): Promise<ConnectorResult> {
+    const page = intParam(request.query, "page", 1, 10_000);
+    const perPage = intParam(request.query, "per_page", 10, 100);
+    const { store, app } = this.deps;
+    const { items, total } = await store.listCourseReviews({ appId: app.id, courseIds: [c.id], hidden: false, offset: (page - 1) * perPage, limit: perPage });
+    const users = await this.users(items.map((r) => r.userId));
+    const own = request.user ? await store.getCourseReviewOf(app.id, c.id, request.user.id) : null;
+    const rated = ratingSummary(await this.ratings(), c.id);
+    return {
+      status: 200,
+      body: {
+        page,
+        per_page: perPage,
+        total,
+        total_pages: Math.max(1, Math.ceil(total / perPage)),
+        items: items.map((r) => this.reviewJson(r, users.get(r.userId), r.userId === request.user?.id)),
+        summary: { rating: rated.rating, rating_count: rated.count, counts: Object.fromEntries(Object.entries(rated.counts).map(([star, n]) => [star, n])) },
+        mine: own ? this.reviewJson(own, request.user, true) : null,
+        can_review: request.user !== null && (await this.enrolled(request)).has(c.id),
+      },
+    };
+  }
+
+  private async saveReview(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!c) return noCourse();
+    if (!(await this.enrolled(request)).has(c.id)) return error(403, "not_enrolled", "Enroll in the course to review it.");
+    const read = readReview(request.body);
+    if (!read.ok) return error(400, "invalid_request", read.error);
+    const { store, app } = this.deps;
+    const before = await store.getCourseReviewOf(app.id, c.id, request.user.id);
+    const review = await store.saveCourseReview({ appId: app.id, courseId: c.id, userId: request.user.id, rating: read.rating, text: read.text, now: request.now });
+    if (!before) await this.tell(() => this.deps.onReview?.({ review, course: c, user: request.user! }));
+    return { status: 200, body: this.reviewJson(review, request.user, true) };
+  }
+
+  /** Students in the course ask and answer; others are refused. */
+  private async mayTalk(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult | null> {
+    if (!request.user) return signIn();
+    if (!c) return noCourse();
+    return (await this.enrolled(request)).has(c.id) ? null : error(403, "not_enrolled", "Enroll in the course to see and ask questions.");
+  }
+
+  private async limited(request: ConnectorRequest): Promise<ConnectorResult | null> {
+    const result = await hitRateLimit(this.deps.store, QUESTION_LIMIT, `${this.deps.app.id}:${request.user!.id}`, request.now);
+    if (result.allowed) return null;
+    return { status: 429, body: { code: "rate_limited", message: "You've written a lot in a short time. Please try again later.", retry_after_seconds: result.retryAfter } };
+  }
+
+  private questionJson(q: CourseQuestion, user: HostedUser | null | undefined, mine: boolean) {
+    return { id: q.id, course_id: q.courseId, text: q.text, author: this.person(user), created_at: q.createdAt.toISOString(), answer_count: q.answerCount, mine };
+  }
+
+  private async questions(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult> {
+    const refused = await this.mayTalk(request, c);
+    if (refused) return refused;
+    const page = intParam(request.query, "page", 1, 10_000);
+    const perPage = intParam(request.query, "per_page", 20, 100);
+    const { items, total } = await this.deps.store.listCourseQuestions({ appId: this.deps.app.id, courseIds: [c!.id], order: "created", offset: (page - 1) * perPage, limit: perPage });
+    const users = await this.users(items.map((q) => q.userId));
+    return {
+      status: 200,
+      body: { page, per_page: perPage, total, total_pages: Math.max(1, Math.ceil(total / perPage)), items: items.map((q) => this.questionJson(q, users.get(q.userId), q.userId === request.user!.id)) },
+    };
+  }
+
+  private async ask(request: ConnectorRequest, c: Course | null): Promise<ConnectorResult> {
+    const refused = await this.mayTalk(request, c);
+    if (refused) return refused;
+    const read = readCommunityText((request.body as { text?: unknown } | null)?.text, "Write your question.");
+    if (!read.ok) return error(400, "invalid_request", read.error);
+    const wait = await this.limited(request);
+    if (wait) return wait;
+    const question = await this.deps.store.createCourseQuestion({
+      appId: this.deps.app.id,
+      courseId: c!.id,
+      userId: request.user!.id,
+      text: read.text,
+      status: "open",
+      answerCount: 0,
+      createdAt: request.now,
+      updatedAt: request.now,
+    });
+    await this.tell(() => this.deps.onQuestion?.({ question, course: c!, user: request.user!, text: read.text, followUp: false }));
+    return { status: 201, body: this.questionJson(question, request.user, true) };
+  }
+
+  /** The question of this app whose course is still open to the student, or the refusal. */
+  private async ownQuestion(request: ConnectorRequest, id: number): Promise<{ question: CourseQuestion; course: Course } | ConnectorResult> {
+    if (!request.user) return signIn();
+    const question = Number.isSafeInteger(id) ? await this.deps.store.getCourseQuestion(this.deps.app.id, id) : null;
+    const course = question ? this.course(question.courseId) : null;
+    if (!question || !course) return error(404, "not_found", "Question not found.");
+    const refused = await this.mayTalk(request, course);
+    return refused ?? { question, course };
+  }
+
+  private async thread(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    const found = await this.ownQuestion(request, id);
+    if ("status" in found) return found;
+    const { question, course } = found;
+    const answers = await this.deps.store.listCourseAnswers(this.deps.app.id, question.id);
+    const users = await this.users([question.userId, ...answers.flatMap((a) => (a.userId === null ? [] : [a.userId]))]);
+    return {
+      status: 200,
+      body: {
+        ...this.questionJson(question, users.get(question.userId), question.userId === request.user!.id),
+        answers: answers.map((a) => ({
+          id: a.id,
+          text: a.text,
+          author: a.userId === null ? this.business(course) : this.person(users.get(a.userId)),
+          created_at: a.createdAt.toISOString(),
+          mine: a.userId === request.user!.id,
+        })),
+      },
+    };
+  }
+
+  private async reply(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    const found = await this.ownQuestion(request, id);
+    if ("status" in found) return found;
+    const read = readCommunityText((request.body as { text?: unknown } | null)?.text, "Write your answer.");
+    if (!read.ok) return error(400, "invalid_request", read.error);
+    const wait = await this.limited(request);
+    if (wait) return wait;
+    const { question, course } = found;
+    // A student writing again: the question waits for the business again.
+    const answer = await this.deps.store.addCourseAnswer({ appId: this.deps.app.id, questionId: question.id, userId: request.user!.id, text: read.text, createdAt: request.now }, "open");
+    await this.tell(() => this.deps.onQuestion?.({ question, course, user: request.user!, text: read.text, followUp: true }));
+    return { status: 201, body: { id: answer.id, text: answer.text, author: this.person(request.user), created_at: answer.createdAt.toISOString(), mine: true } };
+  }
+
+  /** The business hears of it; a failure never fails what the student did. */
+  private async tell(run: () => Promise<void> | undefined): Promise<void> {
+    try {
+      await run();
+    } catch (failure) {
+      console.error("[courses] couldn't tell the business", failure instanceof Error ? failure.message : String(failure));
+    }
   }
 
   /** Android only: an order for a paid course, paid on the payment page; paying enrols the student. */

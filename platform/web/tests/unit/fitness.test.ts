@@ -64,6 +64,8 @@ describe("the Gym & fitness kind", () => {
       "/dashboard/timetable",
       "/dashboard/memberships",
       "/dashboard/members",
+      // 63
+      "/dashboard/members/check-in",
       "/dashboard/appointments",
       "/dashboard/orders",
     ]);
@@ -303,7 +305,16 @@ describe("classes and memberships on the hosted API", () => {
     await buy(token, 31);
     const mine = (await call("GET", "/me/memberships", { token })).body as { items: Record<string, unknown>[] };
     expect(mine.items).toEqual([
-      { id: expect.any(Number), plan: { id: 31, name: "5-class pack", period: "pack" }, status: "active", starts_at: now.toISOString(), ends_at: null, credits_left: 5 },
+      {
+        id: expect.any(Number),
+        plan: { id: 31, name: "5-class pack", period: "pack" },
+        status: "active",
+        starts_at: now.toISOString(),
+        ends_at: null,
+        credits_left: 5,
+        // 63 The member's code for the gym's door.
+        member_code: { code: expect.stringMatching(/^[A-HJ-NP-Z2-9]{12}$/), qr_payload: expect.stringMatching(/^YM1\.\d+\.[A-HJ-NP-Z2-9]{12}$/) },
+      },
     ]);
     const booked = await book(yoga.id);
     expect(booked).toMatchObject({ status: 200, body: { booked: true, spots_left: 2, can_cancel: true } });

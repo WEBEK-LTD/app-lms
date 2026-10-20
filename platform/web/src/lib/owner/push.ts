@@ -6,7 +6,7 @@ import { appLabel } from "../app/label";
 import { formatCents } from "../catalog/money";
 import { orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
-import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind, User } from "../data/types";
+import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Course, CourseQuestion, CourseReview, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind, User } from "../data/types";
 import { OWNER_ACCESS, PUSH_PERMISSION, teamCan, type TeamAccess, type TeamPermission } from "../team/permissions";
 import { memberAccess } from "../team/service";
 import { failureReason } from "../builds/view";
@@ -164,6 +164,36 @@ export function pushNewMessage(deps: OwnerPushDeps, app: App, input: { inquiryId
     "new_message",
     (w) => ({ title: w.t("owner.push.newMessage", { listing: input.listing.title }), body: w.t("owner.push.newMessageBody", { name: input.name, text: clip(input.text, 160) }) }),
     { app_id: app.id, inquiry_id: String(input.inquiryId) },
+  );
+}
+
+/** 63 A student asked a question in a course, or wrote again under one (to the people with Messages). */
+export function pushNewQuestion(deps: OwnerPushDeps, app: App, input: { question: CourseQuestion; course: Pick<Course, "title">; name: string; text: string; followUp: boolean }): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_message",
+    (w) => ({
+      title: input.followUp ? w.t("owner.push.newQuestionAgain", { name: input.name, course: input.course.title }) : w.t("owner.push.newQuestion", { course: input.course.title }),
+      body: w.t("owner.push.newQuestionBody", { name: input.name, text: clip(input.text, 160) }),
+    }),
+    { app_id: app.id, question_id: String(input.question.id) },
+  );
+}
+
+/** 63 A student reviewed a course (to the people with Catalog & content). */
+export function pushNewReview(deps: OwnerPushDeps, app: App, input: { review: CourseReview; course: Pick<Course, "title">; name: string }): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_review",
+    (w) => ({
+      title: w.t("owner.push.newReview", { course: input.course.title }),
+      body: w.t("owner.push.newReviewBody", { name: input.name, stars: String(input.review.rating), text: clip(input.review.text, 140) }).trim(),
+    }),
+    { app_id: app.id, review_id: String(input.review.id) },
   );
 }
 

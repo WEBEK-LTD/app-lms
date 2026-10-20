@@ -1,22 +1,13 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { checkInAction, type CheckInState } from "@/app/actions/events";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import { QrScanner } from "./scanner";
 import type { CheckInOutcome } from "@/lib/events/check-in";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import { formatDate } from "@/i18n/format";
-
-/** The parts of the browser's BarcodeDetector this page uses (not in TypeScript's DOM types yet). */
-interface Detector {
-  detect(source: CanvasImageSource): Promise<{ rawValue: string }[]>;
-}
-type DetectorClass = { new (options: { formats: string[] }): Detector; getSupportedFormats?: () => Promise<string[]> };
-
-function detectorClass(): DetectorClass | null {
-  return typeof window !== "undefined" && "BarcodeDetector" in window ? (window as unknown as { BarcodeDetector: DetectorClass }).BarcodeDetector : null;
-}
 
 const TONE: Record<CheckInOutcome, "ok" | "stop" | "warn"> = {
   admitted: "ok",
@@ -81,85 +72,13 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
   const [state, action, pending] = useActionState(checkInAction, {});
   const form = useRef<HTMLFormElement>(null);
   const input = useRef<HTMLInputElement>(null);
-  const video = useRef<HTMLVideoElement>(null);
-  const stream = useRef<MediaStream | null>(null);
-  const last = useRef<{ value: string; at: number } | null>(null);
-  const [canScan, setCanScan] = useState(false);
   const [scanning, setScanning] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const Detector = detectorClass();
-    if (!Detector) return;
-    // Browsers without the list of formats are asked to read QR codes anyway.
-    Promise.resolve(Detector.getSupportedFormats ? Detector.getSupportedFormats() : ["qr_code"])
-      .then((formats) => setCanScan(formats.includes("qr_code")))
-      .catch(() => setCanScan(false));
-  }, []);
-
   // A new answer: ready for the next ticket.
   useEffect(() => {
     if (!state.at || !input.current) return;
     input.current.value = "";
     if (!scanning) input.current.focus();
   }, [state.at, scanning]);
-
-  const stop = useCallback(() => {
-    stream.current?.getTracks().forEach((track) => track.stop());
-    stream.current = null;
-    setScanning(false);
-  }, []);
-
-  useEffect(() => stop, [stop]);
-
-  useEffect(() => {
-    if (!scanning) return;
-    const Detector = detectorClass();
-    if (!Detector || !video.current) return;
-    const detector = new Detector({ formats: ["qr_code"] });
-    let cancelled = false;
-    const tick = async () => {
-      if (cancelled || !video.current) return;
-      try {
-        if (video.current.readyState >= 2) {
-          const found = (await detector.detect(video.current))[0]?.rawValue;
-          const now = Date.now();
-          // The same QR code stays in view for a moment: send it once.
-          if (found && !(last.current && last.current.value === found && now - last.current.at < 4000)) {
-            last.current = { value: found, at: now };
-            if (input.current) input.current.value = found;
-            form.current?.requestSubmit();
-          }
-        }
-      } catch {
-        // A frame that couldn't be read; the next one will be.
-      }
-      if (!cancelled) window.setTimeout(tick, 250);
-    };
-    void tick();
-    return () => {
-      cancelled = true;
-    };
-  }, [scanning]);
-
-  async function start() {
-    setCameraError(null);
-    try {
-      const media = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-      stream.current = media;
-      setScanning(true);
-      // The video element shows once scanning is on.
-      window.setTimeout(() => {
-        if (video.current) {
-          video.current.srcObject = media;
-          void video.current.play().catch(() => undefined);
-        }
-      }, 0);
-    } catch {
-      setCameraError(t("events.cameraError"));
-      stop();
-    }
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -202,31 +121,13 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
         </div>
       </form>
 
-      {canScan ? (
-        scanning ? (
-          <div className="flex flex-col gap-3">
-            <video ref={video} className="aspect-square w-full max-w-[420px] rounded-2xl bg-midnight object-cover" muted playsInline aria-label={t("events.cameraView")} />
-            <button type="button" onClick={stop} className={`${btn.secondary} h-11 w-fit`}>
-              <Icon name="close" size={20} />
-              {t("events.stopCamera")}
-            </button>
-          </div>
-        ) : (
-          <button type="button" onClick={() => void start()} className={`${btn.secondary} h-12 w-fit`}>
-            <Icon name="photo_camera" size={20} />
-            {t("events.scan")}
-          </button>
-        )
-      ) : (
-        <p className="m-0 text-[14px] text-muted">
-          {t("events.noScan")}
-        </p>
-      )}
-      {cameraError ? (
-        <p role="alert" className="m-0 text-[14px] font-semibold text-danger">
-          {cameraError}
-        </p>
-      ) : null}
+      <QrScanner
+        onScanning={setScanning}
+        onRead={(value) => {
+          if (input.current) input.current.value = value;
+          form.current?.requestSubmit();
+        }}
+      />
 
       <Result state={state} timeZone={timeZone} />
     </div>

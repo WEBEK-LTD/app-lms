@@ -376,8 +376,17 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_TR: Record<string, string> = {
+  "Choose a rating from 1 to 5.": "1 ile 5 arasında bir puan seçin.",
+  "Enroll in the course to review it.": "Değerlendirmek için kursa kaydolun.",
+  "Enroll in the course to see and ask questions.": "Soruları görmek ve sormak için kursa kaydolun.",
   "Lessons can't be saved for offline viewing in this app.": "Bu uygulamada dersler çevrimdışı izlemek için kaydedilemez.",
+  "Question not found.": "Soru bulunamadı.",
+  "The review isn't valid.": "Değerlendirme geçerli değil.",
   "This lesson's video plays from a video site, so it needs the internet.": "Bu dersin videosu bir video sitesinden oynatılıyor, bu yüzden internet gerekiyor.",
+  "Use at most 2000 characters.": "En fazla 2000 karakter kullanın.",
+  "Write your answer.": "Yanıtınızı yazın.",
+  "Write your question.": "Sorunuzu yazın.",
+  "You've written a lot in a short time. Please try again later.": "Kısa sürede çok fazla yazdınız. Lütfen daha sonra tekrar deneyin.",
   "{0} isn't taking new members right now. Please contact {1}.": "{0} şu anda yeni üye almıyor. Lütfen {1} ile iletişime geçin.",
   "{0} is paused right now. Please contact {1} to bring it back.": "{0} şu anda duraklatıldı. Yeniden açılması için lütfen {1} ile iletişime geçin.",
   "Appointment not found.": "Randevu bulunamadı.",

@@ -20,6 +20,12 @@ export interface AppAreas {
   articles: boolean;
   listings: boolean;
   inquiries: boolean;
+  /** 63 Students' questions in courses managed in the dashboard. */
+  questions: boolean;
+  /** 63 Reviews of courses managed in the dashboard. */
+  reviews: boolean;
+  /** 63 A gym's members checked in at the door. */
+  memberCheckIn: boolean;
   /** People who sign in to the app on Yallapp's hosted API, and notifications to them. */
   appUsers: boolean;
   notifications: boolean;
@@ -47,6 +53,9 @@ export function appAreas(app: Pick<App, "connector" | "backend" | "vertical" | "
     articles: kind === "articles",
     listings: kind === "listings",
     inquiries: kind === "listings",
+    questions: kind === "courses",
+    reviews: kind === "courses",
+    memberCheckIn: kind === "bookings" && app.vertical === "fitness",
     appUsers: hosted,
     notifications: hosted,
     media: true,

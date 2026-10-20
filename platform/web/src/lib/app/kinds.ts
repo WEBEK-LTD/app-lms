@@ -173,6 +173,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
         label: "Your school",
         items: [
           { href: "/dashboard/courses", label: "Courses", icon: "school" },
+          // 63 Students' questions and reviews.
+          { href: "/dashboard/courses/questions", label: "Questions", icon: "help" },
+          { href: "/dashboard/courses/reviews", label: "Reviews", icon: "star" },
           { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
         ],
       },
@@ -713,6 +716,8 @@ export const KINDS: readonly KindInfo[] = [
           { href: "/dashboard/timetable", label: "Timetable", icon: "schedule" },
           { href: "/dashboard/memberships", label: "Membership plans", icon: "card_membership" },
           { href: "/dashboard/members", label: "Members", icon: "groups" },
+          // 63 Members let in at the door.
+          { href: "/dashboard/members/check-in", label: "Member check-in", icon: "qr_code_scanner" },
           { href: "/dashboard/appointments", label: "Personal sessions", icon: "event_available" },
           { href: "/dashboard/orders", label: "Orders", icon: "receipt_long" },
         ],

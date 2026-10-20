@@ -9,6 +9,7 @@ import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
+import type { CourseAnswer, CourseQuestion, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
   AppPatch,
@@ -1462,6 +1463,180 @@ export class MysqlStore implements DataStore {
     );
   }
 
+  // 63 Members at the door
+
+  async checkInMember(input: Omit<MemberCheckIn, "id">): Promise<{ ok: true; checkIn: MemberCheckIn } | { ok: false; checkIn: MemberCheckIn }> {
+    const c = schema.memberCheckIns;
+    // The unique key (app, user, day) lets one of two scans at once in; the other reads the row that won.
+    const [result] = await this.run((db) => db.insert(c).ignore().values(input));
+    if (result.affectedRows === 1) return { ok: true, checkIn: { ...input, id: Number(result.insertId) } };
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(c)
+        .where(and(eq(c.appId, input.appId), eq(c.userId, input.userId), eq(c.day, input.day)))
+        .limit(1),
+    );
+    if (!row) throw new Error("The check-in was refused but isn't there.");
+    return { ok: false, checkIn: row };
+  }
+
+  async listMemberCheckIns(appId: string, day: string): Promise<MemberCheckIn[]> {
+    const c = schema.memberCheckIns;
+    return this.run((db) =>
+      db
+        .select()
+        .from(c)
+        .where(and(eq(c.appId, appId), eq(c.day, day)))
+        .orderBy(desc(c.at), desc(c.id))
+        .limit(2000),
+    );
+  }
+
+  async countMemberCheckIns(appId: string, from: Date, to: Date): Promise<number> {
+    const c = schema.memberCheckIns;
+    const [row] = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(c)
+        .where(and(eq(c.appId, appId), gte(c.at, from), lt(c.at, to))),
+    );
+    return Number(row?.n ?? 0);
+  }
+
+  // 63 Course questions and reviews
+
+  async saveCourseReview(input: { appId: string; courseId: number; userId: number; rating: number; text: string; now: Date }): Promise<CourseReview> {
+    const r = schema.courseReviews;
+    await this.run((db) =>
+      db
+        .insert(r)
+        .values({ appId: input.appId, courseId: input.courseId, userId: input.userId, rating: input.rating, text: input.text, hidden: false, replyText: null, replyAt: null, createdAt: input.now, updatedAt: input.now })
+        .onDuplicateKeyUpdate({ set: { rating: input.rating, text: input.text, updatedAt: input.now } }),
+    );
+    const saved = await this.getCourseReviewOf(input.appId, input.courseId, input.userId);
+    if (!saved) throw new Error("The review wasn't saved.");
+    return saved;
+  }
+
+  async getCourseReview(appId: string, id: number): Promise<CourseReview | null> {
+    const r = schema.courseReviews;
+    const [row] = await this.run((db) => db.select().from(r).where(and(eq(r.appId, appId), eq(r.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async getCourseReviewOf(appId: string, courseId: number, userId: number): Promise<CourseReview | null> {
+    const r = schema.courseReviews;
+    const [row] = await this.run((db) =>
+      db
+        .select()
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.courseId, courseId), eq(r.userId, userId)))
+        .limit(1),
+    );
+    return row ?? null;
+  }
+
+  async listCourseReviews(input: { appId: string; courseIds?: number[]; hidden?: boolean; unreplied?: boolean; offset: number; limit: number }): Promise<{ items: CourseReview[]; total: number }> {
+    const r = schema.courseReviews;
+    if (input.courseIds && input.courseIds.length === 0) return { items: [], total: 0 };
+    const where = and(
+      eq(r.appId, input.appId),
+      input.courseIds ? inArray(r.courseId, input.courseIds) : undefined,
+      input.hidden !== undefined ? eq(r.hidden, input.hidden) : undefined,
+      input.unreplied ? isNull(r.replyText) : undefined,
+    );
+    const [items, [total]] = await Promise.all([
+      this.run((db) => db.select().from(r).where(where).orderBy(desc(r.createdAt), desc(r.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(r).where(where)),
+    ]);
+    return { items, total: Number(total?.n ?? 0) };
+  }
+
+  async countCourseRatings(appId: string): Promise<{ courseId: number; rating: number; count: number }[]> {
+    const r = schema.courseReviews;
+    const rows = await this.run((db) =>
+      db
+        .select({ courseId: r.courseId, rating: r.rating, n: count() })
+        .from(r)
+        .where(and(eq(r.appId, appId), eq(r.hidden, false)))
+        .groupBy(r.courseId, r.rating),
+    );
+    return rows.map((row) => ({ courseId: row.courseId, rating: row.rating, count: Number(row.n) }));
+  }
+
+  async updateCourseReview(appId: string, id: number, patch: CourseReviewPatch): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    const r = schema.courseReviews;
+    await this.run((db) => db.update(r).set(patch).where(and(eq(r.appId, appId), eq(r.id, id))));
+  }
+
+  async createCourseQuestion(input: Omit<CourseQuestion, "id">): Promise<CourseQuestion> {
+    const [result] = await this.run((db) => db.insert(schema.courseQuestions).values(input));
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null> {
+    const q = schema.courseQuestions;
+    const [row] = await this.run((db) => db.select().from(q).where(and(eq(q.appId, appId), eq(q.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listCourseQuestions(input: {
+    appId: string;
+    courseIds?: number[];
+    status?: CourseQuestionStatus;
+    order: "created" | "updated";
+    offset: number;
+    limit: number;
+  }): Promise<{ items: CourseQuestion[]; total: number }> {
+    const q = schema.courseQuestions;
+    if (input.courseIds && input.courseIds.length === 0) return { items: [], total: 0 };
+    const where = and(eq(q.appId, input.appId), input.courseIds ? inArray(q.courseId, input.courseIds) : undefined, input.status ? eq(q.status, input.status) : undefined);
+    const order = input.order === "created" ? [desc(q.createdAt), desc(q.id)] : [desc(q.updatedAt), desc(q.id)];
+    const [items, [total]] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(q)
+          .where(where)
+          .orderBy(...order)
+          .limit(input.limit)
+          .offset(input.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(q).where(where)),
+    ]);
+    return { items, total: Number(total?.n ?? 0) };
+  }
+
+  async addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer> {
+    const q = schema.courseQuestions;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        // The question's row first: inserting the answer would take a shared lock on it (its key), and
+        // two answers at once would then deadlock wanting to update it.
+        await tx
+          .update(q)
+          .set({ status, answerCount: sql`${q.answerCount} + 1`, updatedAt: input.createdAt })
+          .where(and(eq(q.appId, input.appId), eq(q.id, input.questionId)));
+        const [result] = await tx.insert(schema.courseAnswers).values(input);
+        return { ...input, id: Number(result.insertId) };
+      }),
+    );
+  }
+
+  async listCourseAnswers(appId: string, questionId: number): Promise<CourseAnswer[]> {
+    const a = schema.courseAnswers;
+    return this.run((db) =>
+      db
+        .select()
+        .from(a)
+        .where(and(eq(a.appId, appId), eq(a.questionId, questionId)))
+        .orderBy(asc(a.createdAt), asc(a.id))
+        .limit(500),
+    );
+  }
+
   async enrollInCourse(input: CourseEnrollment): Promise<boolean> {
     const [result] = await this.run((db) => db.insert(schema.courseEnrollments).ignore().values(input));
     return result.affectedRows === 1;
@@ -2829,7 +3004,12 @@ export class MysqlStore implements DataStore {
     }
     const [memberships] = await this.run((db) => db.delete(s.memberships).where(and(eq(s.memberships.appId, appId), lt(s.memberships.createdAt, before))));
     const [donations] = await this.run((db) => db.delete(s.donations).where(and(eq(s.donations.appId, appId), lt(s.donations.createdAt, before))));
+    // 63 Visitors' questions (their answers cascade) and reviews of demo academies.
+    const [questions] = await this.run((db) => db.delete(s.courseQuestions).where(and(eq(s.courseQuestions.appId, appId), lt(s.courseQuestions.createdAt, before))));
+    const [reviews] = await this.run((db) => db.delete(s.courseReviews).where(and(eq(s.courseReviews.appId, appId), lt(s.courseReviews.createdAt, before))));
     return {
+      questions: questions.affectedRows,
+      reviews: reviews.affectedRows,
       donations: donations.affectedRows,
       orders: orders.affectedRows,
       appointments: appointments.affectedRows,

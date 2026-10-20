@@ -3,6 +3,8 @@ import { busyTimes } from "../../bookings/busy";
 import { hasClasses } from "../../bookings/classes";
 import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
 import { membershipActive, membershipStatus } from "../../bookings/memberships";
+import { memberCodeJson, memberKey } from "../../bookings/member-codes";
+import { signingSecret } from "../../env";
 import { BOOKING_STATUS_LABELS, bookingSetup, type FullBookingSetup } from "../../bookings/setup";
 import { addDays, isDate, localToUtc, utcToLocal } from "../../bookings/time";
 import { centsToDecimal, formatCents } from "../../catalog/money";
@@ -34,6 +36,8 @@ interface BookingsDeps {
   platformUrl?: string;
   /** 27 Card payments in the app are in the app's plan (default true); without them no membership is on sale. */
   cardPayments?: boolean;
+  /** 63 Makes the member codes (each app's key is made from it); read from the environment when left out. */
+  signingSecret?: string;
 }
 
 const slotTaken = () => error(409, "slot_taken", "This time was just taken. Please choose another one.");
@@ -537,7 +541,13 @@ export class BookingsConnector implements Connector {
       starts_at: m.startsAt.toISOString(),
       ends_at: m.endsAt ? m.endsAt.toISOString() : null,
       credits_left: m.creditsLeft,
+      // 63 A gym's member shows it at the door (Dashboard › Members › Check-in, Yallapp Business's scanner).
+      member_code: this.deps.app.vertical === "fitness" && membershipActive(m, now) ? memberCodeJson(this.memberKey, this.deps.app.id, m.id) : null,
     };
+  }
+
+  private get memberKey(): string {
+    return memberKey(this.deps.signingSecret ?? signingSecret(), this.deps.app.id);
   }
 
   private async myMemberships(request: ConnectorRequest): Promise<ConnectorResult> {
