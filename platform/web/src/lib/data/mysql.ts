@@ -373,6 +373,29 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.licenses).set({ ...patch, updatedAt: now }).where(eq(schema.licenses.id, id)));
   }
 
+  async listLicensesEndedBetween(from: Date, to: Date): Promise<License[]> {
+    const t = schema.licenses;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(isNotNull(t.appId), gt(t.expiresAt, from), lte(t.expiresAt, to)))
+        .orderBy(asc(t.expiresAt)),
+    );
+  }
+
+  async claimLicenseEndRefresh(licenseId: string, expiresAt: Date, now: Date): Promise<boolean> {
+    if (expiresAt.getTime() > now.getTime()) return false;
+    const t = schema.licenses;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ endRefreshedFor: expiresAt })
+        .where(and(eq(t.id, licenseId), eq(t.expiresAt, expiresAt), or(isNull(t.endRefreshedFor), not(eq(t.endRefreshedFor, expiresAt))))),
+    );
+    return result.affectedRows === 1;
+  }
+
   async getActivation(licenseId: string): Promise<Activation | null> {
     const rows = await this.run((db) =>
       db.select().from(schema.activations).where(eq(schema.activations.licenseId, licenseId)).limit(1),

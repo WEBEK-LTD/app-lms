@@ -195,6 +195,14 @@ async function userLimitReached(ctx: HostedContext, phone: string | null, email:
 const SIGN_IN_ONLY_ROUTES = new Set(["POST /auth/logout", "GET /me", "PATCH /me", "DELETE /me", "GET /me/devices"]);
 
 /**
+ * 68 What answers while the app is paused (its plan ended, or the owner's
+ * account is suspended): a person who is signed in can always delete their
+ * account (the stores require it), so the session can be renewed, ended, and
+ * the account deleted. Signing in stays paused with everything else.
+ */
+export const OPEN_WHILE_PAUSED: ReadonlySet<string> = new Set(["POST /auth/refresh", "POST /auth/logout", "DELETE /me"]);
+
+/**
  * The hosted API. 43 An error's message comes in the language the app asks
  * in when Yallapp has it (Arabic, Turkish), else in English.
  */
@@ -208,9 +216,11 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
   // 34 An app on its own API reaches the hosted API only for Yallapp's sign-in.
   const signInOnly = signsForOwnApi(ctx);
   if (ctx.app.backend !== "hosted" && !signInOnly) return notFound();
-  // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
-  if (ctx.suspended || (!ctx.active && !ctx.preview)) return pausedError(ctx.app, Boolean(ctx.suspended));
   const route = `${req.method} /${req.path.join("/")}`;
+  // 17 The owner's preview works before activation and after the plan ended; real users see the app paused.
+  // 68 Except what a signed-in person needs to delete their account (store rules): renewing the session, signing out, DELETE /me.
+  const paused = ctx.suspended || (!ctx.active && !ctx.preview);
+  if (paused && !OPEN_WHILE_PAUSED.has(route)) return pausedError(ctx.app, Boolean(ctx.suspended));
   switch (route) {
     case "GET /config":
       return signInOnly ? signInConfig(ctx, req) : config(ctx, req);

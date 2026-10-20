@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, License } from "../data/types";
 import { appPlan } from "../entitlements";
+import { appIsActive } from "../license/status";
 import { hasFeature } from "../plans";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { announce, NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "./notify";
@@ -14,8 +15,21 @@ import type { sendPush } from "./push";
  */
 
 export type SendResult =
-  | { ok: false; errors?: Record<string, string>; message?: string; limited?: boolean }
+  | { ok: false; errors?: Record<string, string>; message?: string; limited?: boolean; /** 68 The app's plan has ended (or its account isn't active): nothing was sent. */ inactive?: boolean }
   | { ok: true; message: string; pushed: number; notificationId: number };
+
+/** 68 Why nothing goes out once the app's plan has ended (a `known` text in en, ar and tr). */
+export const PLAN_ENDED_MESSAGE = "The app's plan has ended, so notifications aren't sent until it's renewed.";
+
+/**
+ * 68 Whether the app may send to its users now: its account is active and its
+ * plan hasn't ended (lib/license/status.ts appIsActive). Read from the store,
+ * so every caller (the dashboard, the Owner API, the frequent job) asks the same.
+ */
+export async function appMaySend(store: DataStore, app: App, now: Date): Promise<boolean> {
+  const [client, license] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id)]);
+  return appIsActive(license, client, now);
+}
 
 /** The title and message as written, trimmed, with what's wrong with them (61 also for sending later). */
 export function checkNotificationText(input: { title: unknown; body: unknown }): { title: string; body: string; errors: Record<string, string> } {
@@ -35,10 +49,12 @@ export async function sendAppNotification(
   license: License | null,
   input: { title: unknown; body: unknown },
 ): Promise<SendResult> {
+  const { store, now } = deps;
+  // 68 An ended plan stops the app everywhere: nothing reaches the inboxes or the phones.
+  if (!(await appMaySend(store, app, now))) return { ok: false, inactive: true, message: PLAN_ENDED_MESSAGE };
   const { title, body, errors } = checkNotificationText(input);
   if (Object.keys(errors).length) return { ok: false, errors };
 
-  const { store, now } = deps;
   const limit = await hitRateLimit(store, RATE_LIMITS.hostedNotify, app.id, now);
   if (!limit.allowed) return { ok: false, limited: true, message: "You've sent many notifications in a short time. Try again in an hour." };
 

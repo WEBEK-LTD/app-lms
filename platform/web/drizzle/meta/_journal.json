@@ -344,6 +344,13 @@
       "when": 1792521963224,
       "tag": "0048_account_deletion_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "5",
+      "when": 1792537931652,
+      "tag": "0049_license_end_refresh",
+      "breakpoints": true
     }
   ]
 }

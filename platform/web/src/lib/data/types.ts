@@ -76,6 +76,11 @@ export interface License {
    */
   nextPlan?: Plan | null;
   nextPlanAt?: Date | null;
+  /**
+   * 68 The end date at which the app's WordPress site was asked to check its
+   * license (`POST /license/refresh`): once per end, by the frequent job.
+   */
+  endRefreshedFor?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -21,6 +21,17 @@ export function appState(client: Pick<Client, "status">, license: Pick<License, 
   return accountState(client, license, now);
 }
 
+/**
+ * 68 Whether an app runs for its users: its account is active and its own
+ * plan hasn't ended (the end date is compared with `now`, nothing is stored).
+ * Everything that stops when a plan ends asks this one question: the hosted
+ * API, notifications to the app's users (now, later, from the dashboard and
+ * the Owner API) and the pipeline taking a queued build.
+ */
+export function appIsActive(license: Pick<License, "expiresAt"> | null, client: Pick<Client, "status"> | null, now: Date): boolean {
+  return client !== null && license !== null && appState(client, license, now) === "active";
+}
+
 /** The license that lasts longest: the one that decides the account's state. */
 export function longestLicense<T extends Pick<License, "expiresAt">>(licenses: readonly T[]): T | null {
   let best: T | null = null;

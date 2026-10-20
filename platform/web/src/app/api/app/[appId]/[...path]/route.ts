@@ -10,7 +10,7 @@ import { serviceAccountOf } from "@/lib/hosted/notify";
 import { otpSenderFrom } from "@/lib/hosted/otp-sender";
 import { handleHosted } from "@/lib/hosted/service";
 import { errorResponse, ipFromHeaders, json, noContent } from "@/lib/http";
-import { appState } from "@/lib/license/status";
+import { appIsActive } from "@/lib/license/status";
 import { newAppointmentMailValues } from "@/lib/bookings/mail";
 import { bookingSetup } from "@/lib/bookings/setup";
 import type { App, BookingAppointment } from "@/lib/data/types";
@@ -92,7 +92,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
     {
       store,
       app,
-      active: client !== null && appState(client, license, now) === "active",
+      // 68 The plan's end date against now: an ended plan pauses the app at once.
+      active: appIsActive(license, client, now),
       suspended: client?.status === "suspended",
       plan,
       onUsersCounted: async (count) => {

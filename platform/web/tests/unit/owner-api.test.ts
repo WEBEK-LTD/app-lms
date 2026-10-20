@@ -522,6 +522,23 @@ describe("58 the Owner API", () => {
     expect(await call("POST", "/apps/{app_id}/notifications", { token, params, body: { title: "Too many", body: "Hi" } })).toMatchObject({ status: 429, body: { code: "rate_limited" } });
   });
 
+  it("68 sends nothing once the app's plan has ended, now or later", async () => {
+    // The plans end at days(30): a day later the app is expired but stays readable.
+    now = days(31);
+    const { access_token: token } = await signIn();
+    const params = { app_id: kitchen.id };
+    const refused = await call("POST", "/apps/{app_id}/notifications", { token, params, body: { title: "Lunch menu", body: "Today's soup is lentil." } });
+    expect(refused).toMatchObject({ status: 403, body: { code: "plan_not_active", message: "The app's plan has ended, so notifications aren't sent until it's renewed." } });
+    const inArabic = await call("POST", "/apps/{app_id}/notifications", { token, params, body: { title: "Lunch", body: "Soup" }, lang: "ar" });
+    expect(inArabic.body.message).toBe("انتهت باقة التطبيق، لذا لن تُرسل الإشعارات حتى تُجدَّد.");
+    const later = await call("POST", "/apps/{app_id}/notifications/scheduled", { token, params, body: { title: "Lunch menu", body: "Soup", date: "2026-11-20", time: "12:00" } });
+    expect(later).toMatchObject({ status: 403, body: { code: "plan_not_active" } });
+    const listed = await call("GET", "/apps/{app_id}/notifications", { token, params });
+    expect(listed.body).toMatchObject({ push: false, items: [] });
+    expect(await store.listScheduledNotifications(kitchen.id, ["scheduled"])).toEqual([]);
+    expect(pushes).toEqual([]);
+  });
+
   it("counts today in the app's day: sales less refunds, what needs the owner", async () => {
     const { access_token: token } = await signIn();
     await paidOrder(store, kitchen, { totalCents: 30000, fulfilment: true });
