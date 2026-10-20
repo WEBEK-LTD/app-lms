@@ -92,8 +92,8 @@ async function permissionAsked(action: (...args: unknown[]) => Promise<unknown>)
 describe("60 every client action asks for its permission", () => {
   for (const group of GROUPS) {
     it(`${group.file}.ts`, async () => {
-      const module = (await import(`../../src/app/actions/${group.file}.ts`)) as Record<string, unknown>;
-      const actions = Object.entries(module).filter(([name, value]) => typeof value === "function" && name.endsWith("Action") && !group.skip?.includes(name));
+      const actionsOf = (await import(`../../src/app/actions/${group.file}.ts`)) as Record<string, unknown>;
+      const actions = Object.entries(actionsOf).filter(([name, value]) => typeof value === "function" && name.endsWith("Action") && !group.skip?.includes(name));
       expect(actions.length).toBeGreaterThan(0);
       for (const [name, action] of actions) {
         const wanted = group.only?.[name] ?? group.all;

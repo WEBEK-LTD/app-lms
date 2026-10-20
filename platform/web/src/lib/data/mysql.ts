@@ -3155,8 +3155,9 @@ export class MysqlStore implements DataStore {
   }
 
   async saveTeamMember(member: TeamMember): Promise<void> {
-    const { clientId: _clientId, userId: _userId, createdAt: _createdAt, ...rest } = member;
-    await this.run((db) => db.insert(schema.teamMembers).values(member).onDuplicateKeyUpdate({ set: rest }));
+    // The key and when they joined stay; the rest is replaced.
+    const set = { role: member.role, areas: member.areas, appIds: member.appIds, addedBy: member.addedBy, updatedAt: member.updatedAt };
+    await this.run((db) => db.insert(schema.teamMembers).values(member).onDuplicateKeyUpdate({ set }));
   }
 
   async deleteTeamMember(clientId: string, userId: string): Promise<boolean> {
