@@ -1165,6 +1165,7 @@
   },
   "deleteAccount": "Delete my account",
   "planReadOnlyText": "Your plan and storage are shown here for your information.",
+  "notifyPlanEnded": "Nothing is sent while the plan has ended, to the app's inbox or to phones. Notifications can go out again once it's renewed.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

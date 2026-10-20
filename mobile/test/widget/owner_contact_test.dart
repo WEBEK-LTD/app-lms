@@ -60,6 +60,46 @@ void main() {
     },
   );
 
+  testWidgets(
+    '68 someone signed in deletes their account on the paused screen',
+    (tester) async {
+      final api = FakeApi();
+      api.failures['getConfig'] = _paused('license_inactive', contact: _rose);
+      final app = TestApp(api: api, signedIn: true);
+      await app.pump(tester);
+      expect(find.text('Rose Shop is paused'), findsOneWidget);
+      expect(find.text('Delete account'), findsOneWidget);
+
+      await tester.tap(find.text('Delete account'));
+      await TestApp.settle(tester);
+      expect(find.text('Delete your account?'), findsOneWidget);
+      // Cancel keeps it; asking again and confirming deletes it.
+      await tester.tap(find.text('Cancel'));
+      await TestApp.settle(tester);
+      expect(find.text('Delete your account?'), findsNothing);
+      expect(api.count('deleteMe'), 0);
+      await tester.tap(find.text('Delete account'));
+      await TestApp.settle(tester);
+      await tester.tap(find.text('Delete account').last);
+      await TestApp.settle(tester);
+      expect(api.count('deleteMe'), 1);
+      expect(find.text('Your account was deleted.'), findsOneWidget);
+      // Signed out: the paused screen no longer offers it.
+      expect(find.text('Delete account'), findsNothing);
+      expect(find.text('Rose Shop is paused'), findsOneWidget);
+    },
+  );
+
+  testWidgets('68 nobody signed in: no Delete account on the paused screen', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    api.failures['getConfig'] = _paused('license_inactive', contact: _rose);
+    await TestApp(api: api).pump(tester);
+    expect(find.text('Rose Shop is paused'), findsOneWidget);
+    expect(find.text('Delete account'), findsNothing);
+  });
+
   testWidgets('a suspended account shows the same paused screen', (
     tester,
   ) async {

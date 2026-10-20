@@ -82,6 +82,7 @@ class OwnerMessageView extends StatelessWidget {
     required this.contact,
     required this.secondaryLabel,
     required this.onSecondary,
+    this.footer,
   });
 
   final IconData icon;
@@ -90,6 +91,10 @@ class OwnerMessageView extends StatelessWidget {
   final OwnerContact contact;
   final String secondaryLabel;
   final VoidCallback onSecondary;
+
+  /// 68 Below the buttons: on a paused app, "Delete account" for someone
+  /// signed in.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +153,7 @@ class OwnerMessageView extends StatelessWidget {
                 SecondaryButton(label: secondaryLabel, onPressed: onSecondary),
               ] else
                 PrimaryButton(label: secondaryLabel, onPressed: onSecondary),
+              if (footer != null) ...[const SizedBox(height: 18), footer!],
             ],
           ),
         ),

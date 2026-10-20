@@ -3168,12 +3168,24 @@ class FakeOwnerApi implements OwnerApi {
 
   // Notifications
 
+  /// 68 As the Owner API: nothing is sent or scheduled once the plan ended.
+  void _planActiveToSend(AppSummary app) {
+    if (app.state == AccountState.expired) {
+      throw const ApiException(
+        code: ApiException.planNotActive,
+        message: "The app's plan has ended, so notifications aren't sent until it's renewed.",
+        statusCode: 403,
+      );
+    }
+  }
+
   @override
   Future<SentNotifications> sentNotifications(String appId) async {
     await _call('sentNotifications');
-    _app(appId, (f) => f.notifications);
+    final app = _app(appId, (f) => f.notifications);
     return SentNotifications(
-      push: pushAvailable,
+      // 68 Nothing goes out once the plan has ended.
+      push: pushAvailable && app.state != AccountState.expired,
       items: List.of(_sent[appId] ?? const []),
     );
   }
@@ -3185,7 +3197,7 @@ class FakeOwnerApi implements OwnerApi {
     required String body,
   }) async {
     await _call('sendNotification');
-    _app(appId, (f) => f.notifications);
+    _planActiveToSend(_app(appId, (f) => f.notifications));
     if (_sentThisHour >= 10) {
       throw const ApiException(
         code: ApiException.rateLimited,
@@ -3282,7 +3294,7 @@ class FakeOwnerApi implements OwnerApi {
     required String time,
   }) async {
     await _call('scheduleNotification:$date $time');
-    _app(appId, (f) => f.notifications);
+    _planActiveToSend(_app(appId, (f) => f.notifications));
     final made = _scheduledFrom(_nextId++, title, body, date, time);
     _scheduled.putIfAbsent(appId, () => []).add(made);
     return made;

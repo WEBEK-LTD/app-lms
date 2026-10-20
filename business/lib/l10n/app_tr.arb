@@ -569,6 +569,7 @@
   "uploadChunkTooBig": "Medya sunucusu bu dosyanın bir parçasını çok büyük diye reddetti (HTTP {status}). WhatsApp'tan bize yazın.",
   "deleteAccount": "Hesabımı sil",
   "planReadOnlyText": "Paketiniz ve depolama alanınız burada bilgi için gösterilir.",
+  "notifyPlanEnded": "Paket sona erdiği sürece uygulamanın gelen kutusuna da telefonlara da hiçbir şey gönderilmez. Paket yenilendiğinde bildirimler yeniden gönderilebilir.",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",
