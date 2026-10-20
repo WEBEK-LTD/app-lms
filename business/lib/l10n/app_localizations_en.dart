@@ -1660,7 +1660,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewsAll => 'All';
 
   @override
-  String get reviewsUnreplied => 'Without a reply';
+  String get reviewsUnreplied => 'No reply';
 
   @override
   String get noReviews => 'No reviews here';

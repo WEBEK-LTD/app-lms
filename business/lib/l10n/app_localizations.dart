@@ -3079,7 +3079,7 @@ abstract class AppLocalizations {
   /// No description provided for @reviewsUnreplied.
   ///
   /// In en, this message translates to:
-  /// **'Without a reply'**
+  /// **'No reply'**
   String get reviewsUnreplied;
 
   /// No description provided for @noReviews.

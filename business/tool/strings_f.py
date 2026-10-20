@@ -15,7 +15,7 @@ S = [
 ("writeAnswer", "Write your answer", "اكتب إجابتك", "Yanıtınızı yazın"),
 ("answerSent", "Answer sent. The student is told.", "أُرسلت الإجابة، ووصل الطالبَ إشعار.", "Yanıt gönderildi. Öğrenciye bildirildi."),
 ("reviewsAll", "All", "الكل", "Tümü"),
-("reviewsUnreplied", "Without a reply", "دون رد", "Yanıtsız"),
+("reviewsUnreplied", "No reply", "بلا رد", "Yanıtsız"),
 ("noReviews", "No reviews here", "لا تقييمات هنا", "Burada değerlendirme yok"),
 ("noReviewsText", "Reviews students write about your courses arrive here.", "تصل هنا التقييمات التي يكتبها الطلاب عن دوراتك.", "Öğrencilerin kurslarınız için yazdığı değerlendirmeler buraya gelir."),
 ("ratingOutOf", "{rating} out of 5", "{rating} من 5", "5 üzerinden {rating}"),

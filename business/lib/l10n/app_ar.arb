@@ -496,7 +496,7 @@
   "writeAnswer": "اكتب إجابتك",
   "answerSent": "أُرسلت الإجابة، ووصل الطالبَ إشعار.",
   "reviewsAll": "الكل",
-  "reviewsUnreplied": "دون رد",
+  "reviewsUnreplied": "بلا رد",
   "noReviews": "لا تقييمات هنا",
   "noReviewsText": "تصل هنا التقييمات التي يكتبها الطلاب عن دوراتك.",
   "ratingOutOf": "{rating} من 5",

@@ -135,7 +135,11 @@ class _MemberScannerScreenState extends ConsumerState<MemberScannerScreen> {
                           check,
                           (context) => Container(
                             color: Colors.black,
-                            padding: const EdgeInsets.all(24),
+                            // 63 Inside the frame (36 from the edge, 3 wide), never touching it.
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 56,
+                              vertical: 48,
+                            ),
                             alignment: Alignment.center,
                             child: Text(
                               l10n.cameraDenied,

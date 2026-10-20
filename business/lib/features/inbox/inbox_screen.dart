@@ -65,8 +65,15 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
         child: SegmentedButton<T>(
           showSelectedIcon: false,
           segments: [
+            // 63 One line each at phone width; a long label shrinks to fit.
             for (final (value, label) in items)
-              ButtonSegment(value: value, label: Text(label)),
+              ButtonSegment(
+                value: value,
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(label, maxLines: 1, softWrap: false),
+                ),
+              ),
           ],
           selected: {selected},
           onSelectionChanged: (s) => onChanged(s.first),

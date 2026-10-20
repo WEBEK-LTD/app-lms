@@ -226,6 +226,62 @@ void main() {
       expect(find.text('1 order in progress'), findsOneWidget);
     });
 
+    for (final (lang, path) in [
+      ('en', '/scan/members'),
+      ('ar', '/scan/members'),
+      ('tr', '/scan/members'),
+      ('ar', '/scan'),
+    ]) {
+      testWidgets(
+        'no camera: the message stays inside the frame ($lang $path)',
+        (tester) async {
+          tester.view.physicalSize = const Size(390, 844);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final app = TestApp(
+            appId: path == '/scan' ? FakeOwnerApi.eventsId : FakeOwnerApi.gymId,
+            language: lang,
+          );
+          app.scanner.denied = true;
+          await app.pump(tester);
+          await push(tester, app, path);
+          final frame = tester.getRect(find.byType(AspectRatio).first);
+          final message = find.descendant(
+            of: find.byType(AspectRatio).first,
+            matching: find.byType(Text),
+          );
+          expect(message, findsOneWidget);
+          final text = tester.getRect(message);
+          // The orange frame is 36 from each edge and 3 wide.
+          expect(text.left, greaterThan(frame.left + 39));
+          expect(text.right, lessThan(frame.right - 39));
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+
+    testWidgets('the reviews filter keeps each label on one line', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      for (final (lang, label, all) in [
+        ('en', 'No reply', 'All'),
+        ('ar', 'بلا رد', 'الكل'),
+        ('tr', 'Yanıtsız', 'Tümü'),
+      ]) {
+        final app = TestApp(appId: FakeOwnerApi.academyId, language: lang);
+        await app.pump(tester);
+        await go(tester, app, Paths63.reviews);
+        expect(
+          tester.getSize(find.text(label)).height,
+          tester.getSize(find.text(all).last).height,
+          reason: lang,
+        );
+      }
+    });
+
     test('items are kept whole in a right-to-left line', () {
       expect(
         isolate('2 × Chicken shawarma'),

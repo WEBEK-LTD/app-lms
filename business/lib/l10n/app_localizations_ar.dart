@@ -1655,7 +1655,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reviewsAll => 'الكل';
 
   @override
-  String get reviewsUnreplied => 'دون رد';
+  String get reviewsUnreplied => 'بلا رد';
 
   @override
   String get noReviews => 'لا تقييمات هنا';
