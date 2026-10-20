@@ -1911,6 +1911,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get deleteAccount => 'Delete my account';
+
+  @override
+  String get planReadOnlyText =>
+      'Your plan and storage are shown here for your information.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

@@ -60,6 +60,9 @@ export const AUDIT_ACTIONS = {
   // 51 Media storage
   "storage.add": "Storage pack added",
   "storage.remove": "Storage pack removed",
+  // 66 Deleting a Yallapp account
+  "account_deletion.done": "Account deleted",
+  "account_deletion.cancelled": "Account deletion request cancelled",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -79,6 +82,7 @@ export const AUDIT_TARGETS = {
   email_template: "Email template",
   coupon: "Coupon",
   announcement: "Announcement",
+  account_deletion: "Account deletion request",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

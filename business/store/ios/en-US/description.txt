@@ -1,0 +1,35 @@
+Yallapp Business is the app for the people who run an app on Yallapp. Sign in with the email and password of your Yallapp dashboard and look after your app from your phone.
+
+TODAY
+Today's sales, orders, appointments, tickets, check-ins, donations, new users and app opens, and what needs you now.
+
+ORDERS AND KITCHEN
+Accept or decline new orders and move them through the kitchen's steps. Kitchen mode shows big cards by step, plays a sound for a new order and keeps the screen on.
+
+APPOINTMENTS
+Confirm, decline, move or cancel appointments, and mark them done or no-show.
+
+AT THE DOOR
+Scan tickets with the camera or type their code: each ticket lets one person in, once. Gyms check members in by their code or by name.
+
+DONATIONS AND CATALOG
+Follow donations and each campaign's total. Change prices, stock and what's sold out, publish courses and articles, and add lessons.
+
+MEDIA
+Upload pictures and videos from your camera or gallery to your app's Media, with pause and resume.
+
+MESSAGES, QUESTIONS AND REVIEWS
+Answer messages and course questions, reply to reviews and hide the ones that shouldn't show.
+
+NOTIFICATIONS
+Send a notification to everyone who uses your app, now or later, and see how it looks on a phone first.
+
+STATS
+Users, app opens, sales, retention, platforms, countries and screens for the last 7, 30 or 90 days or the dates you choose.
+
+AND MORE
+Try your app in a preview, follow its builds and store publishing, invite your team with the access each person needs, and get alerts for new orders, bookings and messages.
+
+Each screen shows only when your app has it. Yallapp Business works in English, Arabic and Turkish, in light and dark, and can lock with your fingerprint or face.
+
+You need a Yallapp account with an app on it to use Yallapp Business. The app sells nothing and has no in-app purchases.

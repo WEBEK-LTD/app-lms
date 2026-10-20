@@ -58,6 +58,7 @@ export const tr: Messages = {
     terms: "Hizmet şartları",
     privacy: "Gizlilik politikası",
     refund: "İade politikası",
+    deleteAccount: "Hesabınızı silin",
     trademarks:
       "Google Play, App Store, WordPress, Shopify ve bu sitedeki diğer adlar ve logolar sahiplerinin ticari markalarıdır. Yallapp, birlikte çalıştığı mağaza ve platformlarla bağlantılı değildir.",
     whatsappLine: "WhatsApp: {number} · yallapp.com.tr",
@@ -303,6 +304,37 @@ export const tr: Messages = {
     prevails: "Bu bir çeviridir. İngilizce sürümle farklılık olması durumunda İngilizce sürüm geçerlidir.",
     englishVersion: "İngilizce sürümü okuyun",
   },
+  deleteAccount: {
+    title: "Yallapp hesabınızı silme",
+    intro:
+      "Bu sayfa Yallapp'te bir uygulama yönetenler içindir: yallapp.com.tr'deki panele ve Yallapp Business uygulamasına e-posta ve parolayla giriş yapan, Yallapp hesabı olan herkes. Uygulama yüklü olsun ya da olmasın, hesabınızın ve verilerinin silinmesini istediğiniz zaman isteyebilirsiniz.",
+    appUsers:
+      "Yallapp ile yapılmış bir uygulamayı mı kullanıyorsunuz? O uygulamadaki hesabınız, uygulamayı işleten işletmeye aittir: hesabınızı uygulamanın kendi Hesap ekranından silin ya da o işletmeden isteyin.",
+    howTitle: "Nasıl istenir",
+    howDashboard:
+      "<b>Panelinizden:</b> <signin>giriş yapın</signin>, <b>Hesabınız</b> sayfasını açın ve parolanızla onaylayarak <b>Hesabımı sil</b> seçeneğini kullanın. Etkinleştirilmeyi bekleyen veya askıya alınmış bir hesap aynı isteği, giriş yaptıktan sonra gördüğü sayfanın altında bulur.",
+    howEmail:
+      "<b>Giriş yapamıyorsanız:</b> Yallapp hesabınızın adresinden, konu satırına “Hesabımı sil” yazarak {email} adresine e-posta gönderin. Herhangi bir şeyi silmeden önce sizden kimliğinizi doğrulamanızı isteyebiliriz.",
+    howTeam:
+      "<b>Ekip üyeleri:</b> Birinin işletmesine davet edildiyseniz sizi ekipten işletmenin sahibi çıkarır; bu, her yerdeki oturumunuzu kapatır. Kendi giriş bilgilerinizi de sildirmek için bize o adresten yazın.",
+    whatTitle: "Neleri sileriz",
+    whatAccount: "Yallapp hesabınız: adınız, e-postanız, WhatsApp numaranız, parolanız ve oturumlarınız ile Yallapp Business'a giriş yapmış her telefon.",
+    whatApps:
+      "Uygulamalarınız ve verileri: ayarlar, sayfalar, diller, derlemeler ve uygulama dosyaları, Medya'daki resim ve videolar ve web sitesi olmayan uygulamalar için sizin adınıza sakladığımız içerik, ürünler, siparişler, rezervasyonlar, biletler, bağışlar, mesajlar ve uygulama kullanıcıları.",
+    whatKeys: "Bize verdiğiniz mağaza anahtarları ve uygulamalarınız için sakladığımız imzalama anahtarları.",
+    whatTeam: "Ekibinizin işletmenize erişimi.",
+    keptTitle: "Neleri ve ne kadar süre saklarız",
+    keptBilling: "Fatura kayıtları (paket ödemeleriniz ve makbuzları), muhasebe ve vergi yasalarının gerektirdiği süre boyunca.",
+    keptRequest: "Yapıldığını gösterebilmek için isteğinizin bir kaydı (e-postanız ve tarihleri).",
+    keptLogs: "Teknik kayıtlar, en fazla 12 ay.",
+    keptStores:
+      "Kendi geliştirici hesaplarınızla Google Play, App Store veya diğer mağazalarda yayınlanan uygulamalar, siz kaldırana kadar orada kalır: onları sizin yerinize kaldıramayız. Hesabınız silindikten sonra çalışmayı durdururlar.",
+    whenTitle: "Ne kadar sürer",
+    when: "Hesabınızı isteğinizden itibaren {days} gün içinde siler ve bittiğinde size e-posta göndeririz. O zamana kadar isteği panelinizden iptal edebilirsiniz. Silindikten sonra geri getirilemez.",
+    plans:
+      "Hesabınızı silmek uygulamalarınızın paketlerini sona erdirir. Paketler yalnızca ödeme yaptığınızda yenilenir, bu yüzden başka bir ücret alınmaz; daha önce yapılan ödemeler yalnızca <refund>İade politikası</refund> kapsamında iade edilir.",
+    more: "Verilerinizi nasıl işlediğimiz hakkında daha fazlası: <privacy>Gizlilik politikası</privacy>.",
+  },
   notFound: {
     title: "Bu sayfayı bulamıyoruz",
     text: "Bağlantı eski ya da hatalı yazılmış olabilir. Ana sayfayı deneyin ya da yardıma ihtiyacınız varsa bize yazın.",
@@ -434,6 +466,8 @@ export const tr: Messages = {
     privacyDescription: "Yallapp'in hangi kişisel verileri topladığı, neden topladığı, kimlerle paylaştığı, ne kadar sakladığı ve haklarınız.",
     refundTitle: "İade politikası",
     refundDescription: "Hesabınız etkinleştirildikten sonraki 3 gün içinde iptal edip tam iade alın. İadeler ve yenilemeler nasıl işler.",
+    deleteAccountTitle: "Yallapp hesabınızı silme",
+    deleteAccountDescription: "Yallapp hesabınızı ve uygulamalarının verilerini nasıl silersiniz, neleri sileriz, neleri ne kadar süre saklarız.",
     notFoundTitle: "Sayfa bulunamadı",
   },
 };

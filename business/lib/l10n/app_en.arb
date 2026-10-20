@@ -1163,6 +1163,8 @@
       }
     }
   },
+  "deleteAccount": "Delete my account",
+  "planReadOnlyText": "Your plan and storage are shown here for your information.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

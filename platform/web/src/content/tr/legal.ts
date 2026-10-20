@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "19 Ekim 2026",
+    updated: "20 Ekim 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -53,7 +53,7 @@ Tüm bağlantılar HTTPS kullanır. Yayın kimlik bilgileri ve imzalama anahtarl
 
 ## 9. Haklarınız
 
-Verilerinize erişmeyi, bunları düzeltmeyi veya silmeyi, bunları nasıl kullandığımızı kısıtlamayı veya buna itiraz etmeyi ve taşınabilir bir biçimde bir kopyasını almayı talep edebilirsiniz. GDPR veya KVKK (11. madde) uygulandığında, verilerinizin kimlerle paylaşıldığını öğrenme hakkı dahil bu hakları size tanır. Bir ay içinde yanıt veririz. [{{contact_email}}](mailto:{{contact_email}}) adresine yazın. Ayrıca ülkenizin veri koruma makamına, örneğin Kişisel Verileri Koruma Kurumu'na (kvkk.gov.tr) veya AB ülkenizdeki makama şikâyette bulunabilirsiniz.
+Verilerinize erişmeyi, bunları düzeltmeyi veya silmeyi, bunları nasıl kullandığımızı kısıtlamayı veya buna itiraz etmeyi ve taşınabilir bir biçimde bir kopyasını almayı talep edebilirsiniz. GDPR veya KVKK (11. madde) uygulandığında, verilerinizin kimlerle paylaşıldığını öğrenme hakkı dahil bu hakları size tanır. Bir ay içinde yanıt veririz. [{{contact_email}}](mailto:{{contact_email}}) adresine yazın. Yallapp hesabınızı ve uygulamalarının verilerini silmek için giriş yapıp panelinizden isteyin ya da giriş yapamıyorsanız [Yallapp hesabınızı silme](/delete-account) sayfasındaki adımları izleyin. Ayrıca ülkenizin veri koruma makamına, örneğin Kişisel Verileri Koruma Kurumu'na (kvkk.gov.tr) veya AB ülkenizdeki makama şikâyette bulunabilirsiniz.
 
 ## 10. Çerezler
 

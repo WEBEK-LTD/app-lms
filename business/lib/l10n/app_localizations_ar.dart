@@ -1904,6 +1904,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get deleteAccount => 'حذف حسابي';
+
+  @override
+  String get planReadOnlyText => 'تظهر باقتك ومساحة التخزين هنا للاطلاع فقط.';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

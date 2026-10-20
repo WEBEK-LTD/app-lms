@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -225,11 +226,13 @@ class _StorageMeter extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(l10n.storageFull),
           ],
-          TextButton.icon(
-            onPressed: () => openLink(context, ref, storage.manageUrl),
-            icon: const DirectionalIcon(AppIcons.web, size: 18),
-            label: Text(l10n.manageOnWebsite),
-          ),
+          // 65 Not on iOS: no way to buy storage outside the App Store.
+          if (defaultTargetPlatform != TargetPlatform.iOS)
+            TextButton.icon(
+              onPressed: () => openLink(context, ref, storage.manageUrl),
+              icon: const DirectionalIcon(AppIcons.web, size: 18),
+              label: Text(l10n.manageOnWebsite),
+            ),
         ],
       ),
     );

@@ -164,7 +164,8 @@ and the team publishes from the admin's Publishing page.
 | `scripts/fingerprint.py` | The upload key's SHA-256 fingerprint for the link files (46) |
 | `scripts/make_icons.py` | Writes launcher icons from the client's 1024 px icon |
 | `scripts/store_assets.py` | Packs the store assets zip: icons, feature graphic, screenshots, listing |
-| `fastlane/Fastfile` | iOS signing, Google Play and TestFlight uploads (fastlane 2.240.1, `Gemfile.lock`) |
+| `scripts/business_store.py` | 65 Yallapp Business: its Firebase options, store listings for fastlane, the listing check |
+| `fastlane/Fastfile` | iOS signing, Google Play and TestFlight uploads (fastlane 2.240.1, `Gemfile.lock`); 65 the `business_*` lanes of Yallapp Business's own releases (`.github/workflows/business-release.yml`) |
 | `files-host/` | The download gate on `files.yallapp.com.tr` |
 | `tests/` | Unit tests: `python3 -m unittest discover build/tests` (the store uploads against a local mock of each store's API) |
 

@@ -73,7 +73,7 @@
 		<string>tr</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Yallapp Business uses the camera to scan tickets at the door and to take pictures and videos for your app.</string>
+	<string>Yallapp Business uses the camera to scan tickets and member codes at the door, and to take pictures and videos for your app.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Yallapp Business records sound with the videos you take for your app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

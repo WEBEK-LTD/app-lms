@@ -58,7 +58,11 @@ export type EmailTemplateKey =
   | "storage_pack_added"
   | "storage_pack_ended"
   // 60 Team members for clients
-  | "team_invitation";
+  | "team_invitation"
+  // 66 Deleting a Yallapp account
+  | "account_deletion_request"
+  | "account_deletion_received"
+  | "account_deletion_done";
 
 export interface EmailTemplateDefinition {
   key: EmailTemplateKey;
@@ -552,6 +556,54 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
       "Hello {{name}},\n\n{{inviter}} invited you to work with them on {{business}} on Yallapp, as {{role}}.\n\n" +
       "Open this link to join. You can set your password there, or sign in if you already use Yallapp:\n\n{{link}}\n\n" +
       "The link works once, until {{expires}}. If you weren't expecting this, you can ignore this email." +
+      SIGNATURE,
+  },
+  // 66 Deleting a Yallapp account
+  {
+    key: "account_deletion_request",
+    name: "Account deletion request (team)",
+    description: "66 To Yallapp's contact email (Settings) when a client asks to delete their Yallapp account from the dashboard, and when they cancel the request.",
+    placeholders: [
+      { name: "client_name", description: "The client's name", sample: "Ada Lovelace" },
+      { name: "event", description: "What happened", sample: "asked us to delete their Yallapp account" },
+      { name: "email", description: "Their email", sample: "ada@academy.example" },
+      { name: "whatsapp", description: "Their WhatsApp number", sample: "+905321234567" },
+      { name: "apps", description: "Their apps' names", sample: "Ada Academy, Ada Shop" },
+      { name: "plans_line", description: "“Plans still running: …” and a line break when an app's plan hasn't ended; empty otherwise", sample: "Plans still running: Ada Academy (growth, until 2027-03-31)\n" },
+      { name: "reason_line", description: "“Reason: …” and a line break when they gave one; empty otherwise", sample: "Reason: We're closing the academy.\n" },
+      { name: "admin_url", description: "The requests in the admin", sample: "https://yallapp.com.tr/admin/account-deletion" },
+    ],
+    subject: "Account deletion: {{client_name}} {{event}}",
+    body:
+      "{{client_name}} {{event}}.\nEmail: {{email}}\nWhatsApp: {{whatsapp}}\nApps: {{apps}}\n{{plans_line}}{{reason_line}}\n" +
+      "The requests and what to delete: {{admin_url}}",
+  },
+  {
+    key: "account_deletion_received",
+    name: "Account deletion request received",
+    description: "66 To a client who asked to delete their Yallapp account, in their dashboard language.",
+    placeholders: [
+      NAME,
+      { name: "days", description: "The days within which the account is deleted", sample: "30" },
+      { name: "dashboard_url", description: "The page where they can cancel the request", sample: "https://yallapp.com.tr/dashboard/account" },
+    ],
+    subject: "We received your request to delete your Yallapp account",
+    body:
+      "Hello {{name}},\n\nWe received your request to delete your Yallapp account. We'll delete it, with its apps and their data, within {{days}} days, and email you when it's done.\n\n" +
+      "Until then you can cancel the request from your dashboard:\n{{dashboard_url}}\n\n" +
+      "If you didn't ask for this, cancel the request, change your password and write to us at {{yallapp_email}}." +
+      SIGNATURE,
+  },
+  {
+    key: "account_deletion_done",
+    name: "Account deleted",
+    description: "66 To a client when our team marks their account deletion request done (Admin › Account deletion), in the language they asked in.",
+    placeholders: [NAME],
+    subject: "Your Yallapp account was deleted",
+    body:
+      "Hello {{name}},\n\nYour Yallapp account was deleted, with its apps and their data, as you asked. " +
+      "We keep only the billing records that accounting and tax laws require, and a record of your request.\n\n" +
+      "Apps you published under your own store accounts stay there until you remove them. Thank you for using Yallapp." +
       SIGNATURE,
   },
 ];

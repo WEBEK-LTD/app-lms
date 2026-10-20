@@ -2515,3 +2515,35 @@ export interface TeamActivity {
   summary: string;
   at: Date;
 }
+
+/** 66 A request to delete a Yallapp account (lib/account/deletion.ts). */
+export type AccountDeletionStatus = "pending" | "done" | "cancelled";
+
+export interface AccountDeletionRequest {
+  id: string;
+  clientId: string;
+  /** The account's owner, who asked. */
+  userId: string;
+  /** Their email and name when they asked (kept after the account is deleted, as the record of the request). */
+  email: string;
+  name: string;
+  /** Their dashboard language when they asked ("en", "ar" or "tr"): the emails to them. */
+  lang: string;
+  /** Why they're leaving, if they said. */
+  reason: string | null;
+  status: AccountDeletionStatus;
+  requestedAt: Date;
+  closedAt: Date | null;
+  /** Our team member's email, or the client's own when they cancelled it. */
+  closedBy: string | null;
+  /** Our team's note (shown in the admin only). */
+  teamNote: string | null;
+}
+
+/** How a request is closed: done (the account was deleted) or cancelled. */
+export interface AccountDeletionClose {
+  status: Exclude<AccountDeletionStatus, "pending">;
+  closedAt: Date;
+  closedBy: string;
+  teamNote: string | null;
+}

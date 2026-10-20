@@ -567,6 +567,8 @@
   "uploadRefused": "Medya sunucusu yüklemeyi reddetti (HTTP {status}). Sunucunun güvenlik duvarı yüklemeleri engelliyor olabilir. Daha sonra yeniden deneyin, sürerse WhatsApp'tan bize yazın.",
   "uploadStorageDown": "Sunucudaki medya depolaması şu anda kullanılamıyor (HTTP {status}). Şimdiye kadar yüklenen hiçbir şey kaybolmaz. Daha sonra yeniden deneyin ya da WhatsApp'tan bize yazın.",
   "uploadChunkTooBig": "Medya sunucusu bu dosyanın bir parçasını çok büyük diye reddetti (HTTP {status}). WhatsApp'tan bize yazın.",
+  "deleteAccount": "Hesabımı sil",
+  "planReadOnlyText": "Paketiniz ve depolama alanınız burada bilgi için gösterilir.",
   "minutesAgo": "{count} dk önce",
   "hoursAgo": "{count} sa önce",
   "donorsCount": "{count} bağışçı",

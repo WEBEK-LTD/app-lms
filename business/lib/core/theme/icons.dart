@@ -38,6 +38,7 @@ abstract final class AppIcons {
   static const web = Symbols.open_in_new_rounded;
   static const legal = Symbols.gavel_rounded;
   static const privacy = Symbols.shield_person_rounded;
+  static const deleteAccount = Symbols.person_remove_rounded;
   static const signOut = Symbols.logout_rounded;
   static const info = Symbols.info_rounded;
   static const visible = Symbols.visibility_rounded;

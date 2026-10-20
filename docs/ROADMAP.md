@@ -1332,7 +1332,7 @@ client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
 | [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play (the server can send through Push Kit) isn't wired in the app | LAUNCH-CHECKLIST 7l |
 | [x] | 59.17 Course questions and reviews in the Inbox, and gym members at the door: done in Phase 63 (63.8) | Phase 63 |
 | [x] | 59.18 Kitchen mode keeps the screen awake: done in Phase 61 (61.7) | Phase 61 |
-| [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
+| [~] | 59.19 The store listings, screenshots and the App Store id: ready in Phase 65; published under Yallapp's own accounts once they exist | Phase 65, LAUNCH-CHECKLIST 7l |
 
 ## Phase 60: Team members for clients
 
@@ -1526,7 +1526,7 @@ and builds and publishing. Decided with the owner:
 | [x] | Same database and the same accounts as the website and the dashboard; nothing kept separately for the app |
 | [x] | Contract first: an owner API next to the existing ones (Phase 58: `docs/api/owner.yaml`, `/api/owner/v1`) |
 | [x] | Then the app (Flutter, Phase 59: `business/`) |
-| [ ] | Then the stores under Yallapp's own accounts (LAUNCH-CHECKLIST 7l) |
+| [~] | Then the stores under Yallapp's own accounts (Phase 65, LAUNCH-CHECKLIST 7l) |
 
 ## Phase 64b: uploads behind a server firewall
 
@@ -1550,3 +1550,60 @@ a refused upload says why, and the admin's check tries a real upload.
 | [x] | 64b.9 An upload that never finished is removed even when the server refuses its delete (a finished file still waits for the server); the daily job's stale uploads likewise. `deploymentId` from Netlify's `DEPLOY_ID`: a tab left open across a deploy loads the page again instead of calling server actions that are gone | `media.test.ts` |
 | [ ] | 64b.7 Not tried on the live server yet: copy the new `index.php`, run "Check the media server", then upload from the dashboard and Yallapp Business | LAUNCH-CHECKLIST 7j |
 | [ ] | 64b.8 Yallapp Business builds already on phones send `PUT` to links in the new form: they work wherever the server let `PUT` through; behind a firewall that refuses it they need the new build | The next Yallapp Business release |
+
+## Phase 65: Yallapp Business on Google Play and the App Store
+
+Everything Yallapp Business (`business/`) needs to be published under
+Yallapp's own Google Play and Apple developer accounts, with as little by hand
+as the stores allow. One workflow, **Yallapp Business release**
+(`.github/workflows/business-release.yml`, Run workflow: both stores, Android
+or iOS; the Google Play track, internal by default; the version), builds the
+App Bundle signed with the upload key and the IPA signed through the App Store
+Connect key the way the clients' pipeline does, and uploads them with the
+listings, images and screenshots in English, Arabic and Turkish. It never
+publishes: promoting to production and "Add for Review" stay a click in the
+consoles. Everything comes from GitHub secrets and variables the owner adds
+(LAUNCH-CHECKLIST 7l); a store whose secrets are missing is skipped and the
+run's summary says what to add. Nothing secret is committed; the repository is
+public, so keys only live in `$RUNNER_TEMP` and are deleted. No payments of
+any kind in the app.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 65.1 The release workflow: version from the input or `pubspec.yaml`, the build number from the run (only goes up, room for re-runs, `YB_BUILD_NUMBER_OFFSET`), one run at a time; a summary of every secret and variable as set or missing | actionlint with shellcheck |
+| [x] | 65.2 Android: the upload key from `YB_ANDROID_*` (base64 with or without line breaks; its SHA-256 fingerprint in the summary), Firebase's Android options as in the Mobile workflow (one variable may hold the whole `google-services.json`), the signed App Bundle attached and on the **Yallapp Business test build** pre-release as `yallapp-business.aab` (for the first upload by hand), then with Workload Identity Federation (65.12) uploaded by fastlane supply to the chosen track with the listing, icon, feature graphic, screenshots and what's new (`business_play`) | actionlint; first verified in CI |
+| [x] | 65.3 iOS: the App Store Connect key checked (`p8_key.py`), the App ID registered with push, a plain message when the app doesn't exist in App Store Connect yet or the certificate limit is reached; the distribution certificate from `YB_IOS_DISTRIBUTION_P12` or made for the run and revoked once Apple has processed the build; the App Store profile, the IPA, TestFlight (waits for processing), then deliver: listing, iPhone and iPad screenshots, age rating, App Review's details with the demo account from secrets, the build chosen for the version, never submitted (`business_ipa`, `business_testflight`, `business_appstore`, `business_revoke`) | `fastlane lanes`; first verified in CI |
+| [x] | 65.4 The iOS project: push entitlement (`aps-environment` production for Release, development for Debug and Profile), `PrivacyInfo.xcprivacy` (email, name, device ID, photos or videos, other user content; app functionality; no tracking; UserDefaults CA92.1), the permission prompts in English, Arabic and Turkish (`InfoPlist.strings`), background notifications and `ITSAppUsesNonExemptEncryption` false as before; iPhone and iPad kept (Kitchen mode on a tablet), iOS 15 | the plists parse; `xcodeproj` opens the project; `flutter analyze` |
+| [x] | 65.5 Store listings in fastlane's layout (`business/store/android` en-US, ar, tr-TR; `business/store/ios` en-US, ar-SA, tr): name, subtitle, short and full descriptions, keywords, promotional text, what's new, support, marketing and privacy URLs, categories, copyright, App Review's notes, age rating answers; checked for every file in every language and the stores' limits | `build/tests/test_business_store.py` |
+| [x] | 65.6 Screenshots drawn in CI from the demo's sample apps with the app's fonts and icons: Today, Orders, the door scanner with a ticket let in, the notification composer, Stats; English, Arabic and Turkish; Google Play phone 1080 × 1920, iPhone 6.9" 1290 × 2796, iPad 13" 2064 × 2752; laid out by every `flutter test` (nothing overflows), written as PNG files only by the release workflow; the Play icon and feature graphic from `brand/stores` | `business/test/store/store_screenshots_test.dart` |
+| [x] | 65.7 Docs: LAUNCH-CHECKLIST 7l as plain steps for the owner (accounts, app records, every secret and variable and where it comes from, Firebase's iOS app and APNs key, the first upload by hand, the run, Data safety, App Privacy, content rating, publishing), `business/README.md` › Releases, `build/README.md` | Review |
+| [x] | 65.8 The upload key is made inside GitHub on the first run and saved straight into the `YB_ANDROID_*` secrets with a short-lived `YB_SECRETS_TOKEN` (approved by the owner); nobody holds it, the values go to `gh secret set` on stdin and are masked | `actionlint`, the first run |
+| [x] | 65.12 Google Play signs in without a key file (the organization blocks service account keys): GitHub's OIDC token through Workload Identity Federation (`google-github-actions/auth`, a provider limited to this repository's `main` and the release workflow) as `yallapp-play-release@yallapp-business.iam.gserviceaccount.com`, which has no project roles; `YB_PLAY_SERVICE_ACCOUNT_JSON` is gone; **play_check** signs in and opens the app without building or uploading (lane `business_play_check`) | `actionlint`, the lane run against a fake credentials file; the real sign-in on the first check |
+| [ ] | 65.9 Not run yet: the Google Play and Apple accounts were still being set up, and the Android SDK and Xcode aren't available where this was written, so the App Bundle, the IPA, the uploads and the certificate's revocation after processing are first verified on the first run in CI | LAUNCH-CHECKLIST 7l |
+| [ ] | 65.10 The demo's sample data (names, the apps' kinds) stays in English in the Arabic and Turkish screenshots, as the API sends it; the door's welcome follows the account's language | Acceptable |
+| [x] | 65.11 iOS shows plan and storage read-only with no link to the website ("Your plan and storage are shown here for your information."; Media's "Manage on yallapp.com.tr" hidden), so App Review sees no way to pay outside the App Store (3.1.1, 3.1.3); Android keeps the link | `publishing_more_test.dart` (iOS) |
+
+## Phase 66: Deleting a Yallapp account
+
+Google Play (Data safety's "Delete account URL") and the App Store
+(5.1.1(v)) need a public page where someone with a Yallapp account (an
+owner, or a team member from Phase 60) asks for the account and its data to
+be deleted without Yallapp Business installed. `/delete-account` in English,
+Arabic and Turkish says how (the dashboard, or an email from the account's
+address), what is deleted, what is kept and for how long, and within how
+many days; the owner asks from Dashboard › Your account (or the waiting
+page) with their password, and our team deletes by hand and marks it done in
+the admin. No payments touched; the Owner API contract is unchanged.
+Migration `drizzle/0048_account_deletion_requests.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 66.1 The public page (`site/delete-account.tsx`): `/delete-account`, `/ar/delete-account`, `/tr/delete-account`, in the sitemap, the footer's Legal column and the legal pages' menu; the privacy policy's section 9 links to it in all three languages (updated 20 October 2026); what is kept matches the privacy policy (billing records as the law requires, technical logs 12 months) plus a record of the request; app users are sent to their app's own account deletion | `site-i18n.test.ts`, `website-seo.test.ts`, `account-deletion.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.2 Data: `account_deletion_requests` (no foreign keys, so the record outlives the account; `open_client_id` unique while open: one open request per account, of two at once one wins); memory and MySQL stores; `drizzle-kit generate --name ci-check` clean | `account-deletion-mysql.test.ts` |
+| [x] | 66.3 Asking (`lib/account/deletion.ts`): owner only (a team member is told to ask the owner to remove them; our team managing the dashboard is refused), the email typed again, the password counted with the sign-in attempts, an optional reason; asking again returns the open request; the owner's Yallapp Business phones signed out at once; the team emailed at the contact email (`account_deletion_request`), the owner in their language (`account_deletion_received`); cancelling | `account-deletion.test.ts` |
+| [x] | 66.4 Dashboard › Your account (`/dashboard/account`, the sidebar's Account group, open to everyone on the team) and the bottom of the waiting page for pending and suspended accounts: what happens (apps stop, data deleted, the team's access, store listings stay under the client's own accounts, download the upload key first, running plans end and nothing renews or is charged), the form, the request waiting with "Cancel the request" | `team-permissions.test.ts`, `dashboard-i18n.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.5 Admin › Account deletion (English, `clients.suspend`, a badge with the open requests): open requests oldest first with "delete by" and Overdue, and what belongs to the account (user and client IDs, the Blobs prefix, apps, build folders, payments, team); "Mark done and email them" (a tick that it was deleted) sends `account_deletion_done` in their language; "Cancel the request"; both in the audit log | `account-deletion.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.6 Strings in English, Arabic and Turkish: the site's `deleteAccount`, `footer` and `meta` texts, the dashboard's `account` catalog, the two emails to the owner; docs: ARCHITECTURE ("Deleting a Yallapp account"), LAUNCH-CHECKLIST 7p (the address to give the stores, migration 0048) | `site-i18n.test.ts`, `dashboard-i18n.test.ts`, `email-languages.test.ts` |
+| [ ] | 66.7 Deleting the account itself is by hand (ARCHITECTURE's five steps): deleting the client's rows also deletes its payments (on delete cascade) and the files are in Netlify Blobs, on the files host and on the media server, so there is no "Delete now" button yet | When there are enough requests to be worth a safe automated delete that keeps the billing records |
+| [x] | 66.8 Yallapp Business links to the page from More › Legal ("Delete my account") | `publishing_more_test.dart` |
+| [ ] | 66.9 The address given to Google Play (Data safety › Delete account URL) and App Store Connect for Yallapp Business | LAUNCH-CHECKLIST 7l and 7p |

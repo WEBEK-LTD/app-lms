@@ -56,6 +56,7 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
     entry("/terms", 0.3),
     entry("/privacy", 0.3),
     entry("/refund", 0.3),
+    entry("/delete-account", 0.3),
   ];
 }
 

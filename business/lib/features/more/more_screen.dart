@@ -285,6 +285,17 @@ class MoreScreen extends ConsumerWidget {
                   openLink(context, ref, config.websitePage('/privacy', lang)),
               external: true,
             ),
+            // 66 What deleting the account means and how to ask, on the website.
+            tile(
+              AppIcons.deleteAccount,
+              l10n.deleteAccount,
+              () => openLink(
+                context,
+                ref,
+                config.websitePage('/delete-account', lang),
+              ),
+              external: true,
+            ),
           ]),
           const SizedBox(height: 24),
           Padding(

@@ -114,6 +114,8 @@ export function filesUnder(dir: string): string[] {
 /** The client dashboard's files: its pages, /pending, and the components only it uses. */
 export function dashboardFiles(root: string): string[] {
   const components = [
+    "account-deletion",
+    "account-deletion-form",
     "account-link",
     "analytics-charts",
     "analytics-report",

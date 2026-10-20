@@ -78,6 +78,8 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 // 61
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
+// 66 Deleting a Yallapp account
+import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -895,4 +897,15 @@ export interface DataStore {
   // 61 Announcements pushed to the owners' phones when they start
   /** Marks the announcement pushed, only if it wasn't yet (atomic); false otherwise. */
   claimAnnouncementPush(id: string, now: Date): Promise<boolean>;
+
+  // 66 Requests to delete a Yallapp account (lib/account/deletion.ts)
+  /** Saves a new pending request; false (nothing saved) when the client already has one open (atomic: of two at once, one wins). */
+  createAccountDeletionRequest(request: AccountDeletionRequest): Promise<boolean>;
+  getAccountDeletionRequest(id: string): Promise<AccountDeletionRequest | null>;
+  /** The client's open (pending) request, if any. */
+  getOpenAccountDeletionRequest(clientId: string): Promise<AccountDeletionRequest | null>;
+  /** Requests in these statuses (all when empty), newest first; at most `limit`. */
+  listAccountDeletionRequests(statuses: AccountDeletionStatus[], limit: number): Promise<AccountDeletionRequest[]>;
+  /** Closes the request only while it is pending (atomic); false otherwise, with nothing changed. */
+  closeAccountDeletionRequest(id: string, close: AccountDeletionClose): Promise<boolean>;
 }

@@ -34,6 +34,80 @@ platform :android do
       upload.call("draft")
     end
   end
+
+  # 65 Yallapp Business under Yallapp's own Play account (.github/workflows/business-release.yml):
+  # the App Bundle to a testing track with the store listing, its images and what's new.
+  # Production stays a click in Play Console.
+  #
+  # options: aab, track (internal, alpha or beta), json_key (the credentials file
+  #          google-github-actions/auth writes for Workload Identity Federation: no key in it),
+  #          metadata (business_store.py play's folder)
+  lane :business_play do |options|
+    upload = lambda do |status|
+      upload_to_play_store(
+        package_name: BUSINESS_ID,
+        json_key: options[:json_key],
+        aab: options[:aab],
+        track: options[:track],
+        release_status: status,
+        metadata_path: options[:metadata],
+        skip_upload_apk: true,
+        sync_image_upload: true,
+      )
+    end
+    begin
+      upload.call("completed")
+    rescue => error
+      raise unless error.message.include?("draft")
+      UI.important("The app is still a draft in Play Console; uploading a draft release.")
+      upload.call("draft")
+    end
+  end
+
+  # 65 Checks the Google Play sign-in before a release: a token for the release service account
+  # through Workload Identity Federation, then an edit opened on the app and thrown away (nothing
+  # changes on Google Play).
+  #
+  # options: json_key (as business_play), summary (a file the result is added to)
+  lane :business_play_check do |options|
+    require "supply"
+    report = lambda do |line|
+      UI.message(line)
+      File.write(options[:summary], "#{line}\n", mode: "a") if options[:summary]
+    end
+    Supply.config = FastlaneCore::Configuration.create(Supply::Options.available_options, { package_name: BUSINESS_ID, json_key: options[:json_key] })
+    begin
+      client = Supply::Client.make_from_config(params: Supply.config)
+    rescue => error
+      report.call("- **Google Play sign-in failed**: no token for the service account. Check the Workload Identity provider, its attribute condition and the service account's Workload Identity User role (docs/LAUNCH-CHECKLIST.md 7l). #{error.message.lines.first}")
+      raise
+    end
+    report.call("- Signed in to Google's API as the release service account (Workload Identity Federation).")
+    begin
+      client.begin_edit(package_name: BUSINESS_ID)
+      tracks = client.tracks.map(&:track)
+      client.abort_current_edit
+      report.call("- Google Play opened #{BUSINESS_ID} (tracks: #{tracks.empty? ? 'none yet' : tracks.join(', ')}): releases can be uploaded.")
+    rescue => error
+      message = error.message.lines.first.to_s.strip
+      if message =~ /not found/i
+        report.call("- Google Play doesn't show #{BUSINESS_ID} to the service account yet: upload the first App Bundle by hand (Internal testing) and check the account is invited in Play Console › Users and permissions with this app. (#{message})")
+      else
+        report.call("- **Google Play refused**: #{message}. Usually the service account isn't invited in Play Console › Users and permissions, lacks the app's release rights, or the Google Play Android Developer API isn't enabled in the Cloud project.")
+      end
+      UI.user_error!("Google Play: #{message}")
+    end
+  end
+end
+
+# 65 Yallapp Business's package name and bundle ID.
+BUSINESS_ID = "tr.com.yallapp.business"
+
+# 65 The App Store Connect key for Yallapp Business, from the file the release workflow writes
+# ({"app_store_connect": {key_id, issuer_id, private_key}}, checked by scripts/p8_key.py).
+def business_api_key(path)
+  asc = JSON.parse(File.read(path)).fetch("app_store_connect")
+  app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200, in_house: false)
 end
 
 platform :ios do
@@ -154,5 +228,162 @@ platform :ios do
     asc = secrets.fetch("app_store_connect")
     api_key = app_store_connect_api_key(key_id: asc.fetch("key_id"), issuer_id: asc.fetch("issuer_id"), key_content: asc.fetch("private_key"), duration: 1200)
     upload_to_testflight(api_key: api_key, ipa: options[:ipa], skip_waiting_for_build_processing: true)
+  end
+
+  # 65 Yallapp Business under Yallapp's own Apple team (.github/workflows/business-release.yml).
+  # Signs and exports the IPA as build_ipa does for clients, with these differences:
+  #   - The App ID gets push notifications; the app must already exist in App Store Connect
+  #     (Apple doesn't let tools create apps): without it the lane writes "no_app" to
+  #     options[:status] and stops before building.
+  #   - The distribution certificate is YB_IOS_DISTRIBUTION_P12 (base64) with
+  #     YB_IOS_DISTRIBUTION_PASSWORD when the repository has them. Otherwise one is made for this
+  #     run and its ID written to options[:cert_out]; business_revoke revokes it once the build is
+  #     processed, so the team never fills up with certificates. Builds already uploaded keep
+  #     working: Apple re-signs what it distributes.
+  #
+  # options: asc, business (path to business/), out, status, cert_out
+  lane :business_ipa do |options|
+    api_key = business_api_key(options[:asc])
+    bundle = Spaceship::ConnectAPI::BundleId.find(BUSINESS_ID) ||
+             Spaceship::ConnectAPI::BundleId.create(name: "Yallapp Business", identifier: BUSINESS_ID, platform: "IOS")
+    if bundle.get_capabilities.none? { |c| c.capability_type == "PUSH_NOTIFICATIONS" }
+      bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS)
+    end
+    unless Spaceship::ConnectAPI::App.find(BUSINESS_ID)
+      File.write(options[:status], "no_app")
+      UI.user_error!("There is no app with the bundle ID #{BUSINESS_ID} in App Store Connect yet.")
+    end
+
+    keychain = "yallapp-business.keychain"
+    keychain_password = SecureRandom.hex(24)
+    create_keychain(name: keychain, password: keychain_password, default_keychain: true, unlock: true, timeout: 3600, lock_when_sleeps: false)
+
+    cert_id = nil
+    p12_base64 = ENV["YB_IOS_DISTRIBUTION_P12"].to_s.gsub(/\s+/, "")
+    if p12_base64.empty?
+      begin
+        get_certificates(api_key: api_key, development: false, keychain_path: "~/Library/Keychains/#{keychain}-db", keychain_password: keychain_password, output_path: options[:out])
+      rescue => error
+        File.write(options[:status], "certificate_limit") if error.message.include?("maximum")
+        raise
+      end
+      cert_id = lane_context[SharedValues::CERT_CERTIFICATE_ID].to_s
+      File.write(options[:cert_out], cert_id)
+    else
+      p12 = File.join(options[:out], "distribution.p12")
+      File.binwrite(p12, Base64.decode64(p12_base64))
+      begin
+        import_certificate(certificate_path: p12, certificate_password: ENV["YB_IOS_DISTRIBUTION_PASSWORD"].to_s, keychain_name: keychain, keychain_password: keychain_password)
+      ensure
+        File.delete(p12)
+      end
+    end
+
+    get_provisioning_profile(api_key: api_key, app_identifier: BUSINESS_ID, cert_id: cert_id, force: true, output_path: options[:out], filename: "distribution.mobileprovision")
+    profile_name = lane_context[SharedValues::SIGH_NAME]
+    profile = FastlaneCore::ProvisioningProfile.parse(File.join(options[:out], "distribution.mobileprovision"))
+    team_id = profile["TeamIdentifier"].first
+
+    # The push entitlement is in the project (Runner/Runner.entitlements for Release).
+    ios_dir = File.join(options[:business], "ios")
+    update_code_signing_settings(
+      path: File.join(ios_dir, "Runner.xcodeproj"),
+      use_automatic_signing: false,
+      targets: ["Runner"],
+      build_configurations: ["Release"],
+      team_id: team_id,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+    )
+    build_app(
+      workspace: File.join(ios_dir, "Runner.xcworkspace"),
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_team_id: team_id,
+      export_options: { provisioningProfiles: { BUSINESS_ID => profile_name }, signingStyle: "manual" },
+      output_directory: options[:out],
+      output_name: "YallappBusiness",
+      clean: true,
+      skip_profile_detection: true,
+    )
+  ensure
+    delete_keychain(name: keychain) if keychain && File.exist?(File.expand_path("~/Library/Keychains/#{keychain}-db"))
+  end
+
+  # 65 Uploads Yallapp Business to TestFlight and waits until Apple has processed it.
+  lane :business_testflight do |options|
+    api_key = business_api_key(options[:asc])
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: options[:ipa],
+      skip_waiting_for_build_processing: false,
+      wait_processing_interval: 60,
+      wait_processing_timeout_duration: 3600,
+      distribute_external: false,
+    )
+  end
+
+  # 65 The App Store listing of Yallapp Business: texts, screenshots, age rating, App Review's
+  # details, and the build chosen for the version. Never submits for review: that stays a click
+  # in App Store Connect. What's new is sent only once a version is live (Apple refuses it on
+  # the first one). App Review's details only with the demo account: without it deliver would
+  # mark the demo account as not needed.
+  #
+  # options: asc, store (business_store.py appstore's folder), version, build
+  lane :business_appstore do |options|
+    api_key = business_api_key(options[:asc])
+    store = options[:store]
+    app = Spaceship::ConnectAPI::App.find(BUSINESS_ID)
+    live = app.get_live_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    release_notes = nil
+    if live
+      release_notes = Dir[File.join(store, "release_notes", "*.txt")].to_h { |path| [File.basename(path, ".txt"), File.read(path).strip] }
+    end
+    review = JSON.parse(File.read(File.join(store, "review.json")))
+    review = nil if review["demo_user"].to_s.empty? || review["demo_password"].to_s.empty?
+    UI.important("App Review's details are kept as they are in App Store Connect (no demo account given).") unless review
+
+    deliver(
+      api_key: api_key,
+      app_identifier: BUSINESS_ID,
+      platform: "ios",
+      app_version: options[:version],
+      metadata_path: File.join(store, "metadata"),
+      screenshots_path: File.join(store, "screenshots"),
+      overwrite_screenshots: true,
+      skip_binary_upload: true,
+      skip_app_version_update: false,
+      release_notes: release_notes,
+      app_review_information: review,
+      app_rating_config_path: File.join(store, "age_rating.json"),
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      force: true,
+    )
+
+    # The build just processed, chosen for the version, so submitting is one click.
+    begin
+      version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+      build = Spaceship::ConnectAPI::Build.all(app_id: app.id, version: options[:version], build_number: options[:build].to_s, platform: Spaceship::ConnectAPI::Platform::IOS).first
+      if version && build
+        version.select_build(build_id: build.id)
+        UI.success("Build #{options[:build]} chosen for version #{options[:version]}.")
+      else
+        UI.important("Choose build #{options[:build]} for version #{options[:version]} in App Store Connect.")
+      end
+    rescue => error
+      UI.important("Choose build #{options[:build]} in App Store Connect (#{error.message}).")
+    end
+  end
+
+  # 65 Revokes the certificate business_ipa made for this run (its ID in options[:cert_file]).
+  lane :business_revoke do |options|
+    id = File.exist?(options[:cert_file].to_s) ? File.read(options[:cert_file]).strip : ""
+    next if id.empty?
+    business_api_key(options[:asc])
+    Spaceship::ConnectAPI::Certificate.get(certificate_id: id).delete!
+    UI.success("Revoked the distribution certificate made for this run.")
   end
 end
