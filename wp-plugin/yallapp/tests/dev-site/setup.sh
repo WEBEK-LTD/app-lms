@@ -178,6 +178,8 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 define( 'YALLAPP_DEV_OTP', true );
+// 68 The dev site has no license: the checks turn enforcement back on where they test it.
+define( 'YALLAPP_ENFORCE_LICENSE', false );
 \$table_prefix = 'wp_';
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );

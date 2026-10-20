@@ -19,7 +19,9 @@ use Yallapp\Settings;
  * Only the site URL, plugin version, WordPress version and LMS are sent, plus, for sign-in codes
  * sent by Yallapp, the phone number and the code to deliver (the platform keeps neither), and
  * 51 the IDs of Media library videos a lesson plays.
- * Enforcement is off until the platform is live: define YALLAPP_ENFORCE_LICENSE as true to turn it on.
+ * 68 The license is enforced: while it isn't active (ended, suspended, not activated, or 72
+ * hours without an answer from the platform) the app's API is paused. The plan's end date is
+ * also compared locally. Only a development site can switch this off (enforced()).
  */
 class License_Client {
 
@@ -188,12 +190,48 @@ class License_Client {
 	}
 
 	/**
-	 * Whether license checks block the app API.
+	 * Whether license checks block the app API. 68 Always on a live site: only a development
+	 * site (`WP_ENVIRONMENT_TYPE` `local` or `development`) can switch them off, with
+	 * `define( 'YALLAPP_ENFORCE_LICENSE', false )` or the `yallapp_enforce_license` filter (tests).
 	 *
 	 * @return bool
 	 */
 	public static function enforced() {
-		return defined( 'YALLAPP_ENFORCE_LICENSE' ) && YALLAPP_ENFORCE_LICENSE;
+		$environment = function_exists( 'wp_get_environment_type' ) ? wp_get_environment_type() : 'production';
+		$constant    = defined( 'YALLAPP_ENFORCE_LICENSE' ) ? (bool) YALLAPP_ENFORCE_LICENSE : null;
+		$enforced    = self::enforcement( $constant, $environment );
+		if ( function_exists( 'apply_filters' ) ) {
+			/**
+			 * Whether the license is enforced. Turning it off counts only on a development site.
+			 *
+			 * @param bool $enforced Whether the license is enforced.
+			 */
+			$filtered = (bool) apply_filters( 'yallapp_enforce_license', $enforced );
+			$enforced = $filtered || ! self::is_development( $environment );
+		}
+		return $enforced;
+	}
+
+	/**
+	 * 68 Whether the license is enforced, from YALLAPP_ENFORCE_LICENSE (null when not defined)
+	 * and the site's environment type: on unless it is set to false on a development site. Pure.
+	 *
+	 * @param bool|null $constant    YALLAPP_ENFORCE_LICENSE, or null.
+	 * @param string    $environment wp_get_environment_type().
+	 * @return bool
+	 */
+	public static function enforcement( $constant, $environment ) {
+		return false !== $constant || ! self::is_development( $environment );
+	}
+
+	/**
+	 * Whether the site says it is a development copy (`local` or `development`).
+	 *
+	 * @param string $environment wp_get_environment_type().
+	 * @return bool
+	 */
+	private static function is_development( $environment ) {
+		return in_array( (string) $environment, array( 'local', 'development' ), true );
 	}
 
 	/**
@@ -225,8 +263,53 @@ class License_Client {
 	 * @return bool
 	 */
 	public function is_active() {
-		$status = $this->status();
-		return 'active' === $status['status'] && time() - (int) $status['contacted_at'] <= self::GRACE;
+		return 'active' === $this->state();
+	}
+
+	/**
+	 * Where the license stands now (see state_of()).
+	 *
+	 * @return string active|expired|suspended|invalid|none|unreachable
+	 */
+	public function state() {
+		return self::state_of( $this->status(), time() );
+	}
+
+	/**
+	 * 68 Where a stored status stands at `$now`. An `active` status whose `expires_at` has
+	 * passed is `expired` at once, whether or not the platform can be reached: the 72-hour
+	 * grace only covers network failures before the plan's end. Otherwise an `active` status
+	 * not confirmed for 72 hours is `unreachable`. Pure.
+	 *
+	 * @param array $status The stored status (status(), with `status`, `expires_at`, `contacted_at`).
+	 * @param int   $now    Unix time.
+	 * @return string active|expired|suspended|invalid|none|unreachable
+	 */
+	public static function state_of( array $status, $now ) {
+		$state = (string) ( $status['status'] ?? 'invalid' );
+		if ( 'active' !== $state ) {
+			return in_array( $state, array( 'expired', 'suspended', 'none' ), true ) ? $state : 'invalid';
+		}
+		$ends = self::ends_at( $status );
+		if ( null !== $ends && $ends <= (int) $now ) {
+			return 'expired';
+		}
+		return (int) $now - (int) ( $status['contacted_at'] ?? 0 ) <= self::GRACE ? 'active' : 'unreachable';
+	}
+
+	/**
+	 * The plan's end as Unix time, or null when the status has none (or it can't be read). Pure.
+	 *
+	 * @param array $status The stored status.
+	 * @return int|null
+	 */
+	public static function ends_at( array $status ) {
+		$raw = isset( $status['expires_at'] ) ? (string) $status['expires_at'] : '';
+		if ( '' === $raw ) {
+			return null;
+		}
+		$time = strtotime( $raw );
+		return false === $time ? null : $time;
 	}
 
 	/**
