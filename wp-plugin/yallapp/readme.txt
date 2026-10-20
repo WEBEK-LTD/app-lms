@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.4
+Stable tag: 0.4.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,7 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
-= Unreleased =
+= 0.4.5 =
 * Private courses in the wishlist: a student can keep a private course they're enrolled in (or may read on the website) in their wishlist like any other course, with Tutor LMS and MasterStudy. Someone who can't open the course can't add it.
 * Courses with a password ("Password protected" in WordPress) still show in the app's catalog, as on the website, and the app never asks for the password: until the student is enrolled, the course page shows the title and picture without the description, says the course has a password and offers "Open on the website" for the password step (on iPhone, only for free courses). Its topics, lessons and free enrollment stay closed in the app until then. Once they've joined it on the website, it opens in the app as usual. GET /courses/{id} says password_protected and gives the course's website_url.
 

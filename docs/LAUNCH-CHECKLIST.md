@@ -404,6 +404,9 @@ the bytes: the media gate on the host takes the uploads and plays the files.
 - [ ] WordPress: release plugin 0.4.4 with the "Yallapp video" box and
       `[yallapp_video]` (readme.txt), and try a Tutor LMS lesson with a media
       link on a phone.
+- [ ] WordPress: release plugin 0.4.5 (private courses in the wishlist, password
+      courses shown with "Open on the website"; readme.txt) and try a Tutor
+      LMS course with a password in a rebuilt app.
 - [ ] Phase 62: copy the new `index.php` (an app's folder removed and the
       folders listed, links bound to a student). Bound links need the app's
       `Authorization` header in PHP: add `CGIPassAuth On` for the `media/`
