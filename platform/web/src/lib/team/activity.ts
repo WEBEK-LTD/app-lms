@@ -1,4 +1,5 @@
 import type { DataStore } from "../data/store";
+import { orderNumber } from "../catalog/settings";
 import type { User } from "../data/types";
 
 /**
@@ -53,4 +54,49 @@ export async function recordTeamActivity(store: DataStore, input: TeamActivityIn
   } catch (error) {
     console.error("[team] the activity couldn't be saved", input.action, error instanceof Error ? error.message : String(error));
   }
+}
+
+// The moments recorded, worded the same from the dashboard and the Owner API
+
+const ORDER_STEP_WORDS: Record<string, string> = {
+  received: "Received",
+  processing: "Processing",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  refunded: "Refunded",
+  preparing: "Preparing",
+  ready: "Ready",
+  out_for_delivery: "Out for delivery",
+};
+
+/** An order moved to `to` (its status, or a restaurant's kitchen step). */
+export function recordOrderStatus(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; orderId: number; to: string }, now: Date): Promise<void> {
+  return recordTeamActivity(
+    store,
+    { clientId: input.clientId, appId: input.appId, actor: input.actor, action: "order.status", target: { type: "order", id: input.orderId }, summary: `Order ${orderNumber({ id: input.orderId })}: ${ORDER_STEP_WORDS[input.to] ?? input.to}` },
+    now,
+  );
+}
+
+/** A refund of an order or a donation, with its amount as written ("₺120.00"). */
+export function recordRefund(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; kind: "order" | "donation"; id: number; amount: string }, now: Date): Promise<void> {
+  const what = input.kind === "order" ? `order ${orderNumber({ id: input.id })}` : `donation ${input.id}`;
+  return recordTeamActivity(
+    store,
+    { clientId: input.clientId, appId: input.appId, actor: input.actor, action: input.kind === "order" ? "order.refund" : "donation.refund", target: { type: input.kind, id: input.id }, summary: `Refunded ${input.amount} of ${what}` },
+    now,
+  );
+}
+
+export function recordAppointmentStatus(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; appointmentId: number; to: string }, now: Date): Promise<void> {
+  const words: Record<string, string> = { approved: "Confirmed", rejected: "Declined", cancelled: "Cancelled", completed: "Done", no_show: "No-show" };
+  return recordTeamActivity(
+    store,
+    { clientId: input.clientId, appId: input.appId, actor: input.actor, action: "appointment.status", target: { type: "appointment", id: input.appointmentId }, summary: `Appointment ${input.appointmentId}: ${words[input.to] ?? input.to}` },
+    now,
+  );
+}
+
+export function recordNotificationSent(store: DataStore, input: { clientId: string; appId: string; actor: TeamActor; title: string }, now: Date): Promise<void> {
+  return recordTeamActivity(store, { clientId: input.clientId, appId: input.appId, actor: input.actor, action: "notification.sent", target: { type: "notification" }, summary: `Sent "${input.title}" to the app's users` }, now);
 }

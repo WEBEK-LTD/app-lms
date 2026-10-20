@@ -30,7 +30,7 @@ const TONES = { paid: "success", pending: "neutral", failed: "danger", refunded:
 
 /** 29 Every donation made from the app: paid ones by default, by campaign, with an export. */
 export default async function DonationsPage({ searchParams }: { searchParams: Promise<{ page?: string; campaign?: string; status?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("donations");
   const { t, k, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (

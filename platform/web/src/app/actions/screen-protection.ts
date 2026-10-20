@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { choosesScreenProtection, parseScreenProtectionChoice, screenProtectionChoice } from "@/lib/app/screen-protection";
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
@@ -12,7 +12,7 @@ import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
 /** 53 Screenshots and screen recording: off, course content, the whole app or (WordPress) the plugin's own setting. */
 export async function saveScreenProtectionAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;

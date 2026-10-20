@@ -16,7 +16,7 @@ import { richText } from "@/i18n/rich";
 
 /** Adding (id null) or editing a product. */
 export async function ProductPage({ id }: { id: number | null }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "catalog") notFound();
   const store = await getStore();
   const [product, categories] = await Promise.all([

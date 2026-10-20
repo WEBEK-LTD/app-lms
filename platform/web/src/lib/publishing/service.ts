@@ -79,6 +79,8 @@ export async function choosePublishingMode(
   context: {
     user: Pick<User, "name" | "email">;
     staff: Pick<User, "id" | "email"> | null;
+    /** 60 The team member who chose, if it wasn't the owner. */
+    member?: Pick<User, "email"> | null;
     client: Pick<Client, "id" | "whatsapp">;
     app: App;
   },
@@ -96,7 +98,7 @@ export async function choosePublishingMode(
   // Managed: our team publishes through invitations, so the setup's Publishing step (store keys) is done for them.
   await store.updateApp(app.id, { publishingMode: mode, ...(mode === "managed" && !app.publishingDoneAt ? { publishingDoneAt: now } : {}) }, now);
   if (before !== mode) {
-    await store.addPublishingEvent({ appId: app.id, store: "mode", status: mode, note: null, actorEmail: (context.staff ?? context.user).email, at: now });
+    await store.addPublishingEvent({ appId: app.id, store: "mode", status: mode, note: null, actorEmail: (context.staff ?? context.member ?? context.user).email, at: now });
     await recordStaffChange(context, mode === "managed" ? "Chose “Publish it for me”" : "Chose “I'll publish it myself”", { publishingMode: before }, { publishingMode: mode });
   }
   if (newRequest) {

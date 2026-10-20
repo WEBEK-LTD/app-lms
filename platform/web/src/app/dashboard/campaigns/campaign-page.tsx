@@ -49,7 +49,7 @@ function StatusButton({
 
 /** 29 Adding (id null) or editing a campaign: its status, its donors' updates and the form. */
 export async function CampaignPage({ id, cannotDelete }: { id: number | null; cannotDelete?: boolean }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("donations");
   if (!app || app.connector?.kind !== "campaigns") notFound();
   const store = await getStore();
   const [campaign, settingsRow] = await Promise.all([id !== null ? store.getCampaign(app.id, id) : Promise.resolve(null), store.getDonationSettings(app.id)]);

@@ -240,10 +240,12 @@ export function mayUseDashboard(context: ClientContext): boolean {
  * client (the action's own redirect follows); a team member without it goes
  * to the overview, which says so. Every client action asks this.
  */
-export async function clientFor(permission: TeamPermission): Promise<ClientContext | null> {
+export async function clientFor(permission: TeamPermission | readonly TeamPermission[]): Promise<ClientContext | null> {
   const context = await getClientContext();
   if (!context) return null;
-  if (!contextCan(context, permission)) redirect(`/dashboard?denied=${permission}`);
+  // A list: any one of them (the Media picker serves the catalog's and the pages' forms too).
+  const wanted = typeof permission === "string" ? [permission] : permission;
+  if (!wanted.some((p) => contextCan(context, p))) redirect(`/dashboard?denied=${wanted[0]}`);
   return context;
 }
 

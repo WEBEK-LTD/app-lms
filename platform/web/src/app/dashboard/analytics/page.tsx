@@ -99,7 +99,7 @@ function relabel(items: Share[], text: DashboardText, kind: "country" | "languag
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
-  const { app, client } = await requireClient();
+  const { app, client } = await requireClient("analytics");
   const text = await dashboardText();
   const { t, k, lang, num } = text;
   if (!app) {

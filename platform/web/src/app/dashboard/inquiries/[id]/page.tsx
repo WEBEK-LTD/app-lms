@@ -19,7 +19,7 @@ const WHEN: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year:
 
 /** One conversation: opening it marks the person's messages as read. */
 export default async function InquiryPage({ params }: { params: Promise<{ id: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("messages");
   if (!app || app.connector?.kind !== "listings") notFound();
   const id = Number((await params).id);
   if (!Number.isSafeInteger(id) || id < 1) notFound();

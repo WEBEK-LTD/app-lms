@@ -63,7 +63,7 @@ function who(b: ClassBooking): string {
 
 /** 27 A gym's or studio's weekly timetable, and the classes of the coming week with who booked them. */
 export default async function TimetablePage({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const { t, lang } = await dashboardText();
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };

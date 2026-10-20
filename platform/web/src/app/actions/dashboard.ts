@@ -13,7 +13,8 @@ import { recordStaffChange } from "@/lib/admin/audit";
 import { appTypeOn, getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { assetUrl, ICON_MAX_BYTES, LOGO_MAX_BYTES } from "@/lib/assets";
-import { chooseApp, getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { chooseApp, clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import type { TeamPermission } from "@/lib/team/permissions";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
@@ -51,15 +52,15 @@ import { saveDesignDraft } from "@/lib/pages/layout";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 
 /** Active client with an app, or a redirect. Expired plans can still edit their setup but not build. */
-async function requireActiveClient(): Promise<ClientContext> {
-  const context = await getClientContext();
+async function requireActiveClient(permission: TeamPermission): Promise<ClientContext> {
+  const context = await clientFor(permission);
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   return context;
 }
 
-async function requireApp(): Promise<ClientContext & { app: App }> {
-  const context = await requireActiveClient();
+async function requireApp(permission: TeamPermission): Promise<ClientContext & { app: App }> {
+  const context = await requireActiveClient(permission);
   if (!context.app) redirect("/dashboard/app-type");
   return context as ClientContext & { app: App };
 }
@@ -113,7 +114,7 @@ async function afterStep(context: ClientContext & { app: App }, step: SetupStep)
 
 /** The app switcher: the dashboard works on another of the client's apps from now on. */
 export async function switchAppAction(formData: FormData): Promise<void> {
-  const context = await requireActiveClient();
+  const context = await requireActiveClient("dashboard");
   const appId = String(formData.get("appId") ?? "");
   if (appId === "new") redirect("/dashboard/app-type?new=1");
   // Only one of this client's own apps can be chosen.
@@ -132,7 +133,7 @@ export async function switchAppAction(formData: FormData): Promise<void> {
  * activation (by the team, or its plan paid by card) on its own plan.
  */
 export async function chooseAppTypeAction(formData: FormData): Promise<void> {
-  const context = await requireActiveClient();
+  const context = await requireActiveClient("apps");
   const adding = formData.get("new") === "1";
   const current = adding ? null : context.app;
   const back = adding ? "/dashboard/app-type?new=1" : "/dashboard/app-type";
@@ -209,7 +210,7 @@ export interface WebsiteFormState extends FormState {
 }
 
 export async function saveWebsiteAction(_: WebsiteFormState, formData: FormData): Promise<WebsiteFormState> {
-  const context = await requireApp();
+  const context = await requireApp("apps");
   const values = formValues(formData);
   const parsed = websiteSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -419,7 +420,7 @@ async function connectPlatform(
  * connection when they come back.
  */
 export async function connectPlatformAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("apps");
   const platformId = String(formData.get("platform") ?? "");
   const definition = platformDefinition(platformId);
   const values = { platform: platformId, confirmEmailOff: formData.get("confirmEmailOff") === "on" ? "on" : "" };
@@ -444,7 +445,7 @@ export async function connectPlatformAction(_: FormState, formData: FormData): P
 
 /** 25 Disconnects a store connected with OAuth (Salla, Zid): its tokens are deleted and the Website step is open again. */
 export async function disconnectPlatformAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("apps");
   const connector = context.app.connector;
   const definition = connector?.kind === "platform" ? platformDefinition(connector.platform) : null;
   if (!definition?.oauth || String(formData.get("platform") ?? "") !== definition.id) return { message: "Nothing to disconnect." };
@@ -488,7 +489,7 @@ async function keepApiSignIn(app: App, address: string, result: ApiCheckResult, 
 
 /** Runs the API check against the address in the Website form, without saving it. */
 export async function checkApiAction(_: ApiCheckState, formData: FormData): Promise<ApiCheckState> {
-  const context = await requireApp();
+  const context = await requireApp("apps");
   const limited = await hitRateLimit(await getStore(), RATE_LIMITS.apiCheck, context.client.id);
   if (!limited.allowed) return { result: null, error: "Too many checks. Try again in a few minutes." };
   const address = String(formData.get("apiBaseUrl") ?? "").trim();
@@ -506,7 +507,7 @@ export async function checkApiAction(_: ApiCheckState, formData: FormData): Prom
 }
 
 export async function saveBrandingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const values = formValues(formData);
   const parsed = brandingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -549,7 +550,7 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
 }
 
 export async function saveListingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const values = formValues(formData);
   const parsed = listingSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -675,7 +676,7 @@ async function readAppStoreKey(
  * empty keep what was saved before.
  */
 export async function savePublishingAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const store = await getStore();
   const now = new Date();
   const app = context.app;
@@ -723,7 +724,7 @@ export async function savePublishingAction(_: FormState, formData: FormData): Pr
 }
 
 export async function removeStoreKeyAction(formData: FormData): Promise<void> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const store = await getStore();
   const now = new Date();
   if (formData.get("store") === "google-play") {
@@ -752,7 +753,7 @@ export interface UploadResult {
  * or a store screenshot (PNG or JPEG, sizes the store accepts).
  */
 export async function uploadAssetAction(formData: FormData): Promise<UploadResult> {
-  const context = await requireActiveClient();
+  const context = await requireActiveClient("settings");
   const kind = formData.get("kind") as AssetKind | null;
   const file = formData.get("file");
   if (!kind || !["icon", "logo", "play_screenshot", "ios_screenshot"].includes(kind) || !file || typeof file === "string" || file.size === 0) {
@@ -816,7 +817,7 @@ async function startBuild(
 }
 
 export async function startBuildAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const values = formValues(formData);
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -830,7 +831,7 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
  * (nothing of it was published), then back to the page, which says so.
  */
 export async function retryBuildAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await requireApp();
+  const context = await requireApp("settings");
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
   const result = await startBuild(context, parsed.data.versionName);
@@ -840,7 +841,7 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
 
 /** Releases the license from its website so it can be activated on another one. */
 export async function releaseSiteAction(): Promise<void> {
-  const context = await requireActiveClient();
+  const context = await requireActiveClient("billing");
   if (context.license) {
     const store = await getStore();
     await store.deleteActivation(context.license.id);

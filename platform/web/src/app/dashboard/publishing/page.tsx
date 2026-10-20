@@ -91,7 +91,7 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
 }
 
 export default async function PublishingPage({ searchParams }: PageProps<"/dashboard/publishing">) {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const { t, k, lang } = await dashboardText();
   const saving = t("common.saving");

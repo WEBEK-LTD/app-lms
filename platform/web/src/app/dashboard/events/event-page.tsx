@@ -46,7 +46,7 @@ const STATUS_TONE = { Valid: "success", Used: "info", Cancelled: "neutral" } as 
 
 /** 28 Adding (id null) or editing an event, with its ticket types and attendees. */
 export async function EventPage({ id, notice }: { id: number | null; notice: { saved?: string; told?: string; cancelled?: string; error?: string } }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("events");
   if (!app || app.connector?.kind !== "events") notFound();
   const store = await getStore();
   const now = new Date();

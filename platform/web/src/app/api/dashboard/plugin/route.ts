@@ -1,5 +1,5 @@
 import { pluginDownloadUrl } from "@/lib/api";
-import { getClientContext } from "@/lib/auth/session";
+import { contextCan, getClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { errorResponse } from "@/lib/http";
 import { latestRelease } from "@/lib/license/service";
@@ -7,7 +7,8 @@ import { latestRelease } from "@/lib/license/service";
 /** Dashboard "Download plugin": checks the session, then redirects to a 10-minute signed link. */
 export async function GET(): Promise<Response> {
   const context = await getClientContext();
-  if (!context || context.state !== "active") {
+  // 60 The owner and managers (the app's settings).
+  if (!context || context.state !== "active" || !contextCan(context, "settings")) {
     return errorResponse(403, "forbidden", "Sign in with an active Yallapp account to download the plugin.");
   }
   const release = latestRelease(await (await getStore()).listReleases());

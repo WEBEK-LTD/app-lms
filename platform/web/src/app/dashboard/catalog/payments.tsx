@@ -2,6 +2,7 @@ import { removePaymentKeysAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Notice } from "@/components/ui";
+import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { SUB_MERCHANT_TYPES } from "@/lib/catalog/marketplace";
 import { catalogSettings, isOwnPayment, marketplaceTerms, marketplaceVia } from "@/lib/catalog/settings";
 import { getStore } from "@/lib/data";
@@ -20,6 +21,8 @@ import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
  * what the app sells in, to warn when the provider doesn't take it.
  */
 export async function CardPayments({ app, currency }: { app: App; currency?: CatalogCurrency }) {
+  // 60 Where the money goes is the owner's: the team sees that it's theirs to set.
+  if (!(await mayDo("billing"))) return <OwnerOnly id="h-payments" title={(await dashboardText()).t("shop.cardPayments")} />;
   const settings = catalogSettings(app);
   const payment = settings.payment;
   const store = await getStore();

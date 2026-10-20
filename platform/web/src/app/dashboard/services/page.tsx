@@ -14,7 +14,7 @@ import { richText } from "@/i18n/rich";
 import { formatDate } from "@/i18n/format";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   return { title: (await dashboardText()).t("bookings.page", { kind }) };
 }
@@ -86,7 +86,7 @@ function Card({ id, title, text, children }: { id: string; title: string; text?:
 
 /** Services, team, hours and booking rules for Bookings apps without a website (21 a clinic's doctors and intake form). */
 export default async function ServicesPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const text = await dashboardText();
   const { t, k } = text;
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";

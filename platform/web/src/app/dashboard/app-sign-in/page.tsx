@@ -162,7 +162,7 @@ function sourceName(app: App): string | null {
  * sign-in rules of apps on the hosted API (WordPress sets those in the plugin).
  */
 export default async function AppSignInPage() {
-  const { app, client, user } = await requireClient();
+  const { app, client, user } = await requireClient("settings");
   const text = await dashboardText();
   const { t, k } = text;
   // Called, not rendered as its own component: the "Who signs people in" form stays in place (with its message) when the choice changes.

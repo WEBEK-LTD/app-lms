@@ -51,7 +51,7 @@ async function OfflineDownloads({ app, license }: { app: App; license: License |
 
 /** Courses, categories and payments for Academy apps without a website. */
 export default async function CoursesPage() {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "courses") {
     return (

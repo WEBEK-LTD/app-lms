@@ -18,7 +18,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   return { title: (await dashboardText()).t("shop.page", { kind: app?.vertical === "restaurant" ? "restaurant" : "shop" }) };
 }
 
@@ -52,7 +52,7 @@ function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
 
 /** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   const { t, num } = await dashboardText();
   const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
   const pageTitle = t("shop.page", { kind });

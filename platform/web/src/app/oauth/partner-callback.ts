@@ -2,6 +2,9 @@ import { revalidatePath } from "next/cache";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { chooseApp, getClientContext, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { teamCan } from "@/lib/team/permissions";
+
+const teamOk = (context: { access: Parameters<typeof teamCan>[0] }, appId: string) => teamCan(context.access, "apps", appId);
 import { appUrl, encryptionKey, sessionSecret } from "@/lib/env";
 import { oauthRedirectUri, partnerAppCredentials, readOAuthState } from "@/lib/hosted/connectors/partner-apps";
 import { PlatformCheckError, platformConnectorConfig } from "@/lib/hosted/connectors/platforms";
@@ -66,6 +69,8 @@ export async function partnerOAuthCallback(request: Request, platformId: "salla"
     return page("Sign in first", `Sign in to your Yallapp dashboard, then select Connect with ${definition.name} again.`, 401);
   }
   const app = context.apps.find((a) => a.id === state.appId);
+  // 60 Where an app's content comes from is the owner's choice.
+  if (app && !teamOk(context, app.id)) return page("Ask the owner", "Only the owner of this business can connect where the app's content comes from.", 403);
   if (!app) return page("Not your app", `This approval was started for an app of another account. Sign in to the right account and connect again.`, 403);
   if (app.appType !== definition.appType) {
     return page("Choose Store first", `${definition.name} works with Store apps. Change your app type to Store, then connect again.`, 400);

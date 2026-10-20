@@ -15,7 +15,7 @@ import { CourseForm, LessonForm, StudentForm, TopicForm } from "../forms";
 import { dashboardText } from "@/lib/dashboard-lang";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/courses/[id]">): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   const id = Number((await params).id);
   const course = app ? courseSetup(app).courses.find((c) => c.id === id) : null;
   return { title: course?.title ?? (await dashboardText()).t("courses.title") };
@@ -34,7 +34,7 @@ function lessonValues(l: CourseLesson): Record<string, string> {
 
 /** One course: details, sections and lessons, students. */
 export default async function CoursePage({ params }: PageProps<"/dashboard/courses/[id]">) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "courses") notFound();
   const setup = courseSetup(app);
   const id = Number((await params).id);

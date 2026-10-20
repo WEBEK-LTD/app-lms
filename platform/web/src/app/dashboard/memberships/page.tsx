@@ -31,7 +31,7 @@ function planValues(p: MembershipPlan | null): Record<string, string> {
 
 /** 27 A gym's or studio's membership plans, sold in the app on the payment page, and whether classes need one. */
 export default async function MembershipPlansPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const { t, k } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (

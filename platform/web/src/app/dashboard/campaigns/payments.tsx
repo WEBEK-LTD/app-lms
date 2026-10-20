@@ -1,4 +1,5 @@
 import { removePaymentKeysAction } from "@/app/actions/catalog";
+import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { PaymentKeysForm } from "@/app/dashboard/catalog/forms";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
@@ -15,6 +16,8 @@ import { formatList } from "@/i18n/format";
  * commission and no "sell through Yallapp" choice here.
  */
 export async function DonationPayments({ app, currency }: { app: App; currency: CatalogCurrency }) {
+  // 60 Where the money goes is the owner's.
+  if (!(await mayDo("billing"))) return <OwnerOnly id="h-payments" title={(await dashboardText()).t("shop.cardPayments")} />;
   const payment = catalogSettings(app).payment;
   const own = isOwnPayment(payment) ? payment : null;
   const { t, lang } = await dashboardText();

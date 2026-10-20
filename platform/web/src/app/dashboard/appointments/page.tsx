@@ -13,7 +13,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   return { title: (await dashboardText()).t("bookings.appointments", { kind }) };
 }
@@ -43,7 +43,7 @@ function Action({ a, status, label, variant = "secondary" }: { a: BookingAppoint
 
 /** Appointments booked in the app, for Bookings apps without a website (21 a clinic's visits, with their intake answers). */
 export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<{ show?: string; page?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const { t, k } = await dashboardText();
   const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   const title = t("bookings.appointments", { kind });

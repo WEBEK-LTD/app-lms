@@ -28,7 +28,7 @@ const STATUS_FILTERS: { value: ListingStatus | "all"; label: DashKey }[] = [
 
 /** The properties of a Real estate app, and the office's settings. */
 export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; saved?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "listings") {
     return (

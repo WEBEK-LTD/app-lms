@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * plugin's own setting. An app on its own API gets it from that API.
  */
 export default async function ScreenProtectionPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const academy = offersContentScope(app);
   const { t, k } = await dashboardText();

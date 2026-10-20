@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { parseCourse } from "@/lib/courses/forms";
@@ -26,7 +26,7 @@ const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
 /** A client whose courses are managed in the dashboard, or a redirect. */
 async function requireCoursesApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("catalog");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app || context.app.connector?.kind !== "courses") redirect("/dashboard");
@@ -186,7 +186,8 @@ export async function addStudentAction(_: FormState, formData: FormData): Promis
 
 /** 45 Offline downloads on or off (WordPress: or the plugin's own setting). */
 export async function saveOfflineDownloadsAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await getClientContext();
+  // 60 An app-wide choice: the owner and managers.
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;

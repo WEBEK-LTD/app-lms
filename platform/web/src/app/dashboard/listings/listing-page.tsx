@@ -79,7 +79,7 @@ const STATUS_TEXT: Record<ListingStatus, DashKey> = {
 
 /** Adding (id null) or editing a listing. */
 export async function ListingPage({ id }: { id: number | null }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("catalog");
   if (!app || app.connector?.kind !== "listings") notFound();
   const store = await getStore();
   const [listing, saved] = await Promise.all([id !== null ? store.getListing(app.id, id) : Promise.resolve(null), store.getListingSettings(app.id)]);

@@ -10,7 +10,8 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
-import { requireClient } from "@/lib/auth/session";
+import { contextCan, requireClient } from "@/lib/auth/session";
+import { OwnerOnly } from "@/components/owner-only";
 import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { platformValues } from "@/lib/hosted/connectors/platforms";
@@ -41,7 +42,8 @@ const COMING_UP = {
 } as const satisfies Record<Exclude<SetupStep, "app-type">, string>;
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
-  const { client, app, apps, license, state, staff } = await requireClient();
+  const context = await requireClient("settings");
+  const { client, app, apps, license, state, staff } = context;
   if (!app) redirect("/dashboard/app-type");
   const { t, k, lang } = await dashboardText();
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
@@ -146,7 +148,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           {t("setup.switchedOff")}
         </Notice>
       ) : null}
-      {step === "website" ? (
+      {/* 60 Where the content comes from is the owner's choice; a manager sees that. */}
+      {step === "website" && !contextCan(context, "apps") ? <OwnerOnly id="h-website-owner" title={k(STEP_LABEL.website)} /> : null}
+      {step === "website" && contextCan(context, "apps") ? (
         <WebsiteStep
           hostedWithoutSource={app.backend === "hosted" && !app.connector}
           hidden={(["wordpress", "custom_api", "setup_requested", "shopify", "catalog"] as const).filter(

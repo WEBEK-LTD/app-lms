@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Notifications for apps on the hosted API. Apps on WordPress send them from the plugin. */
 export default async function NotificationsPage() {
-  const { app, license } = await requireClient();
+  const { app, license } = await requireClient("notifications");
   const { t, lang } = await dashboardText();
   if (!app || app.backend !== "hosted") {
     return (

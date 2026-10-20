@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { isSetupComplete, queueBuild } from "@/lib/app/setup";
 import { assetUrl } from "@/lib/assets";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { startPipeline } from "@/lib/builds/dispatch";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
@@ -17,7 +17,7 @@ import { APP_STORE_CATEGORIES, applyChecklist, canUseManagedPublishing, checklis
 
 /** The dashboard's current app, for an active client (or our team managing them). */
 async function requireApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app) redirect("/dashboard/app-type");

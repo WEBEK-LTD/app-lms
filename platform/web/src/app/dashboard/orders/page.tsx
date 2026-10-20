@@ -17,7 +17,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { app } = await requireClient();
+  const { app } = await requireClient("orders");
   const { t } = await dashboardText();
   return { title: app?.vertical === "restaurant" && app.connector?.kind === "catalog" ? t("orders.kitchen") : t("orders.title") };
 }
@@ -42,7 +42,7 @@ function StatusButton({ order, status, label }: { order: CatalogOrder; status: C
 
 /** Paid orders from the app, for apps without a website. */
 export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("orders");
   const { t, k, lang } = await dashboardText();
   // 27 A gym's membership payments are orders too, and 28 paid tickets.
   if (!app || (app.connector?.kind !== "catalog" && app.connector?.kind !== "courses" && app.connector?.kind !== "bookings" && app.connector?.kind !== "events")) {

@@ -27,7 +27,7 @@ const FILTERS: { value: string; label: DashKey }[] = [
 
 /** 28 The events of an Events & tickets app, its event settings and card payments. */
 export default async function EventsPage({ searchParams }: { searchParams: Promise<{ show?: string; deleted?: string }> }) {
-  const { app } = await requireClient();
+  const { app } = await requireClient("events");
   const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
     return (

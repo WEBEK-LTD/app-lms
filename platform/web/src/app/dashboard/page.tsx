@@ -11,7 +11,10 @@ import { richText } from "@/i18n/rich";
 import { kindOf, wordsOf } from "@/lib/app/kinds";
 import { siteMatch, siteRunsLine } from "@/lib/app/site-match";
 import { SETUP_STEPS, STEP_LABEL, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
-import { requireClient } from "@/lib/auth/session";
+import { contextCan, requireClient, type ClientContext } from "@/lib/auth/session";
+import { contentNavOf } from "@/lib/app/kinds";
+import { pathPermission } from "@/lib/team/permissions";
+import type { DashKey } from "@/i18n/dashboard";
 import { getStore } from "@/lib/data";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { daysUntil } from "@/lib/license/status";
@@ -71,11 +74,63 @@ function shortcuts(app: App, whatsappUrl: string, { t }: DashboardText): { href:
   ];
 }
 
-export default async function OverviewPage() {
+/**
+ * 60 The overview of someone on the team without the app's settings (Staff):
+ * who they are here, why they came back from a page (`denied`), the updates
+ * banner, and links to what they work on in the current app.
+ */
+async function MemberOverview({ context, denied }: { context: ClientContext; denied: boolean }) {
+  const { t, k } = await dashboardText();
+  const { app } = context;
+  const me = context.member ?? context.user;
+  const business = context.apps[0] ? appLabel(context.apps[0]) : context.user.name;
+  const content = app ? (contentNavOf(app)?.items ?? []).map((item) => ({ ...item, label: k(item.label) })) : [];
+  const general = [
+    { href: "/dashboard/media", label: t("nav.media"), icon: "photo_library" as const },
+    { href: "/dashboard/analytics", label: t("nav.analytics"), icon: "monitoring" as const },
+    ...(app?.backend === "hosted" ? [{ href: "/dashboard/notifications", label: t("nav.appNotifications"), icon: "notifications" as const }] : []),
+    { href: "/dashboard/preview", label: t("nav.preview"), icon: "visibility" as const },
+  ];
+  const links = app ? [...content, ...general].filter((item, i, all) => all.findIndex((x) => x.href === item.href) === i && contextCan(context, pathPermission(item.href))) : [];
+  return (
+    <>
+      <PageHeader
+        title={t("overview.hello", { name: me.name.split(" ")[0] ?? "" })}
+        description={t("team.memberOf", { role: t(`team.roles.${context.access.role}` as DashKey), business: business === "Untitled app" ? k(business) : business })}
+      />
+      {denied ? (
+        <Notice tone="warn" icon="lock" role="status">
+          {t("team.denied")}
+        </Notice>
+      ) : null}
+      <AnnouncementBanner context={context} />
+      {links.length ? (
+        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3" data-testid="member-links">
+          {links.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="flex min-h-16 items-center gap-3 rounded-2xl border border-line bg-white px-5 py-4 font-semibold text-ink no-underline hover:border-line-strong">
+                <Icon name={item.icon} size={22} className="text-accent" />
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Notice icon="info">{t("team.denied")}</Notice>
+      )}
+    </>
+  );
+}
+
+export default async function OverviewPage({ searchParams }: PageProps<"/dashboard">) {
   const contact = await getContact();
-  const context = await requireClient();
+  const context = await requireClient("dashboard");
   const { user, app, license, state } = context;
+  // 60 A page their role doesn't have sent them here.
+  const denied = typeof (await searchParams).denied === "string";
+  if (!contextCan(context, "settings") || (!app && !contextCan(context, "apps"))) return <MemberOverview context={context} denied={denied} />;
   if (!app) redirect("/dashboard/app-type");
+  const canBilling = contextCan(context, "billing");
   const text = await dashboardText();
   const { t, k, lang, date, num } = text;
   const store = await getStore();
@@ -121,11 +176,11 @@ export default async function OverviewPage() {
 
   // The one thing to do next, as the main button of the app card.
   const primary =
-    state === "expired"
+    state === "expired" && canBilling
       ? { href: "/dashboard/license#renew", label: t("overview.renewByCard"), icon: "refresh" as const }
       : next
         ? { href: stepHref(next === "app-type" ? "website" : next), label: t("overview.continueStep", { step: step(next === "app-type" ? "website" : next) }), icon: "arrow_forward" as const }
-        : state === "pending"
+        : state === "pending" && canBilling
           ? { href: "/dashboard/license", label: t("overview.activate"), icon: "key" as const }
           : !latest
             ? { href: "/dashboard/builds", label: t("overview.firstBuild"), icon: "build" as const }
@@ -143,7 +198,12 @@ export default async function OverviewPage() {
 
   return (
     <>
-      <PageHeader title={t("overview.hello", { name: user.name.split(" ")[0] ?? "" })} description={t("overview.stands", { app: name })} />
+      <PageHeader title={t("overview.hello", { name: (context.member ?? user).name.split(" ")[0] ?? "" })} description={t("overview.stands", { app: name })} />
+      {denied ? (
+        <Notice tone="warn" icon="lock" role="status">
+          {t("team.denied")}
+        </Notice>
+      ) : null}
 
       <AnnouncementBanner context={context} />
 
@@ -329,8 +389,15 @@ export default async function OverviewPage() {
           title={t("overview.plan")}
           icon="workspace_premium"
           actions={
-            <>
-              {state === "expired" || (license && daysLeft <= 14) ? (
+            // 60 Only the owner renews or changes the plan.
+            !canBilling ? (
+              <span className="flex items-center gap-1.5 text-sm text-muted">
+                <Icon name="lock" size={18} />
+                {t("team.askOwner")}
+              </span>
+            ) : (
+              <>
+                {state === "expired" || (license && daysLeft <= 14) ? (
                 <Link href="/dashboard/license#renew" className={`${btn.primary} h-10 px-4 text-sm`}>
                   {t("overview.renew")}
                 </Link>
@@ -345,7 +412,8 @@ export default async function OverviewPage() {
                   {license ? t("overview.changePlan") : licenseName}
                 </Link>
               )}
-            </>
+              </>
+            )
           }
         >
           <span className="flex flex-wrap items-center gap-2 text-2xl font-extrabold">

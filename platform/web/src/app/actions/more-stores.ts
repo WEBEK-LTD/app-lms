@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { managedPublishing } from "@/lib/app/setup";
-import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { getBlobStore } from "@/lib/blobs";
 import { keyContext } from "@/lib/builds/signing";
@@ -43,7 +43,7 @@ const PAGE = "/dashboard/publishing/more-stores";
 const AGCONNECT_MAX_BYTES = 20_000;
 
 async function requireApp(): Promise<ClientContext & { app: App }> {
-  const context = await getClientContext();
+  const context = await clientFor("settings");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   if (!context.app) redirect("/dashboard/app-type");

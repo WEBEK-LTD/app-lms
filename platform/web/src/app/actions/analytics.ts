@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { isTimeZone } from "@/lib/analytics/zone";
-import { getClientContext, mayUseDashboard } from "@/lib/auth/session";
+import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { FormState } from "@/lib/forms";
 
@@ -13,7 +13,7 @@ import type { FormState } from "@/lib/forms";
  * on. Days already counted keep the zone they were counted in.
  */
 export async function saveAnalyticsZoneAction(_: FormState, formData: FormData): Promise<FormState> {
-  const context = await getClientContext();
+  const context = await clientFor("analytics");
   if (!context) redirect("/sign-in");
   if (!mayUseDashboard(context)) redirect("/pending");
   const app = context.app;

@@ -161,7 +161,7 @@ export async function inviteMember(
   };
   await store.createTeamInvitation(invitation);
   const link = await sendInvitation(deps, invitation, token, input.inviter, businessName(input.owner, input.apps));
-  await recordTeamActivity(store, { clientId: input.client.id, appId: null, actor: input.inviter, action: "team.invite", target: { type: "invitation", id: invitation.id }, summary: `Invited ${email} as ${describeAccess(invitation, input.apps)}` }, now);
+  await recordTeamActivity(store, { clientId: input.client.id, appId: null, actor: input.inviter, action: "team.invite", target: { type: "invitation", id: invitation.id }, summary: `Invited ${email} as ${ROLE_NAMES[invitation.role]}` }, now);
   return { ok: true, invitation, link };
 }
 
@@ -232,7 +232,7 @@ export async function acceptInvitation(store: DataStore, token: string, user: Us
     createdAt: current?.createdAt ?? now,
     updatedAt: now,
   });
-  await recordTeamActivity(store, { clientId: invitation.clientId, appId: null, actor: user, action: "team.join", target: { type: "member", id: user.id }, summary: `${user.email} joined the team as ${describeAccess(invitation, check.apps)}` }, now);
+  await recordTeamActivity(store, { clientId: invitation.clientId, appId: null, actor: user, action: "team.join", target: { type: "member", id: user.id }, summary: `${user.email} joined the team` }, now);
   return { ok: true, client: check.client };
 }
 
@@ -253,7 +253,7 @@ export async function updateMember(
   const user = await store.getUserById(member.userId);
   await recordTeamActivity(
     store,
-    { clientId: input.client.id, appId: null, actor: input.actor, action: "team.update", target: { type: "member", id: member.userId }, summary: `Changed ${user?.email ?? "a member"} to ${describeAccess(next, input.apps)}` },
+    { clientId: input.client.id, appId: null, actor: input.actor, action: "team.update", target: { type: "member", id: member.userId }, summary: `Changed what ${user?.email ?? "a member"} can do` },
     now,
   );
   return { ok: true, member: next };

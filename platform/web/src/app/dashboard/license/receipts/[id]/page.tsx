@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function PlanReceiptPage({ params }: PageProps<"/dashboard/license/receipts/[id]">) {
   const { id } = await params;
-  const { client, user } = await requireClient();
+  const { client, user } = await requireClient("billing");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const payment = (await store.listPlanPayments({ clientId: client.id, limit: 200 })).find((p) => p.id === id && p.status === "paid");

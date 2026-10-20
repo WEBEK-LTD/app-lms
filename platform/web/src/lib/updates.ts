@@ -237,15 +237,24 @@ export interface UpdatesReader {
   apps: App[];
   subject: AudienceSubject;
   lang: string;
+  /**
+   * 60 What of the account this person sees (lib/team/permissions.ts): notices
+   * and builds are the app's settings, payments to Yallapp are the owner's.
+   * Missing: everything (the owner, our team).
+   */
+  sees?: { notices: boolean; builds: boolean; payments: boolean };
 }
 
 /** Loads a person's updates from the store. */
 export async function loadUpdates(store: DataStore, reader: UpdatesReader, now: Date): Promise<Updates> {
+  const sees = reader.sees ?? { notices: true, builds: true, payments: true };
+  // 60 A member limited to some apps sees those apps' notices (and the account's own).
+  const appIds = new Set(reader.apps.map((a) => a.id));
   const [announcements, notices, payments, builds, plans] = await Promise.all([
     store.listAnnouncements(),
-    store.listOwnerNotices({ clientId: reader.clientId, limit: 50 }),
-    store.listPlanPayments({ clientId: reader.clientId, limit: 20 }),
-    Promise.all(reader.apps.map((a) => store.listBuildsByApp(a.id, 10))).then((lists) => lists.flat()),
+    sees.notices ? store.listOwnerNotices({ clientId: reader.clientId, limit: 50 }).then((list) => list.filter((n) => !n.appId || appIds.has(n.appId))) : [],
+    sees.payments ? store.listPlanPayments({ clientId: reader.clientId, limit: 20 }) : [],
+    sees.builds ? Promise.all(reader.apps.map((a) => store.listBuildsByApp(a.id, 10))).then((lists) => lists.flat()) : [],
     getPlans(store),
   ]);
   const planNames = Object.fromEntries(Object.entries(plans).map(([id, info]) => [id, info.name])) as Record<Plan, string>;

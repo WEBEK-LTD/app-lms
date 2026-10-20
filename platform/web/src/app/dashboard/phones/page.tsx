@@ -16,9 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * account, each with "Sign out", and "Sign out every phone".
  */
 export default async function PhonesPage({ searchParams }: PageProps<"/dashboard/phones">) {
-  const { user } = await requireClient();
+  // 60 A team member sees their own phones; our team managing the dashboard, the owner's.
+  const { user, member } = await requireClient("dashboard");
   const { t, date } = await dashboardText();
-  const devices = await (await getStore()).listOwnerDevices(user.id);
+  const devices = await (await getStore()).listOwnerDevices((member ?? user).id);
   const signedOut = (await searchParams)["signed-out"];
   const done = typeof signedOut === "string" ? (signedOut === "all" ? t("owner.signedOutAll") : t("owner.signedOut", { name: signedOut })) : null;
   return (

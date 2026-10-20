@@ -7,7 +7,8 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, formatDate, Notice, PageHeader, Section } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
-import { requireClient } from "@/lib/auth/session";
+import { contextCan, requireClient } from "@/lib/auth/session";
+import { OwnerOnly } from "@/components/owner-only";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
@@ -53,7 +54,8 @@ const LIMIT_LABEL: Record<MediaKind, DashKey> = { video: "media.limitVideos", im
  * Storage comes with the plan, and packs add to it.
  */
 export default async function MediaPage({ searchParams }: PageProps<"/dashboard/media">) {
-  const { app, client, license, state } = await requireClient();
+  const context = await requireClient("media");
+  const { app, client, license, state } = context;
   if (!app) redirect("/dashboard/app-type");
   const { t, k, lang } = await dashboardText();
   const date = (d: Date | null | undefined) => formatDate(d, lang);
@@ -232,6 +234,10 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         )}
       </Section>
 
+      {/* 60 Storage packs are paid for by the owner. */}
+      {!contextCan(context, "billing") ? (
+        <OwnerOnly id="h-buy-storage" title={t("media.buy")} />
+      ) : (
       <Section
         id="buy-storage"
         titleId="h-buy-storage"
@@ -278,6 +284,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
         )}
         {client.status === "suspended" ? <p className="m-0 text-sm text-danger">{t("media.suspended")}</p> : null}
       </Section>
+      )}
     </>
   );
 }

@@ -22,7 +22,7 @@ const LABELS: Record<"active" | "expired" | "cancelled", DashKey> = { active: "b
 
 /** 27 Who has which membership: classes left, when it ends, and adding classes or a membership paid another way. */
 export default async function MembersPage() {
-  const { app } = await requireClient();
+  const { app } = await requireClient("bookings");
   const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (
