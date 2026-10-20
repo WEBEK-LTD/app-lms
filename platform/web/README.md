@@ -160,7 +160,7 @@ drizzle's `serial()`: its SQL doesn't run on MariaDB.
 
 | Name | Required | What it is |
 |---|---|---|
-| `APP_URL` | yes | `https://yallapp.com.tr`. Used in emails and signed links. Falls back to Netlify's `URL`. |
+| `APP_URL` | yes | `https://yallapp.com.tr`, for every deploy context and for **Builds** as well as Functions (static pages take it when they are built). Used in emails and signed links. Falls back to Netlify's `URL`; (67) canonical addresses, the sitemap and robots.txt never use a `*.netlify.app` address and fall back to `https://yallapp.com.tr`. |
 | `YALLAPP_DATA` | no | `mysql` (default) or `memory` (local and tests only). |
 | `DATABASE_URL` | yes | `mysql://USER:PASSWORD@host.webek.org:3306/DATABASE` |
 | `DATABASE_SSL` | no | `required` (default). `disabled` is refused on Netlify. |
@@ -257,6 +257,10 @@ ever see host.webek.org.
   `/scripts/rebuildhttpdconf && /scripts/restartsrv_httpd`.
 - **TLS:** AutoSSL issues the certificate for yallapp.com.tr on host.webek.org;
   `/.well-known/` is not proxied so renewals keep working.
+- **One address (67):** both files send `www.yallapp.com.tr` to
+  `https://yallapp.com.tr` in one 301, so search engines see each page once.
+  Deploy previews and branch deploys answer with `X-Robots-Tag: noindex`
+  (`src/lib/indexing.ts`); production never does.
 - **Forms:** `next.config.ts` allows server actions from yallapp.com.tr, because
   the browser's origin differs from the host Netlify sees.
 

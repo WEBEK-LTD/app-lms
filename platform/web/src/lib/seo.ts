@@ -17,11 +17,59 @@ export const DEFAULT_TITLE = "Yallapp: your business as your own mobile app";
 export const DEFAULT_DESCRIPTION =
   "Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, from your WordPress site, Shopify and other platforms, your own API, or no website at all.";
 
-/** The public site's address without a trailing slash: APP_URL, else the host's URL, else yallapp.com.tr. */
-export function siteUrl(): string {
-  const raw = process.env.APP_URL?.trim() || process.env.URL?.trim() || COMPANY.website;
-  return raw.replace(/\/+$/, "");
+/**
+ * 67 Netlify's own addresses (yallapp.netlify.app, deploy previews). Visitors
+ * reach the site through the proxy on host.webek.org (deploy/apache-proxy.conf),
+ * so these are never the public address. Netlify sets `URL` to one of them,
+ * since the domain isn't added in Netlify.
+ */
+function isNetlifyAddress(url: string): boolean {
+  try {
+    return /\.netlify\.(app|com)$/i.test(new URL(url).hostname);
+  } catch {
+    return true;
+  }
 }
+
+/**
+ * The public site's address without a trailing slash, for canonical
+ * addresses, hreflang, the sitemap, robots.txt and structured data: APP_URL,
+ * else the host's URL, else yallapp.com.tr. 67 Never a Netlify address (nor
+ * one that isn't a URL): static pages take it when they are built, so a build
+ * without APP_URL would otherwise name yallapp.netlify.app on every page.
+ */
+export function siteUrl(): string {
+  for (const raw of [process.env.APP_URL, process.env.URL]) {
+    const url = raw?.trim().replace(/\/+$/, "");
+    if (url && !isNetlifyAddress(url)) return url;
+  }
+  return COMPANY.website;
+}
+
+/**
+ * 67 The favicons every page links (the root layout). Google Search shows the
+ * home page's favicon next to its results: a square of at least 48 px (a
+ * multiple of 48), at an address it may crawl that answers 200 with an image
+ * type. `/favicon.ico` (16, 32 and 48 px) stays at the root for browsers and
+ * crawlers that ask for it without reading the page. The files are
+ * brand/favicon's, in public/.
+ */
+export const SITE_ICONS: {
+  icon: { url: string; sizes?: string; type: string }[];
+  apple: { url: string; sizes: string; type: string }[];
+} = {
+  icon: [
+    { url: "/favicon.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
+    { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+    { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+    { url: "/favicon.svg", type: "image/svg+xml" },
+  ],
+  apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+};
+
+/** 67 Yallapp's logo for Google (Organization's `logo`): square, 512 px, on the brand's Midnight. */
+export const LOGO_PATH = "/android-chrome-512x512.png";
 
 /**
  * The site's share image (app/opengraph-image.tsx). A page's own `openGraph`
@@ -108,7 +156,7 @@ export function organizationLd(base: string, contact: { email: string; whatsapp:
     "@id": `${base}/#organization`,
     name: SITE_NAME,
     url: `${base}/`,
-    logo: `${base}/android-chrome-512x512.png`,
+    logo: `${base}${LOGO_PATH}`,
     address: { "@type": "PostalAddress", addressLocality: COMPANY.city, addressCountry: COMPANY.countryCode },
     contactPoint: [
       {
