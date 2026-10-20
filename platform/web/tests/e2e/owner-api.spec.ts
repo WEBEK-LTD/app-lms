@@ -333,6 +333,67 @@ test("the owner adds a lesson from the phone, and the app has it", async ({ requ
   expect(curriculum.topics[0].items[0]).toMatchObject({ title: "Greetings", preview: true });
 });
 
+test("63 a student asks and reviews; the owner's phone hears of it, answers and replies; the dashboard shows them", async ({ request }) => {
+  const student = await signInCustomer(request, academyApi, "534 222 01 58");
+  const config = await (await request.get(`${academyApi}/config?platform=android&app_version=1.0.0`)).json();
+  expect(config.features).toMatchObject({ reviews: true, qna: true });
+  // Only students of the course ask.
+  expect((await request.post(`${academyApi}/courses/${courseId}/questions`, { headers: student, data: { text: "Is there homework?" } })).status()).toBe(403);
+  expect((await request.post(`${academyApi}/courses/${courseId}/enroll`, { headers: student })).status()).toBe(200);
+  const asked = await request.post(`${academyApi}/courses/${courseId}/questions`, { headers: student, data: { text: "Is there homework?" } });
+  expect(asked.status()).toBe(201);
+  const questionId = ((await asked.json()) as { id: number }).id;
+  const reviewed = await request.put(`${academyApi}/courses/${courseId}/reviews/mine`, { headers: student, data: { rating: 4, text: "Clear and friendly." } });
+  expect(await reviewed.json()).toMatchObject({ rating: 4, status: "approved", reply: null });
+
+  // The owner's phone hears of both.
+  await expect.poll(async () => (await ownerPushes()).filter((p) => p.to.includes(deviceId) && p.message.data.question_id === String(questionId)).length).toBe(1);
+  const pushes = (await ownerPushes()).filter((p) => p.to.includes(deviceId));
+  expect(pushes.find((p) => p.message.data.question_id === String(questionId))!.message).toMatchObject({ title: "New question in Turkish for Beginners", data: { kind: "new_message", app_id: academyId } });
+  await expect.poll(async () => (await ownerPushes()).some((p) => p.to.includes(deviceId) && p.message.data.kind === "new_review" && p.message.data.app_id === academyId)).toBe(true);
+
+  const me = await (await request.get(`${owner}/me`, { headers: bearer() })).json();
+  expect(me.apps.find((a: { id: string }) => a.id === academyId).features).toMatchObject({ questions: true, reviews: true });
+  const today = await (await request.get(`${owner}/apps/${academyId}/today`, { headers: bearer() })).json();
+  expect(today.needs_you).toContainEqual(expect.objectContaining({ kind: "questions_to_answer", count: 1, title: "1 course question to answer" }));
+  const questions = await (await request.get(`${owner}/apps/${academyId}/questions?status=open`, { headers: bearer() })).json();
+  expect(questions).toMatchObject({ open: 1, items: [{ id: questionId, course_title: "Turkish for Beginners", person: "Mona Adel", text: "Is there homework?" }] });
+  const answered = await request.post(`${owner}/apps/${academyId}/questions/${questionId}/answers`, { headers: bearer(), data: { text: "A short one after each lesson." } });
+  expect(answered.status()).toBe(201);
+  // The student reads it under the question, in the business's name, and was told.
+  const thread = await (await request.get(`${academyApi}/questions/${questionId}`, { headers: student })).json();
+  expect(thread).toMatchObject({ answer_count: 1, answers: [{ text: "A short one after each lesson.", author: { instructor: true }, mine: false }] });
+  const inbox = await (await request.get(`${academyApi}/me/notifications`, { headers: student })).json();
+  expect(inbox.items.map((n: { title: string }) => n.title)).toContain("Your question was answered");
+
+  const reviews = await (await request.get(`${owner}/apps/${academyId}/reviews`, { headers: bearer() })).json();
+  expect(reviews).toMatchObject({ rating: 4, rating_count: 1, items: [{ person: "Mona Adel", rating: 4, hidden: false }] });
+  const reviewId = reviews.items[0].id as number;
+  const replied = await request.put(`${owner}/apps/${academyId}/reviews/${reviewId}/reply`, { headers: bearer(), data: { text: "Thank you, Mona!" } });
+  expect(await replied.json()).toMatchObject({ reply: { text: "Thank you, Mona!" } });
+  expect(await (await request.get(`${academyApi}/courses/${courseId}/reviews`)).json()).toMatchObject({ items: [{ text: "Clear and friendly.", reply: { text: "Thank you, Mona!" } }], summary: { rating: 4, rating_count: 1 } });
+
+  // The dashboard: Questions (answered now), Reviews with the reply; hiding it takes it out of the app.
+  await own.goto(`/dashboard/open/${academyId}?to=questions`);
+  await expect(own.getByRole("heading", { level: 1, name: "Questions" })).toBeVisible();
+  await expect(own.getByText("No questions here yet.")).toBeVisible();
+  await own.getByRole("link", { name: "Answered" }).click();
+  await own.getByTestId("course-questions").getByText("Is there homework?").click();
+  await expect(own.getByTestId("question-thread")).toContainText("A short one after each lesson.");
+  await own.getByLabel("Your answer").fill("And the answers are in lesson 2.");
+  await own.getByRole("button", { name: "Send answer" }).click();
+  await expect(own.getByText("Your answer is in the app. The student was told.")).toBeVisible();
+  await own.goto("/dashboard/courses/reviews");
+  await expect(own.getByTestId("reviews-average")).toContainText("4 out of 5 from 1 review");
+  await expect(own.getByTestId("course-reviews")).toContainText("Thank you, Mona!");
+  await own.getByRole("button", { name: "Hide the review of Mona Adel" }).click();
+  await expect(own.getByTestId("course-reviews")).toContainText("Hidden from others");
+  expect(await (await request.get(`${academyApi}/courses/${courseId}/reviews`)).json()).toMatchObject({ total: 0, summary: { rating_count: 0 } });
+  expect(await (await request.get(`${academyApi}/courses/${courseId}/reviews`, { headers: student })).json()).toMatchObject({ mine: { status: "hidden" } });
+  await own.getByRole("button", { name: "Show again the review of Mona Adel" }).click();
+  await expect(own.getByTestId("course-reviews")).not.toContainText("Hidden from others");
+});
+
 test("the owner sends a notification to the app's users from the phone", async ({ request }) => {
   const sent = await request.post(`${owner}/apps/${shopId}/notifications`, { headers: bearer(), data: { title: "New tea sets", body: "Fresh from the kiln this week." } });
   expect(sent.status()).toBe(201);
