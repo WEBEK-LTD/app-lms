@@ -5,14 +5,18 @@ import { SubmitButton } from "@/components/form";
 import { Badge, Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { INTAKE_TYPE_LABELS } from "@/lib/bookings/intake";
-import { bookingSetup, bookingWords, WEEKDAYS } from "@/lib/bookings/setup";
+import { bookingSetup, WEEKDAYS } from "@/lib/bookings/setup";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
 import type { BookingService, BookingStaff, IntakeField } from "@/lib/data/types";
 import { CategoryForm, IntakeFieldForm, RulesForm, ServiceForm, StaffForm } from "./forms";
+import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import { formatDate } from "@/i18n/format";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient();
-  return { title: bookingWords(app?.vertical).page };
+  const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
+  return { title: (await dashboardText()).t("bookings.page", { kind }) };
 }
 
 const TIMEZONES = ["Europe/Istanbul", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Dubai", "Asia/Riyadh", "Africa/Cairo", "America/New_York"];
@@ -59,9 +63,11 @@ function intakeValues(f: IntakeField | null): Record<string, string> {
   return { id: f.id, label: f.label, type: f.type, options: f.options.join("\n"), required: f.required ? "on" : "" };
 }
 
-function hoursText(s: BookingStaff): string {
-  const open = s.hours.map((h, d) => (h[0] ? `${WEEKDAYS[d]!.slice(0, 3)} ${h[0].start}–${h[0].end}` : null)).filter(Boolean);
-  return open.length ? open.join(" · ") : "No working hours";
+/** "Mon 09:00–17:00 · Tue …": short day names in the dashboard's language (1 January 2023 was a Sunday). */
+function hoursText(s: BookingStaff, { t, lang }: DashboardText): string {
+  const day = (d: number) => (lang === "en" ? WEEKDAYS[d]!.slice(0, 3) : formatDate(lang, new Date(Date.UTC(2023, 0, 1 + d)), { weekday: "short", timeZone: "UTC" }));
+  const open = s.hours.map((h, d) => (h[0] ? `${day(d)} ${h[0].start}–${h[0].end}` : null)).filter(Boolean);
+  return open.length ? open.join(" · ") : t("bookings.noHours");
 }
 
 function Card({ id, title, text, children }: { id: string; title: string; text?: string; children: React.ReactNode }) {
@@ -81,22 +87,24 @@ function Card({ id, title, text, children }: { id: string; title: string; text?:
 /** Services, team, hours and booking rules for Bookings apps without a website (21 a clinic's doctors and intake form). */
 export default async function ServicesPage() {
   const { app } = await requireClient();
-  const words = bookingWords(app?.vertical);
+  const text = await dashboardText();
+  const { t, k } = text;
+  const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
   const clinic = app?.vertical === "clinic";
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.page", { kind })}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app gets its services from your booking plugin. To manage them here instead, choose &quot;I don&apos;t have a website&quot; on
-          the <Link href="/dashboard/setup?step=website">Website step</Link>.
+          {richText(t("bookings.fromPlugin"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
         </p>
       </div>
     );
   }
   const setup = bookingSetup(app);
   const { rules } = setup;
-  const money = (cents: number) => (cents ? formatCents(cents, rules.currency) : "Free");
+  const money = (cents: number) => (cents ? formatCents(cents, rules.currency) : t("common.free"));
+  const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   const category = new Map(setup.categories.map((c) => [c.id, c.name]));
   // 27 Classes on the timetable that aren't booked one to one.
   const onTimetable = new Set(setup.classTemplates.map((t) => t.serviceId));
@@ -104,20 +112,16 @@ export default async function ServicesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {clinic
-            ? "What patients can book in your app, which doctor sees them and when. Changes show in the app right away."
-            : "What customers can book in your app, who does it and when. Changes show in the app right away."}
-        </p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.page", { kind })}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bookings.intro", { kind })}</p>
       </div>
       {setup.services.length === 0 || setup.staff.length === 0 ? (
         <Notice tone="warn" icon="warning">
-          {clinic ? "Patients can book once you add a service and a doctor who provides it." : "Customers can book once you add a service and a team member who provides it."}
+          {t("bookings.needBoth", { kind })}
         </Notice>
       ) : null}
 
-      <Card id="h-services" title="Services">
+      <Card id="h-services" title={t("bookings.services")}>
         {setup.services.length ? (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             {setup.services.map((s) => (
@@ -126,17 +130,17 @@ export default async function ServicesPage() {
                   <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3">
                     <span className="text-[15px] font-bold">{s.name}</span>
                     <span className="flex items-center gap-2 text-sm text-muted">
-                      {s.durationMinutes} min · {money(s.priceCents)}
+                      {t("bookings.serviceLine", { minutes: s.durationMinutes, price: money(s.priceCents) })}
                       {s.categoryId ? ` · ${category.get(s.categoryId)}` : ""}
-                      {s.active ? null : onTimetable.has(s.id) ? <Badge tone="neutral">Timetable only</Badge> : <Badge tone="warn">Hidden</Badge>}
+                      {s.active ? null : onTimetable.has(s.id) ? <Badge tone="neutral">{t("bookings.timetableOnly")}</Badge> : <Badge tone="warn">{t("common.hidden")}</Badge>}
                     </span>
                   </summary>
                   <div className="flex flex-col gap-3 border-t border-line-soft p-4">
-                    <ServiceForm current={serviceValues(s)} categories={setup.categories} submit="Save service" />
+                    <ServiceForm current={serviceValues(s)} categories={setup.categories} submit={t("bookings.saveService")} />
                     <form action={deleteBookingServiceAction}>
                       <input type="hidden" name="id" value={s.id} />
                       <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                        Delete service
+                        {t("bookings.deleteService")}
                       </SubmitButton>
                     </form>
                   </div>
@@ -146,17 +150,17 @@ export default async function ServicesPage() {
           </ul>
         ) : null}
         <details className="rounded-xl border border-line p-4" open={setup.services.length === 0}>
-          <summary className="cursor-pointer text-[15px] font-bold">Add a service</summary>
+          <summary className="cursor-pointer text-[15px] font-bold">{t("bookings.addService")}</summary>
           <div className="pt-3">
-            <ServiceForm current={serviceValues(null)} categories={setup.categories} submit="Add service" />
+            <ServiceForm current={serviceValues(null)} categories={setup.categories} submit={t("bookings.addServiceButton")} />
           </div>
         </details>
       </Card>
 
       <Card
         id="h-team"
-        title={words.team}
-        text={`Each ${words.member}'s services, working hours and days off decide the free times in the app. Specialties, languages and a few lines about them show on their profile.`}
+        title={t("bookings.team", { kind })}
+        text={t("bookings.teamText", { kind })}
       >
         {setup.staff.length ? (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -166,17 +170,17 @@ export default async function ServicesPage() {
                   <summary className="flex cursor-pointer flex-col gap-0.5 px-4 py-3">
                     <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold">
                       {s.name}
-                      {s.active ? null : <Badge tone="warn">Not bookable</Badge>}
+                      {s.active ? null : <Badge tone="warn">{t("bookings.notBookable")}</Badge>}
                     </span>
-                    <span className="text-[13px] text-muted">{hoursText(s)}</span>
+                    <span className="text-[13px] text-muted">{hoursText(s, text)}</span>
                     {s.specialties?.length ? <span className="text-[13px] text-muted">{s.specialties.join(" · ")}</span> : null}
                   </summary>
                   <div className="flex flex-col gap-3 border-t border-line-soft p-4">
-                    <StaffForm current={staffValues(s)} services={setup.services} submit="Save" clinic={clinic} />
+                    <StaffForm current={staffValues(s)} services={setup.services} submit={t("common.save")} clinic={clinic} />
                     <form action={deleteBookingStaffAction}>
                       <input type="hidden" name="id" value={s.id} />
                       <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                        {clinic ? "Remove this doctor" : "Remove from the team"}
+                        {t("bookings.removeMember", { kind })}
                       </SubmitButton>
                     </form>
                   </div>
@@ -187,21 +191,21 @@ export default async function ServicesPage() {
         ) : null}
         {setup.services.length ? (
           <details className="rounded-xl border border-line p-4" open={setup.staff.length === 0}>
-            <summary className="cursor-pointer text-[15px] font-bold">Add a {words.member}</summary>
+            <summary className="cursor-pointer text-[15px] font-bold">{t("bookings.addMember", { kind })}</summary>
             <div className="pt-3">
-              <StaffForm current={staffValues(null)} services={setup.services} submit={`Add ${words.member}`} clinic={clinic} />
+              <StaffForm current={staffValues(null)} services={setup.services} submit={t("bookings.addMemberButton", { kind })} clinic={clinic} />
             </div>
           </details>
         ) : (
-          <p className="m-0 text-sm text-muted">Add a service first.</p>
+          <p className="m-0 text-sm text-muted">{t("bookings.serviceFirst")}</p>
         )}
       </Card>
 
       {/* 21 Questions asked when booking. The answers are shown on the appointments page only, never in emails. */}
       <Card
         id="h-intake"
-        title={words.intake}
-        text={`Optional: questions ${words.customer}s answer when they book. You see the answers on the ${words.appointments} page; they are never put in emails or notifications.`}
+        title={t("bookings.intake", { kind })}
+        text={t("bookings.intakeText", { kind })}
       >
         {setup.intakeFields.length ? (
           <ol className="m-0 flex list-none flex-col gap-3 p-0">
@@ -211,26 +215,26 @@ export default async function ServicesPage() {
                   <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3">
                     <span className="text-[15px] font-bold">{f.label}</span>
                     <span className="flex items-center gap-2 text-sm text-muted">
-                      {INTAKE_TYPE_LABELS[f.type]}
-                      {f.required ? <Badge tone="neutral">Must be answered</Badge> : null}
+                      {k(INTAKE_TYPE_LABELS[f.type])}
+                      {f.required ? <Badge tone="neutral">{t("bookings.mustAnswer")}</Badge> : null}
                     </span>
                   </summary>
                   <div className="flex flex-col gap-3 border-t border-line-soft p-4">
-                    <IntakeFieldForm current={intakeValues(f)} submit="Save question" />
+                    <IntakeFieldForm current={intakeValues(f)} submit={t("bookings.saveQuestion")} />
                     <div className="flex flex-wrap gap-2">
                       {index > 0 ? (
                         <form action={changeIntakeFieldAction}>
                           <input type="hidden" name="id" value={f.id} />
                           <input type="hidden" name="move" value="up" />
                           <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                            Move up<span className="sr-only"> “{f.label}”</span>
+                            {richText(t("bookings.moveUp", { label: f.label }), sr)}
                           </SubmitButton>
                         </form>
                       ) : null}
                       <form action={changeIntakeFieldAction}>
                         <input type="hidden" name="id" value={f.id} />
                         <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                          Delete question<span className="sr-only"> “{f.label}”</span>
+                          {richText(t("bookings.deleteQuestion", { label: f.label }), sr)}
                         </SubmitButton>
                       </form>
                     </div>
@@ -241,23 +245,23 @@ export default async function ServicesPage() {
           </ol>
         ) : null}
         <details className="rounded-xl border border-line p-4">
-          <summary className="cursor-pointer text-[15px] font-bold">Add a question</summary>
+          <summary className="cursor-pointer text-[15px] font-bold">{t("bookings.addQuestion")}</summary>
           <div className="pt-3">
-            <IntakeFieldForm current={intakeValues(null)} submit="Add question" />
+            <IntakeFieldForm current={intakeValues(null)} submit={t("bookings.addQuestionButton")} />
           </div>
         </details>
       </Card>
 
-      <Card id="h-categories" title="Categories" text="Optional: group your services in the app.">
+      <Card id="h-categories" title={t("shop.categories")} text={t("bookings.categoriesText")}>
         {setup.categories.length ? (
           <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
             {setup.categories.map((c) => (
-              <li key={c.id} className="flex items-center gap-2 rounded-full border border-line py-1 pr-1 pl-3 text-sm">
+              <li key={c.id} className="flex items-center gap-2 rounded-full border border-line py-1 ps-3 pe-1 text-sm">
                 {c.name}
                 <form action={deleteBookingCategoryAction}>
                   <input type="hidden" name="id" value={c.id} />
-                  <SubmitButton variant="secondary" className="h-7 px-2 text-xs" aria-label={`Delete ${c.name}`}>
-                    Delete
+                  <SubmitButton variant="secondary" className="h-7 px-2 text-xs" aria-label={t("bookings.deleteName", { name: c.name })}>
+                    {t("common.delete")}
                   </SubmitButton>
                 </form>
               </li>
@@ -267,7 +271,7 @@ export default async function ServicesPage() {
         <CategoryForm />
       </Card>
 
-      <Card id="h-rules" title="Booking rules">
+      <Card id="h-rules" title={t("bookings.rules")}>
         <RulesForm
           timezones={TIMEZONES.includes(rules.timezone) ? TIMEZONES : [rules.timezone, ...TIMEZONES]}
           current={{

@@ -5,13 +5,29 @@ import { SubmitButton } from "@/components/form";
 import { Badge, Notice } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { CLASS_WEEKS, classWhen } from "@/lib/bookings/classes";
-import { bookingSetup, bookingWords, WEEKDAYS } from "@/lib/bookings/setup";
+import { bookingSetup, WEEKDAYS } from "@/lib/bookings/setup";
 import { addDays, localToUtc, utcToLocal } from "@/lib/bookings/time";
 import { getStore } from "@/lib/data";
 import type { ClassBooking, ClassTemplate } from "@/lib/data/types";
 import { ClassTemplateForm } from "./forms";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import { formatDate } from "@/i18n/format";
+import type { Lang } from "@/i18n/config";
 
-export const metadata: Metadata = { title: "Timetable" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("bookings.timetable") };
+}
+
+/** "Mon 3 Nov, 18:00" (lib/bookings/classes.ts classWhen) in the dashboard's language. */
+function classWhenIn(lang: Lang, startAt: Date, timeZone: string): string {
+  if (lang === "en") return classWhen(startAt, timeZone);
+  const local = utcToLocal(startAt, timeZone);
+  return `${formatDate(lang, new Date(`${local.date}T12:00:00Z`), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })}, ${local.time}`;
+}
+
+/** A weekday's long name in the dashboard's language (1 January 2023 was a Sunday). */
+const weekdayIn = (lang: Lang, d: number) => (lang === "en" ? WEEKDAYS[d]! : formatDate(lang, new Date(Date.UTC(2023, 0, 1 + d)), { weekday: "long", timeZone: "UTC" }));
 
 function Card({ id, title, text, children }: { id: string; title: string; text?: string; children: React.ReactNode }) {
   return (
@@ -48,14 +64,15 @@ function who(b: ClassBooking): string {
 /** 27 A gym's or studio's weekly timetable, and the classes of the coming week with who booked them. */
 export default async function TimetablePage({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
   const { app } = await requireClient();
-  const words = bookingWords(app?.vertical);
+  const { t, lang } = await dashboardText();
+  const kind = app?.vertical === "fitness" ? "fitness" : app?.vertical === "clinic" ? "clinic" : "other";
+  const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Timetable</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.timetable")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Group classes are for businesses without a website. To manage them here, choose &quot;I don&apos;t have a website&quot; on the{" "}
-          <Link href="/dashboard/setup?step=website">Website step</Link>.
+          {richText(t("bookings.timetableNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -76,40 +93,40 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Timetable</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.timetable")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your weekly group classes. The app shows the next {CLASS_WEEKS} weeks, in {timezone} time, and {words.customer}s book a spot until a class is full.
+          {richText(t("bookings.timetableIntro", { kind, weeks: CLASS_WEEKS }), { zone: () => <bdi dir="ltr">{timezone}</bdi> })}
         </p>
       </div>
       {setup.services.length === 0 || coaches.length === 0 ? (
         <Notice tone="warn" icon="warning">
-          First add your classes and {words.team.toLowerCase()} on the <Link href="/dashboard/services">{words.page}</Link> page.
+          {richText(t("bookings.firstAdd", { kind }), { link: (chunk) => <Link href="/dashboard/services">{chunk}</Link> })}
         </Notice>
       ) : null}
 
-      <Card id="h-weekly" title="Weekly classes" text="Changes show in the app at once. A class someone already booked keeps its time and coach; cancel it below if it can't take place.">
+      <Card id="h-weekly" title={t("bookings.weekly")} text={t("bookings.weeklyText")}>
         {templates.length ? (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {templates.map((t) => {
-              const name = service.get(t.serviceId)?.name ?? "A class that was removed";
+            {templates.map((template) => {
+              const name = service.get(template.serviceId)?.name ?? t("bookings.removedClass");
               return (
-                <li key={t.id} className="rounded-xl border border-line">
+                <li key={template.id} className="rounded-xl border border-line">
                   <details>
                     <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3">
                       <span className="text-[15px] font-bold">
-                        {WEEKDAYS[t.weekday]} {t.time} · {name}
+                        {weekdayIn(lang, template.weekday)} {template.time} · {name}
                       </span>
                       <span className="flex items-center gap-2 text-sm text-muted">
-                        {coach.get(t.staffId) ?? "No coach"} · {t.durationMinutes} min · {t.capacity} spots
-                        {t.active ? null : <Badge tone="warn">Paused</Badge>}
+                        {t("bookings.classLine", { coach: coach.get(template.staffId) ?? t("bookings.noCoach"), minutes: template.durationMinutes, spots: template.capacity })}
+                        {template.active ? null : <Badge tone="warn">{t("bookings.paused")}</Badge>}
                       </span>
                     </summary>
                     <div className="flex flex-col gap-3 border-t border-line-soft p-4">
-                      <ClassTemplateForm current={templateValues(t)} services={setup.services} coaches={coaches} submit="Save class" />
+                      <ClassTemplateForm current={templateValues(template)} services={setup.services} coaches={coaches} submit={t("bookings.saveClass")} />
                       <form action={deleteClassTemplateAction}>
-                        <input type="hidden" name="id" value={t.id} />
+                        <input type="hidden" name="id" value={template.id} />
                         <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                          Take off the timetable<span className="sr-only"> {name}</span>
+                          {richText(t("bookings.takeOff", { name }), sr)}
                         </SubmitButton>
                       </form>
                     </div>
@@ -121,21 +138,25 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
         ) : null}
         {setup.services.length && coaches.length ? (
           <details className="rounded-xl border border-line p-4" open={templates.length === 0}>
-            <summary className="cursor-pointer text-[15px] font-bold">Add a class to the timetable</summary>
+            <summary className="cursor-pointer text-[15px] font-bold">{t("bookings.addClass")}</summary>
             <div className="pt-3">
-              <ClassTemplateForm current={templateValues(null, setup.services[0])} services={setup.services} coaches={coaches} submit="Add to timetable" />
+              <ClassTemplateForm current={templateValues(null, setup.services[0])} services={setup.services} coaches={coaches} submit={t("bookings.addToTimetable")} />
             </div>
           </details>
         ) : null}
       </Card>
 
-      <Card id="h-coming" title={week === 0 ? "Coming 7 days" : `Week of ${classWhen(localToUtc(from, "12:00", timezone), timezone).split(",")[0]}`} text="Who booked each class. Cancelling a class gives everyone their spot and class credit back and tells them in the app.">
-        <nav aria-label="Weeks" className="flex flex-wrap gap-3 text-[15px]">
-          {week > 0 ? <Link href={`/dashboard/timetable?week=${week - 1}`}>Previous week</Link> : null}
-          {week < CLASS_WEEKS - 1 ? <Link href={`/dashboard/timetable?week=${week + 1}`}>Next week</Link> : null}
+      <Card
+        id="h-coming"
+        title={week === 0 ? t("bookings.coming7") : t("bookings.weekOf", { date: classWhenIn(lang, localToUtc(from, "12:00", timezone), timezone).split(",")[0]! })}
+        text={t("bookings.comingText")}
+      >
+        <nav aria-label={t("bookings.weeks")} className="flex flex-wrap gap-3 text-[15px]">
+          {week > 0 ? <Link href={`/dashboard/timetable?week=${week - 1}`}>{t("bookings.previousWeek")}</Link> : null}
+          {week < CLASS_WEEKS - 1 ? <Link href={`/dashboard/timetable?week=${week + 1}`}>{t("bookings.nextWeek")}</Link> : null}
         </nav>
         {sessions.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No classes these days.</p>
+          <p className="m-0 text-[15px] text-muted">{t("bookings.noClasses")}</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             {sessions.map((s) => {
@@ -145,23 +166,21 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
                 <li key={s.id} className="flex flex-col gap-2 rounded-xl border border-line p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-[15px] font-bold">
-                      {classWhen(s.startAt, timezone)} · {s.serviceName}
+                      {classWhenIn(lang, s.startAt, timezone)} · {s.serviceName}
                     </span>
                     {cancelled ? (
-                      <Badge tone="neutral">Cancelled</Badge>
+                      <Badge tone="neutral">{t("events.cancelled")}</Badge>
                     ) : (
-                      <Badge tone={s.bookedCount >= s.capacity ? "warn" : "success"}>
-                        {s.bookedCount} of {s.capacity} booked
-                      </Badge>
+                      <Badge tone={s.bookedCount >= s.capacity ? "warn" : "success"}>{t("bookings.bookedOf", { booked: s.bookedCount, capacity: s.capacity })}</Badge>
                     )}
                   </div>
-                  <span className="text-sm text-muted">with {s.staffName}</span>
+                  <span className="text-sm text-muted">{t("bookings.withCoach", { name: s.staffName })}</span>
                   {people.length ? (
                     <details className="rounded-lg border border-line-soft">
                       <summary className="cursor-pointer px-3 py-2 text-[15px] font-semibold">
-                        Who&apos;s coming ({people.length})<span className="sr-only"> to {s.serviceName}</span>
+                        {richText(t("bookings.whosComing", { count: people.length, name: s.serviceName }), sr)}
                       </summary>
-                      <ol className="m-0 flex flex-col gap-1 border-t border-line-soft py-2 pr-3 pl-8 text-[15px]">
+                      <ol className="m-0 flex flex-col gap-1 border-t border-line-soft py-2 ps-8 pe-3 text-[15px]">
                         {people.map((b) => (
                           <li key={b.id}>{who(b)}</li>
                         ))}
@@ -172,7 +191,7 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
                     <form action={cancelClassSessionAction}>
                       <input type="hidden" name="id" value={s.id} />
                       <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                        Cancel class<span className="sr-only"> {s.serviceName} {classWhen(s.startAt, timezone)}</span>
+                        {richText(t("bookings.cancelClass", { name: s.serviceName, when: classWhenIn(lang, s.startAt, timezone) }), sr)}
                       </SubmitButton>
                     </form>
                   ) : null}
