@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - 'mobile/**'
+      - 'business/**'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
   pull_request:
     paths:
       - 'mobile/**'
+      - 'business/**'
       - 'platform/web/public/preview-app/**'
       - '.github/workflows/mobile.yml'
 
@@ -26,6 +28,7 @@ jobs:
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     outputs:
       app: ${{ steps.files.outputs.app }}
+      business: ${{ steps.files.outputs.business }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,6 +51,8 @@ jobs:
           match() { [ "$files" = all ] || grep -qE "$1" <<<"$files"; }
           {
             if match '^(mobile/|platform/web/public/preview-app/|\.github/workflows/mobile\.yml$)'; then echo app=true; else echo app=false; fi
+            # 59 Yallapp Business, the owners' app.
+            if match '^(business/|\.github/workflows/mobile\.yml$)'; then echo business=true; else echo business=false; fi
           } >> "$GITHUB_OUTPUT"
 
   app:
@@ -225,3 +230,42 @@ jobs:
           cp config/example-agconnect-services.json android/app/agconnect-services.json
           flutter build apk --debug
           rm android/app/agconnect-services.json
+
+  # 59 Yallapp Business (business/), the app for the people who run an app
+  # on Yallapp: the same checks as the client app. No APK here: release
+  # builds are made for the stores (docs/LAUNCH-CHECKLIST.md).
+  business:
+    name: Yallapp Business
+    needs: changes
+    if: needs.changes.outputs.business == 'true'
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: business
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.5
+          cache: true
+
+      - name: Install packages
+        run: flutter pub get --enforce-lockfile
+
+      - name: Interface strings are complete and generated
+        run: |
+          python3 tool/build_arb.py
+          flutter gen-l10n
+          git diff --exit-code -- .
+
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test

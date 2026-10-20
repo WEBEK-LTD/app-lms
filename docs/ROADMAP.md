@@ -1293,7 +1293,47 @@ an end-to-end spec on memory and MariaDB. Migration
 | [ ] | 58.14 Not tried with a real Firebase project and phone: the pushes went to a fake sender and the capture folder. A plan paid entirely with a coupon (no provider) sends no "Payment received" push | LAUNCH-CHECKLIST 7k, with Phase 59 |
 | [ ] | 58.15 WordPress, own-API and connected-platform apps: their orders, bookings and content live on their own sites, as on the dashboard, so the app shows what Yallapp keeps for them (today's opens, notices, builds, Media, Analytics, the plan) | When owners ask |
 
-## Later: the Yallapp app for business owners (decided, not started)
+## Phase 59: Yallapp Business, the app for the people who run an app on Yallapp
+
+Yallapp's own Flutter app for its clients, in `business/` (package
+`yallapp_business`, `tr.com.yallapp.business` on Android and iOS), built
+against the Owner API of Phase 58. Owners sign in with their dashboard's email
+and password and see today's numbers and what needs them, move orders on (with
+a Kitchen mode for restaurants), confirm appointments, let people in at the
+door with the ticket scanner, follow donations, make quick edits to their
+catalog, upload pictures and videos to Media from the phone, answer messages,
+look up their app's users, read their stats, send a notification to everyone
+who uses their app, try the app, and follow builds and publishing. Each screen
+shows only when the app has it. No payments of any kind on any platform: the
+plan and storage are read-only with "Manage on yallapp.com.tr". English by
+default, Arabic (right to left) and Turkish, following the account's
+dashboard language. Proved with widget tests of every screen group on an
+in-memory fake API (English, Arabic and Turkish), unit tests of the API
+client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 59.1 The project: a separate Flutter app with Android and iOS (iOS 15, Flutter's Android minimum, as `mobile/`), the Yallapp icon from `brand/stores`, Bricolage Grotesque and IBM Plex Sans Arabic bundled, permissions for the camera, microphone, photos, notifications and Face ID; dependencies pinned to releases at least two weeks old; no signing keys or Firebase files committed | `flutter analyze`, review |
+| [x] | 59.2 The API client from `owner.yaml`: typed models, `{code, message}` errors with field errors and `Retry-After`, `Accept-Language`, tokens in secure storage, renewing before expiry and once for any number of 401s, the newest refresh token kept, signed out when it's refused; the media gate's chunk transport; the base URL and Firebase options at build time; an in-memory fake API for tests and the demo (`YB_DEMO`) | `test/unit/api_client_test.dart`, `models_test.dart` |
+| [x] | 59.3 Sign in (show/hide, forgot password opens the website's reset page in the app's language), `use_website` for staff-only accounts with a link to the website, the fingerprint or face lock after the first sign-in (Settings turns it off; asked again after 5 minutes away), pending, suspended, no-app and offline states, the app switcher | `auth_test.dart` |
+| [x] | 59.4 Today: greeting, the app switcher, KPI tiles (sales, orders, appointments, tickets, check-ins, donations, new users, app opens, as the app has them), Needs you now, quick actions (Kitchen, Notify, Scan, Upload, Preview), the bell with Updates from Yallapp (read state shared with the dashboard, "Mark all as read", announcements' Markdown as text) | `today_test.dart` (also Arabic, Turkish, offline, large text) |
+| [x] | 59.5 Orders by status with Accept/Decline and the kitchen's steps, the order (customer, address, items, payment, refunds) and refunds as `OrderDetail.refund` allows (provider or recorded, what to take back); Kitchen mode: big cards by step, a chime and a haptic for a new order while open, checked every 15 seconds and on each `new_order` push, columns on a tablet | `orders_test.dart` |
+| [x] | 59.6 Appointments today, upcoming and past with confirm, decline, cancel, done and no-show; events with their ticket counts; the dark door scanner (camera QR, typed codes, let in once, "already used" with when, another event's ticket, flashlight, counts) | `bookings_events_test.dart` |
+| [x] | 59.7 Donations with the campaigns' totals and a filter; catalog quick edits (products and the menu: price, sale price, stock, available or sold out; courses: publish, add a lesson with a video from Media or recorded or picked now and uploaded; articles and listings: publish, unpublish, archive, feature) | `bookings_events_test.dart`, `catalog_media_test.dart` |
+| [x] | 59.8 Media: the storage meter read-only, files by kind, uploads from the camera or the gallery in the gate's chunks with progress, pause, resume (also after the app was closed, from the remembered file) and delete; held back while the plan isn't active | `catalog_media_test.dart` |
+| [x] | 59.9 Inbox (a listing's conversations, read and reply), app users with search, Stats for 7, 30, 90 days or chosen dates (KPIs against the period before, a daily chart read aloud, retention, platforms, countries, screens), sending a notification to everyone with a phone-style preview, a confirmation and the hourly limit | `messages_people_test.dart` |
+| [x] | 59.10 Preview the app in an in-app web view (draft pages for hosted apps), builds and store statuses read-only with signed downloads, More: the app's other tools, plan & storage read-only, language (saved to the account), notifications per kind, the biometric lock, signed-in devices (sign one or all out), help (WhatsApp, email, the dashboard, guides), legal links in the app's language, the version | `publishing_more_test.dart` |
+| [x] | 59.11 Pushes from Yallapp Business's own Firebase project when its options are given at build time: the token registered after sign-in and on each refresh, a tapped push opens its screen on its app (after the lock if needed), a push while open shows with "Open" | `push_test.dart` |
+| [x] | 59.12 English, Arabic and Turkish for every string (`tool/strings_*.py` → `lib/l10n/app_*.arb`, checked for missing keys), the website's and dashboard's words; right to left with mirrored arrows; 48 px targets, labels on icons, charts and progress read aloud, large text stacks the tiles | `auth_test.dart`, `today_test.dart`, `orders_test.dart`, `bookings_events_test.dart`, `publishing_more_test.dart` |
+| [x] | 59.13 Contract sync with Phase 58's final `owner.yaml` (updates' `summary`, `link_label`, `app_name`; order numbers without `#`), and its Media text corrected to `PUT`, the method the media gate takes | `redocly lint`, `api_client_test.dart` |
+| [x] | 59.14 CI: the Mobile workflow's "Yallapp Business" job when `business/` changes (strings generated, format, analyze, test); docs: `business/README.md`, `docs/ARCHITECTURE.md` › Yallapp Business, the app, `docs/LAUNCH-CHECKLIST.md` 7l | Review |
+| [ ] | 59.15 Light theme only; a dark theme isn't built yet | When owners ask |
+| [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play (the server can send through Push Kit) isn't wired in the app | LAUNCH-CHECKLIST 7l |
+| [ ] | 59.17 Course questions and reviews (Inbox has a listing's conversations only), moving an appointment, gym members at the door and scheduled notifications aren't in the Owner API, so the app shows nothing for them | Phase 58.11, 58.12 |
+| [ ] | 59.18 Kitchen mode doesn't keep the screen awake (no wake lock yet); a tablet left on it dims as the system says | When restaurants ask |
+| [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
+
+## Later: the Yallapp app for business owners (decided, built in Phases 58 and 59)
 
 After the website and the client dashboard are in English, Arabic and Turkish
 (Phases 55 to 57), Yallapp gets its own mobile app for the people who run an
@@ -1308,4 +1348,5 @@ and builds and publishing. Decided with the owner:
 | [x] | No payments of any kind in the app, on any platform: plans, storage packs and everything else are paid on yallapp.com.tr only |
 | [x] | Same database and the same accounts as the website and the dashboard; nothing kept separately for the app |
 | [x] | Contract first: an owner API next to the existing ones (Phase 58: `docs/api/owner.yaml`, `/api/owner/v1`) |
-| [ ] | Then the app (Flutter, Phase 59), then the stores under Yallapp's own accounts |
+| [x] | Then the app (Flutter, Phase 59: `business/`) |
+| [ ] | Then the stores under Yallapp's own accounts (LAUNCH-CHECKLIST 7l) |

@@ -1,0 +1,10 @@
+# 59 Interface strings. English is the template; every key has an Arabic and
+# a Turkish translation. `flutter pub get` regenerates
+# lib/l10n/app_localizations*.dart from the ARB files.
+arb-dir: lib/l10n
+output-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+format: true

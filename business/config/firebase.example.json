@@ -1,0 +1,8 @@
+{
+  "YB_FIREBASE_PROJECT_ID": "yallapp-business",
+  "YB_FIREBASE_SENDER_ID": "000000000000",
+  "YB_FIREBASE_API_KEY_ANDROID": "replace-with-the-android-api-key",
+  "YB_FIREBASE_APP_ID_ANDROID": "1:000000000000:android:0000000000000000",
+  "YB_FIREBASE_API_KEY_IOS": "replace-with-the-ios-api-key",
+  "YB_FIREBASE_APP_ID_IOS": "1:000000000000:ios:0000000000000000"
+}
