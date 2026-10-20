@@ -16,7 +16,8 @@ import { getStore } from "@/lib/data";
 import { appUrl, encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { announce, NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "@/lib/hosted/notify";
-import { sendTemplate } from "@/lib/email/send";
+import { emailLangOf, sendTemplate } from "@/lib/email/send";
+import { localePath } from "@/i18n/paths";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { newId } from "@/lib/crypto/tokens";
 import { effectivePlans } from "@/lib/entitlements";
@@ -165,7 +166,7 @@ export async function resendLicenseEmailAction(formData: FormData): Promise<void
     license_key: revealLicenseKey(license!, encryptionKey()),
     dashboard_url: `${appUrl()}/dashboard`,
     payment_line: "",
-  }).catch((error: unknown) => console.error("[mail] license email failed", error));
+  }, { lang: emailLangOf(user!) }).catch((error: unknown) => console.error("[mail] license email failed", error));
   await recordAudit({ actor: admin, action: "client.email", target: { type: "client", id: client.id }, clientId: client.id, summary: `Emailed the license key to ${user!.email} again${onApp(app, apps)}` });
   back(client.id, "done=license-sent");
 }
@@ -176,8 +177,9 @@ export async function sendPasswordLinkAction(formData: FormData): Promise<void> 
   if (!user) back(client.id, "");
   const reset = await createPasswordReset(store, user!.email, new Date(), { adminEmails: [] });
   if (reset) {
-    const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
-    await sendTemplate(reset.isNewAccount ? "password_set" : "password_reset", reset.user.email, { name: reset.user.name, link }).catch((error: unknown) =>
+    const lang = emailLangOf(reset.user);
+    const link = `${appUrl()}${localePath(lang, `/reset-password?token=${encodeURIComponent(reset.token)}`)}`;
+    await sendTemplate(reset.isNewAccount ? "password_set" : "password_reset", reset.user.email, { name: reset.user.name, link }, { lang }).catch((error: unknown) =>
       console.error("[mail] password link failed", error),
     );
   }

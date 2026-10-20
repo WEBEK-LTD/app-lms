@@ -8,18 +8,42 @@ import { mailDelivered, sendMail } from "../mail";
 import { platformSetting } from "../settings/platform";
 import { appMailTarget, mailerWithFallback, recordOwnMailFailure, sendThroughServer, type MailMessage } from "./app-mail";
 import { emailTemplate, renderTemplate, type EmailTemplateKey, type RenderedEmail, type TemplateText, type TemplateValue } from "./templates";
+import { localizedDefault } from "./templates-lang";
+import { langOf, type Lang } from "@/i18n/config";
+import { relocalizeDate } from "@/i18n/format";
 
-/** The template as the team saved it in the admin, or its default. Read from the database each time, so a save applies at once. */
-export async function templateText(store: DataStore, key: EmailTemplateKey): Promise<TemplateText & { edited: boolean }> {
-  const definition = emailTemplate(key)!;
-  const saved = await store.getEmailTemplate(key);
-  return saved ? { subject: saved.subject, body: saved.body, edited: true } : { subject: definition.subject, body: definition.body, edited: false };
+/** 56 The language of Yallapp's emails to this person: the one they chose for the dashboard, else English. */
+export function emailLangOf(user: { language?: string | null }): Lang {
+  return langOf(user.language);
 }
 
-/** Renders the template with these values (and Yallapp's contact details) without sending it. */
-export async function renderEmail(store: DataStore, key: EmailTemplateKey, values: Record<string, TemplateValue>, text?: TemplateText): Promise<RenderedEmail> {
+/**
+ * The template as the team saved it in the admin, or its default. Read from the database each time, so a save applies at once.
+ * 56 Unedited emails to clients have Arabic and Turkish defaults (templates-lang.ts); an edit is one English text for every language.
+ */
+export async function templateText(store: DataStore, key: EmailTemplateKey, lang: Lang = "en"): Promise<TemplateText & { edited: boolean; lang: Lang }> {
+  const definition = emailTemplate(key)!;
+  const saved = await store.getEmailTemplate(key);
+  if (saved) return { subject: saved.subject, body: saved.body, edited: true, lang: "en" };
+  const localized = localizedDefault(key, lang);
+  return localized ? { ...localized, edited: false, lang } : { subject: definition.subject, body: definition.body, edited: false, lang: "en" };
+}
+
+/**
+ * Renders the template with these values (and Yallapp's contact details) without sending it.
+ * 56 In Arabic or Turkish, a date written the English way ("31 Mar 2027") is written in that language.
+ */
+export async function renderEmail(
+  store: DataStore,
+  key: EmailTemplateKey,
+  values: Record<string, TemplateValue>,
+  text?: TemplateText,
+  lang: Lang = "en",
+): Promise<RenderedEmail> {
   const contact = (await platformSetting(store, "contact"))?.value ?? DEFAULT_CONTACT;
-  return renderTemplate(text ?? (await templateText(store, key)), { yallapp_whatsapp: contact.whatsapp, yallapp_email: contact.email, ...values });
+  const chosen = text ? { ...text, lang } : await templateText(store, key, lang);
+  const local = Object.fromEntries(Object.entries(values).map(([name, value]) => [name, typeof value === "string" ? relocalizeDate(chosen.lang, value) : value]));
+  return renderTemplate(chosen, { yallapp_whatsapp: contact.whatsapp, yallapp_email: contact.email, ...local }, chosen.lang);
 }
 
 /**
@@ -33,10 +57,10 @@ export async function sendTemplate(
   key: EmailTemplateKey,
   to: string,
   values: Record<string, TemplateValue>,
-  options: { app?: App } = {},
+  options: { app?: App; lang?: Lang } = {},
 ): Promise<RenderedEmail> {
   const store = await getStore();
-  const email = await renderEmail(store, key, values);
+  const email = await renderEmail(store, key, values, undefined, options.lang);
   if (options.app) await sendAppMail(store, options.app, { to, ...email });
   else await sendMail({ to, ...email });
   return email;
@@ -54,7 +78,7 @@ export async function sendAppMail(store: DataStore, app: App, message: MailMessa
   const platform = !target || (await mailDelivered(store)) ? (m: MailMessage) => sendMail(m, { fromName: app.appName?.trim() || undefined }) : null;
   const now = new Date();
   const mailer = mailerWithFallback(target ? (m) => sendThroughServer(target, m) : null, platform, (reason) =>
-    recordOwnMailFailure({ store, now, baseUrl: appUrl(), mail: (key, to, values) => sendTemplate(key, to, values) }, app.id, reason),
+    recordOwnMailFailure({ store, now, baseUrl: appUrl(), mail: (key, to, values, options) => sendTemplate(key, to, values, options) }, app.id, reason),
   );
   await mailer!(message);
 }

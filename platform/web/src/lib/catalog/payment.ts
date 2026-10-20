@@ -8,6 +8,9 @@ import { PaymentError } from "../payments/errors";
 import { approvePaymentItem, IyzicoError } from "../payments/iyzico";
 import { confirmCheckout, startCheckout, type CheckoutLine, type ProviderUrls } from "../payments/provider";
 import { formatCents } from "./money";
+import { getDashT } from "@/i18n/dashboard";
+import { formatDate } from "@/i18n/format";
+import type { Lang } from "@/i18n/config";
 import { optionsText } from "./options";
 import { commissionOf, orderNumber, type CheckoutAccount } from "./settings";
 import { emailTemplate, renderTemplate } from "../email/templates";
@@ -196,12 +199,28 @@ export async function approvePayout(deps: PaymentDeps & { order: CatalogOrder })
   return true;
 }
 
-/** 26 "Pickup at 13:30 on Tue 13 Oct", "Delivery as soon as possible: Moda Cd. 12, Moda": how a restaurant's order is collected. */
-export function fulfilmentLine(fulfilment: CatalogFulfilment, timezone: string): string {
+/** 26 "Pickup at 13:30 on Tue 13 Oct", "Delivery as soon as possible: Moda Cd. 12, Moda": how a restaurant's order is collected; 56 in a language. */
+export function fulfilmentLine(fulfilment: CatalogFulfilment, timezone: string, lang: Lang = "en"): string {
+  const place = fulfilment.address
+    ? `${[fulfilment.address.address, fulfilment.address.district].filter(Boolean).join(", ")}${fulfilment.address.notes ? ` (${fulfilment.address.notes})` : ""}`
+    : "";
+  if (lang !== "en") {
+    const t = getDashT(lang);
+    const at = fulfilment.scheduledFor ? new Date(fulfilment.scheduledFor) : null;
+    const line = t("orders.collect", {
+      how: fulfilment.type === "delivery" ? t("shop.delivery") : t("shop.pickup"),
+      when: at
+        ? t("orders.scheduled", {
+            time: formatDate(lang, at, { timeZone: timezone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }),
+            date: formatDate(lang, at, { timeZone: timezone, weekday: "short", day: "numeric", month: "short" }),
+          })
+        : t("orders.asap"),
+    });
+    return place ? t("emails.withAddress", { line, address: place }) : line;
+  }
   const how = fulfilment.type === "delivery" ? "Delivery" : "Pickup";
   const at = fulfilment.scheduledFor ? scheduledText(fulfilment.scheduledFor, timezone) : "as soon as possible";
-  const address = fulfilment.address ? `: ${[fulfilment.address.address, fulfilment.address.district].filter(Boolean).join(", ")}${fulfilment.address.notes ? ` (${fulfilment.address.notes})` : ""}` : "";
-  return `${how} ${at}${address}`;
+  return `${how} ${at}${place ? `: ${place}` : ""}`;
 }
 
 /** 26 "at 13:30 on Tue 13 Oct", in the kitchen's time zone. */
@@ -215,8 +234,11 @@ export function scheduledText(iso: string, timezone: string): string {
 }
 
 /** The values of the shop owner's "New order" email (lib/email/templates.ts) for a paid order. */
-export function newOrderMailValues(order: CatalogOrder, appName: string, dashboardUrl: string, timezone = "Europe/Istanbul"): Record<string, string> {
+export function newOrderMailValues(order: CatalogOrder, appName: string, dashboardUrl: string, timezone = "Europe/Istanbul", lang: Lang = "en"): Record<string, string> {
   const money = (cents: number) => formatCents(cents, order.currency);
+  const t = getDashT(lang);
+  const shipping = (amount: string) =>
+    lang === "en" ? `${order.fulfilment ? "Delivery fee" : "Shipping"}: ${amount}` : t(order.fulfilment ? "emails.deliveryFee" : "emails.shipping", { amount });
   const c = order.customer;
   return {
     app_name: appName,
@@ -225,8 +247,8 @@ export function newOrderMailValues(order: CatalogOrder, appName: string, dashboa
     order_lines: [
       // 26 A dish's options in brackets, and how a restaurant's order is collected.
       ...order.lines.map((l) => `${l.name}${l.options?.length ? ` (${optionsText(l)})` : ""} × ${l.quantity}: ${money(l.unitCents * l.quantity)}`),
-      ...(order.shippingCents > 0 ? [`${order.fulfilment ? "Delivery fee" : "Shipping"}: ${money(order.shippingCents)}`] : []),
-      ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone)] : []),
+      ...(order.shippingCents > 0 ? [shipping(money(order.shippingCents))] : []),
+      ...(order.fulfilment ? ["", fulfilmentLine(order.fulfilment, timezone, lang)] : []),
     ].join("\n"),
     customer: c ? `${[c.name, c.phone, c.email, `${c.address}, ${c.city}`].join("\n")}\n\n` : "",
     orders_url: dashboardUrl,

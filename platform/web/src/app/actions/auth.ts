@@ -11,6 +11,7 @@ import { DuplicateEmailError } from "@/lib/data/store";
 import { appUrl, superAdminEmails } from "@/lib/env";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
 import { sendTemplate } from "@/lib/email/send";
+import { localePath } from "@/i18n/paths";
 import { countryFromHeaders } from "@/lib/geo";
 import { RATE_LIMITS, hitRateLimit } from "@/lib/rate-limit";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
@@ -132,9 +133,11 @@ async function forgotPassword(formData: FormData): Promise<FormState> {
 
   const request = await createPasswordReset(store, parsed.data.email, now, { adminEmails: superAdminEmails() });
   if (request) {
-    const link = `${appUrl()}/reset-password?token=${encodeURIComponent(request.token)}`;
+    // 56 In the language they chose for the dashboard, else the one of the page they asked on.
+    const lang = isLang(request.user.language) ? request.user.language : formLang(formData);
+    const link = `${appUrl()}${localePath(lang, `/reset-password?token=${encodeURIComponent(request.token)}`)}`;
     // Answer the same way even if sending fails, so the page doesn't reveal which emails have accounts.
-    await sendTemplate(request.isNewAccount ? "password_set" : "password_reset", request.user.email, { name: request.user.name, link }).catch((error: unknown) =>
+    await sendTemplate(request.isNewAccount ? "password_set" : "password_reset", request.user.email, { name: request.user.name, link }, { lang }).catch((error: unknown) =>
       console.error("[mail] reset email failed", error),
     );
   }

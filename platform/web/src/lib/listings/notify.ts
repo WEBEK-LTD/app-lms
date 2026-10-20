@@ -3,18 +3,21 @@ import type { DataStore } from "../data/store";
 import type { App, HostedNotification, HostedUser, Listing, ListingInquiry } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
+import { getDashT } from "@/i18n/dashboard";
+import type { Lang } from "@/i18n/config";
 
 /** The values of the office's "New message to the office" email (lib/email/templates.ts). */
-export function newInquiryMailValues(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string }): Record<string, string> {
+export function newInquiryMailValues(input: { listing: Listing; user: HostedUser; text: string; appName: string; url: string; lang?: Lang }): Record<string, string> {
   const { listing, user } = input;
+  const t = getDashT(input.lang ?? "en");
   return {
     app_name: input.appName,
     customer_name: user.name,
     listing: listing.reference ? `${listing.title} (${listing.reference})` : listing.title,
     listing_title: listing.title,
     message: input.text,
-    phone: user.phone ?? "Not given (signed in by email)",
-    email_line: user.email ? `Email: ${user.email}\n` : "",
+    phone: user.phone ?? t("emails.phoneNotGiven"),
+    email_line: user.email ? `${t("emails.emailLine", { email: user.email })}\n` : "",
     conversation_url: input.url,
   };
 }

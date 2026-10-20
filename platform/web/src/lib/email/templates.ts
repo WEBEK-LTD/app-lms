@@ -1,4 +1,5 @@
 import { escapeHtml } from "../content/markdown";
+import { LANG_INFO, type Lang } from "@/i18n/config";
 
 /**
  * Every email the platform sends, with its default subject and body (the
@@ -596,7 +597,7 @@ export interface RenderedEmail {
  * are; the HTML part escapes the template's text and every value (a safe
  * HTML value is used as given). Missing values are empty.
  */
-export function renderTemplate(text: TemplateText, values: Record<string, TemplateValue>): RenderedEmail {
+export function renderTemplate(text: TemplateText, values: Record<string, TemplateValue>, lang: Lang = "en"): RenderedEmail {
   const plain = (v: TemplateValue | undefined) => (v === undefined ? "" : typeof v === "string" ? v : v.text);
   const subject = text.subject.replace(PLACEHOLDER, (_, name: string) => plain(values[name]).replace(/\s+/g, " ")).trim();
   const bodyText = text.body.replace(PLACEHOLDER, (_, name: string) => plain(values[name]));
@@ -612,7 +613,8 @@ export function renderTemplate(text: TemplateText, values: Record<string, Templa
   return {
     subject,
     text: bodyText,
-    html: `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
+    // 56 An email in Arabic or Turkish says its language, and Arabic reads right to left.
+    html: `<!doctype html><html${lang === "en" ? "" : ` lang="${lang}" dir="${LANG_INFO[lang].dir}"`}><body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#24223a">${html}</body></html>`,
   };
 }
 

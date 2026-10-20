@@ -5,11 +5,13 @@ import { dashboardLink } from "../builds/notify";
 import { DEFAULT_CONTACT } from "../contact";
 import type { DataStore } from "../data/store";
 import type { App, Client, PublishingMode, PublishingRequest, PublishingStore, User } from "../data/types";
-import { sendTemplate } from "../email/send";
+import { emailLangOf, sendTemplate } from "../email/send";
+import { getDashT } from "@/i18n/dashboard";
+import { publishingStatusIn } from "./status-lang";
 import { appUrl } from "../env";
 import { mailDelivered } from "../mail";
 import { platformSetting } from "../settings/platform";
-import { CLIENT_STATUS_LABEL, newPublishingRequest, STORE_TITLE, statusText, trackOf } from "./steps";
+import { newPublishingRequest, STORE_TITLE, trackOf } from "./steps";
 
 /**
  * The address clients invite to their store and Firebase accounts, and where
@@ -112,16 +114,25 @@ export async function notifyPublishingStatus(store: DataStore, request: Publishi
     const user = client ? await store.getUserById(client.userId) : null;
     if (!user) return;
     const track = trackOf(request, which);
-    await sendTemplate("publishing_status", user.email, {
-      name: user.name,
-      app_name: appLabel(app),
-      store: STORE_TITLE[which],
-      status: CLIENT_STATUS_LABEL[track.status],
-      status_text: statusText(which, track.status),
-      note_line: track.note?.trim() ? `Note: ${track.note.trim()}\n\n` : "",
-      store_link_line: track.status === "live" && track.storeUrl ? `Your app: ${track.storeUrl}\n\n` : "",
-      publishing_url: dashboardLink(request.appId, "publishing"),
-    });
+    // 56 In the client's language; the team's note stays as the team wrote it.
+    const lang = emailLangOf(user);
+    const t = getDashT(lang);
+    const status = publishingStatusIn(lang, which, track.status);
+    await sendTemplate(
+      "publishing_status",
+      user.email,
+      {
+        name: user.name,
+        app_name: appLabel(app),
+        store: STORE_TITLE[which],
+        status: status.label,
+        status_text: status.text,
+        note_line: track.note?.trim() ? `${t("emails.note", { note: track.note.trim() })}\n\n` : "",
+        store_link_line: track.status === "live" && track.storeUrl ? `${t("emails.yourApp", { url: track.storeUrl })}\n\n` : "",
+        publishing_url: dashboardLink(request.appId, "publishing"),
+      },
+      { lang },
+    );
   } catch (error) {
     console.error("[publishing] the status email wasn't sent:", error instanceof Error ? error.message : error);
   }

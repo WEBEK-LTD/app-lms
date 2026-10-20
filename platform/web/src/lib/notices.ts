@@ -3,6 +3,8 @@ import { applyDuePlanChanges, currentPlanId } from "./billing/plan-change";
 import type { DataStore } from "./data/store";
 import type { App, Client, License, OwnerNotice, OwnerNoticeKind, User } from "./data/types";
 import type { EmailTemplateKey, TemplateValue } from "./email/templates";
+import type { Lang } from "@/i18n/config";
+import { mailOptions } from "./email/mail-lang";
 import { effectivePlans } from "./entitlements";
 import { appState } from "./license/status";
 import { formatLimit, lowestPlanWith, type Plan, type PlanInfo } from "./plans";
@@ -24,7 +26,8 @@ import { hasClasses, syncClassSessions } from "./bookings/classes";
  *   renewal starts a new period).
  */
 
-export type Mailer = (key: EmailTemplateKey, to: string, values: Record<string, TemplateValue>) => Promise<unknown>;
+/** Sends one of the platform emails; 56 `lang` is the language of the person it goes to. */
+export type Mailer = (key: EmailTemplateKey, to: string, values: Record<string, TemplateValue>, options?: { lang?: Lang }) => Promise<unknown>;
 
 export interface NoticeDeps {
   store: DataStore;
@@ -81,7 +84,7 @@ async function createAndMail(
   if (!saved) return null;
   if (owner) {
     try {
-      await deps.mail(email.key, owner.email, { name: owner.name, ...email.values });
+      await deps.mail(email.key, owner.email, { name: owner.name, ...email.values }, ...mailOptions(owner));
       await deps.store.updateOwnerNotice(saved.clientId, saved.id, { emailedAt: deps.now });
     } catch (error) {
       // The dashboard notice stays; the email isn't tried again.

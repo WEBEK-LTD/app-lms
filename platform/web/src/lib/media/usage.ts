@@ -3,6 +3,7 @@ import type { DataStore } from "../data/store";
 import type { App, OwnerNotice, StoragePack } from "../data/types";
 import { planOfLicense } from "../entitlements";
 import type { NoticeDeps } from "../notices";
+import { mailOptions } from "../email/mail-lang";
 import type { Plan, PlanInfo } from "../plans";
 import { activePacks, formatBytes, storageLimitBytes, storageState, type StorageState } from "./quota";
 
@@ -58,7 +59,7 @@ export async function noticeEndedPacks(deps: NoticeDeps, plans: Record<Plan, Pla
     created.push(notice);
     if (owner) {
       try {
-        await deps.mail("storage_pack_ended", owner.email, { name: owner.name, ...values });
+        await deps.mail("storage_pack_ended", owner.email, { name: owner.name, ...values }, ...mailOptions(owner));
         await store.updateOwnerNotice(client.id, notice.id, { emailedAt: now });
       } catch (e) {
         console.error("[media] storage email failed", e);

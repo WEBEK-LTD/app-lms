@@ -23,7 +23,6 @@ import {
   PLAY_CATEGORIES,
   publishingEventLabel,
   requestStores,
-  statusText,
   statusTone,
   stepDone,
   stepsFor,
@@ -36,6 +35,7 @@ import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
 import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
 import { localePath } from "@/i18n/paths";
+import { publishingStatusIn } from "@/lib/publishing/status-lang";
 import { richText } from "@/i18n/rich";
 import { formatList } from "@/i18n/format";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -62,16 +62,6 @@ const MORE_STORE_TEXT: Record<(typeof MORE_STORES)[number], DashKey> = {
   xiaomi: "publishing.xiaomiText",
 };
 
-/** What each status means for the client (lib/publishing/steps.ts statusText), in the dashboard's language. */
-const STATUS_KEY: Record<PublishingStatus, DashKey> = {
-  waiting_client: "publishing.status.waiting",
-  accounts_ready: "publishing.status.accounts",
-  submitted: "publishing.status.submitted",
-  in_review: "publishing.status.review",
-  live: "publishing.status.live",
-  rejected: "publishing.status.rejected",
-};
-const REVIEWER = { android: "Google", ios: "Apple", galaxy: "Samsung", huawei: "Huawei", xiaomi: "Xiaomi" } as const;
 
 function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" | "managed"; title: string; text: string; points: string[]; disabled?: string; saving: string }) {
   return (
@@ -259,9 +249,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
                   <Badge tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</Badge>
                 </div>
                 <p className="m-0 text-sm leading-relaxed text-ink-4">
-                  {lang === "en"
-                    ? statusText(which, track.status)
-                    : t(STATUS_KEY[track.status], { store: t("publishing.storeIn", { store: which }), reviewer: REVIEWER[which] })}
+                  {publishingStatusIn(lang, which, track.status).text}
                 </p>
                 {track.note ? (
                   <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">

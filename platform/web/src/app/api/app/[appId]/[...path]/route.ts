@@ -17,7 +17,8 @@ import type { App, BookingAppointment } from "@/lib/data/types";
 import type { DataStore } from "@/lib/data/store";
 import { appSignIn, ensureAuthKey, JWKS_MAX_AGE_SECONDS, jwksOf, signingKey, yallappSignsIn } from "@/lib/hosted/app-auth";
 import { newInquiryMailValues } from "@/lib/listings/notify";
-import { appMailDelivered, sendTemplate } from "@/lib/email/send";
+import { appMailDelivered, emailLangOf, sendTemplate } from "@/lib/email/send";
+import { getDashT } from "@/i18n/dashboard";
 import { effectivePlans, planOfLicense } from "@/lib/entitlements";
 import { hasFeature } from "@/lib/plans";
 import { hostedDownloadsOn } from "@/lib/courses/downloads";
@@ -138,8 +139,10 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
           if (app.demo) return;
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
-          const values = newAppointmentMailValues(appointment, bookingSetup(app).rules.timezone, app.appName ?? "your app", `${appUrl()}/dashboard/appointments`);
-          await sendTemplate("new_appointment", owner.email, values);
+          const lang = emailLangOf(owner);
+          const appName = app.appName ?? getDashT(lang)("emails.yourAppName");
+          const values = newAppointmentMailValues(appointment, bookingSetup(app).rules.timezone, appName, `${appUrl()}/dashboard/appointments`, lang);
+          await sendTemplate("new_appointment", owner.email, values, { lang });
         },
         onInquiry: async ({ inquiry, listing, user, text }) => {
           // 16 A demo office answers at once, so visitors see how replies arrive.
@@ -147,7 +150,9 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
           const owner = client ? await store.getUserById(client.userId) : null;
           if (!owner) return;
           const url = `${appUrl()}/dashboard/inquiries/${inquiry.id}`;
-          await sendTemplate("new_inquiry", owner.email, newInquiryMailValues({ listing, user, text, appName: app.appName ?? "your app", url }));
+          const lang = emailLangOf(owner);
+          const appName = app.appName ?? getDashT(lang)("emails.yourAppName");
+          await sendTemplate("new_inquiry", owner.email, newInquiryMailValues({ listing, user, text, appName, url, lang }), { lang });
         },
       }),
     },
