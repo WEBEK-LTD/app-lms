@@ -30,7 +30,7 @@ export function checkGalaxyServiceAccountId(value: string): string | null {
  */
 export function checkGalaxyPrivateKey(value: string): Checked<string> {
   const pem = value.trim().replace(/\r\n/g, "\n");
-  const problem = "This isn't the service account's private key. Paste the whole key Seller Portal gave you, from -----BEGIN PRIVATE KEY----- to the end.";
+  const problem = "This isn't the service account's private key. Paste the whole key Seller Portal gave you, with its first and last lines.";
   if (pem.length > 10_000 || !/-----BEGIN (RSA )?PRIVATE KEY-----/.test(pem)) return { ok: false, error: problem };
   try {
     const key = createPrivateKey(pem);

@@ -5,13 +5,14 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { isRefundReason, REFUND_REASONS } from "@/lib/payments/refund";
 import type { RefundOptions } from "@/lib/refunds/service";
 import { RefundForm } from "./refund";
+import { dashboardText } from "@/lib/dashboard-lang";
 
 /**
  * 47 Under a paid order or donation: the refunds made (amount, reason, who,
  * when, the provider's reference) and the Refund form while something is
  * left to refund.
  */
-export function RefundSection({
+export async function RefundSection({
   kind,
   id,
   label,
@@ -28,17 +29,22 @@ export function RefundSection({
   options: RefundOptions;
   payoutReleased?: boolean;
 }) {
+  const { t, k, lang } = await dashboardText();
   return (
     <>
       {refunds.length ? (
-        <ul aria-label="Refunds" className="m-0 flex list-none flex-col gap-1 p-0 text-sm text-ink-4">
+        <ul aria-label={t("orders.refunds")} className="m-0 flex list-none flex-col gap-1 p-0 text-sm text-ink-4">
           {refunds.map((r) => (
             <li key={r.id}>
-              Refunded {formatCents(r.amountCents, r.currency)} on {formatDateTime(r.createdAt)} by {r.byEmail}:{" "}
-              {isRefundReason(r.reason) ? REFUND_REASONS[r.reason] : r.reason}
+              {t("orders.refundedOn", {
+                amount: formatCents(r.amountCents, r.currency),
+                date: formatDateTime(r.createdAt, lang),
+                email: r.byEmail,
+                reason: isRefundReason(r.reason) ? k(REFUND_REASONS[r.reason]) : r.reason,
+              })}
               {r.note ? ` (${r.note})` : ""} ·{" "}
-              {r.method === "api" ? `through ${PROVIDER_NAME[r.provider]}` : `recorded, made in ${PROVIDER_NAME[r.provider]}'s panel`}
-              {r.providerRef ? ` · reference ${r.providerRef}` : ""}
+              {r.method === "api" ? t("orders.throughProvider", { provider: PROVIDER_NAME[r.provider] }) : t("orders.recordedIn", { provider: PROVIDER_NAME[r.provider] })}
+              {r.providerRef ? ` · ${t("orders.referenceN", { reference: r.providerRef })}` : ""}
             </li>
           ))}
         </ul>
@@ -61,7 +67,7 @@ export function RefundSection({
           }}
         />
       ) : options.why ? (
-        <p className="m-0 text-sm text-ink-4">{options.why}</p>
+        <p className="m-0 text-sm text-ink-4">{k(options.why)}</p>
       ) : null}
     </>
   );

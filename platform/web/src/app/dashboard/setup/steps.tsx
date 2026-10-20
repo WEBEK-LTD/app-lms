@@ -18,6 +18,7 @@ import {
   type WebsiteFormState,
 } from "@/app/actions/dashboard";
 import { PhoneFrame } from "@/components/device-frame";
+import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
@@ -25,11 +26,13 @@ import { ENGINES, ownContentTitle, ownContentWords, type WebsiteChoice } from "@
 import type { SiteMatch } from "@/lib/app/site-match";
 import { SiteMatchNote } from "@/components/site-match";
 import type { ApiCheckResult } from "@/lib/app/api-check";
+import type { DashKey } from "@/i18n/dashboard";
 import { APP_FONTS, RULES } from "@/lib/build-config/types";
 import type { AppType, AppVertical, SignInMethod } from "@/lib/data/types";
 import { codeDeliveryText, emailOffWarning } from "@/lib/hosted/sign-in-methods";
 import { initialFormState, type FormState } from "@/lib/forms";
 import type { Appearance, LayoutContent } from "@/lib/pages/types";
+import { richText } from "@/i18n/rich";
 import { DesignThumb } from "../pages/preview";
 
 function StepCard({ title, children, id }: { title: string; children: ReactNode; id: string }) {
@@ -44,16 +47,17 @@ function StepCard({ title, children, id }: { title: string; children: ReactNode;
 }
 
 function StepActions({ back }: { back: string | null }) {
+  const t = useDashT();
   return (
     <div className="flex justify-between gap-3 pt-1.5">
       {back ? (
         <Link href={back} className={`${btn.secondary} h-11`}>
-          Back
+          {t("setup.back")}
         </Link>
       ) : (
         <span />
       )}
-      <SubmitButton className="h-11">Save &amp; continue</SubmitButton>
+      <SubmitButton className="h-11">{t("setup.saveContinue")}</SubmitButton>
     </div>
   );
 }
@@ -78,13 +82,13 @@ export interface PlatformOption {
 }
 
 /** The Website step's choices, in order; which ones an app type offers, and the wording of its own, are in lib/app/kinds.ts. */
-const BACKENDS: { id: Backend; title: string; text: string }[] = [
-  { id: "wordpress", title: "My WordPress site", text: "Install the Yallapp plugin on your site. Most clients start here." },
-  { id: "shopify", title: "My Shopify store", text: "Your products, prices and checkout come from Shopify. Customers sign in to the app with a code we send." },
-  { id: "platform", title: "", text: "" },
-  { id: "catalog", title: "", text: "" },
-  { id: "custom_api", title: "My own API", text: "For developers: your website serves the Yallapp API itself." },
-  { id: "setup_requested", title: "I don't have WordPress", text: "Our team sets up WordPress for you and moves your content over." },
+const BACKENDS: { id: Backend; title: DashKey | null; text: DashKey | null }[] = [
+  { id: "wordpress", title: "setup.wordpress", text: "setup.wordpressText" },
+  { id: "shopify", title: "setup.shopify", text: "setup.shopifyText" },
+  { id: "platform", title: null, text: null },
+  { id: "catalog", title: null, text: null },
+  { id: "custom_api", title: "setup.customApi", text: "setup.customApiText" },
+  { id: "setup_requested", title: "setup.noWordpress", text: "setup.noWordpressText" },
 ];
 
 /** "After this step, add … on the **Courses** page." with the bold parts. */
@@ -117,18 +121,19 @@ function OAuthConnect({
   connect: ActionProps;
   disconnect: ActionProps;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   if (!oauth.available) {
     return (
       <div role="status" className="flex flex-col gap-1.5 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed">
         <span className="flex items-center gap-2 font-semibold">
           <Icon name="schedule" size={20} className="text-muted" />
-          <span>Not available yet</span>
+          <span>{t("setup.notAvailable")}</span>
         </span>
-        <span className="text-ink-4">Connecting a {platform.name} store isn&apos;t available yet. Choose another platform, or message us on WhatsApp.</span>
+        <span className="text-ink-4">{t("setup.notAvailableText", { platform: platform.name })}</span>
         {staff ? (
           <span className="text-sm text-ink-4">
-            Team: add Yallapp&apos;s {platform.name} partner app (client ID and client secret) in{" "}
-            <Link href={`/admin/settings#h-${platform.id}`}>Admin › Settings</Link> first.
+            {richText(t("setup.teamPartner", { platform: platform.name }), { link: (chunk) => <Link href={`/admin/settings#h-${platform.id}`}>{chunk}</Link> })}
           </span>
         ) : null}
       </div>
@@ -140,30 +145,30 @@ function OAuthConnect({
       {oauth.connectedStore ? (
         <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
           <Icon name="check_circle" size={20} filled />
-          <span>
-            Connected to <b>{oauth.connectedStore}</b>
-          </span>
+          <span>{richText(t("setup.connectedTo", { store: oauth.connectedStore }), { b: (chunk) => <b>{chunk}</b> })}</span>
         </span>
       ) : (
-        <span className="text-[15px] text-ink-4">
-          You sign in to {platform.name} and approve Yallapp&apos;s access to your products, orders and customers. Then you come back here.
-        </span>
+        <span className="text-[15px] text-ink-4">{t("setup.approve", { platform: platform.name })}</span>
       )}
       <div className="flex flex-wrap gap-3">
         <button type="submit" formAction={connect.action} formNoValidate disabled={connect.pending} className={`${btn.primary} h-10`}>
           <Icon name="link" size={18} />
-          {connect.pending ? "Opening…" : oauth.connectedStore ? `Connect another ${platform.name} store` : `Connect with ${platform.name}`}
+          {connect.pending
+            ? t("setup.opening")
+            : oauth.connectedStore
+              ? t("setup.connectAnother", { platform: platform.name })
+              : t("setup.connectWith", { platform: platform.name })}
         </button>
         {oauth.connectedStore ? (
           <button type="submit" formAction={disconnect.action} formNoValidate disabled={disconnect.pending} className={`${btn.secondary} h-10`}>
             <Icon name="link_off" size={18} />
-            {disconnect.pending ? "Disconnecting…" : "Disconnect"}
+            {disconnect.pending ? t("setup.disconnecting") : t("setup.disconnect")}
           </button>
         ) : null}
       </div>
       {message ? (
         <p role="status" className="m-0 text-sm text-ink-4">
-          {message}
+          {known(message)}
         </p>
       ) : null}
       {connect.state.errors?.platform ? <FieldError id="f-connect-error" error={connect.state.errors.platform} /> : null}
@@ -187,6 +192,8 @@ function PlatformFields({
   connect: ActionProps;
   disconnect: ActionProps;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const [selected, setSelected] = useState<string>(
     connect.state.values?.platform ?? disconnect.state.values?.platform ?? state.values?.platform ?? saved?.platform ?? platforms[0]?.id ?? "",
   );
@@ -198,7 +205,7 @@ function PlatformFields({
       <input type="hidden" name="platform" value={platform.id} />
       {platforms.length > 1 ? (
         <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
-          <legend className="mb-2 text-sm font-semibold">Platform</legend>
+          <legend className="mb-2 text-sm font-semibold">{t("setup.platform")}</legend>
           {platforms.map((p) => (
             <label
               key={p.id}
@@ -217,22 +224,26 @@ function PlatformFields({
           ))}
         </fieldset>
       ) : null}
-      <p className="m-0 text-sm text-ink-4">{platform.summary}</p>
+      <p className="m-0 text-sm text-ink-4">{known(platform.summary)}</p>
       {platform.oauth ? <OAuthConnect platform={platform} oauth={platform.oauth} staff={staff} connect={connect} disconnect={disconnect} /> : null}
       {platform.fields.map((field) => {
         const kept = same && field.secret && saved.secrets.includes(field.name);
+        // The action words a missing field as "Enter your <label>." from the English label; it's worded again here in the dashboard's language.
+        const error = state.errors?.[`p_${field.name}`];
+        const lowered = `${field.label.charAt(0).toLowerCase()}${field.label.slice(1)}`;
+        const label = known(field.label);
         return (
           <Field
             key={`${platform.id}-${field.name}`}
-            label={field.optional ? `${field.label} (optional)` : field.label}
+            label={field.optional ? t("setup.optionalField", { label }) : label}
             name={`p_${field.name}`}
             type={field.secret ? "password" : "text"}
             autoComplete="off"
             required={!field.optional && !kept}
             defaultValue={field.secret ? "" : v(state, `p_${field.name}`, same ? (saved.settings[field.name] ?? "") : "")}
-            placeholder={kept ? "Saved. Paste a new one to replace it." : field.placeholder}
-            hint={field.hint}
-            error={state.errors?.[`p_${field.name}`]}
+            placeholder={kept ? t("setup.savedReplace") : field.placeholder}
+            hint={known(field.hint)}
+            error={error === `Enter your ${lowered}.` ? t("setup.enterField", { label: label === field.label ? lowered : label }) : error}
           />
         );
       })}
@@ -243,15 +254,19 @@ function PlatformFields({
 
 /** The results of the API check, one line each. */
 function ApiCheckList({ result }: { result: ApiCheckResult }) {
+  const t = useDashT();
+  const known = useKnownText();
   return (
     <ul aria-live="polite" className="m-0 flex list-none flex-col gap-1.5 p-0">
       {result.checks.map((c) => (
         <li key={c.id} className="flex items-start gap-2 text-sm">
           <Icon name={c.ok ? "check_circle" : "cancel"} size={18} filled className={c.ok ? "text-success" : "text-danger"} />
           <span>
-            <span className="font-semibold">{c.label}</span>
-            {c.detail ? <span className="text-ink-4"> · {c.detail}</span> : null}
-            <span className="sr-only">{c.ok ? " (passed)" : " (failed)"}</span>
+            <span className="font-semibold" dir="auto">
+              {known(c.label)}
+            </span>
+            {c.detail ? <span className="text-ink-4"> · {known(c.detail)}</span> : null}
+            <span className="sr-only">{c.ok ? t("setup.passed") : t("setup.failed")}</span>
           </span>
         </li>
       ))}
@@ -317,6 +332,8 @@ export function WebsiteStep({
   /** Whether an Admin API token (order history) is saved. */
   shopifyAdmin: boolean;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const [state, action] = useActionState(saveWebsiteAction, initialFormState as WebsiteFormState);
   const [check, checkAction, checking] = useActionState(checkApiAction, { result: null });
   // 25 "Connect with …" and "Disconnect" for platforms connected through Yallapp's partner app.
@@ -344,25 +361,23 @@ export function WebsiteStep({
     <form key={formKey} action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="backend" value={choice} />
-      <StepCard title="Website" id="h-website">
+      <StepCard title={t("setup.website")} id="h-website">
         <FormMessage message={state.message} />
         {hostedWithoutSource ? (
           <p role="status" className="m-0 flex gap-2 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
             <Icon name="info" size={20} className="text-muted" />
-            <span>
-              Our team moved your app to the Yallapp hosted API, but nothing gives it content yet. Choose where it comes from below.
-            </span>
+            <span>{t("setup.movedHosted")}</span>
           </p>
         ) : null}
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="mb-2 text-sm font-semibold">Where your app gets its content</legend>
+          <legend className="mb-2 text-sm font-semibold">{t("setup.contentFrom")}</legend>
           {BACKENDS.filter((b) => engine.websites.includes(b.id))
             .map((b) =>
               b.id === "catalog"
-                ? { ...b, title: ownContentTitle(appType), text: own.text }
+                ? { id: b.id, title: known(ownContentTitle(appType)), text: known(own.text) }
                 : b.id === "platform"
-                  ? { ...b, ...engine.platformChoice }
-                  : b,
+                  ? { id: b.id, title: known(engine.platformChoice.title), text: known(engine.platformChoice.text) }
+                  : { id: b.id, title: b.title ? t(b.title) : "", text: b.text ? t(b.text) : "" },
             )
             .filter((b) => offered.includes(b.id))
             .map((b) => (
@@ -387,10 +402,16 @@ export function WebsiteStep({
         </fieldset>
         {choice === "catalog" ? (
           <p className="m-0 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
-            <Bold text={own.next} /> {codeDeliveryText(signInMethods)}.
+            <Bold text={t("setup.signInWith", { next: known(own.next), how: known(codeDeliveryText(signInMethods)) })} />
             {hostedApiUrl && backend === "catalog" ? (
               <span className="mt-2 block text-sm">
-                Your app&apos;s API address: <code className="break-all">{hostedApiUrl}</code>
+                {richText(t("setup.apiAddress"), {
+                  code: () => (
+                    <code className="break-all" dir="ltr">
+                      {hostedApiUrl}
+                    </code>
+                  ),
+                })}
               </span>
             ) : null}
           </p>
@@ -405,46 +426,46 @@ export function WebsiteStep({
           />
         ) : (
           <Field
-            label={choice === "wordpress" ? "Your WordPress website" : choice === "setup_requested" ? "Your current website (optional)" : "Your website"}
+            label={choice === "wordpress" ? t("setup.yourWordpress") : choice === "setup_requested" ? t("setup.currentOptional") : t("setup.yourWebsite")}
             name="siteUrl"
             type="url"
             required={choice !== "setup_requested"}
             defaultValue={v(state, "siteUrl", siteUrl)}
             placeholder={choice === "shopify" ? ENGINES.store.sitePlaceholder : engine.sitePlaceholder}
-            hint={
-              choice === "setup_requested"
-                ? "Your current website, if you have one. Your new WordPress site can live next to it, for example on app.your-site.com."
-                : "Links in your app open this address. It must use https."
-            }
+            hint={choice === "setup_requested" ? t("setup.currentHint") : t("setup.httpsHint")}
             error={state.errors?.siteUrl}
           />
         )}
         {choice === "catalog" && state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
         {choice === "wordpress" ? (
           <div className="flex flex-col gap-2 rounded-xl border border-line bg-sand p-4">
-            <span className="text-sm font-semibold">Plugin connection</span>
+            <span className="text-sm font-semibold">{t("setup.pluginConnection")}</span>
             {plugin === "connected" ? (
               <>
                 <span className="flex items-center gap-2 text-[15px] font-semibold text-success">
                   <Icon name="check_circle" size={20} filled />
-                  Connected{pluginVersion ? ` · plugin ${pluginVersion}` : ""}
+                  {pluginVersion ? t("setup.connectedPlugin", { version: pluginVersion }) : t("setup.connected")}
                 </span>
-                <SiteMatchNote match={site} />
+                <SiteMatchNote match={site} words={{ k: known, changeType: t("overview.changeType") }} />
               </>
             ) : plugin === "other" ? (
               <span className="flex items-start gap-2 text-[15px] text-warn">
                 <Icon name="warning" size={20} />
                 <span>
-                  Your license is active on <b>{activatedSite}</b>, which isn&apos;t this address. Check the address, or release the license on the{" "}
-                  <Link href="/dashboard/license">License &amp; plugin</Link> page.
+                  {richText(t("setup.otherSite", { site: activatedSite ?? "", page: known("License & plugin") }), {
+                    b: (chunk) => <b dir="ltr">{chunk}</b>,
+                    license: (chunk) => <Link href="/dashboard/license">{chunk}</Link>,
+                  })}
                 </span>
               </span>
             ) : (
               <span className="flex items-start gap-2 text-[15px] text-ink-4">
                 <Icon name="link_off" size={20} className="text-muted" />
                 <span>
-                  Not connected yet. <Link href="/guides/install-plugin">Install the plugin</Link> and paste your license key from{" "}
-                  <Link href="/dashboard/license">License &amp; plugin</Link>. You can continue the setup in the meantime.
+                  {richText(t("setup.notConnected", { page: known("License & plugin") }), {
+                    install: (chunk) => <Link href="/guides/install-plugin">{chunk}</Link>,
+                    license: (chunk) => <Link href="/dashboard/license">{chunk}</Link>,
+                  })}
                 </span>
               </span>
             )}
@@ -453,37 +474,37 @@ export function WebsiteStep({
         {choice === "shopify" ? (
           <>
             <Field
-              label="Your Shopify address"
+              label={t("setup.shopifyAddress")}
               name="shopDomain"
               required
               defaultValue={v(state, "shopDomain", shopDomain)}
               placeholder="your-shop.myshopify.com"
-              hint="The myshopify.com address, also when your shop uses its own domain."
+              hint={t("setup.shopifyAddressHint")}
               error={state.errors?.shopDomain}
             />
             <Field
-              label="Storefront API access token"
+              label={t("setup.storefrontToken")}
               name="storefrontToken"
               type="password"
               autoComplete="off"
               required={!shopifyConnected}
-              placeholder={shopifyConnected ? "Saved. Paste a new one to replace it." : ""}
-              hint="In Shopify: Settings, Apps and sales channels, Develop apps, create an app, turn on Storefront API access with product, collection and checkout permissions, then install it and copy the Storefront API access token."
+              placeholder={shopifyConnected ? t("setup.savedReplace") : ""}
+              hint={t("setup.storefrontHint")}
               error={state.errors?.storefrontToken}
             />
             <Field
-              label="Admin API access token (optional)"
+              label={t("setup.adminToken")}
               name="adminToken"
               type="password"
               autoComplete="off"
-              placeholder={shopifyAdmin ? "Saved. Paste a new one to replace it." : ""}
-              hint="Shows customers their orders in the app. In the same Shopify app, turn on Admin API access with the read_orders and read_customers permissions, then copy the Admin API access token. Orders are matched to the phone number customers sign in with."
+              placeholder={shopifyAdmin ? t("setup.savedReplace") : ""}
+              hint={t("setup.adminTokenHint")}
               error={state.errors?.adminToken}
             />
             {shopifyAdmin ? (
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" name="removeAdminToken" className="h-4 w-4 accent-midnight" />
-                Remove the Admin API token (the app stops showing orders)
+                {t("setup.removeAdmin")}
               </label>
             ) : null}
             {state.errors?.backend ? <FieldError id="f-backend-error" error={state.errors.backend} /> : null}
@@ -492,35 +513,31 @@ export function WebsiteStep({
         {choice === "custom_api" ? (
           <>
             <Field
-              label="Your API address"
+              label={t("setup.yourApi")}
               name="apiBaseUrl"
               type="url"
               required
               defaultValue={v(state, "apiBaseUrl", apiBaseUrl)}
               placeholder="https://api.your-site.com/yallapp/v1"
-              hint={
-                <>
-                  The app calls the endpoints in our <Link href="/guides/custom-api">developer guide</Link> under this address.
-                </>
-              }
+              hint={richText(t("setup.yourApiHint"), { link: (chunk) => <Link href="/guides/custom-api">{chunk}</Link> })}
               error={state.errors?.apiBaseUrl}
             />
             <div className="flex flex-col gap-3 rounded-xl border border-line bg-sand p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm font-semibold">Check your API</span>
+                <span className="text-sm font-semibold">{t("setup.checkApi")}</span>
                 <button type="submit" formAction={checkAction} formNoValidate className={`${btn.secondary} h-10`} disabled={checking}>
-                  {checking ? "Checking…" : "Run the check"}
+                  {checking ? t("setup.checking") : t("setup.runCheck")}
                 </button>
               </div>
-              {check.error ? <span className="text-sm text-danger">{check.error}</span> : null}
+              {check.error ? <span className="text-sm text-danger">{known(check.error)}</span> : null}
               {checkResult ? (
                 <ApiCheckList result={checkResult} />
               ) : (
-                <span className="text-sm text-ink-4">We call your API the way the app does and show what&apos;s missing.</span>
+                <span className="text-sm text-ink-4">{t("setup.checkText")}</span>
               )}
               {savedWithFailedCheck ? (
                 <Link href="/dashboard/setup?step=branding" className="text-sm font-semibold">
-                  Continue the setup in the meantime
+                  {t("setup.continueMeantime")}
                 </Link>
               ) : null}
             </div>
@@ -530,7 +547,7 @@ export function WebsiteStep({
           <div role="alert" className="flex flex-col gap-2 rounded-xl border border-line bg-warn-bg p-4 text-[15px] leading-relaxed">
             <span className="flex items-start gap-2">
               <Icon name="warning" size={20} className="text-warn" />
-              <span>{emailOffWarning(emailOnlyUsers)}</span>
+              <span>{known(emailOffWarning(emailOnlyUsers))}</span>
             </span>
             <label className="flex cursor-pointer items-start gap-2 text-sm font-semibold">
               <input
@@ -540,7 +557,7 @@ export function WebsiteStep({
                 aria-describedby={state.errors?.confirmEmailOff ? "f-confirmEmailOff-error" : undefined}
                 className="mt-0.5 h-4 w-4 accent-midnight"
               />
-              I understand: switch, and sign in by phone only.
+              {t("setup.understand")}
             </label>
             <FieldError id="f-confirmEmailOff-error" error={state.errors?.confirmEmailOff} />
           </div>
@@ -549,7 +566,7 @@ export function WebsiteStep({
           <>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f-setupNote" className="text-sm font-semibold">
-                Anything we should know? (optional)
+                {t("setup.anything")}
               </label>
               <textarea
                 id="f-setupNote"
@@ -557,7 +574,7 @@ export function WebsiteStep({
                 rows={4}
                 maxLength={1000}
                 defaultValue={v(state, "setupNote", setupNote)}
-                placeholder={`Your current website platform, how many ${engine.words.items} you have, where your content is today…`}
+                placeholder={t("setup.anythingPlaceholder", { items: known(engine.words.items) })}
                 className="input"
                 aria-invalid={state.errors?.setupNote ? true : undefined}
                 aria-describedby={state.errors?.setupNote ? "f-setupNote-error" : undefined}
@@ -567,9 +584,7 @@ export function WebsiteStep({
             <div className="flex items-start gap-2 rounded-xl border border-line bg-sand p-4 text-sm text-ink-4">
               <Icon name="chat" size={20} className="text-muted" />
               <span>
-                {setupRequestedAt
-                  ? `You asked us on ${setupRequestedAt}. Our team will message you on WhatsApp. When your WordPress site is ready, your app moves to it and we email you. You can also choose "My WordPress site" here yourself.`
-                  : "Our team messages you on WhatsApp with the price and the next steps. Your first build starts once your WordPress site is ready."}
+                {setupRequestedAt ? t("setup.askedOn", { date: setupRequestedAt }) : t("setup.willMessage")}
               </span>
             </div>
           </>
@@ -582,10 +597,10 @@ export function WebsiteStep({
 
 // 33 The templates, now a choice under the designs (a design sets one).
 const TEMPLATES = [
-  { id: "classic", label: "Classic", text: "a colored top bar and soft cards" },
-  { id: "bold", label: "Bold", text: "big headings and full-width images" },
-  { id: "minimal", label: "Minimal", text: "white space and thin lines" },
-] as const;
+  { id: "classic", label: "setup.classic", text: "setup.classicText" },
+  { id: "bold", label: "setup.bold", text: "setup.boldText" },
+  { id: "minimal", label: "setup.minimal", text: "setup.minimalText" },
+] as const satisfies readonly { id: string; label: DashKey; text: DashKey }[];
 
 function Upload({
   kind,
@@ -606,6 +621,7 @@ function Upload({
   error?: string;
   onChange: (file: { id: string; url: string } | null) => void;
 }) {
+  const t = useDashT();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState(initial);
   const [message, setMessage] = useState<string | undefined>(error);
@@ -625,7 +641,7 @@ function Upload({
         setMessage(undefined);
         onChange(next);
       } else {
-        setMessage(result.error ?? "The upload failed. Try again.");
+        setMessage(result.error ?? t("forms.known.uploadFailed"));
       }
     });
   }
@@ -659,13 +675,13 @@ function Upload({
       >
         {pending ? (
           <>
-            <Icon name="progress_activity" size={20} className="animate-spin" /> Uploading…
+            <Icon name="progress_activity" size={20} className="animate-spin" /> {t("common.uploading")}
           </>
         ) : file ? (
           <>
             <img src={file.url} alt="" className="h-16 w-16 rounded-lg border border-line bg-white object-contain" />
             <span className="flex flex-col items-start gap-0.5 font-semibold">
-              Replace file
+              {t("setup.replaceFile")}
               <span className="text-xs font-normal text-muted">{hint}</span>
             </span>
           </>
@@ -700,6 +716,8 @@ export function BrandingStep({
   icon: { id: string; url: string } | null;
   logo: { id: string; url: string } | null;
 } & BrandingDesigns) {
+  const t = useDashT();
+  const known = useKnownText();
   const [state, action] = useActionState(saveBrandingAction, initialFormState);
   const [primary, setPrimary] = useState(v(state, "primaryColor", values.primaryColor));
   const [splash, setSplash] = useState(v(state, "splashColor", values.splashColor));
@@ -724,35 +742,35 @@ export function BrandingStep({
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="template" value={template} />
       <input type="hidden" name="design" value={design} />
-      <StepCard title="Branding" id="h-brand">
+      <StepCard title={t("setup.branding")} id="h-brand">
         <FormMessage message={state.message} />
         <Field
-          label="App name"
+          label={t("setup.appName")}
           name="appName"
           required
           maxLength={RULES.appNameMax}
           defaultValue={v(state, "appName", values.appName)}
-          placeholder="Your academy's name"
+          placeholder={t("setup.appNamePlaceholder")}
           onChange={(event) => setName(event.currentTarget.value)}
           error={state.errors?.appName}
           small
         />
         <Field
-          label="Name under the app icon"
+          label={t("setup.shortName")}
           name="shortName"
           required
           maxLength={RULES.shortNameMax}
           defaultValue={v(state, "shortName", values.shortName)}
-          placeholder="Up to 12 characters"
+          placeholder={t("setup.shortNamePlaceholder")}
           error={state.errors?.shortName}
           small
         />
         <div className="flex flex-wrap gap-3.5">
           <Upload
             kind="icon"
-            label="App icon"
-            title="Upload PNG"
-            hint="1024 × 1024, no transparency"
+            label={t("setup.appIcon")}
+            title={t("setup.uploadPng")}
+            hint={t("setup.iconHint")}
             accept="image/png"
             initial={iconFile}
             error={state.errors?.iconAssetId}
@@ -760,9 +778,9 @@ export function BrandingStep({
           />
           <Upload
             kind="logo"
-            label="Logo"
-            title="Upload PNG or SVG"
-            hint="Shown on the sign-in screen"
+            label={t("setup.logo")}
+            title={t("setup.uploadPngSvg")}
+            hint={t("setup.logoHint")}
             accept="image/png,image/svg+xml"
             initial={logoFile}
             error={state.errors?.logoAssetId}
@@ -772,7 +790,7 @@ export function BrandingStep({
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_180px]"
-            label="Primary color"
+            label={t("setup.primaryColor")}
             name="primaryColor"
             type="color"
             value={primary}
@@ -782,7 +800,7 @@ export function BrandingStep({
           />
           <Field
             className="flex-[1_1_180px]"
-            label="Splash screen background"
+            label={t("setup.splashColor")}
             name="splashColor"
             type="color"
             value={splash}
@@ -793,19 +811,21 @@ export function BrandingStep({
         </div>
         {/* 33 Ready-made designs for this kind of app instead of three bare templates: each sets the pages, tabs and look. */}
         <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0" aria-describedby="f-design-hint">
-          <legend className="mb-1 p-0 text-sm font-semibold">Design</legend>
+          <legend className="mb-1 p-0 text-sm font-semibold">{t("setup.design")}</legend>
           <p id="f-design-hint" className="m-0 text-[13px] leading-normal text-muted">
-            Start from a ready-made design for your kind of app: its home page, tabs and look go to your draft in Pages &amp; look, where you change anything you like. Your
-            published pages stay until you publish.
+            {t("setup.designHint")}
           </p>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
-            {[{ id: "", name: "Keep my pages", description: "Your pages and tabs stay as they are.", layout: designs.current }, ...designs.designs].map((d) => {
+            {[
+              { id: "", name: t("setup.keepPages"), description: t("setup.keepPagesText"), layout: designs.current },
+              ...designs.designs.map((d) => ({ ...d, name: known(d.name), description: known(d.description) })),
+            ].map((d) => {
               const checked = design === d.id;
               const layout = d.id ? d.layout : { ...d.layout, appearance: { ...d.layout.appearance, template: template as Appearance["template"] } };
               return (
                 <label key={d.id || "keep"} className="flex min-w-0 cursor-pointer flex-col gap-1.5">
                   <div className={`overflow-hidden rounded-xl ${checked ? "outline-2 outline-midnight" : "outline-1 outline-line"} bg-ivory outline`}>
-                    <DesignThumb layout={{ ...layout, appearance: { ...layout.appearance, theme_mode: "light" } }} app={{ name: name || "Your app", primaryColor: primary }} />
+                    <DesignThumb layout={{ ...layout, appearance: { ...layout.appearance, theme_mode: "light" } }} app={{ name: name || t("setup.yourApp"), primaryColor: primary }} />
                   </div>
                   <span className={`flex items-center gap-2 text-sm ${checked ? "font-bold" : "font-semibold"}`}>
                     <input
@@ -828,12 +848,12 @@ export function BrandingStep({
         <div className="flex flex-wrap gap-3.5">
           <div className="flex flex-[1_1_180px] flex-col gap-1.5">
             <label htmlFor="f-template" className="text-sm font-semibold">
-              Template
+              {t("setup.template")}
             </label>
             <select id="f-template" className="input input-sm" value={template} onChange={(e) => setTemplate(e.target.value)}>
-              {TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}: {t.text}
+              {TEMPLATES.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {t("setup.templateOption", { name: t(option.label), text: t(option.text) })}
                 </option>
               ))}
             </select>
@@ -841,7 +861,7 @@ export function BrandingStep({
           </div>
           <div className="flex flex-[1_1_180px] flex-col gap-1.5">
             <label htmlFor="f-font" className="text-sm font-semibold">
-              Font
+              {t("setup.font")}
             </label>
             <select id="f-font" name="font" className="input input-sm" value={font} onChange={(e) => setFont(e.target.value)}>
               {APP_FONTS.map((f) => (
@@ -854,9 +874,10 @@ export function BrandingStep({
         <StepActions back="/dashboard/setup?step=website" />
       </StepCard>
 
-      <aside aria-label="Live preview" className="flex w-full flex-col items-center gap-3 lg:w-auto lg:flex-[0_1_300px]">
-        <span className="text-[13px] font-semibold text-muted">Live preview</span>
-        <PhoneFrame className="w-[250px]" aria-hidden="true">
+      <aside aria-label={t("setup.livePreview")} className="flex w-full flex-col items-center gap-3 lg:w-auto lg:flex-[0_1_300px]">
+        <span className="text-[13px] font-semibold text-muted">{t("setup.livePreview")}</span>
+        {/* The app's own sign-in screen, as the app shows it (its texts are the app's, not the dashboard's). */}
+        <PhoneFrame className="w-[250px]" aria-hidden="true" lang="en" dir="ltr">
           <div
             className="flex h-full w-full flex-col gap-4 px-[18px] pt-10 pb-[18px]"
             style={{ background: template === "minimal" ? "#FFFFFF" : splash }}
@@ -867,17 +888,19 @@ export function BrandingStep({
               <img src={iconFile.url} alt="" className="h-11 w-11 rounded-xl object-cover" />
             ) : (
               <span className="flex h-11 w-11 items-center justify-center rounded-xl text-[9px] font-bold text-white" style={{ background: primary }}>
-                Logo
+                Logo {/* i18n-ok: the app's preview */}
               </span>
             )}
+            {/* i18n-ok: the app's preview */}
             <span className="mt-4 text-xl font-extrabold text-midnight">Welcome{name ? ` to ${name}` : ""}</span>
+            {/* i18n-ok: the app's preview */}
             <span className="-mt-2 text-[11px] leading-normal text-muted">Sign in with your mobile number and we&apos;ll send you a verification code.</span>
             <span className="h-10 rounded-[10px] border-[1.5px] bg-white" style={{ borderColor: primary }} />
             <span
               className={`flex h-10 items-center justify-center text-xs font-bold text-white ${template === "bold" ? "rounded-full" : "rounded-[10px]"}`}
               style={{ background: primary }}
             >
-              Send code
+              Send code {/* i18n-ok: the app's preview */}
             </span>
           </div>
         </PhoneFrame>
@@ -909,6 +932,8 @@ function ScreenshotGallery({
   /** The form state of the last save: its error is hidden once the list changes, until the next save. */
   saved: FormState;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const input = useRef<HTMLInputElement>(null);
   const [files, setFilesState] = useState(initial);
   const [uploadError, setMessage] = useState<string | undefined>();
@@ -932,7 +957,7 @@ function ScreenshotGallery({
         if (result.ok && result.id && result.url) {
           added = [...added, { id: result.id, url: result.url }];
         } else {
-          setMessage(`${file.name}: ${result.error ?? "The upload failed. Try again."}`);
+          setMessage(t("setup.shotFailed", { file: file.name, error: known(result.error ?? "The upload failed. Try again.") }));
           break;
         }
       }
@@ -940,14 +965,14 @@ function ScreenshotGallery({
         setFiles((current) => [...current, ...added].slice(0, max));
         if (added.length === selected.length) setMessage(undefined);
       }
-      if (selected.length > max - files.length) setMessage(`You can add up to ${max} screenshots.`);
+      if (selected.length > max - files.length) setMessage(t("setup.tooManyShots", { max }));
     });
   }
 
   return (
     <div className="flex flex-col gap-2">
       <span id={`${inputId}-label`} className="text-sm font-semibold">
-        {label} <span className="font-normal text-muted">(optional)</span>
+        {label} <span className="font-normal text-muted">{t("license.optional")}</span>
       </span>
       {files.map((file) => (
         <input key={file.id} type="hidden" name={field} value={file.id} />
@@ -967,15 +992,15 @@ function ScreenshotGallery({
           event.target.value = "";
         }}
       />
-      <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0" aria-label={`${label}: ${files.length} of ${max}`}>
+      <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0" aria-label={t("setup.shots", { label, count: files.length, max })}>
         {files.map((file, index) => (
           <li key={file.id} className="relative">
-            <img src={file.url} alt={`Screenshot ${index + 1}`} className="h-36 w-auto max-w-[110px] rounded-lg border border-line bg-white object-cover" />
+            <img src={file.url} alt={t("setup.screenshot", { n: index + 1 })} className="h-36 w-auto max-w-[110px] rounded-lg border border-line bg-white object-cover" />
             <button
               type="button"
               onClick={() => setFiles((current) => current.filter((f) => f.id !== file.id))}
-              aria-label={`Remove screenshot ${index + 1}`}
-              className="absolute -top-2 -right-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight"
+              aria-label={t("setup.removeShot", { n: index + 1 })}
+              className="absolute -end-2 -top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-line bg-white text-midnight hover:border-midnight"
             >
               <Icon name="close" size={16} />
             </button>
@@ -991,7 +1016,7 @@ function ScreenshotGallery({
               className="flex h-36 w-[110px] flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#9A96A6] bg-sand px-2 text-center text-xs font-semibold text-midnight hover:border-midnight"
             >
               {pending ? <Icon name="progress_activity" size={20} className="animate-spin" /> : <Icon name="add" size={20} />}
-              {pending ? "Uploading…" : "Add screenshots"}
+              {pending ? t("common.uploading") : t("setup.addShots")}
             </button>
           </li>
         ) : null}
@@ -1022,50 +1047,62 @@ export function ListingStep({
   };
   screenshots: { phone: UploadedFile[]; iphone: UploadedFile[] };
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveListingAction, initialFormState);
   const value = (key: keyof typeof values) => v(state, key, values[key]);
   return (
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
-      <StepCard title="Store listing" id="h-listing">
+      <StepCard title={t("setup.listing")} id="h-listing">
         <FormMessage message={state.message} />
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_220px]"
-            label="Android package name"
+            label={t("setup.androidPackage")}
             name="androidPackage"
             required
             defaultValue={value("androidPackage")}
             placeholder="com.youracademy.app"
-            hint="Can't be changed after your app is on Google Play."
+            dir="ltr"
+            hint={t("setup.androidPackageHint")}
             error={state.errors?.androidPackage}
             small
           />
           <Field
             className="flex-[1_1_220px]"
-            label="iOS bundle ID"
+            label={t("setup.bundleId")}
             name="iosBundleId"
             required
             defaultValue={value("iosBundleId")}
             placeholder="com.youracademy.app"
-            hint="Must match the bundle ID in App Store Connect."
+            dir="ltr"
+            hint={t("setup.bundleIdHint")}
             error={state.errors?.iosBundleId}
             small
           />
         </div>
-        <Field label="Store title" name="storeTitle" required maxLength={30} defaultValue={value("storeTitle")} hint="Up to 30 characters." error={state.errors?.storeTitle} small />
         <Field
-          label="Short description"
+          label={t("setup.storeTitle")}
+          name="storeTitle"
+          required
+          maxLength={30}
+          defaultValue={value("storeTitle")}
+          hint={t("setup.storeTitleHint")}
+          error={state.errors?.storeTitle}
+          small
+        />
+        <Field
+          label={t("setup.shortDescription")}
           name="shortDescription"
           required
           maxLength={80}
           defaultValue={value("shortDescription")}
-          hint="Up to 80 characters. Shown under the title on Google Play."
+          hint={t("setup.shortDescriptionHint")}
           error={state.errors?.shortDescription}
           small
         />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-fullDescription" className="text-sm font-semibold">
-            Full description
+            {t("setup.fullDescription")}
           </label>
           <textarea
             id="f-fullDescription"
@@ -1079,14 +1116,14 @@ export function ListingStep({
             aria-describedby={`f-fullDescription-hint${state.errors?.fullDescription ? " f-fullDescription-error" : ""}`}
           />
           <span id="f-fullDescription-hint" className="text-xs text-muted">
-            50 to 4000 characters. {descriptionHint}
+            {t("setup.fullDescriptionHint", { hint: descriptionHint })}
           </span>
           <FieldError id="f-fullDescription-error" error={state.errors?.fullDescription} />
         </div>
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_220px]"
-            label="Support email"
+            label={t("setup.supportEmail")}
             name="supportEmail"
             type="email"
             required
@@ -1096,7 +1133,7 @@ export function ListingStep({
           />
           <Field
             className="flex-[1_1_220px]"
-            label="Privacy policy URL"
+            label={t("setup.privacyUrl")}
             name="privacyUrl"
             type="url"
             required
@@ -1107,15 +1144,13 @@ export function ListingStep({
           />
         </div>
         <fieldset className="m-0 flex flex-col gap-4 rounded-xl border border-line p-4">
-          <legend className="px-1 text-[15px] font-bold">Screenshots</legend>
-          <p className="m-0 text-sm leading-relaxed text-ink-4">
-            Screenshots of your app for the store pages. They go into your store assets with your icons and feature graphic. You can add them later and start a new build.
-          </p>
+          <legend className="px-1 text-[15px] font-bold">{t("setup.screenshots")}</legend>
+          <p className="m-0 text-sm leading-relaxed text-ink-4">{t("setup.screenshotsText")}</p>
           <ScreenshotGallery
             kind="play_screenshot"
             field="playScreenshotIds"
-            label="Google Play phone screenshots"
-            hint="2 to 8 PNG or JPEG files, no transparency. Each side 320 to 3840 pixels, the long side at most twice the short side, for example 1080 × 1920."
+            label={t("setup.playShots")}
+            hint={t("setup.playShotsHint")}
             max={8}
             initial={screenshots.phone}
             error={state.errors?.playScreenshotIds}
@@ -1124,8 +1159,8 @@ export function ListingStep({
           <ScreenshotGallery
             kind="ios_screenshot"
             field="iosScreenshotIds"
-            label="iPhone screenshots"
-            hint="Up to 10 PNG or JPEG files, no transparency, at 1320 × 2868, 1290 × 2796 or 1260 × 2736 pixels (6.9-inch display). Don't show prices or buy buttons."
+            label={t("setup.iphoneShots")}
+            hint={t("setup.iphoneShotsHint")}
             max={10}
             initial={screenshots.iphone}
             error={state.errors?.iosScreenshotIds}
@@ -1152,7 +1187,7 @@ function FileInput({ name, label, accept, hint, error }: { name: string; label: 
         accept={accept}
         aria-invalid={error ? true : undefined}
         aria-describedby={`${id}-hint${error ? ` ${id}-error` : ""}`}
-        className="block w-full min-w-0 rounded-[10px] border border-line-strong bg-white p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-ivory file:px-3 file:py-2 file:font-semibold file:text-midnight"
+        className="block w-full min-w-0 rounded-[10px] border border-line-strong bg-white p-2 text-sm file:me-3 file:rounded-lg file:border-0 file:bg-ivory file:px-3 file:py-2 file:font-semibold file:text-midnight"
       />
       <span id={`${id}-hint`} className="text-xs text-muted">
         {hint}
@@ -1163,16 +1198,17 @@ function FileInput({ name, label, accept, hint, error }: { name: string; label: 
 }
 
 function SavedKey({ title, detail, store }: { title: string; detail: string; store: "google-play" | "app-store" | "firebase-android" | "firebase-ios" }) {
+  const t = useDashT();
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
       <span className="flex min-w-0 items-center gap-2 text-[15px]">
         <Icon name="check_circle" size={20} filled className="text-success" />
         <span className="min-w-0 break-words">
-          <b>{title} saved</b> · {detail}
+          {richText(t("setup.keySaved", { title, detail }), { b: (chunk) => <b>{chunk}</b> })}
         </span>
       </span>
       <button formAction={removeStoreKeyAction} name="store" value={store} formNoValidate className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-danger hover:underline">
-        Remove
+        {t("common.remove")}
       </button>
     </div>
   );
@@ -1182,23 +1218,24 @@ type SavedAppStoreKey = { issuerId: string | null; keyId: string | null } | null
 
 /** App Store Connect API key fields. Pro needs this or the Google Play key; on Starter it's optional and only signs the iOS app. */
 function AppStoreKeyFields({ state, saved, optional = false }: { state: FormState; saved: SavedAppStoreKey; optional?: boolean }) {
+  const t = useDashT();
   return (
     <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
       <legend className="px-1 text-[15px] font-bold">
-        App Store Connect API key
-        {optional ? <span className="font-normal text-muted"> (optional)</span> : null}
+        {t("setup.ascKey")}
+        {optional ? <span className="font-normal text-muted"> {t("license.optional")}</span> : null}
       </legend>
       {optional ? (
         <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
           <Icon name="phone_iphone" size={20} className="text-muted" />
-          <span>Needed to sign your iOS app. Without it you get the Android app only.</span>
+          <span>{t("setup.ascOptional")}</span>
         </p>
       ) : null}
-      {saved ? <SavedKey title="API key" detail={`Key ID ${saved.keyId ?? ""}`} store="app-store" /> : null}
+      {saved ? <SavedKey title={t("setup.apiKey")} detail={t("setup.keyIdDetail", { id: saved.keyId ?? "" })} store="app-store" /> : null}
       <div className="flex flex-wrap gap-3.5">
         <Field
           className="flex-[1_1_220px]"
-          label="Issuer ID"
+          label={t("setup.issuerId")}
           name="ascIssuerId"
           defaultValue={v(state, "ascIssuerId", "")}
           placeholder={saved?.issuerId ?? "69a6de7e-…"}
@@ -1208,7 +1245,7 @@ function AppStoreKeyFields({ state, saved, optional = false }: { state: FormStat
         />
         <Field
           className="flex-[1_1_160px]"
-          label="Key ID"
+          label={t("setup.keyId")}
           name="ascKeyId"
           defaultValue={v(state, "ascKeyId", "")}
           placeholder={saved?.keyId ?? "2X9R4HXF34"}
@@ -1219,9 +1256,9 @@ function AppStoreKeyFields({ state, saved, optional = false }: { state: FormStat
       </div>
       <FileInput
         name="ascPrivateKeyFile"
-        label={saved ? "Replace the private key (.p8)" : "Private key (.p8)"}
+        label={saved ? t("setup.replaceP8") : t("setup.p8")}
         accept=".p8"
-        hint="From App Store Connect › Users and Access › Integrations › App Store Connect API. Use the App Manager role."
+        hint={t("setup.p8Hint")}
         error={state.errors?.ascPrivateKeyFile}
       />
     </fieldset>
@@ -1232,32 +1269,30 @@ type SavedFirebase = { android: boolean; ios: boolean };
 
 /** Firebase config files. Optional on every plan: without them the app works, but without push notifications. */
 function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFirebase }) {
+  const t = useDashT();
   return (
     <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
       <legend className="px-1 text-[15px] font-bold">
-        Push notifications <span className="font-normal text-muted">(optional)</span>
+        {t("setup.push")} <span className="font-normal text-muted">{t("license.optional")}</span>
       </legend>
       <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
         <Icon name="notifications" size={20} className="text-muted" />
-        <span>
-          Notifications are sent through your own Firebase project. Add your apps in Firebase with the package name and bundle ID from the previous step, then upload their config files.{" "}
-          <Link href="/guides/push-notifications">How to set up Firebase</Link>
-        </span>
+        <span>{richText(t("setup.pushText"), { link: (chunk) => <Link href="/guides/push-notifications">{chunk}</Link> })}</span>
       </p>
       {saved.android ? <SavedKey title="google-services.json" detail="Android" store="firebase-android" /> : null}
       <FileInput
         name="firebaseAndroidFile"
-        label={saved.android ? "Replace google-services.json" : "google-services.json (Android)"}
+        label={saved.android ? t("setup.replaceGoogleServices") : t("setup.googleServices")}
         accept="application/json,.json"
-        hint="Firebase › Project settings › Your apps › Android app."
+        hint={t("setup.googleServicesHint")}
         error={state.errors?.firebaseAndroidFile}
       />
       {saved.ios ? <SavedKey title="GoogleService-Info.plist" detail="iOS" store="firebase-ios" /> : null}
       <FileInput
         name="firebaseIosFile"
-        label={saved.ios ? "Replace GoogleService-Info.plist" : "GoogleService-Info.plist (iOS)"}
+        label={saved.ios ? t("setup.replacePlist") : t("setup.plist")}
         accept=".plist,application/xml,text/xml"
-        hint="Firebase › Project settings › Your apps › iOS app. iPhone notifications also need your APNs key in Firebase."
+        hint={t("setup.plistHint")}
         error={state.errors?.firebaseIosFile}
       />
     </fieldset>
@@ -1266,28 +1301,19 @@ function FirebaseFields({ state, saved }: { state: FormState; saved: SavedFireba
 
 /** 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery (and Huawei push) and Xiaomi GetApps have their own page. */
 function MoreStoresLink() {
+  const t = useDashT();
   return (
     <p className="m-0 flex gap-2 text-sm leading-relaxed text-ink-4">
       <Icon name="storefront" size={20} className="text-muted" />
-      <span>
-        Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, and push on Huawei phones: <Link href="/dashboard/publishing/more-stores">More Android stores</Link>
-      </span>
+      <span>{richText(t("setup.moreStores"), { link: (chunk) => <Link href="/dashboard/publishing/more-stores">{chunk}</Link> })}</span>
     </p>
   );
 }
 
 /** 19 Who publishes the app, on plans with "We publish for you". */
-const PUBLISHING_CHOICES: { id: "managed" | "self"; title: string; text: string }[] = [
-  {
-    id: "managed",
-    title: "Publish it for me",
-    text: "Our team publishes your app on the stores and keeps it there, under your own developer accounts. You create the accounts and invite us.",
-  },
-  {
-    id: "self",
-    title: "I'll publish it myself",
-    text: "Add your store keys and we upload every build you start to your own store accounts.",
-  },
+const PUBLISHING_CHOICES: { id: "managed" | "self"; title: DashKey; text: DashKey }[] = [
+  { id: "managed", title: "setup.publishForMe", text: "setup.publishForMeText" },
+  { id: "self", title: "setup.publishMyself", text: "setup.publishMyselfText" },
 ];
 
 export function PublishingStep({
@@ -1309,35 +1335,29 @@ export function PublishingStep({
   /** The client asked our team to publish this app (14.1): nothing here is required. */
   teamPublishes?: boolean;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(savePublishingAction, initialFormState);
   const [mode, setMode] = useState<"managed" | "self">(teamPublishes ? "managed" : "self");
   const teamNotice = teamPublishes ? (
     <p className="m-0 flex gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed">
       <Icon name="check_circle" size={20} filled className="text-success" />
-      <span>
-        You asked us to publish your app, so nothing here is required: our team works through the invitations on the{" "}
-        <Link href="/dashboard/publishing">Publishing</Link> page.
-      </span>
+      <span>{richText(t("setup.teamNotice"), { link: (chunk) => <Link href="/dashboard/publishing">{chunk}</Link> })}</span>
     </p>
   ) : null;
 
   if (!autoPublish) {
     return (
       <form action={action} noValidate className="flex flex-wrap items-start gap-6">
-        <StepCard title="Publishing" id="h-publishing">
+        <StepCard title={t("setup.publishing")} id="h-publishing">
           {teamNotice}
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            On the {planName} plan, you publish {ios ? "the apps" : "the app"} under your own developer accounts on Google Play
-            {ios ? ", the App Store" : ""}, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps. You get the files, the Android upload key and the store
-            assets on the Builds &amp; downloads page, and our step-by-step guides take you through each store.
-          </p>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{ios ? t("setup.selfPublishApps", { plan: planName }) : t("setup.selfPublishApp", { plan: planName })}</p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             <li>
-              <Link href="/guides/google-play">Publish on Google Play</Link>
+              <Link href="/guides/google-play">{t("setup.guidePlay")}</Link>
             </li>
             {ios ? (
               <li>
-                <Link href="/guides/app-store">Publish on the App Store</Link>
+                <Link href="/guides/app-store">{t("setup.guideAppStore")}</Link>
               </li>
             ) : null}
           </ul>
@@ -1345,25 +1365,23 @@ export function PublishingStep({
           {ios ? (
             <>
               <AppStoreKeyFields state={state} saved={saved.appStore} optional />
-              <p className="m-0 text-sm text-muted">
-                The key is encrypted and never shown again. We use it only to sign the builds you start, and you can remove it at any time.
-              </p>
+              <p className="m-0 text-sm text-muted">{t("setup.keyEncrypted")}</p>
             </>
           ) : (
-            <UpgradeHint title="iOS app" to={upgrade.ios}>
-              Your plan builds the Android app. Upgrade to get your app on the App Store too.
+            <UpgradeHint title={t("setup.iosApp")} to={upgrade.ios} cta={upgrade.ios ? t("overview.upgradeTo", { plan: upgrade.ios.name }) : undefined}>
+              {t("setup.iosUpgrade")}
             </UpgradeHint>
           )}
-          <UpgradeHint title="Publish it for me" to={upgrade.managed}>
-            Our team publishes your app on the stores for you, under your own developer accounts, and uploads every update.
+          <UpgradeHint title={t("setup.publishForMe")} to={upgrade.managed} cta={upgrade.managed ? t("overview.upgradeTo", { plan: upgrade.managed.name }) : undefined}>
+            {t("setup.managedUpgrade")}
           </UpgradeHint>
           <FirebaseFields state={state} saved={saved.firebase} />
         <MoreStoresLink />
           <div className="flex justify-between gap-3 pt-1.5">
             <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
-              Back
+              {t("setup.back")}
             </Link>
-            <SubmitButton className="h-11">Finish setup</SubmitButton>
+            <SubmitButton className="h-11">{t("setup.finish")}</SubmitButton>
           </div>
         </StepCard>
       </form>
@@ -1374,11 +1392,11 @@ export function PublishingStep({
     <form action={action} noValidate className="flex flex-wrap items-start gap-6">
       {/* Sent from state: React resets the form's own radios after each submit. */}
       <input type="hidden" name="publishingMode" value={mode} />
-      <StepCard title="Publishing" id="h-publishing">
+      <StepCard title={t("setup.publishing")} id="h-publishing">
         <FormMessage message={state.message} />
         {/* 19 The same choice as on the Publishing page. */}
         <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="mb-2 text-sm font-semibold">Who publishes your app</legend>
+          <legend className="mb-2 text-sm font-semibold">{t("setup.whoPublishes")}</legend>
           {PUBLISHING_CHOICES.map((c) => (
             <label
               key={c.id}
@@ -1393,8 +1411,8 @@ export function PublishingStep({
                 className="mt-1 h-4 w-4 accent-midnight"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{c.title}</span>
-                <span className="text-sm text-ink-4">{c.text}</span>
+                <span className="text-[15px] font-bold">{t(c.title)}</span>
+                <span className="text-sm text-ink-4">{t(c.text)}</span>
               </span>
             </label>
           ))}
@@ -1404,26 +1422,21 @@ export function PublishingStep({
           (teamNotice ?? (
             <p className="m-0 flex gap-2 rounded-xl border border-line bg-sand p-4 text-[15px] leading-relaxed text-ink-4">
               <Icon name="storefront" size={20} className="text-muted" />
-              <span>
-                No store keys needed. After this step, the <Link href="/dashboard/publishing">Publishing</Link> page shows you how to create your
-                developer accounts and invite our team. We never ask for your passwords.
-              </span>
+              <span>{richText(t("setup.noKeys"), { link: (chunk) => <Link href="/dashboard/publishing">{chunk}</Link> })}</span>
             </p>
           ))
         ) : (
           <>
-            <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-              We use these keys only to upload the builds you start. They&apos;re encrypted, never shown again, and you can remove them at any time.
-            </p>
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("setup.keysText")}</p>
 
             <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
               <legend className="px-1 text-[15px] font-bold">Google Play</legend>
-              {saved.play ? <SavedKey title="Service account key" detail={saved.play.clientEmail ?? "JSON key"} store="google-play" /> : null}
+              {saved.play ? <SavedKey title={t("setup.serviceAccount")} detail={saved.play.clientEmail ?? t("setup.jsonKey")} store="google-play" /> : null}
               <FileInput
                 name="googlePlayFile"
-                label={saved.play ? "Replace the service account key (JSON)" : "Service account key (JSON)"}
+                label={saved.play ? t("setup.replaceServiceAccount") : t("setup.serviceAccountJson")}
                 accept="application/json,.json"
-                hint="From Google Cloud › IAM › Service accounts › Keys. Give the account access to your app in Play Console."
+                hint={t("setup.serviceAccountHint")}
                 error={state.errors?.googlePlayFile}
               />
             </fieldset>
@@ -1433,8 +1446,8 @@ export function PublishingStep({
         )}
 
         {ios ? null : (
-          <UpgradeHint title="iOS app" to={upgrade.ios}>
-            Your plan builds the Android app. Upgrade to get your app on the App Store too.
+          <UpgradeHint title={t("setup.iosApp")} to={upgrade.ios} cta={upgrade.ios ? t("overview.upgradeTo", { plan: upgrade.ios.name }) : undefined}>
+            {t("setup.iosUpgrade")}
           </UpgradeHint>
         )}
 
@@ -1443,9 +1456,9 @@ export function PublishingStep({
 
         <div className="flex justify-between gap-3 pt-1.5">
           <Link href="/dashboard/setup?step=listing" className={`${btn.secondary} h-11`}>
-            Back
+            {t("setup.back")}
           </Link>
-          <SubmitButton className="h-11">Save &amp; finish</SubmitButton>
+          <SubmitButton className="h-11">{t("setup.saveFinish")}</SubmitButton>
         </div>
       </StepCard>
     </form>

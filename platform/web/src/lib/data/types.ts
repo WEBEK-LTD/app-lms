@@ -27,6 +27,12 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
   lastSignInAt: Date | null;
+  /**
+   * 56 The language of the dashboard (and of Yallapp's emails to this person)
+   * they chose: "en", "ar" or "tr"; null (or missing) until they choose one,
+   * when the `yallapp_lang` cookie, else English, decides (lib/dashboard-lang.ts).
+   */
+  language?: string | null;
 }
 
 export interface Client {

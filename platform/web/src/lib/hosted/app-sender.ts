@@ -4,6 +4,8 @@ import type { DataStore } from "../data/store";
 import { DEFAULT_HOSTED_SETTINGS, type App, type AppWhatsappSender } from "../data/types";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { waabekSender, type OtpSender } from "./otp-sender";
+import type { Lang } from "@/i18n/config";
+import { mailOptions } from "../email/mail-lang";
 
 /**
  * 18 An app owner's own WhatsApp number on WABEK (waabek.com), set on the
@@ -90,7 +92,7 @@ export interface OwnNumberFailureDeps {
   /** The platform's address, for the link in the email. */
   baseUrl: string;
   /** Sends the "own_whatsapp_failed" email. */
-  mail: (key: "own_whatsapp_failed", to: string, values: Record<string, string>) => Promise<unknown>;
+  mail: (key: "own_whatsapp_failed", to: string, values: Record<string, string>, options?: { lang?: Lang }) => Promise<unknown>;
 }
 
 /** The day of a failure, as the dashboard and the email show it. */
@@ -114,10 +116,15 @@ export async function recordOwnWhatsappFailure(deps: OwnNumberFailureDeps, appId
   const owner = client ? await deps.store.getUserById(client.userId) : null;
   if (!owner) return;
   const link = new URLSearchParams({ app: app.id, to: "app-sign-in" });
-  await deps.mail("own_whatsapp_failed", owner.email, {
-    name: owner.name,
-    app_name: appLabel(app),
-    date: failureDate(at),
-    sign_in_url: `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open?${link.toString()}`,
-  });
+  await deps.mail(
+    "own_whatsapp_failed",
+    owner.email,
+    {
+      name: owner.name,
+      app_name: appLabel(app),
+      date: failureDate(at),
+      sign_in_url: `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open?${link.toString()}`,
+    },
+    ...mailOptions(owner),
+  );
 }

@@ -2,10 +2,13 @@ import { formatCents } from "../catalog/money";
 import type { BookingAppointment } from "../data/types";
 import { emailTemplate, renderTemplate } from "../email/templates";
 import { utcToLocal } from "./time";
+import { getDashT } from "@/i18n/dashboard";
+import type { Lang } from "@/i18n/config";
 
 /** The values of the business's "New appointment" email (lib/email/templates.ts). */
-export function newAppointmentMailValues(a: BookingAppointment, timezone: string, appName: string, dashboardUrl: string): Record<string, string> {
+export function newAppointmentMailValues(a: BookingAppointment, timezone: string, appName: string, dashboardUrl: string, lang: Lang = "en"): Record<string, string> {
   const local = utcToLocal(a.startAt, timezone);
+  const t = getDashT(lang);
   return {
     app_name: appName,
     customer_name: a.customerName,
@@ -16,12 +19,12 @@ export function newAppointmentMailValues(a: BookingAppointment, timezone: string
     timezone,
     price: formatCents(a.priceCents, a.currency),
     // 19 Someone who signed in by email is reached by email.
-    contact_label: a.customerPhone ? "Phone" : "Email",
+    contact_label: a.customerPhone ? t("emails.phone") : t("emails.email"),
     phone: a.customerPhone ?? a.customerEmail ?? "",
-    note_line: a.notes ? `Note: ${a.notes}\n` : "",
+    note_line: a.notes ? `${t("emails.note", { note: a.notes })}\n` : "",
     // 21 Intake answers are health data: never in the email, only a pointer to the dashboard.
-    intake_line: a.answers?.length ? "See the intake answers on your dashboard.\n" : "",
-    approval_line: a.status === "pending" ? "\nIt waits for your approval.\n" : "",
+    intake_line: a.answers?.length ? `${t("emails.intake")}\n` : "",
+    approval_line: a.status === "pending" ? `\n${t("emails.approval")}\n` : "",
     appointments_url: dashboardUrl,
   };
 }

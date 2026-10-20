@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireClient } from "@/lib/auth/session";
-import { catalogWords } from "@/lib/catalog/words";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { ProductPage } from "../product-page";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient();
-  return { title: `Edit ${catalogWords(app?.vertical).item}` };
+  return { title: (await dashboardText()).t("shop.edit", { kind: app?.vertical === "restaurant" ? "restaurant" : "shop" }) };
 }
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {

@@ -19,43 +19,41 @@ import { CopyButton } from "@/components/copy-button";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { MAIL_PRESETS, SECURITY_LABELS, mailPreset, type MailSecurity } from "@/lib/email/app-mail-presets";
 import { initialFormState } from "@/lib/forms";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
+import type { DashKey } from "@/i18n/dashboard";
+import { LANG_INFO } from "@/i18n/config";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
 
 /** 34 Own API apps: who signs people in. */
-const PROVIDERS = [
-  {
-    value: "api",
-    label: "Your API signs people in",
-    hint: "Your API serves the sign-in endpoints, sends the codes and keeps the accounts.",
-  },
-  {
-    value: "yallapp",
-    label: "Yallapp signs people in",
-    hint: "Like apps on Yallapp: you choose phone or email here, Yallapp sends the codes and keeps the accounts. Your API checks Yallapp's tokens and serves the content.",
-  },
-] as const;
+const PROVIDERS: readonly { value: "api" | "yallapp"; label: DashKey; hint: DashKey }[] = [
+  { value: "api", label: "signin.providerApi", hint: "signin.providerApiHint" },
+  { value: "yallapp", label: "signin.providerYallapp", hint: "signin.providerYallappHint" },
+];
 
 export function SignInProviderForm({ current }: { current: "api" | "yallapp" }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveSignInProviderAction, initialFormState);
   const value = state.values?.signInBy ?? current;
   return (
     <form action={action} noValidate className="flex flex-col gap-4" key={value}>
       <FormMessage message={state.message} ok={state.ok} />
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={state.errors?.signInBy ? "sign-in-by-error" : undefined}>
-        <legend className="sr-only">Who signs people in</legend>
+        <legend className="sr-only">{t("signin.whoSigns")}</legend>
         {PROVIDERS.map((p) => (
           <label key={p.value} className="flex cursor-pointer items-start gap-2.5 text-[15px]">
             <input type="radio" name="signInBy" value={p.value} defaultChecked={value === p.value} className="mt-1 h-4 w-4 accent-midnight" />
             <span className="flex flex-col">
-              <span className="font-semibold">{p.label}</span>
-              <span className="text-sm text-muted">{p.hint}</span>
+              <span className="font-semibold">{t(p.label)}</span>
+              <span className="text-sm text-muted">{t(p.hint)}</span>
             </span>
           </label>
         ))}
         <FieldError id="sign-in-by-error" error={state.errors?.signInBy} />
       </fieldset>
       <div className="flex justify-end">
-        <SubmitButton className="h-11" pendingText="Saving…">
-          Save
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("common.save")}
         </SubmitButton>
       </div>
     </form>
@@ -77,6 +75,9 @@ export function DeveloperTokens({
   /** A signed-in endpoint of the app's own API, for the curl example; null when there's none. */
   tryUrl: string | null;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
+  const lang = useDashLang();
   const [token, tokenAction] = useActionState(testTokenAction, {} as TestTokenState);
   const [key, keyAction] = useActionState(replaceSigningKeyAction, initialFormState);
   const [copied, setCopied] = useState<string | null>(null);
@@ -88,54 +89,63 @@ export function DeveloperTokens({
     );
   }, [token.token]);
   const rows = [
-    { label: "Public keys (JWKS)", value: jwksUrl },
-    { label: "Issuer (iss)", value: issuer },
-    { label: "Audience (aud)", value: audience },
-    { label: "Sign-in address", value: authBaseUrl },
+    { label: t("signin.jwks"), value: jwksUrl },
+    { label: t("signin.issuer"), value: issuer },
+    { label: t("signin.audience"), value: audience },
+    { label: t("signin.signInAddress"), value: authBaseUrl },
   ];
+  const until = token.expiresAt
+    ? new Date(token.expiresAt).toLocaleTimeString(lang === "en" ? "en-GB" : LANG_INFO[lang].intl, { hour: "2-digit", minute: "2-digit" })
+    : "";
   return (
     <div className="flex flex-col gap-4">
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-        The app sends sign-in to Yallapp and every other call to your API with <code>Authorization: Bearer</code> and Yallapp&apos;s access token. Your API
-        checks the token with these public keys, then reads who signed in from it. Send this to your developer with the{" "}
-        <Link href="/docs/my-own-api#let-yallapp-sign-people-in">developer guide</Link>.
+        {richText(t("signin.devIntro"), {
+          code: () => <code dir="ltr">Authorization: Bearer</code>, // i18n-ok: code
+          link: (chunk) => <Link href={localePath(lang, "/docs/my-own-api") + "#let-yallapp-sign-people-in"}>{chunk}</Link>,
+        })}
       </p>
       <dl className="m-0 grid gap-x-4 gap-y-2 text-[15px] sm:grid-cols-[180px_1fr]">
         {rows.map((r) => (
           <div key={r.label} className="contents">
             <dt className="font-semibold">{r.label}</dt>
             <dd className="m-0 min-w-0">
-              <code className="break-all">{r.value}</code>
+              <code className="break-all" dir="ltr">
+                {r.value}
+              </code>
             </dd>
           </div>
         ))}
       </dl>
       <form action={tokenAction} className="flex flex-col gap-3 border-t border-line-soft pt-4">
-        {token.error ? <FormMessage message={token.error} ok={false} /> : null}
-        <p className="m-0 text-sm leading-relaxed text-muted">
-          A test token is an access token of your store review account, valid for 15 minutes. Your API should answer a signed-in call with it, and 401 without it.
-        </p>
+        {token.error ? <FormMessage message={known(token.error)} ok={false} /> : null}
+        <p className="m-0 text-sm leading-relaxed text-muted">{t("signin.testTokenText")}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <SubmitButton variant="secondary" className="h-11" pendingText="Making…">
-            Copy a test token
+          <SubmitButton variant="secondary" className="h-11" pendingText={t("signin.making")}>
+            {t("signin.copyToken")}
           </SubmitButton>
         </div>
         {token.token ? (
           <div className="flex flex-col gap-2">
             <label htmlFor="f-test-token" className="text-sm font-semibold">
-              Test token
+              {t("signin.testToken")}
             </label>
-            <textarea id="f-test-token" readOnly rows={4} value={token.token} className="input font-mono text-xs break-all" onFocus={(e) => e.currentTarget.select()} />
+            <textarea id="f-test-token" readOnly rows={4} value={token.token} className="input font-mono text-xs break-all" dir="ltr" onFocus={(e) => e.currentTarget.select()} />
             <div className="flex flex-wrap items-center gap-3">
-              <CopyButton value={token.token} />
+              <CopyButton value={token.token} label={t("common.copy")} copiedLabel={t("common.copied")} />
               <span role="status" className="text-sm text-muted">
-                {copied === token.token ? "Copied. " : ""}
-                It works until {new Date(token.expiresAt!).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}.
+                {copied === token.token ? t("signin.copiedWorksUntil", { time: until }) : t("signin.worksUntil", { time: until })}
               </span>
             </div>
             {tryUrl ? (
               <p className="m-0 text-sm text-muted">
-                Try it: <code className="break-all">curl -H &quot;Authorization: Bearer $TOKEN&quot; {tryUrl}</code>
+                {richText(t("signin.tryIt"), {
+                  code: () => (
+                    <code className="break-all" dir="ltr">
+                      {/* i18n-ok: a command */ `curl -H "Authorization: Bearer $TOKEN" ${tryUrl}`}
+                    </code>
+                  ),
+                })}
               </p>
             ) : null}
           </div>
@@ -143,12 +153,10 @@ export function DeveloperTokens({
       </form>
       <form action={keyAction} className="flex flex-col gap-3 border-t border-line-soft pt-4">
         <FormMessage message={key.message} ok={key.ok} />
-        <p className="m-0 text-sm leading-relaxed text-muted">
-          Only Yallapp holds the private key. Replace it if you ever need to: new tokens use the new key, and the old one stays in the key set for a day.
-        </p>
+        <p className="m-0 text-sm leading-relaxed text-muted">{t("signin.keyText")}</p>
         <div className="flex justify-end">
-          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Replacing…">
-            Replace the signing key
+          <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText={t("signin.replacing")}>
+            {t("signin.replaceKey")}
           </SubmitButton>
         </div>
       </form>
@@ -165,21 +173,17 @@ function Check({ name, label, checked }: { name: string; label: string; checked:
   );
 }
 
-const METHODS = [
-  { value: "phone", label: "Phone number", hint: "A 6-digit code on WhatsApp." },
-  { value: "email", label: "Email address", hint: "" },
-  { value: "both", label: "Phone number or email address", hint: "The app shows a Phone / Email switch." },
-] as const;
+const METHODS: readonly { value: "phone" | "email" | "both"; label: DashKey; hint: DashKey | null }[] = [
+  { value: "phone", label: "signin.methodPhone", hint: "signin.methodPhoneHint" },
+  { value: "email", label: "signin.methodEmail", hint: null },
+  { value: "both", label: "signin.methodBoth", hint: "signin.methodBothHint" },
+];
 
 /** 24 WordPress: how email sign-in works. */
-const EMAIL_WAYS = [
-  {
-    value: "code",
-    label: "With a code by email: anyone can sign up",
-    hint: "A 6-digit code by email. People without an account on your website get one. Staff accounts that can edit your website sign in on the website, not by code. Needs version 0.3.5 or later of the Yallapp plugin.",
-  },
-  { value: "password", label: "With their password: existing accounts only", hint: "The email address and password of their account on your website. New people sign up by phone or on your website." },
-] as const;
+const EMAIL_WAYS: readonly { value: "code" | "password"; label: DashKey; hint: DashKey }[] = [
+  { value: "code", label: "signin.emailCode", hint: "signin.emailCodeHint" },
+  { value: "password", label: "signin.emailPasswordWay", hint: "signin.emailPasswordWayHint" },
+];
 
 /** 18 Phone, email or both. */
 export function SignInMethodsForm({
@@ -201,26 +205,25 @@ export function SignInMethodsForm({
   emailWay?: "code" | "password";
   emailWayChosen?: boolean;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveSignInMethodsAction, initialFormState);
   const value = state.values?.methods ?? current;
   const way = state.values?.emailSignIn || emailWay;
   const error = state.errors?.methods;
-  const emailHint = wordpress
-    ? "With a code by email or with their password, as you choose below."
-    : "A 6-digit code by email. New customers sign up with their email address.";
+  const emailHint = wordpress ? t("signin.emailHintWordpress") : t("signin.emailHintHosted");
   return (
     <form action={action} noValidate className="flex flex-col gap-4" key={`${value}-${way}`}>
       <FormMessage message={state.message} ok={state.ok} />
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={error ? "methods-error" : undefined}>
-        <legend className="sr-only">How people sign in</legend>
+        <legend className="sr-only">{t("signin.howSignIn")}</legend>
         {METHODS.map((m) => {
           const disabled = m.value !== "phone" && !emailPossible;
           return (
             <label key={m.value} className={`flex items-start gap-2.5 text-[15px] ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
               <input type="radio" name="methods" value={m.value} defaultChecked={value === m.value} disabled={disabled} className="mt-1 h-4 w-4 accent-midnight" />
               <span className="flex flex-col">
-                <span className="font-semibold">{m.label}</span>
-                <span className="text-sm text-muted">{m.value === "email" ? emailHint : m.hint}</span>
+                <span className="font-semibold">{t(m.label)}</span>
+                <span className="text-sm text-muted">{m.hint ? t(m.hint) : emailHint}</span>
               </span>
             </label>
           );
@@ -231,13 +234,13 @@ export function SignInMethodsForm({
       {note ? <p className="m-0 text-sm leading-relaxed text-muted">{note}</p> : null}
       {wordpress ? (
         <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={state.errors?.emailSignIn ? "email-way-error" : undefined}>
-          <legend className="mb-1.5 text-[15px] font-bold">Email sign-in works</legend>
+          <legend className="mb-1.5 text-[15px] font-bold">{t("signin.emailWorks")}</legend>
           {EMAIL_WAYS.map((w) => (
             <label key={w.value} className="flex cursor-pointer items-start gap-2.5 text-[15px]">
               <input type="radio" name="emailSignIn" value={w.value} defaultChecked={way === w.value} className="mt-1 h-4 w-4 accent-midnight" />
               <span className="flex flex-col">
-                <span className="font-semibold">{w.label}</span>
-                <span className="text-sm text-muted">{w.hint}</span>
+                <span className="font-semibold">{t(w.label)}</span>
+                <span className="text-sm text-muted">{t(w.hint)}</span>
               </span>
             </label>
           ))}
@@ -246,15 +249,12 @@ export function SignInMethodsForm({
       ) : null}
       {wordpress ? (
         <p className="m-0 text-sm leading-relaxed text-muted">
-          {chosen
-            ? "Your website gets this within a minute when it can be reached, otherwise at its next check (twice a day); Check now in the Yallapp plugin gets it at once. It overrides the sign-in choice in the plugin's settings."
-            : "Not chosen here yet, so your website uses the plugin's own setting (phone by default). Saving here overrides it."}
-          {chosen && !emailWayChosen ? " Email sign-in uses passwords until you save a choice here." : ""}
+          {chosen ? (emailWayChosen ? t("signin.wpChosen") : t("signin.wpChosenNoWay")) : t("signin.wpNotChosen")}
         </p>
       ) : null}
       <div className="flex justify-end">
-        <SubmitButton className="h-11" pendingText="Saving…">
-          Save sign-in methods
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("signin.saveMethods")}
         </SubmitButton>
       </div>
     </form>
@@ -271,6 +271,7 @@ export function AppWhatsappForms({
   defaultPhone: string;
   wordpress: boolean;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveAppWhatsappAction, initialFormState);
   const [test, testAction] = useActionState(testAppWhatsappAction, initialFormState);
   const e = state.errors ?? {};
@@ -278,34 +279,36 @@ export function AppWhatsappForms({
     <div className="flex flex-col gap-4">
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">
         {connected
-          ? `Your app's codes go out from your own WhatsApp number on WABEK (API key ending ${connected.keyLast4}${connected.instanceId ? `, instance ${connected.instanceId}` : ""}).`
-          : "Your app's codes go out from Yallapp's WhatsApp number, with your app's name. You can send them from your own WhatsApp number instead, with a WABEK account (waabek.com)."}
-        {wordpress ? " This applies when the Yallapp plugin sends your website's codes (Sent by Yallapp)." : ""}
+          ? connected.instanceId
+            ? t("signin.whatsappOwn", { last4: connected.keyLast4, instance: connected.instanceId })
+            : t("signin.whatsappOwnAny", { last4: connected.keyLast4 })
+          : t("signin.whatsappYallapp")}
+        {wordpress ? ` ${t("signin.whatsappWordpress")}` : ""}
       </p>
       <form action={action} noValidate className="flex flex-col gap-4" key={state.ok ? "saved" : "form"}>
         <FormMessage message={state.message} ok={state.ok} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="WABEK API key"
+            label={t("signin.wabekKey")}
             name="apiKey"
             type="password"
             autoComplete="off"
             placeholder={connected ? `•••• ${connected.keyLast4}` : ""}
-            hint={connected ? "Paste a new key to replace the saved one. It's stored encrypted and never shown again." : "From your WABEK account. It's stored encrypted and never shown again."}
+            hint={connected ? t("signin.wabekKeyReplace") : t("signin.wabekKeyHint")}
             error={e.apiKey}
           />
           <Field
-            label="Instance ID"
+            label={t("signin.instanceId")}
             name="instanceId"
             autoComplete="off"
             defaultValue={state.values?.instanceId ?? connected?.instanceId ?? ""}
-            hint="The WhatsApp number in WABEK that sends the codes. Optional: empty lets WABEK choose."
+            hint={t("signin.instanceHint")}
             error={e.instanceId}
           />
         </div>
         <div className="flex justify-end">
-          <SubmitButton className="h-11" pendingText="Saving…">
-            Save WhatsApp number
+          <SubmitButton className="h-11" pendingText={t("common.saving")}>
+            {t("signin.saveWhatsapp")}
           </SubmitButton>
         </div>
       </form>
@@ -315,21 +318,21 @@ export function AppWhatsappForms({
             <FormMessage message={test.message} ok={test.ok} />
             <div className="flex flex-wrap items-end gap-3">
               <Field
-                label="Send a test code to"
+                label={t("signin.testCodeTo")}
                 name="phone"
                 type="tel"
                 defaultValue={test.values?.phone ?? defaultPhone}
                 error={test.errors?.phone}
                 className="min-w-[240px] flex-1"
               />
-              <SubmitButton variant="secondary" className="h-11" pendingText="Sending…">
-                Send a test code
+              <SubmitButton variant="secondary" className="h-11" pendingText={t("common.sending")}>
+                {t("signin.sendTestCode")}
               </SubmitButton>
             </div>
           </form>
           <form action={removeAppWhatsappAction} className="flex justify-end">
-            <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText="Removing…">
-              Use Yallapp&apos;s number again
+            <SubmitButton variant="secondary" className="h-9 px-3 text-sm" pendingText={t("signin.removing")}>
+              {t("signin.useYallappNumber")}
             </SubmitButton>
           </form>
         </>
@@ -339,6 +342,7 @@ export function AppWhatsappForms({
 }
 
 export function AppSignInForm({ current, emailOnly = false }: { current: Record<string, string>; emailOnly?: boolean }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveAppSignInAction, initialFormState);
   const v = state.values ?? current;
   const e = state.errors ?? {};
@@ -347,56 +351,54 @@ export function AppSignInForm({ current, emailOnly = false }: { current: Record<
       <FormMessage message={state.message} ok={state.ok} />
 
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-        <legend className="mb-1.5 text-[17px] font-bold">New customers</legend>
-        <Check name="signupAllowed" label="New customers can sign up in the app" checked={v.signupAllowed === "on"} />
-        <span className="text-sm text-muted">Customers give their name when they sign up. Also ask for:</span>
+        <legend className="mb-1.5 text-[17px] font-bold">{t("signin.newCustomers")}</legend>
+        <Check name="signupAllowed" label={t("signin.signupAllowed")} checked={v.signupAllowed === "on"} />
+        <span className="text-sm text-muted">{t("signin.askAlso")}</span>
         <div className="flex flex-wrap gap-x-6 gap-y-2">
-          <Check name="askEmail" label="Email" checked={v.askEmail === "on"} />
-          <Check name="askCity" label="City" checked={v.askCity === "on"} />
+          <Check name="askEmail" label={t("common.email")} checked={v.askEmail === "on"} />
+          <Check name="askCity" label={t("signin.city")} checked={v.askCity === "on"} />
         </div>
       </fieldset>
 
       <fieldset className="m-0 flex flex-col gap-4 border-0 p-0">
-        <legend className="mb-1.5 text-[17px] font-bold">Phone and devices</legend>
+        <legend className="mb-1.5 text-[17px] font-bold">{t("signin.phoneDevices")}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Country code"
+            label={t("signin.countryCode")}
             name="defaultCountryCode"
             inputMode="numeric"
             defaultValue={v.defaultCountryCode}
-            hint="Shown first on the sign-in screen, like 90 for Turkey."
+            hint={t("signin.countryCodeHint")}
             error={e.defaultCountryCode}
           />
           <Field
-            label="Devices per customer"
+            label={t("signin.devices")}
             name="deviceLimit"
             inputMode="numeric"
             defaultValue={v.deviceLimit}
-            hint="A customer at the limit signs out on another device first. 0 for no limit."
+            hint={t("signin.devicesHint")}
             error={e.deviceLimit}
           />
         </div>
       </fieldset>
 
       <fieldset className="m-0 flex flex-col gap-4 border-0 p-0">
-        <legend className="mb-1.5 text-[17px] font-bold">Help and terms</legend>
+        <legend className="mb-1.5 text-[17px] font-bold">{t("signin.helpTerms")}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Support WhatsApp" name="supportWhatsapp" type="tel" defaultValue={v.supportWhatsapp} hint="Shown in the app for help. Optional." error={e.supportWhatsapp} />
-          <Field label="Terms page" name="termsUrl" type="url" defaultValue={v.termsUrl} placeholder="https://" hint="Linked from the sign-up screen. Optional." error={e.termsUrl} />
+          <Field label={t("signin.supportWhatsapp")} name="supportWhatsapp" type="tel" defaultValue={v.supportWhatsapp} hint={t("signin.supportHint")} error={e.supportWhatsapp} />
+          <Field label={t("signin.termsPage")} name="termsUrl" type="url" defaultValue={v.termsUrl} placeholder="https://" hint={t("signin.termsHint")} error={e.termsUrl} />
         </div>
       </fieldset>
 
       <fieldset className="m-0 flex flex-col gap-4 border-0 p-0">
-        <legend className="mb-1.5 text-[17px] font-bold">App store review</legend>
+        <legend className="mb-1.5 text-[17px] font-bold">{t("signin.review")}</legend>
         <p className="m-0 text-sm leading-relaxed text-muted">
-          Apple and Google sign in to check the app before it goes live. This number and this email address sign in with this code; no
-          message is sent. {emailOnly ? "Your app signs in by email only, so reviewers need the review email address." : "Set the email address when your app offers email sign-in."}{" "}
-          Give them to the stores with your notes for the reviewers on Publishing.
+          {t("signin.reviewText")} {emailOnly ? t("signin.reviewEmailOnly") : t("signin.reviewSetEmail")} {t("signin.reviewGive")}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Review phone number" name="reviewPhone" type="tel" defaultValue={v.reviewPhone} error={e.reviewPhone} />
+          <Field label={t("signin.reviewPhone")} name="reviewPhone" type="tel" defaultValue={v.reviewPhone} error={e.reviewPhone} />
           <Field
-            label="Review email address"
+            label={t("signin.reviewEmail")}
             name="reviewEmail"
             type="email"
             autoComplete="off"
@@ -404,13 +406,13 @@ export function AppSignInForm({ current, emailOnly = false }: { current: Record<
             placeholder="review@your-site.com"
             error={e.reviewEmail}
           />
-          <Field label="Review code" name="reviewCode" inputMode="numeric" autoComplete="off" maxLength={6} defaultValue={v.reviewCode} error={e.reviewCode} />
+          <Field label={t("signin.reviewCode")} name="reviewCode" inputMode="numeric" autoComplete="off" maxLength={6} defaultValue={v.reviewCode} error={e.reviewCode} />
         </div>
       </fieldset>
 
       <div className="flex justify-end">
-        <SubmitButton className="h-11" pendingText="Saving…">
-          Save
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("common.save")}
         </SubmitButton>
       </div>
     </form>
@@ -440,6 +442,7 @@ export function AppMailForms({
   production: boolean;
   wordpress: boolean;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveAppMailAction, initialFormState);
   const [test, testAction] = useActionState(testAppMailAction, initialFormState);
   const v = state.values ?? current;
@@ -448,11 +451,12 @@ export function AppMailForms({
     <div className="flex flex-col gap-4">
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">
         {saved
-          ? `Emails to the people using your app go out from ${saved.fromName} <${saved.fromAddress}>, through your email server (${saved.host}).`
-          : "Emails to the people using your app, like sign-in codes, go out from Yallapp's address with your app's name. You can send them from your own address instead, through your email server."}{" "}
-        {wordpress
-          ? "This is for the sign-in codes Yallapp emails for your website. Your website's own emails, like password resets and order emails, still come from WordPress."
-          : "Emails to you and your team always come from Yallapp."}
+          ? richText(t("signin.mailOwn"), {
+              from: () => <bdi dir="ltr">{`${saved.fromName} <${saved.fromAddress}>`}</bdi>,
+              host: () => <bdi dir="ltr">{saved.host}</bdi>,
+            })
+          : t("signin.mailYallapp")}{" "}
+        {wordpress ? t("signin.mailWordpress") : t("signin.mailHosted")}
       </p>
       <MailServerForm key={JSON.stringify(v)} action={action} values={v} errors={e} message={state.message} ok={state.ok} saved={saved !== null} production={production} />
       {saved ? (
@@ -460,7 +464,7 @@ export function AppMailForms({
           <FormMessage message={test.message} ok={test.ok} />
           <div className="flex flex-wrap items-end gap-3">
             <Field
-              label="Send a test email to"
+              label={t("signin.testEmailTo")}
               name="to"
               type="email"
               autoComplete="email"
@@ -468,11 +472,11 @@ export function AppMailForms({
               error={test.errors?.to}
               className="min-w-[240px] flex-1"
             />
-            <SubmitButton variant="secondary" className="h-11" pendingText="Sending…">
-              Send a test email
+            <SubmitButton variant="secondary" className="h-11" pendingText={t("common.sending")}>
+              {t("signin.sendTestEmail")}
             </SubmitButton>
           </div>
-          <p className="m-0 text-sm text-muted">It goes out through the saved settings. Save your changes first.</p>
+          <p className="m-0 text-sm text-muted">{t("signin.testEmailNote")}</p>
         </form>
       ) : null}
     </div>
@@ -496,6 +500,8 @@ function MailServerForm({
   saved: boolean;
   production: boolean;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const [sender, setSender] = useState(values.sender === "own" ? "own" : "yallapp");
   const [presetId, setPresetId] = useState(values.preset || "google");
   const [host, setHost] = useState(values.host ?? "");
@@ -516,10 +522,10 @@ function MailServerForm({
     <form action={action} noValidate className="flex flex-col gap-5">
       <FormMessage message={message} ok={ok} />
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-        <legend className="sr-only">Who sends your app&apos;s emails</legend>
+        <legend className="sr-only">{t("signin.whoSendsEmail")}</legend>
         {[
-          { value: "yallapp", label: "Sent by Yallapp", hint: "From Yallapp's address, with your app's name. Nothing to set up." },
-          { value: "own", label: "My own email server", hint: "From your own address, like hello@your-site.com, through your email service." },
+          { value: "yallapp", label: t("signin.sentByYallapp"), hint: t("signin.sentByYallappHint") },
+          { value: "own", label: t("signin.ownServer"), hint: t("signin.ownServerHint") },
         ].map((o) => (
           <label key={o.value} className="flex cursor-pointer items-start gap-2.5 text-[15px]">
             <input
@@ -543,80 +549,78 @@ function MailServerForm({
         <>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="f-preset" className="text-sm font-semibold">
-              Your email service
+              {t("signin.emailService")}
             </label>
             <select id="f-preset" name="preset" value={presetId} onChange={(event) => choose(event.target.value)} className="input">
               {MAIL_PRESETS.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} ({p.hint})
+                  {known(p.name)} ({known(p.hint)})
                 </option>
               ))}
             </select>
           </div>
 
           <div className="rounded-xl bg-sand px-4 py-3.5">
-            <p className="m-0 text-[15px] font-bold">How to set up {preset.name}</p>
-            <ol className="m-0 mt-2 flex flex-col gap-1.5 pl-5 text-sm leading-relaxed text-ink-2">
+            <p className="m-0 text-[15px] font-bold">{t("signin.howToSetUp", { name: known(preset.name) })}</p>
+            <ol className="m-0 mt-2 flex flex-col gap-1.5 ps-5 text-sm leading-relaxed text-ink-2">
               {preset.steps.map((step) => (
-                <li key={step}>{step}</li>
+                <li key={step}>{known(step)}</li>
               ))}
             </ol>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Username" name="username" autoComplete="off" defaultValue={values.username} hint={preset.usernameHint} error={errors.username} />
+            <Field label={t("signin.username")} name="username" autoComplete="off" defaultValue={values.username} hint={known(preset.usernameHint)} error={errors.username} />
             <Field
-              label="Password"
+              label={t("signin.password")}
               name="password"
               type="password"
               autoComplete="new-password"
-              placeholder={saved ? "•••••••• (saved)" : ""}
-              hint={`${preset.passwordHint} Stored encrypted and never shown again.${saved ? " Leave blank to keep the saved one." : ""}`}
+              placeholder={saved ? t("signin.passwordSaved") : ""}
+              hint={t(saved ? "signin.passwordHintSaved" : "signin.passwordHint", { hint: known(preset.passwordHint) })}
               error={errors.password}
             />
-            <Field label="From name" name="fromName" autoComplete="off" defaultValue={values.fromName} hint="The name people see, usually your app's name." error={errors.fromName} />
+            <Field label={t("signin.fromName")} name="fromName" autoComplete="off" defaultValue={values.fromName} hint={t("signin.fromNameHint")} error={errors.fromName} />
             <Field
-              label="From address"
+              label={t("signin.fromAddress")}
               name="fromAddress"
               type="email"
               autoComplete="off"
               defaultValue={values.fromAddress}
               placeholder="hello@your-site.com"
-              hint="Usually the same address as the username. Many services refuse other addresses."
+              hint={t("signin.fromAddressHint")}
               error={errors.fromAddress}
             />
             <Field
-              label="Reply-to address"
+              label={t("signin.replyTo")}
               name="replyTo"
               type="email"
               autoComplete="off"
               defaultValue={values.replyTo}
-              hint="Where replies go, if not to the From address. Optional."
+              hint={t("signin.replyToHint")}
               error={errors.replyTo}
             />
           </div>
 
           <details open={presetId === "custom" || Boolean(errors.host || errors.port || errors.security)} className="rounded-xl border border-line px-4 py-3">
-            <summary className="cursor-pointer text-[15px] font-semibold">Server settings</summary>
-            <p className="m-0 mt-2 text-sm text-muted">
-              {presetId === "custom" ? "From your email service." : `Filled in for ${preset.name}. Change them only if your email service tells you to.`}
-            </p>
+            <summary className="cursor-pointer text-[15px] font-semibold">{t("signin.serverSettings")}</summary>
+            <p className="m-0 mt-2 text-sm text-muted">{presetId === "custom" ? t("signin.fromService") : t("signin.filledIn", { name: preset.name })}</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-3">
-              <Field label="Server" name="host" autoComplete="off" value={host} onChange={(event) => setHost(event.target.value)} placeholder="smtp.example.com" error={errors.host} className="sm:col-span-3" />
+              <Field label={t("signin.server")} name="host" autoComplete="off" value={host} onChange={(event) => setHost(event.target.value)} placeholder="smtp.example.com" error={errors.host} className="sm:col-span-3" />
               <Field
-                label="Port"
+                label={t("signin.port")}
                 name="port"
                 inputMode="numeric"
                 autoComplete="off"
                 value={port}
                 onChange={(event) => setPort(event.target.value)}
                 placeholder="465"
-                hint="465, 587, 25 or 2525."
+                hint={t("signin.portHint")}
                 error={errors.port}
               />
               <div className="flex min-w-0 flex-col gap-1.5 sm:col-span-2">
                 <label htmlFor="f-security" className="text-sm font-semibold">
-                  Security
+                  {t("signin.security")}
                 </label>
                 <select
                   id="f-security"
@@ -629,7 +633,7 @@ function MailServerForm({
                 >
                   {securities.map((s) => (
                     <option key={s} value={s}>
-                      {SECURITY_LABELS[s]}
+                      {known(SECURITY_LABELS[s])}
                     </option>
                   ))}
                 </select>
@@ -641,8 +645,8 @@ function MailServerForm({
       ) : null}
 
       <div className="flex justify-end">
-        <SubmitButton className="h-11" pendingText="Saving…">
-          Save email settings
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("signin.saveEmail")}
         </SubmitButton>
       </div>
     </form>

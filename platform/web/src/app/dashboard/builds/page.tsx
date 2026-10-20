@@ -31,8 +31,13 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
 import { RetryBuildForm, StartBuildForm } from "./start-build";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
+import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 
-export const metadata: Metadata = { title: "Builds & downloads" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("builds.title") };
+}
 
 const FILES: { kind: ArtifactKind; highlight?: boolean }[] = [{ kind: "apk" }, { kind: "aab" }, { kind: "ipa" }, { kind: "keystore", highlight: true }];
 
@@ -43,7 +48,9 @@ function DownloadRow({
   unavailable,
   highlight,
   last,
+  t,
 }: {
+  t: DashboardText["t"];
   title: string;
   text: string;
   href: string | null;
@@ -64,14 +71,14 @@ function DownloadRow({
           className="flex h-[38px] items-center gap-1.5 rounded-lg border border-line-strong bg-white px-4 text-sm font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight"
         >
           <Icon name="download" size={18} />
-          Download<span className="sr-only"> {title}</span>
+          {richText(t("builds.download", { title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
         </a>
       ) : (
         <span className="flex max-w-[280px] flex-col items-start gap-1 sm:items-end">
           <button type="button" disabled aria-describedby={hintId} className="h-[38px] cursor-not-allowed rounded-lg border border-line bg-sand px-4 text-sm font-semibold text-muted">
-            Download<span className="sr-only"> {title}</span>
+            {richText(t("builds.download", { title }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
           </button>
-          <span id={hintId} className="text-xs text-muted sm:text-right">
+          <span id={hintId} className="text-xs text-muted sm:text-end">
             {unavailable}
           </span>
         </span>
@@ -81,28 +88,29 @@ function DownloadRow({
 }
 
 /** When a build was queued, started and finished, and how long it took. */
-function Times({ build, now }: { build: Build; now: Date }) {
+function Times({ build, now, text }: { build: Build; now: Date; text: DashboardText }) {
+  const { t, k, lang } = text;
   const took = formatDuration(build.startedAt, build.finishedAt ?? (build.status === "building" ? now : null));
   return (
     <dl className="m-0 flex flex-wrap gap-x-6 gap-y-1 text-sm">
       <div className="flex gap-1.5">
-        <dt className="text-muted">Queued</dt>
-        <dd className="m-0">{formatDateTime(build.createdAt)}</dd>
+        <dt className="text-muted">{t("builds.queued")}</dt>
+        <dd className="m-0">{formatDateTime(build.createdAt, lang)}</dd>
       </div>
       <div className="flex gap-1.5">
-        <dt className="text-muted">Started</dt>
-        <dd className="m-0">{formatDateTime(build.startedAt)}</dd>
+        <dt className="text-muted">{t("builds.started")}</dt>
+        <dd className="m-0">{formatDateTime(build.startedAt, lang)}</dd>
       </div>
       {build.finishedAt ? (
         <div className="flex gap-1.5">
-          <dt className="text-muted">Finished</dt>
-          <dd className="m-0">{formatDateTime(build.finishedAt)}</dd>
+          <dt className="text-muted">{t("builds.finished")}</dt>
+          <dd className="m-0">{formatDateTime(build.finishedAt, lang)}</dd>
         </div>
       ) : null}
       {took ? (
         <div className="flex gap-1.5">
-          <dt className="text-muted">{build.finishedAt ? "Took" : "Running for"}</dt>
-          <dd className="m-0">{took}</dd>
+          <dt className="text-muted">{build.finishedAt ? t("builds.took") : t("builds.runningFor")}</dt>
+          <dd className="m-0">{k(took)}</dd>
         </div>
       ) : null}
     </dl>
@@ -113,6 +121,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const { app, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
   const { started, download, queued } = await searchParams;
+  const text = await dashboardText();
+  const { t, k, lang } = text;
   const contact = await getContact();
   const store = await getStore();
   const plans = await getPlans(store);
@@ -136,92 +146,85 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     const url = lastReady?.artifacts.find((a) => a.kind === kind)?.url;
     const link = url ? fileLink(url, now) : null;
     const unavailable = fileUnavailableReason({ kind, build: lastReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
-    return { href: unavailable === null && lastReady ? dashboardFileHref(lastReady.id, kind) : null, unavailable };
+    return { href: unavailable === null && lastReady ? dashboardFileHref(lastReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
 
   const setupDone = isSetupComplete(app, plan, effective);
   const running = isInProgress(current, now);
   const stalled = current !== null && isStalled(current, now);
-  const licenseName = licensePageName(app);
+  const licenseName = k(licensePageName(app));
   const licenseProblem =
     state === "pending"
-      ? `This app isn't activated yet. Pay its plan on ${licenseName}, or message us on WhatsApp.`
+      ? t("builds.licensePending", { page: licenseName })
       : state === "suspended"
-        ? "This account is suspended, so new builds can't start. Message us on WhatsApp."
+        ? t("builds.licenseSuspended")
         : state === "expired"
-          ? `This app's plan has ended. Renew it on ${licenseName} to start new builds.`
+          ? t("builds.licenseExpired", { page: licenseName })
           : null;
-  const disabledReason =
-    licenseProblem ??
-    (!setupDone
-      ? "Finish the app setup to start a build."
-      : running
-        ? "A build is in progress. You can start another one when it finishes."
-        : null);
+  const disabledReason = licenseProblem ?? (!setupDone ? t("builds.finishSetup") : running ? t("builds.inProgress") : null);
+  const wa = { wa: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a> };
+  const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan);
 
   return (
     <>
       <PageHeader
-        title="Builds & downloads"
-        description={
-          <>
-            Your Android and iOS apps for {appLabel(app)}, built from your setup. Plan: {planName(plan, plans)}.
-          </>
-        }
+        title={t("builds.title")}
+        description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: k(planName(plan, plans)) })}
         actions={<StartBuildForm suggestedVersion={suggestedVersion(current)} disabledReason={disabledReason} />}
       />
 
       {started === "auto" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Saved. A new build with your changes is queued automatically. We&apos;ll email you when your files are ready.
+          {t("builds.autoQueued")}
         </Notice>
       ) : started ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Your app setup is complete and your first build is queued. We&apos;ll email you when your files are ready.
+          {t("builds.firstQueued")}
         </Notice>
       ) : null}
 
       {currentPlan && !hasFeature(currentPlan, "auto_rebuild") && builds.length > 0 ? (
-        <UpgradeHint title="Automatic rebuilds" to={lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan)}>
-          On your plan, start a new build after you change your app&apos;s name, icon, colors or store details.
+        <UpgradeHint title={t("builds.autoRebuilds")} to={autoRebuildTo} cta={autoRebuildTo ? t("overview.upgradeTo", { plan: autoRebuildTo.name }) : undefined}>
+          {t("builds.autoRebuildsText")}
         </UpgradeHint>
       ) : null}
 
       {typeof queued === "string" && /^\d+$/.test(queued) ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Build #{queued} is queued. We&apos;ll email you when your files are ready.
+          {t("builds.buildQueued", { number: queued })}
         </Notice>
       ) : null}
 
       {apiProblem ? (
         <Notice tone="warn" icon="warning">
-          Your API didn&apos;t pass its last check: {apiProblem.body} <Link href="/dashboard/setup?step=website">Check your API</Link>
+          {richText(t("builds.apiProblem", { body: k(apiProblem.body) }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
         </Notice>
       ) : null}
 
       {download === "unavailable" ? (
         <Notice tone="warn" icon="warning" role="alert">
-          That file isn&apos;t available to download right now. Try again from the list below, or <a href={contact.whatsappUrl}>message us on WhatsApp</a>.
+          {richText(t("builds.unavailable"), wa)}
         </Notice>
       ) : null}
 
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          This app&apos;s plan ended on {formatDate(license?.expiresAt)}. New builds need an active plan:{" "}
-          <Link href="/dashboard/license#renew">renew it on {licenseName}</Link> or <a href={contact.whatsappUrl}>message us on WhatsApp</a>. Files from
-          your earlier builds stay available below.
+          {richText(t("builds.expiredNotice", { date: formatDate(license?.expiresAt, lang), page: licenseName }), {
+            ...wa,
+            renew: (chunk) => <Link href="/dashboard/license#renew">{chunk}</Link>,
+          })}
         </Notice>
       ) : state === "suspended" ? (
         <Notice tone="warn" icon="warning">
-          This account is suspended, so new builds can&apos;t start. Files from earlier builds stay available below.
+          {t("builds.suspendedNotice")}
         </Notice>
       ) : null}
 
       {!setupDone ? (
         <Notice icon="info">
-          Your first build starts when the app setup is complete.{" "}
+          {t("builds.firstBuildWhen")}{" "}
           <Link href={`/dashboard/setup?step=${nextStep(app, plan, effective) ?? "website"}`} className="font-bold">
-            Continue the setup
+            {t("builds.continueSetup")}
           </Link>
         </Notice>
       ) : null}
@@ -231,133 +234,148 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           {/* The heading's grandparent holds the status badge (tests read it from there). */}
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-sm font-semibold text-muted">Latest build</span>
+              <span className="text-sm font-semibold text-muted">{t("builds.latestBuild")}</span>
               <h2 id="h-current" className="m-0 text-lg font-bold">
-                Build #{current.number} · App version {current.versionName}
+                {t("builds.buildTitle", { number: current.number, version: current.versionName })}
               </h2>
-              <span className="text-sm text-muted">Version code {current.versionCode}</span>
+              <span className="text-sm text-muted">{t("builds.versionCode", { code: current.versionCode })}</span>
             </div>
-            <BuildBadge status={current.status} />
+            <BuildBadge status={current.status} lang={lang} />
           </div>
-          <Times build={current} now={now} />
-          <BuildStages stages={current.stages} />
+          <Times build={current} now={now} text={text} />
+          <BuildStages stages={current.stages} lang={lang} />
           {current.status === "queued" || current.status === "building" ? (
             stalled ? (
               <Notice tone="warn" icon="hourglass_top">
-                {statusExplanation(current, now)}
+                {k(statusExplanation(current, now))}
               </Notice>
             ) : (
-              <p className="m-0 text-sm text-muted">{statusExplanation(current, now)}</p>
+              <p className="m-0 text-sm text-muted">{k(statusExplanation(current, now))}</p>
             )
           ) : null}
           {current.status === "ready" && current.message ? (
             <Notice tone={Object.values(current.stages).includes("failed") ? "warn" : "info"} icon={Object.values(current.stages).includes("failed") ? "warning" : "info"}>
-              {current.message}
+              {k(current.message)}
             </Notice>
           ) : null}
           {current.status === "failed" ? (
             <Notice tone="danger" icon="error">
-              <span className="font-semibold">{failureReason(current)}</span> Nothing was published from this build. Our team has been told and will look
-              into it; you can also try again now.
+              {richText(t("builds.failedNotice", { reason: k(failureReason(current)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
             </Notice>
           ) : null}
           {(current.status === "failed" || stalled) && !licenseProblem && setupDone ? <RetryBuildForm versionName={current.versionName} /> : null}
         </section>
       ) : setupDone && !licenseProblem ? (
-        <EmptyState icon="build" title="No builds yet.">
-          Choose Start new build to build your apps; it usually takes 15 to 45 minutes. We email you when your files are ready.
+        <EmptyState icon="build" title={t("builds.noBuilds")}>
+          {t("builds.noBuildsText")}
         </EmptyState>
       ) : null}
 
       <Section
         titleId="h-files"
-        title={lastReady ? `Files from build #${lastReady.number} (version ${lastReady.versionName})` : "Files from your latest successful build"}
+        title={lastReady ? t("builds.filesFrom", { number: lastReady.number, version: lastReady.versionName }) : t("builds.filesLatest")}
         description={
-          lastReady
-            ? `Finished ${formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt)}. Each download link is made when you click it.`
-            : "Your files appear here when a build finishes."
+          lastReady ? t("builds.filesFinished", { date: formatDateTime(lastReady.finishedAt ?? lastReady.updatedAt, lang) }) : t("builds.filesAppear")
         }
         flush
         className="overflow-hidden"
       >
         <ul className="m-0 list-none p-0">
           {FILES.map((file) => (
-            <DownloadRow key={file.kind} title={ARTIFACT_LABEL[file.kind]} text={fileDescription(file.kind, autoPublish)} highlight={file.highlight} {...fileRow(file.kind)} />
+            <DownloadRow
+              key={file.kind}
+              t={t}
+              title={k(ARTIFACT_LABEL[file.kind])}
+              text={k(fileDescription(file.kind, autoPublish))}
+              highlight={file.highlight}
+              {...fileRow(file.kind)}
+            />
           ))}
           {plugin ? (
             <DownloadRow
-              title="WordPress plugin (.zip)"
-              text={release ? `Version ${release.version} · License key on the License page` : "License key on the License page"}
+              t={t}
+              title={t("builds.plugin")}
+              text={release ? t("builds.pluginVersion", { version: release.version }) : t("builds.pluginKey")}
               href={release && state === "active" ? "/api/dashboard/plugin" : null}
-              unavailable={!release ? "No plugin release yet" : "Available while this app's plan is active"}
+              unavailable={!release ? t("builds.noRelease") : t("builds.pluginActive")}
             />
           ) : null}
-          <DownloadRow title={ARTIFACT_LABEL.store_assets} text={fileDescription("store_assets", autoPublish)} {...fileRow("store_assets")} last />
+          <DownloadRow t={t} title={k(ARTIFACT_LABEL.store_assets)} text={k(fileDescription("store_assets", autoPublish))} {...fileRow("store_assets")} last />
         </ul>
       </Section>
 
       {/* 31 Apple's rules for what this app sells; nothing for apps that sell nothing. */}
       {wordsOf(app).iphone ? (
         <Notice tone="neutral" icon="phone_iphone">
-          {wordsOf(app).iphone}
+          {k(wordsOf(app).iphone!)}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-next" className="flex flex-col gap-3">
         <h2 id="h-next" className="m-0 text-lg font-bold">
-          Get it on the stores
+          {t("builds.stores")}
         </h2>
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
-          <LinkCard href="/dashboard/publishing" icon="publish" title="Publishing" text="Publish it yourself, or let us publish it for you" />
-          <LinkCard href="/docs/google-play" icon="menu_book" title="Publish on Google Play" text="Step-by-step guide" />
-          <LinkCard href="/docs/app-store" icon="menu_book" title="Publish on the App Store" text="Step-by-step guide" />
-          <LinkCard href="/docs/galaxy-store" icon="menu_book" title="Publish on Galaxy Store" text="Step-by-step guide" />
-          <LinkCard href="/docs/huawei-appgallery" icon="menu_book" title="Publish on AppGallery" text="Step-by-step guide" />
-          <LinkCard href="/docs/xiaomi-getapps" icon="menu_book" title="Publish on GetApps" text="Step-by-step guide" />
+          <LinkCard href="/dashboard/publishing" icon="publish" title={t("builds.publishing")} text={t("builds.publishingText")} />
+          <LinkCard href={localePath(lang, "/docs/google-play")} icon="menu_book" title={t("builds.guideGoogle")} text={t("builds.stepByStep")} />
+          <LinkCard href={localePath(lang, "/docs/app-store")} icon="menu_book" title={t("builds.guideApple")} text={t("builds.stepByStep")} />
+          <LinkCard href={localePath(lang, "/docs/galaxy-store")} icon="menu_book" title={t("builds.guideGalaxy")} text={t("builds.stepByStep")} />
+          <LinkCard href={localePath(lang, "/docs/huawei-appgallery")} icon="menu_book" title={t("builds.guideHuawei")} text={t("builds.stepByStep")} />
+          <LinkCard href={localePath(lang, "/docs/xiaomi-getapps")} icon="menu_book" title={t("builds.guideXiaomi")} text={t("builds.stepByStep")} />
         </div>
       </section>
 
-      <Section titleId="h-history" title="Build history" description={builds.length ? "Every build of this app, newest first." : undefined}>
+      <Section titleId="h-history" title={t("builds.history")} description={builds.length ? t("builds.historyText") : undefined}>
         {builds.length === 0 ? (
-          <p className="m-0 text-sm text-muted">No builds yet.</p>
+          <p className="m-0 text-sm text-muted">{t("builds.noBuilds")}</p>
         ) : (
           // A table from md up; on phones each build is a card (globals.css, .table-cards).
           <table className="table-cards w-full border-collapse text-sm">
             <thead>
-              <tr className="text-left text-muted">
-                <th scope="col" className="py-2 pr-4 font-semibold">Build</th>
-                <th scope="col" className="py-2 pr-4 font-semibold">App version</th>
-                <th scope="col" className="py-2 pr-4 font-semibold">Queued</th>
-                <th scope="col" className="py-2 pr-4 font-semibold">Finished</th>
-                <th scope="col" className="py-2 font-semibold">Status</th>
+              <tr className="text-start text-muted">
+                <th scope="col" className="py-2 pe-4 text-start font-semibold">
+                  {t("builds.colBuild")}
+                </th>
+                <th scope="col" className="py-2 pe-4 text-start font-semibold">
+                  {t("builds.colVersion")}
+                </th>
+                <th scope="col" className="py-2 pe-4 text-start font-semibold">
+                  {t("builds.queued")}
+                </th>
+                <th scope="col" className="py-2 pe-4 text-start font-semibold">
+                  {t("builds.finished")}
+                </th>
+                <th scope="col" className="py-2 text-start font-semibold">
+                  {t("common.status")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {builds.map((build) => (
                 <tr key={build.id} className="align-top md:border-t md:border-line-soft">
-                  <td data-label="Build" className="md:py-2.5 md:pr-4 font-semibold">
+                  <td data-label={t("builds.colBuild")} className="font-semibold md:py-2.5 md:pe-4">
                     #{build.number}
                   </td>
-                  <td data-label="App version" className="md:py-2.5 md:pr-4">
+                  <td data-label={t("builds.colVersion")} className="md:py-2.5 md:pe-4">
                     <span>
                       {build.versionName} <span className="text-muted">({build.versionCode})</span>
                     </span>
                   </td>
-                  <td data-label="Queued" className="md:py-2.5 md:pr-4">
-                    {formatDateTime(build.createdAt)}
+                  <td data-label={t("builds.queued")} className="md:py-2.5 md:pe-4">
+                    {formatDateTime(build.createdAt, lang)}
                   </td>
-                  <td data-label="Finished" className="md:py-2.5 md:pr-4">
+                  <td data-label={t("builds.finished")} className="md:py-2.5 md:pe-4">
                     <span>
-                      {build.finishedAt ? formatDateTime(build.finishedAt) : "Not yet"}
+                      {build.finishedAt ? formatDateTime(build.finishedAt, lang) : t("builds.notYet")}
                       {formatDuration(build.startedAt, build.finishedAt) ? (
-                        <span className="block text-xs text-muted">Took {formatDuration(build.startedAt, build.finishedAt)}</span>
+                        <span className="block text-xs text-muted">{t("builds.tookTime", { time: k(formatDuration(build.startedAt, build.finishedAt)!) })}</span>
                       ) : null}
                     </span>
                   </td>
-                  <td data-label="Status" className="md:py-2.5">
+                  <td data-label={t("common.status")} className="md:py-2.5">
                     <span>
-                      <BuildStatusText status={build.status} />
-                      {build.status === "failed" ? <span className="block max-w-[260px] text-xs text-muted">{failureReason(build)}</span> : null}
+                      <BuildStatusText status={build.status} lang={lang} />
+                      {build.status === "failed" ? <span className="block max-w-[260px] text-xs text-muted">{k(failureReason(build))}</span> : null}
                     </span>
                   </td>
                 </tr>

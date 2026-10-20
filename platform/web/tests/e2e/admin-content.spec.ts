@@ -85,10 +85,7 @@ test.beforeAll(async ({ browser }) => {
   await panel.getByLabel("Website (optional)").fill(`https://willow-${suffix}.academy.test`);
   await panel.getByRole("button", { name: "Add client" }).click();
   await expect(admin).toHaveURL(/done=added/);
-  // The first email of a run can take a few seconds on a busy machine.
-  await expect
-    .poll(async () => (await mailsTo(client.email)).map((m) => m.subject), { timeout: 15_000 })
-    .toContain("Set your Yallapp password");
+  await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("Set your Yallapp password");
   const link = /https?:\/\/\S+\/reset-password\?token=\S+/.exec((await mailsTo(client.email))[0]!.text)![0];
 
   own = await browser.newPage();

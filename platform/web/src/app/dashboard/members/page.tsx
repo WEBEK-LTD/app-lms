@@ -9,22 +9,27 @@ import { bookingSetup } from "@/lib/bookings/setup";
 import { getStore } from "@/lib/data";
 import type { HostedUser } from "@/lib/data/types";
 import { CreditsForm, GiveMembershipForm } from "../memberships/forms";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import type { DashKey } from "@/i18n/dashboard";
 
-export const metadata: Metadata = { title: "Members" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("bookings.members") };
+}
 
 const TONES = { active: "success", expired: "neutral", cancelled: "danger" } as const;
-const LABELS = { active: "Active", expired: "Ended", cancelled: "Cancelled" } as const;
+const LABELS: Record<"active" | "expired" | "cancelled", DashKey> = { active: "bookings.statusActive", expired: "bookings.statusEnded", cancelled: "events.cancelled" };
 
 /** 27 Who has which membership: classes left, when it ends, and adding classes or a membership paid another way. */
 export default async function MembersPage() {
   const { app } = await requireClient();
+  const { t, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Members</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.members")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Memberships are for businesses without a website. To sell them here, choose &quot;I don&apos;t have a website&quot; on the{" "}
-          <Link href="/dashboard/setup?step=website">Website step</Link>.
+          {richText(t("bookings.plansNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -41,36 +46,34 @@ export default async function MembersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Members</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Who has which membership. Members bought in the app start at once; add one here for someone who paid at your desk.
-        </p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.members")}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bookings.membersIntro")}</p>
       </div>
 
       {setup.membershipPlans.length ? (
         <section aria-labelledby="h-give" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-give" className="m-0 text-lg font-bold">
-            Add a membership
+            {t("bookings.addMembership")}
           </h2>
           <GiveMembershipForm plans={setup.membershipPlans} />
         </section>
       ) : (
         <p className="m-0 text-[15px] text-ink-4">
-          Add your plans on the <Link href="/dashboard/memberships">Membership plans</Link> page first.
+          {richText(t("bookings.plansFirst"), { link: (chunk) => <Link href="/dashboard/memberships">{chunk}</Link> })}
         </p>
       )}
 
       <section aria-labelledby="h-members" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-members" className="m-0 text-lg font-bold">
-          Memberships
+          {t("bookings.memberships")}
         </h2>
         {rows.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No memberships yet.</p>
+          <p className="m-0 text-[15px] text-muted">{t("bookings.noMemberships")}</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             {rows.map((m) => {
               const user = users.get(m.userId);
-              const name = user?.name ?? "A deleted account";
+              const name = user?.name ?? t("bookings.deletedAccount");
               const status = membershipStatus(m, now);
               return (
                 <li key={m.id} className="flex flex-col gap-2 rounded-xl border border-line p-4">
@@ -78,10 +81,16 @@ export default async function MembersPage() {
                     <span className="text-[15px] font-bold">
                       {name} · {m.planName}
                     </span>
-                    <Badge tone={TONES[status]}>{LABELS[status]}</Badge>
+                    <Badge tone={TONES[status]}>{t(LABELS[status])}</Badge>
                   </div>
                   <span className="text-sm text-muted">
-                    {[user?.phone ?? user?.email, `From ${formatDate(m.startsAt)}`, m.endsAt ? `until ${formatDate(m.endsAt)}` : "no end date", m.creditsLeft === null ? "unlimited classes" : `${m.creditsLeft} ${m.creditsLeft === 1 ? "class" : "classes"} left`, m.orderId ? "bought in the app" : "added here"]
+                    {[
+                      user?.phone ?? user?.email,
+                      t("bookings.from", { date: formatDate(m.startsAt, lang) }),
+                      m.endsAt ? t("bookings.until", { date: formatDate(m.endsAt, lang) }) : t("bookings.noEnd"),
+                      m.creditsLeft === null ? t("bookings.unlimited") : t("bookings.classesLeft", { count: m.creditsLeft }),
+                      m.orderId ? t("bookings.boughtInApp") : t("bookings.addedHere"),
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </span>
@@ -91,7 +100,7 @@ export default async function MembersPage() {
                       <form action={cancelMembershipAction}>
                         <input type="hidden" name="id" value={m.id} />
                         <SubmitButton variant="danger" className="h-9 px-3 text-sm">
-                          End membership<span className="sr-only"> of {name}</span>
+                          {richText(t("bookings.endMembership", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
                         </SubmitButton>
                       </form>
                     </div>

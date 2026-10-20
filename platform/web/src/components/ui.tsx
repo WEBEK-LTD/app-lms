@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { Lang } from "@/i18n/config";
+import { formatDate as formatIn } from "@/i18n/format";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 
@@ -170,12 +172,19 @@ export function VisuallyHidden({ children }: { children: ReactNode }) {
   return <span className="sr-only">{children}</span>;
 }
 
-export function formatDate(date: Date | null | undefined): string {
-  if (!date) return "Not set";
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+/** 56 The two words of the date helpers in the dashboard's languages (the admin passes no language: English). */
+const NOT_SET: Record<Lang, string> = { en: "Not set", ar: "غير محدد", tr: "Belirlenmedi" };
+const NOT_YET: Record<Lang, string> = { en: "Not yet", ar: "ليس بعد", tr: "Henüz değil" };
+
+/** "19 Oct 2026"; 56 in the dashboard's language when given one (Latin digits). */
+export function formatDate(date: Date | null | undefined, lang: Lang = "en"): string {
+  if (!date) return NOT_SET[lang];
+  return formatIn(lang, date, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-export function formatDateTime(date: Date | null | undefined): string {
-  if (!date) return "Not yet";
-  return `${date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}, ${date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC`;
+/** "19 Oct 2026, 14:05 UTC". */
+export function formatDateTime(date: Date | null | undefined, lang: Lang = "en"): string {
+  if (!date) return NOT_YET[lang];
+  const time = formatIn(lang, date, { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
+  return `${formatDate(date, lang)}${lang === "ar" ? "، " : ", "}${time} UTC`;
 }

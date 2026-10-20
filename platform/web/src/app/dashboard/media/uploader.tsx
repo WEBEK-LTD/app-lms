@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { cancelMediaUploadAction, completeMediaUploadAction, resumeMediaUploadAction, startMediaUploadAction } from "@/app/actions/media";
 import { Icon } from "@/components/icon";
 import { btn, ProgressBar } from "@/components/ui";
+import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 
 /**
  * 51 The Media library's uploader. Each file goes to the media gate in 5 MB
@@ -81,6 +82,8 @@ async function serverOffset(url: string): Promise<{ status: number; offset: numb
 const noSubscribe = () => () => {};
 
 export function MediaUploader({ appId, accept, disabled }: { appId: string; accept: string; disabled: string | null }) {
+  const t = useDashT();
+  const known = useKnownText();
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -154,10 +157,10 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
         }
         failures++;
         if (failures > RETRIES) {
-          update(job.key, { status: "failed", offset: at, message: "The connection keeps dropping. Resume when you're back online; nothing uploaded so far is lost." });
+          update(job.key, { status: "failed", offset: at, message: t("media.dropping") });
           return;
         }
-        update(job.key, { message: "Connection lost, trying again…", offset: at });
+        update(job.key, { message: t("media.lost"), offset: at });
         await wait(1000 * 2 ** (failures - 1));
         offset = (await serverOffset(job.url!).catch(() => ({ status: 0, offset: null }))).offset ?? at;
       }
@@ -172,7 +175,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
     writeSaved(job.key, null);
     update(job.key, { status: "done", message: null });
     router.refresh();
-  }, [appId, freshLink, router, update]);
+  }, [appId, freshLink, router, t, update]);
 
   // One upload at a time, in the order the files were added.
   const pump = useCallback(async () => {
@@ -187,7 +190,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
         try {
           await upload(next);
         } catch {
-          update(next.key, { status: "failed", message: "The upload stopped. Resume to carry on." });
+          update(next.key, { status: "failed", message: t("media.stopped") });
         } finally {
           started.current.delete(next.key);
         }
@@ -195,7 +198,7 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
     } finally {
       running.current = false;
     }
-  }, [update, upload]);
+  }, [t, update, upload]);
 
   useEffect(() => {
     if (jobs.some((j) => j.status === "waiting")) void pump();
@@ -257,15 +260,15 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
         className={`flex flex-col items-center gap-2 rounded-xl border border-dashed px-5 py-7 text-center ${dragging ? "border-midnight bg-peach" : "border-line-strong bg-sand"}`}
       >
         <Icon name="upload" size={28} className="text-muted" />
-        <p className="m-0 text-[15px] font-semibold">Drop videos, pictures or PDFs here</p>
+        <p className="m-0 text-[15px] font-semibold">{t("media.drop")}</p>
         <label className={`${btn.primary} h-10 cursor-pointer ${disabled ? "pointer-events-none opacity-60" : ""}`}>
-          Choose files
+          {t("media.choose")}
           <input ref={input} type="file" multiple accept={accept} disabled={disabled !== null || !hydrated} className="sr-only" onChange={(e) => add(e.target.files)} />
         </label>
-        <span className="text-[13px] text-muted">{disabled ?? "Big videos upload in parts: if the connection drops, choose the same file again to carry on."}</span>
+        <span className="text-[13px] text-muted">{disabled ?? t("media.parts")}</span>
       </div>
       {jobs.length ? (
-        <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Uploads">
+        <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("media.uploads")}>
           {jobs.map((job) => {
             const percent = job.file.size ? Math.floor((job.offset / job.file.size) * 100) : 0;
             return (
@@ -274,44 +277,44 @@ export function MediaUploader({ appId, accept, disabled }: { appId: string; acce
                   <span className="min-w-0 flex-1 truncate text-[15px] font-semibold">{job.file.name}</span>
                   <span className="text-[13px] text-muted" aria-live="polite">
                     {job.status === "done"
-                      ? "Uploaded"
+                      ? t("media.uploaded")
                       : job.status === "checking"
-                        ? "Checking…"
+                        ? t("media.checking")
                         : job.status === "paused"
-                          ? `Paused at ${percent}%`
+                          ? t("media.pausedAt", { percent })
                           : job.status === "failed"
-                            ? "Not uploaded"
+                            ? t("media.notUploaded")
                             : job.status === "waiting"
-                              ? "Waiting"
-                              : `${percent}%`}
+                              ? t("media.waiting")
+                              : t("media.percent", { percent })}
                   </span>
                   {job.status === "uploading" ? (
                     <button type="button" onClick={() => pause(job)} className={`${btn.ghost} h-8 px-2 text-sm`}>
                       <Icon name="pause_circle" size={18} />
-                      Pause
+                      {t("media.pause")}
                     </button>
                   ) : null}
                   {job.status === "paused" || (job.status === "failed" && !job.storageFull && job.id) ? (
                     <button type="button" onClick={() => resume(job)} className={`${btn.ghost} h-8 px-2 text-sm`}>
                       <Icon name="play_circle" size={18} />
-                      Resume
+                      {t("media.resume")}
                     </button>
                   ) : null}
                   {job.status !== "done" && job.status !== "checking" ? (
-                    <button type="button" onClick={() => void cancel(job)} className={`${btn.ghost} h-8 px-2 text-sm`} aria-label={`Cancel ${job.file.name}`}>
+                    <button type="button" onClick={() => void cancel(job)} className={`${btn.ghost} h-8 px-2 text-sm`} aria-label={t("media.cancelNamed", { name: job.file.name })}>
                       <Icon name="close" size={18} />
-                      Cancel
+                      {t("media.cancel")}
                     </button>
                   ) : null}
                 </div>
-                {job.status !== "failed" || job.offset > 0 ? <ProgressBar value={job.offset} max={job.file.size || 1} label={`Uploading ${job.file.name}`} tone={job.status === "done" ? "success" : "accent"} /> : null}
+                {job.status !== "failed" || job.offset > 0 ? <ProgressBar value={job.offset} max={job.file.size || 1} label={t("media.uploading", { name: job.file.name })} tone={job.status === "done" ? "success" : "accent"} /> : null}
                 {job.message ? (
                   <p role={job.status === "failed" ? "alert" : undefined} className={`m-0 text-[13px] ${job.status === "failed" ? "text-danger" : "text-muted"}`}>
-                    {job.message}
+                    {known(job.message)}
                     {job.storageFull ? (
                       <>
                         {" "}
-                        <a href="#buy-storage">Buy more storage</a>
+                        <a href="#buy-storage">{t("media.buy")}</a>
                       </>
                     ) : null}
                   </p>

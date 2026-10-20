@@ -8,11 +8,14 @@ import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { listingSettingsFor } from "@/lib/listings/types";
 import { ReplyForm } from "../forms";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
 
-export const metadata: Metadata = { title: "Conversation" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("listings.conversation") };
+}
 
-const when = (date: Date) =>
-  date.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
+const WHEN: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
 
 /** One conversation: opening it marks the person's messages as read. */
 export default async function InquiryPage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,18 +34,22 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
     store.getListingSettings(app.id),
   ]);
   const office = listingSettingsFor(app, settings);
+  const { t, date } = await dashboardText();
+  const when = (at: Date) => t("listings.utc", { time: date(at, WHEN) });
+  const appUser = t("listings.appUser");
 
   return (
     <div className="flex max-w-[760px] flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Link href="/dashboard/inquiries" className="text-sm font-semibold">
-          ← Inquiries
+          {t("listings.backInquiries")}
         </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{user?.name ?? "App user"}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{user?.name ?? appUser}</h1>
         <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
           <span>
-            About{" "}
-            {listing ? <Link href={`/dashboard/listings/${listing.id}`}>{listing.title}</Link> : "a listing that was removed"}
+            {listing
+              ? richText(t("listings.aboutListing", { title: listing.title }), { link: (chunk) => <Link href={`/dashboard/listings/${listing.id}`}>{chunk}</Link> })
+              : t("listings.aboutRemoved")}
             {user ? (
               <>
                 {" · "}
@@ -56,20 +63,21 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
               </>
             ) : null}
           </span>
-          {inquiry.status === "open" ? <Badge tone="success">Open</Badge> : <Badge tone="neutral">Closed</Badge>}
+          {inquiry.status === "open" ? <Badge tone="success">{t("listings.open")}</Badge> : <Badge tone="neutral">{t("listings.closed")}</Badge>}
         </p>
       </div>
 
       <section aria-labelledby="h-messages" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-messages" className="m-0 text-lg font-bold">
-          Messages
+          {t("listings.messagesTitle")}
         </h2>
         <ol className="m-0 flex list-none flex-col gap-3 p-0">
           {messages.map((m) => (
             <li key={m.id} className={`flex flex-col gap-1 ${m.from === "office" ? "items-end" : "items-start"}`}>
               <span className="text-[13px] text-muted">
-                {m.from === "office" ? office.contactName : (user?.name ?? "App user")} · {when(m.createdAt)}
-                {m.from === "office" ? (m.readAt ? " · Seen" : "") : ""}
+                {[m.from === "office" ? office.contactName : (user?.name ?? appUser), when(m.createdAt), m.from === "office" && m.readAt ? t("listings.seen") : null]
+                  .filter(Boolean)
+                  .join(" · ")}
               </span>
               <p className={`m-0 max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${m.from === "office" ? "bg-midnight text-white" : "bg-sand text-ink-2"}`}>
                 {m.text}
@@ -84,12 +92,10 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
         <input type="hidden" name="id" value={inquiry.id} />
         <input type="hidden" name="status" value={inquiry.status === "open" ? "closed" : "open"} />
         <span className="text-[15px] text-ink-4">
-          {inquiry.status === "open"
-            ? "Close the conversation when it's done. A new message from them opens it again."
-            : "This conversation is closed. Reopen it to keep it with the open ones."}
+          {inquiry.status === "open" ? t("listings.closeText") : t("listings.reopenText")}
         </span>
-        <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-          {inquiry.status === "open" ? "Close conversation" : "Reopen conversation"}
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {inquiry.status === "open" ? t("listings.closeConversation") : t("listings.reopenConversation")}
         </SubmitButton>
       </form>
     </div>

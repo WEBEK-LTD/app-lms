@@ -56,6 +56,17 @@ export function langOf(value: unknown): Lang {
   return isLang(value) ? value : DEFAULT_LANG;
 }
 
+/**
+ * 56 The dashboard's language for a signed-in person: the language they
+ * chose (saved on their user, so it follows them to other devices), else the
+ * one the `yallapp_lang` cookie remembers, else English.
+ */
+export function preferredLang(userLanguage: string | null | undefined, cookieLang: string | null | undefined): Lang {
+  if (isLang(userLanguage)) return userLanguage;
+  if (isLang(cookieLang)) return cookieLang;
+  return DEFAULT_LANG;
+}
+
 /** The `Set-Cookie`/`document.cookie` text that remembers a language choice. */
 export function langCookie(lang: Lang): string {
   return `${LANG_COOKIE}=${lang}; Path=/; Max-Age=${LANG_COOKIE_MAX_AGE}; SameSite=Lax`;

@@ -4,7 +4,8 @@ import { appLabel } from "../app/label";
 import type { PlanPaymentOutcome } from "../billing/plan-payment";
 import type { DataStore } from "../data/store";
 import type { Client } from "../data/types";
-import { sendTemplate } from "../email/send";
+import { emailLangOf, sendTemplate } from "../email/send";
+import { getDashT } from "@/i18n/dashboard";
 import { effectivePlans } from "../entitlements";
 import { appUrl } from "../env";
 import { formatBytes } from "./quota";
@@ -20,13 +21,14 @@ export async function sendStoragePaidMail(store: DataStore, client: Client, outc
   const now = new Date();
   const storage = await appStorage(store, app, await effectivePlans(store), now);
   await store.resolveOwnerNotices(app.id, storage.over ? [] : ["storage_pack_ended"], now);
+  const lang = emailLangOf(user);
   await sendTemplate("storage_pack_added", user.email, {
     name: user.name,
     app_name: appLabel(app),
     pack: `+${pack.gb} GB`,
     end_date: formatDate(pack.activeUntil),
     used: formatBytes(storage.usedBytes),
-    storage: storage.limitBytes === null ? "unlimited" : formatBytes(storage.limitBytes),
+    storage: storage.limitBytes === null ? getDashT(lang)("emails.unlimited") : formatBytes(storage.limitBytes),
     media_url: `${appUrl()}/dashboard/open?${new URLSearchParams({ app: app.id, to: "media" }).toString()}`,
-  }).catch((error: unknown) => console.error("[mail] storage email failed", error));
+  }, { lang }).catch((error: unknown) => console.error("[mail] storage email failed", error));
 }

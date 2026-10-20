@@ -8,6 +8,9 @@ import { Icon } from "@/components/icon";
 import { Badge, EmptyState, formatDate, Notice, PageHeader, Section } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import type { DashKey } from "@/i18n/dashboard";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import type { MediaKind } from "@/lib/data/types";
@@ -20,6 +23,7 @@ import { getMediaStorage } from "@/lib/media/storage";
 import { appStorage } from "@/lib/media/usage";
 import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { formatStorage, lowestPlanWith } from "@/lib/plans";
+import { formatList } from "@/i18n/format";
 import { priceView } from "@/lib/billing/display";
 import { formatMoney } from "@/lib/billing/prices";
 import { platformSetting, yallappPlanAccount } from "@/lib/settings/platform";
@@ -27,17 +31,20 @@ import { UpgradeHint } from "@/components/upgrade";
 import { BuyStorageForm, RenameForm } from "./forms";
 import { MediaUploader } from "./uploader";
 
-export const metadata: Metadata = { title: "Media" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("media.title") };
+}
 export const dynamic = "force-dynamic";
 
-const FILTERS: { id: MediaKind | "all"; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "video", label: "Videos" },
-  { id: "image", label: "Pictures" },
-  { id: "pdf", label: "PDFs" },
+const FILTERS: { id: MediaKind | "all"; label: DashKey; none: DashKey }[] = [
+  { id: "all", label: "media.all", none: "media.noFiles" },
+  { id: "video", label: "media.videos", none: "media.noVideos" },
+  { id: "image", label: "media.pictures", none: "media.noPictures" },
+  { id: "pdf", label: "media.pdfs", none: "media.noPdfs" },
 ];
 
-const KIND_LABEL: Record<MediaKind, string> = { video: "Video", image: "Picture", pdf: "PDF" };
+const KIND_LABEL: Record<MediaKind, DashKey> = { video: "media.video", image: "media.picture", pdf: "media.pdf" };
+const LIMIT_LABEL: Record<MediaKind, DashKey> = { video: "media.limitVideos", image: "media.limitPictures", pdf: "media.limitPdfs" };
 
 /**
  * 51 Media: the app's videos, pictures and PDFs, kept on Yallapp's own
@@ -48,6 +55,8 @@ const KIND_LABEL: Record<MediaKind, string> = { video: "Video", image: "Picture"
 export default async function MediaPage({ searchParams }: PageProps<"/dashboard/media">) {
   const { app, client, license, state } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
+  const { t, k, lang } = await dashboardText();
+  const date = (d: Date | null | undefined) => formatDate(d, lang);
   const query = await searchParams;
   const filter = FILTERS.find((f) => f.id === query.kind)?.id ?? "all";
   const store = await getStore();
@@ -69,81 +78,76 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
   const share = limit === null ? 0 : Math.min(1, usage.share);
   const tone = usage.over ? "bg-danger" : share >= 0.8 ? "bg-warn" : "bg-ember";
   const bigger = usage.plan ? lowestPlanWith(plans, (p) => p.limits.storageGb === null || p.limits.storageGb > (usage.plan?.limits.storageGb ?? 0), usage.plan.id) : null;
-  const disabled = !storage
-    ? "Uploads aren't available right now. Message us on WhatsApp."
-    : state !== "active"
-      ? "Uploads start once your plan is active."
-      : usage.over
-        ? "Your files take more than your storage: delete some, or buy more storage, to upload again."
-        : null;
+  const disabled = !storage ? t("media.notAvailable") : state !== "active" ? t("media.notActive") : usage.over ? t("media.over") : null;
+  const muted = { muted: (chunk: string) => <span className="text-base font-semibold text-muted">{chunk}</span> };
   const payment = typeof query.payment === "string" ? query.payment : null;
 
   return (
     <>
       <PageHeader
-        title="Media"
-        description={
-          <>
-            Videos, pictures and PDFs for {appLabel(app)}, kept by Yallapp. Videos you use in lessons play in your app&apos;s own player, with nothing
-            showing where they&apos;re hosted, and only for the people who may watch them.
-          </>
-        }
+        title={t("media.title")}
+        description={t("media.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
       />
       {payment === "paid" ? (
         <Notice tone="success" icon="check_circle" role="status">
-          Payment received. Your extra storage is ready.
+          {t("media.paid")}
         </Notice>
       ) : payment === "failed" ? (
         <Notice tone="danger" icon="error" role="alert">
-          The payment didn&apos;t go through, so no storage was added. You can try again.
+          {t("media.failed")}
         </Notice>
       ) : payment === "pending" ? (
         <Notice tone="info" role="status">
-          We&apos;re waiting for the payment provider to confirm the payment. The storage is added as soon as it does.
+          {t("media.pending")}
         </Notice>
       ) : null}
       {query.deleted === "failed" ? (
         <Notice tone="danger" icon="error" role="alert">
-          The file couldn&apos;t be deleted right now. Try again in a moment.
+          {t("media.deleteFailed")}
         </Notice>
       ) : null}
 
-      <Section titleId="h-storage" title="Storage" description="What your files take of the storage your plan and storage packs give this app.">
+      <Section titleId="h-storage" title={t("media.storage")} description={t("media.storageText")}>
         <div className="flex flex-col gap-1.5">
           <span className="text-2xl font-extrabold" data-storage-used="">
-            {formatBytes(usage.usedBytes)}
-            {limit === null ? "" : ` of ${formatBytes(limit)}`} <span className="text-base font-semibold text-muted">used</span>
+            {limit === null
+              ? richText(t("media.used", { used: formatBytes(usage.usedBytes) }), muted)
+              : richText(t("media.usedOf", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) }), muted)}
           </span>
           {limit === null ? (
-            <span className="text-sm text-muted">No limit on your plan.</span>
+            <span className="text-sm text-muted">{t("media.noLimit")}</span>
           ) : (
-            <div className="h-2 rounded-full bg-ivory" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(share * 100)} aria-label={`Storage: ${formatBytes(usage.usedBytes)} of ${formatBytes(limit)}`}>
+            <div className="h-2 rounded-full bg-ivory" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(share * 100)} aria-label={t("media.storageBar", { used: formatBytes(usage.usedBytes), limit: formatBytes(limit) })}>
               <div className={`h-full rounded-full ${tone}`} style={{ width: `${share * 100}%` }} />
             </div>
           )}
           <span className="text-sm text-muted">
-            {usage.plan ? `${usage.plan.name} plan: ${formatStorage(usage.plan.limits.storageGb)}` : "No plan yet"}
-            {usage.active.map((p) => ` · ${offerName(p)} until ${formatDate(p.activeUntil)}`).join("")}
+            {usage.plan
+              ? t("media.planStorage", {
+                  plan: usage.plan.name,
+                  storage: usage.plan.limits.storageGb === null ? t("media.unlimited") : formatStorage(usage.plan.limits.storageGb),
+                })
+              : t("media.noPlan")}
+            {usage.active.map((p) => t("media.packUntil", { pack: offerName(p), date: date(p.activeUntil) })).join("")}
           </span>
         </div>
         {usage.over ? (
           <Notice tone="warn" icon="warning" role="alert">
-            Your files take more than your storage now. Nothing has been deleted and everything keeps playing, but new uploads wait until you delete files or buy more
-            storage.
+            {t("media.overNotice")}
           </Notice>
         ) : null}
       </Section>
 
-      <Section titleId="h-upload" title="Upload" description={MEDIA_KINDS.map((k) => `${k.label} up to ${formatBytes(k.maxBytes)}`).join(" · ")}>
+      <Section titleId="h-upload" title={t("media.upload")} description={MEDIA_KINDS.map((m) => t(LIMIT_LABEL[m.kind], { size: formatBytes(m.maxBytes) })).join(" · ")}>
         <MediaUploader appId={app.id} accept={MEDIA_ACCEPT} disabled={disabled} />
       </Section>
 
       <Section
         titleId="h-files"
-        title="Your files"
+        title={t("media.yourFiles")}
         flush
         actions={
-          <nav aria-label="Show" className="flex flex-wrap gap-1.5">
+          <nav aria-label={t("media.show")} className="flex flex-wrap gap-1.5">
             {FILTERS.map((f) => (
               <Link
                 key={f.id}
@@ -151,7 +155,7 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                 aria-current={filter === f.id ? "page" : undefined}
                 className={`rounded-full border px-3 py-1 text-sm font-semibold no-underline ${filter === f.id ? "border-midnight bg-midnight text-white hover:text-white" : "border-line text-ink-3"}`}
               >
-                {f.label}
+                {t(f.label)}
               </Link>
             ))}
           </nav>
@@ -159,12 +163,12 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
       >
         {files.length === 0 ? (
           <div className="p-5 sm:p-6">
-            <EmptyState icon="photo_library" title={filter === "all" ? "No files yet" : `No ${FILTERS.find((f) => f.id === filter)!.label.toLowerCase()} yet`}>
-              Upload a video, then choose it for a lesson with “Choose from Media”, or copy its link.
+            <EmptyState icon="photo_library" title={t(FILTERS.find((f) => f.id === filter)!.none)}>
+              {t("media.emptyText")}
             </EmptyState>
           </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0" aria-label="Files">
+          <ul className="m-0 flex list-none flex-col p-0" aria-label={t("media.files")}>
             {files.map((f) => {
               const link = mediaLink(appUrl(), f.id);
               const open = storage && f.status === "ready" ? fileUrl(storage, f, { ttlSeconds: 3600 }).url : null;
@@ -182,23 +186,23 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                     <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
                       <span className="truncate text-[15px] font-semibold">{f.name}</span>
                       <span className="text-[13px] text-muted">
-                        {KIND_LABEL[f.kind]} · {formatBytes(f.sizeBytes)} · {formatDate(f.createdAt)}
+                        {t("media.fileLine", { kind: t(KIND_LABEL[f.kind]), size: formatBytes(f.sizeBytes), date: date(f.createdAt) })}
                       </span>
                     </div>
                     {f.status === "uploading" ? (
-                      <Badge tone="warn">Upload not finished</Badge>
+                      <Badge tone="warn">{t("media.notFinished")}</Badge>
                     ) : isPublic(f) ? (
-                      <Badge tone="neutral">Anyone with the link</Badge>
+                      <Badge tone="neutral">{t("media.anyone")}</Badge>
                     ) : (
-                      <Badge tone="info">Lessons only</Badge>
+                      <Badge tone="info">{t("media.lessonsOnly")}</Badge>
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {f.status === "ready" ? <CopyButton value={link} label="Copy link" /> : null}
+                    {f.status === "ready" ? <CopyButton value={link} label={t("media.copyLink")} copiedLabel={t("common.copied")} /> : null}
                     {open ? (
                       <a href={open} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line-strong bg-white px-3.5 text-sm font-semibold text-midnight no-underline hover:border-midnight">
                         <Icon name="open_in_new" size={18} />
-                        Open
+                        {t("media.open")}
                       </a>
                     ) : null}
                     {f.status === "ready" ? <RenameForm id={f.id} name={f.name} /> : null}
@@ -207,19 +211,19 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                         <input type="hidden" name="id" value={f.id} />
                         <input type="hidden" name="public" value={f.public ? "" : "on"} />
                         <SubmitButton variant="secondary" className="h-10 px-3 text-sm">
-                          {f.public ? "Lessons only" : "Share the link"}
+                          {f.public ? t("media.lessonsOnly") : t("media.share")}
                         </SubmitButton>
                       </form>
                     ) : null}
                     <form action={deleteMediaAction}>
                       <input type="hidden" name="id" value={f.id} />
                       <SubmitButton variant="secondary" className="h-10 px-3 text-sm">
-                        {f.status === "uploading" ? "Cancel upload" : "Delete"}
+                        {f.status === "uploading" ? t("media.cancelUpload") : t("common.delete")}
                       </SubmitButton>
                     </form>
                   </div>
                   {f.status === "uploading" ? (
-                    <p className="m-0 text-[13px] text-muted">Choose the same file above to carry on. Uploads not finished in two days are cancelled.</p>
+                    <p className="m-0 text-[13px] text-muted">{t("media.carryOn")}</p>
                   ) : null}
                 </li>
               );
@@ -231,16 +235,21 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
       <Section
         id="buy-storage"
         titleId="h-buy-storage"
-        title="Buy more storage"
-        description={license ? `Storage packs run until your plan's period ends (${formatDate(license.expiresAt)}) and renew with it when you renew by card.` : "Storage packs come with a plan."}
+        title={t("media.buy")}
+        description={license ? t("media.buyText", { date: date(license.expiresAt) }) : t("media.buyNoPlan")}
       >
         {bigger ? (
-          <UpgradeHint title={`${bigger.name} includes ${formatStorage(bigger.limits.storageGb)}`} to={{ id: bigger.id, name: bigger.name }} compact>
-            Or move to a bigger plan.
+          <UpgradeHint
+            title={t("media.bigger", { plan: bigger.name, storage: bigger.limits.storageGb === null ? t("media.unlimited") : formatStorage(bigger.limits.storageGb) })}
+            to={{ id: bigger.id, name: bigger.name }}
+            compact
+            cta={t("overview.upgradeTo", { plan: bigger.name })}
+          >
+            {t("media.biggerText")}
           </UpgradeHint>
         ) : null}
         {buyBlocked ? (
-          <p className="m-0 text-[15px] text-ink-4">{buyBlocked}</p>
+          <p className="m-0 text-[15px] text-ink-4">{k(buyBlocked)}</p>
         ) : offers.length && account && license ? (
           <BuyStorageForm
             appId={app.id}
@@ -251,21 +260,23 @@ export default async function MediaPage({ searchParams }: PageProps<"/dashboard/
                 id: offer.id,
                 label: offerName(offer),
                 price: formatMoney(price.offer.shown),
-                note: `${formatMoney(monthly.shown)} a month × ${price.months} ${price.months === 1 ? "month" : "months"}, until ${formatDate(license.expiresAt)}`,
-                charge: price.offer.line,
+                note: t("media.packNote", { monthly: formatMoney(monthly.shown), months: price.months, date: date(license.expiresAt) }),
+                charge: price.offer.line ? k(price.offer.line) : null,
               };
             })}
           />
         ) : (
           <p className="m-0 text-[15px] text-ink-4">
-            Storage packs of {packOffers(packsSetting?.value).map(offerName).join(" and ")} are added by our team.{" "}
-            <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer">
-              Message us on WhatsApp
-            </a>
-            .
+            {richText(t("media.byTeam", { packs: formatList(lang, packOffers(packsSetting?.value).map(offerName)) }), {
+              link: (chunk) => (
+                <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  {chunk}
+                </a>
+              ),
+            })}
           </p>
         )}
-        {client.status === "suspended" ? <p className="m-0 text-sm text-danger">This account is suspended.</p> : null}
+        {client.status === "suspended" ? <p className="m-0 text-sm text-danger">{t("media.suspended")}</p> : null}
       </Section>
     </>
   );

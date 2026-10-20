@@ -1,7 +1,8 @@
 import Link from "next/link";
+import type { DashboardText } from "@/lib/dashboard-lang";
 
 /** 29 Links between the Donations and Donors pages. */
-export function DonationTabs({ current }: { current: "donations" | "donors" }) {
+export function DonationTabs({ current, t }: { current: "donations" | "donors"; t: DashboardText["t"] }) {
   const tab = (href: string, id: typeof current, label: string) => (
     <Link
       href={href}
@@ -12,9 +13,9 @@ export function DonationTabs({ current }: { current: "donations" | "donors" }) {
     </Link>
   );
   return (
-    <nav aria-label="Donations and donors" className="flex gap-2">
-      {tab("/dashboard/donations", "donations", "Donations")}
-      {tab("/dashboard/donations/donors", "donors", "Donors")}
+    <nav aria-label={t("donations.tabs")} className="flex gap-2">
+      {tab("/dashboard/donations", "donations", t("donations.donations"))}
+      {tab("/dashboard/donations/donors", "donors", t("donations.donorsTitle"))}
     </nav>
   );
 }

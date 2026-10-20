@@ -5,6 +5,9 @@ import { Badge, btn } from "@/components/ui";
 import { Icon } from "@/components/icon";
 import { isBuiltInLanguage, isRtl, LOCALES, localeInfo } from "@/lib/i18n/locales";
 import type { Languages } from "@/lib/pages/types";
+import { useDashLang, useDashT } from "@/components/dashboard-i18n";
+import { LANG_INFO } from "@/i18n/config";
+import { appLanguageName } from "@/lib/i18n/language-names";
 
 /**
  * 43 The app's languages: add any language from the list (with its name in
@@ -27,9 +30,14 @@ export function LanguageList({
   max: number;
   idPrefix?: string;
 }) {
+  const t = useDashT();
+  const dashLang = useDashLang();
+  const nameOf = (code: string) => appLanguageName(code, dashLang);
   const [adding, setAdding] = useState("");
   const list = languages.available;
-  const choices = LOCALES.filter((l) => !list.includes(l.code)).sort((a, b) => a.name.localeCompare(b.name, "en"));
+  const choices = LOCALES.filter((l) => !list.includes(l.code))
+    .map((l) => ({ ...l, name: nameOf(l.code) }))
+    .sort((a, b) => a.name.localeCompare(b.name, LANG_INFO[dashLang].intl));
   const atMax = list.length >= max;
 
   function move(code: string, by: number) {
@@ -50,10 +58,10 @@ export function LanguageList({
 
   return (
     <div className="flex flex-col gap-4">
-      <ol className="m-0 flex list-none flex-col gap-2 p-0" aria-label="Languages in the app">
+      <ol className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("languages.inApp")}>
         {list.map((code, i) => {
           const info = localeInfo(code);
-          const name = info?.name ?? code;
+          const name = info ? nameOf(code) : code;
           const isDefault = code === languages.default;
           return (
             <li key={code} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line px-4 py-3" data-language={code}>
@@ -67,29 +75,29 @@ export function LanguageList({
                   ) : null}
                 </span>
                 <span className="flex flex-wrap gap-1.5">
-                  {isDefault ? <Badge tone="info">Default</Badge> : null}
-                  {isRtl(code) ? <Badge tone="neutral">Right to left</Badge> : null}
-                  {isBuiltInLanguage(code) ? <Badge tone="success">Translated by Yallapp</Badge> : <Badge tone="warn">You translate</Badge>}
+                  {isDefault ? <Badge tone="info">{t("languages.default")}</Badge> : null}
+                  {isRtl(code) ? <Badge tone="neutral">{t("languages.rtl")}</Badge> : null}
+                  {isBuiltInLanguage(code) ? <Badge tone="success">{t("languages.byYallapp")}</Badge> : <Badge tone="warn">{t("languages.youTranslate")}</Badge>}
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {isDefault ? null : (
                   <button type="button" className={`${btn.secondary} h-9 px-3 text-sm`} onClick={() => onChange({ default: code, available: list }, code)}>
-                    Make default
+                    {t("languages.makeDefault")}
                   </button>
                 )}
-                <button type="button" className={iconBtn} aria-label={`Move ${name} up`} disabled={i === 0} onClick={() => move(code, -1)}>
+                <button type="button" className={iconBtn} aria-label={t("languages.moveUp", { name })} disabled={i === 0} onClick={() => move(code, -1)}>
                   <Icon name="arrow_upward" size={18} />
                 </button>
-                <button type="button" className={iconBtn} aria-label={`Move ${name} down`} disabled={i === list.length - 1} onClick={() => move(code, 1)}>
+                <button type="button" className={iconBtn} aria-label={t("languages.moveDown", { name })} disabled={i === list.length - 1} onClick={() => move(code, 1)}>
                   <Icon name="arrow_downward" size={18} />
                 </button>
                 <button
                   type="button"
                   className={iconBtn}
-                  aria-label={`Remove ${name}`}
+                  aria-label={t("languages.remove", { name })}
                   disabled={isDefault}
-                  title={isDefault ? "Make another language the default first." : undefined}
+                  title={isDefault ? t("languages.defaultFirst") : undefined}
                   onClick={() => onChange({ default: languages.default, available: list.filter((c) => c !== code) })}
                 >
                   <Icon name="delete" size={18} />
@@ -102,10 +110,10 @@ export function LanguageList({
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex min-w-0 flex-[0_1_340px] flex-col gap-1.5">
           <label htmlFor={`${idPrefix}-add`} className="text-sm font-semibold">
-            Add a language
+            {t("languages.addLanguage")}
           </label>
           <select id={`${idPrefix}-add`} value={adding} onChange={(e) => setAdding(e.target.value)} className="input input-sm" disabled={full || atMax}>
-            <option value="">Choose a language</option>
+            <option value="">{t("languages.chooseLanguage")}</option>
             {choices.map((l) => (
               <option key={l.code} value={l.code}>
                 {l.nativeName === l.name ? l.name : `${l.name} (${l.nativeName})`}
@@ -115,13 +123,12 @@ export function LanguageList({
         </div>
         <button type="button" className={`${btn.secondary} h-10 px-4 text-sm`} disabled={!adding || full || atMax} onClick={add}>
           <Icon name="add" size={18} />
-          Add
+          {t("common.add")}
         </button>
       </div>
       <p className="m-0 text-sm text-muted">
-        Yallapp translates the app into English, Arabic and Turkish, also the tab names and texts it writes for you. Any other language starts in English until you translate it on
-        the Languages page. People pick a language in the app&apos;s settings; right-to-left languages turn the whole app around.
-        {atMax ? ` An app can have up to ${max} languages.` : ""}
+        {t("languages.listText")}
+        {atMax ? ` ${t("languages.atMax", { max })}` : ""}
       </p>
     </div>
   );

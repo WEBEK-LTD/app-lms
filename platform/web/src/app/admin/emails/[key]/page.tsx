@@ -12,6 +12,7 @@ import { DEFAULT_CONTACT } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { templateText } from "@/lib/email/send";
 import { emailTemplate, GLOBAL_PLACEHOLDERS, sampleValues } from "@/lib/email/templates";
+import { localizedDefault } from "@/lib/email/templates-lang";
 import { platformSetting } from "@/lib/settings/platform";
 import { TemplateForm, TestEmailForm } from "../forms";
 
@@ -42,6 +43,14 @@ export default async function EditEmailPage({ params, searchParams }: PageProps<
         <span className="text-[15px] text-muted">
           {template.description} {saved ? `Edited ${formatDateTime(saved.updatedAt)} by ${saved.updatedBy}.` : "Using the default text."}
         </span>
+        {/* 56 Emails to clients follow the language they chose for the dashboard, until the team edits them. */}
+        {localizedDefault(template.key, "ar") ? (
+          <span className="text-[15px] text-muted">
+            {saved
+              ? "Clients who use the dashboard in Arabic or Turkish get this edited English text too. Back to the default sends them Yallapp's Arabic or Turkish text again."
+              : "Clients who use the dashboard in Arabic or Turkish get Yallapp's Arabic or Turkish text of this default. Once you edit it, everyone gets your English text."}
+          </span>
+        ) : null}
       </div>
       {done === "reset" ? (
         <Notice tone="success" icon="check_circle" role="status">

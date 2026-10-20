@@ -4,24 +4,26 @@ import { useActionState } from "react";
 import { saveServiceAccountAction, sendNotificationAction } from "@/app/actions/notifications";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
+import { useDashT } from "@/components/dashboard-i18n";
 
 export function SendNotificationForm({ titleMax, bodyMax }: { titleMax: number; bodyMax: number }) {
+  const t = useDashT();
   const [state, action] = useActionState(sendNotificationAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        label="Title"
+        label={t("notify.titleLabel")}
         name="title"
         required
         maxLength={titleMax}
         defaultValue={state.ok ? "" : state.values?.title}
-        placeholder="New arrivals this week"
+        placeholder={t("notify.titlePlaceholder")}
         error={state.errors?.title}
       />
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-body" className="text-sm font-semibold">
-          Message
+          {t("notify.message")}
         </label>
         <textarea
           id="f-body"
@@ -35,13 +37,13 @@ export function SendNotificationForm({ titleMax, bodyMax }: { titleMax: number; 
           aria-describedby={state.errors?.body ? "f-body-error" : "f-body-hint"}
         />
         <span id="f-body-hint" className="text-[13px] text-muted">
-          Up to {bodyMax} characters. Every customer gets it in their inbox; phones that allow notifications get a push.
+          {t("notify.messageHint", { max: bodyMax })}
         </span>
         <FieldError id="f-body-error" error={state.errors?.body} />
       </div>
       <div className="flex justify-end">
-        <SubmitButton className="h-11" pendingText="Sending…">
-          Send to everyone
+        <SubmitButton className="h-11" pendingText={t("common.sending")}>
+          {t("notify.sendToEveryone")}
         </SubmitButton>
       </div>
     </form>
@@ -49,22 +51,23 @@ export function SendNotificationForm({ titleMax, bodyMax }: { titleMax: number; 
 }
 
 export function ServiceAccountForm() {
+  const t = useDashT();
   const [state, action] = useActionState(saveServiceAccountAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-col gap-3">
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        label="Firebase service account key (.json)"
+        label={t("notify.keyLabel")}
         name="serviceAccount"
         type="file"
         accept="application/json,.json"
         required
-        hint="Firebase console, Project settings, Service accounts, Generate new private key. It stays encrypted on our servers."
+        hint={t("notify.keyHint")}
         error={state.errors?.serviceAccount}
       />
       <div className="flex justify-end">
-        <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-          Save key
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("notify.saveKey")}
         </SubmitButton>
       </div>
     </form>

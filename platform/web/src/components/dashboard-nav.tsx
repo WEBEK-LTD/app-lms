@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useDashT } from "./dashboard-i18n";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 
@@ -50,6 +51,7 @@ export function DashboardSidebar({
   footer: ReactNode;
 }) {
   const pathname = usePathname();
+  const t = useDashT();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -80,7 +82,7 @@ export function DashboardSidebar({
   }, [open]);
 
   return (
-    <aside className="z-30 flex w-full flex-col border-b border-line bg-white md:sticky md:top-0 md:h-screen md:w-[264px] md:flex-none md:border-r md:border-b-0">
+    <aside className="z-30 flex w-full flex-col border-b border-line bg-white md:sticky md:top-0 md:h-screen md:w-[264px] md:flex-none md:border-e md:border-b-0">
       <div className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line-soft bg-white px-4 md:static md:h-auto md:border-b-0 md:px-5 md:pt-6 md:pb-5">
         {logo}
         <div className="flex items-center gap-2">
@@ -94,7 +96,7 @@ export function DashboardSidebar({
             className="inline-flex h-10 items-center gap-1.5 rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-semibold text-midnight md:hidden"
           >
             <Icon name={open ? "close" : "menu"} size={22} />
-            Menu
+            {t("nav.menu")}
           </button>
         </div>
       </div>
@@ -105,7 +107,7 @@ export function DashboardSidebar({
         className={`${open ? "max-md:flex" : "max-md:hidden"} fixed inset-x-0 top-16 bottom-0 z-20 flex-col overflow-y-auto bg-white md:static md:flex md:min-h-0 md:flex-1`}
         data-open={open ? "" : undefined}
       >
-        <nav aria-label="Dashboard" className="flex flex-col gap-5 px-4 pt-4 pb-6 md:px-3.5 md:pt-2">
+        <nav aria-label={t("nav.navLabel")} className="flex flex-col gap-5 px-4 pt-4 pb-6 md:px-3.5 md:pt-2">
           {groups.map((group, index) => (
             <div key={group.label ?? index} className="flex flex-col gap-1">
               {group.label ? (
@@ -121,13 +123,13 @@ export function DashboardSidebar({
                   }`;
                   const content = (
                     <>
-                      {current ? <span aria-hidden="true" className="absolute top-2 bottom-2 left-0 w-[3px] rounded-full bg-ember" /> : null}
+                      {current ? <span aria-hidden="true" className="absolute start-0 top-2 bottom-2 w-[3px] rounded-full bg-ember" /> : null}
                       <Icon name={item.icon} size={22} filled={current} className={current ? "text-accent" : "text-muted group-hover:text-midnight"} />
                       <span className="min-w-0 flex-1">{item.label}</span>
                       {item.external ? (
                         <>
                           <Icon name="open_in_new" size={16} className="text-muted" />
-                          <span className="sr-only"> (opens in a new tab)</span>
+                          <span className="sr-only">{t("common.opensInNewTab")}</span>
                         </>
                       ) : null}
                     </>
@@ -154,7 +156,7 @@ export function DashboardSidebar({
       </div>
       {/* Without JavaScript the Menu button can't open the sheet: show the links in the page instead. */}
       <noscript>
-        <style>{`#${PANEL_ID} { display: flex !important; position: static !important; }`}</style>
+        <style>{`#${PANEL_ID} { display: flex !important; position: static !important; }`}</style> {/* i18n-ok */}
       </noscript>
     </aside>
   );

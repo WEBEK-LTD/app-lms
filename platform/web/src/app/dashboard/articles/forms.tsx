@@ -5,6 +5,7 @@ import { useActionState, type ReactNode } from "react";
 import { addArticleCategoryAction, renameArticleCategoryAction, saveArticleAction, saveNewsSettingsAction } from "@/app/actions/articles";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
+import { useDashT } from "@/components/dashboard-i18n";
 
 export interface ArticleFormValues {
   id: number | null;
@@ -51,6 +52,7 @@ export function ArticleForm({
   /** Whether breaking news reaches phones (else only the inboxes). */
   push: boolean;
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveArticleAction, initialFormState);
   const v = (key: "title" | "excerpt" | "author" | "body", fallback: string) => state.values?.[key] ?? fallback;
   const e = state.errors ?? {};
@@ -60,11 +62,11 @@ export function ArticleForm({
       {article.id !== null ? <input type="hidden" name="id" value={article.id} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
 
-      <Group title="Article">
-        <Field label="Title" name="title" required maxLength={limits.title} defaultValue={v("title", article.title)} error={e.title} />
+      <Group title={t("articles.article")}>
+        <Field label={t("common.title")} name="title" required maxLength={limits.title} defaultValue={v("title", article.title)} error={e.title} />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-body" className="text-sm font-semibold">
-            Text
+            {t("articles.text")}
           </label>
           <textarea
             id="f-body"
@@ -77,14 +79,13 @@ export function ArticleForm({
             aria-invalid={e.body ? true : undefined}
           />
           <span id="f-body-hint" className="text-[13px] text-muted">
-            Leave an empty line between paragraphs. Simple HTML works too: headings, bold, lists, quotes, links, pictures from https addresses, and YouTube or Vimeo
-            videos pasted as their embed code.
+            {t("articles.textHint")}
           </span>
           <FieldError id="f-body-error" error={e.body} />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-excerpt" className="text-sm font-semibold">
-            Summary
+            {t("articles.summary")}
           </label>
           <textarea
             id="f-excerpt"
@@ -96,14 +97,14 @@ export function ArticleForm({
             aria-describedby="f-excerpt-hint"
           />
           <span id="f-excerpt-hint" className="text-[13px] text-muted">
-            Optional. Shown in lists and in breaking news. Left empty, the first lines of the article are used.
+            {t("articles.summaryHint")}
           </span>
           <FieldError id="f-excerpt-error" error={e.excerpt} />
         </div>
-        <Field label="Author" name="author" maxLength={limits.author} defaultValue={v("author", article.author)} hint="Optional. The name shown in the app." error={e.author} />
+        <Field label={t("articles.author")} name="author" maxLength={limits.author} defaultValue={v("author", article.author)} hint={t("articles.authorHint")} error={e.author} />
       </Group>
 
-      <Group title="Sections">
+      <Group title={t("articles.sections")}>
         {categories.length ? (
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {categories.map((c) => (
@@ -120,20 +121,20 @@ export function ArticleForm({
             ))}
           </div>
         ) : (
-          <p className="m-0 text-[15px] text-muted">No sections yet. Add them on the Articles page.</p>
+          <p className="m-0 text-[15px] text-muted">{t("articles.noSections")}</p>
         )}
       </Group>
 
-      <Group title="Picture">
+      <Group title={t("articles.picture")}>
         {article.image ? (
           <div className="flex flex-wrap items-center gap-4">
-            <img src={article.image.url} alt="The article's picture" className="h-24 w-40 rounded-lg border border-line object-cover" />
-            <Check name="removeImage" label="Remove the picture" defaultChecked={false} />
+            <img src={article.image.url} alt={t("articles.pictureAlt")} className="h-24 w-40 rounded-lg border border-line object-cover" />
+            <Check name="removeImage" label={t("articles.removePicture")} defaultChecked={false} />
           </div>
         ) : null}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-image" className="text-sm font-semibold">
-            {article.image ? "Replace the picture" : "Add a picture"}
+            {article.image ? t("articles.replacePicture") : t("articles.addPicture")}
           </label>
           <input
             id="f-image"
@@ -145,7 +146,7 @@ export function ArticleForm({
             aria-invalid={e.image ? true : undefined}
           />
           <span id="f-image-hint" className="text-[13px] text-muted">
-            PNG or JPEG, up to {limits.imageMb} MB. Wide pictures look best.
+            {t("articles.pictureHint", { size: limits.imageMb })}
           </span>
           <FieldError id="f-image-error" error={e.image} />
         </div>
@@ -154,28 +155,24 @@ export function ArticleForm({
       {!article.published ? (
         <Check
           name="breaking"
-          label="Send as breaking news when I publish"
-          hint={
-            push
-              ? "Readers get a notification that opens the article, and it's in their notifications inbox."
-              : "It goes to your readers' notifications inbox. Set up Firebase on App notifications to send it to their phones too."
-          }
+          label={t("articles.breakingCheck")}
+          hint={push ? t("articles.breakingPush") : t("articles.breakingInbox")}
           defaultChecked={state.values ? state.values.breaking === "on" : false}
         />
       ) : null}
 
       <div className="flex flex-wrap justify-end gap-3 pt-1">
         {article.published ? (
-          <SubmitButton className="h-11" pendingText="Saving…">
-            Save article
+          <SubmitButton className="h-11" pendingText={t("common.saving")}>
+            {t("articles.saveArticle")}
           </SubmitButton>
         ) : (
           <>
-            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText="Saving…">
-              Save as draft
+            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText={t("common.saving")}>
+              {t("articles.saveDraft")}
             </SubmitButton>
-            <SubmitButton className="h-11" name="intent" value="publish" pendingText="Publishing…">
-              Publish
+            <SubmitButton className="h-11" name="intent" value="publish" pendingText={t("articles.publishing")}>
+              {t("articles.publish")}
             </SubmitButton>
           </>
         )}
@@ -185,22 +182,23 @@ export function ArticleForm({
 }
 
 export function AddCategoryForm() {
+  const t = useDashT();
   const [state, action] = useActionState(addArticleCategoryAction, initialFormState);
   return (
     <form action={action} noValidate className="flex flex-wrap items-end gap-3">
       <Field
-        label="New section"
+        label={t("articles.newSection")}
         name="name"
         small
         maxLength={60}
-        placeholder="Sport"
+        placeholder={t("articles.sectionPlaceholder")}
         defaultValue={state.ok ? "" : (state.values?.name ?? "")}
         key={state.ok ? state.message : "add"}
         error={state.errors?.name}
         className="min-w-[200px] flex-1"
       />
-      <SubmitButton variant="secondary" className="h-10" pendingText="Adding…">
-        Add section
+      <SubmitButton variant="secondary" className="h-10" pendingText={t("common.adding")}>
+        {t("articles.addSection")}
       </SubmitButton>
       <div className="w-full">
         <FormMessage message={state.errors ? undefined : state.message} ok={state.ok} />
@@ -210,12 +208,13 @@ export function AddCategoryForm() {
 }
 
 export function RenameCategoryForm({ category }: { category: { id: number; name: string } }) {
+  const t = useDashT();
   const [state, action] = useActionState(renameArticleCategoryAction, initialFormState);
   return (
     <form action={action} noValidate className="flex min-w-0 flex-1 flex-wrap items-end gap-2">
       <input type="hidden" name="id" value={category.id} />
       <Field
-        label={<span className="sr-only">Name of {category.name}</span>}
+        label={<span className="sr-only">{t("articles.nameOf", { name: category.name })}</span>}
         id={`f-category-${category.id}`}
         name="name"
         small
@@ -224,24 +223,25 @@ export function RenameCategoryForm({ category }: { category: { id: number; name:
         error={state.errors?.name}
         className="min-w-[160px] flex-1"
       />
-      <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-        Rename
+      <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+        {t("shop.rename")}
       </SubmitButton>
     </form>
   );
 }
 
 export function NewsSettingsForm({ settings }: { settings: { showAuthor: boolean; showDates: boolean } }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveNewsSettingsAction, initialFormState);
   const checked = (key: "showAuthor" | "showDates") => (state.values ? state.values[key] === "on" : settings[key]);
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
-      <Check name="showAuthor" label="Show who wrote each article" defaultChecked={checked("showAuthor")} />
-      <Check name="showDates" label="Show when each article was published" defaultChecked={checked("showDates")} />
+      <Check name="showAuthor" label={t("articles.showAuthor")} defaultChecked={checked("showAuthor")} />
+      <Check name="showDates" label={t("articles.showDates")} defaultChecked={checked("showDates")} />
       <div className="flex justify-end">
-        <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-          Save
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("common.save")}
         </SubmitButton>
       </div>
     </form>

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventPage } from "../event-page";
+import { dashboardText } from "@/lib/dashboard-lang";
 
-export const metadata: Metadata = { title: "Edit event" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("events.editEvent") };
+}
 
 export default async function EditEventPage({
   params,

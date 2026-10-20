@@ -10,6 +10,9 @@ import { encryptionKey } from "@/lib/env";
 import { currencyList, PROVIDER_NAME, providerTakes } from "@/lib/payments/provider";
 import { featureOn, getSwitches } from "@/lib/switches";
 import { MarketplaceForm, PaymentKeysForm } from "./forms";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { formatList } from "@/i18n/format";
+import { PROVIDER_CURRENCIES } from "@/lib/payments/provider";
 
 /**
  * Card payments of an app selling from the dashboard: the shop's own
@@ -30,57 +33,48 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
   const provider = own?.provider ?? (marketplace ? marketplaceVia(marketplace) : null);
   const sells = currency ?? settings.currency;
   const viaName = terms ? PROVIDER_NAME[terms.account.provider] : "";
+  const { t, lang } = await dashboardText();
+  const list = (p: keyof typeof PROVIDER_CURRENCIES) => (lang === "en" ? currencyList(p) : formatList(lang, PROVIDER_CURRENCIES[p], "disjunction"));
   return (
     <section aria-labelledby="h-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <h2 id="h-payments" className="m-0 text-lg font-bold">
-        Card payments
+        {t("shop.cardPayments")}
       </h2>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-        Customers pay by card on a secure page of your payment provider: iyzico, Kashier or Fawaterk.
-      </p>
+      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.cardIntro")}</p>
       {payment ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
             <Icon name="check_circle" size={20} filled />
             {marketplace
-              ? `On · through Yallapp, paid to ${marketplace.payeeName} (IBAN ending ${marketplace.ibanLast4})`
-              : `On · your ${PROVIDER_NAME[own!.provider]} account`}
-            {payment.sandbox ? " · sandbox (test payments)" : ""}
+              ? t(payment.sandbox ? "shop.onYallappSandbox" : "shop.onYallapp", { payee: marketplace.payeeName, last4: marketplace.ibanLast4 })
+              : t(payment.sandbox ? "shop.onOwnSandbox" : "shop.onOwn", { provider: PROVIDER_NAME[own!.provider] })}
           </p>
           <form action={removePaymentKeysAction}>
             <SubmitButton variant="secondary" className="h-10">
-              {marketplace ? "Stop selling through Yallapp" : "Remove keys"}
+              {marketplace ? t("shop.stopYallapp") : t("shop.removeKeys")}
             </SubmitButton>
           </form>
         </div>
       ) : null}
       {provider && !providerTakes(provider, sells) ? (
         <Notice tone="warn" icon="warning">
-          {PROVIDER_NAME[provider]} takes payments in {currencyList(provider)}, and your prices are in {sells}. Change your currency, or customers
-          can&apos;t pay.
+          {t("shop.currencyWarn", { provider: PROVIDER_NAME[provider], list: list(provider), currency: sells })}
         </Notice>
       ) : null}
       {marketplace && terms ? (
         <p className="m-0 text-sm text-muted">
-          Yallapp keeps {terms.commissionPercent}% of each sale (shipping excluded).{" "}
-          {marketplace.subMerchantKey
-            ? "iyzico pays your share to your IBAN after you mark the order completed."
-            : "Yallapp transfers your share to your IBAN after you mark the order completed."}
+          {t(marketplace.subMerchantKey ? "shop.commissionIyzico" : "shop.commissionYallapp", { percent: terms.commissionPercent })}
         </p>
       ) : null}
       {!marketplace && terms && joinable ? (
         <details className="rounded-xl border border-line p-4" open={!payment}>
-          <summary className="cursor-pointer text-[15px] font-bold">No payment account? Sell through Yallapp</summary>
+          <summary className="cursor-pointer text-[15px] font-bold">{t("shop.noAccount")}</summary>
           <div className="flex flex-col gap-4 pt-3">
             {terms.account.provider === "iyzico" ? (
-              <p className="m-0 text-sm leading-relaxed text-ink-4">
-                Customers pay into Yallapp&apos;s iyzico account, and iyzico pays you each sale minus Yallapp&apos;s {terms.commissionPercent}%
-                commission (shipping is all yours), after you mark the order completed. iyzico needs these details to pay you.
-              </p>
+              <p className="m-0 text-sm leading-relaxed text-ink-4">{t("shop.iyzicoExplain", { percent: terms.commissionPercent })}</p>
             ) : (
               <p className="m-0 text-sm leading-relaxed text-ink-4">
-                Customers pay into Yallapp&apos;s {viaName} account in {currencyList(terms.account.provider)}, and Yallapp transfers you each sale
-                minus its {terms.commissionPercent}% commission (shipping is all yours), after you mark the order completed.
+                {t("shop.otherExplain", { provider: viaName, list: list(terms.account.provider), percent: terms.commissionPercent })}
               </p>
             )}
             <MarketplaceForm types={SUB_MERCHANT_TYPES} provider={terms.account.provider} />
@@ -89,12 +83,9 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
       ) : null}
       {!marketplace ? (
         <details className="rounded-xl border border-line p-4" open={!joinable || Boolean(own)}>
-          <summary className="cursor-pointer text-[15px] font-bold">Use your own payment account</summary>
+          <summary className="cursor-pointer text-[15px] font-bold">{t("shop.ownAccount")}</summary>
           <div className="flex flex-col gap-4 pt-3">
-            <p className="m-0 text-sm leading-relaxed text-ink-4">
-              The money goes straight to your merchant account with iyzico (Türkiye), Kashier or Fawaterk (Egypt). Your keys stay encrypted on our
-              servers.
-            </p>
+            <p className="m-0 text-sm leading-relaxed text-ink-4">{t("shop.ownText")}</p>
             <PaymentKeysForm provider={own?.provider ?? null} sandbox={own?.sandbox ?? false} merchantId={own?.provider === "kashier" ? own.merchantId : ""} />
           </div>
         </details>

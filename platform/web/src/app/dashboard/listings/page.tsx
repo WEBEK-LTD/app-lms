@@ -8,29 +8,34 @@ import { getStore } from "@/lib/data";
 import type { ListingStatus } from "@/lib/data/types";
 import { formatListingPrice } from "@/lib/listings/json";
 import { fold } from "@/lib/listings/search";
-import { AREA_UNITS, LISTING_CURRENCIES, listingSettingsFor, propertyTypeLabel } from "@/lib/listings/types";
+import { AREA_UNITS, LISTING_CURRENCIES, listingSettingsFor } from "@/lib/listings/types";
+import { dashboardText } from "@/lib/dashboard-lang";
+import type { DashKey } from "@/i18n/dashboard";
+import { richText } from "@/i18n/rich";
 import { OfficeForm } from "./forms";
-import { StatusBadge } from "./listing-page";
+import { propertyTypeIn, StatusBadge } from "./listing-page";
 
-export const metadata: Metadata = { title: "Listings" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("listings.title") };
+}
 
-const STATUS_FILTERS: { value: ListingStatus | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "published", label: "Published" },
-  { value: "draft", label: "Drafts" },
-  { value: "archived", label: "Archived" },
+const STATUS_FILTERS: { value: ListingStatus | "all"; label: DashKey }[] = [
+  { value: "all", label: "listings.filterAll" },
+  { value: "published", label: "listings.filterPublished" },
+  { value: "draft", label: "listings.filterDrafts" },
+  { value: "archived", label: "listings.filterArchived" },
 ];
 
 /** The properties of a Real estate app, and the office's settings. */
 export default async function ListingsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; saved?: string }> }) {
   const { app } = await requireClient();
+  const { t } = await dashboardText();
   if (!app || app.connector?.kind !== "listings") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Listings</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("listings.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Listings are for Real estate apps. Choose Real estate on <Link href="/dashboard/app-type">App type</Link>, then Listings managed in
-          Yallapp on the Website step.
+          {richText(t("listings.notHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -55,61 +60,61 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Listings</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Your properties. Published ones show in the app right away.</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("listings.title")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("listings.intro")}</p>
         </div>
         <Link href="/dashboard/listings/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
-          Add listing
+          {t("listings.add")}
         </Link>
       </div>
 
       {saved ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          Saved “{saved}”.
+          {t("listings.saved", { title: saved })}
         </p>
       ) : null}
       {unread > 0 ? (
         <p className="m-0 flex items-start gap-2 rounded-xl bg-peach px-4 py-3 text-[15px] text-ink-2">
           <Icon name="chat" size={20} className="text-accent" />
           <span>
-            {unread === 1 ? "1 conversation has" : `${unread} conversations have`} new messages. <Link href="/dashboard/inquiries">Open Inquiries</Link>
+            {t("listings.unread", { count: unread })} <Link href="/dashboard/inquiries">{t("listings.openInquiries")}</Link>
           </span>
         </p>
       ) : null}
 
       <section aria-labelledby="h-listings" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-listings" className="m-0 text-lg font-bold">
-          {all.length} {all.length === 1 ? "listing" : "listings"}
+          {t("listings.count", { count: all.length })}
         </h2>
         <form method="get" className="flex flex-wrap items-end gap-3" role="search">
           <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
             <label htmlFor="f-q" className="text-sm font-semibold">
-              Search listings
+              {t("listings.search")}
             </label>
-            <input id="f-q" name="q" type="search" defaultValue={q} placeholder="Title, reference or place" className="input input-sm" />
+            <input id="f-q" name="q" type="search" defaultValue={q} placeholder={t("listings.searchPlaceholder")} className="input input-sm" />
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="f-status" className="text-sm font-semibold">
-              Status
+              {t("common.status")}
             </label>
             <select id="f-status" name="status" defaultValue={status} className="input input-sm">
               {STATUS_FILTERS.map((s) => (
                 <option key={s.value} value={s.value}>
-                  {s.label}
+                  {t(s.label)}
                 </option>
               ))}
             </select>
           </div>
           <button type="submit" className={`${btn.secondary} h-10`}>
             <Icon name="search" size={20} />
-            Search
+            {t("common.search")}
           </button>
         </form>
         {all.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No listings yet. Set up your office below, then add your first property.</p>
+          <p className="m-0 text-[15px] text-muted">{t("listings.noListings")}</p>
         ) : listings.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No listings match.</p>
+          <p className="m-0 text-[15px] text-muted">{t("listings.noMatch")}</p>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
             {listings.map((l) => (
@@ -127,8 +132,10 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
                     <span className="truncate text-[15px] font-bold">{l.title}</span>
                     <span className="truncate text-[13px] text-muted">
                       {[
-                        formatListingPrice(l.priceCents, l.currency) + (l.purpose === "rent" && l.pricePeriod ? ` / ${l.pricePeriod}` : ""),
-                        propertyTypeLabel(l.type),
+                        l.purpose === "rent" && l.pricePeriod
+                          ? t("listings.pricePer", { price: formatListingPrice(l.priceCents, l.currency), period: l.pricePeriod })
+                          : formatListingPrice(l.priceCents, l.currency),
+                        propertyTypeIn(t, l.type),
                         [l.district, l.city].filter(Boolean).join(", "),
                         l.area !== null ? `${l.area} ${unit}` : null,
                         l.reference,
@@ -137,8 +144,8 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
                         .join(" · ")}
                     </span>
                   </span>
-                  {l.featured ? <Badge tone="info">Featured</Badge> : null}
-                  <StatusBadge status={l.status} />
+                  {l.featured ? <Badge tone="info">{t("listings.featured")}</Badge> : null}
+                  <StatusBadge status={l.status} t={t} />
                 </Link>
               </li>
             ))}
@@ -149,9 +156,9 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
       <section aria-labelledby="h-office" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-office" className="m-0 text-lg font-bold">
-            Your office
+            {t("listings.office")}
           </h2>
-          <p className="m-0 text-[15px] text-ink-4">How people reach you from the app, and how prices and areas are shown.</p>
+          <p className="m-0 text-[15px] text-ink-4">{t("listings.officeIntro")}</p>
         </div>
         <OfficeForm
           office={{
@@ -164,7 +171,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
             messages: settings.messages,
           }}
           currencies={LISTING_CURRENCIES}
-          units={AREA_UNITS}
+          units={AREA_UNITS.map((u) => ({ key: u.key, label: t(`listings.units.${u.key}`) }))}
         />
       </section>
     </div>

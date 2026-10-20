@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { EmptyState, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import { donorsOf, donorTotal } from "@/lib/donations/forms";
+import { donorsOf } from "@/lib/donations/forms";
 import { donationSettingsOf } from "@/lib/donations/service";
 import { DonationTabs } from "../tabs";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { formatCents } from "@/lib/catalog/money";
 
-export const metadata: Metadata = { title: "Donors" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("donations.donorsTitle") };
+}
 
 /** The most donations read for the list; a charity with more exports them instead. */
 const DONATIONS_READ = 10_000;
@@ -14,11 +18,12 @@ const DONATIONS_READ = 10_000;
 /** 29 The people who gave, by email address: how much, how often and to what. */
 export default async function DonorsPage() {
   const { app } = await requireClient();
+  const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donors</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">Donors are for Charity &amp; donations apps.</p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donorsTitle")}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donorsNotHere")}</p>
       </div>
     );
   }
@@ -32,35 +37,31 @@ export default async function DonorsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Donors</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Everyone who gave, by email address, the most generous first. People who gave anonymously are here too: only the app hides their name.
-        </p>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donorsTitle")}</h1>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donorsIntro")}</p>
       </div>
-      <DonationTabs current="donors" />
-      {total > DONATIONS_READ ? (
-        <p className="m-0 text-[15px] text-muted">This list counts your latest {DONATIONS_READ.toLocaleString("en-GB")} donations. Export them for the full list.</p>
-      ) : null}
+      <DonationTabs current="donors" t={t} />
+      {total > DONATIONS_READ ? <p className="m-0 text-[15px] text-muted">{t("donations.latestOnly", { count: num(DONATIONS_READ) })}</p> : null}
       {donors.length === 0 ? (
-        <EmptyState icon="groups" title="No donors yet.">
-          People show here after their first donation is paid.
+        <EmptyState icon="groups" title={t("donations.noDonors")}>
+          {t("donations.noDonorsText")}
         </EmptyState>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[640px] border-collapse text-left text-[15px]">
+          <table className="w-full min-w-[640px] border-collapse text-start text-[15px]">
             <thead>
               <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Donor
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.donor")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Given
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.given")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Campaigns
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.campaigns")}
                 </th>
-                <th scope="col" className="px-4 py-3 font-semibold">
-                  Last donation
+                <th scope="col" className="px-4 py-3 text-start font-semibold">
+                  {t("donations.lastDonation")}
                 </th>
               </tr>
             </thead>
@@ -73,9 +74,9 @@ export default async function DonorsPage() {
                       <span className="text-[13px] text-muted">{[d.email, d.phone].filter(Boolean).join(" · ")}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">{donorTotal(d, currency)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{t("donations.givenTotal", { count: d.donations, amount: formatCents(d.totalCents, currency) })}</td>
                   <td className="px-4 py-3">{d.campaigns.join(", ")}</td>
-                  <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.lastAt)}</td>
+                  <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.lastAt, lang)}</td>
                 </tr>
               ))}
             </tbody>

@@ -5,13 +5,15 @@ import { useState, useTransition } from "react";
 import { PhoneFrame } from "@/components/device-frame";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import { useDashT } from "@/components/dashboard-i18n";
+import type { DashKey } from "@/i18n/dashboard";
 
 type Look = "app" | "light" | "dark";
 
-const LOOKS: { value: Look; label: string }[] = [
-  { value: "app", label: "App setting" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
+const LOOKS: { value: Look; label: DashKey }[] = [
+  { value: "app", label: "preview.appSetting" },
+  { value: "light", label: "preview.light" },
+  { value: "dark", label: "preview.dark" },
 ];
 
 /**
@@ -31,6 +33,7 @@ export function PreviewPanel({
   languages: { code: string; label: string }[];
   defaultLanguage: string;
 }) {
+  const t = useDashT();
   const router = useRouter();
   const [look, setLook] = useState<Look>("app");
   const [language, setLanguage] = useState(defaultLanguage);
@@ -53,7 +56,7 @@ export function PreviewPanel({
     <div className="flex min-w-0 flex-col items-center gap-4">
       <div className="flex w-full flex-wrap items-end justify-center gap-3">
         <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
-          <legend className="mb-1.5 p-0 text-sm font-semibold">Look</legend>
+          <legend className="mb-1.5 p-0 text-sm font-semibold">{t("preview.look")}</legend>
           <div className="flex rounded-[10px] border border-line-strong bg-white p-0.5">
             {LOOKS.map((option) => (
               <button
@@ -63,14 +66,14 @@ export function PreviewPanel({
                 onClick={() => setLook(option.value)}
                 className={`h-9 cursor-pointer rounded-lg px-3 text-sm font-semibold ${look === option.value ? "bg-midnight text-white" : "text-midnight hover:bg-ivory"}`}
               >
-                {option.label}
+                {t(option.label)}
               </button>
             ))}
           </div>
         </fieldset>
         {languages.length > 1 ? (
           <label className="flex flex-col gap-1.5 text-sm font-semibold">
-            Language
+            {t("preview.language")}
             <select
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
@@ -86,22 +89,22 @@ export function PreviewPanel({
         ) : null}
         <button type="button" onClick={reload} disabled={pending} className={`${btn.secondary} h-10 px-4 text-sm`}>
           <Icon name="refresh" size={18} />
-          Reload after changes
+          {t("preview.reload")}
         </button>
       </div>
       {/* 19 No camera pill: the app on the web draws no status bar, so it would cover the app's top bar. */}
-      <PhoneFrame className="w-[380px]" screenClassName="h-[min(720px,80vh)] bg-white" island={false}>
+      <PhoneFrame className="w-[380px]" screenClassName="h-[min(720px,80vh)] bg-white" island={false} dir="ltr">
         <iframe
           key={frameSrc}
           src={frameSrc}
-          title={`Preview of ${appName}`}
+          title={t("preview.frameTitle", { app: appName })}
           className="block h-full w-full border-0"
           referrerPolicy="no-referrer"
           data-testid="app-preview"
         />
       </PhoneFrame>
       <p className="m-0 max-w-[380px] text-center text-[13px] leading-snug text-muted">
-        The preview runs your app as it is now. Some things work only in the installed app; the preview shows a short note there.
+        {t("preview.note")}
       </p>
     </div>
   );

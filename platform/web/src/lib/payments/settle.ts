@@ -10,7 +10,8 @@ import { getStore } from "../data";
 import type { PaymentProviderId } from "../data/types";
 import { completeDonationPayment, donationAccount, donationReceiptValues } from "../donations/payment";
 import { receiptUrl } from "../donations/service";
-import { sendTemplate } from "../email/send";
+import { emailLangOf, sendTemplate } from "../email/send";
+import { getDashT } from "@/i18n/dashboard";
 import { appUrl, encryptionKey, paymentApiUrls } from "../env";
 import { yallappAccountFor } from "../settings/platform";
 import type { PaymentAccount } from "./provider";
@@ -114,7 +115,9 @@ export async function settleOrderPayment(token: string, trigger: Trigger): Promi
     const owner = client ? await store.getUserById(client.userId) : null;
     const paid = await store.getCatalogOrder(app.id, order.id);
     if (owner && paid) {
-      await sendTemplate("new_order", owner.email, newOrderMailValues(paid, app.appName ?? "your app", `${appUrl()}/dashboard/orders`, fulfilmentOf(app)?.timezone)).catch(() => {
+      const lang = emailLangOf(owner);
+      const values = newOrderMailValues(paid, app.appName ?? getDashT(lang)("emails.yourAppName"), `${appUrl()}/dashboard/orders`, fulfilmentOf(app)?.timezone, lang);
+      await sendTemplate("new_order", owner.email, values, { lang }).catch(() => {
         // The order is paid either way; the dashboard lists it.
       });
     }

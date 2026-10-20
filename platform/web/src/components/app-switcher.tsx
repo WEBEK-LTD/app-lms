@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
 import { switchAppAction } from "@/app/actions/dashboard";
+import { useDashT } from "./dashboard-i18n";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 
@@ -51,6 +52,7 @@ export function AppSwitcher({
   canAdd: boolean;
 }) {
   const pathname = usePathname();
+  const t = useDashT();
   const form = useRef<HTMLFormElement>(null);
   const several = apps.length > 1;
   return (
@@ -66,7 +68,7 @@ export function AppSwitcher({
             </span>
           )}
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-[15px] font-bold">{currentApp?.label ?? "No app yet"}</span>
+            <span className="truncate text-[15px] font-bold">{currentApp?.label ?? t("nav.noApp")}</span>
             {currentApp ? (
               <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted">
                 <span aria-hidden="true" className={`h-2 w-2 flex-none rounded-full ${DOT[currentApp.state]}`} />
@@ -79,7 +81,7 @@ export function AppSwitcher({
           {several ? <Icon name="unfold_more" size={20} className="text-muted" /> : null}
           {/* The label has its own element (not wrapping the list), so the list's name is only "Current app". */}
           <label htmlFor="app-switcher" className="sr-only">
-            Current app
+            {t("nav.currentApp")}
           </label>
           <select
             id="app-switcher"
@@ -91,7 +93,7 @@ export function AppSwitcher({
           >
             {current === null ? (
               <option value="" disabled>
-                No app yet
+                {t("nav.noApp")}
               </option>
             ) : null}
             {apps.map((app) => (
@@ -103,14 +105,14 @@ export function AppSwitcher({
         </div>
         <noscript>
           <button type="submit" className="h-10 w-full rounded-[10px] border border-line-strong bg-white px-3 text-sm font-semibold">
-            Switch
+            {t("nav.switch")}
           </button>
         </noscript>
       </form>
       {canAdd ? (
         <Link href="/dashboard/app-type?new=1" className="flex h-9 items-center gap-1.5 self-start rounded-lg px-2 text-sm font-semibold no-underline">
           <Icon name="add" size={18} />
-          Add an app
+          {t("nav.addApp")}
         </Link>
       ) : null}
     </div>

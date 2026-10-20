@@ -225,6 +225,10 @@ test("47 days are counted in the owner's time zone, which they change on the pag
 
   // An event sent now is filed under Kiritimati's date (UTC+14), whatever the UTC date is.
   const kiritimatiToday = new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Kiritimati", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  // Between 21:00 and 10:00 UTC Kiritimati and Istanbul share a date, so the earlier tests' installs may be on that day too: count from what is there.
+  const day = `/dashboard/analytics?range=custom&from=${kiritimatiToday}&to=${kiritimatiToday}`;
+  await own.goto(day);
+  const before = Number((await own.locator('[data-kpi="installs"] [data-value]').innerText()).replace(/\D/g, ""));
   const c = randomUUID();
   expect((await send(request, {
         install_id: c,
@@ -234,7 +238,7 @@ test("47 days are counted in the owner's time zone, which they change on the pag
         locale: "tr",
         events: [{ type: "app_open", at: new Date(Date.now() - 30_000).toISOString(), first_open: true }],
       })).status()).toBe(202);
-  await own.goto(`/dashboard/analytics?range=custom&from=${kiritimatiToday}&to=${kiritimatiToday}`);
-  await expect(own.locator('[data-kpi="installs"] [data-value]')).toHaveText("1");
+  await own.goto(day);
+  await expect(own.locator('[data-kpi="installs"] [data-value]')).toHaveText(String(before + 1));
   await expect(own.getByText(/Days in Pacific\/Kiritimati \(GMT\+14\) · Change/)).toBeVisible();
 });

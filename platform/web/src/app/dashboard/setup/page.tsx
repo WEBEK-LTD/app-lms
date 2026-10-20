@@ -3,6 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Notice, PageHeader, btn, formatDate } from "@/components/ui";
+import { richText } from "@/i18n/rich";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
@@ -27,20 +29,22 @@ import { designLayout, loadLayout } from "@/lib/pages/layout";
 import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 
-export const metadata: Metadata = { title: "App setup" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("setup.title") };
+}
 
-const COMING_UP: Record<Exclude<SetupStep, "app-type">, string> = {
-  website: "Where your app gets its content: your WordPress site and the plugin, your own API, or a WordPress site we set up for you.",
-  branding: "App name, name under the icon, icon, logo, colors, template and font.",
-  listing:
-    "Android package name, iOS bundle ID, store title, short and full description, support email, privacy policy URL, and optionally your store screenshots.",
-  publishing:
-    "When we publish for you: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). When you publish yourself: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or choose “Publish it for me” and our team publishes it.",
-};
+const COMING_UP = {
+  website: "setup.upWebsite",
+  branding: "setup.upBranding",
+  listing: "setup.upListing",
+  publishing: "setup.upPublishing",
+} as const satisfies Record<Exclude<SetupStep, "app-type">, string>;
 
 export default async function SetupPage({ searchParams }: PageProps<"/dashboard/setup">) {
   const { client, app, apps, license, state, staff } = await requireClient();
   if (!app) redirect("/dashboard/app-type");
+  const { t, k, lang } = await dashboardText();
+  const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const store = await getStore();
   const plans = await getPlans(store);
   // 13.1 The app's plan as it is now, with the team's edits and switches.
@@ -77,39 +81,34 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   return (
     <>
       <PageHeader
-        title="App setup"
+        title={t("setup.title")}
         actions={
           <Link href="/dashboard/preview" className={`${btn.secondary} h-10 px-4 text-sm`}>
             <Icon name="visibility" size={18} />
-            Preview your app
+            {t("setup.preview")}
           </Link>
         }
         description={
           <>
-            {appLabel(app)} · Plan: {planName(plan, plans)} ·{" "}
-            {complete
-              ? builds.length
-                ? "Setup is complete. Changes apply to your next build."
-                : "Setup is complete."
-              : "Your first build starts when all steps are complete."}
+            {t("setup.planLine", { app: name, plan: planName(plan, plans) })} ·{" "}
+            {complete ? (builds.length ? t("setup.completeBuilds") : t("setup.complete")) : t("setup.firstBuild")}
           </>
         }
       />
 
       {state === "expired" ? (
         <Notice tone="warn" icon="warning">
-          Your plan has ended. You can still edit your app, but new builds need an active plan. Message us on WhatsApp to renew.
+          {t("setup.ended")}
         </Notice>
       ) : state === "pending" && client.status === "active" ? (
         <Notice tone="warn" icon="hourglass_top">
-          {appLabel(app)} is waiting for activation. Set it up now; its first build starts once it&apos;s active. Each app has its own plan:{" "}
-          <Link href="/dashboard/license">pay it on {licensePageName(app)}</Link> or message us on WhatsApp.
+          {richText(t("setup.waiting", { app: name, page: k(licensePageName(app)) }), { license: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
         </Notice>
       ) : null}
 
       {/* One row of steps: scrolls sideways on phones, five columns from md up. */}
       <ol
-        aria-label="Setup steps"
+        aria-label={t("setup.steps")}
         className="relative -mx-4 my-0 flex list-none gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:-mx-8 sm:px-8 md:mx-0 md:grid md:grid-cols-5 md:gap-2.5 md:overflow-visible md:px-0 md:pb-0"
       >
         {SETUP_STEPS.map((s, i) => {
@@ -133,8 +132,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
                   {done && !current ? <Icon name="check" size={14} /> : i === 0 ? <Icon name="check" size={14} /> : i}
                 </span>
                 <span className={`text-sm ${current ? "font-bold" : done ? "font-semibold" : "text-muted"}`}>
-                  {STEP_LABEL[s]}
-                  {done ? <span className="sr-only"> (done)</span> : null}
+                  {k(STEP_LABEL[s])}
+                  {done ? <span className="sr-only">{t("setup.done")}</span> : null}
                 </span>
               </Link>
             </li>
@@ -144,7 +143,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 
       {step === "website" && websiteSwitchedOff ? (
         <Notice tone="warn" icon="info" role="status">
-          What your app is connected to isn&apos;t offered to new apps anymore. Your app keeps working with it.
+          {t("setup.switchedOff")}
         </Notice>
       ) : null}
       {step === "website" ? (
@@ -204,7 +203,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           hostedApiUrl={app.backend === "hosted" ? hostedApiUrl(appUrl(), app.id) : null}
           apiBaseUrl={app.apiBaseUrl ?? ""}
           setupNote={app.setupNote ?? ""}
-          setupRequestedAt={app.setupRequestedAt ? formatDate(app.setupRequestedAt) : null}
+          setupRequestedAt={app.setupRequestedAt ? formatDate(app.setupRequestedAt, lang) : null}
           signInMethods={chosenSignInMethods(app) ?? ["phone"]}
           emailOnlyUsers={await emailOnlyUsersAtRisk(store, app)}
         />
@@ -226,7 +225,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       ) : null}
       {step === "listing" ? (
         <ListingStep
-          descriptionHint={wordsOf(app).storeDescription}
+          descriptionHint={k(wordsOf(app).storeDescription)}
           values={{
             androidPackage: app.androidPackage ?? "",
             iosBundleId: app.iosBundleId ?? "",
@@ -246,7 +245,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
         <PublishingStep
           autoPublish={managedPublishing(plan, effective)}
           ios={hasFeature(current, "ios")}
-          planName={current?.name ?? "current"}
+          planName={current?.name ?? planName(plan, plans)}
           upgrade={{
             managed: lowestPlanWith(effective, (p) => hasFeature(p, "auto_publish"), plan),
             ios: lowestPlanWith(effective, (p) => hasFeature(p, "ios"), plan),
@@ -266,16 +265,13 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="h-links" className="m-0 flex items-center gap-2 text-lg font-bold">
               <Icon name="link" size={22} />
-              Links to your app
+              {t("setup.links")}
             </h2>
             <Link href="/dashboard/publishing/links" className="text-sm font-semibold">
-              Fingerprint and Team ID
+              {t("setup.fingerprint")}
             </Link>
           </div>
-          <p className="m-0 text-sm leading-relaxed text-ink-4">
-            Shared links open your app when it&apos;s installed. Check that the files phones read are in place
-            {app.backend === "wordpress" ? ", on your website too" : ""}.
-          </p>
+          <p className="m-0 text-sm leading-relaxed text-ink-4">{app.backend === "wordpress" ? t("setup.linksTextSite") : t("setup.linksText")}</p>
           <CheckLinksPanel last={app.linksCheck ?? null} />
         </section>
       ) : null}
@@ -283,15 +279,13 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       {upcoming.length ? (
         <section aria-labelledby="h-next" className="flex flex-col gap-3">
           <h2 id="h-next" className="m-0 text-lg font-bold">
-            Coming up
+            {t("setup.comingUp")}
           </h2>
           <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
             {upcoming.map((s) => (
               <div key={s} className="flex flex-col gap-2 rounded-2xl border border-dashed border-line-strong bg-sand px-5 py-[18px]">
-                <span className="text-[15px] font-bold">
-                  {editableSteps.indexOf(s) + 1} · {STEP_LABEL[s]}
-                </span>
-                <span className="text-sm leading-relaxed text-ink-4">{COMING_UP[s]}</span>
+                <span className="text-[15px] font-bold">{t("setup.stepNumber", { n: editableSteps.indexOf(s) + 1, step: k(STEP_LABEL[s]) })}</span>
+                <span className="text-sm leading-relaxed text-ink-4">{t(COMING_UP[s])}</span>
               </div>
             ))}
           </div>

@@ -2,7 +2,8 @@ import "server-only";
 import { appLabel } from "../app/label";
 import type { DataStore } from "../data/store";
 import type { Build } from "../data/types";
-import { sendTemplate } from "../email/send";
+import { emailLangOf, sendTemplate } from "../email/send";
+import { knownTranslator } from "@/i18n/dashboard";
 import { appUrl, superAdminEmails } from "../env";
 import { BUILD_STATUS_LABEL, failureReason } from "./view";
 
@@ -31,10 +32,12 @@ export async function notifyBuildFinished(store: DataStore, build: Build, option
   };
   const sends: Promise<unknown>[] = [];
   if (user) {
+    // 56 In the client's language; the team's note stays as the team wrote it.
+    const lang = emailLangOf(user);
     sends.push(
       build.status === "ready"
-        ? sendTemplate("build_ready", user.email, { ...common, name: user.name, note_line: build.message?.trim() ? `${build.message.trim()}\n\n` : "" })
-        : sendTemplate("build_failed", user.email, { ...common, name: user.name, reason: failureReason(build) }),
+        ? sendTemplate("build_ready", user.email, { ...common, name: user.name, note_line: build.message?.trim() ? `${build.message.trim()}\n\n` : "" }, { lang })
+        : sendTemplate("build_failed", user.email, { ...common, name: user.name, reason: knownTranslator(lang)(failureReason(build)) }, { lang }),
     );
   }
   // A failure, or a ready build whose iOS app couldn't be built: someone on the team has to look.

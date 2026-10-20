@@ -7,6 +7,9 @@ import { failureDate } from "../hosted/app-sender";
 import { normalizeEmail } from "../hosted/sign-in-methods";
 import { hitRateLimit, RATE_LIMITS } from "../rate-limit";
 import { MAIL_PORTS, MAIL_PRESETS, type MailSecurity } from "./app-mail-presets";
+import { langOf, type Lang } from "@/i18n/config";
+import { mailOptions } from "./mail-lang";
+import { knownTranslator } from "@/i18n/dashboard";
 
 /**
  * 24 An app's own email server (App sign-in › "Your app's email"): emails to
@@ -352,7 +355,7 @@ export interface OwnMailFailureDeps {
   /** The platform's address, for the link in the email. */
   baseUrl: string;
   /** Sends the "own_email_failed" email (from Yallapp's server). */
-  mail: (key: "own_email_failed", to: string, values: Record<string, string>) => Promise<unknown>;
+  mail: (key: "own_email_failed", to: string, values: Record<string, string>, options?: { lang?: Lang }) => Promise<unknown>;
 }
 
 /**
@@ -375,13 +378,19 @@ export async function recordOwnMailFailure(deps: OwnMailFailureDeps, appId: stri
   const owner = client ? await deps.store.getUserById(client.userId) : null;
   if (!owner) return;
   const link = new URLSearchParams({ app: app.id, to: "app-sign-in" });
-  await deps.mail("own_email_failed", owner.email, {
-    name: owner.name,
-    app_name: appLabel(app),
-    date: failureDate(at),
-    reason: reason.slice(0, 400),
-    sign_in_url: `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open?${link.toString()}`,
-  });
+  const lang = langOf(owner.language);
+  await deps.mail(
+    "own_email_failed",
+    owner.email,
+    {
+      name: owner.name,
+      app_name: appLabel(app),
+      date: failureDate(at),
+      reason: knownTranslator(lang)(reason.slice(0, 400)),
+      sign_in_url: `${deps.baseUrl.replace(/\/+$/, "")}/dashboard/open?${link.toString()}`,
+    },
+    ...mailOptions(owner),
+  );
 }
 
 /** Yallapp's address with this name in front: `"Nour Academy" <info@…>`. */

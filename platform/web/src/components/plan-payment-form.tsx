@@ -5,6 +5,7 @@ import { checkCouponAction, payPlanAction, type CouponState } from "@/app/action
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import type { Plan } from "@/lib/plans";
+import { useDashT, useKnownText } from "./dashboard-i18n";
 import { btn } from "./ui";
 
 export interface CardPlan {
@@ -38,6 +39,8 @@ export function PlanPaymentForm({
   /** 51 Per plan, the app's storage packs a card renewal can include: "Renew my storage pack (+25 GB) for $60 (charged as EGP 3,000)". */
   storageRenewal?: Partial<Record<Plan, string>>;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const [state, action] = useActionState(payPlanAction, initialFormState);
   const [couponState, couponAction, couponPending] = useActionState(checkCouponAction, {} as CouponState);
   const [plan, setPlan] = useState<string>(state.values?.plan || current || plans[plans.length - 1]?.id || "");
@@ -64,7 +67,7 @@ export function PlanPaymentForm({
       <input type="hidden" name="plan" value={plan} />
       <input type="hidden" name="appId" value={appId ?? ""} />
       <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-        <legend className="mb-1.5 text-sm font-semibold">Plan</legend>
+        <legend className="mb-1.5 text-sm font-semibold">{t("license.plan")}</legend>
         {plans.map((p) => {
           const lowered = applied?.[p.id];
           return (
@@ -76,10 +79,10 @@ export function PlanPaymentForm({
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-[15px] font-bold">{p.name}</span>
-                  <span className="text-[15px] font-bold">
+                  <span className="text-[15px] font-bold" dir="ltr">
                     {lowered ? (
                       <>
-                        <s className="mr-1.5 font-normal text-muted">{lowered.was}</s>
+                        <s className="me-1.5 font-normal text-muted">{lowered.was}</s>
                         {lowered.price}
                       </>
                     ) : (
@@ -103,12 +106,12 @@ export function PlanPaymentForm({
         </label>
       ) : null}
       <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
-        <Field label="City" name="city" autoComplete="address-level2" defaultValue={v.city} error={state.errors?.city} small />
-        <Field label="Billing address" name="address" autoComplete="street-address" defaultValue={v.address} error={state.errors?.address} small />
+        <Field label={t("license.city")} name="city" autoComplete="address-level2" defaultValue={v.city} error={state.errors?.city} small />
+        <Field label={t("license.address")} name="address" autoComplete="street-address" defaultValue={v.address} error={state.errors?.address} small />
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="f-coupon" className="text-sm font-semibold">
-          Coupon code <span className="font-normal text-muted">(optional)</span>
+          {t("license.coupon")} <span className="font-normal text-muted">{t("license.optional")}</span>
         </label>
         <div className="flex flex-wrap gap-2">
           <input
@@ -130,13 +133,13 @@ export function PlanPaymentForm({
             aria-describedby={couponError ? "f-coupon-error" : undefined}
           />
           <button type="button" onClick={applyCoupon} disabled={couponPending || !coupon.trim()} className={`${btn.secondary} h-10`}>
-            {couponPending ? "Checking…" : "Apply"}
+            {couponPending ? t("license.checking") : t("license.apply")}
           </button>
         </div>
         <FieldError id="f-coupon-error" error={couponError} />
         {applied && couponState.message ? (
           <p role="status" className="m-0 text-[13px] font-semibold text-success">
-            {couponState.message}
+            {known(couponState.message)}
           </p>
         ) : null}
       </div>
@@ -145,13 +148,11 @@ export function PlanPaymentForm({
           {charge}
         </p>
       ) : null}
-      <SubmitButton className="h-11" pendingText={free ? "Activating…" : "Opening the payment page…"}>
-        {free ? "Activate with the coupon" : cta}
+      <SubmitButton className="h-11" pendingText={free ? t("license.activating") : t("license.opening")}>
+        {free ? t("license.activateCoupon") : cta}
       </SubmitButton>
       <span className="text-xs leading-normal text-muted">
-        {free
-          ? "The coupon covers the whole price, so there's no card payment."
-          : `You enter your card on ${provider}'s secure page. Your plan starts as soon as the payment is confirmed.`}
+        {free ? t("license.couponCovers") : t("license.cardOn", { provider })}
       </span>
     </form>
   );

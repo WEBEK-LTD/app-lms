@@ -20,7 +20,8 @@ import { appUrl, encryptionKey, paymentApiUrls, superAdminEmails } from "@/lib/e
 import { approvePayout } from "@/lib/catalog/payment";
 import { accountForOrder, orderNumber } from "@/lib/catalog/settings";
 import { fieldErrors, formValues, type FormState } from "@/lib/forms";
-import { sendTemplate } from "@/lib/email/send";
+import { emailLangOf, sendTemplate } from "@/lib/email/send";
+import { localePath } from "@/i18n/paths";
 import { getPlans } from "@/lib/settings/platform";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { formatDate } from "@/components/ui";
@@ -122,8 +123,13 @@ export async function activateClientAction(_: FormState, formData: FormData): Pr
             license_key: outcome.licenseKey,
             dashboard_url: dashboard,
             payment_line: "",
-          })
-        : sendTemplate("plan_renewed", user.email, { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard, payment_line: "" })
+          }, { lang: emailLangOf(user) })
+        : sendTemplate(
+            "plan_renewed",
+            user.email,
+            { name: user.name, app_name: appName, plan: planLabel, active_until: until, dashboard_url: dashboard, payment_line: "" },
+            { lang: emailLangOf(user) },
+          )
     ).catch((error: unknown) => console.error("[mail] activation email failed", error));
   }
   // 31 The plan and its features reach the app's WordPress site at once.
@@ -355,8 +361,10 @@ export async function addClientAction(_: FormState, formData: FormData): Promise
   });
   const reset = await createPasswordReset(store, parsed.data.email, now, { adminEmails: [] });
   if (reset) {
-    const link = `${appUrl()}/reset-password?token=${encodeURIComponent(reset.token)}`;
-    await sendTemplate("password_set", reset.user.email, { name: reset.user.name, link }).catch((error: unknown) =>
+    // A new client has no language yet: English, until they choose one in the dashboard.
+    const lang = emailLangOf(reset.user);
+    const link = `${appUrl()}${localePath(lang, `/reset-password?token=${encodeURIComponent(reset.token)}`)}`;
+    await sendTemplate("password_set", reset.user.email, { name: reset.user.name, link }, { lang }).catch((error: unknown) =>
       console.error("[mail] set-password email failed", error),
     );
   }

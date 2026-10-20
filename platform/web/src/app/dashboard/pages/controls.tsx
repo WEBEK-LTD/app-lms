@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { textIn, withText } from "@/lib/pages/model";
 import { actionProblem, screenName, SOURCE_NAMES, type ScreenOption } from "@/lib/pages/sources";
-import { languageName } from "@/lib/i18n/locales";
+import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
+import { appLanguageName } from "@/lib/i18n/language-names";
 import { RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Translations } from "@/lib/pages/types";
 
 /** Form controls of the page and look editor. Every one has a visible label. */
@@ -140,16 +141,25 @@ export function LangText<T extends { translations?: Translations } & object>({
   rows?: number;
   hint?: ReactNode;
 }) {
+  const t = useDashT();
+  const dash = useDashLang();
   const other = lang.edit !== lang.default;
+  const name = (code: string) => appLanguageName(code, dash);
   return (
     <TextInput
       id={`${id}-${lang.edit}`}
-      label={other ? `${label} (${languageName(lang.edit)})` : label}
+      label={other ? t("pages.inLanguage", { label, language: name(lang.edit) }) : label}
       value={textIn(value, field, lang.edit, lang.default)}
       placeholder={other ? textIn(value, field, lang.default, lang.default) : undefined}
       dir={RTL_LANGUAGES.includes(lang.edit) ? "rtl" : "ltr"}
       rows={rows}
-      hint={other ? (DICTIONARY_LANGS.includes(lang.edit) ? `Empty shows Yallapp's ${languageName(lang.edit)} for texts Yallapp wrote, else the ${languageName(lang.default)} text.` : `Empty shows the ${languageName(lang.default)} text.`) : hint}
+      hint={
+        other
+          ? DICTIONARY_LANGS.includes(lang.edit)
+            ? t("pages.emptyDictionary", { language: name(lang.edit), default: name(lang.default) })
+            : t("pages.emptyDefault", { default: name(lang.default) })
+          : hint
+      }
       onChange={(text) => onChange(withText(value, field, text, lang.edit, lang.default))}
     />
   );
@@ -165,19 +175,22 @@ export function IconGlyph({ name, size = 22 }: { name: string; size?: number }) 
 
 /** Material Symbols (Rounded) icons to pick from, shown as icons. */
 export function IconPicker({ id, label, value, onChange, optional = false }: { id: string; label: string; value: string | null; onChange: (icon: string | null) => void; optional?: boolean }) {
+  const t = useDashT();
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0">
       <legend className="mb-1.5 flex items-center gap-2 p-0 text-sm font-semibold">
         {label}: {value ? <IconGlyph name={value} /> : null}
-        <span className="font-normal text-muted">{value ? value.replaceAll("_", " ") : "none"}</span>
+        <span className="font-normal text-muted" dir="ltr">
+          {value ? value.replaceAll("_", " ") : t("pages.iconNone")}
+        </span>
       </legend>
       <details className="rounded-[10px] border border-line px-3 py-2">
-        <summary className="cursor-pointer text-sm font-semibold">Change icon</summary>
+        <summary className="cursor-pointer text-sm font-semibold">{t("pages.changeIcon")}</summary>
         <div role="radiogroup" aria-label={label} className="mt-2 flex flex-wrap gap-1.5">
           {optional ? (
             <label className="flex h-10 cursor-pointer items-center rounded-lg border border-line px-2.5 text-sm has-[:checked]:border-2 has-[:checked]:border-midnight">
               <input type="radio" name={id} className="sr-only" checked={value === null} onChange={() => onChange(null)} />
-              No icon
+              {t("pages.noIcon")}
             </label>
           ) : null}
           {PAGE_ICONS.map((icon) => (
@@ -226,20 +239,24 @@ export function ActionEditor({
   screens: ScreenOption[];
   courses: { id: string; title: string }[] | undefined;
 }) {
+  const t = useDashT();
+  const known = useKnownText();
   const kind: ActionKind = action?.type ?? "none";
   // 31 A layout from before the app's type changed may open what this app doesn't have: it shows, with what to fix.
   const problem = actionProblem(action, screens, sources);
   const screenOptions = [
-    ...screens.filter((s) => !s.alias || s.value === action?.screen),
-    ...(action?.type === "screen" && action.screen && !screens.some((s) => s.value === action.screen) ? [{ value: action.screen, label: `${screenName(action.screen)} (not in this app)` }] : []),
+    ...screens.filter((s) => !s.alias || s.value === action?.screen).map((s) => ({ ...s, label: known(s.label) })),
+    ...(action?.type === "screen" && action.screen && !screens.some((s) => s.value === action.screen)
+      ? [{ value: action.screen, label: t("pages.notInApp", { screen: known(screenName(action.screen)) }) }]
+      : []),
   ];
   const options: { value: ActionKind; label: string }[] = [
-    ...(optional ? [{ value: "none" as const, label: "Nothing" }] : []),
-    { value: "page", label: "Opens a page" },
-    { value: "screen", label: "Opens a screen of the app" },
-    ...(kind === "course" || sources.includes("courses") ? [{ value: "course" as const, label: "Opens a course" }] : []),
-    { value: "url", label: "Opens a web address" },
-    ...(kind === "item" || sources.some((s) => s !== "courses" && s !== "posts") ? [{ value: "item" as const, label: "Opens an entry" }] : []),
+    ...(optional ? [{ value: "none" as const, label: t("pages.nothing") }] : []),
+    { value: "page", label: t("pages.opensPage") },
+    { value: "screen", label: t("pages.opensScreen") },
+    ...(kind === "course" || sources.includes("courses") ? [{ value: "course" as const, label: t("pages.opensCourse") }] : []),
+    { value: "url", label: t("pages.opensUrl") },
+    ...(kind === "item" || sources.some((s) => s !== "courses" && s !== "posts") ? [{ value: "item" as const, label: t("pages.opensEntry") }] : []),
   ];
   const change = (next: ActionKind) => {
     if (next === "none") onChange(null);
@@ -255,22 +272,22 @@ export function ActionEditor({
       {problem ? (
         <p role="alert" className="m-0 flex items-start gap-1.5 rounded-lg bg-warn-bg px-3 py-2 text-sm font-semibold text-warn">
           <IconGlyph name="warning" size={18} />
-          {problem}
+          {known(problem)}
         </p>
       ) : null}
       {action?.type === "page" ? (
         <SelectInput
           id={`${id}-page`}
-          label="Page"
+          label={t("pages.page")}
           value={action.page_slug ?? ""}
-          options={[...(pages.some((p) => p.slug === action.page_slug) ? [] : [{ value: action.page_slug ?? "", label: "Choose a page" }]), ...pages.map((p) => ({ value: p.slug, label: p.title || p.slug }))]}
+          options={[...(pages.some((p) => p.slug === action.page_slug) ? [] : [{ value: action.page_slug ?? "", label: t("pages.choosePage") }]), ...pages.map((p) => ({ value: p.slug, label: p.title || p.slug }))]}
           onChange={(slug) => onChange({ type: "page", page_slug: slug })}
         />
       ) : null}
       {action?.type === "screen" ? (
         <SelectInput
           id={`${id}-screen`}
-          label="Screen"
+          label={t("pages.screen")}
           value={action.screen ?? firstScreen(screens) ?? "account"}
           options={screenOptions}
           onChange={(screen) => onChange({ type: "screen", screen })}
@@ -280,40 +297,40 @@ export function ActionEditor({
         courses?.length ? (
           <SelectInput
             id={`${id}-course`}
-            label="Course"
+            label={t("pages.course")}
             value={String(action.course_id ?? "")}
-            options={[...(courses.some((c) => c.id === String(action.course_id)) ? [] : [{ value: String(action.course_id ?? ""), label: "Choose a course" }]), ...courses.map((c) => ({ value: c.id, label: c.title }))]}
+            options={[...(courses.some((c) => c.id === String(action.course_id)) ? [] : [{ value: String(action.course_id ?? ""), label: t("pages.chooseCourse") }]), ...courses.map((c) => ({ value: c.id, label: c.title }))]}
             onChange={(courseId) => onChange({ type: "course", course_id: Number(courseId) || null })}
           />
         ) : (
           <TextInput
             id={`${id}-course`}
-            label="Course ID"
+            label={t("pages.courseId")}
             inputMode="numeric"
             value={action.course_id ? String(action.course_id) : ""}
-            hint="The course's ID on your website."
+            hint={t("pages.courseIdHint")}
             onChange={(v) => onChange({ type: "course", course_id: Number(v.replace(/\D/g, "")) || null })}
           />
         )
       ) : null}
       {action?.type === "url" ? (
         <>
-          <TextInput id={`${id}-url`} label="Web address" type="url" inputMode="url" placeholder="https://" value={action.url ?? ""} onChange={(url) => onChange({ ...action, url })} />
-          <Check label="Open in the phone's browser" checked={action.open_in === "browser"} onChange={(b) => onChange({ ...action, open_in: b ? "browser" : "in_app" })} />
+          <TextInput id={`${id}-url`} label={t("pages.webAddress")} dir="ltr" type="url" inputMode="url" placeholder="https://" value={action.url ?? ""} onChange={(url) => onChange({ ...action, url })} />
+          <Check label={t("pages.browser")} checked={action.open_in === "browser"} onChange={(b) => onChange({ ...action, open_in: b ? "browser" : "in_app" })} />
         </>
       ) : null}
       {action?.type === "item" ? (
         <div className="grid gap-3 sm:grid-cols-2">
           <SelectInput
             id={`${id}-item-source`}
-            label="Kind"
+            label={t("pages.kind")}
             value={action.item?.source ?? sources[0] ?? "products"}
-            options={sources.filter((s) => s !== "posts").map((s) => ({ value: s, label: SOURCE_NAMES[s] }))}
+            options={sources.filter((s) => s !== "posts").map((s) => ({ value: s, label: known(SOURCE_NAMES[s]) }))}
             onChange={(source) => onChange({ type: "item", item: { source, id: action.item?.id ?? "" } })}
           />
           <TextInput
             id={`${id}-item-id`}
-            label="Entry ID"
+            label={t("pages.entryId")}
             value={action.item?.id ?? ""}
             onChange={(itemId) => onChange({ type: "item", item: { source: action.item?.source ?? sources[0] ?? "products", id: itemId.trim() } })}
           />

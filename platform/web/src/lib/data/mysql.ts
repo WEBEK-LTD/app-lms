@@ -163,6 +163,7 @@ export class MysqlStore implements DataStore {
       createdAt: input.now,
       updatedAt: input.now,
       lastSignInAt: null,
+      language: null,
     };
     try {
       await this.run((db) => db.insert(schema.users).values(user));

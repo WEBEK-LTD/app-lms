@@ -9,16 +9,17 @@ import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
 import { DEFAULT_FULFILMENT, fulfilmentOf } from "@/lib/catalog/fulfilment";
 import { catalogSettings, paymentsSetUp } from "@/lib/catalog/settings";
-import { catalogWords } from "@/lib/catalog/words";
 import { getStore } from "@/lib/data";
 import { priceOf } from "@/lib/hosted/connectors/catalog";
 import type { FulfilmentSettings } from "@/lib/data/types";
 import { AddCategoryForm, FulfilmentForm, ShopSettingsForm } from "./forms";
 import { CardPayments } from "./payments";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { app } = await requireClient();
-  return { title: catalogWords(app?.vertical).page };
+  return { title: (await dashboardText()).t("shop.page", { kind: app?.vertical === "restaurant" ? "restaurant" : "shop" }) };
 }
 
 const TIMEZONES = ["Europe/Istanbul", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Dubai", "Asia/Riyadh", "Africa/Cairo", "America/New_York"];
@@ -52,14 +53,15 @@ function fulfilmentValues(f: FulfilmentSettings): Record<string, string> {
 /** Products (26 a restaurant's menu), categories and shop settings for apps without a website. */
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { app } = await requireClient();
-  const words = catalogWords(app?.vertical);
+  const { t, num } = await dashboardText();
+  const kind = app?.vertical === "restaurant" ? "restaurant" : "shop";
+  const pageTitle = t("shop.page", { kind });
   if (!app || app.connector?.kind !== "catalog") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{pageTitle}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Your app gets its {words.items} from your website. To add {words.items} here instead, choose &quot;I don&apos;t have a website&quot; on the{" "}
-          <Link href="/dashboard/setup?step=website">Website step</Link>.
+          {richText(t("shop.fromSite", { kind }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -76,33 +78,33 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{words.page}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{words.intro}</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{pageTitle}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.intro", { kind })}</p>
         </div>
         <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
           <Icon name="add" size={20} />
-          {words.add}
+          {t("shop.add", { kind })}
         </Link>
       </div>
 
       {saved ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          Saved “{saved}”.
+          {t("shop.savedName", { name: saved })}
         </p>
       ) : null}
       {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
-          Customers can see your {words.items} in the app but can&apos;t pay for them until you set up <a href="#h-payments">Card payments</a> below.
+          {richText(t("shop.noPayments", { kind }), { link: (chunk) => <a href="#h-payments">{chunk}</a> })}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-products" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-products" className="m-0 text-lg font-bold">
-          {products.length} {products.length === 1 ? words.item : words.items}
+          {t("shop.count", { kind, count: products.length })}
         </h2>
         {products.length === 0 ? (
-          <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={words.none}>
-            {words.noneText}
+          <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={t("shop.none", { kind })}>
+            {t("shop.noneText", { kind })}
           </EmptyState>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
@@ -122,15 +124,15 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
                     <span className="truncate text-[13px] text-muted">
                       {[
                         money(priceOf(p)),
-                        p.stock === null ? null : `${p.stock} in stock`,
-                        p.optionGroups?.length ? `${p.optionGroups.length} ${p.optionGroups.length === 1 ? "option group" : "option groups"}` : null,
+                        p.stock === null ? null : t("shop.inStock", { count: num(p.stock) }),
+                        p.optionGroups?.length ? t("shop.optionGroups", { count: p.optionGroups.length }) : null,
                         ...p.categoryIds.map((c) => categoryName.get(c)),
                       ]
                         .filter(Boolean)
                         .join(" · ")}
                     </span>
                   </span>
-                  {!p.active ? <Badge tone="neutral">Hidden</Badge> : p.stock === 0 ? <Badge tone="warn">Out of stock</Badge> : null}
+                  {!p.active ? <Badge tone="neutral">{t("common.hidden")}</Badge> : p.stock === 0 ? <Badge tone="warn">{t("shop.outOfStock")}</Badge> : null}
                 </Link>
               </li>
             ))}
@@ -141,26 +143,26 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       <div className="flex flex-wrap items-start gap-6">
         <section aria-labelledby="h-categories" className="flex min-w-0 flex-[1_1_380px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-categories" className="m-0 text-lg font-bold">
-            Categories
+            {t("shop.categories")}
           </h2>
-          {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">{words.categoriesHint}</p> : null}
+          {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("shop.categoriesHint", { kind })}</p> : null}
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {categories.map((c) => (
               <li key={c.id} className="flex items-center gap-2">
                 <form action={renameCategoryAction} className="flex flex-1 items-center gap-2">
                   <input type="hidden" name="id" value={c.id} />
                   <label htmlFor={`cat-${c.id}`} className="sr-only">
-                    Category name
+                    {t("shop.categoryName")}
                   </label>
                   <input id={`cat-${c.id}`} name="name" defaultValue={c.name} maxLength={80} className="input input-sm flex-1" />
                   <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    Rename
+                    {t("shop.rename")}
                   </SubmitButton>
                 </form>
                 <form action={deleteCategoryAction}>
                   <input type="hidden" name="id" value={c.id} />
                   <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    Delete
+                    {t("common.delete")}
                   </SubmitButton>
                 </form>
               </li>
@@ -171,7 +173,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
 
         <section aria-labelledby="h-shop" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-shop" className="m-0 text-lg font-bold">
-            {fulfilment ? "Currency" : "Shop settings"}
+            {fulfilment ? t("shop.currency") : t("shop.shopSettings")}
           </h2>
           <ShopSettingsForm
             currency={settings.currency}
@@ -187,9 +189,9 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         <section aria-labelledby="h-fulfilment" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 id="h-fulfilment" className="m-0 text-lg font-bold">
-              Pickup and delivery
+              {t("shop.pickupDelivery")}
             </h2>
-            <p className="m-0 text-[15px] text-ink-4">How customers get their order, and when your kitchen takes orders. Orders show on the Kitchen page.</p>
+            <p className="m-0 text-[15px] text-ink-4">{t("shop.pickupDeliveryText")}</p>
           </div>
           <FulfilmentForm
             current={fulfilmentValues(fulfilment)}
