@@ -99,106 +99,112 @@ class _NotifyScreenState extends ConsumerState<NotifyScreen> {
     final push = sent.value?.push;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sendNotification)),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-        children: [
-          Panel(
-            color: Brand.infoBg,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(AppIcons.users, color: Brand.info),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.sendsToEveryone(app.name),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        push == false ? l10n.inboxOnly : l10n.inboxAndPush,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Panel(
+              color: Brand.infoBg,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(AppIcons.users, color: Brand.info),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.sendsToEveryone(app.name),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          push == false ? l10n.inboxOnly : l10n.inboxAndPush,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _title,
-            maxLength: titleMax,
-            decoration: InputDecoration(labelText: l10n.notificationTitle),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _body,
-            maxLength: bodyMax,
-            minLines: 3,
-            maxLines: 6,
-            decoration: InputDecoration(
-              labelText: l10n.notificationMessage,
-              alignLabelWithHint: true,
+            const SizedBox(height: 16),
+            TextField(
+              controller: _title,
+              maxLength: titleMax,
+              decoration: InputDecoration(labelText: l10n.notificationTitle),
             ),
-          ),
-          SectionTitle(l10n.previewOnPhone),
-          _PhonePreview(
-            app: app,
-            title: _title.text.trim(),
-            body: _body.text.trim(),
-          ),
-          const SizedBox(height: 20),
-          FilledButton.icon(
-            onPressed: _valid && !_busy ? _send : null,
-            icon: const DirectionalIcon(AppIcons.send),
-            label: Text(l10n.sendNow),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.sendLimit,
-            style: theme.textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-          SectionTitle(l10n.sentBefore),
-          AsyncBody(
-            value: sent,
-            onRetry: () => ref.invalidate(sentProvider),
-            builder: (s) => s.items.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(l10n.nothingSent, textAlign: TextAlign.center),
-                  )
-                : Column(
-                    children: [
-                      for (final n in s.items)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Panel(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  n.title,
-                                  style: theme.textTheme.titleSmall,
-                                ),
-                                Text(n.body),
-                                const SizedBox(height: 4),
-                                Text(
-                                  context.dateTime(n.sentAt),
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
+            const SizedBox(height: 8),
+            TextField(
+              controller: _body,
+              maxLength: bodyMax,
+              minLines: 3,
+              maxLines: 6,
+              decoration: InputDecoration(
+                labelText: l10n.notificationMessage,
+                alignLabelWithHint: true,
+              ),
+            ),
+            SectionTitle(l10n.previewOnPhone),
+            _PhonePreview(
+              app: app,
+              title: _title.text.trim(),
+              body: _body.text.trim(),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: _valid && !_busy ? _send : null,
+              icon: const DirectionalIcon(AppIcons.send),
+              label: Text(l10n.sendNow),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.sendLimit,
+              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+            SectionTitle(l10n.sentBefore),
+            AsyncBody(
+              value: sent,
+              onRetry: () => ref.invalidate(sentProvider),
+              builder: (s) => s.items.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        l10n.nothingSent,
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        for (final n in s.items)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Panel(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    n.title,
+                                    style: theme.textTheme.titleSmall,
+                                  ),
+                                  Text(n.body),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    context.dateTime(n.sentAt),
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-          ),
-        ],
+                      ],
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
