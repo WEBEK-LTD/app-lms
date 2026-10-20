@@ -11,6 +11,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // 64b A tab left open from an earlier deploy: Next.js sees the new deployment and loads the
+  // page again instead of calling server actions that no longer exist ("Failed to find Server
+  // Action"). Netlify sets DEPLOY_ID for each build; local builds have none.
+  deploymentId: process.env.DEPLOY_ID || undefined,
   reactStrictMode: true,
   turbopack: {
     root: import.meta.dirname,

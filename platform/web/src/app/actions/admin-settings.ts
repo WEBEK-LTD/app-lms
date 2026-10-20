@@ -7,7 +7,7 @@ import { requireAdmin, type AdminUser } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { OtpSetting, PlatformSettingKey, PlatformSettingValues, SmtpSetting, StoragePackOffer } from "@/lib/data/types";
 import { decrypt, encrypt } from "@/lib/crypto/encryption";
-import { appUrl, encryptionKey, iyzicoApiUrl, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
+import { appUrl, encryptionKey, iyzicoApiUrl, mediaBaseUrl, mediaSigningSecret, paymentApiUrls, sessionSecret, WAABEK_API_URL } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { parsePrice } from "@/lib/catalog/money";
@@ -37,9 +37,8 @@ import {
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshPlanSitesSoon } from "@/lib/license/refresh-soon";
-import { newId } from "@/lib/crypto/tokens";
-import { storageKeyOf } from "@/lib/media/signing";
-import { getMediaStorage } from "@/lib/media/storage";
+import { checkMediaGate, gateRequest } from "@/lib/media/check";
+import { getMediaStorage, localMediaDisk } from "@/lib/media/storage";
 import { clearPlatformSettingsCache, encryptSetting, getPlans, platformSetting, resolvedOtpSenderConfig, yallappAccountFor } from "@/lib/settings/platform";
 
 const str = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
@@ -246,18 +245,22 @@ export async function sendTestEmailAction(): Promise<FormState> {
   return { ok: true, message: `Test email sent to ${admin.email}. Check the inbox and the spam folder.` };
 }
 
-/** 51 Asks the media gate about a file that doesn't exist: proves the address and the shared secret. */
+/**
+ * 51 Asks the media gate about a file that doesn't exist: proves the address and the shared secret.
+ * 64b Then a real test upload by POST, as the dashboard sends it, checked and removed again;
+ * a failure names the step, the HTTP status and what to do (lib/media/check.ts).
+ */
 export async function checkMediaGateAction(): Promise<FormState> {
   await requireAdmin("settings.edit");
   const storage = getMediaStorage();
   if (!storage) return { message: "Media isn't set up: set MEDIA_BASE_URL and MEDIA_SIGNING_SECRET in Netlify (see the launch checklist)." };
+  let result;
   try {
-    const stat = await storage.stat(storageKeyOf(newId(), newId(), "mp4"));
-    if (stat.exists) return { message: "The media server answered, but oddly: it reports a file that can't exist." };
+    result = await checkMediaGate(storage, gateRequest({ base: mediaBaseUrl(), secret: mediaSigningSecret(), disk: localMediaDisk() }));
   } catch (e) {
     return { message: `The media server didn't answer as it should: ${e instanceof Error ? e.message : "unknown error"}. Check MEDIA_BASE_URL, and that its config.php has the same secret as MEDIA_SIGNING_SECRET.` };
   }
-  return { ok: true, message: storage.mode === "host" ? "The media server answers and accepts our signed links." : "Media files are kept in the local folder (development only)." };
+  return result.ok ? { ok: true, message: result.message } : { message: result.message };
 }
 
 export async function saveIyzicoSettingAction(_: FormState, formData: FormData): Promise<FormState> {

@@ -19,4 +19,6 @@ async function handle(request: Request, { params }: RouteContext<"/media/[...pat
 export const GET = handle;
 export const HEAD = handle;
 export const PUT = handle;
+/** 64b Chunks by POST too: server firewalls often refuse PUT. */
+export const POST = handle;
 export const DELETE = handle;

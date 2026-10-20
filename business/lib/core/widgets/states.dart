@@ -12,6 +12,19 @@ import 'l10n.dart';
 /// Text for an error, in the person's language.
 String errorMessage(BuildContext context, Object error) {
   final l10n = context.l10n;
+  // 64b An upload the media server refused: why, with its HTTP status.
+  final e = unwrapError(error);
+  if (e is ApiException) {
+    final status = '${e.statusCode ?? ''}';
+    switch (e.code) {
+      case ApiException.uploadRefused:
+        return l10n.uploadRefused(status);
+      case ApiException.uploadStorage:
+        return l10n.uploadStorageDown(status);
+      case ApiException.uploadTooBig:
+        return l10n.uploadChunkTooBig(status);
+    }
+  }
   return errorText(error, (code) {
     return switch (code) {
       ApiException.network => l10n.errorOffline,

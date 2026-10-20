@@ -126,11 +126,16 @@ tags:
     description: |
       The Media library (roadmap 51). Uploads go straight from the phone to
       the media gate in chunks of `chunk_bytes`, through the signed
-      `upload_url`, with the same protocol as the dashboard: `PUT
-      <upload_url>` with `Upload-Offset` and the bytes
-      (`application/offset+octet-stream`; a 409 answers with the offset the
-      gate has in `Upload-Offset`), `HEAD` for the offset reached; then
-      `complete`.
+      `upload_url`, with the same protocol as the dashboard (roadmap 64b,
+      so server firewalls let it through): `POST <upload_url>&offset=<n>`
+      with the bytes as `application/octet-stream` and the offset also in
+      `Upload-Offset`; the gate answers 200 with `{"offset": <n>}` and the
+      `Upload-Offset` header (a 409 answers with the offset the gate has,
+      the same two ways; 403 or 410: ask `resume` for a fresh link). `GET
+      <upload_url>` gives the offset reached (`{"offset", "length"}` and the
+      header); then `complete`. Gates before 64b took `PUT` with
+      `Upload-Offset` and answered 204: still accepted. Links end in
+      `/<media id>/<ext>`, never in a file extension.
   - name: Messages
     description: |
       Conversations with the people using the app: a listing's inquiries

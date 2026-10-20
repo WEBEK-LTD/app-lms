@@ -1527,3 +1527,26 @@ and builds and publishing. Decided with the owner:
 | [x] | Contract first: an owner API next to the existing ones (Phase 58: `docs/api/owner.yaml`, `/api/owner/v1`) |
 | [x] | Then the app (Flutter, Phase 59: `business/`) |
 | [ ] | Then the stores under Yallapp's own accounts (LAUNCH-CHECKLIST 7l) |
+
+## Phase 64b: uploads behind a server firewall
+
+On the live server every upload from the dashboard and from Yallapp Business
+ended in "The connection keeps dropping", while the media gate answered
+`GET /media/v/x`. Two things stood in the way before PHP: a static-file
+handler (LiteSpeed or nginx on the cPanel host) answered paths ending in
+`.jpg`, `.mp4`… itself with 404, and server firewalls (ModSecurity,
+Imunify360) refuse `PUT` and `application/offset+octet-stream`. Links now end
+without a file extension, chunks go by `POST` as `application/octet-stream`,
+a refused upload says why, and the admin's check tries a real upload.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 64b.1 The gate (`deploy/media-host/index.php` and `lib/media/disk.ts`, in step): paths `/<op>/<app>/<id>/<ext>` as well as `<id>.<ext>` (links signed before); chunks by `POST` with any content type, 200 with `{"offset":N}` and `Upload-Offset` (`PUT` answered 204 as before); the offset from the header or the unsigned query `offset`; `GET` status and refused chunks carry the offset in JSON too | `media.test.ts` on both gates (PHP's built-in server): a 5 MB POST, the offset in the query only, another content type, 409/413 in JSON, PUT, old-form links |
+| [x] | 64b.2 The platform signs every link in the new form (uploads, status, play, download, delete: `linkPathOf`); files on disk keep their names; the served Content-Type still comes from the extension | `media.test.ts`, `media.spec.ts` |
+| [x] | 64b.3 Dashboard uploader (`lib/media/upload-client.ts`): POST, `application/octet-stream`, the offset in the header and the query, the offset read from the header or the JSON body (204 from older gates accepted); 403/410 get a fresh link at most twice in a row; the reason with the HTTP status (refused, storage, too big, other) instead of "The connection keeps dropping", which stays for real network errors; strings in English, Arabic and Turkish | `media.test.ts`, `media.spec.ts` (chunks by POST, a 406 and a 403 every time: three tries, then the message) |
+| [x] | 64b.4 Admin › Settings › Server › "Check the media server" (`lib/media/check.ts`): the gate's own "Not found.", a signed stat, a test upload by POST at a key of its own, checked and removed (file, then folder); a failure names the step, the HTTP status and what to do (firewall rules, older gate, static-file handler, storage_dir, secret, clock) | `media.test.ts` (both gates, and a mocked firewall, static handler, older gate, secret, 503, unreachable server), `media.spec.ts` |
+| [x] | 64b.5 Yallapp Business: the same protocol (`HttpUploadTransport`), `ApiException.fromGate` (`upload_refused`, `upload_storage`, `upload_too_big`), two fresh links at most, the reason with the HTTP status (`tool/strings_h.py`) | `api_client_test.dart`, `catalog_media_test.dart` |
+| [x] | 64b.6 Docs: LAUNCH-CHECKLIST 7j (copy the new `index.php` and why, `post_max_size`, "If uploads fail": ModSecurity, Imunify360, LiteSpeed, `SetEnvIf` for `CGIPassAuth`), the Owner API contract's Media protocol, ARCHITECTURE | `redocly lint` |
+| [x] | 64b.9 An upload that never finished is removed even when the server refuses its delete (a finished file still waits for the server); the daily job's stale uploads likewise. `deploymentId` from Netlify's `DEPLOY_ID`: a tab left open across a deploy loads the page again instead of calling server actions that are gone | `media.test.ts` |
+| [ ] | 64b.7 Not tried on the live server yet: copy the new `index.php`, run "Check the media server", then upload from the dashboard and Yallapp Business | LAUNCH-CHECKLIST 7j |
+| [ ] | 64b.8 Yallapp Business builds already on phones send `PUT` to links in the new form: they work wherever the server let `PUT` through; behind a firewall that refuses it they need the new build | The next Yallapp Business release |

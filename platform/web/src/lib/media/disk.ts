@@ -125,13 +125,15 @@ export class MediaDisk {
 }
 
 /**
- * The gate's answer to one request (GET, HEAD, PUT, DELETE), the same as
- * deploy/media-host/index.php gives. `path` is the request's path after the
- * gate's base.
+ * The gate's answer to one request (GET, HEAD, PUT, POST, DELETE), the same
+ * as deploy/media-host/index.php gives. `path` is the request's path after
+ * the gate's base.
  */
 export async function handleMediaRequest(disk: MediaDisk, request: Request, path: string, secret: string, now: Date = new Date()): Promise<Response> {
   const plain = (status: number, message: string, headers: Record<string, string> = {}) =>
-    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", ...headers } });
+    new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-yallapp-media-gate": "2", ...headers } });
+  // 64b A check anyone may open: this gate is installed (the PHP gate answers the same).
+  if (path === "/ping" && (request.method === "GET" || request.method === "HEAD")) return plain(200, "Yallapp media gate 2\n");
   const check = verifyMediaRequest(path, new URL(request.url).searchParams, secret, now, request.headers.get("authorization"));
   if (!check.ok) return plain(check.status, check.message);
   const method = request.method.toUpperCase();
@@ -162,22 +164,37 @@ export async function handleMediaRequest(disk: MediaDisk, request: Request, path
     };
     return new Response(body, { status: read.status, headers });
   }
-  if (check.op === "u" && (method === "HEAD" || method === "GET" || method === "PUT")) {
+  // 64b POST as well as PUT (server firewalls often refuse PUT), with any Content-Type.
+  if (check.op === "u" && (method === "HEAD" || method === "GET" || method === "PUT" || method === "POST")) {
     const total = Number(check.params.size ?? "");
     if (!Number.isSafeInteger(total) || total < 1) return plain(403, "This link is not valid.");
-    if (method !== "PUT") {
+    const headers = (offset: number, json = false) => ({
+      "upload-offset": String(offset),
+      "upload-length": String(total),
+      "cache-control": "no-store",
+      ...(json ? { "content-type": "application/json" } : {}),
+    });
+    if (method === "HEAD" || method === "GET") {
       const s = await disk.stat(check.key);
-      return new Response(null, { status: 200, headers: { "upload-offset": String(s.size), "upload-length": String(total), "cache-control": "no-store" } });
+      return new Response(method === "GET" ? JSON.stringify({ offset: s.size, length: total }) : null, { status: 200, headers: headers(s.size, method === "GET") });
     }
-    const offset = Number(request.headers.get("upload-offset") ?? "");
+    // 64b The header, else the query's `offset` (a proxy may drop the header).
+    const given = [request.headers.get("upload-offset"), new URL(request.url).searchParams.get("offset")].find((v) => v !== null && /^\d+$/.test(v));
     const lengthHeader = request.headers.get("content-length");
     const result = await disk.append(check.key, {
-      offset: Number.isSafeInteger(offset) ? offset : -1,
+      offset: given !== undefined && Number.isSafeInteger(Number(given)) ? Number(given) : -1,
       total,
       length: lengthHeader && /^\d+$/.test(lengthHeader) ? Number(lengthHeader) : null,
       body: request.body,
     });
-    return new Response(null, { status: result.status, headers: { "upload-offset": String(result.offset), "upload-length": String(total), "cache-control": "no-store" } });
+    if (result.status !== 204) {
+      const message =
+        result.status === 409 ? "The upload is elsewhere." : result.status === 413 ? "This chunk is too big." : lengthHeader ? "The chunk didn't arrive whole." : "Send the chunk with its length.";
+      return new Response(JSON.stringify({ offset: result.offset, message }), { status: result.status, headers: headers(result.offset, true) });
+    }
+    // PUT as before (older uploaders wait for 204); POST answers with the offset in JSON too.
+    if (method === "POST") return new Response(JSON.stringify({ offset: result.offset }), { status: 200, headers: headers(result.offset, true) });
+    return new Response(null, { status: 204, headers: headers(result.offset) });
   }
   if (check.op === "s" && method === "GET") {
     return Response.json(await disk.stat(check.key), { headers: { "cache-control": "no-store" } });

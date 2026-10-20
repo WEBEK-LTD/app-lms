@@ -388,9 +388,10 @@ the bytes: the media gate on the host takes the uploads and plays the files.
       then Admin › Settings › Server shows "Media library: Our server" and
       **Check the media server** answers that it accepts our signed links.
 - [ ] Uploads come in 5 MB chunks: Apache's `LimitRequestBody` (7 MB in the
-      proxy config and the gate's .htaccess) must stay above that, and PHP's
-      `upload_max_filesize`/`post_max_size` don't apply (chunks are raw PUT
-      bodies read from `php://input`).
+      proxy config and the gate's .htaccess) must stay above that. Since
+      Phase 64b chunks are raw POST bodies read from `php://input`, so PHP's
+      `post_max_size` must be at least 8M (cPanel › MultiPHP INI Editor);
+      `upload_max_filesize` doesn't apply.
 - [ ] Admin › Plans: check each plan's **Storage (GB)** and set the storage
       packs' monthly prices like the plans' (section 7h): in Egyptian pounds,
       charged through Yallapp's Kashier account, with an optional US dollar
@@ -415,6 +416,65 @@ the bytes: the media gate on the host takes the uploads and plays the files.
       plays, and its link copied to a browser answers "This link is for
       another student." After the first daily job, Admin's logs show no
       "app folders have no app in the database" line.
+- [ ] **Phase 64b: copy the new `index.php` again** (the `.htaccess` is
+      unchanged). It is required before the platform with Phase 64b goes
+      live, since every link the platform signs now ends in
+      `/<media id>/<ext>` (e.g. `/media/u/<app>/<id>/jpg`) instead of
+      `/<media id>.jpg`: on LiteSpeed and nginx cPanel hosts a static-file
+      handler in front of PHP answers paths ending in `.jpg`, `.mp4`, `.pdf`…
+      itself (404) and never passes them to the gate, so every upload ended in
+      "The connection keeps dropping". The new gate also takes chunks by
+      `POST` with any content type (firewalls refuse `PUT` and
+      `application/offset+octet-stream`) and the offset in the query when a
+      proxy drops the `Upload-Offset` header. Links signed before keep
+      working. Then Admin › Settings › Server › **Check the media server**:
+      it reaches the gate, signs a stat, sends a test upload by POST as the
+      dashboard does, checks it and removes it (a few bytes in a folder of
+      its own), and names the step that failed with its HTTP status and what
+      to do.
+- [ ] Then upload a picture and a 20 MB video in Media from the dashboard and
+      from Yallapp Business, and play the video in a rebuilt app.
+
+### If uploads fail
+
+- [ ] First open `https://yallapp.com.tr/media/ping`: it must answer
+      "Yallapp media gate 2". "Not found." there means the media folder still
+      has an older index.php (copy the current one; clear LiteSpeed's cache or
+      OPcache if the size on disk is already the new one). Every answer of the
+      current gate carries the `X-Yallapp-Media-Gate: 2` header.
+
+"Check the media server" says which step failed. Most often:
+
+- **HTTP 404 on the signed steps** ("the server answers these paths
+  itself"): the old `index.php` is still there, or a static-file handler
+  in front of PHP takes the paths. Copy the new `index.php`; links without a
+  file extension at the end then reach it. Keep the `.htaccess` rewrite as
+  it is (every request under `/media` to `index.php`).
+- **HTTP 403, 406, 405 or 501 on the upload (step 4)** with a page that isn't
+  the gate's plain text: a server firewall.
+  - **ModSecurity** (cPanel › Security › ModSecurity): turn it off for
+    yallapp.com.tr, or ask the host to allow GET, HEAD, POST, PUT and DELETE
+    to `/media` and the `application/octet-stream` content type. With the
+    OWASP Core Rule Set the usual rules are 911100 (method not allowed) and
+    920420 (content type not allowed); with the Comodo rules, the rule ID in
+    the domain's ModSecurity hits (cPanel › Metrics › Errors, or the host's
+    `modsec_audit.log`). A per-path exception:
+    `<LocationMatch "^/media/">SecRuleRemoveById 911100 920420</LocationMatch>`
+    in the domain's include, by the host.
+  - **Imunify360** (WHM › Plugins › Imunify360 › Firewall/WAF): find the
+    `/media` requests in the incident list and whitelist that rule ID for
+    the domain, or disable the WAF rule for `/media`.
+  - **LiteSpeed**: LiteSpeed reads ModSecurity rules from `.htaccess`/the
+    server config the same way; check Server › Security › Request Filter
+    too, and that "Max Request Body Size" is above 7 MB.
+- **HTTP 403 "This link is not valid."**: `signing_secret` in `config.php` and
+  `MEDIA_SIGNING_SECRET` in Netlify differ.
+- **HTTP 503**: `storage_dir` in `config.php` doesn't exist or isn't writable
+  by the cPanel account PHP runs as.
+- **Lesson videos for one student refused** (403 "This link is for another
+  student." although it's theirs): `CGIPassAuth On` may not be supported on
+  LiteSpeed; use instead, in the media folder's `.htaccess`:
+  `SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1`.
 
 ## 7k. Yallapp Business: the Owner API and pushes to the owners' phones (Phase 58)
 

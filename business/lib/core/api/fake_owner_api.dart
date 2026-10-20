@@ -3415,6 +3415,9 @@ class _FakeTransport implements UploadTransport {
   /// Chunks to fail (by their offset) before they arrive, once each.
   final failAt = <int>{};
 
+  /// 64b Every chunk refused with this HTTP status (a firewall), when set.
+  int? refuseWith;
+
   String _id(String url) => Uri.parse(url).pathSegments.last;
 
   @override
@@ -3427,6 +3430,8 @@ class _FakeTransport implements UploadTransport {
     if (upload == null) {
       throw const ApiException(code: ApiException.notFound, statusCode: 404);
     }
+    final refused = refuseWith;
+    if (refused != null) throw ApiException.fromGate(refused);
     if (failAt.remove(offset)) {
       throw const ApiException(code: ApiException.serverError, statusCode: 503);
     }
@@ -3439,4 +3444,8 @@ class _FakeTransport implements UploadTransport {
 /// Lets tests make the fake gate fail a chunk.
 extension FakeTransportControl on FakeOwnerApi {
   Set<int> get failChunksAt => (transport as _FakeTransport).failAt;
+
+  /// 64b Makes the fake gate refuse every chunk with [status] (null: stop).
+  set refuseUploadsWith(int? status) =>
+      (transport as _FakeTransport).refuseWith = status;
 }

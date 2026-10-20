@@ -1898,6 +1898,21 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String uploadRefused(String status) {
+    return 'Medya sunucusu yüklemeyi reddetti (HTTP $status). Sunucunun güvenlik duvarı yüklemeleri engelliyor olabilir. Daha sonra yeniden deneyin, sürerse WhatsApp\'tan bize yazın.';
+  }
+
+  @override
+  String uploadStorageDown(String status) {
+    return 'Sunucudaki medya depolaması şu anda kullanılamıyor (HTTP $status). Şimdiye kadar yüklenen hiçbir şey kaybolmaz. Daha sonra yeniden deneyin ya da WhatsApp\'tan bize yazın.';
+  }
+
+  @override
+  String uploadChunkTooBig(String status) {
+    return 'Medya sunucusu bu dosyanın bir parçasını çok büyük diye reddetti (HTTP $status). WhatsApp\'tan bize yazın.';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }

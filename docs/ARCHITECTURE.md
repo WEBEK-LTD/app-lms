@@ -1423,9 +1423,12 @@ Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
   screen (after the lock or sign-in if needed); a push while the app is open
   shows with "Open", and Kitchen mode reloads on `new_order`.
 - **Media uploads** (`lib/features/media/uploads.dart`): `startUpload`, then
-  the file in `chunk_bytes` chunks straight to the media gate (`PUT` with
-  `Upload-Offset`; `HEAD` for the offset; a 409 carries on from the gate's
-  offset), then `complete`. An unfinished upload is remembered with its file
+  the file in `chunk_bytes` chunks straight to the media gate (64b `POST` as
+  `application/octet-stream` with the offset in `Upload-Offset` and the
+  query; `GET` for the offset, read from the header or the JSON body; a 409
+  carries on from the gate's offset; 403/410 ask `resumeUpload` for a fresh
+  link at most twice in a row; a refused upload says so with the HTTP status:
+  `upload_refused`, `upload_storage`, `upload_too_big`), then `complete`. An unfinished upload is remembered with its file
   path, so it carries on later from where the gate is (`resumeUpload`).
 - **No payments**: nothing is bought in the app. The plan and storage are
   read-only; "Manage on yallapp.com.tr" opens `manage_url` in the browser.
@@ -1940,7 +1943,11 @@ tests the platform's own `/media` route does the same on `.data/media`
 (`lib/media/disk.ts`, the same protocol, checked against the PHP gate by
 `media.test.ts` with PHP's built-in server).
 
-- **Signed links** (`lib/media/signing.ts`): `/media/<op>/<app>/<id>.<ext>`
+- **Signed links** (`lib/media/signing.ts`): `/media/<op>/<app>/<id>/<ext>`
+  (Phase 64b: the extension as a segment of its own, since LiteSpeed or nginx
+  in front of PHP answer paths ending in `.mp4`, `.jpg`… as static files and
+  never pass them to the gate; links signed before, `<id>.<ext>`, still work;
+  on disk the file is still `<app>/<id>.<ext>`)
   with `expires` and an HMAC-SHA256 `sig` over the path and parameters, with
   `MEDIA_SIGNING_SECRET` (the gate's `config.php`). `v` plays (GET/HEAD with
   range requests; `dl=1` as an attachment), `u` uploads, `s` reports what's
@@ -1949,9 +1956,17 @@ tests the platform's own `/media` route does the same on `.data/media`
 - **Uploads**: the dashboard's Media page starts an upload (type and size per
   file checked, the size reserved in the app's storage at once, a
   `media_files` row "uploading"), then the browser sends 5 MB chunks straight
-  to the gate (`PUT` with `Upload-Offset`, written to `<id>.part` with a lock
-  and renamed when the last byte arrives; a wrong offset answers 409 with
-  where it stands). A broken connection retries; choosing the same file again
+  to the gate (Phase 64b: `POST` as `application/octet-stream`, the offset in
+  `Upload-Offset` and in the query's unsigned `offset`, since server
+  firewalls refuse `PUT` and unusual content types and proxies may drop
+  unknown headers; the gate answers 200 with `{"offset":N}` and the header;
+  `PUT` answered 204 still works for older uploaders; written to `<id>.part`
+  with a lock and renamed when the last byte arrives; a wrong offset answers
+  409 with where it stands). A 403/410 gets a fresh link at most twice in a
+  row; a refused upload names the HTTP status (`lib/media/upload-client.ts`).
+  Admin › Settings › Server › "Check the media server" (`lib/media/check.ts`)
+  reaches the gate, signs a stat, sends a test upload by POST, checks it and
+  removes it, naming the step that failed and what to do. A broken connection retries; choosing the same file again
   after a reload resumes from the server's offset (the upload's ID is kept in
   the browser). The platform then asks the gate (`s`) and marks the file
   ready only when its size is the one announced. Uploads left for two days

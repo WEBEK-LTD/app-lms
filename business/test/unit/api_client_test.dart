@@ -389,45 +389,124 @@ void main() {
   );
 
   test(
-    'the media gate: HEAD for the offset, PUT chunks, 409 gives the offset',
+    '64b the media gate: GET for the offset, POST chunks as octet-stream '
+    'with the offset in the header and the query, 409 gives the offset',
     () async {
       final adapter = FakeAdapter((o, body) async {
-        if (o.method == 'HEAD') {
+        if (o.method == 'GET') {
           return ResponseBody.fromString(
-            '',
+            '{"offset":5,"length":20}',
             200,
             headers: {
-              'upload-offset': ['5'],
+              'content-type': ['application/json'],
             },
           );
         }
         if (o.headers['Upload-Offset'] == '5') {
           return ResponseBody.fromString(
-            '',
+            '{"offset":8,"message":"The upload is elsewhere."}',
             409,
             headers: {
               'upload-offset': ['8'],
+              'content-type': ['application/json'],
             },
           );
         }
+        if (o.headers['Upload-Offset'] == '8') {
+          // A proxy dropped the header: the offset only in the JSON body.
+          return ResponseBody.fromString(
+            '{"offset":12}',
+            200,
+            headers: {
+              'content-type': ['application/json'],
+            },
+          );
+        }
+        // A gate before 64b: 204 with the header only.
         return ResponseBody.fromString(
           '',
           204,
           headers: {
-            'upload-offset': ['12'],
+            'upload-offset': ['16'],
           },
         );
       });
       final gate = HttpUploadTransport(adapter: adapter);
-      expect(await gate.offset('https://media.example/u/x'), 5);
-      expect(await gate.send('https://media.example/u/x', 5, [1, 2, 3]), 8);
-      expect(await gate.send('https://media.example/u/x', 8, [1, 2, 3, 4]), 12);
-      final put = adapter.requests.last;
-      expect(put.method, 'PUT');
-      expect(put.headers['Content-Type'], 'application/offset+octet-stream');
-      expect(put.headers['Authorization'], isNull);
+      const url = 'https://media.example/u/a/b/mp4?size=20&expires=1&sig=x';
+      expect(await gate.offset(url), 5);
+      expect(adapter.requests.last.method, 'GET');
+      expect(await gate.send(url, 5, [1, 2, 3]), 8);
+      expect(await gate.send(url, 8, [1, 2, 3, 4]), 12);
+      expect(await gate.send(url, 12, [1, 2, 3, 4]), 16);
+      final post = adapter.requests.last;
+      expect(post.method, 'POST');
+      expect(post.headers['Content-Type'], 'application/octet-stream');
+      expect(post.headers['Upload-Offset'], '12');
+      expect(post.uri.queryParameters, {
+        'size': '20',
+        'expires': '1',
+        'sig': 'x',
+        'offset': '12',
+      });
+      expect(post.headers['Authorization'], isNull);
+      expect(adapter.bodies.last, '\u0001\u0002\u0003\u0004');
     },
   );
+
+  test('64b the media gate refusing an upload says how', () async {
+    var status = 403;
+    const body = '<html>Forbidden</html>';
+    final gate = HttpUploadTransport(
+      adapter: FakeAdapter(
+        (o, _) async => ResponseBody.fromString(
+          body,
+          status,
+          headers: {
+            'content-type': ['text/html'],
+          },
+        ),
+      ),
+    );
+    Future<ApiException> refused() async {
+      try {
+        await gate.send('https://media.example/u/a/b/png?size=9', 0, [1]);
+      } on ApiException catch (e) {
+        return e;
+      }
+      fail('no refusal');
+    }
+
+    for (final s in [403, 405, 406, 410, 501]) {
+      status = s;
+      final e = await refused();
+      expect(e.code, ApiException.uploadRefused);
+      expect(e.statusCode, s);
+    }
+    status = 503;
+    expect((await refused()).code, ApiException.uploadStorage);
+    status = 413;
+    expect((await refused()).code, ApiException.uploadTooBig);
+    status = 502;
+    expect((await refused()).code, ApiException.serverError);
+    // A success with no offset: a firewall's page, not the gate.
+    status = 200;
+    expect((await refused()).code, ApiException.uploadRefused);
+    // The connection itself: offline, as before.
+    final away = HttpUploadTransport(
+      adapter: FakeAdapter(
+        (o, _) async => throw DioException.connectionError(
+          requestOptions: o,
+          reason: 'reset',
+        ),
+      ),
+    );
+    try {
+      await away.send('https://media.example/u/a/b/png?size=9', 0, [1]);
+      fail('no error');
+    } on ApiException catch (e) {
+      expect(e.isOffline, isTrue);
+    }
+  });
 
   test('updates read the final contract', () {
     final u = Update.fromJson({

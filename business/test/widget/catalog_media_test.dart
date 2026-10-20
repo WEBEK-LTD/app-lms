@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp_business/core/api/fake_owner_api.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
+import 'package:yallapp_business/features/media/uploads.dart';
 
 import '../support/nav.dart';
 import '../support/test_app.dart';
@@ -165,6 +166,43 @@ void main() {
       expect(find.text('Resume'), findsNothing);
       expect(app.api.uploads, isEmpty);
     });
+
+    testWidgets(
+      '64b an upload the media server refuses: two fresh links, then why',
+      (tester) async {
+        final app = TestApp();
+        await app.pump(tester);
+        await push(tester, app, '/media');
+        app.api.refuseUploadsWith = 403;
+        app.picker.next = MemoryFile('dish.jpg', 'image/jpeg', 1024);
+        await tapOn(tester, find.text('Upload'));
+        await tapOn(tester, find.text('Choose from the gallery'));
+        expect(
+          find.textContaining(
+            'The media server refused the upload (HTTP 403).',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          app.api.calls.where((c) => c == 'resumeUpload').length,
+          UploadController.freshLinksInARow,
+        );
+        expect(find.text('Resume'), findsOneWidget);
+        // Storage on the server: its own message, not "check your connection".
+        app.api.refuseUploadsWith = 503;
+        await tapOn(tester, find.text('Resume'));
+        expect(
+          find.textContaining(
+            "Media storage on the server isn't available right now (HTTP 503).",
+          ),
+          findsOneWidget,
+        );
+        app.api.refuseUploadsWith = null;
+        await tapOn(tester, find.text('Resume'));
+        expect(find.text('Resume'), findsNothing);
+        expect(app.api.uploads, isEmpty);
+      },
+    );
 
     testWidgets('delete a file after asking', (tester) async {
       final app = TestApp();

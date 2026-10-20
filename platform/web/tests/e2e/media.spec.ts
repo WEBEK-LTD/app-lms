@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Request } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 import { startFakeKashier, type FakeGateway } from "./fake-gateways";
 
@@ -92,7 +92,13 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   await expect(own.locator("[data-storage-used]")).toContainText("0 B of 2 GB used");
   await expect(own.getByRole("region", { name: "Storage", exact: true })).toContainText("Starter plan: 2 GB");
 
-  // 6 MB: two chunks of 5 MB and 1 MB.
+  // 6 MB: two chunks of 5 MB and 1 MB. 64b Sent by POST, as application/octet-stream, the offset in the header and the query.
+  const chunks: { method: string; type: string; offset: string | null; header: string | null; path: string }[] = [];
+  const seen = (r: Request) => {
+    if (/\/media\/u\//.test(r.url()) && r.method() !== "GET")
+      chunks.push({ method: r.method(), type: r.headers()["content-type"] ?? "", offset: new URL(r.url()).searchParams.get("offset"), header: r.headers()["upload-offset"] ?? null, path: new URL(r.url()).pathname });
+  };
+  own.on("request", seen);
   await expect(own.getByLabel("Choose files")).toBeEnabled();
   await own.getByLabel("Choose files").setInputFiles([
     { name: "Lesson one.mp4", mimeType: "video/mp4", buffer: bytes(6 * 1024 * 1024) },
@@ -101,6 +107,15 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   const uploads = own.getByRole("list", { name: "Uploads" });
   await expect(uploads.locator('[data-upload="Lesson one.mp4"]')).toContainText("Uploaded", { timeout: 30_000 });
   await expect(uploads.locator('[data-upload="Cover.png"]')).toContainText("Uploaded", { timeout: 30_000 });
+  own.off("request", seen);
+  expect(chunks.length).toBe(3);
+  for (const chunk of chunks) {
+    expect(chunk).toMatchObject({ method: "POST", type: "application/octet-stream" });
+    expect(chunk.offset).toBe(chunk.header);
+    // 64b No file extension at the end: no static-file handler takes it for a file.
+    expect(chunk.path).toMatch(/^\/media\/u\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/(mp4|png)$/);
+  }
+  expect(chunks.map((c) => c.offset)).toEqual(expect.arrayContaining(["0", String(5 * 1024 * 1024)]));
   const files = own.getByRole("list", { name: "Files" });
   await expect(files.locator('[data-media="Lesson one.mp4"]')).toContainText("Video · 6 MB");
   await expect(files.locator('[data-media="Lesson one.mp4"]')).toContainText("Lessons only");
@@ -109,18 +124,20 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
 
   // The signed link plays the file with range requests, straight from the gate.
   const open = (await files.locator('[data-media="Lesson one.mp4"]').getByRole("link", { name: "Open" }).getAttribute("href"))!;
-  expect(new URL(open).pathname).toMatch(/^\/media\/v\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.mp4$/);
+  expect(new URL(open).pathname).toMatch(/^\/media\/v\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/mp4$/);
   const range = await own.request.get(open, { headers: { range: "bytes=5242880-5242889" } });
   expect(range.status()).toBe(206);
   expect(range.headers()["content-range"]).toBe(`bytes 5242880-5242889/${6 * 1024 * 1024}`);
+  expect(range.headers()["content-type"]).toBe("video/mp4");
   expect(Buffer.from(await range.body()).equals(bytes(6 * 1024 * 1024).subarray(5242880, 5242890))).toBe(true);
   // Tampered: refused.
   expect((await own.request.get(open.replace(/sig=[0-9a-f]{4}/, "sig=0000"))).status()).toBe(403);
 
   // Its own link: a picture opens for anyone, a lesson's video doesn't.
-  const videoId = open.split("/").pop()!.split(".")[0]!;
+  // 64b The file's ID is the segment before the extension: `/<app>/<id>/<ext>`.
+  const videoId = new URL(open).pathname.split("/").at(-2)!;
   const pictureOpen = (await files.locator('[data-media="Cover.png"]').getByRole("link", { name: "Open" }).getAttribute("href"))!;
-  const pictureId = pictureOpen.split("/").pop()!.split(".")[0]!;
+  const pictureId = new URL(pictureOpen).pathname.split("/").at(-2)!;
   const picture = await own.request.get(`/m/${pictureId}`, { maxRedirects: 0 });
   expect(picture.status()).toBe(302);
   expect(new URL(picture.headers().location!).pathname).toContain(`/media/v/`);
@@ -132,6 +149,41 @@ test("the owner uploads a video in chunks and a picture to Media", async () => {
   await row.getByLabel("Name").fill("Lesson 1 - Hello.mp4");
   await row.getByRole("button", { name: "Save name" }).click();
   await expect(files.locator('[data-media="Lesson 1 - Hello.mp4"]')).toBeVisible();
+});
+
+test("64b an upload the media server refuses says why, and stops asking for fresh links", async () => {
+  await own.goto("/dashboard/media");
+  const uploads = own.getByRole("list", { name: "Uploads" });
+  // A firewall in front of the gate: 406 for any upload.
+  await own.route("**/media/u/**", (route) => (route.request().method() === "POST" ? route.fulfill({ status: 406, contentType: "text/html", body: "<h1>Not Acceptable</h1>" }) : route.fallback()));
+  await expect(own.getByLabel("Choose files")).toBeEnabled();
+  await own.getByLabel("Choose files").setInputFiles([{ name: "Refused.png", mimeType: "image/png", buffer: bytes(2048, 7) }]);
+  const refused = uploads.locator('[data-upload="Refused.png"]');
+  await expect(refused.getByRole("alert")).toContainText("The media server refused the upload (HTTP 406). Its firewall may be blocking uploads.");
+  await refused.getByRole("button", { name: "Cancel Refused.png" }).click();
+  await expect(refused).toHaveCount(0);
+  await own.unroute("**/media/u/**");
+
+  // 403 every time (another secret, or a firewall): two fresh links, then it stops and says so.
+  let posts = 0;
+  await own.route("**/media/u/**", (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    posts++;
+    return route.fulfill({ status: 403, contentType: "text/plain", body: "This link is not valid." });
+  });
+  await own.getByLabel("Choose files").setInputFiles([{ name: "Forbidden.png", mimeType: "image/png", buffer: bytes(2048, 9) }]);
+  const forbidden = uploads.locator('[data-upload="Forbidden.png"]');
+  await expect(forbidden.getByRole("alert")).toContainText("The media server refused the upload (HTTP 403).");
+  expect(posts).toBe(3);
+  await forbidden.getByRole("button", { name: "Cancel Forbidden.png" }).click();
+  await expect(forbidden).toHaveCount(0);
+  await own.unroute("**/media/u/**");
+});
+
+test("64b the admin's check of the media server sends a test upload and removes it", async () => {
+  await admin.goto("/admin/settings");
+  await admin.getByRole("button", { name: "Check the media server" }).click();
+  await expect(admin.getByText("A test upload by POST went through and was removed again.")).toBeVisible();
 });
 
 test("the owner picks the video for a lesson, and the app plays it from a signed link", async ({ request }) => {

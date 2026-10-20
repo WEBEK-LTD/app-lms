@@ -55,6 +55,9 @@ class UploadController extends Notifier<Map<String, UploadJob>> {
   /// Waits before trying a chunk again after a dropped connection.
   static Duration retryDelay = const Duration(seconds: 2);
 
+  /// 64b Fresh links in a row on 403/410 before the upload counts as refused.
+  static const freshLinksInARow = 2;
+
   @override
   Map<String, UploadJob> build() => const {};
 
@@ -147,8 +150,10 @@ class UploadController extends Notifier<Map<String, UploadJob>> {
     final id = upload.id;
     _pause.remove(id);
     var failures = 0;
+    var fresh = 0;
+    var link = upload;
     try {
-      var offset = await transport.offset(upload.uploadUrl);
+      var offset = await transport.offset(link.uploadUrl);
       _set(state[id]!.copyWith(sent: offset, status: UploadStatus.uploading));
       while (offset < file.size) {
         if (_pause.remove(id)) {
@@ -158,13 +163,23 @@ class UploadController extends Notifier<Map<String, UploadJob>> {
         final end = min(offset + upload.chunkBytes, file.size);
         final bytes = await file.read(offset, end);
         try {
-          offset = await transport.send(upload.uploadUrl, offset, bytes);
+          offset = await transport.send(link.uploadUrl, offset, bytes);
           failures = 0;
+          fresh = 0;
         } on ApiException catch (e) {
+          // 64b The link expired (a long pause): a fresh one, at most twice
+          // in a row; refused again means a firewall or another secret.
+          if ((e.statusCode == 403 || e.statusCode == 410) &&
+              fresh < freshLinksInARow) {
+            fresh += 1;
+            link = await ref.read(apiProvider).resumeUpload(appId, id);
+            offset = await transport.offset(link.uploadUrl);
+            continue;
+          }
           if (!e.isOffline || failures >= 3) rethrow;
           failures += 1;
           await Future<void>.delayed(retryDelay * failures);
-          offset = await transport.offset(upload.uploadUrl);
+          offset = await transport.offset(link.uploadUrl);
         }
         _set(state[id]!.copyWith(sent: offset));
       }

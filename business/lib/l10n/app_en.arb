@@ -1139,6 +1139,30 @@
       }
     }
   },
+  "uploadRefused": "The media server refused the upload (HTTP {status}). Its firewall may be blocking uploads. Try again later, or message us on WhatsApp if it keeps happening.",
+  "@uploadRefused": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadStorageDown": "Media storage on the server isn't available right now (HTTP {status}). Nothing uploaded so far is lost. Try again later, or message us on WhatsApp.",
+  "@uploadStorageDown": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadChunkTooBig": "The media server refused a part of this file as too big (HTTP {status}). Message us on WhatsApp.",
+  "@uploadChunkTooBig": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {

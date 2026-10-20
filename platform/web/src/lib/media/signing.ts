@@ -6,14 +6,24 @@ import { safeEqual } from "../crypto/tokens";
  * platform's own /media route in local runs). The platform signs each one;
  * the gate checks it before it touches the disk.
  *
- *   <base>/<op>/<app id>/<media id>.<ext>?expires=<unix seconds>[&size=<bytes>][&dl=1]&sig=<hex>
- *   sig = hex HMAC-SHA256(secret, "/<op>/<app id>/<file>?<the other parameters, sorted, key=value joined by &>")
+ *   <base>/<op>/<app id>/<media id>/<ext>?expires=<unix seconds>[&size=<bytes>][&dl=1]&sig=<hex>
+ *   sig = hex HMAC-SHA256(secret, "/<op>/<app id>/<media id>/<ext>?<the other parameters, sorted, key=value joined by &>")
+ *
+ * 64b The extension is a path segment of its own: web servers in front of
+ * PHP (LiteSpeed, nginx on cPanel hosts) answer paths ending in `.mp4`,
+ * `.jpg`… themselves as static files and never pass them to the gate. Links
+ * signed before, `<media id>.<ext>`, keep working; the platform signs only
+ * the new form. On disk the file stays `<app id>/<media id>.<ext>`.
  *
  * The operation is part of what's signed, so a link to watch a video can't
  * upload to it, and an upload link can't write more than its `size`.
  * - `v` GET or HEAD: the file, with range requests; `dl=1` as an attachment.
  * - `u` HEAD: how much is uploaded (Upload-Offset); PUT: the next chunk at
  *   Upload-Offset, up to `size` in all. The last chunk completes the file.
+ *   64b POST does what PUT does, with any Content-Type, and answers 200 with
+ *   `{"offset":N}` (server firewalls often refuse PUT); GET answers
+ *   `{"offset":N,"length":size}`. The offset may also come as `&offset=N`,
+ *   which isn't signed (a proxy may drop the Upload-Offset header).
  * - `s` GET: what's on disk, as JSON (the platform's check after an upload).
  * - `d` DELETE: removes the file (and an unfinished upload).
  * 62 And on an app's whole folder, `<base>/a/<app id>` and `<base>/l/apps`:
@@ -32,7 +42,8 @@ export const MEDIA_EXTENSIONS = ["mp4", "mov", "webm", "jpg", "png", "webp", "gi
 export type MediaExtension = (typeof MEDIA_EXTENSIONS)[number];
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const PATH = new RegExp(`^/(v|u|s|d)/(${UUID})/(${UUID})\\.(${MEDIA_EXTENSIONS.join("|")})$`);
+/** 64b `<media id>/<ext>` (signed now), or `<media id>.<ext>` (links signed before). */
+const PATH = new RegExp(`^/(v|u|s|d)/(${UUID})/(${UUID})[./](${MEDIA_EXTENSIONS.join("|")})$`);
 /** 62 An app's folder (`a`), or the list of folders (`l`). */
 const FOLDER_PATH = new RegExp(`^/(?:a/(${UUID})|l/apps)$`);
 
@@ -53,9 +64,12 @@ export function parseMediaPath(path: string): { op: MediaOp; appId: string; medi
   return { op, appId, mediaId, extension, key: storageKeyOf(appId, mediaId, extension) };
 }
 
+/** 64b Not signed: `sig` itself, and a chunk's `offset` (the uploader adds it to the signed link). */
+const UNSIGNED = new Set(["sig", "offset"]);
+
 function canonical(path: string, params: Record<string, string>): string {
   const query = Object.keys(params)
-    .filter((k) => k !== "sig")
+    .filter((k) => !UNSIGNED.has(k))
     .sort()
     .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(params[k]!)}`)
     .join("&");
@@ -64,6 +78,11 @@ function canonical(path: string, params: Record<string, string>): string {
 
 export function mediaSignature(secret: string, path: string, params: Record<string, string>): string {
   return createHmac("sha256", secret).update(canonical(path, params)).digest("hex");
+}
+
+/** 64b The path of a link to the file at `key` (`<app id>/<media id>.<ext>`): the extension as a segment of its own. */
+export function linkPathOf(op: MediaOp, key: string): string {
+  return op === "a" || op === "l" ? `/${op}/${key}` : `/${op}/${key.replace(/\.([a-z0-9]{2,4})$/, "/$1")}`;
 }
 
 /** A signed link to `op` on the file at `key`, working for `ttlSeconds`. */
@@ -75,7 +94,7 @@ export function signMediaUrl(
 ): { url: string; expiresAt: Date } {
   const now = options.now ?? new Date();
   const expires = Math.floor(now.getTime() / 1000) + Math.max(1, Math.floor(options.ttlSeconds));
-  const path = `/${op}/${key}`;
+  const path = linkPathOf(op, key);
   const params: Record<string, string> = { ...(options.params ?? {}), expires: String(expires) };
   for (const value of Object.values(params)) if (!/^\d+$/.test(value)) throw new Error("Media link parameters are digits only");
   const sig = mediaSignature(options.secret, path, params);
@@ -108,13 +127,13 @@ export function verifyMediaRequest(path: string, search: URLSearchParams, secret
   if (!parsed) return { ok: false, status: 404, message: "Not found." };
   const params: Record<string, string> = {};
   search.forEach((value, key) => {
-    params[key] = value;
+    if (key !== "offset") params[key] = value;
   });
   const sig = params.sig ?? "";
   const expires = params.expires ?? "";
   const invalid = { ok: false as const, status: 403 as const, message: "This link is not valid." };
   if (!/^[0-9a-f]{64}$/.test(sig) || !/^\d+$/.test(expires)) return invalid;
-  if (Object.entries(params).some(([k, v]) => k !== "sig" && !/^\d+$/.test(v))) return invalid;
+  if (Object.entries(params).some(([k, v]) => !UNSIGNED.has(k) && !/^\d+$/.test(v))) return invalid;
   if (!safeEqual(sig, mediaSignature(secret, path, params))) return invalid;
   if (Number(expires) < Math.floor(now.getTime() / 1000)) return { ok: false, status: 410, message: "This link has expired." };
   if (params.t !== undefined) {
