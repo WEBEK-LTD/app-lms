@@ -248,11 +248,27 @@ class MembershipCard extends StatelessWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final m = membership;
+    final now = DateTime.now();
+    // 64 Frozen: the door doesn't let them in until it's back.
+    final frozen = m.isActive && m.frozenAt(now);
     final (String status, Color color) = switch (m.status) {
+      MembershipStatus.active when frozen => (
+        l10n.membershipFrozen,
+        p.textSecondary,
+      ),
       MembershipStatus.active => (l10n.membershipActive, p.success),
       MembershipStatus.expired => (l10n.membershipEnded, p.textSecondary),
       MembershipStatus.cancelled => (l10n.membershipCancelled, p.danger),
     };
+    final String? freeze = !m.isActive || m.frozenFrom == null
+        ? null
+        : frozen
+        ? (m.frozenUntil == null
+              ? l10n.membershipFrozenOpen
+              : l10n.membershipFrozenUntil(shortDate(m.frozenUntil!)))
+        : now.isBefore(m.frozenFrom!)
+        ? l10n.membershipFreezesOn(shortDate(m.frozenFrom!))
+        : null;
     final until = m.endsAt == null
         ? l10n.membershipNoEnd
         : l10n.membershipUntil(shortDate(m.endsAt!));
@@ -297,9 +313,25 @@ class MembershipCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(until, style: TextStyle(fontSize: 13, color: p.textSecondary)),
+          if (freeze != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              freeze,
+              key: const ValueKey('membership-freeze'),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: p.text,
+              ),
+            ),
+          ],
           if (m.isActive && m.memberCode != null) ...[
             const SizedBox(height: 14),
-            _MemberCodeCard(plan: m.planName, code: m.memberCode!),
+            _MemberCodeCard(
+              plan: m.planName,
+              code: m.memberCode!,
+              frozen: frozen,
+            ),
           ],
         ],
       ),
@@ -310,10 +342,17 @@ class MembershipCard extends StatelessWidget {
 /// 63 A gym member's code for the door: the QR code the gym scans and the
 /// code to type, kept on the phone so it shows without a connection.
 class _MemberCodeCard extends StatelessWidget {
-  const _MemberCodeCard({required this.plan, required this.code});
+  const _MemberCodeCard({
+    required this.plan,
+    required this.code,
+    this.frozen = false,
+  });
 
   final String plan;
   final MemberCode code;
+
+  /// 64 Frozen: the code doesn't promise to let them in.
+  final bool frozen;
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +389,7 @@ class _MemberCodeCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            l10n.membershipShowAtDoor,
+            frozen ? l10n.membershipFrozenAtDoor : l10n.membershipShowAtDoor,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
           ),

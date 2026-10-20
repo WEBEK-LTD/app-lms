@@ -2582,5 +2582,39 @@
   "reviewHiddenNote": "Hidden by the academy. Only you can see it.",
   "@reviewHiddenNote": {
     "description": "Under the student's own review when the business hid it."
+  },
+  "qnaHiddenNote": "Hidden by the academy. Only you can see it.",
+  "@qnaHiddenNote": {
+    "description": "Under the student's own question or answer in a course when the business hid it."
+  },
+  "membershipFrozen": "Frozen",
+  "@membershipFrozen": {
+    "description": "Status of a membership the business froze."
+  },
+  "membershipFrozenUntil": "Frozen until {date}",
+  "@membershipFrozenUntil": {
+    "description": "On a frozen membership: the day it's back.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipFrozenOpen": "Frozen until it's unfrozen",
+  "@membershipFrozenOpen": {
+    "description": "On a frozen membership without a day it's back."
+  },
+  "membershipFreezesOn": "Frozen from {date}",
+  "@membershipFreezesOn": {
+    "description": "On a membership the business will freeze from a later day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "membershipFrozenAtDoor": "Your membership is frozen, so this code won't let you in until it's back.",
+  "@membershipFrozenAtDoor": {
+    "description": "Under a gym member's QR code while the membership is frozen."
   }
 }

@@ -464,10 +464,13 @@ class FakeApi implements YallappApi {
         return CourseQuestion.fromJson(question);
       });
 
+  /// 64 The thread `getQuestion` answers; the fixture's when null.
+  Map<String, dynamic>? thread;
+
   @override
   Future<QuestionThread> getQuestion(int questionId) => _answer(
     'getQuestion',
-    () => QuestionThread.fromJson(questionThreadJson()),
+    () => QuestionThread.fromJson(thread ?? questionThreadJson()),
   );
 
   String? lastAnswer;

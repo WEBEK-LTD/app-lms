@@ -317,6 +317,7 @@ class QuestionAnswer {
     required this.author,
     required this.createdAt,
     required this.mine,
+    this.hidden = false,
   });
 
   factory QuestionAnswer.fromJson(Json json) => QuestionAnswer(
@@ -325,6 +326,7 @@ class QuestionAnswer {
     author: Person.fromJson(asJson(json['author'], 'author')),
     createdAt: reqDate(json, 'created_at'),
     mine: boolOr(json, 'mine', false),
+    hidden: boolOr(json, 'hidden', false),
   );
 
   final int id;
@@ -332,6 +334,9 @@ class QuestionAnswer {
   final Person author;
   final DateTime createdAt;
   final bool mine;
+
+  /// 64 Hidden by the business: only its author gets it, and is told.
+  final bool hidden;
 }
 
 /// A question in a course's Q&A, without its answers.
@@ -344,6 +349,7 @@ class CourseQuestion {
     required this.answerCount,
     required this.mine,
     this.courseId,
+    this.hidden = false,
   });
 
   factory CourseQuestion.fromJson(Json json) => CourseQuestion(
@@ -354,6 +360,7 @@ class CourseQuestion {
     createdAt: reqDate(json, 'created_at'),
     answerCount: intOr(json, 'answer_count', 0),
     mine: boolOr(json, 'mine', false),
+    hidden: boolOr(json, 'hidden', false),
   );
 
   final int id;
@@ -363,6 +370,9 @@ class CourseQuestion {
   final DateTime createdAt;
   final int answerCount;
   final bool mine;
+
+  /// 64 Hidden by the business: only its author gets it, and is told.
+  final bool hidden;
 }
 
 /// `GET /questions/{id}`: a question and its answers, oldest first.

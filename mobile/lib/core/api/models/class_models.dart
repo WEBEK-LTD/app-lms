@@ -162,11 +162,15 @@ class Membership {
     this.endsAt,
     this.creditsLeft,
     this.memberCode,
+    this.frozenFrom,
+    this.frozenUntil,
   });
 
   factory Membership.fromJson(Json json) {
     final plan = asJson(json['plan'], 'plan');
     final code = json['member_code'];
+    final frozen = json['frozen'];
+    final freeze = frozen is Map ? asJson(frozen, 'frozen') : null;
     return Membership(
       id: reqInt(json, 'id'),
       planId: reqInt(plan, 'id'),
@@ -187,6 +191,8 @@ class Membership {
       memberCode: code is Map
           ? MemberCode.fromJson(asJson(code, 'member_code'))
           : null,
+      frozenFrom: freeze == null ? null : optDate(freeze, 'from'),
+      frozenUntil: freeze == null ? null : optDate(freeze, 'until'),
     );
   }
 
@@ -199,6 +205,12 @@ class Membership {
     'ends_at': endsAt?.toUtc().toIso8601String(),
     'credits_left': creditsLeft,
     'member_code': memberCode?.toJson(),
+    'frozen': frozenFrom == null
+        ? null
+        : {
+            'from': frozenFrom!.toUtc().toIso8601String(),
+            'until': frozenUntil?.toUtc().toIso8601String(),
+          },
   };
 
   final int id;
@@ -218,6 +230,18 @@ class Membership {
 
   /// 63 What a gym's member shows at the door; null for other apps.
   final MemberCode? memberCode;
+
+  /// 64 A freeze now or to come (`Membership.frozen`): from the start of a
+  /// day until the day it's back (null: until the business unfreezes it).
+  final DateTime? frozenFrom;
+  final DateTime? frozenUntil;
+
+  /// 64 Frozen at [now]: the door doesn't let them in and classes can't be
+  /// booked. Read on the phone, so it's right offline too.
+  bool frozenAt(DateTime now) =>
+      frozenFrom != null &&
+      !now.isBefore(frozenFrom!) &&
+      (frozenUntil == null || now.isBefore(frozenUntil!));
 }
 
 /// 63 A member's code for the gym's door (`Membership.member_code`).

@@ -3581,4 +3581,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reviewHiddenNote => 'أخفته الأكاديمية، ولا يراه غيرك.';
+
+  @override
+  String get qnaHiddenNote => 'أخفته الأكاديمية عن الآخرين، ولا يراه غيرك.';
+
+  @override
+  String get membershipFrozen => 'مجمّدة';
+
+  @override
+  String membershipFrozenUntil(String date) {
+    return 'مجمّدة حتى $date';
+  }
+
+  @override
+  String get membershipFrozenOpen => 'مجمّدة حتى يُلغى التجميد';
+
+  @override
+  String membershipFreezesOn(String date) {
+    return 'تُجمَّد من $date';
+  }
+
+  @override
+  String get membershipFrozenAtDoor =>
+      'عضويتك مجمّدة، فلن يُدخلك هذا الرمز حتى تعود.';
 }
