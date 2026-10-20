@@ -419,8 +419,8 @@ mobile/
     and the store review number always gets in. WordPress sites keep their
     users on their own site: no limit there.
   - **Plugin:** the license API reports the plan's features and limits; the
-    plugin's `features.push` and `features.offline` follow them when the
-    license is enforced.
+    plugin's `features.push` and `features.offline` follow them (the license
+    is enforced on every live site from plugin 0.4.6, Phase 68).
   - **App:** offline mode keeps GET answers (never sign-in calls, at most 150,
     forgotten on sign-out) and shows them without a connection. Saving
     lessons for offline viewing (Phase 45) needs the same plan feature and
@@ -1726,6 +1726,67 @@ its data to be deleted without the app. The address to give both stores is
      "Cancel the request" closes it without an email. Both are in the audit
      log. A request by email is handled the same way after checking it came
      from the account's address.
+
+## An ended plan stops the app everywhere (Phase 68)
+
+When a client's plan ends, their app stops everywhere, whatever serves it,
+and comes back as soon as the plan is renewed. Nothing stores "ended": every
+part asks the same question against the plan's end date at that moment,
+`appIsActive(license, client, now)` (`lib/license/status.ts`): the account is
+active and the app's own license hasn't reached `expires_at`.
+
+- **Hosted API** (`/api/app/<app id>`): paused with 503 `license_inactive`
+  (or `account_suspended`) and the owner's `contact` on every call,
+  `GET /config` included, so the app shows "{App} is paused". The owner's
+  preview still answers. `OPEN_WHILE_PAUSED` (`lib/hosted/service.ts`) keeps
+  `POST /auth/refresh`, `POST /auth/logout` and `DELETE /me` answering, so
+  someone signed in can always delete their account (Apple 5.1.1(v), Google
+  Play). Signing in stays paused (no codes are sent for an ended plan).
+- **WordPress** (plugin 0.4.6): the license is enforced on every site.
+  `License_Client::state_of()` reads the stored status: `active` until its
+  `expires_at` passes (compared with the site's clock, so the app pauses on
+  time even when the site can't reach Yallapp), `unreachable` when an active
+  plan hasn't been confirmed for 72 hours (the grace only covers network
+  failures before the end), else what the platform said (`expired`,
+  `suspended`, `invalid`, `none`). While it isn't `active` the Gatekeeper
+  answers 503 with the contact from the plugin settings (`/config` too),
+  except `POST /license/refresh` and the same three account routes; push and
+  offline mode follow the plan. Only a development site (`WP_ENVIRONMENT_TYPE`
+  `local` or `development`) can switch the checks off, with
+  `YALLAPP_ENFORCE_LICENSE` false (the dev site's `wp-config.php` does) or the
+  `yallapp_enforce_license` filter. Settings › License says active until …,
+  ended on … with how to renew, suspended, or not confirmed.
+- **Telling the site at once**: the frequent job (every 5 minutes,
+  `refreshEndedSites` in `lib/license/refresh.ts`) sends the signed
+  `POST /license/refresh` to the site of every license that ended in the last
+  3 days, once per end date: `licenses.end_refreshed_for` (migration 0049)
+  is set by one conditional update, so two runs at once ask once, and a
+  renewed plan's next end is told again. Five sites at once, within 15
+  seconds; the rest on the next run. Renewing (card payment, the admin)
+  already nudges the site, so the app comes back within seconds.
+- **Notifications** to the app's users stop through one check,
+  `appMaySend` in `sendAppNotification` and `scheduleAppNotification`
+  (`lib/hosted/send-notification.ts`, `scheduled-notifications.ts`): the
+  dashboard (a notice above the form), the Owner API (403 `plan_not_active`,
+  `push` false; Yallapp Business's composer says so and waits) and the
+  frequent job. A notification sent later whose time comes after the end is
+  marked `failed` with its reason and never sent late after a renewal; the
+  owner sends it again. While an account is suspended or pending they wait,
+  as before. Yallapp's team can still send from the admin.
+- **Builds**: `GET /api/v1/builds/queue` checks each queued build again
+  (`takeQueuedBuilds`, `lib/builds/queue.ts`): one whose plan ended or
+  whose account was suspended after it was queued is closed as `failed`
+  (`license_inactive` in `pipeline.yaml`) with the reason, the client is
+  emailed, and the pipeline never sees it.
+- **The customer's app**: the paused screen keeps "Contact {App}" and "Try
+  again", and offers "Delete account" to someone signed in (asked and
+  answered on the screen, which sits above the app's navigator). Someone
+  not signed in asks the owner (the Contact button); our team can delete an
+  app user from the client's page in the admin. `/delete-account` (Phase 66)
+  is for Yallapp accounts.
+- **What stays**: the dashboard and Yallapp Business stay readable and
+  editable for an expired app, as before (uploads to Media and notifications
+  wait for the plan); nothing is deleted.
 
 ## Demo apps (Phase 16)
 

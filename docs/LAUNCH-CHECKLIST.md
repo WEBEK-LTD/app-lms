@@ -832,6 +832,50 @@ never in a chat or an issue.
 - [ ] If `yallapp.netlify.app` addresses show up in Google, leave them: their
       canonical names yallapp.com.tr and Google moves them over in time.
 
+## 7r. An ended plan stops the app everywhere (Phase 68)
+
+- [ ] Apply migration `0049_license_end_refresh.sql` after `0048`
+      (`end_refreshed_for` on `licenses`). Deploy the platform after it: the
+      frequent job reads that column (until it exists, only that part of the
+      job logs an error; notifications and announcements still go out).
+- [ ] **Release plugin 0.4.6** (Admin › App & plugin versions) with the
+      changelog from `wp-plugin/yallapp/readme.txt`.
+- [ ] Tell every WordPress client to **update to plugin 0.4.6** (Plugins ›
+      Updates, or upload the zip). Until they do, their site keeps the old
+      "Test mode": the app keeps working after the plan ends (only the
+      sign-in codes and Media videos Yallapp serves stop). WordPress offers
+      the update only while the license is active, so a client whose plan
+      already ended updates by uploading the zip, or after renewing.
+- [ ] Tell them what changes with 0.4.6, before it reaches them:
+      - The license is enforced on the live site. A site without an active
+        license key shows the app as paused, so check that Settings ›
+        License says "Active" after updating.
+      - Push notifications and offline lessons follow the plan, as on the
+        dashboard (a plan without push sends only to the app's inbox).
+      - When the plan ends, the app shows "{App} is paused" with the contact
+        from the plugin settings (Support WhatsApp and email: check they're
+        filled in), sends no notifications, and comes back within minutes of
+        renewing. The same while the Yallapp account is suspended.
+      - A site that can't reach yallapp.com.tr for over 3 days pauses too
+        (firewalls blocking outgoing requests); "Check now" brings it back.
+      - Development copies set `WP_ENVIRONMENT_TYPE` to `local` (or
+        `development`) and `define( 'YALLAPP_ENFORCE_LICENSE', false );` to
+        work without a license; it is ignored on live sites.
+- [ ] What app users see when a plan ends, on every backend: the paused
+      screen with "Contact {App}" and "Try again"; someone signed in can
+      still delete their account there. Someone not signed in can't sign in
+      to delete it: they ask the owner, or our team deletes the app user
+      from Admin › the client › App users. Hosted apps already paused on the
+      end date; now pushes stop too (notifications sent later and due after
+      the end show "Not sent" on the dashboard and in Yallapp Business), and
+      a build queued before the end is closed with the reason instead of
+      being built.
+- [ ] After deploying: on a test WordPress site with 0.4.6, let a test
+      license end (its end date in the admin); within 5 minutes of the end
+      the site's License card says "Ended on …" and the app shows
+      the paused screen; delete a signed-in test account from that screen;
+      extend the license and check the app comes back.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
