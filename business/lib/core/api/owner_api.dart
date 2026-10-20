@@ -161,6 +161,32 @@ abstract class OwnerApi {
   Future<InquiryDetail> inquiry(String appId, int inquiryId);
   Future<InquiryDetail> replyInquiry(String appId, int inquiryId, String text);
 
+  // 63 Course questions (Messages) and reviews (Catalog & content).
+  Future<QuestionsPage> questions(String appId, {String? status, int page = 1});
+  Future<QuestionDetail> question(String appId, int questionId);
+  Future<QuestionDetail> answerQuestion(
+    String appId,
+    int questionId,
+    String text,
+  );
+  Future<ReviewsPage> reviews(
+    String appId, {
+    String filter = 'all',
+    int page = 1,
+  });
+  Future<Review> setReviewHidden(String appId, int reviewId, bool hidden);
+  Future<Review> replyReview(String appId, int reviewId, String text);
+  Future<Review> deleteReviewReply(String appId, int reviewId);
+
+  // 63 A gym's members at the door.
+  Future<MembersPage> members(String appId, {String? query, int page = 1});
+  Future<MemberCheckIn> checkInMember(
+    String appId, {
+    String? code,
+    int? membershipId,
+  });
+  Future<MemberVisits> memberCheckIns(String appId, {String? date});
+
   // App users
   Future<AppUsersPage> appUsers(String appId, {String? query, int page = 1});
 

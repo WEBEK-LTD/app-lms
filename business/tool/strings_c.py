@@ -124,7 +124,7 @@ S = [
 ("pushNewBooking", "New bookings", "الحجوزات الجديدة", "Yeni randevular"),
 ("pushNewBookingHelp", "When an appointment is booked.", "عند حجز موعد.", "Bir randevu alındığında."),
 ("pushNewMessage", "New messages", "الرسائل الجديدة", "Yeni mesajlar"),
-("pushNewMessageHelp", "When someone writes about a listing.", "عندما يكتب أحدهم بخصوص عقار.", "Biri bir ilan hakkında yazdığında."),
+("pushNewMessageHelp", "When someone writes about a listing, or a student asks in a course.", "عندما يكتب أحدهم بخصوص عقار، أو يسأل طالب في دورة.", "Biri bir ilan hakkında yazdığında ya da bir öğrenci kursta soru sorduğunda."),
 ("pushPayment", "Payments", "المدفوعات", "Ödemeler"),
 ("pushPaymentHelp", "Donations, and your payments to Yallapp.", "التبرعات، ومدفوعاتك إلى Yallapp.", "Bağışlar ve Yallapp'e yaptığınız ödemeler."),
 ("pushBuild", "Builds", "الإصدارات", "Derlemeler"),

@@ -9,7 +9,6 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../account/apps_screen.dart';
-import '../media/media_screen.dart';
 
 final licenseProvider = FutureProvider.autoDispose<License>(
   (ref) => ref.watch(apiProvider).license(ref.watch(appIdProvider)),
@@ -134,11 +133,6 @@ class PlanScreen extends ConsumerWidget {
                           semanticsValue: context.percent(storage.share!),
                         ),
                       ],
-                      const SizedBox(height: 4),
-                      Text(
-                        formatBytes(storage.usedBytes),
-                        style: theme.textTheme.bodySmall,
-                      ),
                     ],
                   ),
                 ),

@@ -593,4 +593,125 @@ void main() {
       '/api/owner/v1/apps/a/notifications/scheduled/3',
     );
   });
+
+  test(
+    '63 questions, reviews and the door: paths, bodies and answers',
+    () async {
+      api = build((o, body) async {
+        final path = o.uri.path;
+        if (path.endsWith('/questions')) {
+          return json(200, {
+            'page': 1,
+            'per_page': 20,
+            'total': 1,
+            'total_pages': 1,
+            'open': 1,
+            'items': [
+              {
+                'id': 31,
+                'course_id': 10,
+                'course_title': 'Arabic',
+                'person': 'Omar',
+                'text': 'Worksheet?',
+                'status': 'open',
+                'answer_count': 0,
+                'created_at': '2026-10-20T08:00:00Z',
+                'updated_at': '2026-10-20T08:00:00Z',
+              },
+            ],
+          });
+        }
+        if (path.endsWith('/answers')) {
+          return json(201, {
+            'id': 31,
+            'course_id': 10,
+            'course_title': 'Arabic',
+            'person': 'Omar',
+            'text': 'Worksheet?',
+            'status': 'answered',
+            'answer_count': 1,
+            'created_at': '2026-10-20T08:00:00Z',
+            'updated_at': '2026-10-20T09:00:00Z',
+            'answers': [
+              {
+                'id': 1,
+                'from': 'business',
+                'name': 'Nile Academy',
+                'text': 'Yes',
+                'created_at': '2026-10-20T09:00:00Z',
+              },
+            ],
+          });
+        }
+        if (path.contains('/reviews/')) {
+          return json(200, {
+            'id': 41,
+            'course_id': 10,
+            'course_title': 'Arabic',
+            'person': 'Fatma',
+            'rating': 5,
+            'text': 'Great',
+            'hidden': true,
+            'reply': {'text': 'Thanks', 'created_at': '2026-10-20T09:00:00Z'},
+            'created_at': '2026-10-20T08:00:00Z',
+            'updated_at': '2026-10-20T09:00:00Z',
+          });
+        }
+        if (path.endsWith('/members/check-in')) {
+          return json(200, {
+            'outcome': 'already_in',
+            'admitted': false,
+            'message': 'Already checked in today at 09:12',
+            'member': {
+              'membership_id': 1,
+              'name': 'Sara',
+              'plan_name': 'Monthly',
+              'ends_at': null,
+              'credits_left': null,
+              'checked_in_at': '2026-10-20T06:12:00Z',
+            },
+          });
+        }
+        return json(200, {
+          'date': '2026-10-20',
+          'time_zone': 'Africa/Cairo',
+          'count': 0,
+          'items': [],
+        });
+      });
+      final questions = await api.questions('a', status: 'open');
+      expect(adapter.requests.last.uri.path, '/api/owner/v1/apps/a/questions');
+      expect(adapter.requests.last.uri.queryParameters['status'], 'open');
+      expect(questions.open, 1);
+      expect(questions.page.items.single.open, isTrue);
+      final answered = await api.answerQuestion('a', 31, 'Yes');
+      expect(jsonDecode(adapter.bodies.last!), {'text': 'Yes'});
+      expect(answered.answers.single.fromBusiness, isTrue);
+      final hidden = await api.setReviewHidden('a', 41, true);
+      expect(adapter.requests.last.method, 'PATCH');
+      expect(jsonDecode(adapter.bodies.last!), {'hidden': true});
+      expect(hidden.hidden, isTrue);
+      expect(hidden.reply?.text, 'Thanks');
+      await api.replyReview('a', 41, 'Thanks');
+      expect(adapter.requests.last.method, 'PUT');
+      expect(
+        adapter.requests.last.uri.path,
+        '/api/owner/v1/apps/a/reviews/41/reply',
+      );
+      await api.deleteReviewReply('a', 41);
+      expect(adapter.requests.last.method, 'DELETE');
+      final door = await api.checkInMember('a', code: ' YM1.1.Q4MZ7KP2XH9D ');
+      expect(jsonDecode(adapter.bodies.last!), {'code': 'YM1.1.Q4MZ7KP2XH9D'});
+      expect(door.outcome, 'already_in');
+      expect(door.member?.checkedInAt, DateTime.utc(2026, 10, 20, 6, 12));
+      await api.checkInMember('a', membershipId: 7);
+      expect(jsonDecode(adapter.bodies.last!), {'membership_id': 7});
+      final visits = await api.memberCheckIns('a');
+      expect(
+        adapter.requests.last.uri.path,
+        '/api/owner/v1/apps/a/members/check-ins',
+      );
+      expect(visits.count, 0);
+    },
+  );
 }

@@ -1219,7 +1219,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pushNewMessage => 'Yeni mesajlar';
 
   @override
-  String get pushNewMessageHelp => 'Biri bir ilan hakkında yazdığında.';
+  String get pushNewMessageHelp =>
+      'Biri bir ilan hakkında yazdığında ya da bir öğrenci kursta soru sorduğunda.';
 
   @override
   String get pushPayment => 'Ödemeler';
@@ -1622,6 +1623,207 @@ class AppLocalizationsTr extends AppLocalizations {
   String get enterEmail => 'E-postasını girin.';
 
   @override
+  String get inboxMessages => 'Mesajlar';
+
+  @override
+  String get inboxQuestions => 'Sorular';
+
+  @override
+  String get inboxReviews => 'Değerlendirmeler';
+
+  @override
+  String get questionsWaiting => 'Sizi bekleyenler';
+
+  @override
+  String get questionsAnswered => 'Yanıtlananlar';
+
+  @override
+  String get noQuestions => 'Burada soru yok';
+
+  @override
+  String get noQuestionsText =>
+      'Öğrencilerin kurslarınızda sorduğu sorular buraya gelir.';
+
+  @override
+  String inCourse(String course) {
+    return '$course kursunda';
+  }
+
+  @override
+  String get questionTitle => 'Soru';
+
+  @override
+  String get writeAnswer => 'Yanıtınızı yazın';
+
+  @override
+  String get answerSent => 'Yanıt gönderildi. Öğrenciye bildirildi.';
+
+  @override
+  String get reviewsAll => 'Tümü';
+
+  @override
+  String get reviewsUnreplied => 'Yanıtsız';
+
+  @override
+  String get noReviews => 'Burada değerlendirme yok';
+
+  @override
+  String get noReviewsText =>
+      'Öğrencilerin kurslarınız için yazdığı değerlendirmeler buraya gelir.';
+
+  @override
+  String ratingOutOf(String rating) {
+    return '5 üzerinden $rating';
+  }
+
+  @override
+  String get noRatingYet => 'Uygulamada henüz görünen değerlendirme yok.';
+
+  @override
+  String get hiddenFromOthers => 'Başkalarından gizli';
+
+  @override
+  String get hideReview => 'Gizle';
+
+  @override
+  String get showReview => 'Yeniden göster';
+
+  @override
+  String get reviewHiddenDone => 'Gizlendi. Yalnızca yazarı görür.';
+
+  @override
+  String get reviewShownDone => 'Uygulamada yeniden görünüyor.';
+
+  @override
+  String get replyToReview => 'Yanıtla';
+
+  @override
+  String get changeReply => 'Yanıtı değiştir';
+
+  @override
+  String get removeReply => 'Yanıtı kaldır';
+
+  @override
+  String get yourReply => 'Yanıtınız';
+
+  @override
+  String get replyPublicHelp =>
+      'Uygulamanızda herkes değerlendirmenin altında görür.';
+
+  @override
+  String get replySaved => 'Yanıt kaydedildi';
+
+  @override
+  String get replyRemoved => 'Yanıt kaldırıldı';
+
+  @override
+  String get pushNewReview => 'Yeni değerlendirmeler';
+
+  @override
+  String get pushNewReviewHelp => 'Bir öğrenci bir kursu değerlendirdiğinde.';
+
+  @override
+  String get members => 'Üyeler';
+
+  @override
+  String get scanMembers => 'Üyeleri tara';
+
+  @override
+  String get memberScanHint => 'Üyenin QR kodunu çerçevenin içinde tutun.';
+
+  @override
+  String get memberCameraLabel => 'Kamera, üyenin QR koduna doğrultun';
+
+  @override
+  String get typeMemberCodeTitle => 'Üyeyi koduyla kontrol edin';
+
+  @override
+  String get memberCodeLabel => 'Üye kodu';
+
+  @override
+  String get findByName => 'Adıyla bul';
+
+  @override
+  String get welcomeIn => 'Hoş geldiniz, girebilir';
+
+  @override
+  String get alreadyInToday => 'Bugün zaten girdi';
+
+  @override
+  String alreadyInAt(String time) {
+    return 'Bugün $time saatinde giriş yaptı';
+  }
+
+  @override
+  String get membershipEnded => 'Üyelik sona erdi';
+
+  @override
+  String endedOn(String date) {
+    return '$date tarihinde sona erdi';
+  }
+
+  @override
+  String get membershipCancelled => 'Üyelik iptal edildi';
+
+  @override
+  String get membershipNotStarted => 'Üyelik henüz başlamadı';
+
+  @override
+  String get noClassesLeft => 'Ders hakkı kalmadı';
+
+  @override
+  String get notAMemberCode => 'Bu uygulamanın üye kodu değil';
+
+  @override
+  String get memberNotFound => 'Bu koda ait üyelik yok';
+
+  @override
+  String checkInNamed(String name) {
+    return '$name için giriş yap';
+  }
+
+  @override
+  String get searchMembers => 'Ad ya da cep telefonu';
+
+  @override
+  String get noMembersFound => 'Bu aramaya uyan üye yok';
+
+  @override
+  String get noMembers => 'Henüz üye yok';
+
+  @override
+  String get cameInToday => 'Bugün gelenler';
+
+  @override
+  String get nobodyInYet => 'Bugün henüz kimse giriş yapmadı.';
+
+  @override
+  String checkedInBy(String time, String name) {
+    return '$time · $name tarafından';
+  }
+
+  @override
+  String inAt(String time) {
+    return 'Giriş: $time';
+  }
+
+  @override
+  String memberUntil(String date) {
+    return '$date tarihine kadar';
+  }
+
+  @override
+  String get unlimitedClasses => 'Sınırsız ders';
+
+  @override
+  String get memberCheckInsToday => 'Bugün gelen üyeler';
+
+  @override
+  String ticketCountsNoLimit(String used, String left) {
+    return '$used girdi · $left gelecek · kapasite sınırı yok';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -1687,5 +1889,51 @@ class AppLocalizationsTr extends AppLocalizations {
       zero: 'Bugün bitiyor',
     );
     return '$_temp0 ($date)';
+  }
+
+  @override
+  String classesLeftCount(int count) {
+    return '$count ders kaldı';
+  }
+
+  @override
+  String answersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yanıt',
+      zero: 'Henüz yanıt yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String membersInCount(int count) {
+    return 'Bugün $count üye geldi';
+  }
+
+  @override
+  String reviewsAverage(String rating, int count) {
+    return '$count değerlendirmeden 5 üzerinden $rating';
+  }
+
+  @override
+  String needsOrdersInProgress(int count) {
+    return 'Hazırlanan $count sipariş';
+  }
+
+  @override
+  String needsToConfirm(int count) {
+    return 'Onay bekleyen $count randevu';
+  }
+
+  @override
+  String needsUnanswered(int count) {
+    return 'Yanıtınızı bekleyen $count konuşma';
+  }
+
+  @override
+  String needsQuestions(int count) {
+    return 'Yanıtlanacak $count kurs sorusu';
   }
 }

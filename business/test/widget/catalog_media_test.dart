@@ -121,7 +121,8 @@ void main() {
       final app = TestApp();
       await app.pump(tester);
       await push(tester, app, '/media');
-      expect(find.text('0.0 GB of 20 GB used'), findsOneWidget);
+      // 63 Under a GB in MB, as the server writes it.
+      expect(find.textContaining(' MB of 20 GB used'), findsOneWidget);
       expect(find.text('menu-cover.jpg'), findsOneWidget);
       await tapOn(tester, find.text('Manage on yallapp.com.tr'));
       expect(app.opened, ['https://yallapp.com.tr/dashboard/media']);

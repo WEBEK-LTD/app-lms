@@ -6,6 +6,7 @@ import '../../core/providers.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
+import '../../core/widgets/markdown_text.dart';
 import '../../core/widgets/states.dart';
 import 'today_screen.dart';
 
@@ -69,8 +70,13 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
       appBar: AppBar(
         title: Text(l10n.updatesTitle),
         actions: [
+          // 63 An icon with its label as a tooltip, so the title has room.
           if ((updates.value?.unread ?? 0) > 0)
-            TextButton(onPressed: _markAll, child: Text(l10n.markAllRead)),
+            IconButton(
+              tooltip: l10n.markAllRead,
+              onPressed: _markAll,
+              icon: const Icon(AppIcons.markAllRead),
+            ),
         ],
       ),
       body: RefreshIndicator(
@@ -114,15 +120,14 @@ class _UpdateCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
-    final kind =
-        update.kindLabel ??
-        switch (update.kind) {
-          'update' => l10n.kindUpdate,
-          'maintenance' => l10n.kindMaintenance,
-          'offer' => l10n.kindOffer,
-          'account' => l10n.kindAccount,
-          _ => l10n.kindAnnouncement,
-        };
+    final kind = switch (update.kind) {
+      'update' => l10n.kindUpdate,
+      'maintenance' => l10n.kindMaintenance,
+      'offer' => l10n.kindOffer,
+      'account' => l10n.kindAccount,
+      'announcement' => l10n.kindAnnouncement,
+      _ => update.kindLabel ?? l10n.kindAnnouncement,
+    };
     return Panel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,9 +154,11 @@ class _UpdateCard extends ConsumerWidget {
           const SizedBox(height: 10),
           Text(update.title, style: theme.textTheme.titleSmall),
           const SizedBox(height: 4),
-          Text(
+          // 63 Bold, italic and links as the dashboard's bell shows them.
+          MarkdownText(
             update.body,
             style: theme.textTheme.bodyMedium?.copyWith(color: context.yb.ink2),
+            onLink: (url) => openLink(context, ref, url),
           ),
           if (update.link != null)
             Align(

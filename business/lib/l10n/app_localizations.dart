@@ -2329,7 +2329,7 @@ abstract class AppLocalizations {
   /// No description provided for @pushNewMessageHelp.
   ///
   /// In en, this message translates to:
-  /// **'When someone writes about a listing.'**
+  /// **'When someone writes about a listing, or a student asks in a course.'**
   String get pushNewMessageHelp;
 
   /// No description provided for @pushPayment.
@@ -3004,6 +3004,366 @@ abstract class AppLocalizations {
   /// **'Enter their email.'**
   String get enterEmail;
 
+  /// No description provided for @inboxMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get inboxMessages;
+
+  /// No description provided for @inboxQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get inboxQuestions;
+
+  /// No description provided for @inboxReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get inboxReviews;
+
+  /// No description provided for @questionsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for you'**
+  String get questionsWaiting;
+
+  /// No description provided for @questionsAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get questionsAnswered;
+
+  /// No description provided for @noQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions here'**
+  String get noQuestions;
+
+  /// No description provided for @noQuestionsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions students ask in your courses arrive here.'**
+  String get noQuestionsText;
+
+  /// No description provided for @inCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'in {course}'**
+  String inCourse(String course);
+
+  /// No description provided for @questionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get questionTitle;
+
+  /// No description provided for @writeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your answer'**
+  String get writeAnswer;
+
+  /// No description provided for @answerSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sent. The student is told.'**
+  String get answerSent;
+
+  /// No description provided for @reviewsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get reviewsAll;
+
+  /// No description provided for @reviewsUnreplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a reply'**
+  String get reviewsUnreplied;
+
+  /// No description provided for @noReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews here'**
+  String get noReviews;
+
+  /// No description provided for @noReviewsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews students write about your courses arrive here.'**
+  String get noReviewsText;
+
+  /// No description provided for @ratingOutOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5'**
+  String ratingOutOf(String rating);
+
+  /// No description provided for @noRatingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews shown in the app yet.'**
+  String get noRatingYet;
+
+  /// No description provided for @hiddenFromOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from others'**
+  String get hiddenFromOthers;
+
+  /// No description provided for @hideReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get hideReview;
+
+  /// No description provided for @showReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Show again'**
+  String get showReview;
+
+  /// No description provided for @reviewHiddenDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden. Only its author sees it.'**
+  String get reviewHiddenDone;
+
+  /// No description provided for @reviewShownDone.
+  ///
+  /// In en, this message translates to:
+  /// **'It shows in the app again.'**
+  String get reviewShownDone;
+
+  /// No description provided for @replyToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get replyToReview;
+
+  /// No description provided for @changeReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the reply'**
+  String get changeReply;
+
+  /// No description provided for @removeReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the reply'**
+  String get removeReply;
+
+  /// No description provided for @yourReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
+  String get yourReply;
+
+  /// No description provided for @replyPublicHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone sees it under the review in your app.'**
+  String get replyPublicHelp;
+
+  /// No description provided for @replySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply saved'**
+  String get replySaved;
+
+  /// No description provided for @replyRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply removed'**
+  String get replyRemoved;
+
+  /// No description provided for @pushNewReview.
+  ///
+  /// In en, this message translates to:
+  /// **'New reviews'**
+  String get pushNewReview;
+
+  /// No description provided for @pushNewReviewHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a student reviews a course.'**
+  String get pushNewReviewHelp;
+
+  /// No description provided for @members.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get members;
+
+  /// No description provided for @scanMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan members'**
+  String get scanMembers;
+
+  /// No description provided for @memberScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the member\'s QR code inside the frame.'**
+  String get memberScanHint;
+
+  /// No description provided for @memberCameraLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera, point it at the member\'s QR code'**
+  String get memberCameraLabel;
+
+  /// No description provided for @typeMemberCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check a member by their code'**
+  String get typeMemberCodeTitle;
+
+  /// No description provided for @memberCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Member code'**
+  String get memberCodeLabel;
+
+  /// No description provided for @findByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Find by name'**
+  String get findByName;
+
+  /// No description provided for @welcomeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome in'**
+  String get welcomeIn;
+
+  /// No description provided for @alreadyInToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in today'**
+  String get alreadyInToday;
+
+  /// No description provided for @alreadyInAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in today at {time}'**
+  String alreadyInAt(String time);
+
+  /// No description provided for @membershipEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership ended'**
+  String get membershipEnded;
+
+  /// No description provided for @endedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended on {date}'**
+  String endedOn(String date);
+
+  /// No description provided for @membershipCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership cancelled'**
+  String get membershipCancelled;
+
+  /// No description provided for @membershipNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership not started yet'**
+  String get membershipNotStarted;
+
+  /// No description provided for @noClassesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes left'**
+  String get noClassesLeft;
+
+  /// No description provided for @notAMemberCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a member code of this app'**
+  String get notAMemberCode;
+
+  /// No description provided for @memberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No membership has this code'**
+  String get memberNotFound;
+
+  /// No description provided for @checkInNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in {name}'**
+  String checkInNamed(String name);
+
+  /// No description provided for @searchMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or mobile number'**
+  String get searchMembers;
+
+  /// No description provided for @noMembersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No members match this search'**
+  String get noMembersFound;
+
+  /// No description provided for @noMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'No members yet'**
+  String get noMembers;
+
+  /// No description provided for @cameInToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Came in today'**
+  String get cameInToday;
+
+  /// No description provided for @nobodyInYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has checked in today yet.'**
+  String get nobodyInYet;
+
+  /// No description provided for @checkedInBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} · by {name}'**
+  String checkedInBy(String time, String name);
+
+  /// No description provided for @inAt.
+  ///
+  /// In en, this message translates to:
+  /// **'In at {time}'**
+  String inAt(String time);
+
+  /// No description provided for @memberUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String memberUntil(String date);
+
+  /// No description provided for @unlimitedClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited classes'**
+  String get unlimitedClasses;
+
+  /// No description provided for @memberCheckInsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Members in today'**
+  String get memberCheckInsToday;
+
+  /// No description provided for @ticketCountsNoLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} in · {left} to come · no capacity limit'**
+  String ticketCountsNoLimit(String used, String left);
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
@@ -3069,6 +3429,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days, plural, =0{Ends today} =1{Ends tomorrow} other{Ends in {days} days}} ({date})'**
   String planEnds(String date, int days);
+
+  /// No description provided for @classesLeftCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 class left} other{{count} classes left}}'**
+  String classesLeftCount(int count);
+
+  /// No description provided for @answersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No answers yet} =1{1 answer} other{{count} answers}}'**
+  String answersCount(int count);
+
+  /// No description provided for @membersInCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member came in today} other{{count} members came in today}}'**
+  String membersInCount(int count);
+
+  /// No description provided for @reviewsAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} out of 5 from {count, plural, =1{1 review} other{{count} reviews}}'**
+  String reviewsAverage(String rating, int count);
+
+  /// No description provided for @needsOrdersInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order in progress} other{{count} orders in progress}}'**
+  String needsOrdersInProgress(int count);
+
+  /// No description provided for @needsToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 appointment to confirm} other{{count} appointments to confirm}}'**
+  String needsToConfirm(int count);
+
+  /// No description provided for @needsUnanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 conversation waiting for your reply} other{{count} conversations waiting for your reply}}'**
+  String needsUnanswered(int count);
+
+  /// No description provided for @needsQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 course question to answer} other{{count} course questions to answer}}'**
+  String needsQuestions(int count);
 }
 
 class _AppLocalizationsDelegate
