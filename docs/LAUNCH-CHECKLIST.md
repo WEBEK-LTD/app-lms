@@ -433,8 +433,8 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       push arrives in English, then switch the dashboard to Arabic and
       check the next one is in Arabic; sign the phone out from Dashboard ›
       Your phones and check the app is signed out.
-- [ ] (61) Apply migration `0045_scheduled_notifications.sql` after `0044`
-      (Phase 60): the `scheduled_notifications` table, `announcements.pushed_at`
+- [ ] (61) Apply migration `0044_scheduled_notifications.sql` after `0043`:
+      the `scheduled_notifications` table, `announcements.pushed_at`
       (announcements that already started are marked pushed, so the frequent
       job never pushes old ones), and indexes for today's numbers. Then check
       the frequent job above runs, schedule a notification for a few minutes

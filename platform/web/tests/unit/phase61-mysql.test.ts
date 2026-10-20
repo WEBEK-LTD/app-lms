@@ -8,7 +8,7 @@ import { runScheduledNotifications, scheduleAppNotification } from "@/lib/hosted
 import { KEY } from "./helpers";
 
 /**
- * 61 On MySQL or MariaDB (migration 0045): today's numbers summed by the
+ * 61 On MySQL or MariaDB (migration 0044): today's numbers summed by the
  * database, an appointment moved as one step, notifications sent later taken
  * by one run of the frequent job only (two at once), and an announcement
  * pushed once. Runs only with YALLAPP_TEST_DATABASE_URL (a database with the

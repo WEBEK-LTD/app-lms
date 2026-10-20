@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8434d95b-ba73-4ed3-97df-89b23d7d692d",
+  "id": "53227bca-0c0a-4ff1-a1db-ae4a65615c33",
   "prevId": "d64491e9-07d3-4cb2-a252-a6c1607db547",
   "tables": {
     "license_activations": {

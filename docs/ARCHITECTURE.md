@@ -1320,7 +1320,7 @@ the same database, and the same code.
   phones when push is on (as a class called off), in the app's main language
   (English, Arabic or Turkish).
 - **Notifications sent later (61)** (`lib/hosted/scheduled-notifications.ts`,
-  `scheduled_notifications`, migration 0045): Dashboard › App notifications ›
+  `scheduled_notifications`, migration 0044): Dashboard › App notifications ›
   Later and `…/notifications/scheduled` take a date and time in the app's
   time zone (Analytics', roadmap 47), later than now and within 90 days, at
   most 50 waiting per app; those waiting are changed or cancelled. The

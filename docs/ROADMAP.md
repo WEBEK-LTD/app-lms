@@ -1346,7 +1346,7 @@ Today's numbers are counted by the database. A frequent job (every 5
 minutes, the daily job's pattern) sends what is due, once. Contract first in
 `docs/api/owner.yaml`. Proved with unit tests on memory and MariaDB, the
 dashboard's e2e specs on memory and MariaDB, and the app's widget tests (also
-in dark and Arabic). Migration `drizzle/0045_scheduled_notifications.sql`.
+in dark and Arabic). Migration `drizzle/0044_scheduled_notifications.sql`.
 
 | | Step | Done when |
 |---|---|---|
@@ -1357,7 +1357,7 @@ in dark and Arabic). Migration `drizzle/0045_scheduled_notifications.sql`.
 | [x] | 61.5 The frequent job: `netlify/functions/frequent-jobs.mts` every 5 minutes → `POST /api/internal/frequent` (`INTERNAL_JOB_SECRET`): due notifications through `sendAppNotification` (same words and hourly limit; a full hour waits), each taken once by a conditional update, one left halfway failed and never resent; announcements that started pushed to the owners' phones once (`claimAnnouncementPush`; created live: marked at once; started over a day ago: marked, not pushed) | `phase61.test.ts` (two runs at once send once; the limit; a stuck one; two announcement runs push once), `phase61-mysql.test.ts`, `hosted-api.spec.ts` (401 without the token) |
 | [x] | 61.6 Today's numbers counted by the database for the app's whole day: paid orders and donations less refunds per currency, new users, tickets and check-ins (`sumPaidCatalogOrders`, `sumPaidDonations`, `countHostedUsersCreated`, `countTicketsInWindow` in SQL with indexes; the same in memory) | `phase61.test.ts` (230 orders, 205 users), `phase61-mysql.test.ts` |
 | [x] | 61.7 Kitchen mode keeps the screen awake while open (`wakelock_plus` 1.8.1, `KitchenWake`: again on return from the background, released on leaving; a phone that refuses still runs it) | `kitchen_wake_test.dart`, `phase61_test.dart` |
-| [x] | 61.8 Every new string in English, Arabic and Turkish: the dashboard's catalogs (`bookings`, `notify`, `owner`) and the app's `tool/strings_d.py`; docs: ARCHITECTURE (the Owner API, the app), LAUNCH-CHECKLIST (the frequent job, migration 0045), `business/README.md` | `dashboard-i18n.test.ts`, `build_arb.py` |
+| [x] | 61.8 Every new string in English, Arabic and Turkish: the dashboard's catalogs (`bookings`, `notify`, `owner`) and the app's `tool/strings_d.py`; docs: ARCHITECTURE (the Owner API, the app), LAUNCH-CHECKLIST (the frequent job, migration 0044), `business/README.md` | `dashboard-i18n.test.ts`, `build_arb.py` |
 | [ ] | 61.9 Checking gym members in at the door: the dashboard has memberships but no member check-in, and the customer's app shows no member code to scan, so the Owner API and the app have nothing to expose (58.12b) | When the dashboard checks members in |
 | [ ] | 61.10 Not tried with the real Firebase projects or on a real phone (the pushes went to the fake sender and the capture folder; the wake lock to a fake); Netlify runs the frequent job only on published deploys | LAUNCH-CHECKLIST 3, 7k |
 | [ ] | 61.11 A WordPress or own-API app's appointments live on its site, so Change time and Send later are for apps on Yallapp's hosted API, as the dashboard's pages | When owners ask |
