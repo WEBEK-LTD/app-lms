@@ -1288,8 +1288,9 @@ an end-to-end spec on memory and MariaDB. Migration
 | [x] | 58.9 Pushes to the owner's phone from Yallapp Business's own Firebase project (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`, optional Huawei Push Kit): a paid order, an appointment booked, a listing message, a donation or a payment to Yallapp, a build finished, a live announcement, an owner notice; per device and kind (`PUT /me/push-preferences`), in the person's language else the phone's; refused tokens forgotten; never failing what caused it; `YALLAPP_OWNER_PUSH_DIR` keeps them in local runs | `owner-push.test.ts` (languages, choices, signed-out devices, a refund-due notice pushed once), `owner-api.spec.ts` (the paid order's push) |
 | [x] | 58.10 Docs: `docs/ARCHITECTURE.md` › The Owner API, `docs/LAUNCH-CHECKLIST.md` 7k (the Firebase project, the env vars, migration 0043), `.env.example` | Review |
 | [ ] | 58.11 Course questions and reviews: courses managed in Yallapp have no Q&A or reviews (WordPress apps keep them on their site), so Messages has a listing's inquiries only and the `new_review` push kind is reserved | When Yallapp's own courses or shops take questions or reviews |
-| [ ] | 58.12 Not offered because the dashboard doesn't offer them either: moving an appointment to another time (cancel and book again), checking gym members in at the door, scheduling a notification for later; an announcement set to start later isn't pushed when it starts (only one live when created is) | With the dashboard |
-| [ ] | 58.13 Today's numbers look at the newest 200 paid orders, donations and app users of the app, enough for a day of most apps; a busier app's day would count from a query by date | When an app passes it |
+| [x] | 58.12 Moving an appointment, scheduling a notification for later and pushing an announcement when it starts: done in Phase 61 (61.2 to 61.5) | Phase 61 |
+| [ ] | 58.12b Checking gym members in at the door: the dashboard has members (memberships) but no member check-in and the customer's app shows no member code, so there is no rule to expose yet | When the dashboard checks members in |
+| [x] | 58.13 Today's numbers counted by the database for the whole day: done in Phase 61 (61.6) | Phase 61 |
 | [ ] | 58.14 Not tried with a real Firebase project and phone: the pushes went to a fake sender and the capture folder. A plan paid entirely with a coupon (no provider) sends no "Payment received" push | LAUNCH-CHECKLIST 7k, with Phase 59 |
 | [ ] | 58.15 WordPress, own-API and connected-platform apps: their orders, bookings and content live on their own sites, as on the dashboard, so the app shows what Yallapp keeps for them (today's opens, notices, builds, Media, Analytics, the plan) | When owners ask |
 
@@ -1327,11 +1328,39 @@ client, `flutter analyze` and `dart format`; the Mobile workflow checks it.
 | [x] | 59.12 English, Arabic and Turkish for every string (`tool/strings_*.py` → `lib/l10n/app_*.arb`, checked for missing keys), the website's and dashboard's words; right to left with mirrored arrows; 48 px targets, labels on icons, charts and progress read aloud, large text stacks the tiles | `auth_test.dart`, `today_test.dart`, `orders_test.dart`, `bookings_events_test.dart`, `publishing_more_test.dart` |
 | [x] | 59.13 Contract sync with Phase 58's final `owner.yaml` (updates' `summary`, `link_label`, `app_name`; order numbers without `#`), and its Media text corrected to `PUT`, the method the media gate takes | `redocly lint`, `api_client_test.dart` |
 | [x] | 59.14 CI: the Mobile workflow's "Yallapp Business" job when `business/` changes (strings generated, format, analyze, test); docs: `business/README.md`, `docs/ARCHITECTURE.md` › Yallapp Business, the app, `docs/LAUNCH-CHECKLIST.md` 7l | Review |
-| [ ] | 59.15 Light theme only; a dark theme isn't built yet | When owners ask |
+| [x] | 59.15 The dark theme: done in Phase 61 (61.1) | Phase 61 |
 | [ ] | 59.16 Not tried on a real phone, with the real Firebase project or against the live Owner API: no APK or IPA was built here (disk), the tests run on the fake API. Push on Huawei phones without Google Play (the server can send through Push Kit) isn't wired in the app | LAUNCH-CHECKLIST 7l |
-| [ ] | 59.17 Course questions and reviews (Inbox has a listing's conversations only), moving an appointment, gym members at the door and scheduled notifications aren't in the Owner API, so the app shows nothing for them | Phase 58.11, 58.12 |
-| [ ] | 59.18 Kitchen mode doesn't keep the screen awake (no wake lock yet); a tablet left on it dims as the system says | When restaurants ask |
+| [ ] | 59.17 Course questions and reviews (Inbox has a listing's conversations only) and gym members at the door aren't in the Owner API, so the app shows nothing for them; moving an appointment and scheduled notifications came in Phase 61 | Phase 58.11, 58.12b |
+| [x] | 59.18 Kitchen mode keeps the screen awake: done in Phase 61 (61.7) | Phase 61 |
 | [ ] | 59.19 The store listings, screenshots and the App Store id: under Yallapp's own accounts once they exist | LAUNCH-CHECKLIST 7l |
+
+## Phase 61: Yallapp Business's open items, and the dashboard features they wait on
+
+The open rows of Phases 58 and 59 that don't need the stores or the push
+projects (those come later, with the owner). Yallapp Business gets a dark
+theme and keeps the kitchen's screen on; owners move an appointment to
+another free time and send a notification to their app's users later, from
+the dashboard, the Owner API and the app through the same `lib` code;
+announcements set to start later reach the owners' phones when they start;
+Today's numbers are counted by the database. A frequent job (every 5
+minutes, the daily job's pattern) sends what is due, once. Contract first in
+`docs/api/owner.yaml`. Proved with unit tests on memory and MariaDB, the
+dashboard's e2e specs on memory and MariaDB, and the app's widget tests (also
+in dark and Arabic). Migration `drizzle/0045_scheduled_notifications.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 61.1 Yallapp Business in dark: `YbColors` light and dark from the palette (Midnight pages, lifted cards, Ivory text, Ember accents), every screen on `context.yb`, the door scanner dark in both; Settings › Appearance (the phone's setting, light, dark), kept on the phone | `theme_test.dart` (contrast of every text pair at 4.5:1 in both), `phase61_test.dart` (follows the phone, Appearance, screens in dark in English and Arabic without overflow) |
+| [x] | 61.2 Moving an appointment (`lib/bookings/reschedule.ts`): pending or approved and not started, to a time booking would offer for its service (staff hours, days off, other appointments and classes, notice, how far ahead), its own time free; one atomic move (`moveBookingAppointment`); the status stays; the customer told in the app's inbox and by push in the app's language (en, ar, tr) | `phase61.test.ts`, `phase61-mysql.test.ts` (two moves to one time: one wins) |
+| [x] | 61.3 Dashboard › Appointments › Change time (a week of times, the staff filter, back with "The appointment is at its new time"); the Owner API `GET …/appointments/{id}/times`, `POST …/reschedule`, `can_reschedule`; the app's Change time | `bookings-hosted.spec.ts` (moved; the customer's inbox and the app's appointment), `phase61.test.ts`, `phase61_test.dart` |
+| [x] | 61.4 Notifications sent later (`lib/hosted/scheduled-notifications.ts`, `scheduled_notifications`): a date and time in the app's time zone, later than now, within 90 days, at most 50 waiting; change and cancel while waiting; Dashboard › App notifications › Later and Scheduled; the Owner API `…/notifications/scheduled`; the app's Later with Edit and Cancel | `phase61.test.ts`, `hosted-api.spec.ts` (scheduled, changed, cancelled), `phase61_test.dart` |
+| [x] | 61.5 The frequent job: `netlify/functions/frequent-jobs.mts` every 5 minutes → `POST /api/internal/frequent` (`INTERNAL_JOB_SECRET`): due notifications through `sendAppNotification` (same words and hourly limit; a full hour waits), each taken once by a conditional update, one left halfway failed and never resent; announcements that started pushed to the owners' phones once (`claimAnnouncementPush`; created live: marked at once; started over a day ago: marked, not pushed) | `phase61.test.ts` (two runs at once send once; the limit; a stuck one; two announcement runs push once), `phase61-mysql.test.ts`, `hosted-api.spec.ts` (401 without the token) |
+| [x] | 61.6 Today's numbers counted by the database for the app's whole day: paid orders and donations less refunds per currency, new users, tickets and check-ins (`sumPaidCatalogOrders`, `sumPaidDonations`, `countHostedUsersCreated`, `countTicketsInWindow` in SQL with indexes; the same in memory) | `phase61.test.ts` (230 orders, 205 users), `phase61-mysql.test.ts` |
+| [x] | 61.7 Kitchen mode keeps the screen awake while open (`wakelock_plus` 1.8.1, `KitchenWake`: again on return from the background, released on leaving; a phone that refuses still runs it) | `kitchen_wake_test.dart`, `phase61_test.dart` |
+| [x] | 61.8 Every new string in English, Arabic and Turkish: the dashboard's catalogs (`bookings`, `notify`, `owner`) and the app's `tool/strings_d.py`; docs: ARCHITECTURE (the Owner API, the app), LAUNCH-CHECKLIST (the frequent job, migration 0045), `business/README.md` | `dashboard-i18n.test.ts`, `build_arb.py` |
+| [ ] | 61.9 Checking gym members in at the door: the dashboard has memberships but no member check-in, and the customer's app shows no member code to scan, so the Owner API and the app have nothing to expose (58.12b) | When the dashboard checks members in |
+| [ ] | 61.10 Not tried with the real Firebase projects or on a real phone (the pushes went to the fake sender and the capture folder; the wake lock to a fake); Netlify runs the frequent job only on published deploys | LAUNCH-CHECKLIST 3, 7k |
+| [ ] | 61.11 A WordPress or own-API app's appointments live on its site, so Change time and Send later are for apps on Yallapp's hosted API, as the dashboard's pages | When owners ask |
 
 ## Later: the Yallapp app for business owners (decided, built in Phases 58 and 59)
 
