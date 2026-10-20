@@ -1,0 +1,845 @@
+{
+  "@@locale": "en",
+  "appTitle": "Yallapp Business",
+  "signInTitle": "Sign in",
+  "signInText": "Use the email and password of your Yallapp dashboard.",
+  "email": "Email",
+  "emailInvalid": "Enter your email address.",
+  "password": "Password",
+  "passwordEmpty": "Enter your password.",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "forgotPassword": "Forgot password?",
+  "signIn": "Sign in",
+  "signingIn": "Signing in",
+  "invalidCredentials": "The email or password is incorrect.",
+  "useWebsiteButton": "Open yallapp.com.tr",
+  "signedOutNotice": "You were signed out. Sign in again to carry on.",
+  "newToYallapp": "New to Yallapp? Create your app on the website.",
+  "openWebsite": "Go to yallapp.com.tr",
+  "language": "Language",
+  "lockTitle": "Yallapp Business is locked",
+  "lockText": "Unlock with your fingerprint, face or phone lock.",
+  "lockFailed": "That didn't work. Try again, or sign out and use your password.",
+  "unlock": "Unlock",
+  "unlockReason": "Unlock Yallapp Business",
+  "signOutUsePassword": "Sign out and use my password",
+  "accountPendingTitle": "Your account is waiting for activation",
+  "accountPendingText": "We'll let you know as soon as it's active. You can follow it on yallapp.com.tr.",
+  "accountSuspendedTitle": "Your account is suspended",
+  "accountSuspendedText": "Talk to us to find out why and how to bring it back.",
+  "noAppTitle": "No app yet",
+  "noAppText": "Create your first app on yallapp.com.tr. It shows up here as soon as it's there.",
+  "openDashboard": "Open the dashboard",
+  "chooseApp": "Choose an app",
+  "yourApps": "Your apps",
+  "currentApp": "Current app",
+  "switchApp": "Switch",
+  "stateActive": "Active",
+  "statePending": "Pending activation",
+  "stateExpired": "Plan ended",
+  "stateSuspended": "Suspended",
+  "today": "Today",
+  "orders": "Orders",
+  "order": "Order",
+  "appointments": "Appointments",
+  "events": "Events",
+  "donations": "Donations",
+  "catalog": "Catalog",
+  "menu": "Menu",
+  "products": "Products",
+  "courses": "Courses",
+  "articles": "Articles",
+  "listings": "Listings",
+  "inbox": "Inbox",
+  "stats": "Stats",
+  "more": "More",
+  "media": "Media",
+  "appUsers": "App users",
+  "loading": "Loading",
+  "tryAgain": "Try again",
+  "offlineTitle": "You're offline",
+  "errorTitle": "Something went wrong",
+  "errorOffline": "Check your connection and try again.",
+  "errorTimeout": "Yallapp is taking too long to answer. Try again in a moment.",
+  "errorNotAvailable": "This app doesn't have this.",
+  "errorNotFound": "We couldn't find this. It may have been deleted.",
+  "errorRateLimited": "That's a lot at once. Wait a little and try again.",
+  "errorAccount": "Your account isn't active right now.",
+  "errorGeneric": "Something went wrong. Try again.",
+  "loadMore": "Load more",
+  "cancel": "Cancel",
+  "save": "Save",
+  "saved": "Saved",
+  "delete": "Delete",
+  "refresh": "Refresh",
+  "open": "Open",
+  "send": "Send",
+  "moreActions": "More actions",
+  "linkFailed": "This link couldn't be opened.",
+  "justNow": "just now",
+  "now": "now",
+  "needsYouNow": "Needs you now",
+  "allCaughtUp": "All caught up. Nothing is waiting for you.",
+  "quickActions": "Quick actions",
+  "actionNotify": "Notify",
+  "actionScan": "Scan",
+  "actionUpload": "Upload",
+  "actionPreview": "Preview",
+  "salesToday": "Sales today",
+  "ordersToday": "Orders today",
+  "appointmentsToday": "Appointments today",
+  "ticketsToday": "Tickets sold today",
+  "checkInsToday": "Checked in today",
+  "donationsToday": "Donations today",
+  "newUsers": "New users",
+  "appOpens": "App opens",
+  "bell": "Updates from Yallapp",
+  "planEndedTitle": "This app's plan has ended",
+  "planEndedText": "The app is paused until the plan is renewed on yallapp.com.tr. You can still see and edit everything here.",
+  "seePlan": "See the plan",
+  "updatesTitle": "Updates from Yallapp",
+  "markAllRead": "Mark all as read",
+  "noUpdates": "Nothing from Yallapp yet",
+  "noUpdatesText": "Updates, announcements, maintenance notices and offers from our team show up here, with news about your account.",
+  "kindUpdate": "Update",
+  "kindAnnouncement": "Announcement",
+  "kindMaintenance": "Maintenance",
+  "kindOffer": "Offer",
+  "kindAccount": "Your account",
+  "newLabel": "New",
+  "ended": "Ended",
+  "learnMore": "Learn more",
+  "kitchenMode": "Kitchen mode",
+  "kitchenEmpty": "No orders in the kitchen",
+  "kitchenEmptyText": "New orders appear here with a sound while this screen is open.",
+  "soundOn": "Sound on for new orders",
+  "soundOff": "Sound off for new orders",
+  "tabInProgress": "In progress",
+  "statusProcessing": "In progress",
+  "statusCompleted": "Completed",
+  "statusCancelled": "Cancelled",
+  "statusRefunded": "Refunded",
+  "stepNew": "New",
+  "stepPreparing": "Preparing",
+  "stepReady": "Ready",
+  "outForDelivery": "Out for delivery",
+  "accept": "Accept",
+  "decline": "Decline",
+  "startPreparing": "Start preparing",
+  "markReady": "Ready",
+  "markCompleted": "Mark completed",
+  "pickedUp": "Picked up",
+  "delivered": "Delivered",
+  "cancelOrder": "Cancel order",
+  "cancelOrderTitle": "Cancel order {number}?",
+  "@cancelOrderTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelOrderText": "The customer is told. A payment taken for it is refunded separately.",
+  "orderUpdated": "Order {number}: {status}",
+  "@orderUpdated": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "noOrdersInProgress": "No orders in progress",
+  "noOrders": "No orders here yet",
+  "delivery": "Delivery",
+  "pickup": "Pickup",
+  "paidAt": "Paid {date}",
+  "@paidAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customer": "Customer",
+  "items": "Items",
+  "total": "Total",
+  "refunded": "Refunded",
+  "refunds": "Refunds",
+  "refund": "Refund",
+  "refundLeft": "Up to {amount} can be refunded.",
+  "@refundLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundButton": "Refund",
+  "refundRecord": "Record the refund",
+  "refundTitle": "Refund order {number}",
+  "@refundTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "refundAmount": "Amount ({currency})",
+  "@refundAmount": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "refundReason": "Reason",
+  "refundNote": "Note (optional)",
+  "refundHow": "How",
+  "refundByProvider": "Through the payment provider",
+  "refundManual": "Already refunded in its panel",
+  "refundReference": "The provider's reference",
+  "refundTakeBack": "Also take back",
+  "notRefundable": "This order can't be refunded here.",
+  "scopeToday": "Today",
+  "scopeUpcoming": "Upcoming",
+  "scopePast": "Past",
+  "noAppointmentsToday": "No appointments today",
+  "noUpcomingAppointments": "No upcoming appointments",
+  "noPastAppointments": "No past appointments",
+  "apptPending": "To confirm",
+  "apptApproved": "Confirmed",
+  "apptRejected": "Declined",
+  "apptNoShow": "No-show",
+  "confirmAction": "Confirm",
+  "cancelAppointment": "Cancel",
+  "markDone": "Done",
+  "declineAppointmentTitle": "Decline this appointment?",
+  "cancelAppointmentTitle": "Cancel this appointment?",
+  "appointmentChangeText": "{name}'s appointment changes, and this can't be undone.",
+  "@appointmentChangeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "appointmentUpdated": "Appointment: {status}",
+  "@appointmentUpdated": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "notes": "Notes",
+  "rescheduleNote": "To move an appointment to another time, cancel it and ask the customer to book again. The dashboard works the same way.",
+  "eventsOpen": "Open",
+  "eventsAll": "All",
+  "noEvents": "No events here",
+  "scanTickets": "Scan tickets",
+  "scanForEvent": "Scan for this event",
+  "ticketCounts": "{used} in · {left} to come · capacity {capacity}",
+  "@ticketCounts": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      },
+      "capacity": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketsInLabel": "{used} of {issued} tickets checked in",
+  "@ticketsInLabel": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "issued": {
+        "type": "int"
+      }
+    }
+  },
+  "statusDraft": "Draft",
+  "flashOn": "Turn the flashlight on",
+  "flashOff": "Turn the flashlight off",
+  "cameraLabel": "Camera, point it at the ticket's QR code",
+  "cameraDenied": "The camera isn't available. Allow Yallapp Business to use it in the phone's settings, or type the code.",
+  "scanHint": "Hold the ticket's QR code inside the frame.",
+  "typeCode": "Type the code",
+  "typeCodeTitle": "Check a ticket by its code",
+  "ticketCode": "Ticket code",
+  "checkTicket": "Check",
+  "letIn": "Let in",
+  "alreadyUsed": "Already used",
+  "otherEvent": "Ticket for another event",
+  "ticketCancelled": "Ticket cancelled",
+  "ticketNotPaid": "Ticket not paid",
+  "notATicket": "Not a ticket of this app",
+  "ticketNotFound": "Ticket not found",
+  "usedAt": "Used {date}",
+  "@usedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "letInHere": "Let in on this phone",
+  "refusedHere": "Refused",
+  "inOfIssued": "In / tickets",
+  "noDonations": "No donations yet",
+  "allCampaigns": "All campaigns",
+  "anonymous": "Anonymous",
+  "ofGoal": "of {goal}",
+  "@ofGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "noProducts": "No products yet",
+  "stockUnlimited": "No stock limit",
+  "soldOut": "Sold out",
+  "hidden": "Hidden",
+  "priceIn": "Price ({currency})",
+  "@priceIn": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "salePriceIn": "Sale price ({currency})",
+  "@salePriceIn": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "salePriceHelp": "Lower than the price. Leave it empty for no sale.",
+  "stock": "Stock",
+  "stockHelp": "A whole number from 0 to 1,000,000. Leave it empty for no limit.",
+  "stockInvalid": "Enter a whole number.",
+  "availableNotSoldOut": "Available to order (off: sold out)",
+  "showInApp": "Shown in the app",
+  "availableToOrder": "{name} can be ordered",
+  "@availableToOrder": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shownInApp": "{name} is shown in the app",
+  "@shownInApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noCourses": "No courses yet",
+  "free": "Free",
+  "publishedSwitch": "{title} is published",
+  "@publishedSwitch": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "statusPublished": "Published",
+  "statusScheduled": "Scheduled",
+  "statusArchived": "Archived",
+  "featured": "Featured",
+  "freePreview": "Free preview",
+  "freePreviewHelp": "Anyone can watch this lesson before buying the course.",
+  "lessonAdded": "“{title}” added",
+  "@lessonAdded": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "addLesson": "Add a lesson",
+  "lessonTitle": "Lesson title",
+  "lessonTitleRule": "Give the lesson a title of 2 to 120 characters.",
+  "lessonMinutes": "Minutes (optional)",
+  "lessonMinutesRule": "From 1 to 600 minutes, or leave it empty.",
+  "lessonText": "Text (optional)",
+  "lessonNeedsContent": "Add a video or some text.",
+  "video": "Video",
+  "noVideoChosen": "No video chosen.",
+  "removeVideo": "Remove the video",
+  "chooseFromMedia": "Choose from Media",
+  "recordOrUpload": "Record or upload",
+  "noVideos": "No videos in Media yet",
+  "noArticles": "No articles yet",
+  "noListings": "No listings yet",
+  "publish": "Publish",
+  "unpublish": "Unpublish",
+  "archive": "Archive",
+  "feature": "Feature",
+  "unfeature": "Stop featuring",
+  "upload": "Upload",
+  "uploading": "Uploading",
+  "storage": "Storage",
+  "storageUsed": "{used} of {limit} used",
+  "@storageUsed": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "storageUsedNoPlan": "{used} used",
+  "@storageUsedNoPlan": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "storageFull": "The storage is full. New uploads wait until there's room: delete files, or add storage on yallapp.com.tr.",
+  "manageOnWebsite": "Manage on yallapp.com.tr",
+  "allFiles": "All",
+  "videos": "Videos",
+  "pictures": "Pictures",
+  "pdfs": "PDFs",
+  "noMedia": "No files here yet.",
+  "takePhoto": "Take a photo",
+  "recordVideo": "Record a video",
+  "chooseFromGallery": "Choose from the gallery",
+  "fileTypeNotAllowed": "Media takes videos (MP4, MOV, WebM), pictures (JPG, PNG, WebP, GIF) and PDFs.",
+  "uploaded": "{name} is in Media",
+  "@uploaded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadingFile": "Uploading {name}",
+  "@uploadingFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadPaused": "Paused",
+  "uploadFailed": "The upload stopped.",
+  "pause": "Pause",
+  "resume": "Resume",
+  "cancelUpload": "Cancel the upload",
+  "unfinishedUpload": "Upload not finished",
+  "fileMissing": "The file isn't on this phone any more. Upload it again.",
+  "deleteFileTitle": "Delete {name}?",
+  "@deleteFileTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteFileText": "Its space comes back. Lessons and pages that use it lose it.",
+  "copyLink": "Copy the link",
+  "linkCopied": "Link copied",
+  "inboxOpen": "Open",
+  "inboxClosed": "Closed",
+  "noMessages": "No messages here",
+  "noMessagesText": "Questions about your listings arrive here.",
+  "message": "Message",
+  "aboutListing": "About: {title}",
+  "@aboutListing": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "writeReply": "Write a reply",
+  "replySent": "Reply sent",
+  "call": "Call",
+  "sendEmail": "Send an email",
+  "searchUsers": "Name, phone number or email",
+  "noUsers": "No one has signed in to the app yet",
+  "noUsersFound": "No one matches this search",
+  "joined": "Joined {date}",
+  "@joined": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "days7": "7 days",
+  "days30": "30 days",
+  "days90": "90 days",
+  "customRange": "Choose dates",
+  "noStats": "No numbers yet",
+  "noStatsText": "Numbers show up once people use the latest build of your app.",
+  "rangeDates": "{from} – {to} · {zone}",
+  "@rangeDates": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "everyDay": "Every day",
+  "activeUsers": "Active users",
+  "installs": "Installs",
+  "sessions": "Sessions",
+  "activeAvg": "Active a day",
+  "weeklyActive": "Active this week",
+  "monthlyActive": "Active this month",
+  "vsPrevious": "{change} vs before",
+  "@vsPrevious": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "retention": "Who comes back",
+  "platforms": "Platforms",
+  "countries": "Countries",
+  "screens": "Screens",
+  "chartLabel": "{metric} every day: {total} in all, {highest} on the busiest day",
+  "@chartLabel": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "highest": {
+        "type": "String"
+      }
+    }
+  },
+  "sendNotification": "Send a notification",
+  "sendsToEveryone": "To everyone who uses {app}",
+  "@sendsToEveryone": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "inboxAndPush": "It lands in the app's inbox, and as a push on phones that allow it.",
+  "inboxOnly": "It lands in the app's inbox. Pushes need a plan with push and the app's Firebase key, set on the dashboard.",
+  "notificationTitle": "Title",
+  "notificationMessage": "Message",
+  "previewOnPhone": "How it looks on a phone",
+  "sendNow": "Send now",
+  "sendLimit": "Up to 10 an hour, with the ones sent from the dashboard.",
+  "sendToEveryoneTitle": "Send to everyone?",
+  "sendToEveryoneText": "Everyone who uses {app} gets it now. It can't be taken back.",
+  "@sendToEveryoneText": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "sentBefore": "Sent before",
+  "nothingSent": "Nothing sent yet.",
+  "previewApp": "Preview your app",
+  "openInBrowser": "Open in the browser",
+  "previewDraft": "Show unpublished pages",
+  "previewDraftHelp": "See your changes before you publish them.",
+  "buildsTitle": "Builds & publishing",
+  "builds": "Builds & downloads",
+  "publishing": "Publishing",
+  "publishManaged": "We publish for you",
+  "publishSelf": "You publish on your own store accounts",
+  "noBuilds": "No builds yet.",
+  "buildsOnDashboard": "New builds are started on the dashboard.",
+  "startedAt": "Started {date}",
+  "@startedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "finishedAt": "Finished {date}",
+  "@finishedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yourAppTools": "Your app",
+  "account": "Account",
+  "planAndStorage": "Plan & storage",
+  "settings": "Settings",
+  "notificationSettings": "Notifications",
+  "signedInDevices": "Signed-in devices",
+  "biometricLock": "Unlock with fingerprint or face",
+  "biometricLockHelp": "Asked when the app opens, and after 5 minutes away.",
+  "biometricUnavailable": "This phone has no fingerprint, face or screen lock set up.",
+  "help": "Help",
+  "helpWhatsapp": "Talk to us on WhatsApp",
+  "helpEmail": "Email us",
+  "helpCenter": "Guides",
+  "legal": "Legal",
+  "terms": "Terms of service",
+  "privacy": "Privacy policy",
+  "signOut": "Sign out",
+  "signOutTitle": "Sign out of Yallapp Business?",
+  "signOutText": "This phone stops getting your notifications.",
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "phoneLanguage": "The phone's language",
+  "languageHelp": "The same choice as the dashboard's language. Your notifications follow it too.",
+  "pushOff": "Notifications aren't set up in this build of the app.",
+  "pushSettingsHelp": "Choose what this phone tells you about.",
+  "pushNewOrder": "New orders",
+  "pushNewOrderHelp": "When an order is paid.",
+  "pushNewBooking": "New bookings",
+  "pushNewBookingHelp": "When an appointment is booked.",
+  "pushNewMessage": "New messages",
+  "pushNewMessageHelp": "When someone writes about a listing.",
+  "pushPayment": "Payments",
+  "pushPaymentHelp": "Donations, and your payments to Yallapp.",
+  "pushBuild": "Builds",
+  "pushBuildHelp": "When a build is ready or fails.",
+  "pushUpdates": "Updates from Yallapp",
+  "pushUpdatesHelp": "Our news, maintenance and offers.",
+  "pushNotices": "Account notices",
+  "pushNoticesHelp": "The plan ending, storage, app users and your site.",
+  "devicesHelp": "Phones signed in to Yallapp Business. They're also listed on the dashboard.",
+  "thisPhone": "This phone",
+  "lastSeen": "last used {when}",
+  "@lastSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "signOutDeviceTitle": "Sign out {name}?",
+  "@signOutDeviceTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "signOutAll": "Sign out every phone",
+  "signOutAllTitle": "Sign out every phone?",
+  "signOutAllText": "Every phone, this one too, has to sign in again. The website stays signed in.",
+  "noPlan": "No plan",
+  "planEnded": "Ended on {date}",
+  "@planEnded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "nextPlan": "{plan} starts on {date}",
+  "@nextPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "manageOnWebsiteText": "Renewing, changing plans and adding storage are done on yallapp.com.tr.",
+  "goodMorning": "Good morning, {name}",
+  "@goodMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goodAfternoon": "Good afternoon, {name}",
+  "@goodAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goodEvening": "Good evening, {name}",
+  "@goodEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "switchAppLabel": "{name}. Switch app",
+  "@switchAppLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bellUnread": "Updates from Yallapp, {count} unread",
+  "@bellUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unreadCount": "{count} unread",
+  "@unreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "buildVersion": "Version {version} (build {number})",
+  "@buildVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "usersMatches": "{matches} of {total} users",
+  "@usersMatches": {
+    "placeholders": {
+      "matches": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count} h ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "donorsCount": "{count, plural, =1{1 donor} other{{count} donors}}",
+  "@donorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lessonsCount": "{count, plural, =1{1 lesson} other{{count} lessons}}",
+  "@lessonsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studentsCount": "{count, plural, =1{1 student} other{{count} students}}",
+  "@studentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockLeft": "{count} in stock",
+  "@stockLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutes": "{count} min",
+  "@minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pushedTo": "{count, plural, =1{The push went to 1 phone.} other{The push went to {count} phones.}}",
+  "@pushedTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "retentionDay": "{days, plural, =1{Came back the next day} other{Came back after {days} days}}",
+  "@retentionDay": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "usersTotal": "{count, plural, =1{1 user} other{{count} users}}",
+  "@usersTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planEnds": "{days, plural, =0{Ends today} =1{Ends tomorrow} other{Ends in {days} days}} ({date})",
+  "@planEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  }
+}
