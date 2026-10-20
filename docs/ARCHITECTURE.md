@@ -1152,8 +1152,8 @@ are separate.
   the other language, so the page loads with its own direction. Choosing one
   sets the `yallapp_lang` cookie (`src/i18n/config.ts`: one year, `Path=/`,
   `SameSite=Lax`, readable by scripts); signing in or up from an Arabic or
-  Turkish page sets it too (`app/actions/auth.ts`). Nothing redirects by it
-  yet; it's for Phase 56. Sign-in still goes to the dashboard.
+  Turkish page sets it too (`app/actions/auth.ts`). Nothing redirects by it;
+  the dashboard reads it (Phase 56, below). Sign-in still goes to the dashboard.
 - **Search engines** (`lib/seo.ts` `siteMetadata`). Each page has its own
   title, description and canonical, `alternates.languages` with `en`, `ar`,
   `tr` and `x-default` (English), `og:locale` with the other two as
@@ -1182,12 +1182,61 @@ are separate.
   built-in translation, else the English text; an empty field falls back.
   Plan texts edited in Admin › Plans are shown as edited, in every
   language; untouched ones use the built-in translations.
-- **For Phase 56 (the dashboard).** Add a `dashboard` area to the catalogs
-  (the type check and the unit test then ask for Arabic and Turkish), read
-  the language from `yallapp_lang` (`langFromCookie`) on the server, and set
-  `lang`/`dir` on the dashboard's wrapper, or give `HtmlShell` the language
-  from a cookie-reading layout. `PasswordField`, `Icon` mirroring, the
-  formatters and `translateKnown` are ready.
+- **The dashboard** uses the same formats and ICU messages with its own
+  catalogs: "The client dashboard in Arabic and Turkish (Phase 56)" below.
+
+## The client dashboard in Arabic and Turkish (Phase 56)
+
+Every client-facing page after sign-in (`app/dashboard/**`, `/pending`) and
+the components they share are in English, Arabic and Turkish. The admin
+stays in English: components it shares with the dashboard take a `lang`
+that defaults to English, and the client-side hooks do nothing outside the
+dashboard.
+
+- **The language** (`lib/dashboard-lang.ts` `dashboardLang`). The person's
+  choice (`users.language`, migration 0042, null until they choose), else
+  the `yallapp_lang` cookie, else English (`preferredLang`). The switcher in
+  the sidebar's account area (`components/dashboard-language.tsx`, a form)
+  posts `setDashboardLanguageAction`, which saves it on whoever is signed
+  in (our team member managing a client changes their own) and in the
+  cookie. Signing in from `/ar` or `/tr` saves the page's language when the
+  person had none. The dashboard layout and `/pending` set `<html lang dir>`
+  for their pages (`DocumentLang`); other pages keep the route's.
+- **Catalogs** (`src/i18n/dashboard/<area>.ts`, registered in `index.ts`
+  `AREAS`). Each area exports `en` (`as const`, the source) and `ar` and
+  `tr` typed `Strings<typeof en>`, so a missing key fails the type check;
+  `dashboard-i18n.test.ts` also checks placeholders, plural forms and tags
+  and scans the dashboard's files for English written into them
+  (`tests/unit/dashboard-strings.ts`; `i18n-ok` marks a line that is code
+  or a name). Keys are `area.key`. Messages are ICU (placeholders, plural,
+  select; `{kind, select, …}` for words that depend on the app's kind) with
+  rich-text tags (`richText(text, { link: (chunk) => <Link…/> })`), never
+  sentences joined from pieces.
+- **Server and client.** Server components call `dashboardText()` for
+  `{ lang, dir, t, k, date, num }`; client components get the same catalog
+  from `DashboardI18n` (one language per page) through `useDashT`,
+  `useDashLang`, `useDashFormat` and `useKnownText`.
+- **Messages from shared code** (server actions, `lib/` validation, checks,
+  notices) stay English sentences, so actions don't need the language. Each
+  area's `known` group lists the English texts it can show with their
+  translations; `k(text)` (and `FormMessage`, `FieldError` and the other
+  shared components) translate a text by exact match, then by `{name}`
+  patterns, putting values back as they were (a date written the English
+  way is written again in the language, and a known "The …" phrase is
+  translated). An unknown text shows in English. A new message is added in
+  English to the right `known` group with its Arabic and Turkish.
+- **Right to left.** Tailwind's logical utilities (`ms`, `pe`, `start`,
+  `text-end`), `Icon` mirroring the directional symbols, charts and number
+  columns kept left to right, and the phone preview and phone frames in
+  `dir="ltr"`. Numbers use Latin digits in every language.
+- **Emails to clients** (`lib/email/templates-lang.ts`). Unedited emails to
+  clients have Arabic and Turkish defaults with the same placeholders;
+  `sendTemplate(key, to, values, { lang })` picks the one for
+  `emailLangOf(user)` (their dashboard language, else English) and writes
+  English-style dates in it; the lines that go into the placeholders come
+  from the `emails` area. A template the team edited in Admin › Emails is
+  one English text, sent in every language. Emails to the team and to the
+  people using a client's app don't take a language.
 
 ## Demo apps (Phase 16)
 

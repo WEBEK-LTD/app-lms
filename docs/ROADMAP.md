@@ -1201,10 +1201,34 @@ admin stays in English. No migration, no contract change.
 | [x] | 55.6 Every visible text in natural Arabic and Turkish: menus, sections, plans and the pricing table (prices still from Phase 52), the comparison, FAQ, Works-with, footer, forms and their messages, page titles, all 51 documentation articles and the developer guide (code examples as they are, headings keeping their English anchors), and the legal pages with a line that the English version prevails. The privacy policy names the language cookie | `site-i18n.test.ts` (every article and legal page has the same sections, links and contact placeholders as English) |
 | [x] | 55.7 Admin › Website content in English, Arabic and Turkish tabs: the built-in translations as defaults, each field editable per language, empty fields falling back; stored as `<key>@ar` and `<key>@tr` in `site_content` | `site-i18n.test.ts`, `site-languages.spec.ts` (the Turkish home title edited and reset) |
 | [x] | 55.8 `CLAUDE.md`: English is the default; the website and the client dashboard are in English, Arabic and Turkish, every new string in all three; the admin stays English; client apps keep their own languages | Review |
-| [ ] | 55.9 The client dashboard in Arabic and Turkish | Phase 56 |
+| [x] | 55.9 The client dashboard in Arabic and Turkish | Phase 56 |
 | [ ] | 55.10 Plan texts edited in Admin › Plans, and English texts the team edits after this phase, aren't translated by themselves: the translated pages show the team's edit (plans) or keep the built-in translation until the team edits that language | The team edits each language in Admin › Website content |
 | [ ] | 55.11 The Arabic share images use a simple letter shaper (joined letters, right-to-left words, no diacritics); a phrase with marks or mixed scripts may look plain | Acceptable; a full shaper if the images need more |
 | [ ] | 55.12 Checked in Chrome at 1280 and 390 px; not yet on real iPhones and Android phones, or by a native Arabic and Turkish reader | Before announcing the new languages |
+
+## Phase 56: The client dashboard in Arabic and Turkish
+
+The owner asked for the whole system in Arabic and Turkish, with English as
+the main language. After the website (Phase 55), this phase puts the client
+dashboard on the same foundation: every page after sign-in, `/pending`, the
+shared components, the messages of the dashboard's forms, the bell, and
+Yallapp's emails to clients. The admin stays in English. Owner content (their
+products, articles, events) and the phone preview stay as written. Proved
+with unit tests and a browser test on memory and on MariaDB. Migration
+`drizzle/0042_dashboard_languages.sql` (`users.language`). No contract change.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 56.1 Every client-facing screen after sign-in in English, Arabic and Turkish: `app/dashboard/**`, `/pending` and the shared components, through typed catalogs per area (`src/i18n/dashboard`, English as the source). Messages from server actions and shared code are English sentences translated where they are shown (`known` texts, by exact match or `{placeholder}` pattern), so actions stay language-free; page titles, dates, numbers and lists follow the language with Latin digits | `dashboard-i18n.test.ts` (every key in all three, same placeholders, plurals and tags; no English text written into a dashboard page or component) |
+| [x] | 56.2 The language choice, "English · العربية · Türkçe" with the Material Symbols "language" icon, in the sidebar's account area (and the phone's Menu sheet). Saved on the person (`users.language`) and in `yallapp_lang`; signing in from `/ar` or `/tr` sets it when they had none; our team member managing a client's dashboard sees and changes their own language, not the client's. The person's choice wins over the cookie, the cookie over English | `dashboard-i18n.test.ts` (preference order), `dashboard-languages.spec.ts` (after signing out and in, in another browser, team member vs client) |
+| [x] | 56.3 Right to left in Arabic: the sidebar on the right, logical spacing and alignment, mirrored arrows and chevrons, tables and charts readable (numbers and charts left to right), the page editor's drag and drop usable; the phone preview and phone frames not mirrored | `dashboard-languages.spec.ts` (`dir="rtl"`, the sidebar on the right), review |
+| [x] | 56.4 Emails to clients (password, activation and renewal, builds, publishing, plan and storage reminders, app users, the app's own WhatsApp number or email server failing, new orders, appointments and messages) in the client's language: Arabic and Turkish defaults with the same placeholders (`lib/email/templates-lang.ts`), the lines that go into them in that language, dates written in it, Arabic right to left. A template the team edited in Admin › Emails is one English text for every language (the admin page says so). Emails to the team and to the people using a client's app are unchanged | `email-languages.test.ts`, `dashboard-languages.spec.ts` (the password email in Arabic) |
+| [x] | 56.5 The bell (Phase 57) in the person's language, with the announcements' Arabic and Turkish texts when the team wrote them | `dashboard-i18n.test.ts`, review |
+| [x] | 56.6 Modern Standard Arabic and natural Turkish with one glossary; brand, store and platform names in Latin letters; no sentence built from pieces; links inside sentences as tags | `dashboard-i18n.test.ts`, review |
+| [x] | 56.7 Plain internal links in the dashboard and `/pending` use `next/link`; the `@next/next/no-html-link-for-pages` lint rule is on again | `eslint` |
+| [x] | 56.8 Unit, MySQL and browser tests; `dashboard-languages.spec.ts` on memory and MariaDB; the full suites | `vitest`, `tsc`, `eslint`, `next build`, `playwright` |
+| [ ] | 56.9 Left in English: the Languages page's descriptions of the app's interface strings, ICU syntax errors in the page editor, the analytics CSV's column names, store review notes and default release notes (store content), and some low-level messages from payment providers and email servers | Acceptable; translate when clients ask |
+| [ ] | 56.10 Checked with tests and in Chrome; not yet by a native Arabic and Turkish reader or on real phones | Before announcing the new languages |
 
 ## Phase 57: A notifications bell in the dashboard for what Yallapp sends
 
@@ -1232,7 +1256,7 @@ and a browser test on memory and on MariaDB. Migration
 | [x] | 57.7 Unit, MySQL and browser tests; the bell and announcement specs on memory and MariaDB; the full suites | `vitest`, `tsc`, `eslint`, `next build`, `playwright` |
 | [ ] | 57.8 Clients have one sign-in today (no team members of their own yet), so "per person" is the owner and our team members managing the dashboard; members, when they come, get their own read state with no change | When client team members are built |
 | [ ] | 57.9 Email clients when a Maintenance announcement is published (today the team ticks "Also email it to these clients now") | Owner's decision |
-| [ ] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56 |
+| [x] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56: the bell and the banner use the person's language; announcement emails stay as the team wrote them |
 | [ ] | 57.11 The bell counts only on a page load, a focus after a minute, or what the person does; a build that finishes while the dashboard stays open shows on the next load | Acceptable |
 
 ## Later: the Yallapp app for business owners (decided, not started)
