@@ -57,6 +57,11 @@ cp config/firebase.example.json config/firebase.json   # git-ignored
 flutter run --dart-define-from-file=config/firebase.json
 ```
 
+CI (the Mobile workflow's "Yallapp Business" job) builds the APK for
+yallapp.com.tr with the Android options from the repository's Actions
+variables `YB_FIREBASE_PROJECT_ID`, `YB_FIREBASE_SENDER_ID`,
+`YB_FIREBASE_APP_ID_ANDROID` and `YB_FIREBASE_API_KEY_ANDROID`.
+
 Without these options the app works the same and Settings › Notifications
 says notifications aren't set up in this build. With them, after sign-in the
 app asks for permission, registers the token (`PUT /me/push-token`, again on

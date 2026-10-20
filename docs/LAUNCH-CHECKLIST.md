@@ -383,7 +383,16 @@ the bytes: the media gate on the host takes the uploads and plays the files.
       then sends the files and answers range requests itself. Without it, PHP
       streams each range in 256 KB pieces (check `max_execution_time` doesn't
       cut long downloads: the gate calls `set_time_limit(0)`).
-- [ ] In Netlify: `MEDIA_BASE_URL=https://yallapp.com.tr/media` and
+- [ ] **Where the gate lives (as set up live):** yallapp.com.tr is proxied to
+      Netlify, and without root access the proxy's `ProxyPass /media/ !` can't
+      be added, so `/media` reached the platform's own route (its plain "Not
+      found."). The gate therefore lives on the files subdomain, which isn't
+      proxied: `public_html/files.yallapp.com.tr/media/` (its own `.htaccess`
+      takes over from the files host's), with `'allowed_origin' =>
+      'https://yallapp.com.tr'` in config.php for the dashboard's uploads, and
+      `MEDIA_BASE_URL=https://files.yallapp.com.tr/media`. Check:
+      `https://files.yallapp.com.tr/media/ping` answers "Yallapp media gate 2".
+- [ ] In Netlify: `MEDIA_BASE_URL` (above; `https://yallapp.com.tr/media` only when the proxy keeps /media on the host) and
       `MEDIA_SIGNING_SECRET` (the same value as `signing_secret`). Redeploy,
       then Admin › Settings › Server shows "Media library: Our server" and
       **Check the media server** answers that it accepts our signed links.
