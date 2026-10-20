@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -46,9 +47,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const { t, k, lang } = await dashboardText();
   const name = appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app);
   const store = await getStore();
-  const plans = await getPlans(store);
+  const plans = plansIn(lang, await getPlans(store));
   // 13.1 The app's plan as it is now, with the team's edits and switches.
-  const effective = await effectivePlans(store);
+  const effective = plansIn(lang, await effectivePlans(store));
   const plan = license ? currentPlanId(license, new Date()) : null;
   const status = stepStatus(app, plan, effective);
   const requested = (await searchParams).step;

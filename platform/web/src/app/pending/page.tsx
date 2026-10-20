@@ -11,7 +11,7 @@ import { PlanPaymentForm } from "@/components/plan-payment-form";
 import { Notice } from "@/components/ui";
 import { dashboardMessages, knownEnglish } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
-import { getAdminRole, getClientContext, getCurrentUser } from "@/lib/auth/session";
+import { getAdminRole, getClientContext, getCurrentUser, signInPath } from "@/lib/auth/session";
 import { cardPlanOptions } from "@/lib/billing/card-plans";
 import { getSwitches } from "@/lib/switches";
 import { getStore } from "@/lib/data";
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PendingPage({ searchParams }: PageProps<"/pending">) {
   const contact = await getContact();
   const user = await getCurrentUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect(await signInPath());
   if (await getAdminRole()) redirect("/admin");
   const text = await dashboardText();
   const { t, k, lang, dir } = text;

@@ -2545,5 +2545,21 @@
         "type": "int"
       }
     }
+  },
+  "coursePasswordTitle": "This course has a password",
+  "@coursePasswordTitle": {
+    "description": "Course page: a course the website protects with a password. The app never asks for the password."
+  },
+  "coursePasswordWebsite": "Enter its password on the website. Once you've joined the course there, it opens here too.",
+  "@coursePasswordWebsite": {
+    "description": "Course page, under the password notice, when the course can be opened on the website."
+  },
+  "coursePasswordInApp": "It can't be opened in the app.",
+  "@coursePasswordInApp": {
+    "description": "Course page, under the password notice, on iPhone for a paid course: no link to the website there."
+  },
+  "courseOpenOnWebsite": "Open on the website",
+  "@courseOpenOnWebsite": {
+    "description": "Course page button that opens a password-protected course on the website, where its password is entered."
   }
 }

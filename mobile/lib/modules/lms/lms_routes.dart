@@ -12,6 +12,7 @@ import '../shared/account/lists_screens.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'courses/course_detail_screen.dart';
+import 'data/lms_providers.dart';
 import 'courses/course_questions.dart';
 import 'courses/courses_screen.dart';
 import 'downloads/downloads_screen.dart';
@@ -148,7 +149,14 @@ List<RouteBase> _pushedRoutes() => [
         // 53 Course content: protected when the owner protects it.
         id == null
             ? const NotFoundScreen()
-            : ProtectedContent(child: LessonScreen(lessonId: id)),
+            : ProtectedContent(
+                // 62 Screenshots are counted with the lesson.
+                item: ProtectedItem.lesson(
+                  id,
+                  title: (ref) => ref.read(lessonProvider(id)).value?.title,
+                ),
+                child: LessonScreen(lessonId: id),
+              ),
       );
     },
   ),

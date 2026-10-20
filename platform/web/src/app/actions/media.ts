@@ -18,6 +18,7 @@ import { getMediaStorage } from "@/lib/media/storage";
 import { startAppUpload } from "@/lib/media/start";
 import { resolveStorageNotices } from "@/lib/media/usage";
 import { PaymentError } from "@/lib/payments/errors";
+import { explainPaymentError } from "@/lib/payments/explain";
 import { callbackUrls } from "@/lib/payments/routes";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { priceView } from "@/lib/billing/display";
@@ -217,7 +218,7 @@ export async function buyStorageAction(_: FormState, formData: FormData): Promis
       callbackUrls: (token) => callbackUrls(appUrl(), "plan", account.provider, token),
     });
   } catch (e) {
-    if (e instanceof PaymentError) return { message: `The payment couldn't start: ${e.message}`, values };
+    if (e instanceof PaymentError) return { message: `The payment couldn't start: ${explainPaymentError(account.provider, e, { whose: "yallapp" })}`, values };
     throw e;
   }
   redirect(url);

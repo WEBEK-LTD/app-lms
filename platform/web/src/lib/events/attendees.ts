@@ -48,8 +48,8 @@ export async function attendeesOf(store: DataStore, app: App, event: EventRecord
   });
 }
 
-/** The attendee list as a CSV file, times in the organiser's time zone. */
-export async function attendeesCsv(store: DataStore, app: App, event: EventRecord): Promise<string> {
+/** The attendee list as a CSV file, times in the organiser's time zone. 62 `k` puts its words in the downloader's language. */
+export async function attendeesCsv(store: DataStore, app: App, event: EventRecord, k: (english: string) => string = (english) => english): Promise<string> {
   const [rows, settings] = await Promise.all([attendeesOf(store, app, event), eventSettingsOf(store, app.id)]);
   const local = (at: Date | null) => {
     if (!at) return "";
@@ -57,7 +57,18 @@ export async function attendeesCsv(store: DataStore, app: App, event: EventRecor
     return `${l.date} ${l.time}`;
   };
   return csv([
-    ["Ticket code", "Name on ticket", "Ticket type", "Price", "Status", "Got by", "Phone or email", "Order", "Got on", "Checked in at"],
-    ...rows.map((r) => [r.code, r.holder, r.type, r.price, r.status, r.buyer, r.contact, r.order, local(r.ticket.createdAt), local(r.ticket.usedAt)]),
+    ["Ticket code", "Name on ticket", "Ticket type", "Price", "Status", "Got by", "Phone or email", "Order", "Got on", "Checked in at"].map(k),
+    ...rows.map((r) => [
+      r.code,
+      r.holder,
+      r.type === "Ticket" ? k(r.type) : r.type,
+      r.price === "Free" ? k(r.price) : r.price,
+      k(r.status),
+      r.buyer === "Deleted account" ? k(r.buyer) : r.buyer,
+      r.contact,
+      r.order,
+      local(r.ticket.createdAt),
+      local(r.ticket.usedAt),
+    ]),
   ]);
 }

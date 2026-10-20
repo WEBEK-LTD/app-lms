@@ -46,6 +46,7 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
   let sessions = 0;
   const screens = new Map<string, { value: number; label: string | null }>();
   const items = new Map<string, { value: number; label: string | null }>();
+  const screenshots = new Map<string, { value: number; label: string | null }>();
   const counts = new Map<string, { value: number; label: string | null }>();
   const value = new Map<string, { value: number; label: string | null }>();
   const pushOpens = new Map<string, { installs: Set<string>; label: string | null }>();
@@ -64,6 +65,10 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
         break;
       case "item_view":
         if (event.itemKind && event.itemId) bump(items, `${event.itemKind}:${event.itemId}`, 1, event.title);
+        break;
+      case "screenshot":
+        // 62 By the lesson open when it was taken; elsewhere in the app as one.
+        bump(screenshots, event.itemKind && event.itemId ? `${event.itemKind}:${event.itemId}` : "other", 1, event.title);
         break;
       case "purchase_click":
         if (event.amountCents !== null && event.currency) bump(value, event.currency, event.amountCents);
@@ -97,6 +102,7 @@ export function totalsOfDay(events: readonly AnalyticsEventRow[]): AnalyticsDail
     ...split("language", (e) => e.language),
     ...topRows("screen", screens),
     ...topRows("item", items),
+    ...topRows("screenshot", screenshots),
     ...topRows("event", counts),
     ...topRows("checkout_value", value),
   ];

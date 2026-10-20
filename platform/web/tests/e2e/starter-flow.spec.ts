@@ -87,6 +87,35 @@ test("signed in, the website's header says Dashboard instead of Sign in and Get 
   expect((await page.context().cookies()).some((c) => c.name === "yallapp_signed_in")).toBe(false);
 });
 
+test("62 a session that ended on the server stops the header saying Dashboard", async ({ page }) => {
+  const header = page.getByRole("banner");
+  await signIn(page, client.email, client.password);
+  // The session ends on the server (signed out elsewhere, a new password): its cookie no longer opens anything.
+  const context = page.context();
+  const session = (await context.cookies()).find((c) => c.name === "yallapp_session")!;
+  await context.addCookies([{ ...session, value: "ended" }]);
+  await page.goto("/pricing");
+  await expect(header.getByRole("link", { name: "Dashboard" })).toBeVisible();
+  // The dashboard sends them to sign in and the leftover cookies go.
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/sign-in$/);
+  const left = (await context.cookies()).map((c) => c.name);
+  expect(left).not.toContain("yallapp_signed_in");
+  expect(left).not.toContain("yallapp_session");
+  await page.goto("/");
+  await expect(header.getByRole("link", { name: "Sign in" })).toBeVisible();
+
+  // Only the readable cookie left (opening the sign-in page straight away): the page removes it.
+  const url = new URL(page.url());
+  await context.addCookies([{ name: "yallapp_signed_in", value: "1", domain: url.hostname, path: "/" }]);
+  await page.goto("/pricing");
+  await expect(header.getByRole("link", { name: "Dashboard" })).toBeVisible();
+  await page.goto("/ar/sign-in");
+  await expect.poll(async () => (await context.cookies()).some((c) => c.name === "yallapp_signed_in")).toBe(false);
+  await page.goto("/pricing");
+  await expect(header.getByRole("link", { name: "Sign in" })).toBeVisible();
+});
+
 test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   // This client builds a Store app.

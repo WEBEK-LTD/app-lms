@@ -194,14 +194,14 @@
           "method": "GET",
           "path": "/courses/{course_id}",
           "summary": "Get a course",
-          "description": "A private course opens only for the students enrolled in it (bought, free or added by an administrator) and for whoever may read it on the website (its author, editors and administrators); anyone else gets `404 not_found`, as for a course that doesn't exist (50).",
+          "description": "A private course opens only for the students enrolled in it (bought, free or added by an administrator) and for whoever may read it on the website (its author, editors and administrators); anyone else gets `404 not_found`, as for a course that doesn't exist (50). A course with a password on the website (roadmap 62) shows in the catalog and opens as `password_protected`; see `CourseDetail`.",
           "access": "optional"
         },
         {
           "method": "GET",
           "path": "/courses/{course_id}/curriculum",
           "summary": "Get a course's topics and items",
-          "description": "The course's topics (Tutor LMS topics, LearnPress, LearnDash and MasterStudy sections, LifterLMS sections, Sensei modules...) in the order the LMS shows them, each with its lessons, quizzes, assignments and live classes in order. Items the student can't open are returned with `locked` set and no content. A private course's curriculum is `404 not_found` for whoever can't open the course (`GET /courses/{course_id}`, 50).",
+          "description": "The course's topics (Tutor LMS topics, LearnPress, LearnDash and MasterStudy sections, LifterLMS sections, Sensei modules...) in the order the LMS shows them, each with its lessons, quizzes, assignments and live classes in order. Items the student can't open are returned with `locked` set and no content. A private course's curriculum is `404 not_found` for whoever can't open the course (`GET /courses/{course_id}`, 50). A course with a password on the website (62) has no topics for a student who isn't in it.",
           "access": "optional"
         }
       ]
@@ -221,14 +221,14 @@
           "method": "GET",
           "path": "/me/wishlist",
           "summary": "List wishlisted courses",
-          "description": "Empty when the LMS has no wishlist (`features.wishlist` is false).",
+          "description": "Empty when the LMS has no wishlist (`features.wishlist` is false). Roadmap 62: a private course the student may open (enrolled in it, or may read it on the website) is listed like any other; one they can't open isn't.",
           "access": "signed-in"
         },
         {
           "method": "PUT",
           "path": "/me/wishlist/{course_id}",
           "summary": "Add a course to the wishlist",
-          "description": "Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).",
+          "description": "Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false). A course the student can't open (a private one they aren't in) is `404 not_found` (62).",
           "access": "signed-in"
         },
         {
@@ -242,7 +242,7 @@
           "method": "GET",
           "path": "/lessons/{lesson_id}",
           "summary": "Get a lesson",
-          "description": "Free-preview lessons are public; everything else requires enrollment. A lesson of a private course is `404 not_found`, free previews included, for whoever can't open the course (`GET /courses/{course_id}`, 50).",
+          "description": "Free-preview lessons are public; everything else requires enrollment. A lesson of a private course is `404 not_found`, free previews included, for whoever can't open the course (`GET /courses/{course_id}`, 50); so is a lesson of a course with a password on the website for a student who isn't in it (62).",
           "access": "optional"
         },
         {
@@ -345,7 +345,7 @@
           "method": "POST",
           "path": "/courses/{course_id}/enroll",
           "summary": "Enroll in a free course",
-          "description": null,
+          "description": "A course with a password on the website (62) is `403 enrollment_disabled`: the student joins it on the website, where its password is entered.",
           "access": "signed-in"
         }
       ]

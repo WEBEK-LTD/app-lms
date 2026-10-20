@@ -94,8 +94,16 @@ export const en = {
   reviewNotes: "For the store reviewers (optional)",
   reviewHint: "Anything Apple and Google need to try your app, like a phone number and code they can sign in with.",
   reviewHintNote: "Anything Apple and Google need to try your app, like a phone number and code they can sign in with. Also say: “{note}”",
+  // 62 Notes for the reviewers stay in English (Apple and Google read them); their meaning in the dashboard's language.
+  reviewEnglish: "Apple's and Google's reviewers read English: write these notes in English.",
+  reviewMeaning: "What the suggested note says: {meaning}",
   saveListing: "Save listing details",
   known: {
+    // 62 lib/publishing/review-notes.ts and lib/app/kinds.ts: notes for the store reviewers, kept in English; their meaning.
+    donationsReviewNote:
+      "Donations: this app doesn't take donations inside the iPhone app. The “Donate on our website” button opens the charity's donation page in Safari (App Store guideline 3.2.2(iv)); the payment happens there, into the charity's own payment account. The app has no in-app purchases.",
+    gymReviewNote:
+      "Memberships are for classes at our gym, used in person, so they are paid on our web payment page on iPhone too (App Store Review Guideline 3.1.3(e)). Nothing digital is sold in the app.",
     // lib/publishing/steps.ts: the steps
     playAccount: "Create your Google Play developer account",
     playAccountText:
@@ -301,8 +309,14 @@ export const ar: Messages = {
   reviewNotes: "لمراجعي المتاجر (اختياري)",
   reviewHint: "كل ما تحتاجه Apple وGoogle لتجربة تطبيقك، مثل رقم هاتف ورمز يمكنهم تسجيل الدخول بهما.",
   reviewHintNote: "كل ما تحتاجه Apple وGoogle لتجربة تطبيقك، مثل رقم هاتف ورمز يمكنهم تسجيل الدخول بهما. واذكر أيضًا: “{note}”",
+  reviewEnglish: "يقرأ مراجعو Apple وGoogle الإنجليزية: اكتب هذه الملاحظات بالإنجليزية.",
+  reviewMeaning: "معنى الملاحظة المقترحة: {meaning}",
   saveListing: "حفظ تفاصيل صفحة التطبيق",
   known: {
+    donationsReviewNote:
+      "التبرعات: لا يقبل هذا التطبيق التبرعات داخل تطبيق iPhone. يفتح زر “تبرّع عبر موقعنا” صفحة التبرع الخاصة بالجمعية في Safari (إرشاد App Store رقم 3.2.2(iv))؛ ويتم الدفع هناك، في حساب الدفع الخاص بالجمعية. لا يحتوي التطبيق على مشتريات داخلية.",
+    gymReviewNote:
+      "الاشتراكات مخصّصة لحصص في نادينا الرياضي تُحضر شخصيًا، لذا تُدفع عبر صفحة الدفع على موقعنا حتى على iPhone (إرشاد مراجعة App Store رقم 3.1.3(e)). لا يُباع أي شيء رقمي داخل التطبيق.",
     playAccount: "أنشئ حساب المطوّر في Google Play",
     playAccountText:
       "سجّل في Google Play Console بحسابك على Google، باسمك أو باسم شركتك. تفرض Google رسوم تسجيل لمرة واحدة تدفعها لها مباشرة، وتتحقق من هويتك؛ وقد يستغرق ذلك بضعة أيام.",
@@ -501,8 +515,14 @@ export const tr: Messages = {
   reviewNotes: "Mağaza inceleyenleri için (isteğe bağlı)",
   reviewHint: "Apple ve Google'ın uygulamanızı denemek için ihtiyaç duyduğu her şey; örneğin giriş yapabilecekleri bir telefon numarası ve kod.",
   reviewHintNote: "Apple ve Google'ın uygulamanızı denemek için ihtiyaç duyduğu her şey; örneğin giriş yapabilecekleri bir telefon numarası ve kod. Şunu da belirtin: “{note}”",
+  reviewEnglish: "Apple ve Google'ın inceleyenleri İngilizce okur: bu notları İngilizce yazın.",
+  reviewMeaning: "Önerilen notun anlamı: {meaning}",
   saveListing: "Mağaza sayfası bilgilerini kaydet",
   known: {
+    donationsReviewNote:
+      "Bağışlar: bu uygulama iPhone uygulamasında bağış almaz. “Web sitemizden bağış yap” düğmesi, derneğin bağış sayfasını Safari'de açar (App Store yönergesi 3.2.2(iv)); ödeme orada, derneğin kendi ödeme hesabına yapılır. Uygulamada uygulama içi satın alma yoktur.",
+    gymReviewNote:
+      "Üyelikler spor salonumuzdaki, yüz yüze katılınan dersler içindir; bu yüzden iPhone'da da web ödeme sayfamızda ödenir (App Store İnceleme Yönergesi 3.1.3(e)). Uygulamada dijital bir şey satılmaz.",
     playAccount: "Google Play geliştirici hesabınızı açın",
     playAccountText:
       "Kendi Google hesabınızla, kendi adınıza veya şirketinizin adına Google Play Console'a kaydolun. Google, doğrudan Google'a ödediğiniz tek seferlik bir kayıt ücreti alır ve kimliğinizi doğrular; bu birkaç gün sürebilir.",

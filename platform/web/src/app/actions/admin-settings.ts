@@ -23,6 +23,7 @@ import {
   isPlan,
   PLAN_FEATURE_IDS,
   PLAN_INFO,
+  PLAN_TEXT_LANGS,
   planPriceOf,
   planSettingOf,
   plansWith,
@@ -31,6 +32,7 @@ import {
   type PlanInfo,
   type PlanLimits,
   type PlanSetting,
+  type PlanTranslations,
   type SupportLevel,
 } from "@/lib/plans";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
@@ -401,6 +403,11 @@ async function revalidatePlans() {
   revalidatePath("/admin/plans");
   revalidatePath("/pricing");
   revalidatePath("/");
+  // 62 The Arabic and Turkish pages show the plans' own texts in their language.
+  for (const lang of PLAN_TEXT_LANGS) {
+    revalidatePath(`/${lang}/pricing`);
+    revalidatePath(`/${lang}`);
+  }
 }
 
 /** Name, texts and price of a plan. Its features and limits are kept (savePlanLimitsAction). */
@@ -410,6 +417,8 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   if (!isPlan(plan)) return { message: "Unknown plan." };
   const values: Record<string, string> = {};
   for (const name of ["name", "tagline", "highlights", "price", "pricing", "egpPrice", "usdPrice", "months"]) values[name] = str(formData, name);
+  // 62 The texts in Arabic and Turkish, all optional.
+  for (const lang of PLAN_TEXT_LANGS) for (const field of ["Name", "Tagline", "Highlights", "Price"]) values[`${lang}${field}`] = str(formData, `${lang}${field}`);
   const errors: Record<string, string> = {};
   if (!values.name || values.name.length > 30) errors.name = "Enter a name of up to 30 characters.";
   if (values.tagline!.length > 80) errors.tagline = "Use at most 80 characters.";
@@ -427,6 +436,19 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
   const usdCents = values.usdPrice ? parsePrice(values.usdPrice) : null;
   if (values.usdPrice && (usdCents === null || usdCents === 0)) errors.usdPrice = "Enter a price in US dollars, like 29, or leave it empty to use the rate.";
   if (values.months !== "1" && values.months !== "12") errors.months = "Choose monthly or yearly.";
+  const translations: PlanTranslations = {};
+  for (const lang of PLAN_TEXT_LANGS) {
+    const name = values[`${lang}Name`]!;
+    const tagline = values[`${lang}Tagline`]!;
+    const price = values[`${lang}Price`]!;
+    const lines = values[`${lang}Highlights`]!.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (name.length > 30) errors[`${lang}Name`] = "Use at most 30 characters.";
+    if (tagline.length > 80) errors[`${lang}Tagline`] = "Use at most 80 characters.";
+    if (lines.length > 10 || lines.some((h) => h.length > 80)) errors[`${lang}Highlights`] = "Write up to 10 lines, each up to 80 characters.";
+    if (price.length > 30) errors[`${lang}Price`] = "Use at most 30 characters.";
+    const text = { ...(name ? { name } : {}), ...(tagline ? { tagline } : {}), ...(lines.length ? { highlights: lines } : {}), ...(price ? { price } : {}) };
+    if (Object.keys(text).length) translations[lang] = text;
+  }
   if (Object.keys(errors).length) return { errors, values };
   const { saved, info } = await currentPlan(plan);
   const setting: PlanSetting = {
@@ -440,6 +462,8 @@ export async function savePlanAction(_: FormState, formData: FormData): Promise<
     onRequest,
     billingMonths: values.months === "1" ? 1 : 12,
   };
+  if (Object.keys(translations).length) setting.translations = translations;
+  else delete setting.translations;
   // An edit from before Phase 52 named its currency; prices are in pounds now.
   delete setting.currency;
   await save("plans", { ...saved, [plan]: setting }, admin, {

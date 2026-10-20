@@ -7,7 +7,8 @@ import { EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { compactIn } from "@/lib/analytics/format";
-import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport, type Share } from "@/lib/analytics/report";
+import { loadReport, rangeFrom, RANGE_PRESETS, MIN_SEARCH_COUNT, type AnalyticsReport } from "@/lib/analytics/report";
+import { relabel } from "@/lib/analytics/localize";
 import { funnelWords, itemWord, pushTypeWord } from "@/lib/analytics/words";
 import { timeZones, zoneLabel, zoneOf } from "@/lib/analytics/zone";
 import { wordsOf } from "@/lib/app/kinds";
@@ -16,7 +17,6 @@ import { formatCents } from "@/lib/catalog/money";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { appLanguageName } from "@/lib/i18n/language-names";
 
 import { ZoneForm } from "./zone-form";
 
@@ -79,23 +79,6 @@ function NoData({ app, text }: { app: App; text: DashboardText }) {
       {app.appName ? text.t("analytics.noDataText", { app: app.appName }) : text.t("analytics.noDataTextNoName")}
     </EmptyState>
   );
-}
-
-/** Country and language names in the dashboard's language; "Other" and "Unknown" translated. */
-function relabel(items: Share[], text: DashboardText, kind: "country" | "language" | "other"): Share[] {
-  if (text.lang === "en") return items;
-  const regions = new Intl.DisplayNames([text.lang], { type: "region" });
-  return items.map((item) => {
-    if (item.key === "other") return { ...item, label: text.t("analytics.other") };
-    if (item.key === "unknown") return { ...item, label: text.t("analytics.unknown") };
-    try {
-      if (kind === "country") return { ...item, label: regions.of(item.key.toUpperCase()) ?? item.label };
-      if (kind === "language") return { ...item, label: appLanguageName(item.key, text.lang) };
-    } catch {
-      return item;
-    }
-    return { ...item, label: text.k(item.label) };
-  });
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
@@ -225,6 +208,21 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
               {t("analytics.checkoutValue", { values: report.checkoutValue.map((v) => formatCents(v.cents, v.currency as Parameters<typeof formatCents>[1])).join(", ") })}
             </p>
           ) : null}
+        </Section>
+      ) : null}
+
+      {/* 62 Screenshots of protected lessons, for academies (iPhones tell the app; Android blocks them). */}
+      {app.appType === "lms" ? (
+        <Section id="screenshots" titleId="h-screenshots" title={t("analytics.screenshots")} description={t("analytics.screenshotsText")}>
+          {report.screenshots.length === 0 ? (
+            <p className="m-0 text-sm text-muted">{t("analytics.noScreenshots")}</p>
+          ) : (
+            <DataTable
+              caption={t("analytics.screenshotsCaption")}
+              head={[t("analytics.lesson"), t("analytics.screenshotsCount")]}
+              rows={report.screenshots.map((shot) => [shot.kind === "other" ? t("analytics.otherProtected") : shot.title, num(shot.count)])}
+            />
+          )}
         </Section>
       ) : null}
 

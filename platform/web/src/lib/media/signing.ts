@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { safeEqual } from "../crypto/tokens";
 
 /**
@@ -16,16 +16,30 @@ import { safeEqual } from "../crypto/tokens";
  *   Upload-Offset, up to `size` in all. The last chunk completes the file.
  * - `s` GET: what's on disk, as JSON (the platform's check after an upload).
  * - `d` DELETE: removes the file (and an unfinished upload).
+ * 62 And on an app's whole folder, `<base>/a/<app id>` and `<base>/l/apps`:
+ * - `a` DELETE: removes the app's folder and every file in it (an app that
+ *   was deleted, lib/media/sweep.ts).
+ * - `l` GET: the app folders on disk, as JSON (`{"apps": [...]}`).
+ * 62 A `v` link for one student carries `t`, a number made from the access
+ * token the app called the API with (`mediaTokenDigest`): the gate plays it
+ * only to a request with `Authorization: Bearer <that token>`.
  * Parameter values are digits only, so PHP's and JavaScript's encodings agree.
  */
 
-export type MediaOp = "v" | "u" | "s" | "d";
+export type MediaOp = "v" | "u" | "s" | "d" | "a" | "l";
 
 export const MEDIA_EXTENSIONS = ["mp4", "mov", "webm", "jpg", "png", "webp", "gif", "pdf"] as const;
 export type MediaExtension = (typeof MEDIA_EXTENSIONS)[number];
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const PATH = new RegExp(`^/(v|u|s|d)/(${UUID})/(${UUID})\\.(${MEDIA_EXTENSIONS.join("|")})$`);
+/** 62 An app's folder (`a`), or the list of folders (`l`). */
+const FOLDER_PATH = new RegExp(`^/(?:a/(${UUID})|l/apps)$`);
+
+/** 62 What a student's play link is bound to: the first 52 bits of the access token's SHA-256, as digits (the same in PHP). */
+export function mediaTokenDigest(token: string): string {
+  return String(parseInt(createHash("sha256").update(token).digest("hex").slice(0, 13), 16));
+}
 
 /** A media file's place on disk, `<app id>/<media id>.<ext>`. */
 export function storageKeyOf(appId: string, mediaId: string, extension: MediaExtension): string {
@@ -70,12 +84,27 @@ export function signMediaUrl(
 }
 
 export type MediaRequestCheck =
-  | { ok: true; op: MediaOp; appId: string; mediaId: string; extension: MediaExtension; key: string; params: Record<string, string> }
+  | { ok: true; op: "v" | "u" | "s" | "d"; appId: string; mediaId: string; extension: MediaExtension; key: string; params: Record<string, string> }
+  | { ok: true; op: "a"; appId: string; params: Record<string, string> }
+  | { ok: true; op: "l"; params: Record<string, string> }
   | { ok: false; status: 403 | 404 | 410; message: string };
 
-/** Checks a request to the gate: its path (after the base) and query. */
-export function verifyMediaRequest(path: string, search: URLSearchParams, secret: string, now: Date = new Date()): MediaRequestCheck {
-  const parsed = parseMediaPath(path);
+type ParsedPath = ({ op: "v" | "u" | "s" | "d" } & Omit<NonNullable<ReturnType<typeof parseMediaPath>>, "op">) | { op: "a"; appId: string } | { op: "l" };
+
+function parsePath(path: string): ParsedPath | null {
+  const file = parseMediaPath(path);
+  if (file) return file as ParsedPath;
+  const folder = FOLDER_PATH.exec(path);
+  if (!folder) return null;
+  return folder[1] ? { op: "a", appId: folder[1] } : { op: "l" };
+}
+
+/**
+ * Checks a request to the gate: its path (after the base), query and, 62 for
+ * a link bound to a student, its `Authorization` header.
+ */
+export function verifyMediaRequest(path: string, search: URLSearchParams, secret: string, now: Date = new Date(), authorization: string | null = null): MediaRequestCheck {
+  const parsed = parsePath(path);
   if (!parsed) return { ok: false, status: 404, message: "Not found." };
   const params: Record<string, string> = {};
   search.forEach((value, key) => {
@@ -88,7 +117,11 @@ export function verifyMediaRequest(path: string, search: URLSearchParams, secret
   if (Object.entries(params).some(([k, v]) => k !== "sig" && !/^\d+$/.test(v))) return invalid;
   if (!safeEqual(sig, mediaSignature(secret, path, params))) return invalid;
   if (Number(expires) < Math.floor(now.getTime() / 1000)) return { ok: false, status: 410, message: "This link has expired." };
-  return { ok: true, ...parsed, params };
+  if (params.t !== undefined) {
+    const token = /^Bearer\s+(\S+)$/i.exec(authorization?.trim() ?? "")?.[1];
+    if (!token || !safeEqual(mediaTokenDigest(token), params.t)) return { ok: false, status: 403, message: "This link is for another student." };
+  }
+  return { ok: true, ...parsed, params } as MediaRequestCheck;
 }
 
 export const MEDIA_CONTENT_TYPES: Record<MediaExtension, string> = {

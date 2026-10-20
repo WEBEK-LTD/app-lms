@@ -3497,4 +3497,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String pageOf(int page, int total) {
     return 'Page $page of $total';
   }
+
+  @override
+  String get coursePasswordTitle => 'This course has a password';
+
+  @override
+  String get coursePasswordWebsite =>
+      'Enter its password on the website. Once you\'ve joined the course there, it opens here too.';
+
+  @override
+  String get coursePasswordInApp => 'It can\'t be opened in the app.';
+
+  @override
+  String get courseOpenOnWebsite => 'Open on the website';
 }

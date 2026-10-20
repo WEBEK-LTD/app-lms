@@ -2,7 +2,7 @@ import { newId } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { MediaFile, MediaKind } from "../data/types";
 import { fits, formatBytes, GB } from "./quota";
-import { MEDIA_CONTENT_TYPES, storageKeyOf, type MediaExtension } from "./signing";
+import { MEDIA_CONTENT_TYPES, mediaTokenDigest, storageKeyOf, type MediaExtension } from "./signing";
 import type { MediaStorage } from "./storage";
 
 /**
@@ -87,8 +87,12 @@ export function extensionOf(file: Pick<MediaFile, "storageKey">): MediaExtension
 }
 
 /** A signed link that plays (or, with `download`, saves) the file, straight from the gate. */
-export function fileUrl(storage: MediaStorage, file: MediaFile, options: { ttlSeconds: number; download?: boolean }): { url: string; expiresAt: Date } {
-  return storage.link("v", file.storageKey, options.ttlSeconds, options.download ? { dl: "1" } : {});
+export function fileUrl(storage: MediaStorage, file: MediaFile, options: { ttlSeconds: number; download?: boolean; bindTo?: string | null }): { url: string; expiresAt: Date } {
+  return storage.link("v", file.storageKey, options.ttlSeconds, {
+    ...(options.download ? { dl: "1" } : {}),
+    // 62 Only for the student whose access token this is (lib/media/signing.ts).
+    ...(options.bindTo ? { t: mediaTokenDigest(options.bindTo) } : {}),
+  });
 }
 
 export type StartResult =
@@ -207,11 +211,17 @@ export async function resolveMedia(
   appId: string,
   link: string | null | undefined,
   purpose: "play" | "download",
+  options: { bindTo?: string | null } = {},
 ): Promise<ResolvedMedia | null> {
   const id = parseMediaLink(link, deps.baseUrl);
   if (!id || !deps.storage) return null;
   const file = await deps.store.getMediaFile(appId, id);
   if (!file || file.status !== "ready") return null;
-  const signed = fileUrl(deps.storage, file, { ttlSeconds: purpose === "play" ? PLAY_LINK_SECONDS : DOWNLOAD_LINK_SECONDS, download: purpose === "download" });
+  // 62 Play links (4 hours) may be bound to the student; links to save a file last 15 minutes and aren't.
+  const signed = fileUrl(deps.storage, file, {
+    ttlSeconds: purpose === "play" ? PLAY_LINK_SECONDS : DOWNLOAD_LINK_SECONDS,
+    download: purpose === "download",
+    bindTo: purpose === "play" ? options.bindTo : null,
+  });
   return { id: file.id, kind: file.kind, url: signed.url, expiresAt: signed.expiresAt, sizeBytes: file.sizeBytes, mimeType: file.contentType, name: file.name };
 }

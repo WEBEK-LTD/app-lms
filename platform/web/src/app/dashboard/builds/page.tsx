@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -125,14 +126,14 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const { t, k, lang } = text;
   const contact = await getContact();
   const store = await getStore();
-  const plans = await getPlans(store);
+  const plans = plansIn(text.lang, await getPlans(store));
   const builds = await store.listBuildsByApp(app.id, 50);
   const current = builds[0] ?? null;
   const lastReady: Build | null = builds.find((b) => b.status === "ready") ?? null;
   const release = latestRelease(await store.listReleases());
   const now = new Date();
   // 13.1 The app's plan as it is now.
-  const effective = await effectivePlans(store);
+  const effective = plansIn(text.lang, await effectivePlans(store));
   const plan = license ? currentPlanId(license, now) : null;
   const currentPlan = plan ? effective[plan] : null;
   const autoPublish = currentPlan ? hasFeature(currentPlan, "auto_publish") : false;

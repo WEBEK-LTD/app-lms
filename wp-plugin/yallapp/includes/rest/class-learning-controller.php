@@ -13,6 +13,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use Yallapp\Content\Downloads;
 use Yallapp\Lms\Course_Completion;
+use Yallapp\Lms\Course_Password;
 use Yallapp\Lms\Lms_Adapter;
 
 /**
@@ -372,6 +373,7 @@ class Learning_Controller extends Controller {
 	/**
 	 * 50 The raw lesson, or null when there is none or its course is private and the user may
 	 * not open it (Course_Visibility), its free preview lessons included: as if it didn't exist.
+	 * 62 The same for a course with a password on the website the user isn't in (Course_Password).
 	 *
 	 * @param Lms_Adapter $lms       LMS.
 	 * @param int         $lesson_id Lesson ID.
@@ -381,7 +383,13 @@ class Learning_Controller extends Controller {
 	private static function visible_lesson( Lms_Adapter $lms, $lesson_id, $user_id ) {
 		$lesson    = $lms->lesson( $lesson_id, $user_id );
 		$course_id = $lesson ? (int) ( $lesson['course_id'] ?? 0 ) : 0;
-		return ( $lesson && ( $course_id <= 0 || $lms->course_visible( $course_id, $user_id ) ) ) ? $lesson : null;
+		if ( ! $lesson || $course_id <= 0 ) {
+			return $lesson ? $lesson : null;
+		}
+		if ( ! $lms->course_visible( $course_id, $user_id ) || Course_Password::locked( get_post( $course_id ), $user_id, array( $lms, 'is_enrolled' ) ) ) {
+			return null;
+		}
+		return $lesson;
 	}
 
 	/**

@@ -1224,7 +1224,8 @@ paths:
         A private course opens only for the students enrolled in it (bought, free or added by
         an administrator) and for whoever may read it on the website (its author, editors and
         administrators); anyone else gets `404 not_found`, as for a course that doesn't
-        exist (50).
+        exist (50). A course with a password on the website (roadmap 62) shows in the catalog
+        and opens as `password_protected`; see `CourseDetail`.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/CourseId'
@@ -1249,7 +1250,8 @@ paths:
         with its lessons, quizzes, assignments and live classes in order. Items the student
         can't open are returned with `locked` set and no content. A private course's
         curriculum is `404 not_found` for whoever can't open the course (`GET
-        /courses/{course_id}`, 50).
+        /courses/{course_id}`, 50). A course with a password on the website (62) has no topics
+        for a student who isn't in it.
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/CourseId'
@@ -1273,6 +1275,9 @@ paths:
       tags: [Commerce]
       operationId: enrollFree
       summary: Enroll in a free course
+      description: >-
+        A course with a password on the website (62) is `403 enrollment_disabled`: the student
+        joins it on the website, where its password is entered.
       parameters:
         - $ref: '#/components/parameters/CourseId'
       responses:
@@ -1320,7 +1325,10 @@ paths:
       tags: [Learning]
       operationId: listWishlist
       summary: List wishlisted courses
-      description: Empty when the LMS has no wishlist (`features.wishlist` is false).
+      description: >-
+        Empty when the LMS has no wishlist (`features.wishlist` is false). Roadmap 62: a private
+        course the student may open (enrolled in it, or may read it on the website) is listed
+        like any other; one they can't open isn't.
       responses:
         '200':
           description: Wishlist
@@ -1341,7 +1349,10 @@ paths:
       tags: [Learning]
       operationId: addToWishlist
       summary: Add a course to the wishlist
-      description: Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is false).
+      description: >-
+        Fails with `feature_disabled` when the LMS has no wishlist (`features.wishlist` is
+        false). A course the student can't open (a private one they aren't in) is `404
+        not_found` (62).
       parameters:
         - $ref: '#/components/parameters/CourseId'
       responses:
@@ -1371,10 +1382,12 @@ paths:
       description: >-
         Free-preview lessons are public; everything else requires enrollment. A lesson of a
         private course is `404 not_found`, free previews included, for whoever can't open the
-        course (`GET /courses/{course_id}`, 50).
+        course (`GET /courses/{course_id}`, 50); so is a lesson of a course with a password on
+        the website for a student who isn't in it (62).
       security: [{}, { bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/LessonId'
+        - $ref: '#/components/parameters/BoundMedia'
       responses:
         '200':
           description: Lesson
@@ -3070,6 +3083,16 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    BoundMedia:
+      name: X-Yallapp-Bound-Media
+      in: header
+      required: false
+      description: >-
+        Roadmap 62. `1`: the app opens Yallapp Media links bound to the student (`Video`): with
+        a user token, the hosted API then signs the lesson's `upload` video for that token only.
+        Apps that don't send it (and the app preview in a browser) get links as before. Other
+        servers ignore it.
+      schema: { type: string, enum: ['1'] }
     LessonId:
       name: lesson_id
       in: path
@@ -3633,6 +3656,21 @@ components:
               type: [string, 'null']
               format: uri
               description: Roadmap 45. The student's certificate for this course (the LMS's own certificate page or file), once earned. Null otherwise, and when the LMS has no certificates.
+            password_protected:
+              type: boolean
+              description: >-
+                Roadmap 62. The website asks for a password to open the course (WordPress's
+                "Password protected"). The app never asks for it: for a student who isn't in the
+                course (and can't edit it), `description_html` is empty, `about` has empty lists,
+                there's no `intro_video`, `purchase.action` is `none`, the curriculum has no topics
+                and its lessons are `404`; the course page says it has a password and offers
+                "Open on the website" (`website_url`), except for a paid course on iOS. Once
+                they've joined it on the website, it opens as usual. Missing on older servers
+                means false.
+            website_url:
+              type: [string, 'null']
+              format: uri
+              description: Roadmap 62. The course's page on the website; null when it has none (academies without a website).
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
@@ -3791,6 +3829,17 @@ components:
         for a new `url` before then, or when the player stops on an expired
         link, and carries on where it was. A media link that no longer
         exists leaves the lesson without `video`.
+
+        Roadmap 62: when the app sends `X-Yallapp-Bound-Media: 1` with a
+        user token, the hosted API binds the `url` to that student: it
+        carries a `t` parameter, and the media server plays it only to a
+        request with the same `Authorization: Bearer <access token>` the
+        lesson was asked with, so a copied link plays nowhere else. The app
+        opens such a link with that header; a refused one (403, after the
+        token was renewed) is fetched again like an expired one. Links to
+        save a lesson (`POST /lessons/{lesson_id}/download`) last 15 minutes
+        and aren't bound. WordPress sites (`POST /api/v1/licenses/media`)
+        give unbound links, shared for an hour between students.
       properties:
         source: { type: string, enum: [upload, youtube, vimeo, external, embed] }
         url: { type: [string, 'null'], format: uri, description: Signed and expiring for uploaded videos and for videos from the Yallapp Media library. }

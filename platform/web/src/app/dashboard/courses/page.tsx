@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteCourseCategoryAction } from "@/app/actions/courses";
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** 45 Offline downloads: on or off for the app's students, with offline mode in the plan. */
 async function OfflineDownloads({ app, license }: { app: App; license: License | null }) {
   if (!offersDownloads(app)) return null;
-  const effective = await effectivePlans(await getStore());
+  const effective = plansIn((await dashboardText()).lang, await effectivePlans(await getStore()));
   const planId = license ? currentPlanId(license, new Date()) : null;
   const plan = planId ? effective[planId] : null;
   const included = hasFeature(plan, "offline_downloads");

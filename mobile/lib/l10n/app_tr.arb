@@ -933,5 +933,9 @@
   "fileOpenFailed": "Bu dosya açılamadı.",
   "fileInAppOnly": "Bu dosya burada gösterilemiyor",
   "fileInAppOnlyMessage": "Kurs dosyaları yalnızca uygulamanın içinde açılır; uygulama PDF, resim ve metin dosyalarını gösterir. Bu dosyayı eğitmeninizden PDF olarak isteyin.",
-  "pageOf": "Sayfa {page} / {total}"
+  "pageOf": "Sayfa {page} / {total}",
+  "coursePasswordTitle": "Bu kursun bir şifresi var",
+  "coursePasswordWebsite": "Şifresini web sitesinde girin. Kursa orada katıldığınızda burada da açılır.",
+  "coursePasswordInApp": "Uygulamada açılamaz.",
+  "courseOpenOnWebsite": "Web sitesinde aç"
 }

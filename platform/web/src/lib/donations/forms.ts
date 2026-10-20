@@ -130,20 +130,21 @@ export function csvCell(value: string | number | null): string {
 const CSV_DATE = (d: Date) => d.toISOString().replace("T", " ").slice(0, 19);
 
 /** The Donations page's export: one row per donation, as the charity sees it (anonymous donors included, for receipts). */
-export function donationsCsv(donations: Donation[]): string {
-  const header = ["Reference", "Date (UTC)", "Status", "Campaign", "Amount", "Currency", "Recurring", "Donor", "Email", "Phone", "Anonymous", "Message"];
+/** 62 `k` puts the column names and the file's words in the downloader's language (the dashboard's `known` texts). */
+export function donationsCsv(donations: Donation[], k: (english: string) => string = (english) => english): string {
+  const header = ["Reference", "Date (UTC)", "Status", "Campaign", "Amount", "Currency", "Recurring", "Donor", "Email", "Phone", "Anonymous", "Message"].map(k);
   const rows = donations.map((d) => [
     donationReference(d),
     CSV_DATE(d.paidAt ?? d.createdAt),
-    d.status,
+    k(d.status),
     d.campaignTitle,
     (d.amountCents / 100).toFixed(2),
     d.currency,
-    d.recurring === "monthly" ? "Monthly" : "One-off",
+    k(d.recurring === "monthly" ? "Monthly" : "One-off"),
     d.donorName,
     d.donorEmail,
     d.donorPhone,
-    d.anonymous ? "Yes" : "No",
+    k(d.anonymous ? "Yes" : "No"),
     d.message,
   ]);
   return `﻿${[header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;

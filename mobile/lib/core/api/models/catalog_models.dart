@@ -180,6 +180,8 @@ class CourseDetail extends CourseSummary {
     this.about = CourseAbout.empty,
     this.progress,
     this.certificateUrl,
+    this.passwordProtected = false,
+    this.websiteUrl,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -210,6 +212,8 @@ class CourseDetail extends CourseSummary {
           : CourseAbout.empty,
       progress: optObject(json, 'progress', Progress.fromJson),
       certificateUrl: optString(json, 'certificate_url'),
+      passwordProtected: boolOr(json, 'password_protected', false),
+      websiteUrl: optString(json, 'website_url'),
     );
   }
 
@@ -237,6 +241,14 @@ class CourseDetail extends CourseSummary {
 
   /// 45 The student's certificate for this course, once earned.
   final String? certificateUrl;
+
+  /// 62 The website asks for a password to open the course. The app never
+  /// does: unless the student is in it, the course page says so and opens
+  /// [websiteUrl] for the password step.
+  final bool passwordProtected;
+
+  /// 62 The course's page on the website; null when it has none.
+  final String? websiteUrl;
 }
 
 /// 30 What students learn, the requirements, who the course is for and what

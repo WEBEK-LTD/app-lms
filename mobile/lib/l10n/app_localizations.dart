@@ -5703,6 +5703,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page {page} of {total}'**
   String pageOf(int page, int total);
+
+  /// Course page: a course the website protects with a password. The app never asks for the password.
+  ///
+  /// In en, this message translates to:
+  /// **'This course has a password'**
+  String get coursePasswordTitle;
+
+  /// Course page, under the password notice, when the course can be opened on the website.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter its password on the website. Once you\'ve joined the course there, it opens here too.'**
+  String get coursePasswordWebsite;
+
+  /// Course page, under the password notice, on iPhone for a paid course: no link to the website there.
+  ///
+  /// In en, this message translates to:
+  /// **'It can\'t be opened in the app.'**
+  String get coursePasswordInApp;
+
+  /// Course page button that opens a password-protected course on the website, where its password is entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on the website'**
+  String get courseOpenOnWebsite;
 }
 
 class _AppLocalizationsDelegate
