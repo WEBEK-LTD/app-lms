@@ -3629,4 +3629,21 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get courseOpenOnWebsite =>
       overlay.text('courseOpenOnWebsite') ?? base.courseOpenOnWebsite;
+
+  @override
+  String get membershipShowAtDoor =>
+      overlay.text('membershipShowAtDoor') ?? base.membershipShowAtDoor;
+
+  @override
+  String membershipQrLabel(String plan) =>
+      overlay.format('membershipQrLabel', {'plan': plan}) ??
+      base.membershipQrLabel(plan);
+
+  @override
+  String get reviewReplyTitle =>
+      overlay.text('reviewReplyTitle') ?? base.reviewReplyTitle;
+
+  @override
+  String get reviewHiddenNote =>
+      overlay.text('reviewHiddenNote') ?? base.reviewHiddenNote;
 }

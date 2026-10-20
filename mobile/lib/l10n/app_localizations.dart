@@ -5727,6 +5727,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open on the website'**
   String get courseOpenOnWebsite;
+
+  /// Under a gym member's QR code on the membership screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this at the door'**
+  String get membershipShowAtDoor;
+
+  /// Read aloud for a gym member's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of your {plan} membership'**
+  String membershipQrLabel(String plan);
+
+  /// Above the business's reply under a course review.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply from the academy'**
+  String get reviewReplyTitle;
+
+  /// Under the student's own review when the business hid it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden by the academy. Only you can see it.'**
+  String get reviewHiddenNote;
 }
 
 class _AppLocalizationsDelegate

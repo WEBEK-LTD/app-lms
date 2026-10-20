@@ -2561,5 +2561,26 @@
   "courseOpenOnWebsite": "Open on the website",
   "@courseOpenOnWebsite": {
     "description": "Course page button that opens a password-protected course on the website, where its password is entered."
+  },
+  "membershipShowAtDoor": "Show this at the door",
+  "@membershipShowAtDoor": {
+    "description": "Under a gym member's QR code on the membership screen."
+  },
+  "membershipQrLabel": "QR code of your {plan} membership",
+  "@membershipQrLabel": {
+    "description": "Read aloud for a gym member's QR code.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewReplyTitle": "Reply from the academy",
+  "@reviewReplyTitle": {
+    "description": "Above the business's reply under a course review."
+  },
+  "reviewHiddenNote": "Hidden by the academy. Only you can see it.",
+  "@reviewHiddenNote": {
+    "description": "Under the student's own review when the business hid it."
   }
 }

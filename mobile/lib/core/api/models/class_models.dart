@@ -161,10 +161,12 @@ class Membership {
     required this.startsAt,
     this.endsAt,
     this.creditsLeft,
+    this.memberCode,
   });
 
   factory Membership.fromJson(Json json) {
     final plan = asJson(json['plan'], 'plan');
+    final code = json['member_code'];
     return Membership(
       id: reqInt(json, 'id'),
       planId: reqInt(plan, 'id'),
@@ -182,8 +184,22 @@ class Membership {
       startsAt: reqDate(json, 'starts_at'),
       endsAt: optDate(json, 'ends_at'),
       creditsLeft: optInt(json, 'credits_left'),
+      memberCode: code is Map
+          ? MemberCode.fromJson(asJson(code, 'member_code'))
+          : null,
     );
   }
+
+  /// 63 The same shape as [Membership.fromJson] reads, to keep it on the phone.
+  Json toJson() => {
+    'id': id,
+    'plan': {'id': planId, 'name': planName, 'period': period.name},
+    'status': status.name,
+    'starts_at': startsAt.toUtc().toIso8601String(),
+    'ends_at': endsAt?.toUtc().toIso8601String(),
+    'credits_left': creditsLeft,
+    'member_code': memberCode?.toJson(),
+  };
 
   final int id;
   final int planId;
@@ -199,4 +215,30 @@ class Membership {
   final int? creditsLeft;
 
   bool get isActive => status == MembershipStatus.active;
+
+  /// 63 What a gym's member shows at the door; null for other apps.
+  final MemberCode? memberCode;
+}
+
+/// 63 A member's code for the gym's door (`Membership.member_code`).
+class MemberCode {
+  const MemberCode({required this.code, required this.qrPayload});
+
+  factory MemberCode.fromJson(Json json) => MemberCode(
+    code: reqString(json, 'code'),
+    qrPayload: reqString(json, 'qr_payload'),
+  );
+
+  final String code;
+
+  /// What the QR code holds, as it is.
+  final String qrPayload;
+
+  /// "Q4MZ-7KP2-XH9D", for typing at the door.
+  String get grouped => [
+    for (var i = 0; i < code.length; i += 4)
+      code.substring(i, (i + 4).clamp(0, code.length)),
+  ].join('-');
+
+  Json toJson() => {'code': code, 'qr_payload': qrPayload};
 }

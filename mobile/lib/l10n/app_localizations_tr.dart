@@ -3515,4 +3515,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get courseOpenOnWebsite => 'Web sitesinde aç';
+
+  @override
+  String get membershipShowAtDoor => 'Girişte bunu gösterin';
+
+  @override
+  String membershipQrLabel(String plan) {
+    return '$plan üyeliğinizin QR kodu';
+  }
+
+  @override
+  String get reviewReplyTitle => 'Akademinin yanıtı';
+
+  @override
+  String get reviewHiddenNote =>
+      'Akademi gizledi. Yalnızca siz görebilirsiniz.';
 }

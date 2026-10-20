@@ -26,6 +26,10 @@ const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 /// apps), so they show offline; forgotten on sign-out.
 const ticketWalletKey = 'events.tickets';
 
+/// 63 The member's memberships with their door codes (gyms), kept on this
+/// phone so the code shows offline; forgotten on sign-out.
+const membershipWalletKey = 'bookings.memberships';
+
 String speedLabel(double speed) {
   final text = speed == speed.roundToDouble()
       ? speed.toStringAsFixed(0)

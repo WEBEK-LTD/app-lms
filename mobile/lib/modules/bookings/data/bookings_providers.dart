@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/api/api_exception.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/api/yallapp_api.dart';
 import '../../../core/data/paged_controller.dart';
 import '../../../core/providers.dart';
+import '../../../core/storage/local_settings.dart';
 
 final bookingsHomeProvider =
     FutureProvider.autoDispose<List<BookingsHomeSection>>(
@@ -88,9 +93,52 @@ final membershipPlansProvider =
     );
 
 /// The member's memberships, active ones first.
-final myMembershipsProvider = FutureProvider.autoDispose<List<Membership>>(
-  (ref) => ref.contentApi.listMyMemberships(),
-);
+/// The member's memberships. 63 Every answer is kept on the phone
+/// ([membershipWalletKey], forgotten on sign-out), so a gym's member code
+/// shows at the door without a connection.
+final myMembershipsProvider = FutureProvider.autoDispose<List<Membership>>((
+  ref,
+) async {
+  final prefs = ref.read(sharedPreferencesProvider);
+  try {
+    final list = await ref.contentApi.listMyMemberships();
+    try {
+      await prefs.setString(
+        membershipWalletKey,
+        jsonEncode([for (final m in list) m.toJson()]),
+      );
+    } on Object {
+      // Kept next time.
+    }
+    return list;
+  } on ApiException catch (e) {
+    final unreachable =
+        e.code == ApiException.networkError ||
+        e.code == ApiException.timeout ||
+        (e.statusCode != null && e.statusCode! >= 500);
+    if (!unreachable) rethrow;
+    final saved = _savedMemberships(prefs.getString(membershipWalletKey));
+    if (saved == null) rethrow;
+    return saved;
+  }
+});
+
+/// The memberships kept on the phone; null when none or damaged.
+List<Membership>? _savedMemberships(String? raw) {
+  if (raw == null) return null;
+  try {
+    final list = jsonDecode(raw);
+    if (list is! List) return null;
+    return [
+      for (final item in list)
+        if (item is Map)
+          Membership.fromJson(item.map((k, v) => MapEntry('$k', v))),
+    ];
+  } on Object {
+    // A damaged copy is forgotten rather than breaking the screen.
+    return null;
+  }
+}
 
 /// After booking or giving back a spot, or buying a plan: the timetable
 /// and the membership show the change.

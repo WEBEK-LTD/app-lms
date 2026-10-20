@@ -261,6 +261,48 @@ class ReviewCard extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: p.textSecondary),
             ),
           ],
+          // 63 Hidden by the business: only its author sees it, and is told.
+          if (review.status == ReviewStatus.hidden) ...[
+            const SizedBox(height: 6),
+            Text(
+              context.l10n.reviewHiddenNote,
+              style: TextStyle(fontSize: 12, color: p.textSecondary),
+            ),
+          ],
+          // 63 The business's reply, under the review for everyone.
+          if (review.reply != null && review.reply!.text.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: p.surfaceMuted,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.reviewReplyTitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: p.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    review.reply!.text,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: p.textBody,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (onEdit != null)
             Align(
               alignment: AlignmentDirectional.centerEnd,

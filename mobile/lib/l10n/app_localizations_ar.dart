@@ -3567,4 +3567,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courseOpenOnWebsite => 'افتح على الموقع';
+
+  @override
+  String get membershipShowAtDoor => 'اعرض هذا عند الدخول';
+
+  @override
+  String membershipQrLabel(String plan) {
+    return 'رمز QR لعضويتك $plan';
+  }
+
+  @override
+  String get reviewReplyTitle => 'ردّ الأكاديمية';
+
+  @override
+  String get reviewHiddenNote => 'أخفته الأكاديمية، ولا يراه غيرك.';
 }

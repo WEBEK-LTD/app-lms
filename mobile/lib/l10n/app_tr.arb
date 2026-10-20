@@ -937,5 +937,9 @@
   "coursePasswordTitle": "Bu kursun bir şifresi var",
   "coursePasswordWebsite": "Şifresini web sitesinde girin. Kursa orada katıldığınızda burada da açılır.",
   "coursePasswordInApp": "Uygulamada açılamaz.",
-  "courseOpenOnWebsite": "Web sitesinde aç"
+  "courseOpenOnWebsite": "Web sitesinde aç",
+  "membershipShowAtDoor": "Girişte bunu gösterin",
+  "membershipQrLabel": "{plan} üyeliğinizin QR kodu",
+  "reviewReplyTitle": "Akademinin yanıtı",
+  "reviewHiddenNote": "Akademi gizledi. Yalnızca siz görebilirsiniz."
 }

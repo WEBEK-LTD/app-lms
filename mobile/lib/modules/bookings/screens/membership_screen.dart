@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
@@ -11,6 +12,7 @@ import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
@@ -295,6 +297,76 @@ class MembershipCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(until, style: TextStyle(fontSize: 13, color: p.textSecondary)),
+          if (m.isActive && m.memberCode != null) ...[
+            const SizedBox(height: 14),
+            _MemberCodeCard(plan: m.planName, code: m.memberCode!),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 63 A gym member's code for the door: the QR code the gym scans and the
+/// code to type, kept on the phone so it shows without a connection.
+class _MemberCodeCard extends StatelessWidget {
+  const _MemberCodeCard({required this.plan, required this.code});
+
+  final String plan;
+  final MemberCode code;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        // Always white and dark: scanners read it in any theme.
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(context.shapes.card),
+        border: Border.all(color: context.palette.border),
+      ),
+      child: Column(
+        children: [
+          Semantics(
+            image: true,
+            label: l10n.membershipQrLabel(plan),
+            child: QrImageView(
+              key: const ValueKey('member-qr'),
+              data: code.qrPayload,
+              size: 200,
+              backgroundColor: Colors.white,
+              errorCorrectionLevel: QrErrorCorrectLevel.M,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: Color(0xFF111111),
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: Color(0xFF111111),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.membershipShowAtDoor,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
+          ),
+          const SizedBox(height: 4),
+          SelectableText(
+            code.grouped,
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
+            style: const TextStyle(
+              fontFamily: 'JetBrains Mono',
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+              color: Color(0xFF111111),
+            ),
+          ),
         ],
       ),
     );
