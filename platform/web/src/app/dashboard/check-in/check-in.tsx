@@ -5,6 +5,8 @@ import { checkInAction, type CheckInState } from "@/app/actions/events";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
 import type { CheckInOutcome } from "@/lib/events/check-in";
+import { useDashLang, useDashT } from "@/components/dashboard-i18n";
+import { formatDate } from "@/i18n/format";
 
 /** The parts of the browser's BarcodeDetector this page uses (not in TypeScript's DOM types yet). */
 interface Detector {
@@ -27,27 +29,27 @@ const TONE: Record<CheckInOutcome, "ok" | "stop" | "warn"> = {
   not_a_code: "warn",
 };
 
-function when(iso: Date | string | null | undefined, timeZone: string): string {
-  if (!iso) return "";
-  const at = new Date(iso);
-  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone }).format(at);
-  const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone }).format(at);
-  return `${time} on ${day}`;
-}
-
 function Result({ state, timeZone }: { state: CheckInState; timeZone: string }) {
+  const tr = useDashT();
+  const lang = useDashLang();
   const answer = state.answer;
   if (!answer) return null;
   const t = answer.ticket;
+  const usedAt = t?.usedAt ? new Date(t.usedAt) : null;
   const headline: Record<CheckInOutcome, string> = {
-    admitted: "Valid ticket: let them in",
-    used: `Already used at ${when(t?.usedAt, timeZone)}`,
-    cancelled: "Cancelled ticket",
-    not_paid: "Not paid: this order wasn't completed",
-    forged: "Not one of your tickets: this QR code isn't signed for your app",
-    other_event: `This ticket is for another event${t ? `: ${t.eventTitle}` : ""}`,
-    not_found: "No ticket has this code",
-    not_a_code: "That isn't a ticket code. Codes have 12 letters and numbers.",
+    admitted: tr("events.admitted"),
+    used: usedAt
+      ? tr("events.usedAt", {
+          time: formatDate(lang, usedAt, { hour: "2-digit", minute: "2-digit", timeZone }),
+          date: formatDate(lang, usedAt, { day: "numeric", month: "short", timeZone }),
+        })
+      : tr("events.usedTicket"),
+    cancelled: tr("events.cancelledTicket"),
+    not_paid: tr("events.notPaid"),
+    forged: tr("events.forged"),
+    other_event: t ? tr("events.otherEventNamed", { event: t.eventTitle }) : tr("events.otherEvent"),
+    not_found: tr("events.notFound"),
+    not_a_code: tr("events.notACode"),
   };
   const tone = TONE[answer.outcome];
   const colors = tone === "ok" ? "bg-success-bg text-success" : tone === "stop" ? "bg-danger-bg text-danger" : "bg-warn-bg text-warn";
@@ -60,7 +62,9 @@ function Result({ state, timeZone }: { state: CheckInState; timeZone: string }) 
       {t ? (
         <p className="m-0 text-[16px] text-ink-2">
           <b>{t.holderName}</b> · {t.typeName} · {t.eventTitle}
-          <span className="block font-mono text-[14px] text-ink-4">{t.code}</span>
+          <span className="block font-mono text-[14px] text-ink-4" dir="ltr">
+            {t.code}
+          </span>
         </p>
       ) : null}
     </div>
@@ -73,6 +77,7 @@ function Result({ state, timeZone }: { state: CheckInState; timeZone: string }) 
  * like Chrome on Android); typing always works.
  */
 export function CheckIn({ events, timeZone }: { events: { id: number; label: string }[]; timeZone: string }) {
+  const t = useDashT();
   const [state, action, pending] = useActionState(checkInAction, {});
   const form = useRef<HTMLFormElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -151,7 +156,7 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
         }
       }, 0);
     } catch {
-      setCameraError("The camera couldn't start. Allow this page to use the camera, or type the code instead.");
+      setCameraError(t("events.cameraError"));
       stop();
     }
   }
@@ -161,21 +166,21 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
       <form ref={form} action={action} className="flex flex-col gap-4" autoComplete="off">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-event" className="text-sm font-semibold">
-            Event at the door
+            {t("events.atTheDoor")}
           </label>
           <select id="f-event" name="eventId" defaultValue={events[0] ? String(events[0].id) : ""} className="input">
-            <option value="">Any event</option>
+            <option value="">{t("events.anyEvent")}</option>
             {events.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.label}
               </option>
             ))}
           </select>
-          <span className="text-xs text-muted">Tickets for other events are refused and stay valid for their own.</span>
+          <span className="text-xs text-muted">{t("events.otherRefused")}</span>
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-code" className="text-sm font-semibold">
-            Ticket code
+            {t("events.ticketCode")}
           </label>
           <div className="flex gap-2">
             <input
@@ -184,13 +189,14 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
               name="code"
               className="input min-w-0 flex-1 font-mono text-[18px] uppercase tracking-wider"
               placeholder="K7QM-4XP2-HD9W"
+              dir="ltr"
               autoCapitalize="characters"
               spellCheck={false}
               enterKeyHint="go"
               required
             />
             <button type="submit" className={`${btn.primary} h-12 shrink-0`} disabled={pending}>
-              {pending ? "Checking…" : "Check in"}
+              {pending ? t("events.checking") : t("events.checkInButton")}
             </button>
           </div>
         </div>
@@ -199,21 +205,21 @@ export function CheckIn({ events, timeZone }: { events: { id: number; label: str
       {canScan ? (
         scanning ? (
           <div className="flex flex-col gap-3">
-            <video ref={video} className="aspect-square w-full max-w-[420px] rounded-2xl bg-midnight object-cover" muted playsInline aria-label="Camera view" />
+            <video ref={video} className="aspect-square w-full max-w-[420px] rounded-2xl bg-midnight object-cover" muted playsInline aria-label={t("events.cameraView")} />
             <button type="button" onClick={stop} className={`${btn.secondary} h-11 w-fit`}>
               <Icon name="close" size={20} />
-              Stop the camera
+              {t("events.stopCamera")}
             </button>
           </div>
         ) : (
           <button type="button" onClick={() => void start()} className={`${btn.secondary} h-12 w-fit`}>
             <Icon name="photo_camera" size={20} />
-            Scan with the camera
+            {t("events.scan")}
           </button>
         )
       ) : (
         <p className="m-0 text-[14px] text-muted">
-          This browser can&apos;t read QR codes with the camera: type each ticket&apos;s code. Chrome on Android can scan them.
+          {t("events.noScan")}
         </p>
       )}
       {cameraError ? (

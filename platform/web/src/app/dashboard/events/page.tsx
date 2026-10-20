@@ -6,31 +6,35 @@ import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
-import { eventWhen } from "@/lib/events/notify";
 import { loadEvents, phaseOf, placesLeft } from "@/lib/events/service";
 import { CardPayments } from "../catalog/payments";
-import { EventStatusBadge } from "./event-page";
+import { EventStatusBadge, eventWhenIn } from "./event-page";
+import { dashboardText } from "@/lib/dashboard-lang";
+import { richText } from "@/i18n/rich";
+import type { DashKey } from "@/i18n/dashboard";
 import { EventSettingsForm } from "./forms";
 
-export const metadata: Metadata = { title: "Events" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("events.title") };
+}
 
-const FILTERS = [
-  { value: "upcoming", label: "Coming up" },
-  { value: "past", label: "Past" },
-  { value: "draft", label: "Drafts" },
-  { value: "all", label: "All" },
-] as const;
+const FILTERS: { value: string; label: DashKey }[] = [
+  { value: "upcoming", label: "events.comingUp" },
+  { value: "past", label: "events.past" },
+  { value: "draft", label: "events.drafts" },
+  { value: "all", label: "events.all" },
+];
 
 /** 28 The events of an Events & tickets app, its event settings and card payments. */
 export default async function EventsPage({ searchParams }: { searchParams: Promise<{ show?: string; deleted?: string }> }) {
   const { app } = await requireClient();
+  const { t, lang, num } = await dashboardText();
   if (!app || app.connector?.kind !== "events") {
     return (
       <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Events</h1>
+        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.title")}</h1>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          Events are for Events &amp; tickets apps. Choose Events &amp; tickets on <Link href="/dashboard/app-type">App type</Link>, then Events managed in Yallapp on
-          the Website step.
+          {richText(t("events.notHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
         </p>
       </div>
     );
@@ -58,38 +62,38 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">Events</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">Your programme. Published events show in the app right away, with their tickets.</p>
+          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("events.title")}</h1>
+          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("events.intro")}</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href="/dashboard/check-in" className={`${btn.secondary} h-11`}>
             <Icon name="qr_code_scanner" size={20} />
-            Check-in
+            {t("events.checkIn")}
           </Link>
           <Link href="/dashboard/events/new" className={`${btn.primary} h-11`}>
             <Icon name="add" size={20} />
-            Add an event
+            {t("events.add")}
           </Link>
         </div>
       </div>
 
       {deleted ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
-          Deleted “{deleted}”.
+          {t("events.deleted", { title: deleted })}
         </p>
       ) : null}
       {paid && !app.catalogSettings?.payment && !app.demo ? (
         <Notice tone="warn" icon="warning">
-          Paid tickets can&apos;t be bought until you set up <a href="#h-payments">Card payments</a> below.
+          {richText(t("events.paidNoPayments"), { link: (chunk) => <a href="#h-payments">{chunk}</a> })}
         </Notice>
       ) : null}
 
       <section aria-labelledby="h-events" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="h-events" className="m-0 text-lg font-bold">
-            {data.events.length} {data.events.length === 1 ? "event" : "events"}
+            {t("events.count", { count: data.events.length })}
           </h2>
-          <nav aria-label="Show" className="flex flex-wrap gap-2">
+          <nav aria-label={t("events.show")} className="flex flex-wrap gap-2">
             {FILTERS.map((f) => (
               <Link
                 key={f.value}
@@ -97,15 +101,15 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
                 aria-current={show === f.value ? "page" : undefined}
                 className={`rounded-full border px-3 py-1.5 text-sm font-semibold no-underline ${show === f.value ? "border-midnight bg-midnight text-white" : "border-line text-midnight"}`}
               >
-                {f.label}
+                {t(f.label)}
               </Link>
             ))}
           </nav>
         </div>
         {data.events.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">No events yet. Add your first one, then its tickets.</p>
+          <p className="m-0 text-[15px] text-muted">{t("events.noEvents")}</p>
         ) : events.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">Nothing here.</p>
+          <p className="m-0 text-[15px] text-muted">{t("events.nothingHere")}</p>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0">
             {events.map((e) => {
@@ -124,13 +128,18 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="truncate text-[15px] font-bold">{e.title}</span>
                       <span className="truncate text-[13px] text-muted">
-                        {[eventWhen(e.startAt, data.settings.timeZone), e.venueName ?? "Online", `${sold.get(e.id) ?? 0} tickets`, left !== null ? `${left} left` : null]
+                        {[
+                          eventWhenIn(lang, e.startAt, data.settings.timeZone),
+                          e.venueName ?? t("events.online"),
+                          t("events.tickets", { count: sold.get(e.id) ?? 0 }),
+                          left !== null ? t("events.left", { count: num(left) }) : null,
+                        ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
                     </span>
-                    {phaseOf(e, now) === "ended" ? <Badge tone="neutral">Ended</Badge> : null}
-                    <EventStatusBadge status={e.status} />
+                    {phaseOf(e, now) === "ended" ? <Badge tone="neutral">{t("events.ended")}</Badge> : null}
+                    <EventStatusBadge status={e.status} t={t} />
                   </Link>
                 </li>
               );
@@ -142,9 +151,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
       <section aria-labelledby="h-event-settings" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-event-settings" className="m-0 text-lg font-bold">
-            Event settings
+            {t("events.settings")}
           </h2>
-          <p className="m-0 text-[15px] text-ink-4">Your currency and time zone, and what people can do in the app.</p>
+          <p className="m-0 text-[15px] text-ink-4">{t("events.settingsText")}</p>
         </div>
         <EventSettingsForm settings={data.settings} currencies={CATALOG_CURRENCIES} />
       </section>

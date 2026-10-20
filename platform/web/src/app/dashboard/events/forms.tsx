@@ -5,6 +5,8 @@ import { useActionState, type ReactNode } from "react";
 import { saveEventAction, saveEventSettingsAction, saveTicketTypeAction } from "@/app/actions/events";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
+import { useDashT } from "@/components/dashboard-i18n";
+import { richText } from "@/i18n/rich";
 
 export interface EventFormValues {
   id: number | null;
@@ -25,7 +27,7 @@ export interface EventFormValues {
   draft: boolean;
 }
 
-function Group({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+function Group({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
   return (
     <fieldset className="m-0 flex flex-col gap-4 border-0 border-t border-line-soft p-0 pt-5 first:border-t-0 first:pt-0">
       <legend className="float-left mb-1 w-full text-[17px] font-bold">{title}</legend>
@@ -60,6 +62,7 @@ export function EventForm({
   timeZone: string;
   limits: { title: number; category: number; description: number; organiser: number; venue: number; address: number; images: number; imageMb: number };
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveEventAction, initialFormState);
   const v = (key: keyof EventFormValues & string, fallback: string) => state.values?.[key] ?? fallback;
   const e = state.errors ?? {};
@@ -68,16 +71,16 @@ export function EventForm({
       {event.id !== null ? <input type="hidden" name="id" value={event.id} /> : null}
       <FormMessage message={state.message} ok={state.ok} />
 
-      <Group title="Event">
-        <Field label="Title" name="title" required maxLength={limits.title} defaultValue={v("title", event.title)} error={e.title} />
+      <Group title={t("events.event")}>
+        <Field label={t("common.title")} name="title" required maxLength={limits.title} defaultValue={v("title", event.title)} error={e.title} />
         <Field
-          label="Category"
+          label={t("events.category")}
           name="category"
           maxLength={limits.category}
           list="event-categories"
-          placeholder="Concerts"
+          placeholder={t("events.categoryPlaceholder")}
           defaultValue={v("category", event.category)}
-          hint="Optional. People filter events by category in the app."
+          hint={t("events.categoryHint")}
           error={e.category}
         />
         <datalist id="event-categories">
@@ -87,7 +90,7 @@ export function EventForm({
         </datalist>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-description" className="text-sm font-semibold">
-            Description
+            {t("common.description")}
           </label>
           <textarea
             id="f-description"
@@ -100,66 +103,72 @@ export function EventForm({
             aria-invalid={e.description ? true : undefined}
           />
           <span id="f-description-hint" className="text-[13px] text-muted">
-            Leave an empty line between paragraphs. Simple HTML works too: headings, bold, lists, links, pictures from https addresses, and YouTube or Vimeo videos
-            pasted as their embed code.
+            {t("events.descriptionHint")}
           </span>
           <FieldError id="f-description-error" error={e.description} />
         </div>
-        <Field label="Organiser" name="organiser" maxLength={limits.organiser} defaultValue={v("organiser", event.organiser)} hint="Optional. Shown on the event's page." error={e.organiser} />
-      </Group>
-
-      <Group title="When" hint={`Times are in ${timeZone} (change it in Event settings).`}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Starts" name="startAt" type="datetime-local" required defaultValue={v("startAt", event.startAt)} error={e.startAt} />
-          <Field label="Ends" name="endAt" type="datetime-local" required defaultValue={v("endAt", event.endAt)} error={e.endAt} />
-        </div>
-      </Group>
-
-      <Group title="Where" hint="A venue, an online link, or both. An event with only an online link is an online event: on iPhones its paid tickets can't be bought in the app.">
-        <Field label="Venue" name="venueName" maxLength={limits.venue} placeholder="Main Hall" defaultValue={v("venueName", event.venueName)} error={e.venueName} />
-        <Field label="Address" name="venueAddress" maxLength={limits.address} defaultValue={v("venueAddress", event.venueAddress)} error={e.venueAddress} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Latitude" name="latitude" inputMode="decimal" placeholder="40.9837" defaultValue={v("latitude", event.latitude)} error={e.latitude} />
-          <Field label="Longitude" name="longitude" inputMode="decimal" placeholder="29.0262" defaultValue={v("longitude", event.longitude)} error={e.longitude} />
-        </div>
-        <p className="m-0 text-[13px] text-muted">Optional: the map position for “Open in maps”. In Google Maps, right-click the place to copy both numbers.</p>
         <Field
-          label="Online link"
+          label={t("events.organiser")}
+          name="organiser"
+          maxLength={limits.organiser}
+          defaultValue={v("organiser", event.organiser)}
+          hint={t("events.organiserHint")}
+          error={e.organiser}
+        />
+      </Group>
+
+      <Group title={t("events.when")} hint={richText(t("events.whenHint"), { zone: () => <bdi dir="ltr">{timeZone}</bdi> })}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("events.starts")} name="startAt" type="datetime-local" required defaultValue={v("startAt", event.startAt)} error={e.startAt} />
+          <Field label={t("events.ends")} name="endAt" type="datetime-local" required defaultValue={v("endAt", event.endAt)} error={e.endAt} />
+        </div>
+      </Group>
+
+      <Group title={t("events.where")} hint={t("events.whereHint")}>
+        <Field label={t("events.venue")} name="venueName" maxLength={limits.venue} placeholder={t("events.venuePlaceholder")} defaultValue={v("venueName", event.venueName)} error={e.venueName} />
+        <Field label={t("events.address")} name="venueAddress" maxLength={limits.address} defaultValue={v("venueAddress", event.venueAddress)} error={e.venueAddress} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("events.latitude")} name="latitude" inputMode="decimal" placeholder="40.9837" defaultValue={v("latitude", event.latitude)} error={e.latitude} />
+          <Field label={t("events.longitude")} name="longitude" inputMode="decimal" placeholder="29.0262" defaultValue={v("longitude", event.longitude)} error={e.longitude} />
+        </div>
+        <p className="m-0 text-[13px] text-muted">{t("events.mapHint")}</p>
+        <Field
+          label={t("events.onlineLink")}
           name="onlineUrl"
           type="url"
           placeholder="https://"
           defaultValue={v("onlineUrl", event.onlineUrl)}
-          hint="Optional. Only people holding a ticket see it."
+          hint={t("events.onlineLinkHint")}
           error={e.onlineUrl}
         />
       </Group>
 
-      <Group title="Places">
+      <Group title={t("events.places")}>
         <Field
-          label="Places in total"
+          label={t("events.placesTotal")}
           name="capacity"
           inputMode="numeric"
-          placeholder="No limit"
+          placeholder={t("events.noLimit")}
           defaultValue={v("capacity", event.capacity)}
-          hint="Optional. Every ticket type counts towards it; each ticket type can have its own limit too."
+          hint={t("events.placesHint")}
           error={e.capacity}
         />
       </Group>
 
-      <Group title="Pictures" hint={`Up to ${limits.images}, PNG or JPEG, up to ${limits.imageMb} MB each. The first one is the cover.`}>
+      <Group title={t("events.pictures")} hint={t("events.picturesHint", { max: limits.images, size: limits.imageMb })}>
         {event.images.length ? (
           <ul className="m-0 flex list-none flex-wrap gap-4 p-0">
             {event.images.map((image, i) => (
               <li key={image.assetId} className="flex flex-col gap-2">
-                <img src={image.url} alt={i === 0 ? "The cover picture" : `Picture ${i + 1}`} className="h-24 w-40 rounded-lg border border-line object-cover" />
-                <Check name="removeImage" value={image.assetId} label="Remove" defaultChecked={false} />
+                <img src={image.url} alt={i === 0 ? t("events.coverPicture") : t("events.pictureN", { n: i + 1 })} className="h-24 w-40 rounded-lg border border-line object-cover" />
+                <Check name="removeImage" value={image.assetId} label={t("common.remove")} defaultChecked={false} />
               </li>
             ))}
           </ul>
         ) : null}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-images" className="text-sm font-semibold">
-            Add pictures
+            {t("events.addPictures")}
           </label>
           <input id="f-images" type="file" name="images" multiple accept="image/png,image/jpeg" className="text-sm" aria-invalid={e.images ? true : undefined} />
           <FieldError id="f-images-error" error={e.images} />
@@ -169,16 +178,16 @@ export function EventForm({
       <div className="flex flex-wrap justify-end gap-3 pt-1">
         {event.draft ? (
           <>
-            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText="Saving…">
-              Save as draft
+            <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText={t("common.saving")}>
+              {t("events.saveDraft")}
             </SubmitButton>
-            <SubmitButton className="h-11" name="intent" value="publish" pendingText="Publishing…">
-              Publish
+            <SubmitButton className="h-11" name="intent" value="publish" pendingText={t("events.publishing")}>
+              {t("events.publish")}
             </SubmitButton>
           </>
         ) : (
-          <SubmitButton className="h-11" pendingText="Saving…">
-            Save event
+          <SubmitButton className="h-11" pendingText={t("common.saving")}>
+            {t("events.saveEvent")}
           </SubmitButton>
         )}
       </div>
@@ -197,6 +206,7 @@ export interface TicketTypeValues {
 
 /** Adding (id null) or editing a ticket type. */
 export function TicketTypeForm({ eventId, type, currency }: { eventId: number; type: TicketTypeValues; currency: string }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveTicketTypeAction, initialFormState);
   const fresh = type.id === null && state.ok;
   const v = (key: keyof TicketTypeValues & string, fallback: string) => (fresh ? fallback : (state.values?.[key] ?? fallback));
@@ -207,25 +217,43 @@ export function TicketTypeForm({ eventId, type, currency }: { eventId: number; t
       <input type="hidden" name="eventId" value={eventId} />
       {type.id !== null ? <input type="hidden" name="id" value={type.id} /> : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Field label="Ticket name" id={`${prefix}-name`} name="name" small maxLength={80} placeholder="Standard" defaultValue={v("name", type.name)} error={e.name} className="lg:col-span-2" />
-        <Field label={`Price (${currency})`} id={`${prefix}-price`} name="price" small inputMode="decimal" placeholder="0 for free" defaultValue={v("price", type.price)} error={e.price} />
-        <Field label="How many" id={`${prefix}-capacity`} name="capacity" small inputMode="numeric" placeholder="No limit" defaultValue={v("capacity", type.capacity)} error={e.capacity} />
-        <Field label="Most per person" id={`${prefix}-max`} name="maxPerOrder" small inputMode="numeric" defaultValue={v("maxPerOrder", type.maxPerOrder)} error={e.maxPerOrder} />
+        <Field
+          label={t("events.ticketName")}
+          id={`${prefix}-name`}
+          name="name"
+          small
+          maxLength={80}
+          placeholder={t("events.ticketPlaceholder")} defaultValue={v("name", type.name)} error={e.name} className="lg:col-span-2" />
+        <Field
+          label={t("events.priceIn", { currency })}
+          id={`${prefix}-price`}
+          name="price"
+          small
+          inputMode="decimal"
+          placeholder={t("events.pricePlaceholder")} defaultValue={v("price", type.price)} error={e.price} />
+        <Field
+          label={t("events.howMany")}
+          id={`${prefix}-capacity`}
+          name="capacity"
+          small
+          inputMode="numeric"
+          placeholder={t("events.noLimit")} defaultValue={v("capacity", type.capacity)} error={e.capacity} />
+        <Field label={t("events.mostPerPerson")} id={`${prefix}-max`} name="maxPerOrder" small inputMode="numeric" defaultValue={v("maxPerOrder", type.maxPerOrder)} error={e.maxPerOrder} />
       </div>
       <div className="flex flex-wrap items-end gap-3">
         <Field
-          label="Sales end"
+          label={t("events.salesEnd")}
           id={`${prefix}-sale-ends`}
           name="saleEndsAt"
           type="datetime-local"
           small
           defaultValue={v("saleEndsAt", type.saleEndsAt)}
-          hint="Optional. Sales always end when the event starts."
+          hint={t("events.salesEndHint")}
           error={e.saleEndsAt}
           className="min-w-[220px]"
         />
-        <SubmitButton variant={type.id === null ? "primary" : "secondary"} className="h-10" pendingText="Saving…">
-          {type.id === null ? "Add ticket type" : "Save"}
+        <SubmitButton variant={type.id === null ? "primary" : "secondary"} className="h-10" pendingText={t("common.saving")}>
+          {type.id === null ? t("events.addTypeButton") : t("common.save")}
         </SubmitButton>
       </div>
       <FormMessage message={state.errors ? undefined : state.message} ok={state.ok} />
@@ -240,6 +268,7 @@ export function EventSettingsForm({
   settings: { currency: string; timeZone: string; showMap: boolean; allowCancelHours: number | null };
   currencies: string[];
 }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveEventSettingsAction, initialFormState);
   const e = state.errors ?? {};
   const value = (key: string, fallback: string) => state.values?.[key] ?? fallback;
@@ -250,7 +279,7 @@ export function EventSettingsForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-currency" className="text-sm font-semibold">
-            Currency
+            {t("shop.currency")}
           </label>
           <select id="f-currency" name="currency" defaultValue={value("currency", settings.currency)} className="input">
             {currencies.map((c) => (
@@ -261,17 +290,24 @@ export function EventSettingsForm({
           </select>
           <FieldError id="f-currency-error" error={e.currency} />
         </div>
-        <Field label="Time zone" name="timeZone" defaultValue={value("timeZone", settings.timeZone)} hint="Like Europe/Istanbul or Asia/Dubai." error={e.timeZone} />
+        <Field
+          label={t("shop.timeZone")}
+          name="timeZone"
+          dir="ltr"
+          defaultValue={value("timeZone", settings.timeZone)}
+          hint={t("events.timeZoneHint")}
+          error={e.timeZone}
+        />
       </div>
-      <Check name="showMap" label="Offer “Open in maps” for venues with a map position" defaultChecked={checked("showMap", settings.showMap)} />
+      <Check name="showMap" label={t("events.openInMaps")} defaultChecked={checked("showMap", settings.showMap)} />
       <Check
         name="allowCancel"
-        label="Let people cancel free tickets in the app"
-        hint="Their place goes back on sale. Paid tickets are refunded by you."
+        label={t("events.allowCancel")}
+        hint={t("events.allowCancelHint")}
         defaultChecked={checked("allowCancel", settings.allowCancelHours !== null)}
       />
       <Field
-        label="Until how many hours before the start"
+        label={t("events.cancelHours")}
         name="allowCancelHours"
         inputMode="numeric"
         defaultValue={value("allowCancelHours", String(settings.allowCancelHours ?? 24))}
@@ -279,8 +315,8 @@ export function EventSettingsForm({
         className="max-w-[260px]"
       />
       <div className="flex justify-end">
-        <SubmitButton variant="secondary" className="h-10" pendingText="Saving…">
-          Save settings
+        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
+          {t("shop.saveSettings")}
         </SubmitButton>
       </div>
     </form>
