@@ -40,7 +40,9 @@ class TestApp {
   final String language;
   final FakeBiometrics? biometrics;
   final bool? biometricLock;
-  final FakePush? push;
+
+  /// A [FakePush], or (65) a real service over a faked phone.
+  final PushService? push;
   final Map<String, Object> preferences;
 
   /// 61 The phone's light or dark setting (null: the test default, light).
@@ -262,6 +264,10 @@ class FakeScanner implements CameraScanner {
 }
 
 class FakePush implements PushService {
+  FakePush({this.provider = PushProvider.fcm});
+
+  @override
+  final PushProvider provider;
   final openedController = StreamController<Map<String, dynamic>>.broadcast();
   final foregroundController = StreamController<RemoteNotice>.broadcast();
   final refreshes = StreamController<String>.broadcast();

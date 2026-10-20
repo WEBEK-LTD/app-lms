@@ -2,13 +2,15 @@ import 'package:flutter/foundation.dart';
 
 /// 59 How this build of Yallapp Business is set up, from `--dart-define`s
 /// (or `--dart-define-from-file=config/firebase.json`). Nothing here is a
-/// secret: Firebase's client keys are public by design.
+/// secret: Firebase's client keys are public by design, and so is (65)
+/// Huawei's app ID.
 class AppConfig {
   const AppConfig({
     required this.apiBaseUrl,
     required this.websiteUrl,
     this.demo = false,
     this.firebase,
+    this.hmsAppId,
   });
 
   factory AppConfig.fromEnvironment() {
@@ -25,6 +27,7 @@ class AppConfig {
       websiteUrl: _trim(website),
       demo: const bool.fromEnvironment('YB_DEMO'),
       firebase: FirebaseConfig.fromEnvironment(),
+      hmsAppId: hmsAppIdFrom(const String.fromEnvironment('YB_HMS_APP_ID')),
     );
   }
 
@@ -39,6 +42,19 @@ class AppConfig {
 
   /// Push notifications; null when this build has no Firebase options.
   final FirebaseConfig? firebase;
+
+  /// 65 Huawei Push Kit's app ID (AppGallery Connect), for Android phones
+  /// without Google Play services; null when this build has no Huawei push.
+  /// Only used when the Android build also has agconnect-services.json
+  /// (`tool/hms_config.dart`); otherwise the phone answers as having no
+  /// Huawei services and pushes go through Firebase as before.
+  final String? hmsAppId;
+
+  /// 65 An AppGallery Connect app ID (digits), or null. Pure.
+  static String? hmsAppIdFrom(String value) {
+    final id = value.trim();
+    return RegExp(r'^[0-9]{1,32}$').hasMatch(id) ? id : null;
+  }
 
   /// A page of the website in the person's language (`/ar/…`, `/tr/…`).
   String websitePage(String path, String language) {

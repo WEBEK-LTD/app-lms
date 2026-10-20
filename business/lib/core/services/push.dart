@@ -7,10 +7,20 @@ import 'package:flutter/foundation.dart';
 import '../config.dart';
 import '../routing/paths.dart';
 
+/// 65 The service a phone's pushes come through: Firebase, or Huawei Push
+/// Kit on Huawei phones without Google Play services. Its name is the
+/// `provider` of `PUT /me/push-token`.
+enum PushProvider { fcm, hms }
+
 /// 59 Pushes to the owner's phone from Yallapp Business's own Firebase
-/// project. Off (every method a no-op) in builds without Firebase options.
+/// project, or (65) its AppGallery Connect app through Huawei Push Kit
+/// (`hms_push.dart`). Off (every method a no-op) in builds without them.
 abstract class PushService {
   bool get available;
+
+  /// 65 Where the tokens are from; sent with them to the server.
+  PushProvider get provider;
+
   Future<void> init();
 
   /// Asks for permission (iOS, Android 13+) and returns the token.
@@ -115,6 +125,8 @@ class NoPushService implements PushService {
   @override
   bool get available => false;
   @override
+  PushProvider get provider => PushProvider.fcm;
+  @override
   Future<void> init() async {}
   @override
   Future<String?> token() async => null;
@@ -136,6 +148,9 @@ class FirebasePushService implements PushService {
 
   @override
   bool get available => _ready;
+
+  @override
+  PushProvider get provider => PushProvider.fcm;
 
   @override
   Future<void> init() async {

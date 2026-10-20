@@ -184,9 +184,11 @@ class SessionController extends Notifier<SessionState> {
     if (!push.available) return;
     final api = ref.read(apiProvider);
     final token = await push.token();
+    // 65 With the service it's from: Firebase, or Huawei Push Kit.
+    final provider = push.provider.name;
     if (token != null) {
       try {
-        await api.setPushToken(token);
+        await api.setPushToken(token, provider: provider);
       } on ApiException {
         // Tried again on the next start.
       }
@@ -194,7 +196,7 @@ class SessionController extends Notifier<SessionState> {
     await _tokenRefreshes?.cancel();
     _tokenRefreshes = push.tokenRefreshes.listen((token) async {
       try {
-        await ref.read(apiProvider).setPushToken(token);
+        await ref.read(apiProvider).setPushToken(token, provider: provider);
       } on ApiException {
         // Tried again on the next start.
       }

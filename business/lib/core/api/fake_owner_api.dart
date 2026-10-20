@@ -43,6 +43,9 @@ class FakeOwnerApi implements OwnerApi {
   final devicesList = <Device>[];
   var preferences = const PushPreferences({});
   String? pushToken;
+
+  /// 65 The `provider` sent with [pushToken]: `fcm` or `hms`.
+  String? pushProvider;
   final updatesList = <Update>[];
   final _orders = <String, List<Order>>{};
   final _appointments = <String, List<Appointment>>{};
@@ -1037,12 +1040,14 @@ class FakeOwnerApi implements OwnerApi {
   Future<void> setPushToken(String token, {String provider = 'fcm'}) async {
     await _call('setPushToken', needsActive: false);
     pushToken = token;
+    pushProvider = provider;
   }
 
   @override
   Future<void> deletePushToken() async {
     await _call('deletePushToken', needsActive: false);
     pushToken = null;
+    pushProvider = null;
   }
 
   @override

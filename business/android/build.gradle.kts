@@ -2,6 +2,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // 65 Huawei's SDK, only for builds with Huawei push (hms_push/).
+        if (rootProject.file("app/agconnect-services.json").exists()) {
+            maven("https://developer.huawei.com/repo/")
+        }
     }
 }
 

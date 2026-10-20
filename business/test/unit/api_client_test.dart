@@ -167,6 +167,21 @@ void main() {
     expect(adapter.requests.single.headers['Accept-Language'], 'tr');
   });
 
+  // 65 The token goes with the service it's from (owner.yaml PushTokenRequest).
+  test('the push token is sent with its provider', () async {
+    api = build((o, body) async => ResponseBody.fromString('', 204));
+    await api.setPushToken('fcm-token');
+    await api.setPushToken('hms-token', provider: PushProvider.hms.name);
+    expect(adapter.requests.map((r) => '${r.method} ${r.uri.path}'), [
+      'PUT /api/owner/v1/me/push-token',
+      'PUT /api/owner/v1/me/push-token',
+    ]);
+    expect(adapter.bodies.map((b) => jsonDecode(b!)), [
+      {'token': 'fcm-token', 'provider': 'fcm'},
+      {'token': 'hms-token', 'provider': 'hms'},
+    ]);
+  });
+
   test('a 401 renews the tokens once and retries; the newest refresh token is kept', () async {
     api = build((o, body) async {
       if (o.path.endsWith('/auth/refresh')) {

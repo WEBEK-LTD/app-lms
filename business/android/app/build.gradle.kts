@@ -61,3 +61,15 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+// 65 Huawei push for phones without Google Play services: only when
+// agconnect-services.json is present (written by tool/hms_config.dart from
+// the build's variables, never committed). The channel to Dart (src/huawei)
+// and Huawei's SDK (../hms_push) are then built in; without the file the
+// build has nothing from Huawei. As in the customers' app (mobile/, 36).
+if (file("agconnect-services.json").exists()) {
+    android.sourceSets.getByName("main").java.srcDir("src/huawei/java")
+    dependencies {
+        implementation(project(":hms_push"))
+    }
+}
