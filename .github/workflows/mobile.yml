@@ -295,6 +295,22 @@ jobs:
           YB_FIREBASE_APP_ID_ANDROID: ${{ vars.YB_FIREBASE_APP_ID_ANDROID }}
           YB_FIREBASE_API_KEY_ANDROID: ${{ vars.YB_FIREBASE_API_KEY_ANDROID }}
         run: |
+          # A variable may hold the whole google-services.json instead of one value:
+          # the Android app's values are read from it (tr.com.yallapp.business).
+          for name in YB_FIREBASE_PROJECT_ID YB_FIREBASE_SENDER_ID YB_FIREBASE_APP_ID_ANDROID YB_FIREBASE_API_KEY_ANDROID; do
+            value="${!name}"
+            if [ "$(printf '%s' "$value" | tr -d '[:space:]' | cut -c1)" = "{" ]; then
+              printf '%s' "$value" > "$RUNNER_TEMP/google-services.json"
+              client='.client[] | select(.client_info.android_client_info.package_name == "tr.com.yallapp.business")'
+              YB_FIREBASE_PROJECT_ID=$(jq -r '.project_info.project_id' "$RUNNER_TEMP/google-services.json")
+              YB_FIREBASE_SENDER_ID=$(jq -r '.project_info.project_number' "$RUNNER_TEMP/google-services.json")
+              YB_FIREBASE_APP_ID_ANDROID=$(jq -r "$client | .client_info.mobilesdk_app_id" "$RUNNER_TEMP/google-services.json")
+              YB_FIREBASE_API_KEY_ANDROID=$(jq -r "$client | .api_key[0].current_key" "$RUNNER_TEMP/google-services.json")
+              rm -f "$RUNNER_TEMP/google-services.json"
+              echo "Read the Firebase options from the google-services.json in $name."
+              break
+            fi
+          done
           flutter build apk --release \
             --dart-define=YB_FIREBASE_PROJECT_ID="$YB_FIREBASE_PROJECT_ID" \
             --dart-define=YB_FIREBASE_SENDER_ID="$YB_FIREBASE_SENDER_ID" \
