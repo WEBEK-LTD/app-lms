@@ -1795,3 +1795,36 @@ export const courseAnswers = mysqlTable(
   },
   (t) => [index("course_answers_question_idx").on(t.questionId, t.createdAt)],
 );
+
+/**
+ * 66 Requests to delete a Yallapp account (Dashboard › Your account), handled
+ * by Yallapp's team in Admin › Account deletion. No foreign keys: the record
+ * of the request outlives the account it deleted. `open_client_id` is the
+ * client while the request is open and null once it is closed, so a client
+ * has at most one open request (unique; MySQL allows many nulls).
+ */
+export const accountDeletionRequests = mysqlTable(
+  "account_deletion_requests",
+  {
+    id: id("id").primaryKey(),
+    clientId: id("client_id").notNull(),
+    userId: id("user_id").notNull(),
+    openClientId: id("open_client_id"),
+    email: varchar("email", { length: 191 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    // The dashboard language of the person who asked ("en", "ar" or "tr"): the emails to them.
+    lang: varchar("lang", { length: 8 }).notNull(),
+    reason: text("reason"),
+    status: varchar("status", { length: 16 }).notNull().$type<"pending" | "done" | "cancelled">(),
+    requestedAt: time("requested_at").notNull(),
+    closedAt: time("closed_at"),
+    // Who closed it: our team member's email, or the client's own when they cancelled it.
+    closedBy: varchar("closed_by", { length: 191 }),
+    teamNote: text("team_note"),
+  },
+  (t) => [
+    uniqueIndex("account_deletion_requests_open_unique").on(t.openClientId),
+    index("account_deletion_requests_status_idx").on(t.status, t.requestedAt),
+    index("account_deletion_requests_client_idx").on(t.clientId, t.requestedAt),
+  ],
+);

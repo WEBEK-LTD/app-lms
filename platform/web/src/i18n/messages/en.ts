@@ -63,6 +63,7 @@ export const en = {
     terms: "Terms of service",
     privacy: "Privacy policy",
     refund: "Refund policy",
+    deleteAccount: "Delete your account",
     trademarks:
       "Google Play, the App Store, WordPress, Shopify and the other names and logos on this site are trademarks of their owners. Yallapp is not affiliated with the stores and platforms it works with.",
     whatsappLine: "WhatsApp: {number} · yallapp.com.tr",
@@ -311,6 +312,37 @@ export const en = {
     prevails: "This is a translation. If it differs from the English version, the English version prevails.",
     englishVersion: "Read the English version",
   },
+  deleteAccount: {
+    title: "Deleting your Yallapp account",
+    intro:
+      "This page is for the people who run an app on Yallapp: anyone with a Yallapp account, who signs in to the dashboard on yallapp.com.tr and to the Yallapp Business app with an email and a password. You can ask us to delete your account and its data at any time, with or without the app installed.",
+    appUsers:
+      "Using an app made with Yallapp? Your account in that app belongs to the business that runs it: delete it from the app's own Account screen, or ask that business.",
+    howTitle: "How to ask",
+    howDashboard:
+      "<b>From your dashboard:</b> <signin>sign in</signin>, open <b>Your account</b> and choose <b>Delete my account</b>, confirming with your password. An account that is waiting for activation or suspended has the same request at the bottom of the page it sees after signing in.",
+    howEmail:
+      "<b>If you can't sign in:</b> email {email} from your Yallapp account's address, with “Delete my account” as the subject. We may ask you to confirm it's you before we delete anything.",
+    howTeam:
+      "<b>Team members:</b> if you were invited to someone's business, its owner removes you from the team, which signs you out of it everywhere. To delete your own sign-in as well, email us from its address.",
+    whatTitle: "What we delete",
+    whatAccount: "Your Yallapp account: your name, email, WhatsApp number, password and sign-ins, and every phone signed in to Yallapp Business.",
+    whatApps:
+      "Your apps and their data: settings, pages, languages, builds and app files, the pictures and videos in Media, and, for apps without a website, the content, products, orders, bookings, tickets, donations, messages and app users we keep for you.",
+    whatKeys: "The store keys you gave us and the signing keys we keep for your apps.",
+    whatTeam: "Your team's access to your business.",
+    keptTitle: "What we keep, and for how long",
+    keptBilling: "Billing records (your plan payments and receipts), for as long as accounting and tax laws require.",
+    keptRequest: "A record of your request (your email and its dates), to show it was done.",
+    keptLogs: "Technical logs, for up to 12 months.",
+    keptStores:
+      "Apps published under your own developer accounts on Google Play, the App Store or other stores stay there until you remove them: we can't remove them for you. Once your account is deleted they stop working.",
+    whenTitle: "How long it takes",
+    when: "We delete your account within {days} days of your request and email you when it's done. Until then you can cancel the request from your dashboard. Once deleted, it can't be brought back.",
+    plans:
+      "Deleting your account ends your apps' plans. Plans renew only when you pay, so nothing more is charged; payments already made are refunded only as the <refund>Refund policy</refund> says.",
+    more: "More about how we handle your data: <privacy>Privacy policy</privacy>.",
+  },
   notFound: {
     title: "We can't find this page",
     text: "The link may be old or mistyped. Try the home page, or message us if you need help.",
@@ -443,6 +475,8 @@ export const en = {
     privacyDescription: "What personal data Yallapp collects, why, who it's shared with, how long it's kept, and your rights.",
     refundTitle: "Refund policy",
     refundDescription: "Cancel within 3 days of your account being activated for a full refund. How refunds and renewals work.",
+    deleteAccountTitle: "Deleting your Yallapp account",
+    deleteAccountDescription: "How to delete your Yallapp account and its apps' data, what we delete, what we keep and for how long.",
     notFoundTitle: "Page not found",
   },
 } as const;

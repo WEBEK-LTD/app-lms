@@ -36,6 +36,8 @@ export type ClientEmailKey = Extract<
   | "own_whatsapp_failed"
   | "own_email_failed"
   | "team_invitation"
+  | "account_deletion_received"
+  | "account_deletion_done"
 >;
 
 const AR: Record<ClientEmailKey, TemplateText> = {
@@ -183,6 +185,21 @@ const AR: Record<ClientEmailKey, TemplateText> = {
       "يعمل الرابط مرة واحدة حتى {{expires}}. إن لم تكن تتوقع هذه الدعوة، فيمكنك تجاهل هذه الرسالة." +
       SIGNATURE_AR,
   },
+  account_deletion_received: {
+    subject: "تلقّينا طلبك لحذف حسابك في Yallapp",
+    body:
+      "مرحبًا {{name}}،\n\nتلقّينا طلبك لحذف حسابك في Yallapp. سنحذفه مع تطبيقاته وبياناتها خلال {{days}} يومًا، وسنراسلك عند الانتهاء.\n\n" +
+      "وحتى ذلك الحين يمكنك إلغاء الطلب من لوحة التحكم:\n{{dashboard_url}}\n\n" +
+      "إن لم تطلب ذلك، فألغِ الطلب وغيّر كلمة المرور وراسلنا على {{yallapp_email}}." +
+      SIGNATURE_AR,
+  },
+  account_deletion_done: {
+    subject: "حُذف حسابك في Yallapp",
+    body:
+      "مرحبًا {{name}}،\n\nحُذف حسابك في Yallapp مع تطبيقاته وبياناتها كما طلبت. ولا نحتفظ إلا بسجلات الفوترة التي تشترطها قوانين المحاسبة والضرائب، وبسجلّ لطلبك.\n\n" +
+      "وتبقى التطبيقات التي نشرتها بحساباتك الخاصة في المتاجر هناك إلى أن تزيلها. شكرًا لاستخدامك Yallapp." +
+      SIGNATURE_AR,
+  },
 };
 
 const TR: Record<ClientEmailKey, TemplateText> = {
@@ -328,6 +345,21 @@ const TR: Record<ClientEmailKey, TemplateText> = {
       "Merhaba {{name}},\n\n{{inviter}} sizi Yallapp'te {{business}} üzerinde {{role}} olarak birlikte çalışmaya davet etti.\n\n" +
       "Katılmak için bu bağlantıyı açın. Orada parolanızı belirleyebilir ya da Yallapp'i zaten kullanıyorsanız giriş yapabilirsiniz:\n\n{{link}}\n\n" +
       "Bağlantı bir kez ve {{expires}} tarihine kadar çalışır. Bu daveti beklemiyorsanız bu e-postayı yok sayabilirsiniz." +
+      SIGNATURE_TR,
+  },
+  account_deletion_received: {
+    subject: "Yallapp hesabınızı silme isteğinizi aldık",
+    body:
+      "Merhaba {{name}},\n\nYallapp hesabınızı silme isteğinizi aldık. Hesabınızı, uygulamaları ve onların verileriyle birlikte {{days}} gün içinde sileceğiz ve bittiğinde size e-posta göndereceğiz.\n\n" +
+      "O zamana kadar isteği panelinizden iptal edebilirsiniz:\n{{dashboard_url}}\n\n" +
+      "Bunu siz istemediyseniz isteği iptal edin, parolanızı değiştirin ve bize {{yallapp_email}} adresinden yazın." +
+      SIGNATURE_TR,
+  },
+  account_deletion_done: {
+    subject: "Yallapp hesabınız silindi",
+    body:
+      "Merhaba {{name}},\n\nYallapp hesabınız, istediğiniz gibi uygulamaları ve onların verileriyle birlikte silindi. Yalnızca muhasebe ve vergi yasalarının gerektirdiği fatura kayıtlarını ve isteğinizin bir kaydını saklıyoruz.\n\n" +
+      "Kendi mağaza hesaplarınızla yayınladığınız uygulamalar, siz kaldırana kadar orada kalır. Yallapp'i kullandığınız için teşekkür ederiz." +
       SIGNATURE_TR,
   },
 };

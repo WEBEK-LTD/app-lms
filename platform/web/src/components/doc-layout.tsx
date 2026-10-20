@@ -74,6 +74,7 @@ export const LEGAL_NAV: DocNavGroup[] = [
       { href: "/terms", label: "Terms of service" },
       { href: "/privacy", label: "Privacy policy" },
       { href: "/refund", label: "Refund policy" },
+      { href: "/delete-account", label: "Delete your account" },
     ],
   },
 ];
@@ -94,6 +95,7 @@ export function legalNav(lang: Lang): DocNavGroup[] {
         { href: localePath(lang, "/terms"), label: m.footer.terms },
         { href: localePath(lang, "/privacy"), label: m.footer.privacy },
         { href: localePath(lang, "/refund"), label: m.footer.refund },
+        { href: localePath(lang, "/delete-account"), label: m.footer.deleteAccount },
       ],
     },
   ];

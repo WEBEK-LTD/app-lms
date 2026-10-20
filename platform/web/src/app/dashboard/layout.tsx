@@ -114,6 +114,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/announcements", label: t("nav.updates"), icon: "campaign" },
         // 58 Phones signed in to Yallapp Business with this account.
         { href: "/dashboard/phones", label: t("owner.nav"), icon: "smartphone" },
+        // 66 Who is signed in, and deleting the Yallapp account.
+        { href: "/dashboard/account", label: t("account.nav"), icon: "account_circle" },
         { href: contact.whatsappUrl, label: t("nav.support"), icon: "support_agent", external: true },
       ],
     },

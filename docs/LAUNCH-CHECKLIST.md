@@ -759,6 +759,32 @@ never in a chat or an issue.
       back; with someone on two businesses, check a push of the other
       business reaches their phone with its name first and opens it there.
 
+## 7p. Deleting a Yallapp account (Phase 66)
+
+- [ ] Apply migration `0048_account_deletion_requests.sql` after `0047`
+      (`account_deletion_requests`). Nothing else to set: the team's email
+      goes to the contact email (Admin › Settings, `info@yallapp.com.tr` by
+      default), the owner's emails use the `account_deletion_received` and
+      `account_deletion_done` templates (Admin › Emails), in English, Arabic
+      and Turkish.
+- [ ] Give the stores the page's address for Yallapp Business (7l):
+      **`https://yallapp.com.tr/delete-account`**. Google Play: App content ›
+      Data safety › "Delete account URL" (and "Users can request that their
+      data is deleted"). App Store Connect: in the review notes, that
+      accounts are created on the website and deleted from Dashboard › Your
+      account or this page (5.1.1(v)).
+- [ ] After deploying: open `/delete-account`, `/ar/delete-account` and
+      `/tr/delete-account`, and the link in the footer and in the privacy
+      policy (if the privacy policy was edited in Admin › Website content,
+      add the sentence with the link in section 9 there too). With a test
+      client signed in to Yallapp Business, ask from Dashboard › Your
+      account, check the phone is signed out and the team's email arrives,
+      cancel, ask again, and mark it done in Admin › Account deletion.
+- [ ] Deleting is by hand (ARCHITECTURE, "Deleting a Yallapp account"):
+      keep the billing records first, then the owner's `users` row, the
+      Blobs under `assets/<client id>/` and the build folders the request
+      lists; mark it done within 30 days.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

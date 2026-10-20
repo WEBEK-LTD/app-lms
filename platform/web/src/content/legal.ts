@@ -19,7 +19,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "19 October 2026",
+  updated: "20 October 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -68,7 +68,7 @@ All connections use HTTPS. Publishing credentials and signing keys are encrypted
 
 ## 9. Your rights
 
-You can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. Where the GDPR or KVKK (Article 11) apply, they give you these rights, including the right to know who your data was shared with. We reply within one month. Email [{{contact_email}}](mailto:{{contact_email}}). You can also complain to the data protection authority of your country, such as the Turkish Personal Data Protection Authority (kvkk.gov.tr) or the authority in your EU country.
+You can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. Where the GDPR or KVKK (Article 11) apply, they give you these rights, including the right to know who your data was shared with. We reply within one month. Email [{{contact_email}}](mailto:{{contact_email}}). To delete your Yallapp account and its apps' data, sign in and ask from your dashboard, or follow [Deleting your Yallapp account](/delete-account) if you can't sign in. You can also complain to the data protection authority of your country, such as the Turkish Personal Data Protection Authority (kvkk.gov.tr) or the authority in your EU country.
 
 ## 10. Cookies
 

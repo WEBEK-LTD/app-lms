@@ -129,6 +129,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/preview", "dashboard"],
   ["/dashboard/announcements", "dashboard"],
   ["/dashboard/phones", "dashboard"],
+  // 66 Your account: anyone sees it; only the owner can ask to delete the account (lib/account/deletion.ts).
+  ["/dashboard/account", "dashboard"],
   ["/dashboard/businesses", "dashboard"],
   ["/dashboard", "dashboard"],
 ];

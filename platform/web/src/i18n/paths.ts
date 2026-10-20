@@ -24,6 +24,8 @@ const EXACT_PAGES = new Set([
   "/terms",
   "/privacy",
   "/refund",
+  // 66 How to delete a Yallapp account (Google Play and the App Store link to it).
+  "/delete-account",
   "/sign-in",
   "/sign-up",
   "/forgot-password",

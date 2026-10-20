@@ -121,6 +121,7 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
             <Link href={lp("/terms")} className={footerLink}>{f.terms}</Link>
             <Link href={lp("/privacy")} className={footerLink}>{f.privacy}</Link>
             <Link href={lp("/refund")} className={footerLink}>{f.refund}</Link>
+            <Link href={lp("/delete-account")} className={footerLink}>{f.deleteAccount}</Link>
           </nav>
           {full ? (
             <div className="flex flex-[1_1_180px] flex-col gap-3 text-[15px]">

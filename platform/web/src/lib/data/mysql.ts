@@ -39,6 +39,7 @@ import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
+import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
@@ -3653,6 +3654,72 @@ export class MysqlStore implements DataStore {
     const [result] = await this.run((db) => db.update(t).set({ pushedAt: now }).where(and(eq(t.id, id), isNull(t.pushedAt))));
     return result.affectedRows === 1;
   }
+
+  // 66 Requests to delete a Yallapp account
+
+  async createAccountDeletionRequest(request: AccountDeletionRequest): Promise<boolean> {
+    // `open_client_id` is unique: a second open request for the client is refused by the database.
+    try {
+      await this.run((db) => db.insert(schema.accountDeletionRequests).values({ ...request, openClientId: request.status === "pending" ? request.clientId : null }));
+      return true;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async getAccountDeletionRequest(id: string): Promise<AccountDeletionRequest | null> {
+    const t = schema.accountDeletionRequests;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ? toAccountDeletion(row) : null;
+  }
+
+  async getOpenAccountDeletionRequest(clientId: string): Promise<AccountDeletionRequest | null> {
+    const t = schema.accountDeletionRequests;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.openClientId, clientId)).limit(1));
+    return row ? toAccountDeletion(row) : null;
+  }
+
+  async listAccountDeletionRequests(statuses: AccountDeletionStatus[], limit: number): Promise<AccountDeletionRequest[]> {
+    const t = schema.accountDeletionRequests;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(statuses.length ? inArray(t.status, statuses) : undefined)
+        .orderBy(desc(t.requestedAt), desc(t.id))
+        .limit(limit),
+    );
+    return rows.map(toAccountDeletion);
+  }
+
+  async closeAccountDeletionRequest(id: string, close: AccountDeletionClose): Promise<boolean> {
+    const t = schema.accountDeletionRequests;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...close, openClientId: null })
+        .where(and(eq(t.id, id), eq(t.status, "pending"))),
+    );
+    return result.affectedRows === 1;
+  }
+}
+
+function toAccountDeletion(row: typeof schema.accountDeletionRequests.$inferSelect): AccountDeletionRequest {
+  return {
+    id: row.id,
+    clientId: row.clientId,
+    userId: row.userId,
+    email: row.email,
+    name: row.name,
+    lang: row.lang,
+    reason: row.reason,
+    status: row.status,
+    requestedAt: row.requestedAt,
+    closedAt: row.closedAt,
+    closedBy: row.closedBy,
+    teamNote: row.teamNote,
+  };
 }
 
 /**

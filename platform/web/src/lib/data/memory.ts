@@ -85,6 +85,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
+import type { AccountDeletionClose, AccountDeletionRequest, AccountDeletionStatus } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
@@ -2901,6 +2902,41 @@ export class MemoryStore implements DataStore {
     const announcement = this.announcements.get(id);
     if (!announcement || announcement.pushedAt) return false;
     this.announcements.set(id, clone({ ...announcement, pushedAt: now }));
+    return true;
+  }
+
+  // 66 Requests to delete a Yallapp account
+
+  private accountDeletions = new Map<string, AccountDeletionRequest>();
+
+  async createAccountDeletionRequest(request: AccountDeletionRequest): Promise<boolean> {
+    if (request.status === "pending" && (await this.getOpenAccountDeletionRequest(request.clientId))) return false;
+    this.accountDeletions.set(request.id, clone(request));
+    return true;
+  }
+
+  async getAccountDeletionRequest(id: string): Promise<AccountDeletionRequest | null> {
+    const request = this.accountDeletions.get(id);
+    return request ? clone(request) : null;
+  }
+
+  async getOpenAccountDeletionRequest(clientId: string): Promise<AccountDeletionRequest | null> {
+    for (const request of this.accountDeletions.values()) if (request.clientId === clientId && request.status === "pending") return clone(request);
+    return null;
+  }
+
+  async listAccountDeletionRequests(statuses: AccountDeletionStatus[], limit: number): Promise<AccountDeletionRequest[]> {
+    return [...this.accountDeletions.values()]
+      .filter((r) => !statuses.length || statuses.includes(r.status))
+      .sort((a, b) => b.requestedAt.getTime() - a.requestedAt.getTime() || b.id.localeCompare(a.id))
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async closeAccountDeletionRequest(id: string, close: AccountDeletionClose): Promise<boolean> {
+    const request = this.accountDeletions.get(id);
+    if (!request || request.status !== "pending") return false;
+    this.accountDeletions.set(id, clone({ ...request, ...close }));
     return true;
   }
 }

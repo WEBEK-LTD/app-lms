@@ -1583,3 +1583,27 @@ any kind in the app.
 | [ ] | 65.10 The demo's sample data (names, the apps' kinds) stays in English in the Arabic and Turkish screenshots, as the API sends it; the door's welcome follows the account's language | Acceptable |
 | [x] | 65.11 iOS shows plan and storage read-only with no link to the website ("Your plan and storage are shown here for your information."; Media's "Manage on yallapp.com.tr" hidden), so App Review sees no way to pay outside the App Store (3.1.1, 3.1.3); Android keeps the link | `publishing_more_test.dart` (iOS) |
 
+## Phase 66: Deleting a Yallapp account
+
+Google Play (Data safety's "Delete account URL") and the App Store
+(5.1.1(v)) need a public page where someone with a Yallapp account (an
+owner, or a team member from Phase 60) asks for the account and its data to
+be deleted without Yallapp Business installed. `/delete-account` in English,
+Arabic and Turkish says how (the dashboard, or an email from the account's
+address), what is deleted, what is kept and for how long, and within how
+many days; the owner asks from Dashboard › Your account (or the waiting
+page) with their password, and our team deletes by hand and marks it done in
+the admin. No payments touched; the Owner API contract is unchanged.
+Migration `drizzle/0048_account_deletion_requests.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 66.1 The public page (`site/delete-account.tsx`): `/delete-account`, `/ar/delete-account`, `/tr/delete-account`, in the sitemap, the footer's Legal column and the legal pages' menu; the privacy policy's section 9 links to it in all three languages (updated 20 October 2026); what is kept matches the privacy policy (billing records as the law requires, technical logs 12 months) plus a record of the request; app users are sent to their app's own account deletion | `site-i18n.test.ts`, `website-seo.test.ts`, `account-deletion.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.2 Data: `account_deletion_requests` (no foreign keys, so the record outlives the account; `open_client_id` unique while open: one open request per account, of two at once one wins); memory and MySQL stores; `drizzle-kit generate --name ci-check` clean | `account-deletion-mysql.test.ts` |
+| [x] | 66.3 Asking (`lib/account/deletion.ts`): owner only (a team member is told to ask the owner to remove them; our team managing the dashboard is refused), the email typed again, the password counted with the sign-in attempts, an optional reason; asking again returns the open request; the owner's Yallapp Business phones signed out at once; the team emailed at the contact email (`account_deletion_request`), the owner in their language (`account_deletion_received`); cancelling | `account-deletion.test.ts` |
+| [x] | 66.4 Dashboard › Your account (`/dashboard/account`, the sidebar's Account group, open to everyone on the team) and the bottom of the waiting page for pending and suspended accounts: what happens (apps stop, data deleted, the team's access, store listings stay under the client's own accounts, download the upload key first, running plans end and nothing renews or is charged), the form, the request waiting with "Cancel the request" | `team-permissions.test.ts`, `dashboard-i18n.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.5 Admin › Account deletion (English, `clients.suspend`, a badge with the open requests): open requests oldest first with "delete by" and Overdue, and what belongs to the account (user and client IDs, the Blobs prefix, apps, build folders, payments, team); "Mark done and email them" (a tick that it was deleted) sends `account_deletion_done` in their language; "Cancel the request"; both in the audit log | `account-deletion.test.ts`, `account-deletion.spec.ts` |
+| [x] | 66.6 Strings in English, Arabic and Turkish: the site's `deleteAccount`, `footer` and `meta` texts, the dashboard's `account` catalog, the two emails to the owner; docs: ARCHITECTURE ("Deleting a Yallapp account"), LAUNCH-CHECKLIST 7p (the address to give the stores, migration 0048) | `site-i18n.test.ts`, `dashboard-i18n.test.ts`, `email-languages.test.ts` |
+| [ ] | 66.7 Deleting the account itself is by hand (ARCHITECTURE's five steps): deleting the client's rows also deletes its payments (on delete cascade) and the files are in Netlify Blobs, on the files host and on the media server, so there is no "Delete now" button yet | When there are enough requests to be worth a safe automated delete that keeps the billing records |
+| [x] | 66.8 Yallapp Business links to the page from More › Legal ("Delete my account") | `publishing_more_test.dart` |
+| [ ] | 66.9 The address given to Google Play (Data safety › Delete account URL) and App Store Connect for Yallapp Business | LAUNCH-CHECKLIST 7l and 7p |

@@ -1098,7 +1098,7 @@ are separate.
 - **Addresses.** English pages keep their addresses, with no prefix. Arabic
   and Turkish ones live under `/ar/…` and `/tr/…`: the home page, solutions,
   features, integrations, how it works, pricing, demo, contact, FAQ, docs (the
-  index and every article), developers, terms, privacy, refund, sign-in,
+  index and every article), developers, terms, privacy, refund, (66) delete-account, sign-in,
   sign-up, forgot and reset password, and "page not found". Dashboard, admin,
   API, `/pay`, `/give`, `/shop`, `/receipts`, `/a`, `/m`, `/media`, `/oauth`
   and `/pending` have no language prefix. There is no proxy, middleware or
@@ -1648,6 +1648,68 @@ gym's members at the door, with one set of rules in `lib`.
   members/{id}/freeze` (the door's Bookings area; `Member.status` `frozen`
   and `Member.frozen`), Yallapp Business's Members, and the Team page's
   lines.
+
+## Deleting a Yallapp account (Phase 66)
+
+Google Play (Data safety's "Delete account URL") and the App Store (5.1.1(v))
+want a public page where someone with a Yallapp account, the people who sign
+in to the dashboard and to Yallapp Business, can ask for their account and
+its data to be deleted without the app. The address to give both stores is
+`https://yallapp.com.tr/delete-account`.
+
+- **The public page** (`site/delete-account.tsx`, `/delete-account` and
+  `/ar`, `/tr`; in the sitemap, the footer's Legal column, the legal pages'
+  menu, and section 9 of the privacy policy): how to ask (from the dashboard;
+  by email to the contact email from the account's address when they can't
+  sign in; team members ask the owner to remove them), what is deleted (the
+  account, its apps and their data, store and signing keys, the team's
+  access), what is kept and for how long (billing records as accounting and
+  tax laws require, a record of the request, technical logs up to 12 months,
+  as the privacy policy says; apps under the client's own store accounts stay
+  there), within 30 days (`DELETION_DAYS`), and that it ends the plans (they
+  renew only when paid; refunds as the refund policy says). People using a
+  client's app are sent to that app's own account deletion.
+- **Asking** (`lib/account/deletion.ts`, `app/actions/account.ts`):
+  Dashboard › Your account (`/dashboard/account`, open to everyone on the
+  team; the sidebar's Account group) and, for an account waiting for
+  activation or suspended, the bottom of the waiting page (`/pending`). Only
+  the owner can ask: a team member is told to ask the owner to remove them,
+  and Yallapp's team managing the dashboard is refused. The owner types their
+  email again and gives their password (counted with the sign-in attempts
+  for the address, `RATE_LIMITS.signInEmail`), with an optional reason. The
+  request is saved (`account_deletion_requests`, migration
+  `0048_account_deletion_requests`: no foreign keys, so the record outlives
+  the account; `open_client_id` is unique while it is open, so of two
+  requests at once one wins and asking again returns the first), every
+  Yallapp Business phone of the owner is signed out at once, the contact
+  email (Settings) gets `account_deletion_request` and the owner
+  `account_deletion_received` in their dashboard language. Until it is done
+  the owner sees it and can cancel it (the team is emailed again). The
+  account works as before meanwhile; nothing is charged since plans renew
+  only when paid. The Owner API is unchanged (`owner.yaml`): the stores'
+  listings give the page's address, and Yallapp Business can link to it.
+- **Our team** (Admin › Account deletion, `clients.suspend`, a badge with
+  the open requests): open requests oldest first, with "delete by" (30 days)
+  and Overdue, the reason, and what belongs to the account: the user and
+  client IDs, the Blobs prefix `assets/<client id>/`, the apps, the build
+  folders (`builds/<build id>/` on the files host), the paid payments and the
+  team. Deleting is done by hand, because deleting the client's rows also
+  deletes its payments (on delete cascade) and the files live in three
+  places:
+  1. Keep the billing records the law requires (the client's page ›
+     Payments, and their receipts) in our accounting records.
+  2. Note the build folders listed.
+  3. Delete the owner's row in `users`; the client, its apps, licenses,
+     builds, payments, team, content, app users and the rest go with it.
+     Team members keep their own sign-ins.
+  4. Delete `assets/<client id>/` in Netlify Blobs (`yallapp-files`) and the
+     build folders on files.yallapp.com.tr; the daily job removes the Media
+     files 7 days after their app is gone (`lib/media/sweep.ts`).
+  5. "Mark done and email them" (a tick that the rows and files are gone is
+     required) sends `account_deletion_done` in the language they asked in;
+     "Cancel the request" closes it without an email. Both are in the audit
+     log. A request by email is handled the same way after checking it came
+     from the account's address.
 
 ## Demo apps (Phase 16)
 

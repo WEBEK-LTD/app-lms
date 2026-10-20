@@ -25,6 +25,7 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { getContact } from "@/lib/contact";
 import { appLabel } from "@/lib/app/label";
 import { WhatsAppMark } from "@/components/brand-marks";
+import { AccountDeletion } from "@/components/account-deletion";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("overview.pendingTitle"), robots: { index: false } };
@@ -64,8 +65,11 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
   if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/dashboard/app-type");
 
   const suspended = context.client.status === "suspended";
-  const { payment } = await searchParams;
+  const { payment, deletion, phones } = await searchParams;
+  // 66 Deleting the account also works before activation and while suspended.
+  const deletionDone = typeof deletion === "string" ? deletion : null;
   const store = await getStore();
+  const deletionOpen = Boolean(await store.getOpenAccountDeletionRequest(context.client.id));
   // 52 Yallapp's gateway for plans (Kashier, in pounds); prices in the client's currency.
   // 60 Only the owner pays; someone on their team sees the state.
   const yallappAccount = suspended || !contextCan(context, "billing") ? null : await yallappPlanAccount(store, encryptionKey());
@@ -182,6 +186,12 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
                 </ul>
               </div>
             ) : null}
+            <details open={deletionDone !== null || deletionOpen} className="border-t border-line-soft pt-5">
+              <summary className="cursor-pointer text-[15px] font-semibold text-ink-3">{t("account.pendingLink")}</summary>
+              <div className="mt-4">
+                <AccountDeletion context={context} from="pending" done={deletionDone} phones={Number(typeof phones === "string" ? phones : 0) || 0} />
+              </div>
+            </details>
           </section>
         </main>
       </AuthShell>
