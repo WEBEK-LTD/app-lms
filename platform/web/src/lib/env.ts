@@ -363,3 +363,23 @@ export function mailCaptureDir(): string | undefined {
   const dir = read("YALLAPP_MAIL_DIR");
   return dir && !isNetlify() ? dir : undefined;
 }
+
+// 58 Yallapp Business: pushes to the owners' phones
+
+/**
+ * Yallapp Business's own Firebase project: the service account JSON
+ * (OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT, never committed) that sends the
+ * owners' pushes, and optionally Huawei Push Kit's app ID and secret for
+ * Huawei phones without Google Play. Unset: no pushes (the API still works).
+ */
+export function ownerPushCredentials(): { serviceAccountJson: string | null; hms: { app_id: string; app_secret: string } | null } {
+  const appId = read("OWNER_PUSH_HMS_APP_ID");
+  const secret = read("OWNER_PUSH_HMS_APP_SECRET");
+  return { serviceAccountJson: read("OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT") ?? null, hms: appId && secret ? { app_id: appId, app_secret: secret } : null };
+}
+
+/** Local runs and tests only (never on Netlify): the owners' pushes are also written here as JSON, as YALLAPP_MAIL_DIR does for emails. */
+export function ownerPushCaptureDir(): string | undefined {
+  const dir = read("YALLAPP_OWNER_PUSH_DIR");
+  return dir && !isNetlify() ? dir : undefined;
+}

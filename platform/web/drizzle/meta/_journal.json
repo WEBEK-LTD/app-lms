@@ -302,6 +302,13 @@
       "when": 1792450002766,
       "tag": "0042_dashboard_languages",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "5",
+      "when": 1792482095268,
+      "tag": "0043_yallapp_business",
+      "breakpoints": true
     }
   ]
 }

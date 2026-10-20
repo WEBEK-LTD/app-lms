@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
-import { parseCourse, parseLesson } from "@/lib/courses/forms";
+import { parseCourse } from "@/lib/courses/forms";
+import { saveLesson, withCourse } from "@/lib/courses/edit";
 import { courseSetup } from "@/lib/courses/setup";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
@@ -39,9 +40,6 @@ async function saveSetup(app: App, setup: CourseSetup): Promise<void> {
 
 const values = (formData: FormData, names: string[]) => Object.fromEntries(names.map((n) => [n, String(formData.get(n) ?? "").trim()]));
 
-function withCourse(setup: CourseSetup, id: number, change: (c: Course) => Course): CourseSetup {
-  return { ...setup, courses: setup.courses.map((c) => (c.id === id ? change(c) : c)) };
-}
 
 export async function saveCourseAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireCoursesApp();
@@ -154,17 +152,10 @@ export async function saveLessonAction(_: FormState, formData: FormData): Promis
   const topicId = Number(formData.get("topicId"));
   const v = values(formData, ["id", "title", "videoUrl", "text", "duration"]);
   v.preview = formData.get("preview") === "on" ? "on" : "";
-  const setup = courseSetup(app);
-  const topic = setup.courses.find((c) => c.id === courseId)?.topics.find((t) => t.id === topicId);
-  if (!topic) return { message: "This section no longer exists." };
-  const parsed = parseLesson(v, (url) => parseMediaLink(url, appUrl()) !== null);
-  if (!parsed.ok) return { errors: parsed.errors, values: v };
-  const id = v.id ? Number(v.id) : null;
-  if (id !== null && !topic.lessons.some((l) => l.id === id)) return { message: "This lesson no longer exists." };
-  const lessons = id === null ? [...topic.lessons, { id: setup.nextId, ...parsed.value }] : topic.lessons.map((l) => (l.id === id ? { id, ...parsed.value } : l));
-  const next = withCourse(setup, courseId, (c) => ({ ...c, topics: c.topics.map((t) => (t.id === topicId ? { ...t, lessons } : t)) }));
-  await saveSetup(app, id === null ? { ...next, nextId: setup.nextId + 1 } : next);
-  return { ok: true, message: id === null ? `Added “${parsed.value.title}”.` : `Saved “${parsed.value.title}”.`, values: id === null ? undefined : v };
+  const saved = saveLesson(courseSetup(app), courseId, topicId, v, (url) => parseMediaLink(url, appUrl()) !== null);
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.lesson.title}”.` : `Saved “${saved.lesson.title}”.`, values: saved.added ? undefined : v };
 }
 
 export async function deleteLessonAction(formData: FormData): Promise<void> {

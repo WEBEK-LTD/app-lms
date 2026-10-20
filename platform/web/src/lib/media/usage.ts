@@ -6,6 +6,8 @@ import type { NoticeDeps } from "../notices";
 import { mailOptions } from "../email/mail-lang";
 import type { Plan, PlanInfo } from "../plans";
 import { activePacks, formatBytes, storageLimitBytes, storageState, type StorageState } from "./quota";
+import { pushNotice } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /** 51 An app's storage now: its plan, its packs, what its files take. */
 export interface AppStorage extends StorageState {
@@ -57,6 +59,8 @@ export async function noticeEndedPacks(deps: NoticeDeps, plans: Record<Plan, Pla
     });
     if (!notice) continue;
     created.push(notice);
+    // 58 The owner's phone too (Yallapp Business).
+    await pushOwnerSafely((d) => pushNotice(d, notice), store);
     if (owner) {
       try {
         await deps.mail("storage_pack_ended", owner.email, { name: owner.name, ...values }, ...mailOptions(owner));

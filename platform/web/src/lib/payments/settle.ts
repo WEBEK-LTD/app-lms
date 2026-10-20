@@ -1,4 +1,7 @@
 import "server-only";
+import { pushOwnerSafely } from "../owner/push-env";
+import { pushDonation, pushNewOrder, pushPlanPayment } from "../owner/push";
+import { formatAmount } from "../billing/prices";
 import { sendPlanPaidMail } from "../billing/plan-mail";
 import { completePlanPayment } from "../billing/plan-payment";
 import { sendStoragePaidMail } from "../media/mail";
@@ -73,6 +76,11 @@ export async function settlePlanPayment(token: string, trigger: Trigger): Promis
   });
   if (outcome.kind === "failed") return failed;
   if (outcome.kind === "pending") return { status: "pending", path: `${page}?payment=pending` };
+  // 58 Yallapp Business: the payment's receipt reaches the owner's phone too.
+  if (outcome.kind === "paid" || outcome.kind === "storage_paid") {
+    const app = payment.appId ? await store.getAppById(payment.appId) : null;
+    await pushOwnerSafely((d) => pushPlanPayment(d, client.id, app, formatAmount(payment.amountCents, payment.currency), payment.id));
+  }
   if (outcome.kind === "storage_paid") {
     await sendStoragePaidMail(store, client, outcome);
     return { status: "paid", path: "/dashboard/media?payment=paid", paidApp: payment.appId };
@@ -121,6 +129,8 @@ export async function settleOrderPayment(token: string, trigger: Trigger): Promi
         // The order is paid either way; the dashboard lists it.
       });
     }
+    // 58 And to the owner's phone (Yallapp Business).
+    if (paid) await pushOwnerSafely((d) => pushNewOrder(d, app, paid));
   }
   if (outcome === "failed") return failed;
   if (outcome === "pending") return { status: "pending", path: `${back}?payment=pending` };
@@ -150,6 +160,8 @@ export async function settleDonationPayment(token: string, trigger: Trigger): Pr
   });
   if (outcome === "paid") {
     const paid = await store.getDonation(app.id, donation.id);
+    // 58 The charity's owner hears of it on their phone (Yallapp Business).
+    if (paid) await pushOwnerSafely((d) => pushDonation(d, app, paid));
     if (paid?.donorEmail) {
       const values = donationReceiptValues(paid, app.appName ?? "the charity", receiptUrl(appUrl(), paid.receiptCode));
       await sendTemplate("donation_receipt", paid.donorEmail, values, { app }).catch(() => {

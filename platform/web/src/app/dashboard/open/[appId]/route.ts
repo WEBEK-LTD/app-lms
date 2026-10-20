@@ -8,6 +8,8 @@ const PAGES: Record<string, string> = {
   publishing: "/dashboard/publishing",
   license: "/dashboard/license",
   setup: "/dashboard/setup",
+  // 58 Yallapp Business sends owners here to buy storage (never in the app).
+  media: "/dashboard/media",
 };
 
 /**

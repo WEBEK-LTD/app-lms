@@ -3,6 +3,8 @@ import type { App, CatalogOrder, EventTicket, OwnerNotice } from "../data/types"
 import { orderNumber } from "../catalog/settings";
 import { appLabel } from "../app/label";
 import { PaymentError } from "../payments/errors";
+import { pushNotice } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 49 Places held for a ticket payment end with the provider's payment page
@@ -79,7 +81,7 @@ export function paidWithoutPlaces(order: Pick<CatalogOrder, "status">, tickets: 
 /** Tells the owner to refund a payment that came after the places were gone. */
 export async function noticeRefundDue(store: DataStore, app: App, order: CatalogOrder, now: Date, baseUrl: string): Promise<OwnerNotice | null> {
   const number = orderNumber(order);
-  return store.createOwnerNotice({
+  const notice = await store.createOwnerNotice({
     clientId: app.clientId,
     appId: app.id,
     kind: "ticket_refund_due",
@@ -94,4 +96,7 @@ export async function noticeRefundDue(store: DataStore, app: App, order: Catalog
     dismissedAt: null,
     resolvedAt: null,
   });
+  // 58 The owner's phone too (Yallapp Business).
+  if (notice) await pushOwnerSafely((d) => pushNotice(d, notice), store);
+  return notice;
 }

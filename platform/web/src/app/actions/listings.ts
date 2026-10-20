@@ -6,15 +6,14 @@ import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/aut
 import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
-import type { App, ListingInput, ListingStatus } from "@/lib/data/types";
+import type { App, ListingInput } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { formValues, type FormState } from "@/lib/forms";
 import { serviceAccountOf } from "@/lib/hosted/notify";
 import { imageType } from "@/lib/images";
 import { chosenPictures } from "@/lib/media/pictures";
-import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX, OFFICE_REPLY_MAX, parseListingForm, parseOfficeForm } from "@/lib/listings/forms";
-import { notifyInquiryReply } from "@/lib/listings/notify";
-import { listingSettingsFor } from "@/lib/listings/types";
+import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX, parseListingForm, parseOfficeForm } from "@/lib/listings/forms";
+import { replyToInquiry, setListingStatus } from "@/lib/listings/office";
 
 /** An active client whose app is a Real estate app with listings in the dashboard, or a redirect. */
 async function requireListingsApp(): Promise<ClientContext & { app: App }> {
@@ -25,7 +24,6 @@ async function requireListingsApp(): Promise<ClientContext & { app: App }> {
   return context as ClientContext & { app: App };
 }
 
-const STATUSES: ListingStatus[] = ["draft", "published", "archived"];
 
 function refresh() {
   revalidatePath("/dashboard/listings", "layout");
@@ -110,12 +108,8 @@ export async function setListingStatusAction(formData: FormData): Promise<void> 
   const { app } = await requireListingsApp();
   const store = await getStore();
   const id = Number(formData.get("id"));
-  const status = String(formData.get("status") ?? "") as ListingStatus;
   const listing = Number.isSafeInteger(id) ? await store.getListing(app.id, id) : null;
-  if (listing && STATUSES.includes(status)) {
-    const now = new Date();
-    await store.updateListing(app.id, listing.id, { status, ...(status === "published" && !listing.publishedAt ? { publishedAt: now } : {}) }, now);
-  }
+  if (listing) await setListingStatus(store, listing, String(formData.get("status") ?? ""), new Date());
   refresh();
   redirect(`/dashboard/listings/${id}`);
 }
@@ -152,24 +146,8 @@ export async function replyInquiryAction(_: FormState, formData: FormData): Prom
   const inquiry = Number.isSafeInteger(id) ? await store.getListingInquiry(app.id, id) : null;
   if (!inquiry) return { message: "This conversation doesn't exist anymore." };
   const text = String(formData.get("message") ?? "").trim();
-  if (!text) return { errors: { message: "Write your reply." } };
-  if (text.length > OFFICE_REPLY_MAX) return { errors: { message: `Keep your reply to ${OFFICE_REPLY_MAX} characters.` }, values: { message: text } };
-  const now = new Date();
-  // The office has read everything up to its reply.
-  await store.markListingInquiryRead(app.id, inquiry.id, "user", now);
-  if (inquiry.status === "closed") await store.updateListingInquiry(app.id, inquiry.id, { status: "open" });
-  await store.addListingInquiryMessage({ appId: app.id, inquiryId: inquiry.id, from: "office", text, createdAt: now });
-  const [listing, settings] = await Promise.all([store.getListing(app.id, inquiry.listingId), store.getListingSettings(app.id)]);
-  const result = await notifyInquiryReply({
-    store,
-    app,
-    inquiry,
-    listing,
-    officeName: listingSettingsFor(app, settings).contactName,
-    text,
-    account: serviceAccountOf(app, encryptionKey()),
-    now,
-  });
+  const result = await replyToInquiry({ store, app, account: serviceAccountOf(app, encryptionKey()), now: new Date() }, inquiry, text);
+  if (!result.ok) return { errors: { message: result.error }, ...(text ? { values: { message: text } } : {}) };
   refresh();
   return {
     ok: true,

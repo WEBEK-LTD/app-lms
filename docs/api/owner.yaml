@@ -1,0 +1,2251 @@
+openapi: 3.1.0
+info:
+  title: Yallapp Owner API (Yallapp Business)
+  version: 1.0.0
+  summary: What Yallapp Business, Yallapp's own app for the people who run an app on Yallapp, calls on yallapp.com.tr.
+  description: |
+    Roadmap 58. The server side of "Yallapp Business": the phone app for
+    Yallapp's clients (the owners of the apps built on Yallapp). It is the
+    client dashboard on a phone: the same accounts, the same database and the
+    same rules, through the same code the dashboard's pages and forms use. Not
+    published on the public developer pages.
+
+    - **Accounts.** The owner signs in with the email and password of the
+      dashboard. Only accounts with a client account get in. Yallapp's own
+      team without one is refused with `use_website`. A pending or suspended
+      account signs in and sees its state (`GET /me`), and every other call
+      answers 403 `account_pending` or `account_suspended`, as the dashboard
+      sends it to its waiting page. An app whose plan ended (`expired`)
+      stays readable and editable as on the dashboard; what the dashboard
+      holds back until the plan is active (uploads to Media) is held back here.
+    - **Tokens.** Sign-in gives a short-lived access token (15 minutes) and a
+      refresh token (60 days, renewed each time it is used: send the newest
+      one). Both are random secrets that the server keeps only as hashes and
+      compares in constant time. Each sign-in is a device of its own, listed
+      in the dashboard (Your phones) and in `GET /me/devices`, and can be
+      signed out there. A password change signs every device out.
+    - **Scope.** Every `/apps/{app_id}` path answers only for the signed-in
+      client's own apps: another client's app, or an ID that doesn't exist,
+      is 404 `not_found`. What an app has follows its app type and where its
+      content comes from, exactly as the dashboard's menu does
+      (`AppSummary.features`); a path the app doesn't have is 404
+      `not_available`.
+    - **No payments.** Nothing is bought or paid in the app on any platform:
+      plans, renewals and storage packs are read-only facts with a
+      `manage_url` on yallapp.com.tr, which the app opens in the browser.
+    - **Languages.** Texts the API writes (messages, labels, push
+      notifications) are in the person's dashboard language (`User.language`),
+      else the request's `Accept-Language` (English, Arabic or Turkish), else
+      English. What the owner wrote (products, articles, replies) comes back
+      as written.
+    - **Push to the owner's phone.** `PUT /me/push-token` registers the
+      device's Firebase (or Huawei Push Kit) token; Yallapp sends from
+      Yallapp Business's own Firebase project when an order is paid, an
+      appointment is booked, a message arrives, a donation or Yallapp payment
+      is received, a build finishes, Yallapp publishes an update, or the
+      account gets a notice: the same moments the dashboard and its emails
+      learn of them. Each kind can be turned off per device. The data of
+      each push: `type: owner`, `kind` (PushKind), `app_id` and the item's
+      ID (`order_id`, `appointment_id`, `inquiry_id`, `build_id`,
+      `donation_id`, `update_key`).
+    - **Errors** are `{code, message}`; `message` is safe to show, in the
+      person's language. 429 adds `retry_after_seconds` and `Retry-After`.
+  license:
+    name: Proprietary, Yallapp
+    url: https://yallapp.com.tr
+  contact:
+    name: Yallapp
+    email: info@yallapp.com.tr
+servers:
+  - url: https://yallapp.com.tr/api/owner/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: |
+      Sign in with the dashboard's email and password, renew the tokens, sign
+      out. The same limits as the website's sign-in, counted together with it:
+      30 attempts per IP and 8 per email address in 15 minutes. Renewing is
+      limited to 60 requests per IP in 10 minutes. Forgotten passwords are
+      reset on the website (`GET /auth/password-reset` gives the link).
+  - name: Account
+    description: Who is signed in, their apps, their language, their signed-in devices and push settings.
+  - name: Updates
+    description: |
+      "Updates from Yallapp", the dashboard's bell (roadmap 57): Yallapp's
+      announcements and the account's own news (notices, finished or failed
+      builds, payments received), with the person's own read state, shared
+      with the dashboard.
+  - name: Today
+    description: Today's numbers for an app and what needs the owner now.
+  - name: Orders
+    description: |
+      Paid orders (products, a restaurant's kitchen, paid courses, memberships,
+      tickets) for apps that sell from the dashboard. Status changes follow
+      the dashboard: an order in progress is completed or cancelled; a
+      restaurant's order moves through the kitchen's steps, and the customer
+      is told. Refunds follow roadmap 47.
+  - name: Appointments
+    description: Appointments of clinics, salons, gyms and services managed in Yallapp.
+  - name: Events
+    description: Events, their tickets and the check-in at the door.
+  - name: Donations
+    description: A charity's donations and totals.
+  - name: Catalog
+    description: |
+      Quick edits from the phone: products and menu items (price, sale price,
+      stock, available or sold out), courses (publish, add a lesson with a
+      video from Media), articles and listings (publish, unpublish, feature).
+      Everything else stays on the dashboard.
+  - name: Media
+    description: |
+      The Media library (roadmap 51). Uploads go straight from the phone to
+      the media gate in chunks of `chunk_bytes`, through the signed
+      `upload_url`, with the same protocol as the dashboard: `PATCH
+      <upload_url>` with `Upload-Offset` and the bytes
+      (`application/offset+octet-stream`), `HEAD` for the offset reached;
+      then `complete`.
+  - name: Messages
+    description: |
+      Conversations with the people using the app: a listing's inquiries
+      (real estate). Course questions and reviews have no place in Yallapp's
+      own content yet, so they aren't here.
+  - name: App users
+    description: The people who signed in to an app on Yallapp's hosted API.
+  - name: Analytics
+    description: The numbers of Dashboard › Analytics (roadmap 44) for a range, in the app's time zone.
+  - name: Notifications
+    description: Sending a notification to everyone who uses the app, with the dashboard's rules and limits (10 an hour per app).
+  - name: Publishing
+    description: The app preview, builds and their downloads, read-only.
+  - name: License
+    description: The plan, its end and the storage, read-only, with the address to manage them on yallapp.com.tr.
+
+paths:
+  /auth/sign-in:
+    post:
+      tags: [Auth]
+      operationId: signIn
+      summary: Sign in with the dashboard's email and password
+      description: |
+        Each sign-in adds a device (at most 10 per person; the one used
+        longest ago is signed out to make room). A pending or suspended
+        account signs in too: `account_state` says so and the data calls
+        answer 403 until it is active.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SignInRequest' }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401':
+          description: The email or password is incorrect (`invalid_credentials`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: |
+            `use_website`: the account has no client account (Yallapp's team,
+            or a sign-up that isn't finished); the app shows the message and
+            a link to yallapp.com.tr.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshTokens
+      summary: Renew the tokens
+      description: |
+        Gives a new access token and a new refresh token; the refresh token
+        sent stops working. A refresh token that expired, was used already,
+        or whose device was signed out answers 401 `invalid_token`: sign in
+        again.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: New tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/sign-out:
+    post:
+      tags: [Auth]
+      operationId: signOut
+      summary: Sign this device out
+      description: Deletes the device, its tokens and its push token.
+      responses:
+        '204': { description: Signed out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/sign-out-all:
+    post:
+      tags: [Auth]
+      operationId: signOutAll
+      summary: Sign every device out
+      description: Every device of the person in Yallapp Business, this one too. The website's sessions are not affected.
+      responses:
+        '204': { description: Signed out everywhere }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/password-reset:
+    get:
+      tags: [Auth]
+      operationId: getPasswordResetLink
+      summary: Where to reset a forgotten password
+      description: The website's "Forgot password" page in the request's language. The app opens it in the browser.
+      security: []
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Link' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /me:
+    get:
+      tags: [Account]
+      operationId: getMe
+      summary: Who is signed in, and their apps
+      description: Answers for pending and suspended accounts too (with no apps), so the app can show the state.
+      responses:
+        '200':
+          description: The account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/language:
+    put:
+      tags: [Account]
+      operationId: setLanguage
+      summary: Choose the language
+      description: The same choice as the dashboard's language switcher; null goes back to the device's language.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [language]
+              properties:
+                language: { type: [string, 'null'], enum: [en, ar, tr, null] }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/devices:
+    get:
+      tags: [Account]
+      operationId: listDevices
+      summary: The person's signed-in devices
+      responses:
+        '200':
+          description: Devices, the one used last first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Device' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/devices/{device_id}:
+    delete:
+      tags: [Account]
+      operationId: signOutDevice
+      summary: Sign a device out
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Signed out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/push-token:
+    put:
+      tags: [Account]
+      operationId: setPushToken
+      summary: Register this device's push token
+      description: The token moves to this device if another device had it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushTokenRequest' }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [Account]
+      operationId: deletePushToken
+      summary: Stop pushes to this device
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/push-preferences:
+    get:
+      tags: [Account]
+      operationId: getPushPreferences
+      summary: Which pushes this device gets
+      responses:
+        '200':
+          description: The choices (all on by default)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PushPreferences' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    put:
+      tags: [Account]
+      operationId: setPushPreferences
+      summary: Choose which pushes this device gets
+      description: Kinds left out keep their choice.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushPreferences' }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PushPreferences' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /updates:
+    get:
+      tags: [Updates]
+      operationId: listUpdates
+      summary: Updates from Yallapp
+      description: Newest first, ended announcements too (at most 100), each with `unread` for this person.
+      responses:
+        '200':
+          description: The list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [unread, items]
+                properties:
+                  unread: { type: integer, description: Unread among the current items (the bell's badge). }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Update' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+
+  /updates/read:
+    post:
+      tags: [Updates]
+      operationId: markUpdatesRead
+      summary: Mark updates read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  type: array
+                  maxItems: 200
+                  items: { type: string }
+                all: { type: boolean, description: Every current item. }
+      responses:
+        '200':
+          description: The new count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [unread]
+                properties:
+                  unread: { type: integer }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+
+  /apps/{app_id}:
+    get:
+      tags: [Account]
+      operationId: getApp
+      summary: One app
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The app
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/today:
+    get:
+      tags: [Today]
+      operationId: getToday
+      summary: Today's numbers and what needs the owner
+      description: |
+        Today in the app's time zone (the one Analytics uses). `sales` is
+        what paid orders brought in today, less what was refunded of them, in
+        each currency; `donations` the same for donations. Counts are
+        included only for what the app has. `needs_you` lists what waits for
+        the owner: orders in progress, appointments to confirm, unanswered
+        messages, and the account's open notices for this app.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Today
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Today' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/orders:
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      summary: Paid orders
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: status
+          in: query
+          description: Only orders in these statuses (comma-separated); paid orders of every status by default.
+          schema: { type: string, example: processing }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Orders, newest first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Order' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/orders/{order_id}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: One order, with its refunds
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/orders/{order_id}/status:
+    post:
+      tags: [Orders]
+      operationId: changeOrderStatus
+      summary: Move an order on
+      description: |
+        One of the order's `next_statuses`: `completed` or `cancelled` for an
+        order in progress; for a restaurant's order the kitchen's next step
+        (`preparing`, `ready`, `out_for_delivery`, `completed`) or
+        `cancelled`, and the customer is told. Completing an order sold
+        through Yallapp's account releases the shop's share. Anything else is
+        409 `invalid_status`.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [completed, cancelled, preparing, ready, out_for_delivery] }
+      responses:
+        '200':
+          description: The order as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrderDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/orders/{order_id}/refunds:
+    post:
+      tags: [Orders]
+      operationId: refundOrder
+      summary: Refund an order, all of it or part
+      description: |
+        Roadmap 47: through the provider the payment was taken with (iyzico,
+        Kashier), or recording a refund made in the provider's panel
+        (`method: manual`, Fawaterk). `OrderDetail.refund` says what is
+        possible. The customer gets an email; the order follows.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefundRequest' }
+      responses:
+        '200':
+          description: Refunded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, order]
+                properties:
+                  message: { type: string }
+                  order: { $ref: '#/components/schemas/OrderDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '502': { $ref: '#/components/responses/ProviderError' }
+
+  /apps/{app_id}/appointments:
+    get:
+      tags: [Appointments]
+      operationId: listAppointments
+      summary: Appointments
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: scope
+          in: query
+          description: "`today` (the app's day), `upcoming` (from now, soonest first) or `past` (newest first)."
+          schema: { type: string, enum: [today, upcoming, past], default: upcoming }
+        - name: status
+          in: query
+          description: Only these statuses (comma-separated).
+          schema: { type: string, example: pending }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Appointments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, time_zone]
+                    properties:
+                      time_zone: { type: string, example: Europe/Istanbul }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Appointment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/appointments/{appointment_id}/status:
+    post:
+      tags: [Appointments]
+      operationId: changeAppointmentStatus
+      summary: Confirm, decline, cancel or close an appointment
+      description: |
+        The dashboard's steps: a pending appointment is `approved` or
+        `rejected`; an approved one `cancelled`, `completed` or `no_show`.
+        Moving an appointment to another time is done by cancelling it; the
+        dashboard has no reschedule either.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: appointment_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [approved, rejected, cancelled, completed, no_show] }
+      responses:
+        '200':
+          description: The appointment as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Appointment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /apps/{app_id}/events:
+    get:
+      tags: [Events]
+      operationId: listEvents
+      summary: Events with their ticket counts
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: scope
+          in: query
+          description: "`open`: published events not over (or over in the last 12 hours, for late arrivals), soonest first, as the dashboard's check-in lists them; `all`: every event, newest first."
+          schema: { type: string, enum: [open, all], default: open }
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, time_zone]
+                properties:
+                  time_zone: { type: string }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/EventSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/check-in:
+    post:
+      tags: [Events]
+      operationId: checkInTicket
+      summary: Check a ticket in at the door
+      description: |
+        The scanned QR code (`YT1.<code>.<signature>`, checked with the
+        app's key) or the typed code. A valid ticket is let in once; a second
+        scan answers `used` with when it was used, on any phone. With
+        `event_id`, a ticket for another event answers `other_event` and stays
+        valid for its own.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, maxLength: 300 }
+                event_id: { type: [integer, 'null'] }
+      responses:
+        '200':
+          description: What the door should do
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckIn' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/donations:
+    get:
+      tags: [Donations]
+      operationId: listDonations
+      summary: Donations and totals
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: campaign_id
+          in: query
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paid donations, newest first, and the campaigns' totals
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, campaigns]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Donation' }
+                      campaigns:
+                        type: array
+                        items: { $ref: '#/components/schemas/CampaignTotals' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/products:
+    get:
+      tags: [Catalog]
+      operationId: listProducts
+      summary: Products or menu items
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Every product, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/products/{product_id}:
+    patch:
+      tags: [Catalog]
+      operationId: updateProduct
+      summary: Change a product's price, stock or availability
+      description: |
+        The dashboard's rules: a price above zero; a sale price lower than
+        the price (null removes it); stock a whole number from 0 to 1,000,000
+        or null for no limit; `available` false hides it from the app (a
+        restaurant's "sold out").
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: product_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductPatch' }
+      responses:
+        '200':
+          description: The product as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/courses:
+    get:
+      tags: [Catalog]
+      operationId: listCourses
+      summary: Courses managed in Yallapp
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Courses with their sections and lessons
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Course' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/courses/{course_id}:
+    patch:
+      tags: [Catalog]
+      operationId: updateCourse
+      summary: Publish or hide a course
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [published]
+              properties:
+                published: { type: boolean }
+      responses:
+        '200':
+          description: The course as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Course' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/courses/{course_id}/topics/{topic_id}/lessons:
+    post:
+      tags: [Catalog]
+      operationId: addLesson
+      summary: Add a lesson
+      description: |
+        The dashboard's lesson rules: a title of 2 to 120 characters, a video
+        and/or text, 1 to 600 minutes or none. The video is a file of the
+        app's Media library (`video_media_id`, played from signed links) or
+        an https address (YouTube, Vimeo or a video file).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/CourseId'
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LessonRequest' }
+      responses:
+        '201':
+          description: Added; the course as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Course' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/articles:
+    get:
+      tags: [Catalog]
+      operationId: listArticles
+      summary: Articles written in Yallapp
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Every article, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Article' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/articles/{article_id}:
+    patch:
+      tags: [Catalog]
+      operationId: updateArticle
+      summary: Publish, unpublish or feature an article
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: article_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [published, draft] }
+                featured: { type: boolean }
+      responses:
+        '200':
+          description: The article as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Article' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/listings:
+    get:
+      tags: [Catalog]
+      operationId: listListings
+      summary: Property listings
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Every listing, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Listing' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/listings/{listing_id}:
+    patch:
+      tags: [Catalog]
+      operationId: updateListing
+      summary: Publish, unpublish, archive or feature a listing
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: listing_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [published, draft, archived] }
+                featured: { type: boolean }
+      responses:
+        '200':
+          description: The listing as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Listing' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/media:
+    get:
+      tags: [Media]
+      operationId: listMedia
+      summary: The Media library and its storage
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: kind
+          in: query
+          schema: { type: string, enum: [video, image, pdf] }
+      responses:
+        '200':
+          description: Files, newest first (at most 200), and the storage meter
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, storage]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MediaFile' }
+                  storage: { $ref: '#/components/schemas/Storage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/media/uploads:
+    post:
+      tags: [Media]
+      operationId: startUpload
+      summary: Start an upload
+      description: |
+        Checks the type, the size per file (videos 5 GB, pictures 20 MB, PDFs
+        200 MB) and the app's storage, reserves the size and gives the signed
+        link the phone sends the chunks to (valid 2 days). 200 uploads an hour
+        per app, counted with the dashboard's. Uploads start once the app's
+        plan is active (403 `plan_not_active`).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: video/mp4 }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Upload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413':
+          description: The file is too big for its kind (`too_big`), or doesn't fit in the storage left (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /apps/{app_id}/media/uploads/{media_id}/resume:
+    post:
+      tags: [Media]
+      operationId: resumeUpload
+      summary: A fresh link to carry on with an upload
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/MediaId'
+      responses:
+        '200':
+          description: A new upload link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Upload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /apps/{app_id}/media/uploads/{media_id}/complete:
+    post:
+      tags: [Media]
+      operationId: completeUpload
+      summary: Finish an upload
+      description: The server checks that the whole file arrived; 409 `incomplete` with the offset reached, else the file is ready.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/MediaId'
+      responses:
+        '200':
+          description: Ready
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /apps/{app_id}/media/{media_id}:
+    delete:
+      tags: [Media]
+      operationId: deleteMedia
+      summary: Delete a file, or cancel an upload
+      description: Its space comes back. Lessons and pages that used it lose it, as on the dashboard.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/MediaId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/inquiries:
+    get:
+      tags: [Messages]
+      operationId: listInquiries
+      summary: Conversations about the listings
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: status
+          in: query
+          schema: { type: string, enum: [open, closed] }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Conversations, latest message first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, unread]
+                    properties:
+                      unread: { type: integer, description: Conversations with messages the office hasn't read. }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Inquiry' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/inquiries/{inquiry_id}:
+    get:
+      tags: [Messages]
+      operationId: getInquiry
+      summary: A conversation
+      description: Opening it marks the person's messages read, as on the dashboard.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/InquiryId'
+      responses:
+        '200':
+          description: The conversation and its messages, oldest first
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InquiryDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/inquiries/{inquiry_id}/replies:
+    post:
+      tags: [Messages]
+      operationId: replyInquiry
+      summary: Reply
+      description: The reply lands in the person's inbox in the app and is pushed to their phones; a closed conversation opens again.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/InquiryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Sent; the conversation as it is now
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InquiryDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/users:
+    get:
+      tags: [App users]
+      operationId: listAppUsers
+      summary: The app's users
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: q
+          in: query
+          description: A name, phone number or email address, or part of one.
+          schema: { type: string, maxLength: 100 }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Users, newest first; `total` counts the search's matches
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, count]
+                    properties:
+                      count: { type: integer, description: Every user of the app. }
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/AppUser' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/analytics:
+    get:
+      tags: [Analytics]
+      operationId: getAnalytics
+      summary: How people use the app
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: range
+          in: query
+          schema: { type: string, enum: ['7', '30', '90', custom], default: '30' }
+        - name: from
+          in: query
+          description: With `range=custom`, the first day (YYYY-MM-DD in the app's time zone).
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: The report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Analytics' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/notifications:
+    get:
+      tags: [Notifications]
+      operationId: listSentNotifications
+      summary: Notifications sent to everyone
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The last 50, newest first, with whether push can go out
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, push]
+                properties:
+                  push: { type: boolean, description: The plan has push and a Firebase key is saved. }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SentNotification' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Notifications]
+      operationId: sendNotification
+      summary: Send a notification to everyone who uses the app
+      description: |
+        As Dashboard › App notifications: a title of up to 65 characters and
+        a message of up to 240; everyone gets it in the app's inbox, and
+        phones that allow announcements get a push when the plan has push and
+        the app's Firebase key is saved. 10 an hour per app, counted with the
+        dashboard's. Sending later isn't offered (the dashboard has no
+        schedule either).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                title: { type: string, maxLength: 65 }
+                body: { type: string, maxLength: 240 }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /apps/{app_id}/preview:
+    post:
+      tags: [Publishing]
+      operationId: createPreview
+      summary: A link to try the app
+      description: |
+        The dashboard's "Preview your app": the app's web build with a preview
+        token for this app, valid an hour. `draft` shows the unpublished
+        pages (apps on the hosted API).
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                draft: { type: boolean, default: false }
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Preview' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/builds:
+    get:
+      tags: [Publishing]
+      operationId: listBuilds
+      summary: Builds, publishing and downloads
+      description: Read-only. Download links are signed for 15 minutes; ask again for fresh ones. Builds are started on the dashboard.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: The last 10 builds and the publishing status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Builds' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /apps/{app_id}/license:
+    get:
+      tags: [License]
+      operationId: getLicense
+      summary: The app's plan, its end and the storage
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        '200':
+          description: Read-only facts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/License' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AccountNotActive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: The access token from sign-in or refresh (15 minutes).
+
+  parameters:
+    AppId:
+      name: app_id
+      in: path
+      required: true
+      description: One of the signed-in client's apps (`Me.apps`).
+      schema: { type: string, format: uuid }
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      schema: { type: integer }
+    CourseId:
+      name: course_id
+      in: path
+      required: true
+      schema: { type: integer }
+    MediaId:
+      name: media_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    InquiryId:
+      name: inquiry_id
+      in: path
+      required: true
+      schema: { type: integer }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+
+  responses:
+    BadRequest:
+      description: The request is invalid (`invalid_request`, with `errors` per field when a form's rules refused it).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing, expired or revoked token (`invalid_token`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    AccountNotActive:
+      description: The account isn't active yet (`account_pending`) or is suspended (`account_suspended`); `GET /me` shows its state.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Not found, not one of the client's own (`not_found`), or not something this app has (`not_available`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: The action conflicts with the current state (`invalid_status`, `not_refundable`, `incomplete`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TooManyRequests:
+      description: Rate limit reached (`rate_limited`). `retry_after_seconds` says when to try again.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ProviderError:
+      description: The payment provider refused or didn't answer (`provider_error`); check its panel.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unavailable:
+      description: Media uploads aren't available right now (`unavailable`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable code.
+          examples:
+            - invalid_credentials
+            - use_website
+            - invalid_token
+            - account_pending
+            - account_suspended
+            - not_found
+            - not_available
+            - invalid_request
+            - invalid_status
+            - not_refundable
+            - plan_not_active
+            - storage_full
+            - too_big
+            - incomplete
+            - rate_limited
+        message: { type: string, description: "Safe to show, in the person's language." }
+        errors:
+          type: object
+          description: Per field, the form's message (the dashboard's rules).
+          additionalProperties: { type: string }
+        retry_after_seconds: { type: integer }
+
+    Page:
+      type: object
+      required: [page, per_page, total, total_pages]
+      properties:
+        page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+
+    Link:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri }
+
+    Money:
+      type: object
+      description: An amount in the app's own currency (what the owner sells in, not Yallapp's prices).
+      required: [amount_cents, currency, formatted]
+      properties:
+        amount_cents: { type: integer, description: In minor units. }
+        currency: { type: string, example: TRY }
+        formatted: { type: string, example: '₺1,250.00' }
+
+    DeviceInfo:
+      type: object
+      required: [name, platform]
+      properties:
+        name: { type: string, maxLength: 100, description: 'What the person calls the phone ("Pixel 8", "iPhone of Ahmed").' }
+        platform: { type: string, enum: [android, ios] }
+        app_version: { type: string, maxLength: 20 }
+
+    SignInRequest:
+      type: object
+      required: [email, password, device]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+        device: { $ref: '#/components/schemas/DeviceInfo' }
+
+    Session:
+      type: object
+      required: [token_type, access_token, access_expires_at, refresh_token, refresh_expires_at, device_id, account_state]
+      properties:
+        token_type: { type: string, const: Bearer }
+        access_token: { type: string }
+        access_expires_at: { type: string, format: date-time }
+        refresh_token: { type: string }
+        refresh_expires_at: { type: string, format: date-time }
+        device_id: { type: string, format: uuid }
+        account_state: { $ref: '#/components/schemas/AccountState' }
+
+    AccountState:
+      type: string
+      enum: [pending, active, expired, suspended]
+      description: The account's state as the dashboard has it; `expired` when every app's plan ended.
+
+    Me:
+      type: object
+      required: [user, account, apps, links]
+      properties:
+        user:
+          type: object
+          required: [id, name, email, language]
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            email: { type: string, format: email }
+            language: { type: [string, 'null'], enum: [en, ar, tr, null], description: The dashboard language they chose; null follows the device. }
+        account:
+          type: object
+          required: [state, message]
+          properties:
+            state: { $ref: '#/components/schemas/AccountState' }
+            message: { type: [string, 'null'], description: "What a pending or suspended account sees, in the person's language." }
+        apps:
+          type: array
+          description: Oldest first, as the dashboard's app switcher. Empty while the account is pending or suspended.
+          items: { $ref: '#/components/schemas/AppSummary' }
+        links:
+          type: object
+          required: [dashboard, support_whatsapp, support_email]
+          properties:
+            dashboard: { type: string, format: uri }
+            support_whatsapp: { type: [string, 'null'], format: uri }
+            support_email: { type: [string, 'null'] }
+
+    AppSummary:
+      type: object
+      required: [id, name, type, type_name, backend, state, icon_url, plan, features]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        type: { type: string, enum: [lms, store, booking, real_estate, news, events, donations] }
+        vertical: { type: [string, 'null'], enum: [restaurant, clinic, fitness, charity, null] }
+        type_name: { type: string, example: Restaurant, description: The kind's name in the person's language. }
+        backend: { type: [string, 'null'], enum: [wordpress, hosted, custom_api, setup_requested, null] }
+        state: { $ref: '#/components/schemas/AccountState' }
+        icon_url: { type: [string, 'null'], format: uri }
+        plan:
+          oneOf:
+            - $ref: '#/components/schemas/PlanSummary'
+            - type: 'null'
+        features: { $ref: '#/components/schemas/AppFeatures' }
+
+    PlanSummary:
+      type: object
+      required: [id, name, expires_at, days_left]
+      properties:
+        id: { type: string, example: growth }
+        name: { type: string, example: Growth }
+        expires_at: { type: string, format: date-time }
+        days_left: { type: integer }
+
+    AppFeatures:
+      type: object
+      description: What the app has, as the dashboard's menu shows it for its type and content source.
+      required: [orders, kitchen, appointments, events, check_in, donations, products, courses, articles, listings, inquiries, app_users, notifications, media, analytics, preview, builds]
+      properties:
+        orders: { type: boolean }
+        kitchen: { type: boolean, description: A restaurant's orders move through the kitchen's steps. }
+        appointments: { type: boolean }
+        events: { type: boolean }
+        check_in: { type: boolean }
+        donations: { type: boolean }
+        products: { type: boolean }
+        courses: { type: boolean }
+        articles: { type: boolean }
+        listings: { type: boolean }
+        inquiries: { type: boolean }
+        app_users: { type: boolean }
+        notifications: { type: boolean }
+        media: { type: boolean }
+        analytics: { type: boolean }
+        preview: { type: boolean }
+        builds: { type: boolean }
+
+    Device:
+      type: object
+      required: [id, name, platform, app_version, created_at, last_seen_at, current, push]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        platform: { type: string, enum: [android, ios] }
+        app_version: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time, description: When it signed in. }
+        last_seen_at: { type: string, format: date-time }
+        current: { type: boolean, description: The device asking. }
+        push: { type: boolean, description: It registered a push token. }
+
+    PushTokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string, maxLength: 512 }
+        provider: { type: string, enum: [fcm, hms], default: fcm, description: 'Firebase, or Huawei Push Kit for Huawei phones without Google Play.' }
+
+    PushKind:
+      type: string
+      enum: [new_order, new_booking, new_message, new_review, payment_received, build_finished, yallapp_updates, account_notices]
+      description: |
+        `new_order` an order was paid; `new_booking` an appointment was
+        booked; `new_message` a message about a listing arrived;
+        `new_review` reserved (reviews aren't in Yallapp's own content
+        yet); `payment_received` a donation, or a payment to Yallapp for a
+        plan or storage; `build_finished` a build is ready or failed;
+        `yallapp_updates` Yallapp published an update or announcement;
+        `account_notices` the account got a notice (plan ending, app users
+        near the limit, storage, the site ready, the API failing, a ticket
+        refund due).
+
+    PushPreferences:
+      type: object
+      description: One switch per kind of push (PushKind).
+      propertyNames: { $ref: '#/components/schemas/PushKind' }
+      properties:
+        new_order: { type: boolean }
+        new_booking: { type: boolean }
+        new_message: { type: boolean }
+        new_review: { type: boolean }
+        payment_received: { type: boolean }
+        build_finished: { type: boolean }
+        yallapp_updates: { type: boolean }
+        account_notices: { type: boolean }
+
+    Update:
+      type: object
+      required: [key, kind, title, body, summary, at, unread, current]
+      properties:
+        key: { type: string, example: 'announcement:3f1c…' }
+        kind: { type: string, enum: [update, announcement, maintenance, offer, account] }
+        kind_label: { type: string }
+        title: { type: string }
+        body: { type: string, description: 'Plain text for the account''s items, a small Markdown (no HTML) for announcements.' }
+        summary: { type: string, description: The text on one line (about 160 characters). }
+        link: { type: [string, 'null'], format: uri }
+        link_label: { type: [string, 'null'] }
+        app_name: { type: [string, 'null'], description: 'The app it is about, when the account has more than one.' }
+        at: { type: string, format: date-time }
+        unread: { type: boolean }
+        current: { type: boolean, description: Still live (in the bell); false for ended announcements. }
+
+    Today:
+      type: object
+      required: [date, time_zone, sales, donations, counts, needs_you]
+      properties:
+        date: { type: string, format: date }
+        time_zone: { type: string }
+        sales:
+          type: array
+          items: { $ref: '#/components/schemas/Money' }
+        donations:
+          type: array
+          items: { $ref: '#/components/schemas/Money' }
+        counts:
+          type: object
+          description: Only what the app has.
+          properties:
+            orders: { type: integer, description: Orders paid today. }
+            appointments: { type: integer, description: Appointments today (pending or confirmed). }
+            tickets: { type: integer, description: Tickets issued today. }
+            check_ins: { type: integer, description: Tickets used today. }
+            donations: { type: integer }
+            new_users: { type: integer }
+            app_opens: { type: [integer, 'null'], description: 'Sessions today, from Analytics (apps built before roadmap 44 send none).' }
+        needs_you:
+          type: array
+          items: { $ref: '#/components/schemas/NeedsYou' }
+
+    NeedsYou:
+      type: object
+      required: [kind, count, title]
+      properties:
+        kind: { type: string, enum: [orders_in_progress, appointments_to_confirm, unanswered_messages, notice] }
+        count: { type: integer }
+        title: { type: string, description: In the person's language. }
+        notice_id: { type: [integer, 'null'] }
+
+    Order:
+      type: object
+      required: [id, number, status, total, refunded, lines, customer, created_at, paid_at, next_statuses]
+      properties:
+        id: { type: integer }
+        number: { type: string, example: '1042' }
+        status: { type: string, enum: [processing, completed, cancelled, refunded] }
+        status_label: { type: string }
+        kitchen:
+          type: [object, 'null']
+          description: A restaurant's order.
+          properties:
+            type: { type: string, enum: [pickup, delivery] }
+            step: { type: string, enum: [received, preparing, ready, out_for_delivery, completed, cancelled] }
+            step_label: { type: string }
+        total: { $ref: '#/components/schemas/Money' }
+        refunded:
+          oneOf:
+            - $ref: '#/components/schemas/Money'
+            - type: 'null'
+        lines:
+          type: array
+          items:
+            type: object
+            required: [name, quantity, unit]
+            properties:
+              name: { type: string }
+              quantity: { type: integer }
+              unit: { $ref: '#/components/schemas/Money' }
+              options:
+                type: array
+                items: { type: string }
+        customer:
+          type: [object, 'null']
+          properties:
+            name: { type: string }
+            phone: { type: string }
+            email: { type: string }
+            city: { type: string }
+            address: { type: string }
+        created_at: { type: string, format: date-time }
+        paid_at: { type: [string, 'null'], format: date-time }
+        next_statuses:
+          type: array
+          items: { type: string }
+          description: What `POST …/status` accepts now.
+
+    OrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/Order'
+        - type: object
+          required: [refund, refunds]
+          properties:
+            refund: { $ref: '#/components/schemas/RefundOptions' }
+            refunds:
+              type: array
+              items:
+                type: object
+                required: [id, amount, reason, method, created_at]
+                properties:
+                  id: { type: integer }
+                  amount: { $ref: '#/components/schemas/Money' }
+                  reason: { type: string }
+                  method: { type: string, enum: [api, manual] }
+                  created_at: { type: string, format: date-time }
+
+    RefundOptions:
+      type: object
+      required: [refundable, why, left, by_api, manual, reasons, can_take_back]
+      properties:
+        refundable: { type: boolean }
+        why: { type: [string, 'null'] }
+        provider: { type: string, enum: [iyzico, kashier, fawaterk] }
+        left: { $ref: '#/components/schemas/Money' }
+        by_api: { type: boolean }
+        manual: { type: boolean }
+        reasons:
+          type: array
+          items:
+            type: object
+            required: [id, label]
+            properties:
+              id: { type: string, enum: [buyer_request, double_payment, fraud, other] }
+              label: { type: string }
+        can_take_back:
+          type: object
+          properties:
+            tickets: { type: array, items: { $ref: '#/components/schemas/Takeable' } }
+            courses: { type: array, items: { $ref: '#/components/schemas/Takeable' } }
+            memberships: { type: array, items: { $ref: '#/components/schemas/Takeable' } }
+
+    Takeable:
+      type: object
+      required: [id, label]
+      properties:
+        id: { type: integer }
+        label: { type: string }
+
+    RefundRequest:
+      type: object
+      required: [amount, reason]
+      properties:
+        amount: { type: string, example: '150.50', description: In major units. }
+        reason: { type: string, enum: [buyer_request, double_payment, fraud, other] }
+        note: { type: string, maxLength: 300 }
+        method: { type: string, enum: [api, manual], default: api }
+        reference: { type: string, maxLength: 191, description: The provider's reference of a refund made in its panel. }
+        tickets: { type: array, items: { type: integer } }
+        courses: { type: array, items: { type: integer } }
+        memberships: { type: array, items: { type: integer } }
+
+    Appointment:
+      type: object
+      required: [id, status, service, staff, customer, start_at, end_at, local_date, local_time, price, notes, next_statuses]
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [pending, approved, rejected, cancelled, completed, no_show] }
+        status_label: { type: string }
+        service: { type: string }
+        staff: { type: string }
+        customer:
+          type: object
+          required: [name]
+          properties:
+            name: { type: string }
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        local_date: { type: string, format: date }
+        local_time: { type: string, example: '14:30' }
+        price: { $ref: '#/components/schemas/Money' }
+        notes: { type: [string, 'null'] }
+        answers:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label: { type: string }
+              value: { type: string }
+        next_statuses:
+          type: array
+          items: { type: string }
+
+    EventSummary:
+      type: object
+      required: [id, title, status, start_at, end_at, venue, tickets]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        status: { type: string, enum: [draft, published, cancelled] }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        venue: { type: [string, 'null'] }
+        tickets:
+          type: object
+          required: [valid, used, capacity]
+          properties:
+            valid: { type: integer, description: Tickets not used yet. }
+            used: { type: integer, description: Checked in. }
+            capacity: { type: [integer, 'null'] }
+
+    CheckIn:
+      type: object
+      required: [outcome, admitted, message]
+      properties:
+        outcome: { type: string, enum: [admitted, used, cancelled, not_paid, other_event, not_found, forged, not_a_code] }
+        admitted: { type: boolean, description: True only for `admitted`. }
+        message: { type: string, description: "What to show at the door, in the person's language." }
+        ticket:
+          type: [object, 'null']
+          properties:
+            code: { type: string }
+            holder_name: { type: string }
+            type_name: { type: string }
+            event_id: { type: integer }
+            event_title: { type: string }
+            used_at: { type: [string, 'null'], format: date-time }
+
+    Donation:
+      type: object
+      required: [id, amount, refunded, status, donor_name, campaign_id, campaign_title, paid_at]
+      properties:
+        id: { type: integer }
+        amount: { $ref: '#/components/schemas/Money' }
+        refunded:
+          oneOf:
+            - $ref: '#/components/schemas/Money'
+            - type: 'null'
+        status: { type: string, enum: [paid, refunded] }
+        donor_name: { type: [string, 'null'], description: Null when they gave anonymously. }
+        message: { type: [string, 'null'] }
+        campaign_id: { type: [integer, 'null'] }
+        campaign_title: { type: string }
+        paid_at: { type: [string, 'null'], format: date-time }
+
+    CampaignTotals:
+      type: object
+      required: [id, title, status, raised, donors, goal]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        status: { type: string }
+        raised: { $ref: '#/components/schemas/Money' }
+        donors: { type: integer }
+        goal:
+          oneOf:
+            - $ref: '#/components/schemas/Money'
+            - type: 'null'
+
+    Product:
+      type: object
+      required: [id, name, price, sale_price, stock, available, image_url, sales]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        price: { $ref: '#/components/schemas/Money' }
+        sale_price:
+          oneOf:
+            - $ref: '#/components/schemas/Money'
+            - type: 'null'
+        stock: { type: [integer, 'null'], description: Null for no limit. }
+        available: { type: boolean, description: Shown in the app (false is a restaurant's "sold out"). }
+        image_url: { type: [string, 'null'], format: uri }
+        sales: { type: integer }
+
+    ProductPatch:
+      type: object
+      properties:
+        price: { type: string, example: '450.00', description: In major units. }
+        sale_price: { type: [string, 'null'] }
+        stock: { type: [integer, 'null'], minimum: 0, maximum: 1000000 }
+        available: { type: boolean }
+
+    Course:
+      type: object
+      required: [id, title, published, price, students, topics]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        published: { type: boolean }
+        price: { $ref: '#/components/schemas/Money' }
+        students: { type: integer }
+        topics:
+          type: array
+          items:
+            type: object
+            required: [id, title, lessons]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              lessons:
+                type: array
+                items:
+                  type: object
+                  required: [id, title, video, duration_minutes, preview]
+                  properties:
+                    id: { type: integer }
+                    title: { type: string }
+                    video: { type: string, enum: [media, link, none], description: 'A Media library file, another address, or no video.' }
+                    media_id: { type: [string, 'null'], format: uuid }
+                    duration_minutes: { type: [integer, 'null'] }
+                    preview: { type: boolean }
+
+    LessonRequest:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 120 }
+        video_media_id: { type: [string, 'null'], format: uuid, description: A video of the app's Media library. }
+        video_url: { type: [string, 'null'], format: uri }
+        text: { type: string, maxLength: 20000 }
+        duration_minutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
+        preview: { type: boolean, default: false, description: A free preview. }
+
+    Article:
+      type: object
+      required: [id, title, status, featured, published_at, updated_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        status: { type: string, enum: [draft, published] }
+        featured: { type: boolean }
+        published_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Listing:
+      type: object
+      required: [id, title, status, featured, price, city]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        status: { type: string, enum: [draft, published, archived] }
+        featured: { type: boolean }
+        price: { type: string, description: 'As the office wrote it, with its currency.' }
+        city: { type: string }
+
+    MediaFile:
+      type: object
+      required: [id, name, kind, content_type, size_bytes, status, public, link, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        kind: { type: string, enum: [video, image, pdf] }
+        content_type: { type: string }
+        size_bytes: { type: integer }
+        status: { type: string, enum: [uploading, ready] }
+        public: { type: boolean }
+        link: { type: string, format: uri, description: 'The Yallapp link, `https://yallapp.com.tr/m/<id>`.' }
+        created_at: { type: string, format: date-time }
+
+    Upload:
+      type: object
+      required: [id, upload_url, chunk_bytes, size]
+      properties:
+        id: { type: string, format: uuid }
+        upload_url: { type: string, format: uri }
+        chunk_bytes: { type: integer, example: 5242880 }
+        size: { type: integer }
+
+    Storage:
+      type: object
+      required: [used_bytes, limit_bytes, used, limit, full, manage_url]
+      properties:
+        used_bytes: { type: integer }
+        limit_bytes: { type: [integer, 'null'], description: Null without a plan. }
+        used: { type: string, example: 1.2 GB }
+        limit: { type: [string, 'null'], example: 20 GB }
+        full: { type: boolean }
+        manage_url: { type: string, format: uri, description: Storage packs are bought on yallapp.com.tr. }
+
+    Inquiry:
+      type: object
+      required: [id, listing_id, listing_title, person, status, last_message, unread, updated_at]
+      properties:
+        id: { type: integer }
+        listing_id: { type: integer }
+        listing_title: { type: string }
+        person: { type: string }
+        status: { type: string, enum: [open, closed] }
+        last_message: { type: [string, 'null'] }
+        unread: { type: integer, description: Their messages the office hasn't read. }
+        updated_at: { type: string, format: date-time }
+
+    InquiryDetail:
+      allOf:
+        - $ref: '#/components/schemas/Inquiry'
+        - type: object
+          required: [messages]
+          properties:
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+            messages:
+              type: array
+              items:
+                type: object
+                required: [id, from, text, created_at]
+                properties:
+                  id: { type: integer }
+                  from: { type: string, enum: [user, office] }
+                  text: { type: string }
+                  created_at: { type: string, format: date-time }
+
+    AppUser:
+      type: object
+      required: [id, name, phone, email, city, created_at]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+
+    Analytics:
+      type: object
+      required: [range, time_zone, has_data, kpis, previous, daily, retention, platforms, countries, screens]
+      properties:
+        range:
+          type: object
+          required: [preset, from, to, days]
+          properties:
+            preset: { type: string }
+            from: { type: string, format: date }
+            to: { type: string, format: date }
+            days: { type: integer }
+        time_zone: { type: string }
+        has_data: { type: boolean }
+        kpis: { $ref: '#/components/schemas/Kpis' }
+        previous: { $ref: '#/components/schemas/Kpis' }
+        daily:
+          type: array
+          items:
+            type: object
+            required: [day, active, installs, sessions]
+            properties:
+              day: { type: string, format: date }
+              active: { type: integer }
+              installs: { type: integer }
+              sessions: { type: integer }
+        retention:
+          type: array
+          items:
+            type: object
+            required: [days, cohort, returned, rate]
+            properties:
+              days: { type: integer }
+              cohort: { type: integer }
+              returned: { type: integer }
+              rate: { type: [number, 'null'] }
+        platforms: { type: array, items: { $ref: '#/components/schemas/Share' } }
+        countries: { type: array, items: { $ref: '#/components/schemas/Share' } }
+        screens: { type: array, items: { $ref: '#/components/schemas/Share' } }
+
+    Kpis:
+      type: object
+      required: [installs, active_avg, weekly, monthly, sessions]
+      properties:
+        installs: { type: integer }
+        active_avg: { type: number }
+        weekly: { type: integer }
+        monthly: { type: integer }
+        sessions: { type: integer }
+
+    Share:
+      type: object
+      required: [key, label, value, share]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        value: { type: integer }
+        share: { type: number }
+
+    SentNotification:
+      type: object
+      required: [id, title, body, sent_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        sent_at: { type: string, format: date-time }
+
+    NotificationResult:
+      type: object
+      required: [message, pushed]
+      properties:
+        message: { type: string }
+        pushed: { type: integer, description: Phones the push went to. }
+
+    Preview:
+      type: object
+      required: [url, expires_at]
+      properties:
+        url: { type: string, format: uri }
+        expires_at: { type: string, format: date-time }
+
+    Builds:
+      type: object
+      required: [items, publishing]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, number, version, status, status_label, created_at, finished_at, files]
+            properties:
+              id: { type: string, format: uuid }
+              number: { type: integer }
+              version: { type: string }
+              status: { type: string, enum: [queued, building, ready, failed] }
+              status_label: { type: string }
+              message: { type: [string, 'null'] }
+              created_at: { type: string, format: date-time }
+              finished_at: { type: [string, 'null'], format: date-time }
+              files:
+                type: array
+                items:
+                  type: object
+                  required: [kind, label, url]
+                  properties:
+                    kind: { type: string }
+                    label: { type: string }
+                    url: { type: [string, 'null'], format: uri, description: Signed for 15 minutes; null when not available. }
+        publishing:
+          type: object
+          required: [mode, stores]
+          properties:
+            mode: { type: string, enum: [self, managed] }
+            stores:
+              type: array
+              description: With "We publish for you", each store's status.
+              items:
+                type: object
+                required: [store, status]
+                properties:
+                  store: { type: string }
+                  status: { type: string }
+                  url: { type: [string, 'null'], format: uri }
+
+    License:
+      type: object
+      required: [state, plan, storage, manage_url]
+      properties:
+        state: { $ref: '#/components/schemas/AccountState' }
+        plan:
+          oneOf:
+            - $ref: '#/components/schemas/PlanSummary'
+            - type: 'null'
+        next_plan:
+          type: [object, 'null']
+          description: A lower plan chosen to start at the end of this one.
+          properties:
+            id: { type: string }
+            name: { type: string }
+            starts_at: { type: string, format: date-time }
+        features:
+          type: array
+          description: What the plan includes, in the person's language.
+          items: { type: string }
+        storage: { $ref: '#/components/schemas/Storage' }
+        manage_url: { type: string, format: uri, description: 'Renewing, changing plans and storage packs: on yallapp.com.tr only.' }

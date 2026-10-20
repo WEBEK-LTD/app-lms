@@ -1259,6 +1259,40 @@ and a browser test on memory and on MariaDB. Migration
 | [x] | 57.10 The dashboard shows announcements in English until Phase 56 passes the user's language to `announcementText`; the emails stay English | Phase 56: the bell and the banner use the person's language; announcement emails stay as the team wrote them |
 | [ ] | 57.11 The bell counts only on a page load, a focus after a minute, or what the person does; a build that finishes while the dashboard stays open shows on the next load | Acceptable |
 
+## Phase 58: The Owner API for Yallapp Business, Yallapp's app for app owners
+
+The server side of "Yallapp Business", the phone app for the people who run an
+app on Yallapp (the app is Phase 59, built against this contract). Owners sign
+in with the dashboard's email and password and work on the same database
+through the same code as the dashboard: today's numbers, what needs them, the
+updates from Yallapp, orders and the kitchen, refunds, appointments, events
+and the door, donations, quick edits to products, courses, articles and
+listings, Media uploads, messages, app users, Analytics, notifications to the
+app's users, the preview, builds and the plan. No payments of any kind: the
+plan and storage are read-only with a link to the website. Pushes reach the
+owner's phone from Yallapp Business's own Firebase project at the moments the
+dashboard learns of things. Proved with unit tests, a MariaDB store test and
+an end-to-end spec on memory and MariaDB. Migration
+`drizzle/0043_yallapp_business.sql`.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 58.1 Contract first: `docs/api/owner.yaml` (OpenAPI 3.1, server `https://yallapp.com.tr/api/owner/v1`; tags Auth, Account, Updates, Today, Orders, Appointments, Events, Donations, Catalog, Media, Messages, App users, Analytics, Notifications, Publishing, License), linted with the other contracts in `CLAUDE.md`, the README and CI; not on the public developer pages | `redocly lint` of the four contracts; `owner-api.test.ts` checks every answer against it |
+| [x] | 58.2 Sign-in with the dashboard's account: the website's limits (the same counters) and password check; Yallapp's team and accounts without a client get `use_website`; pending and suspended accounts see their state only (403 elsewhere); a device per sign-in (at most 10) in `owner_devices`; a signed 15-minute access token read against the device on every request; a 60-day refresh token kept as its SHA-256 and replaced on each use (of two renewals at once one wins); sign-out, sign-out everywhere, a password change signs every device out; the website's password reset linked in the request's language | `owner-api.test.ts` (tokens, rotation, the 60 days, 10 devices, team refused, pending), `owner-mysql.test.ts` on MariaDB |
+| [x] | 58.3 Dashboard › Your phones (Account): each phone signed in to Yallapp Business with when it signed in and was last used and whether notifications are on, Sign out per phone and Sign out every phone (audited when our team does it); English, Arabic and Turkish | `owner-api.spec.ts`, `dashboard-i18n.test.ts` |
+| [x] | 58.4 Scope: every `/apps/{app_id}` path only for the client's own apps (another client's ID is 404 on every path of the contract); what an app has follows its type and content source as the dashboard's pages and actions test it (`lib/app/areas.ts`, `AppSummary.features`), else 404 `not_available` | `owner-api.test.ts` (every app path with another client's app; a restaurant without appointments) |
+| [x] | 58.5 The dashboard's rules in `lib`, called by the dashboard's server actions and the Owner API alike: order steps and the kitchen's with the payout release, appointment steps, an app notification with its limit, saving a lesson, a product's price/sale price/stock, article and listing status, the office's reply, starting a Media upload | `vitest run`; the dashboard's specs (catalog, restaurant, courses, listings, news, media, refunds, bookings) unchanged and passing |
+| [x] | 58.6 Me, the language (the dashboard's own choice), the bell's updates with the same read state; today per app in the app's time zone: sales and donations less refunds per currency, orders, appointments, tickets, check-ins, donations, new users, app opens, and what needs the owner (orders in progress, appointments to confirm, unanswered messages, open notices) | `owner-api.test.ts`, `owner-api.spec.ts` |
+| [x] | 58.7 Orders (list by status with pages, detail with refunds, status changes as the dashboard and the Kitchen, refunds with roadmap 47's rules), appointments (today, upcoming, past; confirm, decline, cancel, done, no-show), events with ticket counts and the door's check-in (signed codes, once, "already used" with the time, another event's ticket refused), donations with the campaigns' totals | `owner-api.test.ts`, `owner-api.spec.ts` (a shop's paid order completed, a free ticket checked in once) |
+| [x] | 58.8 Quick edits: products and menu items (price, sale price, stock, available or sold out), courses (publish or hide, add a lesson with a video from Media or an https address), articles (publish, unpublish, feature), listings (publish, draft, archive, feature); Media (list with the storage meter, chunked uploads straight to the media gate, resume, complete, delete); a listing's inquiries (list, read, reply: in the person's inbox and on their phone); the app's users (search, count); Analytics for a range; notifications to everyone (the dashboard's rules and limit); the preview link; builds with 15-minute download links and the publishing status; the plan and storage read-only with `manage_url` | `owner-api.test.ts`, `owner-api.spec.ts` (a lesson added and in the app, a notification in the customer's inbox) |
+| [x] | 58.9 Pushes to the owner's phone from Yallapp Business's own Firebase project (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`, optional Huawei Push Kit): a paid order, an appointment booked, a listing message, a donation or a payment to Yallapp, a build finished, a live announcement, an owner notice; per device and kind (`PUT /me/push-preferences`), in the person's language else the phone's; refused tokens forgotten; never failing what caused it; `YALLAPP_OWNER_PUSH_DIR` keeps them in local runs | `owner-push.test.ts` (languages, choices, signed-out devices, a refund-due notice pushed once), `owner-api.spec.ts` (the paid order's push) |
+| [x] | 58.10 Docs: `docs/ARCHITECTURE.md` › The Owner API, `docs/LAUNCH-CHECKLIST.md` 7k (the Firebase project, the env vars, migration 0043), `.env.example` | Review |
+| [ ] | 58.11 Course questions and reviews: courses managed in Yallapp have no Q&A or reviews (WordPress apps keep them on their site), so Messages has a listing's inquiries only and the `new_review` push kind is reserved | When Yallapp's own courses or shops take questions or reviews |
+| [ ] | 58.12 Not offered because the dashboard doesn't offer them either: moving an appointment to another time (cancel and book again), checking gym members in at the door, scheduling a notification for later; an announcement set to start later isn't pushed when it starts (only one live when created is) | With the dashboard |
+| [ ] | 58.13 Today's numbers look at the newest 200 paid orders, donations and app users of the app, enough for a day of most apps; a busier app's day would count from a query by date | When an app passes it |
+| [ ] | 58.14 Not tried with a real Firebase project and phone: the pushes went to a fake sender and the capture folder. A plan paid entirely with a coupon (no provider) sends no "Payment received" push | LAUNCH-CHECKLIST 7k, with Phase 59 |
+| [ ] | 58.15 WordPress, own-API and connected-platform apps: their orders, bookings and content live on their own sites, as on the dashboard, so the app shows what Yallapp keeps for them (today's opens, notices, builds, Media, Analytics, the plan) | When owners ask |
+
 ## Later: the Yallapp app for business owners (decided, not started)
 
 After the website and the client dashboard are in English, Arabic and Turkish
@@ -1273,4 +1307,5 @@ and builds and publishing. Decided with the owner:
 |---|---|
 | [x] | No payments of any kind in the app, on any platform: plans, storage packs and everything else are paid on yallapp.com.tr only |
 | [x] | Same database and the same accounts as the website and the dashboard; nothing kept separately for the app |
-| [ ] | Contract first: an owner API next to the existing ones, then the app (Flutter), then the stores under Yallapp's own accounts |
+| [x] | Contract first: an owner API next to the existing ones (Phase 58: `docs/api/owner.yaml`, `/api/owner/v1`) |
+| [ ] | Then the app (Flutter, Phase 59), then the stores under Yallapp's own accounts |
