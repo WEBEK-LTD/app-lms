@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 59 Launch screen: Ivory with the Yallapp mark. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/yallapp_ivory" />
+    <item android:width="96dp" android:height="96dp" android:gravity="center"
+        android:drawable="@mipmap/ic_launcher" />
+</layer-list>
