@@ -1305,7 +1305,8 @@ export class MysqlStore implements DataStore {
             .from(m)
             .where(and(eq(m.appId, input.appId), eq(m.userId, input.userId)))
             .for("update");
-          const pick = membershipToUse(mine, input.now);
+          // 64 Frozen or not on the class's own day.
+          const pick = membershipToUse(mine, input.now, session.startAt);
           if (!pick.ok) return { ok: false, reason: pick.reason } as const;
           if (pick.membership.creditsLeft !== null) {
             const [used] = await tx
@@ -1508,9 +1509,9 @@ export class MysqlStore implements DataStore {
     const m = schema.memberships;
     if (input.userIds && input.userIds.length === 0) return { items: [], total: 0 };
     const where = and(eq(m.appId, input.appId), input.userIds ? inArray(m.userId, input.userIds) : undefined);
-    // Those that can get in now first (as lib/bookings/door.ts refusal(), less the credits; 64 not frozen).
-    const notFrozen = sql`(${m.frozenFrom} is null or ${m.frozenFrom} > ${input.now} or ${m.frozenUntil} <= ${input.now})`;
-    const usable = sql`case when ${m.status} = 'active' and ${m.startsAt} <= ${input.now} and (${m.endsAt} is null or ${m.endsAt} > ${input.now}) and ${notFrozen} then 0 else 1 end`;
+    // The current ones first (lib/bookings/memberships.ts membershipActive: 64 frozen ones too, a freeze without an end holding the end).
+    const held = sql`(${m.frozenFrom} <= ${input.now} and ${m.frozenUntil} is null)`;
+    const usable = sql`case when ${m.status} = 'active' and ${m.startsAt} <= ${input.now} and (${m.endsAt} is null or ${m.endsAt} > ${input.now} or ${held}) then 0 else 1 end`;
     const [items, [total]] = await Promise.all([
       this.run((db) => db.select().from(m).where(where).orderBy(usable, desc(m.createdAt), desc(m.id)).limit(input.limit).offset(input.offset)),
       this.run((db) => db.select({ n: count() }).from(m).where(where)),
@@ -1550,32 +1551,44 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(m).set({ codeHash }).where(and(eq(m.appId, appId), eq(m.id, id))));
   }
 
-  /** 64 The end moved by whole days in the same statement (null stays null). */
-  private shiftedEnd(days: number) {
+  async freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean> {
     const m = schema.memberships;
-    return days ? sql`date_add(${m.endsAt}, interval ${days} day)` : sql`${m.endsAt}`;
-  }
-
-  async freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; shiftDays: number; now: Date }): Promise<boolean> {
-    const m = schema.memberships;
-    // Only while active with no freeze now or to come: of two at once, one moves the end.
+    // Only while active, with no freeze now or to come and the end that was read: of two at once, one moves the end.
     const [result] = await this.run((db) =>
       db
         .update(m)
-        .set({ frozenFrom: input.from, frozenUntil: input.until, endsAt: this.shiftedEnd(input.shiftDays), updatedAt: input.now })
-        .where(and(eq(m.appId, appId), eq(m.id, id), eq(m.status, "active"), or(isNull(m.frozenFrom), lte(m.frozenUntil, input.now)))),
+        .set({ frozenFrom: input.from, frozenUntil: input.until, endsAt: input.endsAt, updatedAt: input.now })
+        .where(
+          and(
+            eq(m.appId, appId),
+            eq(m.id, id),
+            eq(m.status, "active"),
+            or(isNull(m.frozenFrom), lte(m.frozenUntil, input.now)),
+            input.previousEndsAt ? eq(m.endsAt, input.previousEndsAt) : isNull(m.endsAt),
+          ),
+        ),
     );
     return result.affectedRows === 1;
   }
 
-  async unfreezeMembership(appId: string, id: number, input: { from: Date; shiftDays: number; now: Date }): Promise<boolean> {
+  async unfreezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean> {
     const m = schema.memberships;
-    // Only the freeze that was read, while it isn't over: of two at once, one moves the end.
+    // Only the freeze that was read (its first day and the day it's back), while it isn't over, on an
+    // active membership with the end that was read: of two at once, one moves the end.
     const [result] = await this.run((db) =>
       db
         .update(m)
-        .set({ frozenFrom: null, frozenUntil: null, endsAt: this.shiftedEnd(input.shiftDays), updatedAt: input.now })
-        .where(and(eq(m.appId, appId), eq(m.id, id), eq(m.frozenFrom, input.from), or(isNull(m.frozenUntil), gt(m.frozenUntil, input.now)))),
+        .set({ frozenFrom: null, frozenUntil: null, endsAt: input.endsAt, updatedAt: input.now })
+        .where(
+          and(
+            eq(m.appId, appId),
+            eq(m.id, id),
+            eq(m.status, "active"),
+            eq(m.frozenFrom, input.from),
+            input.until ? and(eq(m.frozenUntil, input.until), gt(m.frozenUntil, input.now)) : isNull(m.frozenUntil),
+            input.previousEndsAt ? eq(m.endsAt, input.previousEndsAt) : isNull(m.endsAt),
+          ),
+        ),
     );
     return result.affectedRows === 1;
   }

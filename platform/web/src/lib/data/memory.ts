@@ -1,6 +1,6 @@
 import { clientAccountState, longestLicense } from "../license/status";
 import { newId } from "../crypto/tokens";
-import { membershipActive, membershipFreezeSet, membershipFrozen, membershipToUse } from "../bookings/memberships";
+import { membershipActive, membershipFreezeSet, membershipToUse } from "../bookings/memberships";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
 import type {
@@ -96,8 +96,8 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 
 const clone = <T>(value: T): T => structuredClone(value);
 
-/** 64 An end moved by whole days (a freeze), as the database's date_add. */
-const shiftDays = (at: Date | null, days: number): Date | null => (at && days ? new Date(at.getTime() + days * 86_400_000) : at);
+/** 64 The same instant, or both missing (a null-safe comparison, as `<=>`). */
+const sameTime = (a: Date | null, b: Date | null): boolean => (a === null || b === null ? a === b : a.getTime() === b.getTime());
 
 /**
  * In-memory store for tests and local runs (YALLAPP_DATA=memory).
@@ -1037,7 +1037,8 @@ export class MemoryStore implements DataStore {
     let membershipId: number | null = null;
     if (input.membershipRequired) {
       const mine = [...this.memberships.values()].filter((m) => m.appId === input.appId && m.userId === input.userId);
-      const pick = membershipToUse(mine, input.now);
+      // 64 Frozen or not on the class's own day.
+      const pick = membershipToUse(mine, input.now, session.startAt);
       if (!pick.ok) return { ok: false, reason: pick.reason };
       const membership = this.memberships.get(pick.membership.id)!;
       if (membership.creditsLeft !== null) membership.creditsLeft -= 1;
@@ -1163,9 +1164,9 @@ export class MemoryStore implements DataStore {
   }
 
   /** 63 Whether a membership can get in now (as the database orders them). */
-  /** Can get in now: as lib/bookings/door.ts refusal(), less the credits (64 not frozen). */
+  /** Current: active, started and not ended (64 frozen ones too, as the dashboard's Members). */
   private usable(m: Membership, now: Date): boolean {
-    return membershipActive(m, now) && !membershipFrozen(m, now);
+    return membershipActive(m, now);
   }
 
   async listMembershipsPage(input: { appId: string; userIds?: number[]; now: Date; offset: number; limit: number }): Promise<{ items: Membership[]; total: number }> {
@@ -1196,17 +1197,26 @@ export class MemoryStore implements DataStore {
     if (m && m.appId === appId) m.codeHash = codeHash;
   }
 
-  async freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; shiftDays: number; now: Date }): Promise<boolean> {
+  async freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean> {
     const m = this.memberships.get(id);
-    if (!m || m.appId !== appId || m.status !== "active" || membershipFreezeSet(m, input.now)) return false;
-    this.memberships.set(id, { ...m, frozenFrom: new Date(input.from), frozenUntil: input.until ? new Date(input.until) : null, endsAt: shiftDays(m.endsAt, input.shiftDays), updatedAt: input.now });
+    if (!m || m.appId !== appId || m.status !== "active" || membershipFreezeSet(m, input.now) || !sameTime(m.endsAt, input.previousEndsAt)) return false;
+    this.memberships.set(id, { ...m, frozenFrom: new Date(input.from), frozenUntil: input.until ? new Date(input.until) : null, endsAt: input.endsAt ? new Date(input.endsAt) : null, updatedAt: input.now });
     return true;
   }
 
-  async unfreezeMembership(appId: string, id: number, input: { from: Date; shiftDays: number; now: Date }): Promise<boolean> {
+  async unfreezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean> {
     const m = this.memberships.get(id);
-    if (!m || m.appId !== appId || m.frozenFrom?.getTime() !== input.from.getTime() || !membershipFreezeSet(m, input.now)) return false;
-    this.memberships.set(id, { ...m, frozenFrom: null, frozenUntil: null, endsAt: shiftDays(m.endsAt, input.shiftDays), updatedAt: input.now });
+    if (
+      !m ||
+      m.appId !== appId ||
+      m.status !== "active" ||
+      !sameTime(m.frozenFrom ?? null, input.from) ||
+      !sameTime(m.frozenUntil ?? null, input.until) ||
+      !membershipFreezeSet(m, input.now) ||
+      !sameTime(m.endsAt, input.previousEndsAt)
+    )
+      return false;
+    this.memberships.set(id, { ...m, frozenFrom: null, frozenUntil: null, endsAt: input.endsAt ? new Date(input.endsAt) : null, updatedAt: input.now });
     return true;
   }
 

@@ -763,7 +763,7 @@
           "method": "POST",
           "path": "/bookings/classes/{class_id}/book",
           "summary": "Book a spot in a class",
-          "description": "Books one spot for the signed-in customer, only while one is left (no overbooking, also when many book at once). Booking a class already booked answers it again. Fails with `class_full` (409), `too_late` (409) once it has started or is closer than `min_minutes_ahead`, `class_cancelled` (409), `membership_required` (403) without an active membership when the business asks for one, `membership_frozen` (403, roadmap 64) when the active memberships are frozen, and `no_credits` (403) when the membership's credits are used up. With a credit plan, one credit is used.",
+          "description": "Books one spot for the signed-in customer, only while one is left (no overbooking, also when many book at once). Booking a class already booked answers it again. Fails with `class_full` (409), `too_late` (409) once it has started or is closer than `min_minutes_ahead`, `class_cancelled` (409), `membership_required` (403) without an active membership when the business asks for one, `membership_frozen` (403, roadmap 64) when the active memberships are frozen on the class's day, and `no_credits` (403) when the membership's credits are used up. With a credit plan, one credit is used.",
           "access": "signed-in"
         },
         {

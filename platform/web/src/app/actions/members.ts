@@ -8,7 +8,8 @@ import { freezeMembership, unfreezeMembership } from "@/lib/bookings/freeze";
 import { memberKey } from "@/lib/bookings/member-codes";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
-import { signingSecret } from "@/lib/env";
+import { encryptionKey, signingSecret } from "@/lib/env";
+import { serviceAccountOf } from "@/lib/hosted/notify";
 import type { FormState } from "@/lib/forms";
 import { recordFreeze } from "@/lib/team/activity";
 
@@ -73,12 +74,12 @@ export async function freezeMembershipAction(_: FormState, formData: FormData): 
   const values = { from: String(formData.get("from") ?? ""), until: String(formData.get("until") ?? "") };
   if (!membership) return { message: "This membership no longer exists." };
   const now = new Date();
-  const result = await freezeMembership(store, context.app, membership, values, now);
+  const result = await freezeMembership(store, context.app, membership, values, now, { account: context.app.demo ? null : serviceAccountOf(context.app, encryptionKey()) });
   if (!result.ok) return result.status === 409 ? { message: Object.values(result.errors)[0] } : { errors: result.errors, values };
   const user = await store.getHostedUser(context.app.id, membership.userId);
   await recordFreeze(store, { clientId: context.client.id, appId: context.app.id, actor: actorOf(context), membershipId: membership.id, name: user?.name ?? "", frozen: true }, now);
   revalidatePath("/dashboard/members", "layout");
-  return { ok: true, message: "The membership is frozen." };
+  return { ok: true, message: result.released ? "The membership is frozen. Classes it had booked in those days were cancelled, and the member was told." : "The membership is frozen." };
 }
 
 export async function unfreezeMembershipAction(formData: FormData): Promise<void> {

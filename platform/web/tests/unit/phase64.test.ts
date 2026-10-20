@@ -4,7 +4,7 @@ import { registerClient } from "@/lib/auth/accounts";
 import { hashPassword } from "@/lib/auth/password";
 import { newApp } from "@/lib/app/setup";
 import { checkInMember, findMembers } from "@/lib/bookings/door";
-import { dayStart, freezeMembership, unfreezeMembership, unfreezeShift } from "@/lib/bookings/freeze";
+import { dayStart, freezeMembership, shiftEnd, unfreezeMembership, unfreezeShift } from "@/lib/bookings/freeze";
 import { memberKey } from "@/lib/bookings/member-codes";
 import { membershipActive, membershipStatus, membershipToUse } from "@/lib/bookings/memberships";
 import { answerAsBusiness, setAnswerHidden } from "@/lib/courses/community";
@@ -187,11 +187,93 @@ describe("64 frozen memberships", () => {
     expect((await store.getMembership(gym.id, m.id))!.endsAt!.getTime() - m.endsAt!.getTime()).toBe(7 * DAY);
   });
 
-  it("books no classes on a frozen membership, and says so", () => {
+  it("books no classes on a frozen membership, judged on the class's day, and says so", () => {
     const m = { id: 1, ...membership(gym, 1), frozenFrom: days(-1), frozenUntil: days(3) } as Membership;
     expect(membershipToUse([m], NOW)).toEqual({ ok: false, reason: "membership_frozen" });
+    // Frozen until in 3 days: a class in 4 days can be booked today.
+    expect(membershipToUse([m], NOW, days(4))).toMatchObject({ ok: true });
+    // Frozen from tomorrow: today's class can be booked, one in 2 days can't.
+    const later = { ...m, frozenFrom: days(1), frozenUntil: null };
+    expect(membershipToUse([later], NOW, new Date(NOW.getTime() + 3_600_000))).toMatchObject({ ok: true });
+    expect(membershipToUse([later], NOW, days(2))).toEqual({ ok: false, reason: "membership_frozen" });
     expect(membershipToUse([m, { ...m, id: 2, frozenFrom: null, frozenUntil: null }], NOW)).toMatchObject({ ok: true, membership: { id: 2 } });
     expect(membershipToUse([], NOW)).toEqual({ ok: false, reason: "membership_required" });
+  });
+
+  async function classAt(at: Date, name = "Spin") {
+    return (await store.createClassSession({
+      appId: gym.id,
+      templateId: null,
+      serviceId: 1,
+      staffId: 1,
+      serviceName: name,
+      staffName: "Coach",
+      startAt: at,
+      endAt: new Date(at.getTime() + 3_600_000),
+      capacity: 10,
+      bookedCount: 0,
+      status: "scheduled",
+      createdAt: NOW,
+      updatedAt: NOW,
+    }))!;
+  }
+
+  const book = (userId: number, sessionId: number, now = NOW) =>
+    store.bookClass({ appId: gym.id, sessionId, userId, customerName: "Sara", customerPhone: null, customerEmail: null, membershipRequired: true, bookableFrom: now, now });
+
+  it("books by the class's day in the store, and a freeze cancels the classes booked inside it, giving credits back", async () => {
+    const sara = await user("Sara Adel", "+905001112230");
+    const m = await store.createMembership(membership(gym, sara.id, { period: "pack", creditsLeft: 5, endsAt: null }));
+    const inside = await classAt(days(3), "Spin");
+    const before = await classAt(new Date(NOW.getTime() + 2 * 3_600_000), "Yoga");
+    const after = await classAt(days(9), "Pilates");
+    for (const c of [inside, before, after]) expect((await book(sara.id, c.id)).ok).toBe(true);
+    expect((await store.getMembership(gym.id, m.id))!.creditsLeft).toBe(2);
+
+    // Frozen from the day after tomorrow until in a week: the class inside goes, with its credit.
+    const frozen = await freezeMembership(store, gym, m, { from: "2026-10-14", until: "2026-10-19" }, NOW);
+    expect(frozen).toMatchObject({ ok: true, released: 1 });
+    expect((await store.getMembership(gym.id, m.id))!.creditsLeft).toBe(3);
+    const booked = await store.listClassBookings({ appId: gym.id, userId: sara.id, status: "booked" });
+    expect(booked.map((b) => b.sessionId).sort()).toEqual([before.id, after.id].sort());
+    expect((await store.getClassSession(gym.id, inside.id))!.bookedCount).toBe(0);
+    const inbox = await store.listHostedNotifications({ appId: gym.id, userId: sara.id, since: new Date(0), page: 1, perPage: 5 });
+    expect(inbox.items[0]!.title).toBe("Your class booking is cancelled");
+    expect(inbox.items[0]!.body).toMatch(/^Spin on .*: your membership is frozen that day/);
+
+    // While frozen it can't be booked again for that day, but after the freeze it can.
+    expect(await book(sara.id, inside.id)).toEqual({ ok: false, reason: "membership_frozen" });
+    expect((await book(sara.id, (await classAt(days(8), "Box")).id)).ok).toBe(true);
+  });
+
+  it("refuses a stale unfreeze after the freeze changed, and leaves a cancelled membership's end alone", async () => {
+    const ali = await user("Ali", "+905001112231");
+    const m = await store.createMembership(membership(gym, ali.id));
+    await freezeMembership(store, gym, m, { from: "2026-10-14", until: "2026-10-20" }, NOW);
+    const first = (await store.getMembership(gym.id, m.id))!;
+    await unfreezeMembership(store, gym, first, NOW);
+    // Frozen again from the same day, until another day: the unfreeze read before doesn't apply.
+    const again = (await store.getMembership(gym.id, m.id))!;
+    await freezeMembership(store, gym, again, { from: "2026-10-14", until: "2026-10-30" }, NOW);
+    const current = (await store.getMembership(gym.id, m.id))!;
+    expect(await unfreezeMembership(store, gym, first, NOW)).toMatchObject({ ok: false });
+    expect(await store.unfreezeMembership(gym.id, m.id, { from: first.frozenFrom!, until: first.frozenUntil!, endsAt: null, previousEndsAt: current.endsAt, now: NOW })).toBe(false);
+    expect((await store.getMembership(gym.id, m.id))!.endsAt).toEqual(current.endsAt);
+
+    // Cancelled while frozen: no Unfreeze, and its end stays.
+    await store.updateMembership(gym.id, m.id, { status: "cancelled", updatedAt: NOW });
+    const cancelled = (await store.getMembership(gym.id, m.id))!;
+    expect(await unfreezeMembership(store, gym, cancelled, NOW)).toMatchObject({ ok: false, status: 409 });
+    expect((await store.getMembership(gym.id, m.id))!.endsAt).toEqual(current.endsAt);
+    expect((await findMembers(store, gym, { query: "ali", now: NOW, offset: 0, limit: 5 })).items[0]).toMatchObject({ status: "cancelled", freeze: null });
+  });
+
+  it("moves the end by gym days at the same local time, across a change of clocks", () => {
+    const berlin = { ...gym, bookingSetup: { ...GYM_SETUP, rules: { ...GYM_SETUP.rules, timezone: "Europe/Berlin" } } };
+    // 12:00 in Berlin on 20 October (summer time) is 12:00 on 30 October (winter time).
+    expect(shiftEnd(berlin, new Date("2026-10-20T10:00:00Z"), 10)).toEqual(new Date("2026-10-30T11:00:00Z"));
+    expect(shiftEnd(berlin, new Date("2026-10-30T11:00:00Z"), -10)).toEqual(new Date("2026-10-20T10:00:00Z"));
+    expect(shiftEnd(berlin, null, 5)).toBeNull();
   });
 
   it("lists frozen members with the others that can't get in, and says Frozen in the customer's app", async () => {
@@ -200,8 +282,9 @@ describe("64 frozen memberships", () => {
     await store.createMembership(membership(gym, (await user("Ali", "+905001112224")).id, { createdAt: days(-5) }));
     await freezeMembership(store, gym, m, { from: "2026-10-12", until: "2026-10-20" }, NOW);
     const rows = await findMembers(store, gym, { now: NOW, offset: 0, limit: 10 });
-    expect(rows.items.map((r) => r.status)).toEqual(["active", "frozen"]);
-    expect(rows.items[1]!.freeze).toMatchObject({ now: true, until: dayStart(gym, "2026-10-20") });
+    // Frozen ones are listed with the current ones, as on the dashboard.
+    expect(rows.items.map((r) => r.status)).toEqual(["frozen", "active"]);
+    expect(rows.items[0]!.freeze).toMatchObject({ now: true, until: dayStart(gym, "2026-10-20") });
 
     const connector = new BookingsConnector({ store, app: gym, assetUrl: (id) => `https://yallapp.test/a/${id}`, platformUrl: "https://yallapp.test", signingSecret: SECRET });
     const result = (await connector.handle({ method: "GET", path: ["me", "memberships"], query: new URLSearchParams(), body: null, user: sara, now: NOW }))!;

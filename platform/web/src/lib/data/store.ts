@@ -376,13 +376,17 @@ export interface DataStore {
   setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void>;
   /**
    * 64 Freezes an active membership from `from` until `until` (null: until
-   * unfrozen) and moves its end by `shiftDays`, in one conditional update:
-   * only while it's active and has no freeze now or to come (one of two at
-   * once wins). False when it didn't.
+   * unfrozen) and sets its end to `endsAt`, in one conditional update: only
+   * while it's active, has no freeze now or to come and still ends at
+   * `previousEndsAt` (one of two at once wins). False when it didn't.
    */
-  freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; shiftDays: number; now: Date }): Promise<boolean>;
-  /** 64 Removes the freeze that starts at `from` and moves the end by `shiftDays`, once (false when it changed meanwhile). */
-  unfreezeMembership(appId: string, id: number, input: { from: Date; shiftDays: number; now: Date }): Promise<boolean>;
+  freezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean>;
+  /**
+   * 64 Removes the freeze that was read (`from` and `until`, while it isn't
+   * over, on an active membership still ending at `previousEndsAt`) and sets
+   * the end to `endsAt`, once (false when anything changed meanwhile).
+   */
+  unfreezeMembership(appId: string, id: number, input: { from: Date; until: Date | null; endsAt: Date | null; previousEndsAt: Date | null; now: Date }): Promise<boolean>;
 
   // 63 Course questions and reviews (lib/courses/community.ts)
   /** Writes or replaces the student's review of the course (one each); the business's reply and hiding stay. */

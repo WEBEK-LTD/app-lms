@@ -1618,10 +1618,19 @@ gym's members at the door, with one set of rules in `lib`.
   from the first frozen day to the day it is unfrozen (that day isn't
   frozen). Days are the gym's in its time zone. Freezing is one conditional
   update (active, and no freeze now or to come), and unfreezing another
-  (the freeze that was read, while it isn't over), each moving the end with
-  `date_add` in the same statement, so two people at once change it once.
-  While frozen the door answers `frozen` ("Frozen until …", or "Frozen"),
-  classes answer `membership_frozen`, and `GET /me/memberships` gives
+  (the freeze that was read, while it isn't over), each writing the
+  new end (computed in the gym's days, keeping its time of day there, so a
+  change of clocks doesn't move the day), only while the end is still the
+  one read; unfreezing also checks the freeze's day it's back
+  (null-safe) and that the membership is active (a cancelled one keeps its
+  end, and shows no freeze). Two people at once change it once. Classes:
+  a membership is judged frozen on the class's own day, so a freeze from
+  tomorrow doesn't stop today's class and one ending Friday doesn't stop
+  Saturday's; when a freeze is set, the classes that membership booked that
+  start inside it are cancelled through the store's own cancelling (spot
+  and credit back) and the member is told in the app's inbox and by push, in
+  the app's language. While frozen the door answers `frozen` ("Frozen until
+  …", or "Frozen"), classes answer `membership_frozen`, and `GET /me/memberships` gives
   `frozen` (the app says Frozen and the code no longer promises to let them
   in; the status stays `active`). Dashboard › Members (Freeze with the first
   day and the day it's back, Unfreeze), the Owner API's `PUT` and `DELETE

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "7540ac2a-294d-4692-8666-53ab4173c7e2",
+  "id": "6f576058-1417-46bb-a3c3-dbb2713dfd17",
   "prevId": "fc8c35b2-bc27-4b7d-81e2-4e1a25a907fc",
   "tables": {
     "license_activations": {
@@ -8929,6 +8929,15 @@
           "name": "team_activity_actor_idx",
           "columns": [
             "actor_id"
+          ],
+          "isUnique": false
+        },
+        "team_activity_client_actor_idx": {
+          "name": "team_activity_client_actor_idx",
+          "columns": [
+            "client_id",
+            "actor_id",
+            "at"
           ],
           "isUnique": false
         }

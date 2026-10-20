@@ -64,16 +64,19 @@ export function membershipStatus(m: MembershipTimes, now: Date): "active" | "exp
 /**
  * The membership a class booking uses: an unlimited one first, else the
  * one with credits left that ends first (packs last). Used inside the
- * stores' booking step.
+ * stores' booking step. 64 Active now, and not frozen when the class
+ * starts (`classAt`): a freeze from tomorrow doesn't stop today's class,
+ * and one that ends on Friday doesn't stop Saturday's.
  */
 export function membershipToUse(
   memberships: Membership[],
   now: Date,
+  classAt: Date = now,
 ): { ok: true; membership: Membership } | { ok: false; reason: "membership_required" | "membership_frozen" | "no_credits" } {
   const counting = memberships.filter((m) => membershipActive(m, now));
   if (counting.length === 0) return { ok: false, reason: "membership_required" };
   // 64 A frozen membership books no classes.
-  const active = counting.filter((m) => !membershipFrozen(m, now));
+  const active = counting.filter((m) => !membershipFrozen(m, classAt));
   if (active.length === 0) return { ok: false, reason: "membership_frozen" };
   const usable = active
     .filter((m) => m.creditsLeft === null || m.creditsLeft > 0)

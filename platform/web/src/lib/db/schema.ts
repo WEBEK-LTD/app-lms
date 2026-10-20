@@ -1667,7 +1667,12 @@ export const teamActivity = mysqlTable(
     summary: varchar("summary", { length: 500 }).notNull(),
     at: time("at").notNull(),
   },
-  (t) => [index("team_activity_client_idx").on(t.clientId, t.at), index("team_activity_actor_idx").on(t.actorId)],
+  (t) => [
+    index("team_activity_client_idx").on(t.clientId, t.at),
+    index("team_activity_actor_idx").on(t.actorId),
+    // 64 The Team page's activity of one person, newest first, and its count.
+    index("team_activity_client_actor_idx").on(t.clientId, t.actorId, t.at),
+  ],
 );
 
 /**

@@ -1648,10 +1648,13 @@ paths:
         64 From `from` (today or a later day, within 90 days, in the gym's
         time zone) until `until` (the day it's back, after `from`, at most a
         year later) or, without `until`, until it is unfrozen. While frozen
-        the door answers `frozen` and the member can't book classes. With
-        `until`, the end moves later by the frozen days at once; without, when
-        it is unfrozen. An active, not ended membership without a freeze
-        still to come; else 409 `invalid_status`.
+        the door answers `frozen` and the member can't book classes that
+        start inside it; classes it had booked inside it are cancelled, their
+        spots and credits given back, and the member is told. With `until`,
+        the end moves later by the frozen days at once; without, when it is
+        unfrozen (gym days, the end keeping its time of day). An active, not
+        ended membership without a freeze still to come; else 409
+        `invalid_status`.
       parameters:
         - $ref: '#/components/parameters/AppId'
         - $ref: '#/components/parameters/MembershipId'
@@ -1681,8 +1684,8 @@ paths:
       operationId: unfreezeMember
       summary: Unfreeze a membership
       description: |
-        64 The member can come in again from now; the end moves later by the
-        days it was frozen until today (a freeze that hadn't started yet is
+        64 An active membership only. The member can come in again from now;
+        the end moves later by the days it was frozen until today (a freeze that hadn't started yet is
         just removed, and a freeze with `until` gives back the days it no
         longer takes). 409 `invalid_status` when there's no freeze now or to
         come.

@@ -4,6 +4,7 @@ import { checkInMember as checkIn, dayVisits, findMembers, gymDay, memberStatus,
 import { freezeMembership, freezeOf, unfreezeMembership, type FreezeResult } from "../bookings/freeze";
 import { memberKey } from "../bookings/member-codes";
 import type { Membership } from "../data/types";
+import { serviceAccountOf } from "../hosted/notify";
 import { recordFreeze } from "../team/activity";
 import { bodyObject, intParam, invalid, iso, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
 import { appScope } from "./sales";
@@ -137,7 +138,9 @@ async function frozenAnswer(ctx: OwnerContext, app: Parameters<typeof gymDay>[0]
 export async function freezeMember(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
   const { app, membership } = await ownMembership(ctx, params);
   const body = bodyObject(ctx.req.body);
-  const result = await freezeMembership(ctx.deps.store, app, membership, { from: body.from, until: body.until }, ctx.deps.now);
+  const { deps } = ctx;
+  const notify = { account: app.demo ? null : serviceAccountOf(app, deps.encryptionKey), ...(deps.sendPush ? { send: deps.sendPush } : {}) };
+  const result = await freezeMembership(deps.store, app, membership, { from: body.from, until: body.until }, deps.now, notify);
   return frozenAnswer(ctx, app, membership, result, true);
 }
 

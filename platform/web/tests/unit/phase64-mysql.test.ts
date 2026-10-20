@@ -7,7 +7,7 @@ import { freezeMembership, unfreezeMembership } from "@/lib/bookings/freeze";
 import { memberKey } from "@/lib/bookings/member-codes";
 import { questionFilter } from "@/lib/courses/community";
 import { createPool, MysqlStore } from "@/lib/data/mysql";
-import { DEFAULT_BOOKING_SETUP, type App, type Membership } from "@/lib/data/types";
+import { DEFAULT_BOOKING_SETUP, type App, type ClassSession, type Membership } from "@/lib/data/types";
 import { recordFreeze } from "@/lib/team/activity";
 
 /**
@@ -30,13 +30,13 @@ describe.skipIf(!url)("64 frozen memberships, hidden questions and the activity 
     await Promise.all(pools.map((pool) => pool.end()));
   });
 
-  async function setup(kind: "bookings" | "courses") {
+  async function setup(kind: "bookings" | "courses", timezone = "Europe/Istanbul") {
     const store = stores[0]!;
     const suffix = randomUUID().slice(0, 8);
     const { client } = await registerClient(store, { name: "Iron Gym", email: `p64-${suffix}@gym.test`, whatsapp: "+905446731942", siteUrl: "", password: null }, NOW);
     const app: App =
       kind === "bookings"
-        ? { ...newApp(client.id, null, NOW, "booking", "fitness"), backend: "hosted", connector: { kind: "bookings" }, bookingSetup: { ...DEFAULT_BOOKING_SETUP, rules: { ...DEFAULT_BOOKING_SETUP.rules, timezone: "Europe/Istanbul" } } }
+        ? { ...newApp(client.id, null, NOW, "booking", "fitness"), backend: "hosted", connector: { kind: "bookings" }, bookingSetup: { ...DEFAULT_BOOKING_SETUP, rules: { ...DEFAULT_BOOKING_SETUP.rules, timezone } } }
         : { ...newApp(client.id, null, NOW, "lms"), backend: "hosted", connector: { kind: "courses" } };
     await store.createApp(app);
     const user = (await store.createHostedUser({ appId: app.id, phone: `+90532${Math.floor(Math.random() * 1e7)}`, name: "Sara", email: null, city: null, now: NOW }))!;
@@ -86,15 +86,55 @@ describe.skipIf(!url)("64 frozen memberships, hidden questions and the activity 
     expect((await freezeMembership(store, app, m, { from: "2026-10-12", until: null }, NOW)).ok).toBe(true);
     const later = new Date(NOW.getTime() + 10 * DAY);
     const rows = await findMembers(store, app, { now: later, offset: 0, limit: 10 });
+    // Frozen ones are listed with the current ones (the newest first), as on the dashboard.
     expect(rows.items.map((r) => [r.membership.userId, r.status])).toEqual([
-      [other.id, "active"],
       [user.id, "frozen"],
+      [other.id, "active"],
     ]);
     expect((await store.listMembershipsWithoutCodeHash(app.id, later, 10)).map((x) => x.id)).toContain(m.id);
     // Unfrozen ten days later: the end moves by ten days.
     const frozen = (await store.getMembership(app.id, m.id))!;
     await unfreezeMembership(store, app, frozen, later);
     expect((await store.getMembership(app.id, m.id))!.endsAt!.getTime() - m.endsAt!.getTime()).toBe(10 * DAY);
+  });
+
+  it("refuses a stale unfreeze and one of a cancelled membership, and keeps the end's local time across a change of clocks", async () => {
+    const { store, app, user } = await setup("bookings", "Europe/Berlin");
+    // Ends at 12:00 in Berlin, summer time.
+    const m = await store.createMembership(membership(app, user.id, { endsAt: new Date("2026-10-20T10:00:00Z") }));
+    await freezeMembership(store, app, m, { from: "2026-10-12", until: "2026-10-22" }, NOW);
+    const first = (await store.getMembership(app.id, m.id))!;
+    // Ten days later at 12:00 in Berlin, winter time.
+    expect(first.endsAt).toEqual(new Date("2026-10-30T11:00:00Z"));
+    expect((await unfreezeMembership(store, app, first, NOW)).ok).toBe(true);
+    expect((await store.getMembership(app.id, m.id))!.endsAt).toEqual(m.endsAt);
+    // Frozen again from the same day until another day: the unfreeze read before doesn't apply.
+    await freezeMembership(store, app, (await store.getMembership(app.id, m.id))!, { from: "2026-10-12", until: "2026-10-25" }, NOW);
+    const current = (await store.getMembership(app.id, m.id))!;
+    expect(await store.unfreezeMembership(app.id, m.id, { from: first.frozenFrom!, until: first.frozenUntil!, endsAt: m.endsAt, previousEndsAt: current.endsAt, now: NOW })).toBe(false);
+    expect(await store.unfreezeMembership(app.id, m.id, { from: current.frozenFrom!, until: current.frozenUntil!, endsAt: m.endsAt, previousEndsAt: first.endsAt, now: NOW })).toBe(false);
+    expect((await store.getMembership(app.id, m.id))!.endsAt).toEqual(current.endsAt);
+    // Cancelled while frozen: the store doesn't unfreeze it.
+    await store.updateMembership(app.id, m.id, { status: "cancelled", updatedAt: NOW });
+    expect(await store.unfreezeMembership(app.id, m.id, { from: current.frozenFrom!, until: current.frozenUntil!, endsAt: m.endsAt, previousEndsAt: current.endsAt, now: NOW })).toBe(false);
+    expect((await store.getMembership(app.id, m.id))!.endsAt).toEqual(current.endsAt);
+  });
+
+  it("books by the class's day, and a freeze cancels the classes booked inside it with their credits", async () => {
+    const { store, app, user } = await setup("bookings");
+    const m = await store.createMembership(membership(app, user.id, { period: "pack", creditsLeft: 3, endsAt: null }));
+    const session = async (at: Date) =>
+      (await store.createClassSession({ appId: app.id, templateId: null, serviceId: 1, staffId: 1, serviceName: "Spin", staffName: "Coach", startAt: at, endAt: new Date(at.getTime() + 3_600_000), capacity: 5, bookedCount: 0, status: "scheduled", createdAt: NOW, updatedAt: NOW } as Omit<ClassSession, "id">))!;
+    const book = (sessionId: number) => store.bookClass({ appId: app.id, sessionId, userId: user.id, customerName: "Sara", customerPhone: null, customerEmail: null, membershipRequired: true, bookableFrom: NOW, now: NOW });
+    const inside = await session(new Date(NOW.getTime() + 3 * DAY));
+    const after = await session(new Date(NOW.getTime() + 9 * DAY));
+    expect((await book(inside.id)).ok).toBe(true);
+    expect((await book(after.id)).ok).toBe(true);
+    expect(await freezeMembership(stores[1]!, app, m, { from: "2026-10-14", until: "2026-10-19" }, NOW)).toMatchObject({ ok: true, released: 1 });
+    expect((await store.getMembership(app.id, m.id))!.creditsLeft).toBe(2);
+    expect((await store.getClassSession(app.id, inside.id))!.bookedCount).toBe(0);
+    expect(await book(inside.id)).toEqual({ ok: false, reason: "membership_frozen" });
+    expect((await book((await session(new Date(NOW.getTime() + 8 * DAY))).id)).ok).toBe(true);
   });
 
   it("keeps hidden questions and answers out of the students' lists and counts", async () => {

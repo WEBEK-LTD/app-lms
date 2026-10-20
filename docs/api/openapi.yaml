@@ -2168,7 +2168,8 @@ paths:
         (409) once it has started or is closer than `min_minutes_ahead`,
         `class_cancelled` (409), `membership_required` (403) without an active
         membership when the business asks for one, `membership_frozen` (403,
-        roadmap 64) when the active memberships are frozen, and `no_credits`
+        roadmap 64) when the active memberships are frozen on the class's
+        day, and `no_credits`
         (403) when the membership's credits are used up. With a credit plan,
         one credit is used.
       parameters:
@@ -4634,10 +4635,13 @@ components:
         frozen:
           description: |
             64 The gym froze the membership (Yallapp's hosted API): from
-            `from` (the member can't come in or book classes from then) until
-            `until`, the day it's back, or until the gym unfreezes it (null).
-            Its `ends_at` moves later by the days it was frozen. `status`
-            stays `active`. Null or missing: not frozen, and no freeze set.
+            `from` until `until`, the day it's back, or until the gym
+            unfreezes it (null). The member can't come in while it is frozen,
+            nor book a class that starts inside it (`membership_frozen`);
+            classes it had booked inside it were cancelled, with their
+            credits back, and the member was told in the inbox. Its
+            `ends_at` moves later by the days it was frozen. `status` stays
+            `active`. Null or missing: not frozen, and no freeze set.
           oneOf:
             - type: object
               required: [from, until]

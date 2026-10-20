@@ -528,8 +528,8 @@ The app itself (`business/`, see its README). Store listings go under
 
 - [ ] Apply migration `0047_frozen_memberships_hidden_questions.sql` after
       `0046` (`hidden` on `course_questions` and `course_answers`, with an
-      index; `frozen_from` and `frozen_until` on `memberships`). Nothing else
-      to set.
+      index; `frozen_from` and `frozen_until` on `memberships`; an index on
+      `team_activity` for the activity by person). Nothing else to set.
 - [ ] After deploying: on a test academy, hide a question from Dashboard ›
       Courses › Questions and check another student no longer sees it while
       its author does, with the note; on a test gym, freeze a membership on
