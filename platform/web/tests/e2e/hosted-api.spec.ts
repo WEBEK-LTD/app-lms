@@ -146,8 +146,10 @@ test("the app signs a customer in and receives notifications", async ({ page, re
 test("61 a notification sent later waits in Scheduled, can be changed and cancelled; the frequent job needs its token", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
   await page.getByRole("link", { name: "App notifications" }).click();
+  // The overview's "Untitled app" also matches "Title" until the page has changed.
+  await page.waitForURL(/\/dashboard\/notifications/);
   const date = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
-  await page.getByLabel("Title").fill("Weekend market");
+  await page.getByLabel("Title", { exact: true }).fill("Weekend market");
   await page.getByLabel("Message").fill("Tulips on Saturday from 9.");
   await page.getByRole("radio", { name: "Later" }).check();
   await expect(page.getByText(/In your app's time zone, Europe\/Istanbul/)).toBeVisible();
