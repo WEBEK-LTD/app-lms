@@ -240,6 +240,9 @@ jobs:
     if: needs.changes.outputs.business == 'true'
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 45
+    # Publishes the test APKs as a pre-release (below).
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: business
@@ -314,3 +317,18 @@ jobs:
             ${{ runner.temp }}/yallapp-business-demo.apk
           if-no-files-found: error
           retention-days: 14
+
+      # The same APKs on one pre-release that is replaced on every build, so they
+      # can be downloaded with a plain link (artifacts need a signed-in browser).
+      - name: Publish the APKs on the "Yallapp Business test build" pre-release
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=yallapp-business-test
+          if ! gh release view "$tag" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$tag" -R "$GITHUB_REPOSITORY" --prerelease --target main \
+              --title "Yallapp Business test build" \
+              --notes "Debug-signed APKs to try on a phone, replaced by every build (they can't go to Google Play). yallapp-business.apk works against yallapp.com.tr; yallapp-business-demo.apk runs on sample data (owner@example.com / yallapp-demo)."
+          fi
+          gh release upload "$tag" "$RUNNER_TEMP/yallapp-business.apk" "$RUNNER_TEMP/yallapp-business-demo.apk" -R "$GITHUB_REPOSITORY" --clobber
