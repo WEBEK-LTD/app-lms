@@ -399,6 +399,35 @@ the bytes: the media gate on the host takes the uploads and plays the files.
       `[yallapp_video]` (readme.txt), and try a Tutor LMS lesson with a media
       link on a phone.
 
+## 7k. Yallapp Business: the Owner API and pushes to the owners' phones (Phase 58)
+
+The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
+`https://yallapp.com.tr/api/owner/v1`). The app itself is Phase 59.
+
+- [ ] Apply migration `0043_yallapp_business.sql` (`owner_devices`: one row
+      per signed-in phone, the hash of its refresh token, its push token and
+      choices), after `0042_dashboard_languages.sql`.
+- [ ] **A Firebase project for Yallapp Business**, under Yallapp's own Google
+      account (not a client's): add the Android app (package name of
+      Yallapp Business) and the iOS app (its bundle ID) and keep their
+      `google-services.json` and `GoogleService-Info.plist` for Phase 59;
+      upload the APNs authentication key (Apple Developer › Keys, under
+      Yallapp's own team) in Project settings › Cloud Messaging.
+- [ ] Generate a service account key in that project (Project settings ›
+      Service accounts) and set it in Netlify as
+      `OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT` (the JSON on one line). Never
+      commit it. Redeploy.
+- [ ] Optional, for Huawei phones without Google Play: an AppGallery Connect
+      project for Yallapp Business with Push Kit on, and
+      `OWNER_PUSH_HMS_APP_ID` and `OWNER_PUSH_HMS_APP_SECRET` in Netlify.
+- [ ] Check `YALLAPP_OWNER_PUSH_DIR` is not set on Netlify (it is ignored
+      there; it's for local runs).
+- [ ] After the app exists: sign in on a phone with a client account, allow
+      notifications, place a test order in that client's app and check the
+      push arrives in English, then switch the dashboard to Arabic and
+      check the next one is in Arabic; sign the phone out from Dashboard ›
+      Your phones and check the app is signed out.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
