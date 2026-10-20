@@ -379,7 +379,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           ratingExample={k(wordsOf(app).ratingExample)}
         />
         {missing.length ? (
-          <Notice icon="info">{t("publishing.stillMissing", { items: formatList(lang, missing.map(k)) })}</Notice>
+          <Notice icon="info">{t("publishing.stillMissing", { items: lang === "en" ? missing.join(", ") : formatList(lang, missing.map(k)) })}</Notice>
         ) : (
           <Notice tone="success" icon="check_circle">
             {t("publishing.listingComplete")}
