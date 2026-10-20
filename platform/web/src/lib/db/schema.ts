@@ -723,8 +723,14 @@ export const memberships = mysqlTable(
     orderId: bigint("order_id", { mode: "number", unsigned: true }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
+    // 63 A hash of the member code (lib/bookings/member-codes.ts), so a typed code is one indexed lookup; set when the code is first shown or used.
+    codeHash: varchar("code_hash", { length: 32 }),
   },
-  (t) => [index("memberships_user_idx").on(t.appId, t.userId), uniqueIndex("memberships_order_unique").on(t.orderId)],
+  (t) => [
+    index("memberships_user_idx").on(t.appId, t.userId),
+    uniqueIndex("memberships_order_unique").on(t.orderId),
+    index("memberships_code_idx").on(t.appId, t.codeHash),
+  ],
 );
 
 /** Students of courses managed in the dashboard. */
@@ -1709,7 +1715,8 @@ export const memberCheckIns = mysqlTable(
     at: time("at").notNull(),
     byName: varchar("by_name", { length: 120 }).notNull(),
   },
-  (t) => [uniqueIndex("member_check_ins_day_unique").on(t.appId, t.userId, t.day), index("member_check_ins_app_idx").on(t.appId, t.at)],
+  // The day's list and count read (app, day); the same key makes a member count once a day.
+  (t) => [uniqueIndex("member_check_ins_day_unique").on(t.appId, t.day, t.userId)],
 );
 
 /** 63 Students' reviews of courses managed in the dashboard: one per student and course. */
@@ -1749,7 +1756,6 @@ export const courseQuestions = mysqlTable(
       .references(() => hostedUsers.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
     status: varchar("status", { length: 16 }).notNull().$type<CourseQuestionStatus>(),
-    answerCount: int("answer_count").notNull().default(0),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

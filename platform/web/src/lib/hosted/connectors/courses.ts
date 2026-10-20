@@ -5,7 +5,8 @@ import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/s
 import { randomToken, sha256Hex } from "../../crypto/tokens";
 import type { DataStore } from "../../data/store";
 import type { App, Course, CourseLesson, CourseQuestion, CourseReview, CourseSetup, HostedUser, LessonProgress } from "../../data/types";
-import { QUESTION_LIMIT, ratingSummary, readCommunityText, readReview } from "../../courses/community";
+import { QUESTION_LIMIT, ratingSummary, readCommunityText, readReview, REVIEW_LIMIT } from "../../courses/community";
+import type { RateLimitRule } from "../../rate-limit";
 import { hitRateLimit } from "../../rate-limit";
 import { descriptionHtml, payUrl } from "./catalog";
 import { error, intParam } from "./common";
@@ -539,6 +540,8 @@ export class CoursesConnector implements Connector {
     if (!(await this.enrolled(request)).has(c.id)) return error(403, "not_enrolled", "Enroll in the course to review it.");
     const read = readReview(request.body);
     if (!read.ok) return error(400, "invalid_request", read.error);
+    const wait = await this.limited(request, REVIEW_LIMIT);
+    if (wait) return wait;
     const { store, app } = this.deps;
     const before = await store.getCourseReviewOf(app.id, c.id, request.user.id);
     const review = await store.saveCourseReview({ appId: app.id, courseId: c.id, userId: request.user.id, rating: read.rating, text: read.text, now: request.now });
@@ -553,8 +556,8 @@ export class CoursesConnector implements Connector {
     return (await this.enrolled(request)).has(c.id) ? null : error(403, "not_enrolled", "Enroll in the course to see and ask questions.");
   }
 
-  private async limited(request: ConnectorRequest): Promise<ConnectorResult | null> {
-    const result = await hitRateLimit(this.deps.store, QUESTION_LIMIT, `${this.deps.app.id}:${request.user!.id}`, request.now);
+  private async limited(request: ConnectorRequest, rule: RateLimitRule = QUESTION_LIMIT): Promise<ConnectorResult | null> {
+    const result = await hitRateLimit(this.deps.store, rule, `${this.deps.app.id}:${request.user!.id}`, request.now);
     if (result.allowed) return null;
     return { status: 429, body: { code: "rate_limited", message: "You've written a lot in a short time. Please try again later.", retry_after_seconds: result.retryAfter } };
   }
@@ -589,7 +592,6 @@ export class CoursesConnector implements Connector {
       userId: request.user!.id,
       text: read.text,
       status: "open",
-      answerCount: 0,
       createdAt: request.now,
       updatedAt: request.now,
     });

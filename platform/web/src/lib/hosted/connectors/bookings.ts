@@ -4,6 +4,7 @@ import { hasClasses } from "../../bookings/classes";
 import { checkAnswers, intakeFieldsJson } from "../../bookings/intake";
 import { membershipActive, membershipStatus } from "../../bookings/memberships";
 import { memberCodeJson, memberKey } from "../../bookings/member-codes";
+import { rememberMemberCode } from "../../bookings/door";
 import { signingSecret } from "../../env";
 import { BOOKING_STATUS_LABELS, bookingSetup, type FullBookingSetup } from "../../bookings/setup";
 import { addDays, isDate, localToUtc, utcToLocal } from "../../bookings/time";
@@ -559,6 +560,8 @@ export class BookingsConnector implements Connector {
       .filter((m) => membershipActive(m, now))
       .sort((a, b) => (a.endsAt?.getTime() ?? Number.MAX_SAFE_INTEGER) - (b.endsAt?.getTime() ?? Number.MAX_SAFE_INTEGER) || a.id - b.id);
     const ended = all.filter((m) => !membershipActive(m, now));
+    // 63 A code shown in the app is kept as a hash, so typing it at the door is one lookup.
+    if (this.deps.app.vertical === "fitness") for (const m of active) await rememberMemberCode(this.deps.store, this.memberKey, this.deps.app.id, m);
     return { status: 200, body: { items: [...active, ...ended].map((m) => this.membershipJson(m, now)) } };
   }
 }

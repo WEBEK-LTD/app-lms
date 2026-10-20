@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "f79c3ebd-9b1c-4c1d-a144-afbd38b3d5aa",
+  "id": "fc8c35b2-bc27-4b7d-81e2-4e1a25a907fc",
   "prevId": "1055d937-93f2-415d-b09a-d5305a81e2e4",
   "tables": {
     "license_activations": {
@@ -3913,14 +3913,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "answer_count": {
-          "name": "answer_count",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "created_at": {
           "name": "created_at",
           "type": "datetime(3)",
@@ -6971,18 +6963,10 @@
           "name": "member_check_ins_day_unique",
           "columns": [
             "app_id",
-            "user_id",
-            "day"
+            "day",
+            "user_id"
           ],
           "isUnique": true
-        },
-        "member_check_ins_app_idx": {
-          "name": "member_check_ins_app_idx",
-          "columns": [
-            "app_id",
-            "at"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -7130,6 +7114,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "code_hash": {
+          "name": "code_hash",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -7147,6 +7138,14 @@
             "order_id"
           ],
           "isUnique": true
+        },
+        "memberships_code_idx": {
+          "name": "memberships_code_idx",
+          "columns": [
+            "app_id",
+            "code_hash"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {

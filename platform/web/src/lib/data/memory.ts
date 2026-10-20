@@ -85,7 +85,7 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
-import type { CourseAnswer, CourseQuestion, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
+import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
@@ -1155,8 +1155,41 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async countMemberCheckIns(appId: string, from: Date, to: Date): Promise<number> {
-    return [...this.memberCheckIns.values()].filter((c) => c.appId === appId && within(c.at, from, to)).length;
+  async countMemberCheckInsOnDay(appId: string, day: string): Promise<number> {
+    return [...this.memberCheckIns.values()].filter((c) => c.appId === appId && c.day === day).length;
+  }
+
+  /** 63 Whether a membership can get in now (as the database orders them). */
+  private usable(m: Membership, now: Date): boolean {
+    return m.status === "active" && m.startsAt.getTime() <= now.getTime() && (m.endsAt === null || m.endsAt.getTime() > now.getTime());
+  }
+
+  async listMembershipsPage(input: { appId: string; userIds?: number[]; now: Date; offset: number; limit: number }): Promise<{ items: Membership[]; total: number }> {
+    const all = [...this.memberships.values()]
+      .filter((m) => m.appId === input.appId && (!input.userIds || input.userIds.includes(m.userId)))
+      .sort(
+        (a, b) =>
+          Number(!this.usable(a, input.now)) - Number(!this.usable(b, input.now)) || b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id,
+      );
+    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+  }
+
+  async findMembershipByCodeHash(appId: string, codeHash: string): Promise<Membership | null> {
+    const found = [...this.memberships.values()].find((m) => m.appId === appId && m.codeHash === codeHash);
+    return found ? clone(found) : null;
+  }
+
+  async listMembershipsWithoutCodeHash(appId: string, now: Date, limit: number): Promise<Membership[]> {
+    return [...this.memberships.values()]
+      .filter((m) => m.appId === appId && !m.codeHash && this.usable(m, now))
+      .sort((a, b) => b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void> {
+    const m = this.memberships.get(id);
+    if (m && m.appId === appId) m.codeHash = codeHash;
   }
 
   // 63 Course questions and reviews
@@ -1234,15 +1267,22 @@ export class MemoryStore implements DataStore {
     if (row && row.appId === appId) this.courseReviews.set(id, clone({ ...row, ...patch }));
   }
 
-  async createCourseQuestion(input: Omit<CourseQuestion, "id">): Promise<CourseQuestion> {
-    const row: CourseQuestion = { ...clone(input), id: this.nextCourseQuestionId++ };
+  async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
+    const row: CourseQuestion = { ...clone(input), id: this.nextCourseQuestionId++, answerCount: 0 };
     this.courseQuestions.set(row.id, clone(row));
     return row;
   }
 
+  /** 63 The question with its answers counted now (a deleted student's answers go with their account). */
+  private counted(q: CourseQuestion): CourseQuestion {
+    let n = 0;
+    for (const a of this.courseAnswers.values()) if (a.questionId === q.id) n++;
+    return { ...clone(q), answerCount: n };
+  }
+
   async getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null> {
     const row = this.courseQuestions.get(id);
-    return row && row.appId === appId ? clone(row) : null;
+    return row && row.appId === appId ? this.counted(row) : null;
   }
 
   async listCourseQuestions(input: {
@@ -1257,14 +1297,14 @@ export class MemoryStore implements DataStore {
     const all = [...this.courseQuestions.values()]
       .filter((q) => q.appId === input.appId && (!input.courseIds || input.courseIds.includes(q.courseId)) && (!input.status || q.status === input.status))
       .sort((a, b) => at(b) - at(a) || b.id - a.id);
-    return { items: all.slice(input.offset, input.offset + input.limit).map(clone), total: all.length };
+    return { items: all.slice(input.offset, input.offset + input.limit).map((q) => this.counted(q)), total: all.length };
   }
 
   async addCourseAnswer(input: Omit<CourseAnswer, "id">, status: CourseQuestionStatus): Promise<CourseAnswer> {
     const row: CourseAnswer = { ...clone(input), id: this.nextCourseAnswerId++ };
     this.courseAnswers.set(row.id, clone(row));
     const question = this.courseQuestions.get(input.questionId);
-    if (question && question.appId === input.appId) this.courseQuestions.set(question.id, { ...question, status, answerCount: question.answerCount + 1, updatedAt: input.createdAt });
+    if (question && question.appId === input.appId) this.courseQuestions.set(question.id, { ...question, status, updatedAt: input.createdAt });
     return row;
   }
 

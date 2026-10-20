@@ -5,7 +5,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { newApp } from "@/lib/app/setup";
 import { appAreas } from "@/lib/app/areas";
 import { checkInMember, findMembers } from "@/lib/bookings/door";
-import { memberCode, memberCodeJson, memberKey, readMemberCode } from "@/lib/bookings/member-codes";
+import { memberCode, memberCodeHash, memberCodeJson, memberKey, readMemberCode } from "@/lib/bookings/member-codes";
 import { answerAsBusiness, ratingSummary, readReview } from "@/lib/courses/community";
 import { MemoryStore } from "@/lib/data/memory";
 import { DEFAULT_BOOKING_SETUP, DEFAULT_CATALOG_SETTINGS, type App, type Client, type CourseSetup, type Membership, type User } from "@/lib/data/types";
@@ -126,7 +126,8 @@ describe("63 the gym's door", () => {
     expect(await store.listMemberCheckIns(gym.id, "2026-10-12")).toHaveLength(1);
     // The next day in Cairo (UTC+3): in again.
     expect(await door({ membershipId: m.id }, new Date("2026-10-12T21:30:00Z"))).toMatchObject({ outcome: "admitted" });
-    expect(await store.countMemberCheckIns(gym.id, new Date("2026-10-11T21:00:00Z"), new Date("2026-10-12T21:00:00Z"))).toBe(1);
+    expect(await store.countMemberCheckInsOnDay(gym.id, "2026-10-12")).toBe(1);
+    expect(await store.countMemberCheckInsOnDay(gym.id, "2026-10-13")).toBe(1);
 
     const ali = await user("Ali", "+201001112224");
     const ended = await store.createMembership(membership(gym, ali.id, { endsAt: days(-1) }));
@@ -142,6 +143,44 @@ describe("63 the gym's door", () => {
     expect((await door({ scanned: "ZZZZ-ZZZZ-ZZZZ" })).outcome).toBe("not_found");
     expect((await door({ scanned: "no" })).outcome).toBe("not_a_code");
     expect((await door({ membershipId: 99_999 })).outcome).toBe("not_found");
+  });
+
+  it("finds a typed code by its stored hash, also an old membership; older codes once without it", async () => {
+    const sara = await user("Sara Adel", "+201001112223");
+    // An old, long-standing membership (made long before the others).
+    const old = await store.createMembership(membership(gym, sara.id, { period: "year", startsAt: days(-300), endsAt: days(65), createdAt: days(-300) }));
+    for (let i = 0; i < 30; i += 1) await store.createMembership(membership(gym, (await user(`M${i}`, `+20100200${String(i).padStart(4, "0")}`)).id));
+    const ended = await store.createMembership(membership(gym, sara.id, { endsAt: days(-1) }));
+    const door = (scanned: string, now = NOW) => checkInMember({ store, app: gym, key, scanned, by: "Desk", now });
+    // No hash kept yet: found once among those that can get in, and its hash is kept.
+    expect((await door(memberCode(key, gym.id, old.id))).outcome).toBe("admitted");
+    expect((await store.getMembership(gym.id, old.id))!.codeHash).toBeTruthy();
+    const scan = store.listMembershipsWithoutCodeHash.bind(store);
+    let scans = 0;
+    store.listMembershipsWithoutCodeHash = async (...args) => {
+      scans += 1;
+      return scan(...args);
+    };
+    expect((await door(memberCode(key, gym.id, old.id).toLowerCase(), new Date(NOW.getTime() + 60_000))).outcome).toBe("already_in");
+    expect(scans).toBe(0);
+    // An ended membership whose code was never kept can't be told from a wrong code; once kept, it says it ended.
+    expect((await door(memberCode(key, gym.id, ended.id))).outcome).toBe("not_found");
+    await store.setMembershipCodeHash(gym.id, ended.id, memberCodeHash(key, gym.id, memberCode(key, gym.id, ended.id)));
+    expect((await door(memberCode(key, gym.id, ended.id))).outcome).toBe("expired");
+    // A stored hash that doesn't match its membership's code (tampered) is refused.
+    await store.setMembershipCodeHash(gym.id, old.id, memberCodeHash(key, gym.id, "ZZZZZZZZZZZZ"));
+    expect((await door("ZZZZ-ZZZZ-ZZZZ")).outcome).toBe("not_found");
+  });
+
+  it("pages members in the store, those who can get in first, with the right total", async () => {
+    const ended = await store.createMembership(membership(gym, (await user("Old", "+201009990000")).id, { endsAt: days(-5), createdAt: days(-1) }));
+    for (let i = 0; i < 25; i += 1) await store.createMembership(membership(gym, (await user(`M${i}`, `+20100300${String(i).padStart(4, "0")}`)).id, { createdAt: days(-10 - i) }));
+    const first = await findMembers(store, gym, { now: NOW, offset: 0, limit: 10 });
+    expect(first.total).toBe(26);
+    expect(first.items.every((r) => r.status === "active")).toBe(true);
+    const last = await findMembers(store, gym, { now: NOW, offset: 20, limit: 10 });
+    expect(last.items.map((r) => r.membership.id).at(-1)).toBe(ended.id);
+    expect(last.items).toHaveLength(6);
   });
 
   it("finds members by name, active ones first, with today's check-in", async () => {
@@ -279,6 +318,28 @@ describe("63 course questions and reviews on the hosted API", () => {
     expect((await call("POST", "/courses/{course_id}/questions", { token: deniz.access_token, params: ["10"], body: { text: "One more" } })).status).toBe(429);
   });
 
+  it("counts a question's answers as they are, also after a student's account is deleted", async () => {
+    const deniz = await signUp("5321234567", "Deniz Aksoy");
+    const ayse = await signUp("5321234568", "Ayşe Kaya");
+    for (const s of [deniz, ayse]) await call("POST", "/courses/{course_id}/enroll", { token: s.access_token, params: ["10"] });
+    const id = ((await call("POST", "/courses/{course_id}/questions", { token: deniz.access_token, params: ["10"], body: { text: "Why?" } })).body as { id: number }).id;
+    await call("POST", "/questions/{question_id}/answers", { token: ayse.access_token, params: [String(id)], body: { text: "Because." } });
+    await answerAsBusiness({ store, app, now, account: null }, (await store.getCourseQuestion(app.id, id))!, null, "Indeed.");
+    expect((await store.getCourseQuestion(app.id, id))!.answerCount).toBe(2);
+    await store.deleteHostedUser(app.id, ayse.user.id);
+    expect((await store.getCourseQuestion(app.id, id))!.answerCount).toBe(1);
+    expect((await store.listCourseQuestions({ appId: app.id, order: "created", offset: 0, limit: 5 })).items[0]!.answerCount).toBe(1);
+    expect((await call("GET", "/questions/{question_id}", { token: deniz.access_token, params: [String(id)] })).body).toMatchObject({ answer_count: 1, answers: [{ text: "Indeed." }] });
+  });
+
+  it("limits how many reviews a student writes in an hour", async () => {
+    const deniz = await signUp("5321234567", "Deniz Aksoy");
+    await call("POST", "/courses/{course_id}/enroll", { token: deniz.access_token, params: ["10"] });
+    for (let i = 0; i < 20; i += 1) expect((await call("PUT", "/courses/{course_id}/reviews/mine", { token: deniz.access_token, params: ["10"], body: { rating: 1 + (i % 5) } })).status).toBe(200);
+    const refused = await call("PUT", "/courses/{course_id}/reviews/mine", { token: deniz.access_token, params: ["10"], body: { rating: 5 } });
+    expect(refused).toMatchObject({ status: 429, body: { code: "rate_limited" } });
+  });
+
   it("reads reviews and summaries", () => {
     expect(readReview({ rating: 3 })).toEqual({ ok: true, rating: 3, text: "" });
     expect(readReview({ rating: 2.5 })).toMatchObject({ ok: false });
@@ -347,7 +408,7 @@ describe("63 the Owner API: questions, reviews and the door", () => {
   it("lists questions, answers one with an activity line, and says what waits on Today", async () => {
     const token = await signIn("leyla@school.test");
     const deniz = await student(school, "Deniz", "+905321234567");
-    const q = await store.createCourseQuestion({ appId: school.id, courseId: 10, userId: deniz.id, text: "How do I say thank you?", status: "open", answerCount: 0, createdAt: NOW, updatedAt: NOW });
+    const q = await store.createCourseQuestion({ appId: school.id, courseId: 10, userId: deniz.id, text: "How do I say thank you?", status: "open", createdAt: NOW, updatedAt: NOW });
     const me = await call("GET", "/me", { token });
     const features = (me.body.apps as { id: string; features: Record<string, boolean> }[]).find((a) => a.id === school.id)!.features;
     expect(features).toMatchObject({ questions: true, reviews: true, member_check_in: false, inquiries: false });
@@ -403,6 +464,10 @@ describe("63 the Owner API: questions, reviews and the door", () => {
     const found = await call("GET", "/apps/{app_id}/members", { token, params: { app_id: gym.id }, query: { q: "sara" } });
     expect(found.body).toMatchObject({ total: 1, items: [{ membership_id: m.id, status: "active", checked_in_at: NOW.toISOString() }] });
     expect((await call("GET", "/apps/{app_id}/today", { token, params: { app_id: gym.id } })).body.counts).toMatchObject({ member_check_ins: 1 });
+    // Counted by the gym's day, as the door's list: one let in late on the gym's previous day isn't today's.
+    const yesterday = await store.createMembership(membership(gym, (await student(gym, "Late", "+201001119999")).id));
+    await store.checkInMember({ appId: gym.id, membershipId: yesterday.id, userId: yesterday.userId, day: "2026-10-11", at: new Date("2026-10-11T20:30:00Z"), byName: "Desk" });
+    expect((await call("GET", "/apps/{app_id}/today", { token, params: { app_id: gym.id } })).body.counts).toMatchObject({ member_check_ins: 1 });
     expect((await call("GET", "/apps/{app_id}/members", { token, params: { app_id: school.id } })).body).toMatchObject({ code: "not_available" });
   });
 
@@ -430,7 +495,7 @@ describe("63 the Owner API: questions, reviews and the door", () => {
     }
     const push: OwnerPushDeps = { store, now: NOW, account: ACCOUNT, send: deps().sendPush };
     const deniz = await student(school, "Deniz", "+905321234567");
-    const question = await store.createCourseQuestion({ appId: school.id, courseId: 10, userId: deniz.id, text: "Hi?", status: "open", answerCount: 0, createdAt: NOW, updatedAt: NOW });
+    const question = await store.createCourseQuestion({ appId: school.id, courseId: 10, userId: deniz.id, text: "Hi?", status: "open", createdAt: NOW, updatedAt: NOW });
     expect(await pushNewQuestion(push, school, { question, course: { title: "Arabic for Beginners" }, name: "Deniz", text: "Hi?", followUp: false })).toBe(2);
     expect(pushes.at(-1)).toMatchObject({ title: "New question in Arabic for Beginners", data: { kind: "new_message", question_id: String(question.id), app_id: school.id } });
     const review = await store.saveCourseReview({ appId: school.id, courseId: 10, userId: deniz.id, rating: 5, text: "Great", now: NOW });

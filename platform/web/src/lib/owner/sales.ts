@@ -5,6 +5,7 @@ import { appZone } from "../analytics/zone";
 import { appAreas, type AppAreas } from "../app/areas";
 import { changeAppointmentStatus, nextAppointmentStatuses } from "../bookings/appointments";
 import { canReschedule, rescheduleAppointment, rescheduleTimes } from "../bookings/reschedule";
+import { gymDay } from "../bookings/door";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
@@ -99,7 +100,8 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     counts.check_ins = tickets.checkedIn;
   }
   // 63 A gym's members who came in today (once a member a day).
-  if (areas.memberCheckIn) counts.member_check_ins = await store.countMemberCheckIns(app.id, day.start, day.end);
+  // The gym's own day (its booking time zone), as the door's list counts them.
+  if (areas.memberCheckIn) counts.member_check_ins = await store.countMemberCheckInsOnDay(app.id, gymDay(app, now).day);
   if (areas.donations) {
     const paid = await store.sumPaidDonations(app.id, day.start, day.end);
     for (const total of paid.totals) addTo(given, total.currency, total.cents);

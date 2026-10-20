@@ -1530,8 +1530,10 @@ gym's members at the door, with one set of rules in `lib`.
   under a question, and write or edit one review per course; the course
   lists show the rating of the reviews shown. A question is `open` until the
   business answers and again when a student writes under it; adding an
-  answer updates the question's count and status in one transaction (the
-  question's row first, so two answers at once can't deadlock). The
+  answer updates the question's status in one transaction (the question's
+  row first, so two answers at once can't deadlock); its answers are counted
+  when read, so a deleted student's answers (they go with the account) leave
+  the count. Students write or edit at most 20 reviews an hour. The
   business answers in its name (the course's instructor, else the app's
   name), and the student is told in the app's inbox and by push in the
   app's language; it replies under a review (`Review.reply`, for everyone)
@@ -1552,7 +1554,11 @@ gym's members at the door, with one set of rules in `lib`.
   `YM1.<membership>.<code>`; a typed code is found among the gym's
   memberships. `GET /me/memberships` gives `member_code` for an active
   membership of a gym (vertical fitness); the customer's app keeps the list
-  on the phone (forgotten on sign-out), so the code shows offline.
+  on the phone (forgotten on sign-out), so the code shows offline. So a
+  typed code is one indexed lookup, `memberships.code_hash` keeps an HMAC of
+  the code (not the code) once it has been shown in the app or used at the
+  door; one with no hash yet is looked for once among the memberships that
+  can get in, then kept. The match is checked in constant time.
 - **The door** (`lib/bookings/door.ts`, `member_check_ins`). A code, a QR
   code or a membership chosen by name: cancelled, ended, not started and
   used-up class packs are refused with the reason; otherwise the store adds
@@ -1564,7 +1570,11 @@ gym's members at the door, with one set of rules in `lib`.
   with the events' Check-in), the Owner API's `members`, `members/check-in`
   and `members/check-ins` (feature `member_check_in`, the Bookings area),
   Today's `member_check_ins`, and Yallapp Business's Scan members and
-  Members.
+  Members. The day's list and Today's count read the gym's own day by the
+  same key; the members list is filtered, ordered (those who can get in
+  first) and paged by the database. Checking in never uses a class credit
+  (credits are for booking classes); a membership with credits and none left
+  is refused at the door.
 
 ## Demo apps (Phase 16)
 

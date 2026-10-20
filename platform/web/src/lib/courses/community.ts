@@ -17,6 +17,9 @@ export const COMMUNITY_TEXT_MAX = 2000;
 /** Questions and answers a student may write in an hour, in one app. */
 export const QUESTION_LIMIT = { name: "hosted-question:user", limit: 20, windowSeconds: 60 * 60 } satisfies RateLimitRule;
 
+/** 63 Reviews a student may write or edit in an hour, in one app. */
+export const REVIEW_LIMIT = { name: "hosted-review:user", limit: 20, windowSeconds: 60 * 60 } satisfies RateLimitRule;
+
 /** A question, answer or reply as written: trimmed, 1 to 2000 characters. */
 export function readCommunityText(value: unknown, empty: string): { ok: true; text: string } | { ok: false; error: string } {
   const text = typeof value === "string" ? value.trim() : "";

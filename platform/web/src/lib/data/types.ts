@@ -1328,6 +1328,8 @@ export interface Membership {
   orderId: number | null;
   createdAt: Date;
   updatedAt: Date;
+  /** 63 The hash of its member code (lib/bookings/member-codes.ts), once the code was shown or used; null before. */
+  codeHash?: string | null;
 }
 
 export type MembershipPatch = Partial<Pick<Membership, "status" | "endsAt" | "updatedAt">>;
@@ -1379,11 +1381,14 @@ export interface CourseQuestion {
   userId: number;
   text: string;
   status: CourseQuestionStatus;
+  /** Counted from its answers when read (a deleted student's answers go with their account). */
   answerCount: number;
   createdAt: Date;
   /** The latest question or answer. */
   updatedAt: Date;
 }
+
+export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount">;
 
 /** An answer under a question: a student's (`userId`), or the business's (`userId` null). */
 export interface CourseAnswer {

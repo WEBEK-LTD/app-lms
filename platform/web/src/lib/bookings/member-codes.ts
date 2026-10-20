@@ -22,6 +22,14 @@ export function memberKey(signingSecret: string, appId: string): string {
   return hmacSha256(signingSecret, `member-codes:${appId}`);
 }
 
+/**
+ * What the database keeps to find a typed code with one indexed lookup: an
+ * HMAC of the code with the app's key, so the stored value isn't the code.
+ */
+export function memberCodeHash(key: string, appId: string, code: string): string {
+  return hmacSha256(key, `lookup.${appId}.${code}`).slice(0, 32);
+}
+
 /** The membership's code (32 divides 256, so each byte picks a character evenly). */
 export function memberCode(key: string, appId: string, membershipId: number): string {
   const bytes = createHmac("sha256", key).update(`${appId}.${membershipId}`).digest();

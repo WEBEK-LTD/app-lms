@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gt, gte, inArray, isNotNull, isNull, like, lt, lte, not, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, not, or, sql } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
@@ -9,7 +9,7 @@ import type { BuildConfig } from "../build-config/types";
 import * as schema from "../db/schema";
 import type { AnalyticsDailyRecord, AnalyticsDailyRow, AnalyticsEventRow, AnalyticsMetric } from "../analytics/types";
 import type { AppAuthKey, AppLayoutRecord } from "./types";
-import type { CourseAnswer, CourseQuestion, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
+import type { CourseAnswer, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack } from "./types";
 import type {
   AppPatch,
@@ -1493,15 +1493,51 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async countMemberCheckIns(appId: string, from: Date, to: Date): Promise<number> {
+  async countMemberCheckInsOnDay(appId: string, day: string): Promise<number> {
     const c = schema.memberCheckIns;
     const [row] = await this.run((db) =>
       db
         .select({ n: count() })
         .from(c)
-        .where(and(eq(c.appId, appId), gte(c.at, from), lt(c.at, to))),
+        .where(and(eq(c.appId, appId), eq(c.day, day))),
     );
     return Number(row?.n ?? 0);
+  }
+
+  async listMembershipsPage(input: { appId: string; userIds?: number[]; now: Date; offset: number; limit: number }): Promise<{ items: Membership[]; total: number }> {
+    const m = schema.memberships;
+    if (input.userIds && input.userIds.length === 0) return { items: [], total: 0 };
+    const where = and(eq(m.appId, input.appId), input.userIds ? inArray(m.userId, input.userIds) : undefined);
+    // Those that can get in now first (as lib/bookings/door.ts refusal(), less the credits).
+    const usable = sql`case when ${m.status} = 'active' and ${m.startsAt} <= ${input.now} and (${m.endsAt} is null or ${m.endsAt} > ${input.now}) then 0 else 1 end`;
+    const [items, [total]] = await Promise.all([
+      this.run((db) => db.select().from(m).where(where).orderBy(usable, desc(m.createdAt), desc(m.id)).limit(input.limit).offset(input.offset)),
+      this.run((db) => db.select({ n: count() }).from(m).where(where)),
+    ]);
+    return { items, total: Number(total?.n ?? 0) };
+  }
+
+  async findMembershipByCodeHash(appId: string, codeHash: string): Promise<Membership | null> {
+    const m = schema.memberships;
+    const [row] = await this.run((db) => db.select().from(m).where(and(eq(m.appId, appId), eq(m.codeHash, codeHash))).limit(1));
+    return row ?? null;
+  }
+
+  async listMembershipsWithoutCodeHash(appId: string, now: Date, limit: number): Promise<Membership[]> {
+    const m = schema.memberships;
+    return this.run((db) =>
+      db
+        .select()
+        .from(m)
+        .where(and(eq(m.appId, appId), isNull(m.codeHash), eq(m.status, "active"), lte(m.startsAt, now), or(isNull(m.endsAt), gt(m.endsAt, now))))
+        .orderBy(desc(m.id))
+        .limit(limit),
+    );
+  }
+
+  async setMembershipCodeHash(appId: string, id: number, codeHash: string): Promise<void> {
+    const m = schema.memberships;
+    await this.run((db) => db.update(m).set({ codeHash }).where(and(eq(m.appId, appId), eq(m.id, id))));
   }
 
   // 63 Course questions and reviews
@@ -1571,14 +1607,27 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(r).set(patch).where(and(eq(r.appId, appId), eq(r.id, id))));
   }
 
-  async createCourseQuestion(input: Omit<CourseQuestion, "id">): Promise<CourseQuestion> {
+  async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
     const [result] = await this.run((db) => db.insert(schema.courseQuestions).values(input));
-    return { ...input, id: Number(result.insertId) };
+    return { ...input, id: Number(result.insertId), answerCount: 0 };
+  }
+
+  /** 63 A question's columns with its answers counted (a deleted student's answers go with their account). */
+  private questionColumns() {
+    const q = schema.courseQuestions;
+    // Written out with the tables' names: inside the subquery an unqualified `id` would be the answer's.
+    return { ...getTableColumns(q), answerCount: sql<number>`(select count(*) from \`course_answers\` where \`course_answers\`.\`question_id\` = \`course_questions\`.\`id\`)`.mapWith(Number) };
   }
 
   async getCourseQuestion(appId: string, id: number): Promise<CourseQuestion | null> {
     const q = schema.courseQuestions;
-    const [row] = await this.run((db) => db.select().from(q).where(and(eq(q.appId, appId), eq(q.id, id))).limit(1));
+    const [row] = await this.run((db) =>
+      db
+        .select(this.questionColumns())
+        .from(q)
+        .where(and(eq(q.appId, appId), eq(q.id, id)))
+        .limit(1),
+    );
     return row ?? null;
   }
 
@@ -1597,7 +1646,7 @@ export class MysqlStore implements DataStore {
     const [items, [total]] = await Promise.all([
       this.run((db) =>
         db
-          .select()
+          .select(this.questionColumns())
           .from(q)
           .where(where)
           .orderBy(...order)
@@ -1617,7 +1666,7 @@ export class MysqlStore implements DataStore {
         // two answers at once would then deadlock wanting to update it.
         await tx
           .update(q)
-          .set({ status, answerCount: sql`${q.answerCount} + 1`, updatedAt: input.createdAt })
+          .set({ status, updatedAt: input.createdAt })
           .where(and(eq(q.appId, input.appId), eq(q.id, input.questionId)));
         const [result] = await tx.insert(schema.courseAnswers).values(input);
         return { ...input, id: Number(result.insertId) };

@@ -385,7 +385,7 @@
           "method": "PUT",
           "path": "/courses/{course_id}/reviews/mine",
           "summary": "Write or edit the student's review",
-          "description": "One review per student and course. Enrolled students only. The site may hold it for approval (`status`).",
+          "description": "One review per student and course. Enrolled students only. The site may hold it for approval (`status`). On Yallapp's hosted API (roadmap 63) a student writes or edits at most 20 reviews an hour in an app (429).",
           "access": "signed-in"
         },
         {
