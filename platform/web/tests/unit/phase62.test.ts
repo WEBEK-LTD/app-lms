@@ -288,3 +288,48 @@ describe("62 plan texts in Arabic and Turkish", () => {
     expect(cleanPlanTranslations({ fr: { name: "x" }, tr: { name: "  " } })).toBeUndefined();
   });
 });
+
+describe("62 Arabic in the share images", () => {
+  const cp = (s: string) => [...s].map((c) => c.codePointAt(0)!.toString(16)).join(" ");
+  it("joins letters by their joining types, across marks, with lam-alef and Persian letters", async () => {
+    const { shapeArabic, visualLine } = await import("@/lib/arabic-shape");
+    // مَرْحَبًا: meem initial, reh final (it doesn't join forward), hah initial, beh medial, alef final; the marks stay with their letters.
+    expect(cp(shapeArabic("مَرْحَبًا"))).toBe("fee3 64e feae 652 fea3 64e fe92 64b fe8e");
+    // Drawn last letter first; the renderer puts a zero-width mark over the glyph after it, so each mark comes just before its letter.
+    expect(cp(visualLine("مَرْحَبًا"))).toBe("fe8e 64b fe92 64e fea3 652 feae 64e fee3");
+    // لا after a joining letter: the final ligature; a mark on the lam follows it.
+    expect(cp(shapeArabic("فلا"))).toBe("fed3 fefc");
+    expect(cp(shapeArabic("لَا"))).toBe("fefb 64e");
+    // Hamza on the line joins nothing; tatweel joins both sides; ZWNJ stops joining and goes.
+    expect(cp(shapeArabic("جاء"))).toBe("fe9f fe8e fe80");
+    expect(cp(shapeArabic("بـب"))).toBe("fe91 640 fe90");
+    expect(cp(shapeArabic("می‌خواهم"))).toBe("fee3 fbfd fea7 feee fe8d feeb fee2");
+    expect(cp(shapeArabic("پیام"))).toBe("fb58 fbff fe8e fee1");
+  });
+
+  it("keeps numbers and Latin words reading left to right, and mirrors brackets", async () => {
+    const { rtlWords, visualLine, visualWord } = await import("@/lib/arabic-shape");
+    const users = visualWord("مستخدم");
+    const upTo = visualWord("حتى");
+    expect(visualLine("حتى 1,000 مستخدم")).toBe(`${users} 1,000 ${upTo}`);
+    expect(visualLine("الإصدار 3.5 جاهز")).toBe(`${visualWord("جاهز")} 3.5 ${visualWord("الإصدار")}`);
+    // Arabic-Indic digits too.
+    expect(visualLine("١٢٣ درسًا")).toBe(`${visualWord("درسًا")} ١٢٣`);
+    // A Latin phrase stays in its order, between Arabic words.
+    expect(visualLine("على Google Play الآن")).toBe(`${visualWord("الآن")} Google Play ${visualWord("على")}`);
+    expect(rtlWords("حتى 1,000 مستخدم على Google Play")).toEqual([upTo, "1,000", users, visualWord("على"), "Google Play"]);
+    // Brackets are drawn mirrored around right-to-left text.
+    expect(visualLine("(تجربة)")).toBe(`(${visualWord("تجربة")})`);
+    expect(visualLine("تطبيق Android (APK وAAB)")).toBe(`(AAB${visualWord("و")} APK) Android ${visualWord("تطبيق")}`);
+    expect(visualLine("Yallapp")).toBe("Yallapp");
+  });
+});
+
+describe("62 Arabic share images wrap by words", () => {
+  it("cut the line at the spaces between right-to-left words, brackets kept with their words", async () => {
+    const { rtlWords, visualWord } = await import("@/lib/arabic-shape");
+    expect(rtlWords("تطبيق Android (APK وAAB)")).toEqual([visualWord("تطبيق"), "Android", "APK)", `(AAB${visualWord("و")}`]);
+    expect(rtlWords("  Yallapp  app ")).toEqual(["Yallapp app"]);
+    expect(rtlWords("")).toEqual([]);
+  });
+});
