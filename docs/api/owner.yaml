@@ -17,7 +17,9 @@ info:
       answers 403 `account_pending` or `account_suspended`, as the dashboard
       sends it to its waiting page. An app whose plan ended (`expired`)
       stays readable and editable as on the dashboard; what the dashboard
-      holds back until the plan is active (uploads to Media) is held back here.
+      holds back until the plan is active (uploads to Media; roadmap 68,
+      notifications to the app's users, now or later) is held back here with
+      403 `plan_not_active`.
     - **Tokens.** Sign-in gives a short-lived access token (15 minutes) and a
       refresh token (60 days, renewed each time it is used: send the newest
       one). Both are random secrets that the server keeps only as hashes and
@@ -1848,7 +1850,7 @@ paths:
                 type: object
                 required: [items, push]
                 properties:
-                  push: { type: boolean, description: The plan has push and a Firebase key is saved. }
+                  push: { type: boolean, description: 'The plan has push, is active (68: false once it ended) and a Firebase key is saved.' }
                   items:
                     type: array
                     items: { $ref: '#/components/schemas/SentNotification' }
@@ -1865,7 +1867,10 @@ paths:
         phones that allow announcements get a push when the plan has push and
         the app's Firebase key is saved. 10 an hour per app, counted with the
         dashboard's and with notifications sent later as each goes out. To
-        send later, `POST /apps/{app_id}/notifications/scheduled`.
+        send later, `POST /apps/{app_id}/notifications/scheduled`. Roadmap 68:
+        nothing is sent once the app's plan has ended (its end date passed),
+        neither to the inboxes nor as a push: 403 `plan_not_active`, until the
+        plan is renewed on yallapp.com.tr.
       parameters:
         - $ref: '#/components/parameters/AppId'
       requestBody:
@@ -1928,7 +1933,10 @@ paths:
         app's time zone, later than now and within 90 days (errors under
         `send_at`). At most 50 wait at once (409 `too_many_scheduled`). Yallapp
         sends it within 5 minutes of its time; when the hour's 10 are used,
-        it goes in the next hour.
+        it goes in the next hour. Roadmap 68: refused with 403
+        `plan_not_active` while the app's plan has ended; one whose time comes
+        after the plan ended isn't sent: it shows as `failed` with the reason
+        in `result`, to send again after renewing.
       parameters:
         - $ref: '#/components/parameters/AppId'
       requestBody:
@@ -2261,7 +2269,8 @@ components:
         The account isn't active yet (`account_pending`) or is suspended
         (`account_suspended`); `GET /me` shows its state. Or (roadmap 60) the
         person's role on the team doesn't allow this (`not_allowed`: "Ask the
-        owner").
+        owner"). Or the app's plan isn't active (`plan_not_active`) for what
+        waits for it: Media uploads and (68) notifications to the app's users.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
@@ -3189,7 +3198,7 @@ components:
         local_date: { type: string, format: date }
         local_time: { type: string, example: '18:30' }
         status: { type: string, enum: [scheduled, sending, failed] }
-        result: { type: [string, 'null'], description: 'Why it failed, when it did.' }
+        result: { type: [string, 'null'], description: "Why it failed, when it did (68: also when the app's plan had ended at its time)." }
 
     NotificationResult:
       type: object
