@@ -94,6 +94,8 @@ export const RATE_LIMITS = {
   mediaLinksLicense: { name: "media-links:license", limit: 3000, windowSeconds: 60 * 60 },
   // 51 Uploads an owner starts in the Media library, per app.
   mediaUploads: { name: "media-uploads:app", limit: 200, windowSeconds: 60 * 60 },
+  // 58 Yallapp Business renewing its tokens (POST /api/owner/v1/auth/refresh), per IP. Signing in counts with the website's (signInIp, signInEmail).
+  ownerRefreshIp: { name: "owner-refresh:ip", limit: 60, windowSeconds: 10 * 60 },
   // Not a limit: the codes a license sent today (UTC), for the admin's client page.
   signInCodesSent: { name: "codes:sent", limit: Number.MAX_SAFE_INTEGER, windowSeconds: 24 * 60 * 60 },
 } satisfies Record<string, RateLimitRule>;

@@ -2276,3 +2276,38 @@ export interface PlatformSettingValues {
   /** 51 The storage packs and their prices. Unset: the defaults in lib/media/packs.ts. */
   storagePacks: StoragePacksSetting;
 }
+
+// 58 Yallapp Business: the owners' own app (lib/owner)
+
+/** 58 The kinds of push Yallapp Business sends to an owner's phone; each can be turned off per device. */
+export const OWNER_PUSH_KINDS = ["new_order", "new_booking", "new_message", "new_review", "payment_received", "build_finished", "yallapp_updates", "account_notices"] as const;
+export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
+/** Missing kinds are on. */
+export type OwnerPushPreferences = Partial<Record<OwnerPushKind, boolean>>;
+
+/**
+ * 58 A device signed in to Yallapp Business with the dashboard's account:
+ * one per sign-in. It holds the hash of its refresh token (rotated on each
+ * use), the user's session version when it signed in (a password change
+ * signs it out) and its push token and choices.
+ */
+export interface OwnerDevice {
+  id: string;
+  userId: string;
+  clientId: string;
+  name: string;
+  platform: "android" | "ios";
+  appVersion: string | null;
+  /** The request's language when it signed in (Accept-Language), for pushes when the person chose none. */
+  language: string | null;
+  refreshHash: string;
+  refreshExpiresAt: Date;
+  sessionVersion: number;
+  pushToken: string | null;
+  pushProvider: PushProvider;
+  pushPreferences: OwnerPushPreferences | null;
+  createdAt: Date;
+  lastSeenAt: Date;
+}
+
+export type OwnerDevicePatch = Partial<Pick<OwnerDevice, "name" | "appVersion" | "language" | "pushToken" | "pushProvider" | "pushPreferences" | "lastSeenAt">>;

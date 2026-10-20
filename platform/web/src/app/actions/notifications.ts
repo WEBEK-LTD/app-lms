@@ -8,18 +8,10 @@ import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import type { FormState } from "@/lib/forms";
-import {
-  announce,
-  NOTIFICATION_BODY_MAX,
-  NOTIFICATION_TITLE_MAX,
-  SERVICE_ACCOUNT_CONTEXT,
-  serviceAccountOf,
-} from "@/lib/hosted/notify";
+import { SERVICE_ACCOUNT_CONTEXT } from "@/lib/hosted/notify";
+import { sendAppNotification } from "@/lib/hosted/send-notification";
 import { parseServiceAccount } from "@/lib/hosted/push";
-import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { appPlan } from "@/lib/entitlements";
-import { hasFeature } from "@/lib/plans";
 
 /** An active client whose app runs on the hosted API, or a redirect. */
 async function requireHostedApp(): Promise<ClientContext & { app: App }> {
@@ -32,35 +24,14 @@ async function requireHostedApp(): Promise<ClientContext & { app: App }> {
 
 export async function sendNotificationAction(_: FormState, formData: FormData): Promise<FormState> {
   const context = await requireHostedApp();
-  const { app } = context;
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   const values = { title, body };
-  const errors: Record<string, string> = {};
-  if (!title) errors.title = "Enter a title.";
-  else if (title.length > NOTIFICATION_TITLE_MAX) errors.title = `Keep the title to ${NOTIFICATION_TITLE_MAX} characters.`;
-  if (!body) errors.body = "Enter a message.";
-  else if (body.length > NOTIFICATION_BODY_MAX) errors.body = `Keep the message to ${NOTIFICATION_BODY_MAX} characters.`;
-  if (Object.keys(errors).length) return { errors, values };
-
-  const store = await getStore();
-  const now = new Date();
-  const limit = await hitRateLimit(store, RATE_LIMITS.hostedNotify, app.id, now);
-  if (!limit.allowed) return { message: "You've sent many notifications in a short time. Try again in an hour.", values };
-
-  // 13.1 Push comes with the app's plan (and its switches, 11.5); without it, notifications only go to the inboxes.
-  const push = hasFeature(await appPlan(store, context.license, now), "push");
-  const result = await announce({ store, app, title, body, account: push ? serviceAccountOf(app, encryptionKey()) : null, now });
+  const result = await sendAppNotification({ store: await getStore(), key: encryptionKey(), now: new Date() }, context.app, context.license, { title, body });
+  if (!result.ok) return result.errors ? { errors: result.errors, values } : { message: result.message, values };
   await recordStaffChange(context, `Sent "${title}" to the app's users`);
   revalidatePath("/dashboard/notifications");
-  if (!push) return { ok: true, message: "Added to your customers' inboxes. Push notifications aren't available right now." };
-  if (result.pushError) {
-    return { ok: true, message: `Added to your customers' inboxes. ${result.pushError}` };
-  }
-  return {
-    ok: true,
-    message: `Sent. It's in your customers' inboxes and went to ${result.pushed} ${result.pushed === 1 ? "phone" : "phones"}.`,
-  };
+  return { ok: true, message: result.message };
 }
 
 export async function saveServiceAccountAction(_: FormState, formData: FormData): Promise<FormState> {

@@ -26,6 +26,7 @@ import type {
   MembershipPeriod,
   PushPreferences,
   PushProvider,
+  OwnerPushPreferences,
   MoreStoresRow,
   AuditChanges,
   OwnerNoticeKind,
@@ -1532,4 +1533,45 @@ export const storagePacks = mysqlTable(
     endedNoticeAt: time("ended_notice_at"),
   },
   (t) => [index("storage_packs_app_idx").on(t.appId, t.activeUntil), index("storage_packs_until_idx").on(t.activeUntil)],
+);
+
+// 58 Yallapp Business
+
+/**
+ * 58 Devices signed in to Yallapp Business (the owners' own app) with the
+ * dashboard's account: one row per sign-in, deleted on sign-out. The refresh
+ * token is kept only as its SHA-256 (unique, rotated on each use); access
+ * tokens are signed and checked against the row on every request, so a
+ * signed-out device stops at once. `session_version` is the user's when it
+ * signed in: a password change signs every device out.
+ */
+export const ownerDevices = mysqlTable(
+  "owner_devices",
+  {
+    id: id("id").primaryKey(),
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 100 }).notNull(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<"android" | "ios">(),
+    appVersion: varchar("app_version", { length: 20 }),
+    language: varchar("language", { length: 8 }),
+    refreshHash: varchar("refresh_hash", { length: 64 }).notNull(),
+    refreshExpiresAt: time("refresh_expires_at").notNull(),
+    sessionVersion: int("session_version").notNull(),
+    pushToken: varchar("push_token", { length: 512 }),
+    pushProvider: varchar("push_provider", { length: 4 }).notNull().default("fcm").$type<PushProvider>(),
+    pushPreferences: jsonText<OwnerPushPreferences>("push_preferences"),
+    createdAt: time("created_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("owner_devices_refresh_unique").on(t.refreshHash),
+    index("owner_devices_user_idx").on(t.userId, t.lastSeenAt),
+    index("owner_devices_push_idx").on(t.pushToken),
+    index("owner_devices_expires_idx").on(t.refreshExpiresAt),
+  ],
 );

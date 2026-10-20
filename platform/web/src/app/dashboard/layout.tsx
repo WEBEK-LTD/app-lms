@@ -105,6 +105,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         { href: "/dashboard/license", label: k(licensePageName(app)), icon: "workspace_premium" },
         // 57 The full list behind the bell (the address stays).
         { href: "/dashboard/announcements", label: t("nav.updates"), icon: "campaign" },
+        // 58 Phones signed in to Yallapp Business with this account.
+        { href: "/dashboard/phones", label: t("owner.nav"), icon: "smartphone" },
         { href: contact.whatsappUrl, label: t("nav.support"), icon: "support_agent", external: true },
       ],
     },

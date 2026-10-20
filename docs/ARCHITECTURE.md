@@ -1238,6 +1238,76 @@ dashboard.
   one English text, sent in every language. Emails to the team and to the
   people using a client's app don't take a language.
 
+## The Owner API: Yallapp Business (Phase 58)
+
+Yallapp's own mobile app for the people who run an app on Yallapp (the app is
+Phase 59) talks to the Owner API, `https://yallapp.com.tr/api/owner/v1`
+(`docs/api/owner.yaml`, linted with the other contracts, not on the public
+developer pages). It is the client dashboard on a phone: the same accounts,
+the same database, and the same code.
+
+- **Route and code.** `src/app/api/owner/v1/[...path]/route.ts` reads the
+  request and hands it to `lib/owner/service.ts`, a small router over the
+  handlers in `lib/owner/` (`account`, `sales`, `catalog`, `library`,
+  `insights`). Errors are `{code, message}` (`lib/owner/http.ts`); messages
+  are English sentences translated by their words (the dashboard's `known`
+  texts, `src/i18n/dashboard/owner.ts`) into the person's language: their
+  dashboard choice (`users.language`), else `Accept-Language`, else English.
+- **Same rules, same code.** Where a dashboard server action held a rule,
+  its core moved into `lib` and both call it: an order's steps and the
+  kitchen's (`lib/catalog/order-status.ts`, with the payout release), an
+  appointment's steps (`lib/bookings/appointments.ts`), sending an app
+  notification with its limit (`lib/hosted/send-notification.ts`), saving a
+  lesson (`lib/courses/edit.ts`), a product's price, sale price and stock
+  (`lib/catalog/product-fields.ts`), article and listing status and the
+  office's reply (`lib/news/status.ts`, `lib/listings/office.ts`), starting
+  a Media upload (`lib/media/start.ts`). Refunds, check-in, Media, the bell
+  and Analytics were already in `lib`.
+- **Accounts and tokens.** `POST /auth/sign-in` takes the dashboard's email
+  and password with the website's limits (the same counters) and the same
+  password check; Yallapp's team (an admin role) and accounts without a
+  client get `use_website`. Each sign-in is a row of `owner_devices`
+  (migration `0043_yallapp_business`): name, platform, app version, the
+  language its phone asked in, the user's session version, the SHA-256 of
+  its refresh token, its push token and choices. The access token is signed,
+  not stored (`yo1.<device>.<expires>.<HMAC>`, a key made from
+  `SIGNING_SECRET` for this use only, 15 minutes); every request reads the
+  device back, so signing a device out (the app, `GET/DELETE /me/devices`,
+  or Dashboard › Your phones) or changing the password (the session version)
+  stops it at once. The refresh token (`yor1_` and 32 random bytes, 60 days)
+  is replaced on each use by a conditional update on its hash, so of two
+  renewals with the same token one wins. Hashes are compared in constant
+  time; at most 10 devices a person (the one used longest ago makes room);
+  the daily job deletes devices whose refresh token ended. Pending and
+  suspended accounts sign in and see their state (`GET /me`); everything
+  else answers 403, as the dashboard sends them to its waiting page.
+- **Scope.** Every `/apps/{app_id}` path takes the app from the signed-in
+  client's own list, so another client's app is 404 whatever the ID, and
+  what the app has comes from `lib/app/areas.ts` (its type and content
+  source, as the dashboard's pages and actions test it): a path it doesn't
+  have is 404 `not_available`. Expired apps stay usable as on the dashboard;
+  Media uploads wait for an active plan, as there.
+- **No payments.** Nothing is bought in the app: the license, plan and
+  storage are read-only with a `manage_url` to the dashboard on the website
+  (`/dashboard/open/<app>?to=license|media`).
+- **Pushes to the owner's phone** (`lib/owner/push.ts`): from Yallapp
+  Business's own Firebase project (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`,
+  optional Huawei Push Kit), sent where the dashboard and its emails learn
+  of things: a paid order and a donation or Yallapp payment confirmed
+  (`lib/payments/settle.ts`), an appointment booked and a listing message
+  (the hosted API's `onBooked`, `onInquiry`), a build finished
+  (`lib/builds/notify.ts`), an announcement created live (Admin ›
+  Announcements, to its audience), an owner notice created (`lib/notices.ts`
+  and the other places that make one). Each device gets the kinds it left on
+  (`PUT /me/push-preferences`), in the person's language, else its phone's;
+  tokens the push service refuses are forgotten; a push never fails what
+  caused it (`pushOwnerSafely`). Local runs and tests keep each push in
+  `YALLAPP_OWNER_PUSH_DIR`.
+- **Limits.** Sign-in: the website's (30 per IP and 8 per email in 15
+  minutes); renewing: 60 per IP in 10 minutes; uploads: 200 an hour per app
+  and notifications to the app's users: 10 an hour per app, both counted
+  with the dashboard's.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:

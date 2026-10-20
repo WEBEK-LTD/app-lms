@@ -70,6 +70,8 @@ import type { PaymentRefund, RefundKind } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 // 10.7 Listings
+// 58 Yallapp Business
+import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 export type ClientFilter = "all" | "pending" | "active" | "expired";
@@ -734,4 +736,26 @@ export interface DataStore {
   deleteStoragePack(appId: string, id: string): Promise<void>;
   /** Packs of every app that ended before `now` and whose end the owner wasn't told of yet. */
   listEndedStoragePacks(now: Date, limit: number): Promise<StoragePack[]>;
+
+  // 58 Yallapp Business: devices signed in with the dashboard's account (lib/owner)
+  createOwnerDevice(device: OwnerDevice): Promise<void>;
+  getOwnerDevice(id: string): Promise<OwnerDevice | null>;
+  /** The device whose current refresh token has this hash. */
+  findOwnerDeviceByRefresh(refreshHash: string): Promise<OwnerDevice | null>;
+  /**
+   * Replaces the device's refresh token, only while it still has `oldHash`
+   * (atomic: of two renewals with the same token, one wins). False otherwise.
+   */
+  rotateOwnerRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean>;
+  updateOwnerDevice(id: string, patch: OwnerDevicePatch): Promise<void>;
+  /** A person's devices, the one used last first. */
+  listOwnerDevices(userId: string): Promise<OwnerDevice[]>;
+  /** Signs a device out; false when it isn't this person's. */
+  deleteOwnerDevice(userId: string, id: string): Promise<boolean>;
+  /** Signs every device of a person out; returns how many. */
+  deleteOwnerDevices(userId: string): Promise<number>;
+  /** Forgets a push token on every device but `exceptId` (a token moved, or the push service says it's gone). */
+  clearOwnerPushToken(token: string, exceptId: string | null): Promise<void>;
+  /** Deletes devices whose refresh token ended before `now`; returns how many. */
+  purgeOwnerDevices(now: Date): Promise<number>;
 }

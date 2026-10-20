@@ -2,6 +2,8 @@ import type { DataStore } from "../data/store";
 import type { App, OwnerNotice } from "../data/types";
 import type { ApiCheckResult } from "./api-check";
 import { appLabel } from "./label";
+import { pushNotice } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 19 The API check when an owner saves their own API: the app is saved even
@@ -28,7 +30,7 @@ export async function recordApiCheck(
   if (result.ok) return null;
   const crossing = (await store.countOwnerNotices(app.id, "api_check_failed")) + 1;
   const failed = failedChecks(result).join(" · ");
-  return store.createOwnerNotice({
+  const notice = await store.createOwnerNotice({
     clientId: app.clientId,
     appId: app.id,
     kind: "api_check_failed",
@@ -43,6 +45,9 @@ export async function recordApiCheck(
     dismissedAt: null,
     resolvedAt: null,
   });
+  // 58 The owner's phone too (Yallapp Business).
+  if (notice) await pushOwnerSafely((d) => pushNotice(d, notice), store);
+  return notice;
 }
 
 /** The app no longer uses its own API, or it passed: no failed check to show. */

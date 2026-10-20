@@ -9,4 +9,6 @@ import { E2E } from "../../playwright.config";
  */
 export default async function globalSetup(): Promise<void> {
   await rm(path.resolve(E2E.mailDir), { recursive: true, force: true });
+  // 58 The same for the owners' pushes.
+  await rm(path.resolve(E2E.ownerPushDir), { recursive: true, force: true });
 }

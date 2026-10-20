@@ -36,6 +36,7 @@ import type { DemoPurgeCounts } from "./types";
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 import type { ApiWebhook, ApiWebhookPatch } from "./types";
 import type { PaymentRefund, RefundKind } from "./types";
+import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import { mergeCrash } from "../crashes/report";
 import type {
   Activation,
@@ -3060,6 +3061,67 @@ export class MysqlStore implements DataStore {
         .limit(limit),
     );
   }
+  // 58 Yallapp Business: devices signed in with the dashboard's account
+  async createOwnerDevice(device: OwnerDevice): Promise<void> {
+    await this.run((db) => db.insert(schema.ownerDevices).values(device));
+  }
+
+  async getOwnerDevice(id: string): Promise<OwnerDevice | null> {
+    const d = schema.ownerDevices;
+    const [row] = await this.run((db) => db.select().from(d).where(eq(d.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async findOwnerDeviceByRefresh(refreshHash: string): Promise<OwnerDevice | null> {
+    const d = schema.ownerDevices;
+    const [row] = await this.run((db) => db.select().from(d).where(eq(d.refreshHash, refreshHash)).limit(1));
+    return row ?? null;
+  }
+
+  async rotateOwnerRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean> {
+    const d = schema.ownerDevices;
+    const [result] = await this.run((db) => db.update(d).set(next).where(and(eq(d.id, id), eq(d.refreshHash, oldHash))));
+    return result.affectedRows === 1;
+  }
+
+  async updateOwnerDevice(id: string, patch: OwnerDevicePatch): Promise<void> {
+    if (!Object.keys(patch).length) return;
+    await this.run((db) => db.update(schema.ownerDevices).set(patch).where(eq(schema.ownerDevices.id, id)));
+  }
+
+  async listOwnerDevices(userId: string): Promise<OwnerDevice[]> {
+    const d = schema.ownerDevices;
+    return this.run((db) => db.select().from(d).where(eq(d.userId, userId)).orderBy(desc(d.lastSeenAt), asc(d.id)));
+  }
+
+  async deleteOwnerDevice(userId: string, id: string): Promise<boolean> {
+    const d = schema.ownerDevices;
+    const [result] = await this.run((db) => db.delete(d).where(and(eq(d.userId, userId), eq(d.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async deleteOwnerDevices(userId: string): Promise<number> {
+    const d = schema.ownerDevices;
+    const [result] = await this.run((db) => db.delete(d).where(eq(d.userId, userId)));
+    return result.affectedRows;
+  }
+
+  async clearOwnerPushToken(token: string, exceptId: string | null): Promise<void> {
+    const d = schema.ownerDevices;
+    await this.run((db) =>
+      db
+        .update(d)
+        .set({ pushToken: null })
+        .where(exceptId ? and(eq(d.pushToken, token), not(eq(d.id, exceptId))) : eq(d.pushToken, token)),
+    );
+  }
+
+  async purgeOwnerDevices(now: Date): Promise<number> {
+    const d = schema.ownerDevices;
+    const [result] = await this.run((db) => db.delete(d).where(lte(d.refreshExpiresAt, now)));
+    return result.affectedRows;
+  }
+
 }
 
 /**

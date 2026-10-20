@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { changeArticleStatus } from "@/lib/news/status";
 import { recordStaffChange } from "@/lib/admin/audit";
 import { getClientContext, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getBlobStore } from "@/lib/blobs";
@@ -131,12 +132,9 @@ export async function setArticleStatusAction(formData: FormData): Promise<void> 
   const status = formData.get("status");
   const article = Number.isSafeInteger(id) ? await store.getArticle(app.id, id) : null;
   let breaking: string | null = null;
-  if (article && (status === "published" || status === "draft") && article.status !== status) {
-    const now = new Date();
-    const patch = { status, ...(status === "published" && !article.publishedAt ? { publishedAt: now } : {}) } as const;
-    await store.updateArticle(app.id, article.id, patch, now);
-    if (status === "published" && formData.get("breaking") === "on") breaking = await sendBreakingNews(context, store, { ...article, ...patch }, now);
-  }
+  const now = new Date();
+  const patch = article ? await changeArticleStatus(store, article, status, now) : null;
+  if (article && patch && status === "published" && formData.get("breaking") === "on") breaking = await sendBreakingNews(context, store, { ...article, ...patch }, now);
   refresh();
   redirect(`/dashboard/articles/${id}${breaking ? `?breaking=${encodeURIComponent(breaking)}` : ""}`);
 }

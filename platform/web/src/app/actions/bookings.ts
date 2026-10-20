@@ -7,7 +7,8 @@ import { parseRules, parseService, parseStaff } from "@/lib/bookings/forms";
 import { parseIntakeField, parseStaffProfile } from "@/lib/bookings/intake";
 import { bookingSetup } from "@/lib/bookings/setup";
 import { getStore } from "@/lib/data";
-import type { App, BookingSetup, BookingStatus } from "@/lib/data/types";
+import type { App, BookingSetup } from "@/lib/data/types";
+import { changeAppointmentStatus } from "@/lib/bookings/appointments";
 import type { FormState } from "@/lib/forms";
 
 /** A client whose bookings are managed in the dashboard, or a redirect. */
@@ -155,20 +156,11 @@ export async function changeIntakeFieldAction(formData: FormData): Promise<void>
   await saveSetup(app, { ...setup, intakeFields: fields });
 }
 
-/** What the business can do with an appointment in each status. */
-const NEXT: Partial<Record<BookingStatus, BookingStatus[]>> = {
-  pending: ["approved", "rejected"],
-  approved: ["cancelled", "completed", "no_show"],
-};
-
 export async function setAppointmentStatusAction(formData: FormData): Promise<void> {
   const { app } = await requireBookingsApp();
   const store = await getStore();
   const id = Number(formData.get("id"));
-  const status = String(formData.get("status")) as BookingStatus;
   const appointment = Number.isSafeInteger(id) ? await store.getBookingAppointment(app.id, id) : null;
-  if (appointment && NEXT[appointment.status]?.includes(status)) {
-    await store.updateBookingAppointment(app.id, id, { status, updatedAt: new Date() });
-  }
+  if (appointment) await changeAppointmentStatus(store, appointment, String(formData.get("status")), new Date());
   revalidatePath("/dashboard/appointments");
 }

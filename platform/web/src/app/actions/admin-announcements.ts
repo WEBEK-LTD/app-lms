@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { audienceRecipients, readAnnouncementForm, sendInBatches } from "@/lib/announcements";
+import { audienceRecipients, isLive, readAnnouncementForm, sendInBatches } from "@/lib/announcements";
+import { pushAnnouncement } from "@/lib/owner/push";
+import { pushOwnerSafely } from "@/lib/owner/push-env";
 import { recordAudit } from "@/lib/admin/audit";
 import { requireAdmin } from "@/lib/auth/session";
 import { markdownToHtml } from "@/lib/content/markdown";
@@ -65,6 +67,12 @@ export async function createAnnouncementAction(_: FormState, formData: FormData)
   const announcement: Announcement = { id: newId(), ...read.announcement, emailedAt: null, emailedCount: 0, createdAt: now, updatedAt: now, createdBy: admin.email };
   await (await getStore()).createAnnouncement(announcement);
   await recordAudit({ actor: admin, action: "announcement.create", target: { type: "announcement", id: announcement.id }, summary: `Created the announcement “${announcement.title}”` });
+  // 58 Live now: to the phones of the clients it is for (Yallapp Business), who turned updates from Yallapp on.
+  if (isLive(announcement, now)) {
+    const store = await getStore();
+    const clientIds = (await audienceRecipients(store, announcement.audience, now)).map((r) => r.clientId);
+    await pushOwnerSafely((d) => pushAnnouncement(d, announcement, clientIds), store);
+  }
   let done = "created";
   if (formData.get("email") === "on") {
     const result = await emailAudience(announcement, now);
