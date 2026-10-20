@@ -1505,11 +1505,22 @@ API and in Yallapp Business. The admin stays as it was (Yallapp's team).
   its app (`PUSH_PERMISSION`: a paid order to `orders`, a booking to
   `bookings`, a message to `messages`, a donation to `donations`, a payment
   to Yallapp to `billing`, builds and notices to `settings`, Yallapp's
-  updates to everyone), each in that person's language.
+  updates to everyone), each in that person's language. Roadmap 64: the
+  people are found first (the owner and the team with the area on the app),
+  then every device each of them signed in on, whichever business it works
+  on (one they still work on, with their current session), so someone on
+  several businesses hears of all of them. The data has `business_id` and
+  `business_name` (the name as that person knows the business, from the apps
+  they work on); on a phone working on another business the title starts
+  with that name, and Yallapp Business switches to it (`PUT /me/business`)
+  when the push is tapped.
 - **Activity** (`lib/team/activity.ts`): order steps, refunds, appointment
   steps and notifications sent, from the dashboard and the Owner API alike,
   with who did them, and the team's own changes; one English line each,
-  translated on the Team page by the dashboard's `known` texts.
+  translated on the Team page by the dashboard's `known` texts. Roadmap 64:
+  the Team page pages it (50 a page, newest first, Newer and Older links)
+  and filters it by person (the owner or a member: `team_activity.actor_id`);
+  the Owner API has no activity path.
 - **Languages.** The dashboard's `team` catalog, the `team_invitation` email
   in English, Arabic and Turkish (the invitee's language when they have an
   account, else the owner's), the join page in the invitation's language,
@@ -1575,6 +1586,48 @@ gym's members at the door, with one set of rules in `lib`.
   first) and paged by the database. Checking in never uses a class credit
   (credits are for booking classes); a membership with credits and none left
   is refused at the door.
+
+## Hidden questions and frozen memberships (Phase 64)
+
+- **Hidden questions and answers** (`lib/courses/community.ts`, migration
+  `0047_frozen_memberships_hidden_questions`: `hidden` on
+  `course_questions` and `course_answers`). Like a hidden review, a hidden
+  question or a hidden student's answer reaches its author only: the hosted
+  API lists a hidden question only to its author (`viewerId` in the store's
+  query, so totals are right) and answers others 404 for it; hidden answers
+  are filtered out for everyone but their author, and a question's
+  `answer_count` never counts them. The author gets `hidden: true` and the
+  app shows "Hidden by the academy. Only you can see it." The business's
+  own answers can't be hidden. Hiding doesn't answer a question; the
+  business's "Waiting" and "Answered" lists and Today's count are of the
+  shown questions, with the hidden ones in their own list (`questionFilter`).
+  A hidden question's follow-ups aren't pushed. Dashboard › Courses ›
+  Questions (Hidden filter; hide or show the question and each student's
+  answer), the Owner API's `PATCH questions/{id}` and
+  `questions/{id}/answers/{id}` (the Messages area), Yallapp Business's
+  Inbox, and the Team page's lines.
+- **Frozen memberships** (`lib/bookings/freeze.ts`, `memberships.frozen_from`
+  and `frozen_until`). A freeze runs from the start of a gym day (today to
+  90 days ahead, before the membership ends) until the start of the day
+  it's back (at most a year later) or, without one, until the gym unfreezes
+  it. The rule for the end date, the common gym rule: it moves later by the
+  days frozen. With a day it's back, the end moves by the whole freeze at
+  once; unfreezing early gives back the days not taken (a freeze that
+  hadn't started is simply removed). Without one, the end waits while it is
+  frozen (the membership doesn't expire meanwhile) and moves by the days
+  from the first frozen day to the day it is unfrozen (that day isn't
+  frozen). Days are the gym's in its time zone. Freezing is one conditional
+  update (active, and no freeze now or to come), and unfreezing another
+  (the freeze that was read, while it isn't over), each moving the end with
+  `date_add` in the same statement, so two people at once change it once.
+  While frozen the door answers `frozen` ("Frozen until …", or "Frozen"),
+  classes answer `membership_frozen`, and `GET /me/memberships` gives
+  `frozen` (the app says Frozen and the code no longer promises to let them
+  in; the status stays `active`). Dashboard › Members (Freeze with the first
+  day and the day it's back, Unfreeze), the Owner API's `PUT` and `DELETE
+  members/{id}/freeze` (the door's Bookings area; `Member.status` `frozen`
+  and `Member.frozen`), Yallapp Business's Members, and the Team page's
+  lines.
 
 ## Demo apps (Phase 16)
 

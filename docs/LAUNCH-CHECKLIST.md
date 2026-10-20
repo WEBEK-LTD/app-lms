@@ -524,6 +524,20 @@ The app itself (`business/`, see its README). Store listings go under
       Members › Member check-in, and check the second scan says "Already
       checked in today".
 
+## 7o. Hidden questions, frozen memberships, pushes of every business (Phase 64)
+
+- [ ] Apply migration `0047_frozen_memberships_hidden_questions.sql` after
+      `0046` (`hidden` on `course_questions` and `course_answers`, with an
+      index; `frozen_from` and `frozen_until` on `memberships`). Nothing else
+      to set.
+- [ ] After deploying: on a test academy, hide a question from Dashboard ›
+      Courses › Questions and check another student no longer sees it while
+      its author does, with the note; on a test gym, freeze a membership on
+      Dashboard › Members until next week, check My membership says
+      "Frozen until …", the door refuses it, and unfreezing moves the end
+      back; with someone on two businesses, check a push of the other
+      business reaches their phone with its name first and opens it there.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |
