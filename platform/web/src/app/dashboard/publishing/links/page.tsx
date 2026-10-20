@@ -11,8 +11,11 @@ import { appUrl } from "@/lib/env";
 import { siteLinkBase, yallappLinkBase } from "@/lib/links/table";
 import { hasFeature } from "@/lib/plans";
 import { AppLinksForm, CheckLinksPanel } from "./forms";
+import { dashboardText } from "@/lib/dashboard-lang";
 
-export const metadata: Metadata = { title: "Links to your app" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await dashboardText()).t("stores.linksTitle") };
+}
 
 /** An example link of the app's own kind of content. */
 const EXAMPLE: Record<string, string> = {
@@ -37,36 +40,30 @@ export default async function AppLinksPage() {
   const ios = hasFeature(plan, "ios");
   const site = app.backend === "wordpress" ? siteLinkBase(app.siteUrl) : null;
   const example = EXAMPLE[app.appType] ?? "page/home";
+  const { t, k } = await dashboardText();
   return (
     <>
       <PageHeader
-        eyebrow={<Link href="/dashboard/publishing">Publishing</Link>}
-        title="Links to your app"
-        description={<>Links people share from {appLabel(app)} open in the app when it&apos;s installed, and on the web when it isn&apos;t.</>}
+        eyebrow={<Link href="/dashboard/publishing">{t("publishing.title")}</Link>}
+        title={t("stores.linksTitle")}
+        description={t("stores.linksIntro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
       />
       <section aria-labelledby="h-how" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-how" className="m-0 flex items-center gap-2 text-lg font-bold">
           <Icon name="link" size={22} />
-          How links work
+          {t("stores.howLinks")}
         </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          The Share buttons in your app share links like these. On a phone with your app, they open the right screen in the app; without it, they open{" "}
-          {site ? "the same page on your website" : "a page with your app's name, picture and store links"}. Notification links work the same way.
-        </p>
-        <ul className="m-0 flex list-none flex-col gap-1.5 p-0 font-mono text-sm break-all">
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{site ? t("stores.howLinksSite") : t("stores.howLinksYallapp")}</p>
+        <ul className="m-0 flex list-none flex-col gap-1.5 p-0 font-mono text-sm break-all" dir="ltr">
           {site ? <li>{`${site}/${example}`}</li> : null}
           <li>{`${yallappLinkBase(appUrl(), app.id)}/${example}`}</li>
         </ul>
-        <p className="m-0 text-sm text-muted">
-          Phones check that each address trusts your app, with two small files the address serves.
-          {site ? " Your website serves its files through the Yallapp plugin (keep it up to date); ours are always ready." : " Ours are always ready."} The
-          next build of your app knows these addresses.
-        </p>
+        <p className="m-0 text-sm text-muted">{site ? t("stores.filesSite") : t("stores.filesYallapp")}</p>
       </section>
 
       <section aria-labelledby="h-keys" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-keys" className="m-0 text-lg font-bold">
-          What the files need
+          {t("stores.filesNeed")}
         </h2>
         <AppLinksForm
           ios={ios}
@@ -77,7 +74,7 @@ export default async function AppLinksPage() {
 
       <section aria-labelledby="h-check" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-check" className="m-0 text-lg font-bold">
-          Link status
+          {t("stores.linkStatus")}
         </h2>
         <CheckLinksPanel last={app.linksCheck ?? null} />
       </section>

@@ -21,6 +21,7 @@ import * as preview from "./preview";
 import * as publishing from "./publishing";
 import * as setup from "./setup";
 import * as signin from "./signin";
+import * as stores from "./stores";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -42,7 +43,7 @@ import * as signin from "./signin";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

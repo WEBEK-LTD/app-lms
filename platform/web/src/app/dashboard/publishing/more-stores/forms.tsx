@@ -6,22 +6,26 @@ import { removeMoreStoreKeyAction, saveGalaxyStoreAction, saveHuaweiAction, save
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState, type FormState } from "@/lib/forms";
+import { useDashLang, useDashT } from "@/components/dashboard-i18n";
+import { localePath } from "@/i18n/paths";
+import { richText } from "@/i18n/rich";
 
 /** 35, 36, 42 The forms of the "More Android stores" page. */
 
 const v = (state: FormState, key: string) => state.values?.[key] ?? "";
 
 function Saved({ title, detail, removeKey }: { title: string; detail: string; removeKey: string }) {
+  const t = useDashT();
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
       <span className="flex min-w-0 items-center gap-2 text-[15px]">
         <Icon name="check_circle" size={20} filled className="text-success" />
         <span className="min-w-0 break-words">
-          <b>{title} saved</b> · {detail}
+          {richText(t("stores.saved", { title, detail }), { b: (chunk) => <b>{chunk}</b> })}
         </span>
       </span>
       <button formAction={removeMoreStoreKeyAction} name="key" value={removeKey} formNoValidate className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-danger hover:underline">
-        Remove
+        {t("stores.remove")}
       </button>
     </div>
   );
@@ -41,7 +45,7 @@ function FileField({ name, label, accept, hint, error }: { name: string; label: 
         accept={accept}
         aria-invalid={error ? true : undefined}
         aria-describedby={`${id}-hint${error ? ` ${id}-error` : ""}`}
-        className="block w-full min-w-0 rounded-[10px] border border-line-strong bg-white p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-ivory file:px-3 file:py-2 file:font-semibold file:text-midnight"
+        className="block w-full min-w-0 rounded-[10px] border border-line-strong bg-white p-2 text-sm file:me-3 file:rounded-lg file:border-0 file:bg-ivory file:px-3 file:py-2 file:font-semibold file:text-midnight"
       />
       <span id={`${id}-hint`} className="text-xs text-muted">
         {hint}
@@ -52,41 +56,42 @@ function FileField({ name, label, accept, hint, error }: { name: string; label: 
 }
 
 export function GalaxyStoreForm({ saved, uploads }: { saved: { contentId: string; serviceAccountId: string } | null; uploads: boolean }) {
+  const t = useDashT();
   const [state, action] = useActionState(saveGalaxyStoreAction, initialFormState);
   const e = state.errors ?? {};
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <FormMessage message={state.message} ok={state.ok} />
-      {saved ? <Saved title="Galaxy Store keys" detail={`Content ID ${saved.contentId}`} removeKey="galaxy" /> : null}
+      {saved ? <Saved title={t("stores.galaxyKeys")} detail={t("stores.contentIdDetail", { id: saved.contentId })} removeKey="galaxy" /> : null}
       <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 border-0 p-0">
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_200px]"
-            label="Content ID"
+            label={t("stores.contentId")}
             name="galaxyContentId"
             inputMode="numeric"
             autoComplete="off"
             defaultValue={v(state, "galaxyContentId")}
             placeholder={saved?.contentId ?? "000001234567"}
-            hint="Seller Portal › Applications: the number shown with your app."
+            hint={t("stores.contentIdHint")}
             error={e.galaxyContentId}
             small
           />
           <Field
             className="flex-[1_1_240px]"
-            label="Service account ID"
+            label={t("stores.serviceAccountId")}
             name="galaxyServiceAccountId"
             autoComplete="off"
             defaultValue={v(state, "galaxyServiceAccountId")}
             placeholder={saved?.serviceAccountId ?? ""}
-            hint="Seller Portal › Assistance › API Service."
+            hint={t("stores.serviceAccountHint")}
             error={e.galaxyServiceAccountId}
             small
           />
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-galaxyPrivateKey" className="text-sm font-semibold">
-            {saved ? "Replace the private key" : "Private key"}
+            {saved ? t("stores.replacePrivateKey") : t("stores.privateKey")}
           </label>
           <textarea
             id="f-galaxyPrivateKey"
@@ -94,19 +99,20 @@ export function GalaxyStoreForm({ saved, uploads }: { saved: { contentId: string
             rows={4}
             spellCheck={false}
             autoComplete="off"
-            placeholder="-----BEGIN PRIVATE KEY-----"
+            placeholder="-----BEGIN PRIVATE KEY-----" // i18n-ok: a key's first line
             className="input font-mono text-xs"
+            dir="ltr"
             aria-invalid={e.galaxyPrivateKey ? true : undefined}
             aria-describedby={`f-galaxyPrivateKey-hint${e.galaxyPrivateKey ? " f-galaxyPrivateKey-error" : ""}`}
           />
           <span id="f-galaxyPrivateKey-hint" className="text-xs text-muted">
-            Paste the key Seller Portal shows when you create the service account, or upload its file below.
+            {t("stores.privateKeyHint")}
           </span>
           <FieldError id="f-galaxyPrivateKey-error" error={e.galaxyPrivateKey} />
         </div>
-        <FileField name="galaxyPrivateKeyFile" label="Or the private key file" accept=".pem,.key,.txt" hint="The file Seller Portal gave you." />
+        <FileField name="galaxyPrivateKeyFile" label={t("stores.privateKeyFile")} accept=".pem,.key,.txt" hint={t("stores.privateKeyFileHint")} />
         <div>
-          <SubmitButton className="h-10">Save Galaxy Store keys</SubmitButton>
+          <SubmitButton className="h-10">{t("stores.saveGalaxy")}</SubmitButton>
         </div>
       </fieldset>
     </form>
@@ -120,72 +126,73 @@ export function HuaweiForm({
   saved: { appId: string | null; agconnect: boolean; push: boolean; clientId: string | null };
   uploads: boolean;
 }) {
+  const t = useDashT();
+  const lang = useDashLang();
   const [state, action] = useActionState(saveHuaweiAction, initialFormState);
   const e = state.errors ?? {};
+  const muted = { muted: (chunk: string) => <span className="font-normal text-muted">{chunk}</span> };
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
       <FormMessage message={state.message} ok={state.ok} />
       <Field
-        label="App ID"
+        label={t("stores.appId")}
         name="huaweiAppId"
         inputMode="numeric"
         autoComplete="off"
         defaultValue={v(state, "huaweiAppId")}
         placeholder={saved.appId ?? "104123456"}
-        hint="AppGallery Connect › Project settings › App information. Taken from agconnect-services.json when you leave it empty."
+        hint={t("stores.appIdHint")}
         error={e.huaweiAppId}
         small
       />
 
       <fieldset className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
         <legend className="px-1 text-[15px] font-bold">
-          Push notifications on Huawei phones <span className="font-normal text-muted">(optional)</span>
+          {richText(t("stores.huaweiPush"), muted)}
         </legend>
-        <p className="m-0 text-sm leading-relaxed text-ink-4">
-          Huawei phones without Google Play get notifications through Huawei Push Kit. Turn on Push Kit for your app in AppGallery Connect, then add these.
-        </p>
-        {saved.agconnect ? <Saved title="agconnect-services.json" detail="Huawei push in the next build" removeKey="huawei-agconnect" /> : null}
+        <p className="m-0 text-sm leading-relaxed text-ink-4">{t("stores.huaweiPushText")}</p>
+        {saved.agconnect ? <Saved title="agconnect-services.json" detail={t("stores.huaweiPushNext")} removeKey="huawei-agconnect" /> : null}
         <FileField
           name="huaweiAgconnectFile"
-          label={saved.agconnect ? "Replace agconnect-services.json" : "agconnect-services.json"}
+          label={saved.agconnect ? t("stores.replaceAgconnect") : "agconnect-services.json"}
           accept="application/json,.json"
-          hint="AppGallery Connect › Project settings › App information."
+          hint={t("stores.agconnectHint")}
           error={e.huaweiAgconnectFile}
         />
-        {saved.push ? <Saved title="App secret" detail="Push Kit" removeKey="huawei-push" /> : null}
+        {saved.push ? <Saved title={t("stores.appSecret")} detail="Push Kit" removeKey="huawei-push" /> : null}
         <Field
-          label={saved.push ? "Replace the app secret" : "App secret"}
+          label={saved.push ? t("stores.replaceAppSecret") : t("stores.appSecret")}
           name="huaweiPushSecret"
           type="password"
           autoComplete="off"
-          hint="AppGallery Connect › Project settings › App information. We send notifications with it."
+          hint={t("stores.appSecretHint")}
           error={e.huaweiPushSecret}
           small
         />
       </fieldset>
 
       <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 rounded-xl border border-line p-4">
-        <legend className="px-1 text-[15px] font-bold">Uploading builds</legend>
-        {saved.clientId ? <Saved title="API client" detail={`Client ID ${saved.clientId}`} removeKey="huawei-upload" /> : null}
+        <legend className="px-1 text-[15px] font-bold">{t("stores.uploadingBuilds")}</legend>
+        {saved.clientId ? <Saved title={t("stores.apiClient")} detail={t("stores.clientIdDetail", { id: saved.clientId })} removeKey="huawei-upload" /> : null}
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_220px]"
-            label="Client ID"
+            label={t("stores.clientId")}
             name="huaweiClientId"
             autoComplete="off"
             defaultValue={v(state, "huaweiClientId")}
             placeholder={saved.clientId ?? ""}
-            hint="Users and permissions › API key › Connect API, with the App administrator role."
+            hint={t("stores.clientIdHint")}
             error={e.huaweiClientId}
             small
           />
           <Field
             className="flex-[1_1_220px]"
-            label={saved.clientId ? "Replace the key" : "Key"}
+            label={saved.clientId ? t("stores.replaceKey") : t("stores.key")}
             name="huaweiClientSecret"
             type="password"
             autoComplete="off"
-            hint="Shown next to the API client."
+            hint={t("stores.keyHint")}
             error={e.huaweiClientSecret}
             small
           />
@@ -193,9 +200,9 @@ export function HuaweiForm({
       </fieldset>
 
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton className="h-10">Save Huawei settings</SubmitButton>
-        <Link href="/docs/huawei-appgallery" className="text-sm font-semibold">
-          How to set up AppGallery
+        <SubmitButton className="h-10">{t("stores.saveHuawei")}</SubmitButton>
+        <Link href={localePath(lang, "/docs/huawei-appgallery")} className="text-sm font-semibold">
+          {t("stores.howAppGallery")}
         </Link>
       </div>
     </form>
@@ -212,47 +219,49 @@ export function XiaomiForm({
   uploads: boolean;
   notes: { current: string; fallback: string; max: number };
 }) {
+  const t = useDashT();
+  const lang = useDashLang();
   const [state, action] = useActionState(saveXiaomiAction, initialFormState);
   const e = state.errors ?? {};
   return (
     <form action={action} noValidate className="flex flex-col gap-3.5">
       <FormMessage message={state.message} ok={state.ok} />
-      {saved ? <Saved title="Xiaomi GetApps keys" detail={saved.userName} removeKey="xiaomi" /> : null}
+      {saved ? <Saved title={t("stores.xiaomiKeys")} detail={saved.userName} removeKey="xiaomi" /> : null}
       <fieldset disabled={!uploads} className="m-0 flex flex-col gap-3.5 border-0 p-0">
         <div className="flex flex-wrap gap-3.5">
           <Field
             className="flex-[1_1_240px]"
-            label="Developer account email"
+            label={t("stores.xiaomiEmail")}
             name="xiaomiUserName"
             type="email"
             autoComplete="off"
             defaultValue={v(state, "xiaomiUserName")}
             placeholder={saved?.userName ?? "you@example.com"}
-            hint="The email you sign in to the Xiaomi developer platform with."
+            hint={t("stores.xiaomiEmailHint")}
             error={e.xiaomiUserName}
             small
           />
           <Field
             className="flex-[1_1_240px]"
-            label={saved ? "Replace the API private key" : "API private key"}
+            label={saved ? t("stores.replaceXiaomiApiKey") : t("stores.xiaomiApiKey")}
             name="xiaomiPassword"
             type="password"
             autoComplete="off"
-            hint="From the automatic publishing page. It isn't your sign-in password."
+            hint={t("stores.xiaomiApiKeyHint")}
             error={e.xiaomiPassword}
             small
           />
         </div>
         <FileField
           name="xiaomiCertificateFile"
-          label={saved ? "Replace the public certificate" : "Public certificate"}
+          label={saved ? t("stores.replaceCertificate") : t("stores.certificate")}
           accept=".cer,.crt,.pem"
-          hint="The certificate file you download from the same page."
+          hint={t("stores.certificateHint")}
           error={e.xiaomiCertificateFile}
         />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-xiaomiReleaseNotes" className="text-sm font-semibold">
-            What&apos;s new <span className="font-normal text-muted">(optional)</span>
+            {richText(t("stores.whatsNew"), { muted: (chunk) => <span className="font-normal text-muted">{chunk}</span> })}
           </label>
           <textarea
             id="f-xiaomiReleaseNotes"
@@ -266,14 +275,14 @@ export function XiaomiForm({
             aria-describedby={`f-xiaomiReleaseNotes-hint${e.xiaomiReleaseNotes ? " f-xiaomiReleaseNotes-error" : ""}`}
           />
           <span id="f-xiaomiReleaseNotes-hint" className="text-xs text-muted">
-            Xiaomi shows it with the update. We send it with every build until you change it; without it, “{notes.fallback}”
+            {t("stores.whatsNewHint", { fallback: notes.fallback })}
           </span>
           <FieldError id="f-xiaomiReleaseNotes-error" error={e.xiaomiReleaseNotes} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <SubmitButton className="h-10">Save Xiaomi GetApps keys</SubmitButton>
-          <Link href="/docs/xiaomi-getapps" className="text-sm font-semibold">
-            How to set up Xiaomi GetApps
+          <SubmitButton className="h-10">{t("stores.saveXiaomi")}</SubmitButton>
+          <Link href={localePath(lang, "/docs/xiaomi-getapps")} className="text-sm font-semibold">
+            {t("stores.howXiaomi")}
           </Link>
         </div>
       </fieldset>
