@@ -1308,6 +1308,53 @@ the same database, and the same code.
   and notifications to the app's users: 10 an hour per app, both counted
   with the dashboard's.
 
+## Yallapp Business, the app (Phase 59)
+
+`business/` is a Flutter app of its own (package `yallapp_business`, store id
+`tr.com.yallapp.business` on Android and iOS), separate from the white-label
+client app in `mobile/` but built the same way: Riverpod, go_router, Material
+Symbols Rounded, ARB strings in English, Arabic and Turkish, tokens in
+`flutter_secure_storage`. It talks only to the Owner API above.
+
+- **API client** (`lib/core/api/`): typed models of `owner.yaml`, an
+  `OwnerApi` interface with the HTTP client (Dio: bearer token,
+  `Accept-Language` from the app's language, `{code, message}` errors with
+  field errors and `Retry-After`) and an in-memory `FakeOwnerApi` with sample
+  apps of every kind, used by the widget tests and by the demo
+  (`--dart-define=YB_DEMO=true`). `TokenManager` renews the access token
+  shortly before it ends and once for any number of 401s, keeps only the
+  newest refresh token, and signs the person out when the refresh token is
+  refused. A 403 `account_pending`/`account_suspended` reloads the account,
+  which shows its state.
+- **Session and routes** (`lib/core/session.dart`, `lib/core/routing/`): the
+  router's redirect follows the session: sign-in, the fingerprint or face
+  lock (on after the first sign-in on a phone that can, asked again after 5
+  minutes in the background, off in Settings), the account's state (pending,
+  suspended, no app, Yallapp out of reach), the app switcher when the account
+  has several apps and none is chosen, then Today. The bottom navigation is
+  built from `AppSummary.features`: Today, the app's main tool, Inbox and
+  Stats when it has them, More; every other screen opens from Today's quick
+  actions or More, and only when the app has it.
+- **Language**: the account's dashboard language (`Me.user.language`), else
+  the choice on this phone, else the phone's; changing it in Settings saves
+  it to the account (`PUT /me/language`). Arabic is right to left with IBM
+  Plex Sans Arabic as the fallback after Bricolage Grotesque (both bundled),
+  normal letter spacing and taller lines; arrows that point a way are
+  mirrored.
+- **Pushes** (`lib/core/services/push.dart`): Firebase options at build time
+  (`--dart-define-from-file=config/firebase.json`, never committed); without
+  them push is simply off. The token is registered after sign-in and on each
+  refresh; a tapped push's `app_id` selects the app and its item opens its
+  screen (after the lock or sign-in if needed); a push while the app is open
+  shows with "Open", and Kitchen mode reloads on `new_order`.
+- **Media uploads** (`lib/features/media/uploads.dart`): `startUpload`, then
+  the file in `chunk_bytes` chunks straight to the media gate (`PUT` with
+  `Upload-Offset`; `HEAD` for the offset; a 409 carries on from the gate's
+  offset), then `complete`. An unfinished upload is remembered with its file
+  path, so it carries on later from where the gate is (`resumeUpload`).
+- **No payments**: nothing is bought in the app. The plan and storage are
+  read-only; "Manage on yallapp.com.tr" opens `manage_url` in the browser.
+
 ## Demo apps (Phase 16)
 
 Four apps people can try before they pay, shown on yallapp.com.tr/demo:
