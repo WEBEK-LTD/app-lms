@@ -64,11 +64,13 @@ export async function createAnnouncementAction(_: FormState, formData: FormData)
   const now = new Date();
   const read = readForm(formData, now);
   if (!read.ok) return { errors: read.errors, values: echo(formData) };
-  const announcement: Announcement = { id: newId(), ...read.announcement, emailedAt: null, emailedCount: 0, createdAt: now, updatedAt: now, createdBy: admin.email };
+  // 61 One live now is pushed below; one that starts later is pushed by the frequent job when it starts.
+  const live = isLive(read.announcement, now);
+  const announcement: Announcement = { id: newId(), ...read.announcement, emailedAt: null, emailedCount: 0, pushedAt: live ? now : null, createdAt: now, updatedAt: now, createdBy: admin.email };
   await (await getStore()).createAnnouncement(announcement);
   await recordAudit({ actor: admin, action: "announcement.create", target: { type: "announcement", id: announcement.id }, summary: `Created the announcement “${announcement.title}”` });
   // 58 Live now: to the phones of the clients it is for (Yallapp Business), who turned updates from Yallapp on.
-  if (isLive(announcement, now)) {
+  if (live) {
     const store = await getStore();
     const clientIds = (await audienceRecipients(store, announcement.audience, now)).map((r) => r.clientId);
     await pushOwnerSafely((d) => pushAnnouncement(d, announcement, clientIds), store);

@@ -63,6 +63,12 @@ export const en = {
     notAVideo: "Choose a video from your Media library.",
     enterCode: "Scan a ticket or type its code.",
     nothingToChange: "Send what to change.",
+    // 61
+    cantMove: "This appointment can't be moved.",
+    notBookable: "This service can't be booked any more, so the appointment can't be moved.",
+    notFree: "This time isn't free. Please choose another one.",
+    chooseTime: "Choose a time.",
+    staffService: "This staff member doesn't provide this service.",
   },
 } as const;
 
@@ -127,6 +133,11 @@ export const ar: Messages = {
     notAVideo: "اختر فيديو من مكتبة الوسائط.",
     enterCode: "امسح التذكرة أو اكتب رمزها.",
     nothingToChange: "أرسل ما تريد تغييره.",
+    cantMove: "لا يمكن تغيير موعد هذا الحجز.",
+    notBookable: "لم تعد هذه الخدمة متاحة للحجز، لذا لا يمكن تغيير الموعد.",
+    notFree: "هذا الوقت غير متاح. يُرجى اختيار وقت آخر.",
+    chooseTime: "اختر وقتًا.",
+    staffService: "هذا الشخص لا يقدّم هذه الخدمة.",
   },
 };
 
@@ -187,5 +198,10 @@ export const tr: Messages = {
     notAVideo: "Medya kitaplığınızdan bir video seçin.",
     enterCode: "Bir bileti tarayın veya kodunu yazın.",
     nothingToChange: "Neyin değişeceğini gönderin.",
+    cantMove: "Bu randevu taşınamaz.",
+    notBookable: "Bu hizmet artık rezerve edilemiyor, bu yüzden randevu taşınamaz.",
+    notFree: "Bu saat müsait değil. Lütfen başka bir saat seçin.",
+    chooseTime: "Bir saat seçin.",
+    staffService: "Bu kişi bu hizmeti vermiyor.",
   },
 };

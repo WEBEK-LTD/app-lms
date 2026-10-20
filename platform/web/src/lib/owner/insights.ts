@@ -6,11 +6,13 @@ import { appPlan, effectivePlans } from "../entitlements";
 import { artifactLinks } from "../files";
 import { serviceAccountOf } from "../hosted/notify";
 import { sendAppNotification } from "../hosted/send-notification";
+import { cancelScheduledNotification, editScheduledNotification, LISTED_STATUSES, localSendAt, SCHEDULED_MAX, scheduleAppNotification, type ScheduleResult } from "../hosted/scheduled-notifications";
+import type { ScheduledNotification } from "../data/types";
 import { hasFeature, isPlan, PLAN_FEATURES } from "../plans";
 import { draftPreviewSupported } from "../preview/config";
 import { createPreviewToken, previewAppPath, previewKey, PREVIEW_TTL_SECONDS } from "../preview/token";
 import { planSummary } from "./account";
-import { bodyObject, invalid, rateLimited, type OwnerContext, type OwnerResult } from "./http";
+import { bodyObject, intParam, invalid, notFound, OwnerError, rateLimited, type OwnerContext, type OwnerResult } from "./http";
 import { storageJson } from "./library";
 import { appScope } from "./sales";
 
@@ -76,6 +78,51 @@ export async function sendNotification(ctx: OwnerContext, params: Record<string,
     throw invalid(result.errors);
   }
   return { status: 201, body: { message: ctx.k(result.message), pushed: result.pushed } };
+}
+
+// 61 Notifications sent later (lib/hosted/scheduled-notifications.ts)
+
+function scheduledJson(ctx: OwnerContext, n: ScheduledNotification, zone: string) {
+  const local = localSendAt(n, zone);
+  return { id: n.id, title: n.title, body: n.body, send_at: n.sendAt.toISOString(), local_date: local.date, local_time: local.time, status: n.status, result: n.result ? ctx.k(n.result) : null };
+}
+
+export async function listScheduled(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app } = appScope(ctx, params.app_id, "notifications");
+  const { store } = ctx.deps;
+  const [zone, items] = await Promise.all([appZone(store, app), store.listScheduledNotifications(app.id, [...LISTED_STATUSES])]);
+  return { status: 200, body: { time_zone: zone, max: SCHEDULED_MAX, items: items.map((n) => scheduledJson(ctx, n, zone)) } };
+}
+
+async function scheduledAnswer(ctx: OwnerContext, app: Parameters<typeof appZone>[1], result: ScheduleResult | null, status: number): Promise<OwnerResult> {
+  if (!result) throw notFound();
+  if (!result.ok) {
+    if (result.errors) throw invalid(result.errors);
+    throw new OwnerError(409, status === 201 ? "too_many_scheduled" : "already_sent", result.message ?? "The request isn't valid.");
+  }
+  return { status, body: scheduledJson(ctx, result.notification, await appZone(ctx.deps.store, app)) };
+}
+
+export async function schedule(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app } = appScope(ctx, params.app_id, "notifications");
+  const body = bodyObject(ctx.req.body);
+  const result = await scheduleAppNotification({ store: ctx.deps.store, now: ctx.deps.now }, app, { title: body.title, body: body.body, date: body.date, time: body.time, createdBy: ctx.user.id });
+  return scheduledAnswer(ctx, app, result, 201);
+}
+
+export async function editScheduled(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app } = appScope(ctx, params.app_id, "notifications");
+  const body = bodyObject(ctx.req.body);
+  const result = await editScheduledNotification({ store: ctx.deps.store, now: ctx.deps.now }, app, intParam(params.scheduled_id), { title: body.title, body: body.body, date: body.date, time: body.time });
+  return scheduledAnswer(ctx, app, result, 200);
+}
+
+export async function cancelScheduled(ctx: OwnerContext, params: Record<string, string>): Promise<OwnerResult> {
+  const { app } = appScope(ctx, params.app_id, "notifications");
+  const done = await cancelScheduledNotification({ store: ctx.deps.store, now: ctx.deps.now }, app, intParam(params.scheduled_id));
+  if (done === "gone") throw notFound();
+  if (done === "too_late") throw new OwnerError(409, "already_sent", "This notification was already sent or cancelled.");
+  return { status: 204 };
 }
 
 /** The dashboard's "Preview your app": a link for an hour. */
