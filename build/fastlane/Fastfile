@@ -39,7 +39,8 @@ platform :android do
   # the App Bundle to a testing track with the store listing, its images and what's new.
   # Production stays a click in Play Console.
   #
-  # options: aab, track (internal, alpha or beta), json_key (the service account's JSON file),
+  # options: aab, track (internal, alpha or beta), json_key (the credentials file
+  #          google-github-actions/auth writes for Workload Identity Federation: no key in it),
   #          metadata (business_store.py play's folder)
   lane :business_play do |options|
     upload = lambda do |status|
@@ -60,6 +61,41 @@ platform :android do
       raise unless error.message.include?("draft")
       UI.important("The app is still a draft in Play Console; uploading a draft release.")
       upload.call("draft")
+    end
+  end
+
+  # 65 Checks the Google Play sign-in before a release: a token for the release service account
+  # through Workload Identity Federation, then an edit opened on the app and thrown away (nothing
+  # changes on Google Play).
+  #
+  # options: json_key (as business_play), summary (a file the result is added to)
+  lane :business_play_check do |options|
+    require "supply"
+    report = lambda do |line|
+      UI.message(line)
+      File.write(options[:summary], "#{line}\n", mode: "a") if options[:summary]
+    end
+    Supply.config = FastlaneCore::Configuration.create(Supply::Options.available_options, { package_name: BUSINESS_ID, json_key: options[:json_key] })
+    begin
+      client = Supply::Client.make_from_config(params: Supply.config)
+    rescue => error
+      report.call("- **Google Play sign-in failed**: no token for the service account. Check the Workload Identity provider, its attribute condition and the service account's Workload Identity User role (docs/LAUNCH-CHECKLIST.md 7l). #{error.message.lines.first}")
+      raise
+    end
+    report.call("- Signed in to Google's API as the release service account (Workload Identity Federation).")
+    begin
+      client.begin_edit(package_name: BUSINESS_ID)
+      tracks = client.tracks.map(&:track)
+      client.abort_current_edit
+      report.call("- Google Play opened #{BUSINESS_ID} (tracks: #{tracks.empty? ? 'none yet' : tracks.join(', ')}): releases can be uploaded.")
+    rescue => error
+      message = error.message.lines.first.to_s.strip
+      if message =~ /not found/i
+        report.call("- Google Play doesn't show #{BUSINESS_ID} to the service account yet: upload the first App Bundle by hand (Internal testing) and check the account is invited in Play Console › Users and permissions with this app. (#{message})")
+      else
+        report.call("- **Google Play refused**: #{message}. Usually the service account isn't invited in Play Console › Users and permissions, lacks the app's release rights, or the Google Play Android Developer API isn't enabled in the Cloud project.")
+      end
+      UI.user_error!("Google Play: #{message}")
     end
   end
 end

@@ -151,8 +151,11 @@ missing.
   run, with `YB_SECRETS_TOKEN` and no key yet, the key is made there and saved
   as those secrets), attached to
   the run and put on the **Yallapp Business test build** pre-release as
-  `yallapp-business.aab`, then uploaded by fastlane supply with
-  `YB_PLAY_SERVICE_ACCOUNT_JSON` (lane `business_play`). Google Play takes a
+  `yallapp-business.aab`, then uploaded by fastlane supply (lane
+  `business_play`). Google Play sign-in uses no key file: GitHub's OIDC token
+  through Workload Identity Federation (variables
+  `YB_GCP_WORKLOAD_IDENTITY_PROVIDER` and `YB_PLAY_SERVICE_ACCOUNT`), checked
+  on its own with the workflow's **play_check** (lane `business_play_check`). Google Play takes a
   new app's first App Bundle only by hand in Play Console.
 - **iOS** (macOS): the App Store Connect key (`YB_ASC_KEY_ID`,
   `YB_ASC_ISSUER_ID`, `YB_ASC_PRIVATE_KEY`) registers the App ID with push,

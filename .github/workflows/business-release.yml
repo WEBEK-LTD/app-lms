@@ -29,6 +29,10 @@ on:
         type: string
         required: false
         default: ''
+      play_check:
+        description: Only check the Google Play sign-in (Workload Identity Federation); builds and uploads nothing
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -60,6 +64,7 @@ jobs:
         name: Version, build number and the secrets each store needs
         env:
           STORES: ${{ inputs.stores }}
+          PLAY_CHECK: ${{ inputs.play_check }}
           TRACK: ${{ inputs.track }}
           VERSION_INPUT: ${{ inputs.version }}
           OFFSET: ${{ vars.YB_BUILD_NUMBER_OFFSET }}
@@ -69,7 +74,8 @@ jobs:
           HAS_YB_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.YB_ANDROID_KEYSTORE_PASSWORD != '' }}
           HAS_YB_ANDROID_KEY_ALIAS: ${{ secrets.YB_ANDROID_KEY_ALIAS != '' }}
           HAS_YB_ANDROID_KEY_PASSWORD: ${{ secrets.YB_ANDROID_KEY_PASSWORD != '' }}
-          HAS_YB_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.YB_PLAY_SERVICE_ACCOUNT_JSON != '' }}
+          HAS_YB_GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.YB_GCP_WORKLOAD_IDENTITY_PROVIDER != '' }}
+          HAS_YB_PLAY_SERVICE_ACCOUNT: ${{ vars.YB_PLAY_SERVICE_ACCOUNT != '' }}
           HAS_YB_ASC_KEY_ID: ${{ secrets.YB_ASC_KEY_ID != '' }}
           HAS_YB_ASC_ISSUER_ID: ${{ secrets.YB_ASC_ISSUER_ID != '' }}
           HAS_YB_ASC_PRIVATE_KEY: ${{ secrets.YB_ASC_PRIVATE_KEY != '' }}
@@ -104,8 +110,9 @@ jobs:
           all_set() { for name in "$@"; do v="HAS_$name"; [ "${!v}" = true ] || return 1; done; }
 
           android=no; ios=no
-          if [ "$STORES" != ios ]; then android=yes; fi
-          if [ "$STORES" != android ]; then
+          if [ "$PLAY_CHECK" = true ]; then STORES=none; fi
+          if [ "$STORES" != ios ] && [ "$STORES" != none ]; then android=yes; fi
+          if [ "$STORES" != android ] && [ "$STORES" != none ]; then
             if all_set YB_ASC_KEY_ID YB_ASC_ISSUER_ID YB_ASC_PRIVATE_KEY; then ios=yes; else ios=missing; fi
           fi
           {
@@ -118,26 +125,30 @@ jobs:
           {
             echo "## Yallapp Business $version (build $build)"
             echo
-            echo "Stores: **$STORES**. Google Play track: **$TRACK**."
+            if [ "$PLAY_CHECK" = true ]; then
+              echo "**Only checking the Google Play sign-in**: nothing is built or uploaded."
+            else
+              echo "Stores: **$STORES**. Google Play track: **$TRACK**."
+            fi
             echo
             if [ "$android" = yes ]; then
               echo "### Google Play"
               echo
               echo "| Secret or variable | |"
               echo "|---|---|"
-              set_or_missing YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD YB_ANDROID_KEY_ALIAS YB_ANDROID_KEY_PASSWORD YB_PLAY_SERVICE_ACCOUNT_JSON YB_FIREBASE_PROJECT_ID YB_FIREBASE_SENDER_ID YB_FIREBASE_APP_ID_ANDROID YB_FIREBASE_API_KEY_ANDROID
+              set_or_missing YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD YB_ANDROID_KEY_ALIAS YB_ANDROID_KEY_PASSWORD YB_GCP_WORKLOAD_IDENTITY_PROVIDER YB_PLAY_SERVICE_ACCOUNT YB_FIREBASE_PROJECT_ID YB_FIREBASE_SENDER_ID YB_FIREBASE_APP_ID_ANDROID YB_FIREBASE_API_KEY_ANDROID
               echo
               if ! all_set YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD && all_set YB_SECRETS_TOKEN; then
                 echo "**First run**: the upload key is made in this run and saved as the four \`YB_ANDROID_*\` secrets with \`YB_SECRETS_TOKEN\`."
               elif ! all_set YB_ANDROID_UPLOAD_KEYSTORE YB_ANDROID_KEYSTORE_PASSWORD; then
                 echo "**No upload key**: the Android part stops until \`YB_ANDROID_UPLOAD_KEYSTORE\`, \`YB_ANDROID_KEYSTORE_PASSWORD\`, \`YB_ANDROID_KEY_ALIAS\` and \`YB_ANDROID_KEY_PASSWORD\` are added."
               fi
-              if ! all_set YB_PLAY_SERVICE_ACCOUNT_JSON; then
-                echo "Without \`YB_PLAY_SERVICE_ACCOUNT_JSON\` the App Bundle is built and put on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** (and attached to this run) but not uploaded to Google Play."
+              if ! all_set YB_GCP_WORKLOAD_IDENTITY_PROVIDER YB_PLAY_SERVICE_ACCOUNT; then
+                echo "Without the variables \`YB_GCP_WORKLOAD_IDENTITY_PROVIDER\` and \`YB_PLAY_SERVICE_ACCOUNT\` (Google Play sign-in through Workload Identity Federation) the App Bundle is built and put on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** (and attached to this run) but not uploaded to Google Play."
               fi
               echo
             fi
-            if [ "$STORES" != android ]; then
+            if [ "$STORES" != android ] && [ "$STORES" != none ]; then
               echo "### App Store"
               echo
               echo "| Secret or variable | |"
@@ -158,6 +169,7 @@ jobs:
   # Arabic and Turkish (business/test/store/store_screenshots_test.dart).
   screenshots:
     name: Store screenshots
+    if: ${{ !inputs.play_check }}
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 30
     defaults:
@@ -181,6 +193,48 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # Google Play signs in without a key file: GitHub's OIDC token is exchanged through the
+  # Workload Identity Federation provider for the release service account
+  # (google-github-actions/auth writes a credentials file with no secret in it), which
+  # fastlane supply uses. Run with "play_check" to try it before the first release.
+  play-check:
+    name: Google Play sign-in
+    needs: prepare
+    if: ${{ inputs.play_check }}
+    runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: The two variables
+        env:
+          WIF_PROVIDER: ${{ vars.YB_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          PLAY_ACCOUNT: ${{ vars.YB_PLAY_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$WIF_PROVIDER" ] || [ -z "$PLAY_ACCOUNT" ]; then
+            echo "Add the repository variables \`YB_GCP_WORKLOAD_IDENTITY_PROVIDER\` and \`YB_PLAY_SERVICE_ACCOUNT\` (docs/LAUNCH-CHECKLIST.md 7l), then run this check again." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.YB_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.YB_PLAY_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: false
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: build
+      - name: Sign in to Google Play and open the app
+        working-directory: build
+        env:
+          CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+        run: bundle exec fastlane android business_play_check json_key:"$CREDENTIALS" summary:"$GITHUB_STEP_SUMMARY"
+
   android:
     name: Google Play
     needs: [prepare, screenshots]
@@ -188,9 +242,11 @@ jobs:
     if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.android == 'yes' }}
     runs-on: ${{ vars.LINUX_RUNNER || 'ubuntu-24.04' }}
     timeout-minutes: 60
-    # Puts the App Bundle on the "Yallapp Business test build" pre-release (below).
+    # Puts the App Bundle on the "Yallapp Business test build" pre-release (below), and
+    # signs in to Google Play with GitHub's OIDC token (Workload Identity Federation).
     permissions:
       contents: write
+      id-token: write
     env:
       LC_ALL: C.UTF-8
       VERSION: ${{ needs.prepare.outputs.version }}
@@ -357,22 +413,29 @@ jobs:
       - name: Store listing, icon, feature graphic and screenshots
         run: python3 build/scripts/business_store.py play "$RUNNER_TEMP/play-metadata" "$RUNNER_TEMP/screenshots"
 
+      # No key file: GitHub's OIDC token through Workload Identity Federation (play-check above).
+      - id: auth
+        if: ${{ vars.YB_GCP_WORKLOAD_IDENTITY_PROVIDER != '' && vars.YB_PLAY_SERVICE_ACCOUNT != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.YB_GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.YB_PLAY_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: false
+
       - id: play
         name: Upload to Google Play
         env:
-          PLAY_JSON: ${{ secrets.YB_PLAY_SERVICE_ACCOUNT_JSON }}
+          CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
         run: |
-          if [ -z "$PLAY_JSON" ]; then
+          if [ -z "$CREDENTIALS" ]; then
             echo "uploaded=no" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          umask 077
-          printf '%s' "$PLAY_JSON" > "$RUNNER_TEMP/yb-play.json"
-          trap 'rm -f "$RUNNER_TEMP/yb-play.json"' EXIT
           cd build
           bundle exec fastlane android business_play \
             aab:"$(ls "$RUNNER_TEMP"/out/*.aab)" track:"$TRACK" \
-            json_key:"$RUNNER_TEMP/yb-play.json" metadata:"$RUNNER_TEMP/play-metadata"
+            json_key:"$CREDENTIALS" metadata:"$RUNNER_TEMP/play-metadata"
           echo "uploaded=yes" >> "$GITHUB_OUTPUT"
 
       - name: Summary
@@ -394,9 +457,9 @@ jobs:
               echo "- Version $VERSION (build $BUILD) is on the **$TRACK** track with the store listing, icon, feature graphic and screenshots in English, Arabic and Turkish."
               echo "- To publish: Play Console › Yallapp Business › Test and release › promote the release to Production."
             elif [ "$PLAY_OUTCOME" = failure ]; then
-              echo "- **The upload to Google Play didn't work.** The App Bundle is on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** and attached below. Usual reasons: the app's first App Bundle wasn't uploaded by hand yet (Play Console › Yallapp Business › Test and release › Testing › Internal testing › Create new release, with **yallapp-business.aab**), the service account isn't invited in Play Console › Users and permissions with Release rights, or this App Bundle isn't signed with the app's upload key. The log of \"Upload to Google Play\" says which."
+              echo "- **The upload to Google Play didn't work.** The App Bundle is on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** and attached below. Usual reasons: the app's first App Bundle wasn't uploaded by hand yet (Play Console › Yallapp Business › Test and release › Testing › Internal testing › Create new release, with **yallapp-business.aab**), the Google Play sign-in doesn't work (run the workflow with **play_check**), the service account isn't invited in Play Console › Users and permissions with Release rights, or this App Bundle isn't signed with the app's upload key. The log of \"Upload to Google Play\" says which."
             else
-              echo "- The App Bundle is on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** (and attached below). The first one goes by hand: Play Console › Yallapp Business › Test and release › Testing › Internal testing › Create new release. Add \`YB_PLAY_SERVICE_ACCOUNT_JSON\` to upload the next ones by themselves."
+              echo "- The App Bundle is on the \"Yallapp Business test build\" pre-release as **yallapp-business.aab** (and attached below). The first one goes by hand: Play Console › Yallapp Business › Test and release › Testing › Internal testing › Create new release. Add the variables \`YB_GCP_WORKLOAD_IDENTITY_PROVIDER\` and \`YB_PLAY_SERVICE_ACCOUNT\` (Workload Identity Federation, docs/LAUNCH-CHECKLIST.md 7l) to upload the next ones by themselves."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 

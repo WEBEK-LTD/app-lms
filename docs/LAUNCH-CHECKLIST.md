@@ -564,14 +564,49 @@ never in a chat or an issue.
       app): Play Console › Yallapp Business › Test and release › Testing ›
       Internal testing › Create new release › upload `yallapp-business.aab` ›
       Next › Save and publish. Add the team's emails as internal testers.
-- [ ] The upload robot: Google Cloud console (the same Google account) ›
-      create a project › APIs & Services › enable **Google Play Android
-      Developer API** › IAM & Admin › Service accounts › Create (any name) ›
-      Keys › Add key › JSON. Play Console › Users and permissions › Invite new
-      users › the service account's email › App permissions › Yallapp Business
-      › **Release to testing tracks** and **Manage store presence** (and
-      Release to production if wanted) › Invite. Add the whole JSON file as the
-      secret `YB_PLAY_SERVICE_ACCOUNT_JSON`.
+- [ ] **Google Play sign-in without a key file** (Workload Identity
+      Federation; key files are blocked by the organization policy
+      `iam.disableServiceAccountKeyCreation`, and none is needed). The
+      release service account is
+      `yallapp-play-release@yallapp-business.iam.gserviceaccount.com`; it
+      needs **no** project roles. Google Cloud console › project
+      **yallapp-business** › Activate Cloud Shell (top right), then paste:
+
+      ```sh
+      PROJECT_ID=yallapp-business
+      PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')
+      SA=yallapp-play-release@$PROJECT_ID.iam.gserviceaccount.com
+      gcloud services enable iam.googleapis.com iamcredentials.googleapis.com \
+        sts.googleapis.com androidpublisher.googleapis.com --project "$PROJECT_ID"
+      gcloud iam workload-identity-pools create github-actions --project "$PROJECT_ID" \
+        --location global --display-name "GitHub Actions"
+      gcloud iam workload-identity-pools providers create-oidc github --project "$PROJECT_ID" \
+        --location global --workload-identity-pool github-actions --display-name "GitHub" \
+        --issuer-uri https://token.actions.githubusercontent.com \
+        --attribute-mapping "google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.workflow_ref=assertion.workflow_ref" \
+        --attribute-condition "assertion.repository == 'WEBEK-LTD/app-lms' && assertion.ref == 'refs/heads/main' && assertion.workflow_ref.startsWith('WEBEK-LTD/app-lms/.github/workflows/business-release.yml@')"
+      gcloud iam service-accounts add-iam-policy-binding "$SA" --project "$PROJECT_ID" \
+        --role roles/iam.workloadIdentityUser \
+        --member "principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/attribute.repository/WEBEK-LTD/app-lms"
+      echo "YB_GCP_WORKLOAD_IDENTITY_PROVIDER = projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/github"
+      echo "YB_PLAY_SERVICE_ACCOUNT = $SA"
+      ```
+
+      Only the release workflow, run from `main` of this repository, can
+      sign in as that account. Add the two lines it prints as repository
+      **variables** (Settings › Secrets and variables › Actions › Variables;
+      they aren't secret): `YB_GCP_WORKLOAD_IDENTITY_PROVIDER` and
+      `YB_PLAY_SERVICE_ACCOUNT`.
+- [ ] Play Console › Users and permissions › Invite new users › the service
+      account's email › App permissions › Yallapp Business › **Release apps
+      to testing tracks**, **Manage testing tracks and edit tester lists**
+      and **Edit store listing, pricing & distribution** (nothing at account
+      level, no production release) › Invite. Google can take a few hours to
+      let a new account in.
+- [ ] Check it before any release: Actions › Yallapp Business release › Run
+      workflow › tick **play_check**. It builds and uploads nothing: it signs
+      in and opens the app on Google Play. Before the first App Bundle was
+      uploaded by hand, it can only confirm the sign-in.
 
 ### App Store: the app and its key
 
