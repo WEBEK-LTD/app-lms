@@ -499,10 +499,20 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       `google-services.json` and `GoogleService-Info.plist` for Phase 59;
       upload the APNs authentication key (Apple Developer › Keys, under
       Yallapp's own team) in Project settings › Cloud Messaging.
-- [ ] Generate a service account key in that project (Project settings ›
-      Service accounts) and set it in Netlify as
-      `OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT` (the JSON on one line). Never
-      commit it. Redeploy.
+- [x] A service account key in that project, set in Netlify as
+      `OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT` (the whole key file, with
+      `project_id`, `client_email` and `private_key`; `google-services.json`
+      isn't it, and the server logs "isn't a Firebase service account key").
+      Never commit it. Redeploy. Done live on 21 October 2026 with a
+      dedicated account, `yallapp-owner-push@yallapp-business.iam.gserviceaccount.com`,
+      whose only role is **Firebase Cloud Messaging API Admin**. The
+      organization blocks key creation (`iam.disableServiceAccountKeyCreation`,
+      Secure by Default), and Netlify can't sign in without a key, so the
+      policy was lifted for the `yallapp-business` project only
+      (`gcloud org-policies set-policy` with `enforce: false`), the key made,
+      and the policy put back (`gcloud org-policies delete
+      iam.disableServiceAccountKeyCreation --project yallapp-business`). The
+      key keeps working; repeat the same steps to rotate it.
 - [ ] Optional, for Huawei phones without Google Play: an AppGallery Connect
       project for Yallapp Business with Push Kit on, and
       `OWNER_PUSH_HMS_APP_ID` and `OWNER_PUSH_HMS_APP_SECRET` in Netlify.
