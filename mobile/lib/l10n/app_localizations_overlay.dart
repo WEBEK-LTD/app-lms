@@ -3613,4 +3613,20 @@ class OverlayLocalizations extends AppLocalizations {
   String pageOf(int page, int total) =>
       overlay.format('pageOf', {'page': page, 'total': total}) ??
       base.pageOf(page, total);
+
+  @override
+  String get coursePasswordTitle =>
+      overlay.text('coursePasswordTitle') ?? base.coursePasswordTitle;
+
+  @override
+  String get coursePasswordWebsite =>
+      overlay.text('coursePasswordWebsite') ?? base.coursePasswordWebsite;
+
+  @override
+  String get coursePasswordInApp =>
+      overlay.text('coursePasswordInApp') ?? base.coursePasswordInApp;
+
+  @override
+  String get courseOpenOnWebsite =>
+      overlay.text('courseOpenOnWebsite') ?? base.courseOpenOnWebsite;
 }

@@ -496,6 +496,23 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "قسم العدّ التنازلي: اختصار الثواني.",
     tr: "Geri sayım bloğu: saniyenin kısaltması.",
   },
+  "Course page: a course the website protects with a password. The app never asks for the password.": {
+    en: "Course page: a course your website protects with a password. The app never asks for the password.",
+    ar: "صفحة الدورة: دورة يحميها موقعك بكلمة مرور. لا يطلب التطبيق كلمة المرور أبدًا.",
+    tr: "Kurs sayfası: web sitenizin şifreyle koruduğu bir kurs. Uygulama şifreyi hiçbir zaman sormaz.",
+  },
+  "Course page, under the password notice, when the course can be opened on the website.": {
+    ar: "صفحة الدورة، تحت تنبيه كلمة المرور، عندما يمكن فتح الدورة على الموقع.",
+    tr: "Kurs sayfası, şifre uyarısının altında, kurs web sitesinde açılabildiğinde.",
+  },
+  "Course page, under the password notice, on iPhone for a paid course: no link to the website there.": {
+    ar: "صفحة الدورة، تحت تنبيه كلمة المرور، على iPhone لدورة مدفوعة: لا رابط إلى الموقع هناك.",
+    tr: "Kurs sayfası, şifre uyarısının altında, iPhone'da ücretli bir kurs için: orada web sitesine bağlantı yoktur.",
+  },
+  "Course page button that opens a password-protected course on the website, where its password is entered.": {
+    ar: "زر في صفحة الدورة يفتح الدورة المحمية بكلمة مرور على الموقع، حيث تُدخل كلمة مرورها.",
+    tr: "Şifreli bir kursu, şifresinin girildiği web sitesinde açan kurs sayfası düğmesi.",
+  },
   "Slider block: which slide is shown, for screen readers.": {
     ar: "قسم الشرائح: الشريحة المعروضة، لقارئات الشاشة.",
     tr: "Kaydırıcı bloğu: hangi slaytın gösterildiği; ekran okuyucular için.",

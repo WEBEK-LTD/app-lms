@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/services/analytics.dart';
 import 'package:yallapp/core/services/analytics_providers.dart';
@@ -96,5 +97,65 @@ void main() {
     await tester.pump();
     expect(screenshots(app), hasLength(1));
     expect(screenshots(app).single.containsKey('item_id'), isFalse);
+  });
+
+  group('a course with a password on the website', () {
+    Future<TestApp> openCourse(
+      WidgetTester tester, {
+      required DevicePlatform platform,
+      bool free = false,
+      bool enrolled = false,
+    }) async {
+      final app = TestApp(
+        platform: platform,
+        signedIn: true,
+        api: FakeApi(
+          course: {
+            ...courseDetailJson(
+              action: enrolled ? 'continue' : 'none',
+              free: free,
+              enrolled: enrolled,
+            ),
+            'password_protected': true,
+            'website_url': 'https://your-academy.com/courses/ui-design/',
+          },
+        ),
+      );
+      await app.pump(tester);
+      app.container.read(appRouterProvider).push('/course/1');
+      await TestApp.settle(tester);
+      return app;
+    }
+
+    testWidgets('says so and opens the website for the password, never asks', (
+      tester,
+    ) async {
+      await openCourse(tester, platform: DevicePlatform.android);
+      expect(find.text('This course has a password'), findsOneWidget);
+      expect(find.byKey(const ValueKey('cta-open-website')), findsOneWidget);
+      expect(find.text('Open on the website'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byKey(const ValueKey('cta-checkout')), findsNothing);
+    });
+
+    testWidgets('on iPhone a paid one has no link to the website', (
+      tester,
+    ) async {
+      await openCourse(tester, platform: DevicePlatform.ios);
+      expect(find.text('This course has a password'), findsOneWidget);
+      expect(find.text("It can't be opened in the app."), findsOneWidget);
+      expect(find.byKey(const ValueKey('cta-open-website')), findsNothing);
+    });
+
+    testWidgets('on iPhone a free one opens the website', (tester) async {
+      await openCourse(tester, platform: DevicePlatform.ios, free: true);
+      expect(find.byKey(const ValueKey('cta-open-website')), findsOneWidget);
+    });
+
+    testWidgets('a student in it learns as usual', (tester) async {
+      await openCourse(tester, platform: DevicePlatform.ios, enrolled: true);
+      expect(find.text('This course has a password'), findsNothing);
+      expect(find.byKey(const ValueKey('cta-continue')), findsOneWidget);
+    });
   });
 }

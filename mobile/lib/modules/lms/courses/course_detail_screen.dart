@@ -400,17 +400,21 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
               ),
             ),
           ),
-          _CtaBar(
-            course: course,
-            cta: cta,
-            busy: _busy,
-            finished: finished,
-            onReview: () =>
-                setState(() => _tab = tabs.indexOf(_CourseTab.curriculum)),
-            onContinue: () => _continue(topics.value, course),
-            onEnrollFree: () => _enrollFree(course),
-            onCheckout: () => _checkout(course),
-          ),
+          // 62 A course with a password on the website: no password in the app.
+          if (course.passwordProtected && !course.enrolled)
+            _PasswordBar(course: course, platform: env.platform)
+          else
+            _CtaBar(
+              course: course,
+              cta: cta,
+              busy: _busy,
+              finished: finished,
+              onReview: () =>
+                  setState(() => _tab = tabs.indexOf(_CourseTab.curriculum)),
+              onContinue: () => _continue(topics.value, course),
+              onEnrollFree: () => _enrollFree(course),
+              onCheckout: () => _checkout(course),
+            ),
         ],
       ),
     );
@@ -980,6 +984,90 @@ class _CtaBar extends StatelessWidget {
           ),
         );
     }
+  }
+}
+
+/// 62 The course page's bar for a course the website protects with a
+/// password, for a student who isn't in it yet: the app never asks for the
+/// password; "Open on the website" opens the course's page there. On iPhone
+/// a paid course gets no link to the website (no way to buy outside the
+/// App Store's rules).
+class _PasswordBar extends StatelessWidget {
+  const _PasswordBar({required this.course, required this.platform});
+
+  final CourseDetail course;
+  final DevicePlatform platform;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final website = course.websiteUrl;
+    final link =
+        website != null &&
+        (platform != DevicePlatform.ios || course.price.isFree);
+    return BottomActionBar(
+      key: const ValueKey('cta-password'),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 22),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: p.divider,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: AppIcon(AppIcons.lock, size: 20, color: p.textSecondary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.coursePasswordTitle,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: p.text,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      link
+                          ? l10n.coursePasswordWebsite
+                          : l10n.coursePasswordInApp,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: p.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (link) ...[
+            const SizedBox(height: 12),
+            PrimaryButton(
+              key: const ValueKey('cta-open-website'),
+              label: l10n.courseOpenOnWebsite,
+              icon: AppIcons.openInNew,
+              height: 54,
+              onPressed: () => openExternal(website),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }
 

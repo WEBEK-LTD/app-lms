@@ -933,5 +933,9 @@
   "fileOpenFailed": "تعذّر فتح هذا الملف.",
   "fileInAppOnly": "لا يمكن عرض هذا الملف هنا",
   "fileInAppOnlyMessage": "تُفتح ملفات الدورة داخل التطبيق فقط، وهو يعرض ملفات PDF والصور والنصوص. اطلب هذا الملف من المدرّس بصيغة PDF.",
-  "pageOf": "صفحة {page} من {total}"
+  "pageOf": "صفحة {page} من {total}",
+  "coursePasswordTitle": "لهذه الدورة كلمة مرور",
+  "coursePasswordWebsite": "أدخل كلمة مرورها على الموقع. بعد انضمامك إلى الدورة هناك، تُفتح هنا أيضًا.",
+  "coursePasswordInApp": "لا يمكن فتحها في التطبيق.",
+  "courseOpenOnWebsite": "افتح على الموقع"
 }

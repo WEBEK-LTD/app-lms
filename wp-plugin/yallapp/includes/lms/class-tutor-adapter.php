@@ -374,15 +374,18 @@ class Tutor_Adapter implements Lms_Adapter {
 	}
 
 	/**
-	 * Wishlisted courses.
+	 * Wishlisted courses, newest first, as Tutor stores them. 62 Read from Tutor's user meta
+	 * (its own list has published courses only), so a private course the student may open
+	 * (Course_Visibility) is listed too.
 	 *
 	 * @param int $user_id User ID.
 	 * @return array[]
 	 */
 	public function wishlist( $user_id ) {
 		$items = array();
-		foreach ( (array) tutor_utils()->get_wishlist( $user_id ) as $row ) {
-			$post = is_object( $row ) && isset( $row->ID ) ? get_post( (int) $row->ID ) : null;
+		$ids   = array_reverse( array_map( 'intval', (array) get_user_meta( (int) $user_id, '_tutor_course_wishlist', false ) ) );
+		foreach ( array_unique( $ids ) as $course_id ) {
+			$post = $this->course_post( $course_id, (int) $user_id );
 			if ( $post instanceof WP_Post ) {
 				$items[] = $this->summary( $post, $user_id );
 			}
@@ -399,7 +402,8 @@ class Tutor_Adapter implements Lms_Adapter {
 	 * @return true|WP_Error
 	 */
 	public function set_wishlist( $user_id, $course_id, $on ) {
-		if ( ! $this->published( $course_id, tutor()->course_post_type ) ) {
+		// 62 Any course the student may open, private ones they're in too.
+		if ( ! $this->course_post( $course_id, (int) $user_id ) ) {
 			return new WP_Error( 'not_found', __( 'Course not found.', 'yallapp' ), array( 'status' => 404 ) );
 		}
 		$listed = (bool) tutor_utils()->is_wishlisted( $course_id, $user_id );

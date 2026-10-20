@@ -3502,4 +3502,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String pageOf(int page, int total) {
     return 'Sayfa $page / $total';
   }
+
+  @override
+  String get coursePasswordTitle => 'Bu kursun bir şifresi var';
+
+  @override
+  String get coursePasswordWebsite =>
+      'Şifresini web sitesinde girin. Kursa orada katıldığınızda burada da açılır.';
+
+  @override
+  String get coursePasswordInApp => 'Uygulamada açılamaz.';
+
+  @override
+  String get courseOpenOnWebsite => 'Web sitesinde aç';
 }

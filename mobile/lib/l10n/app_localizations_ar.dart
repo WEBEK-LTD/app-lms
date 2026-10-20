@@ -3554,4 +3554,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String pageOf(int page, int total) {
     return 'صفحة $page من $total';
   }
+
+  @override
+  String get coursePasswordTitle => 'لهذه الدورة كلمة مرور';
+
+  @override
+  String get coursePasswordWebsite =>
+      'أدخل كلمة مرورها على الموقع. بعد انضمامك إلى الدورة هناك، تُفتح هنا أيضًا.';
+
+  @override
+  String get coursePasswordInApp => 'لا يمكن فتحها في التطبيق.';
+
+  @override
+  String get courseOpenOnWebsite => 'افتح على الموقع';
 }

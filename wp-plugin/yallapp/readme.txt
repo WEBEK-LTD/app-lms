@@ -42,6 +42,10 @@ hash, for 5 minutes. Push notifications go through your own Firebase project.
 
 == Changelog ==
 
+= Unreleased =
+* Private courses in the wishlist: a student can keep a private course they're enrolled in (or may read on the website) in their wishlist like any other course, with Tutor LMS and MasterStudy. Someone who can't open the course can't add it.
+* Courses with a password ("Password protected" in WordPress) still show in the app's catalog, as on the website, and the app never asks for the password: until the student is enrolled, the course page shows the title and picture without the description, says the course has a password and offers "Open on the website" for the password step (on iPhone, only for free courses). Its topics, lessons and free enrollment stay closed in the app until then. Once they've joined it on the website, it opens in the app as usual. GET /courses/{id} says password_protected and gives the course's website_url.
+
 = 0.4.4 =
 * Videos from your Yallapp Media library in lessons: paste a video's link from Media in your Yallapp dashboard into the lesson's new "Yallapp video" box (any LMS), or use it as the lesson's video address in your LMS. Once the LMS lets the student into the lesson, the app plays it in its own player, from a link made for that request that stops working after a few hours (the app asks for a new one and carries on where it was). Saving the lesson for offline viewing gets its own short-lived link. The video file never passes through your site.
 * New [yallapp_video link="…"] shortcode: shows a Media video on the website, and in the app it is the lesson's video when the lesson has none of the above.
