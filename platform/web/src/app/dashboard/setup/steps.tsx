@@ -228,10 +228,14 @@ function PlatformFields({
       {platform.oauth ? <OAuthConnect platform={platform} oauth={platform.oauth} staff={staff} connect={connect} disconnect={disconnect} /> : null}
       {platform.fields.map((field) => {
         const kept = same && field.secret && saved.secrets.includes(field.name);
+        // The action words a missing field as "Enter your <label>." from the English label; it's worded again here in the dashboard's language.
+        const error = state.errors?.[`p_${field.name}`];
+        const lowered = `${field.label.charAt(0).toLowerCase()}${field.label.slice(1)}`;
+        const label = known(field.label);
         return (
           <Field
             key={`${platform.id}-${field.name}`}
-            label={field.optional ? t("setup.optionalField", { label: known(field.label) }) : known(field.label)}
+            label={field.optional ? t("setup.optionalField", { label }) : label}
             name={`p_${field.name}`}
             type={field.secret ? "password" : "text"}
             autoComplete="off"
@@ -239,7 +243,7 @@ function PlatformFields({
             defaultValue={field.secret ? "" : v(state, `p_${field.name}`, same ? (saved.settings[field.name] ?? "") : "")}
             placeholder={kept ? t("setup.savedReplace") : field.placeholder}
             hint={known(field.hint)}
-            error={state.errors?.[`p_${field.name}`]}
+            error={error === `Enter your ${lowered}.` ? t("setup.enterField", { label: label === field.label ? lowered : label }) : error}
           />
         );
       })}
