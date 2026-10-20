@@ -941,5 +941,11 @@
   "membershipShowAtDoor": "Girişte bunu gösterin",
   "membershipQrLabel": "{plan} üyeliğinizin QR kodu",
   "reviewReplyTitle": "Akademinin yanıtı",
-  "reviewHiddenNote": "Akademi gizledi. Yalnızca siz görebilirsiniz."
+  "reviewHiddenNote": "Akademi gizledi. Yalnızca siz görebilirsiniz.",
+  "qnaHiddenNote": "Akademi bunu gizledi. Yalnızca siz görebilirsiniz.",
+  "membershipFrozen": "Donduruldu",
+  "membershipFrozenUntil": "{date} tarihine kadar donduruldu",
+  "membershipFrozenOpen": "Dondurma kaldırılana kadar donduruldu",
+  "membershipFreezesOn": "{date} tarihinden itibaren dondurulacak",
+  "membershipFrozenAtDoor": "Üyeliğiniz donduruldu; geri gelene kadar bu kodla giriş yapamazsınız."
 }

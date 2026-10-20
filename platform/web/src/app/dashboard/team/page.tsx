@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { cancelInvitationAction, removeMemberAction, resendInvitationAction } from "@/app/actions/team";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, PageHeader, Section } from "@/components/ui";
+import { Badge, btn, Notice, PageHeader, Section } from "@/components/ui";
 import type { DashKey } from "@/i18n/dashboard";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
@@ -16,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const DATE_TIME: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" };
+/** 64 Activity entries a page. */
+const ACTIVITY_PER_PAGE = 50;
 
 /**
  * 60 Dashboard › Team, for the owner: invite people, see who is on the team
@@ -27,12 +30,16 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
   const { t, k, date } = await dashboardText();
   const store = await getStore();
   const now = new Date();
-  const [apps, members, invitations, activity] = await Promise.all([
-    store.listAppsByClient(client.id),
-    store.listTeamMembers(client.id),
-    store.listOpenTeamInvitations(client.id),
-    store.listTeamActivity(client.id, { limit: 50 }),
-  ]);
+  const params = await searchParams;
+  const one = (name: string) => (typeof params[name] === "string" ? (params[name] as string) : "");
+  const [apps, members, invitations] = await Promise.all([store.listAppsByClient(client.id), store.listTeamMembers(client.id), store.listOpenTeamInvitations(client.id)]);
+  // 64 The activity, newest first, a page at a time, of everyone or one person on the team.
+  const people = [{ id: user.id, name: user.name }, ...members.map(({ user: person }) => ({ id: person.id, name: person.name }))];
+  const person = people.find((p) => p.id === one("person"))?.id ?? null;
+  const page = Math.max(1, Math.min(10_000, Number.parseInt(one("page") || "1", 10) || 1));
+  const activity = await store.listTeamActivity(client.id, { limit: ACTIVITY_PER_PAGE, offset: (page - 1) * ACTIVITY_PER_PAGE, ...(person ? { actorId: person } : {}) });
+  const pages = Math.max(1, Math.ceil(activity.total / ACTIVITY_PER_PAGE));
+  const activityHref = (to: number) => `/dashboard/team?${new URLSearchParams({ ...(person ? { person } : {}), page: String(to) }).toString()}#team-activity`;
   const appChoices: TeamAppChoice[] = apps.map((a) => ({ id: a.id, label: appLabel(a) === "Untitled app" ? k("Untitled app") : appLabel(a) }));
   const appNames = (ids: readonly string[] | null) => (ids ? appChoices.filter((a) => ids.includes(a.id)).map((a) => a.label).join(", ") : t("team.allApps"));
   const areasLine = (role: string, areas: readonly string[]) =>
@@ -44,8 +51,6 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
       : t("team.everything");
   const roleName = (role: string) => t(`team.roles.${role}` as DashKey);
 
-  const params = await searchParams;
-  const one = (name: string) => (typeof params[name] === "string" ? (params[name] as string) : "");
   const done =
     one("done") === "resent"
       ? t("team.done.resent", { email: one("email") })
@@ -177,6 +182,26 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
       ) : null}
 
       <Section title={t("team.activity")} titleId="team-activity" description={t("team.activityText")} flush>
+        {people.length > 1 ? (
+          <form method="get" action="/dashboard/team#team-activity" className="flex flex-wrap items-end gap-2 border-b border-line-soft px-5 py-3 sm:px-6" data-testid="team-activity-filter">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <label htmlFor="f-activity-person" className="text-sm font-semibold">
+                {t("team.activityPerson")}
+              </label>
+              <select id="f-activity-person" name="person" defaultValue={person ?? ""} className="input input-sm min-w-48">
+                <option value="">{t("team.activityEveryone")}</option>
+                {people.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="submit" className={`${btn.secondary} h-10 px-4 text-sm`}>
+              {t("team.activityShow")}
+            </button>
+          </form>
+        ) : null}
         {activity.items.length ? (
           <ol className="m-0 flex list-none flex-col p-0" data-testid="team-activity">
             {activity.items.map((entry) => (
@@ -194,6 +219,13 @@ export default async function TeamPage({ searchParams }: PageProps<"/dashboard/t
         ) : (
           <p className="m-0 px-5 py-4 text-sm text-muted sm:px-6">{t("team.noActivity")}</p>
         )}
+        {pages > 1 ? (
+          <nav aria-label={t("team.activityPages")} className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3 text-sm sm:px-6" data-testid="team-activity-pages">
+            {page > 1 ? <Link href={activityHref(page - 1)}>{t("listings.newer")}</Link> : <span />}
+            <span className="text-muted">{t("common.page", { page, pages })}</span>
+            {page < pages ? <Link href={activityHref(page + 1)}>{t("listings.older")}</Link> : <span />}
+          </nav>
+        ) : null}
       </Section>
     </>
   );

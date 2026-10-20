@@ -16,6 +16,7 @@ const TONE: Record<MemberCheckInOutcome, "ok" | "stop" | "warn"> = {
   expired: "stop",
   cancelled: "stop",
   not_started: "stop",
+  frozen: "stop",
   no_credits: "stop",
   forged: "stop",
   not_found: "warn",
@@ -37,6 +38,8 @@ export function MemberResult({ state, timeZone }: { state: MemberCheckInState; t
     expired: m?.endsAt ? t("door.expiredOn", { date: day(m.endsAt) }) : t("door.expired"),
     cancelled: t("door.cancelled"),
     not_started: t("door.notStarted"),
+    // 64 "Frozen until …", the day it's back.
+    frozen: m?.frozenUntil ? t("door.frozenUntil", { date: day(m.frozenUntil) }) : t("door.frozen"),
     no_credits: t("door.noCredits"),
     forged: t("door.forged"),
     not_found: t("door.notFound"),

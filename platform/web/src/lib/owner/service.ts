@@ -81,6 +81,11 @@ const ROUTES: Route[] = [
   route("GET", "apps/:app_id/members", members.listMembers),
   route("POST", "apps/:app_id/members/check-in", members.checkInMember),
   route("GET", "apps/:app_id/members/check-ins", members.listCheckIns),
+  // 64 Frozen memberships; hiding a question or an answer.
+  route("PUT", "apps/:app_id/members/:membership_id/freeze", members.freezeMember),
+  route("DELETE", "apps/:app_id/members/:membership_id/freeze", members.unfreezeMember),
+  route("PATCH", "apps/:app_id/questions/:question_id", community.updateQuestion),
+  route("PATCH", "apps/:app_id/questions/:question_id/answers/:answer_id", community.updateAnswer),
   route("GET", "apps/:app_id/users", library.listAppUsers),
   route("GET", "apps/:app_id/analytics", insights.analytics),
   route("GET", "apps/:app_id/notifications", insights.listNotifications),

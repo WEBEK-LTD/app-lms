@@ -263,3 +263,46 @@ test("63 members show their code at the door; the desk lets each in once a day, 
   expect(visits).toMatchObject({ count: 3 });
   expect(visits.items.map((v: { name: string }) => v.name).sort()).toEqual(["Ada", "Burak", "Cem"]);
 });
+
+test("64 the desk freezes a membership until a day: the door says so, the app says Frozen, and unfreezing gives the days back", async ({ request }) => {
+  await own.goto("/dashboard/members");
+  const burak = own.getByRole("listitem").filter({ hasText: "Burak ·" });
+  await burak.getByText("Freeze the membership of Burak").click();
+  const today = await burak.getByLabel("First frozen day").inputValue();
+  const [y, m, d] = today.split("-").map(Number) as [number, number, number];
+  const back = new Date(Date.UTC(y, m - 1, d + 7)).toISOString().slice(0, 10);
+  await burak.getByLabel("Back on (optional)").fill(back);
+  await burak.getByRole("button", { name: "Freeze", exact: true }).click();
+  const backLabel = new Date(`${back}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  await expect(own.getByTestId(/^frozen-/)).toContainText(`Frozen until ${backLabel}`);
+  await expect(burak.getByText("Frozen", { exact: true })).toBeVisible();
+
+  // The app: My membership says Frozen, until the day it's back, and the end moved by the 7 days.
+  const before = (await (await request.get(`${api}/me/memberships`, { headers: members.Burak!.headers })).json()).items[0] as { ends_at: string; frozen: { from: string; until: string } };
+  expect(before.frozen.until).toBeTruthy();
+  // The door, on the dashboard and on the phone.
+  await own.goto("/dashboard/members/check-in");
+  await own.getByLabel("Name, mobile number or email").fill("Burak");
+  await own.getByRole("button", { name: "Find" }).click();
+  await own.getByTestId("member-matches").getByRole("button", { name: "Check in Burak" }).click();
+  await expect(own.getByTestId("member-matches").getByTestId("member-result")).toContainText(`Frozen until ${backLabel}`);
+
+  const signedIn = await request.post(`${E2E.baseURL}/api/owner/v1/auth/sign-in`, { data: { email: client.email, password: client.password, device: { name: "Desk phone 2", platform: "android" } } });
+  const phone = { authorization: `Bearer ${((await signedIn.json()) as { access_token: string }).access_token}` };
+  const ownerApi = `${E2E.baseURL}/api/owner/v1/apps/${api.split("/").pop()!}`;
+  const found = (await (await request.get(`${ownerApi}/members?q=Burak`, { headers: phone })).json()).items[0] as { membership_id: number; status: string };
+  expect(found.status).toBe("frozen");
+  const door = await (await request.post(`${ownerApi}/members/check-in`, { headers: phone, data: { membership_id: found.membership_id } })).json();
+  expect(door).toMatchObject({ outcome: "frozen", admitted: false });
+  // Unfrozen from the phone today: the 7 days are given back.
+  const unfrozen = await request.delete(`${ownerApi}/members/${found.membership_id}/freeze`, { headers: phone });
+  expect(unfrozen.status()).toBe(200);
+  expect(await unfrozen.json()).toMatchObject({ status: "active", frozen: null });
+  const after = (await (await request.get(`${api}/me/memberships`, { headers: members.Burak!.headers })).json()).items[0] as { ends_at: string; frozen: null };
+  expect(after.frozen).toBeNull();
+  expect(new Date(before.ends_at).getTime() - new Date(after.ends_at).getTime()).toBe(7 * 86_400_000);
+  // The Team page has both.
+  await own.goto("/dashboard/team");
+  await expect(own.getByTestId("team-activity")).toContainText('Unfroze the membership of "Burak"');
+  await expect(own.getByTestId("team-activity")).toContainText('Froze the membership of "Burak"');
+});

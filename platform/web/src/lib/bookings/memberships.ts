@@ -32,28 +32,52 @@ export function membershipEnd(period: MembershipPeriod, start: Date): Date | nul
   return end;
 }
 
-/** Whether a membership counts now: not cancelled, started and not ended. */
-export function membershipActive(m: Pick<Membership, "status" | "startsAt" | "endsAt">, now: Date): boolean {
-  return m.status === "active" && m.startsAt <= now && (m.endsAt === null || m.endsAt > now);
+type MembershipTimes = Pick<Membership, "status" | "startsAt" | "endsAt" | "frozenFrom" | "frozenUntil">;
+
+/** 64 Frozen now: a freeze that started and isn't over (lib/bookings/freeze.ts). */
+export function membershipFrozen(m: Pick<Membership, "frozenFrom" | "frozenUntil">, now: Date): boolean {
+  return !!m.frozenFrom && m.frozenFrom.getTime() <= now.getTime() && (!m.frozenUntil || now.getTime() < m.frozenUntil.getTime());
 }
 
-/** What the app and the dashboard show: active, expired or cancelled. */
-export function membershipStatus(m: Pick<Membership, "status" | "startsAt" | "endsAt">, now: Date): "active" | "expired" | "cancelled" {
+/** 64 A freeze now or to come (one that ended is only kept). */
+export function membershipFreezeSet(m: Pick<Membership, "frozenFrom" | "frozenUntil">, now: Date): boolean {
+  return !!m.frozenFrom && (!m.frozenUntil || now.getTime() < m.frozenUntil.getTime());
+}
+
+/** Past its end. 64 A freeze without an end that started holds the end (it moves when unfrozen). */
+function ended(m: MembershipTimes, now: Date): boolean {
+  if (m.endsAt === null || m.endsAt > now) return false;
+  return !(m.frozenFrom && !m.frozenUntil && m.frozenFrom <= now);
+}
+
+/** Whether a membership counts now: not cancelled, started and not ended (64 frozen ones count, but book no classes). */
+export function membershipActive(m: MembershipTimes, now: Date): boolean {
+  return m.status === "active" && m.startsAt <= now && !ended(m, now);
+}
+
+/** What the app and the dashboard show: active, expired or cancelled (64 a frozen one is active; membershipFrozen says so). */
+export function membershipStatus(m: MembershipTimes, now: Date): "active" | "expired" | "cancelled" {
   if (m.status === "cancelled") return "cancelled";
-  return m.endsAt !== null && m.endsAt <= now ? "expired" : "active";
+  return ended(m, now) ? "expired" : "active";
 }
 
 /**
  * The membership a class booking uses: an unlimited one first, else the
  * one with credits left that ends first (packs last). Used inside the
- * stores' booking step.
+ * stores' booking step. 64 Active now, and not frozen when the class
+ * starts (`classAt`): a freeze from tomorrow doesn't stop today's class,
+ * and one that ends on Friday doesn't stop Saturday's.
  */
 export function membershipToUse(
   memberships: Membership[],
   now: Date,
-): { ok: true; membership: Membership } | { ok: false; reason: "membership_required" | "no_credits" } {
-  const active = memberships.filter((m) => membershipActive(m, now));
-  if (active.length === 0) return { ok: false, reason: "membership_required" };
+  classAt: Date = now,
+): { ok: true; membership: Membership } | { ok: false; reason: "membership_required" | "membership_frozen" | "no_credits" } {
+  const counting = memberships.filter((m) => membershipActive(m, now));
+  if (counting.length === 0) return { ok: false, reason: "membership_required" };
+  // 64 A frozen membership books no classes.
+  const active = counting.filter((m) => !membershipFrozen(m, classAt));
+  if (active.length === 0) return { ok: false, reason: "membership_frozen" };
   const usable = active
     .filter((m) => m.creditsLeft === null || m.creditsLeft > 0)
     .sort(

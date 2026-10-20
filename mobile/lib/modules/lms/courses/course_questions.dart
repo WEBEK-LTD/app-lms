@@ -126,6 +126,7 @@ class _QuestionCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 15, height: 1.45, color: p.text),
           ),
+          if (question.hidden) HiddenNote(top: 6),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -242,6 +243,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                     value.question.text,
                     style: TextStyle(fontSize: 16, height: 1.5, color: p.text),
                   ),
+                  if (value.question.hidden) const HiddenNote(top: 8),
                 ],
               ),
             ),
@@ -282,6 +284,7 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
                         color: p.textBody,
                       ),
                     ),
+                    if (a.hidden) const HiddenNote(top: 6),
                   ],
                 ),
               ),
@@ -306,4 +309,21 @@ class _QuestionScreenState extends ConsumerState<QuestionScreen> {
       ),
     };
   }
+}
+
+/// 64 Under the student's own question or answer that the business hid:
+/// nobody else sees it.
+class HiddenNote extends StatelessWidget {
+  const HiddenNote({super.key, this.top = 6});
+
+  final double top;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(top: top),
+    child: Text(
+      context.l10n.qnaHiddenNote,
+      style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
+    ),
+  );
 }

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { courseSetup } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
-import type { CourseQuestionStatus } from "@/lib/data/types";
+import { questionFilter } from "@/lib/courses/community";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const PER_PAGE = 30;
 const WHEN: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
-const FILTERS = ["open", "answered", "all"] as const;
+const FILTERS = ["open", "answered", "hidden", "all"] as const;
 
 /** 63 Students' questions in the courses managed here, the latest activity first; waiting ones by default. */
 export default async function QuestionsPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
@@ -32,12 +32,12 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const filter = FILTERS.find((f) => f === params.status) ?? "open";
   const page = Math.max(1, Math.min(10_000, Number.parseInt(params.page ?? "1", 10) || 1));
   const store = await getStore();
-  const status: CourseQuestionStatus | undefined = filter === "all" ? undefined : filter;
-  const { items, total } = await store.listCourseQuestions({ appId: app.id, ...(status ? { status } : {}), order: "updated", offset: (page - 1) * PER_PAGE, limit: PER_PAGE });
+  // 64 Waiting and answered: the questions shown in the app; hidden ones have their own list.
+  const { items, total } = await store.listCourseQuestions({ appId: app.id, ...questionFilter(filter), order: "updated", offset: (page - 1) * PER_PAGE, limit: PER_PAGE });
   const titles = new Map(courseSetup(app).courses.map((c) => [c.id, c.title]));
   const users = new Map((await Promise.all([...new Set(items.map((q) => q.userId))].map((id) => store.getHostedUser(app.id, id)))).filter((u) => u !== null).map((u) => [u.id, u]));
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
-  const label = { open: t("community.waiting"), answered: t("community.answered"), all: t("community.all") };
+  const label = { open: t("community.waiting"), answered: t("community.answered"), hidden: t("community.hidden"), all: t("community.all") };
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,7 +77,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
                       <span className="text-[13px] text-muted">{t("community.answers", { count: q.answerCount })}</span>
                     </span>
                     <span className="shrink-0 text-[13px] text-muted">{t("listings.utc", { time: date(q.updatedAt, WHEN) })}</span>
-                    {q.status === "open" ? <Badge tone="info">{t("community.waiting")}</Badge> : null}
+                    {q.hidden ? <Badge tone="neutral">{t("community.hiddenBadge")}</Badge> : q.status === "open" ? <Badge tone="info">{t("community.waiting")}</Badge> : null}
                   </Link>
                 </li>
               );

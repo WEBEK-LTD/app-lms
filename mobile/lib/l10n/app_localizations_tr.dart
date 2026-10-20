@@ -3530,4 +3530,28 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get reviewHiddenNote =>
       'Akademi gizledi. Yalnızca siz görebilirsiniz.';
+
+  @override
+  String get qnaHiddenNote =>
+      'Akademi bunu gizledi. Yalnızca siz görebilirsiniz.';
+
+  @override
+  String get membershipFrozen => 'Donduruldu';
+
+  @override
+  String membershipFrozenUntil(String date) {
+    return '$date tarihine kadar donduruldu';
+  }
+
+  @override
+  String get membershipFrozenOpen => 'Dondurma kaldırılana kadar donduruldu';
+
+  @override
+  String membershipFreezesOn(String date) {
+    return '$date tarihinden itibaren dondurulacak';
+  }
+
+  @override
+  String get membershipFrozenAtDoor =>
+      'Üyeliğiniz donduruldu; geri gelene kadar bu kodla giriş yapamazsınız.';
 }

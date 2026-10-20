@@ -37,6 +37,11 @@ export const en = {
   removeReply: "Remove the reply",
   replyFrom: "Your reply",
   deletedCourse: "A deleted course",
+  hideQuestion: "Hide the question",
+  showQuestion: "Show the question again",
+  questionHidden: "Hidden from others: only the student who asked sees it in the app, with a note. Hiding doesn't answer it.",
+  hideAnswer: "Hide<sr> the answer of {name}</sr>",
+  showAnswer: "Show again<sr> the answer of {name}</sr>",
   known: {
     writeAnswer: "Write your answer.",
     writeReply: "Write your reply.",
@@ -53,6 +58,11 @@ export const en = {
     repliedIn: 'Replied to a review of "{course}"',
     hidIn: 'Hid a review of "{course}"',
     showedIn: 'Showed a review of "{course}" again',
+    ownAnswer: "Your own answers can't be hidden.",
+    hidQuestionIn: 'Hid a question in "{course}"',
+    showedQuestionIn: 'Showed a question in "{course}" again',
+    hidAnswerIn: 'Hid an answer in "{course}"',
+    showedAnswerIn: 'Showed an answer in "{course}" again',
   },
 } as const;
 
@@ -94,6 +104,11 @@ export const ar: Messages = {
   removeReply: "حذف الرد",
   replyFrom: "ردك",
   deletedCourse: "دورة محذوفة",
+  hideQuestion: "إخفاء السؤال",
+  showQuestion: "إظهار السؤال مجددًا",
+  questionHidden: "مخفي عن الآخرين: لا يراه في التطبيق إلا الطالب الذي سأله، مع ملاحظة بذلك. الإخفاء لا يُعدّ إجابة.",
+  hideAnswer: "إخفاء<sr> إجابة {name}</sr>",
+  showAnswer: "إظهار مجددًا<sr> إجابة {name}</sr>",
   known: {
     writeAnswer: "اكتب إجابتك.",
     writeReply: "اكتب ردك.",
@@ -110,6 +125,11 @@ export const ar: Messages = {
     repliedIn: "ردّ على تقييم لـ «{course}»",
     hidIn: "أخفى تقييمًا لـ «{course}»",
     showedIn: "أظهر تقييمًا لـ «{course}» مجددًا",
+    ownAnswer: "لا يمكن إخفاء إجاباتك أنت.",
+    hidQuestionIn: "أخفى سؤالًا في «{course}»",
+    showedQuestionIn: "أظهر سؤالًا في «{course}» مجددًا",
+    hidAnswerIn: "أخفى إجابة في «{course}»",
+    showedAnswerIn: "أظهر إجابة في «{course}» مجددًا",
   },
 };
 
@@ -149,6 +169,11 @@ export const tr: Messages = {
   removeReply: "Yanıtı kaldır",
   replyFrom: "Yanıtınız",
   deletedCourse: "Silinmiş bir kurs",
+  hideQuestion: "Soruyu gizle",
+  showQuestion: "Soruyu yeniden göster",
+  questionHidden: "Başkalarından gizli: uygulamada yalnızca soran öğrenci, bir notla birlikte görür. Gizlemek soruyu yanıtlamaz.",
+  hideAnswer: "Gizle<sr>: {name} adlı öğrencinin yanıtı</sr>",
+  showAnswer: "Yeniden göster<sr>: {name} adlı öğrencinin yanıtı</sr>",
   known: {
     writeAnswer: "Yanıtınızı yazın.",
     writeReply: "Yanıtınızı yazın.",
@@ -165,5 +190,10 @@ export const tr: Messages = {
     repliedIn: "“{course}” kursunun bir değerlendirmesini yanıtladı",
     hidIn: "“{course}” kursunun bir değerlendirmesini gizledi",
     showedIn: "“{course}” kursunun bir değerlendirmesini yeniden gösterdi",
+    ownAnswer: "Kendi yanıtlarınız gizlenemez.",
+    hidQuestionIn: "“{course}” kursunda bir soruyu gizledi",
+    showedQuestionIn: "“{course}” kursunda bir soruyu yeniden gösterdi",
+    hidAnswerIn: "“{course}” kursunda bir yanıtı gizledi",
+    showedAnswerIn: "“{course}” kursunda bir yanıtı yeniden gösterdi",
   },
 };

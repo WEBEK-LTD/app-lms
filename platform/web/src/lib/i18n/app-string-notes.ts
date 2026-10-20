@@ -409,6 +409,34 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "فوق ردك تحت تقييم دورة.",
     tr: "Bir kurs değerlendirmesinin altındaki yanıtınızın üstünde.",
   },
+  // 64 Hidden questions and answers, and frozen memberships.
+  "Under the student's own question or answer in a course when the business hid it.": {
+    en: "Under a student's own question or answer in a course when you hid it.",
+    ar: "تحت سؤال الطالب أو إجابته في دورة عندما تخفيها.",
+    tr: "Bir kursta, gizlediğinizde öğrencinin kendi sorusunun ya da yanıtının altında.",
+  },
+  "Status of a membership the business froze.": {
+    en: "Status of a membership you froze.",
+    ar: "حالة عضوية جمّدتها.",
+    tr: "Dondurduğunuz bir üyeliğin durumu.",
+  },
+  "On a frozen membership: the day it's back.": {
+    ar: "على عضوية مجمّدة: يوم عودتها.",
+    tr: "Dondurulmuş bir üyelikte: geri geleceği gün.",
+  },
+  "On a frozen membership without a day it's back.": {
+    ar: "على عضوية مجمّدة دون يوم عودة.",
+    tr: "Geri geleceği günü olmayan dondurulmuş bir üyelikte.",
+  },
+  "On a membership the business will freeze from a later day.": {
+    en: "On a membership you'll freeze from a later day.",
+    ar: "على عضوية ستجمّدها من يوم لاحق.",
+    tr: "Daha sonraki bir günden itibaren donduracağınız bir üyelikte.",
+  },
+  "Under a gym member's QR code while the membership is frozen.": {
+    ar: "تحت رمز QR الخاص بعضو النادي أثناء تجميد العضوية.",
+    tr: "Üyelik dondurulmuşken spor salonu üyesinin QR kodunun altında.",
+  },
   "Under the student's own review when the business hid it.": {
     en: "Under a student's own review when you hid it.",
     ar: "تحت تقييم الطالب نفسه عندما تخفيه.",

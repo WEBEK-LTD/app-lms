@@ -9,6 +9,7 @@ import 'package:yallapp_business/core/api/http_owner_api.dart';
 import 'package:yallapp_business/core/api/models.dart';
 import 'package:yallapp_business/core/auth/token_manager.dart';
 import 'package:yallapp_business/core/auth/token_store.dart';
+import 'package:yallapp_business/core/services/push.dart';
 
 /// Answers requests from a handler, and records them.
 class FakeAdapter implements HttpClientAdapter {
@@ -714,4 +715,108 @@ void main() {
       expect(visits.count, 0);
     },
   );
+
+  test('64 hiding questions and answers, freezing members: paths, bodies and answers', () async {
+    final question = {
+      'id': 31,
+      'course_id': 10,
+      'course_title': 'Arabic',
+      'person': 'Omar',
+      'text': 'Spam',
+      'status': 'open',
+      'hidden': true,
+      'answer_count': 0,
+      'created_at': '2026-10-20T08:00:00Z',
+      'updated_at': '2026-10-20T08:00:00Z',
+      'answers': [
+        {
+          'id': 4,
+          'from': 'student',
+          'name': 'Omar',
+          'text': 'More spam',
+          'hidden': true,
+          'created_at': '2026-10-20T09:00:00Z',
+        },
+      ],
+    };
+    final member = {
+      'membership_id': 7,
+      'name': 'Nour',
+      'phone': null,
+      'plan_name': 'Monthly',
+      'status': 'frozen',
+      'starts_at': '2026-10-01T00:00:00Z',
+      'ends_at': '2026-11-20T00:00:00Z',
+      'credits_left': null,
+      'checked_in_at': null,
+      'frozen': {
+        'from': '2026-10-19T21:00:00Z',
+        'until': '2026-10-26T21:00:00Z',
+      },
+    };
+    api = build((o, body) async {
+      if (o.uri.path.contains('/members/')) return json(200, member);
+      return json(200, question);
+    });
+    final hidden = await api.setQuestionHidden('a', 31, true);
+    expect(adapter.requests.last.method, 'PATCH');
+    expect(adapter.requests.last.uri.path, '/api/owner/v1/apps/a/questions/31');
+    expect(jsonDecode(adapter.bodies.last!), {'hidden': true});
+    expect(hidden.question.hidden, isTrue);
+    expect(hidden.answers.single.hidden, isTrue);
+    await api.setAnswerHidden('a', 31, 4, false);
+    expect(
+      adapter.requests.last.uri.path,
+      '/api/owner/v1/apps/a/questions/31/answers/4',
+    );
+    expect(jsonDecode(adapter.bodies.last!), {'hidden': false});
+
+    final frozen = await api.freezeMember(
+      'a',
+      7,
+      from: '2026-10-20',
+      until: '2026-10-27',
+    );
+    expect(adapter.requests.last.method, 'PUT');
+    expect(
+      adapter.requests.last.uri.path,
+      '/api/owner/v1/apps/a/members/7/freeze',
+    );
+    expect(jsonDecode(adapter.bodies.last!), {
+      'from': '2026-10-20',
+      'until': '2026-10-27',
+    });
+    expect(frozen.frozen, isTrue);
+    expect(frozen.freezeSet, isTrue);
+    expect(frozen.frozenUntil, DateTime.utc(2026, 10, 26, 21));
+    await api.unfreezeMember('a', 7);
+    expect(adapter.requests.last.method, 'DELETE');
+    // The door's answer carries `frozen_until`.
+    final door = MemberCheckIn.fromJson({
+      'outcome': 'frozen',
+      'admitted': false,
+      'message': 'Frozen until 27 Oct 2026',
+      'member': {
+        'membership_id': 7,
+        'name': 'Nour',
+        'plan_name': 'Monthly',
+        'ends_at': null,
+        'credits_left': null,
+        'checked_in_at': null,
+        'frozen_until': '2026-10-26T21:00:00Z',
+      },
+    });
+    expect(door.member!.frozenUntil, DateTime.utc(2026, 10, 26, 21));
+  });
+
+  test('64 a push names its business', () {
+    final target = pushTarget({
+      'kind': 'new_order',
+      'order_id': '1041',
+      'business_id': 'b-2',
+      'business_name': 'Omar Bakery',
+    });
+    expect(target.businessId, 'b-2');
+    expect(target.businessName, 'Omar Bakery');
+  });
 }

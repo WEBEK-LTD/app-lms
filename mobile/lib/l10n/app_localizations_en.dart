@@ -3524,4 +3524,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewHiddenNote => 'Hidden by the academy. Only you can see it.';
+
+  @override
+  String get qnaHiddenNote => 'Hidden by the academy. Only you can see it.';
+
+  @override
+  String get membershipFrozen => 'Frozen';
+
+  @override
+  String membershipFrozenUntil(String date) {
+    return 'Frozen until $date';
+  }
+
+  @override
+  String get membershipFrozenOpen => 'Frozen until it\'s unfrozen';
+
+  @override
+  String membershipFreezesOn(String date) {
+    return 'Frozen from $date';
+  }
+
+  @override
+  String get membershipFrozenAtDoor =>
+      'Your membership is frozen, so this code won\'t let you in until it\'s back.';
 }

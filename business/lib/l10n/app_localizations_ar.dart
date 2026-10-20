@@ -1815,6 +1815,80 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get questionHiddenNote =>
+      'مخفي عن الآخرين: لا يراه في التطبيق إلا الطالب الذي سأله. الإخفاء لا يُعدّ إجابة.';
+
+  @override
+  String get hideQuestion => 'إخفاء السؤال';
+
+  @override
+  String get showQuestion => 'إظهار السؤال مجددًا';
+
+  @override
+  String hideAnswerOf(String name) {
+    return 'إخفاء إجابة $name';
+  }
+
+  @override
+  String showAnswerOf(String name) {
+    return 'إظهار إجابة $name مجددًا';
+  }
+
+  @override
+  String get frozen => 'مجمّدة';
+
+  @override
+  String frozenUntil(String date) {
+    return 'مجمّدة حتى $date';
+  }
+
+  @override
+  String get frozenUntilUnfrozen => 'مجمّدة حتى تلغي التجميد';
+
+  @override
+  String freezesOn(String date) {
+    return 'تُجمَّد في $date';
+  }
+
+  @override
+  String get freeze => 'تجميد';
+
+  @override
+  String freezeNamed(String name) {
+    return 'تجميد عضوية $name';
+  }
+
+  @override
+  String get unfreeze => 'إلغاء التجميد';
+
+  @override
+  String get removeFreeze => 'إزالة التجميد';
+
+  @override
+  String get freezeFrom => 'أول يوم تجميد';
+
+  @override
+  String get freezeBackOn => 'تعود في';
+
+  @override
+  String get freezeNoEnd => 'حتى تلغي التجميد';
+
+  @override
+  String get freezeHelp =>
+      'أثناء التجميد لا يُسمح للعضو بالدخول ولا يمكنه حجز الحصص، ويتأخر تاريخ الانتهاء بعدد أيام التجميد.';
+
+  @override
+  String get frozenDone => 'جُمّدت العضوية.';
+
+  @override
+  String get unfrozenDone => 'لم تعد العضوية مجمّدة.';
+
+  @override
+  String switchedTo(String business) {
+    return 'تعمل الآن على $business';
+  }
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

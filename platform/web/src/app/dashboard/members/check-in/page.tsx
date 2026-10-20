@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("door.title") };
 }
 
-const TONES = { active: "success", expired: "neutral", cancelled: "danger" } as const;
+const TONES = { active: "success", frozen: "info", expired: "neutral", cancelled: "danger" } as const;
 
 /** 63 A gym's door: members checked in by their member code or by name, and who came in today. */
 export default async function MemberCheckInPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -33,7 +33,7 @@ export default async function MemberCheckInPage({ searchParams }: { searchParams
   const { day, zone } = gymDay(app, now);
   const [visits, found] = await Promise.all([dayVisits(store, app, day), query ? findMembers(store, app, { query, now, offset: 0, limit: 20 }) : Promise.resolve(null)]);
   const time = (at: Date) => formatDate(lang, at, { hour: "2-digit", minute: "2-digit", timeZone: zone });
-  const statusLabel = { active: t("bookings.statusActive"), expired: t("bookings.statusEnded"), cancelled: t("events.cancelled") };
+  const statusLabel = { active: t("bookings.statusActive"), frozen: t("door.frozen"), expired: t("bookings.statusEnded"), cancelled: t("events.cancelled") };
 
   return (
     <div className="flex max-w-[760px] flex-col gap-6">

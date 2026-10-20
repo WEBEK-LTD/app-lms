@@ -372,7 +372,7 @@
     },
     {
       "name": "Community",
-      "description": "Course reviews and questions and answers. On Yallapp's hosted API (roadmap 63) the business answers questions and may reply to a review (`Review.reply`) or hide it from others (`hidden`, shown to its author only).",
+      "description": "Course reviews and questions and answers. On Yallapp's hosted API (roadmap 63) the business answers questions and may reply to a review (`Review.reply`) or hide it from others (`hidden`, shown to its author only). Roadmap 64: the business may also hide a question or a single answer (`CourseQuestion.hidden`, `QuestionAnswer.hidden`); a hidden one reaches its author only, never other students' lists or counts.",
       "endpoints": [
         {
           "method": "GET",
@@ -392,7 +392,7 @@
           "method": "GET",
           "path": "/courses/{course_id}/questions",
           "summary": "List a course's questions",
-          "description": "Questions students asked in the course, newest first, without their answers. Enrolled students only.",
+          "description": "Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others.",
           "access": "signed-in"
         },
         {
@@ -406,7 +406,7 @@
           "method": "GET",
           "path": "/questions/{question_id}",
           "summary": "Get a question with its answers",
-          "description": null,
+          "description": "A question the business hid (roadmap 64) is `404` to everyone but its author. Hidden answers are listed only for their author.",
           "access": "signed-in"
         },
         {
@@ -763,7 +763,7 @@
           "method": "POST",
           "path": "/bookings/classes/{class_id}/book",
           "summary": "Book a spot in a class",
-          "description": "Books one spot for the signed-in customer, only while one is left (no overbooking, also when many book at once). Booking a class already booked answers it again. Fails with `class_full` (409), `too_late` (409) once it has started or is closer than `min_minutes_ahead`, `class_cancelled` (409), `membership_required` (403) without an active membership when the business asks for one, and `no_credits` (403) when the membership's credits are used up. With a credit plan, one credit is used.",
+          "description": "Books one spot for the signed-in customer, only while one is left (no overbooking, also when many book at once). Booking a class already booked answers it again. Fails with `class_full` (409), `too_late` (409) once it has started or is closer than `min_minutes_ahead`, `class_cancelled` (409), `membership_required` (403) without an active membership when the business asks for one, `membership_frozen` (403, roadmap 64) when the active memberships are frozen on the class's day, and `no_credits` (403) when the membership's credits are used up. With a credit plan, one credit is used.",
           "access": "signed-in"
         },
         {

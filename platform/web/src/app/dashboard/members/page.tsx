@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cancelMembershipAction } from "@/app/actions/classes";
+import { unfreezeMembershipAction } from "@/app/actions/members";
 import { SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
 import { Badge, formatDate } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
-import { membershipStatus } from "@/lib/bookings/memberships";
+import { memberStatus } from "@/lib/bookings/door";
+import { FREEZE_AHEAD_DAYS, freezeOf, gymDayOf } from "@/lib/bookings/freeze";
+import { addDays } from "@/lib/analytics/days";
+import { formatDate as formatIn } from "@/i18n/format";
 import { bookingSetup } from "@/lib/bookings/setup";
 import { getStore } from "@/lib/data";
 import type { HostedUser } from "@/lib/data/types";
 import { CreditsForm, GiveMembershipForm } from "../memberships/forms";
+import { FreezeForm } from "./freeze-form";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
 import type { DashKey } from "@/i18n/dashboard";
@@ -17,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("bookings.members") };
 }
 
-const TONES = { active: "success", expired: "neutral", cancelled: "danger" } as const;
-const LABELS: Record<"active" | "expired" | "cancelled", DashKey> = { active: "bookings.statusActive", expired: "bookings.statusEnded", cancelled: "events.cancelled" };
+const TONES = { active: "success", frozen: "info", expired: "neutral", cancelled: "danger" } as const;
+const LABELS: Record<"active" | "frozen" | "expired" | "cancelled", DashKey> = { active: "bookings.statusActive", frozen: "freeze.frozen", expired: "bookings.statusEnded", cancelled: "events.cancelled" };
 
 /** 27 Who has which membership: classes left, when it ends, and adding classes or a membership paid another way. */
 export default async function MembersPage() {
@@ -40,8 +46,14 @@ export default async function MembersPage() {
   const memberships = await store.listMemberships({ appId: app.id, limit: 500 });
   const users = new Map<number, HostedUser | null>();
   for (const m of memberships) if (!users.has(m.userId)) users.set(m.userId, await store.getHostedUser(app.id, m.userId));
-  // Active ones first, then the rest, newest first.
-  const rows = [...memberships].sort((a, b) => Number(membershipStatus(a, now) !== "active") - Number(membershipStatus(b, now) !== "active"));
+  // Active ones first (64 frozen ones with them), then the rest, newest first.
+  const current = (m: (typeof memberships)[number]) => ["active", "frozen"].includes(memberStatus(m, now));
+  const rows = [...memberships].sort((a, b) => Number(!current(a)) - Number(!current(b)));
+  // 64 Freezes are in the gym's days.
+  const zone = setup.rules.timezone;
+  const day = (at: Date) => formatIn(lang, at, { day: "numeric", month: "short", year: "numeric", timeZone: zone });
+  const today = gymDayOf(app, now);
+  const latest = addDays(today, FREEZE_AHEAD_DAYS);
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,7 +86,8 @@ export default async function MembersPage() {
             {rows.map((m) => {
               const user = users.get(m.userId);
               const name = user?.name ?? t("bookings.deletedAccount");
-              const status = membershipStatus(m, now);
+              const status = memberStatus(m, now);
+              const freeze = freezeOf(m, now);
               return (
                 <li key={m.id} className="flex flex-col gap-2 rounded-xl border border-line p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -94,7 +107,33 @@ export default async function MembersPage() {
                       .filter(Boolean)
                       .join(" · ")}
                   </span>
-                  {status === "active" ? (
+                  {freeze ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-sand px-3 py-2" data-testid={`frozen-${m.id}`}>
+                      <span className="flex items-center gap-2 text-sm font-semibold">
+                        <Icon name="pause_circle" size={18} />
+                        {freeze.now
+                          ? freeze.until
+                            ? t("freeze.frozenUntil", { date: day(freeze.until) })
+                            : t("freeze.frozenSince", { date: day(freeze.from) })
+                          : [t("freeze.freezesOn", { date: day(freeze.from) }), freeze.until ? t("freeze.backOn", { date: day(freeze.until) }) : null].filter(Boolean).join(" · ")}
+                      </span>
+                      <form action={unfreezeMembershipAction}>
+                        <input type="hidden" name="id" value={m.id} />
+                        <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                          {richText(freeze.now ? t("freeze.unfreeze", { name }) : t("freeze.removeFreeze", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
+                        </SubmitButton>
+                      </form>
+                    </div>
+                  ) : status === "active" ? (
+                    <details className="rounded-xl border border-line px-3.5 py-2">
+                      <summary className="flex min-h-9 cursor-pointer items-center gap-2 text-sm font-semibold">
+                        <Icon name="pause_circle" size={18} />
+                        {richText(t("freeze.freeze", { name }), { sr: (chunk) => <span className="sr-only">{chunk}</span> })}
+                      </summary>
+                      <FreezeForm id={m.id} today={today} latest={latest} />
+                    </details>
+                  ) : null}
+                  {status === "active" || status === "frozen" ? (
                     <div className="flex flex-wrap items-end justify-between gap-3">
                       {m.creditsLeft !== null ? <CreditsForm id={m.id} name={name} /> : <span />}
                       <form action={cancelMembershipAction}>

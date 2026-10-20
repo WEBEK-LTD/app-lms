@@ -3,7 +3,8 @@ import type { DataStore } from "../data/store";
 import type { App, HostedUser, MemberCheckIn, Membership } from "../data/types";
 import { safeEqual } from "../crypto/tokens";
 import { memberCode, memberCodeHash, readMemberCode } from "./member-codes";
-import { membershipStatus } from "./memberships";
+import { freezeOf } from "./freeze";
+import { membershipFrozen, membershipStatus } from "./memberships";
 import { bookingSetup } from "./setup";
 
 /**
@@ -13,7 +14,7 @@ import { bookingSetup } from "./setup";
  * store makes that atomic, so two phones scanning at once let them in once.
  */
 
-export type MemberCheckInOutcome = "admitted" | "already_in" | "expired" | "cancelled" | "not_started" | "no_credits" | "not_found" | "forged" | "not_a_code";
+export type MemberCheckInOutcome = "admitted" | "already_in" | "expired" | "cancelled" | "not_started" | "frozen" | "no_credits" | "not_found" | "forged" | "not_a_code";
 
 export interface MemberAtDoor {
   membershipId: number;
@@ -23,6 +24,8 @@ export interface MemberAtDoor {
   creditsLeft: number | null;
   /** Today's check-in: now when admitted, the earlier one when already in. */
   checkedInAt: Date | null;
+  /** 64 With `frozen`: the day it's back; null until it is unfrozen. */
+  frozenUntil: Date | null;
 }
 
 export interface MemberCheckInAnswer {
@@ -47,16 +50,18 @@ async function nameOf(store: DataStore, appId: string, userId: number): Promise<
   return (await store.getHostedUser(appId, userId))?.name ?? "";
 }
 
-function atDoor(m: Membership, name: string, checkedInAt: Date | null): MemberAtDoor {
-  return { membershipId: m.id, name, planName: m.planName, endsAt: m.endsAt, creditsLeft: m.creditsLeft, checkedInAt };
+function atDoor(m: Membership, name: string, checkedInAt: Date | null, now: Date): MemberAtDoor {
+  return { membershipId: m.id, name, planName: m.planName, endsAt: m.endsAt, creditsLeft: m.creditsLeft, checkedInAt, frozenUntil: membershipFrozen(m, now) ? (m.frozenUntil ?? null) : null };
 }
 
 /** Why the membership doesn't get in now, or null when it does. */
-export function refusal(m: Membership, now: Date): "expired" | "cancelled" | "not_started" | "no_credits" | null {
+export function refusal(m: Membership, now: Date): "expired" | "cancelled" | "not_started" | "frozen" | "no_credits" | null {
   const status = membershipStatus(m, now);
   if (status === "cancelled") return "cancelled";
   if (status === "expired") return "expired";
   if (m.startsAt.getTime() > now.getTime()) return "not_started";
+  // 64 Frozen: "Frozen until …" at the door (lib/bookings/freeze.ts).
+  if (membershipFrozen(m, now)) return "frozen";
   if (m.creditsLeft !== null && m.creditsLeft <= 0) return "no_credits";
   return null;
 }
@@ -113,18 +118,27 @@ export async function checkInMember(input: {
   const why = refusal(found, now);
   if (why) {
     const today = (await store.listMemberCheckIns(app.id, day)).find((c) => c.userId === found.userId);
-    return { outcome: why, member: atDoor(found, name, today?.at ?? null) };
+    return { outcome: why, member: atDoor(found, name, today?.at ?? null, now) };
   }
   const result = await store.checkInMember({ appId: app.id, membershipId: found.id, userId: found.userId, day, at: now, byName: input.by.slice(0, 120) });
-  return { outcome: result.ok ? "admitted" : "already_in", member: atDoor(found, name, result.checkIn.at) };
+  return { outcome: result.ok ? "admitted" : "already_in", member: atDoor(found, name, result.checkIn.at, now) };
 }
 
 export interface MemberRow {
   membership: Membership;
   user: HostedUser | null;
-  status: "active" | "expired" | "cancelled";
+  /** 64 `frozen`: an active membership frozen now. */
+  status: "active" | "frozen" | "expired" | "cancelled";
+  /** 64 A freeze now or to come. */
+  freeze: ReturnType<typeof freezeOf>;
   /** Today's check-in of the member, if any. */
   checkedInAt: Date | null;
+}
+
+/** 64 The status a list shows: active, frozen (now), expired or cancelled. */
+export function memberStatus(m: Membership, now: Date): MemberRow["status"] {
+  const status = membershipStatus(m, now);
+  return status === "active" && membershipFrozen(m, now) ? "frozen" : status;
 }
 
 /**
@@ -143,7 +157,8 @@ export async function findMembers(store: DataStore, app: App, input: { query?: s
     page.map(async (m) => ({
       membership: m,
       user: await store.getHostedUser(app.id, m.userId),
-      status: membershipStatus(m, now),
+      status: memberStatus(m, now),
+      freeze: freezeOf(m, now),
       checkedInAt: today.find((c) => c.userId === m.userId)?.at ?? null,
     })),
   );

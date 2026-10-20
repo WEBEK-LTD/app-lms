@@ -330,6 +330,13 @@
       "when": 1792500827691,
       "tag": "0046_members_and_course_community",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "5",
+      "when": 1792506161039,
+      "tag": "0047_frozen_memberships_hidden_questions",
+      "breakpoints": true
     }
   ]
 }

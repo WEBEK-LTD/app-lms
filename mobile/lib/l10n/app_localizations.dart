@@ -5751,6 +5751,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hidden by the academy. Only you can see it.'**
   String get reviewHiddenNote;
+
+  /// Under the student's own question or answer in a course when the business hid it.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden by the academy. Only you can see it.'**
+  String get qnaHiddenNote;
+
+  /// Status of a membership the business froze.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get membershipFrozen;
+
+  /// On a frozen membership: the day it's back.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen until {date}'**
+  String membershipFrozenUntil(String date);
+
+  /// On a frozen membership without a day it's back.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen until it\'s unfrozen'**
+  String get membershipFrozenOpen;
+
+  /// On a membership the business will freeze from a later day.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen from {date}'**
+  String membershipFreezesOn(String date);
+
+  /// Under a gym member's QR code while the membership is frozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is frozen, so this code won\'t let you in until it\'s back.'**
+  String get membershipFrozenAtDoor;
 }
 
 class _AppLocalizationsDelegate

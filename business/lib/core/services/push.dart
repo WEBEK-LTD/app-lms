@@ -41,11 +41,22 @@ class RemoteNotice {
 
 /// Where a tapped push goes: the app it is about, and the screen.
 class PushTarget {
-  const PushTarget({required this.location, this.appId, this.kind});
+  const PushTarget({
+    required this.location,
+    this.appId,
+    this.kind,
+    this.businessId,
+    this.businessName,
+  });
 
   final String? appId;
   final String location;
   final String? kind;
+
+  /// 64 The business it is about: the app switches to it when it isn't the
+  /// phone's.
+  final String? businessId;
+  final String? businessName;
 }
 
 /// Reads a push's data (`type: owner`, `kind`, `app_id` and the item's ID).
@@ -89,7 +100,13 @@ PushTarget pushTarget(Map<String, dynamic> data) {
           'payment_received' => Paths.updates,
           _ => Paths.today,
         };
-  return PushTarget(location: location, appId: appId, kind: kind);
+  return PushTarget(
+    location: location,
+    appId: appId,
+    kind: kind,
+    businessId: value('business_id'),
+    businessName: value('business_name'),
+  );
 }
 
 class NoPushService implements PushService {

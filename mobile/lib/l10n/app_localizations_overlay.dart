@@ -3646,4 +3646,30 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get reviewHiddenNote =>
       overlay.text('reviewHiddenNote') ?? base.reviewHiddenNote;
+
+  @override
+  String get qnaHiddenNote =>
+      overlay.text('qnaHiddenNote') ?? base.qnaHiddenNote;
+
+  @override
+  String get membershipFrozen =>
+      overlay.text('membershipFrozen') ?? base.membershipFrozen;
+
+  @override
+  String membershipFrozenUntil(String date) =>
+      overlay.format('membershipFrozenUntil', {'date': date}) ??
+      base.membershipFrozenUntil(date);
+
+  @override
+  String get membershipFrozenOpen =>
+      overlay.text('membershipFrozenOpen') ?? base.membershipFrozenOpen;
+
+  @override
+  String membershipFreezesOn(String date) =>
+      overlay.format('membershipFreezesOn', {'date': date}) ??
+      base.membershipFreezesOn(date);
+
+  @override
+  String get membershipFrozenAtDoor =>
+      overlay.text('membershipFrozenAtDoor') ?? base.membershipFrozenAtDoor;
 }

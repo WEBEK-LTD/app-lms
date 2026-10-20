@@ -506,6 +506,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "You sign in with this email address, so it can't be changed here.": "Bu e-posta adresiyle giriş yapıyorsunuz, bu yüzden burada değiştirilemez.",
   "You're already enrolled in this course.": "Bu kursa zaten kayıtlısınız.",
   "You've sent many messages in a short time. Please try again later.": "Kısa sürede çok fazla mesaj gönderdiniz. Lütfen daha sonra tekrar deneyin.",
+  "Your membership is frozen, so classes can't be booked until it's back.": "Üyeliğiniz donduruldu; geri gelene kadar ders ayırtılamaz.",
   "Your membership has no classes left.": "Üyeliğinizde ders hakkı kalmadı.",
   "Your session has ended. Please sign in again.": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
   "Your verification has expired. Please start again.": "Doğrulamanızın süresi doldu. Lütfen baştan başlayın.",

@@ -2247,6 +2247,7 @@ class Question {
     required this.answerCount,
     required this.createdAt,
     required this.updatedAt,
+    this.hidden = false,
   });
 
   factory Question.fromJson(Json json) => Question(
@@ -2256,6 +2257,7 @@ class Question {
     person: str(json, 'person'),
     text: str(json, 'text'),
     status: str(json, 'status', 'open'),
+    hidden: boolean(json, 'hidden'),
     answerCount: integer(json, 'answer_count'),
     createdAt: date(json, 'created_at'),
     updatedAt: date(json, 'updated_at'),
@@ -2269,6 +2271,11 @@ class Question {
 
   /// open (waiting for the business) or answered.
   final String status;
+
+  /// 64 Hidden from others; the student who asked still sees it.
+  final bool hidden;
+
+  /// The answers shown in the app (not the hidden ones).
   final int answerCount;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -2283,6 +2290,7 @@ class QuestionAnswer {
     required this.name,
     required this.text,
     required this.createdAt,
+    this.hidden = false,
   });
 
   factory QuestionAnswer.fromJson(Json json) => QuestionAnswer(
@@ -2290,6 +2298,7 @@ class QuestionAnswer {
     fromBusiness: str(json, 'from') == 'business',
     name: str(json, 'name'),
     text: str(json, 'text'),
+    hidden: boolean(json, 'hidden'),
     createdAt: date(json, 'created_at'),
   );
 
@@ -2297,6 +2306,9 @@ class QuestionAnswer {
   final bool fromBusiness;
   final String name;
   final String text;
+
+  /// 64 A student's answer hidden from others; its author still sees it.
+  final bool hidden;
   final DateTime createdAt;
 }
 
@@ -2409,27 +2421,48 @@ class Member {
     this.endsAt,
     this.creditsLeft,
     this.checkedInAt,
+    this.frozenFrom,
+    this.frozenUntil,
   });
 
-  factory Member.fromJson(Json json) => Member(
-    membershipId: integer(json, 'membership_id'),
-    name: str(json, 'name'),
-    phone: optStr(json, 'phone'),
-    planName: str(json, 'plan_name'),
-    status: str(json, 'status', 'active'),
-    endsAt: optDate(json, 'ends_at'),
-    creditsLeft: optInt(json, 'credits_left'),
-    checkedInAt: optDate(json, 'checked_in_at'),
-  );
+  factory Member.fromJson(Json json) {
+    final freeze = optObject(json, 'frozen');
+    return Member(
+      membershipId: integer(json, 'membership_id'),
+      name: str(json, 'name'),
+      phone: optStr(json, 'phone'),
+      planName: str(json, 'plan_name'),
+      status: str(json, 'status', 'active'),
+      endsAt: optDate(json, 'ends_at'),
+      creditsLeft: optInt(json, 'credits_left'),
+      checkedInAt: optDate(json, 'checked_in_at'),
+      frozenFrom: freeze == null ? null : optDate(freeze, 'from'),
+      // The door's answer has `frozen_until`; a member in a list, `frozen`.
+      frozenUntil: freeze == null
+          ? optDate(json, 'frozen_until')
+          : optDate(freeze, 'until'),
+    );
+  }
 
   final int membershipId;
   final String name;
   final String? phone;
   final String planName;
 
-  /// active, expired or cancelled.
+  /// active, frozen (64, now), expired or cancelled.
   final String status;
   final DateTime? endsAt;
+
+  /// 64 A freeze now or to come: from the start of a day; null: none.
+  final DateTime? frozenFrom;
+
+  /// 64 The day it's back; null until the gym unfreezes it.
+  final DateTime? frozenUntil;
+
+  bool get frozen => status == 'frozen';
+
+  /// 64 A freeze now or to come.
+  bool get freezeSet => frozenFrom != null;
 
   /// Null for unlimited classes.
   final int? creditsLeft;
@@ -2468,8 +2501,8 @@ class MemberCheckIn {
     );
   }
 
-  /// admitted, already_in, expired, cancelled, not_started, no_credits,
-  /// not_found, forged, not_a_code.
+  /// admitted, already_in, expired, cancelled, not_started, frozen (64),
+  /// no_credits, not_found, forged, not_a_code.
   final String outcome;
   final bool admitted;
   final String message;

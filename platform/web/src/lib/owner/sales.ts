@@ -10,6 +10,7 @@ import { BOOKING_STATUS_LABELS, bookingSetup } from "../bookings/setup";
 import { localToUtc, utcToLocal } from "../bookings/time";
 import { FULFILMENT_LABELS } from "../catalog/fulfilment";
 import { formatCents } from "../catalog/money";
+import { countOpenQuestions } from "../courses/community";
 import { changeOrderStatus, nextOrderStatuses } from "../catalog/order-status";
 import { ORDER_STATUS_LABELS, orderNumber } from "../catalog/settings";
 import type { App, BookingAppointment, CatalogCurrency, CatalogOrder, CatalogOrderStatus, Donation, License } from "../data/types";
@@ -113,7 +114,7 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   }
   // 63 Course questions waiting for the business.
   if (areas.questions) {
-    const open = (await store.listCourseQuestions({ appId: app.id, status: "open", order: "updated", offset: 0, limit: 1 })).total;
+    const open = await countOpenQuestions(store, app.id);
     if (open) needs.push({ kind: "questions_to_answer", count: open, title: ctx.t("owner.needs.questions", { count: open }), notice_id: null });
   }
   if (areas.appUsers) counts.new_users = await store.countHostedUsersCreated(app.id, day.start, day.end);

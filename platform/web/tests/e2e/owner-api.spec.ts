@@ -60,7 +60,10 @@ async function setUpApp(kind: string, website: string | null) {
   return (await own.locator("code").filter({ hasText: "/api/app/" }).textContent())!.trim();
 }
 
-async function signInCustomer(request: APIRequestContext, api: string, phone: string): Promise<Record<string, string>> {
+/** 64 The 63 test's student, for the next one. */
+let monaHeaders: Record<string, string> = {};
+
+async function signInCustomer(request: APIRequestContext, api: string, phone: string, name = "Mona Adel"): Promise<Record<string, string>> {
   const device = { id: `install-${phone}-${suffix}`, platform: "android", name: "Pixel 8", app_version: "1.0.0" };
   const requested = await request.post(`${api}/auth/otp/request`, { data: { country_code: "+90", phone } });
   expect(requested.status()).toBe(200);
@@ -69,7 +72,7 @@ async function signInCustomer(request: APIRequestContext, api: string, phone: st
   await expect.poll(() => codes.get(e164)).toBeTruthy();
   const verified = (await (await request.post(`${api}/auth/otp/verify`, { data: { request_id, code: codes.get(e164), device } })).json()) as { signup_token?: string; access_token?: string };
   if (verified.access_token) return { authorization: `Bearer ${verified.access_token}` };
-  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name: "Mona Adel", device } });
+  const registered = await request.post(`${api}/auth/register`, { data: { signup_token: verified.signup_token, name, device } });
   expect(registered.status()).toBe(201);
   return { authorization: `Bearer ${((await registered.json()) as { access_token: string }).access_token}` };
 }
@@ -335,6 +338,7 @@ test("the owner adds a lesson from the phone, and the app has it", async ({ requ
 
 test("63 a student asks and reviews; the owner's phone hears of it, answers and replies; the dashboard shows them", async ({ request }) => {
   const student = await signInCustomer(request, academyApi, "534 222 01 58");
+  monaHeaders = student;
   const config = await (await request.get(`${academyApi}/config?platform=android&app_version=1.0.0`)).json();
   expect(config.features).toMatchObject({ reviews: true, qna: true });
   // Only students of the course ask.
@@ -392,6 +396,50 @@ test("63 a student asks and reviews; the owner's phone hears of it, answers and 
   expect(await (await request.get(`${academyApi}/courses/${courseId}/reviews`, { headers: student })).json()).toMatchObject({ mine: { status: "hidden" } });
   await own.getByRole("button", { name: "Show again the review of Mona Adel" }).click();
   await expect(own.getByTestId("course-reviews")).not.toContainText("Hidden from others");
+});
+
+test("64 the business hides a question and a student's answer: their authors still see them, others don't", async ({ request }) => {
+  const mona = monaHeaders;
+  const kerem = await signInCustomer(request, academyApi, "534 222 01 59", "Kerem");
+  expect((await request.post(`${academyApi}/courses/${courseId}/enroll`, { headers: kerem })).status()).toBe(200);
+  const spam = ((await (await request.post(`${academyApi}/courses/${courseId}/questions`, { headers: kerem, data: { text: "Cheap followers here!" } })).json()) as { id: number }).id;
+  const first = ((await (await request.get(`${academyApi}/courses/${courseId}/questions`, { headers: mona })).json()) as { items: { id: number; text: string }[] }).items.find((q) => q.text === "Is there homework?")!;
+  const rude = await request.post(`${academyApi}/questions/${first.id}/answers`, { headers: kerem, data: { text: "Rude words" } });
+  expect(rude.status()).toBe(201);
+  // 60.14: the push names the business it is about.
+  await expect.poll(async () => (await ownerPushes()).some((p) => p.to.includes(deviceId) && p.message.data.question_id === String(spam) && !!p.message.data.business_id)).toBe(true);
+
+  // The dashboard hides the question and the answer.
+  await own.goto(`/dashboard/open/${academyId}?to=questions`);
+  await own.getByTestId("course-questions").getByText("Cheap followers here!").click();
+  await own.getByRole("button", { name: "Hide the question" }).click();
+  await expect(own.getByTestId("question-thread")).toContainText("Hidden from others");
+  await own.goto(`/dashboard/courses/questions/${first.id}`);
+  await own.getByRole("button", { name: "Hide the answer of Kerem" }).click();
+  await expect(own.getByTestId("question-thread").locator("[data-hidden]")).toContainText("Rude words");
+  await own.goto("/dashboard/courses/questions?status=hidden");
+  await expect(own.getByTestId("course-questions")).toContainText("Cheap followers here!");
+
+  // Mona doesn't see either; Kerem sees both, told they're hidden.
+  const forMona = await (await request.get(`${academyApi}/courses/${courseId}/questions`, { headers: mona })).json();
+  expect(forMona.items.map((q: { id: number }) => q.id)).not.toContain(spam);
+  expect((await request.get(`${academyApi}/questions/${spam}`, { headers: mona })).status()).toBe(404);
+  const thread = await (await request.get(`${academyApi}/questions/${first.id}`, { headers: mona })).json();
+  expect(thread.answers.map((a: { text: string }) => a.text)).not.toContain("Rude words");
+  expect(thread.answer_count).toBe(thread.answers.length);
+  expect(await (await request.get(`${academyApi}/questions/${spam}`, { headers: kerem })).json()).toMatchObject({ hidden: true, mine: true });
+  const forKerem = await (await request.get(`${academyApi}/questions/${first.id}`, { headers: kerem })).json();
+  expect(forKerem.answers).toContainEqual(expect.objectContaining({ text: "Rude words", hidden: true, mine: true }));
+
+  // The owner's phone lists it with the hidden ones and shows it again.
+  const hidden = await (await request.get(`${owner}/apps/${academyId}/questions?status=hidden`, { headers: bearer() })).json();
+  expect(hidden).toMatchObject({ total: 1, items: [{ id: spam, hidden: true }] });
+  const shown = await request.patch(`${owner}/apps/${academyId}/questions/${spam}`, { headers: bearer(), data: { hidden: false } });
+  expect(await shown.json()).toMatchObject({ hidden: false });
+  expect((await request.get(`${academyApi}/questions/${spam}`, { headers: mona })).status()).toBe(200);
+  await own.goto("/dashboard/team");
+  await expect(own.getByTestId("team-activity")).toContainText('Showed a question in "Turkish for Beginners" again');
+  await expect(own.getByTestId("team-activity")).toContainText('Hid an answer in "Turkish for Beginners"');
 });
 
 test("the owner sends a notification to the app's users from the phone", async ({ request }) => {
