@@ -428,6 +428,51 @@ The server side of Yallapp's own app for app owners (`docs/api/owner.yaml`,
       check the next one is in Arabic; sign the phone out from Dashboard ›
       Your phones and check the app is signed out.
 
+## 7l. Yallapp Business in the stores (Phase 59)
+
+The app itself (`business/`, see its README). Store listings go under
+**Yallapp's own** Google Play and Apple developer accounts, not a client's.
+
+- [ ] In the Yallapp Business Firebase project (7k), register the Android app
+      `tr.com.yallapp.business` and the iOS app `tr.com.yallapp.business`.
+      Copy their API keys and app IDs into `business/config/firebase.json`
+      on the build machine (from `config/firebase.example.json`; git-ignored,
+      never committed) and build with
+      `--dart-define-from-file=config/firebase.json`. No
+      `google-services.json` or `GoogleService-Info.plist` goes in the repo.
+- [ ] iOS: in Xcode, add the Push Notifications capability (and Background
+      Modes › Remote notifications, already in Info.plist) to the Runner
+      target under Yallapp's team; upload the APNs key to the Firebase
+      project (7k).
+- [ ] Android signing: create Yallapp Business's upload key, keep it in the
+      team's password manager, and put `business/android/key.properties`
+      (storeFile, storePassword, keyAlias, keyPassword; git-ignored) on the
+      build machine. Enrol in Play App Signing. iOS: distribution
+      certificate and an App Store provisioning profile for
+      `tr.com.yallapp.business`.
+- [ ] Store listings in English, Arabic and Turkish: name "Yallapp Business",
+      the Yallapp icon (`brand/stores`), screenshots of Today, Orders, the
+      scanner and the notification composer from the demo
+      (`--dart-define=YB_DEMO=true`), Yallapp's privacy policy
+      (`https://yallapp.com.tr/privacy`), contact `info@yallapp.com.tr`.
+- [ ] Data safety / App privacy: the email, name and the device's name are
+      used to sign in and list signed-in devices; push tokens for
+      notifications; camera (tickets, pictures, videos), microphone (videos)
+      and photos (uploads) only when the owner uses them; no tracking, no ads.
+- [ ] **Review notes, both stores**: the app is a companion for businesses
+      that already have a Yallapp account; it sells nothing and has **no
+      payments of any kind** (no in-app purchases, no links presented as a
+      way to buy: plan and storage are shown read-only with "Manage on
+      yallapp.com.tr"). Give the reviewers a demo account on a test client
+      with a sample app (orders, appointments and events), and say that
+      sign-up happens on the website, not in the app (Apple 3.1.3(c)
+      "Enterprise services" / 5.1.1(v) account rules: the app has no account
+      creation and offers sign-out and the website for deletion).
+- [ ] Before submitting: sign in on a real Android phone and an iPhone,
+      check the biometric lock, a push for a test order opening the order,
+      a ticket scanned at the door, an upload of a phone video to Media,
+      and the app in Arabic.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

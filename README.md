@@ -16,6 +16,7 @@ Website: [yallapp.com.tr](https://yallapp.com.tr)
 | [`docs/`](docs) | Roadmap, architecture, brand rules and the API contract | Active |
 | [`wp-plugin/yallapp/`](wp-plugin/yallapp) | The Yallapp WordPress plugin (PHP) | Phase 2 |
 | [`mobile/`](mobile) | The white-label Flutter app: shared core plus one module per app type | Phase 3 |
+| [`business/`](business) | Yallapp Business: Yallapp's own Flutter app for the people who run an app on Yallapp | Phase 59 |
 | [`platform/web/`](platform/web) | yallapp.com.tr on Netlify: website, client dashboard, super admin, license API | Phase 4 |
 | [`build/`](build) | CI pipelines that build, sign and publish each client's apps | Phase 5 |
 | [`brand/`](brand) | Yallapp logo, icon, store and favicon files | Active |
@@ -42,6 +43,10 @@ composer install
 composer lint
 composer test                 # unit tests
 tests/integration/run.sh      # builds WordPress + Tutor LMS on SQLite and runs the API checks
+
+# Yallapp Business (the owners' app)
+cd business
+flutter pub get && dart format --output=none --set-exit-if-changed lib test && flutter analyze && flutter test
 
 # Platform (yallapp.com.tr)
 cd platform/web
