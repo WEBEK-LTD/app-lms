@@ -34,7 +34,7 @@ same checks locally before pushing:
 
 ```sh
 # API contract
-npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml
+npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml docs/api/owner.yaml
 
 # WordPress plugin
 cd wp-plugin/yallapp

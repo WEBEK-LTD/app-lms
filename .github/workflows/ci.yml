@@ -55,8 +55,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Lint docs/api/openapi.yaml
-        run: npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml
+      - name: Lint the API contracts
+        run: npx --yes @redocly/cli@2.54.2 lint docs/api/openapi.yaml docs/api/platform.yaml docs/api/pipeline.yaml docs/api/owner.yaml
 
   plugin-syntax:
     name: Plugin syntax (PHP ${{ matrix.php }})
