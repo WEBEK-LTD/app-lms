@@ -187,13 +187,24 @@ export async function homeFor(user: User): Promise<string> {
   return "/dashboard";
 }
 
+/**
+ * 62 Where someone without a valid session goes to sign in: through
+ * /api/session/ended when their browser still has the session's cookies (the
+ * session ended on the server), which clears them so the public pages stop
+ * saying "Dashboard"; else straight to the sign-in page.
+ */
+export async function signInPath(): Promise<string> {
+  const jar = await cookies();
+  return jar.has(SESSION_COOKIE) || jar.has(SIGNED_IN_COOKIE) ? "/api/session/ended" : "/sign-in";
+}
+
 /** For dashboard pages: active (or expired, read-only) clients only. */
 export async function requireClient(): Promise<ClientContext> {
   const context = await getClientContext();
   if (!context) {
     const user = await getCurrentUser();
     if (user && (await getAdminRole())) redirect("/admin");
-    redirect("/sign-in");
+    redirect(user ? "/sign-in" : await signInPath());
   }
   if (!mayUseDashboard(context)) redirect("/pending");
   return context;
@@ -211,7 +222,7 @@ export interface AdminUser extends User {
  */
 export async function requireAdmin(permission: AdminPermission = "view"): Promise<AdminUser> {
   const user = await getCurrentUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect(await signInPath());
   const role = await getAdminRole();
   if (!role) redirect(await homeFor(user));
   if (!can(role, permission)) redirect(`/admin?denied=${permission}`);
