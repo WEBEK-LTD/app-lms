@@ -101,7 +101,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       Text(
                         l10n.signInText,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Brand.ink2,
+                          color: context.yb.ink2,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -170,7 +170,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 dimension: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  color: Brand.white,
+                                  color: context.yb.onInk,
                                   semanticsLabel: l10n.signingIn,
                                 ),
                               )
@@ -214,8 +214,8 @@ class _Notice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, icon) = switch (tone) {
-      Tone.bad => (Brand.dangerBg, Brand.danger, AppIcons.error),
-      _ => (Brand.infoBg, Brand.info, AppIcons.info),
+      Tone.bad => (context.yb.dangerBg, context.yb.danger, AppIcons.error),
+      _ => (context.yb.infoBg, context.yb.info, AppIcons.info),
     };
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -255,12 +255,14 @@ class _Notice extends StatelessWidget {
 
 /// "yallapp." with the Ember dot, and "Business".
 class Wordmark extends StatelessWidget {
-  const Wordmark({super.key, this.color = Brand.midnight});
+  const Wordmark({super.key, this.color});
 
-  final Color color;
+  /// The theme's text color when null (61: Ivory on the dark theme).
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.yb.ink;
     final style = Theme.of(context).textTheme.displaySmall?.copyWith(
       color: color,
       fontWeight: FontWeight.w800,
@@ -280,7 +282,7 @@ class Wordmark extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text('yallapp', style: style),
-              Text('.', style: style?.copyWith(color: Brand.ember)),
+              Text('.', style: style?.copyWith(color: context.yb.accent)),
               const SizedBox(width: 10),
               Text(
                 'Business',

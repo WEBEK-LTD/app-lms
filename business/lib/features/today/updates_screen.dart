@@ -151,7 +151,7 @@ class _UpdateCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             update.body,
-            style: theme.textTheme.bodyMedium?.copyWith(color: Brand.ink2),
+            style: theme.textTheme.bodyMedium?.copyWith(color: context.yb.ink2),
           ),
           if (update.link != null)
             Align(

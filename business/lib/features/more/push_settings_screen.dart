@@ -42,10 +42,10 @@ class PushSettingsScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Panel(
-                  color: Brand.warningBg,
+                  color: context.yb.warningBg,
                   child: Row(
                     children: [
-                      const Icon(AppIcons.warning, color: Brand.warning),
+                      Icon(AppIcons.warning, color: context.yb.warning),
                       const SizedBox(width: 10),
                       Expanded(child: Text(l10n.pushOff)),
                     ],

@@ -55,8 +55,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
               Container(
                 width: 88,
                 height: 88,
-                decoration: const BoxDecoration(
-                  color: Brand.white,
+                decoration: BoxDecoration(
+                  color: context.yb.surface,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(AppIcons.fingerprint, size: 44),
@@ -73,7 +73,9 @@ class _LockScreenState extends ConsumerState<LockScreen> {
               const SizedBox(height: 8),
               Text(
                 _failed ? l10n.lockFailed : l10n.lockText,
-                style: theme.textTheme.bodyMedium?.copyWith(color: Brand.ink2),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: context.yb.ink2,
+                ),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),

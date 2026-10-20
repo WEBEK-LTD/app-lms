@@ -59,6 +59,7 @@ class FakeOwnerApi implements OwnerApi {
   final _inquiries = <String, List<InquiryDetail>>{};
   final _users = <String, List<AppUser>>{};
   final _sent = <String, List<SentNotification>>{};
+  final _scheduled = <String, List<ScheduledNotification>>{};
   int _sentThisHour = 0;
   int _nextId = 5000;
   int _sessions = 0;
@@ -452,6 +453,7 @@ class FakeOwnerApi implements OwnerApi {
         notes: id == 701 ? 'First visit' : null,
         answers: const [(label: 'Insurance', value: 'None')],
         nextStatuses: _apptNext(status),
+        canReschedule: _movable(status, start),
       );
     }
 
@@ -794,6 +796,45 @@ class FakeOwnerApi implements OwnerApi {
     'no_show' => 'No-show',
     _ => status,
   };
+
+  bool _movable(String status, DateTime start) =>
+      (status == 'pending' || status == 'approved') && start.isAfter(now);
+
+  static const _staff = [
+    (id: 1, name: 'Dr. Mona Adel'),
+    (id: 2, name: 'Dr. Karim Nabil'),
+  ];
+
+  Appointment _copy(
+    Appointment a, {
+    String? status,
+    String? staff,
+    DateTime? start,
+  }) {
+    final s = status ?? a.status;
+    final at = start ?? a.startAt.toLocal();
+    final hh = at.hour.toString().padLeft(2, '0');
+    final mm = at.minute.toString().padLeft(2, '0');
+    return Appointment(
+      id: a.id,
+      status: s,
+      statusLabel: _apptLabel(s),
+      service: a.service,
+      staff: staff ?? a.staff,
+      customerName: a.customerName,
+      customerPhone: a.customerPhone,
+      customerEmail: a.customerEmail,
+      startAt: at.toUtc(),
+      endAt: at.add(a.endAt.difference(a.startAt)).toUtc(),
+      localDate: _day(at),
+      localTime: '$hh:$mm',
+      price: a.price,
+      notes: a.notes,
+      answers: a.answers,
+      nextStatuses: _apptNext(s),
+      canReschedule: _movable(s, at),
+    );
+  }
 
   static List<String> _apptNext(String status) => switch (status) {
     'pending' => const ['approved', 'rejected'],
@@ -1325,26 +1366,122 @@ class FakeOwnerApi implements OwnerApi {
         statusCode: 409,
       );
     }
-    final updated = Appointment(
-      id: a.id,
-      status: status,
-      statusLabel: _apptLabel(status),
-      service: a.service,
-      staff: a.staff,
-      customerName: a.customerName,
-      customerPhone: a.customerPhone,
-      customerEmail: a.customerEmail,
-      startAt: a.startAt,
-      endAt: a.endAt,
-      localDate: a.localDate,
-      localTime: a.localTime,
-      price: a.price,
-      notes: a.notes,
-      answers: a.answers,
-      nextStatuses: _apptNext(status),
-    );
+    final updated = _copy(a, status: status);
     list[i] = updated;
     return updated;
+  }
+
+  /// 61 Every 30 minutes from 09:00 to 16:30 on the clinic's days, from
+  /// now, where the staff member has no other appointment.
+  @override
+  Future<RescheduleTimes> rescheduleTimes(
+    String appId,
+    int appointmentId, {
+    String? from,
+    int days = 7,
+    int? staffId,
+  }) async {
+    await _call('rescheduleTimes');
+    _app(appId, (f) => f.appointments);
+    final list = _appointments[appId] ?? const <Appointment>[];
+    final a = list.where((x) => x.id == appointmentId).firstOrNull;
+    if (a == null) {
+      throw const ApiException(code: ApiException.notFound, statusCode: 404);
+    }
+    if (!a.canReschedule) {
+      throw const ApiException(
+        code: 'invalid_status',
+        message: "This appointment can't be moved.",
+        statusCode: 409,
+      );
+    }
+    final first = from == null ? now : DateTime.parse(from);
+    final start = DateTime(first.year, first.month, first.day);
+    final busy = {
+      for (final x in list)
+        if (x.id != a.id && (x.status == 'pending' || x.status == 'approved'))
+          '${x.localDate} ${x.localTime}',
+    };
+    final people = staffId == null
+        ? _staff
+        : _staff.where((p) => p.id == staffId).toList();
+    return RescheduleTimes(
+      timeZone: 'Africa/Cairo',
+      staff: _staff,
+      days: [
+        for (var d = 0; d < days; d++)
+          () {
+            final day = DateTime(start.year, start.month, start.day + d);
+            final slots = <FreeSlot>[];
+            if (day.weekday != DateTime.friday) {
+              for (var m = 9 * 60; m <= 16 * 60 + 30; m += 30) {
+                final at = DateTime(
+                  day.year,
+                  day.month,
+                  day.day,
+                  m ~/ 60,
+                  m % 60,
+                );
+                if (!at.isAfter(now)) continue;
+                final time =
+                    '${(m ~/ 60).toString().padLeft(2, '0')}:${(m % 60).toString().padLeft(2, '0')}';
+                // Dr. Mona (1) has the other appointments; Dr. Karim is free.
+                final ids = [
+                  for (final p in people)
+                    if (p.id != 1 || !busy.contains('${_day(at)} $time')) p.id,
+                ];
+                if (ids.isEmpty) continue;
+                slots.add(
+                  FreeSlot(
+                    start: at.toUtc(),
+                    end: at.add(const Duration(minutes: 30)).toUtc(),
+                    localTime: time,
+                    staffIds: ids,
+                  ),
+                );
+              }
+            }
+            return (date: _day(day), slots: slots);
+          }(),
+      ],
+    );
+  }
+
+  @override
+  Future<Appointment> reschedule(
+    String appId,
+    int appointmentId, {
+    required DateTime start,
+    int? staffId,
+  }) async {
+    final times = await rescheduleTimes(
+      appId,
+      appointmentId,
+      from: _day(start.toLocal()),
+      days: 1,
+      staffId: staffId,
+    );
+    final slot = times.days.first.slots
+        .where((s) => s.start.isAtSameMomentAs(start))
+        .firstOrNull;
+    if (slot == null) {
+      throw const ApiException(
+        code: 'slot_taken',
+        message: "This time isn't free. Please choose another one.",
+        statusCode: 409,
+      );
+    }
+    await _call('reschedule:${_day(start.toLocal())} ${slot.localTime}');
+    final list = _appointments[appId]!;
+    final i = list.indexWhere((a) => a.id == appointmentId);
+    final who = staffId ?? slot.staffIds.first;
+    final moved = _copy(
+      list[i],
+      start: start.toLocal(),
+      staff: _staff.firstWhere((p) => p.id == who).name,
+    );
+    list[i] = moved;
+    return moved;
   }
 
   // Events
@@ -2048,6 +2185,102 @@ class FakeOwnerApi implements OwnerApi {
       message: 'Sent. Everyone sees it in the app’s inbox.',
       pushed: pushAvailable ? 128 : 0,
     );
+  }
+
+  /// 61 Notifications sent later, in the phone's time (the fake's zone).
+  @override
+  Future<ScheduledNotifications> scheduledNotifications(String appId) async {
+    await _call('scheduledNotifications');
+    _app(appId, (f) => f.notifications);
+    final items = List.of(_scheduled[appId] ?? const <ScheduledNotification>[])
+      ..sort((a, b) => a.sendAt.compareTo(b.sendAt));
+    return ScheduledNotifications(
+      timeZone: 'Africa/Cairo',
+      max: 50,
+      items: items,
+    );
+  }
+
+  ScheduledNotification _scheduledFrom(
+    int id,
+    String title,
+    String body,
+    String date,
+    String time,
+  ) {
+    final at = DateTime.tryParse('${date}T$time');
+    final errors = <String, String>{
+      if (title.trim().isEmpty) 'title': 'Enter a title.',
+      if (title.length > 65) 'title': 'Keep the title to 65 characters.',
+      if (body.trim().isEmpty) 'body': 'Enter a message.',
+      if (body.length > 240) 'body': 'Keep the message to 240 characters.',
+      if (at == null)
+        'send_at': 'Choose a date and time.'
+      else if (!at.isAfter(now))
+        'send_at': 'Choose a time later than now.',
+    };
+    if (errors.isNotEmpty) {
+      throw ApiException(
+        code: ApiException.invalidRequest,
+        message: 'The request isn\'t valid.',
+        statusCode: 400,
+        fieldErrors: errors,
+      );
+    }
+    return ScheduledNotification(
+      id: id,
+      title: title.trim(),
+      body: body.trim(),
+      sendAt: at!.toUtc(),
+      localDate: date,
+      localTime: time,
+      status: 'scheduled',
+    );
+  }
+
+  @override
+  Future<ScheduledNotification> scheduleNotification(
+    String appId, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  }) async {
+    await _call('scheduleNotification:$date $time');
+    _app(appId, (f) => f.notifications);
+    final made = _scheduledFrom(_nextId++, title, body, date, time);
+    _scheduled.putIfAbsent(appId, () => []).add(made);
+    return made;
+  }
+
+  @override
+  Future<ScheduledNotification> editScheduledNotification(
+    String appId,
+    int id, {
+    required String title,
+    required String body,
+    required String date,
+    required String time,
+  }) async {
+    await _call('editScheduledNotification:$date $time');
+    _app(appId, (f) => f.notifications);
+    final list = _scheduled[appId] ?? [];
+    final i = list.indexWhere((n) => n.id == id);
+    if (i < 0) {
+      throw const ApiException(
+        code: 'already_sent',
+        message: 'This notification was already sent or cancelled.',
+        statusCode: 409,
+      );
+    }
+    return list[i] = _scheduledFrom(id, title, body, date, time);
+  }
+
+  @override
+  Future<void> cancelScheduledNotification(String appId, int id) async {
+    await _call('cancelScheduledNotification');
+    _app(appId, (f) => f.notifications);
+    _scheduled[appId]?.removeWhere((n) => n.id == id);
   }
 
   // Publishing and license

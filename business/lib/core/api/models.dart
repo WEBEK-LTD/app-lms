@@ -865,6 +865,7 @@ class Appointment {
     this.customerEmail,
     this.notes,
     this.answers = const [],
+    this.canReschedule = false,
   });
 
   factory Appointment.fromJson(Json json) {
@@ -889,6 +890,7 @@ class Appointment {
           (label: str(a, 'label'), value: str(a, 'value')),
       ],
       nextStatuses: strings(json, 'next_statuses'),
+      canReschedule: boolean(json, 'can_reschedule'),
     );
   }
 
@@ -910,6 +912,61 @@ class Appointment {
   final String? notes;
   final List<({String label, String value})> answers;
   final List<String> nextStatuses;
+
+  /// 61 Pending or approved and not started: it can move to another time.
+  final bool canReschedule;
+}
+
+/// 61 A free time to move an appointment to.
+class FreeSlot {
+  const FreeSlot({
+    required this.start,
+    required this.end,
+    required this.localTime,
+    required this.staffIds,
+  });
+
+  factory FreeSlot.fromJson(Json json) => FreeSlot(
+    start: date(json, 'start'),
+    end: date(json, 'end'),
+    localTime: str(json, 'local_time'),
+    staffIds: [
+      for (final id in (json['staff_ids'] as List?) ?? const [])
+        if (id is num) id.toInt(),
+    ],
+  );
+
+  final DateTime start;
+  final DateTime end;
+  final String localTime;
+  final List<int> staffIds;
+}
+
+/// 61 The free times of an appointment's service, by local day.
+class RescheduleTimes {
+  const RescheduleTimes({
+    required this.timeZone,
+    required this.staff,
+    required this.days,
+  });
+
+  factory RescheduleTimes.fromJson(Json json) => RescheduleTimes(
+    timeZone: str(json, 'time_zone'),
+    staff: [
+      for (final s in jsonList(json, 'staff'))
+        (id: integer(s, 'id'), name: str(s, 'name')),
+    ],
+    days: [
+      for (final d in jsonList(json, 'days'))
+        (date: str(d, 'date'), slots: listOf(d, 'slots', FreeSlot.fromJson)),
+    ],
+  );
+
+  final String timeZone;
+
+  /// Who provides the service, the appointment's own staff member first.
+  final List<({int id, String name})> staff;
+  final List<({String date, List<FreeSlot> slots})> days;
 }
 
 class AppointmentsPage {
@@ -1748,6 +1805,62 @@ class SentNotifications {
   /// The plan has push and a Firebase key is saved.
   final bool push;
   final List<SentNotification> items;
+}
+
+/// 61 A notification waiting to be sent later.
+class ScheduledNotification {
+  const ScheduledNotification({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.sendAt,
+    required this.localDate,
+    required this.localTime,
+    required this.status,
+    this.result,
+  });
+
+  factory ScheduledNotification.fromJson(Json json) => ScheduledNotification(
+    id: integer(json, 'id'),
+    title: str(json, 'title'),
+    body: str(json, 'body'),
+    sendAt: date(json, 'send_at'),
+    localDate: str(json, 'local_date'),
+    localTime: str(json, 'local_time'),
+    status: str(json, 'status'),
+    result: optStr(json, 'result'),
+  );
+
+  final int id;
+  final String title;
+  final String body;
+  final DateTime sendAt;
+
+  /// In the app's time zone.
+  final String localDate;
+  final String localTime;
+
+  /// scheduled, sending or failed.
+  final String status;
+  final String? result;
+}
+
+class ScheduledNotifications {
+  const ScheduledNotifications({
+    required this.timeZone,
+    required this.max,
+    required this.items,
+  });
+
+  factory ScheduledNotifications.fromJson(Json json) => ScheduledNotifications(
+    timeZone: str(json, 'time_zone'),
+    max: integer(json, 'max', 50),
+    items: listOf(json, 'items', ScheduledNotification.fromJson),
+  );
+
+  final String timeZone;
+  final int max;
+  final List<ScheduledNotification> items;
 }
 
 class NotificationResult {

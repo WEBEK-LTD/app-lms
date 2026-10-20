@@ -164,9 +164,9 @@ class _Bubble extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: mine ? Brand.midnight : Brand.white,
+          color: mine ? context.yb.ink : context.yb.surface,
           borderRadius: BorderRadius.circular(18),
-          border: mine ? null : Border.all(color: Brand.line),
+          border: mine ? null : Border.all(color: context.yb.line),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,14 +174,16 @@ class _Bubble extends StatelessWidget {
             Text(
               message.text,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: mine ? Brand.white : Brand.midnight,
+                color: mine ? context.yb.onInk : context.yb.ink,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               context.dateTime(message.createdAt),
               style: theme.textTheme.labelSmall?.copyWith(
-                color: mine ? Brand.ivory.withValues(alpha: 0.8) : Brand.ink2,
+                color: mine
+                    ? context.yb.onInk.withValues(alpha: 0.8)
+                    : context.yb.ink2,
               ),
             ),
           ],

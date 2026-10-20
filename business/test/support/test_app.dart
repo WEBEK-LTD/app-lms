@@ -15,6 +15,7 @@ import 'package:yallapp_business/core/services/biometrics.dart';
 import 'package:yallapp_business/core/services/chime.dart';
 import 'package:yallapp_business/core/services/media_picker.dart';
 import 'package:yallapp_business/core/services/push.dart';
+import 'package:yallapp_business/core/services/screen_wake.dart';
 import 'package:yallapp_business/features/events/camera_scanner.dart';
 import 'package:yallapp_business/features/media/uploads.dart';
 import 'package:yallapp_business/features/preview/preview_screen.dart';
@@ -30,6 +31,7 @@ class TestApp {
     this.biometricLock,
     this.push,
     this.preferences = const {},
+    this.brightness,
   }) : api = api ?? FakeOwnerApi();
 
   final FakeOwnerApi api;
@@ -41,8 +43,12 @@ class TestApp {
   final FakePush? push;
   final Map<String, Object> preferences;
 
+  /// 61 The phone's light or dark setting (null: the test default, light).
+  final Brightness? brightness;
+
   final opened = <String>[];
   final chime = FakeChime();
+  final wake = FakeWake();
   final picker = FakePicker();
   final scanner = FakeScanner();
   late ProviderContainer container;
@@ -77,6 +83,7 @@ class TestApp {
       return true;
     }),
     chimeProvider.overrideWithValue(chime),
+    screenWakeProvider.overrideWithValue(wake),
     mediaPickerProvider.overrideWithValue(picker),
     cameraScannerProvider.overrideWithValue(() => scanner),
     webPageProvider.overrideWithValue(
@@ -99,6 +106,10 @@ class TestApp {
     tester.view.physicalSize = size * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+    if (brightness != null) {
+      tester.platformDispatcher.platformBrightnessTestValue = brightness!;
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    }
     UploadController.retryDelay = Duration.zero;
     SharedPreferences.setMockInitialValues({
       'yb.language': language,
@@ -156,6 +167,23 @@ class FakeBiometrics implements Biometrics {
     prompts += 1;
     return succeed;
   }
+}
+
+/// 61 The screen kept on, as Kitchen mode asks.
+class FakeWake implements ScreenWake {
+  bool on = false;
+  bool fail = false;
+  int requests = 0;
+
+  @override
+  Future<void> keepOn() async {
+    requests += 1;
+    if (fail) throw StateError('No wake lock on this phone');
+    on = true;
+  }
+
+  @override
+  Future<void> release() async => on = false;
 }
 
 class FakeChime implements Chime {

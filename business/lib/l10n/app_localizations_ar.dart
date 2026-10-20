@@ -1328,6 +1328,133 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get themeSystem => 'مثل إعداد الهاتف';
+
+  @override
+  String get themeSystemHelp => 'فاتح أو داكن حسب إعداد هاتفك.';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
+  String get changeTime => 'تغيير الموعد';
+
+  @override
+  String moveNow(String day, String time) {
+    return 'حاليًا في $day الساعة $time';
+  }
+
+  @override
+  String moveIntro(String zone) {
+    return 'الأوقات التي يعرضها تطبيقك لهذه الخدمة ($zone). يُبلَّغ العميل في التطبيق.';
+  }
+
+  @override
+  String get anyoneFree => 'أي شخص متاح';
+
+  @override
+  String get noFreeTimes =>
+      'لا توجد أوقات متاحة في هذه الأيام. جرّب الأيام التالية.';
+
+  @override
+  String get previousDays => 'الأيام السابقة';
+
+  @override
+  String get nextDays => 'الأيام التالية';
+
+  @override
+  String moveWhen(String day, String time) {
+    return '$day الساعة $time';
+  }
+
+  @override
+  String moveConfirmTitle(String when) {
+    return 'نقل الموعد إلى $when؟';
+  }
+
+  @override
+  String moveConfirmText(String name) {
+    return 'سيتم إبلاغ $name في التطبيق.';
+  }
+
+  @override
+  String get theCustomer => 'العميل';
+
+  @override
+  String get moveAction => 'نقل';
+
+  @override
+  String movedTo(String when) {
+    return 'نُقل الموعد إلى $when';
+  }
+
+  @override
+  String get sendNowShort => 'الآن';
+
+  @override
+  String get sendLater => 'لاحقًا';
+
+  @override
+  String laterZone(String zone) {
+    return 'بتوقيت تطبيقك، $zone. يرسله Yallapp خلال 5 دقائق من هذا الوقت.';
+  }
+
+  @override
+  String get sendOn => 'تاريخ الإرسال';
+
+  @override
+  String get sendAt => 'وقت الإرسال';
+
+  @override
+  String get schedule => 'جدولة';
+
+  @override
+  String scheduledFor(String day, String time) {
+    return 'جُدول للإرسال في $day الساعة $time';
+  }
+
+  @override
+  String get scheduledTitle => 'المجدولة';
+
+  @override
+  String get nothingScheduled => 'لا توجد إشعارات مجدولة.';
+
+  @override
+  String goesOut(String day, String time) {
+    return 'يُرسَل $day الساعة $time';
+  }
+
+  @override
+  String get sending => 'جارٍ الإرسال';
+
+  @override
+  String get notSent => 'لم يُرسَل';
+
+  @override
+  String get edit => 'تعديل';
+
+  @override
+  String get editScheduled => 'تعديل الإشعار';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get cancelScheduled => 'إلغاء الإرسال';
+
+  @override
+  String get cancelScheduledTitle => 'إلغاء هذا الإشعار؟';
+
+  @override
+  String get scheduledCancelled => 'أُلغي. لن يُرسَل.';
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }
