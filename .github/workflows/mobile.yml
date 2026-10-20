@@ -232,8 +232,8 @@ jobs:
           rm android/app/agconnect-services.json
 
   # 59 Yallapp Business (business/), the app for the people who run an app
-  # on Yallapp: the same checks as the client app. No APK here: release
-  # builds are made for the stores (docs/LAUNCH-CHECKLIST.md).
+  # on Yallapp: the same checks as the client app, and debug-signed test
+  # APKs. Store releases are built for the stores (docs/LAUNCH-CHECKLIST.md).
   business:
     name: Yallapp Business
     needs: changes
@@ -274,7 +274,7 @@ jobs:
           git diff --exit-code -- .
 
       - name: Format
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format --output=none --set-exit-if-changed lib test tool
 
       - name: Analyze
         run: flutter analyze
@@ -284,16 +284,22 @@ jobs:
 
       # APKs to try on a phone, signed with the debug key (they can't go to
       # Google Play): one against yallapp.com.tr, one on the demo's sample apps.
-      # Pushes need the app's Firebase project (README), which these leave out.
       # Pushes: the Firebase project's Android client options, from the repository's
       # Actions variables (not secrets: they ship inside the app). Without them the
       # APK works the same and says notifications aren't set up in this build.
+      # 65 Huawei phones without Google Play: the AppGallery Connect app ID
+      # (YB_HMS_APP_ID) and, optionally, its agconnect-services.json
+      # (YB_HMS_AGCONNECT_SERVICES), also Actions variables (README). With them
+      # tool/hms_config.dart writes android/app/agconnect-services.json and the
+      # APK includes Huawei Push Kit; without them it has nothing from Huawei.
       - name: Build the APK for yallapp.com.tr
         env:
           YB_FIREBASE_PROJECT_ID: ${{ vars.YB_FIREBASE_PROJECT_ID }}
           YB_FIREBASE_SENDER_ID: ${{ vars.YB_FIREBASE_SENDER_ID }}
           YB_FIREBASE_APP_ID_ANDROID: ${{ vars.YB_FIREBASE_APP_ID_ANDROID }}
           YB_FIREBASE_API_KEY_ANDROID: ${{ vars.YB_FIREBASE_API_KEY_ANDROID }}
+          YB_HMS_APP_ID: ${{ vars.YB_HMS_APP_ID }}
+          YB_HMS_AGCONNECT_SERVICES: ${{ vars.YB_HMS_AGCONNECT_SERVICES }}
         run: |
           # A variable may hold the whole google-services.json instead of one value:
           # the Android app's values are read from it (tr.com.yallapp.business).
@@ -311,12 +317,17 @@ jobs:
               break
             fi
           done
+          hms_app_id=$(dart run tool/hms_config.dart)
           flutter build apk --release \
             --dart-define=YB_FIREBASE_PROJECT_ID="$YB_FIREBASE_PROJECT_ID" \
             --dart-define=YB_FIREBASE_SENDER_ID="$YB_FIREBASE_SENDER_ID" \
             --dart-define=YB_FIREBASE_APP_ID_ANDROID="$YB_FIREBASE_APP_ID_ANDROID" \
-            --dart-define=YB_FIREBASE_API_KEY_ANDROID="$YB_FIREBASE_API_KEY_ANDROID"
+            --dart-define=YB_FIREBASE_API_KEY_ANDROID="$YB_FIREBASE_API_KEY_ANDROID" \
+            --dart-define=YB_HMS_APP_ID="$hms_app_id"
           if [ -n "$YB_FIREBASE_APP_ID_ANDROID" ]; then echo "Pushes: on (Firebase project $YB_FIREBASE_PROJECT_ID)"; else echo "Pushes: off (no YB_FIREBASE_* variables)"; fi
+          if [ -n "$hms_app_id" ]; then echo "Huawei pushes: on (AppGallery Connect app $hms_app_id)"; else echo "Huawei pushes: off (no YB_HMS_* variables)"; fi
+          # The demo APK below has nothing from Huawei.
+          rm -f android/app/agconnect-services.json
           mv build/app/outputs/flutter-apk/app-release.apk "$RUNNER_TEMP/yallapp-business.apk"
 
       - name: Build the demo APK
@@ -348,3 +359,15 @@ jobs:
               --notes "Debug-signed APKs to try on a phone, replaced by every build (they can't go to Google Play). yallapp-business.apk works against yallapp.com.tr; yallapp-business-demo.apk runs on sample data (owner@example.com / yallapp-demo)."
           fi
           gh release upload "$tag" "$RUNNER_TEMP/yallapp-business.apk" "$RUNNER_TEMP/yallapp-business-demo.apk" -R "$GITHUB_REPOSITORY" --clobber
+
+      # 65 Without the YB_HMS_* variables the APK above leaves Huawei out, so
+      # the Huawei build (android/hms_push, Huawei's Maven repository) is
+      # checked here with an example app ID. Nothing is uploaded.
+      - name: Build a debug APK with Huawei push (example app ID)
+        if: vars.YB_HMS_APP_ID == '' && vars.YB_HMS_AGCONNECT_SERVICES == ''
+        env:
+          YB_HMS_APP_ID: '100000001'
+        run: |
+          hms_app_id=$(dart run tool/hms_config.dart)
+          flutter build apk --debug --dart-define=YB_HMS_APP_ID="$hms_app_id"
+          rm android/app/agconnect-services.json
