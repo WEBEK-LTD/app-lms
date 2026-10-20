@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -32,7 +33,7 @@ export default async function MoreStoresPage() {
   const { app, license } = await requireClient("settings");
   if (!app) redirect("/dashboard/app-type");
   const store = await getStore();
-  const plans = await effectivePlans(store);
+  const plans = plansIn((await dashboardText()).lang, await effectivePlans(store));
   const plan = license ? currentPlanId(license, new Date()) : null;
   const uploads = managedPublishing(plan, plans);
   const upgrade = lowestPlanWith(plans, (p) => hasFeature(p, "auto_publish"), plan);

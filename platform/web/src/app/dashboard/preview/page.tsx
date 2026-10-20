@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -50,7 +51,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const now = new Date();
-  const plans = await effectivePlans(store);
+  const plans = plansIn(lang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const draftSupported = draftPreviewSupported(app);

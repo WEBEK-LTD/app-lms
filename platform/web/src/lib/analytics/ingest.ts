@@ -46,7 +46,7 @@ const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\
 const BATCH_FIELDS = new Set(["install_id", "platform", "app_version", "os_version", "locale", "events"]);
 const EVENT_FIELDS = new Set(["type", "at", "first_open", "screen", "item_kind", "item_id", "title", "amount", "currency", "query", "notification_id", "push_type"]);
 /** Events that carry an item. */
-const ITEM_EVENTS = new Set<AnalyticsEventType>(["item_view", "add_to_cart", "purchase_click", "enroll", "book", "donate", "ticket", "share"]);
+const ITEM_EVENTS = new Set<AnalyticsEventType>(["item_view", "add_to_cart", "purchase_click", "enroll", "book", "donate", "ticket", "share", "screenshot"]);
 
 /** A search text as it is counted: one line, lower case, without texts that look like a phone number or an email address. */
 export function normalizeQuery(value: string): string | null {

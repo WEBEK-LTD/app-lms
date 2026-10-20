@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ForgotPasswordForm, ResetPasswordForm, SignInForm, SignUpForm } from "@/app/(auth)/forms";
+import { ClearSignedIn } from "@/components/account-link";
 import { AuthShell } from "@/components/auth-shell";
 import { Icon } from "@/components/icon";
 import { LanguageList } from "@/components/language-switcher";
@@ -40,6 +41,8 @@ export async function SignInPage({ lang }: { lang: Lang }) {
   const m = messagesFor(lang).auth;
   return (
     <AuthShell lang={lang} languages aside={<Back lang={lang} href="/" label={m.backHome} />}>
+      {/* 62 Nobody is signed in here: a "signed in" cookie left by a session that ended goes. */}
+      <ClearSignedIn />
       <main className="flex flex-1 items-center justify-center px-4 pt-8 pb-14 sm:px-6">
         <SignInForm lang={lang} m={m} />
       </main>

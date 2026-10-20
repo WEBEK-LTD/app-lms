@@ -1,14 +1,30 @@
 /**
- * 55 Arabic text for the share images (components/og-image.tsx). The image
- * renderer draws text left to right and measures letters in their isolated
- * form, so Arabic comes out in the wrong word order with gaps. Here each
- * Arabic word is written with the letters' contextual forms (Unicode Arabic
- * Presentation Forms-B, which IBM Plex Sans Arabic has) in visual order, and
- * a line is a list of words for a right-to-left row. Modern Standard Arabic
- * letters only; marks (harakat) are dropped.
+ * 55, 62 Arabic text for the share images (components/og-image.tsx). The
+ * image renderer draws text left to right, one glyph after another, and
+ * doesn't run the bidirectional algorithm, so Arabic would come out in the
+ * wrong order with its letters apart. Here a line is prepared the way a text
+ * engine would before drawing it:
+ *
+ * 1. Shaping: each Arabic letter takes its contextual form (Unicode Arabic
+ *    Presentation Forms, which IBM Plex Sans Arabic has) by the Unicode
+ *    joining types: dual-joining letters join on both sides, right-joining
+ *    ones (alef, dal, reh, waw…) only to the letter before them; marks
+ *    (harakat, shadda, superscript alef, Quranic signs) are transparent, so a
+ *    letter joins across them and they stay with it; tatweel and ZWJ cause
+ *    joining, ZWNJ stops it; lam with an alef is one ligature. The Persian and
+ *    Urdu letters (پ چ ژ ک گ ی) and alef wasla are shaped too.
+ * 2. Order: the Unicode Bidirectional Algorithm for a right-to-left paragraph
+ *    without embeddings (rules W1–W7, N1–N2, I1–I2, L2–L4): Latin words and
+ *    numbers (1,000, 3.5, 50%, Arabic-Indic digits) keep reading left to
+ *    right inside the Arabic, brackets are mirrored, and a mark comes just
+ *    before its letter (L3): the renderer draws a zero-width mark over the
+ *    glyph that follows it.
+ *
+ * `rtlWords` gives a line as units for a right-to-left row that can wrap
+ * (first unit = rightmost); `visualLine` the whole line as drawn left to right.
  */
 
-/** isolated, final, initial, medial; letters that don't join forward have no initial or medial form. */
+/** isolated, final, initial, medial; right-joining letters have no initial or medial form. */
 const FORMS: Record<string, [number, number, number?, number?]> = {
   "ء": [0xfe80, 0xfe80],
   "آ": [0xfe81, 0xfe82],
@@ -46,6 +62,14 @@ const FORMS: Record<string, [number, number, number?, number?]> = {
   "و": [0xfeed, 0xfeee],
   "ى": [0xfeef, 0xfef0],
   "ي": [0xfef1, 0xfef2, 0xfef3, 0xfef4],
+  // Alef wasla, and the Persian and Urdu letters (Arabic Presentation Forms-A).
+  "ٱ": [0xfb50, 0xfb51],
+  "پ": [0xfb56, 0xfb57, 0xfb58, 0xfb59],
+  "چ": [0xfb7a, 0xfb7b, 0xfb7c, 0xfb7d],
+  "ژ": [0xfb8a, 0xfb8b],
+  "ک": [0xfb8e, 0xfb8f, 0xfb90, 0xfb91],
+  "گ": [0xfb92, 0xfb93, 0xfb94, 0xfb95],
+  "ی": [0xfbfc, 0xfbfd, 0xfbfe, 0xfbff],
 };
 
 /** Lam followed by an alef: one ligature (isolated, final). */
@@ -56,63 +80,247 @@ const LAM_ALEF: Record<string, [number, number]> = {
   "ا": [0xfefb, 0xfefc],
 };
 
-const MARKS = /[ً-ٰٟـ]/g;
-const ARABIC = /[؀-ۿ]/;
+const TATWEEL = "ـ";
+const ZWJ = "‍";
+const ZWNJ = "‌";
 
-const joinsForward = (c: string | undefined) => c !== undefined && FORMS[c]?.[2] !== undefined;
-const isLetter = (c: string | undefined) => c !== undefined && FORMS[c] !== undefined;
+/** Arabic marks: transparent for joining, kept with their letter (bidi class NSM). */
+const MARK = /[ؐ-ًؚ-ٰٟۖ-ۜ۟-۪ۤۧۨ-ۭ̀-ͯ︠-︯]/;
+const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
 
-/** An Arabic run in its contextual forms, still in reading order. */
-function shapeRun(text: string): string {
-  const chars = [...text.replace(MARKS, "")];
+type Joining = "D" | "R" | "U" | "C" | "T";
+
+function joiningOf(c: string | undefined): Joining {
+  if (c === undefined) return "U";
+  if (MARK.test(c)) return "T";
+  if (c === TATWEEL || c === ZWJ) return "C";
+  const forms = FORMS[c];
+  if (!forms || c === "ء") return "U";
+  return forms[2] !== undefined ? "D" : "R";
+}
+
+/** The next character that isn't a mark, from `i` on. */
+function nextBase(chars: string[], i: number): number {
+  let j = i;
+  while (j < chars.length && MARK.test(chars[j]!)) j++;
+  return j;
+}
+
+/** Whether the letter before `i` (skipping marks) joins forward to it. */
+function joinsBefore(chars: string[], i: number): boolean {
+  let j = i - 1;
+  while (j >= 0 && MARK.test(chars[j]!)) j--;
+  const type = joiningOf(chars[j]);
+  return type === "D" || type === "C";
+}
+
+/** A text with its Arabic letters in their contextual forms, still in reading order. ZWJ and ZWNJ do their work and go. */
+export function shapeArabic(text: string): string {
+  const chars = [...text.normalize("NFC")];
   let out = "";
   for (let i = 0; i < chars.length; i++) {
     const c = chars[i]!;
+    if (c === ZWJ || c === ZWNJ) continue;
     const forms = FORMS[c];
     if (!forms) {
       out += c;
       continue;
     }
-    const joinPrev = joinsForward(chars[i - 1]) && c !== "ء";
-    const next = chars[i + 1];
+    const joinPrev = c !== "ء" && joinsBefore(chars, i);
+    const n = nextBase(chars, i + 1);
+    const next = chars[n];
     if (c === "ل" && next && LAM_ALEF[next]) {
+      // Marks on the lam (and on the alef) follow the ligature.
       out += String.fromCodePoint(LAM_ALEF[next]![joinPrev ? 1 : 0]);
-      i++;
+      out += chars.slice(i + 1, n).join("");
+      i = n;
       continue;
     }
-    // Hamza on the line (ء) joins nothing.
-    const joinNext = forms[2] !== undefined && isLetter(next) && next !== "ء";
+    const nextType = joiningOf(next);
+    const joinNext = joiningOf(c) === "D" && (nextType === "D" || nextType === "R" || nextType === "C");
     const code = joinPrev && joinNext ? forms[3]! : joinPrev ? forms[1] : joinNext ? forms[2]! : forms[0];
     out += String.fromCodePoint(code);
   }
   return out;
 }
 
-const MIRROR: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[", "«": "»", "»": "«" };
+// --- The bidirectional algorithm, for a right-to-left paragraph without embeddings.
 
-/** One word as drawn left to right: Arabic letters shaped and reversed, Latin and digits kept in order. */
-export function visualWord(word: string): string {
-  if (!ARABIC.test(word)) return word;
-  const runs = word.match(/[؀-ۿ]+|[^؀-ۿ]+/g) ?? [];
-  return runs
-    .reverse()
-    .map((run) => (ARABIC.test(run) ? [...shapeRun(run)].reverse().join("") : /^[\p{P}\s]+$/u.test(run) ? [...run].reverse().map((c) => MIRROR[c] ?? c).join("") : run))
+type BidiClass = "L" | "R" | "AL" | "EN" | "ES" | "ET" | "AN" | "CS" | "NSM" | "WS" | "ON";
+
+const ARABIC_DIGIT = /[٠-٩٫٬]/;
+const EUROPEAN_DIGIT = /[0-9۰-۹]/;
+
+function classOf(c: string): BidiClass {
+  if (MARK.test(c)) return "NSM";
+  if (ARABIC_DIGIT.test(c)) return "AN";
+  if (EUROPEAN_DIGIT.test(c)) return "EN";
+  if (c === "،") return "CS";
+  if (c === "٪") return "ET";
+  if (ARABIC.test(c) || c === TATWEEL) return "AL";
+  if (/[֐-׿יִ-ﭏ]/.test(c)) return "R";
+  if (/\s/.test(c)) return "WS";
+  if (c === "+" || c === "-" || c === "−") return "ES";
+  if (/[#$%°¢£¤¥₺€₹‰‱‰-‴₠-⃏]/.test(c)) return "ET";
+  if (/[,.:/ ]/.test(c)) return "CS";
+  if (/\p{L}|\p{M}/u.test(c)) return "L";
+  return "ON";
+}
+
+const MIRROR: Record<string, string> = { "(": ")", ")": "(", "[": "]", "]": "[", "{": "}", "}": "{", "<": ">", ">": "<", "«": "»", "»": "«", "‹": "›", "›": "‹" };
+
+/** Bidi levels of a right-to-left paragraph's characters: 1 for right to left, 2 for left to right (Latin, numbers). */
+function levelsOf(chars: string[]): number[] {
+  const types = chars.map(classOf);
+  const n = types.length;
+  // W1: a mark takes the type of what it's on (the paragraph's R at the start).
+  for (let i = 0; i < n; i++) if (types[i] === "NSM") types[i] = i === 0 ? "R" : types[i - 1]!;
+  // W2, W3: a European number after Arabic letters is an Arabic number; AL is R.
+  let strong: BidiClass = "R";
+  for (let i = 0; i < n; i++) {
+    const t = types[i]!;
+    if (t === "L" || t === "R" || t === "AL") strong = t;
+    else if (t === "EN" && strong === "AL") types[i] = "AN";
+  }
+  for (let i = 0; i < n; i++) if (types[i] === "AL") types[i] = "R";
+  // W4: one separator between two numbers of a kind joins them ("1,000", "3.5").
+  for (let i = 1; i < n - 1; i++) {
+    const [a, t, b] = [types[i - 1], types[i], types[i + 1]];
+    if (t === "ES" && a === "EN" && b === "EN") types[i] = "EN";
+    else if (t === "CS" && a === b && (a === "EN" || a === "AN")) types[i] = a!;
+  }
+  // W5: currency and percent signs next to a European number belong to it.
+  for (let i = 0; i < n; i++) {
+    if (types[i] !== "ET") continue;
+    let j = i;
+    while (j < n && types[j] === "ET") j++;
+    if ((i > 0 && types[i - 1] === "EN") || (j < n && types[j] === "EN")) for (let k = i; k < j; k++) types[k] = "EN";
+    i = j - 1;
+  }
+  // W6: other separators and terminators are neutral.
+  for (let i = 0; i < n; i++) if (types[i] === "ES" || types[i] === "ET" || types[i] === "CS") types[i] = "ON";
+  // W7: a European number after Latin text reads as Latin.
+  strong = "R";
+  for (let i = 0; i < n; i++) {
+    const t = types[i]!;
+    if (t === "L" || t === "R") strong = t;
+    else if (t === "EN" && strong === "L") types[i] = "L";
+  }
+  const direction = (t: BidiClass): "L" | "R" | null => (t === "L" ? "L" : t === "R" || t === "EN" || t === "AN" ? "R" : null);
+  // N0: a pair of brackets takes the paragraph's direction when it holds right-to-left text, else the direction around it.
+  const open: { at: number; close: string }[] = [];
+  const pairs: [number, number][] = [];
+  const CLOSE: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
+  for (let i = 0; i < n; i++) {
+    if (types[i] !== "ON") continue;
+    const c = chars[i]!;
+    if (CLOSE[c]) open.push({ at: i, close: CLOSE[c]! });
+    else if (c === ")" || c === "]" || c === "}") {
+      const k = open.map((o) => o.close).lastIndexOf(c);
+      if (k >= 0) {
+        pairs.push([open[k]!.at, i]);
+        open.length = k;
+      }
+    }
+  }
+  for (const [from, to] of pairs.sort((x, y) => x[0] - y[0])) {
+    const inside = types.slice(from + 1, to).map(direction);
+    let resolved: "L" | "R" | null = null;
+    if (inside.includes("R")) resolved = "R";
+    else if (inside.includes("L")) {
+      let j = from - 1;
+      while (j >= 0 && direction(types[j]!) === null) j--;
+      resolved = j < 0 ? "R" : direction(types[j]!)!;
+    }
+    if (resolved) types[from] = types[to] = resolved;
+  }
+  // N1, N2: neutrals between two of the same direction (numbers count as right to left) take it; others the paragraph's.
+  for (let i = 0; i < n; i++) {
+    if (direction(types[i]!) !== null) continue;
+    let j = i;
+    while (j < n && direction(types[j]!) === null) j++;
+    const before = i === 0 ? "R" : direction(types[i - 1]!);
+    const after = j === n ? "R" : direction(types[j]!);
+    const resolved: BidiClass = before === after ? before! : "R";
+    for (let k = i; k < j; k++) types[k] = resolved;
+    i = j - 1;
+  }
+  // I1, I2 on an odd (right-to-left) paragraph level.
+  return types.map((t) => (t === "R" ? 1 : 2));
+}
+
+/** Characters with their marks after them, as units that move together. */
+function clusters(chars: string[], levels: number[]): { text: string; level: number }[] {
+  const out: { text: string; level: number }[] = [];
+  chars.forEach((c, i) => {
+    const last = out[out.length - 1];
+    if (last && MARK.test(c)) last.text += c;
+    else out.push({ text: c, level: levels[i]! });
+  });
+  return out;
+}
+
+/** The line's units (a letter with its marks) in visual order, left to right, with their levels. */
+function visualUnits(text: string): { text: string; level: number }[] {
+  const chars = [...shapeArabic(text)];
+  const units = clusters(chars, levelsOf(chars));
+  // L4: mirrored brackets in right-to-left runs.
+  for (const unit of units) if (unit.level === 1 && MIRROR[unit.text]) unit.text = MIRROR[unit.text]!;
+  // L2: from the highest level down, reverse each run at that level or higher.
+  for (const level of [2, 1]) {
+    for (let i = 0; i < units.length; i++) {
+      if (units[i]!.level < level) continue;
+      let j = i;
+      while (j < units.length && units[j]!.level >= level) j++;
+      units.splice(i, j - i, ...units.slice(i, j).reverse());
+      i = j - 1;
+    }
+  }
+  // L3: the renderer draws a zero-width mark over the glyph that comes after it, so in right-to-left runs a letter's marks go just before it.
+  for (const unit of units) {
+    if (unit.level !== 1 || unit.text.length < 2) continue;
+    const [base, ...marks] = [...unit.text];
+    unit.text = marks.join("") + base;
+  }
+  return units;
+}
+
+const isRtl = (text: string) => [...text].some((c) => ARABIC.test(c) || classOf(c) === "R");
+
+/** A line as drawn left to right: Arabic shaped and in visual order, Latin and numbers reading left to right, brackets mirrored. */
+export function visualLine(text: string): string {
+  if (!isRtl(text)) return text;
+  return visualUnits(text)
+    .map((u) => u.text)
     .join("");
 }
 
+/** One word as drawn left to right. */
+export function visualWord(word: string): string {
+  return visualLine(word);
+}
+
 /**
- * A line of Arabic as the words of a right-to-left row (first word first):
- * Arabic words shaped, and Latin words next to each other kept together in
- * their own order ("Google Play").
+ * A line of Arabic as the units of a right-to-left row that can wrap
+ * (first unit first, drawn rightmost): the line in visual order, cut at the
+ * spaces between right-to-left words, so each Arabic word stands alone while
+ * Latin words and numbers next to each other stay together in their own
+ * order ("Google Play", "Android (APK").
  */
 export function rtlWords(text: string): string[] {
+  const line = text.split(/\s+/).filter(Boolean).join(" ");
+  if (!line) return [];
+  if (!isRtl(line)) return [line];
   const words: string[] = [];
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    const last = words[words.length - 1];
-    if (last !== undefined && !ARABIC.test(word) && !ARABIC.test(last)) words[words.length - 1] = `${last} ${word}`;
-    else words.push(word);
+  let current = "";
+  for (const unit of visualUnits(line)) {
+    if (unit.level === 1 && /^\s$/.test(unit.text)) {
+      if (current) words.push(current);
+      current = "";
+    } else current += unit.text;
   }
-  return words.map(visualWord);
+  if (current) words.push(current);
+  return words.reverse();
 }
 
 export function hasArabic(text: string): boolean {

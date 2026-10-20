@@ -702,7 +702,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	}
 
 	/**
-	 * Wishlisted courses.
+	 * Wishlisted courses. 62 Private ones the student may open (Course_Visibility) too.
 	 *
 	 * @param int $user_id User ID.
 	 * @return array[]
@@ -710,7 +710,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	public function wishlist( $user_id ) {
 		$items = array();
 		foreach ( array_reverse( array_map( 'intval', (array) STM_LMS_User::get_wishlist( (int) $user_id ) ) ) as $course_id ) {
-			$post = $this->published( $course_id, 'stm-courses' );
+			$post = $this->course_post( $course_id, (int) $user_id );
 			if ( $post ) {
 				$items[] = $this->summary( $post, $user_id );
 			}
@@ -727,7 +727,7 @@ class MasterStudy_Adapter extends Base_Adapter {
 	 * @return true|WP_Error
 	 */
 	public function set_wishlist( $user_id, $course_id, $on ) {
-		if ( ! $this->published( $course_id, 'stm-courses' ) ) {
+		if ( ! $this->course_post( $course_id, (int) $user_id ) ) {
 			return self::not_found( __( 'Course not found.', 'yallapp' ) );
 		}
 		$list = array_values(

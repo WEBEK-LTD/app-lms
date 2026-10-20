@@ -929,11 +929,19 @@ components:
           with the install ID.
         - `push_open`: `notification_id` when the notification has one, and
           `push_type` (its `type`, e.g. `announcement`, `new_lesson`).
+        - `screenshot` (roadmap 62): a screenshot the phone noticed while the
+          owner's screen protection covered what was open (`Config.screen_protection`).
+          With `item_kind` `lesson`, `item_id` and `title` when a lesson was
+          open; without them elsewhere in the app. Only iOS tells the app
+          (`UIApplication.userDidTakeScreenshotNotification`); Android blocks
+          screenshots of protected screens with `FLAG_SECURE` and can't tell
+          that someone tried, so Android apps never send it. Shown to
+          academies as "Screenshots taken" per lesson.
         Fields that don't go with the type are ignored.
       properties:
         type:
           type: string
-          enum: [app_open, screen_view, item_view, add_to_cart, purchase_click, enroll, book, donate, ticket, search, push_open, share]
+          enum: [app_open, screen_view, item_view, add_to_cart, purchase_click, enroll, book, donate, ticket, search, push_open, share, screenshot]
         at: { type: string, format: date-time, description: When it happened on the phone. }
         first_open: { type: boolean }
         screen: { type: string, pattern: '^[a-z][a-z0-9_]{0,39}$' }

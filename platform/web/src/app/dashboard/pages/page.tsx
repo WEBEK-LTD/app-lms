@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
@@ -45,7 +46,7 @@ export default async function PagesPage() {
   const record = await loadLayout(store, app, now);
   const pickable = await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now);
   // 13.1 What the app's plan allows: the full editor, its languages and content sources.
-  const plans = await effectivePlans(store);
+  const plans = plansIn((await dashboardText()).lang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const sources = plan ? allowedSources(app, plan) : itemSourcesFor(app);

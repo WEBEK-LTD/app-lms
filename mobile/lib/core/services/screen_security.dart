@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/models/models.dart';
+import 'analytics_providers.dart';
 import '../gate/app_gate.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_icons.dart';
@@ -78,6 +79,34 @@ final screenProtectionModeProvider = Provider<ScreenProtection>((ref) {
       : ScreenProtection.off;
 });
 
+/// 62 What a protected screen shows, for the screenshot count on the
+/// owner's Analytics page: a lesson's ID and, once it has loaded, its title.
+class ProtectedItem {
+  const ProtectedItem.lesson(this.id, {this.title});
+
+  final int id;
+
+  /// The title when the screenshot is taken (read from the screen's data).
+  final String? Function(WidgetRef ref)? title;
+}
+
+/// 62 The protected items open now, the newest last.
+class ProtectedItems extends Notifier<List<ProtectedItem>> {
+  @override
+  List<ProtectedItem> build() => const [];
+
+  void add(ProtectedItem item) {
+    if (ref.mounted) state = [...state, item];
+  }
+
+  void remove(ProtectedItem item) {
+    if (ref.mounted) state = [...state]..remove(item);
+  }
+}
+
+final protectedItemsProvider =
+    NotifierProvider<ProtectedItems, List<ProtectedItem>>(ProtectedItems.new);
+
 /// 53 How many protected screens (lessons, quizzes, attachments, the video's
 /// full screen) are open, under [ProtectedContent].
 class ProtectedScreens extends Notifier<int> {
@@ -145,9 +174,12 @@ final screenProtectionSyncProvider = Provider<void>((ref) {
 /// 53 Marks a screen as course content: protected while it's open when the
 /// owner protects course content.
 class ProtectedContent extends ConsumerStatefulWidget {
-  const ProtectedContent({super.key, required this.child});
+  const ProtectedContent({super.key, required this.child, this.item});
 
   final Widget child;
+
+  /// 62 The lesson on screen, for the screenshot count.
+  final ProtectedItem? item;
 
   @override
   ConsumerState<ProtectedContent> createState() => _ProtectedContentState();
@@ -157,17 +189,29 @@ class _ProtectedContentState extends ConsumerState<ProtectedContent> {
   late final ProtectedScreens _screens = ref.read(
     protectedScreensProvider.notifier,
   );
+  late final ProtectedItems _items = ref.read(protectedItemsProvider.notifier);
+
+  /// The item as it was when the screen opened (the route may rebuild the widget).
+  late final ProtectedItem? _item = widget.item;
 
   @override
   void initState() {
     super.initState();
     // Providers can't change while the tree builds: right after.
-    scheduleMicrotask(_screens.enter);
+    final item = _item;
+    scheduleMicrotask(() {
+      _screens.enter();
+      if (item != null) _items.add(item);
+    });
   }
 
   @override
   void dispose() {
-    scheduleMicrotask(_screens.leave);
+    final item = _item;
+    scheduleMicrotask(() {
+      _screens.leave();
+      if (item != null) _items.remove(item);
+    });
     super.dispose();
   }
 
@@ -178,7 +222,11 @@ class _ProtectedContentState extends ConsumerState<ProtectedContent> {
 /// 53 Over the whole app (MaterialApp's builder, so routes, dialogs and the
 /// video's full screen are under it): a blank cover while protected content
 /// is on screen and the screen is recorded or mirrored (iOS), and a short
-/// notice after a screenshot of protected content.
+/// notice after a screenshot of protected content. 62 That screenshot is
+/// counted for the owner's Analytics ("Screenshots taken", per lesson), as
+/// a `screenshot` event with the open lesson when there is one. Only iOS
+/// tells the app about screenshots; Android blocks them with FLAG_SECURE
+/// and can't say someone tried, so Android never counts any.
 class ScreenProtectionShield extends ConsumerWidget {
   const ScreenProtectionShield({super.key, required this.child});
 
@@ -189,6 +237,7 @@ class ScreenProtectionShield extends ConsumerWidget {
     ref.listen<AsyncValue<int>>(screenshotCountProvider, (_, next) {
       if (next.hasValue && ref.read(screenProtectedProvider)) {
         showMessage(context, context.l10n.screenshotProtected);
+        recordScreenshot(ref);
       }
     });
     // Both watched always: the capture state is known before it's needed.
@@ -203,6 +252,24 @@ class ScreenProtectionShield extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// 62 Counts a screenshot of protected content, with the lesson open on top.
+void recordScreenshot(WidgetRef ref) {
+  final analytics = ref.read(analyticsProvider);
+  final items = ref.read(protectedItemsProvider);
+  if (items.isEmpty) {
+    analytics.record('screenshot');
+    return;
+  }
+  final item = items.last;
+  String? title;
+  try {
+    title = item.title?.call(ref);
+  } on Object {
+    title = null;
+  }
+  analytics.item('screenshot', kind: 'lesson', id: item.id, title: title);
 }
 
 /// What a recording or a mirrored screen shows instead of protected content.

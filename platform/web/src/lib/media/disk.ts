@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream } from "node:fs";
-import { mkdir, rename, rm, stat, truncate } from "node:fs/promises";
+import { mkdir, readdir, rename, rm, stat, truncate } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -12,6 +12,8 @@ import { MEDIA_CHUNK_MAX_BYTES, MEDIA_CONTENT_TYPES, parseRange, verifyMediaRequ
  * An upload is written chunk by chunk to `<key>.part` (streamed, never held
  * in memory) and renamed to `<key>` when its last byte arrives.
  */
+
+const APP_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export class MediaDisk {
   constructor(private readonly root: string) {}
@@ -43,6 +45,21 @@ export class MediaDisk {
     const file = this.file(key);
     await rm(file, { force: true });
     await rm(`${file}.part`, { force: true });
+  }
+
+  /** 62 Removes an app's whole folder (an app that no longer exists). */
+  async deleteApp(appId: string): Promise<void> {
+    if (!APP_ID.test(appId)) throw new Error("Invalid app ID");
+    await rm(path.join(this.root, appId), { recursive: true, force: true });
+  }
+
+  /** 62 The app folders on disk. */
+  async listApps(): Promise<string[]> {
+    try {
+      return (await readdir(this.root, { withFileTypes: true })).filter((e) => e.isDirectory() && APP_ID.test(e.name)).map((e) => e.name);
+    } catch {
+      return [];
+    }
   }
 
   /**
@@ -115,9 +132,18 @@ export class MediaDisk {
 export async function handleMediaRequest(disk: MediaDisk, request: Request, path: string, secret: string, now: Date = new Date()): Promise<Response> {
   const plain = (status: number, message: string, headers: Record<string, string> = {}) =>
     new Response(message, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", ...headers } });
-  const check = verifyMediaRequest(path, new URL(request.url).searchParams, secret, now);
+  const check = verifyMediaRequest(path, new URL(request.url).searchParams, secret, now, request.headers.get("authorization"));
   if (!check.ok) return plain(check.status, check.message);
   const method = request.method.toUpperCase();
+  // 62 An app's folder: removed, or the list of them.
+  if (check.op === "a" || check.op === "l") {
+    if (check.op === "a" && method === "DELETE") {
+      await disk.deleteApp(check.appId);
+      return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+    }
+    if (check.op === "l" && method === "GET") return Response.json({ apps: await disk.listApps() }, { headers: { "cache-control": "no-store" } });
+    return plain(405, "Method not allowed.");
+  }
   if (check.op === "v" && (method === "GET" || method === "HEAD")) {
     const read = await disk.read(check.key, request.headers.get("range"), method === "GET");
     if (read.status === 404) return plain(404, "This file is no longer available.");

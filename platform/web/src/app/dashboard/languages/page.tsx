@@ -1,3 +1,4 @@
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
@@ -46,7 +47,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const now = new Date();
   const record = await loadLayout(store, app, now);
   const draft = record.draft;
-  const plans = await effectivePlans(store);
+  const plans = plansIn(dashLang, await effectivePlans(store));
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const languages = draft.languages;
@@ -54,7 +55,7 @@ export default async function LanguagesPage({ searchParams }: PageProps<"/dashbo
   const asked = typeof params.lang === "string" ? params.lang : null;
   // The first language to translate: the one asked for, else the first besides the default.
   const lang = asked && languages.available.includes(asked) ? asked : (languages.available.find((l) => l !== languages.default) ?? languages.default);
-  const rows = [...contentRows(draft, lang), ...interfaceRows(draft, lang)];
+  const rows = [...contentRows(draft, lang), ...interfaceRows(draft, lang, dashLang)];
   const summaries = languages.available.map((code) => {
     const p = progress([...contentRows(draft, code), ...interfaceRows(draft, code)]);
     return { code, name: languageName(code), nativeName: localeInfo(code)?.nativeName ?? code, done: p.done, total: p.total };

@@ -32,7 +32,7 @@ import {
   trackOf,
 } from "@/lib/publishing/steps";
 import { kindOf, suggestedCategories, wordsOf } from "@/lib/app/kinds";
-import { reviewNotesFor } from "@/lib/publishing/review-notes";
+import { reviewNotesFor, suggestedReviewNotes } from "@/lib/publishing/review-notes";
 import { ChecklistForm, ListingForm } from "./forms";
 import { localePath } from "@/i18n/paths";
 import { publishingStatusIn } from "@/lib/publishing/status-lang";
@@ -40,7 +40,7 @@ import { richText } from "@/i18n/rich";
 import { formatList } from "@/i18n/format";
 import { dashboardText } from "@/lib/dashboard-lang";
 import type { DashKey } from "@/i18n/dashboard";
-import type { PublishingStatus } from "@/lib/data/types";
+import type { App, PublishingStatus } from "@/lib/data/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("publishing.title") };
@@ -364,6 +364,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           playCategories={PLAY_CATEGORIES}
           appStoreCategories={APP_STORE_CATEGORIES}
           reviewNote={kindOf(app).reviewNote}
+          reviewMeaning={reviewMeaningOf(app, request.listing.reviewNotes, kindOf(app).reviewNote, lang, k)}
           ratingExample={k(wordsOf(app).ratingExample)}
         />
         {missing.length ? (
@@ -403,4 +404,18 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
       </form>
     </>
   );
+}
+
+/**
+ * 62 The suggested note for the reviewers stays in English (Apple and Google
+ * read it); outside English the form says what it means. Null in English and
+ * when there's no suggested note in sight.
+ */
+function reviewMeaningOf(app: App, saved: string | null, kindNote: string | undefined, lang: string, k: (english: string) => string): string | null {
+  if (lang === "en") return null;
+  const suggested = suggestedReviewNotes(app);
+  const note = kindNote ?? (suggested && reviewNotesFor(app, saved) === suggested ? suggested : null);
+  if (!note) return null;
+  const meaning = k(note);
+  return meaning === note ? null : meaning;
 }

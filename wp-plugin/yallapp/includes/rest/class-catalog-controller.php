@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use WP_REST_Request;
 use WP_REST_Server;
 use Yallapp\Lms\Course_Completion;
+use Yallapp\Lms\Course_Password;
 use Yallapp\Lms\Lms_Adapter;
 use Yallapp\Lms\Purchase_Rules;
 
@@ -149,6 +150,21 @@ class Catalog_Controller extends Controller {
 		);
 		$course['intro_video'] = $this->plugin->lesson_renderer()->video( $course['intro_video'], get_current_user_id() );
 		unset( $course['has_checkout'] );
+		// 62 A password on the website: the app opens the website for it, never asks for it.
+		$post                         = get_post( (int) $course['id'] );
+		$course['password_protected'] = Course_Password::protected_post( $post );
+		$link                         = $post ? get_permalink( $post ) : false;
+		$course['website_url']        = is_string( $link ) && '' !== $link ? $link : null;
+		$enrolled                     = (bool) $course['enrolled'];
+		if ( Course_Password::locked(
+			$post,
+			get_current_user_id(),
+			static function () use ( $enrolled ) {
+				return $enrolled;
+			}
+		) ) {
+			return $this->ok( Course_Password::closed( $course ) );
+		}
 		// 45 An enrolled student's progress, so a finished course says so, and their certificate.
 		$user_id = get_current_user_id();
 		if ( $user_id && $course['enrolled'] ) {
@@ -175,6 +191,10 @@ class Catalog_Controller extends Controller {
 		if ( null === $topics ) {
 			return self::error( 'not_found', __( 'Course not found.', 'yallapp' ), 404 );
 		}
+		// 62 A course with a password on the website shows no topics to a student who isn't in it.
+		if ( Course_Password::locked( get_post( (int) $request['course_id'] ), get_current_user_id(), array( $lms, 'is_enrolled' ) ) ) {
+			$topics = array();
+		}
 		return $this->ok( array( 'topics' => $topics ) );
 	}
 
@@ -191,6 +211,10 @@ class Catalog_Controller extends Controller {
 		}
 		if ( ! $this->plugin->settings()->get( 'free_enrollment' ) ) {
 			return self::error( 'enrollment_disabled', __( 'Enroll on the website to join this course.', 'yallapp' ), 403 );
+		}
+		// 62 Its password is entered on the website: the student joins there.
+		if ( Course_Password::locked( get_post( (int) $request['course_id'] ), get_current_user_id(), array( $lms, 'is_enrolled' ) ) ) {
+			return self::error( 'enrollment_disabled', __( 'This course has a password: join it on the website.', 'yallapp' ), 403 );
 		}
 		return $this->result( $lms->enroll_free( (int) $request['course_id'], get_current_user_id() ) );
 	}

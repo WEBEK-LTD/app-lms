@@ -133,7 +133,15 @@ class _LessonVideoPlayerState extends ConsumerState<LessonVideoPlayer> {
       final current = await _link.current();
       final url = current.url;
       if (url == null) throw StateError('No video URL');
-      final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+      // 62 A link bound to the student opens with their access token.
+      final headers = await boundMediaHeaders(
+        ref.read(tokenManagerProvider),
+        url,
+      );
+      final controller = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+        httpHeaders: headers,
+      );
       await controller.initialize();
       if (at > Duration.zero && at < controller.value.duration) {
         await controller.seekTo(at);

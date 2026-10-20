@@ -964,7 +964,11 @@ fingerprinting; reports show totals only.
   session: a start, or back after 30 minutes), `screen_view` (a screen kind,
   never an address), `item_view` (kind, ID, title), `add_to_cart`,
   `purchase_click`, `enroll`, `book`, `donate`, `ticket`, `share` (with the
-  amount when known), `search` and `push_open`. One invalid event fails the
+  amount when known), `search`, `push_open` and (Phase 62) `screenshot`: a
+  screenshot an iPhone noticed while the owner's screen protection covered
+  what was open, with the lesson when one was (Android blocks screenshots
+  with `FLAG_SECURE` and can't tell). Academies see "Screenshots taken" per
+  lesson (metric `screenshot`, key `lesson:<id>` or `other`). One invalid event fails the
   batch (400); events older than 7 days or 10 minutes ahead are skipped and
   counted in `dropped`. The country comes from the request (`x-nf-geo` or
   `x-country` on Netlify, or our proxy's `X-Yallapp-Client-Country` with its
@@ -1154,6 +1158,15 @@ are separate.
   `SameSite=Lax`, readable by scripts); signing in or up from an Arabic or
   Turkish page sets it too (`app/actions/auth.ts`). Nothing redirects by it;
   the dashboard reads it (Phase 56, below). Sign-in still goes to the dashboard.
+- **Signed in on this browser** (Phases 54 and 62). Next to the HttpOnly
+  session cookie, a readable `yallapp_signed_in=1` lets the public pages,
+  the same for everyone, show "Dashboard" instead of "Sign in"
+  (`components/account-link.tsx`). When the session ended on the server
+  (signed out elsewhere, a new password, expired), the dashboard, the admin
+  and `/pending` send the person through `/api/session/ended`, which removes
+  both cookies and opens the sign-in page in their language
+  (`signInPath`); the sign-in page itself removes a leftover readable
+  cookie (`ClearSignedIn`) and the links on the page follow at once.
 - **Search engines** (`lib/seo.ts` `siteMetadata`). Each page has its own
   title, description and canonical, `alternates.languages` with `en`, `ar`,
   `tr` and `x-default` (English), `og:locale` with the other two as
@@ -1163,10 +1176,16 @@ are separate.
   unchanged.
 - **Share images.** The Open Graph images are made per language
   (`components/og-image.tsx`). The image library draws neither Arabic letter
-  joining nor right-to-left order, so `lib/arabic-shape.ts` turns Arabic
-  words into their joined presentation forms, and the words are laid out
-  from the right; it covers the letters and lam-alef of Modern Standard
-  Arabic, not diacritics. The font files are in `src/app/fonts/og`.
+  joining nor right-to-left order, so `lib/arabic-shape.ts` prepares each
+  line as a text engine would (Phase 62): the letters' contextual forms
+  (Arabic Presentation Forms) by their Unicode joining types, marks kept and
+  transparent, tatweel, ZWJ and ZWNJ, lam-alef and the Persian letters; then
+  the bidirectional algorithm for a right-to-left line (numbers, Arabic-Indic
+  digits and Latin read left to right, bracket pairs resolved and mirrored),
+  each mark just before its letter (the renderer draws a zero-width mark over
+  the glyph after it). The line is cut into units at its right-to-left spaces
+  and laid out from the right, so it wraps. The font files are in
+  `src/app/fonts/og`.
 - **Long texts.** Built-in translations live in `src/content/ar` and
   `src/content/tr` (marketing lists, plans, FAQ, the documentation, the
   legal pages and the texts the team edits), with types in
@@ -1180,8 +1199,12 @@ are separate.
   the same `site_content` table under `<key>@ar` and `<key>@tr` (no
   migration). A field shows the team's edit in that language, else the
   built-in translation, else the English text; an empty field falls back.
-  Plan texts edited in Admin › Plans are shown as edited, in every
-  language; untouched ones use the built-in translations.
+  Plan texts (Phase 62): Admin › Plans has optional Arabic and Turkish
+  fields for a plan's name, tagline, highlights and price text
+  (`PlanInfo.translations`, kept in the `plans` setting); a page shows the
+  team's text in its language, else the built-in translation of the
+  default texts, else the English (`lib/marketing-lang.ts` `planFor`,
+  `plansIn` for the dashboard's pages).
 - **The dashboard** uses the same formats and ICU messages with its own
   catalogs: "The client dashboard in Arabic and Turkish (Phase 56)" below.
 
@@ -1224,7 +1247,26 @@ dashboard.
   patterns, putting values back as they were (a date written the English
   way is written again in the language, and a known "The …" phrase is
   translated). An unknown text shows in English. A new message is added in
-  English to the right `known` group with its Arabic and Turkish.
+  English to the right `known` group with its Arabic and Turkish. Phase 62:
+  a value that is itself a known sentence is translated the same way, up to
+  three levels ("Nothing was refunded. {error}", whose error is a
+  provider's answer).
+- **Payment providers' and email servers' answers** (Phase 62,
+  `lib/payments/explain.ts`). iyzico, Kashier and Fawaterk refuse with their
+  own short texts (English or Turkish); the dashboard shows what they mean
+  (API keys, IBAN, ID or tax number, amount, not found, currency, phone,
+  email, address, else "refused the request"), with Yallapp's own keys said
+  so, and the provider's text after "Details:". The email server's checks
+  (`lib/email/app-mail.ts`) already say what happened, its answer quoted.
+- **Downloads** (Phase 62). The analytics, donations and attendees CSV
+  files take the downloader's dashboard language for their column names and
+  words (`lib/analytics/localize.ts`; the English analytics file keeps its
+  machine-friendly columns). Notes for store reviewers stay in English (the
+  reviewers read them), with their meaning shown in the dashboard's
+  language. The Languages page says what each interface string is for
+  (`lib/i18n/app-string-notes.ts`, keyed by the ARB description, every one
+  in English, Arabic and Turkish without the app's code names; a test lists
+  any new description without them).
 - **Right to left.** Tailwind's logical utilities (`ms`, `pe`, `start`,
   `text-end`), `Icon` mirroring the directional symbols, charts and number
   columns kept left to right, and the phone preview and phone frames in
@@ -1800,6 +1842,20 @@ tests the platform's own `/media` route does the same on `.data/media`
   file's size. `/m/<id>` itself redirects (302) to a 6-hour link for pictures
   and for files the owner shared (page videos), and refuses lesson videos.
   Products' and listings' photos from Media are `media:<id>` asset IDs.
+- **Bound to the student** (Phase 62): an app that sends
+  `X-Yallapp-Bound-Media: 1` (built after Phase 62, never the preview in a
+  browser) with a user token gets the lesson's `v` link with `t`, the first
+  52 bits of the token's SHA-256 (`mediaTokenDigest`, the same in PHP); the
+  gate plays it only to a request with `Authorization: Bearer` that token,
+  which the app's player sends. The 4 hours stay; a link refused after the
+  token was renewed is fetched again like an expired one. Download links
+  aren't bound.
+- **Deleted apps** (Phase 62, `lib/media/sweep.ts`): the gate also removes
+  an app's folder (`a`, DELETE `/media/a/<app>`) and lists the folders (`l`,
+  GET `/media/l/apps`). `deleteAppMedia` removes an app's files and rows at
+  once; the daily job lists the folders and removes those whose app has been
+  gone for a week (kept in the `mediaSweep` setting), doing nothing when
+  most folders look gone (another database than the gate's).
 - **WordPress**: a lesson's "Yallapp video" box, its LMS video address or a
   `[yallapp_video]` shortcode holding a media link; after the LMS lets the
   student in, the plugin asks `POST /api/v1/licenses/media` with its license

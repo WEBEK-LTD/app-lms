@@ -6,7 +6,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { completePlanPayment, startPlanPayment } from "@/lib/billing/plan-payment";
 import { sha256Hex } from "@/lib/crypto/tokens";
-import type { MemoryStore } from "@/lib/data/memory";
+import { MemoryStore } from "@/lib/data/memory";
 import type { App, CourseSetup, StoragePack, StoragePackOffer, StoragePacksSetting } from "@/lib/data/types";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { LogSender } from "@/lib/hosted/otp-sender";
@@ -17,7 +17,7 @@ import { handleMediaRequest, MediaDisk } from "@/lib/media/disk";
 import { cancelStaleUploads, cleanName, completeUpload, deleteMedia, kindOf, mediaLink, parseMediaLink, resolveMedia, startUpload } from "@/lib/media/files";
 import { applyPaidPacks, cannotBuy, cardOffers, monthlyOffer, monthsLeft, packOffers, packPrice, renewablePacks, renewalLabel, startStoragePayment } from "@/lib/media/packs";
 import { activePacks, fits, formatBytes, GB, storageLimitBytes, storageState } from "@/lib/media/quota";
-import { MEDIA_CHUNK_MAX_BYTES, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
+import { MEDIA_CHUNK_MAX_BYTES, mediaTokenDigest, parseRange, signMediaUrl, storageKeyOf, verifyMediaRequest } from "@/lib/media/signing";
 import { mediaStorageWith, type MediaStorage } from "@/lib/media/storage";
 import { appStorage, noticeEndedPacks } from "@/lib/media/usage";
 import type { PaymentAccount } from "@/lib/payments/provider";
@@ -137,6 +137,33 @@ function gateProtocol(name: string, gate: () => { base: string; request: (url: s
       expect((await request(`${base}/v/${APP}/${FILE}.mp4`)).status).toBe(403);
       const expired = signMediaUrl(base, "v", key, { secret: SECRET, ttlSeconds: 1, now: new Date(Date.now() - 60_000) }).url;
       expect((await request(expired)).status).toBe(410);
+    });
+
+    it("62 plays a student's link only with their token, and lists and removes an app's folder", async () => {
+      const { base, request, storage } = gate();
+      const other = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+      const key = storageKeyOf(other, "dddddddd-dddd-4ddd-8ddd-dddddddddddd", "mp4");
+      const data = Buffer.from("a short video");
+      const upload = signMediaUrl(base, "u", key, { secret: SECRET, ttlSeconds: 600, params: { size: String(data.length) } }).url;
+      expect((await request(upload, { method: "PUT", headers: { "upload-offset": "0", "content-length": String(data.length) }, body: new Uint8Array(data) })).status).toBe(204);
+      const token = "access-token-of-the-student";
+      const bound = signMediaUrl(base, "v", key, { secret: SECRET, ttlSeconds: 600, params: { t: mediaTokenDigest(token) } }).url;
+      expect((await request(bound)).status).toBe(403);
+      expect((await request(bound, { headers: { authorization: "Bearer someone-else" } })).status).toBe(403);
+      const played = await request(bound, { headers: { authorization: `Bearer ${token}`, range: "bytes=0-4" } });
+      expect(played.status).toBe(206);
+      expect(Buffer.from(await played.arrayBuffer()).toString()).toBe("a sho");
+      // The token can't be swapped for another one in the link.
+      const swapped = bound.replace(/t=\d+/, `t=${mediaTokenDigest("someone-else")}`);
+      expect((await request(swapped, { headers: { authorization: "Bearer someone-else" } })).status).toBe(403);
+
+      expect(await storage.listApps()).toContain(other);
+      await storage.deleteApp(other);
+      expect(await storage.listApps()).not.toContain(other);
+      expect(await storage.stat(key)).toEqual({ exists: false, complete: false, size: 0 });
+      // Only signed requests reach a folder.
+      expect((await request(`${base}/a/${other}`, { method: "DELETE" })).status).toBe(403);
+      expect((await request(`${base}/l/apps`)).status).toBe(403);
     });
 
     it("refuses a chunk bigger than the gate takes", async () => {
@@ -660,5 +687,61 @@ describe("lesson videos from the Media library on the hosted API (51)", () => {
     const gone = (await call("GET", "/lessons/{lesson_id}", ["13"])).body as { video?: unknown; html: string };
     expect(gone.video).toBeUndefined();
     expect(gone.html).toContain("Text stays.");
+  });
+
+  it("62 binds a play link to the student's token when the app asks; a link to save a file stays short and unbound", async () => {
+    const disk = new MediaDisk(dir);
+    const play = await resolveMedia({ store, storage, baseUrl: BASE }, app.id, videoLink, "play", { bindTo: "student-token" });
+    const url = new URL(play!.url);
+    expect(url.searchParams.get("t")).toBe(mediaTokenDigest("student-token"));
+    expect(play!.expiresAt.getTime() - Date.now()).toBeLessThanOrEqual(4 * 3600_000 + 1000);
+    const open = (authorization?: string) => handleMediaRequest(disk, new Request(url, { headers: authorization ? { authorization } : {} }), url.pathname.slice("/media".length), SECRET, NOW);
+    expect((await open()).status).toBe(403);
+    expect(await (await open("Bearer student-token")).text()).toBe("mp4!");
+    const save = await resolveMedia({ store, storage, baseUrl: BASE }, app.id, videoLink, "download", { bindTo: "student-token" });
+    expect(new URL(save!.url).searchParams.has("t")).toBe(false);
+    // Without a token (older apps, signed-out previews): as before.
+    expect(new URL((await resolveMedia({ store, storage, baseUrl: BASE }, app.id, videoLink, "play"))!.url).searchParams.has("t")).toBe(false);
+  });
+});
+
+describe("62 the files of apps that no longer exist", () => {
+  it("go at once with deleteAppMedia, and from the daily job a week after their app is gone", async () => {
+    const { deleteAppMedia, sweepMediaFolders, ORPHAN_GRACE_DAYS } = await import("@/lib/media/sweep");
+    const store = new MemoryStore();
+    const dir = tempDir();
+    const storage = mediaStorageWith({ mode: "fs", base: `${BASE}/media`, secret: SECRET, dir });
+    const disk = new MediaDisk(dir);
+    const put = async (appId: string) => {
+      const started = await startUpload({ store, storage, now: NOW, limitBytes: null, chunkBytes: 1 }, { appId, name: "a.mp4", size: 1, contentType: "video/mp4" });
+      if (!started.ok) throw new Error(started.message);
+      await disk.append(started.file.storageKey, { offset: 0, total: 1, length: 1, body: body(Buffer.from("x")) });
+      return started.file;
+    };
+    const live = [1, 2, 3].map(() => newApp("client-1", null, NOW, "lms"));
+    for (const app of live) {
+      await store.createApp(app);
+      await put(app.id);
+    }
+    const gone = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+    await put(gone);
+    // An app deleted in code: its files and rows go at once.
+    await deleteAppMedia({ store, storage }, live[2]!.id);
+    expect(await storage.listApps()).not.toContain(live[2]!.id);
+    expect(await store.listMediaFiles(live[2]!.id)).toEqual([]);
+
+    // An app deleted another way: seen gone, kept a week, then removed.
+    const first = await sweepMediaFolders({ store, storage, now: NOW });
+    expect(first).toMatchObject({ folders: 3, waiting: 1, removed: 0, skipped: false });
+    expect(await storage.listApps()).toContain(gone);
+    const later = new Date(NOW.getTime() + ORPHAN_GRACE_DAYS * 86_400_000);
+    expect(await sweepMediaFolders({ store, storage, now: later })).toMatchObject({ waiting: 0, removed: 1 });
+    expect((await storage.listApps()).sort()).toEqual([live[0]!.id, live[1]!.id].sort());
+
+    // Most folders without an app: another database; nothing is removed.
+    const empty = new MemoryStore();
+    expect(await sweepMediaFolders({ store: empty, storage, now: new Date(later.getTime() + 30 * 86_400_000) })).toMatchObject({ skipped: true, removed: 0 });
+    expect(await storage.listApps()).toHaveLength(2);
+    rmSync(dir, { recursive: true, force: true });
   });
 });

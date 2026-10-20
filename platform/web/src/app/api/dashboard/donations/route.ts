@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { contextCan, getClientContext, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { donationsCsv } from "@/lib/donations/forms";
 import { appUrl } from "@/lib/env";
 
@@ -30,7 +31,8 @@ export async function GET(request: Request): Promise<Response> {
     limit: EXPORT_MAX,
   });
   const day = new Date().toISOString().slice(0, 10);
-  return new Response(donationsCsv(items), {
+  // 62 Column names and words in the downloader's dashboard language.
+  return new Response(donationsCsv(items, (await dashboardText()).k), {
     headers: {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": `attachment; filename="donations-${day}.csv"`,

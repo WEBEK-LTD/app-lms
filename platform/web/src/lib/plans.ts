@@ -58,6 +58,19 @@ export interface PlanLimits {
   customFeatures: boolean;
 }
 
+/** 62 A plan's texts in Arabic or Turkish, as the team wrote them in Admin › Plans; empty ones fall back. */
+export interface PlanText {
+  name?: string;
+  tagline?: string;
+  highlights?: string[];
+  price?: string;
+}
+
+/** 62 The languages besides English that plan texts can be written in. */
+export const PLAN_TEXT_LANGS = ["ar", "tr"] as const;
+export type PlanTextLang = (typeof PLAN_TEXT_LANGS)[number];
+export type PlanTranslations = Partial<Record<PlanTextLang, PlanText>>;
+
 export interface PlanInfo {
   id: Plan;
   name: string;
@@ -78,6 +91,8 @@ export interface PlanInfo {
   onRequest: boolean;
   /** How long a payment keeps the plan active. */
   billingMonths: 1 | 12;
+  /** 62 The team's Arabic and Turkish texts (lib/marketing-lang.ts `planFor` shows them, else the built-in ones, else English). */
+  translations?: PlanTranslations;
 }
 
 /**
@@ -91,7 +106,7 @@ export interface PlanInfo {
  * dollar price, and any other price is dropped (the plan shows its price
  * text until the team sets a price in pounds).
  */
-export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths"> & {
+export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "highlights" | "price" | "priceCents" | "billingMonths" | "translations"> & {
   usdCents?: number | null;
   onRequest?: boolean;
   /** Before Phase 52: the price's currency. */
@@ -288,6 +303,27 @@ function cleanLimits(value: unknown, fallback: PlanLimits): PlanLimits {
   };
 }
 
+/** 62 The team's Arabic and Turkish plan texts as saved, without empty ones. */
+export function cleanPlanTranslations(value: unknown): PlanTranslations | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const out: PlanTranslations = {};
+  const text = (x: unknown, max: number) => (typeof x === "string" && x.trim() ? x.trim().slice(0, max) : undefined);
+  for (const lang of PLAN_TEXT_LANGS) {
+    const raw = (value as Record<string, unknown>)[lang];
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    const highlights = Array.isArray(r.highlights) ? r.highlights.map((h) => text(h, 80)).filter((h): h is string => Boolean(h)).slice(0, 10) : [];
+    const entry: PlanText = {
+      ...(text(r.name, 30) ? { name: text(r.name, 30) } : {}),
+      ...(text(r.tagline, 80) ? { tagline: text(r.tagline, 80) } : {}),
+      ...(highlights.length ? { highlights } : {}),
+      ...(text(r.price, 30) ? { price: text(r.price, 30) } : {}),
+    };
+    if (Object.keys(entry).length) out[lang] = entry;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 /** The plans with the team's edits from the admin. */
 export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | undefined): Record<Plan, PlanInfo> {
   const merge = (plan: Plan): PlanInfo => {
@@ -318,6 +354,7 @@ export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | 
       features: (edit.features ?? []).filter((f): f is PlanFeature => (PLAN_FEATURE_IDS as readonly string[]).includes(f)),
       limits: cleanLimits(edit.limits, base.limits),
       id: plan,
+      ...(cleanPlanTranslations(edit.translations) ? { translations: cleanPlanTranslations(edit.translations) } : {}),
     };
   };
   return { starter: merge("starter"), growth: merge("growth"), pro: merge("pro"), business: merge("business") };
@@ -337,6 +374,7 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     usdCents: plan.usdCents,
     onRequest: plan.onRequest,
     billingMonths: plan.billingMonths,
+    ...(plan.translations ? { translations: plan.translations } : {}),
   };
 }
 

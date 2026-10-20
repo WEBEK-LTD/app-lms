@@ -994,8 +994,38 @@ foreach ( $r['json']['topics'] ?? array() as $topic ) {
 $at = array_search( $python_lessons[1], $lessons, true );
 $r  = call( 'GET', '/lessons/' . $python_lessons[1], null, $member_t );
 check( 'private: its lessons open, linked to the ones before and after', 200 === $r['status'] && false !== $at && ( $lessons[ $at - 1 ] ?? null ) === ( $r['json']['previous_id'] ?? null ) && ( $lessons[ $at + 1 ] ?? null ) === ( $r['json']['next_id'] ?? null ), $r['raw'] );
+// 62 The wishlist (Tutor LMS has one) lists a private course its student may open, never one for others.
+$r = call( 'PUT', '/me/wishlist/' . $seed['python'], array(), $member_t );
+check( 'private: its student wishlists it', 204 === $r['status'], $r['raw'] );
+$r = call( 'GET', '/me/wishlist', null, $member_t );
+check( 'private: in its student\'s wishlist', in_array( $seed['python'], array_column( $r['json']['items'] ?? array(), 'id' ), true ), $r['raw'] );
+$r = call( 'PUT', '/me/wishlist/' . $seed['python'], array(), $outsider_t );
+check( 'private: not wishlisted by others', 404 === $r['status'], $r['raw'] );
+call( 'DELETE', '/me/wishlist/' . $seed['python'], null, $member_t );
 $python_status( 'publish' );
 check( 'published again: back in the catalog', in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
+
+echo "A course with a password (62)\n";
+// WordPress's "Password protected": shown as on the website, never asked for in the app.
+wp_eval( 'wp_update_post( array( "ID" => ' . (int) $seed['python'] . ', "post_password" => "open-sesame" ) ); wp_cache_flush();' );
+check( 'password: in the catalog', in_array( $seed['python'], $course_ids( call( 'GET', '/courses?per_page=50' ) ), true ) );
+foreach ( array( 'signed out' => null, 'not enrolled' => $outsider_t ) as $who => $t ) {
+	$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $t );
+	check( "password: shown closed, $who", 200 === $r['status'] && true === ( $r['json']['password_protected'] ?? null ) && '' === ( $r['json']['description_html'] ?? null ) && 'none' === ( $r['json']['purchase']['action'] ?? '' ) && is_string( $r['json']['website_url'] ?? null ), $r['raw'] );
+	$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $t );
+	check( "password: no topics, $who", 200 === $r['status'] && array() === ( $r['json']['topics'] ?? null ), $r['raw'] );
+	$r = call( 'GET', '/lessons/' . $python_lessons[0], null, $t );
+	check( "password: its lessons not found, $who", 404 === $r['status'], $r['raw'] );
+}
+$r = call( 'POST', '/courses/' . $seed['python'] . '/enroll', array(), $outsider_t );
+check( 'password: joined on the website, not in the app', 403 === $r['status'] && 'enrollment_disabled' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android', null, $member_t );
+check( 'password: opens for its student', 200 === $r['status'] && true === ( $r['json']['password_protected'] ?? null ) && '' !== ( $r['json']['description_html'] ?? '' ) && 'continue' === ( $r['json']['purchase']['action'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/courses/' . $seed['python'] . '/curriculum', null, $member_t );
+check( 'password: its student sees the topics', $public_topics === $topics_of( $r ), $r['raw'] );
+wp_eval( 'wp_update_post( array( "ID" => ' . (int) $seed['python'] . ', "post_password" => "" ) ); wp_cache_flush();' );
+$r = call( 'GET', '/courses/' . $seed['python'] . '?platform=android' );
+check( 'password removed: open again', 200 === $r['status'] && false === ( $r['json']['password_protected'] ?? null ), $r['raw'] );
 
 echo "Sign-out\n";
 $r = call( 'POST', '/auth/logout', array(), $token );

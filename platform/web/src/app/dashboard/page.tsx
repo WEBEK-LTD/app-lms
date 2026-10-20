@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element -- the app icon is a small uploaded PNG served by our own route. */
+import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -134,10 +135,10 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   const text = await dashboardText();
   const { t, k, lang, date, num } = text;
   const store = await getStore();
-  const plans = await getPlans(store);
+  const plans = plansIn(text.lang, await getPlans(store));
   const now = new Date();
   // 13.1 The app's plan as it is now, with what it includes.
-  const effective = await effectivePlans(store);
+  const effective = plansIn(text.lang, await effectivePlans(store));
   const plan = license ? currentPlanId(license, now) : null;
   const current = plan ? effective[plan] : null;
   const scheduled = scheduledPlan(license, now);

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/http_client.dart';
@@ -13,6 +14,23 @@ import 'l10n/language.dart';
 import 'preview/preview.dart';
 import 'services/analytics_interceptor.dart';
 import 'services/analytics_providers.dart';
+
+/// 62 Tells the hosted API the app can open Media links bound to the student
+/// (docs/api/openapi.yaml, `X-Yallapp-Bound-Media`).
+const boundMediaHeader = 'X-Yallapp-Bound-Media';
+
+/// 62 The headers to open a media link with: a link bound to the student
+/// (its `t` parameter) needs their access token, the one the lesson was
+/// asked with; other links need nothing.
+Future<Map<String, String>> boundMediaHeaders(
+  TokenManager tokens,
+  String url,
+) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null || !uri.queryParameters.containsKey('t')) return const {};
+  final token = await tokens.validAccessToken();
+  return token == null ? const {} : {'Authorization': 'Bearer $token'};
+}
 
 /// Must be overridden with the environment loaded at start-up.
 final appEnvironmentProvider = Provider<AppEnvironment>(
@@ -68,6 +86,11 @@ final apiBundleProvider = Provider<ApiBundle>((ref) {
     offline: ref.read(offlineCacheProvider),
   );
   if (contentIsHosted) dio.options.headers.addAll(previewHeaders);
+  // 62 The app opens Media library videos bound to the student (with their
+  // access token, [boundMediaHeaders]); a browser's video element can't.
+  if (!kIsWeb && env.preview == null) {
+    dio.options.headers[boundMediaHeader] = '1';
+  }
   // 44 Items opened, enrolments, bookings, tickets, donations, checkouts
   // and searches, from the content API's answers.
   dio.interceptors.insert(
