@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../auth/token_manager.dart';
@@ -825,9 +827,13 @@ class _AuthInterceptor extends Interceptor {
 }
 
 /// The media gate: a separate client with no Yallapp token (the link is
-/// signed) and long timeouts for big chunks. The gate takes each chunk as a
-/// `PUT` with `Upload-Offset` (platform/web/deploy/media-host), as the
-/// dashboard's uploader sends it.
+/// signed) and long timeouts for big chunks. 64b Each chunk goes as a `POST`
+/// with `application/octet-stream` and the offset in `Upload-Offset` and the
+/// query (platform/web/deploy/media-host), as the dashboard's uploader sends
+/// it: server firewalls refuse `PUT` and unusual content types, and proxies
+/// may drop unknown headers. The gate's offset comes in the header or in a
+/// JSON body. A refusal becomes `upload_refused`, `upload_storage` or
+/// `upload_too_big` with the HTTP status, so the owner sees why.
 class HttpUploadTransport implements UploadTransport {
   HttpUploadTransport({HttpClientAdapter? adapter})
     : _dio = Dio(
@@ -842,39 +848,74 @@ class HttpUploadTransport implements UploadTransport {
 
   final Dio _dio;
 
-  static int? _offsetOf(Response<Object?>? response) =>
-      int.tryParse(response?.headers.value('upload-offset') ?? '');
+  /// The gate's offset: the `Upload-Offset` header, else `{"offset": n}`.
+  static int? _offsetOf(Response<Object?>? response) {
+    final header = int.tryParse(
+      response?.headers.value('upload-offset')?.trim() ?? '',
+    );
+    if (header != null) return header;
+    var data = response?.data;
+    if (data is String && data.trim().startsWith('{')) {
+      try {
+        data = jsonDecode(data);
+      } on FormatException {
+        return null;
+      }
+    }
+    final value = data is Map ? data['offset'] : null;
+    return value is int && value >= 0 ? value : null;
+  }
+
+  /// The link with the chunk's offset (not signed: the gate reads it when a
+  /// proxy dropped the header).
+  static String chunkUrl(String uploadUrl, int offset) {
+    final uri = Uri.parse(uploadUrl);
+    return uri
+        .replace(queryParameters: {...uri.queryParameters, 'offset': '$offset'})
+        .toString();
+  }
 
   @override
   Future<int> offset(String uploadUrl) async {
     try {
-      return _offsetOf(await _dio.head<Object?>(uploadUrl)) ?? 0;
+      return _offsetOf(await _dio.get<Object?>(uploadUrl)) ?? 0;
     } on DioException catch (e) {
+      if (e.response != null) {
+        throw ApiException.fromGate(e.response!.statusCode);
+      }
       throw ApiException.fromDio(e);
     }
   }
 
   @override
   Future<int> send(String uploadUrl, int offset, List<int> bytes) async {
+    Response<Object?> response;
     try {
-      final response = await _dio.put<Object?>(
-        uploadUrl,
+      response = await _dio.post<Object?>(
+        chunkUrl(uploadUrl, offset),
         data: Stream.value(bytes),
         options: Options(
           headers: {
             'Upload-Offset': '$offset',
-            Headers.contentTypeHeader: 'application/offset+octet-stream',
+            Headers.contentTypeHeader: 'application/octet-stream',
             Headers.contentLengthHeader: bytes.length,
           },
         ),
       );
-      return _offsetOf(response) ?? offset + bytes.length;
     } on DioException catch (e) {
       // 409: the gate has a different offset (an earlier chunk did arrive);
       // carry on from there.
       final at = _offsetOf(e.response);
       if (e.response?.statusCode == 409 && at != null) return at;
+      if (e.response != null) {
+        throw ApiException.fromGate(e.response!.statusCode);
+      }
       throw ApiException.fromDio(e);
     }
+    // 200 with the offset (204 from gates before 64b). A success without
+    // one isn't the gate's answer: a firewall's page.
+    final at = _offsetOf(response);
+    if (at == null) throw ApiException.fromGate(response.statusCode);
+    return at;
   }
 }

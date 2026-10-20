@@ -3484,6 +3484,24 @@ abstract class AppLocalizations {
   /// **'Now working on {business}'**
   String switchedTo(String business);
 
+  /// No description provided for @uploadRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The media server refused the upload (HTTP {status}). Its firewall may be blocking uploads. Try again later, or message us on WhatsApp if it keeps happening.'**
+  String uploadRefused(String status);
+
+  /// No description provided for @uploadStorageDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Media storage on the server isn\'t available right now (HTTP {status}). Nothing uploaded so far is lost. Try again later, or message us on WhatsApp.'**
+  String uploadStorageDown(String status);
+
+  /// No description provided for @uploadChunkTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'The media server refused a part of this file as too big (HTTP {status}). Message us on WhatsApp.'**
+  String uploadChunkTooBig(String status);
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:

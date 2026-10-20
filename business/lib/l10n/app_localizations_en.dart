@@ -1896,6 +1896,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String uploadRefused(String status) {
+    return 'The media server refused the upload (HTTP $status). Its firewall may be blocking uploads. Try again later, or message us on WhatsApp if it keeps happening.';
+  }
+
+  @override
+  String uploadStorageDown(String status) {
+    return 'Media storage on the server isn\'t available right now (HTTP $status). Nothing uploaded so far is lost. Try again later, or message us on WhatsApp.';
+  }
+
+  @override
+  String uploadChunkTooBig(String status) {
+    return 'The media server refused a part of this file as too big (HTTP $status). Message us on WhatsApp.';
+  }
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }

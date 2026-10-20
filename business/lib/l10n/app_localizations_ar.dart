@@ -1889,6 +1889,21 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String uploadRefused(String status) {
+    return 'رفض خادم الوسائط الرفع (HTTP $status). قد يكون جدار الحماية فيه يمنع الرفع. حاول لاحقًا، أو راسلنا على واتساب إذا تكرر ذلك.';
+  }
+
+  @override
+  String uploadStorageDown(String status) {
+    return 'مساحة تخزين الوسائط على الخادم غير متاحة حاليًا (HTTP $status). لن يضيع شيء مما رُفع حتى الآن. حاول لاحقًا، أو راسلنا على واتساب.';
+  }
+
+  @override
+  String uploadChunkTooBig(String status) {
+    return 'رفض خادم الوسائط جزءًا من هذا الملف لأنه كبير جدًا (HTTP $status). راسلنا على واتساب.';
+  }
+
+  @override
   String minutesAgo(int count) {
     return 'قبل $count دقيقة';
   }

@@ -35,6 +35,20 @@ class ApiException implements Exception {
     );
   }
 
+  /// 64b What the media gate (or something in front of it) answered an
+  /// upload, for the owner: refused (a firewall, an expired or foreign
+  /// link), its storage unavailable, or a chunk too big.
+  factory ApiException.fromGate(int? status) => ApiException(
+    code: switch (status) {
+      503 => uploadStorage,
+      413 => uploadTooBig,
+      403 || 405 || 406 || 410 || 501 => uploadRefused,
+      final s? when s >= 200 && s < 300 => uploadRefused,
+      _ => serverError,
+    },
+    statusCode: status,
+  );
+
   factory ApiException.fromResponse(
     int? statusCode,
     Object? body, {
@@ -93,6 +107,13 @@ class ApiException implements Exception {
 
   // The app's own codes.
   static const network = 'network_error';
+
+  /// 64b The media gate, or a firewall in front of it, refused an upload
+  /// (`statusCode` says how); its storage isn't available (503); a chunk
+  /// was too big for the server (413).
+  static const uploadRefused = 'upload_refused';
+  static const uploadStorage = 'upload_storage';
+  static const uploadTooBig = 'upload_too_big';
   static const timeout = 'timeout';
   static const cancelled = 'cancelled';
   static const serverError = 'server_error';

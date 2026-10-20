@@ -259,8 +259,8 @@ abstract class OwnerApi {
 }
 
 /// Sends an upload's bytes to the media gate's signed link (the same
-/// protocol as the dashboard: `HEAD` for the offset, `PUT` with
-/// `Upload-Offset` and the bytes).
+/// protocol as the dashboard: 64b `GET` for the offset, `POST` with the
+/// bytes and the offset in `Upload-Offset` and the query).
 abstract class UploadTransport {
   /// How many bytes the gate has.
   Future<int> offset(String uploadUrl);
